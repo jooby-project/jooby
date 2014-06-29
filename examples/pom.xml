@@ -24,12 +24,6 @@
 
     <dependency>
       <groupId>com.github.jknack</groupId>
-      <artifactId>jooby-hibernate</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.jknack</groupId>
       <artifactId>jooby-jackson</artifactId>
       <version>${project.version}</version>
     </dependency>

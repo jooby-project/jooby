@@ -206,13 +206,12 @@ package jooby;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Multimap;
 
-class JSON implements BodyReader, BodyWriter {
-
-  private static final MediaType[] APPLICATION_JSON = {MediaTypes.json };
+class JSON implements MessageConverter {
 
   private ObjectMapper mapper;
 
@@ -221,20 +220,19 @@ class JSON implements BodyReader, BodyWriter {
   }
 
   @Override
-  public MediaType[] types() {
-    return APPLICATION_JSON;
+  public List<MediaType> types() {
+    return MediaType.JSON;
   }
 
   @Override
-  public <T> T read(final Request request, final Class<T> type) throws IOException {
-    T body = request.text((reader) -> mapper.readValue(reader, type));
-    return body;
+  public <T> T read(final Class<T> clazz, final MessageReader reader) throws IOException {
+    return reader.text(in -> mapper.readValue(in, clazz));
   }
 
   @Override
-  public void write(final Response response, final Optional<Object> value)
-      throws IOException {
-    response.send(writer -> mapper.writeValue(writer, value.get()));
+  public void write(final Object message, final MessageWriter writer,
+      final Multimap<String, String> headers) throws IOException {
+    writer.text(out -> mapper.writeValue(out, message));
   }
 
   @Override

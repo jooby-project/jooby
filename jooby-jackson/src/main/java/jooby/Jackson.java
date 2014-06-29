@@ -225,9 +225,9 @@ public class Jackson implements JoobyModule {
   @Override
   public void configure(final Mode mode, final Config config, final Binder binder) {
     binder.bind(ObjectMapper.class).toInstance(mapper);
-    JSON json = new JSON(mapper);
-    Multibinder.newSetBinder(binder, BodyReader.class).addBinding().toInstance(json);
-    Multibinder.newSetBinder(binder, BodyWriter.class).addBinding().toInstance(json);
+    Multibinder.newSetBinder(binder, MessageConverter.class)
+        .addBinding()
+        .toInstance(new JSON(mapper));
   }
 
 }

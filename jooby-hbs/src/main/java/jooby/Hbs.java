@@ -217,12 +217,11 @@ import com.github.jknack.handlebars.context.MethodValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
-import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 
 public class Hbs implements JoobyModule {
 
-  private static class Engine implements TemplateEngine {
+  private static class Engine extends TemplateProcessor {
 
     private Handlebars handlebars;
 
@@ -231,26 +230,24 @@ public class Hbs implements JoobyModule {
     }
 
     @Override
-    public void render(final Response response, final View view) throws IOException {
-      Template template = handlebars.compile(view.getName());
+    public void render(final Viewable view, final MessageWriter writer) throws IOException {
+      Template template = handlebars.compile(view.name());
 
       final Context context;
-      Object model = view.getModel();
+      Object model = view.model();
       if (model instanceof Context) {
         context = (Context) model;
       } else {
         // build new context
         context = Context
-            .newBuilder(view.getModel())
+            .newBuilder(model)
             .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE,
                 FieldValueResolver.INSTANCE, MethodValueResolver.INSTANCE)
             .build();
       }
 
       // rendering it
-      response.send(writer -> {
-        template.apply(context, writer);
-      });
+      writer.text(out -> template.apply(context, out));
     }
 
     @Override
@@ -273,13 +270,10 @@ public class Hbs implements JoobyModule {
   public void configure(final Mode mode, final Config config, final Binder binder)
       throws Exception {
     binder.bind(Handlebars.class).toInstance(handlebars);
-    Engine engine = new Engine(handlebars);
 
-    Multibinder.newSetBinder(binder, BodyWriter.class).addBinding().toInstance(engine);
-
-    binder.bind(TemplateEngine.class)
-        .annotatedWith(Names.named("hbs"))
+    Multibinder.newSetBinder(binder, MessageConverter.class).addBinding()
         .toInstance(new Engine(handlebars));
+
   }
 
 }

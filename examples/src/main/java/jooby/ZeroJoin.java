@@ -203,21 +203,14 @@
  */
 package jooby;
 
-import java.util.List;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 
 public class ZeroJoin {
 
-  public static void main(final String[] args) {
-    char ZERO = '\uFFFF';
-    System.out.println((int) ZERO);
-    String[] array = {"a" + ZERO, "b", "c" };
-    String join = Joiner.on(ZERO).join(array);
-    System.out.println(join);
-    List<String> splitToList = Splitter.on(ZERO).omitEmptyStrings().splitToList(join);
-    System.out.println(splitToList.size());
+  public void m(final String m) {
+
+  }
+  public static void main(final String[] args) throws NoSuchMethodException, SecurityException {
+    System.out.println("text/*".chars().map(ch -> ch == '*' ? 0: 1).sum());
   }
 
 }

@@ -203,79 +203,25 @@
  */
 package jooby;
 
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-
 import com.google.common.collect.ImmutableMap;
+
 
 public class MyApp extends Jooby {
 
   {
     {
-      // require modules
-      use(new Jetty()); // web server
-      use(new HibernatePersistence(User.class));
-      use(new Jackson()); // JSON read & write
-      use(new Hbs()); // Handlebars
+      use(new Jetty());
+      use(new Jackson());
+      use(new Hbs());
 
-      get("/", (req, response) -> {
-        response.send("Root");
-      });
-
-      get("/hello", (req, resp) -> {
-        Map<String, Object> model = ImmutableMap.<String, Object> builder()
-            .put("name", "Joobby")
-            .build();
-
+      get("/", (req, resp) -> {
+        ImmutableMap<Object, Object> model = ImmutableMap.builder()
+          .put("name", "K")
+          .build();
         resp.send(model);
       });
 
-      get("/logica", Logica::login);
-
-      post("/hello", (req, resp) -> {
-        resp.send("hello");
-      });
-
-      post("/upload", (request, resp) -> {
-        Upload files = request.file("name");
-        resp.send(files);
-      });
-
-      Route userRoute = (request, response) -> {
-        String name = request.param("name", String.class).get();
-        System.out.println(name);
-        int age = request.param("age", Integer.class).get();
-        System.out.println(age);
-        long start = System.currentTimeMillis();
-        User user = request.get(User.class);
-        long end = System.currentTimeMillis();
-        System.out.println(end - start);
-
-        response.render("user", user);
-      };
-
-      get("/user/{id}", Command.class);
-//      get("/user/{id}", (req, resp) -> {
-//        String id = req.param("id", String.class).get();
-//        EntityManager em = require(EntityManager.class);
-//        User user = em.find(User.class, id);
-//        resp.render("user", user);
-//      });
-
-      post("/save-user/{id}", (req, resp) -> {
-        String id = req.param("id", String.class).get();
-        EntityManagerFactory emf = req.get(EntityManagerFactory.class);
-        EntityManager em = emf.createEntityManager();
-        User user = new User(id, "Edgar", 31, null);
-        em.persist(user);
-        resp.send(user);
-        em.close();
-      });
-
-      post("/user", userRoute);
-
+      route(Resource.class);
     }
   }
 

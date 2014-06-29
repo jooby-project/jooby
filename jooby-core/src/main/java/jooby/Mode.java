@@ -203,22 +203,23 @@
  */
 package jooby;
 
-public class Pato extends Jooby {
+import java.util.Optional;
 
-  {
-    {
+import jooby.Switch.Fn;
 
-      get("/user/{id}", (req, resp) -> {
-        resp.send(HttpStatus.NOT_FOUND, "Something");
-      });
+public interface Mode {
 
+  String name();
 
-    }
+  default <T> Optional<T> ifMode(final String name, final Fn<T> fn) throws Exception {
+    return Optional.ofNullable(on(name, fn).get(null));
   }
 
-  public static void main(final String[] args) throws Exception {
-    new Pato()
-        .use(new Hbs())
-        .start();
+  default <T> Switch<String, T> on(final String name, final Fn<T> fn) {
+    return new Switch<String, T>(this.name()).when(name, fn);
+  }
+
+  default <T> Switch<String, T> on(final String name, final T result) {
+    return new Switch<String, T>(this.name()).when(name, result);
   }
 }

@@ -205,208 +205,32 @@ package jooby;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
-import java.nio.charset.Charset;
-import java.util.Optional;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-class JettyResponse implements Response {
-
-  private static class NotCloseableStream extends OutputStream {
-
-    private OutputStream out;
-
-    public NotCloseableStream(final OutputStream out) {
-      this.out = out;
-    }
-
-    @Override
-    public void write(final int b) throws IOException {
-      out.write(b);
-    }
-
-    @Override
-    public void write(final byte[] b) throws IOException {
-      out.write(b);
-    }
-
-    @Override
-    public void write(final byte[] b, final int off, final int len) throws IOException {
-      out.write(b, off, len);
-    }
-  }
-
-  private static class NotCloseableWriter extends Writer {
-
-    private Writer writer;
-
-    public NotCloseableWriter(final Writer writer) {
-      this.writer = writer;
-    }
-
-    @Override
-    public void write(final char[] cbuf) throws IOException {
-      writer.write(cbuf);
-    }
-
-    @Override
-    public void write(final int c) throws IOException {
-      writer.write(c);
-    }
-
-    @Override
-    public void write(final String str) throws IOException {
-      writer.write(str);
-    }
-
-    @Override
-    public void write(final String str, final int off, final int len) throws IOException {
-      super.write(str, off, len);
-    }
-
-    @Override
-    public void write(final char[] cbuf, final int off, final int len) throws IOException {
-      writer.write(cbuf, off, len);
-    }
-
-    @Override
-    public void flush() throws IOException {
-    }
-
-    @Override
-    public void close() throws IOException {
-    }
-  }
+class JettyResponse extends Response {
 
   private HttpServletResponse response;
 
-  private Charset charset;
-
-  private BodyWriter writer;
-
-  private MediaType mediaType;
-
-  private HttpStatus status;
-
-  public JettyResponse(final HttpServletResponse response,
-      final BodyWriter writer,
-      final MediaType mediaType,
-      final Charset charset) {
-    this.response = requireNonNull(response, "A response is required.");
-    this.mediaType = mediaType == null ? MediaTypes.html : mediaType;
-    this.writer = writer == null ? notAcceptableWriter(this.mediaType) : writer;
-    this.charset = requireNonNull(charset, "The charset is required.");
-    this.status = HttpStatus.valueOf(response.getStatus());
+  public JettyResponse(final HttpServletResponse response, final MessageConverterSelector selector,
+      final List<MediaType> accept, final List<MediaType> produces) {
+    super(selector, accept, produces, response::getWriter, response::getOutputStream);
+    this.response = requireNonNull(response, "A HTTP Servlet response is required.");
   }
 
   @Override
-  public boolean committed() {
-    return response.isCommitted();
+  protected void addHeader(final String name, final String value) {
+    response.addHeader(name, value);
   }
 
   @Override
-  public JettyResponse status(final HttpStatus status) {
-    this.status = status;
-    return this;
-  }
-
-  @Override
-  public JettyResponse type(final MediaType mediaType) {
-    this.mediaType = mediaType;
-    return this;
-  }
-
-  @Override
-  public HttpStatus status() {
-    return HttpStatus.valueOf(response.getStatus());
-  }
-
-  @Override
-  public void bytes(final MediaType mediaType, final Binary strategy) throws IOException {
-    // setup content type
-    response.setContentType(mediaType.type() + "/" + mediaType.subType());
-
-    // write
-    OutputStream stream = response.getOutputStream();
-    strategy.write(new NotCloseableStream(stream));
-
-    // close when everything went well
-    stream.close();
-  }
-
-  @Override
-  public JettyResponse send(final Object body) throws IOException {
-    return send(status, body);
-  }
-
-  @Override
-  public JettyResponse send(final HttpStatus status, final Object body) throws IOException {
-    return text(status, mediaType, (out) -> {
-      if (body instanceof CharSequence) {
-        out.write(body.toString());
-      } else {
-        this.writer.write(this, Optional.ofNullable(body));
-      }
-    });
-  }
-
-  @Override
-  public JettyResponse send(final HttpStatus status, final Text strategy) throws IOException {
-    return text(status, mediaType, strategy);
-  }
-
-  @Override
-  public JettyResponse send(final Text strategy) throws IOException {
-    return text(status, mediaType, strategy);
-  }
-
-  @Override
-  public JettyResponse render(final String viewName, final Object model) throws IOException {
-    writer.write(this, Optional.ofNullable(new View(viewName, model)));
-    return this;
-  }
-
-  private JettyResponse text(final HttpStatus status, final MediaType mediaType, final Text strategy)
-      throws IOException {
-    // setup charset and content type
-    response.setContentType(mediaType.type() + "/" + mediaType.subType());
-    response.setCharacterEncoding(charset.name());
+  protected void setStatus(final HttpStatus status) {
     response.setStatus(status.value());
-
-    // write
-    Writer writer = response.getWriter();
-    strategy.write(new NotCloseableWriter(writer));
-
-    // close when everything went well
-    writer.close();
-
-    return this;
   }
 
   @Override
-  public JettyResponse header(final String name, final String value) {
-    response.setHeader(name, value);
-    return this;
-  }
-
-  private static BodyWriter notAcceptableWriter(final MediaType mediaType) {
-    return new BodyWriter() {
-      @Override
-      public void write(final Response response, final Optional<Object> value) throws IOException {
-        /**
-         * No media type found: 406
-         */
-        throw new HttpException(HttpStatus.NOT_ACCEPTABLE, mediaType.type() + "/"
-            + mediaType.subType());
-      }
-
-      @Override
-      public MediaType[] types() {
-        throw new UnsupportedOperationException();
-      }
-    };
+  protected void setContentType(final MediaType contentType) {
+    response.setContentType(contentType.toContentType());
   }
 }

@@ -210,6 +210,8 @@ import java.security.KeyStore;
 
 import javax.inject.Inject;
 
+import jooby.internal.RouteHandler;
+
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;

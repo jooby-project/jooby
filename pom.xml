@@ -73,6 +73,13 @@
         <version>${logback-classic.version}</version>
       </dependency>
 
+      <!-- ASM -->
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+
       <!-- Config -->
       <dependency>
         <groupId>com.typesafe</groupId>
@@ -414,6 +421,7 @@
     <hikariCP.version>1.4.0</hikariCP.version>
     <hibernate.version>4.3.5.Final</hibernate.version>
     <jsr305.version>2.0.3</jsr305.version>
+    <asm.version>5.0.3</asm.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

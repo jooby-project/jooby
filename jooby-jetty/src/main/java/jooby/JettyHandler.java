@@ -211,6 +211,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import jooby.internal.RouteHandler;
+
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
@@ -230,17 +232,17 @@ class JettyHandler extends AbstractHandler {
     // mark as handled
     baseRequest.setHandled(true);
 
-    handler.handle(req.getMethod().toUpperCase(), requestURI,
+    handler.handle(req.getMethod().toUpperCase(), requestURI, (name) -> req.getHeader(name),
         /**
          * Create a new request.
          */
-        (injector, readers, vars, charset)
-        -> new JettyRequest(injector, req, readers, vars, charset),
+        (injector, selector, accept, contentType, defaultCharSet)
+        -> new JettyRequest(req, injector, selector, accept, contentType, defaultCharSet),
         /**
          * Create a new response
          */
-        (mediaType, writer, writers, charset)
-        -> new JettyResponse(res, writer, mediaType, charset));
+        (selector, accept, produces)
+        -> new JettyResponse(res, selector, accept, produces));
   }
 
 }

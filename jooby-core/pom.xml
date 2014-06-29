@@ -44,6 +44,12 @@
       <artifactId>config</artifactId>
     </dependency>
 
+    <!-- ASM 5.0 -->
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm</artifactId>
+    </dependency>
+
     <!-- Guice -->
     <dependency>
       <groupId>com.google.inject.extensions</groupId>

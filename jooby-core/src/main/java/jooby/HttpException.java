@@ -203,35 +203,39 @@
  */
 package jooby;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import static java.util.Objects.requireNonNull;
 
-@Entity
-public class User {
+@SuppressWarnings("serial")
+public class HttpException extends RuntimeException {
 
-  @Id
-  private String id;
+  private HttpStatus status;
 
-  private String name;
-
-  private int age;
-
-  @Inject
-  public User(@Named("id") final String id, @Named("name") final String name,
-      @Named("age") final int age, final Upload cv) {
-    this.id = id;
-    this.name = name;
-    this.age = age;
-    System.out.println(cv);
+  public HttpException(final HttpStatus status, final String message, final Exception cause) {
+    super(message(status, message), cause);
+    this.status = status;
   }
 
-  public User() {
+  public HttpException(final HttpStatus status, final String message) {
+    super(message(status, message));
+    this.status = status;
   }
 
-  @Override
-  public String toString() {
-    return name + "(" + age + ")";
+  public HttpException(final HttpStatus status, final Exception cause) {
+    super(message(status, ""), cause);
+    this.status = status;
+  }
+
+  public HttpException(final HttpStatus status) {
+    super(message(status, ""));
+    this.status = status;
+  }
+
+  public HttpStatus status() {
+    return status;
+  }
+
+  private static String message(final HttpStatus status, final String tail) {
+    requireNonNull(status, "A HTTP Status is required.");
+    return status.reason() + "(" + status.value() + "): " + tail;
   }
 }

@@ -203,185 +203,33 @@
  */
 package jooby;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
-import static org.eclipse.jetty.server.Request.__MULTIPART_CONFIG_ELEMENT;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.function.Function;
 
-import javax.servlet.MultipartConfigElement;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import com.google.inject.Binding;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 
-class JettyRequest implements Request {
-
-  private  Injector injector;
+class JettyRequest extends Request {
 
   private HttpServletRequest request;
 
   private Charset charset;
 
-  private Optional<MediaType> contentType;
-
-  private BodyReader reader;
-
-  private List<File> files = new LinkedList<>();
-
-  private final Map<String, String[]> params;
-
-  private Map<String, Object> attributes = new HashMap<>();
-
-  public JettyRequest(final Injector injector,
-      final HttpServletRequest request,
-      final Map<MediaType, BodyReader> readers,
-      final Map<String, String> vars,
-      final Charset charset) throws IOException {
-    requireNonNull(injector, "An injector is required.");
-
-    this.request = requireNonNull(request, "A request is required.");
-    requireNonNull(readers, "The readers are required.");
-
-    // setup body reader
-    String contentType = request.getContentType();
-    if (!Strings.isNullOrEmpty(contentType)) {
-      this.contentType = Optional.of(MediaTypes.valueOf(contentType));
-      this.reader = readers.get(this.contentType.get());
-      setupMultipartIfNeedIt(this.contentType.get());
-    } else {
-      this.contentType = Optional.empty();
-      this.reader = null;
-    }
-
-    this.params = buildParameters(request.getParameterMap(),
-        requireNonNull(vars, "The vars is required."));
-
-    requireNonNull(charset, "The charset is required.");
-    String characterEncoding = request.getCharacterEncoding();
-    if (Strings.isNullOrEmpty(characterEncoding)) {
-      this.charset = charset;
-      request.setCharacterEncoding(charset.name());
-    } else {
-      this.charset = Charset.forName(characterEncoding);
-    }
-    this.injector = injector.createChildInjector(new DefaultRequestModule(this));
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> T attribute(final String key) {
-    Object attribute = attributes.get(key);
-    return (T) attribute;
-  }
-
-  @Override
-  public Map<Object, Object> attributes() {
-    return ImmutableMap.<Object, Object> copyOf(attributes);
-  }
-
-  @Override
-  public void attribute(final String key, final Object value) {
-    attributes.put(key, value);
-  }
-
-  @Override
-  public Map<String, String[]> params() {
-    return params;
-  }
-
-  @Override
-  public <T> Optional<T> param(final String name, final Class<T> paramType) {
-    requireNonNull(name, "A parameter name is required.");
-    checkArgument(ParamParser.accept(paramType), "Unsupported type: " + paramType);
-    String[] value = params.get(name);
-    return value == null ? Optional.empty() : Optional.of(ParamParser.parse(value, paramType));
-  }
-
-  @Override
-  public <T> T param(final String name, final Function<String[], T> parser) {
-    requireNonNull(name, "A parameter name is required.");
-    requireNonNull(parser, "A parser fn is required.");
-    return parser.apply(params.get(name));
-  }
-
-  @Override
-  public <T> T get(final Key<T> key) {
-    requireNonNull(key, "A key is required.");
-
-    Binding<T> binding = injector.getBinding(key);
-    System.out.println(binding);
-
-    T instance = injector.getInstance(key);
-
-    return instance;
-  }
-
-  @Override
-  public List<Upload> files() throws Exception {
-    List<Upload> uploads = new LinkedList<>();
-    if (contentType.isPresent() && contentType.get().equals(MediaTypes.multipart)) {
-      Collection<Part> parts = request.getParts();
-      for (Part part : parts) {
-        if (part.getSubmittedFileName() != null) {
-          uploads.add(upload(part));
-        }
-      }
-    }
-    return uploads;
-  }
-
-  @Override
-  public Upload file(final String name) throws Exception {
-    Upload upload = null;
-    if (contentType.isPresent() && contentType.get().equals(MediaTypes.multipart)) {
-      Part part = request.getPart(name);
-      if (part != null) {
-        upload = upload(part);
-      }
-    }
-    return upload;
-  }
-
-  private Upload upload(final Part part) throws IOException {
-    String filename = part.getSubmittedFileName();
-    MediaType type = MediaTypes.valueOf(part.getContentType());
-    String uniqueName = "jooby-upload-" + System.nanoTime() + "-" + filename;
-    File tmp = new File(System.getProperty("java.io.tmpdir"), uniqueName);
-    String encoding = part.getHeader("charset");
-    Charset charset = Strings.isNullOrEmpty(encoding) ? charset() : Charset.forName(encoding);
-    Upload upload = new Upload(filename, type, tmp, charset);
-    files.add(tmp);
-    part.write(uniqueName);
-    return upload;
-  }
-
-  @Override
-  public Charset charset() {
-    return charset;
-  }
-
-  @Override
-  public Optional<MediaType> contentType() {
-    return contentType;
+  public JettyRequest(final HttpServletRequest request,
+      final Injector injector,
+      final MessageConverterSelector selector,
+      final List<MediaType> accept,
+      final MediaType contentType,
+      final Charset defaultCharset) {
+    super(injector, selector, accept, contentType, request.getParameterMap());
+    this.request = requireNonNull(request, "A servlet request is required.");
+    this.charset = Optional.ofNullable(request.getCharacterEncoding())
+        .map(Charset::forName)
+        .orElse(defaultCharset);
   }
 
   @Override
@@ -390,80 +238,12 @@ class JettyRequest implements Request {
   }
 
   @Override
-  public List<String> headers(final String name) {
-    if (request.getHeader(name) == null) {
-      return Collections.emptyList();
-    }
-    Enumeration<String> it = request.getHeaders(name);
-    List<String> headers = new LinkedList<>();
-    while (it.hasMoreElements()) {
-      headers.add(it.nextElement());
-    }
-    return headers;
+  public Charset charset() {
+    return charset;
   }
 
   @Override
-  public String requestURI() {
-    return request.getRequestURI();
-  }
-
-  @Override
-  public String contextPath() {
-    return request.getServletContext().getContextPath();
-  }
-
-  @Override
-  public <T> T body(final Class<T> bodyType) throws IOException {
-    if (reader == null) {
-      if (contentType.isPresent()) {
-        throw new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, contentType.get().toString());
-      }
-      throw new HttpException(HttpStatus.BAD_REQUEST, "HTTP body is missing.");
-    }
-    return reader.read(this, bodyType);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> T bytes(final Raw strategy) throws IOException {
-    try (InputStream stream = request.getInputStream()) {
-      return (T) strategy.read(stream);
-    }
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> T text(final Text strategy) throws IOException {
-    try (Reader reader = request.getReader()) {
-      return (T) strategy.read(reader);
-    }
-  }
-
-  @Override
-  public String method() {
-    return request.getMethod().toUpperCase();
-  }
-
-  @Override
-  public void destroy() {
-    params.clear();
-    request.removeAttribute(__MULTIPART_CONFIG_ELEMENT);
-    files.forEach(file -> file.delete());
-  }
-
-  private void setupMultipartIfNeedIt(final MediaType mediaType) {
-    if (mediaType.equals(MediaTypes.multipart)) {
-      request.setAttribute(__MULTIPART_CONFIG_ELEMENT,
-          new MultipartConfigElement(System.getProperty("java.io.tmpdir")));
-    }
-  }
-
-  private static Map<String, String[]> buildParameters(final Map<String, String[]> source,
-      final Map<String, String> vars) {
-    Map<String, String[]> params = new HashMap<>(source);
-    for (Entry<String, String> var : vars.entrySet()) {
-      params.put(var.getKey(), new String[]{var.getValue() });
-    }
-    return params;
+  protected void doDestroy() {
+    this.request = null;
   }
 }
