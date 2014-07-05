@@ -1,5 +1,9 @@
 package jooby;
 
+import jooby.mvc.GET;
+import jooby.mvc.Path;
+import jooby.mvc.Produces;
+
 import com.google.common.collect.ImmutableMap;
 
 @Path("/resource")

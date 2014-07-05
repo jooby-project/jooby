@@ -1,4 +1,4 @@
-package jooby.internal;
+package jooby.internal.mvc;
 
 import static java.util.Objects.requireNonNull;
 
@@ -9,8 +9,9 @@ import java.util.Optional;
 import jooby.Request;
 import jooby.Response;
 import jooby.Route;
-import jooby.Template;
 import jooby.TemplateProcessor;
+import jooby.internal.ParameterDefinition;
+import jooby.mvc.Template;
 import net.sf.cglib.reflect.FastMethod;
 
 class MvcRoute implements Route {

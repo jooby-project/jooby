@@ -31,7 +31,8 @@ import jooby.ResponseFactory;
 import jooby.Route;
 import jooby.RouteDefinition;
 import jooby.TemplateProcessor;
-import jooby.Viewable;
+import jooby.internal.mvc.Routes;
+import jooby.mvc.Viewable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import jooby.internal.Routes;
 import jooby.internal.StringMessageConverter;
+import jooby.internal.mvc.Routes;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;

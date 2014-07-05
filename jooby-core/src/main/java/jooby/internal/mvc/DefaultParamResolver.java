@@ -1,4 +1,4 @@
-package jooby.internal;
+package jooby.internal.mvc;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jdk.internal.org.objectweb.asm.Type;
+import jooby.internal.ParameterDefinition;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;

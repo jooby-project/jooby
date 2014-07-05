@@ -1,4 +1,4 @@
-package jooby.internal;
+package jooby.internal.mvc;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
@@ -13,19 +13,19 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import jooby.Consumes;
-import jooby.DELETE;
-import jooby.GET;
 import jooby.JoobyModule;
 import jooby.MediaType;
 import jooby.Mode;
-import jooby.POST;
-import jooby.PUT;
-import jooby.Path;
-import jooby.Produces;
 import jooby.Reflection;
 import jooby.Route;
 import jooby.RouteDefinition;
+import jooby.mvc.Consumes;
+import jooby.mvc.DELETE;
+import jooby.mvc.GET;
+import jooby.mvc.POST;
+import jooby.mvc.PUT;
+import jooby.mvc.Path;
+import jooby.mvc.Produces;
 import net.sf.cglib.reflect.FastClass;
 
 import com.google.inject.Binder;

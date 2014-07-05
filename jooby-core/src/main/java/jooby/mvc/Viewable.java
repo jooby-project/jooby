@@ -1,4 +1,4 @@
-package jooby;
+package jooby.mvc;
 
 import static java.util.Objects.requireNonNull;
 

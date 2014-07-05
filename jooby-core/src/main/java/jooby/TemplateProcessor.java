@@ -3,6 +3,8 @@ package jooby;
 import java.io.IOException;
 import java.util.List;
 
+import jooby.mvc.Viewable;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 

@@ -6,6 +6,8 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jooby.internal.mvc.Routes;
+
 public class RoutePath {
 
   interface Segment {

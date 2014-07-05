@@ -207,6 +207,8 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 
+import jooby.mvc.Viewable;
+
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;

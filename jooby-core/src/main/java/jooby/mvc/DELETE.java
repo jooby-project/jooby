@@ -1,4 +1,4 @@
-package jooby;
+package jooby.mvc;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface GET {
+public @interface DELETE {
 
 }
