@@ -32,6 +32,10 @@ public class RouteDefinition {
     produces.add(MediaType.all);
   }
 
+  public RoutePath path() {
+    return path;
+  }
+
   public Route route() {
     return route;
   }
@@ -76,7 +80,7 @@ public class RouteDefinition {
 
   @Override
   public String toString() {
-    return path.toString() + "@consumes=" + consumes + "@produces=" + produces;
+    return path.toString() + " " + consumes + " -> " + produces;
   }
 
 }

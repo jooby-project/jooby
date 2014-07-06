@@ -1,43 +1,42 @@
-package jooby;
+package jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 
-import jooby.Response.IOSupplier;
+import jooby.BodyWriter;
+import jooby.ThrowingSupplier;
 
-public class MessageWriter {
+public class BodyWriterImpl implements BodyWriter {
 
-  public interface Binary {
-    void write(OutputStream out) throws IOException;
-  }
+  private Charset charset;
 
-  public interface Text {
-    void write(Writer writer) throws IOException;
-  }
+  private ThrowingSupplier<OutputStream> stream;
 
-  private IOSupplier<Writer> writer;
-
-  private IOSupplier<OutputStream> stream;
-
-  MessageWriter(final IOSupplier<Writer> writer, final IOSupplier<OutputStream> stream) {
-    this.writer = requireNonNull(writer, "A writer is required.");
+  public BodyWriterImpl(final Charset charset, final ThrowingSupplier<OutputStream> stream) {
+    this.charset = requireNonNull(charset, "A charset is required.");
     this.stream = requireNonNull(stream, "A stream is required.");
   }
 
-  public void text(final Text text) throws IOException {
-    Writer writer = this.writer.get();
-    text.write(uncloseable(writer));
+  @Override
+  public void text(final Text text) throws Exception {
+    Writer writer = new OutputStreamWriter(this.stream.get(), charset);
     // don't close on errors
+    text.write(uncloseable(writer));
+    writer.flush();
     writer.close();
   }
 
-  public void binary(final Binary bin) throws IOException {
+  @Override
+  public void bytes(final Binary bin) throws Exception {
     OutputStream out = this.stream.get();
-    bin.write(uncloseable(out));
     // don't close on errors
+    bin.write(uncloseable(out));
+    out.flush();
     out.close();
   }
 

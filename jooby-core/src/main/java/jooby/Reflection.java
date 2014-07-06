@@ -4,12 +4,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 
 public class Reflection {
 
@@ -36,6 +37,11 @@ public class Reflection {
     }
 
     public static Set<Annotation> anyOf(final AnnotatedElement owner,
+        final Class<? extends Annotation>[] annotations) {
+      return anyOf(owner, ImmutableSet.copyOf(annotations));
+    }
+
+    public static Set<Annotation> anyOf(final AnnotatedElement owner,
         final Set<Class<? extends Annotation>> annotations) {
       return annotations.stream()
           .filter(owner::isAnnotationPresent)
@@ -44,13 +50,13 @@ public class Reflection {
     }
   }
 
-  public static Set<Method> methods(final Class<?> clazz) {
-    return members(clazz, (owner) -> Sets.newHashSet(owner.getDeclaredMethods()));
+  public static List<Method> methods(final Class<?> clazz) {
+    return members(clazz, (owner) -> Lists.newArrayList(owner.getDeclaredMethods()));
   }
 
-  private static <M extends Member> Set<M> members(final Class<?> clazz,
-      final Function<Class<?>, Set<M>> supplier) {
-    Set<M> members = supplier.apply(clazz);
+  private static <M extends Member> List<M> members(final Class<?> clazz,
+      final Function<Class<?>, List<M>> supplier) {
+    List<M> members = supplier.apply(clazz);
     if (clazz.getSuperclass() != null) {
       members.addAll(members(clazz.getSuperclass(), supplier));
     } else if (clazz.isInterface()) {

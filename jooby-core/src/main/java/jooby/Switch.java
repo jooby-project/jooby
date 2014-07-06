@@ -1,49 +1,23 @@
 package jooby;
 
-import static java.util.Objects.requireNonNull;
+import java.util.function.Predicate;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+public interface Switch<In, Out> {
 
-public class Switch<In, Out> {
-
-  public interface Fn<T> {
+  interface Fn<T> {
     T apply() throws Exception;
   }
 
-  private final Map<In, Fn<Out>> strategies = new HashMap<>();
+  Switch<In, Out> when(In value, Out result);
 
-  private In value;
+  Switch<In, Out> when(Predicate<In> predicate, Out result);
 
-  public Switch(final In value) {
-    this.value = requireNonNull(value, "The value is required.");
-  }
+  Switch<In, Out> when(In value, Fn<Out> fn);
 
-  public Switch<In, Out> when(final In value, final Out result) {
-    return when(value, () -> result);
-  }
+  Switch<In, Out> when(Predicate<In> predicate, Fn<Out> fn);
 
-  public Switch<In, Out> when(final In value, final Fn<Out> fn) {
-    requireNonNull(value, "A value is required.");
-    requireNonNull(fn, "A function is required.");
-    strategies.put(value, fn);
-    return this;
-  }
+  Out get() throws Exception;
 
-  private Fn<Out> fn(final In value) {
-    Fn<Out> fn = strategies.get(value);
-    return fn == null ? strategies.get("*") : fn;
-  }
+  Out otherwise(Out otherwise) throws Exception;
 
-  public Out get() throws Exception {
-    return Optional.ofNullable(fn(value))
-        .orElseThrow(() -> new IllegalStateException("No switch for: '" + value + "'"))
-        .apply();
-  }
-
-  public Out get(final Out otherwise) throws Exception {
-    Fn<Out> fn = fn(value);
-    return fn == null ? otherwise : fn.apply();
-  }
 }

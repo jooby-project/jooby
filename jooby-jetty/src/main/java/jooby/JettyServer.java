@@ -219,12 +219,19 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.util.component.AbstractLifeCycle.AbstractLifeCycleListener;
+import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 
 public class JettyServer implements jooby.Server {
+
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private Server server;
 
@@ -302,6 +309,13 @@ public class JettyServer implements jooby.Server {
     handler.setHandler(new JettyHandler(routeHandler));
 
     server.setHandler(handler);
+
+    server.addLifeCycleListener(new AbstractLifeCycleListener() {
+      @Override
+      public void lifeCycleStarted(final LifeCycle event) {
+        log.info("Routes:\n{}", routeHandler);
+      }
+    });
   }
 
   @Override

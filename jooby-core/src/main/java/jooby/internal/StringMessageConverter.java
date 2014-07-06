@@ -2,18 +2,17 @@ package jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.IOException;
 import java.util.List;
 
+import jooby.BodyReader;
 import jooby.MediaType;
-import jooby.MessageConverter;
-import jooby.MessageReader;
-import jooby.MessageWriter;
+import jooby.BodyMapper;
+import jooby.BodyWriter;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 
-public class StringMessageConverter implements MessageConverter {
+public class StringMessageConverter implements BodyMapper {
 
   private List<MediaType> types;
 
@@ -28,13 +27,13 @@ public class StringMessageConverter implements MessageConverter {
   }
 
   @Override
-  public <T> T read(final Class<T> type, final MessageReader reader) throws IOException {
+  public <T> T read(final Class<T> type, final BodyReader reader) throws Exception {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void write(final Object message, final MessageWriter writer,
-      final Multimap<String, String> headers) throws IOException {
+  public void write(final Object message, final BodyWriter writer,
+      final Multimap<String, String> headers) throws Exception {
     writer.text(out -> out.write(message.toString()));
   }
 

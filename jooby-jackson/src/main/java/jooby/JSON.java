@@ -205,13 +205,12 @@ package jooby;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Multimap;
 
-class JSON implements MessageConverter {
+class JSON implements BodyMapper {
 
   private ObjectMapper mapper;
 
@@ -225,13 +224,13 @@ class JSON implements MessageConverter {
   }
 
   @Override
-  public <T> T read(final Class<T> clazz, final MessageReader reader) throws IOException {
+  public <T> T read(final Class<T> clazz, final BodyReader reader) throws Exception {
     return reader.text(in -> mapper.readValue(in, clazz));
   }
 
   @Override
-  public void write(final Object message, final MessageWriter writer,
-      final Multimap<String, String> headers) throws IOException {
+  public void write(final Object message, final BodyWriter writer,
+      final Multimap<String, String> headers) throws Exception {
     writer.text(out -> mapper.writeValue(out, message));
   }
 

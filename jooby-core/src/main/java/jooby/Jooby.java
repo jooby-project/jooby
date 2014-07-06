@@ -27,9 +27,7 @@ import com.typesafe.config.ConfigValueFactory;
 
 public class Jooby {
 
-  private Set<RouteDefinition> routes = new LinkedHashSet<>();
-
-  private Set<Class<?>> routeClasses = new LinkedHashSet<>();
+  private Set<Object> routes = new LinkedHashSet<>();
 
   private Set<JoobyModule> modules = new LinkedHashSet<>();
 
@@ -39,8 +37,12 @@ public class Jooby {
     return route(new RouteDefinition("GET", path, route));
   }
 
+  public RouteDefinition post(final String path, final Route route) {
+    return route(new RouteDefinition("POST", path, route));
+  }
+
   public void route(final Class<?> route) {
-    routeClasses.add(route);
+    routes.add(route);
   }
 
   public RouteDefinition route(final RouteDefinition route) {
@@ -83,15 +85,15 @@ public class Jooby {
         bindConfig(binder, config);
 
         // bind mode
-        Mode mode = mode(config.getString("application.mode"));
+        Mode mode = mode(config.getString("application.mode").toLowerCase());
         binder.bind(Mode.class).toInstance(mode);
 
         // bind charset
         binder.bind(Charset.class).toInstance(charset);
 
         // bind readers & writers
-        Multibinder<MessageConverter> converters = Multibinder
-            .newSetBinder(binder, MessageConverter.class);
+        Multibinder<BodyMapper> converters = Multibinder
+            .newSetBinder(binder, BodyMapper.class);
 
         // Routes
         Multibinder<RouteDefinition> definitions = Multibinder
@@ -107,8 +109,15 @@ public class Jooby {
         });
 
         // Routes
-        routes.forEach(route -> definitions.addBinding().toInstance(route));
-        install(new Routes(routeClasses), mode, config, binder);
+        routes.forEach(route -> {
+          if (route instanceof RouteDefinition) {
+            definitions.addBinding().toInstance((RouteDefinition) route);
+          } else {
+            Routes.route(mode, (Class<?>) route)
+                .forEach(mvcRoute -> definitions.addBinding().toInstance(mvcRoute)
+                );
+          }
+        });
 
         converters.addBinding().toInstance(new StringMessageConverter(MediaType.plain));
       }

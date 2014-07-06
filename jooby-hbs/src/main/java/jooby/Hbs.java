@@ -204,9 +204,6 @@
 package jooby;
 
 import static java.util.Objects.requireNonNull;
-
-import java.io.IOException;
-
 import jooby.mvc.Viewable;
 
 import com.github.jknack.handlebars.Context;
@@ -232,7 +229,7 @@ public class Hbs implements JoobyModule {
     }
 
     @Override
-    public void render(final Viewable view, final MessageWriter writer) throws IOException {
+    public void render(final Viewable view, final BodyWriter writer) throws Exception {
       Template template = handlebars.compile(view.name());
 
       final Context context;
@@ -273,7 +270,7 @@ public class Hbs implements JoobyModule {
       throws Exception {
     binder.bind(Handlebars.class).toInstance(handlebars);
 
-    Multibinder.newSetBinder(binder, MessageConverter.class).addBinding()
+    Multibinder.newSetBinder(binder, BodyMapper.class).addBinding()
         .toInstance(new Engine(handlebars));
 
   }

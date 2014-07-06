@@ -217,29 +217,22 @@ class JettyRequest extends Request {
 
   private HttpServletRequest request;
 
-  private Charset charset;
-
   public JettyRequest(final HttpServletRequest request,
       final Injector injector,
-      final MessageConverterSelector selector,
+      final BodyMapperSelector selector,
       final List<MediaType> accept,
       final MediaType contentType,
       final Charset defaultCharset) {
-    super(injector, selector, accept, contentType, request.getParameterMap());
-    this.request = requireNonNull(request, "A servlet request is required.");
-    this.charset = Optional.ofNullable(request.getCharacterEncoding())
+    super(injector, selector, Optional.ofNullable(request.getCharacterEncoding())
         .map(Charset::forName)
-        .orElse(defaultCharset);
+        .orElse(defaultCharset), accept, contentType, request.getParameterMap(),
+        request::getInputStream);
+    this.request = requireNonNull(request, "A servlet request is required.");
   }
 
   @Override
   public Optional<String> header(final String name) {
     return Optional.ofNullable(request.getHeader(name));
-  }
-
-  @Override
-  public Charset charset() {
-    return charset;
   }
 
   @Override

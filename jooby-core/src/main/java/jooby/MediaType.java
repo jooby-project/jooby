@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -20,9 +19,9 @@ public class MediaType implements Comparable<MediaType> {
 
   public static class Matcher {
 
-    private List<MediaType> acceptable;
+    private Iterable<MediaType> acceptable;
 
-    Matcher(final List<MediaType> acceptable) {
+    Matcher(final Iterable<MediaType> acceptable) {
       this.acceptable = acceptable;
     }
 
@@ -38,11 +37,11 @@ public class MediaType implements Comparable<MediaType> {
       return first(ImmutableList.of(candidate));
     }
 
-    public Optional<MediaType> first(final List<MediaType> candidates) {
+    public Optional<MediaType> first(final Iterable<MediaType> candidates) {
       return Optional.ofNullable(doFirst(candidates));
     }
 
-    public List<MediaType> filter(final List<MediaType> candidates) {
+    public List<MediaType> filter(final Iterable<MediaType> candidates) {
       List<MediaType> result = new ArrayList<>();
       for (MediaType accept : acceptable) {
         for (MediaType candidate : candidates) {
@@ -122,7 +121,7 @@ public class MediaType implements Comparable<MediaType> {
     return subtype;
   }
 
-  public String toContentType() {
+  public String name() {
     return type + "/" + subtype;
   }
 
@@ -190,8 +189,7 @@ public class MediaType implements Comparable<MediaType> {
 
   @Override
   public final String toString() {
-    return type + "/" + subtype + ";"
-        + params.entrySet().stream().map(e -> e.toString()).collect(Collectors.joining(";"));
+    return name();
   }
 
   public static MediaType valueOf(final String mediaType) {
@@ -233,7 +231,7 @@ public class MediaType implements Comparable<MediaType> {
     return matcher(ImmutableList.of(acceptable));
   }
 
-  public static Matcher matcher(final List<MediaType> acceptable) {
+  public static Matcher matcher(final Iterable<MediaType> acceptable) {
     return new Matcher(acceptable);
   }
 

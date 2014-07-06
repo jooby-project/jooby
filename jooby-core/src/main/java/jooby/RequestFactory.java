@@ -7,7 +7,7 @@ import com.google.inject.Injector;
 
 public interface RequestFactory {
 
-  Request newRequest(Injector injector, MessageConverterSelector selector,
+  Request newRequest(Injector injector, BodyMapperSelector selector,
       List<MediaType> accept, MediaType contentType,
       Charset defaultCharset);
 

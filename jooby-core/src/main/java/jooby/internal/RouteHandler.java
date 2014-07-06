@@ -2,7 +2,6 @@ package jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
@@ -22,8 +21,7 @@ import javax.inject.Singleton;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
-import jooby.MessageConverter;
-import jooby.MessageConverterSelector;
+import jooby.BodyMapperSelector;
 import jooby.Request;
 import jooby.RequestFactory;
 import jooby.Response;
@@ -32,12 +30,12 @@ import jooby.Route;
 import jooby.RouteDefinition;
 import jooby.TemplateProcessor;
 import jooby.internal.mvc.Routes;
-import jooby.mvc.Viewable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.inject.Injector;
 
 @Singleton
@@ -62,10 +60,12 @@ public class RouteHandler {
 
   private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
 
+  private static final List<String> VERBS = ImmutableList.of("GET", "POST", "PUT", "DELETE");
+
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private MessageConverterSelector selector;
+  private BodyMapperSelector selector;
 
   private Set<RouteDefinition> routes;
 
@@ -75,7 +75,7 @@ public class RouteHandler {
 
   @Inject
   public RouteHandler(final Injector injector,
-      final MessageConverterSelector selector,
+      final BodyMapperSelector selector,
       final Set<RouteDefinition> routes,
       final Charset defaultCharset) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
@@ -84,23 +84,24 @@ public class RouteHandler {
     this.defaultCharset = requireNonNull(defaultCharset, "A defaultCharset is required.");
   }
 
-  public void handle(final String method, final String requestURI,
+  public void handle(final String verb, final String requestURI,
       final Function<String, String> headers,
       final RequestFactory reqFactory,
-      final ResponseFactory respFactory) throws IOException {
+      final ResponseFactory respFactory) throws Exception {
     requireNonNull(headers, "The headers are required.");
     requireNonNull(reqFactory, "A request factory is required.");
     requireNonNull(respFactory, "A response factory is required.");
 
-    doHandle(method.toUpperCase(), Routes.normalize(requestURI), headers, reqFactory, respFactory);
+    doHandle(verb.toUpperCase(), Routes.normalize(requestURI), headers, reqFactory, respFactory);
   }
 
-  private void doHandle(final String method, final String requestURI,
+  private void doHandle(final String verb, final String requestURI,
       final Function<String, String> headers,
       final RequestFactory reqFactory,
-      final ResponseFactory respFactory) throws IOException {
+      final ResponseFactory respFactory) throws Exception {
 
-    final String path = method + requestURI;
+    long start = System.currentTimeMillis();
+    final String path = verb + requestURI;
 
     log.info("handling: {}", path);
 
@@ -119,20 +120,22 @@ public class RouteHandler {
     final Optional<RouteDescriptor> routeHolder = routes(routes, path, contentType, accept);
 
     final List<MediaType> produces = routeHolder.map(d -> d.produces).orElse(accept);
+    log.info("  produces: {}", produces);
 
     final Request request = reqFactory.newRequest(rootInjector, selector, accept, contentType,
         defaultCharset);
-    final Response response = respFactory.newResponse(selector, accept, produces);
+    final Response response = respFactory.newResponse(selector, request.charset(), produces);
 
     try {
       RouteDefinition routeDefinition = routeHolder
-          .orElseThrow(() -> sendError(routes, method, requestURI, contentType, accept))
+          .orElseThrow(() -> sendError(routes, verb, requestURI, contentType, accept))
           .definition;
       Route route = routeDefinition.route();
 
       route.handle(request, response);
     } catch (Exception ex) {
       log.error("handling of: " + path + " ends with error", ex);
+      response.reset();
       // execution failed, so find status code
       HttpStatus status = statusCode(ex);
 
@@ -140,26 +143,18 @@ public class RouteHandler {
       response.status(status);
 
       // TODO: move me to an error handler feature
-      Map<String, Object> error = errorModel(request, ex, status);
-      Optional<MessageConverter> converterHolder = selector.get(error.getClass(), accept);
-      if (converterHolder.isPresent()) {
-        MessageConverter converter = converterHolder.get();
-        Object model = error;
-        if (converter instanceof TemplateProcessor) {
-          //
-          model = new Viewable("/status/" + status, error);
-        }
-        try {
-          response.send(model);
-        } catch (Exception ignored) {
-          log.trace("rendering of error failed, fallback to default error page", ignored);
-          defaultErrorPage(request, response, status, error);
-        }
-      } else {
-        defaultErrorPage(request, response, status, error);
+      Map<String, Object> model = errorModel(request, ex, status);
+      response.header(TemplateProcessor.VIEW_NAME, "/status/" + status.value());
+      try {
+        response.send(model);
+      } catch (Exception ignored) {
+        log.trace("rendering of error failed, fallback to default error page", ignored);
+        defaultErrorPage(request, response, status, model);
       }
     } finally {
-      log.info("  status -> {} ({})", response.status().reason(), response.status());
+      long end = System.currentTimeMillis();
+      log.info("  status -> {} ({}) in {}ms", response.status().reason(), response.status(), end
+          - start);
       request.destroy();
     }
   }
@@ -181,7 +176,7 @@ public class RouteHandler {
   }
 
   private void defaultErrorPage(final Request request, final Response response,
-      final HttpStatus status, final Map<String, Object> model) throws IOException {
+      final HttpStatus status, final Map<String, Object> model) throws Exception {
     StringBuilder html = new StringBuilder("<!doctype html>")
         .append("<html>\n")
         .append("<head>\n")
@@ -285,36 +280,36 @@ public class RouteHandler {
   }
 
   private static HttpException throw405(final Set<RouteDefinition> routes,
-      final String method, final String requestURI,
+      final String verb, final String requestURI,
       final MediaType contentType,
       final List<MediaType> accept) {
 
-    Set<String> methods = Sets.newHashSet("GET", "POST", "PUT", "DELETE");
-    methods.remove(method);
-    for (String candidate : methods) {
+    List<String> verbs = Lists.newLinkedList(VERBS);
+    verbs.remove(verb);
+    for (String candidate : verbs) {
       String path = candidate + requestURI;
       Optional<RouteDescriptor> holder = routes(routes, path, contentType, accept);
       if (holder.isPresent()) {
-        return new HttpException(HttpStatus.METHOD_NOT_ALLOWED, method + requestURI);
+        return new HttpException(HttpStatus.METHOD_NOT_ALLOWED, verb + requestURI);
       }
     }
     return null;
   }
 
   private static HttpException throw406or415(final Set<RouteDefinition> routes,
-      final String method, final String requestURI,
+      final String verb, final String requestURI,
       final MediaType contentType,
       final List<MediaType> accept) {
-    String path = method + requestURI;
+    String path = verb + requestURI;
     for (RouteDefinition route : routes) {
       RouteMatcher matcher = route.matcher(path);
       if (matcher.matches()) {
         if (!route.canProduce(accept)) {
           return new HttpException(HttpStatus.NOT_ACCEPTABLE, accept.stream()
-              .map(MediaType::toContentType)
+              .map(MediaType::name)
               .collect(Collectors.joining(", ")));
         }
-        return new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, contentType.toContentType());
+        return new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, contentType.name());
       }
     }
     return null;
@@ -328,5 +323,32 @@ public class RouteHandler {
         Optional.ofNullable(throw406or415(routes, method, requestURI, contentType, accept))
             .orElseGet(() -> throw405(routes, method, requestURI, contentType, accept))
         ).orElseGet(() -> new HttpException(HttpStatus.NOT_FOUND, method + requestURI));
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buffer = new StringBuilder();
+    int routeMax = 0, consumesMax = 0, producesMax = 0;
+    for (RouteDefinition routeDefinition : routes) {
+      int routeLen = routeDefinition.path().toString().length();
+      if (routeLen > routeMax) {
+        routeMax = routeLen;
+      }
+      //
+      int consumeLen = routeDefinition.consumes().toString().length();
+      if (consumeLen > consumesMax) {
+        consumesMax = consumeLen;
+      }
+      int producesLen = routeDefinition.produces().toString().length();
+      if (producesLen > producesMax) {
+        producesMax = producesLen;
+      }
+    }
+    String format = "    %-" + routeMax + "s    %" + consumesMax + "s     %" + producesMax + "s\n";
+    for (RouteDefinition routeDefinition : routes) {
+      buffer.append(String.format(format, routeDefinition.path(), routeDefinition.consumes(),
+          routeDefinition.produces()));
+    }
+    return buffer.toString();
   }
 }

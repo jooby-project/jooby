@@ -204,6 +204,7 @@
 package jooby;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import jooby.Switch.Fn;
 
@@ -212,14 +213,18 @@ public interface Mode {
   String name();
 
   default <T> Optional<T> ifMode(final String name, final Fn<T> fn) throws Exception {
-    return Optional.ofNullable(on(name, fn).get(null));
+    return Optional.ofNullable(when(name, fn).otherwise(null));
   }
 
-  default <T> Switch<String, T> on(final String name, final Fn<T> fn) {
-    return new Switch<String, T>(this.name()).when(name, fn);
+  default <T> Switch<String, T> when(final String name, final Fn<T> fn) {
+    return Switches.<T> newSwitch(name()).when(name, fn);
   }
 
-  default <T> Switch<String, T> on(final String name, final T result) {
-    return new Switch<String, T>(this.name()).when(name, result);
+  default <T> Switch<String, T> when(final String name, final T result) {
+    return Switches.<T> newSwitch(name()).when(name, result);
+  }
+
+  default <T> Switch<String, T> when(final Predicate<String> predicate, final T result) {
+    return Switches.<T> newSwitch(name()).when(predicate, result);
   }
 }

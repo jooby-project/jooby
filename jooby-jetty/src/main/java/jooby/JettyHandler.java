@@ -232,17 +232,25 @@ class JettyHandler extends AbstractHandler {
     // mark as handled
     baseRequest.setHandled(true);
 
-    handler.handle(req.getMethod().toUpperCase(), requestURI, (name) -> req.getHeader(name),
-        /**
-         * Create a new request.
-         */
-        (injector, selector, accept, contentType, defaultCharSet)
-        -> new JettyRequest(req, injector, selector, accept, contentType, defaultCharSet),
-        /**
-         * Create a new response
-         */
-        (selector, accept, produces)
-        -> new JettyResponse(res, selector, accept, produces));
+    try {
+      handler.handle(req.getMethod().toUpperCase(), requestURI, (name) -> req.getHeader(name),
+          /**
+           * Create a new request.
+           */
+          (injector, selector, accept, contentType, defaultCharSet)
+          -> new JettyRequest(req, injector, selector, accept, contentType, defaultCharSet),
+          /**
+           * Create a new response
+           */
+          (selector, charset, produces)
+          -> new JettyResponse(res, selector, charset, produces));
+    } catch (RuntimeException | IOException ex) {
+      baseRequest.setHandled(false);
+      throw ex;
+    } catch (Exception ex) {
+      baseRequest.setHandled(false);
+      throw new ServletException("Unexpected error", ex);
+    }
   }
 
 }

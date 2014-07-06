@@ -1,6 +1,5 @@
 package jooby;
 
-import java.io.IOException;
 import java.util.List;
 
 import jooby.mvc.Viewable;
@@ -8,7 +7,7 @@ import jooby.mvc.Viewable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 
-public abstract class TemplateProcessor implements MessageConverter {
+public abstract class TemplateProcessor implements BodyMapper {
 
   public static final String VIEW_NAME = "@" + TemplateProcessor.class.getName() + "#vieName";
 
@@ -28,13 +27,13 @@ public abstract class TemplateProcessor implements MessageConverter {
   }
 
   @Override
-  public final <T> T read(final Class<T> type, final MessageReader reader) throws IOException {
+  public final <T> T read(final Class<T> type, final BodyReader reader) throws Exception {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void write(final Object message, final MessageWriter writer,
-      final Multimap<String, String> headers) throws IOException {
+  public void write(final Object message, final BodyWriter writer,
+      final Multimap<String, String> headers) throws Exception {
     // wrap a viewable if need it
     final Viewable viewable;
     if (message instanceof Viewable) {
@@ -45,7 +44,7 @@ public abstract class TemplateProcessor implements MessageConverter {
     render(viewable, writer);
   }
 
-  public abstract void render(final Viewable viewable, final MessageWriter writer)
-      throws IOException;
+  public abstract void render(final Viewable viewable, final BodyWriter writer)
+      throws Exception;
 
 }

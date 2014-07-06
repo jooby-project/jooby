@@ -205,6 +205,7 @@ package jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -213,10 +214,11 @@ class JettyResponse extends Response {
 
   private HttpServletResponse response;
 
-  public JettyResponse(final HttpServletResponse response, final MessageConverterSelector selector,
-      final List<MediaType> accept, final List<MediaType> produces) {
-    super(selector, accept, produces, response::getWriter, response::getOutputStream);
+  public JettyResponse(final HttpServletResponse response, final BodyMapperSelector selector,
+      final Charset charset, final List<MediaType> produces) {
+    super(selector, charset, produces, response::getOutputStream);
     this.response = requireNonNull(response, "A HTTP Servlet response is required.");
+    status(HttpStatus.valueOf(response.getStatus()));
   }
 
   @Override
@@ -231,6 +233,17 @@ class JettyResponse extends Response {
 
   @Override
   protected void setContentType(final MediaType contentType) {
-    response.setContentType(contentType.toContentType());
+    response.setContentType(contentType.name());
   }
+
+  @Override
+  protected void setCharset(final Charset charset) {
+    response.setCharacterEncoding(charset.name());
+  }
+
+  @Override
+  protected void doReset() {
+    response.reset();
+  }
+
 }

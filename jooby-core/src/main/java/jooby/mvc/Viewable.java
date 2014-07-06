@@ -21,4 +21,8 @@ public class Viewable {
   public Object model() {
     return model;
   }
+
+  public static Viewable of(final String name, final Object model) {
+    return new Viewable(name, model);
+  }
 }
