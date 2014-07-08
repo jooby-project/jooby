@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import jooby.internal.BodyWriterImpl;
@@ -38,7 +39,11 @@ public abstract class Response {
     void send(Fn otherwise) throws Exception;
   }
 
+  private Request request;
+
   private BodyConverterSelector selector;
+
+  private Set<RouteInterceptor> interceptors;
 
   private Charset charset;
 
@@ -51,11 +56,15 @@ public abstract class Response {
   private Multimap<String, String> headers = Multimaps.newListMultimap(new TreeMap<>(
       String.CASE_INSENSITIVE_ORDER), ArrayList::new);
 
-  public Response(final BodyConverterSelector selector,
+  public Response(final Request request,
+      final BodyConverterSelector selector,
+      final Set<RouteInterceptor> interceptors,
       final Charset charset,
       final List<MediaType> produces,
       final ThrowingSupplier<OutputStream> stream) {
+    this.request = requireNonNull(request, "A request is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
+    this.interceptors = requireNonNull(interceptors, "Interceptors are required.");
     this.charset = requireNonNull(charset, "A charset is required.");
     this.produces = requireNonNull(produces, "Produces are required.");
     this.stream = requireNonNull(stream, "A stream is required.");
@@ -82,6 +91,11 @@ public abstract class Response {
       throw new HttpException(HttpStatus.NOT_ACCEPTABLE, Joiner.on(", ").join(produces));
     }
     requireNonNull(converter, "A converter is required.");
+
+    // fire before send
+    for(RouteInterceptor interceptor: interceptors) {
+      interceptor.beforeSend(request, this);
+    }
 
     // dump headers
     headers.entries().stream()

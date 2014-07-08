@@ -320,12 +320,12 @@ public class JDBC implements JoobyModule {
         .withValue("db.password", ConfigValueFactory.fromAnyRef(""))
         .withFallback(source);
 
-    return new Switch<Config>(db)
-        .on("mem", () -> {
+    return Switches.<Config> newSwitch(db)
+        .when("mem", () -> {
           String url = "jdbc:h2:mem:db;DB_CLOSE_DELAY=-1";
           return h2.apply(url);
         })
-        .on("fs",
+        .when("fs",
             () -> {
               final String dbName = DEFAULT_DB.equals(key) ? source.getString("application.name")
                   : key;
@@ -333,7 +333,7 @@ public class JDBC implements JoobyModule {
                   + new File(source.getString("jooby.workDir"), dbName).getAbsolutePath();
               return h2.apply(url);
             })
-        .execute(source);
+        .otherwise(source);
   }
 
   private DataSourceHolder newDataSource(final Mode mode, final String key, final Config config)

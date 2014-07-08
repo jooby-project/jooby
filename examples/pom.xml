@@ -34,6 +34,12 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.jknack</groupId>
+      <artifactId>jooby-hibernate</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>ch.qos.logback</groupId>

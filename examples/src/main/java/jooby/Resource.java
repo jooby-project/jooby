@@ -1,14 +1,17 @@
 package jooby;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.EntityManager;
 
 import jooby.mvc.Body;
 import jooby.mvc.GET;
-import jooby.mvc.Header;
 import jooby.mvc.POST;
 import jooby.mvc.Path;
 
@@ -17,29 +20,37 @@ import com.google.common.collect.ImmutableMap;
 @Path("/resource")
 public class Resource {
 
+  private EntityManager em;
+
+  @Inject
+  public Resource(final EntityManager em) {
+    this.em = requireNonNull(em, "The em is required.");
+  }
+
+  @GET
+  @Path("/save")
+  public Object index(final String id, final String firstName, final String lastName) {
+    User user =  new User();
+    user.setId(id);
+    user.setFirstName(firstName);
+    user.setLastName(lastName);
+    em.persist(user);
+    return user;
+  }
+
+  @GET
+  @Path("/user")
+  public Object index(final String id) {
+    User user = em.find(User.class, id);
+    return user;
+  }
+
   @GET
   @Path("/optional")
   public Object index(final Optional<String> value, @Named("JSESSIONID") final Cookie sessionId) {
     return ImmutableMap.builder()
         .put("value", value)
         .put("JSESSIONID", sessionId)
-        .build();
-  }
-
-  @GET
-  @Path("/vars/{id}")
-  public Object index(final String id) {
-    return ImmutableMap.builder()
-        .put("value", id)
-        .build();
-  }
-
-  @GET
-  @Path("/string")
-  public Object index(final String value, @Header("user-agent") final String userAgent) {
-    return ImmutableMap.builder()
-        .put("value", value)
-        .put("userAgent", userAgent)
         .build();
   }
 

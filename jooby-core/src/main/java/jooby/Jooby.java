@@ -99,6 +99,12 @@ public class Jooby {
         Multibinder<RouteDefinition> definitions = Multibinder
             .newSetBinder(binder, RouteDefinition.class);
 
+        // Request Modules
+        Multibinder.newSetBinder(binder, RequestModule.class);
+
+        // Route Interceptors
+        Multibinder.newSetBinder(binder, RouteInterceptor.class);
+
         // work dir
         binder.bind(File.class).annotatedWith(Names.named("jooby.workDir"))
             .toInstance(new File(config.getString("jooby.workDir")));
@@ -113,9 +119,9 @@ public class Jooby {
           if (route instanceof RouteDefinition) {
             definitions.addBinding().toInstance((RouteDefinition) route);
           } else {
-            Routes.route(mode, (Class<?>) route)
-                .forEach(mvcRoute -> definitions.addBinding().toInstance(mvcRoute)
-                );
+            Class<?> routeClass = (Class<?>) route;
+            Routes.route(mode, routeClass)
+                .forEach(mvcRoute -> definitions.addBinding().toInstance(mvcRoute));
           }
         });
 

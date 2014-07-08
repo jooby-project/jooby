@@ -207,6 +207,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -214,9 +215,12 @@ class JettyResponse extends Response {
 
   private HttpServletResponse response;
 
-  public JettyResponse(final HttpServletResponse response, final BodyConverterSelector selector,
+  public JettyResponse(final HttpServletResponse response,
+      final Request request,
+      final BodyConverterSelector selector,
+      final Set<RouteInterceptor> interceptors,
       final Charset charset, final List<MediaType> produces) {
-    super(selector, charset, produces, response::getOutputStream);
+    super(request, selector, interceptors, charset, produces, response::getOutputStream);
     this.response = requireNonNull(response, "A HTTP Servlet response is required.");
     status(HttpStatus.valueOf(response.getStatus()));
   }

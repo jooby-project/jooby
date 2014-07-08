@@ -250,8 +250,8 @@ class JettyHandler extends AbstractHandler {
           /**
            * Create a new response
            */
-          (selector, charset, produces)
-          -> new JettyResponse(res, selector, charset, produces));
+          (request, selector, interceptors, charset, produces)
+          -> new JettyResponse(res, request, selector, interceptors, charset, produces));
     } catch (RuntimeException | IOException ex) {
       baseRequest.setHandled(false);
       throw ex;

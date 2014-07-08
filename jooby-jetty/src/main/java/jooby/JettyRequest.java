@@ -266,4 +266,9 @@ class JettyRequest extends Request {
   protected void doDestroy() {
     this.request = null;
   }
+
+  @Override
+  public String toString() {
+    return request.toString();
+  }
 }

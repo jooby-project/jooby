@@ -26,10 +26,12 @@ import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Request;
 import jooby.RequestFactory;
+import jooby.RequestModule;
 import jooby.Response;
 import jooby.ResponseFactory;
 import jooby.Route;
 import jooby.RouteDefinition;
+import jooby.RouteInterceptor;
 import jooby.TemplateProcessor;
 import jooby.internal.mvc.Routes;
 
@@ -77,13 +79,21 @@ public class RouteHandler {
 
   private Injector rootInjector;
 
+  private Set<RequestModule> requestModules;
+
+  private Set<RouteInterceptor> interceptors;
+
   @Inject
   public RouteHandler(final Injector injector,
       final BodyConverterSelector selector,
+      final Set<RequestModule> requestModules,
+      final Set<RouteInterceptor> interceptors,
       final Set<RouteDefinition> routes,
       final Charset defaultCharset) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
+    this.requestModules = requireNonNull(requestModules, "Request modules are required.");
+    this.interceptors = requireNonNull(interceptors, "Route interceptors are required.");
     this.routes = requireNonNull(routes, "The routes are required.");
     this.defaultCharset = requireNonNull(defaultCharset, "A defaultCharset is required.");
   }
@@ -124,24 +134,45 @@ public class RouteHandler {
         .orElse(MediaType.all);
     log.info("  content-type: {}", contentType);
 
+    // configure request modules
+    Injector injector = rootInjector.createChildInjector(binder -> {
+      for (RequestModule requestModule : requestModules) {
+        requestModule.configure(binder);
+      }
+    });
+
+    // interceptors
+
     final Optional<RouteDescriptor> routeHolder = routes(routes, path, contentType, accept);
 
     final List<MediaType> produces = routeHolder.map(d -> d.produces).orElse(accept);
     log.info("  produces: {}", produces);
 
-    final Request request = reqFactory.newRequest(rootInjector, selector, accept, contentType,
+    final Request request = reqFactory.newRequest(injector, selector, accept, contentType,
         params(params, routeHolder), headers, defaultCharset);
-    final Response response = respFactory.newResponse(selector, request.charset(), produces);
+    final Response response = respFactory.newResponse(request, selector, interceptors,
+        request.charset(), produces);
 
     try {
+      for (RouteInterceptor interceptor : interceptors) {
+        interceptor.before(request, response);
+      }
+
       RouteDefinition routeDefinition = routeHolder
           .orElseThrow(() -> sendError(routes, verb, requestURI, contentType, accept))
           .definition;
       Route route = routeDefinition.route();
 
       route.handle(request, response);
+
+      for (RouteInterceptor interceptor : interceptors) {
+        interceptor.after(request, response);
+      }
     } catch (Exception ex) {
       log.error("handling of: " + path + " ends with error", ex);
+      for (RouteInterceptor interceptor : interceptors) {
+        interceptor.after(request, response, ex);
+      }
       response.reset();
       // execution failed, so find status code
       HttpStatus status = statusCode(ex);

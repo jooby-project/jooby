@@ -14,6 +14,7 @@ import jooby.internal.mvc.ParamParser;
 
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 
 public abstract class Request {
 
@@ -115,6 +116,10 @@ public abstract class Request {
 
   public <T> T get(final Class<T> type) {
     return injector.getInstance(type);
+  }
+
+  public <T> T get(final Key<T> key) {
+    return injector.getInstance(key);
   }
 
   public void destroy() {

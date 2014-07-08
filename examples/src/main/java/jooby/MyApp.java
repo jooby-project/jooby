@@ -212,6 +212,7 @@ public class MyApp extends Jooby {
   {
     {
       use(new Jetty());
+      use(new HibernatePersistence(User.class));
       use(new Jackson());
       use(new Hbs());
 

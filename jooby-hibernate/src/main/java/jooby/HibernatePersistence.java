@@ -19,6 +19,8 @@ import javax.persistence.ValidationMode;
 import javax.persistence.spi.PersistenceUnitTransactionType;
 import javax.sql.DataSource;
 
+import org.hibernate.FlushMode;
+import org.hibernate.Session;
 import org.hibernate.jpa.AvailableSettings;
 import org.hibernate.jpa.HibernateEntityManagerFactory;
 import org.hibernate.jpa.HibernatePersistenceProvider;
@@ -38,8 +40,6 @@ public class HibernatePersistence extends JDBC {
 
   private boolean scan = false;
 
-  private String path = "/**";
-
   private HibernateEntityManagerFactory emf;
 
   public HibernatePersistence(final String name, final Class<?>... classes) {
@@ -53,11 +53,6 @@ public class HibernatePersistence extends JDBC {
 
   public HibernatePersistence scan() {
     this.scan = true;
-    return this;
-  }
-
-  public HibernatePersistence intercept(final String path) {
-    this.path = path;
     return this;
   }
 
@@ -87,44 +82,69 @@ public class HibernatePersistence extends JDBC {
 
     Key<EntityManager> key = dataSourceKey(EntityManager.class);
 
-    RequestModule persistenceModule = (b) -> {
+    Multibinder.newSetBinder(binder, RouteInterceptor.class).addBinding()
+        .toInstance(new RouteInterceptor() {
+
+          @Override
+          public void before(final Request request, final Response response) throws Exception {
+            EntityManager em = request.get(key);
+            Session session = (Session) em.getDelegate();
+            session.setFlushMode(FlushMode.AUTO);
+            EntityTransaction trx = em.getTransaction();
+            trx.begin();
+          }
+
+          @Override
+          public void beforeSend(final Request request, final Response response) throws Exception {
+            EntityManager em = request.get(key);
+            // commit the transaction, but keep the EM open
+            EntityTransaction trx = em.getTransaction();
+            if (trx.isActive()) {
+              trx.commit();
+
+              // change flush mode to MANUAL (a.k.a READ-ONLY)
+              Session session = (Session) em.getDelegate();
+              session.setFlushMode(FlushMode.MANUAL);
+              EntityTransaction readONLY = em.getTransaction();
+              readONLY.begin();
+            }
+          }
+
+          @Override
+          public void after(final Request request, final Response response, final Exception ex)
+              throws Exception {
+            EntityManager em = request.get(key);
+            try {
+              // rollback trx
+              EntityTransaction trx = em.getTransaction();
+              if (trx.isActive()) {
+                trx.rollback();
+              }
+            } finally {
+              em.close();
+            }
+          }
+
+          @Override
+          public void after(final Request request, final Response response) throws Exception {
+            EntityManager em = request.get(key);
+            try {
+              // commit trx
+              EntityTransaction trx = em.getTransaction();
+              if (trx.isActive()) {
+                trx.commit();
+              }
+            } finally {
+              em.close();
+            }
+
+          }
+        });
+
+    Multibinder.newSetBinder(binder, RequestModule.class).addBinding().toInstance((b) -> {
       EntityManager em = emf.createEntityManager();
       b.bind(key).toInstance(em);
-    };
-
-    Route before = (req, resp) -> {
-      EntityManager em = req.get(key);
-      EntityTransaction trx = em.getTransaction();
-      trx.begin();
-    };
-
-    AfterRoute after = (req, resp, ex) -> {
-      EntityManager em = req.get(key);
-      try {
-        EntityTransaction trx = em.getTransaction();
-        if (trx.isActive()) {
-          if (ex.isPresent()) {
-            trx.rollback();
-          } else {
-            trx.commit();
-          }
-        }
-      } finally {
-        em.close();
-      }
-    };
-
-    Multibinder.newSetBinder(binder, RequestModule.class).addBinding().toInstance(persistenceModule);
-
-    Multibinder<RouteDefinition> routes = Multibinder
-        .newSetBinder(binder, RouteDefinition.class);
-    // being transaction
-    routes.addBinding().toInstance(
-        new RouteDefinition(new RoutePath("BEFORE", path), null).before(before));
-
-    // commit or rollback transaction
-    routes.addBinding().toInstance(
-        new RouteDefinition(new RoutePath("AFTER", path), null).after(after));
+    });
 
     // keep emf
     this.emf = emf;
