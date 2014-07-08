@@ -40,27 +40,29 @@ public class Routes {
     return Reflection
         .methods(routeClass)
         .stream()
-        .filter(m -> {
-          Set<Annotation> annotations = Reflection.Annotations.anyOf(m, VERBS);
-          if (annotations.size() == 0) {
-            return false;
-          }
-          if (annotations.size() > 1) {
-            // TODO: error
-            return false;
-          }
-          Class<?> returnType = m.getReturnType();
-          if (returnType == void.class) {
-            // TODO: error
-            return false;
-          }
-          return true;
-        })
+        .filter(
+            m -> {
+              List<Annotation> annotations = Reflection.Annotations.anyOf(m, VERBS);
+              if (annotations.size() == 0) {
+                return false;
+              }
+              if (annotations.size() > 1) {
+                throw new IllegalStateException("A resource method: " + m
+                    + " should have only one HTTP verb. Found: "
+                    + annotations);
+              }
+              Class<?> returnType = m.getReturnType();
+              if (returnType == void.class) {
+                throw new IllegalStateException("A resouce method must have a return value: " + m);
+              }
+              return true;
+            })
         .map(
             m -> {
               String verb = verb(m);
               String path = rootPath + path(m);
-              checkArgument(path.length() > 0, "Missing path for: %s.%s", routeClass.getSimpleName(),
+              checkArgument(path.length() > 0, "Missing path for: %s.%s",
+                  routeClass.getSimpleName(),
                   m.getName());
               Route resource = new MvcRoute(fastRoute.getMethod(m), paramResolver);
               return new RouteDefinition(verb, path, resource)
@@ -87,7 +89,7 @@ public class Routes {
             .orElse(MediaType.ALL));
   }
 
-  private static  List<MediaType> consumes(final Method method) {
+  private static List<MediaType> consumes(final Method method) {
     Function<AnnotatedElement, Optional<List<MediaType>>> fn = (element) -> {
       Consumes consumes = element.getAnnotation(Consumes.class);
       if (consumes != null) {

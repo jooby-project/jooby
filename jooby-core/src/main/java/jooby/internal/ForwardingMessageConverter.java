@@ -6,19 +6,19 @@ import java.util.List;
 
 import jooby.BodyReader;
 import jooby.MediaType;
-import jooby.BodyMapper;
+import jooby.BodyConverter;
 import jooby.BodyWriter;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 
-public class ForwardingMessageConverter implements BodyMapper {
+public class ForwardingMessageConverter implements BodyConverter {
 
-  private BodyMapper converter;
+  private BodyConverter converter;
 
   private List<MediaType> types;
 
-  public ForwardingMessageConverter(final BodyMapper converter, final MediaType... types) {
+  public ForwardingMessageConverter(final BodyConverter converter, final MediaType... types) {
     this.converter = requireNonNull(converter, "The converter is required.");
     this.types = ImmutableList.copyOf(types);
   }

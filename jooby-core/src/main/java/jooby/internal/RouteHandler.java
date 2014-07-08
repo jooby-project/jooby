@@ -5,23 +5,25 @@ import static java.util.Objects.requireNonNull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import jooby.BodyConverterSelector;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
-import jooby.BodyMapperSelector;
 import jooby.Request;
 import jooby.RequestFactory;
 import jooby.Response;
@@ -35,7 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimaps;
 import com.google.inject.Injector;
 
 @Singleton
@@ -65,7 +69,7 @@ public class RouteHandler {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private BodyMapperSelector selector;
+  private BodyConverterSelector selector;
 
   private Set<RouteDefinition> routes;
 
@@ -75,7 +79,7 @@ public class RouteHandler {
 
   @Inject
   public RouteHandler(final Injector injector,
-      final BodyMapperSelector selector,
+      final BodyConverterSelector selector,
       final Set<RouteDefinition> routes,
       final Charset defaultCharset) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
@@ -85,18 +89,21 @@ public class RouteHandler {
   }
 
   public void handle(final String verb, final String requestURI,
-      final Function<String, String> headers,
+      final Map<String, String[]> parameters,
+      final ListMultimap<String, String> headers,
       final RequestFactory reqFactory,
       final ResponseFactory respFactory) throws Exception {
     requireNonNull(headers, "The headers are required.");
     requireNonNull(reqFactory, "A request factory is required.");
     requireNonNull(respFactory, "A response factory is required.");
 
-    doHandle(verb.toUpperCase(), Routes.normalize(requestURI), headers, reqFactory, respFactory);
+    doHandle(verb.toUpperCase(), Routes.normalize(requestURI), parameters, headers, reqFactory,
+        respFactory);
   }
 
   private void doHandle(final String verb, final String requestURI,
-      final Function<String, String> headers,
+      final Map<String, String[]> params,
+      final ListMultimap<String, String> headers,
       final RequestFactory reqFactory,
       final ResponseFactory respFactory) throws Exception {
 
@@ -106,14 +113,14 @@ public class RouteHandler {
     log.info("handling: {}", path);
 
     final List<MediaType> accept = Optional
-        .ofNullable(headers.apply("accept"))
-        .map(MediaType::parse)
+        .ofNullable(headers.get("accept"))
+        .map(h -> MediaType.parse(h.get(0)))
         .orElse(MediaType.ALL);
     log.info("  accept: {}", accept);
 
     final MediaType contentType = Optional
-        .ofNullable(headers.apply("content-type"))
-        .map(MediaType::valueOf)
+        .ofNullable(headers.get("content-type"))
+        .map(h -> h.size() == 0 ? MediaType.all : MediaType.valueOf(h.get(0)))
         .orElse(MediaType.all);
     log.info("  content-type: {}", contentType);
 
@@ -123,7 +130,7 @@ public class RouteHandler {
     log.info("  produces: {}", produces);
 
     final Request request = reqFactory.newRequest(rootInjector, selector, accept, contentType,
-        defaultCharset);
+        params(params, routeHolder), headers, defaultCharset);
     final Response response = respFactory.newResponse(selector, request.charset(), produces);
 
     try {
@@ -157,6 +164,19 @@ public class RouteHandler {
           - start);
       request.destroy();
     }
+  }
+
+  private static ListMultimap<String, String> params(final Map<String, String[]> params,
+      final Optional<RouteDescriptor> routeHolder) {
+    ListMultimap<String, String> result = Multimaps
+        .newListMultimap(new HashMap<>(), ArrayList::new);
+    params.forEach((name, values) -> {
+      Arrays.stream(values).forEach(value -> result.put(name, value));
+    });
+    routeHolder.ifPresent(h -> {
+      h.matcher.vars().forEach((name, value) -> result.put(name, value));
+    });
+    return result;
   }
 
   private static Optional<RouteDescriptor> routes(final Set<RouteDefinition> routes,
@@ -245,8 +265,8 @@ public class RouteHandler {
     error.put("stackTrace", dump(ex));
     error.put("status", status.value());
     error.put("reason", status.reason());
-    error.put("referer", request.header("Referer").orElse(null));
-    error.put("agent", request.header("User-Agent").orElse(null));
+    error.put("referer", request.header("Referer"));
+    error.put("agent", request.header("User-Agent"));
     return error;
   }
 
@@ -274,6 +294,9 @@ public class RouteHandler {
 
   private HttpStatus defaultStatusCode(final Exception ex) {
     if (ex instanceof IllegalArgumentException) {
+      return HttpStatus.BAD_REQUEST;
+    }
+    if (ex instanceof NoSuchElementException) {
       return HttpStatus.BAD_REQUEST;
     }
     return HttpStatus.SERVER_ERROR;

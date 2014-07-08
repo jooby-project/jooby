@@ -206,6 +206,9 @@ package jooby;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.TreeMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -215,6 +218,9 @@ import jooby.internal.RouteHandler;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimaps;
 
 class JettyHandler extends AbstractHandler {
 
@@ -233,12 +239,14 @@ class JettyHandler extends AbstractHandler {
     baseRequest.setHandled(true);
 
     try {
-      handler.handle(req.getMethod().toUpperCase(), requestURI, (name) -> req.getHeader(name),
+      handler.handle(req.getMethod().toUpperCase(), requestURI, req.getParameterMap(),
+          headers(req),
           /**
            * Create a new request.
            */
-          (injector, selector, accept, contentType, defaultCharSet)
-          -> new JettyRequest(req, injector, selector, accept, contentType, defaultCharSet),
+          (injector, selector, accept, contentType, params, headers, defaultCharSet)
+          -> new JettyRequest(req, injector, selector, accept, contentType, params, headers,
+              defaultCharSet),
           /**
            * Create a new response
            */
@@ -251,6 +259,20 @@ class JettyHandler extends AbstractHandler {
       baseRequest.setHandled(false);
       throw new ServletException("Unexpected error", ex);
     }
+  }
+
+  private static ListMultimap<String, String> headers(final HttpServletRequest request) {
+    ListMultimap<String, String> result = Multimaps
+        .newListMultimap(new TreeMap<>(String.CASE_INSENSITIVE_ORDER), ArrayList::new);
+    Enumeration<String> names = request.getHeaderNames();
+    while (names.hasMoreElements()) {
+      String name = names.nextElement();
+      Enumeration<String> values = request.getHeaders(name);
+      while (values.hasMoreElements()) {
+        result.put(name, values.nextElement());
+      }
+    }
+    return result;
   }
 
 }

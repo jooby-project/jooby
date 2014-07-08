@@ -6,13 +6,13 @@ import java.util.List;
 
 import jooby.BodyReader;
 import jooby.MediaType;
-import jooby.BodyMapper;
+import jooby.BodyConverter;
 import jooby.BodyWriter;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 
-public class StringMessageConverter implements BodyMapper {
+public class StringMessageConverter implements BodyConverter {
 
   private List<MediaType> types;
 

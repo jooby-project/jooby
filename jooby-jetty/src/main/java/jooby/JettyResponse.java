@@ -214,7 +214,7 @@ class JettyResponse extends Response {
 
   private HttpServletResponse response;
 
-  public JettyResponse(final HttpServletResponse response, final BodyMapperSelector selector,
+  public JettyResponse(final HttpServletResponse response, final BodyConverterSelector selector,
       final Charset charset, final List<MediaType> produces) {
     super(selector, charset, produces, response::getOutputStream);
     this.response = requireNonNull(response, "A HTTP Servlet response is required.");

@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.google.common.collect.Multimap;
 
-public interface BodyMapper {
+public interface BodyConverter {
 
   List<MediaType> types();
 

@@ -7,7 +7,7 @@ import jooby.mvc.Viewable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 
-public abstract class TemplateProcessor implements BodyMapper {
+public abstract class TemplateProcessor implements BodyConverter {
 
   public static final String VIEW_NAME = "@" + TemplateProcessor.class.getName() + "#vieName";
 

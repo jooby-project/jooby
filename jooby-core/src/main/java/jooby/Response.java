@@ -38,7 +38,7 @@ public abstract class Response {
     void send(Fn otherwise) throws Exception;
   }
 
-  private BodyMapperSelector selector;
+  private BodyConverterSelector selector;
 
   private Charset charset;
 
@@ -51,7 +51,7 @@ public abstract class Response {
   private Multimap<String, String> headers = Multimaps.newListMultimap(new TreeMap<>(
       String.CASE_INSENSITIVE_ORDER), ArrayList::new);
 
-  public Response(final BodyMapperSelector selector,
+  public Response(final BodyConverterSelector selector,
       final Charset charset,
       final List<MediaType> produces,
       final ThrowingSupplier<OutputStream> stream) {
@@ -72,11 +72,11 @@ public abstract class Response {
   }
 
   public void send(final Object message) throws Exception {
-    BodyMapper converter = selector.getOrThrow(produces, HttpStatus.NOT_ACCEPTABLE);
+    BodyConverter converter = selector.getOrThrow(produces, HttpStatus.NOT_ACCEPTABLE);
     send(message, converter);
   }
 
-  public void send(final Object message, final BodyMapper converter)
+  public void send(final Object message, final BodyConverter converter)
       throws Exception {
     if (message == null) {
       throw new HttpException(HttpStatus.NOT_ACCEPTABLE, Joiner.on(", ").join(produces));
@@ -114,7 +114,7 @@ public abstract class Response {
         if (filtered.size() == 0 && otherwise != null) {
           filtered = produces;
         }
-        BodyMapper converter = selector.getOrThrow(filtered, HttpStatus.NOT_ACCEPTABLE);
+        BodyConverter converter = selector.getOrThrow(filtered, HttpStatus.NOT_ACCEPTABLE);
         Fn fn = strategies.get(converter.types().get(0));
         if (fn == null) {
           fn = otherwise;

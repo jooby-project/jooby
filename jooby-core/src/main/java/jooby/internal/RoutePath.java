@@ -25,7 +25,6 @@ public class RoutePath {
     this.matcher = rewrite(pattern(method, Routes.normalize(pattern)));
   }
 
-
   public RouteMatcher matcher(final String path) {
     return matcher.apply(path);
   }
@@ -66,11 +65,11 @@ public class RoutePath {
       end = matcher.end();
     }
     patternBuilder.append(quote(pattern, end, pattern.length()));
-    return fn(complex, complex ? patternBuilder.toString() : pattern, vars);
+    return fn(complex, pattern, complex ? patternBuilder.toString() : pattern, vars);
   }
 
-  private static Function<String, RouteMatcher> fn(final boolean complex, final String pattern,
-      final List<String> vars) {
+  private static Function<String, RouteMatcher> fn(final boolean complex, final String rawPattern,
+      final String pattern, final List<String> vars) {
     return new Function<String, RouteMatcher>() {
       final Pattern regex = complex ? Pattern.compile(pattern) : null;
 
@@ -83,7 +82,7 @@ public class RoutePath {
 
       @Override
       public String toString() {
-        return pattern;
+        return rawPattern;
       }
     };
   }

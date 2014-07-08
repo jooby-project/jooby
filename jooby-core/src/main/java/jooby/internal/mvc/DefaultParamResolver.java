@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import jdk.internal.org.objectweb.asm.Type;
-import jooby.internal.ParameterDefinition;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -81,16 +80,16 @@ class DefaultParamResolver implements ParamResolver {
   }
 
   @Override
-  public List<ParameterDefinition> resolve(final Method method) throws Exception {
+  public List<ParamValue> resolve(final Method method) throws Exception {
     Method target = reload ? reload(method) : method;
     if (target.getParameterCount() == 0) {
       return Collections.emptyList();
     }
     Parameter[] parameters = target.getParameters();
-    List<ParameterDefinition> params = new ArrayList<>(parameters.length);
+    List<ParamValue> params = new ArrayList<>(parameters.length);
     for (Parameter parameter : parameters) {
       if (parameter.isNamePresent()) {
-        params.add(new ParameterDefinition(parameter.getName(), parameter.getType()));
+        params.add(new ParamValue(new ParamDef(parameter)));
       }
     }
     if (params.size() > 0) {
@@ -99,7 +98,9 @@ class DefaultParamResolver implements ParamResolver {
     // fallback and use ASM
     List<String> names = resolver.collect(method, reload);
     for (int idx = 0; idx < parameters.length; idx++) {
-      params.add(new ParameterDefinition(names.get(idx), parameters[idx].getType()));
+      Parameter parameter = parameters[idx];
+      params.add(new ParamValue(new ParamDef(names.get(idx), parameter.getType(), parameter
+          .getParameterizedType(), parameter.getAnnotations())));
     }
     return params;
   }

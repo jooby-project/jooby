@@ -206,11 +206,17 @@ package jooby;
 import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import jooby.internal.MutableCookie;
+
+import com.google.common.collect.ListMultimap;
 import com.google.inject.Injector;
 
 class JettyRequest extends Request {
@@ -219,20 +225,41 @@ class JettyRequest extends Request {
 
   public JettyRequest(final HttpServletRequest request,
       final Injector injector,
-      final BodyMapperSelector selector,
+      final BodyConverterSelector selector,
       final List<MediaType> accept,
       final MediaType contentType,
+      final ListMultimap<String, String> params,
+      final ListMultimap<String, String> headers,
       final Charset defaultCharset) {
-    super(injector, selector, Optional.ofNullable(request.getCharacterEncoding())
-        .map(Charset::forName)
-        .orElse(defaultCharset), accept, contentType, request.getParameterMap(),
+    super(injector,
+        selector,
+        Optional.ofNullable(request.getCharacterEncoding()).map(Charset::forName)
+            .orElse(defaultCharset),
+        accept,
+        contentType,
+        params,
+        headers,
+        cookies(request),
         request::getInputStream);
     this.request = requireNonNull(request, "A servlet request is required.");
   }
 
-  @Override
-  public Optional<String> header(final String name) {
-    return Optional.ofNullable(request.getHeader(name));
+  private static List<Cookie> cookies(final HttpServletRequest request) {
+    javax.servlet.http.Cookie[] cookies = request.getCookies();
+    if (cookies == null) {
+      return Collections.emptyList();
+    }
+    return Arrays.stream(cookies)
+        .map(c -> new MutableCookie(c.getName(), c.getValue())
+            .comment(c.getComment())
+            .domain(c.getDomain())
+            .httpOnly(c.isHttpOnly())
+            .maxAge(c.getMaxAge())
+            .path(c.getPath())
+            .secure(c.getSecure())
+            .version(c.getVersion())
+        )
+        .collect(Collectors.toList());
   }
 
   @Override

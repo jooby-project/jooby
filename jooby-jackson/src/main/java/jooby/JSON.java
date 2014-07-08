@@ -210,7 +210,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Multimap;
 
-class JSON implements BodyMapper {
+class JSON implements BodyConverter {
 
   private ObjectMapper mapper;
 

@@ -15,20 +15,20 @@ import com.google.common.collect.Lists;
 public class Reflection {
 
   public static class Annotations {
-    public static Set<Annotation> anyOf(final AnnotatedElement owner,
+    public static List<Annotation> anyOf(final AnnotatedElement owner,
         final Class<? extends Annotation> first,
         final Class<? extends Annotation> second) {
       return anyOf(owner, ImmutableSet.of(first, second));
     }
 
-    public static Set<Annotation> anyOf(final AnnotatedElement owner,
+    public static List<Annotation> anyOf(final AnnotatedElement owner,
         final Class<? extends Annotation> first,
         final Class<? extends Annotation> second,
         final Class<? extends Annotation> third) {
       return anyOf(owner, ImmutableSet.of(first, second, third));
     }
 
-    public static Set<Annotation> anyOf(final AnnotatedElement owner,
+    public static List<Annotation> anyOf(final AnnotatedElement owner,
         final Class<? extends Annotation> first,
         final Class<? extends Annotation> second,
         final Class<? extends Annotation> third,
@@ -36,17 +36,17 @@ public class Reflection {
       return anyOf(owner, ImmutableSet.of(first, second, third, four));
     }
 
-    public static Set<Annotation> anyOf(final AnnotatedElement owner,
+    public static List<Annotation> anyOf(final AnnotatedElement owner,
         final Class<? extends Annotation>[] annotations) {
       return anyOf(owner, ImmutableSet.copyOf(annotations));
     }
 
-    public static Set<Annotation> anyOf(final AnnotatedElement owner,
+    public static List<Annotation> anyOf(final AnnotatedElement owner,
         final Set<Class<? extends Annotation>> annotations) {
       return annotations.stream()
           .filter(owner::isAnnotationPresent)
           .map(type -> owner.getAnnotation(type))
-          .collect(Collectors.toSet());
+          .collect(Collectors.toList());
     }
   }
 

@@ -92,8 +92,8 @@ public class Jooby {
         binder.bind(Charset.class).toInstance(charset);
 
         // bind readers & writers
-        Multibinder<BodyMapper> converters = Multibinder
-            .newSetBinder(binder, BodyMapper.class);
+        Multibinder<BodyConverter> converters = Multibinder
+            .newSetBinder(binder, BodyConverter.class);
 
         // Routes
         Multibinder<RouteDefinition> definitions = Multibinder

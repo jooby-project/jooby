@@ -10,7 +10,6 @@ import jooby.Request;
 import jooby.Response;
 import jooby.Route;
 import jooby.TemplateProcessor;
-import jooby.internal.ParameterDefinition;
 import jooby.mvc.Template;
 import net.sf.cglib.reflect.FastMethod;
 
@@ -28,9 +27,15 @@ class MvcRoute implements Route {
   @Override
   public void handle(final Request request, final Response response) throws Exception {
     Method method = route.getJavaMethod();
-    List<ParameterDefinition> parameters = resolver.resolve(method);
-    Object[] args = parameters.stream().map(p -> p.get(request)).toArray();
+
     Object handler = request.get(method.getDeclaringClass());
+
+    List<ParamValue> parameters = resolver.resolve(method);
+    Object[] args = new Object[parameters.size()];
+    for (int i = 0; i < parameters.size(); i++) {
+      args[i] = parameters.get(i).get(request);
+    }
+
     Object result = route.invoke(handler, args);
 
     // default view name

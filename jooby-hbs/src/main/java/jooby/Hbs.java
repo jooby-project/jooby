@@ -270,7 +270,7 @@ public class Hbs implements JoobyModule {
       throws Exception {
     binder.bind(Handlebars.class).toInstance(handlebars);
 
-    Multibinder.newSetBinder(binder, BodyMapper.class).addBinding()
+    Multibinder.newSetBinder(binder, BodyConverter.class).addBinding()
         .toInstance(new Engine(handlebars));
 
   }
