@@ -15,32 +15,128 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 
+/**
+ * An immutable implementation of HTTP media types.
+ *
+ * @author edgar
+ * @since 0.1.0
+ */
 public class MediaType implements Comparable<MediaType> {
 
+  /**
+   * A media type matcher.
+   *
+   * @see MediaType#matcher(MediaType)
+   * @see MediaType#matcher(Iterable)
+   */
   public static class Matcher {
 
+    /**
+     * The source of media types.
+     */
     private Iterable<MediaType> acceptable;
 
+    /**
+     * Creates a new {@link Matcher}.
+     *
+     * @param acceptable The source to compare with.
+     */
     Matcher(final Iterable<MediaType> acceptable) {
       this.acceptable = acceptable;
     }
 
+    /**
+     * Given:
+     *
+     * <pre>
+     *   text/html, application/xhtml; {@literal *}/{@literal *}
+     * </pre>
+     *
+     * <pre>
+     *   matches(text/html)        -> true through text/html
+     *   matches(application/json) -> true through {@literal *}/{@literal *}
+     * </pre>
+     *
+     * @param candidate A candidate media type. Required.
+     * @return True if the matcher matches the given media type.
+     */
     public boolean matches(final MediaType candidate) {
+      requireNonNull(candidate, "A candidate media type is required.");
       return doFirst(ImmutableSortedSet.of(candidate)) != null;
     }
 
+    /**
+     * Given:
+     *
+     * <pre>
+     *   text/html, application/xhtml; {@literal *}/{@literal *}
+     * </pre>
+     *
+     * <pre>
+     *   matches(text/html)        -> true through text/html
+     *   matches(application/json) -> true through {@literal *}/{@literal *}
+     * </pre>
+     *
+     * @param candidates One ore more candidates media type. Required.
+     * @return True if the matcher matches the given media type.
+     */
     public boolean matches(final Iterable<MediaType> candidates) {
       return doFirst(candidates) != null;
     }
 
+    /**
+     * Given:
+     *
+     * <pre>
+     *   text/html, application/xhtml; {@literal *}/{@literal *}
+     * </pre>
+     *
+     * <pre>
+     *   first(text/html)        -> returns text/html
+     *   first(application/json) -> returns application/json
+     * </pre>
+     *
+     * @param candidate A candidate media type. Required.
+     * @return A first most relevant media type or an empty optional.
+     */
     public Optional<MediaType> first(final MediaType candidate) {
       return first(ImmutableList.of(candidate));
     }
 
+    /**
+     * Given:
+     *
+     * <pre>
+     *   text/html, application/xhtml; {@literal *}/{@literal *}
+     * </pre>
+     *
+     * <pre>
+     *   first(text/html)        -> returns text/html
+     *   first(application/json) -> returns application/json
+     * </pre>
+     *
+     * @param candidates One ore more candidates media type. Required.
+     * @return A first most relevant media type or an empty optional.
+     */
     public Optional<MediaType> first(final Iterable<MediaType> candidates) {
       return Optional.ofNullable(doFirst(candidates));
     }
 
+    /**
+     * Filter the accepted types and keep the most specifics media types.
+     *
+     * Given:
+     *
+     * <pre>
+     *   text/html, application/xhtml; {@literal *}/{@literal *}
+     * </pre>
+     *
+     * <pre>
+     *   filter(text/html)       -> returns text/html
+     *   first(application/json) -> returns application/json
+     *   filter(text/html, application/json)       -> returns text/html and application/json
+     * </pre>
+     */
     public List<MediaType> filter(final Iterable<MediaType> candidates) {
       List<MediaType> result = new ArrayList<>();
       for (MediaType accept : acceptable) {
@@ -54,6 +150,21 @@ public class MediaType implements Comparable<MediaType> {
       return result;
     }
 
+    /**
+     * Given:
+     *
+     * <pre>
+     *   text/html, application/xhtml; {@literal *}/{@literal *}
+     * </pre>
+     *
+     * <pre>
+     *   first(text/html)        -> returns text/html
+     *   first(application/json) -> returns application/json
+     * </pre>
+     *
+     * @param candidates One ore more candidates media type. Required.
+     * @return A first most relevant media type or an empty optional.
+     */
     private MediaType doFirst(final Iterable<MediaType> candidates) {
       SortedSet<MediaType> result = new TreeSet<>();
       for (MediaType accept : acceptable) {
@@ -67,60 +178,135 @@ public class MediaType implements Comparable<MediaType> {
     }
   }
 
+  /**
+   * Default parameters.
+   */
   private static final Map<String, String> DEFAULT_PARAMS = ImmutableMap.of("q", "1");
 
+  /**
+   * A JSON media type.
+   */
   public static final MediaType json = new MediaType("application", "json");
 
-  public static final List<MediaType> JSON = ImmutableList.of(json);
+  /**
+   * Any text media type.
+   */
+  public static final MediaType text = new MediaType("text", "*");
 
+  /**
+   * Text plain media type.
+   */
   public static final MediaType plain = new MediaType("text", "plain");
 
+  /**
+   * Stylesheet media type.
+   */
+  public static final MediaType css = new MediaType("text", "css");
+
+  /**
+   * Javascript media types.
+   */
+  public static final MediaType javascript = new MediaType("application", "javascript");
+
+  /**
+   * HTML media type.
+   */
   public static final MediaType html = new MediaType("text", "html");
 
-  public static final List<MediaType> HTML = ImmutableList.of(html);
+  /**
+   * The default binary media type.
+   */
+  public static final MediaType octetstream = new MediaType("application", "octet-stream");
 
+  /**
+   * Any media type.
+   */
   public static final MediaType all = new MediaType("*", "*");
 
-  public static final List<MediaType> ALL = ImmutableList.of(all);
+  /** Form multipart-data media type. */
+  public static MediaType multipart = new MediaType("multipart", "form-data");
 
+  /** Form url encoded. */
+  public static MediaType form = new MediaType("application", "x-www-form-urlencoded");
+
+  /**
+   * Track the type of this media type.
+   */
   private final String type;
 
+  /**
+   * Track the subtype of this media type.
+   */
   private final String subtype;
 
+  /**
+   * Track the media type parameters.
+   */
   private final Map<String, String> params;
 
-  private boolean wildcardType;
+  /**
+   * True for wild-card types.
+   */
+  private final boolean wildcardType;
 
-  private boolean wildcardSubtype;
+  /**
+   * True for wild-card sub-types.
+   */
+  private final boolean wildcardSubtype;
 
+  /**
+   * Creates a new {@link MediaType}.
+   *
+   * @param type The primary type. Required.
+   * @param subtype The secondary type. Required.
+   * @param parameters The parameters. Required.
+   */
   private MediaType(final String type, final String subtype, final Map<String, String> parameters) {
     this.type = requireNonNull(type, "A mime type is required.");
     this.subtype = requireNonNull(subtype, "A mime subtype is required.");
-    this.params = requireNonNull(parameters, "The parameters is required.");
+    this.params = ImmutableMap.copyOf(requireNonNull(parameters, "The parameters is required."));
     this.wildcardType = "*".equals(type);
     this.wildcardSubtype = "*".equals(subtype);
   }
 
+  /**
+   * Creates a new {@link MediaType}.
+   *
+   * @param type The primary type. Required.
+   * @param subtype The secondary type. Required.
+   */
   private MediaType(final String type, final String subtype) {
     this(type, subtype, DEFAULT_PARAMS);
   }
 
+  /**
+   * @return The quality of this media type. Default is: 1.
+   */
   public float quality() {
     return Float.valueOf(params.get("q"));
   }
 
-  public String parameter(final String name) {
-    return params.get(name);
-  }
-
+  /**
+   * @return The primary media type.
+   */
   public String type() {
     return type;
   }
 
+  public Map<String, String> params() {
+    return params;
+  }
+
+  /**
+   * @return The secondary media type.
+   */
   public String subtype() {
     return subtype;
   }
 
+  /**
+   * @return The qualified type {@link #type()}/{@link #subtype()}.
+   */
   public String name() {
     return type + "/" + subtype;
   }
@@ -150,6 +336,9 @@ public class MediaType implements Comparable<MediaType> {
     }
   }
 
+  /**
+   * @return True, if the given media type matches the current one.
+   */
   public boolean matches(final MediaType that) {
     if (this == that || this.wildcardType || that.wildcardType) {
       // same or */*
@@ -192,6 +381,11 @@ public class MediaType implements Comparable<MediaType> {
     return name();
   }
 
+  /**
+   * Convert a media type expressed as String into a {@link MediaType}.
+   *
+   * @return An immutable {@link MediaType}.
+   */
   public static MediaType valueOf(final String mediaType) {
     requireNonNull(mediaType, "A mediaType is required.");
     String[] parts = mediaType.split(";");
@@ -214,6 +408,11 @@ public class MediaType implements Comparable<MediaType> {
     return new MediaType(type, subtype, parameters);
   }
 
+  /**
+   * Convert one or more media types expressed as String into a {@link MediaType}.
+   *
+   * @return An list of immutable {@link MediaType}.
+   */
   public static List<MediaType> valueOf(final String... mediaTypes) {
     requireNonNull(mediaTypes, "A mediaType is required.");
     List<MediaType> result = new ArrayList<>();
@@ -223,18 +422,43 @@ public class MediaType implements Comparable<MediaType> {
     return result;
   }
 
+  /**
+   * Convert a string separated by comma into one or more {@link MediaType}.
+   *
+   * @param value The string separated by commas.
+   * @return One ore more {@link MediaType}.
+   */
   public static List<MediaType> parse(final String value) {
     return valueOf(value.split(","));
   }
 
+  /**
+   * Produces a matcher for the given media type.
+   *
+   * @param acceptable The acceptable/target media type.
+   * @return A media type matcher.
+   */
   public static Matcher matcher(final MediaType acceptable) {
     return matcher(ImmutableList.of(acceptable));
   }
 
+  /**
+   * Produces a matcher for the given media types.
+   *
+   * @param acceptable The acceptable/target media types.
+   * @return A media type matcher.
+   */
   public static Matcher matcher(final Iterable<MediaType> acceptable) {
     return new Matcher(acceptable);
   }
 
+  /**
+   * Compare two media types. by quality values, number of parameters and lexical order.
+   *
+   * @param it The left side media type.
+   * @param that The right side media type.
+   * @return Less than zero if the left media type has more precedence.
+   */
   private static int quality(final MediaType it, final MediaType that) {
     float q = that.quality() - it.quality();
     if (q == 0) {

@@ -20,15 +20,12 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import jooby.BodyConverterSelector;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Request;
-import jooby.RequestFactory;
 import jooby.RequestModule;
 import jooby.Response;
-import jooby.ResponseFactory;
 import jooby.Route;
 import jooby.RouteDefinition;
 import jooby.RouteInterceptor;
@@ -68,6 +65,8 @@ public class RouteHandler {
 
   private static final List<String> VERBS = ImmutableList.of("GET", "POST", "PUT", "DELETE");
 
+  private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
+
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -100,20 +99,26 @@ public class RouteHandler {
 
   public void handle(final String verb, final String requestURI,
       final Map<String, String[]> parameters,
-      final ListMultimap<String, String> headers,
+      final ListMultimap<String, String> requestHeaders,
+      final ListMultimap<String, String> responseHeaders,
       final RequestFactory reqFactory,
       final ResponseFactory respFactory) throws Exception {
-    requireNonNull(headers, "The headers are required.");
+    requireNonNull(verb, "A HTTP verb is required.");
+    requireNonNull(requestURI, "A requestURI is required.");
+    requireNonNull(parameters, "The request parameters are required.");
+    requireNonNull(requestHeaders, "The request headers are required.");
+    requireNonNull(responseHeaders, "The response headers are required.");
     requireNonNull(reqFactory, "A request factory is required.");
     requireNonNull(respFactory, "A response factory is required.");
 
-    doHandle(verb.toUpperCase(), Routes.normalize(requestURI), parameters, headers, reqFactory,
-        respFactory);
+    doHandle(verb.toUpperCase(), Routes.normalize(requestURI), parameters, requestHeaders,
+        responseHeaders, reqFactory, respFactory);
   }
 
   private void doHandle(final String verb, final String requestURI,
       final Map<String, String[]> params,
-      final ListMultimap<String, String> headers,
+      final ListMultimap<String, String> requestHeaders,
+      final ListMultimap<String, String> responseHeaders,
       final RequestFactory reqFactory,
       final ResponseFactory respFactory) throws Exception {
 
@@ -123,13 +128,13 @@ public class RouteHandler {
     log.info("handling: {}", path);
 
     final List<MediaType> accept = Optional
-        .ofNullable(headers.get("accept"))
-        .map(h -> MediaType.parse(h.get(0)))
-        .orElse(MediaType.ALL);
+        .ofNullable(requestHeaders.get("accept"))
+        .map(h -> h.size() == 0 ? ALL : MediaType.parse(h.get(0)))
+        .orElse(ALL);
     log.info("  accept: {}", accept);
 
     final MediaType contentType = Optional
-        .ofNullable(headers.get("content-type"))
+        .ofNullable(requestHeaders.get("content-type"))
         .map(h -> h.size() == 0 ? MediaType.all : MediaType.valueOf(h.get(0)))
         .orElse(MediaType.all);
     log.info("  content-type: {}", contentType);
@@ -141,19 +146,18 @@ public class RouteHandler {
       }
     });
 
-    // interceptors
-
     final Optional<RouteDescriptor> routeHolder = routes(routes, path, contentType, accept);
 
     final List<MediaType> produces = routeHolder.map(d -> d.produces).orElse(accept);
-    log.info("  produces: {}", produces);
+    log.trace("  produces: {}", produces);
 
-    final Request request = reqFactory.newRequest(injector, selector, accept, contentType,
-        params(params, routeHolder), headers, defaultCharset);
+    final Request request = reqFactory.newRequest(injector, requestURI, selector, accept,
+        contentType, params(params, routeHolder), requestHeaders, defaultCharset);
     final Response response = respFactory.newResponse(request, selector, interceptors,
-        request.charset(), produces);
+        request.charset(), produces, responseHeaders);
 
     try {
+      // before interceptor
       for (RouteInterceptor interceptor : interceptors) {
         interceptor.before(request, response);
       }
@@ -163,13 +167,16 @@ public class RouteHandler {
           .definition;
       Route route = routeDefinition.route();
 
+      // invoke route
       route.handle(request, response);
 
+      // after callback
       for (RouteInterceptor interceptor : interceptors) {
         interceptor.after(request, response);
       }
     } catch (Exception ex) {
       log.error("handling of: " + path + " ends with error", ex);
+      // after callback with error
       for (RouteInterceptor interceptor : interceptors) {
         interceptor.after(request, response, ex);
       }
@@ -177,12 +184,12 @@ public class RouteHandler {
       // execution failed, so find status code
       HttpStatus status = statusCode(ex);
 
-      response.header("Cache-Control", NO_CACHE);
+      response.header("Cache-Control").setString(NO_CACHE);
       response.status(status);
 
       // TODO: move me to an error handler feature
       Map<String, Object> model = errorModel(request, ex, status);
-      response.header(TemplateProcessor.VIEW_NAME, "/status/" + status.value());
+      response.header(TemplateProcessor.VIEW_NAME).setString("/status/" + status.value());
       try {
         response.send(model);
       } catch (Exception ignored) {
@@ -283,8 +290,8 @@ public class RouteHandler {
         .append("</body>\n")
         .append("</html>\n");
 
-    response.header("Cache-Control", NO_CACHE);
-    response.send(html, new StringMessageConverter(MediaType.html));
+    response.header("Cache-Control").setString(NO_CACHE);
+    response.send(html, FallbackBodyConverter.TO_HTML);
   }
 
   private Map<String, Object> errorModel(final Request request, final Exception ex,
@@ -296,8 +303,6 @@ public class RouteHandler {
     error.put("stackTrace", dump(ex));
     error.put("status", status.value());
     error.put("reason", status.reason());
-    error.put("referer", request.header("Referer"));
-    error.put("agent", request.header("User-Agent"));
     return error;
   }
 

@@ -205,7 +205,10 @@ package jooby;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
@@ -213,6 +216,8 @@ import com.typesafe.config.Config;
 public class Jackson implements JoobyModule {
 
   private final ObjectMapper mapper;
+
+  private List<MediaType> types = ImmutableList.of(MediaType.json);
 
   public Jackson(final ObjectMapper mapper) {
     this.mapper = checkNotNull(mapper, "An object mapper is required.");
@@ -222,12 +227,17 @@ public class Jackson implements JoobyModule {
     this(new ObjectMapper());
   }
 
+  public Jackson with(final MediaType... types) {
+    this.types = ImmutableList.copyOf(types);
+    return this;
+  }
+
   @Override
   public void configure(final Mode mode, final Config config, final Binder binder) {
     binder.bind(ObjectMapper.class).toInstance(mapper);
     Multibinder.newSetBinder(binder, BodyConverter.class)
         .addBinding()
-        .toInstance(new JSON(mapper));
+        .toInstance(new JSON(mapper, types));
   }
 
 }

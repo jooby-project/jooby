@@ -208,22 +208,88 @@ import java.util.function.Predicate;
 
 import jooby.Switch.Fn;
 
+/**
+ * Application's mode that let you optimize, customize or apply defaults values for services.
+ *
+ * A mode is represented by it's name. By default an application runs in <strong>dev</strong> mode.
+ * The <strong>dev</strong> is special and a module provider could do some special configuration for
+ * development, like turning off a cache, reloading of resources, etc.
+ *
+ * Same is true for none <strong>dev</strong> mode. For example, a module's provider can create
+ * a high performance connection pool for none dev modes, etc.
+ *
+ * By default a mode is set to dev, but you can change it by setting the
+ * <code>application.mode</code> property to anything else.
+ *
+ * @author edgar
+ * @since 0.1.0
+ */
 public interface Mode {
 
+  /**
+   * @return Mode's name.
+   */
   String name();
 
+  /**
+   * Runs the callback function if the current mode matches the given name.
+   *
+   * @param name A name to test for.
+   * @param fn A callback function.
+   * @return A resulting object.
+   * @throws Exception If something fails.
+   */
   default <T> Optional<T> ifMode(final String name, final Fn<T> fn) throws Exception {
     return Optional.ofNullable(when(name, fn).otherwise(null));
   }
 
+  /**
+   * Produces a {@link Switch} of the current {@link Mode}.
+   * <pre>
+   *   String accessKey = mode.when("dev", () -> "1234")
+   *                          .when("stage", () -> "4321")
+   *                          .when("prod", () -> "abc")
+   *                          .get();
+   * </pre>
+   *
+   * @param name A name to test for.
+   * @param fn A callback function.
+   * @return A new switch.
+   */
   default <T> Switch<String, T> when(final String name, final Fn<T> fn) {
     return Switches.<T> newSwitch(name()).when(name, fn);
   }
 
+  /**
+   * Produces a {@link Switch} of the current {@link Mode}.
+   * <pre>
+   *   String accessKey = mode.when("dev", "1234")
+   *                          .when("stage", "4321")
+   *                          .when("prod", "abc")
+   *                          .get();
+   * </pre>
+   *
+   * @param name A name to test for.
+   * @param fn A callback function.
+   * @return A new switch.
+   */
   default <T> Switch<String, T> when(final String name, final T result) {
     return Switches.<T> newSwitch(name()).when(name, result);
   }
 
+  /**
+   * Produces a {@link Switch} of the current {@link Mode}.
+   * <pre>
+   *   String accessKey = mode.when("dev", () -> "1234")
+   *                          .when("stage", () -> "4321")
+   *                          .when("prod", () -> "abc")
+   *                          .get();
+   * </pre>
+   *
+   * @param name A name to test for.
+   * @param fn A callback function.
+   * @return A new switch.
+   */
   default <T> Switch<String, T> when(final Predicate<String> predicate, final T result) {
     return Switches.<T> newSwitch(name()).when(predicate, result);
   }

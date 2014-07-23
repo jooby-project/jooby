@@ -203,6 +203,7 @@
  */
 package jooby;
 
+
 public class Logica {
 
   public static void login(final Request request, final Response response) {

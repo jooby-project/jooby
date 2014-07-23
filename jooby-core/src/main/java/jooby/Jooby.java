@@ -3,82 +3,615 @@ package jooby;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import jooby.internal.StringMessageConverter;
+import jooby.internal.AssetRoute;
+import jooby.internal.FallbackBodyConverter;
 import jooby.internal.mvc.Routes;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.Beta;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
+import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
 
+/**
+ * This is the main entry point for creating a new Jooby application. A Jooby application consist of
+ * Modules, Routes and Services.
+ *
+ * <h1>It is Guice!</h1>
+ * <p>
+ * Jooby strongly depends on Guice for defining Modules, Routes and Services.
+ * </p>
+ *
+ * <h1>Starting a new application:</h1>
+ * <p>
+ * A new application must extends Jooby, choose a server implementation, register one ore more
+ * {@link BodyConverter} and defines some {@link Route}. It sounds like a lot of work to do, but it
+ * isn't.
+ * </p>
+ *
+ * <pre>
+ * public class MyApp extends Jooby {
+ *
+ *   {{
+ *      use(new Jetty());   // 1. server implementation.
+ *      use(new Jackson()); // 2. JSON body converter through Jackson.
+ *
+ *      // 3. Define a route
+ *      get("/", (req, res) -> {
+ *        Map<String, Object> model = ...;
+ *        res.send(model);
+ *      }
+ *   }}
+ *
+ *  public static void main(String[] args) throws Exception {
+ *    new MyApp().start(); // 4. Start it up!
+ *  }
+ * }
+ * </pre>
+ *
+ * <h1>/application.conf</h1>
+ * <p>
+ * Jooby delegate configuration management to <a
+ * href="https://github.com/typesafehub/config">TypeSafe Config</a>. If you are unfamiliar with <a
+ * href="https://github.com/typesafehub/config">TypeSafe Config</a> please takes a few minutes to
+ * discover what <a href="https://github.com/typesafehub/config">TypeSafe Config</a> can do for you.
+ * </p>
+ *
+ * <p>
+ * By default Jooby looks for an <code>application.conf</code> file at the root of the classpath. If
+ * you want to specify a different file or location, you can do it with {@link #use(Config)}.
+ * </p>
+ *
+ * <p>
+ * As you already noticed, <a href="https://github.com/typesafehub/config">TypeSafe Config</a> uses
+ * a hierarchical model to define and override properties. In Jooby, system properties takes
+ * precedence over any application specific property.
+ * </p>
+ * <h1>Mode</h1>
+ * <p>
+ * Jooby defines two modes: <strong>dev</strong> or anything else. In Jooby, <strong>dev</strong> is
+ * special and modules apply some special settings while running in <strong>dev</strong>.
+ * </p>
+ * <p>
+ * A mode can be defined in your <code>application.conf</code> file using the
+ * <code>application.mode</code> property. If missing, Jooby set the mode for you to
+ * <strong>dev</strong>
+ * </p>
+ * <p>
+ * There is more at {@link Mode} so take a few minutes to discover what a {@link Mode} can do for
+ * you.
+ * </p>
+ *
+ * <h1>Modules</h1>
+ * <p>
+ * Modules at Jooby must extends {@link JoobyModule}. It works quite similar to a Guice module,
+ * except that the configure callback has been complementing with {@link Mode} and {@link Config}.
+ * </p>
+ *
+ * <pre>
+ *   public class MyModule implements Module {
+ *     public void configure(Mode mode, Config config, Binder binder) {
+ *     }
+ *   }
+ * </pre>
+ *
+ * From the configure callback you can bind your services as you usually do in a Guice Application.
+ * <p>
+ * There is more at {@link JoobyModule} so take a few minutes to discover what a {@link JoobyModule}
+ * can do for you.
+ * </p>
+ *
+ * <h1>Path Patterns</h1>
+ * <p>
+ * Jooby supports Ant-style path patterns:
+ * </p>
+ * <p>
+ * Some examples:
+ * </p>
+ * <ul>
+ * <li>{@code com/t?st.html} - matches {@code com/test.html} but also {@code com/tast.jsp} or
+ * {@code com/txst.html}</li>
+ * <li>{@code com/*.html} - matches all {@code .html} files in the {@code com} directory</li>
+ * <li><code>com/{@literal **}/test.html</code> - matches all {@code test.html} files underneath the
+ * {@code com} path</li>
+ * </ul>
+ *
+ * <h1>Variable Path Patterns</h1>
+ * <p>
+ * Jooby supports path parameters too:
+ * </p>
+ * <p>
+ * Some examples:
+ * </p>
+ * <ul>
+ * <li><code> /user/{id}</code> - /user/* and give you access to the <code>id</code> var.</li>
+ * <li><code> /user/:id</code> - /user/* and give you access to the <code>id</code> var.</li>
+ * <li><code> /user/{id:\\d+}</code> - /user/[digits] and give you access to the numeric
+ * <code>id</code> var.</li>
+ * </ul>
+ *
+ * <h1>Routes</h1>
+ * <p>
+ * Routes are the heart of Jooby and they are registered in the same order you specify. With an
+ * incoming request Jooby will execute the first route that matches the incoming request.
+ * </p>
+ * <p>
+ * Routes can be defined in 3 ways:
+ * </p>
+ * <h2>Inline route</h2> An inline route can be defined using Lambda expressions, like:
+ *
+ * <pre>
+ *   get("/", (request, response) -> {
+ *     response.send("Hello Jooby");
+ *   });
+ * </pre>
+ *
+ * Due to the use of lambdas a route is a singleton and you should NOT use shared or global
+ * variables. For example this is a bad practice and might cause a lot of headaches:
+ *
+ * <pre>
+ *  List<String> names = new ArrayList<>(); // names produces side effects
+ *  get("/", (request, response) -> {
+ *     names.add(request.param("name"));
+ *     // response will be different between calls.
+ *     response.send(names);
+ *   });
+ * </pre>
+ *
+ * <h2>External route</h2>
+ * <p>
+ * An external route can be defined by using a {@link Class route class}, like:
+ * </p>
+ *
+ * <pre>
+ *   get("/", ExternalRoute.class);
+ *
+ *   ...
+ *   // ExternalRoute.java
+ *   public class ExternalRoute implements Route {
+ *     public void handle(Request request, Response response) throws Exception {
+ *       response.send("Hello Jooby");
+ *     }
+ *   }
+ * </pre>
+ *
+ * A new instance is created per request, not like inline routes. So an external route isn't
+ * singleton. This scope is known us prototype or per-lookup.
+ *
+ * <h2>Mvc Route</h2>
+ * <p>
+ * A Mvc Route use annotations to define routes:
+ * </p>
+ *
+ * <pre>
+ *   route(MyRoute.class);
+ *   ...
+ *   // MyRoute.java
+ *   {@literal @}Path("/")
+ *   public class MyRoute {
+ *
+ *    {@literal @}GET
+ *    public String hello() {
+ *      return "Hello Jooby";
+ *    }
+ *   }
+ * </pre>
+ * <p>
+ * Programming model is quite similar to JAX-RS/Jersey with some minor differences and/or
+ * simplifications.
+ * </p>
+ *
+ * <p>
+ * A new instance is created per request, not like inline routes. So an Mvc route isn't singleton.
+ * This scope is known us prototype or per-lookup.
+ * </p>
+ * <p>
+ * To learn more about Mvc Routes, please check {@link jooby.mvc.Path}, {@link jooby.mvc.Produces}
+ * {@link jooby.mvc.Consumes}, {@link jooby.mvc.Body} and {@link jooby.mvc.Template}.
+ * </p>
+ *
+ * <h1>Assets</h1>
+ * <p>
+ * If you need to publish static files like *.js, *.css, ..., etc... you can do it with:
+ * </p>
+ *
+ * <pre>
+ *   assets("assets/**");
+ * </pre>
+ * <p>
+ * Here a classpath resource under the <code>/assets</code> folder will be serve it to the client.
+ * </p>
+ * <h1>Bootstrap</h1>
+ * <p>
+ * The bootstrap process is defined as follows:
+ * </p>
+ * <h2>1. Configuration files order and fall-backs</h2>
+ * <ol>
+ * <li>System properties are loaded</li>
+ * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
+ * <li>Load configuration properties from each of the registered {@link JoobyModule modules}</li>
+ * <li>At this point a {@link Config} object is ready to use</li>
+ * </ol>
+ *
+ * <h2>2. Dependency Injection and {@link JoobyModule modules}</h2>
+ * <ol>
+ * <li>An {@link Injector Guice Injector} is created.</li>
+ * <li>It configures each of the registered {@link JoobyModule modules}</li>
+ * <li>At this point Guice is ready and all the services has been binded.</li>
+ * <li>For each registered {@link JoobyModule module} the {@link JoobyModule#start() start method}
+ * will be invoked</li>
+ * <li>Finally, Jooby ask Guice for a {@link Server web server} and then call to
+ * {@link Server#start()}</li>
+ * </ol>
+ *
+ * @author edgar
+ * @since 0.1.0
+ */
+@Beta
 public class Jooby {
 
+  /**
+   * Keep track of routes.
+   */
   private Set<Object> routes = new LinkedHashSet<>();
 
+  /**
+   * Keep track of modules.
+   */
   private Set<JoobyModule> modules = new LinkedHashSet<>();
 
+  /**
+   * The override config. Optional.
+   */
   private Config config;
 
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
+
+  private Injector injector;
+
+  /**
+   * Define an in-line route that supports HTTP GET method:
+   *
+   * <pre>
+   *   get("/", (request, response) -> {
+   *     response.send(something);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A route path. Required.
+   * @param route A route to execute. Required.
+   * @return A new route definition.
+   */
   public RouteDefinition get(final String path, final Route route) {
     return route(new RouteDefinition("GET", path, route));
   }
 
+  /**
+   * Define an external route that supports HTTP GET method:
+   *
+   * <pre>
+   *   get("/", MyRoute.class);
+   *
+   *   // MyRoute.java
+   *   public class MyRoute implements Route {
+   *     public void handle(Request request, Response response) {
+   *       response.send(something);
+   *     }
+   *   }
+   * </pre>
+   *
+   * An external route is created per-request. They aren't singleton.
+   *
+   * @param path A route path. Required.
+   * @param route A route to execute. Required.
+   * @return A new route definition.
+   * @see RequestModule
+   */
+  public RouteDefinition get(final String path, final Class<? extends Route> route) {
+    return route(new RouteDefinition("GET", path, wrapRoute(route)));
+  }
+
+  /**
+   * Define an in-line route that supports HTTP POST method:
+   *
+   * <pre>
+   *   post("/", (request, response) -> {
+   *     response.send(something);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A route path. Required.
+   * @param route A route to execute. Required.
+   * @return A new route definition.
+   */
   public RouteDefinition post(final String path, final Route route) {
     return route(new RouteDefinition("POST", path, route));
   }
 
+  /**
+   * Define an external route that supports HTTP POST method:
+   *
+   * <pre>
+   *   post("/", MyRoute.class);
+   *
+   *   // MyRoute.java
+   *   public class MyRoute implements Route {
+   *     public void handle(Request request, Response response) {
+   *       response.send(something);
+   *     }
+   *   }
+   * </pre>
+   *
+   * An external route is created per-request. They aren't singleton.
+   *
+   * @param path A route path. Required.
+   * @param route A route to execute. Required.
+   * @return A new route definition.
+   * @see RequestModule
+   */
+  public RouteDefinition post(final String path, final Class<? extends Route> route) {
+    return route(new RouteDefinition("POST", path, wrapRoute(route)));
+  }
+
+  /**
+   * Define an in-line route that supports HTTP PUT method:
+   *
+   * <pre>
+   *   put("/", (request, response) -> {
+   *     response.send(something);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A route path. Required.
+   * @param route A route to execute. Required.
+   * @return A new route definition.
+   */
+  public RouteDefinition put(final String path, final Route route) {
+    return route(new RouteDefinition("PUT", path, route));
+  }
+
+  /**
+   * Define an external route that supports HTTP PUT method:
+   *
+   * <pre>
+   *   put("/", MyRoute.class);
+   *
+   *   // MyRoute.java
+   *   public class MyRoute implements Route {
+   *     public void handle(Request request, Response response) {
+   *       response.send(something);
+   *     }
+   *   }
+   * </pre>
+   *
+   * An external route is created per-request. They aren't singleton.
+   *
+   * @param path A route path. Required.
+   * @param route A route to execute. Required.
+   * @return A new route definition.
+   * @see RequestModule
+   */
+  public RouteDefinition put(final String path, final Class<? extends Route> route) {
+    return route(new RouteDefinition("PUT", path, wrapRoute(route)));
+  }
+
+  /**
+   * Define an in-line route that supports HTTP DELETE method:
+   *
+   * <pre>
+   *   delete("/", (request, response) -> {
+   *     response.send(something);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A route path. Required.
+   * @param route A route to execute. Required.
+   * @return A new route definition.
+   */
+  public RouteDefinition delete(final String path, final Route route) {
+    return route(new RouteDefinition("DELETE", path, route));
+  }
+
+  /**
+   * Define an external route that supports HTTP DELETE method:
+   *
+   * <pre>
+   *   delete("/", MyRoute.class);
+   *
+   *   // MyRoute.java
+   *   public class MyRoute implements Route {
+   *     public void handle(Request request, Response response) {
+   *       response.send(something);
+   *     }
+   *   }
+   * </pre>
+   *
+   * An external route is created per-request. They aren't singleton.
+   *
+   * @param path A route path. Required.
+   * @param route A route to execute. Required.
+   * @return A new route definition.
+   * @see RequestModule
+   */
+  public RouteDefinition delete(final String path, final Class<? extends Route> route) {
+    return route(new RouteDefinition("DELETE", path, wrapRoute(route)));
+  }
+
+  /**
+   * Convert an external route to an inline route.
+   *
+   * @param route The external route class.
+   * @return A new inline route.
+   */
+  private static Route wrapRoute(final Class<? extends Route> route) {
+    return (req, resp) -> req.get(route).handle(req, resp);
+  }
+
+  /**
+   * Publish static files to the client. This method is useful for serving javascript, css and any
+   * other static file.
+   *
+   * <pre>
+   *   assets("/assets/**");
+   * </pre>
+   *
+   * It publish the content of <code>/assets/**</code> classpath folder.
+   *
+   * @param path The path to publish. Required.
+   * @return A new route definition.
+   */
+  public RouteDefinition assets(final String path) {
+    return get(path, AssetRoute.class);
+  }
+
+  /**
+   * <p>
+   * A Mvc Route use annotations to define routes:
+   * </p>
+   *
+   * <pre>
+   *   route(MyRoute.class);
+   *   ...
+   *   // MyRoute.java
+   *   {@literal @}Path("/")
+   *   public class MyRoute {
+   *
+   *    {@literal @}GET
+   *    public String hello() {
+   *      return "Hello Jooby";
+   *    }
+   *   }
+   * </pre>
+   * <p>
+   * Programming model is quite similar to JAX-RS/Jersey with some minor differences and/or
+   * simplifications.
+   * </p>
+   *
+   * <p>
+   * A new instance is created per request, not like inline routes. So an Mvc route isn't singleton.
+   * This scope is known us prototype or per-lookup.
+   * </p>
+   * <p>
+   * To learn more about Mvc Routes, please check {@link jooby.mvc.Path}, {@link jooby.mvc.Produces}
+   * {@link jooby.mvc.Consumes}, {@link jooby.mvc.Body} and {@link jooby.mvc.Template}.
+   * </p>
+   *
+   * @param route The Mvc route.
+   */
   public void route(final Class<?> route) {
     routes.add(route);
   }
 
-  public RouteDefinition route(final RouteDefinition route) {
+  /**
+   * Keep track of routes in the order user define them.
+   *
+   * @param route A route definition to append.
+   * @return The same route definition.
+   */
+  private RouteDefinition route(final RouteDefinition route) {
     routes.add(route);
     return route;
   }
 
+  /**
+   * Register a Jooby module. Module are executed in the order they were registered.
+   *
+   * @param module The module to register. Required.
+   * @return This Jooby instance.
+   * @see JoobyModule
+   */
   public Jooby use(final JoobyModule module) {
+    requireNonNull(module, "A module is required.");
     modules.add(module);
     return this;
   }
 
+  /**
+   * Set the application configuration object. You must call this method when the default file
+   * name: <code>application.conf</code> doesn't work for you or when you need/want to register two
+   * or more files.
+   *
+   * @param config The application configuration object. Required.
+   * @return This Jooby instance.
+   * @see Config
+   */
   public Jooby use(final Config config) {
     this.config = requireNonNull(config, "A config is required.");
     return this;
   }
 
+  /**
+   * <h1>Bootstrap</h1>
+   * <p>
+   * The bootstrap process is defined as follows:
+   * </p>
+   * <h2>1. Configuration files order and fall-backs</h2>
+   * <ol>
+   * <li>System properties are loaded</li>
+   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
+   * <li>Load configuration properties from each of the registered {@link JoobyModule modules}</li>
+   * <li>At this point a {@link Config} object is ready to use</li>
+   * </ol>
+   *
+   * <h2>2. Dependency Injection and {@link JoobyModule modules}</h2>
+   * <ol>
+   * <li>An {@link Injector Guice Injector} is created.</li>
+   * <li>It configures each of the registered {@link JoobyModule modules}</li>
+   * <li>At this point Guice is ready and all the services has been binded.</li>
+   * <li>For each registered {@link JoobyModule module} the {@link JoobyModule#start() start method}
+   * will be invoked</li>
+   * <li>Finally, Jooby ask Guice for a {@link Server web server} and then call to
+   * {@link Server#start()}</li>
+   * </ol>
+   *
+   * @throws Exception If something fails to start.
+   */
   public void start() throws Exception {
     config = buildConfig(Optional.ofNullable(config));
 
     // shutdown hook
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      modules.forEach(m -> {
-        try {
-          m.stop();
-        } catch (Exception ex) {
-          // TODO:
-          ex.printStackTrace();
-        }
-      });
+      try {
+        stop();
+      } catch (Exception ex) {
+        log.error("Shutdown with error", ex);
+      }
     }));
 
-    final Charset charset = Charset.forName(config.getString("jooby.charset"));
+    final Charset charset = Charset.forName(config.getString("application.charset"));
 
     // dependency injection
-    Injector injector = Guice.createInjector(new Module() {
+    injector = Guice.createInjector(new Module() {
       @Override
       public void configure(final Binder binder) {
         // bind config
@@ -105,9 +638,9 @@ public class Jooby {
         // Route Interceptors
         Multibinder.newSetBinder(binder, RouteInterceptor.class);
 
-        // work dir
-        binder.bind(File.class).annotatedWith(Names.named("jooby.workDir"))
-            .toInstance(new File(config.getString("jooby.workDir")));
+        // tmp dir
+        binder.bind(File.class).annotatedWith(Names.named("java.io.tmpdir"))
+            .toInstance(new File(config.getString("java.io.tmpdir")));
 
         // configure module
         modules.forEach(m -> {
@@ -125,7 +658,10 @@ public class Jooby {
           }
         });
 
-        converters.addBinding().toInstance(new StringMessageConverter(MediaType.plain));
+        converters.addBinding().toInstance(FallbackBodyConverter.COPY_TEXT);
+        converters.addBinding().toInstance(FallbackBodyConverter.COPY_BYTES);
+        converters.addBinding().toInstance(FallbackBodyConverter.READ_TEXT);
+        converters.addBinding().toInstance(FallbackBodyConverter.TO_HTML);
       }
 
     });
@@ -141,8 +677,28 @@ public class Jooby {
     server.start();
   }
 
+  public void stop() throws Exception {
+    // stop modules
+    for (JoobyModule module : modules) {
+      try {
+        module.stop();
+      } catch (Exception ex) {
+        log.error("Can't stop: " + module.getClass().getName(), ex);
+      }
+    }
+
+    injector.getInstance(Server.class).stop();
+  }
+
+  /**
+   * Build configuration properties, it configure system, app and modules properties.
+   *
+   * @param appConfig An optional app configuration.
+   * @return A configuration properties ready to use.
+   */
   private Config buildConfig(final Optional<Config> appConfig) {
     Config sysProps = ConfigFactory.defaultOverrides()
+        // file encoding got corrupted sometimes so we force and override.
         .withValue("file.encoding",
             ConfigValueFactory.fromAnyRef(System.getProperty("file.encoding")));
 
@@ -151,27 +707,16 @@ public class Jooby {
     Config config = sysProps
         .withFallback(appConfig.orElseGet(defaults));
 
-    // set app anme
+    // set app name
     if (!config.hasPath("application.name")) {
       config = config.withValue("application.name",
           ConfigValueFactory.fromAnyRef(getClass().getSimpleName()));
     }
 
-    // set default mode
-    if (!config.hasPath("application.mode")) {
-      config = config.withValue("application.mode", ConfigValueFactory.fromAnyRef("dev"));
-    }
-
     // set default charset, if app config didn't set it
-    if (!config.hasPath("jooby.charset")) {
-      config = config.withValue("jooby.charset",
+    if (!config.hasPath("application.charset")) {
+      config = config.withValue("application.charset",
           ConfigValueFactory.fromAnyRef(Charset.defaultCharset().name()));
-    }
-
-    // set work dir
-    if (!config.hasPath("jooby.workDir")) {
-      config = config.withValue("jooby.workDir",
-          ConfigValueFactory.fromAnyRef(System.getProperty("java.io.tmpdir")));
     }
 
     // set module config
@@ -179,38 +724,68 @@ public class Jooby {
       config = config.withFallback(module.config());
     }
 
-    // resolve config
+    // add default config + mime types
     config = config
-        .withFallback(ConfigFactory.parseResources("jooby.conf"));
+        .withFallback(ConfigFactory.parseResources("jooby/mime.properties"));
+    config = config
+        .withFallback(ConfigFactory.parseResources("jooby/jooby.conf"));
 
     return config.resolve();
   }
 
+  /**
+   * Install a {@link JoobyModule}.
+   *
+   * @param module The module to install.
+   * @param mode Application mode.
+   * @param config The configuration object.
+   * @param binder A Guice binder.
+   */
   private void install(final JoobyModule module, final Mode mode, final Config config,
       final Binder binder) {
     try {
       module.configure(mode, config, binder);
     } catch (Exception ex) {
-      throw new IllegalStateException("Module didn't start properly: " + module.name(), ex);
+      throw new IllegalStateException("Module didn't start properly: "
+          + module.getClass().getName(), ex);
     }
   }
 
+  /**
+   * Bind a {@link Config} and make it available for injection. Each property of the config is also
+   * binded it and ready to be injected with {@link javax.inject.Named}.
+   *
+   * @param binder
+   * @param config
+   */
   @SuppressWarnings("unchecked")
-  private void bindConfig(final Binder binder, final Config config) {
+  private void bindConfig(final Binder root, final Config config) {
+    Binder binder = root.skipSources(Names.class);
     for (Entry<String, ConfigValue> entry : config.entrySet()) {
       String name = entry.getKey();
+      Named named = Names.named(name);
       Object value = entry.getValue().unwrapped();
-      Class<Object> type = (Class<Object>) value.getClass();
-      if (type.isAssignableFrom(CharSequence.class)) {
-        binder.bindConstant().annotatedWith(Names.named(name)).to(value.toString());
+      if (value instanceof List) {
+        List<Object> values = (List<Object>) value;
+        Type listType = Types.listOf(values.iterator().next().getClass());
+        Key<Object> key = (Key<Object>) Key.get(listType, Names.named(name));
+        binder.bind(key).toInstance(values);
       } else {
-        binder.bind(Key.get(type, Names.named(name))).toInstance(value);
+        @SuppressWarnings("rawtypes")
+        Class type = value.getClass();
+        binder.bind(type).annotatedWith(named).toInstance(value);
       }
     }
     // bind config
     binder.bind(Config.class).toInstance(config);
   }
 
+  /**
+   * Creates the application's mode.
+   *
+   * @param name A mode's name.
+   * @return A new mode.
+   */
   private static Mode mode(final String name) {
     return new Mode() {
       @Override

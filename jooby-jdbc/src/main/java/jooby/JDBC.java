@@ -296,7 +296,8 @@ public class JDBC implements JoobyModule {
   }
 
   @Override
-  public void start() throws Exception {
+  public Config config() {
+    return ConfigFactory.parseResources("jdbc.conf");
   }
 
   @Override
@@ -330,7 +331,7 @@ public class JDBC implements JoobyModule {
               final String dbName = DEFAULT_DB.equals(key) ? source.getString("application.name")
                   : key;
               String url = "jdbc:h2:"
-                  + new File(source.getString("jooby.workDir"), dbName).getAbsolutePath();
+                  + new File(source.getString("jooby.io.tmpdir"), dbName).getAbsolutePath();
               return h2.apply(url);
             })
         .otherwise(source);

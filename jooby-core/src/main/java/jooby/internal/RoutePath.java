@@ -15,7 +15,7 @@ public class RoutePath {
   }
 
   private static final Pattern GLOB = Pattern
-      .compile("\\?|\\*\\*/?|\\*|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
+      .compile("\\?|\\*\\*/?|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
 
   private static final String ANY_DIR = "**";
 
@@ -47,12 +47,16 @@ public class RoutePath {
       } else if ("**/".equals(match)) {
         patternBuilder.append("(.*/)*");
         complex = true;
+      } else if (match.startsWith(":")) {
+        complex = true;
+        patternBuilder.append("([^/]*)");
+        vars.add(match.substring(1));
       } else if (match.startsWith("{") && match.endsWith("}")) {
         complex = true;
         int colonIdx = match.indexOf(':');
         if (colonIdx == -1) {
           patternBuilder.append("([^/]*)");
-          vars.add(matcher.group(1));
+          vars.add(match.substring(1, match.length() - 1));
         }
         else {
           String regex = match.substring(colonIdx + 1, match.length() - 1);

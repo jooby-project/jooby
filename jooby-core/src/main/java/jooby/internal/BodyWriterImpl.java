@@ -4,27 +4,47 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.function.Function;
 
 import jooby.BodyWriter;
+import jooby.HttpMutableField;
 import jooby.ThrowingSupplier;
 
-public class BodyWriterImpl implements BodyWriter {
+class BodyWriterImpl implements BodyWriter {
 
   private Charset charset;
 
+  private Function<String, HttpMutableField> headers;
+
   private ThrowingSupplier<OutputStream> stream;
 
-  public BodyWriterImpl(final Charset charset, final ThrowingSupplier<OutputStream> stream) {
+  private ThrowingSupplier<Writer> writer;
+
+  public BodyWriterImpl(final Charset charset,
+      final Function<String, HttpMutableField> headers,
+      final ThrowingSupplier<OutputStream> stream,
+      final ThrowingSupplier<Writer> writer) {
     this.charset = requireNonNull(charset, "A charset is required.");
+    this.headers = requireNonNull(headers, "A getter is required.");
     this.stream = requireNonNull(stream, "A stream is required.");
+    this.writer = requireNonNull(writer, "A writer is required.");
+  }
+
+  @Override
+  public Charset charset() {
+    return charset;
+  }
+
+  @Override
+  public HttpMutableField header(final String name) {
+    return headers.apply(name);
   }
 
   @Override
   public void text(final Text text) throws Exception {
-    Writer writer = new OutputStreamWriter(this.stream.get(), charset);
+    Writer writer = this.writer.get();
     // don't close on errors
     text.write(uncloseable(writer));
     writer.flush();
@@ -32,7 +52,7 @@ public class BodyWriterImpl implements BodyWriter {
   }
 
   @Override
-  public void bytes(final Binary bin) throws Exception {
+  public void bytes(final Bytes bin) throws Exception {
     OutputStream out = this.stream.get();
     // don't close on errors
     bin.write(uncloseable(out));

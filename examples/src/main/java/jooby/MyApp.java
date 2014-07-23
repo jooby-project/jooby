@@ -203,7 +203,7 @@
  */
 package jooby;
 
-import jooby.mvc.Viewable;
+import jooby.jetty.Jetty;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -216,13 +216,14 @@ public class MyApp extends Jooby {
       use(new Jackson());
       use(new Hbs());
 
-      get("/api", (req, resp) -> {
+      assets("/assets/**");
+
+      get("/", (req, resp) -> {
         ImmutableMap<Object, Object> model = ImmutableMap.builder()
             .put("name", "K")
             .build();
 
-        resp.when("text/html", () -> new Viewable("index", model))
-            .send(() -> model);
+        resp.send(new Viewable("index", model));
 
       });
 

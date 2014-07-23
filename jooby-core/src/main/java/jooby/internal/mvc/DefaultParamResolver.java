@@ -10,13 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import jdk.internal.org.objectweb.asm.Type;
-
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 class DefaultParamResolver implements ParamResolver {
 
@@ -42,7 +41,7 @@ class DefaultParamResolver implements ParamResolver {
         public MethodVisitor visitMethod(final int access, final String name, final String desc,
             final String signature,
             final String[] exceptions) {
-          String key = key(owner, desc);
+          String key = key(owner, name, desc);
           cache.put(key, new ArrayList<>());
           return new MethodVisitor(Opcodes.ASM5) {
             @Override
@@ -61,13 +60,13 @@ class DefaultParamResolver implements ParamResolver {
     private static String key(final Class<?> clazz, final Executable executable) {
       @SuppressWarnings("rawtypes")
       String desc = executable instanceof Method
-          ? Type.getMethodDescriptor((Method) executable)
+          ?  Type.getMethodDescriptor((Method) executable)
           : Type.getConstructorDescriptor((Constructor) executable);
-      return key(clazz, desc);
+      return key(clazz, executable.getName(), desc);
     }
 
-    private static String key(final Class<?> clazz, final String descriptor) {
-      return clazz.getName() + "#" + descriptor;
+    private static String key(final Class<?> clazz, final String name, final String descriptor) {
+      return clazz.getName() + "." + name + "#" + descriptor;
     }
   }
 

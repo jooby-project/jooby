@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -13,9 +14,9 @@ import java.util.stream.Collectors;
 
 import jooby.MediaType;
 import jooby.Mode;
-import jooby.Reflection;
 import jooby.Route;
 import jooby.RouteDefinition;
+import jooby.internal.Reflection;
 import jooby.mvc.Consumes;
 import jooby.mvc.DELETE;
 import jooby.mvc.GET;
@@ -25,24 +26,36 @@ import jooby.mvc.Path;
 import jooby.mvc.Produces;
 import net.sf.cglib.reflect.FastClass;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 public class Routes {
 
+  private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
+
   private static final Set<Class<? extends Annotation>> VERBS = ImmutableSet.of(GET.class,
       POST.class, PUT.class, DELETE.class);
 
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public static List<RouteDefinition> route(final Mode mode, final Class<?> routeClass) {
     boolean reloadParams = mode.name().equals("dev");
     ParamResolver paramResolver = new DefaultParamResolver(reloadParams);
     FastClass fastRoute = FastClass.create(routeClass);
-    String rootPath = path(routeClass);
+    String topLevelPath = path(routeClass);
+    String rootPath = "/".equals(topLevelPath) ? "" : topLevelPath;
+
     return Reflection
         .methods(routeClass)
         .stream()
         .filter(
             m -> {
-              List<Annotation> annotations = Reflection.Annotations.anyOf(m, VERBS);
+              List<Annotation> annotations = new ArrayList<>();
+              for (Class annotationType : VERBS) {
+                Annotation annotation = m.getAnnotation(annotationType);
+                if (annotation != null) {
+                  annotations.add(annotation);
+                }
+              }
               if (annotations.size() == 0) {
                 return false;
               }
@@ -86,7 +99,7 @@ public class Routes {
         // class level
         .orElseGet(() -> fn.apply(method.getDeclaringClass())
             // none
-            .orElse(MediaType.ALL));
+            .orElse(ALL));
   }
 
   private static List<MediaType> consumes(final Method method) {
@@ -103,7 +116,7 @@ public class Routes {
         // class level
         .orElseGet(() -> fn.apply(method.getDeclaringClass())
             // none
-            .orElse(MediaType.ALL));
+            .orElse(ALL));
   }
 
   @SuppressWarnings("unchecked")
@@ -117,12 +130,17 @@ public class Routes {
   }
 
   private static String path(final AnnotatedElement owner) {
-    Path path = owner.getAnnotation(Path.class);
-    return normalize(path != null ? path.value() : "/");
+    Path annotation = owner.getAnnotation(Path.class);
+    if (annotation == null) {
+      return "";
+    }
+    String path = annotation.value();
+    return normalize(path);
   }
 
-  public static String normalize(final String path) {
-    if ("/".equals(path) || path == null || path.length() == 0) {
+  public static String normalize(final String candidate) {
+    String path = candidate.trim();
+    if ("/".equals(path) || path.length() == 0) {
       return "/";
     }
     StringBuilder normalized = new StringBuilder();

@@ -204,23 +204,39 @@
 package jooby;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Multimap;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 class JSON implements BodyConverter {
 
   private ObjectMapper mapper;
+  private List<MediaType> types;
 
-  public JSON(final ObjectMapper mapper) {
+  public JSON(final ObjectMapper mapper, final List<MediaType> types) {
     this.mapper = checkNotNull(mapper, "An object mapper is required.");
+    this.types = requireNonNull(types, "The types is required.");
   }
 
   @Override
   public List<MediaType> types() {
-    return MediaType.JSON;
+    return types;
+  }
+
+  @Override
+  public boolean canRead(final Type type) {
+    JavaType javaType = TypeFactory.defaultInstance().constructType(type);
+    return mapper.canDeserialize(javaType);
+  }
+
+  @Override
+  public boolean canWrite(final Class<?> type) {
+    return mapper.canSerialize(type);
   }
 
   @Override
@@ -229,8 +245,7 @@ class JSON implements BodyConverter {
   }
 
   @Override
-  public void write(final Object message, final BodyWriter writer,
-      final Multimap<String, String> headers) throws Exception {
+  public void write(final Object message, final BodyWriter writer) throws Exception {
     writer.text(out -> mapper.writeValue(out, message));
   }
 

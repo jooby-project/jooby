@@ -6,9 +6,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
-
-import jooby.MediaType;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -97,7 +97,10 @@ public class MediaTypeTest {
     assertEquals(types.toString(), expected.length, types.size());
     Iterator<MediaType> iterator = types.iterator();
     for (int i = 0; i < expected.length; i++) {
-      String found = iterator.next().toString();
+      MediaType m = iterator.next();
+      String found = m.name()
+          + m.params().entrySet().stream().map(Map.Entry::toString)
+              .collect(Collectors.joining(";", ";", ""));
       assertEquals("types[" + i + "] must be: " + expected[i] + " found: " + types, expected[i],
           found);
     }

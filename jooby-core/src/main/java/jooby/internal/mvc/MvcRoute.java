@@ -40,9 +40,9 @@ class MvcRoute implements Route {
 
     // default view name
     String defaultViewName = Optional.ofNullable(method.getAnnotation(Template.class))
-        .map(template -> template.name().isEmpty() ? method.getName() : template.name())
+        .map(template -> template.value().isEmpty() ? method.getName() : template.value())
         .orElse(method.getName());
-    response.header(TemplateProcessor.VIEW_NAME, defaultViewName);
+    response.header(TemplateProcessor.VIEW_NAME).setString(defaultViewName);
 
     // send it!
     response.send(result);

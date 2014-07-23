@@ -31,7 +31,7 @@ public class BodyReaderImpl implements BodyReader {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T bytes(final Binary bin) throws Exception {
+  public <T> T bytes(final Bytes bin) throws Exception {
     try (InputStream in = this.stream.get()) {
       return (T) bin.read(in);
     }

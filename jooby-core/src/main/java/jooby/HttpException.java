@@ -205,35 +205,78 @@ package jooby;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * An exception that carry a {@link HttpStatus}. The status field will be set in the HTTP response.
+ *
+ * @author edgar
+ * @since 0.1.0
+ */
 @SuppressWarnings("serial")
 public class HttpException extends RuntimeException {
 
+  /**
+   * The HTTP status. Required.
+   */
   private HttpStatus status;
 
+  /**
+   * Creates a new {@link HttpException}.
+   *
+   * @param status A HTTP status. Required.
+   * @param message A error message. Required.
+   * @param cause The cause of the problem.
+   */
   public HttpException(final HttpStatus status, final String message, final Exception cause) {
     super(message(status, message), cause);
     this.status = status;
   }
 
+  /**
+   * Creates a new {@link HttpException}.
+   *
+   * @param status A HTTP status. Required.
+   * @param message A error message. Required.
+   */
   public HttpException(final HttpStatus status, final String message) {
     super(message(status, message));
     this.status = status;
   }
 
+  /**
+   * Creates a new {@link HttpException}.
+   *
+   * @param status A HTTP status. Required.
+   * @param cause The cause of the problem.
+   */
   public HttpException(final HttpStatus status, final Exception cause) {
     super(message(status, ""), cause);
     this.status = status;
   }
 
+  /**
+   * Creates a new {@link HttpException}.
+   *
+   * @param status A HTTP status. Required.
+   */
   public HttpException(final HttpStatus status) {
     super(message(status, ""));
     this.status = status;
   }
 
+  /**
+   * @return The HTTP status to send as response.
+   */
   public HttpStatus status() {
     return status;
   }
 
+  /**
+   * Build an error message using the HTTP status.
+   *
+   * @param status The HTTP Status.
+   * @param tail A message to append.
+   * @return An error message.
+   */
   private static String message(final HttpStatus status, final String tail) {
     requireNonNull(status, "A HTTP Status is required.");
     return status.reason() + "(" + status.value() + "): " + tail;

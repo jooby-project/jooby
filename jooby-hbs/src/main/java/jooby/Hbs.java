@@ -204,7 +204,6 @@
 package jooby;
 
 import static java.util.Objects.requireNonNull;
-import jooby.mvc.Viewable;
 
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;

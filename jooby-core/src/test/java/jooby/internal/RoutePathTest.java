@@ -7,9 +7,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import jooby.internal.RouteMatcher;
-import jooby.internal.RoutePath;
-
 import org.junit.Test;
 
 public class RoutePathTest {
@@ -93,6 +90,7 @@ public class RoutePathTest {
         .matches("GET/com/a/test.jsp")
         .matches("GET/com/a/testx.jsp")
         .butNot("GET/org/test.jsp");
+
   }
 
   @Test
@@ -122,8 +120,48 @@ public class RoutePathTest {
   }
 
   @Test
+  public void mixedVar() {
+    new RoutePathAssert("GET", "user/:id/:name")
+        .matches("GET/user/xqi/n", (vars) -> {
+          assertEquals("xqi", vars.get("id"));
+          assertEquals("n", vars.get("name"));
+        })
+        .butNot("GET/user/123/x/y");
+
+    new RoutePathAssert("GET", "user/{id}/{name}")
+        .matches("GET/user/xqi/n", (vars) -> {
+          assertEquals("xqi", vars.get("id"));
+          assertEquals("n", vars.get("name"));
+        })
+        .butNot("GET/user/123/x/y");
+
+    new RoutePathAssert("GET", "user/{id}/:name")
+        .matches("GET/user/xqi/n", (vars) -> {
+          assertEquals("xqi", vars.get("id"));
+          assertEquals("n", vars.get("name"));
+        })
+        .butNot("GET/user/123/x/y");
+
+    new RoutePathAssert("GET", "user/:id/{name}")
+        .matches("GET/user/xqi/n", (vars) -> {
+          assertEquals("xqi", vars.get("id"));
+          assertEquals("n", vars.get("name"));
+        })
+        .butNot("GET/user/123/x/y");
+  }
+
+  @Test
   public void var() {
     new RoutePathAssert("GET", "user/{id}")
+        .matches("GET/user/xqi", (vars) -> {
+          assertEquals("xqi", vars.get("id"));
+        })
+        .matches("GET/user/123", (vars) -> {
+          assertEquals("123", vars.get("id"));
+        })
+        .butNot("GET/user/123/x");
+
+    new RoutePathAssert("GET", "user/:id")
         .matches("GET/user/xqi", (vars) -> {
           assertEquals("xqi", vars.get("id"));
         })
@@ -136,6 +174,15 @@ public class RoutePathTest {
   @Test
   public void varWithPrefix() {
     new RoutePathAssert("GET", "user/p{id}")
+        .matches("GET/user/pxqi", (vars) -> {
+          assertEquals("xqi", vars.get("id"));
+        })
+        .matches("GET/user/p123", (vars) -> {
+          assertEquals("123", vars.get("id"));
+        })
+        .butNot("GET/user/p123/x");
+
+    new RoutePathAssert("GET", "user/p:id")
         .matches("GET/user/pxqi", (vars) -> {
           assertEquals("xqi", vars.get("id"));
         })

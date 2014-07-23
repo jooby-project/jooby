@@ -57,14 +57,9 @@ public class HibernatePersistence extends JDBC {
   }
 
   @Override
-  public String name() {
-    return "hibernate";
-  }
-
-  @Override
   public Config config() {
-    return ConfigFactory.parseResources("hibernate.conf")
-        .withFallback(ConfigFactory.parseResources("jdbc.conf"));
+    Config jdbc = super.config();
+    return ConfigFactory.parseResources("hibernate.conf").withFallback(jdbc);
   }
 
   @Override

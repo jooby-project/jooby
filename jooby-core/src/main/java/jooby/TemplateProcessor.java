@@ -1,11 +1,9 @@
 package jooby;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
-import jooby.mvc.Viewable;
-
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
 
 public abstract class TemplateProcessor implements BodyConverter {
 
@@ -18,7 +16,17 @@ public abstract class TemplateProcessor implements BodyConverter {
   }
 
   public TemplateProcessor() {
-    this.types = MediaType.HTML;
+    this.types = ImmutableList.of(MediaType.html);
+  }
+
+  @Override
+  public boolean canRead(final Type type) {
+    return false;
+  }
+
+  @Override
+  public boolean canWrite(final Class<?> type) {
+    return true;
   }
 
   @Override
@@ -32,14 +40,16 @@ public abstract class TemplateProcessor implements BodyConverter {
   }
 
   @Override
-  public void write(final Object message, final BodyWriter writer,
-      final Multimap<String, String> headers) throws Exception {
+  public void write(final Object message, final BodyWriter writer) throws Exception {
     // wrap a viewable if need it
     final Viewable viewable;
     if (message instanceof Viewable) {
       viewable = (Viewable) message;
     } else {
-      viewable = new Viewable(headers.get(VIEW_NAME).iterator().next(), message);
+      String viewName = writer.header(VIEW_NAME).getOptional(String.class)
+          .orElseThrow(() -> new IllegalStateException("Unable to rendering: '" + message
+              + "' as a view"));
+      viewable = new Viewable(viewName, message);
     }
     render(viewable, writer);
   }

@@ -4,15 +4,14 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
 
-import javax.inject.Named;
-
 import jooby.Cookie;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.Request;
-import jooby.internal.MutableCookie;
 import jooby.mvc.Body;
 import jooby.mvc.Header;
+
+import com.google.inject.TypeLiteral;
 
 class ParamValue {
 
@@ -24,23 +23,22 @@ class ParamValue {
     PARAM {
       @Override
       public Object get(final Request request, final ParamDef param) throws Exception {
-        return request.param(param.name(), param.parameterizedType());
+        return request.param(param.name()).get(TypeLiteral.get(param.parameterizedType()));
       }
     },
+
 
     BODY {
       @Override
       public Object get(final Request request, final ParamDef param) throws Exception {
-        return request.get(param.type());
+        return request.body(param.type());
       }
     },
 
     HEADER {
       @Override
       public Object get(final Request request, final ParamDef param) throws Exception {
-        Optional<Header> header = param.getAnnotation(Header.class);
-        String name = header.get().value();
-        return request.header(name.isEmpty() ? param.name() : name, param.parameterizedType());
+        return request.header(param.name()).get(TypeLiteral.get(param.parameterizedType()));
       }
     },
 
@@ -52,7 +50,8 @@ class ParamValue {
           return Optional.ofNullable(cookie);
         }
         return Optional.ofNullable(cookie)
-            .orElseThrow(() -> new HttpException(HttpStatus.BAD_REQUEST));
+            .orElseThrow(
+                () -> new HttpException(HttpStatus.BAD_REQUEST, "Missing cookie: " + param.name()));
       }
     };
   }
@@ -64,17 +63,17 @@ class ParamValue {
   public ParamValue(final ParamDef parameter) {
     this.parameter = requireNonNull(parameter, "A parameter is required.");
 
-    if (parameter.annotations().size() == 0 || parameter.hasAnnotation(Named.class)) {
+    if (parameter.hasAnnotation(Body.class)) {
+      strategy = AnnotationStrategy.BODY;
+    } else if (parameter.hasAnnotation(Header.class)) {
+      strategy = AnnotationStrategy.HEADER;
+    } else {
       // param or cookie
-      if (parameter.typeIs(MutableCookie.class)) {
+      if (parameter.type() == Cookie.class) {
         strategy = AnnotationStrategy.COOKIE;
       } else {
         strategy = AnnotationStrategy.PARAM;
       }
-    } else if (parameter.hasAnnotation(Body.class)) {
-      strategy = AnnotationStrategy.BODY;
-    } else if (parameter.hasAnnotation(Header.class)) {
-      strategy = AnnotationStrategy.HEADER;
     }
   }
 

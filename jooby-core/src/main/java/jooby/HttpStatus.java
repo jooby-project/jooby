@@ -206,9 +206,7 @@ package jooby;
 /**
  * Java 5 enumeration of HTTP status codes.
  *
- * <p>The HTTP status code series can be retrieved via {@link #series()}.
- *
- *<p>Part of this mapping code has been kindly borrowed from <a href="http://spring.io/">Spring</a>.
+ *<p>This code has been kindly borrowed from <a href="http://spring.io/">Spring</a></p>.
  *
  * @author Arjen Poutsma
  * @see <a href="http://www.iana.org/assignments/http-status-codes">HTTP Status Code Registry</a>

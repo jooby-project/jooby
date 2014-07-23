@@ -39,6 +39,12 @@ public class Resource {
   }
 
   @GET
+  @Path("/cookie")
+  public Object cookie(@Named("JSESSIONID") final Cookie cookie) {
+    return cookie;
+  }
+
+  @GET
   @Path("/user")
   public Object index(final String id) {
     User user = em.find(User.class, id);

@@ -11,6 +11,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Template {
 
-  String name() default "";
+  String value() default "";
 
 }

@@ -10,6 +10,8 @@ import java.util.Set;
 
 import javax.inject.Named;
 
+import jooby.mvc.Header;
+
 import com.google.common.collect.ImmutableSet;
 
 public class ParamDef {
@@ -40,6 +42,12 @@ public class ParamDef {
     this.annotations = annotations;
     // rewrite name if @Named is present
     getAnnotation(Named.class).ifPresent(named -> this.name = named.value());
+    getAnnotation(Header.class).ifPresent(header -> {
+      String h = header.value();
+      if (h.length() > 0) {
+        this.name = header.value();
+      }
+    });
   }
 
   public String name() {
