@@ -1,18 +1,19 @@
-package jooby;
+package jooby.jetty;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import jooby.Mode;
 import jooby.internal.RouteHandler;
 import jooby.internal.jetty.JettyServerBuilder;
+import jooby.jetty.Jetty;
 
 import org.eclipse.jetty.server.Server;
 
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
-public class JettyTest implements JoobyModule {
+public class JettyTest extends Jetty {
 
   private static class TestServer implements jooby.Server {
 
@@ -38,13 +39,8 @@ public class JettyTest implements JoobyModule {
   }
 
   @Override
-  public void configure(final Mode mode, final Config config, final Binder binder) throws Exception {
+  public void configure(final Mode mode, final Config config, final Binder binder) {
     binder.bind(jooby.Server.class).to(TestServer.class).in(Singleton.class);
-  }
-
-  @Override
-  public Config config() {
-    return ConfigFactory.parseResources("jooby/jetty/jetty.conf");
   }
 
 }

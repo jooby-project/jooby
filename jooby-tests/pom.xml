@@ -20,7 +20,6 @@
       <groupId>com.github.jknack</groupId>
       <artifactId>jooby-jetty</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
 
     <!-- Fluent HC -->
@@ -45,7 +44,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
