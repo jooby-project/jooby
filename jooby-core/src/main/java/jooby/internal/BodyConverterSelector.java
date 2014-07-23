@@ -3,7 +3,6 @@ package jooby.internal;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -17,6 +16,7 @@ import jooby.MediaType;
 import jooby.MediaType.Matcher;
 
 import com.google.common.annotations.Beta;
+import com.google.inject.TypeLiteral;
 
 /**
  * Choose or select a {@link BodyConverter} using {@link MediaType media types.}. Examples:
@@ -63,7 +63,8 @@ public class BodyConverterSelector {
     converters.forEach(c -> c.types().forEach(t -> converterMap.putIfAbsent(t, c)));
   }
 
-  public Optional<BodyConverter> forRead(final Type type, final Iterable<MediaType> candidates) {
+  public Optional<BodyConverter> forRead(final TypeLiteral<?> type,
+      final Iterable<MediaType> candidates) {
     requireNonNull(type, "The type is required.");
     requireNonNull(candidates, "Media types candidates are required.");
     for (MediaType mediaType : candidates) {
@@ -92,9 +93,12 @@ public class BodyConverterSelector {
       final Iterable<MediaType> candidates) {
     requireNonNull(message, "A message is required.");
     requireNonNull(candidates, "Media types candidates are required.");
+
+    Class<?> type = message.getClass();
+
     for (MediaType mediaType : candidates) {
       BodyConverter converter = converterMap.get(mediaType);
-      if (converter != null && converter.canWrite(message.getClass())) {
+      if (converter != null && converter.canWrite(type)) {
         return Optional.of(converter);
       }
     }
@@ -103,7 +107,7 @@ public class BodyConverterSelector {
     TreeMap<MediaType, BodyConverter> matches = new TreeMap<>();
     for (BodyConverter converter : converters) {
       Optional<MediaType> result = matcher.first(converter.types());
-      if (result.isPresent() && converter.canWrite(message.getClass())) {
+      if (result.isPresent() && converter.canWrite(type)) {
         matches.putIfAbsent(result.get(), converter);
       }
     }

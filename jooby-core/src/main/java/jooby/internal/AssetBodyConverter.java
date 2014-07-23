@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNull;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.reflect.Type;
 import java.util.List;
 
 import jooby.Asset;
@@ -17,6 +16,7 @@ import jooby.MediaType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
+import com.google.inject.TypeLiteral;
 
 class AssetBodyConverter implements BodyConverter {
 
@@ -27,7 +27,7 @@ class AssetBodyConverter implements BodyConverter {
   }
 
   @Override
-  public boolean canRead(final Type type) {
+  public boolean canRead(final TypeLiteral<?> type) {
     return false;
   }
 
@@ -42,7 +42,7 @@ class AssetBodyConverter implements BodyConverter {
   }
 
   @Override
-  public <T> T read(final Class<T> type, final BodyReader reader) throws Exception {
+  public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
     throw new UnsupportedOperationException();
   }
 

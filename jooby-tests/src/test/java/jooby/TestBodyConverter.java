@@ -1,16 +1,16 @@
 package jooby;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
+import com.google.inject.TypeLiteral;
 
 public class TestBodyConverter {
 
   public static final BodyConverter JSON = new BodyConverter() {
     @Override
-    public boolean canRead(final Type type) {
+    public boolean canRead(final TypeLiteral<?> type) {
       return true;
     }
 
@@ -20,7 +20,7 @@ public class TestBodyConverter {
     }
 
     @Override
-    public <T> T read(final Class<T> type, final BodyReader reader) throws Exception {
+    public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
       return reader.text(r -> CharStreams.toString(r));
     }
 

@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import com.google.common.annotations.Beta;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 /**
  * HTTP Request.
@@ -47,7 +48,11 @@ public interface Request {
 
   Cookie cookie(String name);
 
-  <T> T body(Class<T> type) throws Exception;
+  default <T> T body(final Class<T> type) throws Exception {
+    return body(TypeLiteral.get(type));
+  }
+
+  <T> T body(TypeLiteral<T> type) throws Exception;
 
   <T> T get(Class<T> type);
 

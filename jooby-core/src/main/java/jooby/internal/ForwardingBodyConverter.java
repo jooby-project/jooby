@@ -2,7 +2,6 @@ package jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import jooby.BodyConverter;
@@ -11,6 +10,7 @@ import jooby.BodyWriter;
 import jooby.MediaType;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.TypeLiteral;
 
 public class ForwardingBodyConverter implements BodyConverter {
 
@@ -24,7 +24,7 @@ public class ForwardingBodyConverter implements BodyConverter {
   }
 
   @Override
-  public boolean canRead(final Type type) {
+  public boolean canRead(final TypeLiteral<?> type) {
     return converter.canRead(type);
   }
 
@@ -43,7 +43,7 @@ public class ForwardingBodyConverter implements BodyConverter {
   }
 
   @Override
-  public <T> T read(final Class<T> type, final BodyReader reader) throws Exception {
+  public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
     return converter.read(type, reader);
   }
 

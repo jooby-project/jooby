@@ -2,7 +2,6 @@ package jooby.internal;
 
 import java.io.InputStream;
 import java.io.Reader;
-import java.lang.reflect.Type;
 import java.util.List;
 
 import jooby.BodyConverter;
@@ -13,6 +12,7 @@ import jooby.MediaType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
+import com.google.inject.TypeLiteral;
 
 public enum FallbackBodyConverter implements BodyConverter {
 
@@ -49,12 +49,12 @@ public enum FallbackBodyConverter implements BodyConverter {
   READ_TEXT(MediaType.text) {
 
     @Override
-    public boolean canRead(final Type type) {
-      return type == String.class;
+    public boolean canRead(final TypeLiteral<?> type) {
+      return type.getRawType() == String.class;
     }
 
     @Override
-    public <T> T read(final Class<T> type, final BodyReader reader) throws Exception {
+    public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
       return reader.text(r -> CharStreams.toString(r));
     }
 
@@ -72,12 +72,12 @@ public enum FallbackBodyConverter implements BodyConverter {
   TO_HTML(MediaType.html) {
 
     @Override
-    public boolean canRead(final Type type) {
-      return type == String.class;
+    public boolean canRead(final TypeLiteral<?> type) {
+      return type.getRawType() == String.class;
     }
 
     @Override
-    public <T> T read(final Class<T> type, final BodyReader reader) throws Exception {
+    public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
       return reader.text(r -> CharStreams.toString(r));
     }
 
@@ -99,7 +99,7 @@ public enum FallbackBodyConverter implements BodyConverter {
   }
 
   @Override
-  public boolean canRead(final Type type) {
+  public boolean canRead(final TypeLiteral<?> type) {
     return false;
   }
 
@@ -109,7 +109,7 @@ public enum FallbackBodyConverter implements BodyConverter {
   }
 
   @Override
-  public <T> T read(final Class<T> type, final BodyReader reader) throws Exception {
+  public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
     throw new UnsupportedOperationException(this.toString() + ".read");
   }
 

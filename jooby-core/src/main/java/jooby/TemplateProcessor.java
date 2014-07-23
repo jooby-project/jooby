@@ -1,9 +1,9 @@
 package jooby;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.TypeLiteral;
 
 public abstract class TemplateProcessor implements BodyConverter {
 
@@ -20,7 +20,7 @@ public abstract class TemplateProcessor implements BodyConverter {
   }
 
   @Override
-  public boolean canRead(final Type type) {
+  public boolean canRead(final TypeLiteral<?> type) {
     return false;
   }
 
@@ -35,7 +35,7 @@ public abstract class TemplateProcessor implements BodyConverter {
   }
 
   @Override
-  public final <T> T read(final Class<T> type, final BodyReader reader) throws Exception {
+  public final <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
     throw new UnsupportedOperationException();
   }
 

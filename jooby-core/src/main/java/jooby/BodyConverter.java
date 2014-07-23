@@ -1,11 +1,11 @@
 package jooby;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
 import com.google.common.annotations.Beta;
+import com.google.inject.TypeLiteral;
 
 /**
  * Read or write messages from/to HTTP Body. A body converter must provider a set of compatibles
@@ -31,8 +31,14 @@ public interface BodyConverter {
    * @param type The candidate Type.
    * @return True if the converter can read the HTTP request body.
    */
-  boolean canRead(@Nonnull Type type);
+  boolean canRead(@Nonnull TypeLiteral<?> type);
 
+  /**
+   * Test if the given type can be write it to the HTTP response body.
+   *
+   * @param type The candidate type.
+   * @return True if the converter can write into the HTTP response body.
+   */
   boolean canWrite(@Nonnull Class<?> type);
 
   /**
@@ -52,7 +58,7 @@ public interface BodyConverter {
    * @return The body message.
    * @throws Exception If body can't be read it.
    */
-  <T> T read(Class<T> type, BodyReader reader) throws Exception;
+  <T> T read(TypeLiteral<T> type, BodyReader reader) throws Exception;
 
   /**
    * Attempt to write a message into the HTTP response body.

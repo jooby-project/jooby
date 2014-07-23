@@ -20,6 +20,7 @@ import jooby.Upload;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 public abstract class RequestImpl implements Request {
 
@@ -105,7 +106,7 @@ public abstract class RequestImpl implements Request {
   }
 
   @Override
-  public <T> T body(final Class<T> type) throws Exception {
+  public <T> T body(final TypeLiteral<T> type) throws Exception {
     BodyConverter mapper = selector.forRead(type, Arrays.asList(contentType))
         .orElseThrow(() -> new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE));
     return mapper.read(type, new BodyReaderImpl(charset, stream));

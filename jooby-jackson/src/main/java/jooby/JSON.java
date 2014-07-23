@@ -206,12 +206,12 @@ package jooby;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Objects.requireNonNull;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.inject.TypeLiteral;
 
 class JSON implements BodyConverter {
 
@@ -229,8 +229,8 @@ class JSON implements BodyConverter {
   }
 
   @Override
-  public boolean canRead(final Type type) {
-    JavaType javaType = TypeFactory.defaultInstance().constructType(type);
+  public boolean canRead(final TypeLiteral<?> type) {
+    JavaType javaType = TypeFactory.defaultInstance().constructType(type.getType());
     return mapper.canDeserialize(javaType);
   }
 
@@ -240,8 +240,9 @@ class JSON implements BodyConverter {
   }
 
   @Override
-  public <T> T read(final Class<T> clazz, final BodyReader reader) throws Exception {
-    return reader.text(in -> mapper.readValue(in, clazz));
+  public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
+    JavaType javaType = TypeFactory.defaultInstance().constructType(type.getType());
+    return reader.text(in -> mapper.readValue(in, javaType));
   }
 
   @Override
