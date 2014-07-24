@@ -58,7 +58,7 @@ public interface BodyConverter {
    * @return The body message.
    * @throws Exception If body can't be read it.
    */
-  <T> T read(TypeLiteral<T> type, BodyReader reader) throws Exception;
+  @Nonnull <T> T read(@Nonnull TypeLiteral<T> type, @Nonnull BodyReader reader) throws Exception;
 
   /**
    * Attempt to write a message into the HTTP response body.
@@ -77,6 +77,6 @@ public interface BodyConverter {
    * @param writer The writing context.
    * @throws Exception If the body can't be write it.
    */
-  void write(Object message, BodyWriter writer) throws Exception;
+  void write(@Nonnull Object message, @Nonnull BodyWriter writer) throws Exception;
 
 }

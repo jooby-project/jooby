@@ -1,5 +1,6 @@
 package jooby.internal;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import java.io.OutputStream;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 import jooby.BodyConverter;
 import jooby.HttpException;
-import jooby.HttpMutableField;
+import jooby.HttpHeader;
 import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Request;
@@ -22,6 +23,7 @@ import jooby.RouteInterceptor;
 import jooby.ThrowingSupplier;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.ListMultimap;
 
 public abstract class ResponseImpl implements Response {
@@ -61,8 +63,8 @@ public abstract class ResponseImpl implements Response {
   }
 
   @Override
-  public HttpMutableField header(final String name) {
-    requireNonNull(name, "Header's name is missing.");
+  public HttpHeader header(final String name) {
+    checkArgument(!Strings.isNullOrEmpty(name), "Header's name is missing.");
     return new SetHeader(name, headers);
   }
 

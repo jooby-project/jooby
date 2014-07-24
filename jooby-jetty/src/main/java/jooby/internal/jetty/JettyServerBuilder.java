@@ -55,10 +55,12 @@ public class JettyServerBuilder {
 
     server.addConnector(http);
 
-    Resource keystore = Resource.newClassPathResource(config.getString("ssl.keystore.path"));
+    String keystorePath = config.getString("ssl.keystore.path");
+    Resource keystore = Resource.newClassPathResource(keystorePath);
     if (keystore == null || !keystore.exists()) {
-      keystore = Resource.newResource(config.getString("ssl.keystore.path"));
+      keystore = Resource.newResource(keystorePath);
     }
+
     if (keystore.exists()) {
       SslContextFactory sslContextFactory = new SslContextFactory();
       sslContextFactory.setKeyStoreResource(keystore);

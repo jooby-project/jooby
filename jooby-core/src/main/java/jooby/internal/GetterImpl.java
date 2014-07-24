@@ -130,6 +130,7 @@ public class GetterImpl implements HttpField {
 
   @Override
   public <T extends Enum<T>> T getEnum(final Class<T> type) {
+    requireNonNull(type, "An enum type is required.");
     failOnEmpty(name, values);
     return Enum.valueOf(type, values.get(0).toUpperCase());
   }

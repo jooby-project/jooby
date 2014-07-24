@@ -7,11 +7,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import jooby.HttpMutableField;
+import jooby.HttpHeader;
 
 import com.google.common.collect.ListMultimap;
 
-public class SetHeader extends GetHeader implements HttpMutableField {
+public class SetHeader extends GetHeader implements HttpHeader {
 
   private ListMultimap<String, String> headers;
 
@@ -21,21 +21,21 @@ public class SetHeader extends GetHeader implements HttpMutableField {
   }
 
   @Override
-  public HttpMutableField setString(final String value) {
+  public HttpHeader setString(final String value) {
     headers.removeAll(name);
     headers.put(name, value);
     return this;
   }
 
   @Override
-  public HttpMutableField setString(final Iterable<String> values) {
+  public HttpHeader setString(final Iterable<String> values) {
     headers.removeAll(name);
     headers.putAll(name, values);
     return null;
   }
 
   @Override
-  public HttpMutableField setLong(final long value) {
+  public HttpHeader setLong(final long value) {
     DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
     Instant instant = Instant.ofEpochMilli(value);
     OffsetDateTime utc = instant.atOffset(ZoneOffset.UTC);
@@ -43,7 +43,7 @@ public class SetHeader extends GetHeader implements HttpMutableField {
   }
 
   @Override
-  public HttpMutableField setLong(final Iterable<Long> values) {
+  public HttpHeader setLong(final Iterable<Long> values) {
     DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
     List<String> dates = new ArrayList<>();
     for (Long value : values) {

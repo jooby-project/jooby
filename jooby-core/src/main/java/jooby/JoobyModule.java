@@ -1,5 +1,7 @@
 package jooby;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.annotations.Beta;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
@@ -16,7 +18,7 @@ import com.typesafe.config.ConfigFactory;
  *
  * <p>
  * A module can provide his own set of properties through the {@link #config()} method. By default,
- * This method returns an empty config object.
+ * this method returns an empty config object.
  * </p>
  *
  * <p>
@@ -34,12 +36,13 @@ public interface JoobyModule {
    * @return Produces a module config object (when need it). By default a module doesn't produce
    *         any configuration object.
    */
-  default Config config() {
+  default @Nonnull Config config() {
     return ConfigFactory.empty();
   }
 
   /**
-   * Callback method to start a module.
+   * Callback method to start a module. This method will be invoked after all the registered modules
+   * has been configured.
    *
    * @throws Exception If something goes wrong.
    */
@@ -47,7 +50,8 @@ public interface JoobyModule {
   }
 
   /**
-   * Callback method to stop a module and clean any resources..
+   * Callback method to stop a module and clean any resources. Invoked when the application is about
+   * to shutdown.
    *
    * @throws Exception If something goes wrong.
    */
@@ -64,5 +68,6 @@ public interface JoobyModule {
    * @param binder A guice binder. Not null.
    * @throws Exception If the module fails during configuration.
    */
-  void configure(Mode mode, Config config, Binder binder) throws Exception;
+  void configure(@Nonnull Mode mode, @Nonnull Config config, @Nonnull Binder binder)
+      throws Exception;
 }

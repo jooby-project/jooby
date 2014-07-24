@@ -11,6 +11,7 @@ import jooby.mvc.POST;
 import jooby.mvc.Path;
 
 import org.apache.http.client.fluent.Request;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.junit.Test;
 
@@ -51,86 +52,114 @@ public class MultipartFormParamFeature extends ServerFeature {
     }
   }
 
+  {
     {
-      {
 
-        post("/form", (req, resp) -> {
-          String name = req.param("name").getString();
-          int age = req.param("age").getInt();
-          Upload upload = req.param("myfile").get(Upload.class);
-          resp.send(name + " " + age + " " + upload.name() + " " + upload.type());
-        });
+      post("/form", (req, resp) -> {
+        String name = req.param("name").getString();
+        int age = req.param("age").getInt();
+        Upload upload = req.param("myfile").get(Upload.class);
+        resp.send(name + " " + age + " " + upload.name() + " " + upload.type());
+      });
 
-        post("/form/files", (req, resp) -> {
-          List<Upload> uploads = req.param("uploads").getList(Upload.class);
-          StringBuilder buffer = new StringBuilder();
-          for (Upload upload : uploads) {
-            try (Upload u = upload) {
-              buffer.append(u.name()).append(" ");
-            }
+      post("/form/files", (req, resp) -> {
+        List<Upload> uploads = req.param("uploads").getList(Upload.class);
+        StringBuilder buffer = new StringBuilder();
+        for (Upload upload : uploads) {
+          try (Upload u = upload) {
+            buffer.append(u.name()).append(" ");
           }
-          resp.send(buffer);
-        });
+        }
+        resp.send(buffer);
+      });
 
-        post("/form/optional", (req, resp) -> {
-          Optional<Upload> upload = req.param("upload").getOptional(Upload.class);
-          if (upload.isPresent()) {
-            try (Upload u = upload.get()) {
-              resp.send(u.name());
-            }
-          } else {
-            resp.send(upload);
+      post("/form/optional", (req, resp) -> {
+        Optional<Upload> upload = req.param("upload").getOptional(Upload.class);
+        if (upload.isPresent()) {
+          try (Upload u = upload.get()) {
+            resp.send(u.name());
           }
-        });
+        } else {
+          resp.send(upload);
+        }
+      });
 
-        route(Resource.class);
-      }
+      route(Resource.class);
     }
+  }
 
   @Test
   public void multipart() throws Exception {
-    assertEquals("edgar 34 pom.xml application/xml", Request.Post(uri("form").build())
-        .body(MultipartEntityBuilder.create()
-            .addTextBody("name", "edgar")
-            .addTextBody("age", "34")
-            .addBinaryBody("myfile", new File("pom.xml"))
-            .build()).execute().returnContent().asString());
+    assertEquals("edgar 34 pom.xml application/xml",
+        Request
+            .Post(uri("form").build())
+            .body(
+                MultipartEntityBuilder
+                    .create()
+                    .addTextBody("name", "edgar")
+                    .addTextBody("age", "34")
+                    .addBinaryBody("myfile", "<xml></xml>".getBytes(), ContentType.APPLICATION_XML,
+                        "pom.xml")
+                    .build()).execute().returnContent().asString());
 
-    assertEquals("edgar 34 pom.xml application/xml", Request.Post(uri("r", "form").build())
-        .body(MultipartEntityBuilder.create()
-            .addTextBody("name", "edgar")
-            .addTextBody("age", "34")
-            .addBinaryBody("myfile", new File("pom.xml"))
-            .build()).execute().returnContent().asString());
+    assertEquals("edgar 34 pom.xml application/xml",
+        Request.Post(uri("r", "form").build())
+            .body(MultipartEntityBuilder.create()
+                .addTextBody("name", "edgar")
+                .addTextBody("age", "34")
+                .addBinaryBody("myfile", "<xml></xml>".getBytes(), ContentType.APPLICATION_XML,
+                    "pom.xml")
+                .build()).execute().returnContent().asString());
 
   }
 
   @Test
   public void multipleFiles() throws Exception {
-    assertEquals("pom.xml JettyTest.java ", Request.Post(uri("form", "files").build())
-        .body(MultipartEntityBuilder.create()
-            .addBinaryBody("uploads", new File("pom.xml"))
-            .addBinaryBody("uploads", new File("src/test/java/jooby/JettyTest.java"))
-            .build()).execute().returnContent().asString());
+    assertEquals(
+        "application.conf m1.conf ",
+        Request
+            .Post(uri("form", "files").build())
+            .body(
+                MultipartEntityBuilder
+                    .create()
+                    .addBinaryBody("uploads", "p=1".getBytes(), ContentType.DEFAULT_BINARY,
+                        "application.conf")
+                    .addBinaryBody("uploads", "p=2".getBytes(), ContentType.DEFAULT_BINARY,
+                        "m1.conf")
+                    .build()).execute().returnContent().asString());
 
-    assertEquals("pom.xml JettyTest.java ", Request.Post(uri("r", "form", "files").build())
-        .body(MultipartEntityBuilder.create()
-            .addBinaryBody("uploads", new File("pom.xml"))
-            .addBinaryBody("uploads", new File("src/test/java/jooby/JettyTest.java"))
-            .build()).execute().returnContent().asString());
+    assertEquals(
+        "application.conf m1.conf ",
+        Request
+            .Post(uri("r", "form", "files").build())
+            .body(
+                MultipartEntityBuilder
+                    .create()
+                    .addBinaryBody("uploads", "p=1".getBytes(), ContentType.DEFAULT_BINARY,
+                        "application.conf")
+                    .addBinaryBody("uploads", "p=2".getBytes(), ContentType.DEFAULT_BINARY,
+                        "m1.conf")
+                    .build()).execute().returnContent().asString());
 
   }
 
   @Test
   public void optionalFile() throws Exception {
-    assertEquals("pom.xml", Request.Post(uri("form", "optional").build())
-        .body(MultipartEntityBuilder.create()
-            .addBinaryBody("upload", new File("pom.xml"))
-            .build()).execute().returnContent().asString());
+    assertEquals(
+        "pom.xml",
+        Request
+            .Post(uri("form", "optional").build())
+            .body(
+                MultipartEntityBuilder
+                    .create()
+                    .addBinaryBody("upload", "<xml></xml>".getBytes(), ContentType.APPLICATION_XML,
+                        "pom.xml")
+                    .build()).execute().returnContent().asString());
 
     assertEquals("pom.xml", Request.Post(uri("r", "form", "optional").build())
         .body(MultipartEntityBuilder.create()
-            .addBinaryBody("upload", new File("pom.xml"))
+            .addBinaryBody("upload", "<xml></xml>".getBytes(), ContentType.APPLICATION_XML,
+                "pom.xml")
             .build()).execute().returnContent().asString());
 
     assertEquals("Optional.empty", Request.Post(uri("form", "optional").build())

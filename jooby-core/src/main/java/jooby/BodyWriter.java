@@ -4,6 +4,8 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.annotations.Beta;
 
 /**
@@ -53,12 +55,33 @@ public interface BodyWriter {
     void write(Writer writer) throws Exception;
   }
 
+  /**
+   * @return A charset.
+   */
   Charset charset();
 
-  HttpMutableField header(String name);
+  /**
+   * Get/set a response header.
+   *
+   * @param name A header's name.
+   * @return A response header.
+   */
+  @Nonnull HttpHeader header(@Nonnull String name);
 
-  void text(Text text) throws Exception;
+  /**
+   * Write text into the HTTP response body using the {@link #charset()} and close the resources.
+   *
+   * @param text A text strategy.
+   * @throws Exception When the operation fails.
+   */
+  void text(@Nonnull Text text) throws Exception;
 
-  void bytes(Bytes bytes) throws Exception;
+  /**
+   * Write bytes into the HTTP response body and close the resources.
+   *
+   * @param bytes A bytes strategy.
+   * @throws Exception When the operation fails.
+   */
+  void bytes(@Nonnull Bytes bytes) throws Exception;
 
 }

@@ -19,7 +19,7 @@ public interface Response {
     void send() throws Exception;
   }
 
-  HttpMutableField header(String name);
+  HttpHeader header(String name);
 
   Charset charset();
 

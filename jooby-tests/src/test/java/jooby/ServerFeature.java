@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 import com.google.common.base.Joiner;
 
 @RunWith(JoobyRunner.class)
-public class ServerFeature extends Jooby {
+public abstract class ServerFeature extends Jooby {
 
   public interface HttpCall {
 

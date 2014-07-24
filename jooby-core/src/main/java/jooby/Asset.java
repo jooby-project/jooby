@@ -5,6 +5,8 @@ import java.io.InputStream;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.annotations.Beta;
+
 /**
  * An asset is a public file or resource like javascript, css, images files, etc...
  * An asset must provide a content type, stream and last modified since, between others.
@@ -13,6 +15,7 @@ import javax.annotation.Nonnull;
  * @since 0.1.0
  * @see Jooby#assets(String)
  */
+@Beta
 public interface Asset {
 
   /**

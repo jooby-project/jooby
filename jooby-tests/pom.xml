@@ -76,11 +76,7 @@
         <configuration>
           <includes>
             <include>**/*Test.java</include>
-            <include>**/AssetFeature.java</include>
-            <include>**/ConfigPropertiesFeature.java</include>
-            <include>**/ContentNegotiationFeature.java</include>
-            <include>**/FormParamFeature.java</include>
-            <include>**/HeaderParamFeature.java</include>
+            <include>**/*Feature.java</include>
           </includes>
         </configuration>
       </plugin>

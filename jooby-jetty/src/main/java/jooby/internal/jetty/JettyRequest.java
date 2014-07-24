@@ -209,6 +209,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -225,6 +226,7 @@ import jooby.internal.MutableCookie;
 import jooby.internal.RequestImpl;
 
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
@@ -237,23 +239,43 @@ class JettyRequest extends RequestImpl {
       final Injector injector,
       final String path,
       final BodyConverterSelector selector,
-      final List<MediaType> accept,
       final MediaType contentType,
+      final List<MediaType> accept,
       final ListMultimap<String, String> params,
-      final ListMultimap<String, String> headers,
       final Charset defaultCharset) {
     super(injector,
         path,
         selector,
         Optional.ofNullable(request.getCharacterEncoding()).map(Charset::forName)
             .orElse(defaultCharset),
-        accept,
         contentType,
+        accept,
         params,
-        headers,
         cookies(request),
         request::getInputStream);
     this.request = requireNonNull(request, "A servlet request is required.");
+  }
+
+  @Override
+  protected List<String> getHeaders(final String name) {
+    ImmutableList.Builder<String> builder = ImmutableList.builder();
+    Enumeration<String> values = request.getHeaders(name);
+    while (values.hasMoreElements()) {
+      String value = values.nextElement();
+      builder.add(value);
+    }
+    return builder.build();
+  }
+
+  @Override
+  public List<String> headerNames() {
+    ImmutableList.Builder<String> builder = ImmutableList.builder();
+    Enumeration<String> names = request.getHeaderNames();
+    while (names.hasMoreElements()) {
+      String name = names.nextElement();
+      builder.add(name);
+    }
+    return builder.build();
   }
 
   @Override
@@ -262,15 +284,15 @@ class JettyRequest extends RequestImpl {
     if (parts == null || parts.size() == 0) {
       return null;
     }
-    Config config = get(Config.class);
-    FileMediaTypeProvider typeProvider = get(FileMediaTypeProvider.class);
+    Config config = getInstance(Config.class);
+    FileMediaTypeProvider typeProvider = getInstance(FileMediaTypeProvider.class);
     String workDir = config.getString("java.io.tmpdir");
     return FluentIterable
         .from(parts)
         .filter(p -> p.getSubmittedFileName() != null && p.getName().equals(name))
         .transform(
             p -> {
-              Upload upload = new PartUpload(p, typeProvider.typeFor(p.getSubmittedFileName()),
+              Upload upload = new PartUpload(p, typeProvider.forPath(p.getSubmittedFileName()),
                   workDir);
               return upload;
             })

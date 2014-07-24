@@ -208,7 +208,6 @@ import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.TreeMap;
 
 import javax.servlet.MultipartConfigElement;
@@ -248,15 +247,19 @@ public class JettyHandler extends AbstractHandler {
     if (type != null && type.startsWith(MediaType.multipart.name())) {
       baseRequest.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multiPartConfig);
     }
-
     try {
-      handler.handle(req.getMethod().toUpperCase(), requestURI, req.getParameterMap(),
-          headers(req), headers(res),
+      handler.handle(req.getMethod().toUpperCase(),
+          requestURI,
+          type,
+          req.getHeader("Accept"),
+          req.getCharacterEncoding(),
+          req.getParameterMap(),
+          headers(res),
           /**
            * Create a new request.
            */
-          (injector, path, selector, accept, contentType, params, headers, defaultCharSet)
-          -> new JettyRequest(req, injector, path, selector, accept, contentType, params, headers,
+          (injector, path, selector, contentType, accept, params, defaultCharSet)
+          -> new JettyRequest(req, injector, path, selector, contentType, accept, params,
               defaultCharSet),
           /**
            * Create a new response
@@ -270,20 +273,6 @@ public class JettyHandler extends AbstractHandler {
       baseRequest.setHandled(false);
       throw new ServletException("Unexpected error", ex);
     }
-  }
-
-  private static ListMultimap<String, String> headers(final HttpServletRequest request) {
-    ListMultimap<String, String> result = Multimaps
-        .newListMultimap(new TreeMap<>(String.CASE_INSENSITIVE_ORDER), ArrayList::new);
-    Enumeration<String> names = request.getHeaderNames();
-    while (names.hasMoreElements()) {
-      String name = names.nextElement();
-      Enumeration<String> values = request.getHeaders(name);
-      while (values.hasMoreElements()) {
-        result.put(name, values.nextElement());
-      }
-    }
-    return result;
   }
 
   private static ListMultimap<String, String> headers(final HttpServletResponse response) {

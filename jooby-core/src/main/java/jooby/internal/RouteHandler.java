@@ -98,26 +98,41 @@ public class RouteHandler {
   }
 
   public void handle(final String verb, final String requestURI,
+      final String contentType,
+      final String accept,
+      final String charset,
       final Map<String, String[]> parameters,
-      final ListMultimap<String, String> requestHeaders,
       final ListMultimap<String, String> responseHeaders,
       final RequestFactory reqFactory,
       final ResponseFactory respFactory) throws Exception {
     requireNonNull(verb, "A HTTP verb is required.");
     requireNonNull(requestURI, "A requestURI is required.");
     requireNonNull(parameters, "The request parameters are required.");
-    requireNonNull(requestHeaders, "The request headers are required.");
     requireNonNull(responseHeaders, "The response headers are required.");
     requireNonNull(reqFactory, "A request factory is required.");
     requireNonNull(respFactory, "A response factory is required.");
 
-    doHandle(verb.toUpperCase(), Routes.normalize(requestURI), parameters, requestHeaders,
-        responseHeaders, reqFactory, respFactory);
+    final List<MediaType> acceptList = Optional.ofNullable(accept).map(MediaType::parse)
+        .orElse(ALL);
+
+    MediaType type = Optional.ofNullable(contentType).map(MediaType::valueOf).orElse(MediaType.all);
+
+    doHandle(verb.toUpperCase(),
+        Routes.normalize(requestURI),
+        type,
+        acceptList,
+        Optional.ofNullable(charset).map(Charset::forName).orElse(defaultCharset),
+        parameters,
+        responseHeaders,
+        reqFactory,
+        respFactory);
   }
 
   private void doHandle(final String verb, final String requestURI,
+      final MediaType contentType,
+      final List<MediaType> accept,
+      final Charset charset,
       final Map<String, String[]> params,
-      final ListMultimap<String, String> requestHeaders,
       final ListMultimap<String, String> responseHeaders,
       final RequestFactory reqFactory,
       final ResponseFactory respFactory) throws Exception {
@@ -127,16 +142,6 @@ public class RouteHandler {
 
     log.info("handling: {}", path);
 
-    final List<MediaType> accept = Optional
-        .ofNullable(requestHeaders.get("accept"))
-        .map(h -> h.size() == 0 ? ALL : MediaType.parse(h.get(0)))
-        .orElse(ALL);
-    log.info("  accept: {}", accept);
-
-    final MediaType contentType = Optional
-        .ofNullable(requestHeaders.get("content-type"))
-        .map(h -> h.size() == 0 ? MediaType.all : MediaType.valueOf(h.get(0)))
-        .orElse(MediaType.all);
     log.info("  content-type: {}", contentType);
 
     // configure request modules
@@ -151,8 +156,8 @@ public class RouteHandler {
     final List<MediaType> produces = routeHolder.map(d -> d.produces).orElse(accept);
     log.trace("  produces: {}", produces);
 
-    final Request request = reqFactory.newRequest(injector, requestURI, selector, accept,
-        contentType, params(params, routeHolder), requestHeaders, defaultCharset);
+    final Request request = reqFactory.newRequest(injector, requestURI, selector, contentType,
+        accept, params(params, routeHolder), defaultCharset);
     final Response response = respFactory.newResponse(request, selector, interceptors,
         request.charset(), produces, responseHeaders);
 
@@ -200,7 +205,7 @@ public class RouteHandler {
       long end = System.currentTimeMillis();
       log.info("  status -> {} ({}) in {}ms", response.status().reason(), response.status(), end
           - start);
-      request.destroy();
+      ((RequestImpl) request).destroy();
     }
   }
 

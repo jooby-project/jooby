@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.annotations.Beta;
 
 /**
@@ -62,7 +64,7 @@ public interface BodyReader {
    * @return A HTTP body converted to something else.
    * @throws Exception When the operation fails.
    */
-  <T> T text(Text text) throws Exception;
+  @Nonnull <T> T text(@Nonnull Text text) throws Exception;
 
   /**
    * Convert a HTTP request body to something else.
@@ -71,6 +73,6 @@ public interface BodyReader {
    * @return A HTTP body converted to something else.
    * @throws Exception When the operation fails.
    */
-  <T> T bytes(Bytes bytes) throws Exception;
+  @Nonnull <T> T bytes(@Nonnull Bytes bytes) throws Exception;
 
 }

@@ -28,7 +28,7 @@ class MvcRoute implements Route {
   public void handle(final Request request, final Response response) throws Exception {
     Method method = route.getJavaMethod();
 
-    Object handler = request.get(method.getDeclaringClass());
+    Object handler = request.getInstance(method.getDeclaringClass());
 
     List<ParamValue> parameters = resolver.resolve(method);
     Object[] args = new Object[parameters.size()];

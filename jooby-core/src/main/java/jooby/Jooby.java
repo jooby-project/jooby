@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.Beta;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -46,8 +47,8 @@ import com.typesafe.config.ConfigValueFactory;
  * <h1>Starting a new application:</h1>
  * <p>
  * A new application must extends Jooby, choose a server implementation, register one ore more
- * {@link BodyConverter} and defines some {@link Route}. It sounds like a lot of work to do, but it
- * isn't.
+ * {@link BodyConverter} and defines some {@link Route routes}. It sounds like a lot of work to do,
+ * but it isn't.
  * </p>
  *
  * <pre>
@@ -85,13 +86,22 @@ import com.typesafe.config.ConfigValueFactory;
  *
  * <p>
  * As you already noticed, <a href="https://github.com/typesafehub/config">TypeSafe Config</a> uses
- * a hierarchical model to define and override properties. In Jooby, system properties takes
- * precedence over any application specific property.
+ * a hierarchical model to define and override properties.
+ * </p>
+ * <p>
+ * Each module can also define his own set of properties through {@link JoobyModule#config()}. They
+ * will be loaded in the same order the module was registered.
+ * </p>
+ *
+ * <p>
+ * In Jooby, system properties takes precedence over any application specific property.
  * </p>
  * <h1>Mode</h1>
  * <p>
- * Jooby defines two modes: <strong>dev</strong> or anything else. In Jooby, <strong>dev</strong> is
- * special and modules apply some special settings while running in <strong>dev</strong>.
+ * Jooby defines two modes: <strong>dev</strong> or something else. In Jooby, <strong>dev</strong>
+ * is special and some modules applies some special settings while running in <strong>dev</strong>.
+ * A none <strong>dev</strong> mode is usually considered a <code>prod</code> like mode. But that
+ * depends on module implementor.
  * </p>
  * <p>
  * A mode can be defined in your <code>application.conf</code> file using the
@@ -105,8 +115,8 @@ import com.typesafe.config.ConfigValueFactory;
  *
  * <h1>Modules</h1>
  * <p>
- * Modules at Jooby must extends {@link JoobyModule}. It works quite similar to a Guice module,
- * except that the configure callback has been complementing with {@link Mode} and {@link Config}.
+ * A module defined by {@link JoobyModule}. It is a super powered Guice module where the configure
+ * callback has been complementing with {@link Mode} and {@link Config}.
  * </p>
  *
  * <pre>
@@ -153,13 +163,14 @@ import com.typesafe.config.ConfigValueFactory;
  *
  * <h1>Routes</h1>
  * <p>
- * Routes are the heart of Jooby and they are registered in the same order you specify. With an
- * incoming request Jooby will execute the first route that matches the incoming request.
+ * Routes are the heart of Jooby! Given an incoming request, Jooby will execute the first route that
+ * matches the incoming request path. So, ORDER matters!
  * </p>
+ *
+ * <h2>Inline route</h2>
  * <p>
- * Routes can be defined in 3 ways:
+ * An inline route can be defined using Lambda expressions, like:
  * </p>
- * <h2>Inline route</h2> An inline route can be defined using Lambda expressions, like:
  *
  * <pre>
  *   get("/", (request, response) -> {
@@ -168,7 +179,7 @@ import com.typesafe.config.ConfigValueFactory;
  * </pre>
  *
  * Due to the use of lambdas a route is a singleton and you should NOT use shared or global
- * variables. For example this is a bad practice and might cause a lot of headaches:
+ * variables. For example this is a bad practice:
  *
  * <pre>
  *  List<String> names = new ArrayList<>(); // names produces side effects
@@ -196,9 +207,6 @@ import com.typesafe.config.ConfigValueFactory;
  *   }
  * </pre>
  *
- * A new instance is created per request, not like inline routes. So an external route isn't
- * singleton. This scope is known us prototype or per-lookup.
- *
  * <h2>Mvc Route</h2>
  * <p>
  * A Mvc Route use annotations to define routes:
@@ -223,35 +231,30 @@ import com.typesafe.config.ConfigValueFactory;
  * </p>
  *
  * <p>
- * A new instance is created per request, not like inline routes. So an Mvc route isn't singleton.
- * This scope is known us prototype or per-lookup.
- * </p>
- * <p>
  * To learn more about Mvc Routes, please check {@link jooby.mvc.Path}, {@link jooby.mvc.Produces}
  * {@link jooby.mvc.Consumes}, {@link jooby.mvc.Body} and {@link jooby.mvc.Template}.
  * </p>
  *
  * <h1>Assets</h1>
  * <p>
- * If you need to publish static files like *.js, *.css, ..., etc... you can do it with:
+ * An asset is also known as static files, like: *.js, *.css, ..., etc...:
  * </p>
  *
  * <pre>
  *   assets("assets/**");
  * </pre>
  * <p>
- * Here a classpath resource under the <code>/assets</code> folder will be serve it to the client.
+ * Here any classpath resource under the <code>/assets</code> folder will be serve it to the client.
  * </p>
  * <h1>Bootstrap</h1>
  * <p>
  * The bootstrap process is defined as follows:
  * </p>
- * <h2>1. Configuration files order and fall-backs</h2>
+ * <h2>1. Configuration files are loaded in this order:</h2>
  * <ol>
- * <li>System properties are loaded</li>
+ * <li>System properties</li>
  * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
- * <li>Load configuration properties from each of the registered {@link JoobyModule modules}</li>
- * <li>At this point a {@link Config} object is ready to use</li>
+ * <li>Configuration properties from each of the registered {@link JoobyModule modules}</li>
  * </ol>
  *
  * <h2>2. Dependency Injection and {@link JoobyModule modules}</h2>
@@ -262,11 +265,18 @@ import com.typesafe.config.ConfigValueFactory;
  * <li>For each registered {@link JoobyModule module} the {@link JoobyModule#start() start method}
  * will be invoked</li>
  * <li>Finally, Jooby ask Guice for a {@link Server web server} and then call to
- * {@link Server#start()}</li>
+ * {@link Server#start()} method</li>
  * </ol>
  *
  * @author edgar
  * @since 0.1.0
+ * @see JoobyModule
+ * @see Request
+ * @see Response
+ * @see BodyConverter
+ * @see Route
+ * @see RouteInterceptor
+ * @see RequestModule
  */
 @Beta
 public class Jooby {
@@ -274,12 +284,12 @@ public class Jooby {
   /**
    * Keep track of routes.
    */
-  private Set<Object> routes = new LinkedHashSet<>();
+  private final Set<Object> routes = new LinkedHashSet<>();
 
   /**
    * Keep track of modules.
    */
-  private Set<JoobyModule> modules = new LinkedHashSet<>();
+  private final Set<JoobyModule> modules = new LinkedHashSet<>();
 
   /**
    * The override config. Optional.
@@ -289,6 +299,7 @@ public class Jooby {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
+  /** Keep the global injector instance. */
   private Injector injector;
 
   /**
@@ -474,7 +485,7 @@ public class Jooby {
    * @return A new inline route.
    */
   private static Route wrapRoute(final Class<? extends Route> route) {
-    return (req, resp) -> req.get(route).handle(req, resp);
+    return (req, resp) -> req.getInstance(route).handle(req, resp);
   }
 
   /**
@@ -648,13 +659,14 @@ public class Jooby {
         });
 
         // Routes
-        routes.forEach(route -> {
-          if (route instanceof RouteDefinition) {
-            definitions.addBinding().toInstance((RouteDefinition) route);
+        routes.forEach(candidate -> {
+          if (candidate instanceof RouteDefinition) {
+            definitions.addBinding().toInstance((RouteDefinition) candidate);
           } else {
-            Class<?> routeClass = (Class<?>) route;
+            Class<?> routeClass = (Class<?>) candidate;
+            binder.bind(routeClass);
             Routes.route(mode, routeClass)
-                .forEach(mvcRoute -> definitions.addBinding().toInstance(mvcRoute));
+                .forEach(route -> definitions.addBinding().toInstance(route));
           }
         });
 
@@ -677,6 +689,9 @@ public class Jooby {
     server.start();
   }
 
+  /**
+   * Stop the application, close all the modules and stop the web server.
+   */
   public void stop() throws Exception {
     // stop modules
     for (JoobyModule module : modules) {
@@ -687,7 +702,14 @@ public class Jooby {
       }
     }
 
-    injector.getInstance(Server.class).stop();
+    try {
+      if (injector != null) {
+        Server server = injector.getInstance(Server.class);
+        server.stop();
+      }
+    } catch (Exception ex) {
+      log.error("Can't stop server", ex);
+    }
   }
 
   /**
@@ -720,7 +742,7 @@ public class Jooby {
     }
 
     // set module config
-    for (JoobyModule module : modules) {
+    for (JoobyModule module : ImmutableList.copyOf(modules).reverse()) {
       config = config.withFallback(module.config());
     }
 

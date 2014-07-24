@@ -82,7 +82,7 @@ public class HibernatePersistence extends JDBC {
 
           @Override
           public void before(final Request request, final Response response) throws Exception {
-            EntityManager em = request.get(key);
+            EntityManager em = request.getInstance(key);
             Session session = (Session) em.getDelegate();
             session.setFlushMode(FlushMode.AUTO);
             EntityTransaction trx = em.getTransaction();
@@ -91,7 +91,7 @@ public class HibernatePersistence extends JDBC {
 
           @Override
           public void beforeSend(final Request request, final Response response) throws Exception {
-            EntityManager em = request.get(key);
+            EntityManager em = request.getInstance(key);
             // commit the transaction, but keep the EM open
             EntityTransaction trx = em.getTransaction();
             if (trx.isActive()) {
@@ -108,7 +108,7 @@ public class HibernatePersistence extends JDBC {
           @Override
           public void after(final Request request, final Response response, final Exception ex)
               throws Exception {
-            EntityManager em = request.get(key);
+            EntityManager em = request.getInstance(key);
             try {
               // rollback trx
               EntityTransaction trx = em.getTransaction();
@@ -122,7 +122,7 @@ public class HibernatePersistence extends JDBC {
 
           @Override
           public void after(final Request request, final Response response) throws Exception {
-            EntityManager em = request.get(key);
+            EntityManager em = request.getInstance(key);
             try {
               // commit trx
               EntityTransaction trx = em.getTransaction();

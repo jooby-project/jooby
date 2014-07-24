@@ -206,6 +206,8 @@ package jooby;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import javax.annotation.Nonnull;
+
 import jooby.Switch.Fn;
 
 /**
@@ -229,6 +231,7 @@ public interface Mode {
   /**
    * @return Mode's name.
    */
+  @Nonnull
   String name();
 
   /**
@@ -239,12 +242,14 @@ public interface Mode {
    * @return A resulting object.
    * @throws Exception If something fails.
    */
-  default <T> Optional<T> ifMode(final String name, final Fn<T> fn) throws Exception {
+  default <T> Optional<T> ifMode(@Nonnull final String name, @Nonnull final Fn<T> fn)
+      throws Exception {
     return Optional.ofNullable(when(name, fn).otherwise(null));
   }
 
   /**
    * Produces a {@link Switch} of the current {@link Mode}.
+   *
    * <pre>
    *   String accessKey = mode.when("dev", () -> "1234")
    *                          .when("stage", () -> "4321")
@@ -256,12 +261,14 @@ public interface Mode {
    * @param fn A callback function.
    * @return A new switch.
    */
-  default <T> Switch<String, T> when(final String name, final Fn<T> fn) {
+  @Nonnull
+  default <T> Switch<String, T> when(@Nonnull final String name, @Nonnull final Fn<T> fn) {
     return Switches.<T> newSwitch(name()).when(name, fn);
   }
 
   /**
    * Produces a {@link Switch} of the current {@link Mode}.
+   *
    * <pre>
    *   String accessKey = mode.when("dev", "1234")
    *                          .when("stage", "4321")
@@ -273,12 +280,14 @@ public interface Mode {
    * @param fn A callback function.
    * @return A new switch.
    */
-  default <T> Switch<String, T> when(final String name, final T result) {
+  @Nonnull
+  default <T> Switch<String, T> when(@Nonnull final String name, @Nonnull final T result) {
     return Switches.<T> newSwitch(name()).when(name, result);
   }
 
   /**
    * Produces a {@link Switch} of the current {@link Mode}.
+   *
    * <pre>
    *   String accessKey = mode.when("dev", () -> "1234")
    *                          .when("stage", () -> "4321")
@@ -290,7 +299,9 @@ public interface Mode {
    * @param fn A callback function.
    * @return A new switch.
    */
-  default <T> Switch<String, T> when(final Predicate<String> predicate, final T result) {
+  @Nonnull
+  default <T> Switch<String, T> when(@Nonnull final Predicate<String> predicate,
+      @Nonnull final T result) {
     return Switches.<T> newSwitch(name()).when(predicate, result);
   }
 }

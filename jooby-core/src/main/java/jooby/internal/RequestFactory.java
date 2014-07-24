@@ -14,10 +14,9 @@ public interface RequestFactory {
   Request newRequest(Injector injector,
       String path,
       BodyConverterSelector selector,
-      List<MediaType> accept,
       MediaType contentType,
+      List<MediaType> accept,
       ListMultimap<String, String> params,
-      ListMultimap<String, String> headers,
       Charset defaultCharset);
 
 }

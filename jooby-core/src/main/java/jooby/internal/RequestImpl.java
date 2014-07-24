@@ -38,8 +38,6 @@ public abstract class RequestImpl implements Request {
 
   private ThrowingSupplier<InputStream> stream;
 
-  private ListMultimap<String, String> headers;
-
   private List<Cookie> cookies;
 
   private String path;
@@ -48,20 +46,18 @@ public abstract class RequestImpl implements Request {
       final String path,
       final BodyConverterSelector selector,
       final Charset charset,
-      final List<MediaType> accept,
       final MediaType contentType,
+      final List<MediaType> accept,
       final ListMultimap<String, String> params,
-      final ListMultimap<String, String> headers,
       final List<Cookie> cookies,
       final ThrowingSupplier<InputStream> stream) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.path = requireNonNull(path, "Request path is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
-    this.accept = requireNonNull(accept, "An accept is required.");
     this.contentType = requireNonNull(contentType, "A contentType is required.");
+    this.accept = requireNonNull(accept, "An accept is required.");
     this.params = requireNonNull(params, "Parameters are required.");
-    this.headers = requireNonNull(headers, "Headers are required.");
     this.cookies = requireNonNull(cookies, "The cookies is required.");
     this.stream = requireNonNull(stream, "A stream is required.");
   }
@@ -97,7 +93,7 @@ public abstract class RequestImpl implements Request {
   @Override
   public HttpField header(final String name) {
     requireNonNull(name, "Header's name is missing.");
-    return new GetHeader(name, headers.get(name));
+    return new GetHeader(name, getHeaders(name));
   }
 
   @Override
@@ -113,16 +109,10 @@ public abstract class RequestImpl implements Request {
   }
 
   @Override
-  public <T> T get(final Class<T> type) {
-    return injector.getInstance(type);
-  }
-
-  @Override
-  public <T> T get(final Key<T> key) {
+  public <T> T getInstance(final Key<T> key) {
     return injector.getInstance(key);
   }
 
-  @Override
   public void destroy() {
     this.selector = null;
     this.contentType = null;
@@ -142,6 +132,8 @@ public abstract class RequestImpl implements Request {
   }
 
   protected abstract List<Upload> getUploads(final String name) throws Exception;
+
+  protected abstract List<String> getHeaders(String name);
 
   protected abstract void doDestroy();
 

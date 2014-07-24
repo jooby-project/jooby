@@ -9,21 +9,21 @@ import java.nio.charset.Charset;
 import java.util.function.Function;
 
 import jooby.BodyWriter;
-import jooby.HttpMutableField;
+import jooby.HttpHeader;
 import jooby.ThrowingSupplier;
 
 class BodyWriterImpl implements BodyWriter {
 
   private Charset charset;
 
-  private Function<String, HttpMutableField> headers;
+  private Function<String, HttpHeader> headers;
 
   private ThrowingSupplier<OutputStream> stream;
 
   private ThrowingSupplier<Writer> writer;
 
   public BodyWriterImpl(final Charset charset,
-      final Function<String, HttpMutableField> headers,
+      final Function<String, HttpHeader> headers,
       final ThrowingSupplier<OutputStream> stream,
       final ThrowingSupplier<Writer> writer) {
     this.charset = requireNonNull(charset, "A charset is required.");
@@ -38,7 +38,7 @@ class BodyWriterImpl implements BodyWriter {
   }
 
   @Override
-  public HttpMutableField header(final String name) {
+  public HttpHeader header(final String name) {
     return headers.apply(name);
   }
 

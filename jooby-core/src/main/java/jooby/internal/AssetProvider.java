@@ -24,7 +24,7 @@ class AssetProvider {
   }
 
   public Asset get(final String path) throws Exception {
-    return resolve(path, mediaTypeProvider.typeFor(path));
+    return resolve(path, mediaTypeProvider.forPath(path));
   }
 
   private Asset resolve(final String path, final MediaType mediaType) throws Exception {
