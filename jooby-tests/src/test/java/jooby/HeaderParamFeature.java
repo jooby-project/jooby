@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.Optional;
 
+import javax.inject.Named;
+
 import jooby.mvc.GET;
 import jooby.mvc.Header;
 import jooby.mvc.Path;
@@ -42,7 +44,7 @@ public class HeaderParamFeature extends ServerFeature {
 
     @GET
     @Path("/modifiedSince")
-    public Object modifiedSince(@Header("If-Modified-Since") final long h) {
+    public Object modifiedSince(@Named("If-Modified-Since") @Header final long h) {
       return h;
     }
 

@@ -38,8 +38,13 @@ public class Routes {
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   public static List<RouteDefinition> route(final Mode mode, final Class<?> routeClass) {
-    boolean reloadParams = mode.name().equals("dev");
-    ParamResolver paramResolver = new DefaultParamResolver(reloadParams);
+    ParamProvider base = new ParamProviderImpl(ParamNameProvider.HEAD);
+    if (!mode.name().equals("dev")) {
+      base = new CachedParamProvider(base);
+    }
+    ParamProvider provider = base;
+
+
     FastClass fastRoute = FastClass.create(routeClass);
     String topLevelPath = path(routeClass);
     String rootPath = "/".equals(topLevelPath) ? "" : topLevelPath;
@@ -77,7 +82,7 @@ public class Routes {
               checkArgument(path.length() > 0, "Missing path for: %s.%s",
                   routeClass.getSimpleName(),
                   m.getName());
-              Route resource = new MvcRoute(fastRoute.getMethod(m), paramResolver);
+              Route resource = new MvcRoute(fastRoute.getMethod(m), provider);
               return new RouteDefinition(verb, path, resource)
                   .produces(produces(m))
                   .consumes(consumes(m));

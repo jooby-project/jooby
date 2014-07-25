@@ -17,11 +17,11 @@ class MvcRoute implements Route {
 
   private FastMethod route;
 
-  private ParamResolver resolver;
+  private ParamProvider provider;
 
-  public MvcRoute(final FastMethod route, final ParamResolver resolver) {
+  public MvcRoute(final FastMethod route, final ParamProvider provider) {
     this.route = requireNonNull(route, "The route is required.");
-    this.resolver = requireNonNull(resolver, "The resolver is required.");
+    this.provider = requireNonNull(provider, "The resolver is required.");
   }
 
   @Override
@@ -30,7 +30,7 @@ class MvcRoute implements Route {
 
     Object handler = request.getInstance(method.getDeclaringClass());
 
-    List<ParamValue> parameters = resolver.resolve(method);
+    List<Param> parameters = provider.parameters(method);
     Object[] args = new Object[parameters.size()];
     for (int i = 0; i < parameters.size(); i++) {
       args[i] = parameters.get(i).get(request);
@@ -47,4 +47,5 @@ class MvcRoute implements Route {
     // send it!
     response.send(result);
   }
+
 }

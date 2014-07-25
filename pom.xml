@@ -74,11 +74,11 @@
         <version>${logback-classic.version}</version>
       </dependency>
 
-      <!-- ASM -->
+      <!-- paranamer -->
       <dependency>
-        <groupId>org.ow2.asm</groupId>
-        <artifactId>asm</artifactId>
-        <version>${asm.version}</version>
+        <groupId>com.thoughtworks.paranamer</groupId>
+        <artifactId>paranamer</artifactId>
+        <version>${paranamer.version}</version>
       </dependency>
 
       <!-- cglib -->
@@ -252,6 +252,9 @@
         <configuration>
           <source>${java.source.version}</source>
           <target>${java.source.version}</target>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
 
@@ -442,9 +445,9 @@
     <hikariCP.version>1.4.0</hikariCP.version>
     <hibernate.version>4.3.5.Final</hibernate.version>
     <jsr305.version>3.0.0</jsr305.version>
-    <asm.version>5.0.3</asm.version>
     <http-client.version>4.4-alpha1</http-client.version>
     <cglib.version>3.1</cglib.version>
+    <paranamer.version>2.6</paranamer.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
