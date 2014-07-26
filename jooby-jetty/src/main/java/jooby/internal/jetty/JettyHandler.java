@@ -258,8 +258,8 @@ public class JettyHandler extends AbstractHandler {
           /**
            * Create a new request.
            */
-          (injector, path, selector, contentType, accept, params, defaultCharSet)
-          -> new JettyRequest(req, injector, path, selector, contentType, accept, params,
+          (injector, routeMatcher, selector, contentType, accept, defaultCharSet)
+          -> new JettyRequest(req, injector, routeMatcher, selector, contentType, accept,
               defaultCharSet),
           /**
            * Create a new response

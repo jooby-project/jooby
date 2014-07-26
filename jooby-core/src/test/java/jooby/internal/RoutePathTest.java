@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import jooby.RouteMatcher;
+
 import org.junit.Test;
 
 public class RoutePathTest {

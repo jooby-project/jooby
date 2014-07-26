@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import jooby.RouteMatcher;
+
 class RegexRouteMatcher implements RouteMatcher {
 
   private final Matcher matcher;
@@ -15,9 +17,17 @@ class RegexRouteMatcher implements RouteMatcher {
 
   private final Map<String, String> vars = new HashMap<>();
 
-  RegexRouteMatcher(final Matcher matcher, final List<String> varNames) {
+  private final String path;
+
+  RegexRouteMatcher(final String path, final Matcher matcher, final List<String> varNames) {
+    this.path = requireNonNull(path, "A path is required.");
     this.matcher = requireNonNull(matcher, "A matcher is required.");
     this.varNames = requireNonNull(varNames, "The varNames are required.");
+  }
+
+  @Override
+  public String path() {
+    return path;
   }
 
   @Override

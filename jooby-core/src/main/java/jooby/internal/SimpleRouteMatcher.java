@@ -1,21 +1,30 @@
 package jooby.internal;
 
 import static java.util.Objects.requireNonNull;
+import jooby.RouteMatcher;
 
 class SimpleRouteMatcher implements RouteMatcher {
 
-  private String pattern;
+  private final String pattern;
 
-  private String path;
+  private final String fullpath;
 
-  public SimpleRouteMatcher(final String pattern, final String path) {
-    this.pattern = requireNonNull(pattern, "The pattern is required.");
+  private final String path;
+
+  public SimpleRouteMatcher(final String path, final String pattern, final String fullpath) {
     this.path = requireNonNull(path, "The path is required.");
+    this.pattern = requireNonNull(pattern, "The pattern is required.");
+    this.fullpath = requireNonNull(fullpath, "The full path is required.");
+  }
+
+  @Override
+  public String path() {
+    return path;
   }
 
   @Override
   public boolean matches() {
-    return path.equals(pattern);
+    return fullpath.equals(pattern);
   }
 
   @Override

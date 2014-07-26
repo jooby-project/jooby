@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import jooby.internal.RouteMatcher;
 import jooby.internal.RoutePath;
 
 import com.google.common.collect.Lists;

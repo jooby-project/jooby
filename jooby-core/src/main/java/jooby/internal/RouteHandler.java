@@ -5,9 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +27,7 @@ import jooby.Response;
 import jooby.Route;
 import jooby.RouteDefinition;
 import jooby.RouteInterceptor;
+import jooby.RouteMatcher;
 import jooby.TemplateProcessor;
 import jooby.internal.mvc.Routes;
 
@@ -38,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimaps;
 import com.google.inject.Injector;
 
 @Singleton
@@ -151,13 +149,14 @@ public class RouteHandler {
       }
     });
 
-    final Optional<RouteDescriptor> routeHolder = routes(routes, path, contentType, accept);
+    final Optional<RouteDescriptor> descriptor = routes(routes, path, contentType, accept);
 
-    final List<MediaType> produces = routeHolder.map(d -> d.produces).orElse(accept);
+    final List<MediaType> produces = descriptor.map(d -> d.produces).orElse(accept);
     log.trace("  produces: {}", produces);
 
-    final Request request = reqFactory.newRequest(injector, requestURI, selector, contentType,
-        accept, params(params, routeHolder), defaultCharset);
+    final Request request = reqFactory.newRequest(injector,
+        descriptor.map(d -> d.matcher).orElse(noMatch(requestURI)), selector, contentType,
+        accept, defaultCharset);
     final Response response = respFactory.newResponse(request, selector, interceptors,
         request.charset(), produces, responseHeaders);
 
@@ -167,7 +166,7 @@ public class RouteHandler {
         interceptor.before(request, response);
       }
 
-      RouteDefinition routeDefinition = routeHolder
+      RouteDefinition routeDefinition = descriptor
           .orElseThrow(() -> sendError(routes, verb, requestURI, contentType, accept))
           .definition;
       Route route = routeDefinition.route();
@@ -209,17 +208,19 @@ public class RouteHandler {
     }
   }
 
-  private static ListMultimap<String, String> params(final Map<String, String[]> params,
-      final Optional<RouteDescriptor> routeHolder) {
-    ListMultimap<String, String> result = Multimaps
-        .newListMultimap(new HashMap<>(), ArrayList::new);
-    params.forEach((name, values) -> {
-      Arrays.stream(values).forEach(value -> result.put(name, value));
-    });
-    routeHolder.ifPresent(h -> {
-      h.matcher.vars().forEach((name, value) -> result.put(name, value));
-    });
-    return result;
+  private RouteMatcher noMatch(final String path) {
+    return new RouteMatcher() {
+
+      @Override
+      public String path() {
+        return path;
+      }
+
+      @Override
+      public boolean matches() {
+        return false;
+      }
+    };
   }
 
   private static Optional<RouteDescriptor> routes(final Set<RouteDefinition> routes,

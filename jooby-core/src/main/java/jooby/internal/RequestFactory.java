@@ -5,18 +5,17 @@ import java.util.List;
 
 import jooby.MediaType;
 import jooby.Request;
+import jooby.RouteMatcher;
 
-import com.google.common.collect.ListMultimap;
 import com.google.inject.Injector;
 
 public interface RequestFactory {
 
   Request newRequest(Injector injector,
-      String path,
+      RouteMatcher routeMatcher,
       BodyConverterSelector selector,
       MediaType contentType,
       List<MediaType> accept,
-      ListMultimap<String, String> params,
       Charset defaultCharset);
 
 }

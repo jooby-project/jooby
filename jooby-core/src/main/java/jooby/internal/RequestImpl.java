@@ -8,16 +8,16 @@ import java.util.Arrays;
 import java.util.List;
 
 import jooby.BodyConverter;
-import jooby.Cookie;
 import jooby.HttpException;
 import jooby.HttpField;
 import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Request;
+import jooby.RouteMatcher;
 import jooby.ThrowingSupplier;
 import jooby.Upload;
 
-import com.google.common.collect.ListMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -34,37 +34,29 @@ public abstract class RequestImpl implements Request {
 
   private MediaType contentType;
 
-  private ListMultimap<String, String> params;
-
   private ThrowingSupplier<InputStream> stream;
 
-  private List<Cookie> cookies;
-
-  private String path;
+  private RouteMatcher routeMatcher;
 
   public RequestImpl(final Injector injector,
-      final String path,
+      final RouteMatcher routeMatcher,
       final BodyConverterSelector selector,
       final Charset charset,
       final MediaType contentType,
       final List<MediaType> accept,
-      final ListMultimap<String, String> params,
-      final List<Cookie> cookies,
       final ThrowingSupplier<InputStream> stream) {
     this.injector = requireNonNull(injector, "An injector is required.");
-    this.path = requireNonNull(path, "Request path is required.");
+    this.routeMatcher = requireNonNull(routeMatcher, "A route matcher is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
     this.contentType = requireNonNull(contentType, "A contentType is required.");
     this.accept = requireNonNull(accept, "An accept is required.");
-    this.params = requireNonNull(params, "Parameters are required.");
-    this.cookies = requireNonNull(cookies, "The cookies is required.");
     this.stream = requireNonNull(stream, "A stream is required.");
   }
 
   @Override
   public String path() {
-    return path;
+    return routeMatcher.path();
   }
 
   @Override
@@ -80,7 +72,7 @@ public abstract class RequestImpl implements Request {
   @Override
   public HttpField param(final String name) throws Exception {
     requireNonNull(name, "Parameter's name is missing.");
-    List<String> values = params.get(name);
+    List<String> values = params(name);
     if (values.isEmpty()) {
       List<Upload> files = uploads(name);
       if (files != null && files.size() > 0) {
@@ -94,11 +86,6 @@ public abstract class RequestImpl implements Request {
   public HttpField header(final String name) {
     requireNonNull(name, "Header's name is missing.");
     return new GetHeader(name, getHeaders(name));
-  }
-
-  @Override
-  public Cookie cookie(final String name) {
-    return cookies.stream().filter(c -> c.name().equals(name)).findFirst().orElse(null);
   }
 
   @Override
@@ -132,6 +119,16 @@ public abstract class RequestImpl implements Request {
   }
 
   protected abstract List<Upload> getUploads(final String name) throws Exception;
+
+  private List<String> params(final String name) {
+    String var = routeMatcher.vars().get(name);
+    if (var != null) {
+      return ImmutableList.<String> builder().add(var).addAll(getParams(name)).build();
+    }
+    return getParams(name);
+  }
+
+  protected abstract List<String> getParams(String name);
 
   protected abstract List<String> getHeaders(String name);
 

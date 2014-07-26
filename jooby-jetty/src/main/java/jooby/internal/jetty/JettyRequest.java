@@ -220,6 +220,7 @@ import javax.servlet.http.Part;
 import jooby.Cookie;
 import jooby.FileMediaTypeProvider;
 import jooby.MediaType;
+import jooby.RouteMatcher;
 import jooby.Upload;
 import jooby.internal.BodyConverterSelector;
 import jooby.internal.MutableCookie;
@@ -227,7 +228,6 @@ import jooby.internal.RequestImpl;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ListMultimap;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 
@@ -237,45 +237,68 @@ class JettyRequest extends RequestImpl {
 
   public JettyRequest(final HttpServletRequest request,
       final Injector injector,
-      final String path,
+      final RouteMatcher routeMatcher,
       final BodyConverterSelector selector,
       final MediaType contentType,
       final List<MediaType> accept,
-      final ListMultimap<String, String> params,
       final Charset defaultCharset) {
     super(injector,
-        path,
+        routeMatcher,
         selector,
         Optional.ofNullable(request.getCharacterEncoding()).map(Charset::forName)
             .orElse(defaultCharset),
         contentType,
         accept,
-        params,
-        cookies(request),
         request::getInputStream);
     this.request = requireNonNull(request, "A servlet request is required.");
   }
 
   @Override
-  protected List<String> getHeaders(final String name) {
+  protected List<String> getParams(final String name) {
+    String[] values = request.getParameterValues(name);
+    if (values == null) {
+      return Collections.emptyList();
+    }
+    return ImmutableList.copyOf(values);
+  }
+
+  @Override
+  public List<String> parameterNames() {
     ImmutableList.Builder<String> builder = ImmutableList.builder();
-    Enumeration<String> values = request.getHeaders(name);
-    while (values.hasMoreElements()) {
-      String value = values.nextElement();
-      builder.add(value);
+    Enumeration<String> names = request.getParameterNames();
+    while (names.hasMoreElements()) {
+      builder.add(names.nextElement());
     }
     return builder.build();
   }
 
   @Override
+  protected List<String> getHeaders(final String name) {
+    requireNonNull(name, "A header's name is required.");
+    return values(request.getHeaders(name));
+  }
+
+  @Override
   public List<String> headerNames() {
+    return values(request.getHeaderNames());
+  }
+
+  private List<String> values(final Enumeration<String> e) {
     ImmutableList.Builder<String> builder = ImmutableList.builder();
-    Enumeration<String> names = request.getHeaderNames();
-    while (names.hasMoreElements()) {
-      String name = names.nextElement();
-      builder.add(name);
+    while (e.hasMoreElements()) {
+      builder.add(e.nextElement());
     }
     return builder.build();
+  }
+
+  @Override
+  public Cookie cookie(final String name) {
+    return cookies(request).stream().filter(c -> c.name().equals(name)).findFirst().orElse(null);
+  }
+
+  @Override
+  public List<Cookie> cookies() {
+    return cookies(request);
   }
 
   @Override

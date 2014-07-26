@@ -51,6 +51,12 @@ public interface Request {
   List<MediaType> accept();
 
   /**
+   * @return All the parameter names.
+   */
+  @Nonnull
+  List<String> parameterNames();
+
+  /**
    * Get a HTTP request parameter under the given name. A HTTP parameter can be provided in any of
    * these forms:
    * <ul>
@@ -83,6 +89,10 @@ public interface Request {
   @Nonnull
   HttpField header(@Nonnull String name);
 
+  /**
+   * @return All the header names.
+   */
+  @Nonnull
   List<String> headerNames();
 
   /**
@@ -93,6 +103,12 @@ public interface Request {
    */
   @Nullable
   Cookie cookie(@Nonnull String name);
+
+  /**
+   * @return All the cookies.
+   */
+  @Nonnull
+  List<Cookie> cookies();
 
   /**
    * Convert the HTTP request body into the given type.
@@ -127,7 +143,8 @@ public interface Request {
    * @return A ready to use object.
    * @see RequestModule
    */
-  default @Nonnull <T> T getInstance(@Nonnull final Class<T> type) {
+  @Nonnull
+  default <T> T getInstance(@Nonnull final Class<T> type) {
     return getInstance(Key.get(type));
   }
 
@@ -152,7 +169,8 @@ public interface Request {
    * @return A ready to use object.
    * @see RequestModule
    */
-  <T> T getInstance(Key<T> key);
+  @Nonnull
+  <T> T getInstance(@Nonnull Key<T> key);
 
   /**
    * The charset in used for the current HTTP request. If the request doesn't specify a character
@@ -160,6 +178,7 @@ public interface Request {
    *
    * @return A current charset.
    */
+  @Nonnull
   Charset charset();
 
 }

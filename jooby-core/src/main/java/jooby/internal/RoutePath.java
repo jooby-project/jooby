@@ -6,13 +6,10 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jooby.RouteMatcher;
 import jooby.internal.mvc.Routes;
 
 public class RoutePath {
-
-  interface Segment {
-    boolean matches(String segment);
-  }
 
   private static final Pattern GLOB = Pattern
       .compile("\\?|\\*\\*/?|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
@@ -78,10 +75,11 @@ public class RoutePath {
       final Pattern regex = complex ? Pattern.compile(pattern) : null;
 
       @Override
-      public RouteMatcher apply(final String path) {
+      public RouteMatcher apply(final String fullpath) {
+        String path = fullpath.substring(fullpath.indexOf('/'));
         return complex
-            ? new RegexRouteMatcher(regex.matcher(path), vars)
-            : new SimpleRouteMatcher(pattern, path);
+            ? new RegexRouteMatcher(path, regex.matcher(fullpath), vars)
+            : new SimpleRouteMatcher(path, pattern, fullpath);
       }
 
       @Override

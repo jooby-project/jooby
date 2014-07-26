@@ -1,9 +1,11 @@
-package jooby.internal;
+package jooby;
 
 import java.util.Collections;
 import java.util.Map;
 
 public interface RouteMatcher {
+
+  String path();
 
   boolean matches();
 
