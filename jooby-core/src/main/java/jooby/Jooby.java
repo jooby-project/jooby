@@ -26,6 +26,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -292,6 +293,16 @@ public class Jooby {
   private final Set<JoobyModule> modules = new LinkedHashSet<>();
 
   /**
+   * Keep track of singleton MVC routes.
+   */
+  private final Set<Class<?>> singletonRoutes = new LinkedHashSet<>();
+
+  /**
+   * Keep track of prototype MVC routes.
+   */
+  private final Set<Class<?>> protoRoutes = new LinkedHashSet<>();
+
+  /**
    * The override config. Optional.
    */
   private Config config;
@@ -537,10 +548,16 @@ public class Jooby {
    * {@link jooby.mvc.Consumes}, {@link jooby.mvc.Body} and {@link jooby.mvc.Template}.
    * </p>
    *
-   * @param route The Mvc route.
+   * @param routeType The Mvc route.
    */
-  public void route(final Class<?> route) {
-    routes.add(route);
+  public void route(final Class<?> routeType) {
+    requireNonNull(routeType, "Route type is required.");
+    if (routeType.getAnnotation(javax.inject.Singleton.class) == null) {
+      protoRoutes.add(routeType);
+    } else {
+      singletonRoutes.add(routeType);
+    }
+    routes.add(routeType);
   }
 
   /**
@@ -644,7 +661,12 @@ public class Jooby {
             .newSetBinder(binder, RouteDefinition.class);
 
         // Request Modules
-        Multibinder.newSetBinder(binder, RequestModule.class);
+        Multibinder<RequestModule> requestModule = Multibinder
+            .newSetBinder(binder, RequestModule.class);
+
+        // bind prototype routes in request module
+        requestModule.addBinding().toInstance(
+            rm -> protoRoutes.forEach(routeClass -> rm.bind(routeClass)));
 
         // Route Interceptors
         Multibinder.newSetBinder(binder, RouteInterceptor.class);
@@ -664,11 +686,13 @@ public class Jooby {
             definitions.addBinding().toInstance((RouteDefinition) candidate);
           } else {
             Class<?> routeClass = (Class<?>) candidate;
-            binder.bind(routeClass);
             Routes.route(mode, routeClass)
                 .forEach(route -> definitions.addBinding().toInstance(route));
           }
         });
+
+        // Singleton routes
+        singletonRoutes.forEach(routeClass -> binder.bind(routeClass).in(Scopes.SINGLETON));
 
         converters.addBinding().toInstance(FallbackBodyConverter.COPY_TEXT);
         converters.addBinding().toInstance(FallbackBodyConverter.COPY_BYTES);

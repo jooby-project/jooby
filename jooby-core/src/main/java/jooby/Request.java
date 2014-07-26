@@ -15,12 +15,11 @@ import com.google.inject.TypeLiteral;
 /**
  * Give you access at the current HTTP request in order to read parameters, headers and body.
  *
- * <h1>Accessing to parameters or headers</h1>
- *
  * @author edgar
  * @since 0.1.0
- * @see RequestModule.
+ * @see RequestModule
  * @see HttpField
+ * @see RouteInterceptor
  */
 @Beta
 public interface Request {

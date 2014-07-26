@@ -2,9 +2,6 @@ package jooby;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.junit.Test;
@@ -20,8 +17,6 @@ public class AssetFeature extends ServerFeature {
   @Test
   public void jsAsset() throws Exception {
     HttpResponse response = Request.Get(uri("/assets/file.js").build()).execute().returnResponse();
-    Header[] headers = response.getHeaders("Content-Type");
-    System.out.println(Arrays.toString(headers));
     assertEquals("application/javascript; charset=UTF-8", response.getFirstHeader("Content-Type")
         .getValue());
     assertEquals(200, response.getStatusLine().getStatusCode());
