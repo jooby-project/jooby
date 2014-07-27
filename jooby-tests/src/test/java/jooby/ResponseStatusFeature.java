@@ -28,18 +28,17 @@ public class ResponseStatusFeature extends ServerFeature {
     }
 
   }
-    {
-      {
 
-        get("/notAllowed", (req, resp) -> resp.send("GET"));
+  {
 
-        get("/json", (req, resp) -> resp.send("{}"))
-            .consumes(MediaType.json)
-            .produces(MediaType.json);
+    get("/notAllowed", (req, resp) -> resp.send("GET"));
 
-        route(Resource.class);
-      }
-    }
+    get("/json", (req, resp) -> resp.send("{}"))
+        .consumes(MediaType.json)
+        .produces(MediaType.json);
+
+    route(Resource.class);
+  }
 
   @Test
   public void notFound() throws Exception {

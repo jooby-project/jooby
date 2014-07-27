@@ -21,16 +21,14 @@ public class PathParamFeature extends ServerFeature {
   }
 
   {
-    {
 
-      get("/vars/{name}/{age}", (req, resp) -> {
-        String name = req.param("name").getString();
-        int age = req.param("age").getInt();
-        resp.send(name + " " + age);
-      });
+    get("/vars/{name}/{age}", (req, resp) -> {
+      String name = req.param("name").getString();
+      int age = req.param("age").getInt();
+      resp.send(name + " " + age);
+    });
 
-      route(Resource.class);
-    }
+    route(Resource.class);
   }
 
   @Test

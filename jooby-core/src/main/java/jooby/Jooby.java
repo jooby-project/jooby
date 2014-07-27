@@ -14,6 +14,7 @@ import java.util.function.Supplier;
 
 import jooby.internal.AssetRoute;
 import jooby.internal.FallbackBodyConverter;
+import jooby.internal.RouteDefinitionImpl;
 import jooby.internal.mvc.Routes;
 
 import org.slf4j.Logger;
@@ -55,7 +56,7 @@ import com.typesafe.config.ConfigValueFactory;
  * <pre>
  * public class MyApp extends Jooby {
  *
- *   {{
+ *   {
  *      use(new Jetty());   // 1. server implementation.
  *      use(new Jackson()); // 2. JSON body converter through Jackson.
  *
@@ -64,7 +65,7 @@ import com.typesafe.config.ConfigValueFactory;
  *        Map<String, Object> model = ...;
  *        res.send(model);
  *      }
- *   }}
+ *   }
  *
  *  public static void main(String[] args) throws Exception {
  *    new MyApp().start(); // 4. Start it up!
@@ -329,7 +330,7 @@ public class Jooby {
    * @return A new route definition.
    */
   public RouteDefinition get(final String path, final Route route) {
-    return route(new RouteDefinition("GET", path, route));
+    return route(new RouteDefinitionImpl("GET", path, route));
   }
 
   /**
@@ -354,7 +355,7 @@ public class Jooby {
    * @see RequestModule
    */
   public RouteDefinition get(final String path, final Class<? extends Route> route) {
-    return route(new RouteDefinition("GET", path, wrapRoute(route)));
+    return route(new RouteDefinitionImpl("GET", path, wrapRoute(route)));
   }
 
   /**
@@ -373,7 +374,7 @@ public class Jooby {
    * @return A new route definition.
    */
   public RouteDefinition post(final String path, final Route route) {
-    return route(new RouteDefinition("POST", path, route));
+    return route(new RouteDefinitionImpl("POST", path, route));
   }
 
   /**
@@ -398,7 +399,7 @@ public class Jooby {
    * @see RequestModule
    */
   public RouteDefinition post(final String path, final Class<? extends Route> route) {
-    return route(new RouteDefinition("POST", path, wrapRoute(route)));
+    return route(new RouteDefinitionImpl("POST", path, wrapRoute(route)));
   }
 
   /**
@@ -417,7 +418,7 @@ public class Jooby {
    * @return A new route definition.
    */
   public RouteDefinition put(final String path, final Route route) {
-    return route(new RouteDefinition("PUT", path, route));
+    return route(new RouteDefinitionImpl("PUT", path, route));
   }
 
   /**
@@ -442,7 +443,7 @@ public class Jooby {
    * @see RequestModule
    */
   public RouteDefinition put(final String path, final Class<? extends Route> route) {
-    return route(new RouteDefinition("PUT", path, wrapRoute(route)));
+    return route(new RouteDefinitionImpl("PUT", path, wrapRoute(route)));
   }
 
   /**
@@ -461,7 +462,7 @@ public class Jooby {
    * @return A new route definition.
    */
   public RouteDefinition delete(final String path, final Route route) {
-    return route(new RouteDefinition("DELETE", path, route));
+    return route(new RouteDefinitionImpl("DELETE", path, route));
   }
 
   /**
@@ -486,7 +487,7 @@ public class Jooby {
    * @see RequestModule
    */
   public RouteDefinition delete(final String path, final Class<? extends Route> route) {
-    return route(new RouteDefinition("DELETE", path, wrapRoute(route)));
+    return route(new RouteDefinitionImpl("DELETE", path, wrapRoute(route)));
   }
 
   /**
@@ -683,7 +684,7 @@ public class Jooby {
         // Routes
         routes.forEach(candidate -> {
           if (candidate instanceof RouteDefinition) {
-            definitions.addBinding().toInstance((RouteDefinition) candidate);
+            definitions.addBinding().toInstance((RouteDefinitionImpl) candidate);
           } else {
             Class<?> routeClass = (Class<?>) candidate;
             Routes.route(mode, routeClass)

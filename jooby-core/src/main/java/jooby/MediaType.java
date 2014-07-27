@@ -449,6 +449,7 @@ public class MediaType implements Comparable<MediaType> {
    * @return A media type matcher.
    */
   public static Matcher matcher(final Iterable<MediaType> acceptable) {
+    requireNonNull(acceptable, "Acceptables media types are required.");
     return new Matcher(acceptable);
   }
 

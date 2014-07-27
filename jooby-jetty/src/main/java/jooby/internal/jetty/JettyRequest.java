@@ -205,13 +205,14 @@ package jooby.internal.jetty;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -239,17 +240,15 @@ class JettyRequest extends RequestImpl {
       final Injector injector,
       final RouteMatcher routeMatcher,
       final BodyConverterSelector selector,
+      final Charset charset,
       final MediaType contentType,
-      final List<MediaType> accept,
-      final Charset defaultCharset) {
+      final List<MediaType> accept) {
     super(injector,
         routeMatcher,
         selector,
-        Optional.ofNullable(request.getCharacterEncoding()).map(Charset::forName)
-            .orElse(defaultCharset),
+        charset,
         contentType,
-        accept,
-        request::getInputStream);
+        accept);
     this.request = requireNonNull(request, "A servlet request is required.");
   }
 
@@ -270,6 +269,11 @@ class JettyRequest extends RequestImpl {
       builder.add(names.nextElement());
     }
     return builder.build();
+  }
+
+  @Override
+  protected InputStream body() throws IOException {
+    return request.getInputStream();
   }
 
   @Override

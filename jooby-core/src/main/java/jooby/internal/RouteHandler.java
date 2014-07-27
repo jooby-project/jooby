@@ -28,7 +28,7 @@ import jooby.Route;
 import jooby.RouteDefinition;
 import jooby.RouteInterceptor;
 import jooby.RouteMatcher;
-import jooby.TemplateProcessor;
+import jooby.Viewable;
 import jooby.internal.mvc.Routes;
 
 import org.slf4j.Logger;
@@ -72,7 +72,7 @@ public class RouteHandler {
 
   private Set<RouteDefinition> routes;
 
-  private Charset defaultCharset;
+  private Charset charset;
 
   private Injector rootInjector;
 
@@ -92,7 +92,7 @@ public class RouteHandler {
     this.requestModules = requireNonNull(requestModules, "Request modules are required.");
     this.interceptors = requireNonNull(interceptors, "Route interceptors are required.");
     this.routes = requireNonNull(routes, "The routes are required.");
-    this.defaultCharset = requireNonNull(defaultCharset, "A defaultCharset is required.");
+    this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
   }
 
   public void handle(final String verb, final String requestURI,
@@ -119,7 +119,7 @@ public class RouteHandler {
         Routes.normalize(requestURI),
         type,
         acceptList,
-        Optional.ofNullable(charset).map(Charset::forName).orElse(defaultCharset),
+        Optional.ofNullable(charset).map(Charset::forName).orElse(this.charset),
         parameters,
         responseHeaders,
         reqFactory,
@@ -155,10 +155,18 @@ public class RouteHandler {
     log.trace("  produces: {}", produces);
 
     final Request request = reqFactory.newRequest(injector,
-        descriptor.map(d -> d.matcher).orElse(noMatch(requestURI)), selector, contentType,
-        accept, defaultCharset);
-    final Response response = respFactory.newResponse(request, selector, interceptors,
-        request.charset(), produces, responseHeaders);
+        descriptor.map(d -> d.matcher).orElse(noMatch(requestURI)),
+        selector,
+        charset,
+        contentType,
+        accept);
+
+    final Response response = respFactory.newResponse(request,
+        selector,
+        interceptors,
+        request.charset(),
+        produces,
+        responseHeaders);
 
     try {
       // before interceptor
@@ -184,7 +192,7 @@ public class RouteHandler {
       for (RouteInterceptor interceptor : interceptors) {
         interceptor.after(request, response, ex);
       }
-      response.reset();
+      ((ResponseImpl) response).reset();
       // execution failed, so find status code
       HttpStatus status = statusCode(ex);
 
@@ -193,9 +201,11 @@ public class RouteHandler {
 
       // TODO: move me to an error handler feature
       Map<String, Object> model = errorModel(request, ex, status);
-      response.header(TemplateProcessor.VIEW_NAME).setString("/status/" + status.value());
       try {
-        response.send(model);
+        response
+            .when(MediaType.html, () -> Viewable.of("/status/" + status.value(), model))
+            .when(MediaType.all, () -> model)
+            .send();
       } catch (Exception ignored) {
         log.trace("rendering of error failed, fallback to default error page", ignored);
         defaultErrorPage(request, response, status, model);

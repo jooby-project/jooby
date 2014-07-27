@@ -123,12 +123,10 @@ public class RequestParamFeature extends ServerFeature {
     }
   }
 
-    {
-      {
+  {
 
-        route(Resource.class);
-      }
-    }
+    route(Resource.class);
+  }
 
   @Test
   public void booleanParam() throws Exception {

@@ -38,31 +38,29 @@ public class ContentNegotiationFeature extends ServerFeature {
     }
   }
 
-    {
-      {
+  {
 
-        use((mode, config, binder) -> {
-          Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
-              BodyConverter.class);
-          converters.addBinding().toInstance(TestBodyConverter.HTML);
-          converters.addBinding().toInstance(TestBodyConverter.JSON);
-        });
+    use((mode, config, binder) -> {
+      Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
+          BodyConverter.class);
+      converters.addBinding().toInstance(TestBodyConverter.HTML);
+      converters.addBinding().toInstance(TestBodyConverter.JSON);
+    });
 
-        get("/any", (req, resp) ->
-            resp.when("text/html", () -> Viewable.of("test", "body"))
-                .when("application/json", () -> "body")
-                .send());
+    get("/any", (req, resp) ->
+        resp.when("text/html", () -> Viewable.of("test", "body"))
+            .when("application/json", () -> "body")
+            .send());
 
-        get("/html", (req, resp) -> resp.send(Viewable.of("test", "body")))
-            .produces(MediaType.html);
+    get("/html", (req, resp) -> resp.send(Viewable.of("test", "body")))
+        .produces(MediaType.html);
 
-        get("/json", (req, resp) -> resp.send("body"))
-            .produces(MediaType.json)
-            .consumes(MediaType.json);
+    get("/json", (req, resp) -> resp.send("body"))
+        .produces(MediaType.json)
+        .consumes(MediaType.json);
 
-        route(Resource.class);
-      }
-    }
+    route(Resource.class);
+  }
 
   private static final String CHROME_ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
 

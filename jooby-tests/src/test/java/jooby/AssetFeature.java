@@ -9,9 +9,7 @@ import org.junit.Test;
 public class AssetFeature extends ServerFeature {
 
   {
-    {
-      assets("/assets/**");
-    }
+    assets("/assets/**");
   }
 
   @Test

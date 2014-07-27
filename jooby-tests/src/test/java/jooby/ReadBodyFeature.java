@@ -38,24 +38,22 @@ public class ReadBodyFeature extends ServerFeature {
     }
   }
 
-    {
-      {
+  {
 
-        use((mode, config, binder) -> {
-          Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
-              BodyConverter.class);
-          converters.addBinding().toInstance(TestBodyConverter.JSON);
-        });
+    use((mode, config, binder) -> {
+      Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
+          BodyConverter.class);
+      converters.addBinding().toInstance(TestBodyConverter.JSON);
+    });
 
-        post("/text", (req, resp) -> resp.send(req.body(String.class)));
+    post("/text", (req, resp) -> resp.send(req.body(String.class)));
 
-        get("/text", (req, resp) -> resp.send(req.body(String.class)));
+    get("/text", (req, resp) -> resp.send(req.body(String.class)));
 
-        post("/json", (req, resp) -> resp.send(req.body(String.class)))
-            .consumes(MediaType.json);
+    post("/json", (req, resp) -> resp.send(req.body(String.class)))
+        .consumes(MediaType.json);
 
-        route(Resource.class);
-      }
+    route(Resource.class);
   }
 
   @Test

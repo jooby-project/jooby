@@ -1,85 +1,137 @@
 package jooby;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import jooby.internal.RoutePath;
+import javax.annotation.Nonnull;
 
-import com.google.common.collect.Lists;
+import com.google.common.annotations.Beta;
 
-public class RouteDefinition {
+/**
+ * DSL for customize routes.
+ *
+ * <h1>Defining a new route</h1>
+ * <p>
+ * It's pretty straight forward:
+ * </p>
+ *
+ * <pre>
+ *   public class MyApp extends Jooby {
+ *     {
+ *        get("/", (req, resp) -> resp.send("GET"));
+ *
+ *        post("/", (req, resp) -> resp.send("POST"));
+ *
+ *        put("/", (req, resp) -> resp.send("PUT"));
+ *
+ *        delete("/", (req, resp) -> resp.status(HttpStatus.NO_CONTENT));
+ *     }
+ *   }
+ * </pre>
+ *
+ * <h1>Setting what a route can consumes</h1>
+ * <p>
+ * It's pretty straight forward:
+ * </p>
+ *
+ * <pre>
+ *   public class MyApp extends Jooby {
+ *     {
+ *        post("/", (req, resp) -> resp.send("POST"))
+ *          .consumes(MediaType.json);
+ *     }
+ *   }
+ * </pre>
+ *
+ * <h1>Setting what a route can produces</h1>
+ * <p>
+ * It's pretty straight forward:
+ * </p>
+ *
+ * <pre>
+ *   public class MyApp extends Jooby {
+ *     {
+ *        post("/", (req, resp) -> resp.send("POST"))
+ *          .produces(MediaType.json);
+ *     }
+ *   }
+ * </pre>
+ *
+ * @author edgar
+ * @since 0.1.0
+ */
+@Beta
+public interface RouteDefinition {
 
-  private RoutePath path;
+  /**
+   * @return A route pattern.
+   */
+  RoutePattern path();
 
-  private Route route;
+  /**
+   * @return Target route.
+   */
+  Route route();
 
-  private List<MediaType> consumes = new ArrayList<>();
+  /**
+   * Construct a new {@link RouteMatcher}.
+   *
+   * @param path The path to test.
+   * @return A new route matcher.
+   */
+  RouteMatcher matcher(String path);
 
-  private List<MediaType> produces = new ArrayList<>();
+  /**
+   * @param candidate A media type to test.
+   * @return True, if the route can consume the given media type.
+   */
+  boolean canConsume(@Nonnull MediaType candidate);
 
-  public RouteDefinition(final String method, final String path, final Route route) {
-    this(new RoutePath(method, path), route);
-  }
+  /**
+   * @param candidates A media types to test.
+   * @return True, if the route can produces the given media type.
+   */
+  boolean canProduce(List<MediaType> candidates);
 
-  private RouteDefinition(final RoutePath path, final Route route) {
-    this.path = requireNonNull(path, "A path is required.");
-    this.route = requireNonNull(route, "A route is required.");
-    consumes.add(MediaType.all);
-    produces.add(MediaType.all);
-  }
+  /**
+   * Set the media types the route can consume.
+   *
+   * @param consumes The media types to test for.
+   * @return This route definition.
+   */
+  RouteDefinition consumes(MediaType... consumes);
 
-  public RoutePath path() {
-    return path;
-  }
+  /**
+   * Set the media types the route can consume.
+   *
+   * @param consumes The media types to test for.
+   * @return This route definition.
+   */
+  RouteDefinition consumes(Iterable<MediaType> consumes);
 
-  public Route route() {
-    return route;
-  }
+  /**
+   * Set the media types the route can produces.
+   *
+   * @param produces The media types to test for.
+   * @return This route definition.
+   */
+  RouteDefinition produces(MediaType... produces);
 
-  public RouteMatcher matcher(final String path) {
-    return this.path.matcher(path);
-  }
+  /**
+   * Set the media types the route can produces.
+   *
+   * @param produces The media types to test for.
+   * @return This route definition.
+   */
+  RouteDefinition produces(Iterable<MediaType> produces);
 
-  public boolean canConsume(final MediaType candidate) {
-    return MediaType.matcher(Arrays.asList(candidate)).matches(consumes);
-  }
+  /**
+   * @return All the types this route can consumes.
+   */
+  List<MediaType> consumes();
 
-  public boolean canProduce(final List<MediaType> candidates) {
-    return MediaType.matcher(candidates).matches(produces);
-  }
-
-  public RouteDefinition consumes(final MediaType... supported) {
-    return consumes(Arrays.asList(supported));
-  }
-
-  public RouteDefinition consumes(final Iterable<MediaType> consumes) {
-    this.consumes = Lists.newArrayList(consumes);
-    return this;
-  }
-
-  public RouteDefinition produces(final MediaType... types) {
-    return produces(Arrays.asList(types));
-  }
-
-  public RouteDefinition produces(final Iterable<MediaType> produces) {
-    this.produces = Lists.newArrayList(produces);
-    return this;
-  }
-
-  public List<MediaType> consumes() {
-    return consumes;
-  }
-
-  public List<MediaType> produces() {
-    return produces;
-  }
-
-  @Override
-  public String toString() {
-    return path.toString() + " " + consumes + " -> " + produces;
-  }
+  /**
+   * @return All the types this route can produces.
+   */
+  List<MediaType> produces();
 
 }

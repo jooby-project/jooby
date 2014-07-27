@@ -55,15 +55,13 @@ public class ModulePropertiesFeature extends ServerFeature {
   }
 
   {
-    {
 
-      // don't use application.conf
-      use(ConfigFactory.empty());
+    // don't use application.conf
+    use(ConfigFactory.empty());
 
-      use(new M1());
+    use(new M1());
 
-      route(Resource.class);
-    }
+    route(Resource.class);
   }
 
   @Test

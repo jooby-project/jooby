@@ -8,6 +8,7 @@ import jooby.BodyConverter;
 import jooby.BodyReader;
 import jooby.BodyWriter;
 import jooby.MediaType;
+import jooby.Viewable;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
@@ -72,23 +73,14 @@ public enum FallbackBodyConverter implements BodyConverter {
   TO_HTML(MediaType.html) {
 
     @Override
-    public boolean canRead(final TypeLiteral<?> type) {
-      return type.getRawType() == String.class;
-    }
-
-    @Override
-    public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
-      return reader.text(r -> CharStreams.toString(r));
-    }
-
-    @Override
     public boolean canWrite(final Class<?> type) {
       return true;
     }
 
     @Override
     public void write(final Object message, final BodyWriter writer) throws Exception {
-      writer.text(out -> out.write(message.toString()));
+      writer.text(out -> out.write(message instanceof Viewable ? ((Viewable) message).model()
+          .toString() : message.toString()));
     }
   };
 

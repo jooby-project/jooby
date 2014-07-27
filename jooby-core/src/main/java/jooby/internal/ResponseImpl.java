@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import jooby.BodyConverter;
@@ -17,8 +18,10 @@ import jooby.HttpException;
 import jooby.HttpHeader;
 import jooby.HttpStatus;
 import jooby.MediaType;
+import jooby.MediaType.Matcher;
 import jooby.Request;
 import jooby.Response;
+import jooby.Response.ContentNegotiation.Provider;
 import jooby.RouteInterceptor;
 import jooby.ThrowingSupplier;
 
@@ -127,14 +130,19 @@ public abstract class ResponseImpl implements Response {
   }
 
   @Override
-  public ContentNegotiation when(final String type, final ContentNegotiation.Fn fn) {
-    final Map<MediaType, ContentNegotiation.Fn> strategies = new LinkedHashMap<>();
-    strategies.put(MediaType.valueOf(type), fn);
+  public ContentNegotiation when(final String type, final Provider provider) {
+    return when(MediaType.valueOf(type), provider);
+  }
+
+  @Override
+  public ContentNegotiation when(final MediaType type, final ContentNegotiation.Provider provider) {
+    final Map<MediaType, ContentNegotiation.Provider> strategies = new LinkedHashMap<>();
+    strategies.put(type, provider);
 
     return new ContentNegotiation() {
 
       @Override
-      public ContentNegotiation when(final MediaType mediaType, final Fn fn) {
+      public ContentNegotiation when(final MediaType mediaType, final Provider fn) {
         strategies.put(mediaType, fn);
         return this;
       }
@@ -145,11 +153,14 @@ public abstract class ResponseImpl implements Response {
         if (mediaTypes.size() == 0) {
           throw new HttpException(HttpStatus.NOT_ACCEPTABLE, Joiner.on(", ").join(produces));
         }
-        Fn fn = strategies.get(mediaTypes.get(0));
-        if (fn == null) {
-          throw new HttpException(HttpStatus.NOT_ACCEPTABLE, Joiner.on(", ").join(produces));
+        Provider provider = strategies.get(mediaTypes.get(0));
+        if (provider == null) {
+          Matcher matcher = MediaType.matcher(mediaTypes);
+          Optional<MediaType> type = matcher.first(strategies.keySet());
+          provider = strategies.get(type.orElseThrow(() -> new HttpException(
+              HttpStatus.NOT_ACCEPTABLE, Joiner.on(", ").join(produces))));
         }
-        ResponseImpl.this.send(fn.apply());
+        ResponseImpl.this.send(provider.apply());
       }
 
     };
@@ -168,8 +179,8 @@ public abstract class ResponseImpl implements Response {
   }
 
   @Override
-  public MediaType type() {
-    return type;
+  public Optional<MediaType> type() {
+    return Optional.ofNullable(type);
   }
 
   @Override
@@ -179,8 +190,7 @@ public abstract class ResponseImpl implements Response {
     return this;
   }
 
-  @Override
-  public void reset() {
+  void reset() {
     headers.clear();
     status = null;
     doReset();

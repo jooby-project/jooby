@@ -54,13 +54,11 @@ public class OverrideModulePropertiesFeature extends ServerFeature {
     }
   }
 
-    {
-      {
+  {
 
-        use(new M1());
+    use(new M1());
 
-        route(Resource.class);
-      }
+    route(Resource.class);
   }
 
   @Test

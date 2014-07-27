@@ -5,11 +5,14 @@ import static java.util.Objects.requireNonNull;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
+import jooby.MediaType;
 import jooby.Request;
 import jooby.Response;
+import jooby.Response.ContentNegotiation;
 import jooby.Route;
-import jooby.TemplateProcessor;
+import jooby.Viewable;
 import jooby.mvc.Template;
 import net.sf.cglib.reflect.FastMethod;
 
@@ -36,16 +39,40 @@ class MvcRoute implements Route {
       args[i] = parameters.get(i).get(request);
     }
 
-    Object result = route.invoke(handler, args);
+    final Object result = route.invoke(handler, args);
 
-    // default view name
-    String defaultViewName = Optional.ofNullable(method.getAnnotation(Template.class))
-        .map(template -> template.value().isEmpty() ? method.getName() : template.value())
-        .orElse(method.getName());
-    response.header(TemplateProcessor.VIEW_NAME).setString(defaultViewName);
+    // negotiate!
+    List<MediaType> accept = request.accept();
 
-    // send it!
-    response.send(result);
+    ContentNegotiation.Provider viewable = () -> {
+      if (result instanceof Viewable) {
+        return result;
+      }
+      // default view name
+      String defaultViewName = Optional.ofNullable(method.getAnnotation(Template.class))
+          .map(template -> template.value().isEmpty() ? method.getName() : template.value())
+          .orElse(method.getName());
+      return Viewable.of(defaultViewName, result);
+    };
+
+    ContentNegotiation.Provider notViewable = () -> result;
+
+    // viewable is apply when content type is text/html or accept header is size 1 matches text/html
+    // and template annotiation is present.
+    boolean htmlLike = accept.size() == 1 && accept.get(0).matches(MediaType.html) &&
+        method.getAnnotation(Template.class) != null;
+    Function<MediaType, ContentNegotiation.Provider> provider =
+        (type) -> MediaType.html.equals(type) || htmlLike ? viewable : notViewable;
+
+    ContentNegotiation negotiator = null;
+    for (MediaType type : accept) {
+      if (negotiator == null) {
+        negotiator = response.when(type, provider.apply(type));
+      } else {
+        negotiator = negotiator.when(type, provider.apply(type));
+      }
+    }
+    // enough, now send
+    negotiator.send();
   }
-
 }

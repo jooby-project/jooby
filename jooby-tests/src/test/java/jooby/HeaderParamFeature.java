@@ -62,11 +62,9 @@ public class HeaderParamFeature extends ServerFeature {
 
   }
 
-    {
-      {
+  {
 
-        route(Resource.class);
-      }
+    route(Resource.class);
   }
 
   @Test
@@ -98,7 +96,7 @@ public class HeaderParamFeature extends ServerFeature {
 
   @Test
   public void missingHeader() throws Exception {
-    assertStatus(HttpStatus.BAD_REQUEST, ()-> execute(GET(uri("int"))));
+    assertStatus(HttpStatus.BAD_REQUEST, () -> execute(GET(uri("int"))));
   }
 
   @Test

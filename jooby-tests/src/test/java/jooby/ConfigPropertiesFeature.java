@@ -71,9 +71,7 @@ public class ConfigPropertiesFeature extends ServerFeature {
   }
 
   {
-    {
-      route(Resource.class);
-    }
+    route(Resource.class);
   }
 
   @Test

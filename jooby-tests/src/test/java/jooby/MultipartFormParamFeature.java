@@ -52,39 +52,37 @@ public class MultipartFormParamFeature extends ServerFeature {
   }
 
   {
-    {
 
-      post("/form", (req, resp) -> {
-        String name = req.param("name").getString();
-        int age = req.param("age").getInt();
-        Upload upload = req.param("myfile").get(Upload.class);
-        resp.send(name + " " + age + " " + upload.name() + " " + upload.type());
-      });
+    post("/form", (req, resp) -> {
+      String name = req.param("name").getString();
+      int age = req.param("age").getInt();
+      Upload upload = req.param("myfile").get(Upload.class);
+      resp.send(name + " " + age + " " + upload.name() + " " + upload.type());
+    });
 
-      post("/form/files", (req, resp) -> {
-        List<Upload> uploads = req.param("uploads").getList(Upload.class);
-        StringBuilder buffer = new StringBuilder();
-        for (Upload upload : uploads) {
-          try (Upload u = upload) {
-            buffer.append(u.name()).append(" ");
-          }
+    post("/form/files", (req, resp) -> {
+      List<Upload> uploads = req.param("uploads").getList(Upload.class);
+      StringBuilder buffer = new StringBuilder();
+      for (Upload upload : uploads) {
+        try (Upload u = upload) {
+          buffer.append(u.name()).append(" ");
         }
-        resp.send(buffer);
-      });
+      }
+      resp.send(buffer);
+    });
 
-      post("/form/optional", (req, resp) -> {
-        Optional<Upload> upload = req.param("upload").getOptional(Upload.class);
-        if (upload.isPresent()) {
-          try (Upload u = upload.get()) {
-            resp.send(u.name());
-          }
-        } else {
-          resp.send(upload);
+    post("/form/optional", (req, resp) -> {
+      Optional<Upload> upload = req.param("upload").getOptional(Upload.class);
+      if (upload.isPresent()) {
+        try (Upload u = upload.get()) {
+          resp.send(u.name());
         }
-      });
+      } else {
+        resp.send(upload);
+      }
+    });
 
-      route(Resource.class);
-    }
+    route(Resource.class);
   }
 
   @Test

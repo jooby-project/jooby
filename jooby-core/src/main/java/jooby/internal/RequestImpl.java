@@ -2,6 +2,7 @@ package jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -14,7 +15,6 @@ import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Request;
 import jooby.RouteMatcher;
-import jooby.ThrowingSupplier;
 import jooby.Upload;
 
 import com.google.common.collect.ImmutableList;
@@ -34,8 +34,6 @@ public abstract class RequestImpl implements Request {
 
   private MediaType contentType;
 
-  private ThrowingSupplier<InputStream> stream;
-
   private RouteMatcher routeMatcher;
 
   public RequestImpl(final Injector injector,
@@ -43,15 +41,13 @@ public abstract class RequestImpl implements Request {
       final BodyConverterSelector selector,
       final Charset charset,
       final MediaType contentType,
-      final List<MediaType> accept,
-      final ThrowingSupplier<InputStream> stream) {
+      final List<MediaType> accept) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.routeMatcher = requireNonNull(routeMatcher, "A route matcher is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
     this.contentType = requireNonNull(contentType, "A contentType is required.");
     this.accept = requireNonNull(accept, "An accept is required.");
-    this.stream = requireNonNull(stream, "A stream is required.");
   }
 
   @Override
@@ -92,7 +88,7 @@ public abstract class RequestImpl implements Request {
   public <T> T body(final TypeLiteral<T> type) throws Exception {
     BodyConverter mapper = selector.forRead(type, Arrays.asList(contentType))
         .orElseThrow(() -> new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE));
-    return mapper.read(type, new BodyReaderImpl(charset, stream));
+    return mapper.read(type, new BodyReaderImpl(charset, () -> body()));
   }
 
   @Override
@@ -131,6 +127,8 @@ public abstract class RequestImpl implements Request {
   protected abstract List<String> getParams(String name);
 
   protected abstract List<String> getHeaders(String name);
+
+  protected abstract InputStream body() throws IOException;
 
   protected abstract void doDestroy();
 

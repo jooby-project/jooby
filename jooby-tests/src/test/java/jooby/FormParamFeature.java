@@ -24,21 +24,19 @@ public class FormParamFeature extends ServerFeature {
   }
 
   {
-    {
-      use((mode, config, binder) -> {
-        Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
-            BodyConverter.class);
-        converters.addBinding().toInstance(TestBodyConverter.JSON);
-      });
+    use((mode, config, binder) -> {
+      Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
+          BodyConverter.class);
+      converters.addBinding().toInstance(TestBodyConverter.JSON);
+    });
 
-      post("/form", (req, resp) -> {
-        String name = req.param("name").getString();
-        int age = req.param("age").getInt();
-        resp.send(name + " " + age);
-      });
+    post("/form", (req, resp) -> {
+      String name = req.param("name").getString();
+      int age = req.param("age").getInt();
+      resp.send(name + " " + age);
+    });
 
-      route(Resource.class);
-    }
+    route(Resource.class);
   }
 
   @Test

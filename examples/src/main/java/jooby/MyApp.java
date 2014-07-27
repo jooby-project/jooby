@@ -205,40 +205,25 @@ package jooby;
 
 import jooby.jetty.Jetty;
 
-import com.google.common.collect.ImmutableMap;
-
 public class MyApp extends Jooby {
 
   {
-    {
-      use(new Jetty());
-      use(new HibernatePersistence(User.class));
-      use(new Jackson());
-      use(new Hbs());
 
-      assets("/assets/**");
+    use(new Jetty());
+    use(new HibernatePersistence(User.class));
+    use(new Jackson());
+    use(new Hbs());
 
-      get("/", (req, resp) -> {
-        ImmutableMap<Object, Object> model = ImmutableMap.builder()
-            .put("name", "K")
-            .build();
+    get("/", (req, resp) -> {
+      resp.send(Viewable.of("user", new User()));
+    });
 
-        resp.send(new Viewable("index", model));
+    route(Users.class);
 
-      });
-
-      post("/inline", (req, resp) -> {
-        User body = req.body(User.class);
-        resp.send(body);
-      });
-
-      route(Resource.class);
-    }
   }
 
   public static void main(final String[] args) throws Exception {
-    new MyApp()
-        .start();
+    new MyApp().start();
   }
 
 }

@@ -22,19 +22,17 @@ public class ExceptionHandlingFeature extends ServerFeature {
   }
 
   {
-    {
 
-      use((mode, config, binder) -> {
-        Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
-            BodyConverter.class);
-        converters.addBinding().toInstance(TestBodyConverter.HTML);
-        converters.addBinding().toInstance(TestBodyConverter.JSON);
-      });
+    use((mode, config, binder) -> {
+      Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
+          BodyConverter.class);
+      converters.addBinding().toInstance(TestBodyConverter.HTML);
+      converters.addBinding().toInstance(TestBodyConverter.JSON);
+    });
 
-      get("/error", (req, resp) -> resp.send(null));
+    get("/error", (req, resp) -> resp.send(null));
 
-      route(Resource.class);
-    }
+    route(Resource.class);
   }
 
   private static final String CHROME_ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";

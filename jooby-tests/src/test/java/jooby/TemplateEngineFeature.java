@@ -24,12 +24,6 @@ public class TemplateEngineFeature extends ServerFeature {
       return Viewable.of("test", "model");
     }
 
-    @Path("/view/default")
-    @GET
-    public Object test() throws IOException {
-      return "model";
-    }
-
     @Path("/view/template")
     @Template("template")
     @GET
@@ -39,20 +33,17 @@ public class TemplateEngineFeature extends ServerFeature {
   }
 
   {
-    {
+    use((mode, config, binder) -> {
+      Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
+          BodyConverter.class);
+      converters.addBinding().toInstance(TestBodyConverter.HTML);
+    });
 
-      use((mode, config, binder) -> {
-        Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
-            BodyConverter.class);
-        converters.addBinding().toInstance(TestBodyConverter.HTML);
-      });
+    get("/view", (req, resp) -> {
+      resp.send(Viewable.of("test", "model"));
+    });
 
-      get("/view", (req, resp) -> {
-        resp.send(Viewable.of("test", "model"));
-      });
-
-      route(Resource.class);
-    }
+    route(Resource.class);
   }
 
   @Test
@@ -62,12 +53,6 @@ public class TemplateEngineFeature extends ServerFeature {
 
     assertEquals("<html><body>test: model</body></html>", Request.Get(uri("r", "view").build())
         .execute().returnContent().asString());
-  }
-
-  @Test
-  public void defaultView() throws Exception {
-    assertEquals("<html><body>test: model</body></html>",
-        Request.Get(uri("r", "view", "default").build()).execute().returnContent().asString());
   }
 
   @Test

@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 
 import jooby.RouteMatcher;
 
-class RegexRouteMatcher implements RouteMatcher {
+public class RegexRouteMatcher implements RouteMatcher {
 
   private final Matcher matcher;
 
@@ -19,7 +19,7 @@ class RegexRouteMatcher implements RouteMatcher {
 
   private final String path;
 
-  RegexRouteMatcher(final String path, final Matcher matcher, final List<String> varNames) {
+  public RegexRouteMatcher(final String path, final Matcher matcher, final List<String> varNames) {
     this.path = requireNonNull(path, "A path is required.");
     this.matcher = requireNonNull(matcher, "A matcher is required.");
     this.varNames = requireNonNull(varNames, "The varNames are required.");

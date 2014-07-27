@@ -17,6 +17,7 @@ import jooby.Mode;
 import jooby.Route;
 import jooby.RouteDefinition;
 import jooby.internal.Reflection;
+import jooby.internal.RouteDefinitionImpl;
 import jooby.mvc.Consumes;
 import jooby.mvc.DELETE;
 import jooby.mvc.GET;
@@ -83,7 +84,7 @@ public class Routes {
                   routeClass.getSimpleName(),
                   m.getName());
               Route resource = new MvcRoute(fastRoute.getMethod(m), provider);
-              return new RouteDefinition(verb, path, resource)
+              return new RouteDefinitionImpl(verb, path, resource)
                   .produces(produces(m))
                   .consumes(consumes(m));
             })

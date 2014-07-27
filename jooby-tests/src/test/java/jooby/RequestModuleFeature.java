@@ -48,29 +48,27 @@ public class RequestModuleFeature extends ServerFeature {
   }
 
   {
-    {
 
-      use(new JoobyModule() {
-        @Override
-        public void configure(final Mode mode, final Config config, final Binder binder)
-            throws Exception {
-          Multibinder<RequestModule> m = Multibinder.newSetBinder(binder, RequestModule.class);
-          m.addBinding().toInstance(
-              (b) -> b.bind(RequestScoped.class).toInstance(new RequestScoped()));
-        }
+    use(new JoobyModule() {
+      @Override
+      public void configure(final Mode mode, final Config config, final Binder binder)
+          throws Exception {
+        Multibinder<RequestModule> m = Multibinder.newSetBinder(binder, RequestModule.class);
+        m.addBinding().toInstance(
+            (b) -> b.bind(RequestScoped.class).toInstance(new RequestScoped()));
+      }
+    });
+
+    get("/", (req, resp) -> {
+      // ask once
+        req.getInstance(RequestScoped.class);
+        // ask twice
+        req.getInstance(RequestScoped.class);
+        // get it
+        resp.send(req.getInstance(RequestScoped.class));
       });
 
-      get("/", (req, resp) -> {
-        // ask once
-          req.getInstance(RequestScoped.class);
-          // ask twice
-          req.getInstance(RequestScoped.class);
-          // get it
-          resp.send(req.getInstance(RequestScoped.class));
-        });
-
-      route(Resource.class);
-    }
+    route(Resource.class);
   }
 
   @Test

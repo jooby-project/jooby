@@ -14,8 +14,8 @@ public interface RequestFactory {
   Request newRequest(Injector injector,
       RouteMatcher routeMatcher,
       BodyConverterSelector selector,
+      Charset charset,
       MediaType contentType,
-      List<MediaType> accept,
-      Charset defaultCharset);
+      List<MediaType> accept);
 
 }

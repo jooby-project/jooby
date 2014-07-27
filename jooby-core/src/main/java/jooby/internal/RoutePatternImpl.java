@@ -1,5 +1,7 @@
 package jooby.internal;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
@@ -7,9 +9,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import jooby.RouteMatcher;
+import jooby.RoutePattern;
 import jooby.internal.mvc.Routes;
 
-public class RoutePath {
+public class RoutePatternImpl implements RoutePattern {
 
   private static final Pattern GLOB = Pattern
       .compile("\\?|\\*\\*/?|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
@@ -18,11 +21,23 @@ public class RoutePath {
 
   private final Function<String, RouteMatcher> matcher;
 
-  public RoutePath(final String method, final String pattern) {
-    this.matcher = rewrite(pattern(method, Routes.normalize(pattern)));
+  private String pattern;
+
+  public RoutePatternImpl(final String verb, final String pattern) {
+    requireNonNull(verb, "A HTTP verb is required.");
+    requireNonNull(pattern, "A path pattern is required.");
+    this.pattern = pattern(verb, Routes.normalize(pattern));
+    this.matcher = rewrite(this.pattern);
   }
 
+  @Override
+  public String pattern() {
+    return pattern;
+  }
+
+  @Override
   public RouteMatcher matcher(final String path) {
+    requireNonNull(path, "A path is required.");
     return matcher.apply(path);
   }
 
@@ -96,8 +111,8 @@ public class RoutePath {
     return Pattern.quote(s.substring(start, end));
   }
 
-  private static String pattern(final String method, final String pattern) {
-    StringBuilder buffer = new StringBuilder(method.toUpperCase());
+  private static String pattern(final String verb, final String pattern) {
+    StringBuilder buffer = new StringBuilder(verb.toUpperCase());
     if (!pattern.startsWith("/")) {
       buffer.append("/");
     }
@@ -110,6 +125,6 @@ public class RoutePath {
 
   @Override
   public String toString() {
-    return matcher.toString();
+    return pattern;
   }
 }

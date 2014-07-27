@@ -20,16 +20,14 @@ public class RegexParamFeature extends ServerFeature {
 
   }
 
-    {
-      {
-        get("/regex/{id:\\d+}", (req, resp) -> {
-          int id = req.param("id").getInt();
-          resp.send(id);
-        });
+  {
+    get("/regex/{id:\\d+}", (req, resp) -> {
+      int id = req.param("id").getInt();
+      resp.send(id);
+    });
 
-        route(Resource.class);
-      }
-    }
+    route(Resource.class);
+  }
 
   @Test
   public void regex() throws Exception {
