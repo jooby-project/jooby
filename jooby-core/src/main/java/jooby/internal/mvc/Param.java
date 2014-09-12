@@ -9,6 +9,7 @@ import jooby.Cookie;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.Request;
+import jooby.Response;
 import jooby.mvc.Body;
 import jooby.mvc.Header;
 
@@ -19,31 +20,32 @@ public class Param {
   private enum Strategy {
     PARAM {
       @Override
-      public Object get(final Request request, final Param param) throws Exception {
-        return request.param(param.name).get(
+      public Object get(final Request req, final Response resp, final Param param) throws Exception {
+        return req.param(param.name).get(
             TypeLiteral.get(param.parameter.getParameterizedType()));
       }
     },
 
     BODY {
       @Override
-      public Object get(final Request request, final Param param) throws Exception {
-        return request.body(TypeLiteral.get(param.parameter.getParameterizedType()));
+      public Object get(final Request req, final Response resp, final Param param) throws Exception {
+        return req.body(TypeLiteral.get(param.parameter.getParameterizedType()));
       }
     },
 
     HEADER {
       @Override
-      public Object get(final Request request, final Param param) throws Exception {
-        return request.header(param.name).get(
+      public Object get(final Request req, final Response resp, final Param param) throws Exception {
+        return req.header(param.name).get(
             TypeLiteral.get(param.parameter.getParameterizedType()));
       }
     },
 
     COOKIE {
       @Override
-      public Object get(final Request request, final Param param) throws Exception {
-        Cookie cookie = request.cookie(param.name);
+      public Object get(final Request req, final Response resp, final Param param)
+          throws Exception {
+        Cookie cookie = req.cookie(param.name);
         if (param.parameter.getType() == Optional.class) {
           return Optional.ofNullable(cookie);
         }
@@ -51,9 +53,26 @@ public class Param {
             .orElseThrow(
                 () -> new HttpException(HttpStatus.BAD_REQUEST, "Missing cookie: " + param.name));
       }
+    },
+
+    REQUEST {
+      @Override
+      public Object get(final Request request, final Response resp, final Param param)
+          throws Exception {
+        return request;
+      }
+    },
+
+    RESPONSE {
+      @Override
+      public Object get(final Request request, final Response resp, final Param param)
+          throws Exception {
+        return resp;
+      }
     };
 
-    public abstract Object get(final Request request, final Param param) throws Exception;
+    public abstract Object get(final Request req, Response resp, final Param param)
+        throws Exception;
 
   }
 
@@ -72,18 +91,19 @@ public class Param {
       this.strategy = Strategy.BODY;
     } else if (parameter.getAnnotation(Header.class) != null) {
       strategy = Strategy.HEADER;
+    } else if (parameter.getType() == Response.class) {
+      strategy = Strategy.RESPONSE;
+    } else if (parameter.getType() == Request.class) {
+      strategy = Strategy.REQUEST;
+    } else if (parameter.getType() == Cookie.class) {
+      strategy = Strategy.COOKIE;
     } else {
-      // param or cookie
-      if (parameter.getType() == Cookie.class) {
-        strategy = Strategy.COOKIE;
-      } else {
-        strategy = Strategy.PARAM;
-      }
+      strategy = Strategy.PARAM;
     }
   }
 
-  public Object get(final Request request) throws Exception {
-    return strategy.get(request, this);
+  public Object get(final Request request, final Response response) throws Exception {
+    return strategy.get(request, response, this);
   }
 
   @Override

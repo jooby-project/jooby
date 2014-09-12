@@ -269,4 +269,8 @@ class JettyResponse extends ResponseImpl {
     response.reset();
   }
 
+  @Override
+  protected boolean doCommitted() {
+    return response.isCommitted();
+  }
 }

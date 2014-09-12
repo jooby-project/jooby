@@ -175,4 +175,5 @@ public interface Response {
    */
   @Nonnull Response status(@Nonnull HttpStatus status);
 
+  boolean committed();
 }

@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -149,13 +150,14 @@ public class RouteHandler {
       }
     });
 
-    final Optional<RouteDescriptor> descriptor = routes(routes, path, contentType, accept);
+    final List<RouteDescriptor> descriptors = routerChain(routes, verb, requestURI, contentType,
+        accept);
 
-    final List<MediaType> produces = descriptor.map(d -> d.produces).orElse(accept);
+    final List<MediaType> produces = descriptors.size() > 0 ? descriptors.get(0).produces : accept;
     log.trace("  produces: {}", produces);
 
     final Request request = reqFactory.newRequest(injector,
-        descriptor.map(d -> d.matcher).orElse(noMatch(requestURI)),
+        descriptors.size() > 0 ? descriptors.get(0).matcher : noMatch(requestURI),
         selector,
         charset,
         contentType,
@@ -174,13 +176,13 @@ public class RouteHandler {
         interceptor.before(request, response);
       }
 
-      RouteDefinition routeDefinition = descriptor
-          .orElseThrow(() -> sendError(routes, verb, requestURI, contentType, accept))
-          .definition;
-      Route route = routeDefinition.route();
+      for (int idx = 0; idx < descriptors.size() && !response.committed(); idx++) {
+        RouteDefinition routeDefinition = descriptors.get(idx).definition;
+        Route route = routeDefinition.route();
 
-      // invoke route
-      route.handle(request, response);
+        // invoke route
+        route.handle(request, response);
+      }
 
       // after callback
       for (RouteInterceptor interceptor : interceptors) {
@@ -218,7 +220,7 @@ public class RouteHandler {
     }
   }
 
-  private RouteMatcher noMatch(final String path) {
+  private static RouteMatcher noMatch(final String path) {
     return new RouteMatcher() {
 
       @Override
@@ -233,20 +235,52 @@ public class RouteHandler {
     };
   }
 
-  private static Optional<RouteDescriptor> routes(final Set<RouteDefinition> routes,
+  private static List<RouteDescriptor> routerChain(final Set<RouteDefinition> routes,
+      final String verb,
+      final String requestURI,
+      final MediaType contentType,
+      final List<MediaType> accept) {
+    String path = verb + requestURI;
+    List<RouteDescriptor> routers = routers(routes, path, contentType, accept);
+
+    // 406 or 415
+    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp) -> {
+      HttpException ex = throw406or415(routes, verb, requestURI, contentType, accept);
+      if (ex != null) {
+        throw ex;
+      }
+    }), noMatch(path), accept));
+
+    // 405
+    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp) -> {
+      HttpException ex = throw405(routes, verb, requestURI, contentType, accept);
+      if (ex != null) {
+        throw ex;
+      }
+    }), noMatch(path), accept));
+
+    // 404
+    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp) -> {
+      throw new HttpException(HttpStatus.NOT_FOUND, path);
+    }), noMatch(path), accept));
+    return routers;
+  }
+
+  private static List<RouteDescriptor> routers(final Set<RouteDefinition> routes,
       final String path,
       final MediaType contentType,
       final List<MediaType> accept) {
+    List<RouteDescriptor> routers = new ArrayList<RouteDescriptor>();
     for (RouteDefinition route : routes) {
       RouteMatcher matcher = route.matcher(path);
       if (matcher.matches()) {
         List<MediaType> produces = MediaType.matcher(accept).filter(route.produces());
         if (route.canConsume(contentType) && produces.size() > 0) {
-          return Optional.of(new RouteDescriptor(route, matcher, produces));
+          routers.add(new RouteDescriptor(route, matcher, produces));
         }
       }
     }
-    return Optional.empty();
+    return routers;
   }
 
   private void defaultErrorPage(final Request request, final Response response,
@@ -363,8 +397,8 @@ public class RouteHandler {
     verbs.remove(verb);
     for (String candidate : verbs) {
       String path = candidate + requestURI;
-      Optional<RouteDescriptor> holder = routes(routes, path, contentType, accept);
-      if (holder.isPresent()) {
+      List<RouteDescriptor> routers = routers(routes, path, contentType, accept);
+      if (routers.size() > 0) {
         return new HttpException(HttpStatus.METHOD_NOT_ALLOWED, verb + requestURI);
       }
     }
@@ -378,7 +412,7 @@ public class RouteHandler {
     String path = verb + requestURI;
     for (RouteDefinition route : routes) {
       RouteMatcher matcher = route.matcher(path);
-      if (matcher.matches()) {
+      if (matcher.matches() && !route.path().pattern().endsWith("/**/*")) {
         if (!route.canProduce(accept)) {
           return new HttpException(HttpStatus.NOT_ACCEPTABLE, accept.stream()
               .map(MediaType::name)
@@ -388,16 +422,6 @@ public class RouteHandler {
       }
     }
     return null;
-  }
-
-  private HttpException sendError(final Set<RouteDefinition> routes,
-      final String method, final String requestURI,
-      final MediaType contentType,
-      final List<MediaType> accept) {
-    return Optional.ofNullable(
-        Optional.ofNullable(throw406or415(routes, method, requestURI, contentType, accept))
-            .orElseGet(() -> throw405(routes, method, requestURI, contentType, accept))
-        ).orElseGet(() -> new HttpException(HttpStatus.NOT_FOUND, method + requestURI));
   }
 
   @Override

@@ -36,11 +36,16 @@ class MvcRoute implements Route {
     List<Param> parameters = provider.parameters(method);
     Object[] args = new Object[parameters.size()];
     for (int i = 0; i < parameters.size(); i++) {
-      args[i] = parameters.get(i).get(request);
+      args[i] = parameters.get(i).get(request, response);
     }
 
     final Object result = route.invoke(handler, args);
 
+    Class<?> returnType = method.getReturnType();
+    if (returnType == void.class || returnType == Void.class) {
+      // move on!
+      return;
+    }
     // negotiate!
     List<MediaType> accept = request.accept();
 

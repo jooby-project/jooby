@@ -309,7 +309,7 @@ public class Jooby {
   private Config config;
 
   /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   /** Keep the global injector instance. */
   private Injector injector;

@@ -6,31 +6,31 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import jooby.HttpHeader;
 
-import com.google.common.collect.ListMultimap;
+import com.google.common.collect.ImmutableList;
 
 public class SetHeader extends GetHeader implements HttpHeader {
 
-  private ListMultimap<String, String> headers;
+  private Consumer<Iterable<String>> setter;
 
-  public SetHeader(final String name, final ListMultimap<String, String> headers) {
-    super(name, headers.get(name));
-    this.headers = headers;
+  public SetHeader(final String name, final List<String> value,
+      final Consumer<Iterable<String>> setter) {
+    super(name, value);
+    this.setter = setter;
   }
 
   @Override
   public HttpHeader setString(final String value) {
-    headers.removeAll(name);
-    headers.put(name, value);
+    setter.accept(ImmutableList.of(value));
     return this;
   }
 
   @Override
   public HttpHeader setString(final Iterable<String> values) {
-    headers.removeAll(name);
-    headers.putAll(name, values);
+    setter.accept(values);
     return null;
   }
 

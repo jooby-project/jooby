@@ -70,10 +70,6 @@ public class Routes {
                     + " should have only one HTTP verb. Found: "
                     + annotations);
               }
-              Class<?> returnType = m.getReturnType();
-              if (returnType == void.class) {
-                throw new IllegalStateException("A resouce method must have a return value: " + m);
-              }
               return true;
             })
         .map(

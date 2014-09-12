@@ -49,6 +49,8 @@ public abstract class ResponseImpl implements Response {
 
   private ListMultimap<String, String> headers;
 
+  private boolean committed;
+
   public ResponseImpl(final Request request,
       final BodyConverterSelector selector,
       final Set<RouteInterceptor> interceptors,
@@ -68,7 +70,14 @@ public abstract class ResponseImpl implements Response {
   @Override
   public HttpHeader header(final String name) {
     checkArgument(!Strings.isNullOrEmpty(name), "Header's name is missing.");
-    return new SetHeader(name, headers);
+    return new SetHeader(name, headers.get(name), (values) ->  {
+      setHeader(name, values);
+    });
+  }
+
+  @Override
+  public boolean committed() {
+    return committed || doCommitted();
   }
 
   @Override
@@ -174,6 +183,7 @@ public abstract class ResponseImpl implements Response {
   @Override
   public Response status(final HttpStatus status) {
     this.status = requireNonNull(status, "A status is required.");
+    this.committed = true;
     setStatus(status);
     return this;
   }
@@ -197,6 +207,8 @@ public abstract class ResponseImpl implements Response {
   }
 
   protected abstract void doReset();
+
+  protected abstract boolean doCommitted();
 
   protected abstract void setStatus(HttpStatus status);
 
