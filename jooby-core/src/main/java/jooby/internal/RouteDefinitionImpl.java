@@ -6,11 +6,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import jooby.Filter;
 import jooby.MediaType;
-import jooby.Route;
+import jooby.Request;
+import jooby.Response;
+import jooby.RouteChain;
 import jooby.RouteDefinition;
 import jooby.RouteMatcher;
 import jooby.RoutePattern;
+import jooby.Router;
 
 import com.google.common.collect.Lists;
 
@@ -30,7 +34,7 @@ public class RouteDefinitionImpl implements RouteDefinition {
   /**
    * The target route.
    */
-  private Route route;
+  private Filter filter;
 
   /**
    * Defines the media types that the methods of a resource class or can accept. Default is:
@@ -51,25 +55,33 @@ public class RouteDefinitionImpl implements RouteDefinition {
    * @param path
    * @param route
    */
-  public RouteDefinitionImpl(final String verb, final String path, final Route route) {
-    this(new RoutePatternImpl(verb, path), route);
+  public RouteDefinitionImpl(final String verb, final String path, final Filter filter) {
+    this(new RoutePatternImpl(verb, path), filter);
   }
 
-  private RouteDefinitionImpl(final RoutePatternImpl path, final Route route) {
+  public RouteDefinitionImpl(final String verb, final String path, final Router route) {
+    this(verb, path, (req, resp, chain) -> {
+      route.handle(req, resp);
+      chain.next(req, resp);
+    });
+  }
+
+  private RouteDefinitionImpl(final RoutePatternImpl path, final Filter filter) {
     this.path = requireNonNull(path, "A path is required.");
-    this.route = requireNonNull(route, "A route is required.");
+    this.filter = requireNonNull(filter, "A route/filter is required.");
     consumes.add(MediaType.all);
     produces.add(MediaType.all);
   }
 
   @Override
-  public RoutePattern path() {
-    return path;
+  public void handle(final Request request, final Response response, final RouteChain chain)
+      throws Exception {
+    filter.handle(request, response, chain);
   }
 
   @Override
-  public Route route() {
-    return route;
+  public RoutePattern path() {
+    return path;
   }
 
   @Override

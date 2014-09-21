@@ -1,6 +1,8 @@
 package jooby;
 
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
 import javax.inject.Provider;
 import javax.persistence.EntityManager;
@@ -21,6 +24,7 @@ import javax.sql.DataSource;
 
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.jpa.AvailableSettings;
 import org.hibernate.jpa.HibernateEntityManagerFactory;
 import org.hibernate.jpa.HibernatePersistenceProvider;
@@ -77,64 +81,10 @@ public class HibernatePersistence extends JDBC {
 
     Key<EntityManager> key = dataSourceKey(EntityManager.class);
 
-    Multibinder.newSetBinder(binder, RouteInterceptor.class).addBinding()
-        .toInstance(new RouteInterceptor() {
+    Multibinder<RouteDefinition> routes = Multibinder.newSetBinder(binder, RouteDefinition.class);
 
-          @Override
-          public void before(final Request request, final Response response) throws Exception {
-            EntityManager em = request.getInstance(key);
-            Session session = (Session) em.getDelegate();
-            session.setFlushMode(FlushMode.AUTO);
-            EntityTransaction trx = em.getTransaction();
-            trx.begin();
-          }
-
-          @Override
-          public void beforeSend(final Request request, final Response response) throws Exception {
-            EntityManager em = request.getInstance(key);
-            // commit the transaction, but keep the EM open
-            EntityTransaction trx = em.getTransaction();
-            if (trx.isActive()) {
-              trx.commit();
-
-              // change flush mode to MANUAL (a.k.a READ-ONLY)
-              Session session = (Session) em.getDelegate();
-              session.setFlushMode(FlushMode.MANUAL);
-              EntityTransaction readONLY = em.getTransaction();
-              readONLY.begin();
-            }
-          }
-
-          @Override
-          public void after(final Request request, final Response response, final Exception ex)
-              throws Exception {
-            EntityManager em = request.getInstance(key);
-            try {
-              // rollback trx
-              EntityTransaction trx = em.getTransaction();
-              if (trx.isActive()) {
-                trx.rollback();
-              }
-            } finally {
-              em.close();
-            }
-          }
-
-          @Override
-          public void after(final Request request, final Response response) throws Exception {
-            EntityManager em = request.getInstance(key);
-            try {
-              // commit trx
-              EntityTransaction trx = em.getTransaction();
-              if (trx.isActive()) {
-                trx.commit();
-              }
-            } finally {
-              em.close();
-            }
-
-          }
-        });
+    routes.addBinding()
+        .toInstance(RouteDefinition.Builder.newFilter("*", "/**", readWriteTrx(key)));
 
     Multibinder.newSetBinder(binder, RequestModule.class).addBinding().toInstance((b) -> {
       EntityManager em = emf.createEntityManager();
@@ -143,6 +93,86 @@ public class HibernatePersistence extends JDBC {
 
     // keep emf
     this.emf = emf;
+  }
+
+  private static Filter readWriteTrx(final Key<EntityManager> key) {
+    return (req, resp, chain) -> {
+      EntityManager em = req.getInstance(key);
+      Session session = (Session) em.getDelegate();
+      session.setFlushMode(FlushMode.AUTO);
+      EntityTransaction trx = em.getTransaction();
+      try {
+        trx.begin();
+
+        // invoke next router
+        chain.next(req, new ForwardingResponse(resp) {
+
+          void setReadOnly(final Session session, final boolean readOnly) {
+            try {
+              Connection connection = ((SessionImplementor) session).connection();
+              connection.setReadOnly(readOnly);
+            } catch (SQLException ignoreMe) {
+            }
+          }
+
+          void transactionalSend(final Callable<Void> send) throws Exception {
+            try {
+              Session session = (Session) em.getDelegate();
+              session.flush();
+
+              if (trx.isActive()) {
+                trx.commit();
+              }
+
+              // start new transaction
+              setReadOnly(session, true);
+              session.setFlushMode(FlushMode.MANUAL);
+              EntityTransaction readOnlyTrx = em.getTransaction();
+              readOnlyTrx.begin();
+
+              try {
+                // send it!
+                send.call();
+
+                readOnlyTrx.commit();
+              } catch (Exception ex) {
+                if (readOnlyTrx.isActive()) {
+                  readOnlyTrx.rollback();
+                }
+                throw ex;
+              }
+            } finally {
+              setReadOnly(session, false);
+            }
+          }
+
+          @Override
+          public void send(final Object body) throws Exception {
+            transactionalSend(() -> {
+              super.send(body);
+              return null;
+            });
+
+          }
+
+          @Override
+          public void send(final Object body, final BodyConverter converter) throws Exception {
+            transactionalSend(() -> {
+              super.send(body, converter);
+              return null;
+            });
+          }
+        });
+      } finally {
+        try {
+          if (trx.isActive()) {
+            trx.rollback();
+          }
+        } finally {
+          em.close();
+        }
+      }
+    };
   }
 
   @Override

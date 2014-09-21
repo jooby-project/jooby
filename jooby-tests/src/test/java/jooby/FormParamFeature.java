@@ -8,7 +8,9 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Test;
 
+import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
+import com.typesafe.config.Config;
 
 public class FormParamFeature extends ServerFeature {
 
@@ -24,10 +26,14 @@ public class FormParamFeature extends ServerFeature {
   }
 
   {
-    use((mode, config, binder) -> {
-      Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
-          BodyConverter.class);
-      converters.addBinding().toInstance(TestBodyConverter.JSON);
+    use(new JoobyModule() {
+      @Override
+      public void configure(final Mode mode, final Config config, final Binder binder)
+          throws Exception {
+        Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
+            BodyConverter.class);
+        converters.addBinding().toInstance(TestBodyConverter.JSON);
+      }
     });
 
     post("/form", (req, resp) -> {

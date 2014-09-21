@@ -43,6 +43,8 @@ public interface RoutePattern {
    */
   String pattern();
 
+  boolean regex();
+
   /**
    * Construct a {@link RouteMatcher} for the current path.
    *

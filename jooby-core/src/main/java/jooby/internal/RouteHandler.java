@@ -5,9 +5,10 @@ import static java.util.Objects.requireNonNull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,10 +26,10 @@ import jooby.MediaType;
 import jooby.Request;
 import jooby.RequestModule;
 import jooby.Response;
-import jooby.Route;
+import jooby.RouteChain;
 import jooby.RouteDefinition;
-import jooby.RouteInterceptor;
 import jooby.RouteMatcher;
+import jooby.RoutePattern;
 import jooby.Viewable;
 import jooby.internal.mvc.Routes;
 
@@ -58,6 +59,10 @@ public class RouteHandler {
       this.produces = produces;
     }
 
+    @Override
+    public String toString() {
+      return matcher.toString();
+    }
   }
 
   private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
@@ -79,19 +84,15 @@ public class RouteHandler {
 
   private Set<RequestModule> requestModules;
 
-  private Set<RouteInterceptor> interceptors;
-
   @Inject
   public RouteHandler(final Injector injector,
       final BodyConverterSelector selector,
       final Set<RequestModule> requestModules,
-      final Set<RouteInterceptor> interceptors,
       final Set<RouteDefinition> routes,
       final Charset defaultCharset) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.requestModules = requireNonNull(requestModules, "Request modules are required.");
-    this.interceptors = requireNonNull(interceptors, "Route interceptors are required.");
     this.routes = requireNonNull(routes, "The routes are required.");
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
   }
@@ -150,7 +151,7 @@ public class RouteHandler {
       }
     });
 
-    final List<RouteDescriptor> descriptors = routerChain(routes, verb, requestURI, contentType,
+    final List<RouteDescriptor> descriptors = routes(routes, verb, requestURI, contentType,
         accept);
 
     final List<MediaType> produces = descriptors.size() > 0 ? descriptors.get(0).produces : accept;
@@ -163,37 +164,17 @@ public class RouteHandler {
         contentType,
         accept);
 
-    final Response response = respFactory.newResponse(request,
-        selector,
-        interceptors,
+    final Response response = respFactory.newResponse(selector,
         request.charset(),
         produces,
         responseHeaders);
 
     try {
-      // before interceptor
-      for (RouteInterceptor interceptor : interceptors) {
-        interceptor.before(request, response);
-      }
 
-      for (int idx = 0; idx < descriptors.size() && !response.committed(); idx++) {
-        RouteDefinition routeDefinition = descriptors.get(idx).definition;
-        Route route = routeDefinition.route();
+      chain(descriptors.iterator()).next(request, response);
 
-        // invoke route
-        route.handle(request, response);
-      }
-
-      // after callback
-      for (RouteInterceptor interceptor : interceptors) {
-        interceptor.after(request, response);
-      }
     } catch (Exception ex) {
       log.error("handling of: " + path + " ends with error", ex);
-      // after callback with error
-      for (RouteInterceptor interceptor : interceptors) {
-        interceptor.after(request, response, ex);
-      }
       ((ResponseImpl) response).reset();
       // execution failed, so find status code
       HttpStatus status = statusCode(ex);
@@ -214,10 +195,40 @@ public class RouteHandler {
       }
     } finally {
       long end = System.currentTimeMillis();
-      log.info("  status -> {} ({}) in {}ms", response.status().reason(), response.status(), end
+      log.info("  status -> {} in {}ms", response.status(), end
           - start);
       ((RequestImpl) request).destroy();
     }
+  }
+
+  private static RouteChain chain(final Iterator<RouteDescriptor> it) {
+    return new RouteChain() {
+
+      private LinkedList<String> stack = new LinkedList<>();
+
+      @Override
+      public void next(final Request request, final Response response) throws Exception {
+        RouteDescriptor desc = it.next();
+        stack.addLast(desc.matcher.toString());
+
+        RouteDefinition next = desc.definition;
+
+        next.handle(request, response, this);
+
+        stack.removeLast();
+      }
+
+      @Override
+      public String toString() {
+        StringBuilder buff = new StringBuilder();
+        String pad = "  ";
+        for (String router : stack) {
+          buff.append(router).append("\n").append(pad);
+          pad += pad;
+        }
+        return buff.toString();
+      }
+    };
   }
 
   private static RouteMatcher noMatch(final String path) {
@@ -232,45 +243,58 @@ public class RouteHandler {
       public boolean matches() {
         return false;
       }
+
+      @Override
+      public RoutePattern pattern() {
+        return null;
+      }
     };
   }
 
-  private static List<RouteDescriptor> routerChain(final Set<RouteDefinition> routes,
+  private static List<RouteDescriptor> routes(final Set<RouteDefinition> routes,
       final String verb,
       final String requestURI,
       final MediaType contentType,
       final List<MediaType> accept) {
     String path = verb + requestURI;
-    List<RouteDescriptor> routers = routers(routes, path, contentType, accept);
+    List<RouteDescriptor> routers = findRoutes(routes, path, contentType, accept);
 
     // 406 or 415
-    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp) -> {
-      HttpException ex = throw406or415(routes, verb, requestURI, contentType, accept);
-      if (ex != null) {
-        throw ex;
+    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp, chain) -> {
+      if (!resp.committed()) {
+        HttpException ex = handle406or415(routes, verb, requestURI, contentType, accept);
+        if (ex != null) {
+          throw ex;
+        }
       }
+      chain.next(req, resp);
     }), noMatch(path), accept));
 
     // 405
-    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp) -> {
-      HttpException ex = throw405(routes, verb, requestURI, contentType, accept);
-      if (ex != null) {
-        throw ex;
+    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp, chain) -> {
+      if (!resp.committed()) {
+        HttpException ex = handle405(routes, verb, requestURI, contentType, accept);
+        if (ex != null) {
+          throw ex;
+        }
       }
+      chain.next(req, resp);
     }), noMatch(path), accept));
 
     // 404
-    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp) -> {
-      throw new HttpException(HttpStatus.NOT_FOUND, path);
+    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp, chain) -> {
+      if (!resp.committed()) {
+        throw new HttpException(HttpStatus.NOT_FOUND, path);
+      }
     }), noMatch(path), accept));
     return routers;
   }
 
-  private static List<RouteDescriptor> routers(final Set<RouteDefinition> routes,
+  private static List<RouteDescriptor> findRoutes(final Set<RouteDefinition> routes,
       final String path,
       final MediaType contentType,
       final List<MediaType> accept) {
-    List<RouteDescriptor> routers = new ArrayList<RouteDescriptor>();
+    LinkedList<RouteDescriptor> routers = new LinkedList<RouteDescriptor>();
     for (RouteDefinition route : routes) {
       RouteMatcher matcher = route.matcher(path);
       if (matcher.matches()) {
@@ -388,7 +412,7 @@ public class RouteHandler {
     return HttpStatus.SERVER_ERROR;
   }
 
-  private static HttpException throw405(final Set<RouteDefinition> routes,
+  private static HttpException handle405(final Set<RouteDefinition> routes,
       final String verb, final String requestURI,
       final MediaType contentType,
       final List<MediaType> accept) {
@@ -397,22 +421,23 @@ public class RouteHandler {
     verbs.remove(verb);
     for (String candidate : verbs) {
       String path = candidate + requestURI;
-      List<RouteDescriptor> routers = routers(routes, path, contentType, accept);
-      if (routers.size() > 0) {
+      Optional<RouteDescriptor> found = findRoutes(routes, path, contentType, accept).stream()
+          .filter(desc -> !desc.matcher.pattern().regex()).findFirst();
+      if (found.isPresent()) {
         return new HttpException(HttpStatus.METHOD_NOT_ALLOWED, verb + requestURI);
       }
     }
     return null;
   }
 
-  private static HttpException throw406or415(final Set<RouteDefinition> routes,
+  private static HttpException handle406or415(final Set<RouteDefinition> routes,
       final String verb, final String requestURI,
       final MediaType contentType,
       final List<MediaType> accept) {
     String path = verb + requestURI;
     for (RouteDefinition route : routes) {
       RouteMatcher matcher = route.matcher(path);
-      if (matcher.matches() && !route.path().pattern().endsWith("/**/*")) {
+      if (matcher.matches() && !route.path().regex()) {
         if (!route.canProduce(accept)) {
           return new HttpException(HttpStatus.NOT_ACCEPTABLE, accept.stream()
               .map(MediaType::name)

@@ -49,7 +49,7 @@ import com.typesafe.config.ConfigValueFactory;
  * <h1>Starting a new application:</h1>
  * <p>
  * A new application must extends Jooby, choose a server implementation, register one ore more
- * {@link BodyConverter} and defines some {@link Route routes}. It sounds like a lot of work to do,
+ * {@link BodyConverter} and defines some {@link Router routes}. It sounds like a lot of work to do,
  * but it isn't.
  * </p>
  *
@@ -276,7 +276,7 @@ import com.typesafe.config.ConfigValueFactory;
  * @see Request
  * @see Response
  * @see BodyConverter
- * @see Route
+ * @see Router
  * @see RouteInterceptor
  * @see RequestModule
  */
@@ -314,6 +314,14 @@ public class Jooby {
   /** Keep the global injector instance. */
   private Injector injector;
 
+  public RouteDefinition use(final Filter filter) {
+    return use("/**", filter);
+  }
+
+  public RouteDefinition use(final String path, final Filter filter) {
+    return route(new RouteDefinitionImpl("*", path, filter));
+  }
+
   /**
    * Define an in-line route that supports HTTP GET method:
    *
@@ -329,33 +337,12 @@ public class Jooby {
    * @param route A route to execute. Required.
    * @return A new route definition.
    */
-  public RouteDefinition get(final String path, final Route route) {
+  public RouteDefinition get(final String path, final Router route) {
     return route(new RouteDefinitionImpl("GET", path, route));
   }
 
-  /**
-   * Define an external route that supports HTTP GET method:
-   *
-   * <pre>
-   *   get("/", MyRoute.class);
-   *
-   *   // MyRoute.java
-   *   public class MyRoute implements Route {
-   *     public void handle(Request request, Response response) {
-   *       response.send(something);
-   *     }
-   *   }
-   * </pre>
-   *
-   * An external route is created per-request. They aren't singleton.
-   *
-   * @param path A route path. Required.
-   * @param route A route to execute. Required.
-   * @return A new route definition.
-   * @see RequestModule
-   */
-  public RouteDefinition get(final String path, final Class<? extends Route> route) {
-    return route(new RouteDefinitionImpl("GET", path, wrapRoute(route)));
+  public RouteDefinition get(final String path, final Filter filter) {
+    return route(new RouteDefinitionImpl("GET", path, filter));
   }
 
   /**
@@ -373,33 +360,12 @@ public class Jooby {
    * @param route A route to execute. Required.
    * @return A new route definition.
    */
-  public RouteDefinition post(final String path, final Route route) {
+  public RouteDefinition post(final String path, final Router route) {
     return route(new RouteDefinitionImpl("POST", path, route));
   }
 
-  /**
-   * Define an external route that supports HTTP POST method:
-   *
-   * <pre>
-   *   post("/", MyRoute.class);
-   *
-   *   // MyRoute.java
-   *   public class MyRoute implements Route {
-   *     public void handle(Request request, Response response) {
-   *       response.send(something);
-   *     }
-   *   }
-   * </pre>
-   *
-   * An external route is created per-request. They aren't singleton.
-   *
-   * @param path A route path. Required.
-   * @param route A route to execute. Required.
-   * @return A new route definition.
-   * @see RequestModule
-   */
-  public RouteDefinition post(final String path, final Class<? extends Route> route) {
-    return route(new RouteDefinitionImpl("POST", path, wrapRoute(route)));
+  public RouteDefinition post(final String path, final Filter filter) {
+    return route(new RouteDefinitionImpl("POST", path, filter));
   }
 
   /**
@@ -417,33 +383,12 @@ public class Jooby {
    * @param route A route to execute. Required.
    * @return A new route definition.
    */
-  public RouteDefinition put(final String path, final Route route) {
+  public RouteDefinition put(final String path, final Router route) {
     return route(new RouteDefinitionImpl("PUT", path, route));
   }
 
-  /**
-   * Define an external route that supports HTTP PUT method:
-   *
-   * <pre>
-   *   put("/", MyRoute.class);
-   *
-   *   // MyRoute.java
-   *   public class MyRoute implements Route {
-   *     public void handle(Request request, Response response) {
-   *       response.send(something);
-   *     }
-   *   }
-   * </pre>
-   *
-   * An external route is created per-request. They aren't singleton.
-   *
-   * @param path A route path. Required.
-   * @param route A route to execute. Required.
-   * @return A new route definition.
-   * @see RequestModule
-   */
-  public RouteDefinition put(final String path, final Class<? extends Route> route) {
-    return route(new RouteDefinitionImpl("PUT", path, wrapRoute(route)));
+  public RouteDefinition put(final String path, final Filter filter) {
+    return route(new RouteDefinitionImpl("PUT", path, filter));
   }
 
   /**
@@ -458,36 +403,15 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A route path. Required.
-   * @param route A route to execute. Required.
+   * @param router A route to execute. Required.
    * @return A new route definition.
    */
-  public RouteDefinition delete(final String path, final Route route) {
-    return route(new RouteDefinitionImpl("DELETE", path, route));
+  public RouteDefinition delete(final String path, final Router router) {
+    return route(new RouteDefinitionImpl("DELETE", path, router));
   }
 
-  /**
-   * Define an external route that supports HTTP DELETE method:
-   *
-   * <pre>
-   *   delete("/", MyRoute.class);
-   *
-   *   // MyRoute.java
-   *   public class MyRoute implements Route {
-   *     public void handle(Request request, Response response) {
-   *       response.send(something);
-   *     }
-   *   }
-   * </pre>
-   *
-   * An external route is created per-request. They aren't singleton.
-   *
-   * @param path A route path. Required.
-   * @param route A route to execute. Required.
-   * @return A new route definition.
-   * @see RequestModule
-   */
-  public RouteDefinition delete(final String path, final Class<? extends Route> route) {
-    return route(new RouteDefinitionImpl("DELETE", path, wrapRoute(route)));
+  public RouteDefinition delete(final String path, final Filter filter) {
+    return route(new RouteDefinitionImpl("DELETE", path, filter));
   }
 
   /**
@@ -496,7 +420,7 @@ public class Jooby {
    * @param route The external route class.
    * @return A new inline route.
    */
-  private static Route wrapRoute(final Class<? extends Route> route) {
+  private static Router wrapRouter(final Class<? extends Router> route) {
     return (req, resp) -> req.getInstance(route).handle(req, resp);
   }
 
@@ -514,7 +438,7 @@ public class Jooby {
    * @return A new route definition.
    */
   public RouteDefinition assets(final String path) {
-    return get(path, AssetRoute.class);
+    return get(path, wrapRouter(AssetRoute.class));
   }
 
   /**
@@ -668,9 +592,6 @@ public class Jooby {
         // bind prototype routes in request module
         requestModule.addBinding().toInstance(
             rm -> protoRoutes.forEach(routeClass -> rm.bind(routeClass)));
-
-        // Route Interceptors
-        Multibinder.newSetBinder(binder, RouteInterceptor.class);
 
         // tmp dir
         binder.bind(File.class).annotatedWith(Names.named("java.io.tmpdir"))

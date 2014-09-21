@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 import jooby.MediaType;
 import jooby.Mode;
-import jooby.Route;
+import jooby.Router;
 import jooby.RouteDefinition;
 import jooby.internal.Reflection;
 import jooby.internal.RouteDefinitionImpl;
@@ -79,7 +79,7 @@ public class Routes {
               checkArgument(path.length() > 0, "Missing path for: %s.%s",
                   routeClass.getSimpleName(),
                   m.getName());
-              Route resource = new MvcRoute(fastRoute.getMethod(m), provider);
+              Router resource = new MvcRoute(fastRoute.getMethod(m), provider);
               return new RouteDefinitionImpl(verb, path, resource)
                   .produces(produces(m))
                   .consumes(consumes(m));

@@ -8,7 +8,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 /**
- * A module can publish or produces: {@link Route routes}, {@link BodyConverter converters},
+ * A module can publish or produces: {@link Router routes}, {@link BodyConverter converters},
  * {@link RequestModule request modules}, {@link RouteInterceptor interceptors} and any other
  * application specific service or contract of your choice.
  * <p>
@@ -30,13 +30,13 @@ import com.typesafe.config.ConfigFactory;
  * @see Jooby#use(JoobyModule)
  */
 @Beta
-public interface JoobyModule {
+public abstract class JoobyModule {
 
   /**
    * @return Produces a module config object (when need it). By default a module doesn't produce
    *         any configuration object.
    */
-  default @Nonnull Config config() {
+  public @Nonnull Config config() {
     return ConfigFactory.empty();
   }
 
@@ -46,7 +46,7 @@ public interface JoobyModule {
    *
    * @throws Exception If something goes wrong.
    */
-  default void start() throws Exception {
+  public void start() throws Exception {
   }
 
   /**
@@ -55,7 +55,7 @@ public interface JoobyModule {
    *
    * @throws Exception If something goes wrong.
    */
-  default void stop() throws Exception {
+  public void stop() throws Exception {
   }
 
   /**
@@ -68,6 +68,6 @@ public interface JoobyModule {
    * @param binder A guice binder. Not null.
    * @throws Exception If the module fails during configuration.
    */
-  void configure(@Nonnull Mode mode, @Nonnull Config config, @Nonnull Binder binder)
+  public abstract void configure(@Nonnull Mode mode, @Nonnull Config config, @Nonnull Binder binder)
       throws Exception;
 }

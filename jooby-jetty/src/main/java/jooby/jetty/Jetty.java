@@ -213,7 +213,7 @@ import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class Jetty implements JoobyModule {
+public class Jetty extends JoobyModule {
 
   @Override
   public void configure(final Mode mode, final Config config, final Binder binder) {

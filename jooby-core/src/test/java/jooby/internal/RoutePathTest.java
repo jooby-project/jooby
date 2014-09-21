@@ -59,6 +59,23 @@ public class RoutePathTest {
   }
 
   @Test
+  public void anyVerb() {
+    new RoutePathAssert("*", "com/test.jsp")
+        .matches("GET/com/test.jsp")
+        .matches("POST/com/test.jsp")
+        .butNot("GET/com/tsst.jsp");
+
+    new RoutePathAssert("*", "user/:id")
+        .matches("GET/user/xid", (vars) -> {
+          assertEquals("xid", vars.get("id"));
+        })
+        .matches("POST/user/xid2", (vars) -> {
+          assertEquals("xid2", vars.get("id"));
+        })
+        .butNot("GET/com/tsst.jsp");
+  }
+
+  @Test
   public void wildOne() {
     new RoutePathAssert("GET", "com/t?st.jsp")
         .matches("GET/com/test.jsp")

@@ -11,7 +11,9 @@ import jooby.mvc.Template;
 import org.apache.http.client.fluent.Request;
 import org.junit.Test;
 
+import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
+import com.typesafe.config.Config;
 
 public class TemplateEngineFeature extends ServerFeature {
 
@@ -33,10 +35,14 @@ public class TemplateEngineFeature extends ServerFeature {
   }
 
   {
-    use((mode, config, binder) -> {
-      Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
-          BodyConverter.class);
-      converters.addBinding().toInstance(TestBodyConverter.HTML);
+    use(new JoobyModule() {
+      @Override
+      public void configure(final Mode mode, final Config config, final Binder binder)
+          throws Exception {
+        Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
+            BodyConverter.class);
+        converters.addBinding().toInstance(TestBodyConverter.HTML);
+      }
     });
 
     get("/view", (req, resp) -> {

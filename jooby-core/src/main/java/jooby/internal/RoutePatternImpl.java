@@ -23,11 +23,22 @@ public class RoutePatternImpl implements RoutePattern {
 
   private String pattern;
 
+  private boolean regex;
+
   public RoutePatternImpl(final String verb, final String pattern) {
     requireNonNull(verb, "A HTTP verb is required.");
     requireNonNull(pattern, "A path pattern is required.");
     this.pattern = pattern(verb, Routes.normalize(pattern));
-    this.matcher = rewrite(this.pattern);
+    this.matcher = rewrite(this, this.pattern);
+  }
+
+  @Override
+  public boolean regex() {
+    return regex;
+  }
+
+  void setRegex(final boolean regex) {
+    this.regex = regex;
   }
 
   @Override
@@ -41,39 +52,40 @@ public class RoutePatternImpl implements RoutePattern {
     return matcher.apply(path);
   }
 
-  private static Function<String, RouteMatcher> rewrite(final String pattern) {
+  private static Function<String, RouteMatcher> rewrite(final RoutePatternImpl owner,
+      final String pattern) {
     List<String> vars = new LinkedList<>();
     StringBuilder patternBuilder = new StringBuilder();
     Matcher matcher = GLOB.matcher(pattern);
     int end = 0;
-    boolean complex = false;
+    boolean regex = false;
     while (matcher.find()) {
       patternBuilder.append(quote(pattern, end, matcher.start()));
       String match = matcher.group();
       if ("?".equals(match)) {
         patternBuilder.append("[^/]");
-        complex = true;
+        regex = true;
       } else if ("*".equals(match)) {
         patternBuilder.append("[^/]*");
-        complex = true;
+        regex = true;
       } else if ("**/".equals(match)) {
         patternBuilder.append("(.*/)*");
-        complex = true;
+        regex = true;
       } else if (match.startsWith(":")) {
-        complex = true;
+        regex = true;
         patternBuilder.append("([^/]*)");
         vars.add(match.substring(1));
       } else if (match.startsWith("{") && match.endsWith("}")) {
-        complex = true;
+        regex = true;
         int colonIdx = match.indexOf(':');
         if (colonIdx == -1) {
           patternBuilder.append("([^/]*)");
           vars.add(match.substring(1, match.length() - 1));
         }
         else {
-          String regex = match.substring(colonIdx + 1, match.length() - 1);
+          String regexpr = match.substring(colonIdx + 1, match.length() - 1);
           patternBuilder.append('(');
-          patternBuilder.append(regex);
+          patternBuilder.append(regexpr);
           patternBuilder.append(')');
           vars.add(match.substring(1, colonIdx));
         }
@@ -81,10 +93,11 @@ public class RoutePatternImpl implements RoutePattern {
       end = matcher.end();
     }
     patternBuilder.append(quote(pattern, end, pattern.length()));
-    return fn(complex, pattern, complex ? patternBuilder.toString() : pattern, vars);
+    owner.regex = regex;
+    return fn(owner, regex, regex ? patternBuilder.toString() : pattern, vars);
   }
 
-  private static Function<String, RouteMatcher> fn(final boolean complex, final String rawPattern,
+  private static Function<String, RouteMatcher> fn(final RoutePattern owner, final boolean complex,
       final String pattern, final List<String> vars) {
     return new Function<String, RouteMatcher>() {
       final Pattern regex = complex ? Pattern.compile(pattern) : null;
@@ -93,13 +106,8 @@ public class RoutePatternImpl implements RoutePattern {
       public RouteMatcher apply(final String fullpath) {
         String path = fullpath.substring(fullpath.indexOf('/'));
         return complex
-            ? new RegexRouteMatcher(path, regex.matcher(fullpath), vars)
-            : new SimpleRouteMatcher(path, pattern, fullpath);
-      }
-
-      @Override
-      public String toString() {
-        return rawPattern;
+            ? new RegexRouteMatcher(owner, path, regex.matcher(fullpath), vars)
+            : new SimpleRouteMatcher(owner, path, fullpath);
       }
     };
   }

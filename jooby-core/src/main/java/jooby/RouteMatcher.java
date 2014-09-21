@@ -24,6 +24,8 @@ public interface RouteMatcher {
    */
   boolean matches();
 
+  RoutePattern pattern();
+
   /**
    * Get path vars from current path. Or empty map if there is none.
    * This method must be invoked after {@link #matches()}.

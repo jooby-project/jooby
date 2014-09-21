@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import jooby.BodyConverter;
 import jooby.HttpException;
@@ -19,11 +18,12 @@ import jooby.HttpHeader;
 import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.MediaType.Matcher;
-import jooby.Request;
 import jooby.Response;
 import jooby.Response.ContentNegotiation.Provider;
-import jooby.RouteInterceptor;
 import jooby.ThrowingSupplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -31,11 +31,10 @@ import com.google.common.collect.ListMultimap;
 
 public abstract class ResponseImpl implements Response {
 
-  private Request request;
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private BodyConverterSelector selector;
-
-  private Set<RouteInterceptor> interceptors;
 
   private Charset charset;
 
@@ -51,16 +50,12 @@ public abstract class ResponseImpl implements Response {
 
   private boolean committed;
 
-  public ResponseImpl(final Request request,
-      final BodyConverterSelector selector,
-      final Set<RouteInterceptor> interceptors,
+  public ResponseImpl(final BodyConverterSelector selector,
       final Charset charset,
       final List<MediaType> produces,
       final ListMultimap<String, String> headers,
       final ThrowingSupplier<OutputStream> stream) {
-    this.request = requireNonNull(request, "A request is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
-    this.interceptors = requireNonNull(interceptors, "Interceptors are required.");
     this.charset = requireNonNull(charset, "A charset is required.");
     this.produces = requireNonNull(produces, "Produces are required.");
     this.headers = requireNonNull(headers, "The headers is required.");
@@ -71,6 +66,8 @@ public abstract class ResponseImpl implements Response {
   public HttpHeader header(final String name) {
     checkArgument(!Strings.isNullOrEmpty(name), "Header's name is missing.");
     return new SetHeader(name, headers.get(name), (values) ->  {
+      headers.removeAll(name);
+      headers.putAll(name, values);
       setHeader(name, values);
     });
   }
@@ -104,6 +101,11 @@ public abstract class ResponseImpl implements Response {
     requireNonNull(message, "A response message is required.");
     requireNonNull(converter, "A converter is required.");
 
+    if (doCommitted()) {
+      log.warn("  message ignored, response was committed already");
+      return;
+    }
+
     // set default content type if missing
     if (type == null) {
       type(converter.types().get(0));
@@ -113,10 +115,6 @@ public abstract class ResponseImpl implements Response {
       status(HttpStatus.OK);
     }
 
-    // fire before send
-    for (RouteInterceptor interceptor : interceptors) {
-      interceptor.beforeSend(request, this);
-    }
     // byte version of http body
     ThrowingSupplier<OutputStream> stream = () -> {
       dumpHeaders();

@@ -11,12 +11,12 @@ import jooby.MediaType;
 import jooby.Request;
 import jooby.Response;
 import jooby.Response.ContentNegotiation;
-import jooby.Route;
+import jooby.Router;
 import jooby.Viewable;
 import jooby.mvc.Template;
 import net.sf.cglib.reflect.FastMethod;
 
-class MvcRoute implements Route {
+class MvcRoute implements Router {
 
   private FastMethod route;
 

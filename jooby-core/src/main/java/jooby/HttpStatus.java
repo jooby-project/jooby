@@ -562,7 +562,7 @@ public enum HttpStatus {
    */
   @Override
   public String toString() {
-    return Integer.toString(value);
+    return reason() + " (" + value + ")";
   }
 
 

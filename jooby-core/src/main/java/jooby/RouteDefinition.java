@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import jooby.internal.RouteDefinitionImpl;
+
 import com.google.common.annotations.Beta;
 
 /**
@@ -62,15 +64,26 @@ import com.google.common.annotations.Beta;
 @Beta
 public interface RouteDefinition {
 
+  public class Builder {
+
+    public static RouteDefinition newRouter(final String verb, final String path,
+        final Router router) {
+      return new RouteDefinitionImpl(verb, path, router);
+    }
+
+    public static RouteDefinition newFilter(final String verb, final String path,
+        final Filter filter) {
+      return new RouteDefinitionImpl(verb, path, filter);
+    }
+
+  }
+
   /**
    * @return A route pattern.
    */
   RoutePattern path();
 
-  /**
-   * @return Target route.
-   */
-  Route route();
+  void handle(Request request, Response response, RouteChain chain) throws Exception;
 
   /**
    * Construct a new {@link RouteMatcher}.

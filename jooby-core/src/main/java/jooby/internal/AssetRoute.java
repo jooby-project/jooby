@@ -5,11 +5,11 @@ import jooby.Asset;
 import jooby.HttpStatus;
 import jooby.Request;
 import jooby.Response;
-import jooby.Route;
+import jooby.Router;
 
 import com.google.inject.Inject;
 
-public class AssetRoute implements Route {
+public class AssetRoute implements Router {
 
   private AssetProvider provider;
 

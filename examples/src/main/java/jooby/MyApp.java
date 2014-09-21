@@ -203,6 +203,8 @@
  */
 package jooby;
 
+import javax.persistence.EntityManager;
+
 import jooby.jetty.Jetty;
 
 public class MyApp extends Jooby {
@@ -214,11 +216,25 @@ public class MyApp extends Jooby {
     use(new Jackson());
     use(new Hbs());
 
-    get("/", (req, resp) -> {
-      resp.send(Viewable.of("user", new User()));
+    get("/default/users", (req, resp) -> {
+
+      EntityManager em = req.getInstance(EntityManager.class);
+
+      User user1 = new User();
+      user1.setFirstName("edgar");
+      user1.setLastName("espina");
+      user1.setId("1");
+      em.persist(user1);
+
+      resp.send(user1);
     });
 
-    route(Users.class);
+    get("/users", (req, resp) -> {
+
+      EntityManager em = req.getInstance(EntityManager.class);
+
+      resp.send(em.createQuery("from User").getResultList());
+    });
 
   }
 

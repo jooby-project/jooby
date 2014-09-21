@@ -207,14 +207,11 @@ import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
 import jooby.HttpStatus;
 import jooby.MediaType;
-import jooby.Request;
-import jooby.RouteInterceptor;
 import jooby.internal.BodyConverterSelector;
 import jooby.internal.ResponseImpl;
 
@@ -225,13 +222,11 @@ class JettyResponse extends ResponseImpl {
   private HttpServletResponse response;
 
   public JettyResponse(final HttpServletResponse response,
-      final Request request,
       final BodyConverterSelector selector,
-      final Set<RouteInterceptor> interceptors,
       final Charset charset,
       final List<MediaType> produces,
       final ListMultimap<String, String> headers) {
-    super(request, selector, interceptors, charset, produces, headers, response::getOutputStream);
+    super(selector, charset, produces, headers, response::getOutputStream);
     this.response = requireNonNull(response, "A HTTP Servlet response is required.");
   }
 

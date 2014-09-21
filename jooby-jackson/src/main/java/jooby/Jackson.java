@@ -213,7 +213,7 @@ import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 
-public class Jackson implements JoobyModule {
+public class Jackson extends JoobyModule {
 
   private final ObjectMapper mapper;
 

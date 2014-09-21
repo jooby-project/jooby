@@ -34,7 +34,7 @@ package jooby;
  * @author edgar
  * @since 0.1.0
  */
-public interface Route {
+public interface Router {
 
   /**
    * Callback method for a HTTP request.
