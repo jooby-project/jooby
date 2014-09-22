@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 
 import jooby.MediaType;
 import jooby.Mode;
-import jooby.Router;
 import jooby.RouteDefinition;
+import jooby.Router;
 import jooby.internal.Reflection;
 import jooby.internal.RouteDefinitionImpl;
 import jooby.mvc.Consumes;
@@ -25,7 +25,6 @@ import jooby.mvc.POST;
 import jooby.mvc.PUT;
 import jooby.mvc.Path;
 import jooby.mvc.Produces;
-import net.sf.cglib.reflect.FastClass;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -46,7 +45,6 @@ public class Routes {
     ParamProvider provider = base;
 
 
-    FastClass fastRoute = FastClass.create(routeClass);
     String topLevelPath = path(routeClass);
     String rootPath = "/".equals(topLevelPath) ? "" : topLevelPath;
 
@@ -79,7 +77,7 @@ public class Routes {
               checkArgument(path.length() > 0, "Missing path for: %s.%s",
                   routeClass.getSimpleName(),
                   m.getName());
-              Router resource = new MvcRoute(fastRoute.getMethod(m), provider);
+              Router resource = new MvcRoute(m, provider);
               return new RouteDefinitionImpl(verb, path, resource)
                   .produces(produces(m))
                   .consumes(consumes(m));

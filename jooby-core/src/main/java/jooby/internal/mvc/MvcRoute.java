@@ -14,34 +14,32 @@ import jooby.Response.ContentNegotiation;
 import jooby.Router;
 import jooby.Viewable;
 import jooby.mvc.Template;
-import net.sf.cglib.reflect.FastMethod;
 
 class MvcRoute implements Router {
 
-  private FastMethod route;
+  private Method router;
 
   private ParamProvider provider;
 
-  public MvcRoute(final FastMethod route, final ParamProvider provider) {
-    this.route = requireNonNull(route, "The route is required.");
+  public MvcRoute(final Method router, final ParamProvider provider) {
+    this.router = requireNonNull(router, "A router method is required.");
     this.provider = requireNonNull(provider, "The resolver is required.");
   }
 
   @Override
   public void handle(final Request request, final Response response) throws Exception {
-    Method method = route.getJavaMethod();
 
-    Object handler = request.getInstance(method.getDeclaringClass());
+    Object handler = request.getInstance(router.getDeclaringClass());
 
-    List<Param> parameters = provider.parameters(method);
+    List<Param> parameters = provider.parameters(router);
     Object[] args = new Object[parameters.size()];
     for (int i = 0; i < parameters.size(); i++) {
       args[i] = parameters.get(i).get(request, response);
     }
 
-    final Object result = route.invoke(handler, args);
+    final Object result = router.invoke(handler, args);
 
-    Class<?> returnType = method.getReturnType();
+    Class<?> returnType = router.getReturnType();
     if (returnType == void.class || returnType == Void.class) {
       // move on!
       return;
@@ -54,9 +52,9 @@ class MvcRoute implements Router {
         return result;
       }
       // default view name
-      String defaultViewName = Optional.ofNullable(method.getAnnotation(Template.class))
-          .map(template -> template.value().isEmpty() ? method.getName() : template.value())
-          .orElse(method.getName());
+      String defaultViewName = Optional.ofNullable(router.getAnnotation(Template.class))
+          .map(template -> template.value().isEmpty() ? router.getName() : template.value())
+          .orElse(router.getName());
       return Viewable.of(defaultViewName, result);
     };
 
@@ -65,7 +63,7 @@ class MvcRoute implements Router {
     // viewable is apply when content type is text/html or accept header is size 1 matches text/html
     // and template annotiation is present.
     boolean htmlLike = accept.size() == 1 && accept.get(0).matches(MediaType.html) &&
-        method.getAnnotation(Template.class) != null;
+        router.getAnnotation(Template.class) != null;
     Function<MediaType, ContentNegotiation.Provider> provider =
         (type) -> MediaType.html.equals(type) || htmlLike ? viewable : notViewable;
 
