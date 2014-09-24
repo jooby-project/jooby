@@ -74,6 +74,13 @@
         <version>${logback-classic.version}</version>
       </dependency>
 
+      <!-- ASM -->
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+
       <!-- paranamer -->
       <dependency>
         <groupId>com.thoughtworks.paranamer</groupId>
@@ -447,6 +454,7 @@
     <jsr305.version>3.0.0</jsr305.version>
     <http-client.version>4.4-alpha1</http-client.version>
     <cglib.version>3.1</cglib.version>
+    <asm.version>5.0.3</asm.version>
     <paranamer.version>2.6</paranamer.version>
 
     <!-- Test dependencies -->

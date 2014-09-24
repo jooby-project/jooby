@@ -44,16 +44,10 @@
       <artifactId>config</artifactId>
     </dependency>
 
-    <!-- paranamer -->
+    <!-- ASM -->
     <dependency>
-      <groupId>com.thoughtworks.paranamer</groupId>
-      <artifactId>paranamer</artifactId>
-    </dependency>
-
-    <!-- cglib -->
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm</artifactId>
     </dependency>
 
     <!-- Guice -->

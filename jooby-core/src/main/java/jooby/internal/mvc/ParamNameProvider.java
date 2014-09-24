@@ -22,8 +22,6 @@ public interface ParamNameProvider {
     }
   };
 
-  ParamNameProvider HEAD = new ChainParamNameProvider(NAMED, JAVA_8);
-
   String name(int index, Parameter parameter);
 
 }

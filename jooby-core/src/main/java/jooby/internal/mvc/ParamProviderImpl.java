@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
-import com.thoughtworks.paranamer.BytecodeReadingParanamer;
 
 public class ParamProviderImpl implements ParamProvider {
 
@@ -25,23 +24,7 @@ public class ParamProviderImpl implements ParamProvider {
     if (parameters.length == 0) {
       return Collections.emptyList();
     }
-    // ASM
-    ParamNameProvider asm = new ParamNameProvider() {
-      String[] names;
 
-      @Override
-      public String name(final int index, final Parameter parameter) {
-        return names()[index];
-      }
-
-      private String[] names() {
-        if (names == null) {
-          names = new BytecodeReadingParanamer().lookupParameterNames(exec);
-        }
-        return names;
-      }
-    };
-    ParamNameProvider provider = new ChainParamNameProvider(this.provider, asm);
     Builder<Param> builder = ImmutableList.builder();
     for (int i = 0; i < parameters.length; i++) {
       Parameter parameter = parameters[i];

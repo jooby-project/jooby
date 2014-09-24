@@ -10,12 +10,13 @@ import java.util.regex.Pattern;
 
 import jooby.RouteMatcher;
 import jooby.RoutePattern;
-import jooby.internal.mvc.Routes;
 
 public class RoutePatternImpl implements RoutePattern {
 
   private static final Pattern GLOB = Pattern
       .compile("\\?|\\*\\*/?|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
+
+  private static final Pattern SLASH = Pattern.compile("//+");
 
   private static final String ANY_DIR = "**";
 
@@ -28,7 +29,7 @@ public class RoutePatternImpl implements RoutePattern {
   public RoutePatternImpl(final String verb, final String pattern) {
     requireNonNull(verb, "A HTTP verb is required.");
     requireNonNull(pattern, "A path pattern is required.");
-    this.pattern = pattern(verb, Routes.normalize(pattern));
+    this.pattern = pattern(verb, pattern);
     this.matcher = rewrite(this, this.pattern);
   }
 
@@ -121,12 +122,19 @@ public class RoutePatternImpl implements RoutePattern {
 
   private static String pattern(final String verb, final String pattern) {
     StringBuilder buffer = new StringBuilder(verb.toUpperCase());
-    if (!pattern.startsWith("/")) {
+    if (pattern.equals("/")) {
+      return buffer.append(pattern).toString();
+    }
+    String normalized = SLASH.matcher(pattern).replaceAll("/");
+    if (!normalized.startsWith("/")) {
       buffer.append("/");
     }
-    buffer.append(pattern);
-    if (pattern.endsWith(ANY_DIR)) {
+    buffer.append(normalized);
+    if (normalized.endsWith(ANY_DIR)) {
       buffer.append("/*");
+    }
+    if (normalized.endsWith("/")) {
+      buffer.setLength(buffer.length() - 1);;
     }
     return buffer.toString();
   }

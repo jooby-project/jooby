@@ -275,4 +275,14 @@ public class RoutePathTest {
         .butNot("GET/views/indexOther.cfm")
         .butNot("GET/views/anotherDir/index01.cfm");
   }
+
+  @Test
+  public void normalizePath() {
+    assertEquals("GET/foo", new RoutePatternImpl("GET", "/foo//").pattern());
+    assertEquals("GET/foo", new RoutePatternImpl("GET", "foo//").pattern());
+    assertEquals("GET/foo", new RoutePatternImpl("GET", "foo").pattern());
+    assertEquals("GET/foo", new RoutePatternImpl("GET", "foo/").pattern());
+    assertEquals("GET/foo/bar", new RoutePatternImpl("GET", "/foo//bar").pattern());
+  }
+
 }

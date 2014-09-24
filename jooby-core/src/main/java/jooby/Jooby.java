@@ -608,7 +608,7 @@ public class Jooby {
             definitions.addBinding().toInstance((RouteDefinitionImpl) candidate);
           } else {
             Class<?> routeClass = (Class<?>) candidate;
-            Routes.route(mode, routeClass)
+            Routes.routes(mode, routeClass)
                 .forEach(route -> definitions.addBinding().toInstance(route));
           }
         });

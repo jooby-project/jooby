@@ -31,7 +31,6 @@ import jooby.RouteDefinition;
 import jooby.RouteMatcher;
 import jooby.RoutePattern;
 import jooby.Viewable;
-import jooby.internal.mvc.Routes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +96,7 @@ public class RouteHandler {
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
   }
 
-  public void handle(final String verb, final String requestURI,
+  public void handle(final String verb, final String uri,
       final String contentType,
       final String accept,
       final String charset,
@@ -106,7 +105,7 @@ public class RouteHandler {
       final RequestFactory reqFactory,
       final ResponseFactory respFactory) throws Exception {
     requireNonNull(verb, "A HTTP verb is required.");
-    requireNonNull(requestURI, "A requestURI is required.");
+    requireNonNull(uri, "A Request URI is required.");
     requireNonNull(parameters, "The request parameters are required.");
     requireNonNull(responseHeaders, "The response headers are required.");
     requireNonNull(reqFactory, "A request factory is required.");
@@ -118,7 +117,7 @@ public class RouteHandler {
     MediaType type = Optional.ofNullable(contentType).map(MediaType::valueOf).orElse(MediaType.all);
 
     doHandle(verb.toUpperCase(),
-        Routes.normalize(requestURI),
+        uri.endsWith("/") && uri.length() > 1 ? uri.substring(0, uri.length() - 1) : uri,
         type,
         acceptList,
         Optional.ofNullable(charset).map(Charset::forName).orElse(this.charset),

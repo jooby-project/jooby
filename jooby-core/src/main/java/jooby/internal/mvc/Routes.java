@@ -1,12 +1,14 @@
 package jooby.internal.mvc;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -15,9 +17,7 @@ import java.util.stream.Collectors;
 import jooby.MediaType;
 import jooby.Mode;
 import jooby.RouteDefinition;
-import jooby.Router;
 import jooby.internal.Reflection;
-import jooby.internal.RouteDefinitionImpl;
 import jooby.mvc.Consumes;
 import jooby.mvc.DELETE;
 import jooby.mvc.GET;
@@ -26,10 +26,19 @@ import jooby.mvc.PUT;
 import jooby.mvc.Path;
 import jooby.mvc.Produces;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 public class Routes {
+
+  private static final String[] NO_ARG = new String[0];
 
   private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
@@ -37,16 +46,21 @@ public class Routes {
       POST.class, PUT.class, DELETE.class);
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  public static List<RouteDefinition> route(final Mode mode, final Class<?> routeClass) {
-    ParamProvider base = new ParamProviderImpl(ParamNameProvider.HEAD);
-    if (!mode.name().equals("dev")) {
-      base = new CachedParamProvider(base);
-    }
-    ParamProvider provider = base;
+  public static List<RouteDefinition> routes(final Mode mode, final Class<?> routeClass) {
+    Map<String, String[]> params = new HashMap<>();
+    Map<String, Integer> lines = new HashMap<>();
 
+    collectParameterNamesAndLineNumbers(routeClass, params, lines);
 
-    String topLevelPath = path(routeClass);
-    String rootPath = "/".equals(topLevelPath) ? "" : topLevelPath;
+    ParamProvider provider =
+        new ParamProviderImpl(
+            new ChainParamNameProvider(
+                ParamNameProvider.NAMED,
+                ParamNameProvider.JAVA_8,
+                new ASMParamNameProvider(params)
+            ));
+
+    String rootPath = path(routeClass);
 
     return Reflection
         .methods(routeClass)
@@ -70,19 +84,35 @@ public class Routes {
               }
               return true;
             })
+        .sorted((m1, m2) -> {
+          String k1 = key(m1);
+          String k2 = key(m2);
+          int l1 = lines.getOrDefault(k1, 0);
+          int l2 = lines.getOrDefault(k2, 0);
+          return l1 - l2;
+        })
         .map(
             m -> {
               String verb = verb(m);
-              String path = rootPath + path(m);
-              checkArgument(path.length() > 0, "Missing path for: %s.%s",
-                  routeClass.getSimpleName(),
-                  m.getName());
-              Router resource = new MvcRoute(m, provider);
-              return new RouteDefinitionImpl(verb, path, resource)
+              String path = rootPath + "/" + path(m);
+              return RouteDefinition.Builder.newRouter(verb, path, new MvcRoute(m, provider))
                   .produces(produces(m))
                   .consumes(consumes(m));
             })
         .collect(Collectors.toList());
+  }
+
+  private static String key(final Method method) {
+    return method.getName() + Type.getMethodDescriptor(method);
+  }
+
+  private static void collectParameterNamesAndLineNumbers(final Class<?> routeClass,
+      final Map<String, String[]> params, final Map<String, Integer> lines) {
+    try {
+      new ClassReader(routeClass.getName()).accept(visitor(routeClass, params, lines), 0);
+    } catch (IOException ex) {
+      throw new IllegalStateException("Unable to read class: " + routeClass.getName(), ex);
+    }
   }
 
   private static List<MediaType> produces(final Method method) {
@@ -134,25 +164,67 @@ public class Routes {
     if (annotation == null) {
       return "";
     }
-    String path = annotation.value();
-    return normalize(path);
+    return annotation.value();
   }
 
-  public static String normalize(final String candidate) {
-    String path = candidate.trim();
-    if ("/".equals(path) || path.length() == 0) {
-      return "/";
-    }
-    StringBuilder normalized = new StringBuilder();
-    if (!path.startsWith("/")) {
-      normalized.append("/");
-    }
-    if (path.endsWith("/")) {
-      normalized.append(path.substring(0, path.length() - 1));
-    } else {
-      normalized.append(path);
-    }
-    return normalized.toString();
-  }
+  private static ClassVisitor visitor(final Class<?> clazz, final Map<String, String[]> params,
+      final Map<String, Integer> lines) {
+    return new ClassVisitor(Opcodes.ASM5) {
 
+      @Override
+      public MethodVisitor visitMethod(final int access, final String name,
+          final String desc, final String signature, final String[] exceptions) {
+        boolean isPublic = ((access & Opcodes.ACC_PUBLIC) > 0) ? true : false;
+        String key = name + desc;
+        if (!isPublic) {
+          // ignore
+          return null;
+        }
+        Type[] args = Type.getArgumentTypes(desc);
+        String[] names = args.length == 0 ? NO_ARG : new String[args.length];
+        params.put(key, names);
+
+        int minIdx = ((access & Opcodes.ACC_STATIC) > 0) ? 0 : 1;
+        int maxIdx = Arrays.stream(args).mapToInt(Type::getSize).sum();
+
+        return new MethodVisitor(Opcodes.ASM5) {
+
+          private int i = 0;
+
+          private boolean skipLocalTable = false;
+
+          @Override
+          public void visitParameter(final String name, final int access) {
+            skipLocalTable = true;
+            // save current parameter
+            names[i] = name;
+            // move to next
+            i += 1;
+          }
+
+          @Override
+          public void visitLineNumber(final int line, final Label start) {
+            // save line number
+            lines.putIfAbsent(key, line);
+          }
+
+          @Override
+          public void visitLocalVariable(final String name, final String desc,
+              final String signature,
+              final Label start, final Label end, final int index) {
+            if (!skipLocalTable) {
+              if (index >= minIdx && index <= maxIdx) {
+                // save current parameter
+                names[i] = name;
+                // move to next
+                i += 1;
+              }
+            }
+          }
+
+        };
+      }
+
+    };
+  }
 }
