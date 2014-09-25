@@ -15,7 +15,6 @@
 
   <modules>
     <module>jooby-core</module>
-    <module>jooby-jetty</module>
     <module>jooby-jackson</module>
     <module>jooby-hbs</module>
     <module>jooby-hibernate</module>

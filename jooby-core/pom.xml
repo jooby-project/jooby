@@ -61,6 +61,12 @@
       <artifactId>jsr305</artifactId>
     </dependency>
 
+    <!-- Jetty -->
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>ch.qos.logback</groupId>

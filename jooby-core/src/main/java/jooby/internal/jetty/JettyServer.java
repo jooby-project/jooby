@@ -201,20 +201,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package jooby.jetty;
+package jooby.internal.jetty;
 
 import javax.inject.Inject;
 
 import jooby.internal.RouteHandler;
-import jooby.internal.jetty.JettyServerBuilder;
-
-import org.eclipse.jetty.server.Server;
 
 import com.typesafe.config.Config;
 
 public class JettyServer implements jooby.Server {
 
-  private Server server;
+  private jooby.Server server;
 
   @Inject
   public JettyServer(final Config config, final RouteHandler routeHandler) throws Exception {
@@ -224,7 +221,6 @@ public class JettyServer implements jooby.Server {
   @Override
   public void start() throws Exception {
     server.start();
-    server.join();
   }
 
   @Override

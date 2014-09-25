@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import jooby.jetty.JettyTest;
-
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.MultipleFailureException;
@@ -45,10 +43,10 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
         throw new InitializationError("Invalid jooby app: " + appClass);
       }
       Config testConfig = ConfigFactory.empty()
+          .withValue("jooby.internal.server.test", ConfigValueFactory.fromAnyRef(true))
           .withValue("application.port", ConfigValueFactory.fromAnyRef(port))
           .withValue("ssl.keystore.path", ConfigValueFactory.fromAnyRef("/missing/keystore"));
       app = (Jooby) appClass.newInstance();
-      app.use(new JettyTest());
       app.use(new JoobyModule() {
         @Override
         public void configure(final Mode mode, final Config config, final Binder binder)

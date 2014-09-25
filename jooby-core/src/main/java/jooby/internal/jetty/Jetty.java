@@ -201,7 +201,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package jooby.jetty;
+package jooby.internal.jetty;
 
 import javax.inject.Singleton;
 
@@ -222,6 +222,7 @@ public class Jetty extends JoobyModule {
 
   @Override
   public Config config() {
-    return ConfigFactory.parseResources("jooby/jetty/jetty.conf");
+    String location = getClass().getPackage().getName().replace('.', '/');
+    return ConfigFactory.parseResources(location  + "/jetty.conf");
   }
 }

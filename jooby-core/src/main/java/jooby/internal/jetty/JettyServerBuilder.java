@@ -33,7 +33,7 @@ public class JettyServerBuilder {
   /** The logging system. */
   private static final Logger log = LoggerFactory.getLogger(jooby.Server.class);
 
-  public static Server build(final Config config, final RouteHandler routeHandler)
+  public static jooby.Server build(final Config config, final RouteHandler routeHandler)
       throws Exception {
     // jetty URL charset
     System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset",
@@ -99,7 +99,24 @@ public class JettyServerBuilder {
       }
     });
 
-    return server;
+    return new jooby.Server() {
+      @Override
+      public void start() throws Exception {
+        server.start();
+        boolean join = true;
+        if (config.hasPath("jooby.internal.server.test")) {
+          join = !config.getBoolean("jooby.internal.server.test");
+        }
+        if (join) {
+          server.join();
+        }
+      }
+
+      @Override
+      public void stop() throws Exception {
+        server.stop();
+      }
+    };
   }
 
   private static <T> void dump(final T target, final Config config) {

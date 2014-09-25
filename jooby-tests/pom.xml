@@ -18,7 +18,7 @@
     <!-- Jooby -->
     <dependency>
       <groupId>com.github.jknack</groupId>
-      <artifactId>jooby-jetty</artifactId>
+      <artifactId>jooby-core</artifactId>
       <version>${project.version}</version>
     </dependency>
 

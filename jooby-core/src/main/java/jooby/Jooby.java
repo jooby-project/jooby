@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 import jooby.internal.AssetRoute;
 import jooby.internal.FallbackBodyConverter;
 import jooby.internal.RouteDefinitionImpl;
+import jooby.internal.jetty.Jetty;
 import jooby.internal.mvc.Routes;
 
 import org.slf4j.Logger;
@@ -313,6 +314,10 @@ public class Jooby {
 
   /** Keep the global injector instance. */
   private Injector injector;
+
+  {
+    use(new Jetty());
+  }
 
   public RouteDefinition use(final Filter filter) {
     return use("/**", filter);

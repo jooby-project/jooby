@@ -205,13 +205,10 @@ package jooby;
 
 import javax.persistence.EntityManager;
 
-import jooby.jetty.Jetty;
-
 public class MyApp extends Jooby {
 
   {
 
-    use(new Jetty());
     use(new HibernatePersistence(User.class));
     use(new Jackson());
     use(new Hbs());
