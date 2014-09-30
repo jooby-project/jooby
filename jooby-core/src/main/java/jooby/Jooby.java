@@ -15,6 +15,7 @@ import java.util.function.Supplier;
 import jooby.internal.AssetRoute;
 import jooby.internal.FallbackBodyConverter;
 import jooby.internal.RouteDefinitionImpl;
+import jooby.internal.guice.TypeConverters;
 import jooby.internal.jetty.Jetty;
 import jooby.internal.mvc.Routes;
 
@@ -572,6 +573,9 @@ public class Jooby {
     injector = Guice.createInjector(new Module() {
       @Override
       public void configure(final Binder binder) {
+
+        TypeConverters.configure(binder);
+
         // bind config
         bindConfig(binder, config);
 

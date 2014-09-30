@@ -1,6 +1,5 @@
 package jooby.internal;
 
-import java.io.File;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -9,14 +8,14 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import jooby.HttpException;
-import jooby.HttpField;
 import jooby.HttpStatus;
 import jooby.Upload;
+import jooby.Variant;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.TypeLiteral;
 
-public class GetUpload implements HttpField {
+public class GetUpload implements Variant {
 
   private String name;
 
@@ -28,53 +27,53 @@ public class GetUpload implements HttpField {
   }
 
   @Override
-  public boolean getBoolean() {
+  public boolean booleanValue() {
     throw typeError(boolean.class);
   }
 
   @Override
-  public byte getByte() {
+  public byte byteValue() {
     throw typeError(byte.class);
   }
 
   @Override
-  public short getShort() {
+  public short shortValue() {
     throw typeError(short.class);
   }
 
   @Override
-  public int getInt() {
+  public int intValue() {
     throw typeError(int.class);
   }
 
   @Override
-  public long getLong() {
+  public long longValue() {
     throw typeError(long.class);
   }
 
   @Override
-  public String getString() {
+  public String stringValue() {
     throw typeError(String.class);
   }
 
   @Override
-  public float getFloat() {
+  public float floatValue() {
     throw typeError(float.class);
   }
 
   @Override
-  public double getDouble() {
+  public double doubleValue() {
     throw typeError(double.class);
   }
 
   @Override
-  public <T extends Enum<T>> T getEnum(final Class<T> type) {
+  public <T extends Enum<T>> T enumValue(final Class<T> type) {
     throw typeError(type);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> List<T> getList(final Class<T> type) {
+  public <T> List<T> toList(final Class<T> type) {
     if (type == Upload.class) {
       return (List<T>) uploads;
     }
@@ -83,7 +82,7 @@ public class GetUpload implements HttpField {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Set<T> getSet(final Class<T> type) {
+  public <T> Set<T> toSet(final Class<T> type) {
     if (type == Upload.class) {
       return (Set<T>) ImmutableSet.copyOf(uploads);
     }
@@ -91,40 +90,37 @@ public class GetUpload implements HttpField {
   }
 
   @Override
-  public <T extends Comparable<T>> SortedSet<T> getSortedSet(final Class<T> type) {
+  public <T extends Comparable<T>> SortedSet<T> toSortedSet(final Class<T> type) {
     throw typeError(type);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Optional<T> getOptional(final Class<T> type) throws Exception {
+  public <T> Optional<T> toOptional(final Class<T> type) {
     if (type == Upload.class) {
       return (Optional<T>) Optional.of(uploads.get(0));
-    }
-    if (type == File.class) {
-      return (Optional<T>) Optional.of(uploads.get(0).file());
     }
     throw typeError(type);
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
-  public <T> T get(final TypeLiteral<T> type) throws Exception {
+  public <T> T to(final TypeLiteral<T> type) {
     Class<? super T> rawType = type.getRawType();
     if (rawType == Upload.class) {
       return (T) uploads.get(0);
     }
     if (rawType == Optional.class) {
-      return (T) getOptional(classFrom(type));
+      return (T) toOptional(classFrom(type));
     }
     if (rawType == List.class) {
-      return (T) getList(classFrom(type));
+      return (T) toList(classFrom(type));
     }
     if (rawType == Set.class) {
-      return (T) getSet(classFrom(type));
+      return (T) toSet(classFrom(type));
     }
     if (rawType == SortedSet.class) {
-      return (T) getSortedSet((Class) classFrom(type));
+      return (T) toSortedSet((Class) classFrom(type));
     }
     throw typeError(rawType);
   }

@@ -34,7 +34,7 @@ public class FilterFeature extends ServerFeature {
     });
 
     get("/before", (req, resp) -> {
-      resp.send(resp.header("before").getString());
+      resp.send(resp.header("before").toString());
     });
 
     get("/after", (req, resp, chain) -> {
@@ -43,7 +43,7 @@ public class FilterFeature extends ServerFeature {
     });
 
     get("/after", (req, resp) -> {
-      resp.send(resp.header("after").getOptional(String.class).orElse("after-missing"));
+      resp.send(resp.header("after").toOptional(String.class).orElse("after-missing"));
     });
 
     get("/commit", (req, resp, chain) -> {

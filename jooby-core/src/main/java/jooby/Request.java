@@ -4,11 +4,14 @@ import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.Beta;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
@@ -18,7 +21,7 @@ import com.google.inject.TypeLiteral;
  * @author edgar
  * @since 0.1.0
  * @see RequestModule
- * @see HttpField
+ * @see Variant
  * @see RouteInterceptor
  */
 @Beta
@@ -49,33 +52,140 @@ public interface Request {
   @Nonnull
   List<MediaType> accept();
 
+  default Optional<MediaType> accepts(@Nonnull String type) {
+    return accepts(MediaType.valueOf(type));
+  }
+
+  default Optional<MediaType> accepts(@Nonnull String first, @Nonnull String second) {
+    return accepts(MediaType.valueOf(first, second));
+  }
+
+  default Optional<MediaType> accepts(@Nonnull MediaType type) {
+    return accepts(ImmutableList.of(type));
+  }
+
+  default Optional<MediaType> accepts(@Nonnull MediaType first, MediaType second) {
+    return accepts(ImmutableList.of(first, second));
+  }
+
+  Optional<MediaType> accepts(@Nonnull Iterable<MediaType> types);
+
   /**
-   * @return All the parameter names.
+   * Get all the available parameter. A HTTP parameter can be provided in any of
+   * these forms:
+   *
+   * <ul>
+   * <li>Path parameter, like: <code>/path/:name</code> or <code>/path/{name}</code></li>
+   * <li>Query parameter, like: <code>?name=jooby</code></li>
+   * <li>Body parameter when <code>Content-Type</code> is
+   * <code>application/x-www-form-urlencoded</code> or <code>multipart/form-data</code></li>
+   * </ul>
+   *
+   * @return All the parameters.
    */
   @Nonnull
-  List<String> parameterNames();
+  Map<String, Variant> params() throws Exception;
 
   /**
    * Get a HTTP request parameter under the given name. A HTTP parameter can be provided in any of
    * these forms:
    * <ul>
-   * <li>Part of the HTTP query, like: <code>?name=jooby</code></li>
-   * <li>Path variables, like: <code>/path/:name</code> or <code>/path/{name}</code></li>
-   * <li>POST/PUT parameter when <code>Content-Type</code> is
-   * <code>application/x-www-form-urlencoded</code></li>
-   * <li>POST/PUT parameter when <code>Content-Type</code> is <code>multipart/form-data</code></li>
+   * <li>Path parameter, like: <code>/path/:name</code> or <code>/path/{name}</code></li>
+   * <li>Query parameter, like: <code>?name=jooby</code></li>
+   * <li>Body parameter when <code>Content-Type</code> is
+   * <code>application/x-www-form-urlencoded</code> or <code>multipart/form-data</code></li>
    * </ul>
    *
-   * Uploads can be retrieved too if <code>Content-Type</code> is <code>multipart/form-data</code>
+   * The order of precedence is: <code>path</code>, <code>query</code> and <code>body</code>. For
+   * example a pattern like: <code>GET /path/:name</code> for <code>/path/jooby?name=rocks</code>
+   * produces:
+   *
+   * <pre>
+   *  assertEquals("jooby", req.param(name).stringValue());
+   *
+   *  assertEquals("jooby", req.param(name).toList(String.class).get(0));
+   *  assertEquals("rocks", req.param(name).toList(String.class).get(1));
+   * </pre>
+   *
+   * Uploads can be retrieved too when <code>Content-Type</code> is <code>multipart/form-data</code>
    * see {@link Upload} for more information.
    *
    * @param name A parameter's name.
    * @return A HTTP request parameter.
    * @throws Exception If retrieval fails.
-   * @see {@link HttpField}
+   * @see {@link Variant}
    */
   @Nonnull
-  HttpField param(@Nonnull String name) throws Exception;
+  Variant param(@Nonnull String name) throws Exception;
+
+  /**
+   * Get a HTTP request parameter under the given name. A HTTP parameter can be provided in any of
+   * these forms:
+   * <ul>
+   * <li>Path parameter, like: <code>/path/:name</code> or <code>/path/{name}</code></li>
+   * <li>Query parameter, like: <code>?name=jooby</code></li>
+   * <li>Body parameter when <code>Content-Type</code> is
+   * <code>application/x-www-form-urlencoded</code> or <code>multipart/form-data</code></li>
+   * </ul>
+   *
+   * The order of precedence is: <code>path</code>, <code>query</code> and <code>body</code>. For
+   * example a pattern like: <code>GET /path/:name</code> for <code>/path/jooby?name=rocks</code>
+   * produces:
+   *
+   * <pre>
+   *  assertEquals("jooby", req.param(name).stringValue());
+   *
+   *  assertEquals("jooby", req.param(name).toList(String.class).get(0));
+   *  assertEquals("rocks", req.param(name).toList(String.class).get(1));
+   * </pre>
+   *
+   * Uploads can be retrieved too when <code>Content-Type</code> is <code>multipart/form-data</code>
+   * see {@link Upload} for more information.
+   *
+   * @param name A parameter's name.
+   * @return A HTTP request parameter.
+   * @throws Exception If retrieval fails.
+   * @see {@link Variant}
+   */
+  @Nonnull
+  default <T> T param(@Nonnull final String name, final Class<T> type) throws Exception {
+    return param(name).to(type);
+  }
+
+  /**
+   * Get a HTTP request parameter under the given name. A HTTP parameter can be provided in any of
+   * these forms:
+   * <ul>
+   * <li>Path parameter, like: <code>/path/:name</code> or <code>/path/{name}</code></li>
+   * <li>Query parameter, like: <code>?name=jooby</code></li>
+   * <li>Body parameter when <code>Content-Type</code> is
+   * <code>application/x-www-form-urlencoded</code> or <code>multipart/form-data</code></li>
+   * </ul>
+   *
+   * The order of precedence is: <code>path</code>, <code>query</code> and <code>body</code>. For
+   * example a pattern like: <code>GET /path/:name</code> for <code>/path/jooby?name=rocks</code>
+   * produces:
+   *
+   * <pre>
+   *  assertEquals("jooby", req.param(name).stringValue());
+   *
+   *  assertEquals("jooby", req.param(name).toList(String.class).get(0));
+   *  assertEquals("rocks", req.param(name).toList(String.class).get(1));
+   * </pre>
+   *
+   * Uploads can be retrieved too when <code>Content-Type</code> is <code>multipart/form-data</code>
+   * see {@link Upload} for more information.
+   *
+   * @param name A parameter's name.
+   * @return A HTTP request parameter.
+   * @throws Exception If retrieval fails.
+   * @see {@link Variant}
+   */
+  @Nonnull
+  default <T> T param(@Nonnull final String name, @Nonnull final TypeLiteral<T> type)
+      throws Exception {
+    return param(name).to(type);
+  }
 
   /**
    * Get a HTTP request header with the given name.
@@ -83,16 +193,16 @@ public interface Request {
    * @param name A header's name.
    * @return A HTTP request header.
    * @throws Exception If retrieval fails.
-   * @see {@link HttpField}
+   * @see {@link Variant}
    */
   @Nonnull
-  HttpField header(@Nonnull String name);
+  Variant header(@Nonnull String name);
 
   /**
-   * @return All the header names.
+   * @return All the headers.
    */
   @Nonnull
-  List<String> headerNames();
+  Map<String, Variant> headers();
 
   /**
    * Get a cookie with the given name or <code>null</code> if there is no cookie.

@@ -4,14 +4,14 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.FluentIterable;
 
 /**
- * Mutable version of {@link HttpField} useful for setting response headers.
+ * Mutable version of {@link Variant} useful for setting response headers.
  *
  * @author edgar
  * @since 0.1.0
  * @see Response#header(String)
  */
 @Beta
-public interface HttpHeader extends HttpField {
+public interface HttpHeader extends Variant {
 
   /**
    * Set a boolean header. It overrides any previous value.

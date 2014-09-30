@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -30,25 +31,28 @@ public class ConfigPropertiesFeature extends ServerFeature {
     private Mode mode;
     private List<String> list;
     private Letter letter;
+    private UUID uuid;
 
     @Inject
     public Resource(final Charset charset, final Mode mode,
         @Named("intprop") final int intprop,
         @Named("stringprop") final String stringprop,
         @Named("list") final List<String> list,
-        @Named("letter") final Letter letter) {
+        @Named("letter") final Letter letter,
+        @Named("uuid") final UUID uuid) {
       this.charset = charset;
       this.mode = mode;
       this.intprop = intprop;
       this.stringprop = stringprop;
       this.list = list;
       this.letter = letter;
+      this.uuid = uuid;
     }
 
     @GET
     @Path("/properties")
     public Object properties() {
-      return charset + " " + intprop + " " + stringprop;
+      return charset + " " + intprop + " " + stringprop + " " + uuid;
     }
 
     @GET
@@ -76,7 +80,7 @@ public class ConfigPropertiesFeature extends ServerFeature {
 
   @Test
   public void properties() throws Exception {
-    assertEquals("UTF-8 14 The man who sold the world", Request.Get(uri("r", "properties").build())
+    assertEquals("UTF-8 14 The man who sold the world a8843f4a-2c71-42ef-82aa-83fa8246c0d4", Request.Get(uri("r", "properties").build())
         .execute().returnContent()
         .asString());
   }

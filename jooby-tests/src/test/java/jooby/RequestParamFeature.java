@@ -199,19 +199,19 @@ public class RequestParamFeature extends ServerFeature {
   @Test
   public void enumParam() throws Exception {
     assertEquals("A, B",
-        GET(uri("enum").addParameter("p1", "A").addParameter("p2", "b")));
+        GET(uri("enum").addParameter("p1", "A").addParameter("p2", "B")));
   }
 
   @Test
   public void enumSortedParam() throws Exception {
     assertEquals("[A, B]",
-        GET(uri("sortedEnum").addParameter("p", "b").addParameter("p", "a")));
+        GET(uri("sortedEnum").addParameter("p", "B").addParameter("p", "A")));
   }
 
   @Test
   public void optionalEnumParam() throws Exception {
     assertEquals("Optional.empty", GET(uri("optionalEnum")));
-    assertEquals("Optional[B]", GET(uri("optionalEnum").addParameter("p", "b")));
+    assertEquals("Optional[B]", GET(uri("optionalEnum").addParameter("p", "B")));
   }
 
   @Test

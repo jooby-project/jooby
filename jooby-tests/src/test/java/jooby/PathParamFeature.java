@@ -23,8 +23,14 @@ public class PathParamFeature extends ServerFeature {
   {
 
     get("/vars/{name}/{age}", (req, resp) -> {
-      String name = req.param("name").getString();
-      int age = req.param("age").getInt();
+      String name = req.param("name").stringValue();
+      int age = req.param("age").intValue();
+      resp.send(name + " " + age);
+    });
+
+    get("/fancy/:name/:age", (req, resp) -> {
+      String name = req.param("name").stringValue();
+      int age = req.param("age").intValue();
       resp.send(name + " " + age);
     });
 
@@ -37,6 +43,12 @@ public class PathParamFeature extends ServerFeature {
         .returnContent().asString());
 
     assertEquals("edgar 33", Request.Get(uri("r", "vars", "edgar", "33").build()).execute()
+        .returnContent().asString());
+  }
+
+  @Test
+  public void fancy() throws Exception {
+    assertEquals("edgar 34", Request.Get(uri("fancy", "edgar", "34").build()).execute()
         .returnContent().asString());
   }
 

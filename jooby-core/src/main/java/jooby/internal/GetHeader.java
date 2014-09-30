@@ -9,25 +9,27 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.TypeLiteral;
+import com.google.inject.spi.TypeConverterBinding;
 
-public class GetHeader extends GetterImpl {
+public class GetHeader extends VariantImpl {
 
   private static final Set<String> DATES = ImmutableSet.of("if-modified-since",
       "if-range", "if-unmodified-since");
 
-  public GetHeader(final String name, final List<String> values) {
-    super(name, values);
+  public GetHeader(final String name, final List<String> values,
+      final Set<TypeConverterBinding> typeConverters) {
+    super(name, values, typeConverters);
   }
 
   @Override
-  public long getLong() {
+  public long longValue() {
     if (DATES.contains(name.toLowerCase())) {
       // it is date!
       return asDateInMillis();
     }
     try {
       // assume it is a valid long
-      return super.getLong();
+      return super.longValue();
     } catch (RuntimeException ex) {
       try {
         return asDateInMillis();
@@ -39,13 +41,13 @@ public class GetHeader extends GetterImpl {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> T get(final TypeLiteral<T> type) {
+  public <T> T to(final TypeLiteral<T> type) {
     Class<? super T> rawType = type.getRawType();
     if (rawType == long.class || rawType == Long.class) {
-      Long value = getLong();
+      Long value = longValue();
       return (T) value;
     }
-    return super.get(type);
+    return super.to(type);
   }
 
   private long asDateInMillis() {

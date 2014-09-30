@@ -6,19 +6,21 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import jooby.HttpHeader;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.spi.TypeConverterBinding;
 
 public class SetHeader extends GetHeader implements HttpHeader {
 
   private Consumer<Iterable<String>> setter;
 
   public SetHeader(final String name, final List<String> value,
-      final Consumer<Iterable<String>> setter) {
-    super(name, value);
+      final Consumer<Iterable<String>> setter, final Set<TypeConverterBinding> typeConverters) {
+    super(name, value, typeConverters);
     this.setter = setter;
   }
 

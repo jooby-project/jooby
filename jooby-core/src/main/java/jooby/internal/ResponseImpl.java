@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +70,7 @@ public abstract class ResponseImpl implements Response {
       headers.removeAll(name);
       headers.putAll(name, values);
       setHeader(name, values);
-    });
+    }, Collections.emptySet());
   }
 
   @Override

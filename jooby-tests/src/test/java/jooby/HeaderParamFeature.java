@@ -44,8 +44,8 @@ public class HeaderParamFeature extends ServerFeature {
 
     @GET
     @Path("/modifiedSince")
-    public Object modifiedSince(@Named("If-Modified-Since") @Header final long h) {
-      return h;
+    public Object modifiedSince(@Named("If-Modified-Since") @Header final Optional<Long> h) {
+      return h.orElse(-1l);
     }
 
     @GET
@@ -63,7 +63,6 @@ public class HeaderParamFeature extends ServerFeature {
   }
 
   {
-
     route(Resource.class);
   }
 
@@ -106,7 +105,7 @@ public class HeaderParamFeature extends ServerFeature {
 
   @Test
   public void enumHeader() throws Exception {
-    assertEquals("A", execute(GET(uri("enum")).addHeader("h", "a")));
+    assertEquals("A", execute(GET(uri("enum")).addHeader("h", "A")));
   }
 
   private static Request GET(final URIBuilder uri) throws Exception {

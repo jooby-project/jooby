@@ -21,7 +21,7 @@ public class Param {
     PARAM {
       @Override
       public Object get(final Request req, final Response resp, final Param param) throws Exception {
-        return req.param(param.name).get(
+        return req.param(param.name).to(
             TypeLiteral.get(param.parameter.getParameterizedType()));
       }
     },
@@ -36,7 +36,7 @@ public class Param {
     HEADER {
       @Override
       public Object get(final Request req, final Response resp, final Param param) throws Exception {
-        return req.header(param.name).get(
+        return req.header(param.name).to(
             TypeLiteral.get(param.parameter.getParameterizedType()));
       }
     },

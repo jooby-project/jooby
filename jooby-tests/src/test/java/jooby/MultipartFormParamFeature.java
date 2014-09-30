@@ -54,14 +54,14 @@ public class MultipartFormParamFeature extends ServerFeature {
   {
 
     post("/form", (req, resp) -> {
-      String name = req.param("name").getString();
-      int age = req.param("age").getInt();
-      Upload upload = req.param("myfile").get(Upload.class);
+      String name = req.param("name").stringValue();
+      int age = req.param("age").intValue();
+      Upload upload = req.param("myfile").to(Upload.class);
       resp.send(name + " " + age + " " + upload.name() + " " + upload.type());
     });
 
     post("/form/files", (req, resp) -> {
-      List<Upload> uploads = req.param("uploads").getList(Upload.class);
+      List<Upload> uploads = req.param("uploads").toList(Upload.class);
       StringBuilder buffer = new StringBuilder();
       for (Upload upload : uploads) {
         try (Upload u = upload) {
@@ -72,7 +72,7 @@ public class MultipartFormParamFeature extends ServerFeature {
     });
 
     post("/form/optional", (req, resp) -> {
-      Optional<Upload> upload = req.param("upload").getOptional(Upload.class);
+      Optional<Upload> upload = req.param("upload").toOptional(Upload.class);
       if (upload.isPresent()) {
         try (Upload u = upload.get()) {
           resp.send(u.name());

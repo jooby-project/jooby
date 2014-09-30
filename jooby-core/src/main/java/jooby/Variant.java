@@ -12,7 +12,7 @@ import com.google.inject.TypeLiteral;
 
 /**
  * <p>
- * A type safe {@link HttpField} useful for reading parameters and headers. It let you retrieve a
+ * A type safe {@link Variant} useful for reading parameters and headers. It let you retrieve a
  * HTTP value: <code>param</code> or <code>header</code> in a type safe manner.
  * </p>
  *
@@ -36,90 +36,77 @@ import com.google.inject.TypeLiteral;
  * @see Request#header(String)
  */
 @Beta
-public interface HttpField {
+public interface Variant {
 
   /**
    * @return Get a boolean when possible.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  boolean getBoolean() throws Exception;
+  boolean booleanValue();
 
   /**
    * @return Get a byte when possible.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  byte getByte() throws Exception;
+  byte byteValue();
 
   /**
    * @return Get a short when possible.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  short getShort() throws Exception;
+  short shortValue();
 
   /**
-   * @return Get an int when possible.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
+   * @return Get an integer when possible.
    */
-  int getInt() throws Exception;
+  int intValue();
 
   /**
    * @return Get a long when possible.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  long getLong() throws Exception;
+  long longValue();
 
   /**
    * @return Get a string when possible.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  String getString() throws Exception;
+  String stringValue();
 
   /**
    * @return Get a float when possible.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  float getFloat() throws Exception;
+  float floatValue();
 
   /**
    * @return Get a double when possible.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  double getDouble() throws Exception;
+  double doubleValue();
 
   /**
    * @return Get an enum when possible.
    * @param type The enum type.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  <T extends Enum<T>> T getEnum(@Nonnull Class<T> type) throws Exception;
+  <T extends Enum<T>> T enumValue(@Nonnull Class<T> type);
 
   /**
    * @return Get list of values when possible.
    * @param type The element type.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  <T> List<T> getList(@Nonnull Class<T> type) throws Exception;
+  <T> List<T> toList(@Nonnull Class<T> type);
 
   /**
    * @return Get set of values when possible.
    * @param type The element type.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  <T> Set<T> getSet(@Nonnull Class<T> type) throws Exception;
+  <T> Set<T> toSet(@Nonnull Class<T> type);
 
   /**
    * @return Get sorted set of values when possible.
    * @param type The element type.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  <T extends Comparable<T>> SortedSet<T> getSortedSet(@Nonnull Class<T> type) throws Exception;
+  <T extends Comparable<T>> SortedSet<T> toSortedSet(@Nonnull Class<T> type);
 
   /**
    * @return Get an optional value when possible.
    * @param type The optional type.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  <T> Optional<T> getOptional(@Nonnull Class<T> type) throws Exception;
+  <T> Optional<T> toOptional(@Nonnull Class<T> type);
 
   /**
    * Get a value using one of the existing and specific converters or an arbitrary type that has:
@@ -132,10 +119,9 @@ public interface HttpField {
    *
    * @return Get a value when possible.
    * @param type The type to convert to.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  default <T> T get(final Class<T> type) throws Exception {
-    return get(TypeLiteral.get(type));
+  default <T> T to(final Class<T> type) {
+    return to(TypeLiteral.get(type));
   }
 
   /**
@@ -149,7 +135,6 @@ public interface HttpField {
    *
    * @return Get a value when possible.
    * @param type The type to convert to.
-   * @throws Exception A {@link HttpException} with a {@link HttpStatus#BAD_REQUEST} status code.
    */
-  <T> T get(TypeLiteral<T> type) throws Exception;
+  <T> T to(TypeLiteral<T> type);
 }

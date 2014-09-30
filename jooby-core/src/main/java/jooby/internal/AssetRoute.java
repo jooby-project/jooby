@@ -26,7 +26,7 @@ public class AssetRoute implements Router {
 
     // Handle if modified since
     if (lastModified > 0) {
-      long ifModified = request.header("If-Modified-Since").getLong();
+      long ifModified = request.header("If-Modified-Since").toOptional(Long.class).orElse(-1l);
       if (ifModified > 0 && lastModified / 1000 <= ifModified / 1000) {
         response.status(HttpStatus.NOT_MODIFIED);
         return;

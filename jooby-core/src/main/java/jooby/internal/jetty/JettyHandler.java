@@ -216,6 +216,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import jooby.MediaType;
+import jooby.internal.RequestImpl;
 import jooby.internal.RouteHandler;
 
 import org.eclipse.jetty.server.Request;
@@ -259,7 +260,7 @@ public class JettyHandler extends AbstractHandler {
            * Create a new request.
            */
           (injector, routeMatcher, selector, charset, contentType, accept)
-          -> new JettyRequest(req, injector, routeMatcher, selector, charset, contentType, accept),
+          -> new RequestImpl(req, injector, routeMatcher, selector, charset, contentType, accept),
           /**
            * Create a new response
            */

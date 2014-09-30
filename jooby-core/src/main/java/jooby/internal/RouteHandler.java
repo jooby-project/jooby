@@ -81,17 +81,17 @@ public class RouteHandler {
 
   private Injector rootInjector;
 
-  private Set<RequestModule> requestModules;
+  private Set<RequestModule> modules;
 
   @Inject
   public RouteHandler(final Injector injector,
       final BodyConverterSelector selector,
-      final Set<RequestModule> requestModules,
+      final Set<RequestModule> modules,
       final Set<RouteDefinition> routes,
       final Charset defaultCharset) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
-    this.requestModules = requireNonNull(requestModules, "Request modules are required.");
+    this.modules = requireNonNull(modules, "Request modules are required.");
     this.routes = requireNonNull(routes, "The routes are required.");
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
   }
@@ -145,8 +145,8 @@ public class RouteHandler {
 
     // configure request modules
     Injector injector = rootInjector.createChildInjector(binder -> {
-      for (RequestModule requestModule : requestModules) {
-        requestModule.configure(binder);
+      for (RequestModule module : modules) {
+        module.configure(binder);
       }
     });
 

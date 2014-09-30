@@ -10,7 +10,7 @@ public interface Upload extends Closeable {
 
   MediaType type();
 
-  HttpField header(String name);
+  Variant header(String name);
 
   File file() throws IOException;
 

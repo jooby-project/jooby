@@ -22,7 +22,7 @@ public class RegexParamFeature extends ServerFeature {
 
   {
     get("/regex/{id:\\d+}", (req, resp) -> {
-      int id = req.param("id").getInt();
+      int id = req.param("id").intValue();
       resp.send(id);
     });
 
