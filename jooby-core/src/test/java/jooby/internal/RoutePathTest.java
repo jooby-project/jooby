@@ -189,6 +189,24 @@ public class RoutePathTest {
           assertEquals("123", vars.get("id"));
         })
         .butNot("GET/user/123/x");
+
+    new RoutePathAssert("GET", "/:id")
+        .matches("GET/xqi", (vars) -> {
+          assertEquals("xqi", vars.get("id"));
+        })
+        .matches("GET/123", (vars) -> {
+          assertEquals("123", vars.get("id"));
+        })
+        .butNot("GET/");
+
+    new RoutePathAssert("GET", "/{id}")
+        .matches("GET/xqi", (vars) -> {
+          assertEquals("xqi", vars.get("id"));
+        })
+        .matches("GET/123", (vars) -> {
+          assertEquals("123", vars.get("id"));
+        })
+        .butNot("GET/");
   }
 
   @Test

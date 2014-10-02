@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import jooby.Filter;
 import jooby.MediaType;
@@ -12,7 +13,6 @@ import jooby.Request;
 import jooby.Response;
 import jooby.RouteChain;
 import jooby.RouteDefinition;
-import jooby.RouteMatcher;
 import jooby.RoutePattern;
 import jooby.Router;
 
@@ -26,10 +26,16 @@ import com.google.common.collect.Lists;
  */
 public class RouteDefinitionImpl implements RouteDefinition {
 
+  private static final AtomicInteger INDEX = new AtomicInteger(-1);
+
+  private final int index = INDEX.incrementAndGet();
+
+  private String name = "route" + index;
+
   /**
-   * A route path.
+   * A route pattern.
    */
-  private RoutePattern path;
+  private RoutePatternImpl pattern;
 
   /**
    * The target route.
@@ -67,26 +73,36 @@ public class RouteDefinitionImpl implements RouteDefinition {
   }
 
   private RouteDefinitionImpl(final RoutePatternImpl path, final Filter filter) {
-    this.path = requireNonNull(path, "A path is required.");
+    this.pattern = requireNonNull(path, "A path is required.");
     this.filter = requireNonNull(filter, "A route/filter is required.");
     consumes.add(MediaType.all);
     produces.add(MediaType.all);
   }
 
-  @Override
   public void handle(final Request request, final Response response, final RouteChain chain)
       throws Exception {
     filter.handle(request, response, chain);
   }
 
   @Override
-  public RoutePattern path() {
-    return path;
+  public int index() {
+    return index;
   }
 
   @Override
-  public RouteMatcher matcher(final String path) {
-    return this.path.matcher(path);
+  public String name() {
+    return name;
+  }
+
+  @Override
+  public RouteDefinition name(final String name) {
+    this.name = requireNonNull(name, "A route's name is required.");
+    return this;
+  }
+
+  @Override
+  public RoutePattern path() {
+    return pattern;
   }
 
   @Override
@@ -133,7 +149,7 @@ public class RouteDefinitionImpl implements RouteDefinition {
 
   @Override
   public String toString() {
-    return path.toString() + " " + consumes + " -> " + produces;
+    return pattern.toString() + " " + consumes + " -> " + produces;
   }
 
 }

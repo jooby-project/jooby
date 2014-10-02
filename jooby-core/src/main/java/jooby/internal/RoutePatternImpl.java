@@ -74,13 +74,13 @@ public class RoutePatternImpl implements RoutePattern {
         regex = true;
       } else if (match.startsWith(":")) {
         regex = true;
-        patternBuilder.append("([^/]*)");
+        patternBuilder.append("([^/]+)");
         vars.add(match.substring(1));
       } else if (match.startsWith("{") && match.endsWith("}")) {
         regex = true;
         int colonIdx = match.indexOf(':');
         if (colonIdx == -1) {
-          patternBuilder.append("([^/]*)");
+          patternBuilder.append("([^/]+)");
           vars.add(match.substring(1, match.length() - 1));
         }
         else {

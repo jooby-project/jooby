@@ -20,16 +20,17 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import jooby.ForwardingRequest;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Request;
 import jooby.RequestModule;
 import jooby.Response;
+import jooby.Route;
 import jooby.RouteChain;
 import jooby.RouteDefinition;
 import jooby.RouteMatcher;
-import jooby.RoutePattern;
 import jooby.Viewable;
 
 import org.slf4j.Logger;
@@ -42,27 +43,6 @@ import com.google.inject.Injector;
 
 @Singleton
 public class RouteHandler {
-
-  private static class RouteDescriptor {
-
-    public final RouteDefinition definition;
-
-    public final RouteMatcher matcher;
-
-    public final List<MediaType> produces;
-
-    public RouteDescriptor(final RouteDefinition definition, final RouteMatcher matcher,
-        final List<MediaType> produces) {
-      this.definition = definition;
-      this.matcher = matcher;
-      this.produces = produces;
-    }
-
-    @Override
-    public String toString() {
-      return matcher.toString();
-    }
-  }
 
   private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
 
@@ -150,14 +130,11 @@ public class RouteHandler {
       }
     });
 
-    final List<RouteDescriptor> descriptors = routes(routes, verb, requestURI, contentType,
+    final List<Route> descriptors = routes(routes, verb, requestURI, contentType,
         accept);
 
-    final List<MediaType> produces = descriptors.size() > 0 ? descriptors.get(0).produces : accept;
-    log.trace("  produces: {}", produces);
-
     final Request request = reqFactory.newRequest(injector,
-        descriptors.size() > 0 ? descriptors.get(0).matcher : noMatch(requestURI),
+        descriptors.size() > 0 ? descriptors.get(0) : RouteImpl.notFound(verb, path),
         selector,
         charset,
         contentType,
@@ -165,7 +142,7 @@ public class RouteHandler {
 
     final Response response = respFactory.newResponse(selector,
         request.charset(),
-        produces,
+        accept,
         responseHeaders);
 
     try {
@@ -200,106 +177,76 @@ public class RouteHandler {
     }
   }
 
-  private static RouteChain chain(final Iterator<RouteDescriptor> it) {
+  private static RouteChain chain(final Iterator<Route> it) {
     return new RouteChain() {
-
-      private LinkedList<String> stack = new LinkedList<>();
 
       @Override
       public void next(final Request request, final Response response) throws Exception {
-        RouteDescriptor desc = it.next();
-        stack.addLast(desc.matcher.toString());
+        RouteImpl route = (RouteImpl) it.next();
 
-        RouteDefinition next = desc.definition;
-
-        next.handle(request, response, this);
-
-        stack.removeLast();
-      }
-
-      @Override
-      public String toString() {
-        StringBuilder buff = new StringBuilder();
-        String pad = "  ";
-        for (String router : stack) {
-          buff.append(router).append("\n").append(pad);
-          pad += pad;
-        }
-        return buff.toString();
+        route.handle(new ForwardingRequest(request) {
+          @Override
+          public Route route() {
+            return route;
+          }
+        }, response, this);
       }
     };
   }
 
-  private static RouteMatcher noMatch(final String path) {
-    return new RouteMatcher() {
-
-      @Override
-      public String path() {
-        return path;
-      }
-
-      @Override
-      public boolean matches() {
-        return false;
-      }
-
-      @Override
-      public RoutePattern pattern() {
-        return null;
-      }
-    };
-  }
-
-  private static List<RouteDescriptor> routes(final Set<RouteDefinition> routes,
+  private static List<Route> routes(final Set<RouteDefinition> routeDefs,
       final String verb,
       final String requestURI,
       final MediaType contentType,
       final List<MediaType> accept) {
     String path = verb + requestURI;
-    List<RouteDescriptor> routers = findRoutes(routes, path, contentType, accept);
+    List<Route> routes = findRoutes(routeDefs, verb, path, contentType, accept);
 
     // 406 or 415
-    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp, chain) -> {
-      if (!resp.committed()) {
-        HttpException ex = handle406or415(routes, verb, requestURI, contentType, accept);
+    routes.add(RouteImpl.fromStatus(verb, path, HttpStatus.NOT_ACCEPTABLE, (req, res, chain) -> {
+      if (!res.committed()) {
+        HttpException ex = handle406or415(routeDefs, verb, requestURI, contentType, accept);
         if (ex != null) {
           throw ex;
         }
       }
-      chain.next(req, resp);
-    }), noMatch(path), accept));
+      chain.next(req, res);
+    }));
 
     // 405
-    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp, chain) -> {
-      if (!resp.committed()) {
-        HttpException ex = handle405(routes, verb, requestURI, contentType, accept);
-        if (ex != null) {
-          throw ex;
-        }
-      }
-      chain.next(req, resp);
-    }), noMatch(path), accept));
+    routes.add(RouteImpl.fromStatus(verb, path, HttpStatus.METHOD_NOT_ALLOWED,
+        (req, res, chain) -> {
+          if (!res.committed()) {
+            HttpException ex = handle405(routeDefs, verb, requestURI, contentType, accept);
+            if (ex != null) {
+              throw ex;
+            }
+          }
+          chain.next(req, res);
+        }));
 
     // 404
-    routers.add(new RouteDescriptor(new RouteDefinitionImpl(verb, path, (req, resp, chain) -> {
-      if (!resp.committed()) {
+    routes.add(RouteImpl.fromStatus(verb, path, HttpStatus.NOT_FOUND, (req, res, chain) -> {
+      if (!res.committed()) {
         throw new HttpException(HttpStatus.NOT_FOUND, path);
       }
-    }), noMatch(path), accept));
-    return routers;
+    }));
+
+    return routes;
   }
 
-  private static List<RouteDescriptor> findRoutes(final Set<RouteDefinition> routes,
+  private static List<Route> findRoutes(final Set<RouteDefinition> routeDefs,
+      final String verb,
       final String path,
       final MediaType contentType,
       final List<MediaType> accept) {
-    LinkedList<RouteDescriptor> routers = new LinkedList<RouteDescriptor>();
-    for (RouteDefinition route : routes) {
-      RouteMatcher matcher = route.matcher(path);
+    LinkedList<Route> routers = new LinkedList<Route>();
+    for (RouteDefinition routeDef : routeDefs) {
+      RouteMatcher matcher = routeDef.path().matcher(path);
       if (matcher.matches()) {
-        List<MediaType> produces = MediaType.matcher(accept).filter(route.produces());
-        if (route.canConsume(contentType) && produces.size() > 0) {
-          routers.add(new RouteDescriptor(route, matcher, produces));
+        List<MediaType> produces = MediaType.matcher(accept).filter(routeDef.produces());
+        if (routeDef.canConsume(contentType) && produces.size() > 0) {
+          routers.add(RouteImpl.fromDefinition(verb, routeDef, matcher));
         }
       }
     }
@@ -420,9 +367,10 @@ public class RouteHandler {
     verbs.remove(verb);
     for (String candidate : verbs) {
       String path = candidate + requestURI;
-      Optional<RouteDescriptor> found = findRoutes(routes, path, contentType, accept).stream()
-          .filter(desc -> !desc.matcher.pattern().regex()).findFirst();
-      if (found.isPresent()) {
+      List<Route> found = findRoutes(routes, verb, path, contentType, accept);
+      // .stream()
+      // .filter(desc -> !desc.matcher.pattern().regex()).findFirst();
+      if (found.size() > 0) {
         return new HttpException(HttpStatus.METHOD_NOT_ALLOWED, verb + requestURI);
       }
     }
@@ -435,7 +383,7 @@ public class RouteHandler {
       final List<MediaType> accept) {
     String path = verb + requestURI;
     for (RouteDefinition route : routes) {
-      RouteMatcher matcher = route.matcher(path);
+      RouteMatcher matcher = route.path().matcher(path);
       if (matcher.matches() && !route.path().regex()) {
         if (!route.canProduce(accept)) {
           return new HttpException(HttpStatus.NOT_ACCEPTABLE, accept.stream()

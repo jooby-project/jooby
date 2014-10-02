@@ -5,14 +5,14 @@ import java.util.List;
 
 import jooby.MediaType;
 import jooby.Request;
-import jooby.RouteMatcher;
+import jooby.Route;
 
 import com.google.inject.Injector;
 
 public interface RequestFactory {
 
   Request newRequest(Injector injector,
-      RouteMatcher routeMatcher,
+      Route route,
       BodyConverterSelector selector,
       Charset charset,
       MediaType contentType,

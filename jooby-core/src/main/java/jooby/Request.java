@@ -52,20 +52,12 @@ public interface Request {
   @Nonnull
   List<MediaType> accept();
 
-  default Optional<MediaType> accepts(@Nonnull String type) {
-    return accepts(MediaType.valueOf(type));
+  default Optional<MediaType> accepts(@Nonnull final String... types) {
+    return accepts(MediaType.valueOf(types));
   }
 
-  default Optional<MediaType> accepts(@Nonnull String first, @Nonnull String second) {
-    return accepts(MediaType.valueOf(first, second));
-  }
-
-  default Optional<MediaType> accepts(@Nonnull MediaType type) {
-    return accepts(ImmutableList.of(type));
-  }
-
-  default Optional<MediaType> accepts(@Nonnull MediaType first, MediaType second) {
-    return accepts(ImmutableList.of(first, second));
+  default Optional<MediaType> accepts(@Nonnull final MediaType... types) {
+    return accepts(ImmutableList.copyOf(types));
   }
 
   Optional<MediaType> accepts(@Nonnull Iterable<MediaType> types);
@@ -289,5 +281,24 @@ public interface Request {
    */
   @Nonnull
   Charset charset();
+
+  String ip();
+
+  Route route();
+
+  String hostname();
+
+  default boolean xhr() {
+    return header("X-Requested-With")
+        .toOptional(String.class)
+        .map("XMLHttpRequest"::equalsIgnoreCase)
+        .orElse(Boolean.FALSE);
+  }
+
+  String protocol();
+
+  default boolean secure() {
+    return "https".equalsIgnoreCase(protocol());
+  }
 
 }

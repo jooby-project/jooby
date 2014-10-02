@@ -25,7 +25,7 @@ import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Request;
-import jooby.RouteMatcher;
+import jooby.Route;
 import jooby.Upload;
 import jooby.Variant;
 
@@ -49,21 +49,22 @@ public class RequestImpl implements Request {
 
   private MediaType contentType;
 
-  private RouteMatcher routeMatcher;
+  // TODO: make route abstract? or throw UnsupportedException
+  private Route _route;
 
   private HttpServletRequest request;
 
   public RequestImpl(
       final HttpServletRequest request,
       final Injector injector,
-      final RouteMatcher routeMatcher,
+      final Route route,
       final BodyConverterSelector selector,
       final Charset charset,
       final MediaType contentType,
       final List<MediaType> accept) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.request = requireNonNull(request, "The request is required.");
-    this.routeMatcher = requireNonNull(routeMatcher, "A route matcher is required.");
+    this._route = requireNonNull(route, "A route is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
     this.contentType = requireNonNull(contentType, "A contentType is required.");
@@ -72,7 +73,7 @@ public class RequestImpl implements Request {
 
   @Override
   public String path() {
-    return routeMatcher.path();
+    return route().path();
   }
 
   @Override
@@ -121,10 +122,23 @@ public class RequestImpl implements Request {
     return params;
   }
 
+  @Override
+  public String ip() {
+    return request.getRemoteAddr();
+  }
+
+  public String hostname() {
+    return request.getRemoteHost();
+  }
+
+  public String protocol() {
+    return request.getProtocol();
+  }
+
   private Set<String> paramNames() {
     Set<String> names = new LinkedHashSet<>();
     // path var
-    for (String name : routeMatcher.vars().keySet()) {
+    for (String name : route().vars().keySet()) {
       names.add(name);
     }
     // param names
@@ -207,6 +221,16 @@ public class RequestImpl implements Request {
     return charset;
   }
 
+  @Override
+  public Route route() {
+    return _route;
+  }
+
+  @Override
+  public String toString() {
+    return route().toString();
+  }
+
   protected List<Upload> reqUploads(final String name) throws Exception {
     if (!contentType().name().startsWith(MediaType.multipart.name())) {
       return Collections.emptyList();
@@ -231,7 +255,7 @@ public class RequestImpl implements Request {
   }
 
   private List<String> params(final String name) {
-    String var = routeMatcher.vars().get(name);
+    String var = route().vars().get(name);
     if (var != null) {
       return ImmutableList.<String> builder().add(var).addAll(reqParams(name)).build();
     }

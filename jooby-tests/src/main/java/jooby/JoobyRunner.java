@@ -46,6 +46,7 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
           .withValue("jooby.internal.server.test", ConfigValueFactory.fromAnyRef(true))
           .withValue("application.port", ConfigValueFactory.fromAnyRef(port))
           .withValue("ssl.keystore.path", ConfigValueFactory.fromAnyRef("/missing/keystore"));
+
       app = (Jooby) appClass.newInstance();
       app.use(new JoobyModule() {
         @Override

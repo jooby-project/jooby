@@ -372,7 +372,7 @@ public class GetterTest {
 
   @Test
   public void asEnum() throws Exception {
-    assertEquals(LETTER.A, newGetter("a").enumValue(LETTER.class));
+    assertEquals(LETTER.A, newGetter("A").enumValue(LETTER.class));
     assertEquals(LETTER.A, newGetter("A").enumValue(LETTER.class));
     assertEquals(LETTER.B, newGetter("B").enumValue(LETTER.class));
 
@@ -382,19 +382,19 @@ public class GetterTest {
   @Test
   public void asEnumList() throws Exception {
     assertEquals(ImmutableList.of(LETTER.A, LETTER.B),
-        newGetter("a", "b").toList(LETTER.class));
+        newGetter("A", "B").toList(LETTER.class));
   }
 
   @Test
   public void asEnumSet() throws Exception {
     assertEquals(ImmutableSet.of(LETTER.A, LETTER.B),
-        newGetter("a", "b").toSet(LETTER.class));
+        newGetter("A", "B").toSet(LETTER.class));
   }
 
   @Test
   public void asEnumSortedSet() throws Exception {
     assertEquals(ImmutableSortedSet.of(LETTER.A, LETTER.B),
-        newGetter("a", "b").toSortedSet(LETTER.class));
+        newGetter("A", "B").toSortedSet(LETTER.class));
   }
 
   @Test
@@ -411,7 +411,7 @@ public class GetterTest {
 
   @Test
   public void asString() throws Exception {
-    assertEquals("xx", newGetter("xx").toString());
+    assertEquals("xx", newGetter("xx").stringValue());
 
     assertEquals("xx", newGetter("xx").to(String.class));
   }

@@ -66,12 +66,12 @@ public interface RouteDefinition {
 
   public class Builder {
 
-    public static RouteDefinition newRouter(final String verb, final String path,
+    public static RouteDefinition newRoute(final String verb, final String path,
         final Router router) {
       return new RouteDefinitionImpl(verb, path, router);
     }
 
-    public static RouteDefinition newFilter(final String verb, final String path,
+    public static RouteDefinition newRoute(final String verb, final String path,
         final Filter filter) {
       return new RouteDefinitionImpl(verb, path, filter);
     }
@@ -83,15 +83,11 @@ public interface RouteDefinition {
    */
   RoutePattern path();
 
-  void handle(Request request, Response response, RouteChain chain) throws Exception;
+  int index();
 
-  /**
-   * Construct a new {@link RouteMatcher}.
-   *
-   * @param path The path to test.
-   * @return A new route matcher.
-   */
-  RouteMatcher matcher(String path);
+  String name();
+
+  RouteDefinition name(String name);
 
   /**
    * @param candidate A media type to test.
