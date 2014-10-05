@@ -1,6 +1,9 @@
 package jooby.internal;
 
 import static java.util.Objects.requireNonNull;
+
+import java.util.Date;
+
 import jooby.Asset;
 import jooby.HttpStatus;
 import jooby.Request;
@@ -31,7 +34,7 @@ public class AssetRoute implements Router {
         response.status(HttpStatus.NOT_MODIFIED);
         return;
       }
-      response.header("Last-Modified").setLong(lastModified);
+      response.header("Last-Modified", new Date(lastModified));
     }
     response.type(resource.type());
     response.send(resource, new AssetBodyConverter(resource.type()));

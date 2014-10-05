@@ -24,8 +24,8 @@ public class ForwardingRequest implements Request {
   }
 
   @Override
-  public MediaType contentType() {
-    return request.contentType();
+  public MediaType type() {
+    return request.type();
   }
 
   @Override
@@ -126,16 +126,6 @@ public class ForwardingRequest implements Request {
   @Override
   public <T> T getInstance(final TypeLiteral<T> type) {
     return request.getInstance(type);
-  }
-
-  @Override
-  public <T> T param(final String name, final Class<T> type) throws Exception {
-    return request.param(name, type);
-  }
-
-  @Override
-  public <T> T param(final String name, final TypeLiteral<T> type) throws Exception {
-    return request.param(name, type);
   }
 
   @Override

@@ -1,6 +1,12 @@
 package jooby;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.Reader;
 import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -86,6 +92,26 @@ public interface Response {
     void send() throws Exception;
   }
 
+  void download(String filename, InputStream stream) throws Exception;
+
+  void download(String filename, Reader reader) throws Exception;
+
+  default void download(final String filename) throws Exception {
+    download(filename, getClass().getResourceAsStream(filename));
+  }
+
+  default void download(final File file) throws Exception {
+    download(file.getName(), new FileInputStream(file));
+  }
+
+  default Response cookie(final String name, final String value) {
+    return cookie(new SetCookie(name, value));
+  }
+
+  Response cookie(SetCookie cookie);
+
+  Response clearCookie(String name);
+
   /**
    * Get a header with the given name.
    *
@@ -93,7 +119,25 @@ public interface Response {
    * @return A HTTP header.
    */
   @Nonnull
-  HttpHeader header(@Nonnull String name);
+  Variant header(@Nonnull String name);
+
+  Response header(@Nonnull String name, char value);
+
+  Response header(@Nonnull String name, byte value);
+
+  Response header(@Nonnull String name, short value);
+
+  Response header(@Nonnull String name, int value);
+
+  Response header(@Nonnull String name, long value);
+
+  Response header(@Nonnull String name, float value);
+
+  Response header(@Nonnull String name, double value);
+
+  Response header(@Nonnull String name, String value);
+
+  Response header(@Nonnull String name, Date value);
 
   /**
    * @return Charset for text responses.
@@ -162,6 +206,12 @@ public interface Response {
    */
   @Nonnull ContentNegotiation when(MediaType type, ContentNegotiation.Provider provider);
 
+  default void redirect(final String location) throws Exception {
+    redirect(HttpStatus.FOUND, location);
+  }
+
+  void redirect(HttpStatus status, String location) throws Exception;
+
   /**
    * @return A HTTP status.
    */
@@ -176,4 +226,11 @@ public interface Response {
   @Nonnull Response status(@Nonnull HttpStatus status);
 
   boolean committed();
+
+  Map<String, Object> locals();
+
+  <T> T local(String name);
+
+  Response local(String name, Object value);
+
 }

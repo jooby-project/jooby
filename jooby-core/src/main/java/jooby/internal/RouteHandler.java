@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import jooby.FileMediaTypeProvider;
 import jooby.ForwardingRequest;
 import jooby.HttpException;
 import jooby.HttpStatus;
@@ -63,6 +64,8 @@ public class RouteHandler {
 
   private Set<RequestModule> modules;
 
+  private FileMediaTypeProvider typeProvider;
+
   @Inject
   public RouteHandler(final Injector injector,
       final BodyConverterSelector selector,
@@ -74,6 +77,7 @@ public class RouteHandler {
     this.modules = requireNonNull(modules, "Request modules are required.");
     this.routes = requireNonNull(routes, "The routes are required.");
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
+    this.typeProvider = injector.getInstance(FileMediaTypeProvider.class);
   }
 
   public void handle(final String verb, final String uri,
@@ -140,10 +144,9 @@ public class RouteHandler {
         contentType,
         accept);
 
-    final Response response = respFactory.newResponse(selector,
+    final Response response = respFactory.newResponse(injector, selector, typeProvider,
         request.charset(),
-        accept,
-        responseHeaders);
+        accept);
 
     try {
 
@@ -155,7 +158,7 @@ public class RouteHandler {
       // execution failed, so find status code
       HttpStatus status = statusCode(ex);
 
-      response.header("Cache-Control").setString(NO_CACHE);
+      response.header("Cache-Control", NO_CACHE);
       response.status(status);
 
       // TODO: move me to an error handler feature
@@ -310,7 +313,7 @@ public class RouteHandler {
         .append("</body>\n")
         .append("</html>\n");
 
-    response.header("Cache-Control").setString(NO_CACHE);
+    response.header("Cache-Control", NO_CACHE);
     response.send(html, FallbackBodyConverter.TO_HTML);
   }
 
@@ -367,10 +370,13 @@ public class RouteHandler {
     verbs.remove(verb);
     for (String candidate : verbs) {
       String path = candidate + requestURI;
-      List<Route> found = findRoutes(routes, verb, path, contentType, accept);
-      // .stream()
-      // .filter(desc -> !desc.matcher.pattern().regex()).findFirst();
-      if (found.size() > 0) {
+      Optional<Route> found = findRoutes(routes, verb, path, contentType, accept)
+          .stream()
+          // skip glob pattern
+          .filter(r -> !r.pattern().contains("*"))
+          .findFirst();
+
+      if (found.isPresent()) {
         return new HttpException(HttpStatus.METHOD_NOT_ALLOWED, verb + requestURI);
       }
     }

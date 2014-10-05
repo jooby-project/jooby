@@ -26,6 +26,7 @@ import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Request;
 import jooby.Route;
+import jooby.SetCookie;
 import jooby.Upload;
 import jooby.Variant;
 
@@ -47,7 +48,7 @@ public class RequestImpl implements Request {
 
   private List<MediaType> accept;
 
-  private MediaType contentType;
+  private MediaType type;
 
   // TODO: make route abstract? or throw UnsupportedException
   private Route _route;
@@ -67,7 +68,7 @@ public class RequestImpl implements Request {
     this._route = requireNonNull(route, "A route is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
-    this.contentType = requireNonNull(contentType, "A contentType is required.");
+    this.type = requireNonNull(contentType, "A contentType is required.");
     this.accept = requireNonNull(accept, "An accept is required.");
   }
 
@@ -77,8 +78,8 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public MediaType contentType() {
-    return contentType;
+  public MediaType type() {
+    return type;
   }
 
   @Override
@@ -127,10 +128,12 @@ public class RequestImpl implements Request {
     return request.getRemoteAddr();
   }
 
+  @Override
   public String hostname() {
     return request.getRemoteHost();
   }
 
+  @Override
   public String protocol() {
     return request.getProtocol();
   }
@@ -172,7 +175,7 @@ public class RequestImpl implements Request {
 
   @Override
   public <T> T body(final TypeLiteral<T> type) throws Exception {
-    BodyConverter mapper = selector.forRead(type, Arrays.asList(contentType))
+    BodyConverter mapper = selector.forRead(type, Arrays.asList(this.type))
         .orElseThrow(() -> new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE));
     return mapper.read(type, new BodyReaderImpl(charset, () -> request.getInputStream()));
   }
@@ -193,7 +196,7 @@ public class RequestImpl implements Request {
       return Collections.emptyList();
     }
     return Arrays.stream(cookies)
-        .map(c -> new MutableCookie(c.getName(), c.getValue())
+        .map(c -> new SetCookie(c.getName(), c.getValue())
             .comment(c.getComment())
             .domain(c.getDomain())
             .httpOnly(c.isHttpOnly())
@@ -212,7 +215,7 @@ public class RequestImpl implements Request {
 
   public void destroy() {
     this.selector = null;
-    this.contentType = null;
+    this.type = null;
     this.request = null;
   }
 
@@ -232,7 +235,7 @@ public class RequestImpl implements Request {
   }
 
   protected List<Upload> reqUploads(final String name) throws Exception {
-    if (!contentType().name().startsWith(MediaType.multipart.name())) {
+    if (!type().name().startsWith(MediaType.multipart.name())) {
       return Collections.emptyList();
     }
     Collection<Part> parts = request.getParts();

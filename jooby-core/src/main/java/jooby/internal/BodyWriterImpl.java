@@ -6,28 +6,22 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.function.Function;
 
 import jooby.BodyWriter;
-import jooby.HttpHeader;
 import jooby.ThrowingSupplier;
 
 class BodyWriterImpl implements BodyWriter {
 
   private Charset charset;
 
-  private Function<String, HttpHeader> headers;
-
   private ThrowingSupplier<OutputStream> stream;
 
   private ThrowingSupplier<Writer> writer;
 
   public BodyWriterImpl(final Charset charset,
-      final Function<String, HttpHeader> headers,
       final ThrowingSupplier<OutputStream> stream,
       final ThrowingSupplier<Writer> writer) {
     this.charset = requireNonNull(charset, "A charset is required.");
-    this.headers = requireNonNull(headers, "A getter is required.");
     this.stream = requireNonNull(stream, "A stream is required.");
     this.writer = requireNonNull(writer, "A writer is required.");
   }
@@ -35,11 +29,6 @@ class BodyWriterImpl implements BodyWriter {
   @Override
   public Charset charset() {
     return charset;
-  }
-
-  @Override
-  public HttpHeader header(final String name) {
-    return headers.apply(name);
   }
 
   @Override

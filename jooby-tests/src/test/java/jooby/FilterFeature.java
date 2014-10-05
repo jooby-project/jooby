@@ -29,17 +29,17 @@ public class FilterFeature extends ServerFeature {
     });
 
     get("/before", (req, resp, chain) -> {
-      resp.header("before").setString("before");
+      resp.header("before", "before");
       chain.next(req, resp);
     });
 
     get("/before", (req, resp) -> {
-      resp.send(resp.header("before").toString());
+      resp.send(resp.header("before").stringValue());
     });
 
     get("/after", (req, resp, chain) -> {
       chain.next(req, resp);
-      resp.header("after").setString("after");
+      resp.header("after", "after");
     });
 
     get("/after", (req, resp) -> {

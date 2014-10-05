@@ -61,14 +61,6 @@ public interface BodyWriter {
   Charset charset();
 
   /**
-   * Get/set a response header.
-   *
-   * @param name A header's name.
-   * @return A response header.
-   */
-  @Nonnull HttpHeader header(@Nonnull String name);
-
-  /**
    * Write text into the HTTP response body using the {@link #charset()} and close the resources.
    *
    * @param text A text strategy.

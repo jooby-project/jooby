@@ -28,14 +28,14 @@ public class StackFeature extends ServerFeature {
     @jooby.mvc.GET
     public void xHeader(final Response resp) {
       log.info("X");
-      resp.header("X").setString("x");
+      resp.header("X", "x");
     }
 
     @Path("/**")
     @jooby.mvc.GET
     public void yHeader(final Response resp) {
       log.info("Y");
-      resp.header("Y").setString("y");
+      resp.header("Y", "y");
     }
 
     @Path("/")
@@ -68,11 +68,11 @@ public class StackFeature extends ServerFeature {
 
     get("/**", (req, resp) -> {
       log.info("X");
-      resp.header("X").setString("x");
+      resp.header("X", "x");
     });
     get("/**", (req, resp) -> {
       log.info("Y");
-      resp.header("Y").setString("y");
+      resp.header("Y", "y");
     });
 
     get("/", (req, resp) -> {
