@@ -8,19 +8,19 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 
 import jooby.BodyWriter;
-import jooby.ThrowingSupplier;
+import jooby.fn.ExSupplier;
 
 class BodyWriterImpl implements BodyWriter {
 
   private Charset charset;
 
-  private ThrowingSupplier<OutputStream> stream;
+  private ExSupplier<OutputStream> stream;
 
-  private ThrowingSupplier<Writer> writer;
+  private ExSupplier<Writer> writer;
 
   public BodyWriterImpl(final Charset charset,
-      final ThrowingSupplier<OutputStream> stream,
-      final ThrowingSupplier<Writer> writer) {
+      final ExSupplier<OutputStream> stream,
+      final ExSupplier<Writer> writer) {
     this.charset = requireNonNull(charset, "A charset is required.");
     this.stream = requireNonNull(stream, "A stream is required.");
     this.writer = requireNonNull(writer, "A writer is required.");

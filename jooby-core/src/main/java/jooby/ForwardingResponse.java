@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
-import jooby.Response.ContentNegotiation.Provider;
+import jooby.fn.ExSupplier;
 
 public class ForwardingResponse implements Response {
 
@@ -151,13 +151,13 @@ public class ForwardingResponse implements Response {
   }
 
   @Override
-  public ContentNegotiation when(final String type, final Provider provider) {
-    return response.when(type, provider);
+  public ContentNegotiation when(final String type, final ExSupplier<Object> supplier) {
+    return response.when(type, supplier);
   }
 
   @Override
-  public ContentNegotiation when(final MediaType type, final Provider provider) {
-    return response.when(type, provider);
+  public ContentNegotiation when(final MediaType type, final ExSupplier<Object> supplier) {
+    return response.when(type, supplier);
   }
 
   @Override

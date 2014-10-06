@@ -13,6 +13,7 @@ import jooby.Response;
 import jooby.Response.ContentNegotiation;
 import jooby.Router;
 import jooby.Viewable;
+import jooby.fn.ExSupplier;
 import jooby.mvc.Template;
 
 class MvcRoute implements Router {
@@ -47,7 +48,7 @@ class MvcRoute implements Router {
     // negotiate!
     List<MediaType> accept = request.accept();
 
-    ContentNegotiation.Provider viewable = () -> {
+    ExSupplier<Object> viewable = () -> {
       if (result instanceof Viewable) {
         return result;
       }
@@ -58,13 +59,13 @@ class MvcRoute implements Router {
       return Viewable.of(defaultViewName, result);
     };
 
-    ContentNegotiation.Provider notViewable = () -> result;
+    ExSupplier<Object> notViewable = () -> result;
 
     // viewable is apply when content type is text/html or accept header is size 1 matches text/html
     // and template annotiation is present.
     boolean htmlLike = accept.size() == 1 && accept.get(0).matches(MediaType.html) &&
         router.getAnnotation(Template.class) != null;
-    Function<MediaType, ContentNegotiation.Provider> provider =
+    Function<MediaType, ExSupplier<Object>> provider =
         (type) -> MediaType.html.equals(type) || htmlLike ? viewable : notViewable;
 
     ContentNegotiation negotiator = null;

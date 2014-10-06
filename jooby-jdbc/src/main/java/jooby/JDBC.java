@@ -215,6 +215,8 @@ import java.util.function.Function;
 import javax.inject.Provider;
 import javax.sql.DataSource;
 
+import jooby.fn.Switches;
+
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.Scopes;

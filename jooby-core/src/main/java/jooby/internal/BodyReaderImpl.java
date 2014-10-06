@@ -8,15 +8,15 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 
 import jooby.BodyReader;
-import jooby.ThrowingSupplier;
+import jooby.fn.ExSupplier;
 
 public class BodyReaderImpl implements BodyReader {
 
   private Charset charset;
 
-  private ThrowingSupplier<InputStream> stream;
+  private ExSupplier<InputStream> stream;
 
-  public BodyReaderImpl(final Charset charset, final ThrowingSupplier<InputStream> stream) {
+  public BodyReaderImpl(final Charset charset, final ExSupplier<InputStream> stream) {
     this.charset = requireNonNull(charset, "A charset is required.");
     this.stream = requireNonNull(stream, "An stream  supplier is required.");
   }

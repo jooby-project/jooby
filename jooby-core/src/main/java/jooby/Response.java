@@ -11,6 +11,8 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
+import jooby.fn.ExSupplier;
+
 import com.google.common.annotations.Beta;
 
 /**
@@ -45,21 +47,15 @@ public interface Response {
   interface ContentNegotiation {
 
     /**
-     * Provider capable of throwing an exception.
+     * Add a new when clause for a custom media-type.
      *
-     * @author edgar
-     * @since 0.1.0
+     * @param mediaType A media type to test for.
+     * @param supplier An object provider.
+     * @return A {@link ContentNegotiation}.
      */
-    interface Provider {
-
-      /**
-       * Apply the provider and return a non-null value.
-       *
-       * @return Object result.
-       * @throws Exception If something fails.
-       */
-      @Nonnull
-      Object apply() throws Exception;
+    @Nonnull
+    default ContentNegotiation when(final String mediaType, final ExSupplier<Object> supplier) {
+      return when(MediaType.valueOf(mediaType), supplier);
     }
 
     /**
@@ -70,19 +66,7 @@ public interface Response {
      * @return A {@link ContentNegotiation}.
      */
     @Nonnull
-    default ContentNegotiation when(final String mediaType, final Provider provider) {
-      return when(MediaType.valueOf(mediaType), provider);
-    }
-
-    /**
-     * Add a new when clause for a custom media-type.
-     *
-     * @param mediaType A media type to test for.
-     * @param provider An object provider.
-     * @return A {@link ContentNegotiation}.
-     */
-    @Nonnull
-    ContentNegotiation when(MediaType mediaType, Provider fn);
+    ContentNegotiation when(MediaType mediaType, ExSupplier<Object> supplier);
 
     /**
      * Write the response and send it.
@@ -192,19 +176,19 @@ public interface Response {
    * Add a new when clause for a custom media-type.
    *
    * @param mediaType A media type to test for.
-   * @param provider An object provider.
+   * @param supplier An object provider.
    * @return A {@link ContentNegotiation}.
    */
-  @Nonnull ContentNegotiation when(String type, ContentNegotiation.Provider provider);
+  @Nonnull ContentNegotiation when(String type, ExSupplier<Object> supplier);
 
   /**
    * Add a new when clause for a custom media-type.
    *
    * @param mediaType A media type to test for.
-   * @param provider An object provider.
+   * @param supplier An object provider.
    * @return A {@link ContentNegotiation}.
    */
-  @Nonnull ContentNegotiation when(MediaType type, ContentNegotiation.Provider provider);
+  @Nonnull ContentNegotiation when(MediaType type, ExSupplier<Object> supplier);
 
   default void redirect(final String location) throws Exception {
     redirect(HttpStatus.FOUND, location);

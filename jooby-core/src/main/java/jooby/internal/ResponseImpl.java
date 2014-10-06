@@ -30,11 +30,10 @@ import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Response;
-import jooby.Response.ContentNegotiation.Provider;
 import jooby.Route;
 import jooby.SetCookie;
-import jooby.ThrowingSupplier;
 import jooby.Variant;
+import jooby.fn.ExSupplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -294,12 +293,12 @@ public class ResponseImpl implements Response {
     }
 
     // byte version of http body
-    ThrowingSupplier<OutputStream> stream = () -> {
+    ExSupplier<OutputStream> stream = () -> {
       return response.getOutputStream();
     };
 
     // text version of http body
-    ThrowingSupplier<Writer> writer = () -> {
+    ExSupplier<Writer> writer = () -> {
       charset(charset);
       return new OutputStreamWriter(response.getOutputStream(), charset);
     };
@@ -307,25 +306,25 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public ContentNegotiation when(final String type, final Provider provider) {
-    return when(MediaType.valueOf(type), provider);
+  public ContentNegotiation when(final String type, final ExSupplier<Object> supplier) {
+    return when(MediaType.valueOf(type), supplier);
   }
 
   @Override
-  public ContentNegotiation when(final MediaType type, final ContentNegotiation.Provider provider) {
-    final Map<MediaType, ContentNegotiation.Provider> strategies = new LinkedHashMap<>();
+  public ContentNegotiation when(final MediaType type, final ExSupplier<Object> supplier) {
+    final Map<MediaType, ExSupplier<Object>> strategies = new LinkedHashMap<>();
     List<MediaType> types = new LinkedList<>();
 
-    strategies.put(type, provider);
+    strategies.put(type, supplier);
     types.add(type);
 
     return new ContentNegotiation() {
 
       @Override
-      public ContentNegotiation when(final MediaType type, final Provider fn) {
+      public ContentNegotiation when(final MediaType type, final ExSupplier<Object> supplier) {
         requireNonNull(type, "A media type is required.");
-        requireNonNull(fn, "A provider fn is required.");
-        strategies.put(type, fn);
+        requireNonNull(supplier, "A supplier fn is required.");
+        strategies.put(type, supplier);
         types.add(type);
         return this;
       }
@@ -335,7 +334,7 @@ public class ResponseImpl implements Response {
         List<MediaType> produces = route.produces();
         Collections.sort(types);
 
-        Provider provider = MediaType
+        ExSupplier<Object> provider = MediaType
             .matcher(produces)
             .first(types)
             .map(it -> strategies.get(it))
@@ -343,7 +342,7 @@ public class ResponseImpl implements Response {
                 () -> new HttpException(HttpStatus.NOT_ACCEPTABLE, Joiner.on(", ").join(produces))
             );
 
-        ResponseImpl.this.send(provider.apply());
+        ResponseImpl.this.send(provider.get());
       }
 
     };

@@ -1,4 +1,4 @@
-package jooby;
+package jooby.fn;
 
 import static java.util.Objects.requireNonNull;
 
@@ -13,7 +13,7 @@ public class Switches {
 
   private static class DefSwitch<In, Out> implements Switch<In, Out> {
 
-    private final Map<Predicate<In>, Fn<Out>> strategies = new LinkedHashMap<>();
+    private final Map<Predicate<In>, ExSupplier<Out>> strategies = new LinkedHashMap<>();
 
     private In value;
 
@@ -32,12 +32,12 @@ public class Switches {
     }
 
     @Override
-    public Switch<In, Out> when(final In value, final Fn<Out> fn) {
+    public Switch<In, Out> when(final In value, final ExSupplier<Out> fn) {
       return when(value::equals, fn);
     }
 
     @Override
-    public Switch<In, Out> when(final Predicate<In> predicate, final Fn<Out> fn) {
+    public Switch<In, Out> when(final Predicate<In> predicate, final ExSupplier<Out> fn) {
       requireNonNull(value, "A value is required.");
       requireNonNull(fn, "A function is required.");
       strategies.put(predicate, fn);
@@ -55,10 +55,10 @@ public class Switches {
 
     @Override
     public Out otherwise(final Out otherwise) throws Exception {
-      Set<Entry<Predicate<In>, Fn<Out>>> entrySet = strategies.entrySet();
-      for (Entry<Predicate<In>, Fn<Out>> entry : entrySet) {
+      Set<Entry<Predicate<In>, ExSupplier<Out>>> entrySet = strategies.entrySet();
+      for (Entry<Predicate<In>, ExSupplier<Out>> entry : entrySet) {
         if (entry.getKey().test(value)) {
-          return entry.getValue().apply();
+          return entry.getValue().get();
         }
       }
       return otherwise;

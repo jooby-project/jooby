@@ -1,20 +1,16 @@
-package jooby;
+package jooby.fn;
 
 import java.util.function.Predicate;
 
 public interface Switch<In, Out> {
 
-  interface Fn<T> {
-    T apply() throws Exception;
-  }
-
   Switch<In, Out> when(In value, Out result);
 
   Switch<In, Out> when(Predicate<In> predicate, Out result);
 
-  Switch<In, Out> when(In value, Fn<Out> fn);
+  Switch<In, Out> when(In value, ExSupplier<Out> fn);
 
-  Switch<In, Out> when(Predicate<In> predicate, Fn<Out> fn);
+  Switch<In, Out> when(Predicate<In> predicate, ExSupplier<Out> fn);
 
   Out get() throws Exception;
 

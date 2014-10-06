@@ -208,7 +208,9 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 
-import jooby.Switch.Fn;
+import jooby.fn.ExSupplier;
+import jooby.fn.Switch;
+import jooby.fn.Switches;
 
 /**
  * Application's mode that let you optimize, customize or apply defaults values for services.
@@ -217,7 +219,7 @@ import jooby.Switch.Fn;
  * The <strong>dev</strong> is special and a module provider could do some special configuration for
  * development, like turning off a cache, reloading of resources, etc.
  *
- * Same is true for none <strong>dev</strong> mode. For example, a module's provider can create
+ * Same is true for no <strong>dev</strong> mode. For example, a module's provider can create
  * a high performance connection pool for none dev modes, etc.
  *
  * By default a mode is set to dev, but you can change it by setting the
@@ -242,7 +244,7 @@ public interface Mode {
    * @return A resulting object.
    * @throws Exception If something fails.
    */
-  default <T> Optional<T> ifMode(@Nonnull final String name, @Nonnull final Fn<T> fn)
+  default <T> Optional<T> ifMode(@Nonnull final String name, @Nonnull final ExSupplier<T> fn)
       throws Exception {
     return Optional.ofNullable(when(name, fn).otherwise(null));
   }
@@ -262,7 +264,7 @@ public interface Mode {
    * @return A new switch.
    */
   @Nonnull
-  default <T> Switch<String, T> when(@Nonnull final String name, @Nonnull final Fn<T> fn) {
+  default <T> Switch<String, T> when(@Nonnull final String name, @Nonnull final ExSupplier<T> fn) {
     return Switches.<T> newSwitch(name()).when(name, fn);
   }
 
