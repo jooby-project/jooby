@@ -85,18 +85,18 @@ public class RouteHandler {
     this.typeProvider = injector.getInstance(FileMediaTypeProvider.class);
   }
 
-  public void handle(final HttpServletRequest sreq, final HttpServletResponse response)
+  public void handle(final HttpServletRequest request, final HttpServletResponse response)
       throws Exception {
-    requireNonNull(sreq, "A HTTP servlet request is required.");
+    requireNonNull(request, "A HTTP servlet request is required.");
     requireNonNull(response, "A HTTP servlet response is required.");
 
     long start = System.currentTimeMillis();
-    String verb = sreq.getMethod().toUpperCase();
-    String requestURI = normalizeURI(sreq.getRequestURI());
+    String verb = request.getMethod().toUpperCase();
+    String requestURI = normalizeURI(request.getRequestURI());
 
     Map<String, Object> locals = new LinkedHashMap<>();
 
-    List<MediaType> accept = Optional.ofNullable(sreq.getHeader("Accept"))
+    List<MediaType> accept = Optional.ofNullable(request.getHeader("Accept"))
         .map(MediaType::parse)
         .orElse(ALL);
 
@@ -104,7 +104,7 @@ public class RouteHandler {
       Collections.sort(accept);
     }
 
-    MediaType type = Optional.ofNullable(sreq.getHeader("Content-Type"))
+    MediaType type = Optional.ofNullable(request.getHeader("Content-Type"))
         .map(MediaType::valueOf)
         .orElse(MediaType.all);
 
@@ -114,8 +114,12 @@ public class RouteHandler {
 
     log.info("  content-type: {}", type);
 
+    Charset charset = Optional.ofNullable(request.getCharacterEncoding())
+        .map(Charset::forName)
+        .orElse(this.charset);
+
     BiFunction<Injector, Route, Request> reqFactory = (injector, route) ->
-        new RequestImpl(sreq, injector, route, selector, charset, type, accept);
+        new RequestImpl(request, injector, route, selector, charset, type, accept);
 
     BiFunction<Injector, Route, Response> resFactory = (injector, route) ->
         new ResponseImpl(response, injector, route, locals, selector, typeProvider, charset);
