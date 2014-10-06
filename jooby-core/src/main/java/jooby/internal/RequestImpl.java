@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,7 +52,7 @@ public class RequestImpl implements Request {
   private MediaType type;
 
   // TODO: make route abstract? or throw UnsupportedException
-  private Route _route;
+  private Route route;
 
   private HttpServletRequest request;
 
@@ -65,7 +66,7 @@ public class RequestImpl implements Request {
       final List<MediaType> accept) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.request = requireNonNull(request, "The request is required.");
-    this._route = requireNonNull(route, "A route is required.");
+    this.route = requireNonNull(route, "A route is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
     this.type = requireNonNull(contentType, "A contentType is required.");
@@ -88,9 +89,11 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public Optional<MediaType> accepts(final Iterable<MediaType> types) {
+  public Optional<MediaType> accepts(final List<MediaType> types) {
     requireNonNull(types, "Media types are required.");
-    return MediaType.matcher(accept).first(types);
+    List<MediaType> candidates = new LinkedList<>(types);
+    Collections.sort(candidates);
+    return MediaType.matcher(accept).first(candidates);
   }
 
   @Override
@@ -226,7 +229,11 @@ public class RequestImpl implements Request {
 
   @Override
   public Route route() {
-    return _route;
+    return route;
+  }
+
+  void route(final Route route) {
+    this.route = requireNonNull(route, "A route is required.");
   }
 
   @Override

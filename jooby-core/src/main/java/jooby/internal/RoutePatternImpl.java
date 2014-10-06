@@ -24,22 +24,11 @@ public class RoutePatternImpl implements RoutePattern {
 
   private String pattern;
 
-  private boolean regex;
-
   public RoutePatternImpl(final String verb, final String pattern) {
     requireNonNull(verb, "A HTTP verb is required.");
     requireNonNull(pattern, "A path pattern is required.");
     this.pattern = pattern(verb, pattern);
     this.matcher = rewrite(this, this.pattern);
-  }
-
-  @Override
-  public boolean regex() {
-    return regex;
-  }
-
-  void setRegex(final boolean regex) {
-    this.regex = regex;
   }
 
   @Override
@@ -94,7 +83,6 @@ public class RoutePatternImpl implements RoutePattern {
       end = matcher.end();
     }
     patternBuilder.append(quote(pattern, end, pattern.length()));
-    owner.regex = regex;
     return fn(owner, regex, regex ? patternBuilder.toString() : pattern, vars);
   }
 

@@ -206,9 +206,6 @@ package jooby.internal.jetty;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.TreeMap;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
@@ -216,15 +213,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import jooby.MediaType;
-import jooby.internal.RequestImpl;
-import jooby.internal.ResponseImpl;
 import jooby.internal.RouteHandler;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimaps;
 
 public class JettyHandler extends AbstractHandler {
 
@@ -250,23 +242,7 @@ public class JettyHandler extends AbstractHandler {
       baseRequest.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multiPartConfig);
     }
     try {
-      handler.handle(req.getMethod().toUpperCase(),
-          requestURI,
-          type,
-          req.getHeader("Accept"),
-          req.getCharacterEncoding(),
-          req.getParameterMap(),
-          headers(res),
-          /**
-           * Create a new request.
-           */
-          (injector, route, selector, charset, contentType, accept)
-          -> new RequestImpl(req, injector, route, selector, charset, contentType, accept),
-          /**
-           * Create a new response
-           */
-          (injector, selector, typeProvider, charset, produces)
-          -> new ResponseImpl(res, injector, selector, typeProvider, charset, produces));
+      handler.handle(req, res);
     } catch (RuntimeException | IOException ex) {
       baseRequest.setHandled(false);
       throw ex;
@@ -274,19 +250,6 @@ public class JettyHandler extends AbstractHandler {
       baseRequest.setHandled(false);
       throw new ServletException("Unexpected error", ex);
     }
-  }
-
-  private static ListMultimap<String, String> headers(final HttpServletResponse response) {
-    ListMultimap<String, String> result = Multimaps
-        .newListMultimap(new TreeMap<>(String.CASE_INSENSITIVE_ORDER), ArrayList::new);
-    Collection<String> names = response.getHeaderNames();
-    for (String name : names) {
-      Collection<String> values = response.getHeaders(name);
-      for (String value : values) {
-        result.put(name, value);
-      }
-    }
-    return result;
   }
 
 }

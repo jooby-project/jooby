@@ -64,32 +64,32 @@ public class ReadBodyFeature extends ServerFeature {
 
   @Test
   public void textBody() throws Exception {
-    assertEquals("..", Request.Post(uri("text").build())
+    assertEquals("{\"body\": \"..\"}", Request.Post(uri("text").build())
         .bodyString("..", ContentType.WILDCARD).execute()
         .returnContent().asString());
 
-    assertEquals("..x", Request.Post(uri("r", "text").build())
+    assertEquals("{\"body\": \"..x\"}", Request.Post(uri("r", "text").build())
         .bodyString("..x", ContentType.WILDCARD).execute()
         .returnContent().asString());
   }
 
   @Test
   public void emptyBody() throws Exception {
-    assertEquals("", Request.Get(uri("text").build()).execute().returnContent().asString());
+    assertEquals("{\"body\": \"\"}", Request.Get(uri("text").build()).execute().returnContent().asString());
 
-    assertEquals("", Request.Get(uri("r", "text").build()).execute().returnContent().asString());
+    assertEquals("{\"body\": \"\"}", Request.Get(uri("r", "text").build()).execute().returnContent().asString());
   }
 
   @Test
   public void jsonBody() throws Exception {
     assertEquals(
-        "{\"x\": \"y\"}",
+        "{\"body\": \"{\"x\": \"y\"}\"}",
         Request.Post(uri("json").build()).addHeader("Content-Type", "application/json")
             .bodyString("{\"x\": \"y\"}", ContentType.APPLICATION_JSON).execute()
             .returnContent().asString());
 
     assertEquals(
-        "{\"x\": \"yu\"}",
+        "{\"body\": \"{\"x\": \"yu\"}\"}",
         Request.Post(uri("r/json").build()).addHeader("Content-Type", "application/json")
             .bodyString("{\"x\": \"yu\"}", ContentType.APPLICATION_JSON).execute()
             .returnContent().asString());

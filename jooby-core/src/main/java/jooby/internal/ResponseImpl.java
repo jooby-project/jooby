@@ -12,8 +12,10 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,9 +29,9 @@ import jooby.FileMediaTypeProvider;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
-import jooby.MediaType.Matcher;
 import jooby.Response;
 import jooby.Response.ContentNegotiation.Provider;
+import jooby.Route;
 import jooby.SetCookie;
 import jooby.ThrowingSupplier;
 import jooby.Variant;
@@ -56,9 +58,7 @@ public class ResponseImpl implements Response {
 
   private Charset charset;
 
-  private List<MediaType> produces;
-
-  private HttpStatus status = HttpStatus.OK;
+  private HttpStatus status;
 
   private MediaType type;
 
@@ -68,18 +68,20 @@ public class ResponseImpl implements Response {
 
   private Map<String, Object> locals = new LinkedHashMap<>();
 
+  private Route route;
+
   public ResponseImpl(final HttpServletResponse response,
       final Injector injector,
+      final Route route,
       final BodyConverterSelector selector,
       final FileMediaTypeProvider typeProvider,
-      final Charset charset,
-      final List<MediaType> produces) {
+      final Charset charset) {
     this.response = requireNonNull(response, "A response is required.");
     this.injector = requireNonNull(injector, "An injector is required.");
+    this.route = requireNonNull(route, "A route is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.typeProvider = requireNonNull(typeProvider, "A type's provider is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
-    this.produces = requireNonNull(produces, "Produces are required.");
   }
 
   @Override
@@ -267,7 +269,7 @@ public class ResponseImpl implements Response {
   @Override
   public void send(final Object message) throws Exception {
     requireNonNull(message, "A response message is required.");
-    BodyConverter converter = selector.forWrite(message, produces)
+    BodyConverter converter = selector.forWrite(message, route.produces())
         .orElseThrow(() -> new HttpException(HttpStatus.NOT_ACCEPTABLE));
     send(message, converter);
   }
@@ -312,29 +314,35 @@ public class ResponseImpl implements Response {
   @Override
   public ContentNegotiation when(final MediaType type, final ContentNegotiation.Provider provider) {
     final Map<MediaType, ContentNegotiation.Provider> strategies = new LinkedHashMap<>();
+    List<MediaType> types = new LinkedList<>();
+
     strategies.put(type, provider);
+    types.add(type);
 
     return new ContentNegotiation() {
 
       @Override
-      public ContentNegotiation when(final MediaType mediaType, final Provider fn) {
-        strategies.put(mediaType, fn);
+      public ContentNegotiation when(final MediaType type, final Provider fn) {
+        requireNonNull(type, "A media type is required.");
+        requireNonNull(fn, "A provider fn is required.");
+        strategies.put(type, fn);
+        types.add(type);
         return this;
       }
 
       @Override
       public void send() throws Exception {
-        List<MediaType> mediaTypes = MediaType.matcher(produces).filter(strategies.keySet());
-        if (mediaTypes.size() == 0) {
-          throw new HttpException(HttpStatus.NOT_ACCEPTABLE, Joiner.on(", ").join(produces));
-        }
-        Provider provider = strategies.get(mediaTypes.get(0));
-        if (provider == null) {
-          Matcher matcher = MediaType.matcher(mediaTypes);
-          Optional<MediaType> type = matcher.first(strategies.keySet());
-          provider = strategies.get(type.orElseThrow(() -> new HttpException(
-              HttpStatus.NOT_ACCEPTABLE, Joiner.on(", ").join(produces))));
-        }
+        List<MediaType> produces = route.produces();
+        Collections.sort(types);
+
+        Provider provider = MediaType
+            .matcher(produces)
+            .first(types)
+            .map(it -> strategies.get(it))
+            .orElseThrow(
+                () -> new HttpException(HttpStatus.NOT_ACCEPTABLE, Joiner.on(", ").join(produces))
+            );
+
         ResponseImpl.this.send(provider.apply());
       }
 
@@ -374,6 +382,10 @@ public class ResponseImpl implements Response {
     return this;
   }
 
+  void route(final Route route) {
+    this.route = route;
+  }
+
   void reset() {
     status = null;
     response.reset();
@@ -383,4 +395,8 @@ public class ResponseImpl implements Response {
     return injector.getParent().getTypeConverterBindings();
   }
 
+  @Override
+  public String toString() {
+    return route.toString();
+  }
 }

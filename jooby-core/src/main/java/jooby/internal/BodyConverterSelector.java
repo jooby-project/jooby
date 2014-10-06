@@ -7,13 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.inject.Inject;
 
 import jooby.BodyConverter;
 import jooby.MediaType;
-import jooby.MediaType.Matcher;
 
 import com.google.common.annotations.Beta;
 import com.google.inject.TypeLiteral;
@@ -67,26 +65,22 @@ public class BodyConverterSelector {
       final Iterable<MediaType> candidates) {
     requireNonNull(type, "The type is required.");
     requireNonNull(candidates, "Media types candidates are required.");
+
     for (MediaType mediaType : candidates) {
-      BodyConverter converter = converterMap.get(mediaType);
-      if (converter != null && converter.canRead(type)) {
-        return Optional.of(converter);
+      for (BodyConverter converter : converters) {
+        if (converter.canRead(type)) {
+          Optional<MediaType> found = converter.types()
+              .stream()
+              .filter(it -> mediaType.matches(it))
+              .findFirst();
+          if (found.isPresent()) {
+            return Optional.of(converter);
+          }
+        }
       }
     }
-    // degrade lookup a bit
-    Matcher matcher = MediaType.matcher(candidates);
-    TreeMap<MediaType, BodyConverter> matches = new TreeMap<>();
-    for (BodyConverter converter : converters) {
-      Optional<MediaType> result = matcher.first(converter.types());
-      if (result.isPresent() && converter.canRead(type)) {
-        matches.putIfAbsent(result.get(), converter);
-      }
-    }
-    if (matches.isEmpty()) {
-      return Optional.empty();
-    }
-    Map.Entry<MediaType, BodyConverter> entry = matches.firstEntry();
-    return Optional.of(new ForwardingBodyConverter(entry.getValue(), entry.getKey()));
+
+    return Optional.empty();
   }
 
   public Optional<BodyConverter> forWrite(final Object message,
@@ -97,25 +91,20 @@ public class BodyConverterSelector {
     Class<?> type = message.getClass();
 
     for (MediaType mediaType : candidates) {
-      BodyConverter converter = converterMap.get(mediaType);
-      if (converter != null && converter.canWrite(type)) {
-        return Optional.of(converter);
+      for (BodyConverter converter : converters) {
+        if (converter.canWrite(type)) {
+          Optional<MediaType> found = converter.types()
+              .stream()
+              .filter(it -> mediaType.matches(it))
+              .findFirst();
+          if (found.isPresent()) {
+            return Optional.of(converter);
+          }
+        }
       }
     }
-    // degrade lookup a bit
-    Matcher matcher = MediaType.matcher(candidates);
-    TreeMap<MediaType, BodyConverter> matches = new TreeMap<>();
-    for (BodyConverter converter : converters) {
-      Optional<MediaType> result = matcher.first(converter.types());
-      if (result.isPresent() && converter.canWrite(type)) {
-        matches.putIfAbsent(result.get(), converter);
-      }
-    }
-    if (matches.isEmpty()) {
-      return Optional.empty();
-    }
-    Map.Entry<MediaType, BodyConverter> entry = matches.firstEntry();
-    return Optional.of(new ForwardingBodyConverter(entry.getValue(), entry.getKey()));
+
+    return Optional.empty();
   }
 
 }

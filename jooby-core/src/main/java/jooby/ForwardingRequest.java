@@ -34,7 +34,7 @@ public class ForwardingRequest implements Request {
   }
 
   @Override
-  public Optional<MediaType> accepts(final Iterable<MediaType> types) {
+  public Optional<MediaType> accepts(final List<MediaType> types) {
     return request.accepts(types);
   }
 

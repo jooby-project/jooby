@@ -4,14 +4,12 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import jooby.Filter;
 import jooby.MediaType;
-import jooby.Request;
-import jooby.Response;
-import jooby.RouteChain;
 import jooby.RouteDefinition;
 import jooby.RoutePattern;
 import jooby.Router;
@@ -79,9 +77,8 @@ public class RouteDefinitionImpl implements RouteDefinition {
     produces.add(MediaType.all);
   }
 
-  public void handle(final Request request, final Response response, final RouteChain chain)
-      throws Exception {
-    filter.handle(request, response, chain);
+  public Filter filter() {
+    return filter;
   }
 
   @Override
@@ -123,6 +120,7 @@ public class RouteDefinitionImpl implements RouteDefinition {
   @Override
   public RouteDefinitionImpl consumes(final Iterable<MediaType> consumes) {
     this.consumes = Lists.newArrayList(consumes);
+    Collections.sort(this.consumes);
     return this;
   }
 
@@ -134,6 +132,7 @@ public class RouteDefinitionImpl implements RouteDefinition {
   @Override
   public RouteDefinition produces(final Iterable<MediaType> produces) {
     this.produces = Lists.newArrayList(produces);
+    Collections.sort(this.produces);
     return this;
   }
 

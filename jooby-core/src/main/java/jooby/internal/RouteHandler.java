@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -19,9 +20,11 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import jooby.FileMediaTypeProvider;
-import jooby.ForwardingRequest;
+import jooby.Filter;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
@@ -38,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.inject.Injector;
 
@@ -56,7 +58,7 @@ public class RouteHandler {
 
   private BodyConverterSelector selector;
 
-  private Set<RouteDefinition> routes;
+  private Set<RouteDefinition> routeDefs;
 
   private Charset charset;
 
@@ -75,57 +77,36 @@ public class RouteHandler {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.modules = requireNonNull(modules, "Request modules are required.");
-    this.routes = requireNonNull(routes, "The routes are required.");
+    this.routeDefs = requireNonNull(routes, "The routes are required.");
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
     this.typeProvider = injector.getInstance(FileMediaTypeProvider.class);
   }
 
-  public void handle(final String verb, final String uri,
-      final String contentType,
-      final String accept,
-      final String charset,
-      final Map<String, String[]> parameters,
-      final ListMultimap<String, String> responseHeaders,
-      final RequestFactory reqFactory,
-      final ResponseFactory respFactory) throws Exception {
-    requireNonNull(verb, "A HTTP verb is required.");
-    requireNonNull(uri, "A Request URI is required.");
-    requireNonNull(parameters, "The request parameters are required.");
-    requireNonNull(responseHeaders, "The response headers are required.");
-    requireNonNull(reqFactory, "A request factory is required.");
-    requireNonNull(respFactory, "A response factory is required.");
-
-    final List<MediaType> acceptList = Optional.ofNullable(accept).map(MediaType::parse)
-        .orElse(ALL);
-
-    MediaType type = Optional.ofNullable(contentType).map(MediaType::valueOf).orElse(MediaType.all);
-
-    doHandle(verb.toUpperCase(),
-        uri.endsWith("/") && uri.length() > 1 ? uri.substring(0, uri.length() - 1) : uri,
-        type,
-        acceptList,
-        Optional.ofNullable(charset).map(Charset::forName).orElse(this.charset),
-        parameters,
-        responseHeaders,
-        reqFactory,
-        respFactory);
-  }
-
-  private void doHandle(final String verb, final String requestURI,
-      final MediaType contentType,
-      final List<MediaType> accept,
-      final Charset charset,
-      final Map<String, String[]> params,
-      final ListMultimap<String, String> responseHeaders,
-      final RequestFactory reqFactory,
-      final ResponseFactory respFactory) throws Exception {
+  public void handle(final HttpServletRequest req, final HttpServletResponse res) throws Exception {
+    requireNonNull(req, "A HTTP servlet request is required.");
+    requireNonNull(req, "A HTTP servlet request is required.");
 
     long start = System.currentTimeMillis();
+    String verb = req.getMethod().toUpperCase();
+    String requestURI = normalizeURI(req.getRequestURI());
+
+    List<MediaType> accept = Optional.ofNullable(req.getHeader("Accept"))
+        .map(MediaType::parse)
+        .orElse(ALL);
+
+    if (accept.size() > 1) {
+      Collections.sort(accept);
+    }
+
+    MediaType type = Optional.ofNullable(req.getHeader("Content-Type"))
+        .map(MediaType::valueOf)
+        .orElse(MediaType.all);
+
     final String path = verb + requestURI;
 
     log.info("handling: {}", path);
 
-    log.info("  content-type: {}", contentType);
+    log.info("  content-type: {}", type);
 
     // configure request modules
     Injector injector = rootInjector.createChildInjector(binder -> {
@@ -134,23 +115,18 @@ public class RouteHandler {
       }
     });
 
-    final List<Route> descriptors = routes(routes, verb, requestURI, contentType,
-        accept);
+    final List<Route> routes = routes(verb, requestURI, type, accept);
 
-    final Request request = reqFactory.newRequest(injector,
-        descriptors.size() > 0 ? descriptors.get(0) : RouteImpl.notFound(verb, path),
-        selector,
-        charset,
-        contentType,
-        accept);
+    Route notFound = RouteImpl.notFound(verb, path);
+    final Request request = new RequestImpl(req, injector, notFound,
+        selector, charset, type, accept);
 
-    final Response response = respFactory.newResponse(injector, selector, typeProvider,
-        request.charset(),
-        accept);
+    final Response response = new ResponseImpl(res, injector, notFound, selector, typeProvider,
+        request.charset());
 
     try {
 
-      chain(descriptors.iterator()).next(request, response);
+      chain(routes.iterator()).next(request, response);
 
     } catch (Exception ex) {
       log.error("handling of: " + path + " ends with error", ex);
@@ -180,35 +156,36 @@ public class RouteHandler {
     }
   }
 
+  private static String normalizeURI(final String uri) {
+    return uri.endsWith("/") && uri.length() > 1 ? uri.substring(0, uri.length() - 1) : uri;
+  }
+
   private static RouteChain chain(final Iterator<Route> it) {
     return new RouteChain() {
 
       @Override
-      public void next(final Request request, final Response response) throws Exception {
+      public void next(final Request req, final Response res) throws Exception {
         RouteImpl route = (RouteImpl) it.next();
-
-        route.handle(new ForwardingRequest(request) {
-          @Override
-          public Route route() {
-            return route;
-          }
-        }, response, this);
+        if (req instanceof RequestImpl) {
+          ((RequestImpl) req).route(route);
+        }
+        if (res instanceof ResponseImpl) {
+          ((ResponseImpl) res).route(route);
+        }
+        route.filter().handle(req, res, this);
       }
     };
   }
 
-  private static List<Route> routes(final Set<RouteDefinition> routeDefs,
-      final String verb,
-      final String requestURI,
-      final MediaType contentType,
+  private List<Route> routes(final String verb, final String requestURI, final MediaType type,
       final List<MediaType> accept) {
     String path = verb + requestURI;
-    List<Route> routes = findRoutes(routeDefs, verb, path, contentType, accept);
+    List<Route> routes = findRoutes(verb, path, type, accept);
 
     // 406 or 415
     routes.add(RouteImpl.fromStatus(verb, path, HttpStatus.NOT_ACCEPTABLE, (req, res, chain) -> {
       if (!res.committed()) {
-        HttpException ex = handle406or415(routeDefs, verb, requestURI, contentType, accept);
+        HttpException ex = handle406or415(verb, requestURI, type, accept);
         if (ex != null) {
           throw ex;
         }
@@ -220,7 +197,7 @@ public class RouteHandler {
     routes.add(RouteImpl.fromStatus(verb, path, HttpStatus.METHOD_NOT_ALLOWED,
         (req, res, chain) -> {
           if (!res.committed()) {
-            HttpException ex = handle405(routeDefs, verb, requestURI, contentType, accept);
+            HttpException ex = handle405(verb, requestURI, type, accept);
             if (ex != null) {
               throw ex;
             }
@@ -229,31 +206,31 @@ public class RouteHandler {
         }));
 
     // 404
-    routes.add(RouteImpl.fromStatus(verb, path, HttpStatus.NOT_FOUND, (req, res, chain) -> {
-      if (!res.committed()) {
-        throw new HttpException(HttpStatus.NOT_FOUND, path);
-      }
-    }));
+    routes.add(RouteImpl.notFound(verb, path));
 
     return routes;
   }
 
-  private static List<Route> findRoutes(final Set<RouteDefinition> routeDefs,
-      final String verb,
-      final String path,
-      final MediaType contentType,
+  private List<Route> findRoutes(final String verb, final String path, final MediaType type,
       final List<MediaType> accept) {
-    LinkedList<Route> routers = new LinkedList<Route>();
+
+    LinkedList<Route> routes = new LinkedList<Route>();
     for (RouteDefinition routeDef : routeDefs) {
       RouteMatcher matcher = routeDef.path().matcher(path);
       if (matcher.matches()) {
         List<MediaType> produces = MediaType.matcher(accept).filter(routeDef.produces());
-        if (routeDef.canConsume(contentType) && produces.size() > 0) {
-          routers.add(RouteImpl.fromDefinition(verb, routeDef, matcher));
+        if (routeDef.canConsume(type) && produces.size() > 0) {
+          Filter filter = ((RouteDefinitionImpl) routeDef).filter();
+          RouteImpl route = RouteImpl.fromDefinition(filter, verb, routeDef, matcher);
+          if (produces.size() == 1 && produces.get(0).name().equals("*/*")) {
+            // keep accept when */*
+            route.produces(accept);
+          }
+          routes.add(route);
         }
       }
     }
-    return routers;
+    return routes;
   }
 
   private void defaultErrorPage(final Request request, final Response response,
@@ -361,42 +338,41 @@ public class RouteHandler {
     return HttpStatus.SERVER_ERROR;
   }
 
-  private static HttpException handle405(final Set<RouteDefinition> routes,
-      final String verb, final String requestURI,
-      final MediaType contentType,
+  private HttpException handle405(final String verb, final String uri, final MediaType type,
       final List<MediaType> accept) {
 
     List<String> verbs = Lists.newLinkedList(VERBS);
     verbs.remove(verb);
     for (String candidate : verbs) {
-      String path = candidate + requestURI;
-      Optional<Route> found = findRoutes(routes, verb, path, contentType, accept)
+      String path = candidate + uri;
+      Optional<Route> found = findRoutes(verb, path, type, accept)
           .stream()
           // skip glob pattern
           .filter(r -> !r.pattern().contains("*"))
           .findFirst();
 
       if (found.isPresent()) {
-        return new HttpException(HttpStatus.METHOD_NOT_ALLOWED, verb + requestURI);
+        return new HttpException(HttpStatus.METHOD_NOT_ALLOWED, verb + uri);
       }
     }
     return null;
   }
 
-  private static HttpException handle406or415(final Set<RouteDefinition> routes,
-      final String verb, final String requestURI,
+  private HttpException handle406or415(final String verb, final String requestURI,
       final MediaType contentType,
       final List<MediaType> accept) {
     String path = verb + requestURI;
-    for (RouteDefinition route : routes) {
-      RouteMatcher matcher = route.path().matcher(path);
-      if (matcher.matches() && !route.path().regex()) {
-        if (!route.canProduce(accept)) {
-          return new HttpException(HttpStatus.NOT_ACCEPTABLE, accept.stream()
-              .map(MediaType::name)
-              .collect(Collectors.joining(", ")));
+    for (RouteDefinition routeDef : routeDefs) {
+      if (!routeDef.path().pattern().contains("*")) {
+        RouteMatcher matcher = routeDef.path().matcher(path);
+        if (matcher.matches()) {
+          if (!routeDef.canProduce(accept)) {
+            return new HttpException(HttpStatus.NOT_ACCEPTABLE, accept.stream()
+                .map(MediaType::name)
+                .collect(Collectors.joining(", ")));
+          }
+          return new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, contentType.name());
         }
-        return new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, contentType.name());
       }
     }
     return null;
@@ -406,7 +382,7 @@ public class RouteHandler {
   public String toString() {
     StringBuilder buffer = new StringBuilder();
     int routeMax = 0, consumesMax = 0, producesMax = 0;
-    for (RouteDefinition routeDefinition : routes) {
+    for (RouteDefinition routeDefinition : routeDefs) {
       int routeLen = routeDefinition.path().toString().length();
       if (routeLen > routeMax) {
         routeMax = routeLen;
@@ -422,7 +398,7 @@ public class RouteHandler {
       }
     }
     String format = "    %-" + routeMax + "s    %" + consumesMax + "s     %" + producesMax + "s\n";
-    for (RouteDefinition routeDefinition : routes) {
+    for (RouteDefinition routeDefinition : routeDefs) {
       buffer.append(String.format(format, routeDefinition.path(), routeDefinition.consumes(),
           routeDefinition.produces()));
     }

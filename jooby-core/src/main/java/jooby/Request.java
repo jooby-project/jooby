@@ -60,7 +60,7 @@ public interface Request {
     return accepts(ImmutableList.copyOf(types));
   }
 
-  Optional<MediaType> accepts(@Nonnull Iterable<MediaType> types);
+  Optional<MediaType> accepts(@Nonnull List<MediaType> types);
 
   /**
    * Get all the available parameter. A HTTP parameter can be provided in any of

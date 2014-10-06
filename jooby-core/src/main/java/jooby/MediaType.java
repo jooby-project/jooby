@@ -8,12 +8,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 
 /**
  * An immutable implementation of HTTP media types.
@@ -62,7 +59,7 @@ public class MediaType implements Comparable<MediaType> {
      */
     public boolean matches(final MediaType candidate) {
       requireNonNull(candidate, "A candidate media type is required.");
-      return doFirst(ImmutableSortedSet.of(candidate)) != null;
+      return doFirst(ImmutableList.of(candidate)) != null;
     }
 
     /**
@@ -80,8 +77,8 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidates One ore more candidates media type. Required.
      * @return True if the matcher matches the given media type.
      */
-    public boolean matches(final Iterable<MediaType> candidates) {
-      return doFirst(candidates) != null;
+    public boolean matches(final List<MediaType> candidates) {
+      return filter(candidates).size() > 0;
     }
 
     /**
@@ -118,7 +115,7 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidates One ore more candidates media type. Required.
      * @return A first most relevant media type or an empty optional.
      */
-    public Optional<MediaType> first(final Iterable<MediaType> candidates) {
+    public Optional<MediaType> first(final List<MediaType> candidates) {
       return Optional.ofNullable(doFirst(candidates));
     }
 
@@ -137,13 +134,12 @@ public class MediaType implements Comparable<MediaType> {
      *   filter(text/html, application/json)       -> returns text/html and application/json
      * </pre>
      */
-    public List<MediaType> filter(final Iterable<MediaType> candidates) {
+    public List<MediaType> filter(final List<MediaType> candidates) {
       List<MediaType> result = new ArrayList<>();
       for (MediaType accept : acceptable) {
         for (MediaType candidate : candidates) {
           if (accept.matches(candidate)) {
-            // when */* choose the more specific
-            result.add(candidate.wildcardType ? accept : candidate);
+            result.add(candidate);
           }
         }
       }
@@ -165,16 +161,9 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidates One ore more candidates media type. Required.
      * @return A first most relevant media type or an empty optional.
      */
-    private MediaType doFirst(final Iterable<MediaType> candidates) {
-      SortedSet<MediaType> result = new TreeSet<>();
-      for (MediaType accept : acceptable) {
-        for (MediaType candidate : candidates) {
-          if (accept.matches(candidate)) {
-            result.add(candidate);
-          }
-        }
-      }
-      return result.size() == 0 ? null : result.first();
+    private MediaType doFirst(final List<MediaType> candidates) {
+      List<MediaType> result = filter(candidates);
+      return result.size() == 0 ? null : result.get(0);
     }
   }
 
@@ -316,24 +305,34 @@ public class MediaType implements Comparable<MediaType> {
     if (this == that) {
       return 0;
     }
-    if (this.type.equals(that.type)) {
-      if (this.subtype.equals(that.subtype)) {
-        return quality(this, that);
-      } else {
-        // subtype differ
-        if (this.wildcardSubtype) {
-          return 1;
-        }
-        if (that.wildcardSubtype) {
-          return -1;
-        }
-        return quality(this, that);
-      }
-    } else if (this.wildcardType) {
+    if (this.wildcardType && !that.wildcardType) {
       return 1;
-    } else {
+    }
+
+    if (that.wildcardType && !this.wildcardType) {
       return -1;
     }
+
+    if (this.wildcardSubtype && !that.wildcardSubtype) {
+      return 1;
+    }
+
+    if (that.wildcardSubtype && !this.wildcardSubtype) {
+      return -1;
+    }
+
+    if (!this.type().equals(that.type())) {
+      return 0;
+    }
+
+    int q = Float.compare(that.quality(), this.quality());
+    if (q != 0) {
+      return q;
+    }
+    // param size
+    int paramsSize1 = this.params.size();
+    int paramsSize2 = that.params.size();
+    return (paramsSize2 < paramsSize1 ? -1 : (paramsSize2 == paramsSize1 ? 0 : 1));
   }
 
   /**
@@ -448,32 +447,9 @@ public class MediaType implements Comparable<MediaType> {
    * @param acceptable The acceptable/target media types.
    * @return A media type matcher.
    */
-  public static Matcher matcher(final Iterable<MediaType> acceptable) {
+  public static Matcher matcher(final List<MediaType> acceptable) {
     requireNonNull(acceptable, "Acceptables media types are required.");
     return new Matcher(acceptable);
-  }
-
-  /**
-   * Compare two media types. by quality values, number of parameters and lexical order.
-   *
-   * @param it The left side media type.
-   * @param that The right side media type.
-   * @return Less than zero if the left media type has more precedence.
-   */
-  private static int quality(final MediaType it, final MediaType that) {
-    float q = that.quality() - it.quality();
-    if (q == 0) {
-      int p = that.params.size() - it.params.size();
-      if (p == 0) {
-        int alphanumeric = it.subtype.compareTo(that.subtype);
-        if (alphanumeric == 0) {
-          return that.params.toString().compareTo(it.params.toString());
-        }
-        return alphanumeric;
-      }
-      return p;
-    }
-    return q < 0 ? -1 : 1;
   }
 
 }
