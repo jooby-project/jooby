@@ -133,6 +133,10 @@ public class ForwardingRequest implements Request {
     return request.secure();
   }
 
+  public Request delegate() {
+    return request;
+  }
+
   @Override
   public String toString() {
     return request.toString();

@@ -65,19 +65,17 @@ public class ResponseImpl implements Response {
 
   private FileMediaTypeProvider typeProvider;
 
-  private Map<String, Object> locals = new LinkedHashMap<>();
+  private final Map<String, Object> locals;
 
   private Route route;
 
-  public ResponseImpl(final HttpServletResponse response,
-      final Injector injector,
-      final Route route,
-      final BodyConverterSelector selector,
-      final FileMediaTypeProvider typeProvider,
-      final Charset charset) {
+  public ResponseImpl(final HttpServletResponse response, final Injector injector,
+      final Route route, final Map<String, Object> locals, final BodyConverterSelector selector,
+      final FileMediaTypeProvider typeProvider, final Charset charset) {
     this.response = requireNonNull(response, "A response is required.");
     this.injector = requireNonNull(injector, "An injector is required.");
     this.route = requireNonNull(route, "A route is required.");
+    this.locals = requireNonNull(locals, "The locals is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.typeProvider = requireNonNull(typeProvider, "A type's provider is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
@@ -383,11 +381,6 @@ public class ResponseImpl implements Response {
 
   void route(final Route route) {
     this.route = route;
-  }
-
-  void reset() {
-    status = null;
-    response.reset();
   }
 
   private Set<TypeConverterBinding> typeConverters() {

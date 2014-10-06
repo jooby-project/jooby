@@ -185,4 +185,12 @@ public class ForwardingResponse implements Response {
     return response.committed();
   }
 
+  @Override
+  public String toString() {
+    return response.toString();
+  }
+
+  public Response delegate() {
+    return response;
+  }
 }

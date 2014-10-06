@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -25,6 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import jooby.FileMediaTypeProvider;
 import jooby.Filter;
+import jooby.ForwardingRequest;
+import jooby.ForwardingResponse;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
@@ -82,15 +85,18 @@ public class RouteHandler {
     this.typeProvider = injector.getInstance(FileMediaTypeProvider.class);
   }
 
-  public void handle(final HttpServletRequest req, final HttpServletResponse res) throws Exception {
-    requireNonNull(req, "A HTTP servlet request is required.");
-    requireNonNull(req, "A HTTP servlet request is required.");
+  public void handle(final HttpServletRequest sreq, final HttpServletResponse response)
+      throws Exception {
+    requireNonNull(sreq, "A HTTP servlet request is required.");
+    requireNonNull(response, "A HTTP servlet response is required.");
 
     long start = System.currentTimeMillis();
-    String verb = req.getMethod().toUpperCase();
-    String requestURI = normalizeURI(req.getRequestURI());
+    String verb = sreq.getMethod().toUpperCase();
+    String requestURI = normalizeURI(sreq.getRequestURI());
 
-    List<MediaType> accept = Optional.ofNullable(req.getHeader("Accept"))
+    Map<String, Object> locals = new LinkedHashMap<>();
+
+    List<MediaType> accept = Optional.ofNullable(sreq.getHeader("Accept"))
         .map(MediaType::parse)
         .orElse(ALL);
 
@@ -98,7 +104,7 @@ public class RouteHandler {
       Collections.sort(accept);
     }
 
-    MediaType type = Optional.ofNullable(req.getHeader("Content-Type"))
+    MediaType type = Optional.ofNullable(sreq.getHeader("Content-Type"))
         .map(MediaType::valueOf)
         .orElse(MediaType.all);
 
@@ -108,51 +114,58 @@ public class RouteHandler {
 
     log.info("  content-type: {}", type);
 
-    // configure request modules
-    Injector injector = rootInjector.createChildInjector(binder -> {
-      for (RequestModule module : modules) {
-        module.configure(binder);
-      }
-    });
+    BiFunction<Injector, Route, Request> reqFactory = (injector, route) ->
+        new RequestImpl(sreq, injector, route, selector, charset, type, accept);
 
-    final List<Route> routes = routes(verb, requestURI, type, accept);
+    BiFunction<Injector, Route, Response> resFactory = (injector, route) ->
+        new ResponseImpl(response, injector, route, locals, selector, typeProvider, charset);
 
-    Route notFound = RouteImpl.notFound(verb, path);
-    final Request request = new RequestImpl(req, injector, notFound,
-        selector, charset, type, accept);
+    Injector injector = rootInjector;
 
-    final Response response = new ResponseImpl(res, injector, notFound, selector, typeProvider,
-        request.charset());
+    Route notFound = RouteImpl.notFound(verb, path).produces(accept);
 
     try {
 
-      chain(routes.iterator()).next(request, response);
+      // configure request modules
+      injector = rootInjector.createChildInjector(binder -> {
+        for (RequestModule module : modules) {
+          module.configure(binder);
+        }
+      });
+
+      List<Route> routes = routes(verb, requestURI, type, accept);
+
+      chain(routes.iterator())
+          .next(reqFactory.apply(injector, notFound), resFactory.apply(injector, notFound));
 
     } catch (Exception ex) {
       log.error("handling of: " + path + " ends with error", ex);
-      ((ResponseImpl) response).reset();
+      // reset response
+      response.reset();
+
+      Request req = reqFactory.apply(injector, notFound);
+      Response res = resFactory.apply(injector, notFound);
+
       // execution failed, so find status code
       HttpStatus status = statusCode(ex);
 
-      response.header("Cache-Control", NO_CACHE);
-      response.status(status);
+      res.header("Cache-Control", NO_CACHE);
+      res.status(status);
 
       // TODO: move me to an error handler feature
-      Map<String, Object> model = errorModel(request, ex, status);
+      Map<String, Object> model = errorModel(req, ex, status);
       try {
-        response
+        res
             .when(MediaType.html, () -> Viewable.of("/status/" + status.value(), model))
             .when(MediaType.all, () -> model)
             .send();
       } catch (Exception ignored) {
         log.trace("rendering of error failed, fallback to default error page", ignored);
-        defaultErrorPage(request, response, status, model);
+        defaultErrorPage(req, res, status, model);
       }
     } finally {
       long end = System.currentTimeMillis();
-      log.info("  status -> {} in {}ms", response.status(), end
-          - start);
-      ((RequestImpl) request).destroy();
+      log.info("  status -> {} in {}ms", response.getStatus(), end - start);
     }
   }
 
@@ -166,13 +179,34 @@ public class RouteHandler {
       @Override
       public void next(final Request req, final Response res) throws Exception {
         RouteImpl route = (RouteImpl) it.next();
-        if (req instanceof RequestImpl) {
-          ((RequestImpl) req).route(route);
-        }
-        if (res instanceof ResponseImpl) {
-          ((ResponseImpl) res).route(route);
-        }
+
+        // set route
+        set(req, route);
+        set(res, route);
+
         route.filter().handle(req, res, this);
+      }
+
+      private void set(final Request req, final Route route) {
+        Request root = req;
+        // Is there a better way to set route info?
+        while (root instanceof ForwardingRequest) {
+          root = ((ForwardingRequest) root).delegate();
+        }
+        if (root instanceof RequestImpl) {
+          ((RequestImpl) root).route(route);
+        }
+      }
+
+      private void set(final Response res, final Route route) {
+        Response root = res;
+        // Is there a better way to set route info?
+        while (root instanceof ForwardingResponse) {
+          root = ((ForwardingResponse) root).delegate();
+        }
+        if (root instanceof ResponseImpl) {
+          ((ResponseImpl) root).route(route);
+        }
       }
     };
   }
@@ -191,7 +225,7 @@ public class RouteHandler {
         }
       }
       chain.next(req, res);
-    }));
+    }).produces(accept));
 
     // 405
     routes.add(RouteImpl.fromStatus(verb, path, HttpStatus.METHOD_NOT_ALLOWED,
@@ -203,7 +237,7 @@ public class RouteHandler {
             }
           }
           chain.next(req, res);
-        }));
+        }).produces(accept));
 
     // 404
     routes.add(RouteImpl.notFound(verb, path));

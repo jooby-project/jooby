@@ -14,7 +14,11 @@ import jooby.Route;
 import jooby.RouteDefinition;
 import jooby.RouteMatcher;
 
+import com.google.common.collect.ImmutableList;
+
 public class RouteImpl implements Route {
+
+  private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
   private String verb;
 
@@ -52,7 +56,7 @@ public class RouteImpl implements Route {
   public static RouteImpl fromStatus(final String verb, final String path, final HttpStatus status,
       final Filter filter) {
     return new RouteImpl(filter, verb, path, path, status.value() + "", -1, Collections.emptyMap(),
-        Collections.emptyList(), Collections.emptyList());
+        ALL, ALL);
   }
 
   private RouteImpl(final Filter filter, final String verb, final String path,
@@ -126,7 +130,8 @@ public class RouteImpl implements Route {
     return buffer.toString();
   }
 
-  void produces(final List<MediaType> produces) {
+  RouteImpl produces(final List<MediaType> produces) {
     this.produces = requireNonNull(produces, "Produces are required.");
+    return this;
   }
 }
