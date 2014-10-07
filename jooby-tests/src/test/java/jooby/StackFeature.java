@@ -24,14 +24,14 @@ public class StackFeature extends ServerFeature {
     /** The logging system. */
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Path("/**")
+    @Path("*")
     @jooby.mvc.GET
     public void xHeader(final Response resp) {
       log.info("X");
       resp.header("X", "x");
     }
 
-    @Path("/**")
+    @Path("*")
     @jooby.mvc.GET
     public void yHeader(final Response resp) {
       log.info("Y");
@@ -66,11 +66,11 @@ public class StackFeature extends ServerFeature {
 
   {
 
-    get("/**", (req, resp) -> {
+    get("*", (req, resp) -> {
       log.info("X");
       resp.header("X", "x");
     });
-    get("/**", (req, resp) -> {
+    get("*", (req, resp) -> {
       log.info("Y");
       resp.header("Y", "y");
     });

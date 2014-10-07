@@ -320,7 +320,7 @@ public class Jooby {
   }
 
   public RouteDefinition use(final Filter filter) {
-    return use("/**", filter);
+    return use("*", filter);
   }
 
   public RouteDefinition use(final String path, final Filter filter) {

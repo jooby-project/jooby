@@ -293,11 +293,11 @@ public class RoutePathTest {
 
   @Test
   public void normalizePath() {
-    assertEquals("GET/foo", new RoutePattern("GET", "/foo//").pattern());
-    assertEquals("GET/foo", new RoutePattern("GET", "foo//").pattern());
-    assertEquals("GET/foo", new RoutePattern("GET", "foo").pattern());
-    assertEquals("GET/foo", new RoutePattern("GET", "foo/").pattern());
-    assertEquals("GET/foo/bar", new RoutePattern("GET", "/foo//bar").pattern());
+    assertEquals("/foo", new RoutePattern("GET", "/foo//").pattern());
+    assertEquals("/foo", new RoutePattern("GET", "foo//").pattern());
+    assertEquals("/foo", new RoutePattern("GET", "foo").pattern());
+    assertEquals("/foo", new RoutePattern("GET", "foo/").pattern());
+    assertEquals("/foo/bar", new RoutePattern("GET", "/foo//bar").pattern());
   }
 
 }

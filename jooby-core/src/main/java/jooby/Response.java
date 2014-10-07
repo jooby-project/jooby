@@ -14,7 +14,6 @@ import javax.annotation.Nonnull;
 import jooby.fn.ExSupplier;
 
 import com.google.common.annotations.Beta;
-import com.sun.xml.internal.ws.client.ContentNegotiation;
 
 /**
  * Give you access to the actual HTTP response. You can read/write headers and write HTTP body.
@@ -52,7 +51,7 @@ public interface Response {
      *
      * @param mediaType A media type to test for.
      * @param supplier An object provider.
-     * @return A {@link ContentNegotiation}.
+     * @return The current {@link Formatter}.
      */
     @Nonnull
     default Formatter when(final String mediaType, final ExSupplier<Object> supplier) {
@@ -64,7 +63,7 @@ public interface Response {
      *
      * @param mediaType A media type to test for.
      * @param provider An object provider.
-     * @return A {@link ContentNegotiation}.
+     * @return A {@link Formatter}.
      */
     @Nonnull
     Formatter when(MediaType mediaType, ExSupplier<Object> supplier);

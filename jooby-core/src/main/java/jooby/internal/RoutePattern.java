@@ -108,6 +108,9 @@ public class RoutePattern {
     if (pattern.equals("/")) {
       return buffer.append(pattern).toString();
     }
+    if (pattern.equals("*")) {
+      return buffer.append("/**/*").toString();
+    }
     String normalized = SLASH.matcher(pattern).replaceAll("/");
     if (!normalized.startsWith("/")) {
       buffer.append("/");
