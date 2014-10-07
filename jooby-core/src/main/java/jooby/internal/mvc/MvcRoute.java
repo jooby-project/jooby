@@ -10,7 +10,6 @@ import java.util.function.Function;
 import jooby.MediaType;
 import jooby.Request;
 import jooby.Response;
-import jooby.Response.ContentNegotiation;
 import jooby.Router;
 import jooby.Viewable;
 import jooby.fn.ExSupplier;
@@ -62,21 +61,17 @@ class MvcRoute implements Router {
     ExSupplier<Object> notViewable = () -> result;
 
     // viewable is apply when content type is text/html or accept header is size 1 matches text/html
-    // and template annotiation is present.
+    // and template annotation is present.
     boolean htmlLike = accept.size() == 1 && accept.get(0).matches(MediaType.html) &&
         router.getAnnotation(Template.class) != null;
     Function<MediaType, ExSupplier<Object>> provider =
         (type) -> MediaType.html.equals(type) || htmlLike ? viewable : notViewable;
 
-    ContentNegotiation negotiator = null;
-    for (MediaType type : accept) {
-      if (negotiator == null) {
-        negotiator = response.when(type, provider.apply(type));
-      } else {
-        negotiator = negotiator.when(type, provider.apply(type));
-      }
-    }
-    // enough, now send
-    negotiator.send();
+    Response.Formatter formatter = response.format();
+
+    // add formatters
+    accept.forEach(type -> formatter.when(type, provider.apply(type)));
+    // send it!
+    formatter.send();
   }
 }

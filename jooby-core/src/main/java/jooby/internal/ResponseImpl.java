@@ -304,22 +304,14 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public ContentNegotiation when(final String type, final ExSupplier<Object> supplier) {
-    return when(MediaType.valueOf(type), supplier);
-  }
-
-  @Override
-  public ContentNegotiation when(final MediaType type, final ExSupplier<Object> supplier) {
+  public Formatter format() {
     final Map<MediaType, ExSupplier<Object>> strategies = new LinkedHashMap<>();
     List<MediaType> types = new LinkedList<>();
 
-    strategies.put(type, supplier);
-    types.add(type);
-
-    return new ContentNegotiation() {
+    return new Formatter() {
 
       @Override
-      public ContentNegotiation when(final MediaType type, final ExSupplier<Object> supplier) {
+      public Formatter when(final MediaType type, final ExSupplier<Object> supplier) {
         requireNonNull(type, "A media type is required.");
         requireNonNull(supplier, "A supplier fn is required.");
         strategies.put(type, supplier);

@@ -156,7 +156,7 @@ public class RouteHandler {
       // TODO: move me to an error handler feature
       Map<String, Object> model = errorModel(req, ex, status);
       try {
-        res
+        res.format()
             .when(MediaType.html, () -> Viewable.of("/status/" + status.value(), model))
             .when(MediaType.all, () -> model)
             .send();
@@ -401,26 +401,23 @@ public class RouteHandler {
   @Override
   public String toString() {
     StringBuilder buffer = new StringBuilder();
-    int routeMax = 0, consumesMax = 0, producesMax = 0;
-    for (RouteDefinition routeDefinition : routeDefs) {
-      int routeLen = routeDefinition.pattern().toString().length();
-      if (routeLen > routeMax) {
-        routeMax = routeLen;
-      }
-      //
-      int consumeLen = routeDefinition.consumes().toString().length();
-      if (consumeLen > consumesMax) {
-        consumesMax = consumeLen;
-      }
-      int producesLen = routeDefinition.produces().toString().length();
-      if (producesLen > producesMax) {
-        producesMax = producesLen;
-      }
+    int verbMax = 0, routeMax = 0, consumesMax = 0, producesMax = 0;
+    for (RouteDefinition routeDef : routeDefs) {
+      verbMax = Math.max(verbMax, routeDef.verb().length());
+
+      routeMax = Math.max(routeMax, routeDef.pattern().length());
+
+      consumesMax = Math.max(consumesMax, routeDef.consumes().toString().length());
+
+      producesMax = Math.max(producesMax, routeDef.produces().toString().length());
     }
-    String format = "    %-" + routeMax + "s    %" + consumesMax + "s     %" + producesMax + "s\n";
-    for (RouteDefinition routeDefinition : routeDefs) {
-      buffer.append(String.format(format, routeDefinition.pattern(), routeDefinition.consumes(),
-          routeDefinition.produces()));
+
+    String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax + "s     %"
+        + producesMax + "s    (%s)\n";
+
+    for (RouteDefinition routeDef : routeDefs) {
+      buffer.append(String.format(format, routeDef.verb(), routeDef.pattern(),
+          routeDef.consumes(), routeDef.produces(), routeDef.name()));
     }
     return buffer.toString();
   }

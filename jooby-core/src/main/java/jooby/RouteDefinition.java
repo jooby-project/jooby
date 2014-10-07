@@ -119,8 +119,9 @@ public class RouteDefinition {
     requireNonNull(filter, "A filter is required.");
 
     this.verb = verb;
-    this.pattern = pattern;
     this.compiledPattern = new RoutePattern(verb, pattern);
+    // normalized pattern
+    this.pattern = compiledPattern.pattern();
     this.filter = filter;
   }
 
@@ -141,11 +142,6 @@ public class RouteDefinition {
       }
     }
     return Optional.empty();
-  }
-
-  private Route asRoute(final RouteMatcher matcher, final List<MediaType> produces) {
-    return new RouteImpl(filter, verb, matcher.path(), pattern, name, index, matcher.vars(), consumes,
-        produces);
   }
 
   public String verb() {
@@ -250,6 +246,11 @@ public class RouteDefinition {
   public static RouteDefinition newRoute(final String verb, final String path,
       final Filter filter) {
     return new RouteDefinition(verb, path, filter);
+  }
+
+  private Route asRoute(final RouteMatcher matcher, final List<MediaType> produces) {
+    return new RouteImpl(filter, verb, matcher.path(), pattern, name, index, matcher.vars(), consumes,
+        produces);
   }
 
 }

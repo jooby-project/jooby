@@ -98,7 +98,7 @@ public class Routes {
               return RouteDefinition.newRoute(verb, path, new MvcRoute(m, provider))
                   .produces(produces(m))
                   .consumes(consumes(m))
-                  .name(routeClass.getName() + "." + m.getName());
+                  .name(routeClass.getSimpleName() + "." + m.getName());
             })
         .collect(Collectors.toList());
   }

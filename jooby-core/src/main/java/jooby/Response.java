@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import jooby.fn.ExSupplier;
 
 import com.google.common.annotations.Beta;
+import com.sun.xml.internal.ws.client.ContentNegotiation;
 
 /**
  * Give you access to the actual HTTP response. You can read/write headers and write HTTP body.
@@ -44,7 +45,7 @@ public interface Response {
    * @author edgar
    * @since 0.1.0
    */
-  interface ContentNegotiation {
+  interface Formatter {
 
     /**
      * Add a new when clause for a custom media-type.
@@ -54,7 +55,7 @@ public interface Response {
      * @return A {@link ContentNegotiation}.
      */
     @Nonnull
-    default ContentNegotiation when(final String mediaType, final ExSupplier<Object> supplier) {
+    default Formatter when(final String mediaType, final ExSupplier<Object> supplier) {
       return when(MediaType.valueOf(mediaType), supplier);
     }
 
@@ -66,7 +67,7 @@ public interface Response {
      * @return A {@link ContentNegotiation}.
      */
     @Nonnull
-    ContentNegotiation when(MediaType mediaType, ExSupplier<Object> supplier);
+    Formatter when(MediaType mediaType, ExSupplier<Object> supplier);
 
     /**
      * Write the response and send it.
@@ -172,23 +173,7 @@ public interface Response {
    */
   void send(@Nonnull Object body, @Nonnull BodyConverter converter) throws Exception;
 
-  /**
-   * Add a new when clause for a custom media-type.
-   *
-   * @param mediaType A media type to test for.
-   * @param supplier An object provider.
-   * @return A {@link ContentNegotiation}.
-   */
-  @Nonnull ContentNegotiation when(String type, ExSupplier<Object> supplier);
-
-  /**
-   * Add a new when clause for a custom media-type.
-   *
-   * @param mediaType A media type to test for.
-   * @param supplier An object provider.
-   * @return A {@link ContentNegotiation}.
-   */
-  @Nonnull ContentNegotiation when(MediaType type, ExSupplier<Object> supplier);
+  @Nonnull Formatter format();
 
   default void redirect(final String location) throws Exception {
     redirect(HttpStatus.FOUND, location);

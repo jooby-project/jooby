@@ -24,8 +24,8 @@ public class RoutePattern {
   public RoutePattern(final String verb, final String pattern) {
     requireNonNull(verb, "A HTTP verb is required.");
     requireNonNull(pattern, "A path pattern is required.");
-    this.pattern = pattern(verb, pattern);
-    this.matcher = rewrite(this, this.pattern);
+    this.pattern = normalize(pattern);
+    this.matcher = rewrite(this, verb.toUpperCase() + this.pattern);
   }
 
   public String pattern() {
@@ -103,8 +103,8 @@ public class RoutePattern {
     return Pattern.quote(s.substring(start, end));
   }
 
-  private static String pattern(final String verb, final String pattern) {
-    StringBuilder buffer = new StringBuilder(verb.toUpperCase());
+  private static String normalize(final String pattern) {
+    StringBuilder buffer = new StringBuilder();
     if (pattern.equals("/")) {
       return buffer.append(pattern).toString();
     }

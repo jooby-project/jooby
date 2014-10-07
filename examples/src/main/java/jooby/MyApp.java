@@ -209,18 +209,17 @@ public class MyApp extends Jooby {
 
   {
 
-    use(new HibernatePersistence(User.class));
     use(new Jackson());
     use(new Hbs());
 
-    get("/default/users", (req, resp) -> {
+    get("/default/user/:id", (req, resp) -> {
 
       EntityManager em = req.getInstance(EntityManager.class);
 
       User user1 = new User();
       user1.setFirstName("edgar");
       user1.setLastName("espina");
-      user1.setId("1");
+      user1.setId(req.param("id").stringValue());
       em.persist(user1);
 
       resp.send(user1);
@@ -232,6 +231,8 @@ public class MyApp extends Jooby {
 
       resp.send(em.createQuery("from User").getResultList());
     });
+
+    use(new HibernatePersistence(User.class));
 
   }
 

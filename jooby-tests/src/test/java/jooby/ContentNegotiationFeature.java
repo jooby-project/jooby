@@ -55,7 +55,8 @@ public class ContentNegotiationFeature extends ServerFeature {
     });
 
     get("/any", (req, resp) ->
-        resp.when("text/html", () -> Viewable.of("test", "body"))
+        resp.format()
+            .when("text/html", () -> Viewable.of("test", "body"))
             .when("application/json", () -> "body")
             .send());
 
