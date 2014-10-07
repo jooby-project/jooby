@@ -26,8 +26,6 @@ public class RouteImpl implements Route, Filter {
 
   private String name;
 
-  private int index;
-
   private Map<String, String> vars;
 
   private List<MediaType> consumes;
@@ -47,19 +45,18 @@ public class RouteImpl implements Route, Filter {
 
   public static RouteImpl fromStatus(final Filter filter, final String verb, final String path,
       final HttpStatus status, final List<MediaType> produces) {
-    return new RouteImpl(filter, verb, path, path, status.value() + "", -1, Collections.emptyMap(),
+    return new RouteImpl(filter, verb, path, path, status.value() + "", Collections.emptyMap(),
         ALL, produces);
   }
 
   public RouteImpl(final Filter filter, final String verb, final String path,
-      final String pattern, final String name, final int index, final Map<String, String> vars,
+      final String pattern, final String name, final Map<String, String> vars,
       final List<MediaType> consumes, final List<MediaType> produces) {
     this.filter = filter;
     this.verb = verb;
     this.path = path;
     this.pattern = pattern;
     this.name = name;
-    this.index = index;
     this.vars = vars;
     this.consumes = consumes;
     this.produces = produces;
@@ -92,11 +89,6 @@ public class RouteImpl implements Route, Filter {
   }
 
   @Override
-  public int index() {
-    return index;
-  }
-
-  @Override
   public Map<String, String> vars() {
     return vars;
   }
@@ -116,7 +108,6 @@ public class RouteImpl implements Route, Filter {
     StringBuilder buffer = new StringBuilder();
     buffer.append(verb()).append(" ").append(path()).append("\n");
     buffer.append("  pattern: ").append(pattern()).append("\n");
-    buffer.append("  index: ").append(index()).append("\n");
     buffer.append("  name: ").append(name()).append("\n");
     buffer.append("  vars: ").append(vars()).append("\n");
     buffer.append("  consume: ").append(consume()).append("\n");

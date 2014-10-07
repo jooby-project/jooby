@@ -53,8 +53,6 @@ public interface Route {
 
   String name();
 
-  int index();
-
   Map<String, String> vars();
 
   List<MediaType> consume();

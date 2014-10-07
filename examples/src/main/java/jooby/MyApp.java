@@ -209,6 +209,8 @@ public class MyApp extends Jooby {
 
   {
 
+    use(new HibernatePersistence(User.class));
+
     use(new Jackson());
     use(new Hbs());
 
@@ -231,8 +233,6 @@ public class MyApp extends Jooby {
 
       resp.send(em.createQuery("from User").getResultList());
     });
-
-    use(new HibernatePersistence(User.class));
 
   }
 

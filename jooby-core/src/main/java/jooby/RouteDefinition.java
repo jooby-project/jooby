@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nonnull;
 
@@ -75,11 +74,8 @@ import com.google.common.collect.Lists;
 public class RouteDefinition {
 
   private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
-  private static final AtomicInteger INDEX = new AtomicInteger(-1);
 
-  private final int index = INDEX.incrementAndGet();
-
-  private String name = "route" + index;
+  private String name = "anonymous";
 
   /**
    * A route pattern.
@@ -146,10 +142,6 @@ public class RouteDefinition {
 
   public String verb() {
     return verb;
-  }
-
-  public int index() {
-    return index;
   }
 
   public String name() {
@@ -235,6 +227,16 @@ public class RouteDefinition {
     return ImmutableList.copyOf(this.produces);
   }
 
+  @Override
+  public String toString() {
+    StringBuilder buffer = new StringBuilder();
+    buffer.append(verb()).append(" ").append(pattern()).append("\n");
+    buffer.append("  name: ").append(name()).append("\n");
+    buffer.append("  consume: ").append(consumes()).append("\n");
+    buffer.append("  produces: ").append(produces()).append("\n");
+    return buffer.toString();
+  }
+
   public static RouteDefinition newRoute(final String verb, final String path,
       final Router router) {
     return new RouteDefinition(verb, path, (req, res, chain) -> {
@@ -249,7 +251,7 @@ public class RouteDefinition {
   }
 
   private Route asRoute(final RouteMatcher matcher, final List<MediaType> produces) {
-    return new RouteImpl(filter, verb, matcher.path(), pattern, name, index, matcher.vars(), consumes,
+    return new RouteImpl(filter, verb, matcher.path(), pattern, name, matcher.vars(), consumes,
         produces);
   }
 

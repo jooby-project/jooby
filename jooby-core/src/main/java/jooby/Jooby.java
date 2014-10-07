@@ -287,7 +287,7 @@ public class Jooby {
   /**
    * Keep track of routes.
    */
-  private final Set<Object> routes = new LinkedHashSet<>();
+  private final Set<Object> bag = new LinkedHashSet<>();
 
   /**
    * Keep track of modules.
@@ -487,7 +487,7 @@ public class Jooby {
     } else {
       singletonRoutes.add(routeType);
     }
-    routes.add(routeType);
+    bag.add(routeType);
   }
 
   /**
@@ -497,7 +497,7 @@ public class Jooby {
    * @return The same route definition.
    */
   private RouteDefinition route(final RouteDefinition route) {
-    routes.add(route);
+    bag.add(route);
     return route;
   }
 
@@ -511,6 +511,7 @@ public class Jooby {
   public Jooby use(final JoobyModule module) {
     requireNonNull(module, "A module is required.");
     modules.add(module);
+    bag.add(module);
     return this;
   }
 
@@ -605,21 +606,19 @@ public class Jooby {
         binder.bind(File.class).annotatedWith(Names.named("java.io.tmpdir"))
             .toInstance(new File(config.getString("java.io.tmpdir")));
 
-        // configure module
-        modules.forEach(m -> {
-          install(m, mode, config, binder);
-        });
-
-        // Routes
-        routes.forEach(candidate -> {
-          if (candidate instanceof RouteDefinition) {
-            definitions.addBinding().toInstance((RouteDefinition) candidate);
-          } else {
-            Class<?> routeClass = (Class<?>) candidate;
-            Routes.routes(mode, routeClass)
-                .forEach(route -> definitions.addBinding().toInstance(route));
-          }
-        });
+        // modules and routes
+        bag.forEach(candidate -> {
+          if (candidate instanceof JoobyModule) {
+            install((JoobyModule) candidate, mode, config, binder);
+          } else
+            if (candidate instanceof RouteDefinition) {
+              definitions.addBinding().toInstance((RouteDefinition) candidate);
+            } else {
+              Class<?> routeClass = (Class<?>) candidate;
+              Routes.routes(mode, routeClass)
+                  .forEach(route -> definitions.addBinding().toInstance(route));
+            }
+          });
 
         // Singleton routes
         singletonRoutes.forEach(routeClass -> binder.bind(routeClass).in(Scopes.SINGLETON));
