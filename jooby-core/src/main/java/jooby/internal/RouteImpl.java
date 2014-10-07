@@ -1,7 +1,5 @@
 package jooby.internal;
 
-import static java.util.Objects.requireNonNull;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -10,13 +8,13 @@ import jooby.Filter;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
+import jooby.Request;
+import jooby.Response;
 import jooby.Route;
-import jooby.RouteDefinition;
-import jooby.RouteMatcher;
 
 import com.google.common.collect.ImmutableList;
 
-public class RouteImpl implements Route {
+public class RouteImpl implements Route, Filter {
 
   private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
@@ -38,28 +36,22 @@ public class RouteImpl implements Route {
 
   private Filter filter;
 
-  public static RouteImpl fromDefinition(final Filter filter, final String verb,
-      final RouteDefinition definition, final RouteMatcher matcher) {
-    return new RouteImpl(filter, verb, matcher.path(), matcher.pattern().pattern(),
-        definition.name(), definition.index(), matcher.vars(), definition.consumes(),
-        definition.produces());
-  }
-
-  public static RouteImpl notFound(final String verb, final String path) {
-    return RouteImpl.fromStatus(verb, path, HttpStatus.NOT_FOUND, (req, res, chain) -> {
+  public static RouteImpl notFound(final String verb, final String path,
+      final List<MediaType> produces) {
+    return fromStatus((req, res, chain) -> {
       if (!res.committed()) {
         throw new HttpException(HttpStatus.NOT_FOUND, path);
       }
-    });
+    }, verb, path, HttpStatus.NOT_FOUND, produces);
   }
 
-  public static RouteImpl fromStatus(final String verb, final String path, final HttpStatus status,
-      final Filter filter) {
+  public static RouteImpl fromStatus(final Filter filter, final String verb, final String path,
+      final HttpStatus status, final List<MediaType> produces) {
     return new RouteImpl(filter, verb, path, path, status.value() + "", -1, Collections.emptyMap(),
-        ALL, ALL);
+        ALL, produces);
   }
 
-  private RouteImpl(final Filter filter, final String verb, final String path,
+  public RouteImpl(final Filter filter, final String verb, final String path,
       final String pattern, final String name, final int index, final Map<String, String> vars,
       final List<MediaType> consumes, final List<MediaType> produces) {
     this.filter = filter;
@@ -73,8 +65,10 @@ public class RouteImpl implements Route {
     this.produces = produces;
   }
 
-  public Filter filter() {
-    return filter;
+  @Override
+  public void handle(final Request request, final Response response, final Chain chain)
+      throws Exception {
+    filter.handle(request, response, chain);
   }
 
   @Override
@@ -130,8 +124,4 @@ public class RouteImpl implements Route {
     return buffer.toString();
   }
 
-  RouteImpl produces(final List<MediaType> produces) {
-    this.produces = requireNonNull(produces, "Produces are required.");
-    return this;
-  }
 }

@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import jooby.FileMediaTypeProvider;
-import jooby.Filter;
 import jooby.ForwardingRequest;
 import jooby.ForwardingResponse;
 import jooby.HttpException;
@@ -35,9 +34,7 @@ import jooby.Request;
 import jooby.RequestModule;
 import jooby.Response;
 import jooby.Route;
-import jooby.RouteChain;
 import jooby.RouteDefinition;
-import jooby.RouteMatcher;
 import jooby.Viewable;
 
 import org.slf4j.Logger;
@@ -126,7 +123,7 @@ public class RouteHandler {
 
     Injector injector = rootInjector;
 
-    Route notFound = RouteImpl.notFound(verb, path).produces(accept);
+    Route notFound = RouteImpl.notFound(verb, path, accept);
 
     try {
 
@@ -177,8 +174,8 @@ public class RouteHandler {
     return uri.endsWith("/") && uri.length() > 1 ? uri.substring(0, uri.length() - 1) : uri;
   }
 
-  private static RouteChain chain(final Iterator<Route> it) {
-    return new RouteChain() {
+  private static Route.Chain chain(final Iterator<Route> it) {
+    return new Route.Chain() {
 
       @Override
       public void next(final Request req, final Response res) throws Exception {
@@ -188,7 +185,7 @@ public class RouteHandler {
         set(req, route);
         set(res, route);
 
-        route.filter().handle(req, res, this);
+        route.handle(req, res, this);
       }
 
       private void set(final Request req, final Route route) {
@@ -218,10 +215,10 @@ public class RouteHandler {
   private List<Route> routes(final String verb, final String requestURI, final MediaType type,
       final List<MediaType> accept) {
     String path = verb + requestURI;
-    List<Route> routes = findRoutes(verb, path, type, accept);
+    List<Route> routes = findRoutes(verb, requestURI, type, accept);
 
     // 406 or 415
-    routes.add(RouteImpl.fromStatus(verb, path, HttpStatus.NOT_ACCEPTABLE, (req, res, chain) -> {
+    routes.add(RouteImpl.fromStatus((req, res, chain) -> {
       if (!res.committed()) {
         HttpException ex = handle406or415(verb, requestURI, type, accept);
         if (ex != null) {
@@ -229,22 +226,21 @@ public class RouteHandler {
         }
       }
       chain.next(req, res);
-    }).produces(accept));
+    }, verb, path, HttpStatus.NOT_ACCEPTABLE, accept));
 
     // 405
-    routes.add(RouteImpl.fromStatus(verb, path, HttpStatus.METHOD_NOT_ALLOWED,
-        (req, res, chain) -> {
-          if (!res.committed()) {
-            HttpException ex = handle405(verb, requestURI, type, accept);
-            if (ex != null) {
-              throw ex;
-            }
-          }
-          chain.next(req, res);
-        }).produces(accept));
+    routes.add(RouteImpl.fromStatus((req, res, chain) -> {
+      if (!res.committed()) {
+        HttpException ex = handle405(verb, requestURI, type, accept);
+        if (ex != null) {
+          throw ex;
+        }
+      }
+      chain.next(req, res);
+    }, verb, path, HttpStatus.METHOD_NOT_ALLOWED, accept));
 
     // 404
-    routes.add(RouteImpl.notFound(verb, path));
+    routes.add(RouteImpl.notFound(verb, path, accept));
 
     return routes;
   }
@@ -254,18 +250,9 @@ public class RouteHandler {
 
     LinkedList<Route> routes = new LinkedList<Route>();
     for (RouteDefinition routeDef : routeDefs) {
-      RouteMatcher matcher = routeDef.path().matcher(path);
-      if (matcher.matches()) {
-        List<MediaType> produces = MediaType.matcher(accept).filter(routeDef.produces());
-        if (routeDef.canConsume(type) && produces.size() > 0) {
-          Filter filter = ((RouteDefinitionImpl) routeDef).filter();
-          RouteImpl route = RouteImpl.fromDefinition(filter, verb, routeDef, matcher);
-          if (produces.size() == 1 && produces.get(0).name().equals("*/*")) {
-            // keep accept when */*
-            route.produces(accept);
-          }
-          routes.add(route);
-        }
+      Optional<Route> route = routeDef.matches(verb, path, type, accept);
+      if (route.isPresent()) {
+        routes.add(route.get());
       }
     }
     return routes;
@@ -382,8 +369,7 @@ public class RouteHandler {
     List<String> verbs = Lists.newLinkedList(VERBS);
     verbs.remove(verb);
     for (String candidate : verbs) {
-      String path = candidate + uri;
-      Optional<Route> found = findRoutes(verb, path, type, accept)
+      Optional<Route> found = findRoutes(candidate, uri, type, accept)
           .stream()
           // skip glob pattern
           .filter(r -> !r.pattern().contains("*"))
@@ -396,21 +382,17 @@ public class RouteHandler {
     return null;
   }
 
-  private HttpException handle406or415(final String verb, final String requestURI,
-      final MediaType contentType,
-      final List<MediaType> accept) {
-    String path = verb + requestURI;
+  private HttpException handle406or415(final String verb, final String path,
+      final MediaType contentType, final List<MediaType> accept) {
     for (RouteDefinition routeDef : routeDefs) {
-      if (!routeDef.path().pattern().contains("*")) {
-        RouteMatcher matcher = routeDef.path().matcher(path);
-        if (matcher.matches()) {
-          if (!routeDef.canProduce(accept)) {
-            return new HttpException(HttpStatus.NOT_ACCEPTABLE, accept.stream()
-                .map(MediaType::name)
-                .collect(Collectors.joining(", ")));
-          }
-          return new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, contentType.name());
+      Optional<Route> route = routeDef.matches(verb, path, MediaType.all, ALL);
+      if (route.isPresent() && !route.get().pattern().contains("*")) {
+        if (!routeDef.canProduce(accept)) {
+          return new HttpException(HttpStatus.NOT_ACCEPTABLE, accept.stream()
+              .map(MediaType::name)
+              .collect(Collectors.joining(", ")));
         }
+        return new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, contentType.name());
       }
     }
     return null;
@@ -421,7 +403,7 @@ public class RouteHandler {
     StringBuilder buffer = new StringBuilder();
     int routeMax = 0, consumesMax = 0, producesMax = 0;
     for (RouteDefinition routeDefinition : routeDefs) {
-      int routeLen = routeDefinition.path().toString().length();
+      int routeLen = routeDefinition.pattern().toString().length();
       if (routeLen > routeMax) {
         routeMax = routeLen;
       }
@@ -437,7 +419,7 @@ public class RouteHandler {
     }
     String format = "    %-" + routeMax + "s    %" + consumesMax + "s     %" + producesMax + "s\n";
     for (RouteDefinition routeDefinition : routeDefs) {
-      buffer.append(String.format(format, routeDefinition.path(), routeDefinition.consumes(),
+      buffer.append(String.format(format, routeDefinition.pattern(), routeDefinition.consumes(),
           routeDefinition.produces()));
     }
     return buffer.toString();

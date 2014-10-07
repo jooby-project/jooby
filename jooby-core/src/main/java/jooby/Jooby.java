@@ -14,7 +14,6 @@ import java.util.function.Supplier;
 
 import jooby.internal.AssetRoute;
 import jooby.internal.FallbackBodyConverter;
-import jooby.internal.RouteDefinitionImpl;
 import jooby.internal.guice.TypeConverters;
 import jooby.internal.jetty.Jetty;
 import jooby.internal.mvc.Routes;
@@ -325,7 +324,7 @@ public class Jooby {
   }
 
   public RouteDefinition use(final String path, final Filter filter) {
-    return route(new RouteDefinitionImpl("*", path, filter));
+    return route(RouteDefinition.newRoute("*", path, filter));
   }
 
   /**
@@ -344,11 +343,11 @@ public class Jooby {
    * @return A new route definition.
    */
   public RouteDefinition get(final String path, final Router route) {
-    return route(new RouteDefinitionImpl("GET", path, route));
+    return route(RouteDefinition.newRoute("GET", path, route));
   }
 
   public RouteDefinition get(final String path, final Filter filter) {
-    return route(new RouteDefinitionImpl("GET", path, filter));
+    return route(RouteDefinition.newRoute("GET", path, filter));
   }
 
   /**
@@ -367,11 +366,11 @@ public class Jooby {
    * @return A new route definition.
    */
   public RouteDefinition post(final String path, final Router route) {
-    return route(new RouteDefinitionImpl("POST", path, route));
+    return route(RouteDefinition.newRoute("POST", path, route));
   }
 
   public RouteDefinition post(final String path, final Filter filter) {
-    return route(new RouteDefinitionImpl("POST", path, filter));
+    return route(RouteDefinition.newRoute("POST", path, filter));
   }
 
   /**
@@ -390,11 +389,11 @@ public class Jooby {
    * @return A new route definition.
    */
   public RouteDefinition put(final String path, final Router route) {
-    return route(new RouteDefinitionImpl("PUT", path, route));
+    return route(RouteDefinition.newRoute("PUT", path, route));
   }
 
   public RouteDefinition put(final String path, final Filter filter) {
-    return route(new RouteDefinitionImpl("PUT", path, filter));
+    return route(RouteDefinition.newRoute("PUT", path, filter));
   }
 
   /**
@@ -413,11 +412,11 @@ public class Jooby {
    * @return A new route definition.
    */
   public RouteDefinition delete(final String path, final Router router) {
-    return route(new RouteDefinitionImpl("DELETE", path, router));
+    return route(RouteDefinition.newRoute("DELETE", path, router));
   }
 
   public RouteDefinition delete(final String path, final Filter filter) {
-    return route(new RouteDefinitionImpl("DELETE", path, filter));
+    return route(RouteDefinition.newRoute("DELETE", path, filter));
   }
 
   /**
@@ -614,7 +613,7 @@ public class Jooby {
         // Routes
         routes.forEach(candidate -> {
           if (candidate instanceof RouteDefinition) {
-            definitions.addBinding().toInstance((RouteDefinitionImpl) candidate);
+            definitions.addBinding().toInstance((RouteDefinition) candidate);
           } else {
             Class<?> routeClass = (Class<?>) candidate;
             Routes.routes(mode, routeClass)

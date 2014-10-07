@@ -95,7 +95,7 @@ public class Routes {
             m -> {
               String verb = verb(m);
               String path = rootPath + "/" + path(m);
-              return RouteDefinition.Builder.newRoute(verb, path, new MvcRoute(m, provider))
+              return RouteDefinition.newRoute(verb, path, new MvcRoute(m, provider))
                   .produces(produces(m))
                   .consumes(consumes(m))
                   .name(routeClass.getName() + "." + m.getName());

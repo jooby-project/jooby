@@ -7,9 +7,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import jooby.RouteMatcher;
-import jooby.RoutePattern;
-
 import org.junit.Test;
 
 public class RoutePathTest {
@@ -19,7 +16,7 @@ public class RoutePathTest {
     private RoutePattern path;
 
     public RoutePathAssert(final String method, final String pattern) {
-      path = new RoutePatternImpl(method, pattern);
+      path = new RoutePattern(method, pattern);
     }
 
     public RoutePathAssert matches(final String path) {
@@ -296,11 +293,11 @@ public class RoutePathTest {
 
   @Test
   public void normalizePath() {
-    assertEquals("GET/foo", new RoutePatternImpl("GET", "/foo//").pattern());
-    assertEquals("GET/foo", new RoutePatternImpl("GET", "foo//").pattern());
-    assertEquals("GET/foo", new RoutePatternImpl("GET", "foo").pattern());
-    assertEquals("GET/foo", new RoutePatternImpl("GET", "foo/").pattern());
-    assertEquals("GET/foo/bar", new RoutePatternImpl("GET", "/foo//bar").pattern());
+    assertEquals("GET/foo", new RoutePattern("GET", "/foo//").pattern());
+    assertEquals("GET/foo", new RoutePattern("GET", "foo//").pattern());
+    assertEquals("GET/foo", new RoutePattern("GET", "foo").pattern());
+    assertEquals("GET/foo", new RoutePattern("GET", "foo/").pattern());
+    assertEquals("GET/foo/bar", new RoutePattern("GET", "/foo//bar").pattern());
   }
 
 }

@@ -6,8 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jooby.internal.RouteDefinitionImpl;
-
 import org.apache.http.client.fluent.Request;
 import org.junit.Test;
 
@@ -22,7 +20,7 @@ public class RouteReferenceFeature extends ServerFeature {
      * I'm sure something better can be done... later
      */
     try {
-      Field field = RouteDefinitionImpl.class.getDeclaredField("INDEX");
+      Field field = RouteDefinition.class.getDeclaredField("INDEX");
       field.setAccessible(true);
       AtomicInteger index = (AtomicInteger) field.get(null);
       index.set(-1);

@@ -1,17 +1,10 @@
-package jooby;
+package jooby.internal;
 
 import java.util.Collections;
 import java.util.Map;
 
-import com.google.common.annotations.Beta;
+import jooby.Route;
 
-/**
- * A result of {@link RoutePattern#matcher(String)} which provides access to path variables.
- *
- * @author edgar
- * @since 0.1.0
- */
-@Beta
 public interface RouteMatcher {
 
   /**
@@ -20,11 +13,9 @@ public interface RouteMatcher {
   String path();
 
   /**
-   * @return True, if {@link #path()} matches a {@link RoutePattern}.
+   * @return True, if {@link #path()} matches a {@link Route.Pattern}.
    */
   boolean matches();
-
-  RoutePattern pattern();
 
   /**
    * Get path vars from current path. Or empty map if there is none.
@@ -35,5 +26,4 @@ public interface RouteMatcher {
   default Map<String, String> vars() {
     return Collections.emptyMap();
   }
-
 }

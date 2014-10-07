@@ -84,7 +84,7 @@ public class HibernatePersistence extends JDBC {
     Multibinder<RouteDefinition> routes = Multibinder.newSetBinder(binder, RouteDefinition.class);
 
     routes.addBinding()
-        .toInstance(RouteDefinition.Builder.newRoute("*", "/**", readWriteTrx(key)));
+        .toInstance(RouteDefinition.newRoute("*", "/**", readWriteTrx(key)));
 
     Multibinder.newSetBinder(binder, RequestModule.class).addBinding().toInstance((b) -> {
       EntityManager em = emf.createEntityManager();
