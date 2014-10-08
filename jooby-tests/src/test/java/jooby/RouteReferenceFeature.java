@@ -14,7 +14,7 @@ public class RouteReferenceFeature extends ServerFeature {
       Route route = req.route();
       assertNotNull(route);
       assertEquals("anonymous", route.name());
-      assertEquals("GET", route.verb());
+      assertEquals("GET", route.verb().name());
       assertEquals("/", route.path());
       assertEquals("/", route.pattern());
       res.send("done");
@@ -24,7 +24,7 @@ public class RouteReferenceFeature extends ServerFeature {
       Route route = req.route();
       assertNotNull(route);
       assertEquals("anonymous", route.name());
-      assertEquals("GET", route.verb());
+      assertEquals("GET", route.verb().name());
       assertEquals("/" + req.param("var").stringValue(), route.path());
       assertEquals("/:var", route.pattern());
       res.send("done");

@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -37,15 +38,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.inject.Injector;
 
 @Singleton
 public class RouteHandler {
 
   private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
-
-  private static final List<String> VERBS = ImmutableList.of("GET", "POST", "PUT", "DELETE");
 
   private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
@@ -84,7 +82,7 @@ public class RouteHandler {
     requireNonNull(response, "A HTTP servlet response is required.");
 
     long start = System.currentTimeMillis();
-    String verb = request.getMethod().toUpperCase();
+    Request.Verb verb = Request.Verb.valueOf(request.getMethod().toUpperCase());
     String requestURI = normalizeURI(request.getRequestURI());
 
     Map<String, Object> locals = new LinkedHashMap<>();
@@ -190,7 +188,7 @@ public class RouteHandler {
         while (root instanceof Route.Forwarding) {
           root = ((Route.Forwarding) root).delegate();
         }
-        return (RouteImpl)root;
+        return (RouteImpl) root;
       }
 
       private void set(final Request req, final Route route) {
@@ -217,20 +215,14 @@ public class RouteHandler {
     };
   }
 
-  private List<Route> routes(final String verb, final String requestURI, final MediaType type,
+  private List<Route> routes(final Request.Verb verb, final String path, final MediaType type,
       final List<MediaType> accept) {
-    String path = verb + requestURI;
-    List<Route> routes = findRoutes(verb, requestURI, type, accept);
-    if ("HEAD".equals(verb)
-        && !routes.stream().filter(r -> r.verb().equals("HEAD")).findFirst().isPresent()) {
-      // override HEAD when it's missing.
-      routes = findRoutes("GET", requestURI, type, accept, "HEAD");
-    }
+    List<Route> routes = findRoutes(verb, path, type, accept);
 
     // 406 or 415
     routes.add(RouteImpl.fromStatus((req, res, chain) -> {
       if (!res.committed()) {
-        HttpException ex = handle406or415(verb, requestURI, type, accept);
+        HttpException ex = handle406or415(verb, path, type, accept);
         if (ex != null) {
           throw ex;
         }
@@ -241,7 +233,7 @@ public class RouteHandler {
     // 405
     routes.add(RouteImpl.fromStatus((req, res, chain) -> {
       if (!res.committed()) {
-        HttpException ex = handle405(verb, requestURI, type, accept);
+        HttpException ex = handle405(verb, path, type, accept);
         if (ex != null) {
           throw ex;
         }
@@ -255,13 +247,13 @@ public class RouteHandler {
     return routes;
   }
 
-  private List<Route> findRoutes(final String verb, final String path, final MediaType type,
+  private List<Route> findRoutes(final Request.Verb verb, final String path, final MediaType type,
       final List<MediaType> accept) {
     return findRoutes(verb, path, type, accept, verb);
   }
 
-  private List<Route> findRoutes(final String verb, final String path, final MediaType type,
-      final List<MediaType> accept, final String overrideVerb) {
+  private List<Route> findRoutes(final Request.Verb verb, final String path, final MediaType type,
+      final List<MediaType> accept, final Request.Verb overrideVerb) {
 
     LinkedList<Route> routes = new LinkedList<Route>();
     for (Route.Definition routeDef : routeDefs) {
@@ -274,10 +266,10 @@ public class RouteHandler {
     return routes;
   }
 
-  private static Route overrideVerb(final Route route, final String verb) {
+  private static Route overrideVerb(final Route route, final Request.Verb verb) {
     return new Route.Forwarding(route) {
       @Override
-      public String verb() {
+      public Request.Verb verb() {
         return verb;
       }
     };
@@ -388,26 +380,32 @@ public class RouteHandler {
     return HttpStatus.SERVER_ERROR;
   }
 
-  private HttpException handle405(final String verb, final String uri, final MediaType type,
+  private HttpException handle405(final Request.Verb verb, final String uri, final MediaType type,
       final List<MediaType> accept) {
 
-    List<String> verbs = Lists.newLinkedList(VERBS);
-    verbs.remove(verb);
-    for (String candidate : verbs) {
-      Optional<Route> found = findRoutes(candidate, uri, type, accept)
-          .stream()
-          // skip glob pattern
-          .filter(r -> !r.pattern().contains("*"))
-          .findFirst();
-
-      if (found.isPresent()) {
-        return new HttpException(HttpStatus.METHOD_NOT_ALLOWED, verb + uri);
-      }
+    if (alternative(verb, uri).size() > 0) {
+      return new HttpException(HttpStatus.METHOD_NOT_ALLOWED, verb + uri);
     }
+
     return null;
   }
 
-  private HttpException handle406or415(final String verb, final String path,
+  private List<Route> alternative(final Request.Verb verb, final String uri) {
+    List<Route> routes = new LinkedList<>();
+    Set<Request.Verb> verbs = EnumSet.allOf(Request.Verb.class);
+    verbs.remove(verb);
+    for (Request.Verb alt : verbs) {
+      findRoutes(alt, uri, MediaType.all, ALL)
+          .stream()
+          // skip glob pattern
+          .filter(r -> !r.pattern().contains("*"))
+          .forEach(routes::add);
+
+    }
+    return routes;
+  }
+
+  private HttpException handle406or415(final Request.Verb verb, final String path,
       final MediaType contentType, final List<MediaType> accept) {
     for (Route.Definition routeDef : routeDefs) {
       Optional<Route> route = routeDef.matches(verb, path, MediaType.all, ALL);
@@ -428,7 +426,7 @@ public class RouteHandler {
     StringBuilder buffer = new StringBuilder();
     int verbMax = 0, routeMax = 0, consumesMax = 0, producesMax = 0;
     for (Route.Definition routeDef : routeDefs) {
-      verbMax = Math.max(verbMax, routeDef.verb().length());
+      verbMax = Math.max(verbMax, routeDef.verb().name().length());
 
       routeMax = Math.max(routeMax, routeDef.pattern().length());
 

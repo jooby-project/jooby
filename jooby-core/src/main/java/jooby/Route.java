@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
+import jooby.Request.Verb;
 import jooby.internal.RouteImpl;
 import jooby.internal.RouteMatcher;
 import jooby.internal.RoutePattern;
@@ -135,7 +136,8 @@ public interface Route {
      * {@literal *}/{@literal *}.
      */
     private List<MediaType> produces = ALL;
-    private String verb;
+
+    private Verb verb;
 
     private String pattern;
 
@@ -158,7 +160,7 @@ public interface Route {
       requireNonNull(pattern, "A route path is required.");
       requireNonNull(filter, "A filter is required.");
 
-      this.verb = verb;
+      this.verb = "*".equals(verb) ? Request.Verb.ANY : Request.Verb.valueOf(verb.toUpperCase());
       this.compiledPattern = new RoutePattern(verb, pattern);
       // normalized pattern
       this.pattern = compiledPattern.pattern();
@@ -169,9 +171,9 @@ public interface Route {
       return pattern;
     }
 
-    public Optional<Route> matches(final String verb, final String path, final MediaType contentType,
+    public Optional<Route> matches(final Request.Verb verb, final String path, final MediaType contentType,
         final List<MediaType> accept) {
-      RouteMatcher matcher = compiledPattern.matcher(verb.toUpperCase() + path);
+      RouteMatcher matcher = compiledPattern.matcher(verb.value() + path);
       if (matcher.matches()) {
         List<MediaType> result = MediaType.matcher(accept).filter(this.produces);
         if (canConsume(contentType) && result.size() > 0) {
@@ -184,7 +186,7 @@ public interface Route {
       return Optional.empty();
     }
 
-    public String verb() {
+    public Request.Verb verb() {
       return verb;
     }
 
@@ -302,7 +304,7 @@ public interface Route {
     }
 
     @Override
-    public String verb() {
+    public Request.Verb verb() {
       return route.verb();
     }
 
@@ -348,7 +350,7 @@ public interface Route {
 
   String path();
 
-  String verb();
+  Request.Verb verb();
 
   String pattern();
 

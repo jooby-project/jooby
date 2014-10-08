@@ -18,7 +18,7 @@ public class RouteImpl implements Route, Filter {
 
   private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
-  private String verb;
+  private Request.Verb verb;
 
   private String path;
 
@@ -34,7 +34,7 @@ public class RouteImpl implements Route, Filter {
 
   private Filter filter;
 
-  public static RouteImpl notFound(final String verb, final String path,
+  public static RouteImpl notFound(final Request.Verb verb, final String path,
       final List<MediaType> produces) {
     return fromStatus((req, res, chain) -> {
       if (!res.committed()) {
@@ -43,13 +43,13 @@ public class RouteImpl implements Route, Filter {
     }, verb, path, HttpStatus.NOT_FOUND, produces);
   }
 
-  public static RouteImpl fromStatus(final Filter filter, final String verb, final String path,
-      final HttpStatus status, final List<MediaType> produces) {
+  public static RouteImpl fromStatus(final Filter filter, final Request.Verb verb,
+      final String path, final HttpStatus status, final List<MediaType> produces) {
     return new RouteImpl(filter, verb, path, path, status.value() + "", Collections.emptyMap(),
         ALL, produces);
   }
 
-  public RouteImpl(final Filter filter, final String verb, final String path,
+  public RouteImpl(final Filter filter, final Request.Verb verb, final String path,
       final String pattern, final String name, final Map<String, String> vars,
       final List<MediaType> consumes, final List<MediaType> produces) {
     this.filter = filter;
@@ -74,7 +74,7 @@ public class RouteImpl implements Route, Filter {
   }
 
   @Override
-  public String verb() {
+  public Request.Verb verb() {
     return verb;
   }
 

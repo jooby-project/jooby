@@ -19,6 +19,9 @@ import jooby.internal.FallbackBodyConverter;
 import jooby.internal.guice.TypeConverters;
 import jooby.internal.jetty.Jetty;
 import jooby.internal.mvc.Routes;
+import jooby.internal.routes.HeadFilter;
+import jooby.internal.routes.OptionsRouter;
+import jooby.internal.routes.TraceRouter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -295,8 +298,8 @@ public class Jooby {
    * </p>
    *
    * <p>
-   * A module can provide his own set of properties through the {@link #config()} method. By default,
-   * this method returns an empty config object.
+   * A module can provide his own set of properties through the {@link #config()} method. By
+   * default, this method returns an empty config object.
    * </p>
    *
    * <p>
@@ -319,7 +322,8 @@ public class Jooby {
     }
 
     /**
-     * Callback method to start a module. This method will be invoked after all the registered modules
+     * Callback method to start a module. This method will be invoked after all the registered
+     * modules
      * has been configured.
      *
      * @throws Exception If something goes wrong.
@@ -328,7 +332,8 @@ public class Jooby {
     }
 
     /**
-     * Callback method to stop a module and clean any resources. Invoked when the application is about
+     * Callback method to stop a module and clean any resources. Invoked when the application is
+     * about
      * to shutdown.
      *
      * @throws Exception If something goes wrong.
@@ -346,7 +351,8 @@ public class Jooby {
      * @param binder A guice binder. Not null.
      * @throws Exception If the module fails during configuration.
      */
-    public abstract void configure(@Nonnull Mode mode, @Nonnull Config config, @Nonnull Binder binder)
+    public abstract void configure(@Nonnull Mode mode, @Nonnull Config config,
+        @Nonnull Binder binder)
         throws Exception;
   }
 
@@ -389,8 +395,16 @@ public class Jooby {
     return use("*", filter);
   }
 
+  public Route.Definition use(final Router router) {
+    return use("*", router);
+  }
+
   public Route.Definition use(final String path, final Filter filter) {
     return route(new Route.Definition("*", path, filter));
+  }
+
+  public Route.Definition use(final String path, final Router router) {
+    return route(new Route.Definition("*", path, router));
   }
 
   /**
@@ -447,6 +461,24 @@ public class Jooby {
     return route(new Route.Definition("HEAD", path, filter));
   }
 
+  public Route.Definition head(final String path) {
+    return route(new Route.Definition("HEAD", path, wrapFilter(HeadFilter.class))
+        .name("*.head"));
+  }
+
+  public Route.Definition options(final String path, final Router route) {
+    return route(new Route.Definition("OPTIONS", path, route));
+  }
+
+  public Route.Definition options(final String path, final Filter filter) {
+    return route(new Route.Definition("OPTIONS", path, filter));
+  }
+
+  public Route.Definition options(final String path) {
+    return route(new Route.Definition("OPTIONS", path, wrapRouter(OptionsRouter.class))
+        .name("*.options"));
+  }
+
   /**
    * Define an in-line route that supports HTTP PUT method:
    *
@@ -493,14 +525,39 @@ public class Jooby {
     return route(new Route.Definition("DELETE", path, filter));
   }
 
+  public Route.Definition trace(final String path, final Router route) {
+    return route(new Route.Definition("TRACE", path, route));
+  }
+
+  public Route.Definition trace(final String path, final Filter filter) {
+    return route(new Route.Definition("TRACE", path, filter));
+  }
+
+  public Route.Definition trace(final String path) {
+    return route(new Route.Definition("TRACE", path, wrapRouter(TraceRouter.class))
+        .name("*.trace"));
+  }
+
+  public Route.Definition connect(final String path, final Router route) {
+    return route(new Route.Definition("CONNECT", path, route));
+  }
+
+  public Route.Definition connect(final String path, final Filter filter) {
+    return route(new Route.Definition("CONNECT", path, filter));
+  }
+
   /**
    * Convert an external route to an inline route.
    *
-   * @param route The external route class.
+   * @param router The external route class.
    * @return A new inline route.
    */
-  private static Router wrapRouter(final Class<? extends Router> route) {
-    return (req, resp) -> req.getInstance(route).handle(req, resp);
+  private static Router wrapRouter(final Class<? extends Router> router) {
+    return (req, resp) -> req.getInstance(router).handle(req, resp);
+  }
+
+  private static Filter wrapFilter(final Class<? extends Filter> filter) {
+    return (req, res, chain) -> req.getInstance(filter).handle(req, res, chain);
   }
 
   /**

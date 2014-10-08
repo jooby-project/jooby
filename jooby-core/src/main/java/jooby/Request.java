@@ -28,7 +28,41 @@ import com.google.inject.TypeLiteral;
 @Beta
 public interface Request {
 
-  public class Forwarding implements Request {
+  enum Verb {
+    ANY {
+      @Override
+      public String value() {
+        return "*";
+      }
+    },
+
+    OPTIONS,
+
+    GET,
+
+    HEAD,
+
+    POST,
+
+    PUT,
+
+    DELETE,
+
+    TRACE,
+
+    CONNET;
+
+    public String value() {
+      return name();
+    }
+
+    @Override
+    public String toString() {
+      return value();
+    }
+  }
+
+  class Forwarding implements Request {
 
     private Request request;
 

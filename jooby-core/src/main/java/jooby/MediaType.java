@@ -212,6 +212,8 @@ public class MediaType implements Comparable<MediaType> {
    */
   public static final MediaType all = new MediaType("*", "*");
 
+  public static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
+
   /** Form multipart-data media type. */
   public static MediaType multipart = new MediaType("multipart", "form-data");
 

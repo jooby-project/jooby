@@ -13,7 +13,11 @@ public class HeadRequestFeature extends ServerFeature {
   {
     get("/", (req, res) -> res.send(req.route().verb()));
 
+    // custom head
     head("/head", (req, res) -> res.send(req.path()));
+
+    // global head
+    head("*");
   }
 
   @Test

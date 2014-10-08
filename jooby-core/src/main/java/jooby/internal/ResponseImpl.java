@@ -25,10 +25,10 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import jooby.BodyConverter;
-import jooby.MediaTypeProvider;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
+import jooby.MediaTypeProvider;
 import jooby.Response;
 import jooby.Route;
 import jooby.SetCookie;
@@ -242,6 +242,12 @@ public class ResponseImpl implements Response {
   public Response charset(final Charset charset) {
     this.charset = requireNonNull(charset, "A charset is required.");
     response.setCharacterEncoding(charset.name());
+    return this;
+  }
+
+  @Override
+  public Response length(final int length) {
+    response.setContentLength(length);
     return this;
   }
 

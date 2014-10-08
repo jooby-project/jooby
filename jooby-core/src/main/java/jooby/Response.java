@@ -130,6 +130,11 @@ public interface Response {
     }
 
     @Override
+    public Response length(final int length) {
+      return response.length(length);
+    }
+
+    @Override
     public <T> T local(final String name) {
       return response.local(name);
     }
@@ -317,6 +322,8 @@ public interface Response {
    */
   @Nonnull
   Response charset(@Nonnull Charset charset);
+
+  Response length(int length);
 
   /**
    * @return Get the response type.
