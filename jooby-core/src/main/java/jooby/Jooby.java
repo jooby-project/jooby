@@ -12,6 +12,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import javax.annotation.Nonnull;
+
 import jooby.internal.AssetRoute;
 import jooby.internal.FallbackBodyConverter;
 import jooby.internal.guice.TypeConverters;
@@ -27,7 +29,6 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.Module;
 import com.google.inject.Scopes;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
@@ -285,6 +286,71 @@ import com.typesafe.config.ConfigValueFactory;
 public class Jooby {
 
   /**
+   * A module can publish or produces: {@link Router routes}, {@link BodyConverter converters},
+   * {@link Request.Module request modules} and any other
+   * application specific service or contract of your choice.
+   * <p>
+   * It is similar to {@link com.google.inject.Module} except for the callback method that receive a
+   * {@link Mode}, {@link Config} and {@link Binder}.
+   * </p>
+   *
+   * <p>
+   * A module can provide his own set of properties through the {@link #config()} method. By default,
+   * this method returns an empty config object.
+   * </p>
+   *
+   * <p>
+   * A module can provide start/stop methods in order to start or close resources.
+   * </p>
+   *
+   * @author edgar
+   * @since 0.1.0
+   * @see Jooby#use(JoobyModule)
+   */
+  @Beta
+  public static abstract class Module {
+
+    /**
+     * @return Produces a module config object (when need it). By default a module doesn't produce
+     *         any configuration object.
+     */
+    public @Nonnull Config config() {
+      return ConfigFactory.empty();
+    }
+
+    /**
+     * Callback method to start a module. This method will be invoked after all the registered modules
+     * has been configured.
+     *
+     * @throws Exception If something goes wrong.
+     */
+    public void start() throws Exception {
+    }
+
+    /**
+     * Callback method to stop a module and clean any resources. Invoked when the application is about
+     * to shutdown.
+     *
+     * @throws Exception If something goes wrong.
+     */
+    public void stop() throws Exception {
+    }
+
+    /**
+     * Configure and produces bindings for the underlying application. A module can optimize or
+     * customize a service by checking current the {@link Mode application mode} and/or the current
+     * application properties available from {@link Config}.
+     *
+     * @param mode The current application's mode. Not null.
+     * @param config The current config object. Not null.
+     * @param binder A guice binder. Not null.
+     * @throws Exception If the module fails during configuration.
+     */
+    public abstract void configure(@Nonnull Mode mode, @Nonnull Config config, @Nonnull Binder binder)
+        throws Exception;
+  }
+
+  /**
    * Keep track of routes.
    */
   private final Set<Object> bag = new LinkedHashSet<>();
@@ -292,7 +358,7 @@ public class Jooby {
   /**
    * Keep track of modules.
    */
-  private final Set<JoobyModule> modules = new LinkedHashSet<>();
+  private final Set<Jooby.Module> modules = new LinkedHashSet<>();
 
   /**
    * Keep track of singleton MVC routes.
@@ -319,12 +385,12 @@ public class Jooby {
     use(new Jetty());
   }
 
-  public RouteDefinition use(final Filter filter) {
+  public Route.Definition use(final Filter filter) {
     return use("*", filter);
   }
 
-  public RouteDefinition use(final String path, final Filter filter) {
-    return route(RouteDefinition.newRoute("*", path, filter));
+  public Route.Definition use(final String path, final Filter filter) {
+    return route(new Route.Definition("*", path, filter));
   }
 
   /**
@@ -342,12 +408,12 @@ public class Jooby {
    * @param route A route to execute. Required.
    * @return A new route definition.
    */
-  public RouteDefinition get(final String path, final Router route) {
-    return route(RouteDefinition.newRoute("GET", path, route));
+  public Route.Definition get(final String path, final Router route) {
+    return route(new Route.Definition("GET", path, route));
   }
 
-  public RouteDefinition get(final String path, final Filter filter) {
-    return route(RouteDefinition.newRoute("GET", path, filter));
+  public Route.Definition get(final String path, final Filter filter) {
+    return route(new Route.Definition("GET", path, filter));
   }
 
   /**
@@ -365,12 +431,12 @@ public class Jooby {
    * @param route A route to execute. Required.
    * @return A new route definition.
    */
-  public RouteDefinition post(final String path, final Router route) {
-    return route(RouteDefinition.newRoute("POST", path, route));
+  public Route.Definition post(final String path, final Router route) {
+    return route(new Route.Definition("POST", path, route));
   }
 
-  public RouteDefinition post(final String path, final Filter filter) {
-    return route(RouteDefinition.newRoute("POST", path, filter));
+  public Route.Definition post(final String path, final Filter filter) {
+    return route(new Route.Definition("POST", path, filter));
   }
 
   /**
@@ -388,12 +454,12 @@ public class Jooby {
    * @param route A route to execute. Required.
    * @return A new route definition.
    */
-  public RouteDefinition put(final String path, final Router route) {
-    return route(RouteDefinition.newRoute("PUT", path, route));
+  public Route.Definition put(final String path, final Router route) {
+    return route(new Route.Definition("PUT", path, route));
   }
 
-  public RouteDefinition put(final String path, final Filter filter) {
-    return route(RouteDefinition.newRoute("PUT", path, filter));
+  public Route.Definition put(final String path, final Filter filter) {
+    return route(new Route.Definition("PUT", path, filter));
   }
 
   /**
@@ -411,12 +477,12 @@ public class Jooby {
    * @param router A route to execute. Required.
    * @return A new route definition.
    */
-  public RouteDefinition delete(final String path, final Router router) {
-    return route(RouteDefinition.newRoute("DELETE", path, router));
+  public Route.Definition delete(final String path, final Router router) {
+    return route(new Route.Definition("DELETE", path, router));
   }
 
-  public RouteDefinition delete(final String path, final Filter filter) {
-    return route(RouteDefinition.newRoute("DELETE", path, filter));
+  public Route.Definition delete(final String path, final Filter filter) {
+    return route(new Route.Definition("DELETE", path, filter));
   }
 
   /**
@@ -442,7 +508,7 @@ public class Jooby {
    * @param path The path to publish. Required.
    * @return A new route definition.
    */
-  public RouteDefinition assets(final String path) {
+  public Route.Definition assets(final String path) {
     return get(path, wrapRouter(AssetRoute.class));
   }
 
@@ -496,7 +562,7 @@ public class Jooby {
    * @param route A route definition to append.
    * @return The same route definition.
    */
-  private RouteDefinition route(final RouteDefinition route) {
+  private Route.Definition route(final Route.Definition route) {
     bag.add(route);
     return route;
   }
@@ -508,7 +574,7 @@ public class Jooby {
    * @return This Jooby instance.
    * @see JoobyModule
    */
-  public Jooby use(final JoobyModule module) {
+  public Jooby use(final Jooby.Module module) {
     requireNonNull(module, "A module is required.");
     modules.add(module);
     bag.add(module);
@@ -570,7 +636,7 @@ public class Jooby {
     final Charset charset = Charset.forName(config.getString("application.charset"));
 
     // dependency injection
-    injector = Guice.createInjector(new Module() {
+    injector = Guice.createInjector(new com.google.inject.Module() {
       @Override
       public void configure(final Binder binder) {
 
@@ -591,12 +657,12 @@ public class Jooby {
             .newSetBinder(binder, BodyConverter.class);
 
         // Routes
-        Multibinder<RouteDefinition> definitions = Multibinder
-            .newSetBinder(binder, RouteDefinition.class);
+        Multibinder<Route.Definition> definitions = Multibinder
+            .newSetBinder(binder, Route.Definition.class);
 
         // Request Modules
-        Multibinder<RequestModule> requestModule = Multibinder
-            .newSetBinder(binder, RequestModule.class);
+        Multibinder<Request.Module> requestModule = Multibinder
+            .newSetBinder(binder, Request.Module.class);
 
         // bind prototype routes in request module
         requestModule.addBinding().toInstance(
@@ -608,17 +674,16 @@ public class Jooby {
 
         // modules and routes
         bag.forEach(candidate -> {
-          if (candidate instanceof JoobyModule) {
-            install((JoobyModule) candidate, mode, config, binder);
-          } else
-            if (candidate instanceof RouteDefinition) {
-              definitions.addBinding().toInstance((RouteDefinition) candidate);
-            } else {
-              Class<?> routeClass = (Class<?>) candidate;
-              Routes.routes(mode, routeClass)
-                  .forEach(route -> definitions.addBinding().toInstance(route));
-            }
-          });
+          if (candidate instanceof Jooby.Module) {
+            install((Jooby.Module) candidate, mode, config, binder);
+          } else if (candidate instanceof Route.Definition) {
+            definitions.addBinding().toInstance((Route.Definition) candidate);
+          } else {
+            Class<?> routeClass = (Class<?>) candidate;
+            Routes.routes(mode, routeClass)
+                .forEach(route -> definitions.addBinding().toInstance(route));
+          }
+        });
 
         // Singleton routes
         singletonRoutes.forEach(routeClass -> binder.bind(routeClass).in(Scopes.SINGLETON));
@@ -632,7 +697,7 @@ public class Jooby {
     });
 
     // start modules
-    for (JoobyModule module : modules) {
+    for (Jooby.Module module : modules) {
       module.start();
     }
 
@@ -647,7 +712,7 @@ public class Jooby {
    */
   public void stop() throws Exception {
     // stop modules
-    for (JoobyModule module : modules) {
+    for (Jooby.Module module : modules) {
       try {
         module.stop();
       } catch (Exception ex) {
@@ -695,7 +760,7 @@ public class Jooby {
     }
 
     // set module config
-    for (JoobyModule module : ImmutableList.copyOf(modules).reverse()) {
+    for (Jooby.Module module : ImmutableList.copyOf(modules).reverse()) {
       config = config.withFallback(module.config());
     }
 
@@ -716,7 +781,7 @@ public class Jooby {
    * @param config The configuration object.
    * @param binder A Guice binder.
    */
-  private void install(final JoobyModule module, final Mode mode, final Config config,
+  private void install(final Jooby.Module module, final Mode mode, final Config config,
       final Binder binder) {
     try {
       module.configure(mode, config, binder);

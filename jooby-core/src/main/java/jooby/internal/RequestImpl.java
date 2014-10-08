@@ -21,7 +21,7 @@ import javax.servlet.http.Part;
 
 import jooby.BodyConverter;
 import jooby.Cookie;
-import jooby.FileMediaTypeProvider;
+import jooby.MediaTypeProvider;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
@@ -250,7 +250,7 @@ public class RequestImpl implements Request {
       return Collections.emptyList();
     }
     Config config = getInstance(Config.class);
-    FileMediaTypeProvider typeProvider = getInstance(FileMediaTypeProvider.class);
+    MediaTypeProvider typeProvider = getInstance(MediaTypeProvider.class);
     String workDir = config.getString("java.io.tmpdir");
     return FluentIterable
         .from(parts)

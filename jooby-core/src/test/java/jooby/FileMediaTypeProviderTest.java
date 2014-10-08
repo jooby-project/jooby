@@ -21,30 +21,30 @@ public class FileMediaTypeProviderTest {
 
   @Test
   public void javascript() {
-    assertEquals(MediaType.javascript, new FileMediaTypeProvider(config).forExtension("js"));
+    assertEquals(MediaType.javascript, new MediaTypeProvider(config).forExtension("js"));
     assertEquals(MediaType.javascript,
-        new FileMediaTypeProvider(config).forFile(new File("file.js")));
+        new MediaTypeProvider(config).forFile(new File("file.js")));
   }
 
   @Test
   public void css() {
-    assertEquals(MediaType.css, new FileMediaTypeProvider(config).forExtension("css"));
+    assertEquals(MediaType.css, new MediaTypeProvider(config).forExtension("css"));
     assertEquals(MediaType.css,
-        new FileMediaTypeProvider(config).forFile(new File("file.css")));
+        new MediaTypeProvider(config).forFile(new File("file.css")));
   }
 
   @Test
   public void json() {
-    assertEquals(MediaType.json, new FileMediaTypeProvider(config).forExtension("json"));
+    assertEquals(MediaType.json, new MediaTypeProvider(config).forExtension("json"));
     assertEquals(MediaType.json,
-        new FileMediaTypeProvider(config).forFile(new File("file.json")));
+        new MediaTypeProvider(config).forFile(new File("file.json")));
   }
 
   @Test
   public void png() {
     assertEquals(MediaType.valueOf("image/png"),
-        new FileMediaTypeProvider(config).forExtension("png"));
+        new MediaTypeProvider(config).forExtension("png"));
     assertEquals(MediaType.valueOf("image/png"),
-        new FileMediaTypeProvider(config).forFile(new File("file.png")));
+        new MediaTypeProvider(config).forFile(new File("file.png")));
   }
 }

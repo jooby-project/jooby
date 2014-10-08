@@ -49,11 +49,12 @@ public class RequestModuleFeature extends ServerFeature {
 
   {
 
-    use(new JoobyModule() {
+    use(new Jooby.Module() {
       @Override
       public void configure(final Mode mode, final Config config, final Binder binder)
           throws Exception {
-        Multibinder<RequestModule> m = Multibinder.newSetBinder(binder, RequestModule.class);
+        Multibinder<jooby.Request.Module> m = Multibinder.newSetBinder(binder,
+            jooby.Request.Module.class);
         m.addBinding().toInstance(
             (b) -> b.bind(RequestScoped.class).toInstance(new RequestScoped()));
       }

@@ -217,7 +217,7 @@ import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 
-public class Hbs extends JoobyModule {
+public class Hbs extends Jooby.Module {
 
   private static class Engine extends TemplateProcessor {
 

@@ -81,12 +81,12 @@ public class HibernatePersistence extends JDBC {
 
     Key<EntityManager> key = dataSourceKey(EntityManager.class);
 
-    Multibinder<RouteDefinition> routes = Multibinder.newSetBinder(binder, RouteDefinition.class);
+    Multibinder<Route.Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
 
     routes.addBinding()
-        .toInstance(RouteDefinition.newRoute("*", "*", readWriteTrx(key)).name("hibernate"));
+        .toInstance(new Route.Definition("*", "*", readWriteTrx(key)).name("hibernate"));
 
-    Multibinder.newSetBinder(binder, RequestModule.class).addBinding().toInstance((b) -> {
+    Multibinder.newSetBinder(binder, Request.Module.class).addBinding().toInstance((b) -> {
       EntityManager em = emf.createEntityManager();
       b.bind(key).toInstance(em);
     });
@@ -105,7 +105,7 @@ public class HibernatePersistence extends JDBC {
         trx.begin();
 
         // invoke next router
-        chain.next(req, new ForwardingResponse(resp) {
+        chain.next(req, new Response.Forwarding(resp) {
 
           void setReadOnly(final Session session, final boolean readOnly) {
             try {

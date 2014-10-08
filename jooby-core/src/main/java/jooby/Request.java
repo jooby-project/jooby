@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
@@ -26,6 +27,186 @@ import com.google.inject.TypeLiteral;
  */
 @Beta
 public interface Request {
+
+  public class Forwarding implements Request {
+
+    private Request request;
+
+    public Forwarding(final Request request) {
+      this.request = requireNonNull(request, "A HTTP request is required.");
+    }
+
+    @Override
+    public String path() {
+      return request.path();
+    }
+
+    @Override
+    public MediaType type() {
+      return request.type();
+    }
+
+    @Override
+    public List<MediaType> accept() {
+      return request.accept();
+    }
+
+    @Override
+    public Optional<MediaType> accepts(final List<MediaType> types) {
+      return request.accepts(types);
+    }
+
+    @Override
+    public Map<String, Variant> params() throws Exception {
+      return request.params();
+    }
+
+    @Override
+    public Variant param(final String name) throws Exception {
+      return request.param(name);
+    }
+
+    @Override
+    public Variant header(final String name) {
+      return request.header(name);
+    }
+
+    @Override
+    public Map<String, Variant> headers() {
+      return request.headers();
+    }
+
+    @Override
+    public Cookie cookie(final String name) {
+      return request.cookie(name);
+    }
+
+    @Override
+    public List<Cookie> cookies() {
+      return request.cookies();
+    }
+
+    @Override
+    public <T> T body(final TypeLiteral<T> type) throws Exception {
+      return request.body(type);
+    }
+
+    @Override
+    public <T> T getInstance(final Key<T> key) {
+      return request.getInstance(key);
+    }
+
+    @Override
+    public Charset charset() {
+      return request.charset();
+    }
+
+    @Override
+    public String ip() {
+      return request.ip();
+    }
+
+    @Override
+    public Route route() {
+      return request.route();
+    }
+
+    @Override
+    public String hostname() {
+      return request.hostname();
+    }
+
+    @Override
+    public String protocol() {
+      return request.protocol();
+    }
+
+    @Override
+    public Optional<MediaType> accepts(final MediaType... types) {
+      return request.accepts(types);
+    }
+
+    @Override
+    public Optional<MediaType> accepts(final String... types) {
+      return request.accepts(types);
+    }
+
+    @Override
+    public <T> T body(final Class<T> type) throws Exception {
+      return request.body(type);
+    }
+
+    @Override
+    public <T> T getInstance(final Class<T> type) {
+      return request.getInstance(type);
+    }
+
+    @Override
+    public <T> T getInstance(final TypeLiteral<T> type) {
+      return request.getInstance(type);
+    }
+
+    @Override
+    public boolean secure() {
+      return request.secure();
+    }
+
+    @Override
+    public boolean xhr() {
+      return request.xhr();
+    }
+
+    public Request delegate() {
+      return request;
+    }
+
+    @Override
+    public String toString() {
+      return request.toString();
+    }
+  }
+
+  /**
+   * Jooby doesn't use a custom scope annotation for request scoped object. Request scoped object
+   * are binded using a child injector per each request.
+   *
+   * <h1>Providing request scoped objects</h1>
+   * <p>
+   * Jooby give you an extension point in order to register scope requested objects, here is how do
+   * you usually do it.
+   * </p>
+   *
+   * <pre>
+   * class MyModule implements JoobyModule {
+   *   void configure(Mode mode, Config config, Binder binder) {
+   *     requestModule = Multibinder.newSetBinder(binder, RequestModule.class);
+   *     requestModule.addBinding().toInstance(requestBinder -> {
+   *       requestBinder.bind(MyService.class).to(...);
+   *     })
+   *   }
+   * }
+   * </pre>
+   *
+   * <h1>Do I have to provide request objects?</h1>
+   * <p>
+   * You don't. Request scoped object are useful if you need/want to have a single instance of an
+   * object per request. A good example of such object is a db session, bc you want to reuse the
+   * session during the request execution.
+   * </p>
+   * <p>
+   * If you don't need/have that requirement. You shouldn't use request scoped object and just work
+   * with prototype objects, as Guice suggest.
+   * </p>
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
+  @Beta
+  interface Module {
+
+    void configure(Binder binder);
+
+  }
 
   /**
    * Given:

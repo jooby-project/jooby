@@ -48,7 +48,7 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
           .withValue("ssl.keystore.path", ConfigValueFactory.fromAnyRef("/missing/keystore"));
 
       app = (Jooby) appClass.newInstance();
-      app.use(new JoobyModule() {
+      app.use(new Jooby.Module() {
         @Override
         public void configure(final Mode mode, final Config config, final Binder binder)
             throws Exception {

@@ -25,7 +25,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import jooby.BodyConverter;
-import jooby.FileMediaTypeProvider;
+import jooby.MediaTypeProvider;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
@@ -63,7 +63,7 @@ public class ResponseImpl implements Response {
 
   private boolean committed;
 
-  private FileMediaTypeProvider typeProvider;
+  private MediaTypeProvider typeProvider;
 
   private final Map<String, Object> locals;
 
@@ -71,7 +71,7 @@ public class ResponseImpl implements Response {
 
   public ResponseImpl(final HttpServletResponse response, final Injector injector,
       final Route route, final Map<String, Object> locals, final BodyConverterSelector selector,
-      final FileMediaTypeProvider typeProvider, final Charset charset) {
+      final MediaTypeProvider typeProvider, final Charset charset) {
     this.response = requireNonNull(response, "A response is required.");
     this.injector = requireNonNull(injector, "An injector is required.");
     this.route = requireNonNull(route, "A route is required.");

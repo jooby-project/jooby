@@ -24,17 +24,13 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import jooby.FileMediaTypeProvider;
-import jooby.ForwardingRequest;
-import jooby.ForwardingResponse;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
+import jooby.MediaTypeProvider;
 import jooby.Request;
-import jooby.RequestModule;
 import jooby.Response;
 import jooby.Route;
-import jooby.RouteDefinition;
 import jooby.Viewable;
 
 import org.slf4j.Logger;
@@ -58,28 +54,28 @@ public class RouteHandler {
 
   private BodyConverterSelector selector;
 
-  private Set<RouteDefinition> routeDefs;
+  private Set<Route.Definition> routeDefs;
 
   private Charset charset;
 
   private Injector rootInjector;
 
-  private Set<RequestModule> modules;
+  private Set<Request.Module> modules;
 
-  private FileMediaTypeProvider typeProvider;
+  private MediaTypeProvider typeProvider;
 
   @Inject
   public RouteHandler(final Injector injector,
       final BodyConverterSelector selector,
-      final Set<RequestModule> modules,
-      final Set<RouteDefinition> routes,
+      final Set<Request.Module> modules,
+      final Set<Route.Definition> routes,
       final Charset defaultCharset) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.modules = requireNonNull(modules, "Request modules are required.");
     this.routeDefs = requireNonNull(routes, "The routes are required.");
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
-    this.typeProvider = injector.getInstance(FileMediaTypeProvider.class);
+    this.typeProvider = injector.getInstance(MediaTypeProvider.class);
   }
 
   public void handle(final HttpServletRequest request, final HttpServletResponse response)
@@ -129,7 +125,7 @@ public class RouteHandler {
 
       // configure request modules
       injector = rootInjector.createChildInjector(binder -> {
-        for (RequestModule module : modules) {
+        for (Request.Module module : modules) {
           module.configure(binder);
         }
       });
@@ -191,8 +187,8 @@ public class RouteHandler {
       private void set(final Request req, final Route route) {
         Request root = req;
         // Is there a better way to set route info?
-        while (root instanceof ForwardingRequest) {
-          root = ((ForwardingRequest) root).delegate();
+        while (root instanceof Request.Forwarding) {
+          root = ((Request.Forwarding) root).delegate();
         }
         if (root instanceof RequestImpl) {
           ((RequestImpl) root).route(route);
@@ -202,8 +198,8 @@ public class RouteHandler {
       private void set(final Response res, final Route route) {
         Response root = res;
         // Is there a better way to set route info?
-        while (root instanceof ForwardingResponse) {
-          root = ((ForwardingResponse) root).delegate();
+        while (root instanceof Response.Forwarding) {
+          root = ((Response.Forwarding) root).delegate();
         }
         if (root instanceof ResponseImpl) {
           ((ResponseImpl) root).route(route);
@@ -249,7 +245,7 @@ public class RouteHandler {
       final List<MediaType> accept) {
 
     LinkedList<Route> routes = new LinkedList<Route>();
-    for (RouteDefinition routeDef : routeDefs) {
+    for (Route.Definition routeDef : routeDefs) {
       Optional<Route> route = routeDef.matches(verb, path, type, accept);
       if (route.isPresent()) {
         routes.add(route.get());
@@ -384,7 +380,7 @@ public class RouteHandler {
 
   private HttpException handle406or415(final String verb, final String path,
       final MediaType contentType, final List<MediaType> accept) {
-    for (RouteDefinition routeDef : routeDefs) {
+    for (Route.Definition routeDef : routeDefs) {
       Optional<Route> route = routeDef.matches(verb, path, MediaType.all, ALL);
       if (route.isPresent() && !route.get().pattern().contains("*")) {
         if (!routeDef.canProduce(accept)) {
@@ -402,7 +398,7 @@ public class RouteHandler {
   public String toString() {
     StringBuilder buffer = new StringBuilder();
     int verbMax = 0, routeMax = 0, consumesMax = 0, producesMax = 0;
-    for (RouteDefinition routeDef : routeDefs) {
+    for (Route.Definition routeDef : routeDefs) {
       verbMax = Math.max(verbMax, routeDef.verb().length());
 
       routeMax = Math.max(routeMax, routeDef.pattern().length());
@@ -415,7 +411,7 @@ public class RouteHandler {
     String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax + "s     %"
         + producesMax + "s    (%s)\n";
 
-    for (RouteDefinition routeDef : routeDefs) {
+    for (Route.Definition routeDef : routeDefs) {
       buffer.append(String.format(format, routeDef.verb(), routeDef.pattern(),
           routeDef.consumes(), routeDef.produces(), routeDef.name()));
     }

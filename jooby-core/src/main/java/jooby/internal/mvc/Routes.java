@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 import jooby.MediaType;
 import jooby.Mode;
-import jooby.RouteDefinition;
+import jooby.Route;
 import jooby.internal.Reflection;
 import jooby.mvc.Consumes;
 import jooby.mvc.DELETE;
@@ -46,7 +46,7 @@ public class Routes {
       POST.class, PUT.class, DELETE.class);
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  public static List<RouteDefinition> routes(final Mode mode, final Class<?> routeClass) {
+  public static List<Route.Definition> routes(final Mode mode, final Class<?> routeClass) {
     Map<String, String[]> params = new HashMap<>();
     Map<String, Integer> lines = new HashMap<>();
 
@@ -95,7 +95,7 @@ public class Routes {
             m -> {
               String verb = verb(m);
               String path = rootPath + "/" + path(m);
-              return RouteDefinition.newRoute(verb, path, new MvcRoute(m, provider))
+              return new Route.Definition(verb, path, new MvcRoute(m, provider))
                   .produces(produces(m))
                   .consumes(consumes(m))
                   .name(routeClass.getSimpleName() + "." + m.getName());

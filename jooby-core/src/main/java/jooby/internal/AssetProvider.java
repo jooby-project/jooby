@@ -8,17 +8,17 @@ import java.net.URL;
 import javax.inject.Inject;
 
 import jooby.Asset;
-import jooby.FileMediaTypeProvider;
+import jooby.MediaTypeProvider;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
 
 class AssetProvider {
 
-  private FileMediaTypeProvider mediaTypeProvider;
+  private MediaTypeProvider mediaTypeProvider;
 
   @Inject
-  public AssetProvider(final FileMediaTypeProvider mediaTypeProvider) {
+  public AssetProvider(final MediaTypeProvider mediaTypeProvider) {
     this.mediaTypeProvider = requireNonNull(mediaTypeProvider,
         "A file media type provider is required.");
   }

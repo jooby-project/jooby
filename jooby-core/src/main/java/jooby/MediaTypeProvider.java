@@ -14,19 +14,19 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 
 /**
- * Found a {@link MediaType} using a file name extension.
- * A new media type can be added by adding a new entry to your <code>*.conf</code> file.
- *
+ * Found a {@link MediaType} using a file extension.
+ * Media types are defined in a <code>*.conf</code> file. If you need/want to add/override a media
+ * type just add an entry to your <code>*.conf</code> file, like:
  * <pre>
  *  // application.conf
  *  mime.[myext] = mime/type
  * </pre>
- *
+
  * @author edgar
  * @since 0.1.0
  */
 @Singleton
-public class FileMediaTypeProvider {
+public class MediaTypeProvider {
 
   /**
    * The application config object.
@@ -34,12 +34,12 @@ public class FileMediaTypeProvider {
   private Config config;
 
   /**
-   * Creates a new {@link FileMediaTypeProvider}.
+   * Creates a new {@link MediaTypeProvider}.
    *
    * @param config A configuration object.
    */
   @Inject
-  public FileMediaTypeProvider(@Nonnull final Config config) {
+  public MediaTypeProvider(@Nonnull final Config config) {
     this.config = requireNonNull(config, "A config is required.");
   }
 

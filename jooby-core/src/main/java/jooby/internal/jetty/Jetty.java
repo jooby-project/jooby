@@ -205,7 +205,7 @@ package jooby.internal.jetty;
 
 import javax.inject.Singleton;
 
-import jooby.JoobyModule;
+import jooby.Jooby;
 import jooby.Mode;
 import jooby.Server;
 
@@ -213,7 +213,7 @@ import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class Jetty extends JoobyModule {
+public class Jetty extends Jooby.Module {
 
   @Override
   public void configure(final Mode mode, final Config config, final Binder binder) {

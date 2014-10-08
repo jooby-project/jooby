@@ -228,7 +228,7 @@ import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-public class JDBC extends JoobyModule {
+public class JDBC extends Jooby.Module {
 
   public static final String DEFAULT_DB = "db";
 

@@ -42,7 +42,7 @@ public class ContentNegotiationFeature extends ServerFeature {
 
   {
 
-    use(new JoobyModule() {
+    use(new Jooby.Module() {
 
       @Override
       public void configure(final Mode mode, final Config config, final Binder binder)

@@ -23,7 +23,7 @@ public class OverrideModulePropertiesFeature extends ServerFeature {
     B;
   }
 
-  public static class M1 extends JoobyModule {
+  public static class M1 extends Jooby.Module {
 
     @Override
     public void configure(final Mode mode, final Config config, final Binder binder)
