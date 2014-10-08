@@ -103,7 +103,8 @@ public class RoutePattern {
     return Pattern.quote(s.substring(start, end));
   }
 
-  private static String normalize(final String pattern) {
+  private static String normalize(final String candidate) {
+    String pattern = SLASH.matcher(candidate).replaceAll("/");
     StringBuilder buffer = new StringBuilder();
     if (pattern.equals("/")) {
       return buffer.append(pattern).toString();
@@ -111,15 +112,14 @@ public class RoutePattern {
     if (pattern.equals("*")) {
       return buffer.append("/**/*").toString();
     }
-    String normalized = SLASH.matcher(pattern).replaceAll("/");
-    if (!normalized.startsWith("/")) {
+    if (!candidate.startsWith("/")) {
       buffer.append("/");
     }
-    buffer.append(normalized);
-    if (normalized.endsWith(ANY_DIR)) {
+    buffer.append(candidate);
+    if (candidate.endsWith(ANY_DIR)) {
       buffer.append("/*");
     }
-    if (normalized.endsWith("/")) {
+    if (candidate.endsWith("/")) {
       buffer.setLength(buffer.length() - 1);;
     }
     return buffer.toString();

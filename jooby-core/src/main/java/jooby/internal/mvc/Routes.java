@@ -21,10 +21,13 @@ import jooby.internal.Reflection;
 import jooby.mvc.Consumes;
 import jooby.mvc.DELETE;
 import jooby.mvc.GET;
+import jooby.mvc.HEAD;
+import jooby.mvc.OPTIONS;
 import jooby.mvc.POST;
 import jooby.mvc.PUT;
 import jooby.mvc.Path;
 import jooby.mvc.Produces;
+import jooby.mvc.TRACE;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -42,8 +45,9 @@ public class Routes {
 
   private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
+  @SuppressWarnings("unchecked")
   private static final Set<Class<? extends Annotation>> VERBS = ImmutableSet.of(GET.class,
-      POST.class, PUT.class, DELETE.class);
+      POST.class, PUT.class, DELETE.class, HEAD.class, OPTIONS.class, TRACE.class);
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   public static List<Route.Definition> routes(final Mode mode, final Class<?> routeClass) {
@@ -60,6 +64,7 @@ public class Routes {
                 new ASMParamNameProvider(params)
             ));
 
+    System.out.println(VERBS);
     String rootPath = path(routeClass);
 
     return Reflection

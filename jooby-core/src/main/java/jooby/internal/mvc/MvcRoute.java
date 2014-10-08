@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Request;
 import jooby.Response;
@@ -27,25 +28,30 @@ class MvcRoute implements Router {
   }
 
   @Override
-  public void handle(final Request request, final Response response) throws Exception {
+  public void handle(final Request req, final Response res) throws Exception {
 
-    Object handler = request.getInstance(router.getDeclaringClass());
+    Object handler = req.getInstance(router.getDeclaringClass());
 
     List<Param> parameters = provider.parameters(router);
     Object[] args = new Object[parameters.size()];
     for (int i = 0; i < parameters.size(); i++) {
-      args[i] = parameters.get(i).get(request, response);
+      args[i] = parameters.get(i).get(req, res);
     }
 
     final Object result = router.invoke(handler, args);
 
     Class<?> returnType = router.getReturnType();
     if (returnType == void.class || returnType == Void.class) {
-      // move on!
+      // ignore glob pattern
+      if (!req.route().pattern().contains("*")) {
+        res.status(HttpStatus.NO_CONTENT);
+      }
       return;
     }
-    // negotiate!
-    List<MediaType> accept = request.accept();
+    res.status(HttpStatus.OK);
+
+    // format!
+    List<MediaType> accept = req.accept();
 
     ExSupplier<Object> viewable = () -> {
       if (result instanceof Viewable) {
@@ -67,7 +73,7 @@ class MvcRoute implements Router {
     Function<MediaType, ExSupplier<Object>> provider =
         (type) -> MediaType.html.equals(type) || htmlLike ? viewable : notViewable;
 
-    Response.Formatter formatter = response.format();
+    Response.Formatter formatter = res.format();
 
     // add formatters
     accept.forEach(type -> formatter.when(type, provider.apply(type)));

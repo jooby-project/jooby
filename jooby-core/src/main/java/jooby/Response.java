@@ -160,6 +160,11 @@ public interface Response {
     }
 
     @Override
+    public Response type(final String type) {
+      return response.type(type);
+    }
+
+    @Override
     public void send(final Object body) throws Exception {
       response.send(body);
     }
@@ -191,6 +196,11 @@ public interface Response {
 
     @Override
     public Response status(final HttpStatus status) {
+      return response.status(status);
+    }
+
+    @Override
+    public Response status(final int status) {
       return response.status(status);
     }
 
@@ -339,6 +349,10 @@ public interface Response {
   @Nonnull
   Response type(@Nonnull MediaType type);
 
+  default Response type(@Nonnull final String type) {
+    return type(MediaType.valueOf(type));
+  }
+
   /**
    * Responsible of writing the given body into the HTTP response. The {@link BodyConverter} that
    * best matches the <code>Accept</code> header will be selected for writing the response.
@@ -379,6 +393,10 @@ public interface Response {
    * @return This response.
    */
   @Nonnull Response status(@Nonnull HttpStatus status);
+
+  @Nonnull default Response status(final int status) {
+    return status(HttpStatus.valueOf(status));
+  }
 
   boolean committed();
 
