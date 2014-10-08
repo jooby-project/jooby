@@ -288,6 +288,60 @@ public interface Route {
 
   }
 
+  public class Forwarding implements Route {
+
+    private final Route route;
+
+    public Forwarding(final Route route) {
+      this.route = requireNonNull(route, "A route is required.");
+    }
+
+    @Override
+    public String path() {
+      return route.path();
+    }
+
+    @Override
+    public String verb() {
+      return route.verb();
+    }
+
+    @Override
+    public String pattern() {
+      return route.pattern();
+    }
+
+    @Override
+    public String name() {
+      return route.name();
+    }
+
+    @Override
+    public Map<String, String> vars() {
+      return route.vars();
+    }
+
+    @Override
+    public List<MediaType> consume() {
+      return route.consume();
+    }
+
+    @Override
+    public List<MediaType> produces() {
+      return route.produces();
+    }
+
+    @Override
+    public String toString() {
+      return route.toString();
+    }
+
+    public Route delegate() {
+      return route;
+    }
+
+  }
+
   interface Chain {
     void next(Request request, Response response) throws Exception;
   }

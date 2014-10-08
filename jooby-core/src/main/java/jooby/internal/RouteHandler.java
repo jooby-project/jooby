@@ -175,13 +175,22 @@ public class RouteHandler {
 
       @Override
       public void next(final Request req, final Response res) throws Exception {
-        RouteImpl route = (RouteImpl) it.next();
+        RouteImpl route = get(it.next());
 
         // set route
         set(req, route);
         set(res, route);
 
         route.handle(req, res, this);
+      }
+
+      private RouteImpl get(final Route next) {
+        Route root = next;
+        // Is there a better way to set route info?
+        while (root instanceof Route.Forwarding) {
+          root = ((Route.Forwarding) root).delegate();
+        }
+        return (RouteImpl)root;
       }
 
       private void set(final Request req, final Route route) {
@@ -212,6 +221,11 @@ public class RouteHandler {
       final List<MediaType> accept) {
     String path = verb + requestURI;
     List<Route> routes = findRoutes(verb, requestURI, type, accept);
+    if ("HEAD".equals(verb)
+        && !routes.stream().filter(r -> r.verb().equals("HEAD")).findFirst().isPresent()) {
+      // override HEAD when it's missing.
+      routes = findRoutes("GET", requestURI, type, accept, "HEAD");
+    }
 
     // 406 or 415
     routes.add(RouteImpl.fromStatus((req, res, chain) -> {
@@ -243,15 +257,30 @@ public class RouteHandler {
 
   private List<Route> findRoutes(final String verb, final String path, final MediaType type,
       final List<MediaType> accept) {
+    return findRoutes(verb, path, type, accept, verb);
+  }
+
+  private List<Route> findRoutes(final String verb, final String path, final MediaType type,
+      final List<MediaType> accept, final String overrideVerb) {
 
     LinkedList<Route> routes = new LinkedList<Route>();
     for (Route.Definition routeDef : routeDefs) {
       Optional<Route> route = routeDef.matches(verb, path, type, accept);
       if (route.isPresent()) {
-        routes.add(route.get());
+        routes.add(verb.equals(overrideVerb) ? route.get()
+            : overrideVerb(route.get(), overrideVerb));
       }
     }
     return routes;
+  }
+
+  private static Route overrideVerb(final Route route, final String verb) {
+    return new Route.Forwarding(route) {
+      @Override
+      public String verb() {
+        return verb;
+      }
+    };
   }
 
   private void defaultErrorPage(final Request request, final Response response,

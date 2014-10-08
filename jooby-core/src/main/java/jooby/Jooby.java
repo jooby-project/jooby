@@ -439,6 +439,14 @@ public class Jooby {
     return route(new Route.Definition("POST", path, filter));
   }
 
+  public Route.Definition head(final String path, final Router route) {
+    return route(new Route.Definition("HEAD", path, route));
+  }
+
+  public Route.Definition head(final String path, final Filter filter) {
+    return route(new Route.Definition("HEAD", path, filter));
+  }
+
   /**
    * Define an in-line route that supports HTTP PUT method:
    *
