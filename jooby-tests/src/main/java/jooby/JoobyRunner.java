@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Singleton;
+
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.MultipleFailureException;
@@ -14,6 +16,7 @@ import org.junit.runners.model.Statement;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Module;
+import com.google.inject.multibindings.OptionalBinder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -52,6 +55,9 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
         @Override
         public void configure(final Mode mode, final Config config, final Binder binder)
             throws Exception {
+          OptionalBinder.newOptionalBinder(binder, Server.class).setBinding()
+              .to(NoJoinServer.class)
+              .in(Singleton.class);
         }
 
         @Override

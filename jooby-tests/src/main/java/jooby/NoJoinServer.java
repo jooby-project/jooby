@@ -201,31 +201,34 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package jooby.internal.jetty;
+package jooby;
 
-import javax.inject.Singleton;
+import javax.inject.Inject;
 
-import jooby.Jooby;
-import jooby.Mode;
-import jooby.Server;
+import jooby.internal.RouteHandler;
+import jooby.internal.jetty.JettyServerBuilder;
 
-import com.google.inject.Binder;
-import com.google.inject.multibindings.OptionalBinder;
+import org.eclipse.jetty.server.Server;
+
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
-public class Jetty extends Jooby.Module {
+public class NoJoinServer implements jooby.Server {
 
-  @Override
-  public void configure(final Mode mode, final Config config, final Binder binder) {
-    OptionalBinder.newOptionalBinder(binder, Server.class).setDefault()
-        .to(JettyServer.class)
-        .in(Singleton.class);
+  private Server server;
+
+  @Inject
+  public NoJoinServer(final Config config, final RouteHandler routeHandler) throws Exception {
+    this.server = JettyServerBuilder.build(config, routeHandler);
   }
 
   @Override
-  public Config config() {
-    String location = getClass().getPackage().getName().replace('.', '/');
-    return ConfigFactory.parseResources(location + "/jetty.conf");
+  public void start() throws Exception {
+    server.start();
   }
+
+  @Override
+  public void stop() throws Exception {
+    server.stop();
+  }
+
 }

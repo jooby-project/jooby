@@ -64,7 +64,6 @@ public class Routes {
                 new ASMParamNameProvider(params)
             ));
 
-    System.out.println(VERBS);
     String rootPath = path(routeClass);
 
     return Reflection

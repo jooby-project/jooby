@@ -207,11 +207,13 @@ import javax.inject.Inject;
 
 import jooby.internal.RouteHandler;
 
+import org.eclipse.jetty.server.Server;
+
 import com.typesafe.config.Config;
 
 public class JettyServer implements jooby.Server {
 
-  private jooby.Server server;
+  private Server server;
 
   @Inject
   public JettyServer(final Config config, final RouteHandler routeHandler) throws Exception {
@@ -221,6 +223,7 @@ public class JettyServer implements jooby.Server {
   @Override
   public void start() throws Exception {
     server.start();
+    server.join();
   }
 
   @Override
