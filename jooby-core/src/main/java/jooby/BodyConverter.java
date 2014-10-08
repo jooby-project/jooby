@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import jooby.Response.Body;
+
 import com.google.common.annotations.Beta;
 import com.google.inject.TypeLiteral;
 
@@ -73,10 +75,10 @@ public interface BodyConverter {
    * in order to close resources.
    * </p>
    *
-   * @param message The body message.
+   * @param body The body message.
    * @param writer The writing context.
    * @throws Exception If the body can't be write it.
    */
-  void write(@Nonnull Object message, @Nonnull BodyWriter writer) throws Exception;
+  void write(@Nonnull Body body, @Nonnull BodyWriter writer) throws Exception;
 
 }

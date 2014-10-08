@@ -2,6 +2,8 @@ package jooby;
 
 import java.util.List;
 
+import jooby.Response.Body;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.google.inject.TypeLiteral;
@@ -25,9 +27,9 @@ public class TestBodyConverter {
     }
 
     @Override
-    public void write(final Object message, final BodyWriter writer)
+    public void write(final Body body, final BodyWriter writer)
         throws Exception {
-      writer.text(w -> w.write("{\"body\": \"" + message + "\"}"));
+      writer.text(w -> w.write("{\"body\": \"" + body.content().get() + "\"}"));
     }
 
     @Override

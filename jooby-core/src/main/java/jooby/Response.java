@@ -8,14 +8,17 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
 import jooby.fn.ExSupplier;
+import jooby.internal.SetHeaderImpl;
 
 import com.google.common.annotations.Beta;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Give you access to the actual HTTP response. You can read/write headers and write HTTP body.
@@ -24,7 +27,137 @@ import com.google.common.annotations.Beta;
  * @since 0.1.0
  */
 @Beta
-public interface Response {
+public interface Response extends SetHeader {
+
+  public class Body implements SetHeader {
+
+    private Map<String, String> headers = new LinkedHashMap<>();
+
+    private SetHeaderImpl setHeader = new SetHeaderImpl((name, value) -> headers.put(name, value));
+
+    private Object content;
+
+    private HttpStatus status;
+
+    private MediaType type;
+
+    public Body(final Object content) {
+      content(content);
+    }
+
+    public Body() {
+    }
+
+    public static Body ok() {
+      return new Body().status(HttpStatus.OK);
+    }
+
+    public static Body ok(final Object message) {
+      return new Body(message).status(HttpStatus.OK);
+    }
+
+    public static Body accepted() {
+      return new Body().status(HttpStatus.ACCEPTED);
+    }
+
+    public static Body accepted(final Object message) {
+      return new Body(message).status(HttpStatus.ACCEPTED);
+    }
+
+    public static Body noContent() {
+      return new Body().status(HttpStatus.NO_CONTENT);
+    }
+
+    public Body status(final HttpStatus status) {
+      this.status = status;
+      return this;
+    }
+
+    public Body type(final MediaType type) {
+      this.type = type;
+      return this;
+    }
+
+    public Body content(final Object content) {
+      this.content = requireNonNull(content, "Content is required.");
+      return this;
+    }
+
+    public Map<String, String> headers() {
+      return ImmutableMap.copyOf(headers);
+    }
+
+    public Optional<HttpStatus> status() {
+      return Optional.ofNullable(status);
+    }
+
+    public Optional<MediaType> type() {
+      return Optional.ofNullable(type);
+    }
+
+    public Optional<Object> content() {
+      return Optional.ofNullable(content);
+    }
+
+    @Override
+    public Body header(final String name, final char value) {
+      setHeader.header(name, value);
+      return this;
+    }
+
+    @Override
+    public Body header(final String name, final byte value) {
+      setHeader.header(name, value);
+      return this;
+    }
+
+    @Override
+    public Body header(final String name, final short value) {
+      setHeader.header(name, value);
+      return this;
+    }
+
+    @Override
+    public Body header(final String name, final int value) {
+      setHeader.header(name, value);
+      return this;
+    }
+
+    @Override
+    public Body header(final String name, final long value) {
+      setHeader.header(name, value);
+      return this;
+    }
+
+    @Override
+    public Body header(final String name, final float value) {
+      setHeader.header(name, value);
+      return this;
+    }
+
+    @Override
+    public Body header(final String name, final double value) {
+      setHeader.header(name, value);
+      return this;
+    }
+
+    @Override
+    public Body header(final String name, final CharSequence value) {
+      setHeader.header(name, value);
+      return this;
+    }
+
+    @Override
+    public Body header(final String name, final Date value) {
+      setHeader.header(name, value);
+      return this;
+    }
+
+    @Override
+    public String toString() {
+      return content == null ? "" : content.toString();
+    }
+  }
 
   public class Forwarding implements Response {
 
@@ -115,7 +248,7 @@ public interface Response {
     }
 
     @Override
-    public Response header(final String name, final String value) {
+    public Response header(final String name, final CharSequence value) {
       return response.header(name, value);
     }
 
@@ -170,7 +303,17 @@ public interface Response {
     }
 
     @Override
+    public void send(final Body body) throws Exception {
+      response.send(body);
+    }
+
+    @Override
     public void send(final Object body, final BodyConverter converter) throws Exception {
+      response.send(body, converter);
+    }
+
+    @Override
+    public void send(final Body body, final BodyConverter converter) throws Exception {
       response.send(body, converter);
     }
 
@@ -300,22 +443,31 @@ public interface Response {
   @Nonnull
   Variant header(@Nonnull String name);
 
+  @Override
   Response header(@Nonnull String name, char value);
 
+  @Override
   Response header(@Nonnull String name, byte value);
 
+  @Override
   Response header(@Nonnull String name, short value);
 
+  @Override
   Response header(@Nonnull String name, int value);
 
+  @Override
   Response header(@Nonnull String name, long value);
 
+  @Override
   Response header(@Nonnull String name, float value);
 
+  @Override
   Response header(@Nonnull String name, double value);
 
-  Response header(@Nonnull String name, String value);
+  @Override
+  Response header(@Nonnull String name, CharSequence value);
 
+  @Override
   Response header(@Nonnull String name, Date value);
 
   /**
@@ -361,7 +513,22 @@ public interface Response {
    * @throws Exception If the response write fails.
    * @see BodyConverter
    */
-  void send(@Nonnull Object body) throws Exception;
+  default void send(@Nonnull final Object body) throws Exception {
+    requireNonNull(body, "A response message is required.");
+    if (body instanceof Body) {
+      send((Body) body);
+    } else {
+      Body b = new Body(body);
+      HttpStatus status = status();
+      if (status != null) {
+        b.status(status);
+      }
+      type().ifPresent(t -> b.type(t));
+      send(b);
+    }
+  }
+
+  void send(@Nonnull Body body) throws Exception;
 
   /**
    * Responsible of writing the given body into the HTTP response.
@@ -371,9 +538,26 @@ public interface Response {
    * @throws Exception If the response write fails.
    * @see BodyConverter
    */
-  void send(@Nonnull Object body, @Nonnull BodyConverter converter) throws Exception;
+  default void send(@Nonnull final Object body, @Nonnull final BodyConverter converter)
+      throws Exception {
+    requireNonNull(body, "A response message is required.");
+    if (body instanceof Body) {
+      send((Body) body, converter);
+    } else {
+      Body b = new Body(body);
+      HttpStatus status = status();
+      if (status != null) {
+        b.status(status);
+      }
+      type().ifPresent(t -> b.type(t));
+      send(b, converter);
+    }
+  }
 
-  @Nonnull Formatter format();
+  void send(@Nonnull Body body, @Nonnull BodyConverter converter) throws Exception;
+
+  @Nonnull
+  Formatter format();
 
   default void redirect(final String location) throws Exception {
     redirect(HttpStatus.FOUND, location);
@@ -384,7 +568,8 @@ public interface Response {
   /**
    * @return A HTTP status.
    */
-  @Nonnull HttpStatus status();
+  @Nonnull
+  HttpStatus status();
 
   /**
    * Set the HTTP status.
@@ -392,9 +577,11 @@ public interface Response {
    * @param status A HTTP status.
    * @return This response.
    */
-  @Nonnull Response status(@Nonnull HttpStatus status);
+  @Nonnull
+  Response status(@Nonnull HttpStatus status);
 
-  @Nonnull default Response status(final int status) {
+  @Nonnull
+  default Response status(final int status) {
     return status(HttpStatus.valueOf(status));
   }
 

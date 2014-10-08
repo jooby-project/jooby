@@ -2,6 +2,8 @@ package jooby;
 
 import java.util.List;
 
+import jooby.Response.Body;
+
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.TypeLiteral;
@@ -46,8 +48,8 @@ public abstract class TemplateProcessor implements BodyConverter {
   }
 
   @Override
-  public void write(final Object message, final BodyWriter writer) throws Exception {
-    final Viewable viewable = (Viewable) message;
+  public void write(final Body body, final BodyWriter writer) throws Exception {
+    final Viewable viewable = (Viewable) body.content().get();
     render(viewable, writer);
   }
 

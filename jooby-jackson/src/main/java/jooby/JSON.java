@@ -208,9 +208,9 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JavaType;
+import jooby.Response.Body;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.inject.TypeLiteral;
 
 class JSON implements BodyConverter {
@@ -230,8 +230,7 @@ class JSON implements BodyConverter {
 
   @Override
   public boolean canRead(final TypeLiteral<?> type) {
-    JavaType javaType = TypeFactory.defaultInstance().constructType(type.getType());
-    return mapper.canDeserialize(javaType);
+    return mapper.canDeserialize(mapper.constructType(type.getType()));
   }
 
   @Override
@@ -241,13 +240,12 @@ class JSON implements BodyConverter {
 
   @Override
   public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
-    JavaType javaType = TypeFactory.defaultInstance().constructType(type.getType());
-    return reader.text(in -> mapper.readValue(in, javaType));
+    return reader.text(in -> mapper.readValue(in, mapper.constructType(type.getType())));
   }
 
   @Override
-  public void write(final Object message, final BodyWriter writer) throws Exception {
-    writer.text(out -> mapper.writeValue(out, message));
+  public void write(final Body body, final BodyWriter writer) throws Exception {
+    writer.text(out -> mapper.writeValue(out, body.content().get()));
   }
 
   @Override

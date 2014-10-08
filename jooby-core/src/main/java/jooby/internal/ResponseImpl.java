@@ -8,10 +8,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -25,6 +21,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import jooby.BodyConverter;
+import jooby.BodyReader;
+import jooby.BodyWriter;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
@@ -42,6 +40,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeConverterBinding;
 
 public class ResponseImpl implements Response {
@@ -69,6 +68,8 @@ public class ResponseImpl implements Response {
 
   private Route route;
 
+  private SetHeaderImpl setHeader;
+
   public ResponseImpl(final HttpServletResponse response, final Injector injector,
       final Route route, final Map<String, Object> locals, final BodyConverterSelector selector,
       final MediaTypeProvider typeProvider, final Charset charset) {
@@ -79,6 +80,8 @@ public class ResponseImpl implements Response {
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.typeProvider = requireNonNull(typeProvider, "A type's provider is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
+
+    this.setHeader = new SetHeaderImpl((name, value) -> response.setHeader(name, value));
   }
 
   @Override
@@ -151,80 +154,55 @@ public class ResponseImpl implements Response {
 
   @Override
   public Response header(final String name, final byte value) {
-    requireNonNull(name, "A header's name is required.");
-
-    response.setHeader(name, Byte.toString(value));
+    setHeader.header(name, value);
     return this;
   }
 
   @Override
   public Response header(final String name, final char value) {
-    requireNonNull(name, "A header's name is required.");
-
-    response.setHeader(name, Character.toString(value));
+    setHeader.header(name, value);
     return this;
   }
 
   @Override
   public Response header(final String name, final double value) {
-    requireNonNull(name, "A header's name is required.");
-
-    // TODO: Decimal Formatter?
-    response.setHeader(name, Double.toString(value));
+    setHeader.header(name, value);
     return this;
   }
 
   @Override
   public Response header(final String name, final float value) {
-    requireNonNull(name, "A header's name is required.");
-
-    // TODO: Decimal Formatter?
-    response.setHeader(name, Float.toString(value));
+    setHeader.header(name, value);
     return this;
   }
 
   @Override
   public Response header(final String name, final int value) {
-    requireNonNull(name, "A header's name is required.");
-
-    response.setHeader(name, Integer.toString(value));
+    setHeader.header(name, value);
     return this;
   }
 
   @Override
   public Response header(final String name, final long value) {
-    requireNonNull(name, "A header's name is required.");
-
-    response.setHeader(name, Long.toString(value));
+    setHeader.header(name, value);
     return this;
   }
 
   @Override
   public Response header(final String name, final Date value) {
-    requireNonNull(name, "A header's name is required.");
-    requireNonNull(value, "A date value is required.");
-
-    DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
-    Instant instant = Instant.ofEpochMilli(value.getTime());
-    OffsetDateTime utc = instant.atOffset(ZoneOffset.UTC);
-    response.setHeader(name, formatter.format(utc));
+    setHeader.header(name, value);
     return this;
   }
 
   @Override
   public Response header(final String name, final short value) {
-    requireNonNull(name, "A header's name is required.");
-
-    response.setHeader(name, Short.toString(value));
+    setHeader.header(name, value);
     return this;
   }
 
   @Override
-  public Response header(final String name, final String value) {
-    requireNonNull(name, "A header's name is required.");
-    requireNonNull(value, "A header's value is required.");
-    response.addHeader(name, value);
-
+  public Response header(final String name, final CharSequence value) {
+    setHeader.header(name, value);
     return this;
   }
 
@@ -270,16 +248,49 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public void send(final Object message) throws Exception {
-    requireNonNull(message, "A response message is required.");
-    BodyConverter converter = selector.forWrite(message, route.produces())
-        .orElseThrow(() -> new HttpException(HttpStatus.NOT_ACCEPTABLE));
-    send(message, converter);
+  public void send(final Body body) throws Exception {
+    requireNonNull(body, "A body is required.");
+    Optional<Object> content = body.content();
+    BodyConverter converter = content.isPresent()
+        ? selector.forWrite(content.get(), route.produces())
+            .orElseThrow(() -> new HttpException(HttpStatus.NOT_ACCEPTABLE))
+        : noop(route.produces());
+    send(body, converter);
+  }
+
+  private static BodyConverter noop(final List<MediaType> types) {
+    return new BodyConverter() {
+
+      @Override
+      public void write(final Body body, final BodyWriter writer) throws Exception {
+        writer.bytes(out -> out.close());
+      }
+
+      @Override
+      public List<MediaType> types() {
+        return types;
+      }
+
+      @Override
+      public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean canWrite(final Class<?> type) {
+        return true;
+      }
+
+      @Override
+      public boolean canRead(final TypeLiteral<?> type) {
+        return false;
+      }
+    };
   }
 
   @Override
-  public void send(final Object message, final BodyConverter converter) throws Exception {
-    requireNonNull(message, "A response message is required.");
+  public void send(final Body body, final BodyConverter converter) throws Exception {
+    requireNonNull(body, "A response message is required.");
     requireNonNull(converter, "A converter is required.");
 
     if (response.isCommitted()) {
@@ -287,26 +298,26 @@ public class ResponseImpl implements Response {
       return;
     }
 
-    // set default content type if missing
-    if (type == null) {
-      type(converter.types().get(0));
-    }
+    type(body.type().orElse(converter.types().get(0)));
 
-    if (status == null) {
-      status(HttpStatus.OK);
-    }
+    status(body.status().orElse(HttpStatus.OK));
+
+    Runnable setHeaders = () -> body.headers().forEach((name, value) -> header(name, value));
 
     // byte version of http body
     ExSupplier<OutputStream> stream = () -> {
+      setHeaders.run();
       return response.getOutputStream();
     };
 
     // text version of http body
     ExSupplier<Writer> writer = () -> {
       charset(charset);
+      setHeaders.run();
       return new OutputStreamWriter(response.getOutputStream(), charset);
     };
-    converter.write(message, new BodyWriterImpl(charset, stream, writer));
+
+    converter.write(body, new BodyWriterImpl(charset, stream, writer));
   }
 
   @Override

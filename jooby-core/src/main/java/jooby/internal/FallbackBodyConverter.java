@@ -8,6 +8,7 @@ import jooby.BodyConverter;
 import jooby.BodyReader;
 import jooby.BodyWriter;
 import jooby.MediaType;
+import jooby.Response.Body;
 import jooby.Viewable;
 
 import com.google.common.collect.ImmutableList;
@@ -25,8 +26,8 @@ public enum FallbackBodyConverter implements BodyConverter {
     }
 
     @Override
-    public void write(final Object message, final BodyWriter writer) throws Exception {
-      try (InputStream in = (InputStream) message) {
+    public void write(final Body body, final BodyWriter writer) throws Exception {
+      try (InputStream in = (InputStream) body.content().get()) {
         writer.bytes(out -> ByteStreams.copy(in, out));
       }
     }
@@ -40,8 +41,8 @@ public enum FallbackBodyConverter implements BodyConverter {
     }
 
     @Override
-    public void write(final Object message, final BodyWriter writer) throws Exception {
-      try (Reader in = (Reader) message) {
+    public void write(final Body body, final BodyWriter writer) throws Exception {
+      try (Reader in = (Reader) body.content().get()) {
         writer.text(out -> CharStreams.copy(in, out));
       }
     }
@@ -65,7 +66,7 @@ public enum FallbackBodyConverter implements BodyConverter {
     }
 
     @Override
-    public void write(final Object message, final BodyWriter writer) throws Exception {
+    public void write(final Body body, final BodyWriter writer) throws Exception {
       throw new UnsupportedOperationException();
     }
   },
@@ -78,7 +79,8 @@ public enum FallbackBodyConverter implements BodyConverter {
     }
 
     @Override
-    public void write(final Object message, final BodyWriter writer) throws Exception {
+    public void write(final Body body, final BodyWriter writer) throws Exception {
+      Object message = body.content().get();
       writer.text(out -> out.write(message instanceof Viewable ? ((Viewable) message).model()
           .toString() : message.toString()));
     }
