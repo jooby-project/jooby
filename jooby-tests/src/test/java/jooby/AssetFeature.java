@@ -23,6 +23,7 @@ public class AssetFeature extends ServerFeature {
     response = Request.Get(uri("/assets/file.js").build())
         .addHeader("If-Modified-Since", lastModified).execute().returnResponse();
     assertEquals(304, response.getStatusLine().getStatusCode());
+    assertEquals(null, response.getEntity());
   }
 
   @Test
@@ -36,6 +37,7 @@ public class AssetFeature extends ServerFeature {
     response = Request.Get(uri("/assets/file.css").build())
         .addHeader("If-Modified-Since", lastModified).execute().returnResponse();
     assertEquals(304, response.getStatusLine().getStatusCode());
+    assertEquals(null, response.getEntity());
   }
 
 }
