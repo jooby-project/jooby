@@ -1,4 +1,4 @@
-package jooby.internal.guice;
+package jooby.internal;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 
 import jooby.internal.AssetRoute;
 import jooby.internal.FallbackBodyConverter;
-import jooby.internal.guice.TypeConverters;
+import jooby.internal.TypeConverters;
 import jooby.internal.jetty.Jetty;
 import jooby.internal.mvc.Routes;
 import jooby.internal.routes.HeadFilter;
