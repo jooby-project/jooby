@@ -24,8 +24,6 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import jooby.HttpException;
-import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.MediaTypeProvider;
 import jooby.Request;
@@ -63,7 +61,7 @@ public class RouteHandler {
 
   private MediaTypeProvider typeProvider;
 
-  private Err err;
+  private Err.Handler err;
 
   @Inject
   public RouteHandler(final Injector injector,
@@ -72,7 +70,7 @@ public class RouteHandler {
       final Set<Route.Definition> routes,
       final Charset defaultCharset,
       final Locale defaultLocale,
-      final Route.Err err) {
+      final Route.Err.Handler err) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.modules = requireNonNull(modules, "Request modules are required.");
@@ -153,7 +151,7 @@ public class RouteHandler {
       Response res = resFactory.apply(injector, notFound);
 
       // execution failed, so find status code
-      HttpStatus status = statusCode(ex);
+      Response.Status status = statusCode(ex);
 
       res.header("Cache-Control", NO_CACHE);
       res.status(status);
@@ -228,24 +226,24 @@ public class RouteHandler {
     // 406 or 415
     routes.add(RouteImpl.fromStatus((req, res, chain) -> {
       if (!res.committed()) {
-        HttpException ex = handle406or415(verb, path, type, accept);
+        Route.Err ex = handle406or415(verb, path, type, accept);
         if (ex != null) {
           throw ex;
         }
       }
       chain.next(req, res);
-    }, verb, path, HttpStatus.NOT_ACCEPTABLE, accept));
+    }, verb, path, Response.Status.NOT_ACCEPTABLE, accept));
 
     // 405
     routes.add(RouteImpl.fromStatus((req, res, chain) -> {
       if (!res.committed()) {
-        HttpException ex = handle405(verb, path, type, accept);
+        Route.Err ex = handle405(verb, path, type, accept);
         if (ex != null) {
           throw ex;
         }
       }
       chain.next(req, res);
-    }, verb, path, HttpStatus.METHOD_NOT_ALLOWED, accept));
+    }, verb, path, Response.Status.METHOD_NOT_ALLOWED, accept));
 
     // 404
     routes.add(RouteImpl.notFound(verb, path, accept));
@@ -283,7 +281,7 @@ public class RouteHandler {
 
   private void defaultErrorPage(final Request request, final Response res,
       final Map<String, Object> model) throws Exception {
-    HttpStatus status = res.status();
+    Response.Status status = res.status();
     StringBuilder html = new StringBuilder("<!doctype html>")
         .append("<html>\n")
         .append("<head>\n")
@@ -343,24 +341,24 @@ public class RouteHandler {
     res.send(html, FallbackBodyConverter.TO_HTML);
   }
 
-  private HttpStatus statusCode(final Exception ex) {
-    if (ex instanceof HttpException) {
-      return ((HttpException) ex).status();
+  private Response.Status statusCode(final Exception ex) {
+    if (ex instanceof Route.Err) {
+      return ((Route.Err) ex).status();
     }
     if (ex instanceof IllegalArgumentException) {
-      return HttpStatus.BAD_REQUEST;
+      return Response.Status.BAD_REQUEST;
     }
     if (ex instanceof NoSuchElementException) {
-      return HttpStatus.BAD_REQUEST;
+      return Response.Status.BAD_REQUEST;
     }
-    return HttpStatus.SERVER_ERROR;
+    return Response.Status.SERVER_ERROR;
   }
 
-  private HttpException handle405(final Request.Verb verb, final String uri, final MediaType type,
+  private Route.Err handle405(final Request.Verb verb, final String uri, final MediaType type,
       final List<MediaType> accept) {
 
     if (alternative(verb, uri).size() > 0) {
-      return new HttpException(HttpStatus.METHOD_NOT_ALLOWED, verb + uri);
+      return new Route.Err(Response.Status.METHOD_NOT_ALLOWED, verb + uri);
     }
 
     return null;
@@ -381,17 +379,17 @@ public class RouteHandler {
     return routes;
   }
 
-  private HttpException handle406or415(final Request.Verb verb, final String path,
+  private Route.Err handle406or415(final Request.Verb verb, final String path,
       final MediaType contentType, final List<MediaType> accept) {
     for (Route.Definition routeDef : routeDefs) {
       Optional<Route> route = routeDef.matches(verb, path, MediaType.all, ALL);
       if (route.isPresent() && !route.get().pattern().contains("*")) {
         if (!routeDef.canProduce(accept)) {
-          return new HttpException(HttpStatus.NOT_ACCEPTABLE, accept.stream()
+          return new Route.Err(Response.Status.NOT_ACCEPTABLE, accept.stream()
               .map(MediaType::name)
               .collect(Collectors.joining(", ")));
         }
-        return new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, contentType.name());
+        return new Route.Err(Response.Status.UNSUPPORTED_MEDIA_TYPE, contentType.name());
       }
     }
     return null;

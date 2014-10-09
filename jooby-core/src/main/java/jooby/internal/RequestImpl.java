@@ -22,11 +22,10 @@ import javax.servlet.http.Part;
 
 import jooby.BodyConverter;
 import jooby.Cookie;
-import jooby.HttpException;
-import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.MediaTypeProvider;
 import jooby.Request;
+import jooby.Response;
 import jooby.Route;
 import jooby.SetCookie;
 import jooby.Upload;
@@ -184,7 +183,7 @@ public class RequestImpl implements Request {
   @Override
   public <T> T body(final TypeLiteral<T> type) throws Exception {
     BodyConverter mapper = selector.forRead(type, Arrays.asList(this.type))
-        .orElseThrow(() -> new HttpException(HttpStatus.UNSUPPORTED_MEDIA_TYPE));
+        .orElseThrow(() -> new Route.Err(Response.Status.UNSUPPORTED_MEDIA_TYPE));
     return mapper.read(type, new BodyReaderImpl(charset, () -> request.getInputStream()));
   }
 

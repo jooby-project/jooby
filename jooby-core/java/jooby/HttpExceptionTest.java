@@ -8,36 +8,36 @@ public class HttpExceptionTest {
 
   @Test
   public void exceptionWithStatus() {
-    HttpException exception = new HttpException(HttpStatus.NOT_FOUND);
+    Route.Err exception = new Route.Err(Response.Status.NOT_FOUND);
 
-    assertEquals(HttpStatus.NOT_FOUND, exception.status());
+    assertEquals(Response.Status.NOT_FOUND, exception.status());
     assertEquals("Not Found(404): ", exception.getMessage());
   }
 
   @Test
   public void exceptionWithStatusAndCause() {
     Exception cause = new IllegalArgumentException();
-    HttpException exception = new HttpException(HttpStatus.NOT_FOUND, cause);
+    Route.Err exception = new Route.Err(Response.Status.NOT_FOUND, cause);
 
-    assertEquals(HttpStatus.NOT_FOUND, exception.status());
+    assertEquals(Response.Status.NOT_FOUND, exception.status());
     assertEquals("Not Found(404): ", exception.getMessage());
     assertEquals(cause, exception.getCause());
   }
 
   @Test
   public void exceptionWithStatusAndMessage() {
-    HttpException exception = new HttpException(HttpStatus.NOT_FOUND, "GET/missing");
+    Route.Err exception = new Route.Err(Response.Status.NOT_FOUND, "GET/missing");
 
-    assertEquals(HttpStatus.NOT_FOUND, exception.status());
+    assertEquals(Response.Status.NOT_FOUND, exception.status());
     assertEquals("Not Found(404): GET/missing", exception.getMessage());
   }
 
   @Test
   public void exceptionWithStatusCauseAndMessage() {
     Exception cause = new IllegalArgumentException();
-    HttpException exception = new HttpException(HttpStatus.NOT_FOUND, "GET/missing", cause);
+    Route.Err exception = new Route.Err(Response.Status.NOT_FOUND, "GET/missing", cause);
 
-    assertEquals(HttpStatus.NOT_FOUND, exception.status());
+    assertEquals(Response.Status.NOT_FOUND, exception.status());
     assertEquals("Not Found(404): GET/missing", exception.getMessage());
     assertEquals(cause, exception.getCause());
   }

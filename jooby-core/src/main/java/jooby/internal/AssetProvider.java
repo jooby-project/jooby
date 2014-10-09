@@ -8,10 +8,10 @@ import java.net.URL;
 import javax.inject.Inject;
 
 import jooby.Asset;
-import jooby.MediaTypeProvider;
-import jooby.HttpException;
-import jooby.HttpStatus;
 import jooby.MediaType;
+import jooby.MediaTypeProvider;
+import jooby.Response;
+import jooby.Route;
 
 class AssetProvider {
 
@@ -34,7 +34,7 @@ class AssetProvider {
       if (file.exists()) {
         return new FileAsset(file, mediaType);
       }
-      throw new HttpException(HttpStatus.NOT_FOUND, path);
+      throw new Route.Err(Response.Status.NOT_FOUND, path);
     } else if (resource.getProtocol().equals("file")) {
       return new FileAsset(new File(resource.toURI()), mediaType);
     }

@@ -42,37 +42,37 @@ public class ResponseStatusFeature extends ServerFeature {
 
   @Test
   public void notFound() throws Exception {
-    assertStatus(HttpStatus.NOT_FOUND, () -> Request.Get(uri("missing").build()).execute()
+    assertStatus(Response.Status.NOT_FOUND, () -> Request.Get(uri("missing").build()).execute()
         .returnContent().asString());
   }
 
   @Test
   public void methodNotAllowed() throws Exception {
-    assertStatus(HttpStatus.METHOD_NOT_ALLOWED, () -> Request.Post(uri("/notAllowed").build())
+    assertStatus(Response.Status.METHOD_NOT_ALLOWED, () -> Request.Post(uri("/notAllowed").build())
         .execute().returnContent().asString());
 
-    assertStatus(HttpStatus.METHOD_NOT_ALLOWED, () -> Request.Post(uri("/r/notAllowed").build())
+    assertStatus(Response.Status.METHOD_NOT_ALLOWED, () -> Request.Post(uri("/r/notAllowed").build())
         .execute().returnContent().asString());
   }
 
   @Test
   public void notAcceptable() throws Exception {
-    assertStatus(HttpStatus.NOT_ACCEPTABLE, () -> Request.Get(uri("/json").build())
+    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> Request.Get(uri("/json").build())
         .addHeader("Accept", "text/html")
         .execute().returnContent().asString());
 
-    assertStatus(HttpStatus.NOT_ACCEPTABLE, () -> Request.Get(uri("/r/json").build())
+    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> Request.Get(uri("/r/json").build())
         .addHeader("Accept", "text/html")
         .execute().returnContent().asString());
   }
 
   @Test
   public void unsupportedMediaType() throws Exception {
-    assertStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE, () -> Request.Get(uri("/json").build())
+    assertStatus(Response.Status.UNSUPPORTED_MEDIA_TYPE, () -> Request.Get(uri("/json").build())
         .addHeader("Content-Type", "text/html")
         .execute().returnContent().asString());
 
-    assertStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE, () -> Request.Get(uri("/r/json").build())
+    assertStatus(Response.Status.UNSUPPORTED_MEDIA_TYPE, () -> Request.Get(uri("/r/json").build())
         .addHeader("Content-Type", "text/html")
         .execute().returnContent().asString());
   }

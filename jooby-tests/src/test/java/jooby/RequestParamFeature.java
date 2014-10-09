@@ -142,7 +142,7 @@ public class RequestParamFeature extends ServerFeature {
 
   @Test
   public void missingParam() throws Exception {
-    assertStatus(HttpStatus.BAD_REQUEST, () -> GET(uri("boolean")));
+    assertStatus(Response.Status.BAD_REQUEST, () -> GET(uri("boolean")));
   }
 
   @Test

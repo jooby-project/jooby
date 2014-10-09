@@ -18,8 +18,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.BiFunction;
 
-import jooby.HttpException;
-import jooby.HttpStatus;
+import jooby.Response;
+import jooby.Route;
 import jooby.Variant;
 
 import com.google.common.collect.ImmutableList;
@@ -279,7 +279,7 @@ public class VariantImpl implements Variant {
             return fn;
           })
           .orElseThrow(
-              () -> new HttpException(HttpStatus.BAD_REQUEST, "Unknown parameter type: " + rawType)
+              () -> new Route.Err(Response.Status.BAD_REQUEST, "Unknown parameter type: " + rawType)
           );
     }
   }
@@ -309,12 +309,12 @@ public class VariantImpl implements Variant {
       Type actualType = parameterizedType.getActualTypeArguments()[0];
       return classFrom(actualType);
     }
-    throw new HttpException(HttpStatus.BAD_REQUEST, "Unknown type: " + type);
+    throw new Route.Err(Response.Status.BAD_REQUEST, "Unknown type: " + type);
   }
 
   private static void failOnEmpty(final String name, final List<?> values) {
     if (values == null || values.size() == 0) {
-      throw new HttpException(HttpStatus.BAD_REQUEST, "Missing value: " + name);
+      throw new Route.Err(Response.Status.BAD_REQUEST, "Missing value: " + name);
     }
   }
 }

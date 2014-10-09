@@ -75,7 +75,7 @@ public interface Route {
    *
    *        put("/", (req, resp) -> resp.send("PUT"));
    *
-   *        delete("/", (req, resp) -> resp.status(HttpStatus.NO_CONTENT));
+   *        delete("/", (req, resp) -> resp.status(Response.Status.NO_CONTENT));
    *     }
    *   }
    * </pre>
@@ -352,9 +352,16 @@ public interface Route {
     void next(Request request, Response response) throws Exception;
   }
 
-  interface Err {
+  /**
+   * An exception that carry a {@link Response.Status}. The status field will be set in the HTTP response.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
+  @SuppressWarnings("serial")
+  public class Err extends RuntimeException {
 
-    class Formatter implements Err {
+    public static class Default implements Err.Handler {
 
       @Override
       public void handle(final Request req, final Response res, final Exception ex)
@@ -369,28 +376,98 @@ public interface Route {
 
     }
 
-    default Map<String, Object> err(final Request req, final Response res, final Exception ex) {
-      Map<String, Object> error = new LinkedHashMap<>();
-      HttpStatus status = res.status();
-      String message = ex.getMessage();
-      message = message == null ? status.reason() : message;
-      error.put("message", message);
-      StringWriter writer = new StringWriter();
-      ex.printStackTrace(new PrintWriter(writer));
-      String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
-      error.put("stacktrace", stacktrace);
-      error.put("status", res.status().value());
-      error.put("reason", res.status().reason());
-      error.put("referer", req.header("referer"));
+    public interface Handler {
+      default Map<String, Object> err(final Request req, final Response res, final Exception ex) {
+        Map<String, Object> error = new LinkedHashMap<>();
+        Response.Status status = res.status();
+        String message = ex.getMessage();
+        message = message == null ? status.reason() : message;
+        error.put("message", message);
+        StringWriter writer = new StringWriter();
+        ex.printStackTrace(new PrintWriter(writer));
+        String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
+        error.put("stacktrace", stacktrace);
+        error.put("status", res.status().value());
+        error.put("reason", res.status().reason());
+        error.put("referer", req.header("referer"));
 
-      return error;
+        return error;
+      }
+
+      default String errPage(final Request req, final Response res, final Exception ex) {
+        return "/err/" + res.status().value();
+      }
+
+      void handle(Request req, Response res, Exception ex) throws Exception;
     }
 
-    default String errPage(final Request req, final Response res, final Exception ex) {
-      return "/err/" + res.status().value();
+    /**
+     * The HTTP status. Required.
+     */
+    private Response.Status status;
+
+    /**
+     * Creates a new {@link Route.Err}.
+     *
+     * @param status A HTTP status. Required.
+     * @param message A error message. Required.
+     * @param cause The cause of the problem.
+     */
+    public Err(final Response.Status status, final String message, final Exception cause) {
+      super(message(status, message), cause);
+      this.status = status;
     }
 
-    void handle(Request req, Response res, Exception ex) throws Exception;
+    /**
+     * Creates a new {@link Route.Err}.
+     *
+     * @param status A HTTP status. Required.
+     * @param message A error message. Required.
+     */
+    public Err(final Response.Status status, final String message) {
+      super(message(status, message));
+      this.status = status;
+    }
+
+    /**
+     * Creates a new {@link Route.Err}.
+     *
+     * @param status A HTTP status. Required.
+     * @param cause The cause of the problem.
+     */
+    public Err(final Response.Status status, final Exception cause) {
+      super(message(status, ""), cause);
+      this.status = status;
+    }
+
+    /**
+     * Creates a new {@link Route.Err}.
+     *
+     * @param status A HTTP status. Required.
+     */
+    public Err(final Response.Status status) {
+      super(message(status, ""));
+      this.status = status;
+    }
+
+    /**
+     * @return The HTTP status to send as response.
+     */
+    public Response.Status status() {
+      return status;
+    }
+
+    /**
+     * Build an error message using the HTTP status.
+     *
+     * @param status The HTTP Status.
+     * @param tail A message to append.
+     * @return An error message.
+     */
+    private static String message(final Response.Status status, final String tail) {
+      requireNonNull(status, "A HTTP Status is required.");
+      return status.reason() + "(" + status.value() + "): " + tail;
+    }
   }
 
   String path();

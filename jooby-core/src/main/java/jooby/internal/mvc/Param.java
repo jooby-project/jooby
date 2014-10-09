@@ -6,10 +6,9 @@ import java.lang.reflect.Parameter;
 import java.util.Optional;
 
 import jooby.Cookie;
-import jooby.HttpException;
-import jooby.HttpStatus;
 import jooby.Request;
 import jooby.Response;
+import jooby.Route;
 import jooby.mvc.Body;
 import jooby.mvc.Header;
 
@@ -51,7 +50,7 @@ public class Param {
         }
         return Optional.ofNullable(cookie)
             .orElseThrow(
-                () -> new HttpException(HttpStatus.BAD_REQUEST, "Missing cookie: " + param.name));
+                () -> new Route.Err(Response.Status.BAD_REQUEST, "Missing cookie: " + param.name));
       }
     },
 

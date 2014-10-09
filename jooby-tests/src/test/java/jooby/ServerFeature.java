@@ -32,9 +32,9 @@ public abstract class ServerFeature extends Jooby {
       this.response = response;
     }
 
-    public HttpAssert status(final HttpStatus status) throws Exception {
+    public HttpAssert status(final Response.Status status) throws Exception {
       doAssert(() -> assertEquals(status,
-          HttpStatus.valueOf(response.getStatusLine().getStatusCode())));
+          Response.Status.valueOf(response.getStatusLine().getStatusCode())));
       return this;
     }
 
@@ -69,7 +69,7 @@ public abstract class ServerFeature extends Jooby {
   @Inject
   private int port;
 
-  public void assertStatus(final HttpStatus status, final HttpCall call) throws Exception {
+  public void assertStatus(final Response.Status status, final HttpCall call) throws Exception {
     try {
       call.call();
       fail("expected " + status);

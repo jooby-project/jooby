@@ -101,12 +101,12 @@ public class ContentNegotiationFeature extends ServerFeature {
         Request.Get(uri("r", "html").build()).addHeader("Accept", CHROME_ACCEPT).execute()
             .returnContent().asString());
 
-    assertStatus(HttpStatus.NOT_ACCEPTABLE, () -> {
+    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> {
       Request.Get(uri("json").build()).addHeader("Accept", "text/html").execute()
           .returnContent().asString();
     });
 
-    assertStatus(HttpStatus.NOT_ACCEPTABLE, () -> {
+    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> {
       Request.Get(uri("r", "json").build()).addHeader("Accept", "text/html").execute()
           .returnContent().asString();
     });
@@ -138,12 +138,12 @@ public class ContentNegotiationFeature extends ServerFeature {
         Request.Get(uri("r", "json").build()).addHeader("Accept", CHROME_ACCEPT).execute()
             .returnContent().asString());
 
-    assertStatus(HttpStatus.NOT_ACCEPTABLE, () -> {
+    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> {
       Request.Get(uri("html").build()).addHeader("Accept", "application/json").execute()
           .returnContent().asString();
     });
 
-    assertStatus(HttpStatus.NOT_ACCEPTABLE, () -> {
+    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> {
       Request.Get(uri("r", "html").build()).addHeader("Accept", "application/json").execute()
           .returnContent().asString();
     });
@@ -163,7 +163,7 @@ public class ContentNegotiationFeature extends ServerFeature {
             .addHeader("Accept", "application/json").execute()
             .returnContent().asString());
 
-    assertStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE, () -> {
+    assertStatus(Response.Status.UNSUPPORTED_MEDIA_TYPE, () -> {
       Request.Get(uri("json").build()).addHeader("Content-Type", "application/xml").execute()
           .returnContent().asString();
     });

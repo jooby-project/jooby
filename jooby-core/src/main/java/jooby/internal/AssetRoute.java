@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNull;
 import java.util.Date;
 
 import jooby.Asset;
-import jooby.HttpStatus;
 import jooby.Request;
 import jooby.Response;
 import jooby.Router;
@@ -31,7 +30,7 @@ public class AssetRoute implements Router {
     if (lastModified > 0) {
       long ifModified = request.header("If-Modified-Since").toOptional(Long.class).orElse(-1l);
       if (ifModified > 0 && lastModified / 1000 <= ifModified / 1000) {
-        response.status(HttpStatus.NOT_MODIFIED);
+        response.status(Response.Status.NOT_MODIFIED);
         return;
       }
       response.header("Last-Modified", new Date(lastModified));

@@ -393,7 +393,7 @@ public class Jooby {
   /** Keep the global injector instance. */
   private Injector injector;
 
-  private Err err;
+  private Err.Handler err;
 
   {
     use(new Jetty());
@@ -668,12 +668,12 @@ public class Jooby {
     return this;
   }
 
-  public Jooby err(final Route.Err err) {
+  public Jooby err(final Route.Err.Handler err) {
     this.err = requireNonNull(err, "An err handler is required.");
     return this;
   }
 
-  public Route.Err logError(final Route.Err err) {
+  public Route.Err.Handler logError(final Route.Err.Handler err) {
     requireNonNull(err, "An err handler is required.");
     return (req, res, ex) -> {
       LoggerFactory.getLogger(Route.Err.class).error("execution of: " + req.path() +
@@ -800,9 +800,9 @@ public class Jooby {
 
         // err
         if (err == null) {
-          binder.bind(Err.class).toInstance(logError(new Err.Formatter()));
+          binder.bind(Err.Handler.class).toInstance(logError(new Err.Default()));
         } else {
-          binder.bind(Err.class).toInstance(err);
+          binder.bind(Err.Handler.class).toInstance(err);
         }
       }
 

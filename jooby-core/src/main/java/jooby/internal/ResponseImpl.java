@@ -23,8 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 import jooby.BodyConverter;
 import jooby.BodyReader;
 import jooby.BodyWriter;
-import jooby.HttpException;
-import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.MediaTypeProvider;
 import jooby.Response;
@@ -56,7 +54,7 @@ public class ResponseImpl implements Response {
 
   private Charset charset;
 
-  private HttpStatus status;
+  private Response.Status status;
 
   private MediaType type;
 
@@ -253,7 +251,7 @@ public class ResponseImpl implements Response {
     Optional<Object> content = body.content();
     BodyConverter converter = content.isPresent()
         ? selector.forWrite(content.get(), route.produces())
-            .orElseThrow(() -> new HttpException(HttpStatus.NOT_ACCEPTABLE))
+            .orElseThrow(() -> new Route.Err(Response.Status.NOT_ACCEPTABLE))
         : noop(route.produces());
     send(body, converter);
   }
@@ -300,7 +298,7 @@ public class ResponseImpl implements Response {
 
     type(body.type().orElse(converter.types().get(0)));
 
-    status(body.status().orElse(HttpStatus.OK));
+    status(body.status().orElse(Response.Status.OK));
 
     Runnable setHeaders = () -> body.headers().forEach((name, value) -> header(name, value));
 
@@ -346,7 +344,7 @@ public class ResponseImpl implements Response {
             .first(types)
             .map(it -> strategies.get(it))
             .orElseThrow(
-                () -> new HttpException(HttpStatus.NOT_ACCEPTABLE, Joiner.on(", ").join(produces))
+                () -> new Route.Err(Response.Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces))
             );
 
         ResponseImpl.this.send(provider.get());
@@ -356,7 +354,7 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public void redirect(final HttpStatus status, final String location) throws Exception {
+  public void redirect(final Response.Status status, final String location) throws Exception {
     requireNonNull(status, "A status is required.");
     requireNonNull(location, "A location is required.");
     status(status);
@@ -364,12 +362,12 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public HttpStatus status() {
+  public Response.Status status() {
     return status;
   }
 
   @Override
-  public Response status(final HttpStatus status) {
+  public Response status(final Response.Status status) {
     this.status = requireNonNull(status, "A status is required.");
     this.committed = true;
     response.setStatus(status.value());

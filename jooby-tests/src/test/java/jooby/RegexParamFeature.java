@@ -41,7 +41,7 @@ public class RegexParamFeature extends ServerFeature {
   @Test
   public void notFound() throws Exception {
 
-    assertStatus(HttpStatus.NOT_FOUND,
+    assertStatus(Response.Status.NOT_FOUND,
         () -> Request.Get(uri("r", "regex", "678x").build()).execute().returnContent().asString());
 
   }

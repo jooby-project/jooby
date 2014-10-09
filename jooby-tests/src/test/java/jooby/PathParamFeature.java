@@ -55,10 +55,10 @@ public class PathParamFeature extends ServerFeature {
   @Test
   public void notFound() throws Exception {
 
-    assertStatus(HttpStatus.NOT_FOUND,
+    assertStatus(Response.Status.NOT_FOUND,
         () -> Request.Get(uri("vars", "edgar").build()).execute().returnContent().asString());
 
-    assertStatus(HttpStatus.NOT_FOUND,
+    assertStatus(Response.Status.NOT_FOUND,
         () -> Request.Get(uri("vars", "edgar", "1", "2").build()).execute().returnContent()
             .asString());
   }

@@ -7,7 +7,6 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Request;
 import jooby.Response;
@@ -47,7 +46,7 @@ public class OptionsRouter implements Router {
       }
       res.header("Allow", Joiner.on(", ").join(allow));
       res.length(0);
-      res.status(HttpStatus.OK);
+      res.status(Response.Status.OK);
     }
   }
 

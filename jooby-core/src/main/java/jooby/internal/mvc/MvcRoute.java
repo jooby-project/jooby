@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import jooby.HttpStatus;
 import jooby.MediaType;
 import jooby.Request;
 import jooby.Response;
@@ -44,11 +43,11 @@ class MvcRoute implements Router {
     if (returnType == void.class || returnType == Void.class) {
       // ignore glob pattern
       if (!req.route().pattern().contains("*")) {
-        res.status(HttpStatus.NO_CONTENT);
+        res.status(Response.Status.NO_CONTENT);
       }
       return;
     }
-    res.status(HttpStatus.OK);
+    res.status(Response.Status.OK);
 
     // format!
     List<MediaType> accept = req.accept();

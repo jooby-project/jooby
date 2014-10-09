@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 
-import jooby.HttpException;
-import jooby.HttpStatus;
+import jooby.Response;
+import jooby.Route;
 import jooby.Upload;
 import jooby.Variant;
 
@@ -138,10 +138,10 @@ public class GetUpload implements Variant {
       Type actualType = parameterizedType.getActualTypeArguments()[0];
       return classFrom(actualType);
     }
-    throw new HttpException(HttpStatus.BAD_REQUEST, "Unknown type: " + type);
+    throw new Route.Err(Response.Status.BAD_REQUEST, "Unknown type: " + type);
   }
 
-  private HttpException typeError(final Class<?> type) {
-    return new HttpException(HttpStatus.BAD_REQUEST, "Can't convert to " + name + " to " + type);
+  private Route.Err typeError(final Class<?> type) {
+    return new Route.Err(Response.Status.BAD_REQUEST, "Can't convert to " + name + " to " + type);
   }
 }
