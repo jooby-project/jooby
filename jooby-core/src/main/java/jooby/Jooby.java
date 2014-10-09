@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
+import jooby.Route.Err;
 import jooby.internal.AssetRoute;
 import jooby.internal.FallbackBodyConverter;
 import jooby.internal.TypeConverters;
@@ -392,6 +393,8 @@ public class Jooby {
   /** Keep the global injector instance. */
   private Injector injector;
 
+  private Err err;
+
   {
     use(new Jetty());
   }
@@ -665,6 +668,20 @@ public class Jooby {
     return this;
   }
 
+  public Jooby err(final Route.Err err) {
+    this.err = requireNonNull(err, "An err handler is required.");
+    return this;
+  }
+
+  public Route.Err logError(final Route.Err err) {
+    requireNonNull(err, "An err handler is required.");
+    return (req, res, ex) -> {
+      LoggerFactory.getLogger(Route.Err.class).error("execution of: " + req.path() +
+          " resulted in exception", ex);
+      err.handle(req, res, ex);
+    };
+  }
+
   /**
    * <h1>Bootstrap</h1>
    * <p>
@@ -780,6 +797,13 @@ public class Jooby {
         converters.addBinding().toInstance(FallbackBodyConverter.COPY_BYTES);
         converters.addBinding().toInstance(FallbackBodyConverter.READ_TEXT);
         converters.addBinding().toInstance(FallbackBodyConverter.TO_HTML);
+
+        // err
+        if (err == null) {
+          binder.bind(Err.class).toInstance(logError(new Err.Formatter()));
+        } else {
+          binder.bind(Err.class).toInstance(err);
+        }
       }
 
     });

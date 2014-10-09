@@ -2,8 +2,6 @@ package jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,7 +31,7 @@ import jooby.MediaTypeProvider;
 import jooby.Request;
 import jooby.Response;
 import jooby.Route;
-import jooby.Viewable;
+import jooby.Route.Err;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,19 +63,23 @@ public class RouteHandler {
 
   private MediaTypeProvider typeProvider;
 
+  private Err err;
+
   @Inject
   public RouteHandler(final Injector injector,
       final BodyConverterSelector selector,
       final Set<Request.Module> modules,
       final Set<Route.Definition> routes,
       final Charset defaultCharset,
-      final Locale defaultLocale) {
+      final Locale defaultLocale,
+      final Route.Err err) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.modules = requireNonNull(modules, "Request modules are required.");
     this.routeDefs = requireNonNull(routes, "The routes are required.");
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
     this.locale = requireNonNull(defaultLocale, "A defaultLocale is required.");
+    this.err = requireNonNull(err, "An err handler is required.");
     this.typeProvider = injector.getInstance(MediaTypeProvider.class);
   }
 
@@ -106,9 +108,9 @@ public class RouteHandler {
 
     final String path = verb + requestURI;
 
-    log.info("handling: {}", path);
+    log.debug("handling: {}", path);
 
-    log.info("  content-type: {}", type);
+    log.debug("  content-type: {}", type);
 
     Charset charset = Optional.ofNullable(request.getCharacterEncoding())
         .map(Charset::forName)
@@ -142,7 +144,8 @@ public class RouteHandler {
           .next(reqFactory.apply(injector, notFound), resFactory.apply(injector, notFound));
 
     } catch (Exception ex) {
-      log.error("handling of: " + path + " ends with error", ex);
+      log.debug("execution of: " + path + " resulted in exception", ex);
+
       // reset response
       response.reset();
 
@@ -155,20 +158,15 @@ public class RouteHandler {
       res.header("Cache-Control", NO_CACHE);
       res.status(status);
 
-      // TODO: move me to an error handler feature
-      Map<String, Object> model = errorModel(req, ex, status);
       try {
-        res.format()
-            .when(MediaType.html, () -> Viewable.of("/status/" + status.value(), model))
-            .when(MediaType.all, () -> model)
-            .send();
+        err.handle(req, res, ex);
       } catch (Exception ignored) {
-        log.trace("rendering of error failed, fallback to default error page", ignored);
-        defaultErrorPage(req, res, status, model);
+        log.debug("rendering of error failed, fallback to default error page", ignored);
+        defaultErrorPage(req, res, err.err(req, res, ex));
       }
     } finally {
       long end = System.currentTimeMillis();
-      log.info("  status -> {} in {}ms", response.getStatus(), end - start);
+      log.debug("  status -> {} in {}ms", response.getStatus(), end - start);
     }
   }
 
@@ -283,8 +281,9 @@ public class RouteHandler {
     };
   }
 
-  private void defaultErrorPage(final Request request, final Response response,
-      final HttpStatus status, final Map<String, Object> model) throws Exception {
+  private void defaultErrorPage(final Request request, final Response res,
+      final Map<String, Object> model) throws Exception {
+    HttpStatus status = res.status();
     StringBuilder html = new StringBuilder("<!doctype html>")
         .append("<html>\n")
         .append("<head>\n")
@@ -308,7 +307,7 @@ public class RouteHandler {
 
     model.remove("reason");
 
-    String[] stacktrace = (String[]) model.remove("stackTrace");
+    String[] stacktrace = (String[]) model.remove("stacktrace");
 
     for (Entry<String, Object> entry : model.entrySet()) {
       Object value = entry.getValue();
@@ -319,7 +318,7 @@ public class RouteHandler {
     }
 
     if (stacktrace != null) {
-      html.append("<h2>stackTrace:</h2>\n")
+      html.append("<h2>stack:</h2>\n")
           .append("<div class=\"trace\">\n");
 
       Arrays.stream(stacktrace).forEach(line -> {
@@ -340,45 +339,14 @@ public class RouteHandler {
         .append("</body>\n")
         .append("</html>\n");
 
-    response.header("Cache-Control", NO_CACHE);
-    response.send(html, FallbackBodyConverter.TO_HTML);
-  }
-
-  private Map<String, Object> errorModel(final Request request, final Exception ex,
-      final HttpStatus status) {
-    Map<String, Object> error = new LinkedHashMap<>();
-    String message = ex.getMessage();
-    message = message == null ? status.reason() : message;
-    error.put("message", message);
-    error.put("stackTrace", dump(ex));
-    error.put("status", status.value());
-    error.put("reason", status.reason());
-    return error;
-  }
-
-  private static String[] dump(final Exception ex) {
-    StringWriter writer = new StringWriter();
-    ex.printStackTrace(new PrintWriter(writer));
-    String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
-    return stacktrace;
+    res.header("Cache-Control", NO_CACHE);
+    res.send(html, FallbackBodyConverter.TO_HTML);
   }
 
   private HttpStatus statusCode(final Exception ex) {
     if (ex instanceof HttpException) {
       return ((HttpException) ex).status();
     }
-    // Class<?> type = ex.getClass();
-    // Status status = errorMap.get(type);
-    // while (status == null && type != Throwable.class) {
-    // type = type.getSuperclass();
-    // status = errorMap.get(type);
-    // }
-    // return status == null ? defaultStatusCode(ex) : status;
-    // TODO: finished me
-    return defaultStatusCode(ex);
-  }
-
-  private HttpStatus defaultStatusCode(final Exception ex) {
     if (ex instanceof IllegalArgumentException) {
       return HttpStatus.BAD_REQUEST;
     }

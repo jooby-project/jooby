@@ -284,6 +284,18 @@ public class VariantImpl implements Variant {
     }
   }
 
+
+  @Override
+  public String toString() {
+    if (values == null || values.size() == 0) {
+      return "";
+    }
+    if (values.size() == 1) {
+      return values.get(0);
+    }
+    return values.toString();
+  }
+
   private static Class<?> classFrom(final TypeLiteral<?> type) {
     return classFrom(type.getType());
   }

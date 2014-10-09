@@ -2,8 +2,11 @@ package jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -347,6 +350,47 @@ public interface Route {
 
   interface Chain {
     void next(Request request, Response response) throws Exception;
+  }
+
+  interface Err {
+
+    class Formatter implements Err {
+
+      @Override
+      public void handle(final Request req, final Response res, final Exception ex)
+          throws Exception {
+        Map<String, Object> err = err(req, res, ex);
+
+        res.format()
+            .when(MediaType.html, () -> Viewable.of(errPage(req, res, ex), err))
+            .when(MediaType.all, () -> err)
+            .send();
+      }
+
+    }
+
+    default Map<String, Object> err(final Request req, final Response res, final Exception ex) {
+      Map<String, Object> error = new LinkedHashMap<>();
+      HttpStatus status = res.status();
+      String message = ex.getMessage();
+      message = message == null ? status.reason() : message;
+      error.put("message", message);
+      StringWriter writer = new StringWriter();
+      ex.printStackTrace(new PrintWriter(writer));
+      String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
+      error.put("stacktrace", stacktrace);
+      error.put("status", res.status().value());
+      error.put("reason", res.status().reason());
+      error.put("referer", req.header("referer"));
+
+      return error;
+    }
+
+    default String errPage(final Request req, final Response res, final Exception ex) {
+      return "/err/" + res.status().value();
+    }
+
+    void handle(Request req, Response res, Exception ex) throws Exception;
   }
 
   String path();
