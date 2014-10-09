@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,12 +13,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import jooby.MediaType;
 import jooby.Mode;
 import jooby.Route;
-import jooby.internal.Reflection;
+import jooby.Route.Definition;
 import jooby.mvc.Consumes;
 import jooby.mvc.DELETE;
 import jooby.mvc.GET;
@@ -66,28 +66,28 @@ public class Routes {
 
     String rootPath = path(routeClass);
 
-    return Reflection
-        .methods(routeClass)
+    Map<Method, List<Class<?>>> methods = new HashMap<>();
+    for (Method method : routeClass.getDeclaredMethods()) {
+      List<Class<?>> annotations = new ArrayList<>();
+      for (Class annotationType : VERBS) {
+        Annotation annotation = method.getAnnotation(annotationType);
+        if (annotation != null) {
+          annotations.add(annotationType);
+        }
+      }
+      if (annotations.size() > 0) {
+        if (!Modifier.isPublic(method.getModifiers())) {
+          throw new IllegalArgumentException("Not a public method: " + method);
+        }
+        methods.put(method, annotations);
+      }
+    }
+
+    List<Definition> definitions = new ArrayList<>();
+
+    methods
+        .keySet()
         .stream()
-        .filter(
-            m -> {
-              List<Annotation> annotations = new ArrayList<>();
-              for (Class annotationType : VERBS) {
-                Annotation annotation = m.getAnnotation(annotationType);
-                if (annotation != null) {
-                  annotations.add(annotation);
-                }
-              }
-              if (annotations.size() == 0) {
-                return false;
-              }
-              if (annotations.size() > 1) {
-                throw new IllegalStateException("A resource method: " + m
-                    + " should have only one HTTP verb. Found: "
-                    + annotations);
-              }
-              return true;
-            })
         .sorted((m1, m2) -> {
           String k1 = key(m1);
           String k2 = key(m2);
@@ -95,16 +95,23 @@ public class Routes {
           int l2 = lines.getOrDefault(k2, 0);
           return l1 - l2;
         })
-        .map(
-            m -> {
-              String verb = verb(m);
-              String path = rootPath + "/" + path(m);
-              return new Route.Definition(verb, path, new MvcRoute(m, provider))
-                  .produces(produces(m))
-                  .consumes(consumes(m))
-                  .name(routeClass.getSimpleName() + "." + m.getName());
-            })
-        .collect(Collectors.toList());
+        .forEach(
+            method -> {
+              List<Class<?>> verbs = methods.get(method);
+              String path = rootPath + "/" + path(method);
+              String name = routeClass.getSimpleName() + "." + method.getName();
+              for (Class<?> verb : verbs) {
+                Definition definition = new Route.Definition(
+                    verb.getSimpleName(), path, new MvcRoute(method, provider))
+                    .produces(produces(method))
+                    .consumes(consumes(method))
+                    .name(name);
+
+                definitions.add(definition);
+              }
+            });
+
+    return definitions;
   }
 
   private static String key(final Method method) {
@@ -152,16 +159,6 @@ public class Routes {
         .orElseGet(() -> fn.apply(method.getDeclaringClass())
             // none
             .orElse(ALL));
-  }
-
-  @SuppressWarnings("unchecked")
-  private static String verb(final Method method) {
-    for (Class<?> annotation : VERBS) {
-      if (method.isAnnotationPresent((Class<? extends Annotation>) annotation)) {
-        return annotation.getSimpleName();
-      }
-    }
-    throw new IllegalStateException("Couldn't find a HTTP annotation");
   }
 
   private static String path(final AnnotatedElement owner) {
