@@ -69,7 +69,7 @@ public class RequestModuleFeature extends ServerFeature {
         resp.send(req.getInstance(RequestScoped.class));
       });
 
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

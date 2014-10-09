@@ -51,7 +51,7 @@ public class DateTimeFormatterFeature extends ServerFeature {
   {
     use(ConfigFactory.empty().withValue("application.lang",
         ConfigValueFactory.fromAnyRef("en_US")));
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

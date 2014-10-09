@@ -28,7 +28,7 @@ public class FormParamFeature extends ServerFeature {
       resp.send(name + " " + age);
     });
 
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

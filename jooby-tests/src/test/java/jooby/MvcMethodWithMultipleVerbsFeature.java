@@ -24,7 +24,7 @@ public class MvcMethodWithMultipleVerbsFeature extends ServerFeature {
   }
 
   {
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

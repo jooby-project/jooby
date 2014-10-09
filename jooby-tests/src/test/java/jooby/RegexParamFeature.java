@@ -26,7 +26,7 @@ public class RegexParamFeature extends ServerFeature {
       resp.send(id);
     });
 
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

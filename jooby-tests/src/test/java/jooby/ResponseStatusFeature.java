@@ -37,7 +37,7 @@ public class ResponseStatusFeature extends ServerFeature {
         .consumes(MediaType.json)
         .produces(MediaType.json);
 
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

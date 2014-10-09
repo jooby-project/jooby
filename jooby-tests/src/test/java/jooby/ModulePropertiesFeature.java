@@ -61,7 +61,7 @@ public class ModulePropertiesFeature extends ServerFeature {
 
     use(new M1());
 
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

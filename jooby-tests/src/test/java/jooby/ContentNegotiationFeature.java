@@ -67,7 +67,7 @@ public class ContentNegotiationFeature extends ServerFeature {
         .produces(MediaType.json)
         .consumes(MediaType.json);
 
-    route(Resource.class);
+    use(Resource.class);
   }
 
   private static final String CHROME_ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";

@@ -43,7 +43,7 @@ public class CharsetFeature extends ServerFeature {
 
   {
     use(ConfigFactory.empty().withValue("application.charset", ConfigValueFactory.fromAnyRef(Charsets.ISO_8859_1.name())));
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

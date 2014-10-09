@@ -59,7 +59,7 @@ public class ReadBodyFeature extends ServerFeature {
     post("/json", (req, resp) -> resp.send(req.body(String.class)))
         .consumes(MediaType.json);
 
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

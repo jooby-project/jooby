@@ -38,7 +38,7 @@ public class LocaleFeature extends ServerFeature {
 
   {
     use(ConfigFactory.empty().withValue("application.lang", ConfigValueFactory.fromAnyRef("es_ar")));
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

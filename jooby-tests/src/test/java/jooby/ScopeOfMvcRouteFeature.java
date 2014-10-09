@@ -70,9 +70,9 @@ public class ScopeOfMvcRouteFeature extends ServerFeature {
 
   {
 
-    route(Single.class);
+    use(Single.class);
 
-    route(Proto.class);
+    use(Proto.class);
   }
 
   @Test

@@ -82,7 +82,7 @@ public class MultipartFormParamFeature extends ServerFeature {
       }
     });
 
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

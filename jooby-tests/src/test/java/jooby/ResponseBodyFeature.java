@@ -43,7 +43,7 @@ public class ResponseBodyFeature extends ServerFeature {
   }
 
   {
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

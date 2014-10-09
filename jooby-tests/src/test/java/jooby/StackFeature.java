@@ -95,7 +95,7 @@ public class StackFeature extends ServerFeature {
       resp.send("subpath/f.js");
     });
 
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test
@@ -113,10 +113,10 @@ public class StackFeature extends ServerFeature {
 
   @Test
   public void subpathStack() throws Exception {
-//    assertEquals("subpath", execute(GET(uri("/subpath")), (response) -> {
-//      assertEquals("x", response.getFirstHeader("X").getValue());
-//      assertEquals("y", response.getFirstHeader("Y").getValue());
-//    }));
+    assertEquals("subpath", execute(GET(uri("/subpath")), (response) -> {
+      assertEquals("x", response.getFirstHeader("X").getValue());
+      assertEquals("y", response.getFirstHeader("Y").getValue());
+    }));
 
     assertEquals("subpath", execute(GET(uri("/r/subpath")), (response) -> {
       assertEquals("x", response.getFirstHeader("X").getValue());

@@ -619,7 +619,7 @@ public class Jooby {
    *
    * @param routeType The Mvc route.
    */
-  public void route(final Class<?> routeType) {
+  public void use(final Class<?> routeType) {
     requireNonNull(routeType, "Route type is required.");
     if (routeType.getAnnotation(javax.inject.Singleton.class) == null) {
       protoRoutes.add(routeType);

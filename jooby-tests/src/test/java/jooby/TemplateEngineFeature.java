@@ -49,7 +49,7 @@ public class TemplateEngineFeature extends ServerFeature {
       resp.send(Viewable.of("test", "model"));
     });
 
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test

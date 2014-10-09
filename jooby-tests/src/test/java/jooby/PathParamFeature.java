@@ -34,7 +34,7 @@ public class PathParamFeature extends ServerFeature {
       resp.send(name + " " + age);
     });
 
-    route(Resource.class);
+    use(Resource.class);
   }
 
   @Test
