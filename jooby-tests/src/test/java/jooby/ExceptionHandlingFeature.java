@@ -48,7 +48,7 @@ public class ExceptionHandlingFeature extends ServerFeature {
   public void htmlError() throws Exception {
     assertHttp(Request.Get(uri("error").build()).addHeader("Accept", CHROME_ACCEPT))
         .status(Response.Status.SERVER_ERROR)
-        .type(MediaType.valueOf("text/html; charset=UTF-8"))
+        .type(MediaType.valueOf("text/html; charset=utf-8"))
         .done();
     ;
   }
@@ -57,7 +57,7 @@ public class ExceptionHandlingFeature extends ServerFeature {
   public void jsonError() throws Exception {
     assertHttp(Request.Get(uri("error").build()).addHeader("Accept", "application/json"))
         .status(Response.Status.SERVER_ERROR)
-        .type(MediaType.valueOf("application/json; charset=UTF-8"))
+        .type(MediaType.valueOf("application/json; charset=utf-8"))
         .done();
   }
 

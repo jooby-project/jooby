@@ -15,7 +15,7 @@ public class AssetFeature extends ServerFeature {
   @Test
   public void jsAsset() throws Exception {
     HttpResponse response = Request.Get(uri("/assets/file.js").build()).execute().returnResponse();
-    assertEquals("application/javascript; charset=UTF-8", response.getFirstHeader("Content-Type")
+    assertEquals("application/javascript;charset=utf-8", response.getFirstHeader("Content-Type")
         .getValue());
     assertEquals(200, response.getStatusLine().getStatusCode());
     String lastModified = response.getFirstHeader("Last-Modified").getValue();
@@ -29,7 +29,7 @@ public class AssetFeature extends ServerFeature {
   @Test
   public void cssAsset() throws Exception {
     HttpResponse response = Request.Get(uri("/assets/file.css").build()).execute().returnResponse();
-    assertEquals("text/css; charset=UTF-8", response.getFirstHeader("Content-Type")
+    assertEquals("text/css;charset=utf-8", response.getFirstHeader("Content-Type")
         .getValue());
     assertEquals(200, response.getStatusLine().getStatusCode());
     String lastModified = response.getFirstHeader("Last-Modified").getValue();
