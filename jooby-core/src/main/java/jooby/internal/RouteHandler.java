@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
@@ -56,6 +57,8 @@ public class RouteHandler {
 
   private Charset charset;
 
+  private Locale locale;
+
   private Injector rootInjector;
 
   private Set<Request.Module> modules;
@@ -67,12 +70,14 @@ public class RouteHandler {
       final BodyConverterSelector selector,
       final Set<Request.Module> modules,
       final Set<Route.Definition> routes,
-      final Charset defaultCharset) {
+      final Charset defaultCharset,
+      final Locale defaultLocale) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.modules = requireNonNull(modules, "Request modules are required.");
     this.routeDefs = requireNonNull(routes, "The routes are required.");
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
+    this.locale = requireNonNull(defaultLocale, "A defaultLocale is required.");
     this.typeProvider = injector.getInstance(MediaTypeProvider.class);
   }
 
@@ -109,8 +114,11 @@ public class RouteHandler {
         .map(Charset::forName)
         .orElse(this.charset);
 
+    Locale locale = Optional.ofNullable(request.getHeader("Accept-Language"))
+        .map(l -> request.getLocale()).orElse(this.locale);
+
     BiFunction<Injector, Route, Request> reqFactory = (injector, route) ->
-        new RequestImpl(request, injector, route, selector, charset, type, accept);
+        new RequestImpl(request, injector, route, selector, type, accept, charset, locale);
 
     BiFunction<Injector, Route, Response> resFactory = (injector, route) ->
         new ResponseImpl(response, injector, route, locals, selector, typeProvider, charset);

@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -700,6 +701,9 @@ public class Jooby {
 
     final Charset charset = Charset.forName(config.getString("application.charset"));
 
+    String[] lang = config.getString("application.lang").split("_");
+    final Locale locale = lang.length ==1 ? new Locale(lang[0]) : new Locale(lang[0], lang[1]);
+
     // dependency injection
     injector = Guice.createInjector(new com.google.inject.Module() {
       @Override
@@ -716,6 +720,9 @@ public class Jooby {
 
         // bind charset
         binder.bind(Charset.class).toInstance(charset);
+
+        // bind locale
+        binder.bind(Locale.class).toInstance(locale);
 
         // bind readers & writers
         Multibinder<BodyConverter> converters = Multibinder
@@ -822,6 +829,12 @@ public class Jooby {
     if (!config.hasPath("application.charset")) {
       config = config.withValue("application.charset",
           ConfigValueFactory.fromAnyRef(Charset.defaultCharset().name()));
+    }
+    // locale
+    if (!config.hasPath("application.lang")) {
+      Locale locale = Locale.getDefault();
+      config = config.withValue("application.lang",
+          ConfigValueFactory.fromAnyRef(locale.getLanguage() + "_" + locale.getCountry()));
     }
 
     // set module config

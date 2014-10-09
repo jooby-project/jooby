@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -133,6 +134,11 @@ public interface Request {
     @Override
     public Charset charset() {
       return request.charset();
+    }
+
+    @Override
+    public Locale locale() {
+      return request.locale();
     }
 
     @Override
@@ -426,6 +432,9 @@ public interface Request {
    */
   @Nonnull
   Charset charset();
+
+  @Nonnull
+  Locale locale();
 
   String ip();
 

@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -21,10 +22,10 @@ import javax.servlet.http.Part;
 
 import jooby.BodyConverter;
 import jooby.Cookie;
-import jooby.MediaTypeProvider;
 import jooby.HttpException;
 import jooby.HttpStatus;
 import jooby.MediaType;
+import jooby.MediaTypeProvider;
 import jooby.Request;
 import jooby.Route;
 import jooby.SetCookie;
@@ -47,6 +48,8 @@ public class RequestImpl implements Request {
 
   private Charset charset;
 
+  private Locale locale;
+
   private List<MediaType> accept;
 
   private MediaType type;
@@ -61,16 +64,18 @@ public class RequestImpl implements Request {
       final Injector injector,
       final Route route,
       final BodyConverterSelector selector,
-      final Charset charset,
       final MediaType contentType,
-      final List<MediaType> accept) {
+      final List<MediaType> accept,
+      final Charset charset,
+      final Locale locale) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.request = requireNonNull(request, "The request is required.");
     this.route = requireNonNull(route, "A route is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
-    this.charset = requireNonNull(charset, "A charset is required.");
     this.type = requireNonNull(contentType, "A contentType is required.");
     this.accept = requireNonNull(accept, "An accept is required.");
+    this.charset = requireNonNull(charset, "A charset is required.");
+    this.locale = requireNonNull(locale, "A locale is required.");
   }
 
   @Override
@@ -225,6 +230,11 @@ public class RequestImpl implements Request {
   @Override
   public Charset charset() {
     return charset;
+  }
+
+  @Override
+  public Locale locale() {
+    return locale;
   }
 
   @Override

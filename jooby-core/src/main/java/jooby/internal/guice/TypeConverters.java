@@ -3,6 +3,7 @@ package jooby.internal.guice;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Locale;
 
 import com.google.inject.Binder;
 import com.google.inject.TypeLiteral;
@@ -21,6 +22,37 @@ public class TypeConverters {
 
     binder.convertToTypes(stringConstructorMatcher(), stringConstructorTypeConverter());
 
+    binder.convertToTypes(localeMatcher(), localeTypeConverter());
+
+    binder.convertToTypes(staticMethodMatcher("forName"),
+        staticMethodTypeConverter("forName"));
+
+  }
+
+  private static TypeConverter localeTypeConverter() {
+    return new TypeConverter() {
+
+      @Override
+      public Object convert(final String value, final TypeLiteral<?> type) {
+        String[] locale = value.split("_");
+        return locale.length == 1 ? new Locale(locale[0]) : new Locale(locale[0], locale[1]);
+      }
+    };
+  }
+
+  private static Matcher<TypeLiteral<?>> localeMatcher() {
+    return new AbstractMatcher<TypeLiteral<?>>() {
+      @Override
+      public boolean matches(final TypeLiteral<?> type) {
+        Class<?> rawType = type.getRawType();
+        return rawType == Locale.class;
+      }
+
+      @Override
+      public String toString() {
+        return "Locale(String, String)";
+      }
+    };
   }
 
   private static TypeConverter stringConstructorTypeConverter() {
