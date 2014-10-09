@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableMap;
 @Beta
 public interface Response extends SetHeader {
 
-  public class Body implements SetHeader {
+  class Body implements SetHeader {
 
     private Map<String, String> headers = new LinkedHashMap<>();
 
@@ -159,7 +159,7 @@ public interface Response extends SetHeader {
     }
   }
 
-  public class Forwarding implements Response {
+  class Forwarding implements Response {
 
     private Response response;
 

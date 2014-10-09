@@ -109,7 +109,7 @@ public interface Route {
    * @since 0.1.0
    */
   @Beta
-  public class Definition {
+  class Definition {
 
     private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
@@ -171,7 +171,8 @@ public interface Route {
       return pattern;
     }
 
-    public Optional<Route> matches(final Request.Verb verb, final String path, final MediaType contentType,
+    public Optional<Route> matches(final Request.Verb verb, final String path,
+        final MediaType contentType,
         final List<MediaType> accept) {
       RouteMatcher matcher = compiledPattern.matcher(verb.value() + path);
       if (matcher.matches()) {
@@ -290,7 +291,7 @@ public interface Route {
 
   }
 
-  public class Forwarding implements Route {
+  class Forwarding implements Route {
 
     private final Route route;
 

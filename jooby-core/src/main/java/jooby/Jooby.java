@@ -5,6 +5,10 @@ import static java.util.Objects.requireNonNull;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -702,7 +706,12 @@ public class Jooby {
     final Charset charset = Charset.forName(config.getString("application.charset"));
 
     String[] lang = config.getString("application.lang").split("_");
-    final Locale locale = lang.length ==1 ? new Locale(lang[0]) : new Locale(lang[0], lang[1]);
+    final Locale locale = lang.length == 1 ? new Locale(lang[0]) : new Locale(lang[0], lang[1]);
+
+    DateTimeFormatter dateTimeFormat = DateTimeFormatter
+        .ofPattern(config.getString("application.dateFormat"), locale);
+
+    DecimalFormat numberFormat = new DecimalFormat(config.getString("application.numberFormat"));
 
     // dependency injection
     injector = Guice.createInjector(new com.google.inject.Module() {
@@ -723,6 +732,13 @@ public class Jooby {
 
         // bind locale
         binder.bind(Locale.class).toInstance(locale);
+
+        // bind date format
+        binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormat);
+
+        // bind number format
+        binder.bind(NumberFormat.class).toInstance(numberFormat);
+        binder.bind(DecimalFormat.class).toInstance(numberFormat);
 
         // bind readers & writers
         Multibinder<BodyConverter> converters = Multibinder
@@ -830,11 +846,28 @@ public class Jooby {
       config = config.withValue("application.charset",
           ConfigValueFactory.fromAnyRef(Charset.defaultCharset().name()));
     }
+
     // locale
+    final Locale locale;
     if (!config.hasPath("application.lang")) {
-      Locale locale = Locale.getDefault();
+      locale = Locale.getDefault();
       config = config.withValue("application.lang",
           ConfigValueFactory.fromAnyRef(locale.getLanguage() + "_" + locale.getCountry()));
+    } else {
+      String[] lang = config.getString("application.lang").split("_");
+      locale = lang.length == 1 ? new Locale(lang[0]) : new Locale(lang[0], lang[1]);
+    }
+
+    // date format
+    if (!config.hasPath("application.dateFormat")) {
+      String pattern = new SimpleDateFormat(new SimpleDateFormat().toPattern(), locale).toPattern();
+      config = config.withValue("application.dateFormat", ConfigValueFactory.fromAnyRef(pattern));
+    }
+
+    // number format
+    if (!config.hasPath("application.numberFormat")) {
+      String pattern = ((DecimalFormat) DecimalFormat.getInstance(locale)).toPattern();
+      config = config.withValue("application.numberFormat", ConfigValueFactory.fromAnyRef(pattern));
     }
 
     // set module config
