@@ -51,7 +51,9 @@ class AssetBodyConverter implements BodyConverter {
   public void write(final Body body, final BodyWriter writer) throws Exception {
     Asset asset = (Asset) body.content().get();
     boolean text = mediaType.equals(MediaType.javascript) || mediaType.equals(MediaType.css)
-        || mediaType.equals(MediaType.json) || MediaType.text.matches(mediaType);
+        || mediaType.equals(MediaType.json) || MediaType.text.matches(mediaType)
+        || mediaType.equals(MediaType.xml);
+
     if (text) {
       writer.text(to -> {
         try (Reader from = new InputStreamReader(asset.stream(), writer.charset())) {

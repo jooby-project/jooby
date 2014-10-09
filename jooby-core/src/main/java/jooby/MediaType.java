@@ -220,6 +220,8 @@ public class MediaType implements Comparable<MediaType> {
   /** Form url encoded. */
   public static MediaType form = new MediaType("application", "x-www-form-urlencoded");
 
+  public static MediaType xml = new MediaType("application", "xml");
+
   /**
    * Track the type of this media type.
    */

@@ -10,7 +10,7 @@ import org.junit.Test;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class FileMediaTypeProviderTest {
+public class MediaTypeProviderTest {
 
   private static Config config;
 
