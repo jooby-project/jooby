@@ -373,7 +373,8 @@ public class MediaType implements Comparable<MediaType> {
         return true;
       }
       if (subtype.startsWith("*")) {
-        return subtype.substring(1).endsWith(that.subtype);
+        return that.subtype.endsWith(subtype.substring(2))
+            || that.subtype.endsWith(subtype.substring(1));
       }
     }
     return false;
@@ -425,7 +426,7 @@ public class MediaType implements Comparable<MediaType> {
       for (int i = 1; i < parts.length; i++) {
         String[] parameter = parts[i].split("=");
         if (parameter.length > 1) {
-          parameters.put(parameter[0].trim(), parameter[1].trim());
+          parameters.put(parameter[0].trim(), parameter[1].trim().toLowerCase());
         }
       }
     }
