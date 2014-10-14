@@ -200,7 +200,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public MediaType consume() {
+  public MediaType consumes() {
     return consumes;
   }
 
@@ -221,7 +221,7 @@ public class WebSocketImpl implements WebSocket {
     buffer.append("  pattern: ").append(pattern()).append("\n");
     buffer.append("  name: ").append(name()).append("\n");
     buffer.append("  vars: ").append(vars()).append("\n");
-    buffer.append("  consume: ").append(consume()).append("\n");
+    buffer.append("  consumes: ").append(consumes()).append("\n");
     buffer.append("  produces: ").append(produces()).append("\n");
     return buffer.toString();
   }

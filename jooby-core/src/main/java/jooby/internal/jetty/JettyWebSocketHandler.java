@@ -45,7 +45,7 @@ public class JettyWebSocketHandler implements WebSocketListener {
     try {
       // for Web Socket, charset is always UTF-8
       Variant variant = new VariantImpl(injector, "message", ImmutableList.of(value),
-          socket.consume(), Charsets.UTF_8);
+          socket.consumes(), Charsets.UTF_8);
       socket.fireMessage(variant);
     } catch (Exception ex) {
       onWebSocketError(ex);

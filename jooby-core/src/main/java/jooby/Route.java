@@ -326,8 +326,8 @@ public interface Route {
     }
 
     @Override
-    public List<MediaType> consume() {
-      return route.consume();
+    public List<MediaType> consumes() {
+      return route.consumes();
     }
 
     @Override
@@ -478,7 +478,7 @@ public interface Route {
 
   Map<String, String> vars();
 
-  List<MediaType> consume();
+  List<MediaType> consumes();
 
   List<MediaType> produces();
 

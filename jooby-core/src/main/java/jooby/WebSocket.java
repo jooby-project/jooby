@@ -4,8 +4,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.Closeable;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -147,22 +145,6 @@ public interface WebSocket extends Closeable {
     }
 
     /**
-     * @param candidate A media type to test.
-     * @return True, if the route can consume the given media type.
-     */
-    public boolean canConsume(@Nonnull final MediaType candidate) {
-      return MediaType.matcher(Arrays.asList(candidate)).matches(consumes);
-    }
-
-    /**
-     * @param candidates A media types to test.
-     * @return True, if the route can produces the given media type.
-     */
-    public boolean canProduce(final List<MediaType> candidates) {
-      return MediaType.matcher(candidates).matches(produces);
-    }
-
-    /**
      * Set the media types the route can consume.
      *
      * @param type The media types to test for.
@@ -300,7 +282,7 @@ public interface WebSocket extends Closeable {
 
   Map<String, String> vars();
 
-  MediaType consume();
+  MediaType consumes();
 
   MediaType produces();
 

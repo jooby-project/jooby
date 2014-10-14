@@ -88,7 +88,7 @@ public class RouteImpl implements Route, Filter {
   }
 
   @Override
-  public List<MediaType> consume() {
+  public List<MediaType> consumes() {
     return consumes;
   }
 
@@ -104,7 +104,7 @@ public class RouteImpl implements Route, Filter {
     buffer.append("  pattern: ").append(pattern()).append("\n");
     buffer.append("  name: ").append(name()).append("\n");
     buffer.append("  vars: ").append(vars()).append("\n");
-    buffer.append("  consume: ").append(consume()).append("\n");
+    buffer.append("  consumes: ").append(consumes()).append("\n");
     buffer.append("  produces: ").append(produces()).append("\n");
     return buffer.toString();
   }
