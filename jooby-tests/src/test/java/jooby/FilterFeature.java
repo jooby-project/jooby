@@ -3,9 +3,16 @@ package jooby;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolException;
+import org.apache.http.client.RedirectStrategy;
+import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
@@ -17,46 +24,55 @@ public class FilterFeature extends ServerFeature {
 
   {
 
-    use((req, resp, chain) -> {
-      chain.next(req, resp);
+    use((req, res, chain) -> {
+      chain.next(req, res);
     });
 
-    get("/no-next", (req, resp, chain) -> {
+    get("/no-next", (req, res, chain) -> {
     });
 
-    get("/no-next", (req, resp, chain) -> {
+    get("/no-next", (req, res, chain) -> {
       throw new IllegalStateException("Should NOT execute ever");
     });
 
-    get("/before", (req, resp, chain) -> {
-      resp.header("before", "before");
-      chain.next(req, resp);
+    get("/before", (req, res, chain) -> {
+      res.header("before", "before");
+      chain.next(req, res);
     });
 
-    get("/before", (req, resp) -> {
-      resp.send(resp.header("before").stringValue());
+    get("/before", (req, res) -> {
+      res.send(res.header("before").stringValue());
     });
 
-    get("/after", (req, resp, chain) -> {
-      chain.next(req, resp);
-      resp.header("after", "after");
+    get("/after", (req, res, chain) -> {
+      chain.next(req, res);
+      res.header("after", "after");
     });
 
-    get("/after", (req, resp) -> {
-      resp.send(resp.header("after").toOptional(String.class).orElse("after-missing"));
+    get("/after", (req, res) -> {
+      res.send(res.header("after").toOptional(String.class).orElse("after-missing"));
     });
 
-    get("/commit", (req, resp, chain) -> {
-      resp.send("commit");
+    get("/commit", (req, res, chain) -> {
+      res.send("commit");
     });
 
-    get("/commitx2", (req, resp, chain) -> {
-      resp.send("commit1");
-      chain.next(req, resp);
+    get("/commitx2", (req, res, chain) -> {
+      res.send("commit1");
+      chain.next(req, res);
     });
 
-    get("/commitx2", (req, resp) -> {
-      resp.send("ignored");
+    get("/commitx2", (req, res) -> {
+      res.send("ignored");
+    });
+
+    get("/redirect", (req, res, chain) -> {
+      res.redirect("/commit");
+      chain.next(req, res);
+    });
+
+    get("/redirect", (req, res) -> {
+      res.send("ignored");
     });
 
   }
@@ -99,6 +115,13 @@ public class FilterFeature extends ServerFeature {
   }
 
   @Test
+  public void redirectIsPossibleFromFilter() throws Exception {
+    assertEquals("", execute(GET(uri("/redirect")), (response) -> {
+      assertEquals(302, response.getStatusLine().getStatusCode());
+    }));
+  }
+
+  @Test
   public void secondCommitIsIgnored() throws Exception {
     assertEquals("commit1", execute(GET(uri("/commitx2")), (response) -> {
       assertEquals(200, response.getStatusLine().getStatusCode());
@@ -111,9 +134,25 @@ public class FilterFeature extends ServerFeature {
 
   private static String execute(final Request request, final HttpResponseValidator validator)
       throws Exception {
-    HttpResponse resp = request.execute().returnResponse();
-    validator.validate(resp);
-    return EntityUtils.toString(resp.getEntity());
+    Executor executor = Executor.newInstance(HttpClientBuilder.create()
+        .setRedirectStrategy(new RedirectStrategy() {
+
+          @Override
+          public boolean isRedirected(final HttpRequest request, final HttpResponse response,
+              final HttpContext context) throws ProtocolException {
+            return false;
+          }
+
+          @Override
+          public HttpUriRequest getRedirect(final HttpRequest request, final HttpResponse response,
+              final HttpContext context) throws ProtocolException {
+            return null;
+          }
+        }).build());
+
+    HttpResponse response = executor.execute(request).returnResponse();
+    validator.validate(response);
+    return EntityUtils.toString(response.getEntity());
   }
 
 }

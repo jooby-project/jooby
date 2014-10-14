@@ -112,7 +112,7 @@ public class RouteHandler {
 
     final String path = verb + requestURI;
 
-    log.debug("handling: {}", path);
+    log.info("handling: {}", path);
 
     log.debug("  content-type: {}", type);
 
@@ -170,7 +170,7 @@ public class RouteHandler {
       }
     } finally {
       long end = System.currentTimeMillis();
-      log.debug("  status -> {} in {}ms", response.getStatus(), end - start);
+      log.info("  status -> {} in {}ms", response.getStatus(), end - start);
     }
   }
 
