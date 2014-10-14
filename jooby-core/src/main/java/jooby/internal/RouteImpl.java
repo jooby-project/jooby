@@ -10,11 +10,7 @@ import jooby.Request;
 import jooby.Response;
 import jooby.Route;
 
-import com.google.common.collect.ImmutableList;
-
 public class RouteImpl implements Route, Filter {
-
-  private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
   private Request.Verb verb;
 
@@ -44,7 +40,7 @@ public class RouteImpl implements Route, Filter {
   public static RouteImpl fromStatus(final Filter filter, final Request.Verb verb,
       final String path, final Response.Status status, final List<MediaType> produces) {
     return new RouteImpl(filter, verb, path, path, status.value() + "", Collections.emptyMap(),
-        ALL, produces);
+        MediaType.ALL, produces);
   }
 
   public RouteImpl(final Filter filter, final Request.Verb verb, final String path,

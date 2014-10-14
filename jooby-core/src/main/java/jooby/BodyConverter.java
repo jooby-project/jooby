@@ -1,12 +1,14 @@
 package jooby;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 
 import jooby.Response.Body;
 
 import com.google.common.annotations.Beta;
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -18,6 +20,8 @@ import com.google.inject.TypeLiteral;
  */
 @Beta
 public interface BodyConverter {
+
+  Key<Set<BodyConverter>> KEY = Key.get( new TypeLiteral<Set<BodyConverter>>() {});
 
   /**
    * Produces the list of compatibles media types. At least one must be provided.

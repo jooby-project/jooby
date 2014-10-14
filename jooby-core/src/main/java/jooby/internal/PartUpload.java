@@ -1,11 +1,9 @@
 package jooby.internal;
 
-import static java.util.Objects.requireNonNull;
-
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collection;
-import java.util.Set;
 
 import javax.servlet.http.Part;
 
@@ -14,7 +12,7 @@ import jooby.Upload;
 import jooby.Variant;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.spi.TypeConverterBinding;
+import com.google.inject.Injector;
 
 class PartUpload implements Upload {
 
@@ -24,14 +22,18 @@ class PartUpload implements Upload {
 
   private MediaType type;
 
-  private Set<TypeConverterBinding> typeConverters;
+  private Injector injector;
 
-  public PartUpload(final Part part, final MediaType type, final String workDir
-      , final Set<TypeConverterBinding> typeConverters) {
+  private Charset charset;
+
+  public PartUpload(final Injector injector, final Part part, final MediaType type,
+      final Charset charset,
+      final String workDir) {
+    this.injector = injector;
     this.part = part;
+    this.charset = charset;
     this.workDir = workDir;
     this.type = type;
-    this.typeConverters = requireNonNull(typeConverters, "Type converters are required.");
   }
 
   @Override
@@ -47,7 +49,7 @@ class PartUpload implements Upload {
   @Override
   public Variant header(final String name) {
     Collection<String> headers = part.getHeaders(name);
-    return new VariantImpl(name, ImmutableList.copyOf(headers), typeConverters);
+    return new VariantImpl(injector, name, ImmutableList.copyOf(headers), MediaType.all, charset);
   }
 
   @Override

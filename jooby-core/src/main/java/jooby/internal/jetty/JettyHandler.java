@@ -217,6 +217,9 @@ import jooby.internal.RouteHandler;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
+
+import com.typesafe.config.Config;
 
 public class JettyHandler extends AbstractHandler {
 
@@ -224,10 +227,17 @@ public class JettyHandler extends AbstractHandler {
 
   private final MultipartConfigElement multiPartConfig;
 
-  public JettyHandler(final RouteHandler handler, final String workDir) {
+  private WebSocketServerFactory webSocketFactory;
+
+  public JettyHandler(final RouteHandler handler, final Config config) {
     this.handler = requireNonNull(handler, "A route handler is required.");
-    requireNonNull(workDir, "A work directory is required.");
-    multiPartConfig = new MultipartConfigElement(workDir);
+    multiPartConfig = new MultipartConfigElement(config.getString("java.io.tmpdir"));
+  }
+
+  @Override
+  protected void doStart() throws Exception {
+    super.doStart();
+    webSocketFactory = getBean(WebSocketServerFactory.class);
   }
 
   @Override
@@ -235,14 +245,29 @@ public class JettyHandler extends AbstractHandler {
       final HttpServletRequest req, final HttpServletResponse res) throws IOException,
       ServletException {
 
-    // mark as handled
-    baseRequest.setHandled(true);
+    if (webSocketFactory != null && webSocketFactory.isUpgradeRequest(req, res)) {
+      // We have an upgrade request
+      if (webSocketFactory.acceptWebSocket(req, res)) {
+        // We have a socket instance created
+        baseRequest.setHandled(true);
+        return;
+      }
+      // If we reach this point, it means we had an incoming request to upgrade
+      // but it was either not a proper websocket upgrade, or it was possibly rejected
+      // due to incoming request constraints (controlled by WebSocketCreator)
+      if (res.isCommitted()) {
+        // not much we can do at this point.
+        return;
+      }
+    }
     String type = req.getContentType();
     if (type != null && type.startsWith(MediaType.multipart.name())) {
       baseRequest.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multiPartConfig);
     }
     try {
       handler.handle(req, res);
+      // mark as handled
+      baseRequest.setHandled(true);
     } catch (RuntimeException | IOException ex) {
       baseRequest.setHandled(false);
       throw ex;
@@ -251,5 +276,4 @@ public class JettyHandler extends AbstractHandler {
       throw new ServletException("Unexpected error", ex);
     }
   }
-
 }

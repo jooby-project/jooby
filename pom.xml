@@ -128,8 +128,8 @@
       </dependency>
 
       <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-webapp</artifactId>
+        <groupId>org.eclipse.jetty.websocket</groupId>
+        <artifactId>websocket-server</artifactId>
         <version>${jetty.version}</version>
       </dependency>
 
@@ -439,7 +439,7 @@
   <properties>
     <!-- Dependencies -->
     <jackson.version>2.4.0-rc3</jackson.version>
-    <jetty.version>9.3.0.M0</jetty.version>
+    <jetty.version>9.2.3.v20140905</jetty.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
     <logback-classic.version>1.1.2</logback-classic.version>

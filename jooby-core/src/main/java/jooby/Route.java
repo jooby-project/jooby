@@ -114,8 +114,6 @@ public interface Route {
   @Beta
   class Definition {
 
-    private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
-
     private String name = "anonymous";
 
     /**
@@ -132,13 +130,13 @@ public interface Route {
      * Defines the media types that the methods of a resource class or can accept. Default is:
      * {@literal *}/{@literal *}.
      */
-    private List<MediaType> consumes = ALL;
+    private List<MediaType> consumes = MediaType.ALL;
 
     /**
      * Defines the media types that the methods of a resource class or can produces. Default is:
      * {@literal *}/{@literal *}.
      */
-    private List<MediaType> produces = ALL;
+    private List<MediaType> produces = MediaType.ALL;
 
     private Verb verb;
 

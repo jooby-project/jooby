@@ -1,0 +1,26 @@
+<html>
+<body>
+<script type="text/javascript">
+var ws = new WebSocket("ws://localhost:8090/ws");
+
+ws.onopen = function() {
+    console.log("opened");
+    ws.send('{"firstName": "John", "lastName": "Doe"}');
+};
+
+ws.onmessage = function (evt) {
+    console.log("Message: " + evt.data);
+};
+
+ws.onclose = function(err) {
+  console.log(err);
+    console.log("Closed!");
+};
+
+ws.onerror = function(err) {
+    console.log(err);
+    alert("Error: " + err);
+};
+</script>
+</body>
+</html>

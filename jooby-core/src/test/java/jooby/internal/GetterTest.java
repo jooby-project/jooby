@@ -7,13 +7,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import jooby.MediaType;
 import jooby.Variant;
 
 import org.junit.Test;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 public class GetterTest {
@@ -442,11 +446,16 @@ public class GetterTest {
   }
 
   private Variant newGetter(final String... values) {
-    return new VariantImpl("param", ImmutableList.copyOf(values), Collections.emptySet());
+    return new VariantImpl(injector(), "param", ImmutableList.copyOf(values), MediaType.all,
+        Charsets.UTF_8);
+  }
+
+  private Injector injector() {
+    return Guice.createInjector(TypeConverters::configure);
   }
 
   private Variant newGetter(final String value) {
-    return new VariantImpl("param", value == null ? null : ImmutableList.of(value),
-        Collections.emptySet());
+    return new VariantImpl(injector(), "param", value == null ? null : ImmutableList.of(value),
+        MediaType.all, Charsets.UTF_8);
   }
 }

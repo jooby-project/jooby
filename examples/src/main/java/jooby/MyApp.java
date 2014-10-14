@@ -234,6 +234,18 @@ public class MyApp extends Jooby {
       resp.send(em.createQuery("from User").getResultList());
     });
 
+    get("/", (req, res) -> res.send(Viewable.of("ws", new Object())));
+
+    ws("/ws", (ws) -> {
+      ws.onMessage(message -> {
+        System.out.println(message.to(User.class));
+        System.out.println(message.stringValue());
+        ws.send(message.to(User.class), () -> {System.out.println("Sent!");});
+      });
+
+      ws.send("Hello web browser");
+    })
+        .consumes(MediaType.json);
   }
 
   public static void main(final String[] args) throws Exception {

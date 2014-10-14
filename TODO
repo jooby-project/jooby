@@ -1,0 +1,3 @@
+* Cleanup WebSocket API
+* Log error from WebSocket
+* Tests for Web Socket

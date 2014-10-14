@@ -92,6 +92,14 @@ public class MediaTypeTest {
         "*/*;q=0.5");
   }
 
+  @Test
+  public void text() {
+    assertTrue(MediaType.json.isText());
+    assertTrue(MediaType.html.isText());
+    assertTrue(MediaType.xml.isText());
+    assertTrue(MediaType.css.isText());
+  }
+
   private void assertMediaTypes(final List<MediaType> types, final String... expected) {
     assertEquals(types.toString(), expected.length, types.size());
     Collections.sort(types);

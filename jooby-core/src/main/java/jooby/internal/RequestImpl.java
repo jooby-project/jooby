@@ -36,7 +36,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
-import com.google.inject.spi.TypeConverterBinding;
 import com.typesafe.config.Config;
 
 public class RequestImpl implements Request {
@@ -110,11 +109,19 @@ public class RequestImpl implements Request {
         return new GetUpload(name, files);
       }
     }
-    return newVariant(name, values);
+    MediaType type = MediaType.all;
+    if (type().name().startsWith(MediaType.multipart.name())) {
+      Part part = request.getPart(name);
+      if (part != null) {
+        type = Optional.ofNullable(part.getContentType()).map(MediaType::valueOf)
+            .orElse(MediaType.all);
+      }
+    }
+    return newVariant(name, values, type);
   }
 
-  private Variant newVariant(final String name, final List<String> values) {
-    return new VariantImpl(name, values, typeConverters());
+  private Variant newVariant(final String name, final List<String> values, final MediaType type) {
+    return new VariantImpl(injector, name, values, type, charset);
   }
 
   @Override
@@ -159,14 +166,10 @@ public class RequestImpl implements Request {
     return names;
   }
 
-  private Set<TypeConverterBinding> typeConverters() {
-    return injector.getParent().getTypeConverterBindings();
-  }
-
   @Override
   public Variant header(final String name) {
     requireNonNull(name, "Header's name is missing.");
-    return newVariant(name, enumToList(request.getHeaders(name)));
+    return newVariant(name, enumToList(request.getHeaders(name)), MediaType.all);
   }
 
   @Override
@@ -266,8 +269,8 @@ public class RequestImpl implements Request {
         .filter(p -> p.getSubmittedFileName() != null && p.getName().equals(name))
         .transform(
             p -> {
-              Upload upload = new PartUpload(p, typeProvider.forPath(p.getSubmittedFileName()),
-                  workDir, typeConverters());
+              Upload upload = new PartUpload(injector, p, typeProvider.forPath(p
+                  .getSubmittedFileName()), charset, workDir);
               return upload;
             })
         .toList();

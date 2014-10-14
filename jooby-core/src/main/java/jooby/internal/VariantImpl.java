@@ -2,15 +2,19 @@ package jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,14 +22,18 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.BiFunction;
 
+import jooby.BodyConverter;
+import jooby.MediaType;
 import jooby.Response;
 import jooby.Route;
 import jooby.Variant;
+import jooby.fn.ExSupplier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.primitives.Primitives;
+import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeConverterBinding;
 
@@ -52,11 +60,30 @@ public class VariantImpl implements Variant {
 
   private Set<TypeConverterBinding> typeConverters;
 
-  VariantImpl(final String name, final List<String> values,
-      final Set<TypeConverterBinding> typeConverters) {
+  private MediaType type = MediaType.all;
+
+  private Injector injector;
+
+  private Charset charset;
+
+  public VariantImpl(final Injector injector, final String name, final List<String> values,
+      final MediaType type, final Charset charset) {
+    this.injector = requireNonNull(injector, "The injector is required.");
     this.name = requireNonNull(name, "Parameter's name is missing.");
     this.values = values;
-    this.typeConverters = requireNonNull(typeConverters, "Type converters are required.");
+    this.type = requireNonNull(type, "The type is required.");
+    this.charset = requireNonNull(charset, "The charset is required.");
+    this.typeConverters = typeConverters(injector);
+  }
+
+  private Set<TypeConverterBinding> typeConverters(final Injector injector) {
+    Set<TypeConverterBinding> converters = new LinkedHashSet<>();
+    Injector it = injector;
+    while (it != null) {
+      converters.addAll(it.getTypeConverterBindings());
+      it = it.getParent();
+    }
+    return converters;
   }
 
   @Override
@@ -176,7 +203,7 @@ public class VariantImpl implements Variant {
       return EMPTY_ARRAY;
     }
     Class<?> componentType = Primitives.wrap(type);
-    BiFunction<String, List<String>, Object> converter = converter(type, typeConverters);
+    BiFunction<String, List<String>, Object> converter = converter(type);
     Object array = Array.newInstance(componentType, values.size());
     for (int i = 0; i < values.size(); i++) {
       Object value = converter.apply(name, ImmutableList.of(values.get(i)));
@@ -198,7 +225,7 @@ public class VariantImpl implements Variant {
     if (values == null || values.size() == 0) {
       return Optional.empty();
     }
-    BiFunction<String, List<String>, Object> converter = converter(type, typeConverters);
+    BiFunction<String, List<String>, Object> converter = converter(type);
     return (Optional<T>) Optional.of(converter.apply(name, values));
   }
 
@@ -210,7 +237,7 @@ public class VariantImpl implements Variant {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T to(final TypeLiteral<T> type) {
-    BiFunction<String, List<String>, Object> converter = converter(type, typeConverters);
+    BiFunction<String, List<String>, Object> converter = converter(type);
     return (T) converter.apply(name, values);
   }
 
@@ -230,44 +257,59 @@ public class VariantImpl implements Variant {
     return values.get(0);
   }
 
-  private static BiFunction<String, List<String>, Object> converter(final Class<?> type,
-      final Set<TypeConverterBinding> typeConverters) {
-    return converter(TypeLiteral.get(type), typeConverters);
+  private BiFunction<String, List<String>, Object> converter(final Class<?> type) {
+    return converter(TypeLiteral.get(type));
   }
 
-  private static BiFunction<String, List<String>, Object> converter(final TypeLiteral<?> literal,
-      final Set<TypeConverterBinding> typeConverters) {
+  private BiFunction<String, List<String>, Object> converter(final TypeLiteral<?> literal) {
     Class<?> rawType = literal.getRawType();
     Class<?> wrapType = Primitives.wrap(rawType);
     BiFunction<String, List<String>, Object> converter = primiteConverters.get(wrapType);
     if (converter == null) {
-      return complexConverters(literal, typeConverters);
+      return complexConverters(literal);
     }
     return converter;
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  private static BiFunction<String, List<String>, Object> complexConverters(
-      final TypeLiteral<?> literal, final Set<TypeConverterBinding> typeConverters) {
+  private BiFunction<String, List<String>, Object> complexConverters(
+      final TypeLiteral<?> literal) {
     Class<?> rawType = literal.getRawType();
     if (Optional.class.isAssignableFrom(rawType)) {
-      return (name, values) -> new VariantImpl(name, values, typeConverters)
+      return (name, values) -> new VariantImpl(injector, name, values, type, charset)
           .toOptional(classFrom(literal));
     } else if (Enum.class.isAssignableFrom(rawType)) {
-      return (name, values) -> new VariantImpl(name, values, typeConverters)
+      return (name, values) -> new VariantImpl(injector, name, values, type, charset)
           .enumValue((Class<Enum>) rawType);
     } else if (List.class.isAssignableFrom(rawType)) {
-      return (name, values) -> new VariantImpl(name, values, typeConverters)
+      return (name, values) -> new VariantImpl(injector, name, values, type, charset)
           .toList(classFrom(literal));
     } else if (Set.class.isAssignableFrom(rawType)) {
       if (SortedSet.class.isAssignableFrom(rawType)) {
-        return (name, values) -> new VariantImpl(name, values, typeConverters)
+        return (name, values) -> new VariantImpl(injector, name, values, type, charset)
             .toSortedSet((Class) classFrom(literal));
       } else {
-        return (name, values) -> new VariantImpl(name, values, typeConverters)
+        return (name, values) -> new VariantImpl(injector, name, values, type, charset)
             .toSet(classFrom(literal));
       }
     } else {
+      if (!type.equals(MediaType.all)) {
+        BodyConverterSelector selector = injector.getInstance(BodyConverterSelector.class);
+        Optional<BodyConverter> reader = selector.forRead(literal, ImmutableList.of(type));
+        if (reader.isPresent() && reader.get().canRead(literal)) {
+
+          return (name, values) -> {
+            ExSupplier<InputStream> stream = () -> new ByteArrayInputStream(values.get(0).getBytes(
+                charset));
+            try {
+              return reader.get().read(literal, new BodyReaderImpl(charset, stream));
+            } catch (Exception ex) {
+              throw new IllegalArgumentException("Can't convert to type: " + rawType.getName(), ex);
+            }
+          };
+
+        }
+      }
       // Guice type converter
       return typeConverters
           .stream()
@@ -279,11 +321,10 @@ public class VariantImpl implements Variant {
             return fn;
           })
           .orElseThrow(
-              () -> new Route.Err(Response.Status.BAD_REQUEST, "Unknown parameter type: " + rawType)
+              () -> new IllegalArgumentException("Unknown parameter type: " + rawType.getName())
           );
     }
   }
-
 
   @Override
   public String toString() {

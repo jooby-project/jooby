@@ -15,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -39,7 +38,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
-import com.google.inject.spi.TypeConverterBinding;
 
 public class ResponseImpl implements Response {
 
@@ -147,7 +145,8 @@ public class ResponseImpl implements Response {
   public Variant header(final String name) {
     requireNonNull(name, "A header's name is required.");
 
-    return new VariantImpl(name, ImmutableList.copyOf(response.getHeaders(name)), typeConverters());
+    return new VariantImpl(injector, name, ImmutableList.copyOf(response.getHeaders(name)),
+        MediaType.all, charset);
   }
 
   @Override
@@ -388,10 +387,6 @@ public class ResponseImpl implements Response {
 
   void route(final Route route) {
     this.route = route;
-  }
-
-  private Set<TypeConverterBinding> typeConverters() {
-    return injector.getParent().getTypeConverterBindings();
   }
 
   @Override

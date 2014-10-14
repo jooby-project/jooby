@@ -682,6 +682,12 @@ public class Jooby {
     };
   }
 
+  public WebSocket.Definition ws(final String path, final WebSocket.Handler handler) {
+    WebSocket.Definition ws = new WebSocket.Definition(path, handler);
+    bag.add(ws);
+    return ws;
+  }
+
   /**
    * <h1>Bootstrap</h1>
    * <p>
@@ -765,6 +771,10 @@ public class Jooby {
         Multibinder<Route.Definition> definitions = Multibinder
             .newSetBinder(binder, Route.Definition.class);
 
+        // Web Sockets
+        Multibinder<WebSocket.Definition> sockets = Multibinder
+            .newSetBinder(binder, WebSocket.Definition.class);
+
         // Request Modules
         Multibinder<Request.Module> requestModule = Multibinder
             .newSetBinder(binder, Request.Module.class);
@@ -777,12 +787,14 @@ public class Jooby {
         binder.bind(File.class).annotatedWith(Names.named("java.io.tmpdir"))
             .toInstance(new File(config.getString("java.io.tmpdir")));
 
-        // modules and routes
+        // modules, routes and websockets
         bag.forEach(candidate -> {
           if (candidate instanceof Jooby.Module) {
             install((Jooby.Module) candidate, mode, config, binder);
           } else if (candidate instanceof Route.Definition) {
             definitions.addBinding().toInstance((Route.Definition) candidate);
+          } else if (candidate instanceof WebSocket.Definition) {
+            sockets.addBinding().toInstance((WebSocket.Definition) candidate);
           } else {
             Class<?> routeClass = (Class<?>) candidate;
             Routes.routes(mode, routeClass)

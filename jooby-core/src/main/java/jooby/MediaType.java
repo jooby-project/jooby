@@ -177,6 +177,8 @@ public class MediaType implements Comparable<MediaType> {
    */
   public static final MediaType json = new MediaType("application", "json");
 
+  private static final MediaType jsonLike = new MediaType("application", "*+json");
+
   /**
    * Any text media type.
    */
@@ -221,6 +223,8 @@ public class MediaType implements Comparable<MediaType> {
   public static MediaType form = new MediaType("application", "x-www-form-urlencoded");
 
   public static MediaType xml = new MediaType("application", "xml");
+
+  private static MediaType xmlLike = new MediaType("application", "*+xml");
 
   /**
    * Track the type of this media type.
@@ -304,6 +308,23 @@ public class MediaType implements Comparable<MediaType> {
     return type + "/" + subtype;
   }
 
+  public boolean isText() {
+    if (text.matches(this)) {
+      return true;
+    }
+    if (this.equals(MediaType.javascript)) {
+      return true;
+    }
+    if (jsonLike.matches(this)) {
+      return true;
+    }
+    if (xmlLike.matches(this)) {
+      return true;
+    }
+
+    return false;
+  }
+
   @Override
   public int compareTo(final MediaType that) {
     if (this == that) {
@@ -352,7 +373,7 @@ public class MediaType implements Comparable<MediaType> {
         return true;
       }
       if (subtype.startsWith("*")) {
-        return that.subtype.endsWith(subtype.substring(1));
+        return subtype.substring(1).endsWith(that.subtype);
       }
     }
     return false;
