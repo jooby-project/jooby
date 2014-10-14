@@ -207,7 +207,7 @@ import javax.inject.Singleton;
 
 import jooby.Jooby;
 import jooby.Mode;
-import jooby.Server;
+import jooby.internal.Server;
 
 import com.google.inject.Binder;
 import com.google.inject.multibindings.OptionalBinder;

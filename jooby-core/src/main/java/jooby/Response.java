@@ -27,9 +27,9 @@ import com.google.common.collect.ImmutableMap;
  * @since 0.1.0
  */
 @Beta
-public interface Response extends SetHeader {
+public interface Response {
 
-  class Body implements SetHeader {
+  class Body {
 
     private Map<String, String> headers = new LinkedHashMap<>();
 
@@ -99,55 +99,46 @@ public interface Response extends SetHeader {
       return Optional.ofNullable(content);
     }
 
-    @Override
     public Body header(final String name, final char value) {
       setHeader.header(name, value);
       return this;
     }
 
-    @Override
     public Body header(final String name, final byte value) {
       setHeader.header(name, value);
       return this;
     }
 
-    @Override
     public Body header(final String name, final short value) {
       setHeader.header(name, value);
       return this;
     }
 
-    @Override
     public Body header(final String name, final int value) {
       setHeader.header(name, value);
       return this;
     }
 
-    @Override
     public Body header(final String name, final long value) {
       setHeader.header(name, value);
       return this;
     }
 
-    @Override
     public Body header(final String name, final float value) {
       setHeader.header(name, value);
       return this;
     }
 
-    @Override
     public Body header(final String name, final double value) {
       setHeader.header(name, value);
       return this;
     }
 
-    @Override
     public Body header(final String name, final CharSequence value) {
       setHeader.header(name, value);
       return this;
     }
 
-    @Override
     public Body header(final String name, final Date value) {
       setHeader.header(name, value);
       return this;
@@ -823,31 +814,22 @@ public interface Response extends SetHeader {
   @Nonnull
   Variant header(@Nonnull String name);
 
-  @Override
   Response header(@Nonnull String name, char value);
 
-  @Override
   Response header(@Nonnull String name, byte value);
 
-  @Override
   Response header(@Nonnull String name, short value);
 
-  @Override
   Response header(@Nonnull String name, int value);
 
-  @Override
   Response header(@Nonnull String name, long value);
 
-  @Override
   Response header(@Nonnull String name, float value);
 
-  @Override
   Response header(@Nonnull String name, double value);
 
-  @Override
   Response header(@Nonnull String name, CharSequence value);
 
-  @Override
   Response header(@Nonnull String name, Date value);
 
   /**

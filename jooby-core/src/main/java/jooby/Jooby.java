@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 import jooby.Route.Err;
 import jooby.internal.AssetRoute;
 import jooby.internal.FallbackBodyConverter;
+import jooby.internal.Server;
 import jooby.internal.TypeConverters;
 import jooby.internal.jetty.Jetty;
 import jooby.internal.mvc.Routes;

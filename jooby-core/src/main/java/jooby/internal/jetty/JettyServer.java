@@ -211,7 +211,7 @@ import org.eclipse.jetty.server.Server;
 
 import com.typesafe.config.Config;
 
-public class JettyServer implements jooby.Server {
+public class JettyServer implements jooby.internal.Server {
 
   private Server server;
 

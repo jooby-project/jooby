@@ -45,7 +45,7 @@ import com.typesafe.config.ConfigValue;
 public class JettyServerBuilder {
 
   /** The logging system. */
-  private static final Logger log = LoggerFactory.getLogger(jooby.Server.class);
+  private static final Logger log = LoggerFactory.getLogger(jooby.internal.Server.class);
   protected static final String WebSocketImpl = null;
 
   public static Server build(final Config config, final RouteHandler routeHandler)

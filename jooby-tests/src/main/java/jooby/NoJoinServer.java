@@ -212,7 +212,7 @@ import org.eclipse.jetty.server.Server;
 
 import com.typesafe.config.Config;
 
-public class NoJoinServer implements jooby.Server {
+public class NoJoinServer implements jooby.internal.Server {
 
   private Server server;
 

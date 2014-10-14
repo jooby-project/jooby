@@ -1,4 +1,4 @@
-package jooby;
+package jooby.internal;
 
 import com.google.common.annotations.Beta;
 

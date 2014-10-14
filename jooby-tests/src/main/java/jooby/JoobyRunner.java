@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
+import jooby.internal.Server;
+
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.MultipleFailureException;
