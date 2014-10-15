@@ -259,7 +259,7 @@ public class ResponseImpl implements Response {
     return new BodyConverter() {
 
       @Override
-      public void write(final Body body, final BodyWriter writer) throws Exception {
+      public void write(final Object body, final BodyWriter writer) throws Exception {
         writer.bytes(out -> out.close());
       }
 
@@ -314,7 +314,13 @@ public class ResponseImpl implements Response {
       return new OutputStreamWriter(response.getOutputStream(), charset);
     };
 
-    converter.write(body, new BodyWriterImpl(charset, stream, writer));
+    Optional<Object> content = body.content();
+    if (content.isPresent()) {
+      converter.write(content.get(), new BodyWriterImpl(charset, stream, writer));
+    } else {
+      // dump any pending header
+      setHeaders.run();
+    }
   }
 
   @Override

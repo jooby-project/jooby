@@ -12,7 +12,6 @@ import jooby.BodyConverter;
 import jooby.BodyReader;
 import jooby.BodyWriter;
 import jooby.MediaType;
-import jooby.Response.Body;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
@@ -48,8 +47,8 @@ class AssetBodyConverter implements BodyConverter {
   }
 
   @Override
-  public void write(final Body body, final BodyWriter writer) throws Exception {
-    Asset asset = (Asset) body.content().get();
+  public void write(final Object body, final BodyWriter writer) throws Exception {
+    Asset asset = (Asset) body;
     boolean text = mediaType.equals(MediaType.javascript) || mediaType.equals(MediaType.css)
         || mediaType.equals(MediaType.json) || MediaType.text.matches(mediaType)
         || mediaType.equals(MediaType.xml);

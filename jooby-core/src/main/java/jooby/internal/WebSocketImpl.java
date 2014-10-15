@@ -13,7 +13,6 @@ import java.util.Optional;
 
 import jooby.BodyConverter;
 import jooby.MediaType;
-import jooby.Response;
 import jooby.Variant;
 import jooby.WebSocket;
 import jooby.fn.ExSupplier;
@@ -142,11 +141,9 @@ public class WebSocketImpl implements WebSocket {
       ExSupplier<Writer> reader = () -> {
         return new PrintWriter(stream(session, callback, true));
       };
-      converter.get().write(Response.Body.ok(data),
-          new BodyWriterImpl(Charsets.UTF_8, stream, reader));
+      converter.get().write(data, new BodyWriterImpl(Charsets.UTF_8, stream, reader));
     } else {
       RemoteEndpoint remote = session.getRemote();
-
       if (byte[].class == data.getClass() || Byte[].class == data.getClass()) {
         remote.sendBytes(ByteBuffer.wrap((byte[]) data), callback);
       } else if (ByteBuffer.class.isInstance(data)) {

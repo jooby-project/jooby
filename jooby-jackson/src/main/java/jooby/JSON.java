@@ -208,8 +208,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 
-import jooby.Response.Body;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.TypeLiteral;
 
@@ -244,8 +242,8 @@ class JSON implements BodyConverter {
   }
 
   @Override
-  public void write(final Body body, final BodyWriter writer) throws Exception {
-    writer.text(out -> mapper.writeValue(out, body.content().get()));
+  public void write(final Object body, final BodyWriter writer) throws Exception {
+    writer.text(out -> mapper.writeValue(out, body));
   }
 
   @Override

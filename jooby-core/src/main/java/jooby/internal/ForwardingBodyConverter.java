@@ -8,7 +8,6 @@ import jooby.BodyConverter;
 import jooby.BodyReader;
 import jooby.BodyWriter;
 import jooby.MediaType;
-import jooby.Response.Body;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.TypeLiteral;
@@ -49,7 +48,7 @@ public class ForwardingBodyConverter implements BodyConverter {
   }
 
   @Override
-  public void write(final Body body, final BodyWriter writer) throws Exception {
+  public void write(final Object body, final BodyWriter writer) throws Exception {
     converter.write(body, writer);
   }
 
