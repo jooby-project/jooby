@@ -10,6 +10,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
@@ -396,8 +397,15 @@ public class Jooby {
 
   private Err.Handler err;
 
+  private List<BodyConverter> converters = new LinkedList<>();
+
   {
     use(new Jetty());
+  }
+
+  public Jooby use(final BodyConverter converter) {
+    this.converters.add(requireNonNull(converter, "A body converter is required."));
+    return this;
   }
 
   public Route.Definition use(final Filter filter) {
@@ -765,7 +773,7 @@ public class Jooby {
         binder.bind(DecimalFormat.class).toInstance(numberFormat);
 
         // bind readers & writers
-        Multibinder<BodyConverter> converters = Multibinder
+        Multibinder<BodyConverter> converterBinder = Multibinder
             .newSetBinder(binder, BodyConverter.class);
 
         // Routes
@@ -788,6 +796,9 @@ public class Jooby {
         binder.bind(File.class).annotatedWith(Names.named("java.io.tmpdir"))
             .toInstance(new File(config.getString("java.io.tmpdir")));
 
+        // converters
+        converters.forEach(it -> converterBinder.addBinding().toInstance(it));
+
         // modules, routes and websockets
         bag.forEach(candidate -> {
           if (candidate instanceof Jooby.Module) {
@@ -806,10 +817,10 @@ public class Jooby {
         // Singleton routes
         singletonRoutes.forEach(routeClass -> binder.bind(routeClass).in(Scopes.SINGLETON));
 
-        converters.addBinding().toInstance(FallbackBodyConverter.COPY_TEXT);
-        converters.addBinding().toInstance(FallbackBodyConverter.COPY_BYTES);
-        converters.addBinding().toInstance(FallbackBodyConverter.READ_TEXT);
-        converters.addBinding().toInstance(FallbackBodyConverter.TO_HTML);
+        converterBinder.addBinding().toInstance(FallbackBodyConverter.COPY_TEXT);
+        converterBinder.addBinding().toInstance(FallbackBodyConverter.COPY_BYTES);
+        converterBinder.addBinding().toInstance(FallbackBodyConverter.READ_TEXT);
+        converterBinder.addBinding().toInstance(FallbackBodyConverter.TO_HTML);
 
         // err
         if (err == null) {
