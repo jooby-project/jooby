@@ -1,5 +1,6 @@
 package jooby.internal.jetty;
 
+import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
 
 import jooby.Response;
@@ -8,6 +9,7 @@ import jooby.Route.Err;
 import jooby.Variant;
 import jooby.WebSocket;
 import jooby.internal.VariantImpl;
+import jooby.internal.WebSocketBinaryMessage;
 import jooby.internal.WebSocketImpl;
 
 import org.eclipse.jetty.websocket.api.Session;
@@ -30,14 +32,22 @@ public class JettyWebSocketHandler implements WebSocketListener {
 
   private Logger log = LoggerFactory.getLogger(WebSocket.class);
 
-  public JettyWebSocketHandler(final Injector injector, final Config config, final WebSocketImpl socket) {
+  public JettyWebSocketHandler(final Injector injector, final Config config,
+      final WebSocketImpl socket) {
     this.injector = injector;
     this.socket = socket;
     this.closeOnErr = config.getBoolean("jetty.ws.closeOnError");
   }
 
   @Override
-  public void onWebSocketBinary(final byte[] payload, final int offset, final int len) {
+  public void onWebSocketBinary(final byte[] array, final int offset, final int len) {
+    try {
+      // for Web Socket, charset is always UTF-8
+      Variant variant = new WebSocketBinaryMessage(ByteBuffer.wrap(array, offset, len));
+      socket.fireMessage(variant);
+    } catch (Exception ex) {
+      onWebSocketError(ex);
+    }
   }
 
   @Override
@@ -93,7 +103,7 @@ public class JettyWebSocketHandler implements WebSocketListener {
           closeStatus = WebSocket.BAD_DATA;
         }
       }
-      socket.close(closeStatus);
+      socket.close(closeStatus.code(), closeStatus.reason() + " " + cause.getMessage());
     } else {
       log.error("execution resulted in serious error", cause);
     }

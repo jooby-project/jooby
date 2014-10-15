@@ -2,6 +2,7 @@
 <body>
 <script type="text/javascript">
 var ws = new WebSocket("ws://localhost:8090/ws");
+ws.binaryType = "blob";
 
 ws.onopen = function() {
     console.log("opened");
@@ -9,6 +10,7 @@ ws.onopen = function() {
 };
 
 ws.onmessage = function (evt) {
+    console.log(evt);
     console.log("Message: " + evt.data);
 };
 

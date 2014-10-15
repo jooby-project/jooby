@@ -146,8 +146,15 @@ public class WebSocketImpl implements WebSocket {
           new BodyWriterImpl(Charsets.UTF_8, stream, reader));
     } else {
       RemoteEndpoint remote = session.getRemote();
-      // TODO: complete me!
-      remote.sendString(data.toString(), callback);
+
+      if (byte[].class == data.getClass() || Byte[].class == data.getClass()) {
+        remote.sendBytes(ByteBuffer.wrap((byte[]) data), callback);
+      } else if (ByteBuffer.class.isInstance(data)) {
+        remote.sendBytes((ByteBuffer) data, callback);
+      } else {
+        // TODO: complete me!
+        remote.sendString(data.toString(), callback);
+      }
     }
   }
 
