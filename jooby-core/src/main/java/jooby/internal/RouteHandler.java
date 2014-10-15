@@ -30,8 +30,6 @@ import jooby.Request;
 import jooby.Response;
 import jooby.Route;
 import jooby.Route.Err;
-import jooby.WebSocket;
-import jooby.WebSocket.Definition;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,14 +63,11 @@ public class RouteHandler {
 
   private Err.Handler err;
 
-  private Set<Definition> sockets;
-
   @Inject
   public RouteHandler(final Injector injector,
       final BodyConverterSelector selector,
       final Set<Request.Module> modules,
       final Set<Route.Definition> routes,
-      final Set<WebSocket.Definition> sockets,
       final Charset defaultCharset,
       final Locale defaultLocale,
       final Route.Err.Handler err) {
@@ -80,7 +75,6 @@ public class RouteHandler {
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.modules = requireNonNull(modules, "Request modules are required.");
     this.routeDefs = requireNonNull(routes, "The routes are required.");
-    this.sockets = requireNonNull(sockets, "The sockets are required.");
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
     this.locale = requireNonNull(defaultLocale, "A defaultLocale is required.");
     this.err = requireNonNull(err, "An err handler is required.");
@@ -112,7 +106,7 @@ public class RouteHandler {
 
     final String path = verb + requestURI;
 
-    log.info("handling: {}", path);
+    log.debug("handling: {}", path);
 
     log.debug("  content-type: {}", type);
 
@@ -170,12 +164,8 @@ public class RouteHandler {
       }
     } finally {
       long end = System.currentTimeMillis();
-      log.info("  status -> {} in {}ms", response.getStatus(), end - start);
+      log.debug("  status -> {} in {}ms", response.getStatus(), end - start);
     }
-  }
-
-  public boolean hasWebSockets() {
-    return sockets.size() > 0;
   }
 
   public Injector injector() {
@@ -431,29 +421,6 @@ public class RouteHandler {
           routeDef.consumes(), routeDef.produces(), routeDef.name()));
     }
 
-    if (sockets.size() > 0) {
-      buffer.append("\nWeb Sockets:\n");
-
-      verbMax = "WS".length();
-      routeMax = 0;
-      consumesMax = 0;
-      producesMax = 0;
-      for (WebSocket.Definition socketDef : sockets) {
-        routeMax = Math.max(routeMax, socketDef.pattern().length());
-
-        consumesMax = Math.max(consumesMax, socketDef.consumes().toString().length());
-
-        producesMax = Math.max(producesMax, socketDef.produces().toString().length());
-      }
-
-      format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax + "s     %"
-          + producesMax + "s    (%s)\n";
-
-      for (WebSocket.Definition socketDef : sockets) {
-        buffer.append(String.format(format, "WS", socketDef.pattern(),
-            socketDef.consumes(), socketDef.produces(), socketDef.name()));
-      }
-    }
     return buffer.toString();
   }
 }

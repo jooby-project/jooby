@@ -138,7 +138,28 @@ public class JettyServerBuilder {
     server.addLifeCycleListener(new AbstractLifeCycleListener() {
       @Override
       public void lifeCycleStarted(final LifeCycle event) {
-        log.info("\nRoutes:\n{}", routeHandler);
+        StringBuilder buffer = new StringBuilder(routeHandler.toString());
+        if (sockets.size() > 0) {
+          buffer.append("\nWeb Sockets:\n");
+
+          int verbMax = "WS".length(), routeMax = 0, consumesMax = 0, producesMax = 0;
+          for (WebSocket.Definition socketDef : sockets) {
+            routeMax = Math.max(routeMax, socketDef.pattern().length());
+
+            consumesMax = Math.max(consumesMax, socketDef.consumes().toString().length());
+
+            producesMax = Math.max(producesMax, socketDef.produces().toString().length());
+          }
+
+          String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax + "s     %"
+              + producesMax + "s    (%s)\n";
+
+          for (WebSocket.Definition socketDef : sockets) {
+            buffer.append(String.format(format, "WS", socketDef.pattern(),
+                socketDef.consumes(), socketDef.produces(), socketDef.name()));
+          }
+        }
+        log.info("\nRoutes:\n{}", buffer);
       }
     });
 
