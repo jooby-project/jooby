@@ -6,6 +6,9 @@
     </encoder>
   </appender>
 
+  <logger name="org.eclipse.jetty.server.session.HashSessionManager" level="DEBUG" />
+  <logger name="org.eclipse.jetty.server.session.SessionHandler" level="DEBUG" />
+
   <root level="info">
     <appender-ref ref="STDOUT" />
   </root>

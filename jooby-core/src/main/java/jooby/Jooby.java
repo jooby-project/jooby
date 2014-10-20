@@ -399,8 +399,16 @@ public class Jooby {
 
   private List<BodyConverter> converters = new LinkedList<>();
 
+  private Session.Definition session = new Session.Definition(Session.Store.NOOP);
+
   {
     use(new Jetty());
+  }
+
+  public Session.Definition use(final Session.Store sessionStore) {
+    this.session = new Session.Definition(requireNonNull(sessionStore,
+        "A session store is required."));
+    return this.session;
   }
 
   public Jooby use(final BodyConverter converter) {
@@ -726,6 +734,8 @@ public class Jooby {
   public void start() throws Exception {
     config = buildConfig(Optional.ofNullable(config));
 
+    Mode mode = mode(config.getString("application.mode").toLowerCase());
+
     // shutdown hook
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       try {
@@ -756,7 +766,6 @@ public class Jooby {
         bindConfig(binder, config);
 
         // bind mode
-        Mode mode = mode(config.getString("application.mode").toLowerCase());
         binder.bind(Mode.class).toInstance(mode);
 
         // bind charset
@@ -775,6 +784,9 @@ public class Jooby {
         // bind readers & writers
         Multibinder<BodyConverter> converterBinder = Multibinder
             .newSetBinder(binder, BodyConverter.class);
+
+        // session definition
+        binder.bind(Session.Definition.class).toInstance(session);
 
         // Routes
         Multibinder<Route.Definition> definitions = Multibinder
@@ -928,6 +940,20 @@ public class Jooby {
         .withFallback(ConfigFactory.parseResources("jooby/mime.properties"));
     config = config
         .withFallback(ConfigFactory.parseResources("jooby/jooby.conf"));
+
+    // last check app secret
+    if (!config.hasPath("application.secret")) {
+      String mode = config.getString("application.mode");
+      if ("dev".equalsIgnoreCase(mode)) {
+        // it will survive between restarts and allow to have different apps running for
+        // development.
+        String devRandomSecret = getClass().getResource(".").toString();
+        config = config.withValue("application.secret",
+            ConfigValueFactory.fromAnyRef(devRandomSecret));
+      } else {
+        throw new IllegalStateException("No application.secret has been defined");
+      }
+    }
 
     return config.resolve();
   }

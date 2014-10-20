@@ -17,7 +17,6 @@ import org.junit.runners.model.Statement;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
-import com.google.inject.Module;
 import com.google.inject.multibindings.OptionalBinder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
@@ -48,7 +47,6 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
         throw new InitializationError("Invalid jooby app: " + appClass);
       }
       Config testConfig = ConfigFactory.empty()
-          .withValue("jooby.internal.server.test", ConfigValueFactory.fromAnyRef(true))
           .withValue("application.port", ConfigValueFactory.fromAnyRef(port))
           .withValue("ssl.keystore.path", ConfigValueFactory.fromAnyRef("/missing/keystore"));
 
@@ -76,14 +74,11 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
   @Override
   protected Object createTest() throws Exception {
     Object test = super.createTest();
-    Guice.createInjector(new Module() {
-      @Override
-      public void configure(final Binder binder) {
+    Guice.createInjector(binder -> {
         binder.bind(Integer.class).annotatedWith(Names.named("jooby.http.port")).toInstance(port);
         binder.bind(Integer.class).annotatedWith(Names.named("port")).toInstance(port);
-      }
     }).injectMembers(test);
-    ;
+
     return test;
   }
 
@@ -98,12 +93,6 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
         try {
           next.evaluate();
         } catch (Throwable e) {
-          errors.add(e);
-        }
-
-        try {
-          app.stop();
-        } catch (Exception e) {
           errors.add(e);
         }
 

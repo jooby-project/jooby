@@ -234,6 +234,15 @@ public class MyApp extends Jooby {
       resp.send(em.createQuery("from User").getResultList());
     });
 
+    get("/session", (req, res) -> {
+      System.out.println(req.session().id());
+      res.redirect("/session/2");
+    });
+
+    get("/session/2", (req, res) -> {
+      res.send(req.session().id());
+    });
+
     get("/", (req, res) -> res.send(Viewable.of("ws", new Object())));
 
     ws("/ws", (ws) -> {

@@ -2,6 +2,6 @@ package jooby;
 
 public interface Filter {
 
-  void handle(Request request, Response response, Route.Chain chain) throws Exception;
+  void handle(Request req, Response res, Route.Chain chain) throws Exception;
 
 }

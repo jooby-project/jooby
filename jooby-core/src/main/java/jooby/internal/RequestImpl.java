@@ -27,9 +27,10 @@ import jooby.MediaTypeProvider;
 import jooby.Request;
 import jooby.Response;
 import jooby.Route;
-import jooby.SetCookie;
+import jooby.Session;
 import jooby.Upload;
 import jooby.Variant;
+import jooby.internal.jetty.JoobySession;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -152,6 +153,12 @@ public class RequestImpl implements Request {
     return request.getProtocol();
   }
 
+  @Override
+  public Session session() {
+    JoobySession session = (JoobySession) request.getSession(true);
+    return session;
+  }
+
   private Set<String> paramNames() {
     Set<String> names = new LinkedHashSet<>();
     // path var
@@ -206,14 +213,14 @@ public class RequestImpl implements Request {
       return Collections.emptyList();
     }
     return Arrays.stream(cookies)
-        .map(c -> new SetCookie(c.getName(), c.getValue())
+        .map(c -> new Cookie.Definition(c.getName(), c.getValue())
             .comment(c.getComment())
             .domain(c.getDomain())
             .httpOnly(c.isHttpOnly())
             .maxAge(c.getMaxAge())
             .path(c.getPath())
             .secure(c.getSecure())
-            .version(c.getVersion())
+            .toCookie()
         )
         .collect(Collectors.toList());
   }

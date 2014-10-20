@@ -196,13 +196,17 @@ public interface Request {
       return request.xhr();
     }
 
-    public Request delegate() {
-      return request;
-    }
-
     @Override
     public String toString() {
       return request.toString();
+    }
+
+    public static Request unwrap(final Request req) {
+      Request root = req;
+      while (root instanceof Forwarding) {
+        root = ((Forwarding) root).request;
+      }
+      return root;
     }
   }
 
@@ -441,6 +445,10 @@ public interface Request {
   Route route();
 
   String hostname();
+
+  default Session session() {
+    throw new UnsupportedOperationException();
+  };
 
   default boolean xhr() {
     return header("X-Requested-With")

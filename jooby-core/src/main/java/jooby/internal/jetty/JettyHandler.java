@@ -216,12 +216,12 @@ import jooby.MediaType;
 import jooby.internal.RouteHandler;
 
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
 
 import com.typesafe.config.Config;
 
-public class JettyHandler extends AbstractHandler {
+public class JettyHandler extends SessionHandler {
 
   private RouteHandler handler;
 
@@ -241,7 +241,7 @@ public class JettyHandler extends AbstractHandler {
   }
 
   @Override
-  public void handle(final String requestURI, final Request baseRequest,
+  public void doHandle(final String requestURI, final Request baseRequest,
       final HttpServletRequest req, final HttpServletResponse res) throws IOException,
       ServletException {
 

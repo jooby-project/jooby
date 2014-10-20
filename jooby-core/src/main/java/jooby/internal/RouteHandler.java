@@ -106,7 +106,7 @@ public class RouteHandler {
 
     final String path = verb + requestURI;
 
-    log.debug("handling: {}", path);
+    log.info("handling: {}", path);
 
     log.debug("  content-type: {}", type);
 
@@ -164,7 +164,7 @@ public class RouteHandler {
       }
     } finally {
       long end = System.currentTimeMillis();
-      log.debug("  status -> {} in {}ms", response.getStatus(), end - start);
+      log.info("  status -> {} in {}ms", response.getStatus(), end - start);
     }
   }
 
@@ -191,34 +191,17 @@ public class RouteHandler {
       }
 
       private RouteImpl get(final Route next) {
-        Route root = next;
-        // Is there a better way to set route info?
-        while (root instanceof Route.Forwarding) {
-          root = ((Route.Forwarding) root).delegate();
-        }
-        return (RouteImpl) root;
+        return (RouteImpl) Route.Forwarding.unwrap(next);
       }
 
       private void set(final Request req, final Route route) {
-        Request root = req;
-        // Is there a better way to set route info?
-        while (root instanceof Request.Forwarding) {
-          root = ((Request.Forwarding) root).delegate();
-        }
-        if (root instanceof RequestImpl) {
-          ((RequestImpl) root).route(route);
-        }
+        RequestImpl root = (RequestImpl) Request.Forwarding.unwrap(req);
+        root.route(route);
       }
 
       private void set(final Response res, final Route route) {
-        Response root = res;
-        // Is there a better way to set route info?
-        while (root instanceof Response.Forwarding) {
-          root = ((Response.Forwarding) root).delegate();
-        }
-        if (root instanceof ResponseImpl) {
-          ((ResponseImpl) root).route(route);
-        }
+        ResponseImpl root = (ResponseImpl) Response.Forwarding.unwrap(res);
+        root.route(route);
       }
     };
   }

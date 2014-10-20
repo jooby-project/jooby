@@ -19,7 +19,7 @@ import org.junit.Test;
 public class FilterFeature extends ServerFeature {
 
   public interface HttpResponseValidator {
-    public void validate(HttpResponse response);
+    public void validate(HttpResponse response) throws Exception;
   }
 
   {

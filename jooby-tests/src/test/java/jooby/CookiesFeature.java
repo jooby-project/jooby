@@ -14,7 +14,7 @@ public class CookiesFeature extends ServerFeature {
   {
 
     get("/set", (req, res) -> {
-      res.cookie(new SetCookie("X", "x").path("/set")).send("done");
+      res.cookie(new Cookie.Definition("X", "x").path("/set")).send("done");
     });
 
   }

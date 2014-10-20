@@ -11,6 +11,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.servlet.SessionCookieConfig;
+
+import jooby.Session;
 import jooby.WebSocket;
 import jooby.WebSocket.Definition;
 import jooby.internal.RouteHandler;
@@ -55,6 +58,8 @@ public class JettyServerBuilder {
         config.getString("application.charset"));
 
     Server server = new Server();
+    // stop is done from Jooby
+    server.setStopAtShutdown(false);
 
     Config $ = config.getConfig("jetty");
 
@@ -98,12 +103,85 @@ public class JettyServerBuilder {
     // contextPath
     String contextPath = config.getString("application.path");
 
-    server.setStopAtShutdown(true);
-
     ContextHandler context = new ContextHandler(contextPath);
     JettyHandler handler = new JettyHandler(routeHandler, config);
-
     Injector injector = routeHandler.injector();
+    Session.Definition sessionDef = injector.getInstance(Session.Definition.class);
+
+    /**
+     * Session configuration
+     */
+    Session.Store store = sessionDef.store();
+    Session.Store forwardingStore = new Session.Store() {
+
+      @Override
+      public Session get(final String id) throws Exception {
+        return store.get(id);
+      }
+
+      @Override
+      public void save(final Session session, final SaveReason reason) throws Exception {
+        store.save(session, reason);
+        ((JoobySession) session).setLastSave(System.currentTimeMillis());
+      }
+
+      @Override
+      public void delete(final String id) throws Exception {
+        store.delete(id);
+      }
+
+      @Override
+      public String generateID(final long seed) {
+        return store.generateID(seed);
+      }
+    };
+    String secret = config.getString("application.secret");
+    JoobySessionManager sessionManager = new JoobySessionManager(forwardingStore, secret);
+    Config $session = config.getConfig("application.session");
+
+    // session cookie config
+    SessionCookieConfig sessionCookieConfig = sessionManager.getSessionCookieConfig();
+    jooby.Cookie.Definition cookieDef = sessionDef.cookie();
+    sessionCookieConfig.setComment(cookieDef.comment()
+        .orElse($session.hasPath("cookie.comment") ? $session.getString("cookie.path") : null)
+        );
+    sessionCookieConfig.setDomain(cookieDef.domain()
+        .orElse($session.hasPath("cookie.domain") ? $session.getString("cookie.domain") : null)
+        );
+    sessionCookieConfig.setHttpOnly(cookieDef.httpOnly()
+        .orElse($session.getBoolean("cookie.httpOnly"))
+        );
+    sessionCookieConfig.setMaxAge(cookieDef.maxAge()
+        .orElse($session.getInt("cookie.maxAge"))
+        );
+    sessionCookieConfig.setName(cookieDef.name()
+        .orElse($session.getString("cookie.name"))
+        );
+    sessionCookieConfig.setPath(cookieDef.path()
+        .orElse($session.getString("cookie.path"))
+        );
+    sessionCookieConfig.setSecure(cookieDef.secure()
+        .orElse($session.getBoolean("cookie.secure"))
+        );
+
+    // session timeout
+    sessionManager.setMaxInactiveInterval(sessionDef.timeout().orElse(
+        $session.getInt("timeout"))
+        );
+
+    sessionManager.setSaveInterval(sessionDef.saveInterval().orElse(
+        $session.getInt("saveInterval"))
+        );
+
+    sessionManager.setPreserveOnStop(sessionDef.preserveOnStop().orElse(
+        $session.getBoolean("preserveOnStop"))
+        );
+
+    handler.setSessionManager(sessionManager);
+
+    /**
+     * Web sockets
+     */
     @SuppressWarnings("unchecked")
     Set<WebSocket.Definition> sockets = (Set<Definition>) injector.getInstance(Key.get(Types
         .setOf(WebSocket.Definition.class)));

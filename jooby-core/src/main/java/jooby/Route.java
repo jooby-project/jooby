@@ -340,14 +340,18 @@ public interface Route {
       return route.toString();
     }
 
-    public Route delegate() {
-      return route;
+    public static Route unwrap(final Route route) {
+      Route root = route;
+      while (root instanceof Forwarding) {
+        root = ((Forwarding) root).route;
+      }
+      return root;
     }
 
   }
 
   interface Chain {
-    void next(Request request, Response response) throws Exception;
+    void next(Request req, Response res) throws Exception;
   }
 
   /**

@@ -26,7 +26,6 @@ import jooby.MediaType;
 import jooby.MediaTypeProvider;
 import jooby.Response;
 import jooby.Route;
-import jooby.SetCookie;
 import jooby.Variant;
 import jooby.fn.ExSupplier;
 
@@ -110,7 +109,7 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public Response cookie(final SetCookie cookie) {
+  public Response cookie(final jooby.Cookie cookie) {
     requireNonNull(cookie, "A cookie is required.");
     Cookie c = new Cookie(cookie.name(), cookie.value());
     String comment = cookie.comment();
