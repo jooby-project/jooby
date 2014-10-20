@@ -54,7 +54,7 @@ public class DestroySessionFeature extends ServerFeature {
 
   @Test
   public void destroySession() throws Exception {
-    String sessionId = "1234|9+k+/fTWdlukuvYn6+3fasMHEOkKmpU5qH6IEnPXxo0";
+    String sessionId = "1234|anN8BeWjnfVFT4P/FGkN7YbYAPhfXvTCx7P9CBrPa/s";
     String cookieId = "jooby.sid=" + sessionId + ";Path=/;Secure;HttpOnly";
 
     assertEquals(

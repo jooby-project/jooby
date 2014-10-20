@@ -4,17 +4,17 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.jknack</groupId>
-  <artifactId>jooby</artifactId>
+  <artifactId>jooby-project</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>jooby</name>
-  <description>Micro web framework</description>
+  <name>jooby-project</name>
+  <description>Micro Web Framework</description>
 
   <url>https://github.com/jknack/jooby</url>
 
   <modules>
-    <module>jooby-core</module>
+    <module>jooby</module>
     <module>jooby-jackson</module>
     <module>jooby-hbs</module>
     <module>jooby-hibernate</module>

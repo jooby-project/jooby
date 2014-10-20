@@ -4,15 +4,15 @@
 
   <parent>
     <groupId>com.github.jknack</groupId>
-    <artifactId>jooby</artifactId>
+    <artifactId>jooby-project</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-core</artifactId>
+  <artifactId>jooby</artifactId>
 
-  <name>jooby-core</name>
-  <description>Jooby Core Module</description>
+  <name>jooby</name>
+  <description>Jooby</description>
 
   <build>
     <plugins>

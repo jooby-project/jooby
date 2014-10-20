@@ -65,7 +65,7 @@ public class SessionFeature extends ServerFeature {
 
   @Test
   public void session() throws Exception {
-    String cookieId = "jooby.sid=1234|9+k+/fTWdlukuvYn6+3fasMHEOkKmpU5qH6IEnPXxo0;Path=/;Secure;HttpOnly";
+    String cookieId = "jooby.sid=1234|anN8BeWjnfVFT4P/FGkN7YbYAPhfXvTCx7P9CBrPa/s;Path=/;Secure;HttpOnly";
     assertEquals(
         "0",
         execute(
@@ -88,7 +88,7 @@ public class SessionFeature extends ServerFeature {
 
   @Test
   public void newSessions() throws Exception {
-    String cookieId = "jooby.sid=1234|9+k+/fTWdlukuvYn6+3fasMHEOkKmpU5qH6IEnPXxo0;Path=/;Secure;HttpOnly";
+    String cookieId = "jooby.sid=1234|anN8BeWjnfVFT4P/FGkN7YbYAPhfXvTCx7P9CBrPa/s;Path=/;Secure;HttpOnly";
     assertEquals(
         "0",
         execute(
@@ -119,9 +119,9 @@ public class SessionFeature extends ServerFeature {
 
   @Test
   public void tamperedSession() throws Exception {
-    String cookieId = "jooby.sid=1234|9+k+/fTWdlukuvYn6+3fasMHEOkKmpU5qH6IEnPXxo0;Path=/;Secure;HttpOnly";
-    String tamperedId1 = "jooby.sid=6590|9+k+/fTWdlukuvYn6+3fasMHEOkKmpU5qH6IEnPXxo0;Path=/;Secure;HttpOnly";
-    String tamperedId2 = "jooby.sid=1234|9+k+/fTWdlukuvYn6+3fasMHEOkKmpUx5qH6IEnPXxo0;Path=/;Secure;HttpOnly";
+    String cookieId = "jooby.sid=1234|anN8BeWjnfVFT4P/FGkN7YbYAPhfXvTCx7P9CBrPa/s;Path=/;Secure;HttpOnly";
+    String tamperedId1 = "jooby.sid=6590|anN8BeWjnfVFT4P/FGkN7YbYAPhfXvTCx7P9CBrPa/s;Path=/;Secure;HttpOnly";
+    String tamperedId2 = "jooby.sid=1234|anN8BeWjnfVFT4P/FGkN7YxbYAPhfXvTCx7P9BrPa/s;Path=/;Secure;HttpOnly";
     String brokenId = "jooby.sid=1234;Path=/;Secure;HttpOnly";
     assertEquals(
         "0",
@@ -162,7 +162,7 @@ public class SessionFeature extends ServerFeature {
 
   @Test
   public void time() throws Exception {
-    String cookieId = "jooby.sid=1234|9+k+/fTWdlukuvYn6+3fasMHEOkKmpU5qH6IEnPXxo0;Path=/;Secure;HttpOnly";
+    String cookieId = "jooby.sid=1234|anN8BeWjnfVFT4P/FGkN7YbYAPhfXvTCx7P9CBrPa/s;Path=/;Secure;HttpOnly";
     long createdAt = Long.parseLong(execute(
         GET(uri("session/0")),
         (response) -> {
@@ -182,7 +182,7 @@ public class SessionFeature extends ServerFeature {
 
   @Test
   public void timeout() throws Exception {
-    String cookieId = "jooby.sid=1234|9+k+/fTWdlukuvYn6+3fasMHEOkKmpU5qH6IEnPXxo0;Path=/;Secure;HttpOnly";
+    String cookieId = "jooby.sid=1234|anN8BeWjnfVFT4P/FGkN7YbYAPhfXvTCx7P9CBrPa/s;Path=/;Secure;HttpOnly";
     assertEquals(
         "0",
         execute(

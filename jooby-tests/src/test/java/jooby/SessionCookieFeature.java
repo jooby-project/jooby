@@ -63,7 +63,7 @@ public class SessionCookieFeature extends ServerFeature {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy HH:mm");
     Instant instant = Instant.ofEpochMilli(maxAge);
     OffsetDateTime utc = instant.atOffset(ZoneOffset.UTC);
-    String sessionId = "1234|9+k+/fTWdlukuvYn6+3fasMHEOkKmpU5qH6IEnPXxo0";
+    String sessionId = "1234|anN8BeWjnfVFT4P/FGkN7YbYAPhfXvTCx7P9CBrPa/s";
     assertEquals(
         sessionId,
         execute(
