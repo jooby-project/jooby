@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -95,9 +94,7 @@ public class RequestImpl implements Request {
   @Override
   public Optional<MediaType> accepts(final List<MediaType> types) {
     requireNonNull(types, "Media types are required.");
-    List<MediaType> candidates = new LinkedList<>(types);
-    Collections.sort(candidates);
-    return MediaType.matcher(accept).first(candidates);
+    return MediaType.matcher(accept).first(types);
   }
 
   @Override
@@ -154,9 +151,20 @@ public class RequestImpl implements Request {
   }
 
   @Override
+  public boolean secure() {
+    return request.isSecure();
+  }
+
+  @Override
   public Session session() {
     JoobySession session = (JoobySession) request.getSession(true);
     return session;
+  }
+
+  @Override
+  public Optional<Session> ifSession() {
+    JoobySession session = (JoobySession) request.getSession(false);
+    return Optional.ofNullable(session);
   }
 
   private Set<String> paramNames() {
@@ -198,8 +206,8 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public Cookie cookie(final String name) {
-    return cookies(request).stream().filter(c -> c.name().equals(name)).findFirst().orElse(null);
+  public Optional<Cookie> cookie(final String name) {
+    return cookies(request).stream().filter(c -> c.name().equals(name)).findFirst();
   }
 
   @Override

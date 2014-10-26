@@ -3,12 +3,7 @@ package org.jooby;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.http.client.fluent.Request;
-import org.jooby.BodyConverter;
-import org.jooby.Jooby;
-import org.jooby.MediaType;
-import org.jooby.Mode;
-import org.jooby.Response;
-import org.jooby.Viewable;
+import org.jooby.Response.Status;
 import org.jooby.mvc.Consumes;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
@@ -63,8 +58,19 @@ public class ContentNegotiationFeature extends ServerFeature {
     get("/any", (req, resp) ->
         resp.format()
             .when("text/html", () -> Viewable.of("test", "body"))
-            .when("application/json", () -> "body")
+            .when("*/*", () -> "body")
             .send());
+
+    get("/status", (req, resp) ->
+    resp.format()
+        .when("*", () -> Status.NOT_ACCEPTABLE)
+        .send());
+
+    get("/like", (req, resp) ->
+    resp.format()
+        .when("text/html", () -> Viewable.of("test", "body"))
+        .when("application/json", () -> "body")
+        .send());
 
     get("/html", (req, resp) -> resp.send(Viewable.of("test", "body")))
         .produces(MediaType.html);
@@ -174,6 +180,30 @@ public class ContentNegotiationFeature extends ServerFeature {
           .returnContent().asString();
     });
 
+  }
+
+  @Test
+  public void fallback() throws Exception {
+    assertEquals("{\"body\": \"body\"}",
+        Request.Get(uri("any").build())
+            .addHeader("Accept", "application/json").execute()
+            .returnContent().asString());
+  }
+
+  @Test
+  public void like() throws Exception {
+    assertEquals("{\"body\": \"body\"}",
+        Request.Get(uri("like").build())
+            .addHeader("Accept", "application/*+json").execute()
+            .returnContent().asString());
+  }
+
+  @Test
+  public void status() throws Exception {
+    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> {
+      Request.Get(uri("status").build()).addHeader("Content-Type", "application/xml").execute()
+          .returnContent().asString();
+    });
   }
 
 }

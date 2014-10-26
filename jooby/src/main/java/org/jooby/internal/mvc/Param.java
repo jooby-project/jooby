@@ -44,11 +44,11 @@ public class Param {
       @Override
       public Object get(final Request req, final Response resp, final Param param)
           throws Exception {
-        Cookie cookie = req.cookie(param.name);
+        Optional<Cookie> cookie = req.cookie(param.name);
         if (param.parameter.getType() == Optional.class) {
-          return Optional.ofNullable(cookie);
+          return cookie;
         }
-        return Optional.ofNullable(cookie)
+        return cookie
             .orElseThrow(
                 () -> new Route.Err(Response.Status.BAD_REQUEST, "Missing cookie: " + param.name));
       }

@@ -51,7 +51,13 @@ public abstract class TemplateProcessor implements BodyConverter {
     render(viewable, writer);
   }
 
-  public abstract void render(final Viewable viewable, final BodyWriter writer)
-      throws Exception;
+  /**
+   * Render a view.
+   *
+   * @param viewable View to render.
+   * @param writer A body writer.
+   * @throws Exception If view rendering fails.
+   */
+  public abstract void render(final Viewable viewable, final BodyWriter writer) throws Exception;
 
 }

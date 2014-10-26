@@ -120,7 +120,8 @@ public class RouteHandler {
         new RequestImpl(request, injector, route, selector, type, accept, charset, locale);
 
     BiFunction<Injector, Route, Response> resFactory = (injector, route) ->
-        new ResponseImpl(response, injector, route, locals, selector, typeProvider, charset);
+        new ResponseImpl(response, injector, route, locals, selector, typeProvider, charset,
+            Optional.ofNullable(request.getHeader("Referer")));
 
     Injector injector = rootInjector;
 
@@ -267,7 +268,7 @@ public class RouteHandler {
 
   private void defaultErrorPage(final Request request, final Response res,
       final Map<String, Object> model) throws Exception {
-    Response.Status status = res.status();
+    Response.Status status = res.status().get();
     StringBuilder html = new StringBuilder("<!doctype html>")
         .append("<html>\n")
         .append("<head>\n")
@@ -386,7 +387,7 @@ public class RouteHandler {
     StringBuilder buffer = new StringBuilder();
     int verbMax = 0, routeMax = 0, consumesMax = 0, producesMax = 0;
     for (Route.Definition routeDef : routeDefs) {
-      verbMax = Math.max(verbMax, routeDef.verb().name().length());
+      verbMax = Math.max(verbMax, routeDef.verb().length());
 
       routeMax = Math.max(routeMax, routeDef.pattern().length());
 

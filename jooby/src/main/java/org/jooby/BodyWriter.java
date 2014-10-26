@@ -9,8 +9,8 @@ import javax.annotation.Nonnull;
 import com.google.common.annotations.Beta;
 
 /**
- * Utility class to properly writing a HTTP response body. It provides methods for reading text and
- * bytes efficiently. Clients shouldn't worry about closing the HTTP response body.
+ * Utility class to properly write data into the HTTP response body. It provides methods for
+ * writing text and bytes efficiently. Clients shouldn't worry about closing the HTTP response body.
  *
  * @author edgar
  * @since 0.1.0
@@ -27,7 +27,7 @@ public interface BodyWriter {
   interface Bytes {
 
     /**
-     * Write bytes from the given {@link OutputStream}. The {@link OutputStream} will be close it
+     * Write bytes into the given {@link OutputStream}. The {@link OutputStream} will be close it
      * automatically after this call. Clients shouldn't worry about closing
      * the {@link OutputStream}.
      *
@@ -38,7 +38,7 @@ public interface BodyWriter {
   }
 
   /**
-   * Write bytes to the HTTP Body.
+   * Write text to the HTTP Body and apply application/request charset.
    *
    * @author edgar
    * @since 0.1.0
@@ -46,8 +46,9 @@ public interface BodyWriter {
   interface Text {
 
     /**
-     * Write bytes from the given {@link Writer}. The {@link Writer} will be close it automatically
+     * Write text into the given {@link Writer}. The {@link Writer} will be close it automatically
      * after this call. Clients shouldn't worry about closing the {@link Writer}.
+     * The writer is configured with the application/request charset.
      *
      * @param writer The HTTP response body.
      * @throws Exception When the operation fails.
@@ -62,6 +63,7 @@ public interface BodyWriter {
 
   /**
    * Write text into the HTTP response body using the {@link #charset()} and close the resources.
+   * It applies the application/request charset.
    *
    * @param text A text strategy.
    * @throws Exception When the operation fails.

@@ -337,6 +337,11 @@ public class VariantImpl implements Variant {
     return values.toString();
   }
 
+  @Override
+  public boolean isPresent() {
+    return values != null;
+  }
+
   private static Class<?> classFrom(final TypeLiteral<?> type) {
     return classFrom(type.getType());
   }

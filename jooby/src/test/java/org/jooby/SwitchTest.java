@@ -2,89 +2,90 @@ package org.jooby;
 
 import static org.junit.Assert.assertEquals;
 
-import org.jooby.fn.Switches;
+import org.jooby.fn.Switch;
 import org.junit.Test;
 
 public class SwitchTest {
 
   @Test
   public void keyValue() throws Exception {
-    assertEquals("X", Switches.newSwitch("x")
+    assertEquals("X", Switch.newSwitch("x")
         .when("x", "X")
         .when("y", "Y")
-        .get());
+        .value().get());
 
-    assertEquals("Y", Switches.newSwitch("y")
+    assertEquals("Y", Switch.newSwitch("y")
         .when("x", "X")
         .when("y", "Y")
-        .get());
+        .value().get());
 
-    assertEquals("Xx", Switches.newSwitch("x")
+    assertEquals("Xx", Switch.newSwitch("x")
         .when("x", "Xx")
         .when("x", "Y")
-        .get());
+        .value().get());
   }
 
   @Test
   public void keyFn() throws Exception {
-    assertEquals("X", Switches.newSwitch("x")
+    assertEquals("X", Switch.newSwitch("x")
         .when("x", () -> "X")
         .when("y", () -> "Y")
-        .get());
+        .value().get());
 
-    assertEquals("Y", Switches.newSwitch("y")
+    assertEquals("Y", Switch.newSwitch("y")
         .when("x", () -> "X")
         .when("y", () -> "Y")
-        .get());
+        .value().get());
 
-    assertEquals("Xx", Switches.newSwitch("x")
+    assertEquals("Xx", Switch.newSwitch("x")
         .when("x", () -> "Xx")
         .when("x", () -> "Y")
-        .get());
+        .value().get());
   }
 
   @Test
   public void predicateFn() throws Exception {
-    assertEquals("X", Switches.newSwitch("x")
+    assertEquals("X", Switch.newSwitch("x")
         .when((v) -> "x".equals(v), () -> "X")
         .when((v) -> "y".equals(v), () -> "Y")
-        .get());
+        .value().get());
 
-    assertEquals("Y", Switches.newSwitch("y")
+    assertEquals("Y", Switch.newSwitch("y")
         .when((v) -> "x".equals(v), () -> "X")
         .when((v) -> "y".equals(v), () -> "Y")
-        .get());
+        .value().get());
 
-    assertEquals("Xx", Switches.newSwitch("x")
+    assertEquals("Xx", Switch.newSwitch("x")
         .when((v) -> "x".equals(v), () -> "Xx")
         .when((v) -> "x".equals(v), () -> "Y")
-        .get());
+        .value().get());
   }
 
   @Test
   public void predicateValue() throws Exception {
-    assertEquals("X", Switches.newSwitch("x")
+    assertEquals("X", Switch.newSwitch("x")
         .when((v) -> "x".equals(v), "X")
         .when((v) -> "y".equals(v), "Y")
-        .get());
+        .value().get());
 
-    assertEquals("Y", Switches.newSwitch("y")
+    assertEquals("Y", Switch.newSwitch("y")
         .when((v) -> "x".equals(v), "X")
         .when((v) -> "y".equals(v), "Y")
-        .get());
+        .value().get());
 
-    assertEquals("Xx", Switches.newSwitch("x")
+    assertEquals("Xx", Switch.newSwitch("x")
         .when((v) -> "x".equals(v), "Xx")
         .when((v) -> "x".equals(v), "Y")
-        .get());
+        .value().get());
   }
 
   @Test
   public void otherwise() throws Exception {
-    assertEquals("zz", Switches.newSwitch("z")
+    assertEquals("zz", Switch.newSwitch("z")
         .when((v) -> "x".equals(v), "X")
         .when((v) -> "y".equals(v), "Y")
-        .otherwise("zz"));
+        .value()
+        .orElse("zz"));
 
   }
 }

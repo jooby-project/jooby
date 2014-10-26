@@ -210,24 +210,30 @@ import javax.annotation.Nonnull;
 
 import org.jooby.fn.ExSupplier;
 import org.jooby.fn.Switch;
-import org.jooby.fn.Switches;
+
+import com.google.common.annotations.Beta;
 
 /**
  * Application's mode that let you optimize, customize or apply defaults values for services.
  *
- * A mode is represented by it's name. By default an application runs in <strong>dev</strong> mode.
+ * <p>
+ * A mode is represented by it's name. By default an application run in <strong>dev</strong> mode.
  * The <strong>dev</strong> is special and a module provider could do some special configuration for
  * development, like turning off a cache, reloading of resources, etc.
- *
- * Same is true for no <strong>dev</strong> mode. For example, a module's provider can create
- * a high performance connection pool for none dev modes, etc.
- *
+ * </p>
+ * <p>
+ * Same is true for no <strong>dev</strong> modes. For example, a module provider might create a
+ * high performance connection pool for none dev modes, caches, etc.
+ * </p>
+ * <p>
  * By default a mode is set to dev, but you can change it by setting the
  * <code>application.mode</code> property to anything else.
+ * </p>
  *
  * @author edgar
  * @since 0.1.0
  */
+@Beta
 public interface Mode {
 
   /**
@@ -246,7 +252,7 @@ public interface Mode {
    */
   default <T> Optional<T> ifMode(@Nonnull final String name, @Nonnull final ExSupplier<T> fn)
       throws Exception {
-    return Optional.ofNullable(when(name, fn).otherwise(null));
+    return when(name, fn).value();
   }
 
   /**
@@ -265,7 +271,7 @@ public interface Mode {
    */
   @Nonnull
   default <T> Switch<String, T> when(@Nonnull final String name, @Nonnull final ExSupplier<T> fn) {
-    return Switches.<T> newSwitch(name()).when(name, fn);
+    return Switch.<T> newSwitch(name()).when(name, fn);
   }
 
   /**
@@ -284,7 +290,7 @@ public interface Mode {
    */
   @Nonnull
   default <T> Switch<String, T> when(@Nonnull final String name, @Nonnull final T result) {
-    return Switches.<T> newSwitch(name()).when(name, result);
+    return Switch.<T> newSwitch(name()).when(name, result);
   }
 
   /**
@@ -304,6 +310,6 @@ public interface Mode {
   @Nonnull
   default <T> Switch<String, T> when(@Nonnull final Predicate<String> predicate,
       @Nonnull final T result) {
-    return Switches.<T> newSwitch(name()).when(predicate, result);
+    return Switch.<T> newSwitch(name()).when(predicate, result);
   }
 }

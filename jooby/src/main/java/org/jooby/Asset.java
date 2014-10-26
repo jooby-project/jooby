@@ -8,8 +8,8 @@ import javax.annotation.Nonnull;
 import com.google.common.annotations.Beta;
 
 /**
- * An asset is a public file or resource like javascript, css, images files, etc...
- * An asset must provide a content type, stream and last modified since, between others.
+ * Usually a public file/resource like javascript, css, images files, etc...
+ * An asset consist of content type, stream and last modified since, between others.
  *
  * @author edgar
  * @since 0.1.0

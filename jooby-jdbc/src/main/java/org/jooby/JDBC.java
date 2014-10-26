@@ -215,9 +215,7 @@ import java.util.function.Function;
 import javax.inject.Provider;
 import javax.sql.DataSource;
 
-import org.jooby.Jooby;
-import org.jooby.Mode;
-import org.jooby.fn.Switches;
+import org.jooby.fn.Switch;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -325,7 +323,7 @@ public class JDBC extends Jooby.Module {
         .withValue("db.password", ConfigValueFactory.fromAnyRef(""))
         .withFallback(source);
 
-    return Switches.<Config> newSwitch(db)
+    return Switch.<Config> newSwitch(db)
         .when("mem", () -> {
           String url = "jdbc:h2:mem:db;DB_CLOSE_DELAY=-1";
           return h2.apply(url);
@@ -338,7 +336,7 @@ public class JDBC extends Jooby.Module {
                   + new File(source.getString("jooby.io.tmpdir"), dbName).getAbsolutePath();
               return h2.apply(url);
             })
-        .otherwise(source);
+        .value().orElse(source);
   }
 
   private DataSourceHolder newDataSource(final Mode mode, final String key, final Config config)

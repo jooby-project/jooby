@@ -7,9 +7,9 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.Route.Err;
 import org.jooby.Variant;
 import org.jooby.WebSocket;
-import org.jooby.Route.Err;
 import org.jooby.internal.VariantImpl;
 import org.jooby.internal.WebSocketBinaryMessage;
 import org.jooby.internal.WebSocketImpl;
@@ -64,7 +64,7 @@ public class JettyWebSocketHandler implements WebSocketListener {
   @Override
   public void onWebSocketClose(final int statusCode, final String reason) {
     try {
-      socket.fireClose(new WebSocket.CloseStatus(statusCode, reason));
+      socket.fireClose(WebSocket.CloseStatus.of(statusCode, reason));
     } catch (Exception ex) {
       onWebSocketError(ex);
     }

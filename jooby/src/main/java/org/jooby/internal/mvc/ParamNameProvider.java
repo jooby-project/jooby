@@ -1,8 +1,11 @@
 package org.jooby.internal.mvc;
 
 import java.lang.reflect.Parameter;
+import java.util.Optional;
 
 import javax.inject.Named;
+
+import org.jooby.mvc.Header;
 
 public interface ParamNameProvider {
 
@@ -17,8 +20,17 @@ public interface ParamNameProvider {
   ParamNameProvider NAMED = new ParamNameProvider() {
     @Override
     public String name(final int index, final Parameter parameter) {
-      Named named = parameter.getAnnotation(Named.class);
-      return named == null ? null : named.value();
+      return Optional
+          .ofNullable(parameter.getAnnotation(Named.class))
+          .map(Named::value)
+          .orElseGet(
+              () -> Optional.ofNullable(parameter.getAnnotation(Header.class))
+                  .map(h -> {
+                    String name = h.value();
+                    return name.length() > 0 ? name : null;
+                  })
+                  .orElse(null)
+          );
     }
   };
 

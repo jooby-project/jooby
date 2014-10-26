@@ -48,7 +48,7 @@ public class MediaTypeProvider {
    *
    * @return A map with file extensions and media types.
    */
-  public Map<String, MediaType> types() {
+  public @Nonnull Map<String, MediaType> types() {
     Config $ = config.getConfig("mime");
     Map<String, MediaType> types = new HashMap<>();
     $.entrySet().forEach(entry -> {
@@ -64,7 +64,7 @@ public class MediaTypeProvider {
    * @param file A candidate file.
    * @return A {@link MediaType} or {@link MediaType#octetstream} for unknown file extensions.
    */
-  public MediaType forFile(@Nonnull final File file) {
+  public @Nonnull MediaType forFile(@Nonnull final File file) {
     requireNonNull(file, "A file is required.");
     return forPath(file.getAbsolutePath());
   }
@@ -94,7 +94,7 @@ public class MediaTypeProvider {
    * @param ext A file extension, like <code>js</code> or <code>css</code>.
    * @return A {@link MediaType} or {@link MediaType#octetstream} for unknown file extensions.
    */
-  public MediaType forExtension(final String ext) {
+  public @Nonnull MediaType forExtension(final String ext) {
     requireNonNull(ext, "An ext is required.");
     try {
       return MediaType.valueOf(config.getString("mime." + ext));

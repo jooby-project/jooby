@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
@@ -22,37 +21,41 @@ import com.google.inject.TypeLiteral;
  *
  * @author edgar
  * @since 0.1.0
- * @see RequestModule
- * @see Variant
- * @see RouteInterceptor
  */
 @Beta
 public interface Request {
 
+  /**
+   * HTTP Verbs (a.k.a methods)
+   */
   enum Verb {
-    ANY {
-      @Override
-      public String value() {
-        return "*";
-      }
-    },
-
+    /** HTTP OPTIONS. */
     OPTIONS,
 
+    /** HTTP GET. */
     GET,
 
+    /** HTTP HEAD. */
     HEAD,
 
+    /** HTTP POST. */
     POST,
 
+    /** HTTP PUT. */
     PUT,
 
+    /** HTTP DELETE. */
     DELETE,
 
+    /** HTTP TRACE. */
     TRACE,
 
+    /** HTTP CONNECT. */
     CONNET;
 
+    /**
+     * @return Usually a verb name, except for ANY which is '*'.
+     */
     public String value() {
       return name();
     }
@@ -63,11 +66,23 @@ public interface Request {
     }
   }
 
+  /**
+   * Forwarding request.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
   class Forwarding implements Request {
 
+    /** Target request. */
     private Request request;
 
-    public Forwarding(final Request request) {
+    /**
+     * Creates a new {@link Forwarding} request.
+     *
+     * @param request A target request.
+     */
+    public Forwarding(final @Nonnull Request request) {
       this.request = requireNonNull(request, "A HTTP request is required.");
     }
 
@@ -112,7 +127,7 @@ public interface Request {
     }
 
     @Override
-    public Cookie cookie(final String name) {
+    public Optional<Cookie> cookie(final String name) {
       return request.cookie(name);
     }
 
@@ -149,6 +164,16 @@ public interface Request {
     @Override
     public Route route() {
       return request.route();
+    }
+
+    @Override
+    public Session session() {
+      return request.session();
+    }
+
+    @Override
+    public Optional<Session> ifSession() {
+      return request.ifSession();
     }
 
     @Override
@@ -201,7 +226,14 @@ public interface Request {
       return request.toString();
     }
 
-    public static Request unwrap(final Request req) {
+    /**
+     * Unwrap a request in order to find out the target instance.
+     *
+     * @param req A request.
+     * @return A target instance (not a {@link Forwarding}).
+     */
+    public static Request unwrap(final @Nonnull Request req) {
+      requireNonNull(req, "A request is required.");
       Request root = req;
       while (root instanceof Forwarding) {
         root = ((Forwarding) root).request;
@@ -221,11 +253,11 @@ public interface Request {
    * </p>
    *
    * <pre>
-   * class MyModule implements JoobyModule {
+   * class MyModule implements Jooby.Module {
    *   void configure(Mode mode, Config config, Binder binder) {
-   *     requestModule = Multibinder.newSetBinder(binder, RequestModule.class);
-   *     requestModule.addBinding().toInstance(requestBinder -> {
-   *       requestBinder.bind(MyService.class).to(...);
+   *     Multibinder b = Multibinder.newSetBinder(binder, RequestModule.class);
+   *     b.addBinding().toInstance(requestBinder -> {
+   *       b.bind(MyService.class).to(...);
    *     })
    *   }
    * }
@@ -277,14 +309,108 @@ public interface Request {
   @Nonnull
   List<MediaType> accept();
 
-  default Optional<MediaType> accepts(@Nonnull final String... types) {
+  /**
+   * Check if the given types are acceptable, returning the best match when true, or else
+   * Optional.empty.
+   *
+   * <pre>
+   * // Accept: text/html
+   * req.accepts("text/html");
+   * // => "text/html"
+   *
+   * // Accept: text/*, application/json
+   * req.accepts("text/html");
+   * // => "text/html"
+   * req.accepts("text/html");
+   * // => "text/html"
+   * req.accepts("application/json" "text/plain");
+   * // => "application/json"
+   * req.accepts("application/json");
+   * // => "application/json"
+   *
+   * // Accept: text/*, application/json
+   * req.accepts("image/png");
+   * // => Optional.empty
+   *
+   * // Accept: text/*;q=.5, application/json
+   * req.accepts("text/html", "application/json");
+   * // => "application/json"
+   * </pre>
+   *
+   * @param types
+   * @return The best acceptable type.
+   */
+  default @Nonnull Optional<MediaType> accepts(@Nonnull final String... types) {
     return accepts(MediaType.valueOf(types));
   }
 
-  default Optional<MediaType> accepts(@Nonnull final MediaType... types) {
+  /**
+   * Check if the given types are acceptable, returning the best match when true, or else
+   * Optional.empty.
+   *
+   * <pre>
+   * // Accept: text/html
+   * req.accepts("text/html");
+   * // => "text/html"
+   *
+   * // Accept: text/*, application/json
+   * req.accepts("text/html");
+   * // => "text/html"
+   * req.accepts("text/html");
+   * // => "text/html"
+   * req.accepts("application/json" "text/plain");
+   * // => "application/json"
+   * req.accepts("application/json");
+   * // => "application/json"
+   *
+   * // Accept: text/*, application/json
+   * req.accepts("image/png");
+   * // => Optional.empty
+   *
+   * // Accept: text/*;q=.5, application/json
+   * req.accepts("text/html", "application/json");
+   * // => "application/json"
+   * </pre>
+   *
+   * @param types
+   * @return The best acceptable type.
+   */
+  default @Nonnull Optional<MediaType> accepts(@Nonnull final MediaType... types) {
     return accepts(ImmutableList.copyOf(types));
   }
 
+  /**
+   * Check if the given types are acceptable, returning the best match when true, or else
+   * Optional.empty.
+   *
+   * <pre>
+   * // Accept: text/html
+   * req.accepts("text/html");
+   * // => "text/html"
+   *
+   * // Accept: text/*, application/json
+   * req.accepts("text/html");
+   * // => "text/html"
+   * req.accepts("text/html");
+   * // => "text/html"
+   * req.accepts("application/json" "text/plain");
+   * // => "application/json"
+   * req.accepts("application/json");
+   * // => "application/json"
+   *
+   * // Accept: text/*, application/json
+   * req.accepts("image/png");
+   * // => Optional.empty
+   *
+   * // Accept: text/*;q=.5, application/json
+   * req.accepts("text/html", "application/json");
+   * // => "application/json"
+   * </pre>
+   *
+   * @param types
+   * @return The best acceptable type.
+   */
+  @Nonnull
   Optional<MediaType> accepts(@Nonnull List<MediaType> types);
 
   /**
@@ -329,7 +455,7 @@ public interface Request {
    *
    * @param name A parameter's name.
    * @return A HTTP request parameter.
-   * @throws Exception If retrieval fails.
+   * @throws Exception On retrieval failures.
    * @see {@link Variant}
    */
   @Nonnull
@@ -352,13 +478,13 @@ public interface Request {
   Map<String, Variant> headers();
 
   /**
-   * Get a cookie with the given name or <code>null</code> if there is no cookie.
+   * Get a cookie with the given name (if present).
    *
    * @param name Cookie's name.
-   * @return A cookie with the given name or <code>null</code> if there is no cookie.
+   * @return A cookie or an empty optional.
    */
-  @Nullable
-  Cookie cookie(@Nonnull String name);
+  @Nonnull
+  Optional<Cookie> cookie(@Nonnull String name);
 
   /**
    * @return All the cookies.
@@ -393,11 +519,11 @@ public interface Request {
 
   /**
    * Creates a new instance (if need it) and inject required dependencies. Request scoped object
-   * can registered using a {@link RequestModule}.
+   * can registered using a {@link Request.Module}.
    *
    * @param type A body type.
    * @return A ready to use object.
-   * @see RequestModule
+   * @see Request.Module
    */
   @Nonnull
   default <T> T getInstance(@Nonnull final Class<T> type) {
@@ -406,11 +532,11 @@ public interface Request {
 
   /**
    * Creates a new instance (if need it) and inject required dependencies. Request scoped object
-   * can registered using a {@link RequestModule}.
+   * can registered using a {@link Request.Module}.
    *
    * @param type A body type.
    * @return A ready to use object.
-   * @see RequestModule
+   * @see Request.Module
    */
   @Nonnull
   default <T> T getInstance(@Nonnull final TypeLiteral<T> type) {
@@ -419,37 +545,68 @@ public interface Request {
 
   /**
    * Creates a new instance (if need it) and inject required dependencies. Request scoped object
-   * can registered using a {@link RequestModule}.
+   * can registered using a {@link Request.Module}.
    *
    * @param key A body key.
    * @return A ready to use object.
-   * @see RequestModule
+   * @see Request.Module
    */
   @Nonnull
   <T> T getInstance(@Nonnull Key<T> key);
 
   /**
-   * The charset in used for the current HTTP request. If the request doesn't specify a character
-   * encoding, this method return the global charset defined by: <code>application.charset</code>.
+   * The charset defined in the request body. If the request doesn't specify a character
+   * encoding, this method return the global charset: <code>application.charset</code>.
    *
    * @return A current charset.
    */
   @Nonnull
   Charset charset();
 
+  /**
+   * Get the content of the <code>Accept-Language</code> header. If the request doens't specify
+   * such header, this method return the global locale: <code>application.lang</code>.
+   *
+   * @return A locale.
+   */
   @Nonnull
   Locale locale();
 
+  /**
+   * @return The IP address of the client or last proxy that sent the request.
+   */
+  @Nonnull
   String ip();
 
+  /**
+   * @return The currently matched {@link Route}.
+   */
+  @Nonnull
   Route route();
 
+  /**
+   * The fully qualified name of the client or the last proxy that sent the request.
+   * If the engine cannot or chooses not to resolve the hostname (to improve performance),
+   * this method returns the dotted-string form of the IP address
+   *
+   * @return The fully qualified name of the client or the last proxy that sent the request.
+   */
   String hostname();
 
-  default Session session() {
-    throw new UnsupportedOperationException();
-  };
+  /**
+   * @return The current session associated with this request or if the request does not have a
+   *         session, creates one.
+   */
+  Session session();
 
+  /**
+   * @return The current session associated with this request if there is one.
+   */
+  Optional<Session> ifSession();
+
+  /**
+   * @return True if the <code>X-Requested-With</code> header is set to <code>XMLHttpRequest</code>.
+   */
   default boolean xhr() {
     return header("X-Requested-With")
         .toOptional(String.class)
@@ -457,10 +614,15 @@ public interface Request {
         .orElse(Boolean.FALSE);
   }
 
+  /**
+   * @return The name and version of the protocol the request uses in the form
+   *         <i>protocol/majorVersion.minorVersion</i>, for example, HTTP/1.1
+   */
   String protocol();
 
-  default boolean secure() {
-    return "https".equalsIgnoreCase(protocol());
-  }
+  /**
+   * @return True if this request was made using a secure channel, such as HTTPS.
+   */
+  boolean secure();
 
 }

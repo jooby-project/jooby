@@ -30,131 +30,382 @@ import com.google.common.collect.ImmutableMap;
 @Beta
 public interface Response {
 
+  /**
+   * Utility class for generating HTTP responses from MVC routes (usually).
+   *
+   * <pre>
+   * class MyRoute {
+   *
+   *   @GET
+   *   @Path("/")
+   *   public Body webMethod() {
+   *     return Body.redirect("/somewhere")
+   *   }
+   * }
+   * </pre>
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
+  @Beta
   class Body {
 
+    /** Response headers. */
     private Map<String, String> headers = new LinkedHashMap<>();
 
+    /** Response header setter. */
     private SetHeaderImpl setHeader = new SetHeaderImpl((name, value) -> headers.put(name, value));
 
+    /** Response body. */
     private Object content;
 
+    /** Response status. */
     private Response.Status status;
 
+    /** Response content-type. */
     private MediaType type;
 
-    public Body(final Object content) {
+    /**
+     * Creates a new body with content.
+     *
+     * @param content A body content.
+     */
+    private Body(final Object content) {
       content(content);
     }
 
-    public Body() {
+    /**
+     * Creates a new body.
+     */
+    private Body() {
     }
 
-    public static Body ok() {
-      return new Body().status(Response.Status.OK);
+    /**
+     * Set the body content!
+     *
+     * @param content A content.
+     * @return A new body.
+     */
+    public static @Nonnull Body body(final @Nonnull Object content) {
+      return new Body(content);
     }
 
-    public static Body ok(final Object message) {
-      return new Body(message).status(Response.Status.OK);
+    /**
+     * Set the response status.
+     *
+     * @param status A status!
+     * @return A new body.
+     */
+    public static @Nonnull Body body(final @Nonnull Response.Status status) {
+      requireNonNull(status, "A HTTP status is required.");
+      return new Body().status(status);
     }
 
-    public static Body accepted() {
-      return new Body().status(Response.Status.ACCEPTED);
+    /**
+     * Set the response status.
+     *
+     * @param status A status!
+     * @return A new body.
+     */
+    public static @Nonnull Body body(final @Nonnull int status) {
+      return body(Status.valueOf(status));
     }
 
-    public static Body accepted(final Object message) {
-      return new Body(message).status(Response.Status.ACCEPTED);
+    /**
+     * @return A new body with {@link Status#OK}.
+     */
+    public static @Nonnull Body ok() {
+      return body(Response.Status.OK);
     }
 
-    public static Body noContent() {
-      return new Body().status(Response.Status.NO_CONTENT);
+    /**
+     * @param content A body content!
+     * @return A new body with {@link Status#OK} and given content.
+     */
+    public static @Nonnull Body ok(final @Nonnull Object content) {
+      return ok().content(content);
     }
 
-    public Body status(final Response.Status status) {
-      this.status = status;
+    /**
+     * @return A new body with {@link Status#ACCEPTED}.
+     */
+    public static @Nonnull Body accepted() {
+      return body(Response.Status.ACCEPTED);
+    }
+
+    /**
+     * @param content A body content!
+     * @return A new body with {@link Status#ACCEPTED}.
+     */
+    public static @Nonnull Body accepted(final @Nonnull Object content) {
+      return accepted().content(content);
+    }
+
+    /**
+     * @return A new body with {@link Status#NO_CONTENT}.
+     */
+    public static @Nonnull Body noContent() {
+      return body(Response.Status.NO_CONTENT);
+    }
+
+    /**
+     * Produces a redirect (302) status code and set the <code>Location</code> header too.
+     *
+     * @param location A location.
+     * @return A new body.
+     */
+    public static @Nonnull Body redirect(final @Nonnull String location) {
+      return redirect(Response.Status.FOUND, location);
+    }
+
+    /**
+     * Produces a redirect (307) status code and set the <code>Location</code> header too.
+     *
+     * @param location A location.
+     * @return A new body.
+     */
+    public static @Nonnull Body tempRedirect(final @Nonnull String location) {
+      return redirect(Response.Status.TEMPORARY_REDIRECT, location);
+    }
+
+    /**
+     * Produces a redirect (302) status code and set the <code>Location</code> header too.
+     *
+     * @param location A location.
+     * @return A new body.
+     */
+    public static @Nonnull Body moved(final @Nonnull String location) {
+      return redirect(Response.Status.MOVED_PERMANENTLY, location);
+    }
+
+    /**
+     * Produces a redirect (302) status code and set the <code>Location</code> header too.
+     *
+     * @param location A location.
+     * @return A new body.
+     */
+    public static @Nonnull Body seeOther(final @Nonnull String location) {
+      return redirect(Response.Status.SEE_OTHER, location);
+    }
+
+    /**
+     * Produces a redirect (302) status code and set the <code>Location</code> header too.
+     *
+     * @param status A HTTP redirect status.
+     * @param location A location.
+     * @return A new body.
+     */
+    private static Body redirect(final Status status, final String location) {
+      requireNonNull(location, "A location is required.");
+      return body(status).header("location", location);
+    }
+
+    /**
+     * Set response status.
+     *
+     * @param status A new response status to use.
+     * @return This body.
+     */
+    public @Nonnull Body status(final @Nonnull Response.Status status) {
+      this.status = requireNonNull(status, "A status is required.");
       return this;
     }
 
-    public Body type(final MediaType type) {
-      this.type = type;
+    /**
+     * Set response status.
+     *
+     * @param status A new response status to use.
+     * @return This body.
+     */
+    public @Nonnull Body status(final int status) {
+      return status(Status.valueOf(status));
+    }
+
+    /**
+     * Set the content type of this body.
+     *
+     * @param type A content type.
+     * @return This body.
+     */
+    public @Nonnull Body type(final @Nonnull MediaType type) {
+      this.type = requireNonNull(type, "A content type is required.");
       return this;
     }
 
-    public Body content(final Object content) {
+    /**
+     * Set body content.
+     *
+     * @param content A body!
+     * @return This body.
+     */
+    public @Nonnull Body content(final @Nonnull Object content) {
       this.content = requireNonNull(content, "Content is required.");
       return this;
     }
 
-    public Map<String, String> headers() {
+    /**
+     * @return Raw headers for body.
+     */
+    public @Nonnull Map<String, String> headers() {
       return ImmutableMap.copyOf(headers);
     }
 
-    public Optional<Response.Status> status() {
+    /**
+     * @return Body status.
+     */
+    public @Nonnull Optional<Response.Status> status() {
       return Optional.ofNullable(status);
     }
 
-    public Optional<MediaType> type() {
+    /**
+     * @return Body type.
+     */
+    public @Nonnull Optional<MediaType> type() {
       return Optional.ofNullable(type);
     }
 
-    public Optional<Object> content() {
+    /**
+     * @return Body content.
+     */
+    public @Nonnull Optional<Object> content() {
       return Optional.ofNullable(content);
     }
 
-    public Body header(final String name, final char value) {
+    /**
+     * Sets a response header with the given name and value. If the header had already been set,
+     * the new value overwrites the previous one.
+     *
+     * @param name Header's name.
+     * @param value Header's value.
+     * @return This body.
+     */
+    public @Nonnull Body header(final @Nonnull String name, final char value) {
       setHeader.header(name, value);
       return this;
     }
 
-    public Body header(final String name, final byte value) {
+    /**
+     * Sets a response header with the given name and value. If the header had already been set,
+     * the new value overwrites the previous one.
+     *
+     * @param name Header's name.
+     * @param value Header's value.
+     * @return This body.
+     */
+    public @Nonnull Body header(final @Nonnull String name, final byte value) {
       setHeader.header(name, value);
       return this;
     }
 
-    public Body header(final String name, final short value) {
+    /**
+     * Sets a response header with the given name and value. If the header had already been set,
+     * the new value overwrites the previous one.
+     *
+     * @param name Header's name.
+     * @param value Header's value.
+     * @return This body.
+     */
+    public @Nonnull Body header(final @Nonnull String name, final short value) {
       setHeader.header(name, value);
       return this;
     }
 
-    public Body header(final String name, final int value) {
+    /**
+     * Sets a response header with the given name and value. If the header had already been set,
+     * the new value overwrites the previous one.
+     *
+     * @param name Header's name.
+     * @param value Header's value.
+     * @return This body.
+     */
+    public @Nonnull Body header(final @Nonnull String name, final int value) {
       setHeader.header(name, value);
       return this;
     }
 
+    /**
+     * Sets a response header with the given name and value. If the header had already been set,
+     * the new value overwrites the previous one.
+     *
+     * @param name Header's name.
+     * @param value Header's value.
+     * @return This body.
+     */
     public Body header(final String name, final long value) {
       setHeader.header(name, value);
       return this;
     }
 
-    public Body header(final String name, final float value) {
+    /**
+     * Sets a response header with the given name and value. If the header had already been set,
+     * the new value overwrites the previous one.
+     *
+     * @param name Header's name.
+     * @param value Header's value.
+     * @return This body.
+     */
+    public @Nonnull Body header(final @Nonnull String name, final float value) {
       setHeader.header(name, value);
       return this;
     }
 
-    public Body header(final String name, final double value) {
+    /**
+     * Sets a response header with the given name and value. If the header had already been set,
+     * the new value overwrites the previous one.
+     *
+     * @param name Header's name.
+     * @param value Header's value.
+     * @return This body.
+     */
+    public @Nonnull Body header(final @Nonnull String name, final double value) {
       setHeader.header(name, value);
       return this;
     }
 
-    public Body header(final String name, final CharSequence value) {
+    /**
+     * Sets a response header with the given name and value. If the header had already been set,
+     * the new value overwrites the previous one.
+     *
+     * @param name Header's name.
+     * @param value Header's value.
+     * @return This body.
+     */
+    public @Nonnull Body header(final @Nonnull String name, final CharSequence value) {
       setHeader.header(name, value);
       return this;
     }
 
-    public Body header(final String name, final Date value) {
+    /**
+     * Sets a response header with the given name and value. If the header had already been set,
+     * the new value overwrites the previous one.
+     *
+     * @param name Header's name.
+     * @param value Header's value.
+     * @return This body.
+     */
+    public @Nonnull Body header(final @Nonnull String name, final @Nonnull Date value) {
       setHeader.header(name, value);
       return this;
     }
 
-    @Override
-    public String toString() {
-      return content == null ? "" : content.toString();
-    }
   }
 
+  /**
+   * A forwarding response.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
   class Forwarding implements Response {
 
+    /** The target response. */
     private Response response;
 
+    /**
+     * Creates a new {@link Forwarding} response.
+     *
+     * @param response A response object.
+     */
     public Forwarding(final Response response) {
       this.response = requireNonNull(response, "A response is required.");
     }
@@ -330,7 +581,7 @@ public interface Response {
     }
 
     @Override
-    public Response.Status status() {
+    public Optional<Response.Status> status() {
       return response.status();
     }
 
@@ -354,7 +605,14 @@ public interface Response {
       return response.toString();
     }
 
-    public static Response unwrap(final Response res) {
+    /**
+     * Unwrap a response in order to find out the target instance.
+     *
+     * @param req A response.
+     * @return A target instance (not a {@link Forwarding}).
+     */
+    public static Response unwrap(final @Nonnull Response res) {
+      requireNonNull(res, "A response is required.");
       Response root = res;
       while (root instanceof Forwarding) {
         root = ((Forwarding) root).response;
@@ -364,7 +622,7 @@ public interface Response {
   }
 
   /**
-   * Handling content negotiation for inline-routes. For example:
+   * Handle content negotiation. For example:
    *
    * <pre>
    *  {{
@@ -392,8 +650,8 @@ public interface Response {
      * @param supplier An object provider.
      * @return The current {@link Formatter}.
      */
-    @Nonnull
-    default Formatter when(final String mediaType, final ExSupplier<Object> supplier) {
+    default @Nonnull Formatter when(final String mediaType,
+        final @Nonnull ExSupplier<Object> supplier) {
       return when(MediaType.valueOf(mediaType), supplier);
     }
 
@@ -405,10 +663,10 @@ public interface Response {
      * @return A {@link Formatter}.
      */
     @Nonnull
-    Formatter when(MediaType mediaType, ExSupplier<Object> supplier);
+    Formatter when(MediaType mediaType, @Nonnull ExSupplier<Object> supplier);
 
     /**
-     * Write the response and send it.
+     * Send the response.
      *
      * @throws Exception If something fails.
      */
@@ -416,7 +674,7 @@ public interface Response {
   }
 
   /**
-   * Java 5 enumeration of HTTP status codes.
+   * HTTP status codes.
    *
    * <p>
    * This code has been kindly borrowed from <a href="http://spring.io/">Spring</a>
@@ -856,30 +1114,93 @@ public interface Response {
 
   }
 
-  void download(String filename, InputStream stream) throws Exception;
+  /**
+   * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
+   * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
+   * appear in the browser dialog) is set to path by default. However, you may provide an override
+   * filename.
+   *
+   * @param filename A file name to use.
+   * @param stream A stream to attach.
+   * @throws Exception If something goes wrong.
+   */
+  void download(@Nonnull String filename, @Nonnull InputStream stream) throws Exception;
 
-  void download(String filename, Reader reader) throws Exception;
+  /**
+   * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
+   * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
+   * appear in the browser dialog) is set to path by default. However, you may provide an override
+   * filename.
+   *
+   * @param filename A file name to use.
+   * @param reader A reader to attach.
+   * @throws Exception If something goes wrong.
+   */
+  void download(@Nonnull String filename, @Nonnull Reader reader) throws Exception;
 
-  default void download(final String filename) throws Exception {
+  /**
+   * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
+   * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
+   * appear in the browser dialog) is set to path by default. However, you may provide an override
+   * filename.
+   *
+   * @param filename A file name to use.
+   * @throws Exception If something goes wrong.
+   */
+  default void download(final @Nonnull String filename) throws Exception {
     download(filename, getClass().getResourceAsStream(filename));
   }
 
-  default void download(final File file) throws Exception {
+  /**
+   * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
+   * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
+   * appear in the browser dialog) is set to path by default. However, you may provide an override
+   * filename.
+   *
+   * @param file A file to use.
+   * @throws Exception If something goes wrong.
+   */
+  default void download(final @Nonnull File file) throws Exception {
     download(file.getName(), new FileInputStream(file));
   }
 
-  default Response cookie(final String name, final String value) {
+  /**
+   * Adds the specified cookie to the response.
+   *
+   * @param name A cookie's name.
+   * @param value A cookie's value.
+   * @return This response.
+   */
+  default Response cookie(final @Nonnull String name, final @Nonnull String value) {
     return cookie(new Cookie.Definition(name, value).toCookie());
   }
 
-  default Response cookie(final Cookie.Definition cookie) {
+  /**
+   * Adds the specified cookie to the response.
+   *
+   * @param cookie A cookie definition.
+   * @return This response.
+   */
+  default Response cookie(final @Nonnull Cookie.Definition cookie) {
     requireNonNull(cookie, "A cookie is required.");
     return cookie(cookie.toCookie());
   }
 
-  Response cookie(Cookie cookie);
+  /**
+   * Adds the specified cookie to the response.
+   *
+   * @param cookie A cookie.
+   * @return This response.
+   */
+  Response cookie(@Nonnull Cookie cookie);
 
-  Response clearCookie(String name);
+  /**
+   * Discard a cookie from response. Discard is done by setting maxAge=0.
+   *
+   * @param name Cookie's name.
+   * @return This response.
+   */
+  Response clearCookie(@Nonnull String name);
 
   /**
    * Get a header with the given name.
@@ -890,32 +1211,109 @@ public interface Response {
   @Nonnull
   Variant header(@Nonnull String name);
 
+  /**
+   * Sets a response header with the given name and value. If the header had already been set,
+   * the new value overwrites the previous one.
+   *
+   * @param name Header's name.
+   * @param value Header's value.
+   * @return This response.
+   */
   Response header(@Nonnull String name, char value);
 
+  /**
+   * Sets a response header with the given name and value. If the header had already been set,
+   * the new value overwrites the previous one.
+   *
+   * @param name Header's name.
+   * @param value Header's value.
+   * @return This response.
+   */
   Response header(@Nonnull String name, byte value);
 
+  /**
+   * Sets a response header with the given name and value. If the header had already been set,
+   * the new value overwrites the previous one.
+   *
+   * @param name Header's name.
+   * @param value Header's value.
+   * @return This response.
+   */
   Response header(@Nonnull String name, short value);
 
+  /**
+   * Sets a response header with the given name and value. If the header had already been set,
+   * the new value overwrites the previous one.
+   *
+   * @param name Header's name.
+   * @param value Header's value.
+   * @return This response.
+   */
   Response header(@Nonnull String name, int value);
 
+  /**
+   * Sets a response header with the given name and value. If the header had already been set,
+   * the new value overwrites the previous one.
+   *
+   * @param name Header's name.
+   * @param value Header's value.
+   * @return This response.
+   */
   Response header(@Nonnull String name, long value);
 
+  /**
+   * Sets a response header with the given name and value. If the header had already been set,
+   * the new value overwrites the previous one.
+   *
+   * @param name Header's name.
+   * @param value Header's value.
+   * @return This response.
+   */
   Response header(@Nonnull String name, float value);
 
+  /**
+   * Sets a response header with the given name and value. If the header had already been set,
+   * the new value overwrites the previous one.
+   *
+   * @param name Header's name.
+   * @param value Header's value.
+   * @return This response.
+   */
   Response header(@Nonnull String name, double value);
 
+  /**
+   * Sets a response header with the given name and value. If the header had already been set,
+   * the new value overwrites the previous one.
+   *
+   * @param name Header's name.
+   * @param value Header's value.
+   * @return This response.
+   */
   Response header(@Nonnull String name, CharSequence value);
 
+  /**
+   * Sets a response header with the given name and value. If the header had already been set,
+   * the new value overwrites the previous one.
+   *
+   * @param name Header's name.
+   * @param value Header's value.
+   * @return This response.
+   */
   Response header(@Nonnull String name, Date value);
 
   /**
-   * @return Charset for text responses.
+   * If charset is not set this method returns charset defined in the request body. If the request
+   * doesn't specify a character encoding, this method return the global charset:
+   * <code>application.charset</code>.
+   *
+   * @return A current charset.
    */
   @Nonnull
   Charset charset();
 
   /**
-   * Set the {@link Charset} to use.
+   * Set the {@link Charset} to use and set the <code>Content-Type</code> header with the current
+   * charset.
    *
    * @param charset A charset.
    * @return This response.
@@ -923,15 +1321,23 @@ public interface Response {
   @Nonnull
   Response charset(@Nonnull Charset charset);
 
+  /**
+   * Set the length of the response and set the <code>Content-Length</code> header.
+   *
+   * @param length Length of response.
+   * @return This response.
+   */
+  @Nonnull
   Response length(int length);
 
   /**
    * @return Get the response type.
    */
+  @Nonnull
   Optional<MediaType> type();
 
   /**
-   * Set the response media type.
+   * Set the response media type and set the <code>Content-Type</code> header.
    *
    * @param type A media type.
    * @return This response.
@@ -939,7 +1345,13 @@ public interface Response {
   @Nonnull
   Response type(@Nonnull MediaType type);
 
-  default Response type(@Nonnull final String type) {
+  /**
+   * Set the response media type and set the <code>Content-Type</code> header.
+   *
+   * @param type A media type.
+   * @return This response.
+   */
+  default @Nonnull Response type(@Nonnull final String type) {
     return type(MediaType.valueOf(type));
   }
 
@@ -949,23 +1361,27 @@ public interface Response {
    *
    * @param body The HTTP body.
    * @throws Exception If the response write fails.
-   * @see BodyConverter
    */
   default void send(@Nonnull final Object body) throws Exception {
     requireNonNull(body, "A response message is required.");
     if (body instanceof Body) {
       send((Body) body);
     } else {
-      Body b = new Body(body);
-      Response.Status status = status();
-      if (status != null) {
-        b.status(status);
-      }
-      type().ifPresent(t -> b.type(t));
+      // wrap body
+      Body b = Body.body(body);
+      status().ifPresent(b::status);
+      type().ifPresent(b::type);
       send(b);
     }
   }
 
+  /**
+   * Responsible of writing the given body into the HTTP response. The {@link BodyConverter} that
+   * best matches the <code>Accept</code> header will be selected for writing the response.
+   *
+   * @param body The HTTP body.
+   * @throws Exception If the response write fails.
+   */
   void send(@Nonnull Body body) throws Exception;
 
   /**
@@ -974,7 +1390,6 @@ public interface Response {
    * @param body The HTTP body.
    * @param converter The convert to use.
    * @throws Exception If the response write fails.
-   * @see BodyConverter
    */
   default void send(@Nonnull final Object body, @Nonnull final BodyConverter converter)
       throws Exception {
@@ -982,35 +1397,175 @@ public interface Response {
     if (body instanceof Body) {
       send((Body) body, converter);
     } else {
-      Body b = new Body(body);
-      Response.Status status = status();
-      if (status != null) {
-        b.status(status);
-      }
-      type().ifPresent(t -> b.type(t));
+      // wrap
+      Body b = Body.body(body);
+      status().ifPresent(b::status);
+      type().ifPresent(b::type);
       send(b, converter);
     }
   }
 
+  /**
+   * Responsible of writing the given body into the HTTP response.
+   *
+   * @param body The HTTP body.
+   * @param converter The convert to use.
+   * @throws Exception If the response write fails.
+   */
   void send(@Nonnull Body body, @Nonnull BodyConverter converter) throws Exception;
 
+  /**
+   * Performs content-negotiation on the Accept HTTP header on the request object. It select a
+   * handler for the request, based on the acceptable types ordered by their quality values.
+   * If the header is not specified, the first callback is invoked. When no match is found,
+   * the server responds with 406 "Not Acceptable", or invokes the default callback: {@code ** / *}.
+   *
+   * <pre>
+   *   get("/jsonOrHtml", (req, res) ->
+   *     res.format()
+   *         .when("text/html", () -> Viewable.of("view", model))
+   *         .when("application/json", () -> model)
+   *         .when("*", () -> Status.NOT_ACCEPTABLE)
+   *         .send()
+   *   );
+   * </pre>
+   *
+   * @return A response formatter.
+   */
   @Nonnull
   Formatter format();
 
-  default void redirect(final String location) throws Exception {
+  /**
+   * Redirect to the given url with status code defaulting to {@link Status#FOUND}.
+   *
+   * <pre>
+   *  res.redirect("/foo/bar");
+   *  res.redirect("http://example.com");
+   *  res.redirect("http://example.com");
+   *  res.redirect("../login");
+   * </pre>
+   *
+   * Redirects can be a fully qualified URI for redirecting to a different site:
+   *
+   * <pre>
+   *   res.redirect("http://google.com");
+   * </pre>
+   *
+   * Redirects can be relative to the root of the host name. For example, if you were
+   * on <code>http://example.com/admin/post/new</code>, the following redirect to /admin would
+   * land you at <code>http://example.com/admin</code>:
+   *
+   * <pre>
+   *   res.redirect("/admin");
+   * </pre>
+   *
+   * Redirects can be relative to the current URL. A redirection of post/new, from
+   * <code>http://example.com/blog/admin/</code> (notice the trailing slash), would give you
+   * <code>http://example.com/blog/admin/post/new.</code>
+   *
+   * <pre>
+   *   res.redirect("post/new");
+   * </pre>
+   *
+   * Redirecting to post/new from <code>http://example.com/blog/admin</code> (no trailing slash),
+   * will take you to <code>http://example.com/blog/post/new</code>.
+   *
+   * <p>
+   * If you found the above behavior confusing, think of path segments as directories (have trailing
+   * slashes) and files, it will start to make sense.
+   * </p>
+   *
+   * Pathname relative redirects are also possible. If you were on
+   * <code>http://example.com/admin/post/new</code>, the following redirect would land you at
+   * <code>http//example.com/admin</code>:
+   *
+   * <pre>
+   *   res.redirect("..");
+   * </pre>
+   *
+   * A back redirection will redirect the request back to the <code>Referer</code>, defaulting to
+   * <code>/</code> when missing.
+   *
+   * <pre>
+   *   res.redirect("back");
+   * </pre>
+   *
+   * @param location Either a relative or absolute location.
+   * @throws Exception If redirection fails.
+   */
+  default void redirect(final @Nonnull String location) throws Exception {
     redirect(Response.Status.FOUND, location);
   }
 
-  void redirect(Response.Status status, String location) throws Exception;
+  /**
+   * Redirect to the given url with status code defaulting to {@link Status#FOUND}.
+   *
+   * <pre>
+   *  res.redirect("/foo/bar");
+   *  res.redirect("http://example.com");
+   *  res.redirect("http://example.com");
+   *  res.redirect("../login");
+   * </pre>
+   *
+   * Redirects can be a fully qualified URI for redirecting to a different site:
+   *
+   * <pre>
+   *   res.redirect("http://google.com");
+   * </pre>
+   *
+   * Redirects can be relative to the root of the host name. For example, if you were
+   * on <code>http://example.com/admin/post/new</code>, the following redirect to /admin would
+   * land you at <code>http://example.com/admin</code>:
+   *
+   * <pre>
+   *   res.redirect("/admin");
+   * </pre>
+   *
+   * Redirects can be relative to the current URL. A redirection of post/new, from
+   * <code>http://example.com/blog/admin/</code> (notice the trailing slash), would give you
+   * <code>http://example.com/blog/admin/post/new.</code>
+   *
+   * <pre>
+   *   res.redirect("post/new");
+   * </pre>
+   *
+   * Redirecting to post/new from <code>http://example.com/blog/admin</code> (no trailing slash),
+   * will take you to <code>http://example.com/blog/post/new</code>.
+   *
+   * <p>
+   * If you found the above behavior confusing, think of path segments as directories (have trailing
+   * slashes) and files, it will start to make sense.
+   * </p>
+   *
+   * Pathname relative redirects are also possible. If you were on
+   * <code>http://example.com/admin/post/new</code>, the following redirect would land you at
+   * <code>http//example.com/admin</code>:
+   *
+   * <pre>
+   *   res.redirect("..");
+   * </pre>
+   *
+   * A back redirection will redirect the request back to the <code>Referer</code>, defaulting to
+   * <code>/</code> when missing.
+   *
+   * <pre>
+   *   res.redirect("back");
+   * </pre>
+   *
+   * @param status A redirect status.
+   * @param location Either a relative or absolute location.
+   * @throws Exception If redirection fails.
+   */
+  void redirect(@Nonnull Response.Status status, @Nonnull String location) throws Exception;
 
   /**
-   * @return A HTTP status.
+   * @return A HTTP status or empty if status was not set yet.
    */
   @Nonnull
-  Response.Status status();
+  Optional<Response.Status> status();
 
   /**
-   * Set the HTTP status.
+   * Set the HTTP response status.
    *
    * @param status A HTTP status.
    * @return This response.
@@ -1018,17 +1573,48 @@ public interface Response {
   @Nonnull
   Response status(@Nonnull Response.Status status);
 
+  /**
+   * Set the HTTP response status.
+   *
+   * @param status A HTTP status.
+   * @return This response.
+   */
   @Nonnull
   default Response status(final int status) {
     return status(Response.Status.valueOf(status));
   }
 
+  /**
+   * Returns a boolean indicating if the response has been committed. A committed response has
+   * already had its status code and headers written.
+   *
+   * @return a boolean indicating if the response has been committed
+   */
   boolean committed();
 
-  Map<String, Object> locals();
+  /**
+   * Response local variables are scoped to the request, and therefore only available to the view(s)
+   * rendered during that request / response cycle.
+   *
+   * @return Immutable version of local variables.
+   */
+  @Nonnull Map<String, Object> locals();
 
-  <T> T local(String name);
+  /**
+   * Get a local variable by it's name.
+   *
+   * @param name A var's name
+   * @return A local.
+   */
+  @Nonnull <T> T local(@Nonnull String name);
 
-  Response local(String name, Object value);
+  /**
+   * Put a local using a var's name. It override any existing local.
+   *
+   * @param name A var's name
+   * @param value A var's value.
+   * @return This response.
+   */
+  Response local(@Nonnull String name, @Nonnull Object value);
 
 }

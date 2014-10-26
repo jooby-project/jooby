@@ -7,7 +7,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.util.EntityUtils;
-import org.jooby.Response;
 import org.jooby.FilterFeature.HttpResponseValidator;
 import org.junit.Test;
 
@@ -21,7 +20,7 @@ public class ErrHandlerFeature extends ServerFeature {
     err((req, res, ex) -> {
       log.error("err", ex);
       assertTrue(ex instanceof IllegalArgumentException);
-      assertEquals(Response.Status.BAD_REQUEST, res.status());
+      assertEquals(Response.Status.BAD_REQUEST, res.status().get());
       res.send("err...");
     });
   }

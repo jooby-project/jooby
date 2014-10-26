@@ -172,7 +172,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public <T> void onMessage(final Callback<Variant> callback) throws Exception {
+  public void onMessage(final Callback<Variant> callback) throws Exception {
     this.messageCallback = requireNonNull(callback, "Message callback is required.");
   }
 
@@ -242,12 +242,12 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public <T> void onError(final Callback<Exception> callback) throws Exception {
+  public void onError(final Callback<Exception> callback) throws Exception {
     this.exceptionCallback = requireNonNull(callback, "A callback is required.");
   }
 
   @Override
-  public <T> void onClose(final Callback<CloseStatus> callback) throws Exception {
+  public void onClose(final Callback<CloseStatus> callback) throws Exception {
     this.closeCallback = requireNonNull(callback, "A callback is required.");
   }
 

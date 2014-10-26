@@ -27,6 +27,11 @@ public class GetUpload implements Variant {
   }
 
   @Override
+  public boolean isPresent() {
+    return true;
+  }
+
+  @Override
   public boolean booleanValue() {
     throw typeError(boolean.class);
   }

@@ -1,3 +1,9 @@
-* Cleanup WebSocket API
-* Log error from WebSocket
+* Document Public API & GitHub Page
+* Split BodyConverter into parser/formatter.
+  ** TemplateProcessor -> TemplateEngine?
+  ** Viewable -> View?
+  ** View negotiator should get all the media types of template engines.
+  ** Add name to template engine
+  ** Model contributions for views
 * Tests for Web Socket
+* Support for Test

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.servlet.SessionCookieConfig;
@@ -42,6 +43,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigValue;
 
 public class JettyServerBuilder {
@@ -151,7 +153,7 @@ public class JettyServerBuilder {
         .orElse($session.getBoolean("cookie.httpOnly"))
         );
     sessionCookieConfig.setMaxAge(cookieDef.maxAge()
-        .orElse($session.getInt("cookie.maxAge"))
+        .orElse((int) duration($session, "cookie.maxAge", TimeUnit.SECONDS))
         );
     sessionCookieConfig.setName(cookieDef.name()
         .orElse($session.getString("cookie.name"))
@@ -165,11 +167,11 @@ public class JettyServerBuilder {
 
     // session timeout
     sessionManager.setMaxInactiveInterval(sessionDef.timeout().orElse(
-        $session.getInt("timeout"))
+        (int) duration($session, "timeout", TimeUnit.SECONDS))
         );
 
     sessionManager.setSaveInterval(sessionDef.saveInterval().orElse(
-        $session.getInt("saveInterval"))
+        (int) duration($session, "saveInterval", TimeUnit.SECONDS))
         );
 
     sessionManager.setPreserveOnStop(sessionDef.preserveOnStop().orElse(
@@ -241,6 +243,14 @@ public class JettyServerBuilder {
     });
 
     return server;
+  }
+
+  private static long duration(final Config config, final String name, final TimeUnit unit) {
+    try {
+    return config.getLong(name);
+    } catch (ConfigException.WrongType ex) {
+      return config.getDuration(name, unit);
+    }
   }
 
   private static <T> T configure(final T target, final Config config) {

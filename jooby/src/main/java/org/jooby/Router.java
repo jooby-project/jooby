@@ -1,35 +1,35 @@
 package org.jooby;
 
 /**
- * React to HTTP Request and execute code. Routes are the heart of Jooby.
- *
- * <h1>Registering routes</h1>
- * <p>
- * It's pretty straight forward:
- * </p>
+ * A route handler/callback.
  *
  * <pre>
  * public class MyApp extends Jooby {
  *   {
- *      get("/", (req, resp) -> resp.send("Hello"));
-
- *      post("/", (req, resp) -> resp.send("Hello"));
- *
- *      put("/", (req, resp) -> resp.send("Hello"));
- *
- *      delete("/", (req, resp) -> resp.send("Hello"));
+ *      get("/", (req, res) -> res.send("Hello"));
  *   }
  * }
  * </pre>
  *
- * <h1>Exception handling</h1>
- * <p>
- * In general you shouldn't catch exceptions (or at least runtime* exception) unless you really want
- * to do something with it.
- * </p>
- * <p>
- * Exception are hanlded by Jooby and you shouldn't cache them unless it is strictly necessary.
- * </p>
+ * Please note that a handler is allowed to throw errors. If a service throws an exception you
+ * should NOT catch it, unless of course you want to apply logic or do something special.
+ * In particular you should AVOID wrapping exception:
+ * <pre>
+ *   {
+ *      get("/", (req, res) -> {
+ *        Service service = req.getInstance(Service.class);
+ *        try {
+ *          service.doSomething();
+ *        } catch (Exception ex) {
+ *         throw new RuntimeException(ex);
+ *        }
+ *      });
+ *   }
+ * </pre>
+ * Previous is bad example of exception handling and should avoid wrapping exception. If you do
+ * that, exception become hard to ready and the stack trace get too damn long.
+ * So, if you wont do anything with the exception: DONT' catch it. Jooby will catch, logged and send
+ * an appropriated status code and response.
  *
  * @author edgar
  * @since 0.1.0

@@ -7,7 +7,6 @@ import java.util.SortedSet;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.annotations.Beta;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -35,7 +34,6 @@ import com.google.inject.TypeLiteral;
  * @see Request#param(String)
  * @see Request#header(String)
  */
-@Beta
 public interface Variant {
 
   /**
@@ -137,4 +135,9 @@ public interface Variant {
    * @param type The type to convert to.
    */
   <T> T to(TypeLiteral<T> type);
+
+  /**
+   * @return True if the variant contains a value.
+   */
+  boolean isPresent();
 }

@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -64,9 +63,11 @@ public class ResponseImpl implements Response {
 
   private SetHeaderImpl setHeader;
 
+  private Optional<String> referer;
+
   public ResponseImpl(final HttpServletResponse response, final Injector injector,
       final Route route, final Map<String, Object> locals, final BodyConverterSelector selector,
-      final MediaTypeProvider typeProvider, final Charset charset) {
+      final MediaTypeProvider typeProvider, final Charset charset, final Optional<String> referer) {
     this.response = requireNonNull(response, "A response is required.");
     this.injector = requireNonNull(injector, "An injector is required.");
     this.route = requireNonNull(route, "A route is required.");
@@ -74,6 +75,7 @@ public class ResponseImpl implements Response {
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.typeProvider = requireNonNull(typeProvider, "A type's provider is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
+    this.referer = requireNonNull(referer, "A referer is required.");
 
     this.setHeader = new SetHeaderImpl((name, value) -> response.setHeader(name, value));
   }
@@ -314,7 +316,12 @@ public class ResponseImpl implements Response {
 
     Optional<Object> content = body.content();
     if (content.isPresent()) {
-      converter.write(content.get(), new BodyWriterImpl(charset, stream, writer));
+      Object message = content.get();
+      if (message instanceof Status) {
+        // override status when message is a status
+        status((Status) message);
+      }
+      converter.write(message, new BodyWriterImpl(charset, stream, writer));
     } else {
       // dump any pending header
       setHeaders.run();
@@ -340,7 +347,6 @@ public class ResponseImpl implements Response {
       @Override
       public void send() throws Exception {
         List<MediaType> produces = route.produces();
-        Collections.sort(types);
 
         ExSupplier<Object> provider = MediaType
             .matcher(produces)
@@ -350,7 +356,11 @@ public class ResponseImpl implements Response {
                 () -> new Route.Err(Response.Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces))
             );
 
-        ResponseImpl.this.send(provider.get());
+        Object result = provider.get();
+        if (result instanceof Exception) {
+          throw (Exception) result;
+        }
+        ResponseImpl.this.send(result);
       }
 
     };
@@ -361,12 +371,13 @@ public class ResponseImpl implements Response {
     requireNonNull(status, "A status is required.");
     requireNonNull(location, "A location is required.");
     status(status);
-    response.sendRedirect(location);
+
+    response.sendRedirect("back".equals(location) ? referer.orElse("/") : location);
   }
 
   @Override
-  public Response.Status status() {
-    return status;
+  public Optional<Response.Status> status() {
+    return Optional.ofNullable(status);
   }
 
   @Override

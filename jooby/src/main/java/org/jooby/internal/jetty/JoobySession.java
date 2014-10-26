@@ -3,6 +3,7 @@ package org.jooby.internal.jetty;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,25 +48,17 @@ public class JoobySession extends MemSession implements Session {
   public long expiryAt() {
     int maxInactiveInterval = getMaxInactiveInterval();
     if (maxInactiveInterval <= 0) {
-      return 0;
+      return -1;
     }
     return accessedAt() + TimeUnit.SECONDS.toMillis(maxInactiveInterval);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T get(final String name, final T defaults) {
+  public <T> Optional<T> get(final String name) {
     requireNonNull(name, "Attribute name is required.");
-    Object attr = getAttribute(name);
-    if (attr == null) {
-      return defaults;
-    }
-    return (T) attr;
-  }
-
-  @Override
-  public <T> T get(final String name) {
-    return get(name, null);
+    T attr = (T) getAttribute(name);
+    return Optional.ofNullable(attr);
   }
 
   @Override
@@ -82,10 +75,16 @@ public class JoobySession extends MemSession implements Session {
   }
 
   @Override
-  public Session unset(final String name) {
+  public <T> Optional<T> unset(final String name) {
     requireNonNull(name, "Attribute name is required.");
-    removeAttribute(name);
-    return this;
+    @SuppressWarnings("unchecked")
+    T value = (T) changeAttribute(name, null);
+    if (value != null) {
+      dirty = true;
+      return Optional.of(value);
+    } else {
+      return Optional.empty();
+    }
   }
 
   @Override
@@ -110,7 +109,7 @@ public class JoobySession extends MemSession implements Session {
     if (valid) {
       try {
         String sessionId = getClusterId();
-        if (!sessionId.equals(Cookie.Signature.unsign(sessionId, secret))) {
+        if (!Cookie.Signature.valid(sessionId, secret)) {
           Session.log.warn("cookie signature invalid: {}", sessionId);
           return false;
         }

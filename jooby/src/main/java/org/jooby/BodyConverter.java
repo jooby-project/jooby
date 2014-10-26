@@ -1,12 +1,10 @@
 package org.jooby;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 
 import com.google.common.annotations.Beta;
-import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -19,8 +17,6 @@ import com.google.inject.TypeLiteral;
 @Beta
 public interface BodyConverter {
 
-  Key<Set<BodyConverter>> KEY = Key.get( new TypeLiteral<Set<BodyConverter>>() {});
-
   /**
    * Produces the list of compatibles media types. At least one must be provided.
    *
@@ -30,7 +26,7 @@ public interface BodyConverter {
   List<MediaType> types();
 
   /**
-   * Test if the HTTP request body can be converted to the given type.
+   * Test if the HTTP request body or parameter can be converted to the given type.
    *
    * @param type The candidate Type.
    * @return True if the converter can read the HTTP request body.
@@ -49,7 +45,8 @@ public interface BodyConverter {
    * Attempt to read a message from HTTP request body.
    * <p>
    * For text format (json, yaml, xml, etc.) a converter usually call to
-   * {@link BodyReader#text(jooby.BodyReader.Text)} in order to set charset and close resources.
+   * {@link BodyReader#text(jooby.BodyReader.Text)} in order to apply correct charset and close
+   * resources.
    * </p>
    *
    * <p>
@@ -60,7 +57,7 @@ public interface BodyConverter {
    * @param type The type of message.
    * @param reader The reading context.
    * @return The body message.
-   * @throws Exception If body can't be read it.
+   * @throws Exception If read operation fail.
    */
   @Nonnull <T> T read(@Nonnull TypeLiteral<T> type, @Nonnull BodyReader reader) throws Exception;
 
@@ -79,7 +76,7 @@ public interface BodyConverter {
    *
    * @param body The body message.
    * @param writer The writing context.
-   * @throws Exception If the body can't be write it.
+   * @throws Exception If write operation fail.
    */
   void write(@Nonnull Object body, @Nonnull BodyWriter writer) throws Exception;
 

@@ -9,8 +9,9 @@ import javax.annotation.Nonnull;
 import com.google.common.annotations.Beta;
 
 /**
- * Utility class to properly reading a HTTP request body. It provides methods for reading text and
- * bytes efficiently. Clients shouldn't worry about closing the HTTP request body.
+ * Utility class to properly reading a HTTP request body or parameters. It provides methods for
+ * reading text and bytes efficiently.
+ * Clients shouldn't worry about closing the HTTP request body.
  *
  * @author edgar
  * @since 0.1.0
@@ -32,7 +33,7 @@ public interface BodyReader {
      * {@link InputStream}.
      *
      * @param in The HTTP request body.
-     * @return A body result usually converted to something else.
+     * @return A body result (usually) converted to something else.
      * @throws Exception When the operation fails.
      */
     Object read(InputStream in) throws Exception;
@@ -45,15 +46,17 @@ public interface BodyReader {
    * @since 0.1.0
    */
   interface Text {
+
     /**
      * Read text from the given {@link Reader}. The {@link Reader} will be close it automatically
      * after this call. Clients shouldn't worry about closing the {@link Reader}.
      *
-     * @param in The HTTP request body.
-     * @return A body result usually converted to something else.
+     * @param reader The HTTP request body.
+     * @return A body result (usually) converted to something else.
      * @throws Exception When the operation fails.
      */
     Object read(Reader reader) throws Exception;
+
   }
 
   /**

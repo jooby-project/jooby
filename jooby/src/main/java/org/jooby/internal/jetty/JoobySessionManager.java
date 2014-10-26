@@ -122,7 +122,7 @@ public class JoobySessionManager extends AbstractSessionManager {
       sessions.put(newClusterId, session);
 
       try {
-        store.save(session, SaveReason.RENEW_ID);
+        store.save(session, SaveReason.NEW);
       } catch (Exception ex) {
         Session.log.error("Can't save session: " + session.getId(), ex);
       }

@@ -9,7 +9,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.util.EntityUtils;
-import org.jooby.Session;
 import org.jooby.FilterFeature.HttpResponseValidator;
 import org.junit.Test;
 
@@ -21,7 +20,7 @@ public class SessionFeature extends ServerFeature {
       @Override
       public void save(final Session session, final SaveReason reason) {
         assertNotNull(session);
-        session.set("saves", session.get("saves", 0) + 1);
+        session.set("saves", ((int) session.get("saves").orElse(0)) + 1);
       }
 
       @Override
@@ -44,7 +43,7 @@ public class SessionFeature extends ServerFeature {
     });
 
     get("/session", (req, res) -> {
-      res.send(req.session().get("saves", 0));
+      res.send(req.session().get("saves").orElse(0));
     });
 
     get("/session/0", (req, res) -> {

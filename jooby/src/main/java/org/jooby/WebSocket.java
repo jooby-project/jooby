@@ -19,15 +19,86 @@ import com.google.common.base.Preconditions;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
+/**
+ * <h1>WebSockets</h1> Creating web sockets is pretty straightforward:
+ *
+ * <pre>
+ *  {
+ *    ws("/", (ws) -> {
+ *      // connected
+ *      ws.onMessage(message -> {
+ *        System.out.println(message.stringValue());
+ *        ws.send("Message Received");
+ *      });
+ *      ws.send("Connected");
+ *    });
+ *  }
+ * </pre>
+ *
+ * First thing you need to do is to register a new web socket in your App using the
+ * {@link Jooby#ws(String, Handler)} method.
+ * You can specify a path to listen for web socket connection. The path can be a static path or
+ * a path pattern (like routes).
+ *
+ * On new connections the {@link WebSocket.Handler#connect(WebSocket)} will be executed from there
+ * you can listen on {@link #onMessage(Callback)}, {@link #onClose(Callback)} or
+ * {@link #onError(Callback)} events.
+ *
+ * Inside a handler you can send text or binary message.
+ *
+ * <h2>Data types</h2> If your web socket is suppose to send/received a specific data type, like:
+ * <code>json</code> it is nice to define a consumes and produces types:
+ *
+ * <pre>
+ *   ws("/", (ws) -> {
+ *     ws.onMessage(message -> {
+ *       // read as json
+ *       MyObject object = message.to(MyObject.class);
+ *     });
+ *
+ *     MyObject object = new MyObject();
+ *     ws.send(object); // convert to text message using a json converter
+ *   })
+ *   .consumes(MediaType.json)
+ *   .produces(MediaType.json);
+ * </pre>
+ *
+ *
+ * @author edgar
+ * @since 0.1.0
+ */
 public interface WebSocket extends Closeable {
 
+  /**
+   * A web socket connect handler. Executed every time a new client connect to the socket.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
   interface Handler {
+    /**
+     * Inside a connect event, you can listen for {@link WebSocket#onMessage(Callback)},
+     * {@link WebSocket#onClose(Callback)} or {@link WebSocket#onError(Callback)} events.
+     *
+     * Also, you can send text and binary message.
+     *
+     * @param ws
+     * @throws Exception
+     */
     void connect(WebSocket ws) throws Exception;
   }
 
+  /**
+   * Hold a status code and optionally a reason message for {@link WebSocket#close()} operations.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
   class CloseStatus {
+    /** A status code. */
     private final int code;
 
+    /** A close reason. */
     private final String reason;
 
     /**
@@ -35,7 +106,7 @@ public interface WebSocket extends Closeable {
      *
      * @param code the status code
      */
-    public CloseStatus(final int code) {
+    private CloseStatus(final int code) {
       this(code, null);
     }
 
@@ -45,10 +116,32 @@ public interface WebSocket extends Closeable {
      * @param code the status code
      * @param reason the reason
      */
-    public CloseStatus(final int code, final String reason) {
+    private CloseStatus(final int code, final String reason) {
       Preconditions.checkArgument((code >= 1000 && code < 5000), "Invalid code: %s", code);
       this.code = code;
       this.reason = reason;
+    }
+
+    /**
+     * Creates a new {@link CloseStatus}.
+     *
+     * @param code A status code.
+     * @return A new close status.
+     */
+    public static CloseStatus of(final int code) {
+      return new CloseStatus(code);
+    }
+
+    /**
+     * Creates a new {@link CloseStatus}.
+     *
+     * @param code A status code.
+     * @param reason A close reason.
+     * @return A new close status.
+     */
+    public static CloseStatus of(final int code, @Nonnull final String reason) {
+      requireNonNull(reason, "A reason is required.");
+      return new CloseStatus(code);
     }
 
     /**
@@ -74,24 +167,57 @@ public interface WebSocket extends Closeable {
     }
   }
 
+  /**
+   * Web socket callback.
+   *
+   * @author edgar
+   * @since 0.1.0
+   * @param <T> Param type.
+   */
   interface Callback<T> extends Serializable {
-    void invoke(T data) throws Exception;
+
+    /**
+     * Invoked from a web socket.
+     *
+     * @param data A data argument.
+     * @throws Exception If something goes wrong.
+     */
+    void invoke(@Nonnull T data) throws Exception;
   }
 
+  /**
+   * Web socket callback.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
   interface Callback0 extends Serializable {
+
+    /**
+     * Invoked from a web socket.
+     *
+     * @throws Exception If something goes wrong.
+     */
     void invoke() throws Exception;
   }
 
+  /**
+   * Configure a web socket.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
   class Definition {
+    /** A websocket name. */
     private String name = "anonymous";
 
     /**
-     * A route pattern.
+     * A route compiled pattern.
      */
     private RoutePattern routePattern;
 
     /**
-     * Defines the media types that the methods of a resource class or can accept. Default is:
+     * Defines the media types that the methods of a resource class or can consumes. Default is:
      * {@literal *}/{@literal *}.
      */
     private MediaType consumes = MediaType.all;
@@ -102,17 +228,19 @@ public interface WebSocket extends Closeable {
      */
     private MediaType produces = MediaType.all;
 
+    /** A path pattern. */
     private String pattern;
 
+    /** A ws handler. */
     private Handler handler;
 
     /**
      * Creates a new {@link Definition}.
      *
-     * @param pattern
-     * @param filter
+     * @param pattern A path pattern.
+     * @param handler A ws handler.
      */
-    public Definition(final String pattern, final Handler handler) {
+    public Definition(final @Nonnull String pattern, final @Nonnull Handler handler) {
       requireNonNull(pattern, "A route path is required.");
       requireNonNull(handler, "A handler is required.");
 
@@ -122,11 +250,20 @@ public interface WebSocket extends Closeable {
       this.handler = handler;
     }
 
-    public String pattern() {
+    /**
+     * @return A route pattern.
+     */
+    public @Nonnull String pattern() {
       return pattern;
     }
 
-    public Optional<WebSocket> matches(final String path) {
+    /**
+     * Test if the given path matches this web socket.
+     *
+     * @param path A path pattern.
+     * @return A web socket or empty optional.
+     */
+    public @Nonnull Optional<WebSocket> matches(final @Nonnull String path) {
       RouteMatcher matcher = routePattern.matcher("WS" + path);
       if (matcher.matches()) {
         return Optional.of(asWebSocket(matcher));
@@ -134,11 +271,20 @@ public interface WebSocket extends Closeable {
       return Optional.empty();
     }
 
-    public String name() {
+    /**
+     * @return Web socket's name.
+     */
+    public @Nonnull String name() {
       return name;
     }
 
-    public Definition name(final String name) {
+    /**
+     * Set/overrie a web socket's name.
+     *
+     * @param name A ws name.
+     * @return This definition.
+     */
+    public @Nonnull Definition name(final @Nonnull String name) {
       this.name = requireNonNull(name, "A socket's name is required.");
       return this;
     }
@@ -149,7 +295,7 @@ public interface WebSocket extends Closeable {
      * @param type The media types to test for.
      * @return This route definition.
      */
-    public Definition consumes(final MediaType type) {
+    public @Nonnull Definition consumes(final @Nonnull MediaType type) {
       this.consumes = requireNonNull(type, "A type is required.");
       return this;
     }
@@ -160,7 +306,7 @@ public interface WebSocket extends Closeable {
      * @param produces The media types to test for.
      * @return This route definition.
      */
-    public Definition produces(final MediaType type) {
+    public @Nonnull Definition produces(final @Nonnull MediaType type) {
       this.produces = requireNonNull(type, "A type is required.");
       return this;
     }
@@ -168,14 +314,14 @@ public interface WebSocket extends Closeable {
     /**
      * @return All the types this route can consumes.
      */
-    public MediaType consumes() {
+    public @Nonnull MediaType consumes() {
       return this.consumes;
     }
 
     /**
      * @return All the types this route can produces.
      */
-    public MediaType produces() {
+    public @Nonnull MediaType produces() {
       return this.produces;
     }
 
@@ -189,6 +335,12 @@ public interface WebSocket extends Closeable {
       return buffer.toString();
     }
 
+    /**
+     * Creates a new web socket.
+     *
+     * @param matcher A route matcher.
+     * @return A new web socket.
+     */
     private WebSocket asWebSocket(final RouteMatcher matcher) {
       return new WebSocketImpl(handler, matcher.path(), pattern, name, matcher.vars(),
           consumes, produces);
@@ -197,6 +349,15 @@ public interface WebSocket extends Closeable {
 
   /** The logging system. */
   Logger log = LoggerFactory.getLogger(WebSocket.class);
+
+  /** Default success callback. */
+  Callback0 SUCCESS = () -> {
+  };
+
+  /** Default err callback. */
+  Callback<Exception> ERR = (ex) -> {
+    log.error("Error while sending data", ex);
+  };
 
   /**
    * "1000 indicates a normal closure, meaning that the purpose for which the connection
@@ -273,70 +434,188 @@ public interface WebSocket extends Closeable {
    */
   CloseStatus SERVICE_OVERLOAD = new CloseStatus(1013, "Service overload");
 
+  /**
+   * @return Current request path.
+   */
+  @Nonnull
   String path();
 
+  /**
+   * @return The currently matched pattern.
+   */
+  @Nonnull
   String pattern();
 
+  /**
+   * @return Route name, defaults to <code>"anonymous"</code>
+   */
+  @Nonnull
   String name();
 
+  /**
+   * @return The currently matched path variables (if any).
+   */
+  @Nonnull
   Map<String, String> vars();
 
+  /**
+   * @return The type this route can consumes, defaults is: {@code * / *}.
+   */
+  @Nonnull
   MediaType consumes();
 
+  /**
+   * @return The type this route can produces, defaults is: {@code * / *}.
+   */
+  @Nonnull
   MediaType produces();
 
-  <T> void onMessage(Callback<Variant> callback) throws Exception;
+  /**
+   * Register a callback to execute when a new message arrive.
+   *
+   * @param callback A callback
+   * @throws Exception If something goes wrong.
+   */
+  void onMessage(@Nonnull Callback<Variant> callback) throws Exception;
 
-  <T> void onError(Callback<Exception> callback) throws Exception;
+  /**
+   * Register an error callback to execute when an error is found.
+   *
+   * @param callback A callback
+   * @throws Exception If something goes wrong.
+   */
+  void onError(@Nonnull Callback<Exception> callback) throws Exception;
 
-  <T> void onClose(Callback<CloseStatus> callback) throws Exception;
+  /**
+   * Register an close callback to execute when client close the web socket.
+   *
+   * @param callback A callback
+   * @throws Exception If something goes wrong.
+   */
+  void onClose(@Nonnull Callback<CloseStatus> callback) throws Exception;
 
-  default void close(final int code, final String reason) {
-    close(new CloseStatus(code, reason));
+  /**
+   * Gracefully closes the connection, after sending a description message
+   *
+   * @param code Close status code.
+   * @param reason Close reason.
+   */
+  default void close(final int code, final @Nonnull String reason) {
+    close(CloseStatus.of(code, reason));
   }
 
+  /**
+   * Gracefully closes the connection, after sending a description message
+   *
+   * @param code Close status code.
+   */
+  default void close(final int code) {
+    close(CloseStatus.of(code));
+  }
+
+  /**
+   * Gracefully closes the connection, after sending a description message
+   */
   @Override
   default void close() {
     close(NORMAL);
   }
 
-  void close(CloseStatus status);
+  /**
+   * Gracefully closes the connection, after sending a description message
+   *
+   * @param status Close status code.
+   */
+  void close(@Nonnull CloseStatus status);
 
+  /**
+   * Resume the client stream.
+   */
   void resume();
 
+  /**
+   * Pause the client stream.
+   */
   void pause();
 
+  /**
+   * Immediately shuts down the connection.
+   *
+   * @throws Exception If something goes wrong.
+   */
   void terminate() throws Exception;
 
-  default void send(final Object data) throws Exception {
-    send(data, () -> {
-    }, (ex) -> {
-      log.error("Error while sending data", ex);
-    });
+  /**
+   * Send data through the connection.
+   *
+   * @param data Data to send.
+   * @throws Exception If something goes wrong.
+   */
+  default void send(final @Nonnull Object data) throws Exception {
+    send(data, SUCCESS, ERR);
   }
 
-  default void send(final Object data, final Callback0 success) throws Exception {
-    send(data, success, (ex) -> {
-      log.error("Error while sending data", ex);
-    });
+  /**
+   * Send data through the connection.
+   *
+   * @param data Data to send.
+   * @param success A success callback.
+   * @throws Exception If something goes wrong.
+   */
+  default void send(final @Nonnull Object data, final @Nonnull Callback0 success) throws Exception {
+    send(data, success, ERR);
   }
 
-  default void send(final Object data, final Callback<Exception> err) throws Exception {
+  /**
+   * Send data through the connection.
+   *
+   * @param data Data to send.
+   * @param err An err callback.
+   * @throws Exception If something goes wrong.
+   */
+  default void send(final @Nonnull Object data, final @Nonnull Callback<Exception> err)
+      throws Exception {
     send(data, () -> {
     }, err);
   }
 
-  void send(Object data, Callback0 success, Callback<Exception> err) throws Exception;
+  /**
+   * Send data through the connection.
+   *
+   * @param data Data to send.
+   * @param success A success callback.
+   * @param err An err callback.
+   * @throws Exception If something goes wrong.
+   */
+  void send(@Nonnull Object data, @Nonnull Callback0 success, @Nonnull Callback<Exception> err)
+      throws Exception;
 
-  default <T> T getInstance(@Nonnull final Class<T> type) {
+  /**
+   * Creates a new instance (if need it) and inject required dependencies.
+   *
+   * @param type A body type.
+   * @return A ready to use object.
+   */
+  default @Nonnull <T> T getInstance(@Nonnull final Class<T> type) {
     return getInstance(Key.get(type));
   }
 
-  @Nonnull
-  default <T> T getInstance(@Nonnull final TypeLiteral<T> type) {
+  /**
+   * Creates a new instance (if need it) and inject required dependencies.
+   *
+   * @param type A body type.
+   * @return A ready to use object.
+   */
+  default @Nonnull <T> T getInstance(@Nonnull final TypeLiteral<T> type) {
     return getInstance(Key.get(type));
   }
 
+  /**
+   * Creates a new instance (if need it) and inject required dependencies.
+   *
+   * @param type A body type.
+   * @return A ready to use object.
+   */
   @Nonnull
   <T> T getInstance(@Nonnull Key<T> key);
 

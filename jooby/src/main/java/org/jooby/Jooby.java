@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
+import org.jooby.Response.Status;
 import org.jooby.Route.Err;
 import org.jooby.internal.AssetRoute;
 import org.jooby.internal.FallbackBodyConverter;
@@ -50,29 +51,19 @@ import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
 
 /**
- * This is the main entry point for creating a new Jooby application. A Jooby application consist of
- * Modules, Routes and Services.
- *
- * <h1>It is Guice!</h1>
+ * <h1>Getting Started:</h1>
  * <p>
- * Jooby strongly depends on Guice for defining Modules, Routes and Services.
- * </p>
- *
- * <h1>Starting a new application:</h1>
- * <p>
- * A new application must extends Jooby, choose a server implementation, register one ore more
- * {@link BodyConverter} and defines some {@link Router routes}. It sounds like a lot of work to do,
- * but it isn't.
+ * A new application must extends Jooby, register one ore more {@link BodyConverter} and defines
+ * some {@link Route routes}. It sounds like a lot of work to do, but it isn't.
  * </p>
  *
  * <pre>
  * public class MyApp extends Jooby {
  *
  *   {
- *      use(new Jetty());   // 1. server implementation.
- *      use(new Jackson()); // 2. JSON body converter through Jackson.
+ *      use(new Jackson()); // 1. JSON body converter through Jackson.
  *
- *      // 3. Define a route
+ *      // 2. Define a route
  *      get("/", (req, res) -> {
  *        Map<String, Object> model = ...;
  *        res.send(model);
@@ -80,47 +71,62 @@ import com.typesafe.config.ConfigValueFactory;
  *   }
  *
  *  public static void main(String[] args) throws Exception {
- *    new MyApp().start(); // 4. Start it up!
+ *    new MyApp().start(); // 3. Done!
  *  }
  * }
  * </pre>
  *
- * <h1>/application.conf</h1>
+ * <h1>Properties files</h1>
  * <p>
- * Jooby delegate configuration management to <a
- * href="https://github.com/typesafehub/config">TypeSafe Config</a>. If you are unfamiliar with <a
- * href="https://github.com/typesafehub/config">TypeSafe Config</a> please takes a few minutes to
- * discover what <a href="https://github.com/typesafehub/config">TypeSafe Config</a> can do for you.
+ * Jooby delegate configuration management to
+ * <a href="https://github.com/typesafehub/config">TypeSafe Config</a>. If you are unfamiliar with
+ * <a href="https://github.com/typesafehub/config">TypeSafe Config</a> please take a few minutes
+ * to discover what <a href="https://github.com/typesafehub/config">TypeSafe Config</a> can do for
+ * you.
  * </p>
  *
  * <p>
- * By default Jooby looks for an <code>application.conf</code> file at the root of the classpath. If
- * you want to specify a different file or location, you can do it with {@link #use(Config)}.
+ * By default Jooby looks for an <code>application.conf</code> file at the root of the classpath.
+ * If you want to specify a different file or location, you can do it with {@link #use(Config)}.
  * </p>
  *
  * <p>
- * As you already noticed, <a href="https://github.com/typesafehub/config">TypeSafe Config</a> uses
- * a hierarchical model to define and override properties.
+ * <a href="https://github.com/typesafehub/config">TypeSafe Config</a> uses a hierarchical model to
+ * define and override properties.
  * </p>
  * <p>
- * Each module can also define his own set of properties through {@link JoobyModule#config()}. They
- * will be loaded in the same order the module was registered.
+ * A {@link Jooby.Module} might provides his own set of properties through the
+ * {@link Jooby.Module#config()} method. By default, this method returns an empty config object.
+ * </p>
+ * For example:
+ * <pre>
+ *   use(new M1());
+ *   use(new M2());
+ *   use(new M3());
+ * </pre>
+ * Previous example had the following order (first-listed are higher priority):
+ * <ul>
+ *  <li>System properties</li>
+ *  <li>application.conf</li>
+ *  <li>M3 properties</li>
+ *  <li>M2 properties</li>
+ *  <li>M1 properties</li>
+ * </ul>
+ * <p>
+ * System properties takes precedence over any application specific property.
  * </p>
  *
- * <p>
- * In Jooby, system properties takes precedence over any application specific property.
- * </p>
  * <h1>Mode</h1>
  * <p>
  * Jooby defines two modes: <strong>dev</strong> or something else. In Jooby, <strong>dev</strong>
- * is special and some modules applies some special settings while running in <strong>dev</strong>.
- * A none <strong>dev</strong> mode is usually considered a <code>prod</code> like mode. But that
- * depends on module implementor.
+ * is special and some modules could apply special settings while running in <strong>dev</strong>.
+ * Any other mode is usually considered a <code>prod</code> like mode. But that depends on module
+ * implementor.
  * </p>
  * <p>
  * A mode can be defined in your <code>application.conf</code> file using the
  * <code>application.mode</code> property. If missing, Jooby set the mode for you to
- * <strong>dev</strong>
+ * <strong>dev</strong>.
  * </p>
  * <p>
  * There is more at {@link Mode} so take a few minutes to discover what a {@link Mode} can do for
@@ -129,21 +135,21 @@ import com.typesafe.config.ConfigValueFactory;
  *
  * <h1>Modules</h1>
  * <p>
- * A module defined by {@link JoobyModule}. It is a super powered Guice module where the configure
+ * {@link Jooby.Module Modules} are quite similar to a Guice modules except that the configure
  * callback has been complementing with {@link Mode} and {@link Config}.
  * </p>
  *
  * <pre>
- *   public class MyModule implements Module {
+ *   public class MyModule implements Jooby.Module {
  *     public void configure(Mode mode, Config config, Binder binder) {
  *     }
  *   }
  * </pre>
  *
- * From the configure callback you can bind your services as you usually do in a Guice Application.
+ * From the configure callback you can bind your services as you usually do in a Guice app.
  * <p>
- * There is more at {@link JoobyModule} so take a few minutes to discover what a {@link JoobyModule}
- * can do for you.
+ * There is more at {@link Jooby.Module} so take a few minutes to discover what a
+ * {@link Jooby.Module} can do for you.
  * </p>
  *
  * <h1>Path Patterns</h1>
@@ -159,9 +165,12 @@ import com.typesafe.config.ConfigValueFactory;
  * <li>{@code com/*.html} - matches all {@code .html} files in the {@code com} directory</li>
  * <li><code>com/{@literal **}/test.html</code> - matches all {@code test.html} files underneath the
  * {@code com} path</li>
+ * <li>{@code **}/{@code *} - matches any path at any level.</li>
+ * <li>{@code *} - matches any path at any level, shorthand for {@code {@literal **}/{@literal *}.
+ * </li>
  * </ul>
  *
- * <h1>Variable Path Patterns</h1>
+ * <h2>Variables</h2>
  * <p>
  * Jooby supports path parameters too:
  * </p>
@@ -177,8 +186,45 @@ import com.typesafe.config.ConfigValueFactory;
  *
  * <h1>Routes</h1>
  * <p>
- * Routes are the heart of Jooby! Given an incoming request, Jooby will execute the first route that
- * matches the incoming request path. So, ORDER matters!
+ * Routes perform actions in response to a server HTTP request. There are two types of routes
+ * callback: {@link Router} and {@link Filter}.
+ * </p>
+ * <p>
+ * Routes are executed in the order they are defined, for example:
+ *
+ * <pre>
+ *   get("/", (req, res) -> {
+ *     log.info("first"); // start here and go to second
+ *   });
+ *
+ *   get("/", (req, res) -> {
+ *     log.info("second"); // execute after first and go to final
+ *   });
+ *
+ *   get("/", (req, res) -> {
+ *     res.send("final"); // done!
+ *   });
+ * </pre>
+ *
+ * Please note first and second routes are converted to a filter, so previous example is the same
+ * as:
+ *
+ * <pre>
+ *   get("/", (req, res, chain) -> {
+ *     log.info("first"); // start here and go to second
+ *     chain.next(req, res);
+ *   });
+ *
+ *   get("/", (req, res, chain) -> {
+ *     log.info("second"); // execute after first and go to final
+ *     chain.next(req, res);
+ *   });
+ *
+ *   get("/", (req, res) -> {
+ *     res.send("final"); // done!
+ *   });
+ * </pre>
+ *
  * </p>
  *
  * <h2>Inline route</h2>
@@ -192,15 +238,15 @@ import com.typesafe.config.ConfigValueFactory;
  *   });
  * </pre>
  *
- * Due to the use of lambdas a route is a singleton and you should NOT use shared or global
- * variables. For example this is a bad practice:
+ * Due to the use of lambdas a route is a singleton and you should NOT use global variables.
+ * For example this is a bad practice:
  *
  * <pre>
  *  List<String> names = new ArrayList<>(); // names produces side effects
- *  get("/", (request, response) -> {
- *     names.add(request.param("name"));
+ *  get("/", (req, res) -> {
+ *     names.add(req.param("name").stringValue();
  *     // response will be different between calls.
- *     response.send(names);
+ *     res.send(names);
  *   });
  * </pre>
  *
@@ -210,13 +256,13 @@ import com.typesafe.config.ConfigValueFactory;
  * </p>
  *
  * <pre>
- *   get("/", ExternalRoute.class);
+ *   get("/", route(ExternalRoute.class)); //or
  *
  *   ...
  *   // ExternalRoute.java
- *   public class ExternalRoute implements Route {
- *     public void handle(Request request, Response response) throws Exception {
- *       response.send("Hello Jooby");
+ *   public class ExternalRoute implements Router {
+ *     public void handle(Request req, Response res) throws Exception {
+ *       res.send("Hello Jooby");
  *     }
  *   }
  * </pre>
@@ -245,20 +291,21 @@ import com.typesafe.config.ConfigValueFactory;
  * </p>
  *
  * <p>
- * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path}, {@link org.jooby.mvc.Produces}
- * {@link org.jooby.mvc.Consumes}, {@link org.jooby.mvc.Body} and {@link org.jooby.mvc.Template}.
+ * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
+ * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}, {@link org.jooby.mvc.Body} and
+ * {@link org.jooby.mvc.Template}.
  * </p>
  *
- * <h1>Assets</h1>
+ * <h1>Static Files</h1>
  * <p>
- * An asset is also known as static files, like: *.js, *.css, ..., etc...:
+ * Static files, like: *.js, *.css, ..., etc... can be served with:
  * </p>
  *
  * <pre>
  *   assets("assets/**");
  * </pre>
  * <p>
- * Here any classpath resource under the <code>/assets</code> folder will be serve it to the client.
+ * Classpath resources under the <code>/assets</code> folder will be accessible from client/browser.
  * </p>
  * <h1>Bootstrap</h1>
  * <p>
@@ -268,39 +315,36 @@ import com.typesafe.config.ConfigValueFactory;
  * <ol>
  * <li>System properties</li>
  * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
- * <li>Configuration properties from each of the registered {@link JoobyModule modules}</li>
+ * <li>Configuration properties from {@link Jooby.Module modules}</li>
  * </ol>
  *
- * <h2>2. Dependency Injection and {@link JoobyModule modules}</h2>
+ * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
  * <ol>
  * <li>An {@link Injector Guice Injector} is created.</li>
- * <li>It configures each of the registered {@link JoobyModule modules}</li>
+ * <li>It configures each registered {@link Jooby.Module module}</li>
  * <li>At this point Guice is ready and all the services has been binded.</li>
- * <li>For each registered {@link JoobyModule module} the {@link JoobyModule#start() start method}
- * will be invoked</li>
- * <li>Finally, Jooby ask Guice for a {@link Server web server} and then call to
- * {@link Server#start()} method</li>
+ * <li>The {@link JoobyModule#start() start method} is invoked.</li>
+ * <li>Finally, Jooby starts the web server</li>
  * </ol>
  *
  * @author edgar
  * @since 0.1.0
- * @see JoobyModule
+ * @see Jooby.Module
  * @see Request
  * @see Response
  * @see BodyConverter
  * @see Router
- * @see RouteInterceptor
- * @see RequestModule
+ * @see Filter
  */
 @Beta
 public class Jooby {
 
   /**
-   * A module can publish or produces: {@link Router routes}, {@link BodyConverter converters},
-   * {@link Request.Module request modules} and any other
+   * A module can publish or produces: {@link Route.Definition routes},
+   * {@link BodyConverter converters}, {@link Request.Module request modules} and any other
    * application specific service or contract of your choice.
    * <p>
-   * It is similar to {@link com.google.inject.Module} except for the callback method that receive a
+   * It is similar to {@link com.google.inject.Module} except for the callback method receives a
    * {@link Mode}, {@link Config} and {@link Binder}.
    * </p>
    *
@@ -308,6 +352,20 @@ public class Jooby {
    * A module can provide his own set of properties through the {@link #config()} method. By
    * default, this method returns an empty config object.
    * </p>
+   * For example:
+   * <pre>
+   *   use(new M1());
+   *   use(new M2());
+   *   use(new M3());
+   * </pre>
+   * Previous example had the following order (first-listed are higher priority):
+   * <ul>
+   *  <li>System properties</li>
+   *  <li>application.conf</li>
+   *  <li>M3 properties</li>
+   *  <li>M2 properties</li>
+   *  <li>M1 properties</li>
+   * </ul>
    *
    * <p>
    * A module can provide start/stop methods in order to start or close resources.
@@ -359,8 +417,7 @@ public class Jooby {
      * @throws Exception If the module fails during configuration.
      */
     public abstract void configure(@Nonnull Mode mode, @Nonnull Config config,
-        @Nonnull Binder binder)
-        throws Exception;
+        @Nonnull Binder binder) throws Exception;
   }
 
   /**
@@ -394,40 +451,84 @@ public class Jooby {
   /** Keep the global injector instance. */
   private Injector injector;
 
+  /** Error handler. */
   private Err.Handler err;
 
+  /** Body converters. */
   private List<BodyConverter> converters = new LinkedList<>();
 
+  /** Session store. */
   private Session.Definition session = new Session.Definition(Session.Store.NOOP);
 
   {
     use(new Jetty());
   }
 
-  public Session.Definition use(final Session.Store sessionStore) {
+  /**
+   * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns.
+   * Sessions are not persisted by defaults.
+   *
+   * @param sessionStore A session store.
+   * @return A session store definition.
+   */
+  public @Nonnull Session.Definition use(@Nonnull final Session.Store sessionStore) {
     this.session = new Session.Definition(requireNonNull(sessionStore,
         "A session store is required."));
     return this.session;
   }
 
-  public Jooby use(final BodyConverter converter) {
+  /**
+   * Append a body converter to read/write HTTP messages.
+   *
+   * @param converter A body converter.
+   * @return This jooby instance.
+   */
+  public @Nonnull Jooby use(@Nonnull final BodyConverter converter) {
     this.converters.add(requireNonNull(converter, "A body converter is required."));
     return this;
   }
 
-  public Route.Definition use(final Filter filter) {
+  /**
+   * Append a new filter that matches any method and path. This method is a shorthand for
+   * {@link #use(String, Filter)}.
+   *
+   * @param filter A filter.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition use(@Nonnull final Filter filter) {
     return use("*", filter);
   }
 
-  public Route.Definition use(final Router router) {
+  /**
+   * Append a new router that matches any method and path. This method is a shorthand for
+   * {@link #use(String, Router)}.
+   *
+   * @param router A router.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition use(@Nonnull final Router router) {
     return use("*", router);
   }
 
-  public Route.Definition use(final String path, final Filter filter) {
+  /**
+   * Append a new filter that matches any method under the given path.
+   *
+   * @param path A path pattern.
+   * @param filter A filter.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition use(final @Nonnull String path, final @Nonnull Filter filter) {
     return route(new Route.Definition("*", path, filter));
   }
 
-  public Route.Definition use(final String path, final Router router) {
+  /**
+   * Append a new router that matches any method under the given path.
+   *
+   * @param path A path pattern.
+   * @param router A router.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition use(final @Nonnull String path, final @Nonnull Router router) {
     return route(new Route.Definition("*", path, router));
   }
 
@@ -435,71 +536,192 @@ public class Jooby {
    * Define an in-line route that supports HTTP GET method:
    *
    * <pre>
-   *   get("/", (request, response) -> {
-   *     response.send(something);
+   *   get("/", (req, res) -> {
+   *     res.send(something);
    *   });
    * </pre>
    *
    * This is a singleton route so make sure you don't share or use global variables.
    *
-   * @param path A route path. Required.
-   * @param route A route to execute. Required.
+   * @param path A path pattern.
+   * @param route A route to execute.
    * @return A new route definition.
    */
-  public Route.Definition get(final String path, final Router route) {
+  public @Nonnull Route.Definition get(final @Nonnull String path, final @Nonnull Router route) {
     return route(new Route.Definition("GET", path, route));
   }
 
-  public Route.Definition get(final String path, final Filter filter) {
+  /**
+   * Append a new in-line filter that supports HTTP GET method:
+   *
+   * <pre>
+   *   get("/", (req, res, chain) -> {
+   *     chain.next(req, res);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param filter A route to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition get(final @Nonnull String path, final @Nonnull Filter filter) {
     return route(new Route.Definition("GET", path, filter));
   }
 
   /**
-   * Define an in-line route that supports HTTP POST method:
+   * Append a new in-line route that supports HTTP POST method:
    *
    * <pre>
-   *   post("/", (request, response) -> {
-   *     response.send(something);
+   *   post("/", (req, res) -> {
+   *     res.send(something);
    *   });
    * </pre>
    *
    * This is a singleton route so make sure you don't share or use global variables.
    *
-   * @param path A route path. Required.
-   * @param route A route to execute. Required.
+   * @param path A path pattern.
+   * @param route A route to execute.
    * @return A new route definition.
    */
-  public Route.Definition post(final String path, final Router route) {
+  public @Nonnull Route.Definition post(final @Nonnull String path, final @Nonnull Router route) {
     return route(new Route.Definition("POST", path, route));
   }
 
-  public Route.Definition post(final String path, final Filter filter) {
+  /**
+   * Append a new in-line route that supports HTTP POST method:
+   *
+   * <pre>
+   *   post("/", (req, res, chain) -> {
+   *     chain.next(req, res);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param filter A filter to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition post(final @Nonnull String path, final @Nonnull Filter filter) {
     return route(new Route.Definition("POST", path, filter));
   }
 
-  public Route.Definition head(final String path, final Router route) {
+  /**
+   * Append a new in-line route that supports HTTP HEAD method:
+   *
+   * <pre>
+   *   post("/", (req, res) -> {
+   *     res.send(something);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param route A route to execute.
+   * @return A new route definition.
+   */
+  public Route.Definition head(final @Nonnull String path, final @Nonnull Router route) {
     return route(new Route.Definition("HEAD", path, route));
   }
 
-  public Route.Definition head(final String path, final Filter filter) {
+  /**
+   * Append a new in-line route that supports HTTP HEAD method:
+   *
+   * <pre>
+   *   post("/", (req, res, chain) -> {
+   *     chain.next(req, res);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param filter A filter to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition head(final @Nonnull String path, final @Nonnull Filter filter) {
     return route(new Route.Definition("HEAD", path, filter));
   }
 
-  public Route.Definition head(final String path) {
-    return route(new Route.Definition("HEAD", path, wrapFilter(HeadFilter.class))
-        .name("*.head"));
+  /**
+   * Append a new route that automatically handles HEAD request from existing GET routes.
+   *
+   * <pre>
+   *   get("/", (req, res) -> {
+   *     res.send(something); // This route provides default HEAD for this GET route.
+   *   });
+   * </pre>
+   *
+   * @param path A path pattern.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition head(final @Nonnull String path) {
+    return route(new Route.Definition("HEAD", path, filter(HeadFilter.class)).name("*.head"));
   }
 
-  public Route.Definition options(final String path, final Router route) {
+  /**
+   * Append a new in-line route that supports HTTP OPTIONS method:
+   *
+   * <pre>
+   *   options("/", (req, res) -> {
+   *     res.header("Allow", "GET, POST");
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param route A route to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition options(final @Nonnull String path,
+      final @Nonnull Router route) {
     return route(new Route.Definition("OPTIONS", path, route));
   }
 
-  public Route.Definition options(final String path, final Filter filter) {
+  /**
+   * Append a new in-line route that supports HTTP OPTIONS method:
+   *
+   * <pre>
+   *   options("/", (req, res, chain) -> {
+   *     res.header("Allow", "GET, POST");
+   *     chain.next(req, res);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param filter A route to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition options(final @Nonnull String path,
+      final @Nonnull Filter filter) {
     return route(new Route.Definition("OPTIONS", path, filter));
   }
 
-  public Route.Definition options(final String path) {
-    return route(new Route.Definition("OPTIONS", path, wrapRouter(OptionsRouter.class))
+  /**
+   * Append a new route that automatically handles OPTIONS requests.
+   *
+   * <pre>
+   *   get("/", (req, res) -> {
+   *     res.send(something);
+   *   });
+   *
+   *   post("/", (req, res) -> {
+   *     res.send(something);
+   *   });
+   * </pre>
+   * OPTINOS / produces a response with a Allow header set to: GET, POST.
+   *
+   * @param path A path pattern.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition options(final @Nonnull String path) {
+    return route(new Route.Definition("OPTIONS", path, router(OptionsRouter.class))
         .name("*.options"));
   }
 
@@ -507,107 +729,276 @@ public class Jooby {
    * Define an in-line route that supports HTTP PUT method:
    *
    * <pre>
-   *   put("/", (request, response) -> {
-   *     response.send(something);
+   *   put("/", (req, res) -> {
+   *     res.send(something);
    *   });
    * </pre>
    *
    * This is a singleton route so make sure you don't share or use global variables.
    *
-   * @param path A route path. Required.
-   * @param route A route to execute. Required.
+   * @param path A path pattern.
+   * @param route A route to execute.
    * @return A new route definition.
    */
-  public Route.Definition put(final String path, final Router route) {
+  public @Nonnull Route.Definition put(final @Nonnull String path, final @Nonnull Router route) {
     return route(new Route.Definition("PUT", path, route));
   }
 
-  public Route.Definition put(final String path, final Filter filter) {
+  /**
+   * Define an in-line route that supports HTTP PUT method:
+   *
+   * <pre>
+   *   put("/", (req, res, chain) -> {
+   *     chain.next(req, res);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param filer A route to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition put(final @Nonnull String path, final @Nonnull Filter filter) {
     return route(new Route.Definition("PUT", path, filter));
   }
 
   /**
-   * Define an in-line route that supports HTTP DELETE method:
+   * Append a new in-line route that supports HTTP DELETE method:
    *
    * <pre>
-   *   delete("/", (request, response) -> {
-   *     response.send(something);
+   *   delete("/", (req, res) -> {
+   *     res.status(304);
    *   });
    * </pre>
    *
    * This is a singleton route so make sure you don't share or use global variables.
    *
-   * @param path A route path. Required.
-   * @param router A route to execute. Required.
+   * @param path A path pattern.
+   * @param router A route to execute.
    * @return A new route definition.
    */
-  public Route.Definition delete(final String path, final Router router) {
+  public @Nonnull Route.Definition delete(final @Nonnull String path,
+      final @Nonnull Router router) {
     return route(new Route.Definition("DELETE", path, router));
   }
 
-  public Route.Definition delete(final String path, final Filter filter) {
+  /**
+   * Append a new in-line route that supports HTTP DELETE method:
+   *
+   * <pre>
+   *   delete("/", (req, res, chain) -> {
+   *     res.status(304);
+   *     chain.next(req, res);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param router A route to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition delete(final @Nonnull String path,
+      final @Nonnull Filter filter) {
     return route(new Route.Definition("DELETE", path, filter));
   }
 
-  public Route.Definition trace(final String path, final Router route) {
+  /**
+   * Append a new in-line route that supports HTTP TRACE method:
+   *
+   * <pre>
+   *   trace("/", (req, res) -> {
+   *     res.send(...);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param router A route to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition trace(final @Nonnull String path, final @Nonnull Router route) {
     return route(new Route.Definition("TRACE", path, route));
   }
 
-  public Route.Definition trace(final String path, final Filter filter) {
+  /**
+   * Append a new in-line route that supports HTTP TRACE method:
+   *
+   * <pre>
+   *   trace("/", (req, res, chain) -> {
+   *     chain.next(req, res);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param filter A filter to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition trace(final @Nonnull String path,
+      final @Nonnull Filter filter) {
     return route(new Route.Definition("TRACE", path, filter));
   }
 
-  public Route.Definition trace(final String path) {
-    return route(new Route.Definition("TRACE", path, wrapRouter(TraceRouter.class))
+  /**
+   * Append a default trace implementation under the given path. Default trace response, looks
+   * like:
+   * <pre>
+   *  TRACE /path
+   *     header1: value
+   *     header2: value
+   *
+   * </pre>
+   *
+   * @param path A path pattern.
+   * @return
+   */
+  public @Nonnull Route.Definition trace(final @Nonnull String path) {
+    return route(new Route.Definition("TRACE", path, router(TraceRouter.class))
         .name("*.trace"));
   }
 
-  public Route.Definition connect(final String path, final Router route) {
-    return route(new Route.Definition("CONNECT", path, route));
+  /**
+   * Append a new in-line route that supports HTTP CONNECT method:
+   *
+   * <pre>
+   *   connect("/", (req, res, chain) -> {
+   *     chain.next(req, res);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param router A router to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition connect(final @Nonnull String path,
+      @Nonnull final Router router) {
+    return route(new Route.Definition("CONNECT", path, router));
   }
 
-  public Route.Definition connect(final String path, final Filter filter) {
+  /**
+   * Append a new in-line route that supports HTTP CONNECT method:
+   *
+   * <pre>
+   *   connect("/", (req, res, chain) -> {
+   *     chain.next(req, res);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param filter A filter to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition connect(final @Nonnull String path,
+      final @Nonnull Filter filter) {
     return route(new Route.Definition("CONNECT", path, filter));
   }
 
   /**
-   * Convert an external route to an inline route.
+   * Creates a new {@link Router} that delegate the execution to the given router. This is useful
+   * when the target router required some services and you want to instantiated with Guice.
    *
-   * @param router The external route class.
+   * <pre>
+   *   public class MyRouter implements Router {
+   *     @Inject
+   *     public MyRouter(Dependency d) {
+   *     }
+   *
+   *     public void handle(Request req, Response res) throws Exception {
+   *      // do something
+   *     }
+   *   }
+   *   ...
+   *   // external route
+   *   get("/", router(MyRouter.class));
+   *
+   *   // inline version route
+   *   get("/", (req, res) -> {
+   *     Dependency d = req.getInstance(Dependency.class);
+   *     // do something
+   *   });
+   * </pre>
+   *
+   * You can access to a dependency from a in-line route too, so the use of external route it is
+   * more or less a matter of taste.
+   *
+   * @param router The external router class.
    * @return A new inline route.
    */
-  private static Router wrapRouter(final Class<? extends Router> router) {
+  public @Nonnull Router router(final @Nonnull Class<? extends Router> router) {
+    requireNonNull(router, "A router type is required.");
+    registerRouteScope(router);
     return (req, resp) -> req.getInstance(router).handle(req, resp);
   }
 
-  private static Filter wrapFilter(final Class<? extends Filter> filter) {
+  /**
+   * Creates a new {@link Filter} that delegate the execution to the given filter. This is useful
+   * when the target filter required some services and you want to instantiated with Guice.
+   *
+   * <pre>
+   *   public class MyFilter implements Filter {
+   *     @Inject
+   *     public MyFilter(Dependency d) {
+   *     }
+   *
+   *     public void handle(Request req, Response res, Route.Chain chain) throws Exception {
+   *      // do something
+   *     }
+   *   }
+   *   ...
+   *   // external filter
+   *   get("/", router(MyFilter.class));
+   *
+   *   // inline version route
+   *   get("/", (req, res, chain) -> {
+   *     Dependency d = req.getInstance(Dependency.class);
+   *     // do something
+   *   });
+   * </pre>
+   *
+   * You can access to a dependency from a in-line route too, so the use of external filter it is
+   * more or less a matter of taste.
+   *
+   * @param router The external router class.
+   * @return A new inline route.
+   */
+  public @Nonnull Filter filter(final @Nonnull Class<? extends Filter> filter) {
+    requireNonNull(filter, "A filter type is required.");
+    registerRouteScope(filter);
     return (req, res, chain) -> req.getInstance(filter).handle(req, res, chain);
   }
 
   /**
-   * Publish static files to the client. This method is useful for serving javascript, css and any
-   * other static file.
+   * Serve or publish static files to browser.
    *
    * <pre>
    *   assets("/assets/**");
    * </pre>
    *
-   * It publish the content of <code>/assets/**</code> classpath folder.
+   * Resources are served from root of classpath, for example <code>GET /assets/file.js</code>
+   * will be resolve as classpath resource at the same location.
    *
-   * @param path The path to publish. Required.
+   * @param path The path to publish.
    * @return A new route definition.
    */
-  public Route.Definition assets(final String path) {
-    return get(path, wrapRouter(AssetRoute.class));
+  public @Nonnull Route.Definition assets(final @Nonnull String path) {
+    return get(path, router(AssetRoute.class)).name("static files");
   }
 
   /**
    * <p>
-   * A Mvc Route use annotations to define routes:
+   * Append one or more routes defined in the given class.
    * </p>
    *
    * <pre>
-   *   route(MyRoute.class);
+   *   use(MyRoute.class);
    *   ...
    *   // MyRoute.java
    *   {@literal @}Path("/")
@@ -625,24 +1016,157 @@ public class Jooby {
    * </p>
    *
    * <p>
-   * A new instance is created per request, not like inline routes. So an Mvc route isn't singleton.
-   * This scope is known us prototype or per-lookup.
-   * </p>
-   * <p>
-   * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path}, {@link org.jooby.mvc.Produces}
-   * {@link org.jooby.mvc.Consumes}, {@link org.jooby.mvc.Body} and {@link org.jooby.mvc.Template}.
+   * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
+   * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}, {@link org.jooby.mvc.Body} and
+   * {@link org.jooby.mvc.Template}.
    * </p>
    *
-   * @param routeType The Mvc route.
+   * @param routeResource The Mvc route.
+   * @return This jooby instance.
    */
-  public void use(final Class<?> routeType) {
-    requireNonNull(routeType, "Route type is required.");
-    if (routeType.getAnnotation(javax.inject.Singleton.class) == null) {
-      protoRoutes.add(routeType);
+  public @Nonnull Jooby use(final @Nonnull Class<?> routeResource) {
+    requireNonNull(routeResource, "Route resource is required.");
+    registerRouteScope(routeResource);
+    bag.add(routeResource);
+    return this;
+  }
+
+  /**
+   * Redirect to the given url with status code defaulting to {@link Status#FOUND}.
+   *
+   * <pre>
+   *  res.redirect("/foo/bar");
+   *  res.redirect("http://example.com");
+   *  res.redirect("http://example.com");
+   *  res.redirect("../login");
+   * </pre>
+   *
+   * Redirects can be a fully qualified URI for redirecting to a different site:
+   *
+   * <pre>
+   *   res.redirect("http://google.com");
+   * </pre>
+   *
+   * Redirects can be relative to the root of the host name. For example, if you were
+   * on <code>http://example.com/admin/post/new</code>, the following redirect to /admin would
+   * land you at <code>http://example.com/admin</code>:
+   *
+   * <pre>
+   *   res.redirect("/admin");
+   * </pre>
+   *
+   * Redirects can be relative to the current URL. A redirection of post/new, from
+   * <code>http://example.com/blog/admin/</code> (notice the trailing slash), would give you
+   * <code>http://example.com/blog/admin/post/new.</code>
+   *
+   * <pre>
+   *   res.redirect("post/new");
+   * </pre>
+   *
+   * Redirecting to post/new from <code>http://example.com/blog/admin</code> (no trailing slash),
+   * will take you to <code>http://example.com/blog/post/new</code>.
+   *
+   * <p>
+   * If you found the above behavior confusing, think of path segments as directories (have trailing
+   * slashes) and files, it will start to make sense.
+   * </p>
+   *
+   * Pathname relative redirects are also possible. If you were on
+   * <code>http://example.com/admin/post/new</code>, the following redirect would land you at
+   * <code>http//example.com/admin</code>:
+   *
+   * <pre>
+   *   res.redirect("..");
+   * </pre>
+   *
+   * A back redirection will redirect the request back to the <code>Referer</code>, defaulting to
+   * <code>/</code> when missing.
+   *
+   * <pre>
+   *   res.redirect("back");
+   * </pre>
+   *
+   * @param location Either a relative or absolute location.
+   * @throws Exception If redirection fails.
+   */
+  public Router redirect(final String location) {
+    return redirect(Status.FOUND, location);
+  }
+
+  /**
+   * Redirect to the given url with status code defaulting to {@link Status#FOUND}.
+   *
+   * <pre>
+   *  res.redirect("/foo/bar");
+   *  res.redirect("http://example.com");
+   *  res.redirect("http://example.com");
+   *  res.redirect("../login");
+   * </pre>
+   *
+   * Redirects can be a fully qualified URI for redirecting to a different site:
+   *
+   * <pre>
+   *   res.redirect("http://google.com");
+   * </pre>
+   *
+   * Redirects can be relative to the root of the host name. For example, if you were
+   * on <code>http://example.com/admin/post/new</code>, the following redirect to /admin would
+   * land you at <code>http://example.com/admin</code>:
+   *
+   * <pre>
+   *   res.redirect("/admin");
+   * </pre>
+   *
+   * Redirects can be relative to the current URL. A redirection of post/new, from
+   * <code>http://example.com/blog/admin/</code> (notice the trailing slash), would give you
+   * <code>http://example.com/blog/admin/post/new.</code>
+   *
+   * <pre>
+   *   res.redirect("post/new");
+   * </pre>
+   *
+   * Redirecting to post/new from <code>http://example.com/blog/admin</code> (no trailing slash),
+   * will take you to <code>http://example.com/blog/post/new</code>.
+   *
+   * <p>
+   * If you found the above behavior confusing, think of path segments as directories (have trailing
+   * slashes) and files, it will start to make sense.
+   * </p>
+   *
+   * Pathname relative redirects are also possible. If you were on
+   * <code>http://example.com/admin/post/new</code>, the following redirect would land you at
+   * <code>http//example.com/admin</code>:
+   *
+   * <pre>
+   *   res.redirect("..");
+   * </pre>
+   *
+   * A back redirection will redirect the request back to the <code>Referer</code>, defaulting to
+   * <code>/</code> when missing.
+   *
+   * <pre>
+   *   res.redirect("back");
+   * </pre>
+   *
+   * @param status A redirect status.
+   * @param location Either a relative or absolute location.
+   * @throws Exception If redirection fails.
+   */
+  public Router redirect(final Response.Status status, final String location) {
+    requireNonNull(location, "A location is required.");
+    return (req, res) -> res.redirect(status, location);
+  }
+
+  /**
+   * Check if the class had a Singleton annotation or not in order to register the route as singleton or prototype.
+   * @param route
+   */
+  private void registerRouteScope(final Class<?> route) {
+    if (route.getAnnotation(javax.inject.Singleton.class) == null) {
+      protoRoutes.add(route);
     } else {
-      singletonRoutes.add(routeType);
+      singletonRoutes.add(route);
     }
-    bag.add(routeType);
   }
 
   /**
@@ -657,13 +1181,13 @@ public class Jooby {
   }
 
   /**
-   * Register a Jooby module. Module are executed in the order they were registered.
+   * Register a Jooby module.
    *
-   * @param module The module to register. Required.
-   * @return This Jooby instance.
-   * @see JoobyModule
+   * @param module The module to register.
+   * @return This jooby instance.
+   * @see Jooby.Module
    */
-  public Jooby use(final Jooby.Module module) {
+  public @Nonnull Jooby use(final @Nonnull Jooby.Module module) {
     requireNonNull(module, "A module is required.");
     modules.add(module);
     bag.add(module);
@@ -675,30 +1199,46 @@ public class Jooby {
    * name: <code>application.conf</code> doesn't work for you or when you need/want to register two
    * or more files.
    *
-   * @param config The application configuration object. Required.
-   * @return This Jooby instance.
+   * @param config The application configuration object.
+   * @return This jooby instance.
    * @see Config
    */
-  public Jooby use(final Config config) {
+  public @Nonnull Jooby use(final @Nonnull Config config) {
     this.config = requireNonNull(config, "A config is required.");
     return this;
   }
 
-  public Jooby err(final Route.Err.Handler err) {
+  /**
+   * Setup a route error handler. Default error handler {@link Route.Err.Default} does content
+   * negotation and this method allow to override/complement default handler.
+   *
+   * @param err A route error handler.
+   * @return This jooby instance.
+   */
+  public @Nonnull Jooby err(final @Nonnull Route.Err.Handler err) {
     this.err = requireNonNull(err, "An err handler is required.");
     return this;
   }
 
-  public Route.Err.Handler logError(final Route.Err.Handler err) {
-    requireNonNull(err, "An err handler is required.");
-    return (req, res, ex) -> {
-      LoggerFactory.getLogger(Route.Err.class).error("execution of: " + req.path() +
-          " resulted in exception", ex);
-      err.handle(req, res, ex);
-    };
-  }
-
-  public WebSocket.Definition ws(final String path, final WebSocket.Handler handler) {
+  /**
+   * Append a new WebSocket handler under the given path.
+   *
+   * <pre>
+   *   ws("/ws", (socket) -> {
+   *     // connected
+   *     socket.onMessage(message -> {
+   *       System.out.println(message);
+   *     });
+   *     socket.send("Connected"):
+   *   });
+   * </pre>
+   *
+   * @param path A path pattern.
+   * @param A WebSocket handler.
+   * @return A new WebSocket definition.
+   */
+  public @Nonnull WebSocket.Definition ws(final @Nonnull String path,
+      final @Nonnull WebSocket.Handler handler) {
     WebSocket.Definition ws = new WebSocket.Definition(path, handler);
     bag.add(ws);
     return ws;
@@ -709,23 +1249,20 @@ public class Jooby {
    * <p>
    * The bootstrap process is defined as follows:
    * </p>
-   * <h2>1. Configuration files order and fall-backs</h2>
+   * <h2>1. Configuration files (first-listed are higher priority)</h2>
    * <ol>
-   * <li>System properties are loaded</li>
+   * <li>System properties</li>
    * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
-   * <li>Load configuration properties from each of the registered {@link JoobyModule modules}</li>
-   * <li>At this point a {@link Config} object is ready to use</li>
+   * <li>{@link Jooby.Module Modules} properties</li>
    * </ol>
    *
-   * <h2>2. Dependency Injection and {@link JoobyModule modules}</h2>
+   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
    * <ol>
    * <li>An {@link Injector Guice Injector} is created.</li>
-   * <li>It configures each of the registered {@link JoobyModule modules}</li>
+   * <li>It calls to {@link Jooby.Module#configure(Mode, Config, Binder)} for each module.</li>
    * <li>At this point Guice is ready and all the services has been binded.</li>
-   * <li>For each registered {@link JoobyModule module} the {@link JoobyModule#start() start method}
-   * will be invoked</li>
-   * <li>Finally, Jooby ask Guice for a {@link Server web server} and then call to
-   * {@link Server#start()}</li>
+   * <li>It calls to {@link Jooby.Module#start() start method} for each module.</li>
+   * <li>A web server is started</li>
    * </ol>
    *
    * @throws Exception If something fails to start.
@@ -835,7 +1372,7 @@ public class Jooby {
 
         // err
         if (err == null) {
-          binder.bind(Err.Handler.class).toInstance(logError(new Err.Default()));
+          binder.bind(Err.Handler.class).toInstance(new Err.Default());
         } else {
           binder.bind(Err.Handler.class).toInstance(err);
         }

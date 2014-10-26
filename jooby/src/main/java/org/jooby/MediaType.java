@@ -4,16 +4,20 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.annotation.Nonnull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * An immutable implementation of HTTP media types.
+ * An immutable implementation of HTTP media types (a.k.a mime types).
  *
  * @author edgar
  * @since 0.1.0
@@ -57,7 +61,7 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidate A candidate media type. Required.
      * @return True if the matcher matches the given media type.
      */
-    public boolean matches(final MediaType candidate) {
+    public boolean matches(final @Nonnull MediaType candidate) {
       requireNonNull(candidate, "A candidate media type is required.");
       return doFirst(ImmutableList.of(candidate)) != null;
     }
@@ -77,7 +81,7 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidates One ore more candidates media type. Required.
      * @return True if the matcher matches the given media type.
      */
-    public boolean matches(final List<MediaType> candidates) {
+    public boolean matches(final @Nonnull List<MediaType> candidates) {
       return filter(candidates).size() > 0;
     }
 
@@ -96,7 +100,7 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidate A candidate media type. Required.
      * @return A first most relevant media type or an empty optional.
      */
-    public Optional<MediaType> first(final MediaType candidate) {
+    public Optional<MediaType> first(final @Nonnull MediaType candidate) {
       return first(ImmutableList.of(candidate));
     }
 
@@ -115,7 +119,7 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidates One ore more candidates media type. Required.
      * @return A first most relevant media type or an empty optional.
      */
-    public Optional<MediaType> first(final List<MediaType> candidates) {
+    public Optional<MediaType> first(final @Nonnull List<MediaType> candidates) {
       return Optional.ofNullable(doFirst(candidates));
     }
 
@@ -134,10 +138,18 @@ public class MediaType implements Comparable<MediaType> {
      *   filter(text/html, application/json)       -> returns text/html and application/json
      * </pre>
      */
-    public List<MediaType> filter(final List<MediaType> candidates) {
+    public List<MediaType> filter(final @Nonnull List<MediaType> types) {
+      checkArgument(types != null && types.size() > 0, "Media types are required");
       List<MediaType> result = new ArrayList<>();
+      final List<MediaType> sortedTypes;
+      if (types.size() == 1) {
+        sortedTypes = ImmutableList.of(types.get(0));
+      } else {
+        sortedTypes = new LinkedList<>(types);
+        Collections.sort(sortedTypes);
+      }
       for (MediaType accept : acceptable) {
-        for (MediaType candidate : candidates) {
+        for (MediaType candidate : sortedTypes) {
           if (accept.matches(candidate)) {
             result.add(candidate);
           }
@@ -214,6 +226,7 @@ public class MediaType implements Comparable<MediaType> {
    */
   public static final MediaType all = new MediaType("*", "*");
 
+  /** Any media type. */
   public static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
   /** Form multipart-data media type. */
@@ -222,8 +235,10 @@ public class MediaType implements Comparable<MediaType> {
   /** Form url encoded. */
   public static MediaType form = new MediaType("application", "x-www-form-urlencoded");
 
+  /** Xml media type. */
   public static MediaType xml = new MediaType("application", "xml");
 
+  /** Xml like media type. */
   private static MediaType xmlLike = new MediaType("application", "*+xml");
 
   /**
@@ -308,6 +323,9 @@ public class MediaType implements Comparable<MediaType> {
     return type + "/" + subtype;
   }
 
+  /**
+   * @return True, if this type is a well-known text type.
+   */
   public boolean isText() {
     if (text.matches(this)) {
       return true;
@@ -326,7 +344,8 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   @Override
-  public int compareTo(final MediaType that) {
+  public int compareTo(final @Nonnull MediaType that) {
+    requireNonNull(that, "A media type is required.");
     if (this == that) {
       return 0;
     }
@@ -363,7 +382,8 @@ public class MediaType implements Comparable<MediaType> {
   /**
    * @return True, if the given media type matches the current one.
    */
-  public boolean matches(final MediaType that) {
+  public boolean matches(final @Nonnull MediaType that) {
+    requireNonNull(that, "A media type is required.");
     if (this == that || this.wildcardType || that.wildcardType) {
       // same or */*
       return true;
@@ -411,8 +431,11 @@ public class MediaType implements Comparable<MediaType> {
    *
    * @return An immutable {@link MediaType}.
    */
-  public static MediaType valueOf(final String mediaType) {
+  public static MediaType valueOf(final @Nonnull String mediaType) {
     requireNonNull(mediaType, "A mediaType is required.");
+    if ("*".equals(mediaType)) {
+      return MediaType.all;
+    }
     String[] parts = mediaType.split(";");
     checkArgument(parts.length > 0, "Bad media type: %s", mediaType);
     String[] typeAndSubtype = (parts[0].equals("*") ? "*/*" : parts[0]).split("/");
@@ -438,7 +461,7 @@ public class MediaType implements Comparable<MediaType> {
    *
    * @return An list of immutable {@link MediaType}.
    */
-  public static List<MediaType> valueOf(final String... mediaTypes) {
+  public static List<MediaType> valueOf(final @Nonnull String... mediaTypes) {
     requireNonNull(mediaTypes, "A mediaType is required.");
     List<MediaType> result = new ArrayList<>();
     for (String mediaType : mediaTypes) {
@@ -453,7 +476,7 @@ public class MediaType implements Comparable<MediaType> {
    * @param value The string separated by commas.
    * @return One ore more {@link MediaType}.
    */
-  public static List<MediaType> parse(final String value) {
+  public static List<MediaType> parse(final @Nonnull String value) {
     return valueOf(value.split(","));
   }
 
@@ -463,7 +486,7 @@ public class MediaType implements Comparable<MediaType> {
    * @param acceptable The acceptable/target media type.
    * @return A media type matcher.
    */
-  public static Matcher matcher(final MediaType acceptable) {
+  public static Matcher matcher(final @Nonnull MediaType acceptable) {
     return matcher(ImmutableList.of(acceptable));
   }
 
@@ -473,7 +496,7 @@ public class MediaType implements Comparable<MediaType> {
    * @param acceptable The acceptable/target media types.
    * @return A media type matcher.
    */
-  public static Matcher matcher(final List<MediaType> acceptable) {
+  public static Matcher matcher(final @Nonnull List<MediaType> acceptable) {
     requireNonNull(acceptable, "Acceptables media types are required.");
     return new Matcher(acceptable);
   }
