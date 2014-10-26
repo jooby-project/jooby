@@ -27,7 +27,7 @@ public class TraceRequestFeature extends ServerFeature {
   public void trace() throws Exception {
     String res = execute(TRACE(uri("/")), (response) -> {
       assertEquals(200, response.getStatusLine().getStatusCode());
-      assertEquals("164", response.getFirstHeader("Content-Length").getValue());
+      assertEquals("163", response.getFirstHeader("Content-Length").getValue());
     });
     assertTrue(res.startsWith("TRACE"));
   }
