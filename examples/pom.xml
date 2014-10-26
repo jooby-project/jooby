@@ -18,12 +18,6 @@
     <!-- Jooby -->
     <dependency>
       <groupId>com.github.jknack</groupId>
-      <artifactId>jooby</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.github.jknack</groupId>
       <artifactId>jooby-jackson</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -36,7 +30,7 @@
 
     <dependency>
       <groupId>com.github.jknack</groupId>
-      <artifactId>jooby-hibernate</artifactId>
+      <artifactId>jooby-hbm</artifactId>
       <version>${project.version}</version>
     </dependency>
 

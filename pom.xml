@@ -17,7 +17,7 @@
     <module>jooby</module>
     <module>jooby-jackson</module>
     <module>jooby-hbs</module>
-    <module>jooby-hibernate</module>
+    <module>jooby-hbm</module>
     <module>jooby-jdbc</module>
     <module>jooby-tests</module>
     <module>examples</module>

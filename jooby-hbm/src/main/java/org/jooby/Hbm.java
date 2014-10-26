@@ -234,13 +234,8 @@ import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
-import org.jooby.BodyConverter;
-import org.jooby.Filter;
-import org.jooby.JDBC;
-import org.jooby.Mode;
-import org.jooby.Request;
-import org.jooby.Response;
-import org.jooby.Route;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -248,7 +243,10 @@ import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class HibernatePersistence extends JDBC {
+public class Hbm extends JDBC {
+
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final List<Class<?>> classes = new LinkedList<>();
 
@@ -256,16 +254,16 @@ public class HibernatePersistence extends JDBC {
 
   private HibernateEntityManagerFactory emf;
 
-  public HibernatePersistence(final String name, final Class<?>... classes) {
+  public Hbm(final String name, final Class<?>... classes) {
     super(name);
     this.classes.addAll(Arrays.asList(classes));
   }
 
-  public HibernatePersistence(final Class<?>... classes) {
+  public Hbm(final Class<?>... classes) {
     this.classes.addAll(Arrays.asList(classes));
   }
 
-  public HibernatePersistence scan() {
+  public Hbm scan() {
     this.scan = true;
     return this;
   }
@@ -287,31 +285,38 @@ public class HibernatePersistence extends JDBC {
 
     HibernateEntityManagerFactory emf = (HibernateEntityManagerFactory) builder.build();
 
-    binder.bind(EntityManagerFactory.class).toInstance(emf);
+    Key<EntityManagerFactory> emfKey = dataSourceKey(EntityManagerFactory.class);
 
-    Key<EntityManager> key = dataSourceKey(EntityManager.class);
+    binder.bind(emfKey).toInstance(emf);
+
+    Key<EntityManager> emKey = dataSourceKey(EntityManager.class);
 
     Multibinder<Route.Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
 
     routes.addBinding()
-        .toInstance(new Route.Definition("*", "*", readWriteTrx(key)).name("hibernate"));
+        .toInstance(new Route.Definition("*", "*", readWriteTrx(emKey)).name("hbm/2x1/rw"));
 
     Multibinder.newSetBinder(binder, Request.Module.class).addBinding().toInstance((b) -> {
+      log.debug("creating entity manager");
       EntityManager em = emf.createEntityManager();
-      b.bind(key).toInstance(em);
+      b.bind(emKey).toInstance(em);
     });
 
     // keep emf
     this.emf = emf;
   }
 
-  private static Filter readWriteTrx(final Key<EntityManager> key) {
+  private Filter readWriteTrx(final Key<EntityManager> key) {
     return (req, resp, chain) -> {
       EntityManager em = req.getInstance(key);
       Session session = (Session) em.getDelegate();
-      session.setFlushMode(FlushMode.AUTO);
+      FlushMode flushMode = FlushMode.AUTO;
+      log.debug("setting flush mode to: {}", flushMode);
+      session.setFlushMode(flushMode);
+      log.debug("  creating new transaction");
       EntityTransaction trx = em.getTransaction();
       try {
+        log.debug("  starting transaction: {}", trx);
         trx.begin();
 
         // invoke next router
@@ -328,30 +333,37 @@ public class HibernatePersistence extends JDBC {
           void transactionalSend(final Callable<Void> send) throws Exception {
             try {
               Session session = (Session) em.getDelegate();
+              log.debug("  flushing session: {}", session);
               session.flush();
 
               if (trx.isActive()) {
+                log.debug("  commiting trx: {}", trx);
                 trx.commit();
               }
 
               // start new transaction
+              log.debug("  setting connection to read only");
               setReadOnly(session, true);
               session.setFlushMode(FlushMode.MANUAL);
               EntityTransaction readOnlyTrx = em.getTransaction();
+              log.debug("  starting readonly trx: {}", readOnlyTrx);
               readOnlyTrx.begin();
 
               try {
                 // send it!
                 send.call();
 
+                log.debug("  commiting readonly trx: {}", readOnlyTrx);
                 readOnlyTrx.commit();
               } catch (Exception ex) {
                 if (readOnlyTrx.isActive()) {
+                  log.debug("  rolling back readonly trx: {}", readOnlyTrx);
                   readOnlyTrx.rollback();
                 }
                 throw ex;
               }
             } finally {
+              log.debug("  removing readonly mode from connection");
               setReadOnly(session, false);
             }
           }
@@ -372,6 +384,23 @@ public class HibernatePersistence extends JDBC {
               return null;
             });
           }
+
+          @Override
+          public void send(final Body body) throws Exception {
+            transactionalSend(() -> {
+              super.send(body);
+              return null;
+            });
+          }
+
+          @Override
+          public void send(final Body body, final BodyConverter converter) throws Exception {
+            transactionalSend(() -> {
+              super.send(body, converter);
+              return null;
+            });
+          }
+
         });
       } finally {
         try {

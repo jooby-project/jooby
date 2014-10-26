@@ -502,7 +502,16 @@ public class ResponseImpl implements Response {
 
     status(body.status().orElse(Response.Status.OK));
 
-    Runnable setHeaders = () -> body.headers().forEach((name, value) -> header(name, value));
+    Runnable setHeaders = () -> body.headers().forEach(
+        (name, value) -> {
+          // reset back header while doing a redirect
+          if ("location".equalsIgnoreCase(name) && "back".equalsIgnoreCase(value)
+              && status().map(s -> s.value() >= 300 && s.value() < 400).orElse(false)) {
+            header(name, referer.orElse("/"));
+          } else {
+            header(name, value);
+          }
+        });
 
     // byte version of http body
     ExSupplier<OutputStream> stream = () -> {
@@ -526,8 +535,8 @@ public class ResponseImpl implements Response {
       }
       converter.write(message, new BodyWriterImpl(charset, stream, writer));
     } else {
-      // dump any pending header
-      setHeaders.run();
+      // close output
+      stream.get().close();
     }
   }
 
@@ -573,9 +582,8 @@ public class ResponseImpl implements Response {
   public void redirect(final Response.Status status, final String location) throws Exception {
     requireNonNull(status, "A status is required.");
     requireNonNull(location, "A location is required.");
-    status(status);
 
-    response.sendRedirect("back".equals(location) ? referer.orElse("/") : location);
+    send(Body.body(status).header("Location", location));
   }
 
   @Override

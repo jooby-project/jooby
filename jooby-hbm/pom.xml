@@ -9,10 +9,10 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-hibernate</artifactId>
+  <artifactId>jooby-hbm</artifactId>
 
-  <name>JPA support for Jooby</name>
-  <description>JPA support for Jooby</description>
+  <name>Hibernate/JPA support for Jooby</name>
+  <description>Hibernate/JPA support for Jooby</description>
 
   <dependencies>
     <!-- Jooby -->
