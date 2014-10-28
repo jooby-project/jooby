@@ -203,41 +203,108 @@
  */
 package org.jooby;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.artifactId;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executeMojo;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.executionEnvironment;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.groupId;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
+import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 
-@Entity
-public class User {
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.BuildPluginManager;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Execute;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
-  @Id
-  private String id;
+@Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
+@Execute(phase = LifecyclePhase.TEST_COMPILE)
+public class JoobyRun extends AbstractMojo {
 
-  private String firstName;
+  @Component
+  private MavenProject mavenProject;
 
-  private String lastName;
+  @Component
+  private MavenSession mavenSession;
 
-  public String getId() {
-    return id;
-  }
+  @Component
+  private BuildPluginManager pluginManager;
 
-  public void setId(final String id) {
-    this.id = id;
-  }
+  @Parameter(defaultValue = "${exec-maven-plugin.version}")
+  private String execVersion;
 
-  public String getFirstName() {
-    return firstName;
-  }
+  @Parameter(property = "skip", defaultValue = "false")
+  private boolean skip;
 
-  public String getLastName() {
-    return lastName;
-  }
+  /**
+   * Whether to interrupt/join and possibly stop the daemon threads upon quitting. <br/>
+   * If this is <code>false</code>, maven does nothing about the daemon threads. When maven has no
+   * more work to do,
+   * the VM will normally terminate any remaining daemon threads.
+   * <p>
+   * In certain cases (in particular if maven is embedded), you might need to keep this enabled to
+   * make sure threads are properly cleaned up to ensure they don't interfere with subsequent
+   * activity. In that case, see {@link #daemonThreadJoinTimeout} and
+   * {@link #stopUnresponsiveDaemonThreads} for further tuning.
+   * </p>
+   *
+   * @since 1.1-beta-1
+   */
+  @Parameter(property = "jooby.cleanupDaemonThreads", defaultValue = "true")
+  private boolean cleanupDaemonThreads;
 
-  public void setFirstName(final String firstName) {
-    this.firstName = firstName;
-  }
+  /**
+   * This defines the number of milliseconds to wait for daemon threads to quit following their
+   * interruption.<br/>
+   * This is only taken into account if {@link #cleanupDaemonThreads} is <code>true</code>. A value
+   * &lt;=0 means to
+   * not timeout (i.e. wait indefinitely for threads to finish). Following a timeout, a warning will
+   * be logged.
+   * <p>
+   * Note: properly coded threads <i>should</i> terminate upon interruption but some threads may
+   * prove problematic: as the VM does interrupt daemon threads, some code may not have been written
+   * to handle interruption properly. For example java.util.Timer is known to not handle
+   * interruptions in JDK &lt;= 1.6. So it is not possible for us to infinitely wait by default
+   * otherwise maven could hang. A sensible default value has been chosen, but this default value
+   * <i>may change</i> in the future based on user feedback.
+   * </p>
+   */
+  @Parameter(property = "jooby.daemonThreadJoinTimeout", defaultValue = "15000")
+  private long daemonThreadJoinTimeout;
 
-  public void setLastName(final String lastName) {
-    this.lastName = lastName;
+  @Override
+  public void execute() throws MojoExecutionException, MojoFailureException {
+    executeMojo(
+        plugin(
+            groupId("org.codehaus.mojo"),
+            artifactId("exec-maven-plugin"),
+            version(execVersion)
+        ),
+        goal("java"),
+        configuration(
+            element(name("mainClass"), "${application.main}"),
+            element(name("killAfter"), "-1"),
+            element(name("arguments"), "${jooby.arguments}"),
+            element(name("skip"), Boolean.toString(skip)),
+            element(name("cleanupDaemonThreads"), Boolean.toString(cleanupDaemonThreads)),
+            element(name("daemonThreadJoinTimeout"), Long.toString(daemonThreadJoinTimeout))
+        ),
+        executionEnvironment(
+            mavenProject,
+            mavenSession,
+            pluginManager
+        ));
+
   }
 
 }

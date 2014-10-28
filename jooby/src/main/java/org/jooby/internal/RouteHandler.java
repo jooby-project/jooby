@@ -308,7 +308,7 @@ public class RouteHandler {
 
     final String path = verb + requestURI;
 
-    log.info("handling: {}", path);
+    log.debug("handling: {}", path);
 
     log.debug("  content-type: {}", type);
 
@@ -367,7 +367,7 @@ public class RouteHandler {
       }
     } finally {
       long end = System.currentTimeMillis();
-      log.info("  status -> {} in {}ms", response.getStatus(), end - start);
+      log.debug("  status -> {} in {}ms", response.getStatus(), end - start);
     }
   }
 

@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.github.jknack</groupId>
+  <groupId>org.jooby</groupId>
   <artifactId>jooby-project</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -20,7 +20,8 @@
     <module>jooby-hbm</module>
     <module>jooby-jdbc</module>
     <module>jooby-tests</module>
-    <module>examples</module>
+    <module>jooby-archetype</module>
+    <module>jooby-maven-plugin</module>
   </modules>
 
   <licenses>
@@ -78,13 +79,6 @@
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm</artifactId>
         <version>${asm.version}</version>
-      </dependency>
-
-      <!-- paranamer -->
-      <dependency>
-        <groupId>com.thoughtworks.paranamer</groupId>
-        <artifactId>paranamer</artifactId>
-        <version>${paranamer.version}</version>
       </dependency>
 
       <!-- cglib -->
@@ -364,6 +358,194 @@
 
   <profiles>
     <profile>
+      <!-- We enable all these plugins by default. -->
+      <id>development</id>
+      <activation>
+        <file>
+          <exists>pom.xml</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+
+          <!-- Force maven-3.x and java-1.8 -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <version>${maven-enforcer-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>enforce-versions</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <requireMavenVersion>
+                      <version>[3.0,)</version>
+                    </requireMavenVersion>
+                    <requireJavaVersion>
+                      <version>${java.source.version}</version>
+                    </requireJavaVersion>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- We're on 1.8 -->
+          <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>${maven-compiler-plugin.version}</version>
+            <configuration>
+              <source>${java.source.version}</source>
+              <target>${java.source.version}</target>
+              <encoding>${project.build.sourceEncoding}</encoding>
+              <compilerArgs>
+                <arg>-parameters</arg>
+              </compilerArgs>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>${maven-resources-plugin.version}</version>
+          </plugin>
+
+          <!-- Source code -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven-source-plugin.version}</version>
+          </plugin>
+
+          <!-- Surefire: unit test -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${maven-surefire-plugin.version}</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Public directory -->
+    <profile>
+      <id>public-directory</id>
+      <activation>
+        <file>
+          <exists>public</exists>
+        </file>
+      </activation>
+      <properties>
+        <project.public.directory>public</project.public.directory>
+      </properties>
+      <build>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+          </resource>
+          <resource>
+            <directory>${project.public.directory}</directory>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+
+    <!-- Config directory -->
+    <profile>
+      <id>config-directory</id>
+      <activation>
+        <file>
+          <exists>config</exists>
+        </file>
+      </activation>
+      <properties>
+        <project.config.directory>config</project.config.directory>
+      </properties>
+      <build>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+          </resource>
+          <resource>
+            <directory>${project.config.directory}</directory>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+
+    <!-- Fat jar -->
+    <profile>
+      <id>fat-jar</id>
+      <activation>
+        <file>
+          <!-- Hacky way to execute this profile on none Jooby projects -->
+          <missing>src${file.separator}main${file.separator}java${file.separator}org${file.separator}jooby</missing>
+        </file>
+      </activation>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>${maven-shade-plugin.version}</version>
+            <configuration>
+              <createDependencyReducedPom>true</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                    <exclude>LICENSE</exclude>
+                    <exclude>NOTICE</exclude>
+                  </excludes>
+                </filter>
+                <filter>
+                  <artifact>org.eclipse.jetty:*</artifact>
+                  <excludes>
+                    <exclude>about.html</exclude>
+                    <exclude>jetty-dir.css</exclude>
+                  </excludes>
+                </filter>
+                <filter>
+                  <artifact>org.eclipse.jetty.websocket:*</artifact>
+                  <excludes>
+                    <exclude>about.html</exclude>
+                    <exclude>jetty-dir.css</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
+                <configuration>
+                  <transformers>
+                    <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                    <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                      <mainClass>${application.main}</mainClass>
+                    </transformer>
+                  </transformers>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Maven release -->
+    <profile>
       <id>sonatype-oss-release</id>
       <build>
         <plugins>
@@ -471,6 +653,7 @@
     <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
     <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
+    <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
     <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
     <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
     <maven-enforcer-plugin.version>1.3.1</maven-enforcer-plugin.version>
@@ -480,8 +663,10 @@
     <maven-java-formatter-plugin.version>0.4</maven-java-formatter-plugin.version>
     <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
     <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
+    <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
     <cobertura-maven-plugin.version>2.6</cobertura-maven-plugin.version>
     <coveralls-maven-plugin.version>3.0.1</coveralls-maven-plugin.version>
     <maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
+    <exec-maven-plugin.version>1.3.2</exec-maven-plugin.version>
   </properties>
 </project>

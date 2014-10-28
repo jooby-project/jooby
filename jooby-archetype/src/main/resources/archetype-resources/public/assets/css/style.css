@@ -1,0 +1,13 @@
+.header {
+  font-size: 14px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0px;
+}
+
+.license {
+  font-size: 12px;
+  font-weight: lighter;
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0 http://maven.apache.org/xsd/archetype-descriptor-1.0.0.xsd"
+  name="jooby" xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <requiredProperties>
+    <requiredProperty key="jooby-version">
+      <defaultValue>${project.version}</defaultValue>
+    </requiredProperty>
+  </requiredProperties>
+
+  <fileSets>
+    <fileSet filtered="true" packaged="true" encoding="UTF-8">
+      <directory>src/main/java</directory>
+      <includes>
+        <include>**/*.java</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>config</directory>
+      <includes>
+        <include>**/*.conf</include>
+        <include>**/*.xml</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
+      <directory>public</directory>
+      <includes>
+        <include>**/*.html</include>
+        <include>**/*.css</include>
+        <include>**/*.js</include>
+      </includes>
+    </fileSet>
+
+  </fileSets>
+</archetype-descriptor>

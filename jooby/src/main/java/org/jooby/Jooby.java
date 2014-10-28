@@ -206,6 +206,7 @@ package org.jooby;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
@@ -363,7 +364,7 @@ import com.typesafe.config.ConfigValueFactory;
  * Some examples:
  * </p>
  * <ul>
- * <li>{@code com/t?st.html} - matches {@code com/test.html} but also {@code com/tast.jsp} or
+ * <li>{@code com/t?st.html} - matches {@code com/test.html} but also {@code com/tast.html} or
  * {@code com/txst.html}</li>
  * <li>{@code com/*.html} - matches all {@code .html} files in the {@code com} directory</li>
  * <li><code>com/{@literal **}/test.html</code> - matches all {@code test.html} files underneath the
@@ -1294,6 +1295,47 @@ public class Jooby {
    */
   public Router redirect(final String location) {
     return redirect(Status.FOUND, location);
+  }
+
+  /**
+   * Serve a single file from classpath.
+   * Usage:
+   * <pre>
+   *   {
+   *     // serve the welcome.html from classpath root
+   *     get("/", html("welcome.html");
+   *   }
+   * </pre>
+   *
+   * @param Absolute classpath location.
+   * @return A new route handler.
+   */
+  public Router html(final String location) {
+    return file(MediaType.html, location);
+  }
+
+  /**
+   * Serve a single file from classpath.
+   * Usage:
+   * <pre>
+   *   {
+   *     // serve the welcome.html from classpath root
+   *     get("/", file(MediaType.html, "welcome.html");
+   *   }
+   * </pre>
+   *
+   * @param type A media type.
+   * @param location Absolute classpath location.
+   * @return A new route handler.
+   */
+  public Router file(@Nonnull final MediaType type, @Nonnull final String location) {
+    requireNonNull(type, "A type is required.");
+    requireNonNull(location, "A location is required.");
+    return (req, res) -> {
+      InputStream in = getClass().getClassLoader().getResourceAsStream(location);
+      res.type(type);
+      res.send(in);
+    };
   }
 
   /**
