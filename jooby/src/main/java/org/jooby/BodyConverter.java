@@ -207,7 +207,6 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.annotations.Beta;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -217,7 +216,6 @@ import com.google.inject.TypeLiteral;
  * @author edgar
  * @since 0.1.0
  */
-@Beta
 public interface BodyConverter {
 
   /**

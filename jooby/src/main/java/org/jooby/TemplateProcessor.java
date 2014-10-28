@@ -205,7 +205,6 @@ package org.jooby;
 
 import java.util.List;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.TypeLiteral;
 
@@ -215,7 +214,6 @@ import com.google.inject.TypeLiteral;
  * @author edgar
  * @since 0.1.0
  */
-@Beta
 public abstract class TemplateProcessor implements BodyConverter {
 
   private final List<MediaType> types;

@@ -211,8 +211,6 @@ import javax.annotation.Nonnull;
 import org.jooby.fn.ExSupplier;
 import org.jooby.fn.Switch;
 
-import com.google.common.annotations.Beta;
-
 /**
  * Application's mode that let you optimize, customize or apply defaults values for services.
  *
@@ -233,7 +231,6 @@ import com.google.common.annotations.Beta;
  * @author edgar
  * @since 0.1.0
  */
-@Beta
 public interface Mode {
 
   /**

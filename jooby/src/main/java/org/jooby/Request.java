@@ -213,7 +213,6 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -225,7 +224,6 @@ import com.google.inject.TypeLiteral;
  * @author edgar
  * @since 0.1.0
  */
-@Beta
 public interface Request {
 
   /**
@@ -480,7 +478,6 @@ public interface Request {
    * @author edgar
    * @since 0.1.0
    */
-  @Beta
   interface Module {
 
     void configure(Binder binder);

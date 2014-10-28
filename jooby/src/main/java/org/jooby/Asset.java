@@ -208,8 +208,6 @@ import java.io.InputStream;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.annotations.Beta;
-
 /**
  * Usually a public file/resource like javascript, css, images files, etc...
  * An asset consist of content type, stream and last modified since, between others.
@@ -218,7 +216,6 @@ import com.google.common.annotations.Beta;
  * @since 0.1.0
  * @see Jooby#assets(String)
  */
-@Beta
 public interface Asset {
 
   /**

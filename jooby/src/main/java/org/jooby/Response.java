@@ -221,7 +221,6 @@ import org.jooby.Cookie.Definition;
 import org.jooby.fn.ExSupplier;
 import org.jooby.internal.SetHeaderImpl;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -230,7 +229,6 @@ import com.google.common.collect.ImmutableMap;
  * @author edgar
  * @since 0.1.0
  */
-@Beta
 public interface Response {
 
   /**
@@ -250,7 +248,6 @@ public interface Response {
    * @author edgar
    * @since 0.1.0
    */
-  @Beta
   class Body {
 
     /** Response headers. */

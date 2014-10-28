@@ -209,8 +209,6 @@ import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.annotations.Beta;
-
 /**
  * Utility class to properly write data into the HTTP response body. It provides methods for
  * writing text and bytes efficiently. Clients shouldn't worry about closing the HTTP response body.
@@ -218,7 +216,6 @@ import com.google.common.annotations.Beta;
  * @author edgar
  * @since 0.1.0
  */
-@Beta
 public interface BodyWriter {
 
   /**

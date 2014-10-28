@@ -216,7 +216,6 @@ import javax.inject.Inject;
 import org.jooby.BodyConverter;
 import org.jooby.MediaType;
 
-import com.google.common.annotations.Beta;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -239,7 +238,6 @@ import com.google.inject.TypeLiteral;
  * @author edgar
  * @since 0.1.0
  */
-@Beta
 public class BodyConverterSelector {
 
   /**

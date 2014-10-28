@@ -203,7 +203,6 @@
  */
 package org.jooby;
 
-import com.google.common.annotations.Beta;
 
 /**
  * Filter a server request in order to perform common tasks. Example of filters are:
@@ -237,7 +236,6 @@ import com.google.common.annotations.Beta;
  * @author edgar
  * @since 0.1.0
  */
-@Beta
 public interface Filter {
 
   /**

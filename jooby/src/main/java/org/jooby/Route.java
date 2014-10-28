@@ -223,7 +223,6 @@ import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -409,7 +408,6 @@ import com.google.common.collect.Lists;
  * @author edgar
  * @sine 0.1.0
  */
-@Beta
 public interface Route {
 
   /**
@@ -470,7 +468,6 @@ public interface Route {
    * @author edgar
    * @since 0.1.0
    */
-  @Beta
   class Definition {
 
     /**
@@ -851,7 +848,7 @@ public interface Route {
    * An exception that carry a {@link Response.Status}. The status field will be set in the HTTP
    * response.
    *
-   * See {@link Err.Handler} for more details on how to deal with exceptions.
+   * See {@link Route.Err.Handler} for more details on how to deal with exceptions.
    *
    * @author edgar
    * @since 0.1.0
@@ -892,7 +889,6 @@ public interface Route {
      * @author edgar
      * @since 0.1.0
      */
-    @Beta
     public interface Handler {
 
       /**

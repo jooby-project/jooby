@@ -209,8 +209,6 @@ import java.nio.charset.Charset;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.annotations.Beta;
-
 /**
  * Utility class to properly reading a HTTP request body or parameters. It provides methods for
  * reading text and bytes efficiently.
@@ -219,7 +217,6 @@ import com.google.common.annotations.Beta;
  * @author edgar
  * @since 0.1.0
  */
-@Beta
 public interface BodyReader {
 
   /**

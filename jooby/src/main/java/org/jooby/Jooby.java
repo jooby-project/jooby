@@ -238,7 +238,6 @@ import org.jooby.internal.routes.TraceRouter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
@@ -540,7 +539,6 @@ import com.typesafe.config.ConfigValueFactory;
  * @see Router
  * @see Filter
  */
-@Beta
 public class Jooby {
 
   /**
@@ -579,7 +577,6 @@ public class Jooby {
    * @since 0.1.0
    * @see Jooby#use(JoobyModule)
    */
-  @Beta
   public static abstract class Module {
 
     /**
