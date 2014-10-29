@@ -595,7 +595,7 @@ public interface Route {
     public @Nonnull Optional<Route> matches(final @Nonnull Request.Verb verb,
         final @Nonnull String path, final @Nonnull MediaType contentType,
         final @Nonnull List<MediaType> accept) {
-      RouteMatcher matcher = compiledPattern.matcher(verb.value() + path);
+      RouteMatcher matcher = compiledPattern.matcher(verb.name() + path);
       if (matcher.matches()) {
         List<MediaType> result = MediaType.matcher(accept).filter(this.produces);
         if (canConsume(contentType) && result.size() > 0) {

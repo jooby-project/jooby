@@ -206,13 +206,16 @@ package org.jooby.internal.mvc;
 import static java.util.Objects.requireNonNull;
 
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jooby.Cookie;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
-import org.jooby.mvc.Body;
+import org.jooby.Upload;
+import org.jooby.Variant;
 import org.jooby.mvc.Header;
 
 import com.google.inject.TypeLiteral;
@@ -222,16 +225,27 @@ public class Param {
   private enum Strategy {
     PARAM {
       @Override
-      public Object get(final Request req, final Response resp, final Param param) throws Exception {
-        return req.param(param.name).to(
-            TypeLiteral.get(param.parameter.getParameterizedType()));
-      }
-    },
+      public Object get(final Request req, final Response resp, final Param md) throws Exception {
+        Variant param = req.param(md.name);
+        TypeLiteral<?> type = TypeLiteral.get(md.parameter.getParameterizedType());
+        /**
+         * If param is present or ask for an Upload, use/return the param version
+         */
+        if (param.isPresent() || typeIs(md.parameter.getParameterizedType(), Upload.class)) {
+          return param.to(type);
+        } else {
+          /**
+           * If param is missing, check if this is a post/put and delegates to body
+           */
+          if (req.verb().is(Request.Verb.POST, Request.Verb.PUT)) {
+            // assume body is required
+            return req.body(type);
+          } else {
+            // just fail
+            return param.to(type);
+          }
 
-    BODY {
-      @Override
-      public Object get(final Request req, final Response resp, final Param param) throws Exception {
-        return req.body(TypeLiteral.get(param.parameter.getParameterizedType()));
+        }
       }
     },
 
@@ -253,7 +267,7 @@ public class Param {
         }
         return cookie
             .orElseThrow(
-                () -> new Route.Err(Response.Status.BAD_REQUEST, "Missing cookie: " + param.name));
+            () -> new Route.Err(Response.Status.BAD_REQUEST, "Missing cookie: " + param.name));
       }
     },
 
@@ -276,6 +290,20 @@ public class Param {
     public abstract Object get(final Request req, Response resp, final Param param)
         throws Exception;
 
+    protected boolean typeIs(final Type type, final Class<?> target) {
+      if (type == target) {
+        return true;
+      }
+      if (type instanceof ParameterizedType) {
+        ParameterizedType parameterizedType = (ParameterizedType) type;
+        Type[] args = parameterizedType.getActualTypeArguments();
+        if (args == null || args.length == 0) {
+          return false;
+        }
+        return typeIs(args[0], target);
+      }
+      return false;
+    }
   }
 
   public final String name;
@@ -289,9 +317,7 @@ public class Param {
 
     this.parameter = requireNonNull(parameter, "A parameter is required.");
 
-    if (parameter.getAnnotation(Body.class) != null) {
-      this.strategy = Strategy.BODY;
-    } else if (parameter.getAnnotation(Header.class) != null) {
+    if (parameter.getAnnotation(Header.class) != null) {
       strategy = Strategy.HEADER;
     } else if (parameter.getType() == Response.class) {
       strategy = Strategy.RESPONSE;

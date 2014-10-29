@@ -542,7 +542,7 @@ public class VariantImpl implements Variant {
 
   @Override
   public boolean isPresent() {
-    return values != null;
+    return values != null && values.size() > 0;
   }
 
   private static Class<?> classFrom(final TypeLiteral<?> type) {

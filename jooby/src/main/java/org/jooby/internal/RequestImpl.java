@@ -403,7 +403,7 @@ public class RequestImpl implements Request {
 
   @Override
   public <T> T body(final TypeLiteral<T> type) throws Exception {
-    BodyConverter mapper = selector.forRead(type, Arrays.asList(this.type))
+    BodyConverter mapper = selector.forRead(type, ImmutableList.of(this.type))
         .orElseThrow(() -> new Route.Err(Response.Status.UNSUPPORTED_MEDIA_TYPE));
     return mapper.read(type, new BodyReaderImpl(charset, () -> request.getInputStream()));
   }
@@ -450,6 +450,11 @@ public class RequestImpl implements Request {
   @Override
   public Charset charset() {
     return charset;
+  }
+
+  @Override
+  public long length() {
+    return request.getContentLengthLong();
   }
 
   @Override

@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.jooby.Upload;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
 import org.junit.Test;

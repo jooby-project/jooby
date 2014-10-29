@@ -255,15 +255,18 @@ public interface Request {
     CONNET;
 
     /**
-     * @return Usually a verb name, except for ANY which is '*'.
+     * True if this verb matches any of the current verbs.
+     *
+     * @param verbs The verbs to test.
+     * @return True if this verb matches any of the current verbs.
      */
-    public String value() {
-      return name();
-    }
-
-    @Override
-    public String toString() {
-      return value();
+    public boolean is(final Verb... verbs) {
+      for(Verb verb: verbs) {
+        if (verb == this) {
+          return true;
+        }
+      }
+      return false;
     }
   }
 
@@ -290,6 +293,11 @@ public interface Request {
     @Override
     public String path() {
       return request.path();
+    }
+
+    @Override
+    public Verb verb() {
+      return request.verb();
     }
 
     @Override
@@ -350,6 +358,11 @@ public interface Request {
     @Override
     public Charset charset() {
       return request.charset();
+    }
+
+    @Override
+    public long length() {
+      return request.length();
     }
 
     @Override
@@ -495,7 +508,16 @@ public interface Request {
    * @return The request URL pathname.
    */
   @Nonnull
-  String path();
+  default String path() {
+    return route().path();
+  }
+
+  /**
+   * @return Current request verb.
+   */
+  default Verb verb() {
+    return route().verb();
+  }
 
   /**
    * @return The value of the <code>Content-Type</code> header. Default is: {@literal*}/{@literal*}.
@@ -771,6 +793,12 @@ public interface Request {
    */
   @Nonnull
   Locale locale();
+
+  /**
+   * @return The length, in bytes, of the request body and made available by the input stream, or
+   *         <code>-1</code> if the length is not known.
+   */
+  long length();
 
   /**
    * @return The IP address of the client or last proxy that sent the request.
