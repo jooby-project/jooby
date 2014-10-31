@@ -221,7 +221,7 @@ public class AssetRoute implements Route.Handler {
 
   @Inject
   public AssetRoute(final AssetProvider provider) {
-    this.provider = requireNonNull(provider, "The provider is required.");
+    this.provider = requireNonNull(provider, "Asset provider is required.");
   }
 
   @Override

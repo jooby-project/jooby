@@ -19,8 +19,8 @@
 
   <properties>
     <jooby.version>${jooby-version}</jooby.version>
-    <jooby.run.on>test-compile</jooby.run.on>
 
+    <!-- Startup class -->
     <application.main>${package}.App</application.main>
   </properties>
 
@@ -29,7 +29,6 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby</artifactId>
-      <version>${jooby.version}</version>
     </dependency>
 
     <dependency>
@@ -44,18 +43,5 @@
     </dependency>
 
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.jooby</groupId>
-        <artifactId>jooby-maven-plugin</artifactId>
-        <version>${jooby.version}</version>
-        <configuration>
-          <mainClass>${application.main}</mainClass>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

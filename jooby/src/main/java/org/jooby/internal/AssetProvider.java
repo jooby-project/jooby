@@ -209,6 +209,7 @@ import java.io.File;
 import java.net.URL;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.jooby.Asset;
 import org.jooby.Err;
@@ -216,7 +217,8 @@ import org.jooby.MediaType;
 import org.jooby.MediaTypeProvider;
 import org.jooby.Status;
 
-class AssetProvider {
+@Singleton
+public class AssetProvider {
 
   private MediaTypeProvider mediaTypeProvider;
 

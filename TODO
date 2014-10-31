@@ -1,5 +1,6 @@
 * Default Err  negotiator should get all the media types of template engines.
 * Default handler for favicon
+* Implement a default HTTP response with etags and last-modified-since
 * Model contributions for views
 * Document Public API & GitHub Page
 * Signed cookies
