@@ -10,7 +10,7 @@ public class App extends Jooby {
   {
     assets("/assets/**");
 
-    get("/", html("welcome.html"));
+    get("/", file("welcome.html"));
   }
 
   public static void main(final String[] args) throws Exception {

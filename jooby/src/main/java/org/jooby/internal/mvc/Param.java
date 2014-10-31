@@ -211,11 +211,13 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 import org.jooby.Cookie;
+import org.jooby.Err;
 import org.jooby.Request;
 import org.jooby.Response;
-import org.jooby.Route;
+import org.jooby.Status;
 import org.jooby.Upload;
-import org.jooby.Variant;
+import org.jooby.Mutant;
+import org.jooby.Verb;
 import org.jooby.mvc.Header;
 
 import com.google.inject.TypeLiteral;
@@ -226,7 +228,7 @@ public class Param {
     PARAM {
       @Override
       public Object get(final Request req, final Response resp, final Param md) throws Exception {
-        Variant param = req.param(md.name);
+        Mutant param = req.param(md.name);
         TypeLiteral<?> type = TypeLiteral.get(md.parameter.getParameterizedType());
         /**
          * If param is present or ask for an Upload, use/return the param version
@@ -237,7 +239,7 @@ public class Param {
           /**
            * If param is missing, check if this is a post/put and delegates to body
            */
-          if (req.verb().is(Request.Verb.POST, Request.Verb.PUT)) {
+          if (req.verb().is(Verb.POST, Verb.PUT)) {
             // assume body is required
             return req.body(type);
           } else {
@@ -267,7 +269,7 @@ public class Param {
         }
         return cookie
             .orElseThrow(
-            () -> new Route.Err(Response.Status.BAD_REQUEST, "Missing cookie: " + param.name));
+            () -> new Err(Status.BAD_REQUEST, "Missing cookie: " + param.name));
       }
     },
 

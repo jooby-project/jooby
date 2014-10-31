@@ -214,13 +214,14 @@ import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
-import org.jooby.Router;
 import org.jooby.Route.Definition;
+import org.jooby.Status;
+import org.jooby.Verb;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
-public class OptionsRouter implements Router {
+public class OptionsRouter implements Route.Handler {
 
   private Set<Definition> routeDefs;
 
@@ -236,10 +237,10 @@ public class OptionsRouter implements Router {
     }
     if (!res.header("Allow").toOptional(String.class).isPresent()) {
       Set<String> allow = new LinkedHashSet<>();
-      Set<Request.Verb> verbs = EnumSet.allOf(Request.Verb.class);
+      Set<Verb> verbs = EnumSet.allOf(Verb.class);
       String path = req.path();
       verbs.remove(req.route().verb());
-      for (Request.Verb alt : verbs) {
+      for (Verb alt : verbs) {
         for (Route.Definition routeDef : routeDefs) {
           Optional<Route> route = routeDef.matches(alt, path, MediaType.all, MediaType.ALL);
           if (route.isPresent()) {
@@ -249,7 +250,7 @@ public class OptionsRouter implements Router {
       }
       res.header("Allow", Joiner.on(", ").join(allow));
       res.length(0);
-      res.status(Response.Status.OK);
+      res.status(Status.OK);
     }
   }
 

@@ -213,20 +213,24 @@ import java.util.function.Function;
 import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
-import org.jooby.Router;
-import org.jooby.Viewable;
+import org.jooby.Route;
+import org.jooby.Status;
+import org.jooby.View;
 import org.jooby.fn.ExSupplier;
-import org.jooby.mvc.Template;
+import org.jooby.mvc.Viewable;
 
-class MvcRoute implements Router {
+class MvcRoute implements Route.Handler {
 
   private Method router;
 
   private ParamProvider provider;
 
-  public MvcRoute(final Method router, final ParamProvider provider) {
-    this.router = requireNonNull(router, "A router method is required.");
-    this.provider = requireNonNull(provider, "The resolver is required.");
+  private List<MediaType> produces;
+
+  public MvcRoute(final Method router, final ParamProvider provider, final List<MediaType> produces) {
+    this.router = requireNonNull(router, "Router method is required.");
+    this.provider = requireNonNull(provider, "Param prodiver is required.");
+    this.produces = requireNonNull(produces, "Produce types are required.");
   }
 
   @Override
@@ -246,40 +250,43 @@ class MvcRoute implements Router {
     if (returnType == void.class || returnType == Void.class) {
       // ignore glob pattern
       if (!req.route().pattern().contains("*")) {
-        res.status(Response.Status.NO_CONTENT);
+        res.status(Status.NO_CONTENT);
       }
       return;
     }
-    res.status(Response.Status.OK);
+    res.status(Status.OK);
 
     // format!
     List<MediaType> accept = req.accept();
 
     ExSupplier<Object> viewable = () -> {
-      if (result instanceof Viewable) {
+      if (result instanceof View) {
         return result;
       }
       // default view name
-      String defaultViewName = Optional.ofNullable(router.getAnnotation(Template.class))
+      String defaultViewName = Optional.ofNullable(router.getAnnotation(Viewable.class))
           .map(template -> template.value().isEmpty() ? router.getName() : template.value())
           .orElse(router.getName());
-      return Viewable.of(defaultViewName, result);
+      return View.of(defaultViewName, result);
     };
 
     ExSupplier<Object> notViewable = () -> result;
 
-    // viewable is apply when content type is text/html or accept header is size 1 matches text/html
-    // and template annotation is present.
-    boolean htmlLike = accept.size() == 1 && accept.get(0).matches(MediaType.html) &&
-        router.getAnnotation(Template.class) != null;
-    Function<MediaType, ExSupplier<Object>> provider =
-        (type) -> MediaType.html.equals(type) || htmlLike ? viewable : notViewable;
+    List<MediaType> viewableTypes = res.viewableTypes();
+    Function<MediaType, ExSupplier<Object>> provider = (type) -> {
+      Optional<MediaType> matches = viewableTypes.stream()
+        .filter(it -> it.matches(type))
+        .findFirst();
+        return matches.isPresent() ? viewable : notViewable;
+    };
 
     Response.Formatter formatter = res.format();
 
     // add formatters
     accept.forEach(type -> formatter.when(type, provider.apply(type)));
-    // send it!
+    produces.forEach(type -> formatter.when(type, provider.apply(type)));
+
+    // send!
     formatter.send();
   }
 }

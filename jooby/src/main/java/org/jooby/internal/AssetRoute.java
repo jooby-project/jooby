@@ -210,11 +210,12 @@ import java.util.Date;
 import org.jooby.Asset;
 import org.jooby.Request;
 import org.jooby.Response;
-import org.jooby.Router;
+import org.jooby.Route;
+import org.jooby.Status;
 
 import com.google.inject.Inject;
 
-public class AssetRoute implements Router {
+public class AssetRoute implements Route.Handler {
 
   private AssetProvider provider;
 
@@ -233,13 +234,13 @@ public class AssetRoute implements Router {
     if (lastModified > 0) {
       long ifModified = request.header("If-Modified-Since").toOptional(Long.class).orElse(-1l);
       if (ifModified > 0 && lastModified / 1000 <= ifModified / 1000) {
-        response.status(Response.Status.NOT_MODIFIED);
+        response.status(Status.NOT_MODIFIED);
         return;
       }
       response.header("Last-Modified", new Date(lastModified));
     }
     response.type(resource.type());
-    response.send(resource, new AssetBodyConverter(resource.type()));
+    response.send(resource);
   }
 
 }

@@ -236,7 +236,7 @@ public interface Upload extends Closeable {
    * @return A header value.
    */
   @Nonnull
-  Variant header(@Nonnull String name);
+  Mutant header(@Nonnull String name);
 
   /**
    * Get this upload as temporary file.

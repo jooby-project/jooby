@@ -679,7 +679,7 @@ public interface WebSocket extends Closeable {
    * @param callback A callback
    * @throws Exception If something goes wrong.
    */
-  void onMessage(@Nonnull Callback<Variant> callback) throws Exception;
+  void onMessage(@Nonnull Callback<Mutant> callback) throws Exception;
 
   /**
    * Register an error callback to execute when an error is found.

@@ -2,7 +2,6 @@ package org.jooby;
 
 import org.apache.http.client.fluent.Request;
 import org.jooby.MediaType;
-import org.jooby.Response;
 import org.jooby.mvc.Consumes;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
@@ -43,37 +42,37 @@ public class ResponseStatusFeature extends ServerFeature {
 
   @Test
   public void notFound() throws Exception {
-    assertStatus(Response.Status.NOT_FOUND, () -> Request.Get(uri("missing").build()).execute()
+    assertStatus(Status.NOT_FOUND, () -> Request.Get(uri("missing").build()).execute()
         .returnContent().asString());
   }
 
   @Test
   public void methodNotAllowed() throws Exception {
-    assertStatus(Response.Status.METHOD_NOT_ALLOWED, () -> Request.Post(uri("/notAllowed").build())
+    assertStatus(Status.METHOD_NOT_ALLOWED, () -> Request.Post(uri("/notAllowed").build())
         .execute().returnContent().asString());
 
-    assertStatus(Response.Status.METHOD_NOT_ALLOWED, () -> Request.Post(uri("/r/notAllowed").build())
+    assertStatus(Status.METHOD_NOT_ALLOWED, () -> Request.Post(uri("/r/notAllowed").build())
         .execute().returnContent().asString());
   }
 
   @Test
   public void notAcceptable() throws Exception {
-    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> Request.Get(uri("/json").build())
+    assertStatus(Status.NOT_ACCEPTABLE, () -> Request.Get(uri("/json").build())
         .addHeader("Accept", "text/html")
         .execute().returnContent().asString());
 
-    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> Request.Get(uri("/r/json").build())
+    assertStatus(Status.NOT_ACCEPTABLE, () -> Request.Get(uri("/r/json").build())
         .addHeader("Accept", "text/html")
         .execute().returnContent().asString());
   }
 
   @Test
   public void unsupportedMediaType() throws Exception {
-    assertStatus(Response.Status.UNSUPPORTED_MEDIA_TYPE, () -> Request.Get(uri("/json").build())
+    assertStatus(Status.UNSUPPORTED_MEDIA_TYPE, () -> Request.Get(uri("/json").build())
         .addHeader("Content-Type", "text/html")
         .execute().returnContent().asString());
 
-    assertStatus(Response.Status.UNSUPPORTED_MEDIA_TYPE, () -> Request.Get(uri("/r/json").build())
+    assertStatus(Status.UNSUPPORTED_MEDIA_TYPE, () -> Request.Get(uri("/r/json").build())
         .addHeader("Content-Type", "text/html")
         .execute().returnContent().asString());
   }

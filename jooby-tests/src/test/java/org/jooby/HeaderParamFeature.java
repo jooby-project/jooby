@@ -9,7 +9,6 @@ import javax.inject.Named;
 
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
-import org.jooby.Response;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Header;
 import org.jooby.mvc.Path;
@@ -95,7 +94,7 @@ public class HeaderParamFeature extends ServerFeature {
 
   @Test
   public void missingHeader() throws Exception {
-    assertStatus(Response.Status.BAD_REQUEST, () -> execute(GET(uri("int"))));
+    assertStatus(Status.BAD_REQUEST, () -> execute(GET(uri("int"))));
   }
 
   @Test

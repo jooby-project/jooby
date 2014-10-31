@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.apache.http.client.fluent.Request;
 import org.apache.http.message.BasicNameValuePair;
-import org.jooby.Variant;
+import org.jooby.Mutant;
 import org.junit.Test;
 
 public class AllParamsFeature extends ServerFeature {
@@ -14,7 +14,7 @@ public class AllParamsFeature extends ServerFeature {
   {
 
     post("/:name", (req, res) -> {
-      Map<String, Variant> params = req.params();
+      Map<String, Mutant> params = req.params();
       assertEquals("a", params.get("name").toList(String.class).get(0));
       assertEquals("b", params.get("name").toList(String.class).get(1));
       assertEquals("c", params.get("name").toList(String.class).get(2));

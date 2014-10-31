@@ -302,10 +302,11 @@ public class Routes {
               List<Class<?>> verbs = methods.get(method);
               String path = rootPath + "/" + path(method);
               String name = routeClass.getSimpleName() + "." + method.getName();
+              List<MediaType> produces = produces(method);
               for (Class<?> verb : verbs) {
                 Definition definition = new Route.Definition(
-                    verb.getSimpleName(), path, new MvcRoute(method, provider))
-                    .produces(produces(method))
+                    verb.getSimpleName(), path, new MvcRoute(method, provider, produces))
+                    .produces(produces)
                     .consumes(consumes(method))
                     .name(name);
 

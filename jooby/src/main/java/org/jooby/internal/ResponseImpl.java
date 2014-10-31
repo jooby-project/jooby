@@ -221,14 +221,14 @@ import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jooby.BodyConverter;
-import org.jooby.BodyReader;
-import org.jooby.BodyWriter;
+import org.jooby.Body;
+import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.MediaTypeProvider;
+import org.jooby.Mutant;
 import org.jooby.Response;
 import org.jooby.Route;
-import org.jooby.Variant;
+import org.jooby.Status;
 import org.jooby.fn.ExSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,7 +237,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
-import com.google.inject.TypeLiteral;
 
 public class ResponseImpl implements Response {
 
@@ -252,7 +251,7 @@ public class ResponseImpl implements Response {
 
   private Charset charset;
 
-  private Response.Status status;
+  private Status status;
 
   private MediaType type;
 
@@ -289,7 +288,12 @@ public class ResponseImpl implements Response {
     requireNonNull(reader, "A reader is required.");
 
     contentDisposition(filename);
-    send(reader, FallbackBodyConverter.COPY_TEXT);
+
+    Body body = Body.body(reader);
+    status().ifPresent(body::status);
+    type().ifPresent(body::type);
+
+    send(body, FallbackBodyConverter.fromReader);
   }
 
   @Override
@@ -298,7 +302,12 @@ public class ResponseImpl implements Response {
     requireNonNull(stream, "A stream is required.");
 
     contentDisposition(filename);
-    send(stream, FallbackBodyConverter.COPY_BYTES);
+
+    Body body = Body.body(stream);
+    status().ifPresent(body::status);
+    type().ifPresent(body::type);
+
+    send(body, FallbackBodyConverter.fromStream);
   }
 
   private void contentDisposition(final String filename) {
@@ -345,10 +354,10 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public Variant header(final String name) {
+  public Mutant header(final String name) {
     requireNonNull(name, "A header's name is required.");
 
-    return new VariantImpl(injector, name, ImmutableList.copyOf(response.getHeaders(name)),
+    return new MutantImpl(injector, name, ImmutableList.copyOf(response.getHeaders(name)),
         MediaType.all, charset);
   }
 
@@ -448,21 +457,26 @@ public class ResponseImpl implements Response {
   }
 
   @Override
+  public List<MediaType> viewableTypes() {
+    return selector.viewableTypes();
+  }
+
+  @Override
   public void send(final Body body) throws Exception {
     requireNonNull(body, "A body is required.");
     Optional<Object> content = body.content();
-    BodyConverter converter = content.isPresent()
+    Body.Formatter converter = content.isPresent()
         ? selector.forWrite(content.get(), route.produces())
-            .orElseThrow(() -> new Route.Err(Response.Status.NOT_ACCEPTABLE))
+            .orElseThrow(() -> new Err(Status.NOT_ACCEPTABLE))
         : noop(route.produces());
     send(body, converter);
   }
 
-  private static BodyConverter noop(final List<MediaType> types) {
-    return new BodyConverter() {
+  private static Body.Formatter noop(final List<MediaType> types) {
+    return new Body.Formatter() {
 
       @Override
-      public void write(final Object body, final BodyWriter writer) throws Exception {
+      public void format(final Object body, final Body.Writer writer) throws Exception {
         writer.bytes(out -> out.close());
       }
 
@@ -472,35 +486,25 @@ public class ResponseImpl implements Response {
       }
 
       @Override
-      public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean canWrite(final Class<?> type) {
+      public boolean canFormat(final Class<?> type) {
         return true;
       }
 
-      @Override
-      public boolean canRead(final TypeLiteral<?> type) {
-        return false;
-      }
     };
   }
 
-  @Override
-  public void send(final Body body, final BodyConverter converter) throws Exception {
+  private void send(final Body body, final Body.Formatter formatter) throws Exception {
     requireNonNull(body, "A response message is required.");
-    requireNonNull(converter, "A converter is required.");
+    requireNonNull(formatter, "A converter is required.");
 
     if (response.isCommitted()) {
       log.warn("  message ignored, response was committed already");
       return;
     }
 
-    type(body.type().orElse(converter.types().get(0)));
+    type(body.type().orElse(formatter.types().get(0)));
 
-    status(body.status().orElse(Response.Status.OK));
+    status(body.status().orElse(Status.OK));
 
     Runnable setHeaders = () -> body.headers().forEach(
         (name, value) -> {
@@ -533,7 +537,7 @@ public class ResponseImpl implements Response {
         // override status when message is a status
         status((Status) message);
       }
-      converter.write(message, new BodyWriterImpl(charset, stream, writer));
+      formatter.format(message, new BodyWriterImpl(charset, stream, writer));
     } else {
       // close output
       stream.get().close();
@@ -565,7 +569,7 @@ public class ResponseImpl implements Response {
             .first(types)
             .map(it -> strategies.get(it))
             .orElseThrow(
-                () -> new Route.Err(Response.Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces))
+                () -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces))
             );
 
         Object result = provider.get();
@@ -579,7 +583,7 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public void redirect(final Response.Status status, final String location) throws Exception {
+  public void redirect(final Status status, final String location) throws Exception {
     requireNonNull(status, "A status is required.");
     requireNonNull(location, "A location is required.");
 
@@ -587,12 +591,12 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public Optional<Response.Status> status() {
+  public Optional<Status> status() {
     return Optional.ofNullable(status);
   }
 
   @Override
-  public Response status(final Response.Status status) {
+  public Response status(final Status status) {
     this.status = requireNonNull(status, "A status is required.");
     this.committed = true;
     response.setStatus(status.value());

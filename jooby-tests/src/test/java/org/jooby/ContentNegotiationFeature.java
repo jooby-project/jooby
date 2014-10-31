@@ -3,7 +3,6 @@ package org.jooby;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.http.client.fluent.Request;
-import org.jooby.Response.Status;
 import org.jooby.mvc.Consumes;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
@@ -48,16 +47,17 @@ public class ContentNegotiationFeature extends ServerFeature {
       @Override
       public void configure(final Mode mode, final Config config, final Binder binder)
           throws Exception {
-        Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
-            BodyConverter.class);
-        converters.addBinding().toInstance(TestBodyConverter.HTML);
-        converters.addBinding().toInstance(TestBodyConverter.JSON);
+        Multibinder.newSetBinder(binder, Body.Formatter.class)
+        .addBinding().toInstance(BodyConverters.toHtml);
+
+        Multibinder.newSetBinder(binder, Body.Formatter.class)
+        .addBinding().toInstance(BodyConverters.toJson);
       }
     });
 
     get("/any", (req, resp) ->
         resp.format()
-            .when("text/html", () -> Viewable.of("test", "body"))
+            .when("text/html", () -> View.of("test", "body"))
             .when("*/*", () -> "body")
             .send());
 
@@ -68,11 +68,11 @@ public class ContentNegotiationFeature extends ServerFeature {
 
     get("/like", (req, resp) ->
     resp.format()
-        .when("text/html", () -> Viewable.of("test", "body"))
+        .when("text/html", () -> View.of("test", "body"))
         .when("application/json", () -> "body")
         .send());
 
-    get("/html", (req, resp) -> resp.send(Viewable.of("test", "body")))
+    get("/html", (req, resp) -> resp.send(View.of("test", "body")))
         .produces(MediaType.html);
 
     get("/json", (req, resp) -> resp.send("body"))
@@ -113,12 +113,12 @@ public class ContentNegotiationFeature extends ServerFeature {
         Request.Get(uri("r", "html").build()).addHeader("Accept", CHROME_ACCEPT).execute()
             .returnContent().asString());
 
-    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> {
+    assertStatus(Status.NOT_ACCEPTABLE, () -> {
       Request.Get(uri("json").build()).addHeader("Accept", "text/html").execute()
           .returnContent().asString();
     });
 
-    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> {
+    assertStatus(Status.NOT_ACCEPTABLE, () -> {
       Request.Get(uri("r", "json").build()).addHeader("Accept", "text/html").execute()
           .returnContent().asString();
     });
@@ -150,12 +150,12 @@ public class ContentNegotiationFeature extends ServerFeature {
         Request.Get(uri("r", "json").build()).addHeader("Accept", CHROME_ACCEPT).execute()
             .returnContent().asString());
 
-    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> {
+    assertStatus(Status.NOT_ACCEPTABLE, () -> {
       Request.Get(uri("html").build()).addHeader("Accept", "application/json").execute()
           .returnContent().asString();
     });
 
-    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> {
+    assertStatus(Status.NOT_ACCEPTABLE, () -> {
       Request.Get(uri("r", "html").build()).addHeader("Accept", "application/json").execute()
           .returnContent().asString();
     });
@@ -175,7 +175,7 @@ public class ContentNegotiationFeature extends ServerFeature {
             .addHeader("Accept", "application/json").execute()
             .returnContent().asString());
 
-    assertStatus(Response.Status.UNSUPPORTED_MEDIA_TYPE, () -> {
+    assertStatus(Status.UNSUPPORTED_MEDIA_TYPE, () -> {
       Request.Get(uri("json").build()).addHeader("Content-Type", "application/xml").execute()
           .returnContent().asString();
     });
@@ -200,7 +200,7 @@ public class ContentNegotiationFeature extends ServerFeature {
 
   @Test
   public void status() throws Exception {
-    assertStatus(Response.Status.NOT_ACCEPTABLE, () -> {
+    assertStatus(Status.NOT_ACCEPTABLE, () -> {
       Request.Get(uri("status").build()).addHeader("Content-Type", "application/xml").execute()
           .returnContent().asString();
     });

@@ -210,10 +210,10 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
-import org.jooby.BodyWriter;
+import org.jooby.Body;
 import org.jooby.fn.ExSupplier;
 
-class BodyWriterImpl implements BodyWriter {
+class BodyWriterImpl implements Body.Writer {
 
   private Charset charset;
 

@@ -8,9 +8,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.jooby.MediaType;
-import org.jooby.Variant;
+import org.jooby.Mutant;
 import org.jooby.internal.TypeConverters;
-import org.jooby.internal.VariantImpl;
+import org.jooby.internal.MutantImpl;
 import org.junit.Test;
 
 import com.google.common.base.Charsets;
@@ -446,8 +446,8 @@ public class GetterTest {
     assertEquals(Optional.of("A"), newGetter("A").toOptional(String.class));
   }
 
-  private Variant newGetter(final String... values) {
-    return new VariantImpl(injector(), "param", ImmutableList.copyOf(values), MediaType.all,
+  private Mutant newGetter(final String... values) {
+    return new MutantImpl(injector(), "param", ImmutableList.copyOf(values), MediaType.all,
         Charsets.UTF_8);
   }
 
@@ -455,8 +455,8 @@ public class GetterTest {
     return Guice.createInjector(TypeConverters::configure);
   }
 
-  private Variant newGetter(final String value) {
-    return new VariantImpl(injector(), "param", value == null ? null : ImmutableList.of(value),
+  private Mutant newGetter(final String value) {
+    return new MutantImpl(injector(), "param", value == null ? null : ImmutableList.of(value),
         MediaType.all, Charsets.UTF_8);
   }
 }

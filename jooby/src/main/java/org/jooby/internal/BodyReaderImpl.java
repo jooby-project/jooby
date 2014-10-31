@@ -210,10 +210,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
-import org.jooby.BodyReader;
+import org.jooby.Body;
 import org.jooby.fn.ExSupplier;
 
-public class BodyReaderImpl implements BodyReader {
+public class BodyReaderImpl implements Body.Reader {
 
   private Charset charset;
 

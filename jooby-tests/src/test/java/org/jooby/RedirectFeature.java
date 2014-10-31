@@ -18,26 +18,26 @@ public class RedirectFeature extends ServerFeature {
 
     @Path("/redirect")
     @GET
-    public Response.Body redirect() {
-      return Response.Body.redirect("/r/here");
+    public Body redirect() {
+      return Body.redirect("/r/here");
     }
 
     @Path("/seeOther")
     @GET
-    public Response.Body seeOther() {
-      return Response.Body.seeOther("/r/here");
+    public Body seeOther() {
+      return Body.seeOther("/r/here");
     }
 
     @Path("/tempRedirect")
     @GET
-    public Response.Body tempRedirect() {
-      return Response.Body.tempRedirect("/r/here");
+    public Body tempRedirect() {
+      return Body.tempRedirect("/r/here");
     }
 
     @Path("/moved")
     @GET
-    public Response.Body moved() {
-      return Response.Body.moved("/r/here");
+    public Body moved() {
+      return Body.moved("/r/here");
     }
 
     @Path("/here")

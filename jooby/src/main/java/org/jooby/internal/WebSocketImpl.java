@@ -218,9 +218,9 @@ import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.SuspendToken;
 import org.eclipse.jetty.websocket.api.WriteCallback;
-import org.jooby.BodyConverter;
+import org.jooby.Body;
 import org.jooby.MediaType;
-import org.jooby.Variant;
+import org.jooby.Mutant;
 import org.jooby.WebSocket;
 import org.jooby.fn.ExSupplier;
 
@@ -252,7 +252,7 @@ public class WebSocketImpl implements WebSocket {
 
   private Handler handler;
 
-  private Callback<Variant> messageCallback = noop();
+  private Callback<Mutant> messageCallback = noop();
 
   private Callback<CloseStatus> closeCallback = noop();
 
@@ -334,7 +334,7 @@ public class WebSocketImpl implements WebSocket {
       }
     };
 
-    Optional<BodyConverter> converter = injector.getInstance(BodyConverterSelector.class)
+    Optional<Body.Formatter> converter = injector.getInstance(BodyConverterSelector.class)
         .forWrite(data, ImmutableList.of(produces));
     if (converter.isPresent()) {
       ExSupplier<OutputStream> stream = () -> {
@@ -343,7 +343,7 @@ public class WebSocketImpl implements WebSocket {
       ExSupplier<Writer> reader = () -> {
         return new PrintWriter(stream(session, callback, true));
       };
-      converter.get().write(data, new BodyWriterImpl(Charsets.UTF_8, stream, reader));
+      converter.get().format(data, new BodyWriterImpl(Charsets.UTF_8, stream, reader));
     } else {
       RemoteEndpoint remote = session.getRemote();
       if (byte[].class == data.getClass() || Byte[].class == data.getClass()) {
@@ -375,7 +375,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public void onMessage(final Callback<Variant> callback) throws Exception {
+  public void onMessage(final Callback<Mutant> callback) throws Exception {
     this.messageCallback = requireNonNull(callback, "Message callback is required.");
   }
 
@@ -432,7 +432,7 @@ public class WebSocketImpl implements WebSocket {
     return buffer.toString();
   }
 
-  public void fireMessage(final Variant variant) throws Exception {
+  public void fireMessage(final Mutant variant) throws Exception {
     this.messageCallback.invoke(variant);
   }
 

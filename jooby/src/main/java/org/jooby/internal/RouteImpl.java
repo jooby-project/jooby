@@ -207,15 +207,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jooby.Filter;
+import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.Status;
+import org.jooby.Verb;
 
-public class RouteImpl implements Route, Filter {
+public class RouteImpl implements Route, Route.Filter {
 
-  private Request.Verb verb;
+  private Verb verb;
 
   private String path;
 
@@ -231,22 +233,22 @@ public class RouteImpl implements Route, Filter {
 
   private Filter filter;
 
-  public static RouteImpl notFound(final Request.Verb verb, final String path,
+  public static RouteImpl notFound(final Verb verb, final String path,
       final List<MediaType> produces) {
     return fromStatus((req, res, chain) -> {
       if (!res.committed()) {
-        throw new Route.Err(Response.Status.NOT_FOUND, path);
+        throw new Err(Status.NOT_FOUND, path);
       }
-    }, verb, path, Response.Status.NOT_FOUND, produces);
+    }, verb, path, Status.NOT_FOUND, produces);
   }
 
-  public static RouteImpl fromStatus(final Filter filter, final Request.Verb verb,
-      final String path, final Response.Status status, final List<MediaType> produces) {
+  public static RouteImpl fromStatus(final Filter filter, final Verb verb,
+      final String path, final Status status, final List<MediaType> produces) {
     return new RouteImpl(filter, verb, path, path, status.value() + "", Collections.emptyMap(),
         MediaType.ALL, produces);
   }
 
-  public RouteImpl(final Filter filter, final Request.Verb verb, final String path,
+  public RouteImpl(final Filter filter, final Verb verb, final String path,
       final String pattern, final String name, final Map<String, String> vars,
       final List<MediaType> consumes, final List<MediaType> produces) {
     this.filter = filter;
@@ -271,7 +273,7 @@ public class RouteImpl implements Route, Filter {
   }
 
   @Override
-  public Request.Verb verb() {
+  public Verb verb() {
     return verb;
   }
 

@@ -306,7 +306,7 @@ public class Hbm extends JDBC {
     this.emf = emf;
   }
 
-  private Filter readWriteTrx(final Key<EntityManager> key) {
+  private Route.Filter readWriteTrx(final Key<EntityManager> key) {
     return (req, resp, chain) -> {
       EntityManager em = req.getInstance(key);
       Session session = (Session) em.getDelegate();
@@ -378,25 +378,9 @@ public class Hbm extends JDBC {
           }
 
           @Override
-          public void send(final Object body, final BodyConverter converter) throws Exception {
-            transactionalSend(() -> {
-              super.send(body, converter);
-              return null;
-            });
-          }
-
-          @Override
           public void send(final Body body) throws Exception {
             transactionalSend(() -> {
               super.send(body);
-              return null;
-            });
-          }
-
-          @Override
-          public void send(final Body body, final BodyConverter converter) throws Exception {
-            transactionalSend(() -> {
-              super.send(body, converter);
               return null;
             });
           }

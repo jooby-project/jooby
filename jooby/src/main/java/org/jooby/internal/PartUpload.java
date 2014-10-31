@@ -212,7 +212,7 @@ import javax.servlet.http.Part;
 
 import org.jooby.MediaType;
 import org.jooby.Upload;
-import org.jooby.Variant;
+import org.jooby.Mutant;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
@@ -250,9 +250,9 @@ class PartUpload implements Upload {
   }
 
   @Override
-  public Variant header(final String name) {
+  public Mutant header(final String name) {
     Collection<String> headers = part.getHeaders(name);
-    return new VariantImpl(injector, name, ImmutableList.copyOf(headers), MediaType.all, charset);
+    return new MutantImpl(injector, name, ImmutableList.copyOf(headers), MediaType.all, charset);
   }
 
   @Override

@@ -203,79 +203,189 @@
  */
 package org.jooby;
 
-import java.io.OutputStream;
-import java.io.Writer;
-import java.nio.charset.Charset;
+import static java.util.Objects.requireNonNull;
 
-import javax.annotation.Nonnull;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.slf4j.LoggerFactory;
 
 /**
- * Utility class to properly write data into the HTTP response body. It provides methods for
- * writing text and bytes efficiently. Clients shouldn't worry about closing the HTTP response body.
+ * An exception that carry a {@link Status}. The status field will be set in the HTTP
+ * response.
+ *
+ * See {@link Err.Handler} for more details on how to deal with exceptions.
  *
  * @author edgar
  * @since 0.1.0
  */
-public interface BodyWriter {
+@SuppressWarnings("serial")
+public class Err extends RuntimeException {
 
   /**
-   * Write bytes to the HTTP Body.
+   * Default err handler with content negotation. If an error is found when accept header is
+   * <code>text/html</code> this err handler will delegate err rendering to a template processor.
    *
    * @author edgar
    * @since 0.1.0
    */
-  interface Bytes {
+  public static class Default implements Err.Handler {
 
-    /**
-     * Write bytes into the given {@link OutputStream}. The {@link OutputStream} will be close it
-     * automatically after this call. Clients shouldn't worry about closing
-     * the {@link OutputStream}.
-     *
-     * @param out The HTTP response body.
-     * @throws Exception When the operation fails.
-     */
-    void write(OutputStream out) throws Exception;
+    @Override
+    public void handle(final Request req, final Response res, final Exception ex)
+        throws Exception {
+      LoggerFactory.getLogger(Err.class).error("execution of: " + req.path() +
+          " resulted in exception", ex);
+
+      Map<String, Object> err = err(req, res, ex);
+
+      res.format()
+          .when(MediaType.html, () -> View.of(errPage(req, res, ex), err))
+          .when(MediaType.all, () -> err)
+          .send();
+    }
+
   }
 
   /**
-   * Write text to the HTTP Body and apply application/request charset.
+   * Route error handler, it creates a default err model and default view name.
+   *
+   * The default err handler does content negotation on error, see {@link Default}.
    *
    * @author edgar
    * @since 0.1.0
    */
-  interface Text {
+  public interface Handler {
 
     /**
-     * Write text into the given {@link Writer}. The {@link Writer} will be close it automatically
-     * after this call. Clients shouldn't worry about closing the {@link Writer}.
-     * The writer is configured with the application/request charset.
+     * Build a err model from exception. The model it's map with the following attributes:
      *
-     * @param writer The HTTP response body.
-     * @throws Exception When the operation fails.
+     * <pre>
+     *   message: String
+     *   stacktrace: String[]
+     *   status: int
+     *   reason: String
+     *   referer: String
+     * </pre>
+     *
+     * <p>
+     * NOTE: {@link Response#status()} it was set by default to status code > 400. This is the
+     * default behavior you can use the generated status code and/or override it.
+     * </p>
+     *
+     * @param req A HTTP Request.
+     * @param res A HTTP Response with a default err status code (> 400).
+     * @param ex Current exception object.
+     * @return A err model.
      */
-    void write(Writer writer) throws Exception;
+    default Map<String, Object> err(final Request req, final Response res, final Exception ex) {
+      Map<String, Object> error = new LinkedHashMap<>();
+      Status status = res.status().get();
+      String message = ex.getMessage();
+      message = message == null ? status.reason() : message;
+      error.put("message", message);
+      StringWriter writer = new StringWriter();
+      ex.printStackTrace(new PrintWriter(writer));
+      String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
+      error.put("stacktrace", stacktrace);
+      error.put("status", status.value());
+      error.put("reason", status.reason());
+      error.put("referer", req.header("referer"));
+
+      return error;
+    }
+
+    /**
+     * Convert current err to a view location, defaults is: <code>/err</code>.
+     *
+     * @param req HTTP request.
+     * @param res HTTP Response.
+     * @param ex Error found.
+     * @return An err page to be render by a template processor.
+     */
+    default String errPage(final Request req, final Response res, final Exception ex) {
+      return "/err";
+    }
+
+    /**
+     * Handle a route exception by probably logging the error and sending a err response to the
+     * client.
+     *
+     * @param req HTTP request.
+     * @param res HTTP response.
+     * @param ex Error found.
+     * @throws Exception If something goes wrong.
+     */
+    void handle(Request req, Response res, Exception ex) throws Exception;
   }
 
   /**
-   * @return A charset.
+   * The status code. Required.
    */
-  Charset charset();
+  private int status;
 
   /**
-   * Write text into the HTTP response body using the {@link #charset()} and close the resources.
-   * It applies the application/request charset.
+   * Creates a new {@link Err}.
    *
-   * @param text A text strategy.
-   * @throws Exception When the operation fails.
+   * @param status A HTTP status. Required.
+   * @param message A error message. Required.
+   * @param cause The cause of the problem.
    */
-  void text(@Nonnull Text text) throws Exception;
+  public Err(final Status status, final String message, final Exception cause) {
+    super(message(status, message), cause);
+    this.status = status.value();
+  }
 
   /**
-   * Write bytes into the HTTP response body and close the resources.
+   * Creates a new {@link Err}.
    *
-   * @param bytes A bytes strategy.
-   * @throws Exception When the operation fails.
+   * @param status A HTTP status. Required.
+   * @param message A error message. Required.
    */
-  void bytes(@Nonnull Bytes bytes) throws Exception;
+  public Err(final Status status, final String message) {
+    super(message(status, message));
+    this.status = status.value();
+  }
 
+  /**
+   * Creates a new {@link Err}.
+   *
+   * @param status A HTTP status. Required.
+   * @param cause The cause of the problem.
+   */
+  public Err(final Status status, final Exception cause) {
+    super(message(status, ""), cause);
+    this.status = status.value();
+  }
+
+  /**
+   * Creates a new {@link Err}.
+   *
+   * @param status A HTTP status. Required.
+   */
+  public Err(final Status status) {
+    super(message(status, ""));
+    this.status = status.value();
+  }
+
+  /**
+   * @return The status code to send as response.
+   */
+  public int statusCode() {
+    return status;
+  }
+
+  /**
+   * Build an error message using the HTTP status.
+   *
+   * @param status The HTTP Status.
+   * @param tail A message to append.
+   * @return An error message.
+   */
+  private static String message(final Status status, final String tail) {
+    requireNonNull(status, "A HTTP Status is required.");
+    return status.reason() + "(" + status.value() + "): " + tail;
+  }
 }

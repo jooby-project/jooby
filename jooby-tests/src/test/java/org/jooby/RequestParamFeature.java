@@ -12,7 +12,6 @@ import javax.inject.Named;
 
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
-import org.jooby.Response;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.junit.Test;
@@ -142,7 +141,7 @@ public class RequestParamFeature extends ServerFeature {
 
   @Test
   public void missingParam() throws Exception {
-    assertStatus(Response.Status.BAD_REQUEST, () -> GET(uri("boolean")));
+    assertStatus(Status.BAD_REQUEST, () -> GET(uri("boolean")));
   }
 
   @Test

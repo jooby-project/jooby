@@ -205,13 +205,6 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
-import org.jooby.BodyConverter;
-import org.jooby.BodyWriter;
-import org.jooby.Jooby;
-import org.jooby.Mode;
-import org.jooby.TemplateProcessor;
-import org.jooby.Viewable;
-
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
@@ -226,7 +219,7 @@ import com.typesafe.config.Config;
 
 public class Hbs extends Jooby.Module {
 
-  private static class Engine extends TemplateProcessor {
+  private static class Engine implements View.Engine {
 
     private Handlebars handlebars;
 
@@ -235,7 +228,12 @@ public class Hbs extends Jooby.Module {
     }
 
     @Override
-    public void render(final Viewable view, final BodyWriter writer) throws Exception {
+    public String name() {
+      return "hbs";
+    }
+
+    @Override
+    public void render(final View view, final Body.Writer writer) throws Exception {
       Template template = handlebars.compile(view.name());
 
       final Context context;
@@ -257,7 +255,7 @@ public class Hbs extends Jooby.Module {
 
     @Override
     public String toString() {
-      return "Hbs";
+      return name();
     }
   }
 
@@ -276,7 +274,7 @@ public class Hbs extends Jooby.Module {
       throws Exception {
     binder.bind(Handlebars.class).toInstance(handlebars);
 
-    Multibinder.newSetBinder(binder, BodyConverter.class).addBinding()
+    Multibinder.newSetBinder(binder, Body.Formatter.class).addBinding()
         .toInstance(new Engine(handlebars));
 
   }

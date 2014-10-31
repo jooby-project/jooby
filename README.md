@@ -37,20 +37,24 @@ quickstart
 
 Just paste this into a terminal:
 
-    mvn archetype:generate -DgroupId=[app package] -DartifactId=[app name] -Dversion=[app version] -B -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.1.0-SNAPSHOT
+    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT \
+    -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby \
+    -DarchetypeVersion=0.1.0-SNAPSHOT
 
-You must provide a value for:
+You might want to edit/change:
 
-* -DgroupId: like ```com.mycompany```, ```org.myorg```, etc... It must be a valid Java package's name.
+* -DgroupId: A Java package's name
 
-* -DartifactId: like ```my-app```, usually in lower case and without spaces.
+* -DartifactId: A project's name in lower case and without spaces
 
-* -Dversion: like ```1.0-SNAPSHOT``` or ```1.0.0-SNAPSHOT```
+* -Dversion: A project's version, like ```1.0-SNAPSHOT``` or ```1.0.0-SNAPSHOT```
 
 
 Let's try it!:
 
-    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.1.0-SNAPSHOT
+    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT \
+    -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby \
+    -DarchetypeVersion=0.1.0-SNAPSHOT
     cd my-app
     mvn jooby:run
 

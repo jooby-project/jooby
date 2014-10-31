@@ -1,10 +1,7 @@
-* Split BodyConverter into parser/formatter.
-  ** TemplateProcessor -> TemplateEngine?
-  ** Viewable -> View?
-  ** View negotiator should get all the media types of template engines.
-  ** Add name to template engine
-  ** Model contributions for views
+* Default Err  negotiator should get all the media types of template engines.
+* Default handler for favicon
+* Model contributions for views
 * Document Public API & GitHub Page
 * Signed cookies
 * Tests for Web Socket
-* Support for Test
+* Test support

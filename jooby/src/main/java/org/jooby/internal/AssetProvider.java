@@ -211,10 +211,10 @@ import java.net.URL;
 import javax.inject.Inject;
 
 import org.jooby.Asset;
+import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.MediaTypeProvider;
-import org.jooby.Response;
-import org.jooby.Route;
+import org.jooby.Status;
 
 class AssetProvider {
 
@@ -237,7 +237,7 @@ class AssetProvider {
       if (file.exists()) {
         return new FileAsset(file, mediaType);
       }
-      throw new Route.Err(Response.Status.NOT_FOUND, path);
+      throw new Err(Status.NOT_FOUND, path);
     } else if (resource.getProtocol().equals("file")) {
       return new FileAsset(new File(resource.toURI()), mediaType);
     }

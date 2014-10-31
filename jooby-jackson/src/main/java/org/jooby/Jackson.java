@@ -207,11 +207,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.List;
 
-import org.jooby.BodyConverter;
-import org.jooby.Jooby;
-import org.jooby.MediaType;
-import org.jooby.Mode;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
@@ -240,9 +235,14 @@ public class Jackson extends Jooby.Module {
   @Override
   public void configure(final Mode mode, final Config config, final Binder binder) {
     binder.bind(ObjectMapper.class).toInstance(mapper);
-    Multibinder.newSetBinder(binder, BodyConverter.class)
+    JSON json = new JSON(mapper, types);
+    Multibinder.newSetBinder(binder, Body.Formatter.class)
         .addBinding()
-        .toInstance(new JSON(mapper, types));
+        .toInstance(json);
+
+    Multibinder.newSetBinder(binder, Body.Parser.class)
+        .addBinding()
+        .toInstance(json);
   }
 
 }

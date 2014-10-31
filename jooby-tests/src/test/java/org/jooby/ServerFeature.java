@@ -14,7 +14,6 @@ import org.apache.http.util.EntityUtils;
 import org.jooby.Jooby;
 import org.jooby.JoobyRunner;
 import org.jooby.MediaType;
-import org.jooby.Response;
 import org.junit.runner.RunWith;
 
 import com.google.common.base.Joiner;
@@ -36,9 +35,9 @@ public abstract class ServerFeature extends Jooby {
       this.response = response;
     }
 
-    public HttpAssert status(final Response.Status status) throws Exception {
+    public HttpAssert status(final Status status) throws Exception {
       doAssert(() -> assertEquals(status,
-          Response.Status.valueOf(response.getStatusLine().getStatusCode())));
+          Status.valueOf(response.getStatusLine().getStatusCode())));
       return this;
     }
 
@@ -73,7 +72,7 @@ public abstract class ServerFeature extends Jooby {
   @Inject
   private int port;
 
-  public void assertStatus(final Response.Status status, final HttpCall call) throws Exception {
+  public void assertStatus(final Status status, final HttpCall call) throws Exception {
     try {
       call.call();
       fail("expected " + status);

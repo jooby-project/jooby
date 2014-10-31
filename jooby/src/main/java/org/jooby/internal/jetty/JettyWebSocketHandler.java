@@ -208,14 +208,13 @@ import java.util.NoSuchElementException;
 
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Route.Err;
-import org.jooby.Variant;
+import org.jooby.Err;
+import org.jooby.Mutant;
+import org.jooby.Status;
 import org.jooby.WebSocket;
-import org.jooby.internal.VariantImpl;
-import org.jooby.internal.WebSocketBinaryMessage;
+import org.jooby.internal.MutantImpl;
 import org.jooby.internal.WebSocketImpl;
+import org.jooby.internal.WsBinaryMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,7 +244,7 @@ public class JettyWebSocketHandler implements WebSocketListener {
   public void onWebSocketBinary(final byte[] array, final int offset, final int len) {
     try {
       // for Web Socket, charset is always UTF-8
-      Variant variant = new WebSocketBinaryMessage(ByteBuffer.wrap(array, offset, len));
+      Mutant variant = new WsBinaryMessage(ByteBuffer.wrap(array, offset, len));
       socket.fireMessage(variant);
     } catch (Exception ex) {
       onWebSocketError(ex);
@@ -256,7 +255,7 @@ public class JettyWebSocketHandler implements WebSocketListener {
   public void onWebSocketText(final String value) {
     try {
       // for Web Socket, charset is always UTF-8
-      Variant variant = new VariantImpl(injector, "message", ImmutableList.of(value),
+      Mutant variant = new MutantImpl(injector, "message", ImmutableList.of(value),
           socket.consumes(), Charsets.UTF_8);
       socket.fireMessage(variant);
     } catch (Exception ex) {
@@ -299,9 +298,9 @@ public class JettyWebSocketHandler implements WebSocketListener {
         closeStatus = WebSocket.BAD_DATA;
       } else if (cause instanceof NoSuchElementException) {
         closeStatus = WebSocket.BAD_DATA;
-      } else if (cause instanceof Route.Err) {
-        Route.Err err = (Err) cause;
-        if (err.status() == Response.Status.BAD_REQUEST) {
+      } else if (cause instanceof Err) {
+        Err err = (Err) cause;
+        if (err.statusCode() == Status.BAD_REQUEST.value()) {
           closeStatus = WebSocket.BAD_DATA;
         }
       }

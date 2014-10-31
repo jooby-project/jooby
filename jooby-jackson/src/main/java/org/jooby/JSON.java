@@ -208,15 +208,10 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 
-import org.jooby.BodyConverter;
-import org.jooby.BodyReader;
-import org.jooby.BodyWriter;
-import org.jooby.MediaType;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.TypeLiteral;
 
-class JSON implements BodyConverter {
+class JSON implements Body.Formatter, Body.Parser {
 
   private ObjectMapper mapper;
   private List<MediaType> types;
@@ -232,22 +227,22 @@ class JSON implements BodyConverter {
   }
 
   @Override
-  public boolean canRead(final TypeLiteral<?> type) {
+  public boolean canParse(final TypeLiteral<?> type) {
     return mapper.canDeserialize(mapper.constructType(type.getType()));
   }
 
   @Override
-  public boolean canWrite(final Class<?> type) {
+  public boolean canFormat(final Class<?> type) {
     return mapper.canSerialize(type);
   }
 
   @Override
-  public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
+  public <T> T parse(final TypeLiteral<T> type, final Body.Reader reader) throws Exception {
     return reader.text(in -> mapper.readValue(in, mapper.constructType(type.getType())));
   }
 
   @Override
-  public void write(final Object body, final BodyWriter writer) throws Exception {
+  public void format(final Object body, final Body.Writer writer) throws Exception {
     writer.text(out -> mapper.writeValue(out, body));
   }
 

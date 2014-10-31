@@ -203,23 +203,26 @@
  */
 package org.jooby.internal;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import org.jooby.BodyConverter;
+import org.jooby.Body;
 import org.jooby.MediaType;
+import org.jooby.View;
+import org.jooby.fn.Collectors;
 
 import com.google.inject.TypeLiteral;
 
 /**
- * Choose or select a {@link BodyConverter} using {@link MediaType media types.}. Examples:
+ * Choose or select a {@link Body.Parser} or {@link Body.Formatter} using {@link MediaType media
+ * types.}. Examples:
  *
  * <pre>
  *   // selector with html and json converters
@@ -238,44 +241,51 @@ import com.google.inject.TypeLiteral;
  * @author edgar
  * @since 0.1.0
  */
+@Singleton
 public class BodyConverterSelector {
 
   /**
    * The available converters in the system.
    */
-  private final Set<BodyConverter> converters;
+  private final Set<Body.Formatter> formatters;
 
-  /**
-   * A map version of the available converters.
-   */
-  private final Map<MediaType, BodyConverter> converterMap = new HashMap<>();
+  private final Set<Body.Parser> parsers;
+
+  private List<MediaType> viewableTypes;
 
   /**
    * Creates a new {@link BodyConverterSelector}.
    *
-   * @param converters The available converter in the system.
+   * @param formatters The available converter in the system.
    */
   @Inject
-  public BodyConverterSelector(final Set<BodyConverter> converters) {
-    checkState(converters != null, "No body converter was found.");
-    this.converters = converters;
-    converters.forEach(c -> c.types().forEach(t -> converterMap.putIfAbsent(t, c)));
+  public BodyConverterSelector(final Set<Body.Formatter> formatters,
+      final Set<Body.Parser> parsers) {
+    this.formatters = requireNonNull(formatters, "The formatters is required.");
+    this.parsers = requireNonNull(parsers, "The parsers is required.");
+    this.viewableTypes = this.formatters.stream().filter(View.Engine.class::isInstance)
+        .flatMap(engine -> engine.types().stream())
+        .collect(Collectors.toList());
   }
 
-  public Optional<BodyConverter> forRead(final TypeLiteral<?> type,
-      final Iterable<MediaType> candidates) {
-    requireNonNull(type, "The type is required.");
-    requireNonNull(candidates, "Media types candidates are required.");
+  public List<MediaType> viewableTypes() {
+    return viewableTypes;
+  }
 
-    for (MediaType mediaType : candidates) {
-      for (BodyConverter converter : converters) {
-        if (converter.canRead(type)) {
-          Optional<MediaType> found = converter.types()
+  public Optional<Body.Parser> forRead(final TypeLiteral<?> type,
+      final Iterable<MediaType> types) {
+    requireNonNull(type, "Type literal is required.");
+    requireNonNull(types, "Types are required.");
+
+    for (Body.Parser parser : parsers) {
+      if (parser.canParse(type)) {
+        for (MediaType mtype : types) {
+          Optional<MediaType> found = parser.types()
               .stream()
-              .filter(it -> mediaType.matches(it))
+              .filter(it -> mtype.matches(it))
               .findFirst();
           if (found.isPresent()) {
-            return Optional.of(converter);
+            return Optional.of(parser);
           }
         }
       }
@@ -284,22 +294,34 @@ public class BodyConverterSelector {
     return Optional.empty();
   }
 
-  public Optional<BodyConverter> forWrite(final Object message,
-      final Iterable<MediaType> candidates) {
+  public Optional<Body.Formatter> forWrite(final Object message,
+      final Iterable<MediaType> types) {
     requireNonNull(message, "A message is required.");
-    requireNonNull(candidates, "Media types candidates are required.");
+    requireNonNull(types, "Types are required.");
 
-    Class<?> type = message.getClass();
+    Class<?> clazz = message.getClass();
 
-    for (MediaType mediaType : candidates) {
-      for (BodyConverter converter : converters) {
-        if (converter.canWrite(type)) {
-          Optional<MediaType> found = converter.types()
+    Predicate<Body.Formatter> noop = (f) -> true;
+
+    Predicate<Body.Formatter> viewable = (f) -> {
+      if (f instanceof View.Engine) {
+        String engine = ((View) message).engine();
+        return engine.isEmpty() || ((View.Engine) f).name().equals(engine);
+      }
+      return true;
+    };
+
+    Predicate<Body.Formatter> nameMatcher = message instanceof View ? viewable : noop;
+
+    for (Body.Formatter formatter : formatters) {
+      if (formatter.canFormat(clazz) && nameMatcher.test(formatter)) {
+        for (MediaType type : types) {
+          Optional<MediaType> found = formatter.types()
               .stream()
-              .filter(it -> mediaType.matches(it))
+              .filter(it -> type.matches(it))
               .findFirst();
           if (found.isPresent()) {
-            return Optional.of(converter);
+            return Optional.of(formatter);
           }
         }
       }

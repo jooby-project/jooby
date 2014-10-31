@@ -227,50 +227,6 @@ import com.google.inject.TypeLiteral;
 public interface Request {
 
   /**
-   * HTTP Verbs (a.k.a methods)
-   */
-  enum Verb {
-    /** HTTP OPTIONS. */
-    OPTIONS,
-
-    /** HTTP GET. */
-    GET,
-
-    /** HTTP HEAD. */
-    HEAD,
-
-    /** HTTP POST. */
-    POST,
-
-    /** HTTP PUT. */
-    PUT,
-
-    /** HTTP DELETE. */
-    DELETE,
-
-    /** HTTP TRACE. */
-    TRACE,
-
-    /** HTTP CONNECT. */
-    CONNET;
-
-    /**
-     * True if this verb matches any of the current verbs.
-     *
-     * @param verbs The verbs to test.
-     * @return True if this verb matches any of the current verbs.
-     */
-    public boolean is(final Verb... verbs) {
-      for(Verb verb: verbs) {
-        if (verb == this) {
-          return true;
-        }
-      }
-      return false;
-    }
-  }
-
-  /**
    * Forwarding request.
    *
    * @author edgar
@@ -316,22 +272,22 @@ public interface Request {
     }
 
     @Override
-    public Map<String, Variant> params() throws Exception {
+    public Map<String, Mutant> params() throws Exception {
       return request.params();
     }
 
     @Override
-    public Variant param(final String name) throws Exception {
+    public Mutant param(final String name) throws Exception {
       return request.param(name);
     }
 
     @Override
-    public Variant header(final String name) {
+    public Mutant header(final String name) {
       return request.header(name);
     }
 
     @Override
-    public Map<String, Variant> headers() {
+    public Map<String, Mutant> headers() {
       return request.headers();
     }
 
@@ -649,7 +605,7 @@ public interface Request {
    * @return All the parameters.
    */
   @Nonnull
-  Map<String, Variant> params() throws Exception;
+  Map<String, Mutant> params() throws Exception;
 
   /**
    * Get a HTTP request parameter under the given name. A HTTP parameter can be provided in any of
@@ -678,26 +634,26 @@ public interface Request {
    * @param name A parameter's name.
    * @return A HTTP request parameter.
    * @throws Exception On retrieval failures.
-   * @see {@link Variant}
+   * @see {@link Mutant}
    */
   @Nonnull
-  Variant param(@Nonnull String name) throws Exception;
+  Mutant param(@Nonnull String name) throws Exception;
 
   /**
    * Get a HTTP header.
    *
    * @param name A header's name.
    * @return A HTTP request header.
-   * @see {@link Variant}
+   * @see {@link Mutant}
    */
   @Nonnull
-  Variant header(@Nonnull String name);
+  Mutant header(@Nonnull String name);
 
   /**
    * @return All the headers.
    */
   @Nonnull
-  Map<String, Variant> headers();
+  Map<String, Mutant> headers();
 
   /**
    * Get a cookie with the given name (if present).
@@ -720,7 +676,7 @@ public interface Request {
    * @param type The body type.
    * @return The HTTP body as an object.
    * @throws Exception If body can't be converted or there is no HTTP body.
-   * @see {@link BodyConverter#read(TypeLiteral, BodyReader)}
+   * @see {@link BodyConverter#read(TypeLiteral, Body.Reader)}
    */
   @Nonnull
   default <T> T body(@Nonnull final Class<T> type) throws Exception {
@@ -734,7 +690,7 @@ public interface Request {
    * @param type The body type.
    * @return The HTTP body as an object.
    * @throws Exception If body can't be converted or there is no HTTP body.
-   * @see {@link BodyConverter#read(TypeLiteral, BodyReader)}
+   * @see {@link BodyConverter#read(TypeLiteral, Body.Reader)}
    */
   @Nonnull
   <T> T body(@Nonnull TypeLiteral<T> type) throws Exception;

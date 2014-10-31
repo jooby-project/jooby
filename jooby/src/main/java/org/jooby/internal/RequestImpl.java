@@ -222,16 +222,17 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
-import org.jooby.BodyConverter;
+import org.jooby.Body;
 import org.jooby.Cookie;
+import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.MediaTypeProvider;
+import org.jooby.Mutant;
 import org.jooby.Request;
-import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Session;
+import org.jooby.Status;
 import org.jooby.Upload;
-import org.jooby.Variant;
 import org.jooby.internal.jetty.JoobySession;
 
 import com.google.common.collect.FluentIterable;
@@ -301,13 +302,13 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public Variant param(final String name) throws Exception {
+  public Mutant param(final String name) throws Exception {
     requireNonNull(name, "Parameter's name is missing.");
     List<String> values = params(name);
     if (values.isEmpty()) {
       List<Upload> files = reqUploads(name);
       if (files.size() > 0) {
-        return new GetUpload(name, files);
+        return new UploadMutant(name, files);
       }
     }
     MediaType type = MediaType.all;
@@ -321,17 +322,17 @@ public class RequestImpl implements Request {
     return newVariant(name, values, type);
   }
 
-  private Variant newVariant(final String name, final List<String> values, final MediaType type) {
-    return new VariantImpl(injector, name, values, type, charset);
+  private Mutant newVariant(final String name, final List<String> values, final MediaType type) {
+    return new MutantImpl(injector, name, values, type, charset);
   }
 
   @Override
-  public Map<String, Variant> params() throws Exception {
+  public Map<String, Mutant> params() throws Exception {
     Set<String> names = paramNames();
     if (names.size() == 0) {
       return Collections.emptyMap();
     }
-    Map<String, Variant> params = new LinkedHashMap<>();
+    Map<String, Mutant> params = new LinkedHashMap<>();
     for (String name : paramNames()) {
       params.put(name, param(name));
     }
@@ -385,14 +386,14 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public Variant header(final String name) {
+  public Mutant header(final String name) {
     requireNonNull(name, "Header's name is missing.");
     return newVariant(name, enumToList(request.getHeaders(name)), MediaType.all);
   }
 
   @Override
-  public Map<String, Variant> headers() {
-    Map<String, Variant> headers = new LinkedHashMap<>();
+  public Map<String, Mutant> headers() {
+    Map<String, Mutant> headers = new LinkedHashMap<>();
     Enumeration<String> names = request.getHeaderNames();
     while (names.hasMoreElements()) {
       String name = names.nextElement();
@@ -403,9 +404,9 @@ public class RequestImpl implements Request {
 
   @Override
   public <T> T body(final TypeLiteral<T> type) throws Exception {
-    BodyConverter mapper = selector.forRead(type, ImmutableList.of(this.type))
-        .orElseThrow(() -> new Route.Err(Response.Status.UNSUPPORTED_MEDIA_TYPE));
-    return mapper.read(type, new BodyReaderImpl(charset, () -> request.getInputStream()));
+    Body.Parser parser = selector.forRead(type, ImmutableList.of(this.type))
+        .orElseThrow(() -> new Err(Status.UNSUPPORTED_MEDIA_TYPE));
+    return parser.parse(type, new BodyReaderImpl(charset, () -> request.getInputStream()));
   }
 
   @Override

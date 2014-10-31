@@ -201,84 +201,155 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby;
+package org.jooby.internal;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.SortedSet;
 
-import javax.annotation.Nonnull;
+import org.jooby.Err;
+import org.jooby.Status;
+import org.jooby.Upload;
+import org.jooby.Mutant;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.TypeLiteral;
 
-/**
- * Read or write messages from/to HTTP Body. A body converter must provider a set of compatibles
- * media types. Media types are used during content negotiation of incoming HTTP request.
- *
- * @author edgar
- * @since 0.1.0
- */
-public interface BodyConverter {
+public class UploadMutant implements Mutant {
 
-  /**
-   * Produces the list of compatibles media types. At least one must be provided.
-   *
-   * @return A list of of compatibles media types. At least one must be provided.
-   */
-  @Nonnull
-  List<MediaType> types();
+  private String name;
 
-  /**
-   * Test if the HTTP request body or parameter can be converted to the given type.
-   *
-   * @param type The candidate Type.
-   * @return True if the converter can read the HTTP request body.
-   */
-  boolean canRead(@Nonnull TypeLiteral<?> type);
+  private List<Upload> uploads;
 
-  /**
-   * Test if the given type can be write it to the HTTP response body.
-   *
-   * @param type The candidate type.
-   * @return True if the converter can write into the HTTP response body.
-   */
-  boolean canWrite(@Nonnull Class<?> type);
+  public UploadMutant(final String name, final List<Upload> uploads) {
+    this.name = name;
+    this.uploads = uploads;
+  }
 
-  /**
-   * Attempt to read a message from HTTP request body.
-   * <p>
-   * For text format (json, yaml, xml, etc.) a converter usually call to
-   * {@link BodyReader#text(jooby.BodyReader.Text)} in order to apply correct charset and close
-   * resources.
-   * </p>
-   *
-   * <p>
-   * For binary format a converter usually call to {@link BodyReader#bytes(jooby.BodyReader.Bytes)}
-   * in order to close resources.
-   * </p>
-   *
-   * @param type The type of message.
-   * @param reader The reading context.
-   * @return The body message.
-   * @throws Exception If read operation fail.
-   */
-  @Nonnull <T> T read(@Nonnull TypeLiteral<T> type, @Nonnull BodyReader reader) throws Exception;
+  @Override
+  public boolean isPresent() {
+    return true;
+  }
 
-  /**
-   * Attempt to write a message into the HTTP response body.
-   *
-   * <p>
-   * For text format (json, yaml, xml, etc.) a converter usually call to
-   * {@link BodyWriter#text(jooby.BodyWriter.Text)} in order to set charset and close resources.
-   * </p>
-   *
-   * <p>
-   * For binary format a converter usually call to {@link BodyWriter#bytes(jooby.BodyWriter.Binary)}
-   * in order to close resources.
-   * </p>
-   *
-   * @param body The body message.
-   * @param writer The writing context.
-   * @throws Exception If write operation fail.
-   */
-  void write(@Nonnull Object body, @Nonnull BodyWriter writer) throws Exception;
+  @Override
+  public boolean booleanValue() {
+    throw typeError(boolean.class);
+  }
 
+  @Override
+  public byte byteValue() {
+    throw typeError(byte.class);
+  }
+
+  @Override
+  public short shortValue() {
+    throw typeError(short.class);
+  }
+
+  @Override
+  public int intValue() {
+    throw typeError(int.class);
+  }
+
+  @Override
+  public long longValue() {
+    throw typeError(long.class);
+  }
+
+  @Override
+  public String stringValue() {
+    throw typeError(String.class);
+  }
+
+  @Override
+  public float floatValue() {
+    throw typeError(float.class);
+  }
+
+  @Override
+  public double doubleValue() {
+    throw typeError(double.class);
+  }
+
+  @Override
+  public <T extends Enum<T>> T enumValue(final Class<T> type) {
+    throw typeError(type);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> List<T> toList(final Class<T> type) {
+    if (type == Upload.class) {
+      return (List<T>) uploads;
+    }
+    throw typeError(type);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> Set<T> toSet(final Class<T> type) {
+    if (type == Upload.class) {
+      return (Set<T>) ImmutableSet.copyOf(uploads);
+    }
+    throw typeError(type);
+  }
+
+  @Override
+  public <T extends Comparable<T>> SortedSet<T> toSortedSet(final Class<T> type) {
+    throw typeError(type);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> Optional<T> toOptional(final Class<T> type) {
+    if (type == Upload.class) {
+      return (Optional<T>) Optional.of(uploads.get(0));
+    }
+    throw typeError(type);
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  @Override
+  public <T> T to(final TypeLiteral<T> type) {
+    Class<? super T> rawType = type.getRawType();
+    if (rawType == Upload.class) {
+      return (T) uploads.get(0);
+    }
+    if (rawType == Optional.class) {
+      return (T) toOptional(classFrom(type));
+    }
+    if (rawType == List.class) {
+      return (T) toList(classFrom(type));
+    }
+    if (rawType == Set.class) {
+      return (T) toSet(classFrom(type));
+    }
+    if (rawType == SortedSet.class) {
+      return (T) toSortedSet((Class) classFrom(type));
+    }
+    throw typeError(rawType);
+  }
+
+  private static Class<?> classFrom(final TypeLiteral<?> type) {
+    return classFrom(type.getType());
+  }
+
+  private static Class<?> classFrom(final Type type) {
+    if (type instanceof Class) {
+      return (Class<?>) type;
+    }
+    if (type instanceof ParameterizedType) {
+      ParameterizedType parameterizedType = (ParameterizedType) type;
+      Type actualType = parameterizedType.getActualTypeArguments()[0];
+      return classFrom(actualType);
+    }
+    throw new Err(Status.BAD_REQUEST, "Unknown type: " + type);
+  }
+
+  private Err typeError(final Class<?> type) {
+    return new Err(Status.BAD_REQUEST, "Can't convert to " + name + " to " + type);
+  }
 }

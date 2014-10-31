@@ -3,7 +3,6 @@ package org.jooby;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.http.client.fluent.Request;
-import org.jooby.Response;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.junit.Test;
@@ -42,7 +41,7 @@ public class RegexParamFeature extends ServerFeature {
   @Test
   public void notFound() throws Exception {
 
-    assertStatus(Response.Status.NOT_FOUND,
+    assertStatus(Status.NOT_FOUND,
         () -> Request.Get(uri("r", "regex", "678x").build()).execute().returnContent().asString());
 
   }

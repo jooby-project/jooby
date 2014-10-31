@@ -227,12 +227,14 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.MediaTypeProvider;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
-import org.jooby.Route.Err;
+import org.jooby.Status;
+import org.jooby.Verb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -272,7 +274,7 @@ public class RouteHandler {
       final Set<Route.Definition> routes,
       final Charset defaultCharset,
       final Locale defaultLocale,
-      final Route.Err.Handler err) {
+      final Err.Handler err) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.modules = requireNonNull(modules, "Request modules are required.");
@@ -289,7 +291,7 @@ public class RouteHandler {
     requireNonNull(response, "A HTTP servlet response is required.");
 
     long start = System.currentTimeMillis();
-    Request.Verb verb = Request.Verb.valueOf(request.getMethod().toUpperCase());
+    Verb verb = Verb.valueOf(request.getMethod().toUpperCase());
     String requestURI = normalizeURI(request.getRequestURI());
 
     Map<String, Object> locals = new LinkedHashMap<>();
@@ -308,7 +310,7 @@ public class RouteHandler {
 
     final String path = verb + requestURI;
 
-    log.debug("handling: {}", path);
+    log.info("handling: {}", path);
 
     log.debug("  content-type: {}", type);
 
@@ -332,7 +334,7 @@ public class RouteHandler {
 
     try {
 
-      // configure request modules
+      // bootstrap request modules
       injector = rootInjector.createChildInjector(binder -> {
         for (Request.Module module : modules) {
           module.configure(binder);
@@ -354,7 +356,7 @@ public class RouteHandler {
       Response res = resFactory.apply(injector, notFound);
 
       // execution failed, so find status code
-      Response.Status status = statusCode(ex);
+      Status status = statusCode(ex);
 
       res.header("Cache-Control", NO_CACHE);
       res.status(status);
@@ -409,31 +411,31 @@ public class RouteHandler {
     };
   }
 
-  private List<Route> routes(final Request.Verb verb, final String path, final MediaType type,
+  private List<Route> routes(final Verb verb, final String path, final MediaType type,
       final List<MediaType> accept) {
     List<Route> routes = findRoutes(verb, path, type, accept);
 
     // 406 or 415
     routes.add(RouteImpl.fromStatus((req, res, chain) -> {
       if (!res.committed()) {
-        Route.Err ex = handle406or415(verb, path, type, accept);
+        Err ex = handle406or415(verb, path, type, accept);
         if (ex != null) {
           throw ex;
         }
       }
       chain.next(req, res);
-    }, verb, path, Response.Status.NOT_ACCEPTABLE, accept));
+    }, verb, path, Status.NOT_ACCEPTABLE, accept));
 
     // 405
     routes.add(RouteImpl.fromStatus((req, res, chain) -> {
       if (!res.committed()) {
-        Route.Err ex = handle405(verb, path, type, accept);
+        Err ex = handle405(verb, path, type, accept);
         if (ex != null) {
           throw ex;
         }
       }
       chain.next(req, res);
-    }, verb, path, Response.Status.METHOD_NOT_ALLOWED, accept));
+    }, verb, path, Status.METHOD_NOT_ALLOWED, accept));
 
     // 404
     routes.add(RouteImpl.notFound(verb, path, accept));
@@ -441,13 +443,13 @@ public class RouteHandler {
     return routes;
   }
 
-  private List<Route> findRoutes(final Request.Verb verb, final String path, final MediaType type,
+  private List<Route> findRoutes(final Verb verb, final String path, final MediaType type,
       final List<MediaType> accept) {
     return findRoutes(verb, path, type, accept, verb);
   }
 
-  private List<Route> findRoutes(final Request.Verb verb, final String path, final MediaType type,
-      final List<MediaType> accept, final Request.Verb overrideVerb) {
+  private List<Route> findRoutes(final Verb verb, final String path, final MediaType type,
+      final List<MediaType> accept, final Verb overrideVerb) {
 
     LinkedList<Route> routes = new LinkedList<Route>();
     for (Route.Definition routeDef : routeDefs) {
@@ -460,10 +462,10 @@ public class RouteHandler {
     return routes;
   }
 
-  private static Route overrideVerb(final Route route, final Request.Verb verb) {
+  private static Route overrideVerb(final Route route, final Verb verb) {
     return new Route.Forwarding(route) {
       @Override
-      public Request.Verb verb() {
+      public Verb verb() {
         return verb;
       }
     };
@@ -471,7 +473,7 @@ public class RouteHandler {
 
   private void defaultErrorPage(final Request request, final Response res,
       final Map<String, Object> model) throws Exception {
-    Response.Status status = res.status().get();
+    Status status = res.status().get();
     StringBuilder html = new StringBuilder("<!doctype html>")
         .append("<html>\n")
         .append("<head>\n")
@@ -528,37 +530,37 @@ public class RouteHandler {
         .append("</html>\n");
 
     res.header("Cache-Control", NO_CACHE);
-    res.send(html, FallbackBodyConverter.TO_HTML);
+    res.send(html);
   }
 
-  private Response.Status statusCode(final Exception ex) {
-    if (ex instanceof Route.Err) {
-      return ((Route.Err) ex).status();
+  private Status statusCode(final Exception ex) {
+    if (ex instanceof Err) {
+      return Status.valueOf(((Err) ex).statusCode());
     }
     if (ex instanceof IllegalArgumentException) {
-      return Response.Status.BAD_REQUEST;
+      return Status.BAD_REQUEST;
     }
     if (ex instanceof NoSuchElementException) {
-      return Response.Status.BAD_REQUEST;
+      return Status.BAD_REQUEST;
     }
-    return Response.Status.SERVER_ERROR;
+    return Status.SERVER_ERROR;
   }
 
-  private Route.Err handle405(final Request.Verb verb, final String uri, final MediaType type,
+  private Err handle405(final Verb verb, final String uri, final MediaType type,
       final List<MediaType> accept) {
 
     if (alternative(verb, uri).size() > 0) {
-      return new Route.Err(Response.Status.METHOD_NOT_ALLOWED, verb + uri);
+      return new Err(Status.METHOD_NOT_ALLOWED, verb + uri);
     }
 
     return null;
   }
 
-  private List<Route> alternative(final Request.Verb verb, final String uri) {
+  private List<Route> alternative(final Verb verb, final String uri) {
     List<Route> routes = new LinkedList<>();
-    Set<Request.Verb> verbs = EnumSet.allOf(Request.Verb.class);
+    Set<Verb> verbs = EnumSet.allOf(Verb.class);
     verbs.remove(verb);
-    for (Request.Verb alt : verbs) {
+    for (Verb alt : verbs) {
       findRoutes(alt, uri, MediaType.all, ALL)
           .stream()
           // skip glob pattern
@@ -569,17 +571,17 @@ public class RouteHandler {
     return routes;
   }
 
-  private Route.Err handle406or415(final Request.Verb verb, final String path,
+  private Err handle406or415(final Verb verb, final String path,
       final MediaType contentType, final List<MediaType> accept) {
     for (Route.Definition routeDef : routeDefs) {
       Optional<Route> route = routeDef.matches(verb, path, MediaType.all, ALL);
       if (route.isPresent() && !route.get().pattern().contains("*")) {
         if (!routeDef.canProduce(accept)) {
-          return new Route.Err(Response.Status.NOT_ACCEPTABLE, accept.stream()
+          return new Err(Status.NOT_ACCEPTABLE, accept.stream()
               .map(MediaType::name)
               .collect(Collectors.joining(", ")));
         }
-        return new Route.Err(Response.Status.UNSUPPORTED_MEDIA_TYPE, contentType.name());
+        return new Err(Status.UNSUPPORTED_MEDIA_TYPE, contentType.name());
       }
     }
     return null;

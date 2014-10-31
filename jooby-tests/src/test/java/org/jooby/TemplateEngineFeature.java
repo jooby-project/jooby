@@ -5,13 +5,9 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 
 import org.apache.http.client.fluent.Request;
-import org.jooby.BodyConverter;
-import org.jooby.Jooby;
-import org.jooby.Mode;
-import org.jooby.Viewable;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
-import org.jooby.mvc.Template;
+import org.jooby.mvc.Viewable;
 import org.junit.Test;
 
 import com.google.inject.Binder;
@@ -25,12 +21,12 @@ public class TemplateEngineFeature extends ServerFeature {
 
     @Path("/view")
     @GET
-    public Viewable view() throws IOException {
-      return Viewable.of("test", "model");
+    public View view() throws IOException {
+      return View.of("test", "model");
     }
 
     @Path("/view/template")
-    @Template("template")
+    @Viewable("template")
     @GET
     public Object template() throws IOException {
       return "model";
@@ -42,14 +38,14 @@ public class TemplateEngineFeature extends ServerFeature {
       @Override
       public void configure(final Mode mode, final Config config, final Binder binder)
           throws Exception {
-        Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
-            BodyConverter.class);
-        converters.addBinding().toInstance(TestBodyConverter.HTML);
+        Multibinder<Body.Formatter> converters = Multibinder.newSetBinder(binder,
+            Body.Formatter.class);
+        converters.addBinding().toInstance(BodyConverters.toHtml);
       }
     });
 
     get("/view", (req, resp) -> {
-      resp.send(Viewable.of("test", "model"));
+      resp.send(View.of("test", "model"));
     });
 
     use(Resource.class);

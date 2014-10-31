@@ -10,10 +10,6 @@ import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
 import org.junit.Test;
 
-import com.google.inject.Binder;
-import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
-
 public class ReadBodyFeature extends ServerFeature {
 
   @Path("/r")
@@ -41,15 +37,8 @@ public class ReadBodyFeature extends ServerFeature {
 
   {
 
-    use(new Jooby.Module() {
-      @Override
-      public void configure(final Mode mode, final Config config, final Binder binder)
-          throws Exception {
-        Multibinder<BodyConverter> converters = Multibinder.newSetBinder(binder,
-            BodyConverter.class);
-        converters.addBinding().toInstance(TestBodyConverter.JSON);
-      }
-    });
+    use(BodyConverters.toJson);
+    use(BodyConverters.fromJson);
 
     post("/text", (req, resp) -> resp.send(req.body(String.class)));
 

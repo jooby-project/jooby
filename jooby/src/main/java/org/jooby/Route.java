@@ -206,22 +206,17 @@ package org.jooby;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import org.jooby.Request.Verb;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -402,7 +397,7 @@ import com.google.common.collect.Lists;
  * <p>
  * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
  * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}, {@link org.jooby.mvc.Body} and
- * {@link org.jooby.mvc.Template}.
+ * {@link org.jooby.mvc.Viewable}.
  * </p>
  *
  * @author edgar
@@ -512,12 +507,12 @@ public interface Route {
      *
      * @param verb A HTTP verb or <code>*</code>.
      * @param pattern A path pattern.
-     * @param router A route handler.
+     * @param handler A route handler.
      */
     public Definition(final @Nonnull String verb, final @Nonnull String pattern,
-        final @Nonnull Router router) {
+        final @Nonnull Route.Handler handler) {
       this(verb, pattern, (req, res, chain) -> {
-        router.handle(req, res);
+        handler.handle(req, res);
         chain.next(req, res);
       });
     }
@@ -532,7 +527,7 @@ public interface Route {
     public Definition(final @Nonnull String verb, final @Nonnull String pattern,
         final @Nonnull Filter filter) {
       try {
-        Request.Verb.valueOf(verb.toUpperCase());
+        Verb.valueOf(verb.toUpperCase());
       } catch (NullPointerException | IllegalArgumentException ex) {
         if (!"*".equals(verb)) {
           throw new IllegalArgumentException("Invalid HTTP verb: " + verb);
@@ -592,7 +587,7 @@ public interface Route {
      *
      * @return A route or an empty optional.
      */
-    public @Nonnull Optional<Route> matches(final @Nonnull Request.Verb verb,
+    public @Nonnull Optional<Route> matches(final @Nonnull Verb verb,
         final @Nonnull String path, final @Nonnull MediaType contentType,
         final @Nonnull List<MediaType> accept) {
       RouteMatcher matcher = compiledPattern.matcher(verb.name() + path);
@@ -776,7 +771,7 @@ public interface Route {
     }
 
     @Override
-    public Request.Verb verb() {
+    public Verb verb() {
       return route.verb();
     }
 
@@ -828,6 +823,124 @@ public interface Route {
   }
 
   /**
+   * Filter is like a {@link Route.Handler} but it decided if the next route handler in the chain
+   * can be executed or not. Example of filters are:
+   *
+   * <h3>Auth handler example</h3>
+   *
+   * <pre>
+   *   String token = req.header("token").stringValue();
+   *   if (token != null) {
+   *     // validate token...
+   *     if (valid(token)) {
+   *       chain.next(req, res);
+   *     }
+   *   } else {
+   *     res.status(403);
+   *   }
+   * </pre>
+   *
+   * <h3>Logging/Around handler example</h3>
+   *
+   * <pre>
+   *   long start = System.currentTimeMillis();
+   *   chain.next(req, res);
+   *   long end = System.currentTimeMillis();
+   *   log.info("Request: {} took {}ms", req.path(), end - start);
+   * </pre>
+   *
+   * NOTE: Don't forget to call {@link Route.Chain#next(Request, Response)} if next router/filter
+   * need to be executed.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
+  public interface Filter {
+
+    /**
+     * The <code>handle</code> method of the Filter is called by the server each time a
+     * request/response pair is passed through the chain due to a client request for a resource at
+     * the end of the chain.
+     * The {@link Route.Chain} passed in to this method allows the Filter to pass on the request and
+     * response to the next entity in the chain.
+     *
+     * <p>
+     * A typical implementation of this method would follow the following pattern:
+     * </p>
+     * <ul>
+     * <li>Examine the request</li>
+     * <li>Optionally wrap the request object with a custom implementation to filter content or
+     * headers for input filtering</li>
+     * <li>Optionally wrap the response object with a custom implementation to filter content or
+     * headers for output filtering</li>
+     * <li>
+     * <ul>
+     * <li><strong>Either</strong> invoke the next entity in the chain using the {@link Route.Chain}
+     * object (<code>chain.next(req, res)</code>),</li>
+     * <li><strong>or</strong> not pass on the request/response pair to the next entity in the
+     * filter chain to block the request processing</li>
+     * </ul>
+     * <li>Directly set headers on the response after invocation of the next entity in the filter
+     * chain.</li>
+     * </ul>
+     *
+     * @param req A HTTP request.
+     * @param res A HTTP response.
+     * @param chain A route chain.
+     * @throws Exception If something goes wrong.
+     */
+    void handle(Request req, Response res, Route.Chain chain) throws Exception;
+
+  }
+
+  /**
+   * A route handler/callback.
+   *
+   * <pre>
+   * public class MyApp extends Jooby {
+   *   {
+   *      get("/", (req, res) -> res.send("Hello"));
+   *   }
+   * }
+   * </pre>
+   *
+   * Please note that a handler is allowed to throw errors. If a service throws an exception you
+   * should NOT catch it, unless of course you want to apply logic or do something special.
+   * In particular you should AVOID wrapping exception:
+   * <pre>
+   *   {
+   *      get("/", (req, res) -> {
+   *        Service service = req.getInstance(Service.class);
+   *        try {
+   *          service.doSomething();
+   *        } catch (Exception ex) {
+   *         throw new RuntimeException(ex);
+   *        }
+   *      });
+   *   }
+   * </pre>
+   * Previous is bad example of exception handling and should avoid wrapping exception. If you do
+   * that, exception become hard to ready and the stack trace get too damn long.
+   * So, if you wont do anything with the exception: DONT' catch it. Jooby will catch, logged and
+   * send an appropriated status code and response.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
+  interface Handler {
+
+    /**
+     * Callback method for a HTTP request.
+     *
+     * @param request A HTTP request.
+     * @param response A HTTP response.
+     * @throws Exception If something goes wrong. The exception will processed by Jooby.
+     */
+    void handle(Request request, Response response) throws Exception;
+
+  }
+
+  /**
    * Chain of routes to be executed. It invokes the next route in the chain.
    *
    * @author edgar
@@ -845,184 +958,6 @@ public interface Route {
   }
 
   /**
-   * An exception that carry a {@link Response.Status}. The status field will be set in the HTTP
-   * response.
-   *
-   * See {@link Route.Err.Handler} for more details on how to deal with exceptions.
-   *
-   * @author edgar
-   * @since 0.1.0
-   */
-  @SuppressWarnings("serial")
-  public class Err extends RuntimeException {
-
-    /**
-     * Default err handler with content negotation. If an error is found when accept header is
-     * <code>text/html</code> this err handler will delegate err rendering to a template processor.
-     *
-     * @author edgar
-     * @since 0.1.0
-     */
-    public static class Default implements Err.Handler {
-
-      @Override
-      public void handle(final Request req, final Response res, final Exception ex)
-          throws Exception {
-        LoggerFactory.getLogger(Route.Err.class).error("execution of: " + req.path() +
-            " resulted in exception", ex);
-
-        Map<String, Object> err = err(req, res, ex);
-
-        res.format()
-            .when(MediaType.html, () -> Viewable.of(errPage(req, res, ex), err))
-            .when(MediaType.all, () -> err)
-            .send();
-      }
-
-    }
-
-    /**
-     * Route error handler, it creates a default err model and default view name.
-     *
-     * The default err handler does content negotation on error, see {@link Default}.
-     *
-     * @author edgar
-     * @since 0.1.0
-     */
-    public interface Handler {
-
-      /**
-       * Build a err model from exception. The model it's map with the following attributes:
-       *
-       * <pre>
-       *   message: String
-       *   stacktrace: String[]
-       *   status: int
-       *   reason: String
-       *   referer: String
-       * </pre>
-       *
-       * <p>
-       * NOTE: {@link Response#status()} it was set by default to status code > 400. This is the
-       * default behavior you can use the generated status code and/or override it.
-       * </p>
-       *
-       * @param req A HTTP Request.
-       * @param res A HTTP Response with a default err status code (> 400).
-       * @param ex Current exception object.
-       * @return A err model.
-       */
-      default Map<String, Object> err(final Request req, final Response res, final Exception ex) {
-        Map<String, Object> error = new LinkedHashMap<>();
-        Response.Status status = res.status().get();
-        String message = ex.getMessage();
-        message = message == null ? status.reason() : message;
-        error.put("message", message);
-        StringWriter writer = new StringWriter();
-        ex.printStackTrace(new PrintWriter(writer));
-        String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
-        error.put("stacktrace", stacktrace);
-        error.put("status", status.value());
-        error.put("reason", status.reason());
-        error.put("referer", req.header("referer"));
-
-        return error;
-      }
-
-      /**
-       * Convert current err to a view location, defaults is: <code>/err</code>.
-       *
-       * @param req HTTP request.
-       * @param res HTTP Response.
-       * @param ex Error found.
-       * @return An err page to be render by a template processor.
-       */
-      default String errPage(final Request req, final Response res, final Exception ex) {
-        return "/err";
-      }
-
-      /**
-       * Handle a route exception by probably logging the error and sending a err response to the
-       * client.
-       *
-       * @param req HTTP request.
-       * @param res HTTP response.
-       * @param ex Error found.
-       * @throws Exception If something goes wrong.
-       */
-      void handle(Request req, Response res, Exception ex) throws Exception;
-    }
-
-    /**
-     * The HTTP status. Required.
-     */
-    private Response.Status status;
-
-    /**
-     * Creates a new {@link Route.Err}.
-     *
-     * @param status A HTTP status. Required.
-     * @param message A error message. Required.
-     * @param cause The cause of the problem.
-     */
-    public Err(final Response.Status status, final String message, final Exception cause) {
-      super(message(status, message), cause);
-      this.status = status;
-    }
-
-    /**
-     * Creates a new {@link Route.Err}.
-     *
-     * @param status A HTTP status. Required.
-     * @param message A error message. Required.
-     */
-    public Err(final Response.Status status, final String message) {
-      super(message(status, message));
-      this.status = status;
-    }
-
-    /**
-     * Creates a new {@link Route.Err}.
-     *
-     * @param status A HTTP status. Required.
-     * @param cause The cause of the problem.
-     */
-    public Err(final Response.Status status, final Exception cause) {
-      super(message(status, ""), cause);
-      this.status = status;
-    }
-
-    /**
-     * Creates a new {@link Route.Err}.
-     *
-     * @param status A HTTP status. Required.
-     */
-    public Err(final Response.Status status) {
-      super(message(status, ""));
-      this.status = status;
-    }
-
-    /**
-     * @return The HTTP status to send as response.
-     */
-    public Response.Status status() {
-      return status;
-    }
-
-    /**
-     * Build an error message using the HTTP status.
-     *
-     * @param status The HTTP Status.
-     * @param tail A message to append.
-     * @return An error message.
-     */
-    private static String message(final Response.Status status, final String tail) {
-      requireNonNull(status, "A HTTP Status is required.");
-      return status.reason() + "(" + status.value() + "): " + tail;
-    }
-  }
-
-  /**
    * @return Current request path.
    */
   String path();
@@ -1030,7 +965,7 @@ public interface Route {
   /**
    * @return Current request verb.
    */
-  Request.Verb verb();
+  Verb verb();
 
   /**
    * @return The currently matched pattern.

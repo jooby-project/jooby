@@ -207,105 +207,107 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.List;
 
-import org.jooby.BodyConverter;
-import org.jooby.BodyReader;
-import org.jooby.BodyWriter;
+import org.jooby.Body;
 import org.jooby.MediaType;
-import org.jooby.Viewable;
+import org.jooby.View;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.inject.TypeLiteral;
 
-public enum FallbackBodyConverter implements BodyConverter {
+public class FallbackBodyConverter {
 
-  COPY_BYTES(MediaType.octetstream) {
+  public static Body.Formatter fromStream = new Body.Formatter() {
+    @Override
+    public List<MediaType> types() {
+      return ImmutableList.of(MediaType.octetstream);
+    }
 
     @Override
-    public boolean canWrite(final Class<?> type) {
+    public boolean canFormat(final Class<?> type) {
       return InputStream.class.isAssignableFrom(type);
     }
 
     @Override
-    public void write(final Object body, final BodyWriter writer) throws Exception {
+    public void format(final Object body, final Body.Writer writer) throws Exception {
       try (InputStream in = (InputStream) body) {
         writer.bytes(out -> ByteStreams.copy(in, out));
       }
     }
-  },
-
-  COPY_TEXT(MediaType.html) {
 
     @Override
-    public boolean canWrite(final Class<?> type) {
+    public String toString() {
+      return "Formatter for: " + InputStream.class.getName();
+    }
+  };
+
+  public static Body.Formatter fromReader = new Body.Formatter() {
+
+    @Override
+    public List<MediaType> types() {
+      return ImmutableList.of(MediaType.html);
+    }
+
+    @Override
+    public boolean canFormat(final Class<?> type) {
       return Reader.class.isAssignableFrom(type);
     }
 
     @Override
-    public void write(final Object body, final BodyWriter writer) throws Exception {
+    public void format(final Object body, final Body.Writer writer) throws Exception {
       try (Reader in = (Reader) body) {
         writer.text(out -> CharStreams.copy(in, out));
       }
     }
-  },
-
-  READ_TEXT(MediaType.text) {
 
     @Override
-    public boolean canRead(final TypeLiteral<?> type) {
+    public String toString() {
+      return "Formatter for: " + Reader.class.getName();
+    }
+  };
+
+  public static Body.Formatter fromToString = new Body.Formatter() {
+
+    @Override
+    public List<MediaType> types() {
+      return ImmutableList.of(MediaType.html);
+    }
+
+    @Override
+    public boolean canFormat(final Class<?> type) {
+      return type != View.class;
+    }
+
+    @Override
+    public void format(final Object body, final Body.Writer writer) throws Exception {
+      writer.text(out -> out.write(body instanceof View ? ((View) body).model()
+          .toString() : body.toString()));
+    }
+
+    @Override
+    public String toString() {
+      return "Formatter for: toString()";
+    }
+  };
+
+  public static Body.Parser readText = new Body.Parser() {
+
+    @Override
+    public List<MediaType> types() {
+      return ImmutableList.of(MediaType.text);
+    }
+
+    @Override
+    public boolean canParse(final TypeLiteral<?> type) {
       return type.getRawType() == String.class;
     }
 
     @Override
-    public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
+    public <T> T parse(final TypeLiteral<T> type, final Body.Reader reader) throws Exception {
       return reader.text(r -> CharStreams.toString(r));
     }
 
-    @Override
-    public boolean canWrite(final Class<?> type) {
-      return false;
-    }
-
-    @Override
-    public void write(final Object body, final BodyWriter writer) throws Exception {
-      throw new UnsupportedOperationException();
-    }
-  },
-
-  TO_HTML(MediaType.html) {
-
-    @Override
-    public boolean canWrite(final Class<?> type) {
-      return true;
-    }
-
-    @Override
-    public void write(final Object body, final BodyWriter writer) throws Exception {
-      writer.text(out -> out.write(body instanceof Viewable ? ((Viewable) body).model()
-          .toString() : body.toString()));
-    }
   };
-
-  private final List<MediaType> types;
-
-  private FallbackBodyConverter(final MediaType mediaType) {
-    this.types = ImmutableList.of(mediaType);
-  }
-
-  @Override
-  public boolean canRead(final TypeLiteral<?> type) {
-    return false;
-  }
-
-  @Override
-  public List<MediaType> types() {
-    return types;
-  }
-
-  @Override
-  public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
-    throw new UnsupportedOperationException(this.toString() + ".read");
-  }
 
 }

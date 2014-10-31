@@ -9,10 +9,6 @@ import java.util.List;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.jooby.BodyConverter;
-import org.jooby.BodyReader;
-import org.jooby.BodyWriter;
-import org.jooby.MediaType;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
 import org.junit.Test;
@@ -41,10 +37,30 @@ public class BodyParamFeature extends ServerFeature {
 
   {
 
-    use(new BodyConverter() {
+    use(new Body.Parser() {
+      @SuppressWarnings("unchecked")
+      @Override
+      public <T> T parse(final TypeLiteral<T> type, final Body.Reader reader) throws Exception {
+        String body = reader.text(in -> CharStreams.toString(in));
+        assertEquals("{}", body);
+        return (T) new Bean();
+      }
 
       @Override
-      public void write(final Object body, final BodyWriter writer) throws Exception {
+      public boolean canParse(final TypeLiteral<?> type) {
+        return type.getRawType() == Bean.class;
+      }
+
+      @Override
+      public List<MediaType> types() {
+        return ImmutableList.of(MediaType.json);
+      }
+    });
+
+    use(new Body.Formatter() {
+
+      @Override
+      public void format(final Object body, final Body.Writer writer) throws Exception {
         writer.text(out -> new CharSink() {
           @Override
           public Writer openStream() throws IOException {
@@ -58,23 +74,11 @@ public class BodyParamFeature extends ServerFeature {
         return ImmutableList.of(MediaType.json);
       }
 
-      @SuppressWarnings("unchecked")
       @Override
-      public <T> T read(final TypeLiteral<T> type, final BodyReader reader) throws Exception {
-        String body = reader.text(in ->CharStreams.toString(in));
-        assertEquals("{}", body);
-        return (T) new Bean();
-      }
-
-      @Override
-      public boolean canWrite(final Class<?> type) {
+      public boolean canFormat(final Class<?> type) {
         return type == Bean.class;
       }
 
-      @Override
-      public boolean canRead(final TypeLiteral<?> type) {
-        return type.getRawType() == Bean.class;
-      }
     });
 
     post("/body", (req, resp) -> {

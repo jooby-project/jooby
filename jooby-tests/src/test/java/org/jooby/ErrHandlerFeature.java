@@ -20,7 +20,7 @@ public class ErrHandlerFeature extends ServerFeature {
     err((req, res, ex) -> {
       log.error("err", ex);
       assertTrue(ex instanceof IllegalArgumentException);
-      assertEquals(Response.Status.BAD_REQUEST, res.status().get());
+      assertEquals(Status.BAD_REQUEST, res.status().get());
       res.send("err...");
     });
   }

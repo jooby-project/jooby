@@ -201,63 +201,124 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby;
+package org.jooby.internal;
 
-import static java.util.Objects.requireNonNull;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.SortedSet;
 
-/**
- * Hold view information like view's name and model.
- *
- * @author edgar
- * @since 0.1.0
- */
-public class Viewable {
+import org.jooby.Err;
+import org.jooby.Status;
+import org.jooby.Mutant;
 
-  /** View's name. */
-  private String name;
+import com.google.common.base.Charsets;
+import com.google.inject.TypeLiteral;
 
-  /** View's model. */
-  private Object model;
+public class WsBinaryMessage implements Mutant {
 
-  /**
-   * Creates a new {@link Viewable}.
-   *
-   * @param name View's name.
-   * @param model View's model.
-   */
-  public Viewable(final String name, final Object model) {
-    this.name = requireNonNull(name, "The name is required.");
+  private ByteBuffer buffer;
 
-    this.model = requireNonNull(model, "The model is required.");
-  }
-
-  /**
-   * @return View's name.
-   */
-  public String name() {
-    return name;
-  }
-
-  /**
-   * @return View's model.
-   */
-  public Object model() {
-    return model;
+  public WsBinaryMessage(final ByteBuffer buffer) {
+    this.buffer = buffer;
   }
 
   @Override
-  public String toString() {
-    return name + ": " + model;
+  public boolean isPresent() {
+    return true;
   }
 
-  /**
-   * Creates a new {@link Viewable}.
-   *
-   * @param name View's name.
-   * @param model View's model.
-   * @return A new viewable.
-   */
-  public static Viewable of(final String name, final Object model) {
-    return new Viewable(name, model);
+  @Override
+  public boolean booleanValue() {
+    throw typeError(boolean.class);
+  }
+
+  @Override
+  public byte byteValue() {
+    throw typeError(byte.class);
+  }
+
+  @Override
+  public short shortValue() {
+    throw typeError(short.class);
+  }
+
+  @Override
+  public int intValue() {
+    throw typeError(int.class);
+  }
+
+  @Override
+  public long longValue() {
+    throw typeError(long.class);
+  }
+
+  @Override
+  public String stringValue() {
+    throw typeError(String.class);
+  }
+
+  @Override
+  public float floatValue() {
+    throw typeError(float.class);
+  }
+
+  @Override
+  public double doubleValue() {
+    throw typeError(double.class);
+  }
+
+  @Override
+  public <T extends Enum<T>> T enumValue(final Class<T> type) {
+    throw typeError(type);
+  }
+
+  @Override
+  public <T> List<T> toList(final Class<T> type) {
+    throw typeError(type);
+  }
+
+  @Override
+  public <T> Set<T> toSet(final Class<T> type) {
+    throw typeError(type);
+  }
+
+  @Override
+  public <T extends Comparable<T>> SortedSet<T> toSortedSet(final Class<T> type) {
+    throw typeError(type);
+  }
+
+  @Override
+  public <T> Optional<T> toOptional(final Class<T> type) {
+    throw typeError(type);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T to(final TypeLiteral<T> type) {
+    Class<? super T> rawType = type.getRawType();
+    if (rawType == byte[].class) {
+      return (T) buffer.array();
+    }
+    if (rawType == ByteBuffer.class) {
+      return (T) buffer;
+    }
+    if (rawType == InputStream.class) {
+      return (T) new ByteArrayInputStream(buffer.array());
+    }
+    if (rawType == Reader.class) {
+      return (T) new InputStreamReader(new ByteArrayInputStream(buffer.array()), Charsets.UTF_8);
+    }
+    throw typeError(rawType);
+  }
+
+  private Err typeError(final Class<?> type) {
+    return new Err(Status.BAD_REQUEST, "Can't convert to "
+        + ByteBuffer.class.getName() + " to " + type);
   }
 }

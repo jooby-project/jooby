@@ -207,12 +207,12 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.jooby.MediaType;
+import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
-import org.jooby.Router;
-import org.jooby.Variant;
+import org.jooby.Route;
 
-public class TraceRouter implements Router {
+public class TraceRouter implements Route.Handler {
 
   @Override
   public void handle(final Request req, final Response res) throws Exception {
@@ -224,7 +224,7 @@ public class TraceRouter implements Router {
     StringBuilder buffer = new StringBuilder("TRACE ").append(req.path())
         .append(" ").append(req.protocol());
 
-    for (Entry<String, Variant> entry : req.headers().entrySet()) {
+    for (Entry<String, Mutant> entry : req.headers().entrySet()) {
       buffer.append(CRLF).append(entry.getKey()).append(": ")
           .append(entry.getValue().toList(String.class).stream().collect(Collectors.joining(", ")));
     }

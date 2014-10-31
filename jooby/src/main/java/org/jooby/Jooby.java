@@ -224,8 +224,7 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
-import org.jooby.Response.Status;
-import org.jooby.Route.Err;
+import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetRoute;
 import org.jooby.internal.FallbackBodyConverter;
 import org.jooby.internal.Server;
@@ -281,16 +280,15 @@ import com.typesafe.config.ConfigValueFactory;
  *
  * <h1>Properties files</h1>
  * <p>
- * Jooby delegate configuration management to
- * <a href="https://github.com/typesafehub/config">TypeSafe Config</a>. If you are unfamiliar with
- * <a href="https://github.com/typesafehub/config">TypeSafe Config</a> please take a few minutes
- * to discover what <a href="https://github.com/typesafehub/config">TypeSafe Config</a> can do for
- * you.
+ * Jooby delegate configuration management to <a
+ * href="https://github.com/typesafehub/config">TypeSafe Config</a>. If you are unfamiliar with <a
+ * href="https://github.com/typesafehub/config">TypeSafe Config</a> please take a few minutes to
+ * discover what <a href="https://github.com/typesafehub/config">TypeSafe Config</a> can do for you.
  * </p>
  *
  * <p>
- * By default Jooby looks for an <code>application.conf</code> file at the root of the classpath.
- * If you want to specify a different file or location, you can do it with {@link #use(Config)}.
+ * By default Jooby looks for an <code>application.conf</code> file at the root of the classpath. If
+ * you want to specify a different file or location, you can do it with {@link #use(Config)}.
  * </p>
  *
  * <p>
@@ -302,18 +300,20 @@ import com.typesafe.config.ConfigValueFactory;
  * {@link Jooby.Module#config()} method. By default, this method returns an empty config object.
  * </p>
  * For example:
+ *
  * <pre>
  *   use(new M1());
  *   use(new M2());
  *   use(new M3());
  * </pre>
+ *
  * Previous example had the following order (first-listed are higher priority):
  * <ul>
- *  <li>System properties</li>
- *  <li>application.conf</li>
- *  <li>M3 properties</li>
- *  <li>M2 properties</li>
- *  <li>M1 properties</li>
+ * <li>System properties</li>
+ * <li>application.conf</li>
+ * <li>M3 properties</li>
+ * <li>M2 properties</li>
+ * <li>M1 properties</li>
  * </ul>
  * <p>
  * System properties takes precedence over any application specific property.
@@ -369,8 +369,7 @@ import com.typesafe.config.ConfigValueFactory;
  * <li><code>com/{@literal **}/test.html</code> - matches all {@code test.html} files underneath the
  * {@code com} path</li>
  * <li>{@code **}/{@code *} - matches any path at any level.</li>
- * <li>{@code *} - matches any path at any level, shorthand for {@code {@literal **}/{@literal *}.
- * </li>
+ * <li>{@code *} - matches any path at any level, shorthand for {@code {@literal **}/{@literal *}.</li>
  * </ul>
  *
  * <h2>Variables</h2>
@@ -496,7 +495,7 @@ import com.typesafe.config.ConfigValueFactory;
  * <p>
  * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
  * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}, {@link org.jooby.mvc.Body} and
- * {@link org.jooby.mvc.Template}.
+ * {@link org.jooby.mvc.Viewable}.
  * </p>
  *
  * <h1>Static Files</h1>
@@ -542,8 +541,8 @@ import com.typesafe.config.ConfigValueFactory;
 public class Jooby {
 
   /**
-   * A module can publish or produces: {@link Route.Definition routes},
-   * {@link BodyConverter converters}, {@link Request.Module request modules} and any other
+   * A module can publish or produces: {@link Route.Definition routes}, {@link BodyConverter
+   * converters}, {@link Request.Module request modules} and any other
    * application specific service or contract of your choice.
    * <p>
    * It is similar to {@link com.google.inject.Module} except for the callback method receives a
@@ -555,18 +554,20 @@ public class Jooby {
    * default, this method returns an empty config object.
    * </p>
    * For example:
+   *
    * <pre>
    *   use(new M1());
    *   use(new M2());
    *   use(new M3());
    * </pre>
+   *
    * Previous example had the following order (first-listed are higher priority):
    * <ul>
-   *  <li>System properties</li>
-   *  <li>application.conf</li>
-   *  <li>M3 properties</li>
-   *  <li>M2 properties</li>
-   *  <li>M1 properties</li>
+   * <li>System properties</li>
+   * <li>application.conf</li>
+   * <li>M3 properties</li>
+   * <li>M2 properties</li>
+   * <li>M1 properties</li>
    * </ul>
    *
    * <p>
@@ -655,14 +656,19 @@ public class Jooby {
   /** Error handler. */
   private Err.Handler err;
 
-  /** Body converters. */
-  private List<BodyConverter> converters = new LinkedList<>();
+  /** Body formatters. */
+  private List<Body.Formatter> formatters = new LinkedList<>();
+
+  /** Body parsers. */
+  private List<Body.Parser> parsers = new LinkedList<>();
 
   /** Session store. */
   private Session.Definition session = new Session.Definition(Session.Store.NOOP);
 
   {
     use(new Jetty());
+    // write/format static resources
+    formatters.add(new AssetFormatter());
   }
 
   /**
@@ -679,24 +685,35 @@ public class Jooby {
   }
 
   /**
-   * Append a body converter to read/write HTTP messages.
+   * Append a body formatter for write HTTP messages.
    *
-   * @param converter A body converter.
+   * @param formatter A body formatter.
    * @return This jooby instance.
    */
-  public @Nonnull Jooby use(@Nonnull final BodyConverter converter) {
-    this.converters.add(requireNonNull(converter, "A body converter is required."));
+  public @Nonnull Jooby use(@Nonnull final Body.Formatter formatter) {
+    this.formatters.add(requireNonNull(formatter, "A body formatter is required."));
+    return this;
+  }
+
+  /**
+   * Append a body parser for write HTTP messages.
+   *
+   * @param parser A body parser.
+   * @return This jooby instance.
+   */
+  public @Nonnull Jooby use(@Nonnull final Body.Parser parser) {
+    this.parsers.add(requireNonNull(parser, "A body parser is required."));
     return this;
   }
 
   /**
    * Append a new filter that matches any method and path. This method is a shorthand for
-   * {@link #use(String, Filter)}.
+   * {@link #use(String, Route.Filter)}.
    *
-   * @param filter A filter.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition use(@Nonnull final Filter filter) {
+  public @Nonnull Route.Definition use(@Nonnull final Route.Filter filter) {
     return use("*", filter);
   }
 
@@ -704,33 +721,35 @@ public class Jooby {
    * Append a new router that matches any method and path. This method is a shorthand for
    * {@link #use(String, Router)}.
    *
-   * @param router A router.
+   * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition use(@Nonnull final Router router) {
-    return use("*", router);
+  public @Nonnull Route.Definition use(@Nonnull final Route.Handler handler) {
+    return use("*", handler);
   }
 
   /**
    * Append a new filter that matches any method under the given path.
    *
    * @param path A path pattern.
-   * @param filter A filter.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition use(final @Nonnull String path, final @Nonnull Filter filter) {
-    return route(new Route.Definition("*", path, filter));
+  public @Nonnull Route.Definition use(final @Nonnull String path,
+      final @Nonnull Route.Filter filter) {
+    return handler(new Route.Definition("*", path, filter));
   }
 
   /**
    * Append a new router that matches any method under the given path.
    *
    * @param path A path pattern.
-   * @param router A router.
+   * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition use(final @Nonnull String path, final @Nonnull Router router) {
-    return route(new Route.Definition("*", path, router));
+  public @Nonnull Route.Definition use(final @Nonnull String path,
+      final @Nonnull Route.Handler handler) {
+    return handler(new Route.Definition("*", path, handler));
   }
 
   /**
@@ -745,11 +764,12 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param route A route to execute.
+   * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition get(final @Nonnull String path, final @Nonnull Router route) {
-    return route(new Route.Definition("GET", path, route));
+  public @Nonnull Route.Definition get(final @Nonnull String path,
+      final @Nonnull Route.Handler handler) {
+    return handler(new Route.Definition("GET", path, handler));
   }
 
   /**
@@ -764,11 +784,12 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param filter A route to execute.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition get(final @Nonnull String path, final @Nonnull Filter filter) {
-    return route(new Route.Definition("GET", path, filter));
+  public @Nonnull Route.Definition get(final @Nonnull String path,
+      final @Nonnull Route.Filter filter) {
+    return handler(new Route.Definition("GET", path, filter));
   }
 
   /**
@@ -783,11 +804,12 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param route A route to execute.
+   * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition post(final @Nonnull String path, final @Nonnull Router route) {
-    return route(new Route.Definition("POST", path, route));
+  public @Nonnull Route.Definition post(final @Nonnull String path,
+      final @Nonnull Route.Handler handler) {
+    return handler(new Route.Definition("POST", path, handler));
   }
 
   /**
@@ -805,8 +827,9 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition post(final @Nonnull String path, final @Nonnull Filter filter) {
-    return route(new Route.Definition("POST", path, filter));
+  public @Nonnull Route.Definition post(final @Nonnull String path,
+      final @Nonnull Route.Filter filter) {
+    return handler(new Route.Definition("POST", path, filter));
   }
 
   /**
@@ -821,11 +844,11 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param route A route to execute.
+   * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definition head(final @Nonnull String path, final @Nonnull Router route) {
-    return route(new Route.Definition("HEAD", path, route));
+  public Route.Definition head(final @Nonnull String path, final @Nonnull Route.Handler handler) {
+    return handler(new Route.Definition("HEAD", path, handler));
   }
 
   /**
@@ -843,8 +866,9 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition head(final @Nonnull String path, final @Nonnull Filter filter) {
-    return route(new Route.Definition("HEAD", path, filter));
+  public @Nonnull Route.Definition head(final @Nonnull String path,
+      final @Nonnull Route.Filter filter) {
+    return handler(new Route.Definition("HEAD", path, filter));
   }
 
   /**
@@ -860,7 +884,7 @@ public class Jooby {
    * @return A new route definition.
    */
   public @Nonnull Route.Definition head(final @Nonnull String path) {
-    return route(new Route.Definition("HEAD", path, filter(HeadFilter.class)).name("*.head"));
+    return handler(new Route.Definition("HEAD", path, filter(HeadFilter.class)).name("*.head"));
   }
 
   /**
@@ -875,12 +899,12 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param route A route to execute.
+   * @param handler A handler to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definition options(final @Nonnull String path,
-      final @Nonnull Router route) {
-    return route(new Route.Definition("OPTIONS", path, route));
+      final @Nonnull Route.Handler handler) {
+    return handler(new Route.Definition("OPTIONS", path, handler));
   }
 
   /**
@@ -896,12 +920,12 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param filter A route to execute.
+   * @param filter A callback to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definition options(final @Nonnull String path,
-      final @Nonnull Filter filter) {
-    return route(new Route.Definition("OPTIONS", path, filter));
+      final @Nonnull Route.Filter filter) {
+    return handler(new Route.Definition("OPTIONS", path, filter));
   }
 
   /**
@@ -916,13 +940,14 @@ public class Jooby {
    *     res.send(something);
    *   });
    * </pre>
+   *
    * OPTINOS / produces a response with a Allow header set to: GET, POST.
    *
    * @param path A path pattern.
    * @return A new route definition.
    */
   public @Nonnull Route.Definition options(final @Nonnull String path) {
-    return route(new Route.Definition("OPTIONS", path, router(OptionsRouter.class))
+    return handler(new Route.Definition("OPTIONS", path, handler(OptionsRouter.class))
         .name("*.options"));
   }
 
@@ -938,11 +963,12 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param route A route to execute.
+   * @param handler A route to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition put(final @Nonnull String path, final @Nonnull Router route) {
-    return route(new Route.Definition("PUT", path, route));
+  public @Nonnull Route.Definition put(final @Nonnull String path,
+      final @Nonnull Route.Handler handler) {
+    return handler(new Route.Definition("PUT", path, handler));
   }
 
   /**
@@ -957,11 +983,12 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param filer A route to execute.
+   * @param filer A callback to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition put(final @Nonnull String path, final @Nonnull Filter filter) {
-    return route(new Route.Definition("PUT", path, filter));
+  public @Nonnull Route.Definition put(final @Nonnull String path,
+      final @Nonnull Route.Filter filter) {
+    return handler(new Route.Definition("PUT", path, filter));
   }
 
   /**
@@ -976,12 +1003,12 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param router A route to execute.
+   * @param handler A handler to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definition delete(final @Nonnull String path,
-      final @Nonnull Router router) {
-    return route(new Route.Definition("DELETE", path, router));
+      final @Nonnull Route.Handler handler) {
+    return handler(new Route.Definition("DELETE", path, handler));
   }
 
   /**
@@ -997,12 +1024,12 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param router A route to execute.
+   * @param router A callback to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definition delete(final @Nonnull String path,
-      final @Nonnull Filter filter) {
-    return route(new Route.Definition("DELETE", path, filter));
+      final @Nonnull Route.Filter filter) {
+    return handler(new Route.Definition("DELETE", path, filter));
   }
 
   /**
@@ -1017,11 +1044,12 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param router A route to execute.
+   * @param router A handler to execute.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition trace(final @Nonnull String path, final @Nonnull Router route) {
-    return route(new Route.Definition("TRACE", path, route));
+  public @Nonnull Route.Definition trace(final @Nonnull String path,
+      final @Nonnull Route.Handler handler) {
+    return handler(new Route.Definition("TRACE", path, handler));
   }
 
   /**
@@ -1036,17 +1064,18 @@ public class Jooby {
    * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
-   * @param filter A filter to execute.
+   * @param filter A callback to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definition trace(final @Nonnull String path,
-      final @Nonnull Filter filter) {
-    return route(new Route.Definition("TRACE", path, filter));
+      final @Nonnull Route.Filter filter) {
+    return handler(new Route.Definition("TRACE", path, filter));
   }
 
   /**
    * Append a default trace implementation under the given path. Default trace response, looks
    * like:
+   *
    * <pre>
    *  TRACE /path
    *     header1: value
@@ -1058,7 +1087,7 @@ public class Jooby {
    * @return
    */
   public @Nonnull Route.Definition trace(final @Nonnull String path) {
-    return route(new Route.Definition("TRACE", path, router(TraceRouter.class))
+    return handler(new Route.Definition("TRACE", path, handler(TraceRouter.class))
         .name("*.trace"));
   }
 
@@ -1078,8 +1107,8 @@ public class Jooby {
    * @return A new route definition.
    */
   public @Nonnull Route.Definition connect(final @Nonnull String path,
-      @Nonnull final Router router) {
-    return route(new Route.Definition("CONNECT", path, router));
+      @Nonnull final Route.Handler router) {
+    return handler(new Route.Definition("CONNECT", path, router));
   }
 
   /**
@@ -1098,13 +1127,13 @@ public class Jooby {
    * @return A new route definition.
    */
   public @Nonnull Route.Definition connect(final @Nonnull String path,
-      final @Nonnull Filter filter) {
-    return route(new Route.Definition("CONNECT", path, filter));
+      final @Nonnull Route.Filter filter) {
+    return handler(new Route.Definition("CONNECT", path, filter));
   }
 
   /**
-   * Creates a new {@link Router} that delegate the execution to the given router. This is useful
-   * when the target router required some services and you want to instantiated with Guice.
+   * Creates a new {@link Route.Handlers} that delegate the execution to the given router. This is
+   * useful when the target router required some services and you want to instantiated with Guice.
    *
    * <pre>
    *   public class MyRouter implements Router {
@@ -1130,17 +1159,18 @@ public class Jooby {
    * You can access to a dependency from a in-line route too, so the use of external route it is
    * more or less a matter of taste.
    *
-   * @param router The external router class.
-   * @return A new inline route.
+   * @param handler The external router class.
+   * @return A new inline route handler.
    */
-  public @Nonnull Router router(final @Nonnull Class<? extends Router> router) {
-    requireNonNull(router, "A router type is required.");
-    registerRouteScope(router);
-    return (req, resp) -> req.getInstance(router).handle(req, resp);
+  public @Nonnull Route.Handler handler(final @Nonnull Class<? extends Route.Handler> handler) {
+    requireNonNull(handler, "Route handler is required.");
+    registerRouteScope(handler);
+    return (req, resp) -> req.getInstance(handler).handle(req, resp);
   }
 
   /**
-   * Creates a new {@link Filter} that delegate the execution to the given filter. This is useful
+   * Creates a new {@link Route.Filter} that delegate the execution to the given filter. This is
+   * useful
    * when the target filter required some services and you want to instantiated with Guice.
    *
    * <pre>
@@ -1167,10 +1197,10 @@ public class Jooby {
    * You can access to a dependency from a in-line route too, so the use of external filter it is
    * more or less a matter of taste.
    *
-   * @param router The external router class.
+   * @param filter The external filter class.
    * @return A new inline route.
    */
-  public @Nonnull Filter filter(final @Nonnull Class<? extends Filter> filter) {
+  public @Nonnull Route.Filter filter(final @Nonnull Class<? extends Route.Filter> filter) {
     requireNonNull(filter, "A filter type is required.");
     registerRouteScope(filter);
     return (req, res, chain) -> req.getInstance(filter).handle(req, res, chain);
@@ -1183,14 +1213,14 @@ public class Jooby {
    *   assets("/assets/**");
    * </pre>
    *
-   * Resources are served from root of classpath, for example <code>GET /assets/file.js</code>
-   * will be resolve as classpath resource at the same location.
+   * Resources are served from root of classpath, for example <code>GET /assets/file.js</code> will
+   * be resolve as classpath resource at the same location.
    *
    * @param path The path to publish.
    * @return A new route definition.
    */
   public @Nonnull Route.Definition assets(final @Nonnull String path) {
-    return get(path, router(AssetRoute.class)).name("static files");
+    return get(path, handler(AssetRoute.class)).name("static files");
   }
 
   /**
@@ -1219,7 +1249,7 @@ public class Jooby {
    * <p>
    * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
    * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}, {@link org.jooby.mvc.Body} and
-   * {@link org.jooby.mvc.Template}.
+   * {@link org.jooby.mvc.Viewable}.
    * </p>
    *
    * @param routeResource The Mvc route.
@@ -1288,32 +1318,17 @@ public class Jooby {
    * </pre>
    *
    * @param location Either a relative or absolute location.
+   * @return A route handler.
    * @throws Exception If redirection fails.
    */
-  public Router redirect(final String location) {
+  public Route.Handler redirect(final String location) {
     return redirect(Status.FOUND, location);
   }
 
   /**
    * Serve a single file from classpath.
    * Usage:
-   * <pre>
-   *   {
-   *     // serve the welcome.html from classpath root
-   *     get("/", html("welcome.html");
-   *   }
-   * </pre>
    *
-   * @param Absolute classpath location.
-   * @return A new route handler.
-   */
-  public Router html(final String location) {
-    return file(MediaType.html, location);
-  }
-
-  /**
-   * Serve a single file from classpath.
-   * Usage:
    * <pre>
    *   {
    *     // serve the welcome.html from classpath root
@@ -1321,16 +1336,15 @@ public class Jooby {
    *   }
    * </pre>
    *
-   * @param type A media type.
    * @param location Absolute classpath location.
    * @return A new route handler.
    */
-  public Router file(@Nonnull final MediaType type, @Nonnull final String location) {
-    requireNonNull(type, "A type is required.");
+  public Route.Handler file(@Nonnull final String location) {
     requireNonNull(location, "A location is required.");
     return (req, res) -> {
       InputStream in = getClass().getClassLoader().getResourceAsStream(location);
-      res.type(type);
+      MediaTypeProvider typedb = req.getInstance(MediaTypeProvider.class);
+      res.type(typedb.forPath(location));
       res.send(in);
     };
   }
@@ -1392,15 +1406,18 @@ public class Jooby {
    *
    * @param status A redirect status.
    * @param location Either a relative or absolute location.
+   * @return A route handler.
    * @throws Exception If redirection fails.
    */
-  public Router redirect(final Response.Status status, final String location) {
+  public Route.Handler redirect(final Status status, final String location) {
     requireNonNull(location, "A location is required.");
     return (req, res) -> res.redirect(status, location);
   }
 
   /**
-   * Check if the class had a Singleton annotation or not in order to register the route as singleton or prototype.
+   * Check if the class had a Singleton annotation or not in order to register the route as
+   * singleton or prototype.
+   *
    * @param route
    */
   private void registerRouteScope(final Class<?> route) {
@@ -1417,7 +1434,7 @@ public class Jooby {
    * @param route A route definition to append.
    * @return The same route definition.
    */
-  private Route.Definition route(final Route.Definition route) {
+  private Route.Definition handler(final Route.Definition route) {
     bag.add(route);
     return route;
   }
@@ -1451,13 +1468,13 @@ public class Jooby {
   }
 
   /**
-   * Setup a route error handler. Default error handler {@link Route.Err.Default} does content
+   * Setup a route error handler. Default error handler {@link Err.Default} does content
    * negotation and this method allow to override/complement default handler.
    *
    * @param err A route error handler.
    * @return This jooby instance.
    */
-  public @Nonnull Jooby err(final @Nonnull Route.Err.Handler err) {
+  public @Nonnull Jooby err(final @Nonnull Err.Handler err) {
     this.err = requireNonNull(err, "An err handler is required.");
     return this;
   }
@@ -1559,9 +1576,11 @@ public class Jooby {
         binder.bind(NumberFormat.class).toInstance(numberFormat);
         binder.bind(DecimalFormat.class).toInstance(numberFormat);
 
-        // bind readers & writers
-        Multibinder<BodyConverter> converterBinder = Multibinder
-            .newSetBinder(binder, BodyConverter.class);
+        // bind formatter & parser
+        Multibinder<Body.Parser> parserBinder = Multibinder
+            .newSetBinder(binder, Body.Parser.class);
+        Multibinder<Body.Formatter> formatterBinder = Multibinder
+            .newSetBinder(binder, Body.Formatter.class);
 
         // session definition
         binder.bind(Session.Definition.class).toInstance(session);
@@ -1587,7 +1606,8 @@ public class Jooby {
             .toInstance(new File(config.getString("java.io.tmpdir")));
 
         // converters
-        converters.forEach(it -> converterBinder.addBinding().toInstance(it));
+        parsers.forEach(it -> parserBinder.addBinding().toInstance(it));
+        formatters.forEach(it -> formatterBinder.addBinding().toInstance(it));
 
         // modules, routes and websockets
         bag.forEach(candidate -> {
@@ -1607,10 +1627,11 @@ public class Jooby {
         // Singleton routes
         singletonRoutes.forEach(routeClass -> binder.bind(routeClass).in(Scopes.SINGLETON));
 
-        converterBinder.addBinding().toInstance(FallbackBodyConverter.COPY_TEXT);
-        converterBinder.addBinding().toInstance(FallbackBodyConverter.COPY_BYTES);
-        converterBinder.addBinding().toInstance(FallbackBodyConverter.READ_TEXT);
-        converterBinder.addBinding().toInstance(FallbackBodyConverter.TO_HTML);
+        formatterBinder.addBinding().toInstance(FallbackBodyConverter.fromReader);
+        formatterBinder.addBinding().toInstance(FallbackBodyConverter.fromStream);
+        formatterBinder.addBinding().toInstance(FallbackBodyConverter.fromToString);
+
+        parserBinder.addBinding().toInstance(FallbackBodyConverter.readText);
 
         // err
         if (err == null) {

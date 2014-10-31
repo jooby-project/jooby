@@ -7,7 +7,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.util.EntityUtils;
-import org.jooby.Response;
 import org.jooby.FilterFeature.HttpResponseValidator;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
@@ -19,26 +18,26 @@ public class ResponseBodyFeature extends ServerFeature {
 
     @GET
     @Path("/200")
-    public Response.Body ok() {
-      return Response.Body.ok();
+    public Body ok() {
+      return Body.ok();
     }
 
     @GET
     @Path("/200/body")
-    public Response.Body okWithBody() {
-      return Response.Body.ok("***");
+    public Body okWithBody() {
+      return Body.ok("***");
     }
 
     @GET
     @Path("/204")
-    public Response.Body noContent() {
-      return Response.Body.noContent();
+    public Body noContent() {
+      return Body.noContent();
     }
 
     @GET
     @Path("/headers")
-    public Response.Body headers() {
-      return Response.Body.ok().header("x", "y");
+    public Body headers() {
+      return Body.ok().header("x", "y");
     }
 
   }

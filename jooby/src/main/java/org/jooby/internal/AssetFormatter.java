@@ -203,122 +203,47 @@
  */
 package org.jooby.internal;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.SortedSet;
 
-import org.jooby.Response;
-import org.jooby.Route;
-import org.jooby.Variant;
+import org.jooby.Asset;
+import org.jooby.Body;
+import org.jooby.MediaType;
 
-import com.google.common.base.Charsets;
-import com.google.inject.TypeLiteral;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.CharStreams;
 
-public class WebSocketBinaryMessage implements Variant {
+public class AssetFormatter implements Body.Formatter {
 
-  private ByteBuffer buffer;
-
-  public WebSocketBinaryMessage(final ByteBuffer buffer) {
-    this.buffer = buffer;
+  @Override
+  public boolean canFormat(final Class<?> type) {
+    return Asset.class.isAssignableFrom(type);
   }
 
   @Override
-  public boolean isPresent() {
-    return true;
+  public List<MediaType> types() {
+    return MediaType.ALL;
   }
 
   @Override
-  public boolean booleanValue() {
-    throw typeError(boolean.class);
-  }
+  public void format(final Object body, final Body.Writer writer) throws Exception {
+    Asset asset = (Asset) body;
+    MediaType type = asset.type();
 
-  @Override
-  public byte byteValue() {
-    throw typeError(byte.class);
-  }
-
-  @Override
-  public short shortValue() {
-    throw typeError(short.class);
-  }
-
-  @Override
-  public int intValue() {
-    throw typeError(int.class);
-  }
-
-  @Override
-  public long longValue() {
-    throw typeError(long.class);
-  }
-
-  @Override
-  public String stringValue() {
-    throw typeError(String.class);
-  }
-
-  @Override
-  public float floatValue() {
-    throw typeError(float.class);
-  }
-
-  @Override
-  public double doubleValue() {
-    throw typeError(double.class);
-  }
-
-  @Override
-  public <T extends Enum<T>> T enumValue(final Class<T> type) {
-    throw typeError(type);
-  }
-
-  @Override
-  public <T> List<T> toList(final Class<T> type) {
-    throw typeError(type);
-  }
-
-  @Override
-  public <T> Set<T> toSet(final Class<T> type) {
-    throw typeError(type);
-  }
-
-  @Override
-  public <T extends Comparable<T>> SortedSet<T> toSortedSet(final Class<T> type) {
-    throw typeError(type);
-  }
-
-  @Override
-  public <T> Optional<T> toOptional(final Class<T> type) {
-    throw typeError(type);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> T to(final TypeLiteral<T> type) {
-    Class<? super T> rawType = type.getRawType();
-    if (rawType == byte[].class) {
-      return (T) buffer.array();
+    if (type.isText()) {
+      writer.text(to -> {
+        try (Reader from = new InputStreamReader(asset.stream(), writer.charset())) {
+          CharStreams.copy(from, to);
+        }
+      });
+    } else {
+      writer.bytes(to -> {
+        try (InputStream from = asset.stream()) {
+          ByteStreams.copy(from, to);
+        }
+      });
     }
-    if (rawType == ByteBuffer.class) {
-      return (T) buffer;
-    }
-    if (rawType == InputStream.class) {
-      return (T) new ByteArrayInputStream(buffer.array());
-    }
-    if (rawType == Reader.class) {
-      return (T) new InputStreamReader(new ByteArrayInputStream(buffer.array()), Charsets.UTF_8);
-    }
-    throw typeError(rawType);
-  }
-
-  private Route.Err typeError(final Class<?> type) {
-    return new Route.Err(Response.Status.BAD_REQUEST, "Can't convert to "
-        + ByteBuffer.class.getName() + " to " + type);
   }
 }
