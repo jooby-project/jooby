@@ -620,6 +620,7 @@ public class Jooby {
      */
     public abstract void configure(@Nonnull Mode mode, @Nonnull Config config,
         @Nonnull Binder binder) throws Exception;
+
   }
 
   /**
@@ -1663,7 +1664,7 @@ public class Jooby {
       try {
         module.stop();
       } catch (Exception ex) {
-        log.error("Can't stop: " + module.getClass().getName(), ex);
+        log.warn("Module didn't stop normally: " + module.getClass().getName(), ex);
       }
     }
 
@@ -1770,8 +1771,7 @@ public class Jooby {
     try {
       module.configure(mode, config, binder);
     } catch (Exception ex) {
-      throw new IllegalStateException("Module didn't start properly: "
-          + module.getClass().getName(), ex);
+      throw new IllegalStateException("Error found on module: " + module.getClass().getName(), ex);
     }
   }
 

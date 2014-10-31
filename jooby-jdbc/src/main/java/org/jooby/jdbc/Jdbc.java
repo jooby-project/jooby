@@ -201,7 +201,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby;
+package org.jooby.jdbc;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -215,6 +215,8 @@ import java.util.function.Function;
 import javax.inject.Provider;
 import javax.sql.DataSource;
 
+import org.jooby.Jooby;
+import org.jooby.Mode;
 import org.jooby.fn.Switch;
 
 import com.google.inject.Binder;
@@ -228,7 +230,7 @@ import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-public class JDBC extends Jooby.Module {
+public class Jdbc extends Jooby.Module {
 
   public static final String DEFAULT_DB = "db";
 
@@ -278,12 +280,12 @@ public class JDBC extends Jooby.Module {
 
   private DataSourceHolder ds;
 
-  public JDBC(final String name) {
+  public Jdbc(final String name) {
     checkArgument(name != null && name.length() > 0, "A database name is required.");
     this.dbName = DEFAULT_DB.equals(name) ? name : DEFAULT_DB + "." + name;
   }
 
-  public JDBC() {
+  public Jdbc() {
     this(DEFAULT_DB);
   }
 
@@ -299,7 +301,7 @@ public class JDBC extends Jooby.Module {
 
   @Override
   public Config config() {
-    return ConfigFactory.parseResources("jdbc.conf");
+    return ConfigFactory.parseResources(Jdbc.class, "jdbc.conf");
   }
 
   @Override
@@ -311,9 +313,6 @@ public class JDBC extends Jooby.Module {
   }
 
   private Config dbConfig(final String key, final Config source) throws Exception {
-    if (!source.hasPath(key)) {
-      throw new IllegalArgumentException("Missing db configuration for: " + key);
-    }
     String db = source.getAnyRef(key).toString();
 
     Function<String, Config> h2 = (url) -> ConfigFactory.empty()

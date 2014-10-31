@@ -201,7 +201,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.jooby;
+package org.jooby.hbm;
 
 import java.net.URL;
 import java.sql.Connection;
@@ -234,6 +234,12 @@ import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
+import org.jooby.Body;
+import org.jooby.Mode;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.jdbc.Jdbc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,7 +249,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class Hbm extends JDBC {
+public class Hbm extends Jdbc {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -271,7 +277,7 @@ public class Hbm extends JDBC {
   @Override
   public Config config() {
     Config jdbc = super.config();
-    return ConfigFactory.parseResources("hibernate.conf").withFallback(jdbc);
+    return ConfigFactory.parseResources(getClass(), "hbm.conf").withFallback(jdbc);
   }
 
   @Override
@@ -294,7 +300,7 @@ public class Hbm extends JDBC {
     Multibinder<Route.Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
 
     routes.addBinding()
-        .toInstance(new Route.Definition("*", "*", readWriteTrx(emKey)).name("hbm/2x1/rw"));
+        .toInstance(new Route.Definition("*", "*", readWriteTrx(emKey)).name("hbm"));
 
     Multibinder.newSetBinder(binder, Request.Module.class).addBinding().toInstance((b) -> {
       log.debug("creating entity manager");
@@ -400,7 +406,9 @@ public class Hbm extends JDBC {
 
   @Override
   public void stop() throws Exception {
-    emf.close();
+    if (emf != null) {
+      emf.close();
+    }
     super.stop();
   }
 
