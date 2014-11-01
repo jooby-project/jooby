@@ -1714,8 +1714,7 @@ public class Jooby {
       config = config.withValue("application.lang",
           ConfigValueFactory.fromAnyRef(locale.getLanguage() + "_" + locale.getCountry()));
     } else {
-      String[] lang = config.getString("application.lang").split("_");
-      locale = lang.length == 1 ? new Locale(lang[0]) : new Locale(lang[0], lang[1]);
+      locale = Locale.forLanguageTag(config.getString("application.lang").replace("_", "-"));
     }
 
     // date format
