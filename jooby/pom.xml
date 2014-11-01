@@ -50,6 +50,12 @@
       <artifactId>asm</artifactId>
     </dependency>
 
+    <!-- Guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+
     <!-- Guice -->
     <dependency>
       <groupId>com.google.inject.extensions</groupId>
