@@ -12,7 +12,8 @@
   <artifactId>jooby</artifactId>
 
   <name>jooby</name>
-  <description>Jooby</description>
+
+  <description>An express inspired micro-web framework</description>
 
   <build>
     <plugins>

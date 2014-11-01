@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-hbs</artifactId>
 
-  <name>Handlebars for Jooby</name>
+  <name>handlebars module</name>
   <description>Handlebars Template Engine for Jooby</description>
 
   <dependencies>

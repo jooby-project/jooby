@@ -11,8 +11,8 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-jackson</artifactId>
 
-  <name>Jackson support for Jooby</name>
-  <description>Serialize  Jackson</description>
+  <name>jackson module</name>
+  <description>Json support for Jooby</description>
 
   <dependencies>
     <!-- Jooby -->

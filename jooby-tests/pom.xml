@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-tests</artifactId>
 
-  <name>Feature Set</name>
+  <name>feature set and tests</name>
   <description>Integration tests for Jooby</description>
 
   <dependencies>

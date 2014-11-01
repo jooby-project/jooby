@@ -11,10 +11,11 @@
   </parent>
 
   <artifactId>jooby-archetype</artifactId>
-  <name>jooby archetype</name>
-  <description>generate a new jooby application</description>
-  <url>http://jooby.org</url>
   <packaging>maven-archetype</packaging>
+
+  <name>jooby archetype generator</name>
+  <description>Maven archetype generator for Jooby</description>
+  
 
   <build>
     <resources>

@@ -9,16 +9,17 @@
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
-  <description>Micro Web Framework</description>
 
-  <url>https://github.com/jknack/jooby</url>
+  <description>An express inspired micro-web framework</description>
+
+  <url>https://github.com/jooby-project/jooby</url>
 
   <modules>
     <module>jooby</module>
     <module>jooby-jackson</module>
     <module>jooby-hbs</module>
-    <module>jooby-hbm</module>
     <module>jooby-jdbc</module>
+    <module>jooby-hbm</module>
     <module>jooby-tests</module>
     <module>jooby-archetype</module>
     <module>jooby-maven-plugin</module>
@@ -40,10 +41,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git@github.com:jknack/jooby.git</connection>
-    <developerConnection>scm:git:git@github.com:jknack/jooby.git</developerConnection>
-    <url>scm:git:git@github.com:jknack/jooby.git</url>
-    <tag>HEAD</tag>
+    <connection>scm:git:git@github.com:jooby-project/jooby.git</connection>
+    <developerConnection>scm:git:git@github.com:jooby-project/jooby.git</developerConnection>
+    <url>scm:git:git@github.com:jooby-project/jooby.git</url>
   </scm>
 
   <distributionManagement>
@@ -251,6 +251,49 @@
         <version>${hibernate.version}</version>
       </dependency>
 
+      <!-- Maven -->
+      <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec-maven-plugin.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-plugin-api</artifactId>
+        <version>${maven-plugin-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-project</artifactId>
+        <version>${maven-project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-core</artifactId>
+        <version>${maven-core.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven.plugin-tools</groupId>
+        <artifactId>maven-plugin-annotations</artifactId>
+        <version>${maven-plugin-annotations.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-utils</artifactId>
+        <version>${plexus-utils.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.twdata.maven</groupId>
+        <artifactId>mojo-executor</artifactId>
+        <version>${mojo-executor.version}</version>
+      </dependency>
+
       <!-- Test dependencies -->
       <dependency>
         <groupId>junit</groupId>
@@ -390,9 +433,9 @@
       </plugin>
 
       <plugin>
-        <groupId>com.mycila.maven-license-plugin</groupId>
-        <artifactId>maven-license-plugin</artifactId>
-        <version>${maven-license-plugin.version}</version>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>${license-maven-plugin.version}</version>
         <configuration>
           <header>LICENSE</header>
           <strictCheck>true</strictCheck>
@@ -420,9 +463,66 @@
         <configuration>
           <serverId>ossrh</serverId>
           <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
       </plugin>
     </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${maven-shade-plugin.version}</version>
+          <configuration>
+            <createDependencyReducedPom>true</createDependencyReducedPom>
+            <filters>
+              <filter>
+                <artifact>*:*</artifact>
+                <excludes>
+                  <exclude>META-INF/*.SF</exclude>
+                  <exclude>META-INF/*.DSA</exclude>
+                  <exclude>META-INF/*.RSA</exclude>
+                  <exclude>LICENSE</exclude>
+                  <exclude>NOTICE</exclude>
+                </excludes>
+              </filter>
+              <filter>
+                <artifact>org.eclipse.jetty:*</artifact>
+                <excludes>
+                  <exclude>about.html</exclude>
+                  <exclude>jetty-dir.css</exclude>
+                </excludes>
+              </filter>
+              <filter>
+                <artifact>org.eclipse.jetty.websocket:*</artifact>
+                <excludes>
+                  <exclude>about.html</exclude>
+                  <exclude>jetty-dir.css</exclude>
+                </excludes>
+              </filter>
+            </filters>
+          </configuration>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <transformers>
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                    <mainClass>${application.main}</mainClass>
+                  </transformer>
+                </transformers>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
   </build>
 
   <profiles>
@@ -579,65 +679,14 @@
 
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>${maven-shade-plugin.version}</version>
-            <configuration>
-              <createDependencyReducedPom>true</createDependencyReducedPom>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                    <exclude>LICENSE</exclude>
-                    <exclude>NOTICE</exclude>
-                  </excludes>
-                </filter>
-                <filter>
-                  <artifact>org.eclipse.jetty:*</artifact>
-                  <excludes>
-                    <exclude>about.html</exclude>
-                    <exclude>jetty-dir.css</exclude>
-                  </excludes>
-                </filter>
-                <filter>
-                  <artifact>org.eclipse.jetty.websocket:*</artifact>
-                  <excludes>
-                    <exclude>about.html</exclude>
-                    <exclude>jetty-dir.css</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-            </configuration>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>shade</goal>
-                </goals>
-                <configuration>
-                  <transformers>
-                    <transformer
-                      implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                    <transformer
-                      implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                      <mainClass>${application.main}</mainClass>
-                    </transformer>
-                  </transformers>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
+
         </plugins>
       </build>
     </profile>
 
-    <!-- Maven release -->
+    <!-- Sonatype OSS release -->
     <profile>
-      <id>sonatype-oss-release</id>
+      <id>release</id>
       <build>
         <plugins>
           <!-- Source -->
@@ -758,8 +807,14 @@
     <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
     <cobertura-maven-plugin.version>2.6</cobertura-maven-plugin.version>
     <coveralls-maven-plugin.version>3.0.1</coveralls-maven-plugin.version>
-    <maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
     <exec-maven-plugin.version>1.3.2</exec-maven-plugin.version>
+    <maven-plugin-api.version>3.2.3</maven-plugin-api.version>
+    <maven-project.version>2.2.1</maven-project.version>
+    <maven-core.version>3.2.3</maven-core.version>
+    <maven-plugin-annotations.version>3.3</maven-plugin-annotations.version>
+    <plexus-utils.version>3.0.20</plexus-utils.version>
+    <mojo-executor.version>2.2.0</mojo-executor.version>
+    <license-maven-plugin.version>2.6</license-maven-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>
   </properties>

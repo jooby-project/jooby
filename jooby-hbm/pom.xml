@@ -11,8 +11,8 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-hbm</artifactId>
 
-  <name>Hibernate/JPA support for Jooby</name>
-  <description>Hibernate/JPA support for Jooby</description>
+  <name>hibernate module</name>
+  <description>Hibernate and JPA support for Jooby</description>
 
   <dependencies>
     <!-- Jooby -->
