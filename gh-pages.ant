@@ -1,0 +1,48 @@
+<project default="docsync">
+  <target name="docsync">
+    <property name="gitrepo" value="git@github.com:jooby-project/jooby.git" />
+    <property name="workdir" value="target/gh-pages" />
+
+    <delete dir="${workdir}" failonerror="false" />
+    <mkdir dir="${workdir}" />
+
+    <exec executable="git" dir="${workdir}">
+      <arg value="clone" />
+      <arg value="-b" />
+      <arg value="gh-pages" />
+      <arg value="--single-branch" />
+      <arg value="${gitrepo}" />
+      <arg value="." />
+    </exec>
+
+    <echo file="${workdir}/index.md" message="---&#13;&#10;layout: index&#13;&#10;---&#13;&#10;&#13;&#10;" force="true" />
+
+    <concat destfile="${workdir}/index.md" append="true">
+      <fileset file="README.md" />
+    </concat>
+
+    <delete dir="${workdir}/apidocs" failonerror="false" />
+
+    <copy todir="${workdir}" overwrite="true">
+      <fileset dir="target/site" />
+    </copy>
+
+    <exec executable="git" dir="${workdir}">
+      <arg value="add" />
+      <arg value="--all" />
+    </exec>
+
+    <exec executable="git" dir="${workdir}">
+      <arg value="commit" />
+      <arg value="-m" />
+      <arg value="Sync docs from master branch to docs gh-pages directory" />
+    </exec>
+
+    <exec executable="git" dir="${workdir}">
+      <arg value="push" />
+      <arg value="origin" />
+      <arg value="gh-pages" />
+    </exec>
+
+  </target>
+</project>

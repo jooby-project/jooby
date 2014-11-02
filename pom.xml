@@ -398,6 +398,7 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <excludePackageNames>org.jooby.internal</excludePackageNames>
+          <aggregate>true</aggregate>
         </configuration>
       </plugin>
 
