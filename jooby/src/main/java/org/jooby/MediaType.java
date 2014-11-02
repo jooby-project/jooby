@@ -45,8 +45,8 @@ public class MediaType implements Comparable<MediaType> {
   /**
    * A media type matcher.
    *
-   * @see MediaType#matcher(MediaType)
-   * @see MediaType#matcher(Iterable)
+   * @see MediaType#matcher(org.jooby.MediaType)
+   * @see MediaType#matcher(java.util.List)
    */
   public static class Matcher {
 
@@ -72,8 +72,8 @@ public class MediaType implements Comparable<MediaType> {
      * </pre>
      *
      * <pre>
-     *   matches(text/html)        -> true through text/html
-     *   matches(application/json) -> true through {@literal *}/{@literal *}
+     *   matches(text/html)        // true through text/html
+     *   matches(application/json) // true through {@literal *}/{@literal *}
      * </pre>
      *
      * @param candidate A candidate media type. Required.
@@ -92,8 +92,8 @@ public class MediaType implements Comparable<MediaType> {
      * </pre>
      *
      * <pre>
-     *   matches(text/html)        -> true through text/html
-     *   matches(application/json) -> true through {@literal *}/{@literal *}
+     *   matches(text/html)        // true through text/html
+     *   matches(application/json) // true through {@literal *}/{@literal *}
      * </pre>
      *
      * @param candidates One ore more candidates media type. Required.
@@ -111,8 +111,8 @@ public class MediaType implements Comparable<MediaType> {
      * </pre>
      *
      * <pre>
-     *   first(text/html)        -> returns text/html
-     *   first(application/json) -> returns application/json
+     *   first(text/html)        // returns text/html
+     *   first(application/json) // returns application/json
      * </pre>
      *
      * @param candidate A candidate media type. Required.
@@ -130,8 +130,8 @@ public class MediaType implements Comparable<MediaType> {
      * </pre>
      *
      * <pre>
-     *   first(text/html)        -> returns text/html
-     *   first(application/json) -> returns application/json
+     *   first(text/html)        // returns text/html
+     *   first(application/json) // returns application/json
      * </pre>
      *
      * @param candidates One ore more candidates media type. Required.
@@ -151,10 +151,14 @@ public class MediaType implements Comparable<MediaType> {
      * </pre>
      *
      * <pre>
-     *   filter(text/html)       -> returns text/html
-     *   first(application/json) -> returns application/json
-     *   filter(text/html, application/json)       -> returns text/html and application/json
+     *   filter(text/html)       // returns text/html
+     *   first(application/json) // returns application/json
+     *   filter(text/html, application/json) // returns text/html and application/json
      * </pre>
+     *
+     * @param types A types to filter
+     * @return Filtered types that matches the given types ordered from more specific to less
+     *         specific.
      */
     public List<MediaType> filter(final @Nonnull List<MediaType> types) {
       checkArgument(types != null && types.size() > 0, "Media types are required");
@@ -398,6 +402,7 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   /**
+   * @param that A media type to compare to.
    * @return True, if the given media type matches the current one.
    */
   public boolean matches(final @Nonnull MediaType that) {
@@ -447,20 +452,21 @@ public class MediaType implements Comparable<MediaType> {
   /**
    * Convert a media type expressed as String into a {@link MediaType}.
    *
+   * @param type A media type to parse.
    * @return An immutable {@link MediaType}.
    */
-  public static MediaType valueOf(final @Nonnull String mediaType) {
-    requireNonNull(mediaType, "A mediaType is required.");
-    if ("*".equals(mediaType)) {
+  public static MediaType valueOf(final @Nonnull String type) {
+    requireNonNull(type, "A mediaType is required.");
+    if ("*".equals(type)) {
       return MediaType.all;
     }
-    String[] parts = mediaType.split(";");
-    checkArgument(parts.length > 0, "Bad media type: %s", mediaType);
+    String[] parts = type.split(";");
+    checkArgument(parts.length > 0, "Bad media type: %s", type);
     String[] typeAndSubtype = (parts[0].equals("*") ? "*/*" : parts[0]).split("/");
-    checkArgument(typeAndSubtype.length == 2, "Bad media type: %s", mediaType);
-    String type = typeAndSubtype[0].trim();
+    checkArgument(typeAndSubtype.length == 2, "Bad media type: %s", type);
+    String stype = typeAndSubtype[0].trim();
     String subtype = typeAndSubtype[1].trim();
-    checkArgument(!(type.equals("*") && !subtype.equals("*")), "Bad media type: %s", mediaType);
+    checkArgument(!(type.equals("*") && !subtype.equals("*")), "Bad media type: %s", type);
     Map<String, String> parameters = DEFAULT_PARAMS;
     if (parts.length > 1) {
       parameters = new LinkedHashMap<>(DEFAULT_PARAMS);
@@ -471,19 +477,20 @@ public class MediaType implements Comparable<MediaType> {
         }
       }
     }
-    return new MediaType(type, subtype, parameters);
+    return new MediaType(stype, subtype, parameters);
   }
 
   /**
    * Convert one or more media types expressed as String into a {@link MediaType}.
    *
+   * @param types Media types to parse.
    * @return An list of immutable {@link MediaType}.
    */
-  public static List<MediaType> valueOf(final @Nonnull String... mediaTypes) {
-    requireNonNull(mediaTypes, "A mediaType is required.");
+  public static List<MediaType> valueOf(final @Nonnull String... types) {
+    requireNonNull(types, "Types are required.");
     List<MediaType> result = new ArrayList<>();
-    for (String mediaType : mediaTypes) {
-      result.add(valueOf(mediaType));
+    for (String type : types) {
+      result.add(valueOf(type));
     }
     return result;
   }

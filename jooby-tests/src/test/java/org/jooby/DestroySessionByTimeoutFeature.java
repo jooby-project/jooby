@@ -46,9 +46,9 @@ public class DestroySessionByTimeoutFeature extends ServerFeature {
     use(store)
         .timeout(1);
 
-    get("/timeout", (req, res) -> {
+    get("/timeout", (req, rsp) -> {
       req.session();
-      res.send("timeout");
+      rsp.send("timeout");
     });
 
   }

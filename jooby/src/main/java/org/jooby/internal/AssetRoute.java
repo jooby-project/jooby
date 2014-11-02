@@ -43,7 +43,7 @@ public class AssetRoute implements Route.Handler {
   }
 
   @Override
-  public void handle(final Request req, final Response res) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Exception {
     Asset resource = provider.get(req.path());
 
     long lastModified = resource.lastModified();
@@ -52,13 +52,13 @@ public class AssetRoute implements Route.Handler {
     if (lastModified > 0) {
       long ifModified = req.header("If-Modified-Since").toOptional(Long.class).orElse(-1l);
       if (ifModified > 0 && lastModified / 1000 <= ifModified / 1000) {
-        res.status(Status.NOT_MODIFIED);
+        rsp.status(Status.NOT_MODIFIED);
         return;
       }
-      res.header("Last-Modified", new Date(lastModified));
+      rsp.header("Last-Modified", new Date(lastModified));
     }
-    res.type(resource.type());
-    res.send(resource);
+    rsp.type(resource.type());
+    rsp.send(resource);
   }
 
 }

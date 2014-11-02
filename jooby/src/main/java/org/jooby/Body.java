@@ -42,8 +42,8 @@ import com.google.inject.TypeLiteral;
  * <pre>
  * class MyRoute {
  *
- *   @GET
- *   @Path("/")
+ *   &#64;GET
+ *   &#64;Path("/")
  *   public Body webMethod() {
  *     return Body.redirect("/somewhere")
  *   }
@@ -88,6 +88,7 @@ public class Body {
      *
      * @param type A type of message.
      * @param reader A read context.
+     * @param <T> Target type.
      * @return A body message.
      * @throws Exception If read operation fail.
      */
@@ -118,12 +119,12 @@ public class Body {
      *
      * <p>
      * For text format (json, yaml, xml, etc.) a converter usually call to
-     * {@link Writer#text(Boody.Writer.Text)} in order to set charset and close resources.
+     * {@link Body.Writer#text(Body.Writer.Text)} in order to set charset and close resources.
      * </p>
      *
      * <p>
      * For binary format a converter usually call to
-     * {@link Boody.Writer#bytes(Boody.Writer.Binary)} in order to close resources.
+     * {@link Body.Writer#bytes(Body.Writer.Bytes)} in order to close resources.
      * </p>
      *
      * @param body A body message.
@@ -190,6 +191,7 @@ public class Body {
      * {@link Charset}.
      *
      * @param text A text reading strategy.
+     * @param <T> Target type.
      * @return A HTTP body converted to something else.
      * @throws Exception When the operation fails.
      */
@@ -200,6 +202,7 @@ public class Body {
      * Convert a HTTP request body to something else.
      *
      * @param bytes A bytes reading strategy.
+     * @param <T> Target type.
      * @return A HTTP body converted to something else.
      * @throws Exception When the operation fails.
      */

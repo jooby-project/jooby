@@ -43,9 +43,9 @@ public class HeadFilter implements Route.Filter {
   }
 
   @Override
-  public void handle(final Request req, final Response res, final Route.Chain chain)
+  public void handle(final Request req, final Response rsp, final Route.Chain chain)
       throws Exception {
-    if (res.committed()) {
+    if (rsp.committed()) {
       return;
     }
 
@@ -55,13 +55,13 @@ public class HeadFilter implements Route.Filter {
           .matches(Verb.GET, path, MediaType.all, MediaType.ALL);
       if (route.isPresent() && !route.get().pattern().contains("*")) {
         // route found
-        res.length(0);
-        ((RouteImpl) route.get()).handle(req, res, chain);
+        rsp.length(0);
+        ((RouteImpl) route.get()).handle(req, rsp, chain);
         return;
       }
     }
     // not handle, just call next
-    chain.next(req, res);
+    chain.next(req, rsp);
   }
 
 }

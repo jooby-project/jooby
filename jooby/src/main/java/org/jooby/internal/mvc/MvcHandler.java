@@ -34,42 +34,43 @@ import org.jooby.View;
 import org.jooby.fn.ExSupplier;
 import org.jooby.mvc.Viewable;
 
-class MvcRoute implements Route.Handler {
+class MvcHandler implements Route.Handler {
 
-  private Method router;
+  private Method handler;
 
   private ParamProvider provider;
 
   private List<MediaType> produces;
 
-  public MvcRoute(final Method router, final ParamProvider provider, final List<MediaType> produces) {
-    this.router = requireNonNull(router, "Router method is required.");
+  public MvcHandler(final Method hanlder, final ParamProvider provider,
+      final List<MediaType> produces) {
+    this.handler = requireNonNull(hanlder, "Handler method is required.");
     this.provider = requireNonNull(provider, "Param prodiver is required.");
     this.produces = requireNonNull(produces, "Produce types are required.");
   }
 
   @Override
-  public void handle(final Request req, final Response res) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Exception {
 
-    Object handler = req.getInstance(router.getDeclaringClass());
+    Object target = req.getInstance(handler.getDeclaringClass());
 
-    List<Param> parameters = provider.parameters(router);
+    List<Param> parameters = provider.parameters(handler);
     Object[] args = new Object[parameters.size()];
     for (int i = 0; i < parameters.size(); i++) {
-      args[i] = parameters.get(i).get(req, res);
+      args[i] = parameters.get(i).get(req, rsp);
     }
 
-    final Object result = router.invoke(handler, args);
+    final Object result = handler.invoke(target, args);
 
-    Class<?> returnType = router.getReturnType();
+    Class<?> returnType = handler.getReturnType();
     if (returnType == void.class || returnType == Void.class) {
       // ignore glob pattern
       if (!req.route().pattern().contains("*")) {
-        res.status(Status.NO_CONTENT);
+        rsp.status(Status.NO_CONTENT);
       }
       return;
     }
-    res.status(Status.OK);
+    rsp.status(Status.OK);
 
     // format!
     List<MediaType> accept = req.accept();
@@ -79,15 +80,15 @@ class MvcRoute implements Route.Handler {
         return result;
       }
       // default view name
-      String defaultViewName = Optional.ofNullable(router.getAnnotation(Viewable.class))
-          .map(template -> template.value().isEmpty() ? router.getName() : template.value())
-          .orElse(router.getName());
+      String defaultViewName = Optional.ofNullable(handler.getAnnotation(Viewable.class))
+          .map(template -> template.value().isEmpty() ? handler.getName() : template.value())
+          .orElse(handler.getName());
       return View.of(defaultViewName, result);
     };
 
     ExSupplier<Object> notViewable = () -> result;
 
-    List<MediaType> viewableTypes = res.viewableTypes();
+    List<MediaType> viewableTypes = rsp.viewableTypes();
     Function<MediaType, ExSupplier<Object>> provider = (type) -> {
       Optional<MediaType> matches = viewableTypes.stream()
         .filter(it -> it.matches(type))
@@ -95,7 +96,7 @@ class MvcRoute implements Route.Handler {
         return matches.isPresent() ? viewable : notViewable;
     };
 
-    Response.Formatter formatter = res.format();
+    Response.Formatter formatter = rsp.format();
 
     // add formatters
     accept.forEach(type -> formatter.when(type, provider.apply(type)));

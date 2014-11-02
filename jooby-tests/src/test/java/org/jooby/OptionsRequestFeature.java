@@ -12,15 +12,15 @@ import org.junit.Test;
 public class OptionsRequestFeature extends ServerFeature {
 
   {
-    get("/", (req, res) -> res.send(req.route().verb()));
+    get("/", (req, rsp) -> rsp.send(req.route().verb()));
 
-    post("/", (req, res) -> res.send(req.route().verb()));
+    post("/", (req, rsp) -> rsp.send(req.route().verb()));
 
-    get("/sub", (req, res) -> res.send(req.route().verb()));
+    get("/sub", (req, rsp) -> rsp.send(req.route().verb()));
 
-    post("/sub", (req, res) -> res.send(req.route().verb()));
+    post("/sub", (req, rsp) -> rsp.send(req.route().verb()));
 
-    delete("/sub", (req, res) -> res.send(req.route().verb()));
+    delete("/sub", (req, rsp) -> rsp.send(req.route().verb()));
 
     options("*");
   }

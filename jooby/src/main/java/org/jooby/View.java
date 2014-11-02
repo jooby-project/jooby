@@ -34,6 +34,12 @@ import com.google.common.collect.ImmutableList;
  */
 public class View {
 
+  /**
+   * Special body serializer for dealing with {@link View}.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
   public interface Engine extends Body.Formatter {
 
     List<MediaType> HTML = ImmutableList.of(MediaType.html);
@@ -114,7 +120,8 @@ public class View {
   /**
    * Set the view engine to use.
    *
-   * @param Set the view engine to use.
+   * @param engine Set the view engine to use.
+   * @return This view.
    */
   public View engine(final String engine) {
     this.engine = requireNonNull(engine, "A view engine is required.");

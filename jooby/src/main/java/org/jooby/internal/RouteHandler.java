@@ -168,19 +168,19 @@ public class RouteHandler {
       response.reset();
 
       Request req = reqFactory.apply(injector, notFound);
-      Response res = resFactory.apply(injector, notFound);
+      Response rsp = resFactory.apply(injector, notFound);
 
       // execution failed, so find status code
       Status status = statusCode(ex);
 
-      res.header("Cache-Control", NO_CACHE);
-      res.status(status);
+      rsp.header("Cache-Control", NO_CACHE);
+      rsp.status(status);
 
       try {
-        err.handle(req, res, ex);
+        err.handle(req, rsp, ex);
       } catch (Exception ignored) {
         log.debug("rendering of error failed, fallback to default error page", ignored);
-        defaultErrorPage(req, res, err.err(req, res, ex));
+        defaultErrorPage(req, rsp, err.err(req, rsp, ex));
       }
     } finally {
       long end = System.currentTimeMillis();
@@ -200,14 +200,14 @@ public class RouteHandler {
     return new Route.Chain() {
 
       @Override
-      public void next(final Request req, final Response res) throws Exception {
+      public void next(final Request req, final Response rsp) throws Exception {
         RouteImpl route = get(it.next());
 
         // set route
         set(req, route);
-        set(res, route);
+        set(rsp, route);
 
-        route.handle(req, res, this);
+        route.handle(req, rsp, this);
       }
 
       private RouteImpl get(final Route next) {
@@ -219,8 +219,8 @@ public class RouteHandler {
         root.route(route);
       }
 
-      private void set(final Response res, final Route route) {
-        ResponseImpl root = (ResponseImpl) Response.Forwarding.unwrap(res);
+      private void set(final Response rsp, final Route route) {
+        ResponseImpl root = (ResponseImpl) Response.Forwarding.unwrap(rsp);
         root.route(route);
       }
     };
@@ -231,25 +231,25 @@ public class RouteHandler {
     List<Route> routes = findRoutes(verb, path, type, accept);
 
     // 406 or 415
-    routes.add(RouteImpl.fromStatus((req, res, chain) -> {
-      if (!res.committed()) {
+    routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
+      if (!rsp.committed()) {
         Err ex = handle406or415(verb, path, type, accept);
         if (ex != null) {
           throw ex;
         }
       }
-      chain.next(req, res);
+      chain.next(req, rsp);
     }, verb, path, Status.NOT_ACCEPTABLE, accept));
 
     // 405
-    routes.add(RouteImpl.fromStatus((req, res, chain) -> {
-      if (!res.committed()) {
+    routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
+      if (!rsp.committed()) {
         Err ex = handle405(verb, path, type, accept);
         if (ex != null) {
           throw ex;
         }
       }
-      chain.next(req, res);
+      chain.next(req, rsp);
     }, verb, path, Status.METHOD_NOT_ALLOWED, accept));
 
     // 404
@@ -286,9 +286,9 @@ public class RouteHandler {
     };
   }
 
-  private void defaultErrorPage(final Request request, final Response res,
+  private void defaultErrorPage(final Request request, final Response rsp,
       final Map<String, Object> model) throws Exception {
-    Status status = res.status().get();
+    Status status = rsp.status().get();
     StringBuilder html = new StringBuilder("<!doctype html>")
         .append("<html>\n")
         .append("<head>\n")
@@ -344,8 +344,8 @@ public class RouteHandler {
         .append("</body>\n")
         .append("</html>\n");
 
-    res.header("Cache-Control", NO_CACHE);
-    res.send(html);
+    rsp.header("Cache-Control", NO_CACHE);
+    rsp.send(html);
   }
 
   private Status statusCode(final Exception ex) {

@@ -13,11 +13,11 @@ import org.junit.Test;
 public class TraceRequestFeature extends ServerFeature {
 
   {
-    get("/", (req, res) -> res.send(req.route().verb()));
+    get("/", (req, rsp) -> rsp.send(req.route().verb()));
 
-    post("/", (req, res) -> res.send(req.route().verb()));
+    post("/", (req, rsp) -> rsp.send(req.route().verb()));
 
-    get("/sub", (req, res) -> res.send(req.route().verb()));
+    get("/sub", (req, rsp) -> rsp.send(req.route().verb()));
 
     trace("*");
 
@@ -25,11 +25,11 @@ public class TraceRequestFeature extends ServerFeature {
 
   @Test
   public void trace() throws Exception {
-    String res = execute(TRACE(uri("/")), (response) -> {
+    String rsp = execute(TRACE(uri("/")), (response) -> {
       assertEquals(200, response.getStatusLine().getStatusCode());
       assertTrue(Integer.parseInt(response.getFirstHeader("Content-Length").getValue()) >= 163);
     });
-    assertTrue(res.startsWith("TRACE"));
+    assertTrue(rsp.startsWith("TRACE"));
   }
 
   private static Request TRACE(final URIBuilder uri) throws Exception {

@@ -13,7 +13,7 @@ public class AllParamsFeature extends ServerFeature {
 
   {
 
-    post("/:name", (req, res) -> {
+    post("/:name", (req, rsp) -> {
       Map<String, Mutant> params = req.params();
       assertEquals("a", params.get("name").toList(String.class).get(0));
       assertEquals("b", params.get("name").toList(String.class).get(1));
@@ -22,7 +22,7 @@ public class AllParamsFeature extends ServerFeature {
       assertEquals("a1", params.get("p1").stringValue());
       assertEquals("a2", params.get("p2").stringValue());
 
-      res.send("done");
+      rsp.send("done");
     });
 
   }

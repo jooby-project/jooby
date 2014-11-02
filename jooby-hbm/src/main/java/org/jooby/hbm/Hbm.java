@@ -140,7 +140,7 @@ public class Hbm extends Jdbc {
         log.debug("  starting transaction: {}", trx);
         trx.begin();
 
-        // invoke next router
+        // invoke next handler
         chain.next(req, new Response.Forwarding(resp) {
 
           void setReadOnly(final Session session, final boolean readOnly) {

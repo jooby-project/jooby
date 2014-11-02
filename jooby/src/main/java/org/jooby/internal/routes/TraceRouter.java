@@ -30,8 +30,8 @@ import org.jooby.Route;
 public class TraceRouter implements Route.Handler {
 
   @Override
-  public void handle(final Request req, final Response res) throws Exception {
-    if (res.committed()) {
+  public void handle(final Request req, final Response rsp) throws Exception {
+    if (rsp.committed()) {
       return;
     }
 
@@ -46,9 +46,9 @@ public class TraceRouter implements Route.Handler {
 
     buffer.append(CRLF);
 
-    res.type(MediaType.valueOf("message/http"));
-    res.length(buffer.length());
-    res.send(buffer.toString());
+    rsp.type(MediaType.valueOf("message/http"));
+    rsp.length(buffer.length());
+    rsp.send(buffer.toString());
   }
 
 }

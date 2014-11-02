@@ -56,12 +56,12 @@ public class JettyHandler extends SessionHandler {
 
   @Override
   public void doHandle(final String requestURI, final Request baseRequest,
-      final HttpServletRequest req, final HttpServletResponse res) throws IOException,
+      final HttpServletRequest req, final HttpServletResponse rsp) throws IOException,
       ServletException {
 
-    if (webSocketFactory != null && webSocketFactory.isUpgradeRequest(req, res)) {
+    if (webSocketFactory != null && webSocketFactory.isUpgradeRequest(req, rsp)) {
       // We have an upgrade request
-      if (webSocketFactory.acceptWebSocket(req, res)) {
+      if (webSocketFactory.acceptWebSocket(req, rsp)) {
         // We have a socket instance created
         baseRequest.setHandled(true);
         return;
@@ -69,7 +69,7 @@ public class JettyHandler extends SessionHandler {
       // If we reach this point, it means we had an incoming request to upgrade
       // but it was either not a proper websocket upgrade, or it was possibly rejected
       // due to incoming request constraints (controlled by WebSocketCreator)
-      if (res.isCommitted()) {
+      if (rsp.isCommitted()) {
         // not much we can do at this point.
         return;
       }
@@ -79,7 +79,7 @@ public class JettyHandler extends SessionHandler {
       baseRequest.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multiPartConfig);
     }
     try {
-      handler.handle(req, res);
+      handler.handle(req, rsp);
       // mark as handled
       baseRequest.setHandled(true);
     } catch (RuntimeException | IOException ex) {

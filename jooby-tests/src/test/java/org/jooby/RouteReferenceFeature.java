@@ -11,24 +11,24 @@ public class RouteReferenceFeature extends ServerFeature {
 
   {
 
-    get("/", (req, res) -> {
+    get("/", (req, rsp) -> {
       Route route = req.route();
       assertNotNull(route);
       assertEquals("anonymous", route.name());
       assertEquals("GET", route.verb().name());
       assertEquals("/", route.path());
       assertEquals("/", route.pattern());
-      res.send("done");
+      rsp.send("done");
     });
 
-    get("/:var", (req, res) -> {
+    get("/:var", (req, rsp) -> {
       Route route = req.route();
       assertNotNull(route);
       assertEquals("anonymous", route.name());
       assertEquals("GET", route.verb().name());
       assertEquals("/" + req.param("var").stringValue(), route.path());
       assertEquals("/:var", route.pattern());
-      res.send("done");
+      rsp.send("done");
     });
 
   }

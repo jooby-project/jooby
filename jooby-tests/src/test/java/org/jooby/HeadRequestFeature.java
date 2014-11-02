@@ -11,10 +11,10 @@ import org.junit.Test;
 public class HeadRequestFeature extends ServerFeature {
 
   {
-    get("/", (req, res) -> res.send(req.route().verb()));
+    get("/", (req, rsp) -> rsp.send(req.route().verb()));
 
     // custom head
-    head("/head", (req, res) -> res.send(req.path()));
+    head("/head", (req, rsp) -> rsp.send(req.path()));
 
     // global head
     head("*");

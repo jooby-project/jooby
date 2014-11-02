@@ -13,8 +13,8 @@ public class SendFileFeature extends ServerFeature {
 
   {
 
-    get("/download", (req, res) -> {
-      res.download("/assets/file.js");
+    get("/download", (req, rsp) -> {
+      rsp.download("/assets/file.js");
     });
 
   }

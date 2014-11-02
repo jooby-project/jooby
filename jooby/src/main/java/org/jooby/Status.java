@@ -420,14 +420,14 @@ public enum Status {
   }
 
   /**
-   * Return the integer value of this status code.
+   * @return Return the integer value of this status code.
    */
   public int value() {
     return this.value;
   }
 
   /**
-   * Return the reason phrase of this status code.
+   * @return the reason phrase of this status code.
    */
   public String reason() {
     return reason;

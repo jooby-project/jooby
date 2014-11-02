@@ -11,8 +11,8 @@ import org.jooby.Jooby;
 public class App extends Jooby {
 
   {
-    get("/", (req, res) ->
-      res.send("Hey Jooby!")
+    get("/", (req, rsp) ->
+      rsp.send("Hey Jooby!")
     );
   }
 
@@ -94,7 +94,7 @@ contents (work in progress)
     - [inline](#inline)
     - [external](#external)
     - [mvc routes](#mvc routes)
-  - [router vs filter](#router vs filter)
+  - [route handler vs filter](#route handler vs filter)
   - [request params](#request params)
     - [param types](#param types)
       - [path](#path)
@@ -103,6 +103,7 @@ contents (work in progress)
     - [param precedence](#param precedence)
     - [optional params](#optional params)
   - [request headers](#request headers)
+- [web sockets](#web sockets)
 
 getting started
 =====
@@ -150,12 +151,14 @@ App.java
 
 import org.jooby.Jooby;
 
-public class App extends Jooby {
+public class App extends Jooby { // 1
 
   {
-    assets("/assets/**"); // 1. static files under assets
+    // 2 routes
+    get("/favicon.ico");
+    assets("/assets/**");
 
-    get("/", html("welcome.html")); // 2. default route
+    get("/", file("welcome.html"));
   }
 
   public static void main(final String[] args) throws Exception {
@@ -198,13 +201,13 @@ API is short and easy to learn, around 30 classes.
 The most notable classes are: [Jooby.Module], [Route] and [WebSocket].
 
 ### dependencies
-  * [Jetty](https://www.eclipse.org/jetty/) as HTTP NIO Web Server
+  * [Jetty](https://www.eclipse.org/jetty/) for HTTP NIO Web Server
   * [Guice](https://github.com/google/guice) for Dependency Injection
-  * [Config](https://github.com/typesafehub/config) for a powerful config system
+  * [Config](https://github.com/typesafehub/config) for configuration management
 
 Jooby is organized as a set of reusable modules (a.k.a middleware in [Express](http://expressjs.com/)).
-A module does as minimum as possible and it should NOT make strong/hard decisions for you, or when it does, it must be 100% configurable.
-For example, a module for the popular [Hibernate]() library should do:
+A module should do as minimum as possible and it should NOT make strong/hard decisions for you, or when it does, it must be 100% configurable.
+For example, a module for the popular [Hibernate]() library should:
 
 1) create a session factory
 
@@ -218,30 +221,30 @@ but NOT:
 
 2) wrap Hibernate API or similar
 
-If a module does as minimum as possible, developers have the power! of setup/configure or take real advantage of native library features without noise.
+If a module does as minimum as possible, developers have the power! of setup/configure and take real advantage of native library features without noise.
 
 
 ## routes
 
 Like in [Express](http://expressjs.com/) routes can be chained/stacked and executed in the same order they are defined.
 
-A route is represent by [Route] and there are two types of handlers: [Router] and [Filter].
+A route is represent by [Route] and there are two types of handlers: [Route.Handler] and [Route.Filter].
 
 A handler is basically the callback executed while a route is the whole thing: verb, path, handler, etc...
 
 
 ```java
   {
-     get("/", (req, res) ->
+     get("/", (req, rsp) ->
        log.info("first")
      );
 
-     get("/", (req, res) ->
+     get("/", (req, rsp) ->
        log.info("second")
      );
 
-     get("/", (req, res) ->
-       res.send("last")
+     get("/", (req, rsp) ->
+       rsp.send("last")
      );
   }
 ```
@@ -284,13 +287,13 @@ In addition to Ant-style path pattern, variables pattern are also possible:
 
 ```java
   {
-     get("/users/:id", (req, res) ->
-       res.send(req.param("id").stringValue())
+     get("/users/:id", (req, rsp) ->
+       rsp.send(req.param("id").stringValue())
      );
 
     // or with braces
-    get("/users/{id}", (req, res) ->
-       res.send(req.param("id").stringValue())
+    get("/users/{id}", (req, rsp) ->
+       rsp.send(req.param("id").stringValue())
     );
   }
 ```
@@ -305,9 +308,9 @@ Inline routes use lambdas and are useful for quickstart and/or small/simple appl
 
 ```java
 {
-  get("/", (req, res) -> res.send(req.path()));
+  get("/", (req, rsp) -> rsp.send(req.path()));
 
-  post("/", (req, res) -> res.send(req.path()));
+  post("/", (req, rsp) -> rsp.send(req.path()));
 
   ... etc...
 }
@@ -323,10 +326,10 @@ External routes are declared in a separated class and looks like:
 }
 
 ...
-public class ExternalRoute implements Router {
+public class ExternalRoute implements Route.Handler {
 
-  public void handle(Request req, Response res) throws Exeption {
-    res.send(req.path());
+  public void handle(Request req, Response rsp) throws Exeption {
+    rsp.send(req.path());
   }
 
 }
@@ -343,8 +346,8 @@ Of course this is also possible with Java 8:
 ...
 public class ExternalRoute {
 
-  public static void callback(Request req, Response res) throws Exeption {
-    res.send(req.path());
+  public static void callback(Request req, Response rsp) throws Exeption {
+    rsp.send(req.path());
   }
 }
 ```
@@ -353,46 +356,46 @@ public class ExternalRoute {
 Mvc routes are very similar to controllers in [Spring](http://spring.io/) or resources in [Jersey](https://jersey.java.net/).
 They are covered later.
 
-### router vs filter
+### route handler vs filter
 
-There are two types of handlers [Router] and [Filter]. The difference between them rely in the way
+There are two types of handlers [Route.Handler] and [Route.Filter]. The difference between them rely in the way
 they allow/denied the execution of the next route in the chain. The next examples are identical:
 
 ```java
   {
-     get("/", (req, res) -> {
+     get("/", (req, rsp) -> {
        log.info("first");
      });
 
-     get("/", (req, res) -> {
+     get("/", (req, rsp) -> {
        log.info("second");
      });
 
-     get("/", (req, res) ->
-       res.send("last")
+     get("/", (req, rsp) ->
+       rsp.send("last")
      );
   }
 ```
 
 ```java
   {
-     get("/", (req, res, chain) -> {
+     get("/", (req, rsp, chain) -> {
        log.info("first");
-       chain.next(req, res);
+       chain.next(req, rsp);
      });
 
-     get("/", (req, res, chain) -> {
+     get("/", (req, rsp, chain) -> {
        log.info("second");
-       chain.next(req, res);
+       chain.next(req, rsp);
      });
 
-     get("/", (req, res) ->
-       res.send("last")
+     get("/", (req, rsp) ->
+       rsp.send("last")
      );
   }
 ```
 
-A [Router] **always** call the next route in the chain, while a [Filter] might or mightn't call the next route in chain.
+A [Route.Handler] **always** call the next route in the chain, while a [Route.Filter] might or mightn't call the next route in chain.
 
 ### request params
 
@@ -459,7 +462,7 @@ For example:
 
 Give us:
 
-    get("/user:name", (req, res) -> {
+    get("/user:name", (req, rsp) -> {
       List<String> name = req.param("name").toList(String.class);
       // path
       assertEquals("first", name.get(0));
@@ -485,3 +488,63 @@ It's identical on how request params work, except that API call is:
 
     String header = req.header("header").stringValue();
 
+## web sockets
+
+Writing WebSockets is pretty easy in Jooby:
+
+```java
+import org.joobby.Jooby;
+
+public class App extends Jooby {
+
+  {
+    // 1.
+    ws("/", (socket) -> {
+       // 2. connected
+
+       socket.onMessage(message -> {
+         // 4. listen for a message
+         System.out.println("received " + message.stringValue());
+       });
+
+       // 3. send a message
+       socket.send("connected");
+    });
+  }
+
+}
+```
+
+A websocket is listen at ```/```. The path can be as simple or complex as you need:
+
+```java
+    "/user/:id"
+    "/events/*"
+    "/events/**/*"
+    etc...
+```
+
+The socket callback will be executed everytime a client is connected. From there you can send messages, listen for messages, or errors.
+
+### data types
+
+```java
+    ws("/", (socket) -> {
+
+       socket.onMessage(message -> {
+         // client sent a JSON formatted message and it is parsed as MyObject
+         MyObject object = message.to(MyObject.class);
+       });
+
+       MyObject value = ...;
+       // MyObject will be serialized as JSON
+       socket.send(value);
+    })
+    .consumes("application/json")
+    .produces("application/json");
+```
+
+Please note that consumes/produces don't do content negotiation (like they do in routes). On WebSockets they are used to choose/pick a body (de)serializer.
+
+
+For more information checkout the [WebSocket doc]()

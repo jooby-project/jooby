@@ -49,15 +49,15 @@ public class Err extends RuntimeException {
   public static class Default implements Err.Handler {
 
     @Override
-    public void handle(final Request req, final Response res, final Exception ex)
+    public void handle(final Request req, final Response rsp, final Exception ex)
         throws Exception {
       LoggerFactory.getLogger(Err.class).error("execution of: " + req.path() +
           " resulted in exception", ex);
 
-      Map<String, Object> err = err(req, res, ex);
+      Map<String, Object> err = err(req, rsp, ex);
 
-      res.format()
-          .when(MediaType.html, () -> View.of(errPage(req, res, ex), err))
+      rsp.format()
+          .when(MediaType.html, () -> View.of(errPage(req, rsp, ex), err))
           .when(MediaType.all, () -> err)
           .send();
     }
@@ -86,18 +86,18 @@ public class Err extends RuntimeException {
      * </pre>
      *
      * <p>
-     * NOTE: {@link Response#status()} it was set by default to status code > 400. This is the
-     * default behavior you can use the generated status code and/or override it.
+     * NOTE: {@link Response#status()} it was set by default to status code {@code >} 400. This is
+     * the default behavior you can use the generated status code and/or override it.
      * </p>
      *
      * @param req A HTTP Request.
-     * @param res A HTTP Response with a default err status code (> 400).
+     * @param rsp A HTTP Response with a default err status code ({@code >} 400).
      * @param ex Current exception object.
      * @return A err model.
      */
-    default Map<String, Object> err(final Request req, final Response res, final Exception ex) {
+    default Map<String, Object> err(final Request req, final Response rsp, final Exception ex) {
       Map<String, Object> error = new LinkedHashMap<>();
-      Status status = res.status().get();
+      Status status = rsp.status().get();
       String message = ex.getMessage();
       message = message == null ? status.reason() : message;
       error.put("message", message);
@@ -116,11 +116,11 @@ public class Err extends RuntimeException {
      * Convert current err to a view location, defaults is: <code>/err</code>.
      *
      * @param req HTTP request.
-     * @param res HTTP Response.
+     * @param rsp HTTP Response.
      * @param ex Error found.
      * @return An err page to be render by a template processor.
      */
-    default String errPage(final Request req, final Response res, final Exception ex) {
+    default String errPage(final Request req, final Response rsp, final Exception ex) {
       return "/err";
     }
 
@@ -129,11 +129,11 @@ public class Err extends RuntimeException {
      * client.
      *
      * @param req HTTP request.
-     * @param res HTTP response.
+     * @param rsp HTTP response.
      * @param ex Error found.
      * @throws Exception If something goes wrong.
      */
-    void handle(Request req, Response res, Exception ex) throws Exception;
+    void handle(Request req, Response rsp, Exception ex) throws Exception;
   }
 
   /**

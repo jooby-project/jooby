@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * </pre>
  *
  * @author edgar
- * @sinde 0.1.0
+ * @since 0.1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)

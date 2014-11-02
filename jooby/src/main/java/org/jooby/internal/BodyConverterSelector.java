@@ -71,13 +71,14 @@ public class BodyConverterSelector {
   /**
    * Creates a new {@link BodyConverterSelector}.
    *
-   * @param formatters The available converter in the system.
+   * @param parsers The available body parsers in the system.
+   * @param formatters The available body formatters in the system.
    */
   @Inject
-  public BodyConverterSelector(final Set<Body.Formatter> formatters,
-      final Set<Body.Parser> parsers) {
-    this.formatters = requireNonNull(formatters, "The formatters is required.");
+  public BodyConverterSelector(final Set<Body.Parser> parsers,
+      final Set<Body.Formatter> formatters) {
     this.parsers = requireNonNull(parsers, "The parsers is required.");
+    this.formatters = requireNonNull(formatters, "The formatters is required.");
     this.viewableTypes = this.formatters.stream().filter(View.Engine.class::isInstance)
         .flatMap(engine -> engine.types().stream())
         .collect(Collectors.toList());

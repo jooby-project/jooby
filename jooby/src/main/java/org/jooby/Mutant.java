@@ -38,10 +38,10 @@ import com.google.inject.TypeLiteral;
  *   int value = request.param("some").getInt();
  *
  *   // optional int param
- *   Optional<Integer> value = request.param("some").getOptional(Integer.class);
+ *   Optional{@literal <}Integer{@literal >} value = request.param("some").getOptional(Integer.class);
 
  *   // list param
- *   List<String> values = request.param("some").getList(String.class);
+ *   List{@literal <}String{@literal >} values = request.param("some").getList(String.class);
  *
  *   // file upload
  *   Upload upload = request.param("file").get(Upload.class);
@@ -95,32 +95,37 @@ public interface Mutant {
   double doubleValue();
 
   /**
-   * @return Get an enum when possible.
    * @param type The enum type.
+   * @param <T> Enum type.
+   * @return Get an enum when possible.
    */
   <T extends Enum<T>> T enumValue(@Nonnull Class<T> type);
 
   /**
-   * @return Get list of values when possible.
    * @param type The element type.
+   * @param <T> List type.
+   * @return Get list of values when possible.
    */
   <T> List<T> toList(@Nonnull Class<T> type);
 
   /**
-   * @return Get set of values when possible.
    * @param type The element type.
+   * @param <T> Set type.
+   * @return Get set of values when possible.
    */
   <T> Set<T> toSet(@Nonnull Class<T> type);
 
   /**
-   * @return Get sorted set of values when possible.
    * @param type The element type.
+   * @param <T> Set type.
+   * @return Get sorted set of values when possible.
    */
   <T extends Comparable<T>> SortedSet<T> toSortedSet(@Nonnull Class<T> type);
 
   /**
-   * @return Get an optional value when possible.
    * @param type The optional type.
+   * @param <T> Optional type.
+   * @return Get an optional value when possible.
    */
   <T> Optional<T> toOptional(@Nonnull Class<T> type);
 
@@ -133,8 +138,9 @@ public interface Mutant {
    * <li>A static method <code>fromString</code> that takes a single {@link String} parameter.</li>
    * </ol>
    *
-   * @return Get a value when possible.
    * @param type The type to convert to.
+   * @param <T> Target type.
+   * @return Get a value when possible.
    */
   default <T> T to(final Class<T> type) {
     return to(TypeLiteral.get(type));
@@ -149,8 +155,9 @@ public interface Mutant {
    * <li>A static method <code>fromString</code> that takes a single {@link String} parameter.</li>
    * </ol>
    *
-   * @return Get a value when possible.
    * @param type The type to convert to.
+   * @param <T> Target type.
+   * @return Get a value when possible.
    */
   <T> T to(TypeLiteral<T> type);
 

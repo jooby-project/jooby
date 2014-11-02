@@ -59,6 +59,7 @@ public interface Mode {
    *
    * @param name A name to test for.
    * @param fn A callback function.
+   * @param <T> A resulting type.
    * @return A resulting object.
    * @throws Exception If something fails.
    */
@@ -71,14 +72,15 @@ public interface Mode {
    * Produces a {@link Switch} of the current {@link Mode}.
    *
    * <pre>
-   *   String accessKey = mode.when("dev", () -> "1234")
-   *                          .when("stage", () -> "4321")
-   *                          .when("prod", () -> "abc")
+   *   String accessKey = mode.when("dev", () {@literal ->} "1234")
+   *                          .when("stage", () {@literal ->} "4321")
+   *                          .when("prod", () {@literal ->} "abc")
    *                          .get();
    * </pre>
    *
    * @param name A name to test for.
    * @param fn A callback function.
+   * @param <T> A resulting type.
    * @return A new switch.
    */
   @Nonnull
@@ -97,7 +99,8 @@ public interface Mode {
    * </pre>
    *
    * @param name A name to test for.
-   * @param fn A callback function.
+   * @param result A constant value to return.
+   * @param <T> A resulting type.
    * @return A new switch.
    */
   @Nonnull
@@ -109,14 +112,15 @@ public interface Mode {
    * Produces a {@link Switch} of the current {@link Mode}.
    *
    * <pre>
-   *   String accessKey = mode.when("dev", () -> "1234")
-   *                          .when("stage", () -> "4321")
-   *                          .when("prod", () -> "abc")
+   *   String accessKey = mode.when("dev", () {@literal ->} "1234")
+   *                          .when("stage", () {@literal ->} "4321")
+   *                          .when("prod", () {@literal ->} "abc")
    *                          .get();
    * </pre>
    *
-   * @param name A name to test for.
-   * @param fn A callback function.
+   * @param predicate A predicate to use.
+   * @param result A constant value to return.
+   * @param <T> A resulting type.
    * @return A new switch.
    */
   @Nonnull

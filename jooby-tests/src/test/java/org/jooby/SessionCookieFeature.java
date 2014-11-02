@@ -49,8 +49,8 @@ public class SessionCookieFeature extends ServerFeature {
         .path("/session")
         .maxAge(60);
 
-    get("/session", (req, res) -> {
-      res.send(req.session().id());
+    get("/session", (req, rsp) -> {
+      rsp.send(req.session().id());
     });
 
   }

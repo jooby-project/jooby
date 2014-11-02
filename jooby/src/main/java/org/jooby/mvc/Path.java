@@ -51,7 +51,7 @@ import java.lang.annotation.Target;
  * <li><code>com/{@literal **}/test.html</code> - matches all {@code test.html} files underneath the
  * {@code com} path</li>
  * <li>{@code **}/{@code *} - matches any path at any level.</li>
- * <li>{@code *} - matches any path at any level, shorthand for {@code {@literal **}/{@literal *}.</li>
+ * <li>{@code *} - matches any path at any level, shorthand for {@code **}/{@code *}.</li>
  * </ul>
  *
  * <h2>Variables</h2>

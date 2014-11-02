@@ -13,15 +13,15 @@ import org.junit.Test;
 public class ErrHandlerFeature extends ServerFeature {
 
   {
-    get("/", (req, res) -> {
+    get("/", (req, rsp) -> {
       throw new IllegalArgumentException();
     });
 
-    err((req, res, ex) -> {
+    err((req, rsp, ex) -> {
       log.error("err", ex);
       assertTrue(ex instanceof IllegalArgumentException);
-      assertEquals(Status.BAD_REQUEST, res.status().get());
-      res.send("err...");
+      assertEquals(Status.BAD_REQUEST, rsp.status().get());
+      rsp.send("err...");
     });
   }
 

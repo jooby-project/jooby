@@ -24,55 +24,55 @@ public class FilterFeature extends ServerFeature {
 
   {
 
-    use((req, res, chain) -> {
-      chain.next(req, res);
+    use((req, rsp, chain) -> {
+      chain.next(req, rsp);
     });
 
-    get("/no-next", (req, res, chain) -> {
+    get("/no-next", (req, rsp, chain) -> {
     });
 
-    get("/no-next", (req, res, chain) -> {
+    get("/no-next", (req, rsp, chain) -> {
       throw new IllegalStateException("Should NOT execute ever");
     });
 
-    get("/before", (req, res, chain) -> {
-      res.header("before", "before");
-      chain.next(req, res);
+    get("/before", (req, rsp, chain) -> {
+      rsp.header("before", "before");
+      chain.next(req, rsp);
     });
 
-    get("/before", (req, res) -> {
-      res.send(res.header("before").stringValue());
+    get("/before", (req, rsp) -> {
+      rsp.send(rsp.header("before").stringValue());
     });
 
-    get("/after", (req, res, chain) -> {
-      chain.next(req, res);
-      res.header("after", "after");
+    get("/after", (req, rsp, chain) -> {
+      chain.next(req, rsp);
+      rsp.header("after", "after");
     });
 
-    get("/after", (req, res) -> {
-      res.send(res.header("after").toOptional(String.class).orElse("after-missing"));
+    get("/after", (req, rsp) -> {
+      rsp.send(rsp.header("after").toOptional(String.class).orElse("after-missing"));
     });
 
-    get("/commit", (req, res, chain) -> {
-      res.send("commit");
+    get("/commit", (req, rsp, chain) -> {
+      rsp.send("commit");
     });
 
-    get("/commitx2", (req, res, chain) -> {
-      res.send("commit1");
-      chain.next(req, res);
+    get("/commitx2", (req, rsp, chain) -> {
+      rsp.send("commit1");
+      chain.next(req, rsp);
     });
 
-    get("/commitx2", (req, res) -> {
-      res.send("ignored");
+    get("/commitx2", (req, rsp) -> {
+      rsp.send("ignored");
     });
 
-    get("/redirect", (req, res, chain) -> {
-      res.redirect("/commit");
-      chain.next(req, res);
+    get("/redirect", (req, rsp, chain) -> {
+      rsp.redirect("/commit");
+      chain.next(req, rsp);
     });
 
-    get("/redirect", (req, res) -> {
-      res.send("ignored");
+    get("/redirect", (req, rsp) -> {
+      rsp.send("ignored");
     });
 
   }

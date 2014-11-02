@@ -42,9 +42,9 @@ import com.google.inject.TypeLiteral;
  *
  * <pre>
  *  {
- *    ws("/", (ws) -> {
+ *    ws("/", (ws) {@literal ->} {
  *      // connected
- *      ws.onMessage(message -> {
+ *      ws.onMessage(message {@literal ->} {
  *        System.out.println(message.stringValue());
  *        ws.send("Message Received");
  *      });
@@ -54,7 +54,7 @@ import com.google.inject.TypeLiteral;
  * </pre>
  *
  * First thing you need to do is to register a new web socket in your App using the
- * {@link Jooby#ws(String, Handler)} method.
+ * {@link Jooby#ws(String, WebSocket.Handler)} method.
  * You can specify a path to listen for web socket connection. The path can be a static path or
  * a path pattern (like routes).
  *
@@ -68,8 +68,8 @@ import com.google.inject.TypeLiteral;
  * <code>json</code> it is nice to define a consumes and produces types:
  *
  * <pre>
- *   ws("/", (ws) -> {
- *     ws.onMessage(message -> {
+ *   ws("/", (ws) {@literal ->} {
+ *     ws.onMessage(message {@literal ->} {
  *       // read as json
  *       MyObject object = message.to(MyObject.class);
  *     });
@@ -100,8 +100,8 @@ public interface WebSocket extends Closeable {
      *
      * Also, you can send text and binary message.
      *
-     * @param ws
-     * @throws Exception
+     * @param ws A web socket.
+     * @throws Exception If something goes wrong while connecting.
      */
     void connect(WebSocket ws) throws Exception;
   }
@@ -163,14 +163,14 @@ public interface WebSocket extends Closeable {
     }
 
     /**
-     * Returns the status code.
+     * @return the status code.
      */
     public int code() {
       return this.code;
     }
 
     /**
-     * Returns the reason or {@code null}.
+     * @return the reason or {@code null}.
      */
     public String reason() {
       return this.reason;
@@ -313,6 +313,16 @@ public interface WebSocket extends Closeable {
      * @param type The media types to test for.
      * @return This route definition.
      */
+    public @Nonnull Definition consumes(final @Nonnull String type) {
+      return consumes(MediaType.valueOf(type));
+    }
+
+    /**
+     * Set the media types the route can consume.
+     *
+     * @param type The media types to test for.
+     * @return This route definition.
+     */
     public @Nonnull Definition consumes(final @Nonnull MediaType type) {
       this.consumes = requireNonNull(type, "A type is required.");
       return this;
@@ -321,7 +331,17 @@ public interface WebSocket extends Closeable {
     /**
      * Set the media types the route can produces.
      *
-     * @param produces The media types to test for.
+     * @param type The media types to test for.
+     * @return This route definition.
+     */
+    public @Nonnull Definition produces(final @Nonnull String type) {
+      return produces(MediaType.valueOf(type));
+    }
+
+    /**
+     * Set the media types the route can produces.
+     *
+     * @param type The media types to test for.
      * @return This route definition.
      */
     public @Nonnull Definition produces(final @Nonnull MediaType type) {
@@ -609,9 +629,10 @@ public interface WebSocket extends Closeable {
       throws Exception;
 
   /**
-   * Creates a new instance (if need it) and inject required dependencies.
+   * Ask Guice for a type.
    *
-   * @param type A body type.
+   * @param type A service type.
+   * @param <T> Service type.
    * @return A ready to use object.
    */
   default @Nonnull <T> T getInstance(@Nonnull final Class<T> type) {
@@ -619,9 +640,10 @@ public interface WebSocket extends Closeable {
   }
 
   /**
-   * Creates a new instance (if need it) and inject required dependencies.
+   * Ask Guice for a type.
    *
-   * @param type A body type.
+   * @param type A service type.
+   * @param <T> Service type.
    * @return A ready to use object.
    */
   default @Nonnull <T> T getInstance(@Nonnull final TypeLiteral<T> type) {
@@ -629,9 +651,10 @@ public interface WebSocket extends Closeable {
   }
 
   /**
-   * Creates a new instance (if need it) and inject required dependencies.
+   * Ask Guice for a type.
    *
-   * @param type A body type.
+   * @param key A service key.
+   * @param <T> Service type.
    * @return A ready to use object.
    */
   @Nonnull

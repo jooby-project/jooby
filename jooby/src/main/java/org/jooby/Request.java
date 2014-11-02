@@ -241,7 +241,7 @@ public interface Request {
    * class MyModule implements Jooby.Module {
    *   void configure(Mode mode, Config config, Binder binder) {
    *     Multibinder b = Multibinder.newSetBinder(binder, RequestModule.class);
-   *     b.addBinding().toInstance(requestBinder -> {
+   *     b.addBinding().toInstance(requestBinder {@literal ->} {
    *       b.bind(MyService.class).to(...);
    *     })
    *   }
@@ -272,8 +272,8 @@ public interface Request {
    * Given:
    *
    * <pre>
-   *  http://domain.com/some/path.html -> /some/path.html
-   *  http://domain.com/a.html         -> /a.html
+   *  http://domain.com/some/path.html {@literal ->} /some/path.html
+   *  http://domain.com/a.html         {@literal ->} /a.html
    * </pre>
    *
    * @return The request URL pathname.
@@ -309,28 +309,28 @@ public interface Request {
    * <pre>
    * // Accept: text/html
    * req.accepts("text/html");
-   * // => "text/html"
+   * // {@literal =>} "text/html"
    *
    * // Accept: text/*, application/json
    * req.accepts("text/html");
-   * // => "text/html"
+   * // {@literal =>} "text/html"
    * req.accepts("text/html");
-   * // => "text/html"
+   * // {@literal =>} "text/html"
    * req.accepts("application/json" "text/plain");
-   * // => "application/json"
+   * // {@literal =>} "application/json"
    * req.accepts("application/json");
-   * // => "application/json"
+   * // {@literal =>} "application/json"
    *
    * // Accept: text/*, application/json
    * req.accepts("image/png");
-   * // => Optional.empty
+   * // {@literal =>} Optional.empty
    *
    * // Accept: text/*;q=.5, application/json
    * req.accepts("text/html", "application/json");
-   * // => "application/json"
+   * // {@literal =>} "application/json"
    * </pre>
    *
-   * @param types
+   * @param types Types to test.
    * @return The best acceptable type.
    */
   default @Nonnull Optional<MediaType> accepts(@Nonnull final String... types) {
@@ -344,28 +344,28 @@ public interface Request {
    * <pre>
    * // Accept: text/html
    * req.accepts("text/html");
-   * // => "text/html"
+   * // {@literal =>} "text/html"
    *
    * // Accept: text/*, application/json
    * req.accepts("text/html");
-   * // => "text/html"
+   * // {@literal =>} "text/html"
    * req.accepts("text/html");
-   * // => "text/html"
+   * // {@literal =>} "text/html"
    * req.accepts("application/json" "text/plain");
-   * // => "application/json"
+   * // {@literal =>} "application/json"
    * req.accepts("application/json");
-   * // => "application/json"
+   * // {@literal =>} "application/json"
    *
    * // Accept: text/*, application/json
    * req.accepts("image/png");
-   * // => Optional.empty
+   * // {@literal =>} Optional.empty
    *
    * // Accept: text/*;q=.5, application/json
    * req.accepts("text/html", "application/json");
-   * // => "application/json"
+   * // {@literal =>} "application/json"
    * </pre>
    *
-   * @param types
+   * @param types Types to test.
    * @return The best acceptable type.
    */
   default @Nonnull Optional<MediaType> accepts(@Nonnull final MediaType... types) {
@@ -379,28 +379,28 @@ public interface Request {
    * <pre>
    * // Accept: text/html
    * req.accepts("text/html");
-   * // => "text/html"
+   * // {@literal =>} "text/html"
    *
    * // Accept: text/*, application/json
    * req.accepts("text/html");
-   * // => "text/html"
+   * // {@literal =>} "text/html"
    * req.accepts("text/html");
-   * // => "text/html"
+   * // {@literal =>} "text/html"
    * req.accepts("application/json" "text/plain");
-   * // => "application/json"
+   * // {@literal =>} "application/json"
    * req.accepts("application/json");
-   * // => "application/json"
+   * // {@literal =>} "application/json"
    *
    * // Accept: text/*, application/json
    * req.accepts("image/png");
-   * // => Optional.empty
+   * // {@literal =>} Optional.empty
    *
    * // Accept: text/*;q=.5, application/json
    * req.accepts("text/html", "application/json");
-   * // => "application/json"
+   * // {@literal =>} "application/json"
    * </pre>
    *
-   * @param types
+   * @param types Types to test for.
    * @return The best acceptable type.
    */
   @Nonnull
@@ -418,6 +418,7 @@ public interface Request {
    * </ul>
    *
    * @return All the parameters.
+   * @throws Exception On param retrieval failures.
    */
   @Nonnull
   Map<String, Mutant> params() throws Exception;
@@ -448,8 +449,7 @@ public interface Request {
    *
    * @param name A parameter's name.
    * @return A HTTP request parameter.
-   * @throws Exception On retrieval failures.
-   * @see {@link Mutant}
+   * @throws Exception On param retrieval failures.
    */
   @Nonnull
   Mutant param(@Nonnull String name) throws Exception;
@@ -459,7 +459,6 @@ public interface Request {
    *
    * @param name A header's name.
    * @return A HTTP request header.
-   * @see {@link Mutant}
    */
   @Nonnull
   Mutant header(@Nonnull String name);
@@ -488,10 +487,10 @@ public interface Request {
   /**
    * Convert the HTTP request body into the given type.
    *
-   * @param type The body type.
+   * @param type A body type.
+   * @param <T> Body type.
    * @return The HTTP body as an object.
    * @throws Exception If body can't be converted or there is no HTTP body.
-   * @see {@link BodyConverter#read(TypeLiteral, Body.Reader)}
    */
   @Nonnull
   default <T> T body(@Nonnull final Class<T> type) throws Exception {
@@ -502,19 +501,19 @@ public interface Request {
   /**
    * Convert the HTTP request body into the given type.
    *
-   * @param type The body type.
+   * @param type A body type.
+   * @param <T> Body type.
    * @return The HTTP body as an object.
    * @throws Exception If body can't be converted or there is no HTTP body.
-   * @see {@link BodyConverter#read(TypeLiteral, Body.Reader)}
    */
   @Nonnull
   <T> T body(@Nonnull TypeLiteral<T> type) throws Exception;
 
   /**
-   * Creates a new instance (if need it) and inject required dependencies. Request scoped object
-   * can registered using a {@link Request.Module}.
+   * Ask Guice for the given type.
    *
-   * @param type A body type.
+   * @param type A service type.
+   * @param <T> Service type.
    * @return A ready to use object.
    * @see Request.Module
    */
@@ -524,10 +523,10 @@ public interface Request {
   }
 
   /**
-   * Creates a new instance (if need it) and inject required dependencies. Request scoped object
-   * can registered using a {@link Request.Module}.
+   * Ask Guice for the given type.
    *
-   * @param type A body type.
+   * @param type A service type.
+   * @param <T> Service type.
    * @return A ready to use object.
    * @see Request.Module
    */
@@ -537,10 +536,10 @@ public interface Request {
   }
 
   /**
-   * Creates a new instance (if need it) and inject required dependencies. Request scoped object
-   * can registered using a {@link Request.Module}.
+   * Ask Guice for the given type.
    *
-   * @param key A body key.
+   * @param key A service key.
+   * @param <T> Service type.
    * @return A ready to use object.
    * @see Request.Module
    */

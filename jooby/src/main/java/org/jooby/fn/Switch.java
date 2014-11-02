@@ -34,8 +34,8 @@ import javax.annotation.Nonnull;
  * <pre>
  *   String var = ...;
  *   Out out = Switch.newSwitch(var)
- *    .when("A", () -> doA())
- *    .when("B", () -> doB())
+ *    .when("A", () {@literal ->} doA())
+ *    .when("B", () {@literal ->} doB())
  *    .value();
  * </pre>
  *
@@ -64,7 +64,7 @@ public class Switch<In, Out> {
    * Append a new option.
    *
    * @param value A value to test.
-   * @param result A result value.
+   * @param result A constant value.
    * @return This switch.
    */
   public @Nonnull Switch<In, Out> when(final @Nonnull In value, final @Nonnull Out result) {
@@ -75,7 +75,7 @@ public class Switch<In, Out> {
    * Append a new option.
    *
    * @param predicate A predicate to test.
-   * @param result A result value.
+   * @param result A constant value.
    * @return This switch.
    */
   public @Nonnull Switch<In, Out> when(final @Nonnull Predicate<In> predicate, final @Nonnull Out result) {
@@ -86,7 +86,7 @@ public class Switch<In, Out> {
    * Append a new option.
    *
    * @param value A value to test.
-   * @param result A result supplier value.
+   * @param fn A result supplier value.
    * @return This switch.
    */
   public @Nonnull Switch<In, Out> when(final @Nonnull In value, final @Nonnull ExSupplier<Out> fn) {
@@ -97,7 +97,7 @@ public class Switch<In, Out> {
    * Append a new option.
    *
    * @param predicate A predicate to test.
-   * @param result A result supplier value.
+   * @param fn A result supplier value.
    * @return This switch.
    */
   public @Nonnull Switch<In, Out> when(final @Nonnull Predicate<In> predicate, final @Nonnull ExSupplier<Out> fn) {
@@ -126,6 +126,8 @@ public class Switch<In, Out> {
    * Creates a new switch.
    *
    * @param value An input value.
+   * @param <In> Input value.
+   * @param <Out> Output value.
    * @return A new switch.
    */
   public static @Nonnull <In, Out>  Switch<In, Out> newSwitch(final @Nonnull In value) {
@@ -136,6 +138,7 @@ public class Switch<In, Out> {
    * Creates a new string switch.
    *
    * @param value An input value.
+   * @param <Out> Output value.
    * @return A new switch.
    */
   public static @Nonnull <Out> Switch<String, Out> newSwitch(final @Nonnull String value) {

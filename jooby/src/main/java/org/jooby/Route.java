@@ -41,36 +41,36 @@ import com.google.common.collect.Lists;
  * Routes are a key concept in Jooby. Routes are executed in the same order they are defined
  * (even for Mvc Routes).
  *
- * <h1>Handlers</h1> There are two types of handlers: {@link Router} and {@link Filter}. They behave
- * very similar,
- * except that a {@link Filter} can decide if the next route handler can be executed or not. For
- * example:
+ * <h1>Handlers</h1>
+ * <p>
+ * There are two types of handlers: {@link Route.Handler} and {@link Route.Filter}. They behave
+ * very similar, except that a {@link Route.Filter} can decide if the next route handler can be
+ * executed or not. For example:
+ * </p>
  *
  * <pre>
- *   get("/filter", (req, res, chain) -> {
+ *   get("/filter", (req, rsp, chain) {@literal ->} {
  *     if (someCondition) {
- *       chain.next(req, res);
+ *       chain.next(req, rsp);
  *     } else {
  *       // respond, throw err, etc...
  *     }
  *   });
  * </pre>
  *
- * A router always execute the next handler:
+ * While a {@link Route.Handler} always execute the next handler:
  *
  * <pre>
- *   get("router", (req, res) -> {
- *     res.send("router");
+ *   get("/path", (req, rsp) {@literal ->} {
+ *     rsp.send("handler");
  *   });
  *
  *   // filter version
- *   get("router", (req, res, chain) -> {
- *     res.send("router");
- *     chain.next(req, res);
+ *   get("/path", (req, rsp, chain) {@literal ->} {
+ *     rsp.send("handler");
+ *     chain.next(req, rsp);
  *   });
  * </pre>
- *
- * Both handlers are identical.
  *
  * <h1>Path Patterns</h1>
  * <p>
@@ -86,7 +86,7 @@ import com.google.common.collect.Lists;
  * <li><code>com/{@literal **}/test.html</code> - matches all {@code test.html} files underneath the
  * {@code com} path</li>
  * <li>{@code **}/{@code *} - matches any path at any level.</li>
- * <li>{@code *} - matches any path at any level, shorthand for {@code {@literal **}/{@literal *}.</li>
+ * <li>{@code *} - matches any path at any level, shorthand for {@code **}/{@code *}.</li>
  * </ul>
  *
  * <h2>Variables</h2>
@@ -105,23 +105,20 @@ import com.google.common.collect.Lists;
  *
  * <h1>Routes</h1>
  * <p>
- * Routes perform actions in response to a server HTTP request. There are two types of routes
- * callback: {@link Router} and {@link Filter}.
- * </p>
- * <p>
  * Routes are executed in the order they are defined, for example:
+ * </p>
  *
  * <pre>
- *   get("/", (req, res) -> {
+ *   get("/", (req, rsp) {@literal ->} {
  *     log.info("first"); // start here and go to second
  *   });
  *
- *   get("/", (req, res) -> {
+ *   get("/", (req, rsp) {@literal ->} {
  *     log.info("second"); // execute after first and go to final
  *   });
  *
- *   get("/", (req, res) -> {
- *     res.send("final"); // done!
+ *   get("/", (req, rsp) {@literal ->} {
+ *     rsp.send("final"); // done!
  *   });
  * </pre>
  *
@@ -129,22 +126,20 @@ import com.google.common.collect.Lists;
  * as:
  *
  * <pre>
- *   get("/", (req, res, chain) -> {
+ *   get("/", (req, rsp, chain) {@literal ->} {
  *     log.info("first"); // start here and go to second
- *     chain.next(req, res);
+ *     chain.next(req, rsp);
  *   });
  *
- *   get("/", (req, res, chain) -> {
+ *   get("/", (req, rsp, chain) {@literal ->} {
  *     log.info("second"); // execute after first and go to final
- *     chain.next(req, res);
+ *     chain.next(req, rsp);
  *   });
  *
- *   get("/", (req, res) -> {
- *     res.send("final"); // done!
+ *   get("/", (req, rsp) {@literal ->} {
+ *     rsp.send("final"); // done!
  *   });
  * </pre>
- *
- * </p>
  *
  * <h2>Inline route</h2>
  * <p>
@@ -152,7 +147,7 @@ import com.google.common.collect.Lists;
  * </p>
  *
  * <pre>
- *   get("/", (request, response) -> {
+ *   get("/", (request, response) {@literal ->} {
  *     response.send("Hello Jooby");
  *   });
  * </pre>
@@ -161,11 +156,11 @@ import com.google.common.collect.Lists;
  * For example this is a bad practice:
  *
  * <pre>
- *  List<String> names = new ArrayList<>(); // names produces side effects
- *  get("/", (req, res) -> {
+ *  List{@literal <}String{@literal >} names = new ArrayList{@literal <>}(); // names produces side effects
+ *  get("/", (req, rsp) {@literal ->} {
  *     names.add(req.param("name").stringValue();
  *     // response will be different between calls.
- *     res.send(names);
+ *     rsp.send(names);
  *   });
  * </pre>
  *
@@ -175,13 +170,13 @@ import com.google.common.collect.Lists;
  * </p>
  *
  * <pre>
- *   get("/", route(ExternalRoute.class)); //or
+ *   get("/", handler(ExternalRoute.class)); //or
  *
  *   ...
  *   // ExternalRoute.java
- *   public class ExternalRoute implements Router {
- *     public void handle(Request req, Response res) throws Exception {
- *       res.send("Hello Jooby");
+ *   public class ExternalRoute implements Route.Handler {
+ *     public void handle(Request req, Response rsp) throws Exception {
+ *       rsp.send("Hello Jooby");
  *     }
  *   }
  * </pre>
@@ -211,12 +206,12 @@ import com.google.common.collect.Lists;
  *
  * <p>
  * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
- * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}, {@link org.jooby.mvc.Body} and
+ * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes} and
  * {@link org.jooby.mvc.Viewable}.
  * </p>
  *
  * @author edgar
- * @sine 0.1.0
+ * @since 0.1.0
  */
 public interface Route {
 
@@ -231,13 +226,13 @@ public interface Route {
    * <pre>
    *   public class MyApp extends Jooby {
    *     {
-   *        get("/", (req, res) -> res.send("GET"));
+   *        get("/", (req, rsp) {@literal ->} rsp.send("GET"));
    *
-   *        post("/", (req, res) -> res.send("POST"));
+   *        post("/", (req, rsp) {@literal ->} rsp.send("POST"));
    *
-   *        put("/", (req, res) -> res.send("PUT"));
+   *        put("/", (req, rsp) {@literal ->} rsp.send("PUT"));
    *
-   *        delete("/", (req, res) -> res.status(Response.Status.NO_CONTENT));
+   *        delete("/", (req, rsp) {@literal ->} rsp.status(Response.Status.NO_CONTENT));
    *     }
    *   }
    * </pre>
@@ -247,7 +242,7 @@ public interface Route {
    * <pre>
    *   public class MyApp extends Jooby {
    *     {
-   *        post("/", (req, resp) -> resp.send("POST"))
+   *        post("/", (req, resp) {@literal ->} resp.send("POST"))
    *          .consumes(MediaType.json);
    *     }
    *   }
@@ -258,7 +253,7 @@ public interface Route {
    * <pre>
    *   public class MyApp extends Jooby {
    *     {
-   *        post("/", (req, resp) -> resp.send("POST"))
+   *        post("/", (req, resp) {@literal ->} resp.send("POST"))
    *          .produces(MediaType.json);
    *     }
    *   }
@@ -269,7 +264,7 @@ public interface Route {
    * <pre>
    *   public class MyApp extends Jooby {
    *     {
-   *        post("/", (req, resp) -> resp.send("POST"))
+   *        post("/", (req, resp) {@literal ->} resp.send("POST"))
    *          .name("My Root");
    *     }
    *   }
@@ -297,13 +292,13 @@ public interface Route {
 
     /**
      * Defines the media types that the methods of a resource class or can accept. Default is:
-     * {@literal *}/{@literal *}.
+     * {@code *}/{@code *}.
      */
     private List<MediaType> consumes = MediaType.ALL;
 
     /**
      * Defines the media types that the methods of a resource class or can produces. Default is:
-     * {@literal *}/{@literal *}.
+     * {@code *}/{@code *}.
      */
     private List<MediaType> produces = MediaType.ALL;
 
@@ -326,9 +321,9 @@ public interface Route {
      */
     public Definition(final @Nonnull String verb, final @Nonnull String pattern,
         final @Nonnull Route.Handler handler) {
-      this(verb, pattern, (req, res, chain) -> {
-        handler.handle(req, res);
-        chain.next(req, res);
+      this(verb, pattern, (req, rsp, chain) -> {
+        handler.handle(req, rsp);
+        chain.next(req, rsp);
       });
     }
 
@@ -337,7 +332,7 @@ public interface Route {
      *
      * @param verb A HTTP verb or <code>*</code>.
      * @param pattern A path pattern.
-     * @param router A route handler.
+     * @param filter A callback to execute.
      */
     public Definition(final @Nonnull String verb, final @Nonnull String pattern,
         final @Nonnull Filter filter) {
@@ -373,8 +368,7 @@ public interface Route {
      * <li><code>com/{@literal **}/test.html</code> - matches all {@code test.html} files underneath
      * the {@code com} path</li>
      * <li>{@code **}/{@code *} - matches any path at any level.</li>
-     * <li>{@code *} - matches any path at any level, shorthand for {@code {@literal **}/
-     * {@literal *}.</li>
+     * <li>{@code *} - matches any path at any level, shorthand for {@code **}/{@code *}.</li>
      * </ul>
      *
      * <h2>Variables</h2>
@@ -400,6 +394,10 @@ public interface Route {
     /**
      * Test if the route matches the given verb, path, content type and accept header.
      *
+     * @param verb A HTTP verb.
+     * @param path Current HTTP path.
+     * @param contentType The <code>Content-Type</code> header.
+     * @param accept The <code>Accept</code> header.
      * @return A route or an empty optional.
      */
     public @Nonnull Optional<Route> matches(final @Nonnull Verb verb,
@@ -648,10 +646,10 @@ public interface Route {
    *   if (token != null) {
    *     // validate token...
    *     if (valid(token)) {
-   *       chain.next(req, res);
+   *       chain.next(req, rsp);
    *     }
    *   } else {
-   *     res.status(403);
+   *     rsp.status(403);
    *   }
    * </pre>
    *
@@ -659,12 +657,12 @@ public interface Route {
    *
    * <pre>
    *   long start = System.currentTimeMillis();
-   *   chain.next(req, res);
+   *   chain.next(req, rsp);
    *   long end = System.currentTimeMillis();
    *   log.info("Request: {} took {}ms", req.path(), end - start);
    * </pre>
    *
-   * NOTE: Don't forget to call {@link Route.Chain#next(Request, Response)} if next router/filter
+   * NOTE: Don't forget to call {@link Route.Chain#next(Request, Response)} if next route handler
    * need to be executed.
    *
    * @author edgar
@@ -691,7 +689,7 @@ public interface Route {
      * <li>
      * <ul>
      * <li><strong>Either</strong> invoke the next entity in the chain using the {@link Route.Chain}
-     * object (<code>chain.next(req, res)</code>),</li>
+     * object (<code>chain.next(req, rsp)</code>),</li>
      * <li><strong>or</strong> not pass on the request/response pair to the next entity in the
      * filter chain to block the request processing</li>
      * </ul>
@@ -700,11 +698,11 @@ public interface Route {
      * </ul>
      *
      * @param req A HTTP request.
-     * @param res A HTTP response.
+     * @param rsp A HTTP response.
      * @param chain A route chain.
      * @throws Exception If something goes wrong.
      */
-    void handle(Request req, Response res, Route.Chain chain) throws Exception;
+    void handle(Request req, Response rsp, Route.Chain chain) throws Exception;
 
   }
 
@@ -714,7 +712,7 @@ public interface Route {
    * <pre>
    * public class MyApp extends Jooby {
    *   {
-   *      get("/", (req, res) -> res.send("Hello"));
+   *      get("/", (req, rsp) {@literal ->} rsp.send("Hello"));
    *   }
    * }
    * </pre>
@@ -724,7 +722,7 @@ public interface Route {
    * In particular you should AVOID wrapping exception:
    * <pre>
    *   {
-   *      get("/", (req, res) -> {
+   *      get("/", (req, rsp) {@literal ->} {
    *        Service service = req.getInstance(Service.class);
    *        try {
    *          service.doSomething();
@@ -766,10 +764,10 @@ public interface Route {
      * Invokes the next route in the chain.
      *
      * @param req A HTTP request.
-     * @param res A HTTP response.
+     * @param rsp A HTTP response.
      * @throws Exception If invocation goes wrong.
      */
-    void next(@Nonnull Request req, @Nonnull Response res) throws Exception;
+    void next(@Nonnull Request req, @Nonnull Response rsp) throws Exception;
   }
 
   /**

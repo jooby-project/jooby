@@ -46,11 +46,11 @@ public class OptionsRouter implements Route.Handler {
   }
 
   @Override
-  public void handle(final Request req, final Response res) throws Exception {
-    if (res.committed()) {
+  public void handle(final Request req, final Response rsp) throws Exception {
+    if (rsp.committed()) {
       return;
     }
-    if (!res.header("Allow").toOptional(String.class).isPresent()) {
+    if (!rsp.header("Allow").toOptional(String.class).isPresent()) {
       Set<String> allow = new LinkedHashSet<>();
       Set<Verb> verbs = EnumSet.allOf(Verb.class);
       String path = req.path();
@@ -63,9 +63,9 @@ public class OptionsRouter implements Route.Handler {
           }
         }
       }
-      res.header("Allow", Joiner.on(", ").join(allow));
-      res.length(0);
-      res.status(Status.OK);
+      rsp.header("Allow", Joiner.on(", ").join(allow));
+      rsp.length(0);
+      rsp.status(Status.OK);
     }
   }
 

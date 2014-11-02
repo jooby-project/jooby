@@ -8,7 +8,7 @@ import org.junit.Test;
 public class ContentTypeHeaderFeature extends ServerFeature {
 
   {
-    get("/", (req, res) -> res.send(req.type()));
+    get("/", (req, rsp) -> rsp.send(req.type()));
   }
 
   @Test

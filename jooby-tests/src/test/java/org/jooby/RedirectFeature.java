@@ -52,13 +52,13 @@ public class RedirectFeature extends ServerFeature {
 
     get("/l1/l2/l3", redirect("/l1"));
 
-    get("/l1", (req, res) -> res.send(req.path()));
+    get("/l1", (req, rsp) -> rsp.send(req.path()));
 
     get("/blog/admin", redirect("post/new"));
 
-    get("/blog/admin/post/new", (req, res) -> res.send(req.path()));
+    get("/blog/admin/post/new", (req, rsp) -> rsp.send(req.path()));
 
-    get("/blog/post/new", (req, res) -> res.send(req.path()));
+    get("/blog/post/new", (req, rsp) -> rsp.send(req.path()));
 
     get("/d1/d2/d3", redirect(".."));
 
@@ -68,13 +68,13 @@ public class RedirectFeature extends ServerFeature {
 
     get("/back", redirect("back"));
 
-    get("/d1", (req, res) -> res.send(req.path()));
+    get("/d1", (req, rsp) -> rsp.send(req.path()));
 
-    get("/d1/d2", (req, res) -> res.send(req.path()));
+    get("/d1/d2", (req, rsp) -> rsp.send(req.path()));
 
-    get("/d1/d2/d2", (req, res) -> res.send(req.path()));
+    get("/d1/d2/d2", (req, rsp) -> rsp.send(req.path()));
 
-    get("/", (req, res) -> res.send(req.path()));
+    get("/", (req, rsp) -> rsp.send(req.path()));
 
     use(Resource.class);
   }

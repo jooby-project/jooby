@@ -13,15 +13,15 @@ public class SessionDataFeature extends ServerFeature {
 
   {
 
-    get("/s1", (req, res) -> {
+    get("/s1", (req, rsp) -> {
       Session session = req.session();
       session.set("v1", "v1");
-      res.send("xx");
+      rsp.send("xx");
     });
 
-    get("/s2", (req, res) -> {
+    get("/s2", (req, rsp) -> {
       Session session = req.session();
-      res.send(session.get("v1"));
+      rsp.send(session.get("v1"));
       session.unset("v1");
     });
   }

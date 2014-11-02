@@ -10,7 +10,7 @@ import com.google.common.base.Charsets;
 public class CharsetHeaderFeature extends ServerFeature {
 
   {
-    get("/", (req, res) -> res.send(req.charset()));
+    get("/", (req, rsp) -> rsp.send(req.charset()));
   }
 
   @Test

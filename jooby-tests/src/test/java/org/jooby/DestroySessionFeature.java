@@ -45,9 +45,9 @@ public class DestroySessionFeature extends ServerFeature {
   {
     use(store);
 
-    get("/destroy", (req, res) -> {
+    get("/destroy", (req, rsp) -> {
       req.session().destroy();
-      res.send("destroy");
+      rsp.send("destroy");
     });
 
   }

@@ -120,7 +120,7 @@ public class Routes {
               List<MediaType> produces = produces(method);
               for (Class<?> verb : verbs) {
                 Definition definition = new Route.Definition(
-                    verb.getSimpleName(), path, new MvcRoute(method, provider, produces))
+                    verb.getSimpleName(), path, new MvcHandler(method, provider, produces))
                     .produces(produces)
                     .consumes(consumes(method))
                     .name(name);

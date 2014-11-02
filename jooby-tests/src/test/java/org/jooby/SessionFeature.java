@@ -38,20 +38,20 @@ public class SessionFeature extends ServerFeature {
       }
     }).timeout(3);
 
-    get("/no-session", (req, res) -> {
-      res.send("done");
+    get("/no-session", (req, rsp) -> {
+      rsp.send("done");
     });
 
-    get("/session", (req, res) -> {
-      res.send(req.session().get("saves").orElse(0));
+    get("/session", (req, rsp) -> {
+      rsp.send(req.session().get("saves").orElse(0));
     });
 
-    get("/session/0", (req, res) -> {
-      res.send(req.session().createdAt());
+    get("/session/0", (req, rsp) -> {
+      rsp.send(req.session().createdAt());
     });
 
-    get("/session/1", (req, res) -> {
-      res.send(req.session().accessedAt());
+    get("/session/1", (req, rsp) -> {
+      rsp.send(req.session().accessedAt());
     });
   }
 

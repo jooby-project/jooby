@@ -256,12 +256,12 @@ public interface Response {
     /**
      * Unwrap a response in order to find out the target instance.
      *
-     * @param req A response.
-     * @return A target instance (not a {@link Forwarding}).
+     * @param rsp A response.
+     * @return A target instance (not a {@link Response.Forwarding}).
      */
-    public static Response unwrap(final @Nonnull Response res) {
-      requireNonNull(res, "A response is required.");
-      Response root = res;
+    public static Response unwrap(final @Nonnull Response rsp) {
+      requireNonNull(rsp, "A response is required.");
+      Response root = rsp;
       while (root instanceof Forwarding) {
         root = ((Forwarding) root).response;
       }
@@ -274,10 +274,10 @@ public interface Response {
    *
    * <pre>
    *  {{
-   *      get("/", (req, resp) -> {
+   *      get("/", (req, resp) {@literal ->} {
    *        Object model = ...;
-   *        resp.when("text/html", () -> Viewable.of("view", model))
-   *            .when("application/json", () -> model)
+   *        resp.when("text/html", () {@literal ->} Viewable.of("view", model))
+   *            .when("application/json", () {@literal ->} model)
    *            .send();
    *      });
    *  }}
@@ -294,24 +294,24 @@ public interface Response {
     /**
      * Add a new when clause for a custom media-type.
      *
-     * @param mediaType A media type to test for.
-     * @param supplier An object provider.
-     * @return The current {@link Formatter}.
+     * @param type A media type to test for.
+     * @param supplier An object supplier.
+     * @return The current {@link Response.Formatter}.
      */
-    default @Nonnull Formatter when(final String mediaType,
+    default @Nonnull Formatter when(final String type,
         final @Nonnull ExSupplier<Object> supplier) {
-      return when(MediaType.valueOf(mediaType), supplier);
+      return when(MediaType.valueOf(type), supplier);
     }
 
     /**
      * Add a new when clause for a custom media-type.
      *
-     * @param mediaType A media type to test for.
-     * @param provider An object provider.
-     * @return A {@link Formatter}.
+     * @param type A media type to test for.
+     * @param supplier An object supplier.
+     * @return A {@link Response.Formatter}.
      */
     @Nonnull
-    Formatter when(MediaType mediaType, @Nonnull ExSupplier<Object> supplier);
+    Formatter when(MediaType type, @Nonnull ExSupplier<Object> supplier);
 
     /**
      * Send the response.
@@ -563,7 +563,7 @@ public interface Response {
   }
 
   /**
-   * Responsible of writing the given body into the HTTP response. The {@link BodyConverter} that
+   * Responsible of writing the given body into the HTTP response. The {@link Body.Formatter} that
    * best matches the <code>Accept</code> header will be selected for writing the response.
    *
    * @param body The HTTP body.
@@ -587,7 +587,6 @@ public interface Response {
    * best matches the <code>Accept</code> header will be selected for writing the response.
    *
    * @param body A HTTP body.
-   * @param formatter A convert to use.
    * @throws Exception If the response write fails.
    */
   void send(@Nonnull Body body) throws Exception;
@@ -599,11 +598,11 @@ public interface Response {
    * the server responds with 406 "Not Acceptable", or invokes the default callback: {@code ** / *}.
    *
    * <pre>
-   *   get("/jsonOrHtml", (req, res) ->
-   *     res.format()
-   *         .when("text/html", () -> Viewable.of("view", model))
-   *         .when("application/json", () -> model)
-   *         .when("*", () -> Status.NOT_ACCEPTABLE)
+   *   get("/jsonOrHtml", (req, rsp) {@literal ->}
+   *     rsp.format()
+   *         .when("text/html", () {@literal ->} Viewable.of("view", model))
+   *         .when("application/json", () {@literal ->} model)
+   *         .when("*", () {@literal ->} Status.NOT_ACCEPTABLE)
    *         .send()
    *   );
    * </pre>
@@ -617,16 +616,16 @@ public interface Response {
    * Redirect to the given url with status code defaulting to {@link Status#FOUND}.
    *
    * <pre>
-   *  res.redirect("/foo/bar");
-   *  res.redirect("http://example.com");
-   *  res.redirect("http://example.com");
-   *  res.redirect("../login");
+   *  rsp.redirect("/foo/bar");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("../login");
    * </pre>
    *
    * Redirects can be a fully qualified URI for redirecting to a different site:
    *
    * <pre>
-   *   res.redirect("http://google.com");
+   *   rsp.redirect("http://google.com");
    * </pre>
    *
    * Redirects can be relative to the root of the host name. For example, if you were
@@ -634,7 +633,7 @@ public interface Response {
    * land you at <code>http://example.com/admin</code>:
    *
    * <pre>
-   *   res.redirect("/admin");
+   *   rsp.redirect("/admin");
    * </pre>
    *
    * Redirects can be relative to the current URL. A redirection of post/new, from
@@ -642,7 +641,7 @@ public interface Response {
    * <code>http://example.com/blog/admin/post/new.</code>
    *
    * <pre>
-   *   res.redirect("post/new");
+   *   rsp.redirect("post/new");
    * </pre>
    *
    * Redirecting to post/new from <code>http://example.com/blog/admin</code> (no trailing slash),
@@ -658,14 +657,14 @@ public interface Response {
    * <code>http//example.com/admin</code>:
    *
    * <pre>
-   *   res.redirect("..");
+   *   rsp.redirect("..");
    * </pre>
    *
    * A back redirection will redirect the request back to the <code>Referer</code>, defaulting to
    * <code>/</code> when missing.
    *
    * <pre>
-   *   res.redirect("back");
+   *   rsp.redirect("back");
    * </pre>
    *
    * @param location Either a relative or absolute location.
@@ -679,16 +678,16 @@ public interface Response {
    * Redirect to the given url with status code defaulting to {@link Status#FOUND}.
    *
    * <pre>
-   *  res.redirect("/foo/bar");
-   *  res.redirect("http://example.com");
-   *  res.redirect("http://example.com");
-   *  res.redirect("../login");
+   *  rsp.redirect("/foo/bar");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("../login");
    * </pre>
    *
    * Redirects can be a fully qualified URI for redirecting to a different site:
    *
    * <pre>
-   *   res.redirect("http://google.com");
+   *   rsp.redirect("http://google.com");
    * </pre>
    *
    * Redirects can be relative to the root of the host name. For example, if you were
@@ -696,7 +695,7 @@ public interface Response {
    * land you at <code>http://example.com/admin</code>:
    *
    * <pre>
-   *   res.redirect("/admin");
+   *   rsp.redirect("/admin");
    * </pre>
    *
    * Redirects can be relative to the current URL. A redirection of post/new, from
@@ -704,7 +703,7 @@ public interface Response {
    * <code>http://example.com/blog/admin/post/new.</code>
    *
    * <pre>
-   *   res.redirect("post/new");
+   *   rsp.redirect("post/new");
    * </pre>
    *
    * Redirecting to post/new from <code>http://example.com/blog/admin</code> (no trailing slash),
@@ -720,14 +719,14 @@ public interface Response {
    * <code>http//example.com/admin</code>:
    *
    * <pre>
-   *   res.redirect("..");
+   *   rsp.redirect("..");
    * </pre>
    *
    * A back redirection will redirect the request back to the <code>Referer</code>, defaulting to
    * <code>/</code> when missing.
    *
    * <pre>
-   *   res.redirect("back");
+   *   rsp.redirect("back");
    * </pre>
    *
    * @param status A redirect status.
@@ -783,6 +782,7 @@ public interface Response {
    * Get a local variable by it's name.
    *
    * @param name A var's name
+   * @param <T> A local type.
    * @return A local.
    */
   @Nonnull

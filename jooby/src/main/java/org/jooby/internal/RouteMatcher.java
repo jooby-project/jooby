@@ -21,8 +21,6 @@ package org.jooby.internal;
 import java.util.Collections;
 import java.util.Map;
 
-import org.jooby.Route;
-
 public interface RouteMatcher {
 
   /**
@@ -31,7 +29,7 @@ public interface RouteMatcher {
   String path();
 
   /**
-   * @return True, if {@link #path()} matches a {@link Route.Pattern}.
+   * @return True, if {@link #path()} matches a path pattern.
    */
   boolean matches();
 

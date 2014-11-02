@@ -45,14 +45,14 @@ public class SaveSessionFeature extends ServerFeature {
     }).preserveOnStop(true)
         .saveInterval(2);
 
-    get("/session", (req, res) -> {
+    get("/session", (req, rsp) -> {
       req.session().set("xx", "XX");
-      res.send(req.session().id());
+      rsp.send(req.session().id());
     });
 
-    get("/session/1", (req, res) -> {
+    get("/session/1", (req, rsp) -> {
       String id = req.session().id();
-      res.send(id);
+      rsp.send(id);
     });
 
   }

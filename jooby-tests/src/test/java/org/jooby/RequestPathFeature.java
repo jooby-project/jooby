@@ -9,9 +9,9 @@ public class RequestPathFeature extends ServerFeature {
 
   {
 
-    get("/hello", (req, res) -> res.send(req.path()));
+    get("/hello", (req, rsp) -> rsp.send(req.path()));
 
-    get("/u/p:id", (req, res) -> res.send(req.path()));
+    get("/u/p:id", (req, rsp) -> rsp.send(req.path()));
 
   }
 

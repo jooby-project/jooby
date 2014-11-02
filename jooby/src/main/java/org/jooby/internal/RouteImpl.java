@@ -50,8 +50,8 @@ public class RouteImpl implements Route, Route.Filter {
 
   public static RouteImpl notFound(final Verb verb, final String path,
       final List<MediaType> produces) {
-    return fromStatus((req, res, chain) -> {
-      if (!res.committed()) {
+    return fromStatus((req, rsp, chain) -> {
+      if (!rsp.committed()) {
         throw new Err(Status.NOT_FOUND, path);
       }
     }, verb, path, Status.NOT_FOUND, produces);

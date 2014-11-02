@@ -9,10 +9,10 @@ import org.junit.Test;
 public class AcceptHeaderFeature extends ServerFeature {
 
   {
-    get("/", (req, res) -> res.send(req.accept()));
+    get("/", (req, rsp) -> rsp.send(req.accept()));
 
     get("/accept",
-        (req, res) -> res.send(req.accepts(req.param("type").toList(MediaType.class))
+        (req, rsp) -> rsp.send(req.accepts(req.param("type").toList(MediaType.class))
             .map(MediaType::toString).orElse("nope")));
   }
 
