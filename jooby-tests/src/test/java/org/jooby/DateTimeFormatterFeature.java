@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static org.junit.Assert.assertEquals;
 
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -31,8 +32,9 @@ public class DateTimeFormatterFeature extends ServerFeature {
     private String dateFormat;
 
     @Inject
-    public Resource(final DateTimeFormatter formatter,
+    public Resource(final DateTimeFormatter formatter, final ZoneId zoneId,
         @Named("application.dateFormat") final String dateFormat) {
+      assertEquals(ZoneId.of("America/Argentina/Buenos_Aires"), zoneId);
       this.formatter = requireNonNull(formatter, "def formatter is required.");
       this.dateFormat = requireNonNull(dateFormat, "The dateFormat is required.");
     }
@@ -48,8 +50,11 @@ public class DateTimeFormatterFeature extends ServerFeature {
   }
 
   {
-    use(ConfigFactory.empty().withValue("application.lang",
-        ConfigValueFactory.fromAnyRef("en_US")));
+    use(ConfigFactory
+        .empty()
+        .withValue("application.lang", ConfigValueFactory.fromAnyRef("en_US"))
+        .withValue("application.tz",
+            ConfigValueFactory.fromAnyRef("America/Argentina/Buenos_Aires")));
     use(Resource.class);
   }
 

@@ -27,6 +27,7 @@ import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -35,6 +36,7 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -347,17 +349,12 @@ import com.typesafe.config.ConfigValueFactory;
  * @author edgar
  * @since 0.1.0
  * @see Jooby.Module
- * @see Request
- * @see Response
- * @see BodyConverter
- * @see Router
- * @see Filter
  */
 public class Jooby {
 
   /**
-   * A module can publish or produces: {@link Route.Definition routes}, {@link BodyConverter
-   * converters}, {@link Request.Module request modules} and any other
+   * A module can publish or produces: {@link Route.Definition routes}, {@link Body.Parser},
+   * {@link Body.Formatter}, {@link Request.Module request modules} and any other
    * application specific service or contract of your choice.
    * <p>
    * It is similar to {@link com.google.inject.Module} except for the callback method receives a
@@ -1361,8 +1358,10 @@ public class Jooby {
     String[] lang = config.getString("application.lang").split("_");
     final Locale locale = lang.length == 1 ? new Locale(lang[0]) : new Locale(lang[0], lang[1]);
 
+    ZoneId zoneId = ZoneId.of(config.getString("application.tz"));
     DateTimeFormatter dateTimeFormat = DateTimeFormatter
-        .ofPattern(config.getString("application.dateFormat"), locale);
+        .ofPattern(config.getString("application.dateFormat"), locale)
+        .withZone(zoneId);
 
     DecimalFormat numberFormat = new DecimalFormat(config.getString("application.numberFormat"));
 
@@ -1384,6 +1383,10 @@ public class Jooby {
 
         // bind locale
         binder.bind(Locale.class).toInstance(locale);
+
+        // bind time zone
+        binder.bind(ZoneId.class).toInstance(zoneId);
+        binder.bind(TimeZone.class).toInstance(TimeZone.getTimeZone(zoneId));
 
         // bind date format
         binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormat);
@@ -1536,6 +1539,12 @@ public class Jooby {
     if (!config.hasPath("application.dateFormat")) {
       String pattern = new SimpleDateFormat(new SimpleDateFormat().toPattern(), locale).toPattern();
       config = config.withValue("application.dateFormat", ConfigValueFactory.fromAnyRef(pattern));
+    }
+
+    // time zone
+    if (!config.hasPath("application.tz")) {
+      config = config.withValue("application.tz", ConfigValueFactory
+          .fromAnyRef(ZoneId.systemDefault().getId()));
     }
 
     // number format

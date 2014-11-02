@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.inject.Inject;
 
@@ -129,6 +130,7 @@ public class Json extends Jooby.Module {
     // Jackson clone the date format in order to make dateFormat thread-safe
     mapper.setDateFormat(new SimpleDateFormat(config.getString("application.dateFormat"), locale));
     mapper.setLocale(locale);
+    mapper.setTimeZone(TimeZone.getTimeZone(config.getString("application.tz")));
 
     // Jackson Modules from Guice
     Multibinder<Module> moduleBinder = Multibinder.newSetBinder(binder, Module.class);

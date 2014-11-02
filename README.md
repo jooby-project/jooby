@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
+
 jooby
 =====
 An Express inspired web framework for Java 8 (or higher).
@@ -76,7 +78,7 @@ Open a browser and type:
 
 Jooby! is up and running!!!
 
-contents
+contents (work in progress)
 =====
 
 - [getting started](#getting-started)
