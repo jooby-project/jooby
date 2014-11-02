@@ -8,6 +8,8 @@ import org.jooby.Jooby;
 public class App extends Jooby {
 
   {
+    get("/favicon.ico");
+
     assets("/assets/**");
 
     get("/", file("welcome.html"));

@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -31,11 +32,15 @@ public class DateTimeFormatterFeature extends ServerFeature {
 
     private String dateFormat;
 
+    private ZoneId zoneId;
+
     @Inject
     public Resource(final DateTimeFormatter formatter, final ZoneId zoneId,
         @Named("application.dateFormat") final String dateFormat) {
-      assertEquals(ZoneId.of("America/Argentina/Buenos_Aires"), zoneId);
+      assertEquals(ZoneId.of("GMT"), zoneId);
+      assertEquals(zoneId, formatter.getZone());
       this.formatter = requireNonNull(formatter, "def formatter is required.");
+      this.zoneId = zoneId;
       this.dateFormat = requireNonNull(dateFormat, "The dateFormat is required.");
     }
 
@@ -43,7 +48,9 @@ public class DateTimeFormatterFeature extends ServerFeature {
     @Path("/")
     public String formatter(final long time, final org.jooby.Request req) {
       Date date = new Date(time);
-      String sdate = new SimpleDateFormat(dateFormat, req.locale()).format(date);
+      SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, req.locale());
+      sdf.setTimeZone(TimeZone.getTimeZone(zoneId));
+      String sdate = sdf.format(date);
       String newsdate = formatter.format(formatter.parse(sdate));
       return sdate + "|" + newsdate;
     }
@@ -53,15 +60,14 @@ public class DateTimeFormatterFeature extends ServerFeature {
     use(ConfigFactory
         .empty()
         .withValue("application.lang", ConfigValueFactory.fromAnyRef("en_US"))
-        .withValue("application.tz",
-            ConfigValueFactory.fromAnyRef("America/Argentina/Buenos_Aires")));
+        .withValue("application.tz", ConfigValueFactory.fromAnyRef("GMT")));
     use(Resource.class);
   }
 
   @Test
   public void dateFormat() throws Exception {
     long time = 1412824189989l;
-    assertEquals("10/9/14 12:09 AM|10/9/14 12:09 AM",
+    assertEquals("10/9/14 3:09 AM|10/9/14 3:09 AM",
         execute(GET(uri("/?time=" + time)), (response) -> {
           assertEquals(200, response.getStatusLine().getStatusCode());
         }));

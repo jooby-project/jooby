@@ -230,16 +230,6 @@ public class RouteHandler {
       final List<MediaType> accept) {
     List<Route> routes = findRoutes(verb, path, type, accept);
 
-    routes.add(RouteImpl.fromStatus((req, res, chain) -> {
-      if (!res.committed()) {
-        Err ex = handle406or415(verb, path, type, accept);
-        if (ex != null) {
-          throw ex;
-        }
-      }
-      chain.next(req, res);
-    }, verb, path, Status.OK, accept));
-
     // 406 or 415
     routes.add(RouteImpl.fromStatus((req, res, chain) -> {
       if (!res.committed()) {

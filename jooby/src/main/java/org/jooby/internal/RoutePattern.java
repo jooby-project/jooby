@@ -121,7 +121,7 @@ public class RoutePattern {
     return Pattern.quote(s.substring(start, end));
   }
 
-  private static String normalize(final String pattern) {
+  public static String normalize(final String pattern) {
     String normalized = SLASH.matcher(pattern).replaceAll("/");
     StringBuilder buffer = new StringBuilder();
     if (normalized.equals("/")) {

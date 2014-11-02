@@ -22,6 +22,8 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Date;
 
+import javax.inject.Singleton;
+
 import org.jooby.Asset;
 import org.jooby.Request;
 import org.jooby.Response;
@@ -30,6 +32,7 @@ import org.jooby.Status;
 
 import com.google.inject.Inject;
 
+@Singleton
 public class AssetRoute implements Route.Handler {
 
   private AssetProvider provider;
@@ -40,22 +43,22 @@ public class AssetRoute implements Route.Handler {
   }
 
   @Override
-  public void handle(final Request request, final Response response) throws Exception {
-    Asset resource = provider.get(request.path());
+  public void handle(final Request req, final Response res) throws Exception {
+    Asset resource = provider.get(req.path());
 
     long lastModified = resource.lastModified();
 
     // Handle if modified since
     if (lastModified > 0) {
-      long ifModified = request.header("If-Modified-Since").toOptional(Long.class).orElse(-1l);
+      long ifModified = req.header("If-Modified-Since").toOptional(Long.class).orElse(-1l);
       if (ifModified > 0 && lastModified / 1000 <= ifModified / 1000) {
-        response.status(Status.NOT_MODIFIED);
+        res.status(Status.NOT_MODIFIED);
         return;
       }
-      response.header("Last-Modified", new Date(lastModified));
+      res.header("Last-Modified", new Date(lastModified));
     }
-    response.type(resource.type());
-    response.send(resource);
+    res.type(resource.type());
+    res.send(resource);
   }
 
 }

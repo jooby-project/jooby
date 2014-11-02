@@ -21,7 +21,6 @@ package org.jooby;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
-import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
@@ -44,6 +43,7 @@ import javax.annotation.Nonnull;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetRoute;
 import org.jooby.internal.FallbackBodyConverter;
+import org.jooby.internal.RoutePattern;
 import org.jooby.internal.Server;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.jetty.Jetty;
@@ -563,6 +563,27 @@ public class Jooby {
   public @Nonnull Route.Definition use(final @Nonnull String path,
       final @Nonnull Route.Handler handler) {
     return handler(new Route.Definition("*", path, handler));
+  }
+
+  /**
+   * Serve a static file from classpath:
+   *
+   * <pre>
+   *   get("/favicon.ico");
+   * </pre>
+   *
+   * This method is a shorcut for:
+   *
+   * <pre>
+   *   get("/favicon.ico", file("/favicon.ico");
+   * </pre>
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition get(final String path) {
+    return handler(new Route.Definition("GET", path, file(path)));
   }
 
   /**
@@ -1145,7 +1166,7 @@ public class Jooby {
    * <pre>
    *   {
    *     // serve the welcome.html from classpath root
-   *     get("/", file(MediaType.html, "welcome.html");
+   *     get("/", file("welcome.html");
    *   }
    * </pre>
    *
@@ -1153,12 +1174,44 @@ public class Jooby {
    * @return A new route handler.
    */
   public Route.Handler file(@Nonnull final String location) {
+    return staticFile(location);
+  }
+
+  /**
+   * Serve a single file from classpath.
+   * Usage:
+   *
+   * <pre>
+   *   {
+   *     // serve the welcome.html from classpath root
+   *     get("/", file(MediaType.html, "welcome.html");
+   *   }
+   * </pre>
+   *
+   * @param location Absolute classpath location.
+   * @return A new route handler.
+   */
+  private static Route.Handler staticFile(@Nonnull final String location) {
     requireNonNull(location, "A location is required.");
+    String path = RoutePattern.normalize(location);
     return (req, res) -> {
-      InputStream in = getClass().getClassLoader().getResourceAsStream(location);
-      MediaTypeProvider typedb = req.getInstance(MediaTypeProvider.class);
-      res.type(typedb.forPath(location));
-      res.send(in);
+      req.getInstance(AssetRoute.class).handle(new Request.Forwarding(req) {
+
+        @Override
+        public String path() {
+          return path;
+        }
+
+        @Override
+        public Route route() {
+          return new Route.Forwarding(super.route()) {
+            @Override
+            public String path() {
+              return path;
+            }
+          };
+        }
+      }, res);
     };
   }
 
