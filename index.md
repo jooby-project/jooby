@@ -3,7 +3,6 @@ layout: index
 ---
 
 
-
 [![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
 
 jooby
