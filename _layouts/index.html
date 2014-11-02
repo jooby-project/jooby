@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="{{site.path}}/stylesheets/styles.css">
     <link rel="stylesheet" href="{{site.path}}/stylesheets/pygment_trac.css">
     <script src="{{site.path}}/javascripts/scale.fix.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-    <script src="{{site.path}}/javascripts/process-rel-links.js" type="text/javascript"></script>`
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -17,24 +15,19 @@
   </head>
   <body>
     <div class="wrapper">
-      <header>
+      <header style="display: none">
         <h1 class="header">jooby</h1>
         <p class="header">An Express inspired web framework for Java 8 (or higher).</p>
 
         <ul>
-          <li class="download"><a class="buttons" href="https://github.com/jooby-project/jooby/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/jooby-project/jooby/tarball/master">Download TAR</a></li>
           <li><a class="buttons github" href="https://github.com/jooby-project/jooby">View On GitHub</a></li>
         </ul>
-
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/jooby-project">jooby-project</a></p>
-
 
       </header>
       <section>
        {{content}}
       </section>
-      <footer>
+      <footer style="display: none">
         <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
