@@ -294,6 +294,12 @@
         <version>${mojo-executor.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${maven-antrun-plugin.version}</version>
+      </dependency>
+
       <!-- Test dependencies -->
       <dependency>
         <groupId>junit</groupId>
@@ -390,15 +396,6 @@
         <version>${maven-eclipse-plugin.version}</version>
         <configuration>
           <downloadSources>true</downloadSources>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <excludePackageNames>org.jooby.internal</excludePackageNames>
-          <aggregate>true</aggregate>
         </configuration>
       </plugin>
 
@@ -762,6 +759,60 @@
         </plugins>
       </build>
     </profile>
+
+    <!-- gh-pages -->
+    <profile>
+      <id>gh-pages</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-site-plugin</artifactId>
+            <version>3.4</version>
+            <configuration>
+              <generateProjectInfo>false</generateProjectInfo>
+              <generateReports>false</generateReports>
+              <generateSitemap>false</generateSitemap>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>site</phase>
+                <goals>
+                  <goal>javadoc</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <excludePackageNames>org.jooby.internal</excludePackageNames>
+              <aggregate>true</aggregate>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>site</phase>
+                <configuration>
+                  <tasks>
+                    <ant antfile="gh-pages.ant" target="gh-pages" />
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
 
   <prerequisites>
@@ -823,6 +874,7 @@
     <maven-plugin-annotations.version>3.3</maven-plugin-annotations.version>
     <plexus-utils.version>3.0.20</plexus-utils.version>
     <mojo-executor.version>2.2.0</mojo-executor.version>
+    <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
     <license-maven-plugin.version>2.6</license-maven-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>

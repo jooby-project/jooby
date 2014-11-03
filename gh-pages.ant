@@ -1,5 +1,11 @@
-<project default="docsync">
-  <target name="docsync">
+<project default="gh-pages">
+
+  <!--
+    DON'T run this file in order to push gh-pages. Instead run:
+       mvn site -N -P gh-pages
+    Javadoc will be generated and sync for sure
+   -->
+  <target name="gh-pages">
     <property name="gitrepo" value="git@github.com:jooby-project/jooby.git" />
     <property name="workdir" value="target/gh-pages" />
 
@@ -15,7 +21,7 @@
       <arg value="." />
     </exec>
 
-    <echo file="${workdir}/index.md" message="---&#13;&#10;layout: index&#13;&#10;---&#13;&#10;&#13;&#10;" force="true" />
+    <echo file="${workdir}/index.md" message="---&#13;&#10;layout: index&#13;&#10;---&#13;&#10;&#13;&#10;" />
 
     <concat destfile="${workdir}/index.md" append="true">
       <fileset file="README.md" />
@@ -23,8 +29,10 @@
 
     <delete dir="${workdir}/apidocs" failonerror="false" />
 
-    <copy todir="${workdir}" overwrite="true">
-      <fileset dir="target/site" />
+    <mkdir dir="${workdir}/apidocs" />
+
+    <copy todir="${workdir}/apidocs" overwrite="true">
+      <fileset dir="target/site/apidocs" />
     </copy>
 
     <exec executable="git" dir="${workdir}">
