@@ -552,4 +552,6 @@ The socket callback will be executed everytime a client is connected. From there
 Please note that consumes/produces don't do content negotiation (like they do in routes). On WebSockets they are used to choose/pick a body (de)serializer.
 
 
-For more information checkout the [WebSocket doc]()
+For more information checkout the [WebSocket doc](http://jooby.org/apidocs/org/jooby/WebSocket.html)
+
+## modules
