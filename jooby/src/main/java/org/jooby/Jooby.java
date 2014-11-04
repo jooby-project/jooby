@@ -63,6 +63,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Scopes;
+import com.google.inject.Stage;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -1448,8 +1449,11 @@ public class Jooby {
 
     DecimalFormat numberFormat = new DecimalFormat(config.getString("application.numberFormat"));
 
+    // Guice Stage
+    Stage stage = mode.when("dev", Stage.DEVELOPMENT).value().orElse(Stage.PRODUCTION);
+
     // dependency injection
-    injector = Guice.createInjector(new com.google.inject.Module() {
+    injector = Guice.createInjector(stage, new com.google.inject.Module() {
       @Override
       public void configure(final Binder binder) {
 
@@ -1506,6 +1510,8 @@ public class Jooby {
         // tmp dir
         binder.bind(File.class).annotatedWith(Names.named("java.io.tmpdir"))
             .toInstance(new File(config.getString("java.io.tmpdir")));
+        binder.bind(File.class).annotatedWith(Names.named("tmpdir"))
+        .toInstance(new File(config.getString("java.io.tmpdir")));
 
         // converters
         parsers.forEach(it -> parserBinder.addBinding().toInstance(it));
