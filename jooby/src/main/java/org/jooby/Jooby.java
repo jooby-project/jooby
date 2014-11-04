@@ -28,15 +28,17 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
@@ -55,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -72,8 +75,8 @@ import com.typesafe.config.ConfigValueFactory;
 /**
  * <h1>Getting Started:</h1>
  * <p>
- * A new application must extends Jooby, register one ore more {@link Body.Formatter} and
- * some {@link Route routes}. It sounds like a lot of work to do, but it isn't.
+ * A new application must extends Jooby, register one ore more {@link Body.Formatter} and some
+ * {@link Route routes}. It sounds like a lot of work to do, but it isn't.
  * </p>
  *
  * <pre>
@@ -310,8 +313,8 @@ import com.typesafe.config.ConfigValueFactory;
  *
  * <p>
  * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
- * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}, and
- * {@link org.jooby.mvc.Viewable}.
+ * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}, and {@link org.jooby.mvc.Viewable}
+ * .
  * </p>
  *
  * <h1>Static Files</h1>
@@ -456,7 +459,7 @@ public class Jooby {
   /**
    * The override config. Optional.
    */
-  private Config config;
+  private Config source;
 
   /** The logging system. */
   protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -1323,7 +1326,7 @@ public class Jooby {
    * @see Config
    */
   public @Nonnull Jooby use(final @Nonnull Config config) {
-    this.config = requireNonNull(config, "A config is required.");
+    this.source = requireNonNull(config, "A config is required.");
     return this;
   }
 
@@ -1387,7 +1390,40 @@ public class Jooby {
    * @throws Exception If something fails to start.
    */
   public void start() throws Exception {
-    config = buildConfig(Optional.ofNullable(config));
+    start(new String[0]);
+  }
+
+  /**
+   * <h1>Bootstrap</h1>
+   * <p>
+   * The bootstrap process is defined as follows:
+   * </p>
+   * <h2>1. Configuration files (first-listed are higher priority)</h2>
+   * <ol>
+   * <li>System properties</li>
+   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
+   * <li>{@link Jooby.Module Modules} properties</li>
+   * </ol>
+   *
+   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
+   * <ol>
+   * <li>An {@link Injector Guice Injector} is created.</li>
+   * <li>It calls to {@link Jooby.Module#configure(Mode, Config, Binder)} for each module.</li>
+   * <li>At this point Guice is ready and all the services has been binded.</li>
+   * <li>It calls to {@link Jooby.Module#start() start method} for each module.</li>
+   * <li>A web server is started</li>
+   * </ol>
+   *
+   * @param args Application arguments.
+   * @throws Exception If something fails to start.
+   */
+  public void start(final String[] args) throws Exception {
+    Config config = buildConfig(
+        Optional.ofNullable(this.source)
+            .orElseGet(
+                () -> ConfigFactory.parseResources("application.conf")
+            )
+        );
 
     Mode mode = mode(config.getString("application.mode").toLowerCase());
 
@@ -1546,38 +1582,112 @@ public class Jooby {
   /**
    * Build configuration properties, it configure system, app and modules properties.
    *
-   * @param appConfig An optional app configuration.
+   * @param source Source config to use.
    * @return A configuration properties ready to use.
    */
-  private Config buildConfig(final Optional<Config> appConfig) {
-    Config sysProps = ConfigFactory.defaultOverrides()
+  private Config buildConfig(final Config source) {
+    // system properties
+    Config system = ConfigFactory.systemProperties()
         // file encoding got corrupted sometimes so we force and override.
         .withValue("file.encoding",
             ConfigValueFactory.fromAnyRef(System.getProperty("file.encoding")));
 
-    // app configuration
-    Supplier<Config> defaults = () -> ConfigFactory.parseResources("application.conf");
-    Config config = sysProps
-        .withFallback(appConfig.orElseGet(defaults));
+    // set module config
+    Config moduleStack = ConfigFactory.empty();
+    for (Jooby.Module module : ImmutableList.copyOf(modules).reverse()) {
+      moduleStack = moduleStack.withFallback(module.config());
+    }
+
+    // add default config + mime types
+    Config mime = ConfigFactory.parseResources(Jooby.class, "mime.properties");
+    Config jooby = ConfigFactory.parseResources(Jooby.class, "jooby.conf");
+
+    String mode = Arrays.asList(system, source, jooby).stream()
+        .filter(it -> it.hasPath("application.mode"))
+        .findFirst()
+        .get()
+        .getString("application.mode");
+
+    Config modeConfig = modeConfig(source, mode);
+
+    // application.[mode].conf -> application.conf
+    Config config = modeConfig.withFallback(source);
+
+    return system
+        .withFallback(config)
+        .withFallback(moduleStack)
+        .withFallback(defaultConfig(config, mode))
+        .withFallback(mime)
+        .withFallback(jooby)
+        .resolve();
+  }
+
+  /**
+   * Build a mode config: <code>[application].[mode].[conf]</code>.
+   * Stack looks like
+   * <pre>
+   *   ([file://origin].[mode].[conf])?
+   *   ([/origin].[mode].[conf])?
+   *   file://application.[mode].[conf]
+   *   /application.[mode].[conf]
+   * </pre>
+   *
+   * @param source App source to use.
+   * @param mode Application mode.
+   * @return A config mode.
+   */
+  private Config modeConfig(final Config source, final String mode) {
+    String origin = source.origin().resource();
+    Config result = ConfigFactory.empty();
+    if (origin != null) {
+      // load [resource].[mode].[ext]
+      int dot = origin.lastIndexOf('.');
+      String originConf = origin.substring(0, dot) + "." + mode + origin.substring(dot);
+
+      result = fileConfig(originConf).withFallback(ConfigFactory.parseResources(originConf));
+    }
+    String appConfig = "application." + mode + ".conf";
+    return result
+        .withFallback(fileConfig(appConfig))
+        .withFallback(ConfigFactory.parseResources(appConfig));
+  }
+
+  /**
+   * Config from file system.
+   *
+   * @param fname A file name.
+   * @return A config for the file name.
+   */
+  private Config fileConfig(final String fname) {
+    File in = new File(fname);
+    return in.exists() ? ConfigFactory.parseFile(in) : ConfigFactory.empty();
+  }
+
+  /**
+   * Build default application.* properties.
+   *
+   * @param config A source config.
+   * @param mode Application mode.
+   * @return default properties.
+   */
+  private Config defaultConfig(final Config config, final String mode) {
+    Map<String, Object> defaults = new LinkedHashMap<>();
 
     // set app name
     if (!config.hasPath("application.name")) {
-      config = config.withValue("application.name",
-          ConfigValueFactory.fromAnyRef(getClass().getSimpleName()));
+      defaults.put("name", getClass().getSimpleName());
     }
 
     // set default charset, if app config didn't set it
     if (!config.hasPath("application.charset")) {
-      config = config.withValue("application.charset",
-          ConfigValueFactory.fromAnyRef(Charset.defaultCharset().name()));
+      defaults.put("charset", Charset.defaultCharset().name());
     }
 
     // locale
     final Locale locale;
     if (!config.hasPath("application.lang")) {
       locale = Locale.getDefault();
-      config = config.withValue("application.lang",
-          ConfigValueFactory.fromAnyRef(locale.getLanguage() + "_" + locale.getCountry()));
+      defaults.put("lang", locale.getLanguage() + "_" + locale.getCountry());
     } else {
       locale = Locale.forLanguageTag(config.getString("application.lang").replace("_", "-"));
     }
@@ -1585,48 +1695,37 @@ public class Jooby {
     // date format
     if (!config.hasPath("application.dateFormat")) {
       String pattern = new SimpleDateFormat(new SimpleDateFormat().toPattern(), locale).toPattern();
-      config = config.withValue("application.dateFormat", ConfigValueFactory.fromAnyRef(pattern));
+      defaults.put("dateFormat", pattern);
     }
 
     // time zone
     if (!config.hasPath("application.tz")) {
-      config = config.withValue("application.tz", ConfigValueFactory
-          .fromAnyRef(ZoneId.systemDefault().getId()));
+      defaults.put("tz", ZoneId.systemDefault().getId());
     }
 
     // number format
     if (!config.hasPath("application.numberFormat")) {
       String pattern = ((DecimalFormat) DecimalFormat.getInstance(locale)).toPattern();
-      config = config.withValue("application.numberFormat", ConfigValueFactory.fromAnyRef(pattern));
+      defaults.put("numberFormat", pattern);
     }
-
-    // set module config
-    for (Jooby.Module module : ImmutableList.copyOf(modules).reverse()) {
-      config = config.withFallback(module.config());
-    }
-
-    // add default config + mime types
-    config = config
-        .withFallback(ConfigFactory.parseResources("org/jooby/mime.properties"));
-    config = config
-        .withFallback(ConfigFactory.parseResources("org/jooby/jooby.conf"));
 
     // last check app secret
     if (!config.hasPath("application.secret")) {
-      String mode = config.getString("application.mode");
       if ("dev".equalsIgnoreCase(mode)) {
         // it will survive between restarts and allow to have different apps running for
         // development.
         String devRandomSecret = getClass().getResource(getClass().getSimpleName() + ".class")
             .toString();
-        config = config.withValue("application.secret",
-            ConfigValueFactory.fromAnyRef(devRandomSecret));
+        defaults.put("secret", devRandomSecret);
       } else {
         throw new IllegalStateException("No application.secret has been defined");
       }
     }
 
-    return config.resolve();
+    Map<String, Object> application = ImmutableMap.of("application", defaults);
+    return defaults.size() == 0
+        ? ConfigFactory.empty()
+        : ConfigValueFactory.fromMap(application).toConfig();
   }
 
   /**
