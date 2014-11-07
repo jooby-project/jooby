@@ -47,9 +47,6 @@ public class OptionsRouter implements Route.Handler {
 
   @Override
   public void handle(final Request req, final Response rsp) throws Exception {
-    if (rsp.committed()) {
-      return;
-    }
     if (!rsp.header("Allow").toOptional(String.class).isPresent()) {
       Set<String> allow = new LinkedHashSet<>();
       Set<Verb> verbs = EnumSet.allOf(Verb.class);

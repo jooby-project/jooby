@@ -226,9 +226,6 @@ public interface WebSocket extends Closeable {
    * @since 0.1.0
    */
   class Definition {
-    /** A websocket name. */
-    private String name = "anonymous";
-
     /**
      * A route compiled pattern.
      */
@@ -290,24 +287,6 @@ public interface WebSocket extends Closeable {
     }
 
     /**
-     * @return Web socket's name.
-     */
-    public @Nonnull String name() {
-      return name;
-    }
-
-    /**
-     * Set/overrie a web socket's name.
-     *
-     * @param name A ws name.
-     * @return This definition.
-     */
-    public @Nonnull Definition name(final @Nonnull String name) {
-      this.name = requireNonNull(name, "A socket's name is required.");
-      return this;
-    }
-
-    /**
      * Set the media types the route can consume.
      *
      * @param type The media types to test for.
@@ -364,10 +343,23 @@ public interface WebSocket extends Closeable {
     }
 
     @Override
+    public boolean equals(final Object obj) {
+      if (obj instanceof Definition) {
+        Definition def = (Definition) obj;
+        return this.pattern.equals(def.pattern);
+      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      return pattern.hashCode();
+    }
+
+    @Override
     public String toString() {
       StringBuilder buffer = new StringBuilder();
       buffer.append("WS ").append(pattern()).append("\n");
-      buffer.append("  name: ").append(name()).append("\n");
       buffer.append("  consume: ").append(consumes()).append("\n");
       buffer.append("  produces: ").append(produces()).append("\n");
       return buffer.toString();
@@ -380,7 +372,7 @@ public interface WebSocket extends Closeable {
      * @return A new web socket.
      */
     private WebSocket asWebSocket(final RouteMatcher matcher) {
-      return new WebSocketImpl(handler, matcher.path(), pattern, name, matcher.vars(),
+      return new WebSocketImpl(handler, matcher.path(), pattern, matcher.vars(),
           consumes, produces);
     }
   }

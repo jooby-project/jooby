@@ -42,6 +42,7 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jooby.Body;
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.MediaTypeProvider;
@@ -202,6 +203,9 @@ public class RouteHandler {
       @Override
       public void next(final Request req, final Response rsp) throws Exception {
         RouteImpl route = get(it.next());
+        if (rsp.committed()) {
+          return;
+        }
 
         // set route
         set(req, route);
@@ -232,7 +236,7 @@ public class RouteHandler {
 
     // 406 or 415
     routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
-      if (!rsp.committed()) {
+      if (!rsp.committed() && !rsp.status().isPresent()) {
         Err ex = handle406or415(verb, path, type, accept);
         if (ex != null) {
           throw ex;
@@ -243,7 +247,7 @@ public class RouteHandler {
 
     // 405
     routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
-      if (!rsp.committed()) {
+      if (!rsp.committed() && !rsp.status().isPresent()) {
         Err ex = handle405(verb, path, type, accept);
         if (ex != null) {
           throw ex;
@@ -345,7 +349,8 @@ public class RouteHandler {
         .append("</html>\n");
 
     rsp.header("Cache-Control", NO_CACHE);
-    rsp.send(html);
+    ((ResponseImpl) (Response.Forwarding.unwrap(rsp)))
+        .send(Body.body(html), FallbackBodyConverter.formatString);
   }
 
   private Status statusCode(final Exception ex) {

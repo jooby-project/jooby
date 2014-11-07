@@ -29,7 +29,7 @@ import com.google.inject.multibindings.OptionalBinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class Jetty extends Jooby.Module {
+public class Jetty implements Jooby.Module {
 
   @Override
   public void configure(final Mode mode, final Config config, final Binder binder) {

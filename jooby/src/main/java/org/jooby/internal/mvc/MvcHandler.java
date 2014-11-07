@@ -32,6 +32,7 @@ import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.View;
 import org.jooby.fn.ExSupplier;
+import org.jooby.internal.ResponseImpl;
 import org.jooby.mvc.Viewable;
 
 class MvcHandler implements Route.Handler {
@@ -88,12 +89,14 @@ class MvcHandler implements Route.Handler {
 
     ExSupplier<Object> notViewable = () -> result;
 
-    List<MediaType> viewableTypes = rsp.viewableTypes();
+    List<MediaType> viewableTypes = ((ResponseImpl) Response.Forwarding.unwrap(rsp))
+        .viewableTypes();
+
     Function<MediaType, ExSupplier<Object>> provider = (type) -> {
       Optional<MediaType> matches = viewableTypes.stream()
-        .filter(it -> it.matches(type))
-        .findFirst();
-        return matches.isPresent() ? viewable : notViewable;
+          .filter(it -> it.matches(type))
+          .findFirst();
+      return matches.isPresent() ? viewable : notViewable;
     };
 
     Response.Formatter formatter = rsp.format();

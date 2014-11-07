@@ -19,11 +19,12 @@
 package org.jooby.internal.mvc;
 
 import java.lang.reflect.Parameter;
-import java.util.Optional;
 
 import javax.inject.Named;
 
 import org.jooby.mvc.Header;
+
+import com.google.common.base.Strings;
 
 public interface ParamNameProvider {
 
@@ -38,17 +39,20 @@ public interface ParamNameProvider {
   ParamNameProvider NAMED = new ParamNameProvider() {
     @Override
     public String name(final int index, final Parameter parameter) {
-      return Optional
-          .ofNullable(parameter.getAnnotation(Named.class))
-          .map(Named::value)
-          .orElseGet(
-              () -> Optional.ofNullable(parameter.getAnnotation(Header.class))
-                  .map(h -> {
-                    String name = h.value();
-                    return name.length() > 0 ? name : null;
-                  })
-                  .orElse(null)
-          );
+      Named named = parameter.getAnnotation(Named.class);
+      if (named == null) {
+        com.google.inject.name.Named gnamed = parameter
+            .getAnnotation(com.google.inject.name.Named.class);
+        if (gnamed == null) {
+          Header header = parameter.getAnnotation(Header.class);
+          if (header == null) {
+            return null;
+          }
+          return Strings.emptyToNull(header.value());
+        }
+        return Strings.emptyToNull(gnamed.value());
+      }
+      return Strings.emptyToNull(named.value());
     }
   };
 

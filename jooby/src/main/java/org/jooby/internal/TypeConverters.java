@@ -32,18 +32,18 @@ import com.google.inject.spi.TypeConverter;
 public class TypeConverters {
 
   public static void configure(final Binder binder) {
+    binder.convertToTypes(stringConstructorMatcher(), stringConstructorTypeConverter());
+
     binder.convertToTypes(staticMethodMatcher("valueOf"),
         staticMethodTypeConverter("valueOf"));
 
     binder.convertToTypes(staticMethodMatcher("fromString"),
         staticMethodTypeConverter("fromString"));
 
-    binder.convertToTypes(stringConstructorMatcher(), stringConstructorTypeConverter());
-
-    binder.convertToTypes(localeMatcher(), localeTypeConverter());
-
     binder.convertToTypes(staticMethodMatcher("forName"),
         staticMethodTypeConverter("forName"));
+
+    binder.convertToTypes(localeMatcher(), localeTypeConverter());
 
   }
 

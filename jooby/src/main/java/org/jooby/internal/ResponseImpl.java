@@ -70,8 +70,6 @@ public class ResponseImpl implements Response {
 
   private MediaType type;
 
-  private boolean committed;
-
   private MediaTypeProvider typeProvider;
 
   private final Map<String, Object> locals;
@@ -108,7 +106,7 @@ public class ResponseImpl implements Response {
     status().ifPresent(body::status);
     type().ifPresent(body::type);
 
-    send(body, FallbackBodyConverter.fromReader);
+    send(body, FallbackBodyConverter.formatReader);
   }
 
   @Override
@@ -122,7 +120,7 @@ public class ResponseImpl implements Response {
     status().ifPresent(body::status);
     type().ifPresent(body::type);
 
-    send(body, FallbackBodyConverter.fromStream);
+    send(body, FallbackBodyConverter.formatStream);
   }
 
   private void contentDisposition(final String filename) {
@@ -232,7 +230,7 @@ public class ResponseImpl implements Response {
 
   @Override
   public boolean committed() {
-    return committed || response.isCommitted();
+    return response.isCommitted();
   }
 
   @Override
@@ -271,7 +269,6 @@ public class ResponseImpl implements Response {
     return this;
   }
 
-  @Override
   public List<MediaType> viewableTypes() {
     return selector.viewableTypes();
   }
@@ -308,7 +305,7 @@ public class ResponseImpl implements Response {
     };
   }
 
-  private void send(final Body body, final Body.Formatter formatter) throws Exception {
+  void send(final Body body, final Body.Formatter formatter) throws Exception {
     requireNonNull(body, "A response message is required.");
     requireNonNull(formatter, "A converter is required.");
 
@@ -317,9 +314,9 @@ public class ResponseImpl implements Response {
       return;
     }
 
-    type(body.type().orElse(formatter.types().get(0)));
+    type(body.type().orElseGet(() -> type().orElseGet(() -> formatter.types().get(0))));
 
-    status(body.status().orElse(Status.OK));
+    status(body.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
 
     Runnable setHeaders = () -> body.headers().forEach(
         (name, value) -> {
@@ -413,7 +410,6 @@ public class ResponseImpl implements Response {
   @Override
   public Response status(final Status status) {
     this.status = requireNonNull(status, "A status is required.");
-    this.committed = true;
     response.setStatus(status.value());
     return this;
   }

@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -241,11 +240,6 @@ public interface Response {
     @Override
     public boolean committed() {
       return response.committed();
-    }
-
-    @Override
-    public List<MediaType> viewableTypes() {
-      return response.viewableTypes();
     }
 
     @Override
@@ -796,11 +790,5 @@ public interface Response {
    * @return This response.
    */
   Response local(@Nonnull String name, @Nonnull Object value);
-
-  /**
-   * @return All the media types reported by all the {@link View.Engine}. Useful to identify and
-   *         apply content negotiation.
-   */
-  List<MediaType> viewableTypes();
 
 }

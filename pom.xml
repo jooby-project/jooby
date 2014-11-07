@@ -768,7 +768,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.4</version>
+            <version>${maven-site-plugin.version}</version>
             <configuration>
               <generateProjectInfo>false</generateProjectInfo>
               <generateReports>false</generateReports>
@@ -779,9 +779,9 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
             <executions>
               <execution>
-                <phase>site</phase>
                 <goals>
                   <goal>javadoc</goal>
                 </goals>
@@ -795,9 +795,10 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
+            <version>${maven-antrun-plugin.version}</version>
             <executions>
               <execution>
-                <phase>site</phase>
+                <id>default-cli</id>
                 <configuration>
                   <tasks>
                     <ant antfile="gh-pages.ant" target="gh-pages" />
@@ -808,6 +809,13 @@
                 </goals>
               </execution>
             </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>1.9.4</version>
+              </dependency>
+            </dependencies>
           </plugin>
         </plugins>
       </build>
@@ -875,6 +883,7 @@
     <plexus-utils.version>3.0.20</plexus-utils.version>
     <mojo-executor.version>2.2.0</mojo-executor.version>
     <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
+    <maven-site-plugin.version>3.4</maven-site-plugin.version>
     <license-maven-plugin.version>2.6</license-maven-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>

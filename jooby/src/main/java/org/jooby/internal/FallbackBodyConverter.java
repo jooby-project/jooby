@@ -33,7 +33,7 @@ import com.google.inject.TypeLiteral;
 
 public class FallbackBodyConverter {
 
-  public static Body.Formatter fromStream = new Body.Formatter() {
+  public static Body.Formatter formatStream = new Body.Formatter() {
     @Override
     public List<MediaType> types() {
       return ImmutableList.of(MediaType.octetstream);
@@ -57,7 +57,7 @@ public class FallbackBodyConverter {
     }
   };
 
-  public static Body.Formatter fromReader = new Body.Formatter() {
+  public static Body.Formatter formatReader = new Body.Formatter() {
 
     @Override
     public List<MediaType> types() {
@@ -82,7 +82,7 @@ public class FallbackBodyConverter {
     }
   };
 
-  public static Body.Formatter fromToString = new Body.Formatter() {
+  public static Body.Formatter formatString = new Body.Formatter() {
 
     @Override
     public List<MediaType> types() {
@@ -96,8 +96,7 @@ public class FallbackBodyConverter {
 
     @Override
     public void format(final Object body, final Body.Writer writer) throws Exception {
-      writer.text(out -> out.write(body instanceof View ? ((View) body).model()
-          .toString() : body.toString()));
+      writer.text(out -> out.write(body.toString()));
     }
 
     @Override
@@ -106,7 +105,7 @@ public class FallbackBodyConverter {
     }
   };
 
-  public static Body.Parser readText = new Body.Parser() {
+  public static Body.Parser parseString = new Body.Parser() {
 
     @Override
     public List<MediaType> types() {

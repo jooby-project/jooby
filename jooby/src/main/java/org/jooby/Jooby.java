@@ -18,6 +18,7 @@
  */
 package org.jooby;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
@@ -25,7 +26,6 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -53,7 +53,6 @@ import org.jooby.internal.mvc.Routes;
 import org.jooby.internal.routes.HeadFilter;
 import org.jooby.internal.routes.OptionsRouter;
 import org.jooby.internal.routes.TraceRouter;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
@@ -393,13 +392,13 @@ public class Jooby {
    * @since 0.1.0
    * @see Jooby#use(Jooby.Module)
    */
-  public static abstract class Module {
+  public interface Module {
 
     /**
      * @return Produces a module config object (when need it). By default a module doesn't produce
      *         any configuration object.
      */
-    public @Nonnull Config config() {
+    default @Nonnull Config config() {
       return ConfigFactory.empty();
     }
 
@@ -409,7 +408,7 @@ public class Jooby {
      *
      * @throws Exception If something goes wrong.
      */
-    public void start() throws Exception {
+    default void start() throws Exception {
     }
 
     /**
@@ -419,7 +418,7 @@ public class Jooby {
      *
      * @throws Exception If something goes wrong.
      */
-    public void stop() throws Exception {
+    default void stop() throws Exception {
     }
 
     /**
@@ -432,7 +431,7 @@ public class Jooby {
      * @param binder A guice binder. Not null.
      * @throws Exception If the module fails during configuration.
      */
-    public abstract void configure(@Nonnull Mode mode, @Nonnull Config config,
+    void configure(@Nonnull Mode mode, @Nonnull Config config,
         @Nonnull Binder binder) throws Exception;
 
   }
@@ -461,9 +460,6 @@ public class Jooby {
    * The override config. Optional.
    */
   private Config source;
-
-  /** The logging system. */
-  protected final Logger log = LoggerFactory.getLogger(getClass());
 
   /** Keep the global injector instance. */
   private Injector injector;
@@ -522,28 +518,6 @@ public class Jooby {
   }
 
   /**
-   * Append a new filter that matches any method and path. This method is a shorthand for
-   * {@link #use(String, Route.Filter)}.
-   *
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
-  public @Nonnull Route.Definition use(@Nonnull final Route.Filter filter) {
-    return use("*", filter);
-  }
-
-  /**
-   * Append a new route handler that matches any method and path. This method is a shorthand for
-   * {@link #use(String, Route.Handler)}.
-   *
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
-  public @Nonnull Route.Definition use(@Nonnull final Route.Handler handler) {
-    return use("*", handler);
-  }
-
-  /**
    * Append a new filter that matches any method under the given path.
    *
    * @param path A path pattern.
@@ -553,6 +527,32 @@ public class Jooby {
   public @Nonnull Route.Definition use(final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
     return handler(new Route.Definition("*", path, filter));
+  }
+
+  /**
+   * Append a new filter that matches any method under the given path.
+   *
+   * @param verb A HTTP verb.
+   * @param path A path pattern.
+   * @param filter A filter to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition use(final @Nonnull String verb, final @Nonnull String path,
+      final @Nonnull Route.Filter filter) {
+    return handler(new Route.Definition(verb, path, filter));
+  }
+
+  /**
+   * Append a new route handler that matches any method under the given path.
+   *
+   * @param verb A HTTP verb.
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition use(final @Nonnull String verb, final @Nonnull String path,
+      final @Nonnull Route.Handler handler) {
+    return handler(new Route.Definition(verb, path, handler));
   }
 
   /**
@@ -1304,7 +1304,7 @@ public class Jooby {
   }
 
   /**
-   * Register a Jooby module.
+   * Register a application module.
    *
    * @param module The module to register.
    * @return This jooby instance.
@@ -1313,6 +1313,19 @@ public class Jooby {
   public @Nonnull Jooby use(final @Nonnull Jooby.Module module) {
     requireNonNull(module, "A module is required.");
     modules.add(module);
+    bag.add(module);
+    return this;
+  }
+
+  /**
+   * Register a request module.
+   *
+   * @param module The module to register.
+   * @return This jooby instance.
+   * @see Request.Module
+   */
+  public @Nonnull Jooby use(final @Nonnull Request.Module module) {
+    requireNonNull(module, "A module is required.");
     bag.add(module);
     return this;
   }
@@ -1363,7 +1376,7 @@ public class Jooby {
   public @Nonnull WebSocket.Definition ws(final @Nonnull String path,
       final @Nonnull WebSocket.Handler handler) {
     WebSocket.Definition ws = new WebSocket.Definition(path, handler);
-    bag.add(ws);
+    checkArgument(bag.add(ws), "Path is in use: '%s'", path);
     return ws;
   }
 
@@ -1425,15 +1438,17 @@ public class Jooby {
                 () -> ConfigFactory.parseResources("application.conf")
             )
         );
-
     Mode mode = mode(config.getString("application.mode").toLowerCase());
+
+    // logback
+    logback(config);
 
     // shutdown hook
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       try {
         stop();
       } catch (Exception ex) {
-        log.error("Shutdown with error", ex);
+        LoggerFactory.getLogger(getClass()).error("Shutdown with error", ex);
       }
     }));
 
@@ -1505,13 +1520,13 @@ public class Jooby {
 
         // bind prototype routes in request module
         requestModule.addBinding().toInstance(
-            rm -> protoRoutes.forEach(routeClass -> rm.bind(routeClass)));
+            b -> protoRoutes.forEach(routeClass -> b.bind(routeClass)));
 
         // tmp dir
         binder.bind(File.class).annotatedWith(Names.named("java.io.tmpdir"))
             .toInstance(new File(config.getString("java.io.tmpdir")));
         binder.bind(File.class).annotatedWith(Names.named("tmpdir"))
-        .toInstance(new File(config.getString("java.io.tmpdir")));
+            .toInstance(new File(config.getString("java.io.tmpdir")));
 
         // converters
         parsers.forEach(it -> parserBinder.addBinding().toInstance(it));
@@ -1521,6 +1536,8 @@ public class Jooby {
         bag.forEach(candidate -> {
           if (candidate instanceof Jooby.Module) {
             install((Jooby.Module) candidate, mode, config, binder);
+          } else if (candidate instanceof Request.Module) {
+            requestModule.addBinding().toInstance((Request.Module) candidate);
           } else if (candidate instanceof Route.Definition) {
             definitions.addBinding().toInstance((Route.Definition) candidate);
           } else if (candidate instanceof WebSocket.Definition) {
@@ -1535,11 +1552,11 @@ public class Jooby {
         // Singleton routes
         singletonRoutes.forEach(routeClass -> binder.bind(routeClass).in(Scopes.SINGLETON));
 
-        formatterBinder.addBinding().toInstance(FallbackBodyConverter.fromReader);
-        formatterBinder.addBinding().toInstance(FallbackBodyConverter.fromStream);
-        formatterBinder.addBinding().toInstance(FallbackBodyConverter.fromToString);
+        formatterBinder.addBinding().toInstance(FallbackBodyConverter.formatReader);
+        formatterBinder.addBinding().toInstance(FallbackBodyConverter.formatStream);
+        formatterBinder.addBinding().toInstance(FallbackBodyConverter.formatString);
 
-        parserBinder.addBinding().toInstance(FallbackBodyConverter.readText);
+        parserBinder.addBinding().toInstance(FallbackBodyConverter.parseString);
 
         // err
         if (err == null) {
@@ -1571,7 +1588,8 @@ public class Jooby {
       try {
         module.stop();
       } catch (Exception ex) {
-        log.warn("Module didn't stop normally: " + module.getClass().getName(), ex);
+        LoggerFactory.getLogger(getClass()).warn(
+            "Module didn't stop normally: " + module.getClass().getName(), ex);
       }
     }
 
@@ -1581,7 +1599,7 @@ public class Jooby {
         server.stop();
       }
     } catch (Exception ex) {
-      log.error("Web server didn't stop normally", ex);
+      LoggerFactory.getLogger(getClass()).error("Web server didn't stop normally", ex);
     }
   }
 
@@ -1614,6 +1632,17 @@ public class Jooby {
         .get()
         .getString("application.mode");
 
+    String secret = Arrays
+        .asList(system, source, jooby)
+        .stream()
+        .filter(it -> it.hasPath("application.secret"))
+        .findFirst()
+        .orElseGet(() ->
+            ConfigFactory.empty()
+                .withValue("application.secret", ConfigValueFactory.fromAnyRef(""))
+        )
+        .getString("application.secret");
+
     Config modeConfig = modeConfig(source, mode);
 
     // application.[mode].conf -> application.conf
@@ -1622,7 +1651,7 @@ public class Jooby {
     return system
         .withFallback(config)
         .withFallback(moduleStack)
-        .withFallback(defaultConfig(config, mode))
+        .withFallback(defaultConfig(config, mode, secret))
         .withFallback(mime)
         .withFallback(jooby)
         .resolve();
@@ -1631,9 +1660,10 @@ public class Jooby {
   /**
    * Build a mode config: <code>[application].[mode].[conf]</code>.
    * Stack looks like
+   *
    * <pre>
-   *   ([file://origin].[mode].[conf])?
-   *   ([/origin].[mode].[conf])?
+   *   (file://[origin].[mode].[conf])?
+   *   (cp://[origin].[mode].[conf])?
    *   file://application.[mode].[conf]
    *   /application.[mode].[conf]
    * </pre>
@@ -1655,6 +1685,7 @@ public class Jooby {
     String appConfig = "application." + mode + ".conf";
     return result
         .withFallback(fileConfig(appConfig))
+        .withFallback(fileConfig("application.conf"))
         .withFallback(ConfigFactory.parseResources(appConfig));
   }
 
@@ -1674,19 +1705,15 @@ public class Jooby {
    *
    * @param config A source config.
    * @param mode Application mode.
+   * @param secret Application secret.
    * @return default properties.
    */
-  private Config defaultConfig(final Config config, final String mode) {
+  private Config defaultConfig(final Config config, final String mode, final String secret) {
     Map<String, Object> defaults = new LinkedHashMap<>();
 
     // set app name
     if (!config.hasPath("application.name")) {
       defaults.put("name", getClass().getSimpleName());
-    }
-
-    // set default charset, if app config didn't set it
-    if (!config.hasPath("application.charset")) {
-      defaults.put("charset", Charset.defaultCharset().name());
     }
 
     // locale
@@ -1696,12 +1723,6 @@ public class Jooby {
       defaults.put("lang", locale.getLanguage() + "_" + locale.getCountry());
     } else {
       locale = Locale.forLanguageTag(config.getString("application.lang").replace("_", "-"));
-    }
-
-    // date format
-    if (!config.hasPath("application.dateFormat")) {
-      String pattern = new SimpleDateFormat(new SimpleDateFormat().toPattern(), locale).toPattern();
-      defaults.put("dateFormat", pattern);
     }
 
     // time zone
@@ -1716,7 +1737,7 @@ public class Jooby {
     }
 
     // last check app secret
-    if (!config.hasPath("application.secret")) {
+    if (secret.length() == 0) {
       if ("dev".equalsIgnoreCase(mode)) {
         // it will survive between restarts and allow to have different apps running for
         // development.
@@ -1799,4 +1820,9 @@ public class Jooby {
       }
     };
   }
+
+  private static void logback(final Config config) {
+    System.setProperty("logback.configurationFile", config.getString("logback.configurationFile"));
+  }
+
 }

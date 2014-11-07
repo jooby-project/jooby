@@ -41,6 +41,7 @@ import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.component.AbstractLifeCycle.AbstractLifeCycleListener;
 import org.eclipse.jetty.util.component.LifeCycle;
+import org.eclipse.jetty.util.log.Slf4jLog;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
@@ -75,6 +76,7 @@ public class JettyServerBuilder {
     // jetty URL charset
     System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset",
         config.getString("application.charset"));
+    System.setProperty("org.mortbay.log.class", Slf4jLog.class.getName());
 
     Server server = new Server();
     // stop is done from Jooby
@@ -249,11 +251,11 @@ public class JettyServerBuilder {
           }
 
           String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax + "s     %"
-              + producesMax + "s    (%s)\n";
+              + producesMax + "s\n";
 
           for (WebSocket.Definition socketDef : sockets) {
             buffer.append(String.format(format, "WS", socketDef.pattern(),
-                socketDef.consumes(), socketDef.produces(), socketDef.name()));
+                socketDef.consumes(), socketDef.produces()));
           }
         }
         log.info("\nRoutes:\n{}", buffer);

@@ -80,12 +80,11 @@ public class WebSocketImpl implements WebSocket {
   private SuspendToken suspendToken;
 
   public WebSocketImpl(final Handler handler, final String path,
-      final String pattern, final String name, final Map<String, String> vars,
+      final String pattern, final Map<String, String> vars,
       final MediaType consumes, final MediaType produces) {
     this.handler = handler;
     this.path = path;
     this.pattern = pattern;
-    this.name = name;
     this.vars = vars;
     this.consumes = consumes;
     this.produces = produces;

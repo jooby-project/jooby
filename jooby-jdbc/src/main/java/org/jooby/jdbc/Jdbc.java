@@ -45,7 +45,7 @@ import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-public class Jdbc extends Jooby.Module {
+public class Jdbc implements Jooby.Module {
 
   public static final String DEFAULT_DB = "db";
 

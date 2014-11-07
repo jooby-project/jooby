@@ -51,7 +51,7 @@ import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class Hbs extends Jooby.Module implements HelperRegistry {
+public class Hbs implements HelperRegistry, Jooby.Module {
 
   private static class Engine implements View.Engine {
 

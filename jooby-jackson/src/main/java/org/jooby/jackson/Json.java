@@ -45,7 +45,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 
-public class Json extends Jooby.Module {
+public class Json implements Jooby.Module {
 
   static class Configurer {
 

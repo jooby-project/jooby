@@ -117,7 +117,7 @@ public class Hbm extends Jdbc {
     routes.addBinding()
         .toInstance(new Route.Definition("*", "*", readWriteTrx(emKey)).name("hbm"));
 
-    Multibinder.newSetBinder(binder, Request.Module.class).addBinding().toInstance((b) -> {
+    Multibinder.newSetBinder(binder, Request.Module.class).addBinding().toInstance(b -> {
       log.debug("creating entity manager");
       EntityManager em = emf.createEntityManager();
       b.bind(emKey).toInstance(em);
