@@ -6,7 +6,7 @@ title: quickstart
 quickstart
 =====
 
-Just paste this into a terminal:
+Just paste this into a terminal (make sure Java 8 and Maven 3.x are installed):
 
     mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app
     -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype
