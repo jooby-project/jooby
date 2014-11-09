@@ -1,5 +1,6 @@
 ---
 layout: index
+title: quickstart
 ---
 
 quickstart
@@ -7,9 +8,9 @@ quickstart
 
 Just paste this into a terminal:
 
-    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT \
-    -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby \
-    -DarchetypeVersion=0.1.0-SNAPSHOT
+    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app
+    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype
+    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.1.0-SNAPSHOT
 
 You might want to edit/change:
 
@@ -22,9 +23,9 @@ You might want to edit/change:
 
 Let's try it!:
 
-    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT \
-    -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby \
-    -DarchetypeVersion=0.1.0-SNAPSHOT
+    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app
+    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype
+    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.1.0-SNAPSHOT
     cd my-app
     mvn jooby:run
 
@@ -128,3 +129,4 @@ The maven plugin will compile the code (if necessary) and startup the applicatio
 
 Of course, you can generate the IDE metadata from Maven and/or import as a Maven project on your favorite IDE.
 Then all you have to do is run the: ```App.java``` class. After all, this is plain Java with a ```main``` method.
+

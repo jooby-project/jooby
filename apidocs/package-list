@@ -5,3 +5,4 @@ org.jooby.hbs
 org.jooby.jackson
 org.jooby.jdbc
 org.jooby.mvc
+org.jooby.test
