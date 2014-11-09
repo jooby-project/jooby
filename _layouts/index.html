@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>jooby by jooby-project</title>
+    <title>{{site.title}}: {{page.title}}</title>
 
-    <link rel="stylesheet" href="{{site.path}}/stylesheets/styles.css">
-    <link rel="stylesheet" href="{{site.path}}/stylesheets/pygment_trac.css">
-    <script src="{{site.path}}/javascripts/scale.fix.js"></script>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/pygment_trac.css">
+    <script src="/javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -15,15 +15,7 @@
   </head>
   <body>
     <div class="wrapper">
-      <header style="display: none">
-        <h1 class="header">jooby</h1>
-        <p class="header">An Express inspired web framework for Java 8 (or higher).</p>
-
-        <ul>
-          <li><a class="buttons github" href="https://github.com/jooby-project/jooby">View On GitHub</a></li>
-        </ul>
-
-      </header>
+      {% include header.html %}
       <section>
        {{content}}
       </section>
@@ -32,6 +24,6 @@
       </footer>
     </div>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
+    
   </body>
 </html>

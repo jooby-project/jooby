@@ -1,2 +1,5 @@
 markdown: redcarpet
-path: http://jooby.org
+redcarpet:
+    extensions: [with_toc_data]
+title: jooby
+desc: A micro-web framework for Java 8

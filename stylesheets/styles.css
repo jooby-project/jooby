@@ -215,8 +215,10 @@ td {
 header {
 	background-color: #171717;
 	color: #FDFDFB;
-  width:170px;
-  float:left;
+  width:100%;
+  top: 0;
+  left: 0;
+  right: 0;
   position:fixed;
 	border: 1px solid #000;
 	-webkit-border-top-right-radius: 4px;
@@ -225,8 +227,8 @@ header {
 	-moz-border-radius-bottomright: 4px;
 	border-top-right-radius: 4px;
 	border-bottom-right-radius: 4px;
-	padding: 34px 25px 22px 50px;
-	margin: 30px 25px 0 0;
+	padding: 0;
+	margin: 0;
 	-webkit-font-smoothing: antialiased;
 }
 
@@ -258,33 +260,37 @@ a.name {
 
 header ul {
   list-style:none;
-  padding:0;
+  padding: 5px;
+  margin: 0 auto;
+  width: 650px;
 }
 
 header li {
 	list-style-type: none;
-  width:132px;
   height:15px;
-	margin-bottom: 12px;
-	line-height: 1em;
-	padding: 6px 6px 6px 7px;
+  display: inline-block;
+  line-height: 1em;
+  padding: 6px 6px 6px 7px;
 
-	background: #AF0011;
-	background: -moz-linear-gradient(top, #AF0011 0%, #820011 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#dddddd));
-  background: -webkit-linear-gradient(top, #AF0011 0%,#820011 100%);
-  background: -o-linear-gradient(top, #AF0011 0%,#820011 100%);
-  background: -ms-linear-gradient(top, #AF0011 0%,#820011 100%);
-  background: linear-gradient(top, #AF0011 0%,#820011 100%);
+	background: none;
 
 	border-radius:4px;
-  border:1px solid #0D0D0D;
+  border: 1px solid #0D0D0D;
 
 	-webkit-box-shadow: inset 0px 1px 1px 0 rgba(233,2,38, 1);
 	box-shadow: inset 0px 1px 1px 0 rgba(233,2,38, 1);
 
 }
 
+header li a {
+  font-weight: bold;
+}
+
+header li a:hover {
+  text-decoration: none;
+}
+
+header li.selected,
 header li:hover {
 	background: #C3001D;
 	background: -moz-linear-gradient(top, #C3001D 0%, #950119 100%);
@@ -365,11 +371,6 @@ footer {
     display:inline;
   }
 
-  header ul {
-    position:absolute;
-    right:130px;
-    top:84px;
-  }
 }
 
 @media print, screen and (max-width: 720px) {
