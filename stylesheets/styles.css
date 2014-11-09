@@ -221,12 +221,6 @@ header {
   right: 0;
   position:fixed;
 	border: 1px solid #000;
-	-webkit-border-top-right-radius: 4px;
-	-webkit-border-bottom-right-radius: 4px;
-	-moz-border-radius-topright: 4px;
-	-moz-border-radius-bottomright: 4px;
-	border-top-right-radius: 4px;
-	border-bottom-right-radius: 4px;
 	padding: 0;
 	margin: 0;
 	-webkit-font-smoothing: antialiased;
