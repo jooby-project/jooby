@@ -8,12 +8,13 @@ help and support
 
 source code
 -----
+Fork the project on [Github](https://github.com/jooby-project/jooby).
 [view on github](https://github.com/jooby-project/jooby)
 
 discuss, ask questions
 -----
-[google group](https://groups.google.com/forum/#!forum/jooby-project)
+* Share your ideas or ask questions on the [jooby group](https://github.com/jooby-project/jooby/issues) - don't hesitate to write a reply - that helps us improve javadocs/FAQ.
 
 issues
 -----
-[bugs and features](https://github.com/jooby-project/jooby/issues)
+Report bugs and features or fix them at [Github](https://github.com/jooby-project/jooby/issues)
