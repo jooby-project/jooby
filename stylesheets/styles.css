@@ -52,6 +52,7 @@ h1, h2, h3 {
 	font-weight: normal;
 }
 
+
 h1,h2, h3 {
 	display: block;
 	border-bottom: 1px solid #ccc;
@@ -73,6 +74,26 @@ h3 {
 h4, h5, h6 {
 	font-family: Arvo, Monaco, serif;
 	font-weight: 700;
+}
+
+.home h1 {
+  padding-top: 10px;
+  border: none;
+}
+
+.infinite {
+  font-weight: lighter;
+  text-align: center;
+  vertical-align: sub;
+  font-size: 50px;
+}
+
+
+.home .desc {
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  font-style: italic;
+  border: none;
+  font-size: 14px;
 }
 
 a {

@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>j&infin;by: {{page.title}}</title>
+
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/pygment_trac.css">
+    <script src="/javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body class="home">
+    <div class="wrapper">
+      {% include header.html %}
+      <section>
+        <h1>j<msup class="infinite">&infin;</msup>by</h1>
+        <p class="desc">A minimalist web framework for Java 8, inspired by <a href="http://expressjs.com">express.js</a> and others ;)</p>
+        <h2>key features</h2>
+        <ul>
+          <li>easy to use</li>
+          <li>fast and modular</li>
+          <li>highly flexible and configurable</li>
+          <li>NIO web server powered by <a href="https://www.eclipse.org/jetty">jetty</a></li>
+          <li>dependency injection powered by <a href="https://github.com/google/guice">guice</a></li>
+          <li>config files powered by <a href="https://github.com/typesafehub/config">type safe config</a></li>
+          <li>logging powered by <a href="http://logback.qos.ch">logback</a></li>
+        </ul>
+       {{content}}
+      </section>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
