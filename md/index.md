@@ -1,14 +1,10 @@
 ---
-layout: index
+layout: home
 title: home
 ---
 
-# jooby
-
-A micro-web framework for Java 8.
 
 ```java
-
 import org.jooby.Jooby;
 
 public class App extends Jooby {
@@ -26,3 +22,4 @@ public class App extends Jooby {
 
 ```
 
+{{quickstart.md}}

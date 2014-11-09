@@ -64,6 +64,11 @@
       <param name="inputmd" value="README.md" />
     </antcall>
 
+    <!-- / -->
+    <antcall target="md.processor">
+      <param name="inputmd" value="index.md" />
+    </antcall>
+
     <!-- /quickstart -->
     <antcall target="md.processor">
       <param name="inputmd" value="quickstart/index.md" />
@@ -82,6 +87,11 @@
     <!-- /modules -->
     <antcall target="md.processor">
       <param name="inputmd" value="modules/index.md" />
+    </antcall>
+
+    <!-- /help -->
+    <antcall target="md.processor">
+      <param name="inputmd" value="help/index.md" />
     </antcall>
   </target>
 

@@ -3,7 +3,7 @@
 jooby
 =====
 
-A micro-web framework for Java 8.
+A minimalist web framework for Java 8, inspired by express.js and others ;)
 
 ```java
 
@@ -31,93 +31,10 @@ Jooby uses [semantic versioning](http://semver.org/) for releases.
 
 API is considered unstable while release version is: ```0.x.x``` and it might changes and/or broke without previous notification.
 
-requirements
-=====
-
-* Java 8
-* Maven 3.x
-
-- [overview](#overview)
-  - [technology stack](#technology-stack)
-    - [http nio server](#http-nio server)
-    - [dependency injection](#dependency-injection)
-    - [config files](#config-files)
-    - [logging](#logging)
-    - [maven 3.x](#maven-3.x)
-  - [modules](#modules)
-  - [config files](#config-files)
-  - [routes](#routes)
-  - [web sockets](#web-sockets)
-- [modules](#modules)
-  - [app module](#app-module)
-  - [request module](#request-module)
-    - [scope](#scope)
-- [config files](#config-files)
-  - [application.conf](#application.conf)
-  - [injecting properties](#injecting-properties)
-  - [special properties](#special-properties)
-    - [application.mode](#application.mode)
-    - [application.secret](#application.secret)
-    - [default properties](#default-properties)
-  - [precedence](#precedence)
-    - [system properties](#system-properties)
-    - [file://application.mode.conf](#file://application.mode.conf)
-    - [cp://application.mode.conf](#cp://application.mode.conf)
-    - [application.conf](#application.conf)
-    - [modules in reverse.conf](#modules-in reverse.conf)
-- [logging](#logging)
-  - [bootstrap](#bootstrap)
-- [routes](#routes)
-  - [defining routes](#defining-routes)
-  - [path patterns](#path-patterns)
-    - [static patterns](#static-patterns)
-    - [var/regex patterns](#var/regex-patterns)
-    - [ant style patterns](#ant-style patterns)
-  - [order](#order)
-  - [request handling](#request-handling)
-  - [request](#request)
-    - [request params](#request-params)
-      - [param types and precedence](#param-types and precedence)
-      - [param type conversion](#param-type conversion)
-    - [request headers](#request-headers)
-    - [request body](#request-body)
-    - [guice access](#guice-access)
-  - [response](#response)
-    - [sending data](#sending-data)
-    - [response headers](#response-headers)
-    - [locals](#locals)
-- [working with data](#working-with data)
-  - [body.parser](#body.parser)
-    - [consumes](#consumes)
-  - [body.formatter](#body.formatter)
-    - [produces](#produces)
-  - [view engine](#view-engine)
-  - [response.format](#response.format)
-- [web sockets](#web-sockets)
-  - [guice access](#guice-access)
-  - [consumes](#consumes)
-  - [produces](#produces)
-- [mvc routes](#mvc-routes)
-- [available modules](#available-modules)
-  - [body parser & formatter](#body-parser & formatter)
-    - [jackson json](#jackson-json)
-  - [view engine](#view-engine)
-    - [handlebars](#handlebars)
-  - [persistence](#persistence)
-    - [jdbc](#jdbc)
-    - [hibernate](#hibernate)
-- [faq](#faq)
-- [want to contribute?](#want-to contribute?)
-- [help and support](#help-and support)
-- [related projects](#related-projects)
-- [author](#author)
-- [license](#license)
-
-
 quickstart
 =====
 
-Just paste this into a terminal:
+Just paste this into a terminal (make sure Java 8 and Maven 3.x are installed):
 
     mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app
     -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype
@@ -240,6 +157,81 @@ The maven plugin will compile the code (if necessary) and startup the applicatio
 
 Of course, you can generate the IDE metadata from Maven and/or import as a Maven project on your favorite IDE.
 Then all you have to do is run the: ```App.java``` class. After all, this is plain Java with a ```main``` method.
+
+
+table of content
+=====
+
+- [overview](#overview)
+  - [technology stack](#technology-stack)
+    - [http nio server](#http-nio-server)
+    - [dependency injection](#dependency-injection)
+    - [config files](#config-files)
+    - [logging](#logging)
+    - [maven 3.x](#maven-3.x)
+  - [modules](#modules)
+  - [config files](#config-files)
+  - [routes](#routes)
+  - [web sockets](#web-sockets)
+- [modules](#modules)
+  - [app module](#app-module)
+  - [request module](#request-module)
+    - [scope](#scope)
+- [config files](#config-files)
+  - [application.conf](#application.conf)
+  - [injecting properties](#injecting-properties)
+  - [special properties](#special-properties)
+    - [application.mode](#application.mode)
+    - [application.secret](#application.secret)
+    - [default properties](#default-properties)
+  - [precedence](#precedence)
+    - [system properties](#system-properties)
+    - [file://application.mode.conf](#file://application.mode.conf)
+    - [cp://application.mode.conf](#cp://application.mode.conf)
+    - [application.conf](#application.conf)
+    - [modules in reverse.conf](#modules-in-reverse.conf)
+- [logging](#logging)
+  - [bootstrap](#bootstrap)
+- [routes](#routes)
+  - [defining routes](#defining-routes)
+  - [path patterns](#path-patterns)
+    - [static patterns](#static-patterns)
+    - [var/regex patterns](#var/regex-patterns)
+    - [ant style patterns](#ant-style-patterns)
+  - [order](#order)
+  - [request handling](#request-handling)
+  - [request](#request)
+    - [request params](#request-params)
+      - [param types and precedence](#param-types-and-precedence)
+      - [param type conversion](#param-type-conversion)
+    - [request headers](#request-headers)
+    - [request body](#request-body)
+    - [guice access](#guice-access)
+  - [response](#response)
+    - [sending data](#sending-data)
+    - [response headers](#response-headers)
+    - [locals](#locals)
+- [working with data](#working-with-data)
+  - [body.parser](#body.parser)
+    - [consumes](#consumes)
+  - [body.formatter](#body.formatter)
+    - [produces](#produces)
+  - [view engine](#view-engine)
+  - [response.format](#response.format)
+- [web sockets](#web-sockets)
+  - [guice access](#guice-access)
+  - [consumes](#consumes)
+  - [produces](#produces)
+- [mvc routes](#mvc-routes)
+- [available modules](#available-modules)
+  - [body parser & formatter](#body-parser-&-formatter)
+    - [jackson json](#jackson-json)
+  - [view engine](#view-engine)
+    - [handlebars](#handlebars)
+  - [persistence](#persistence)
+    - [jdbc](#jdbc)
+    - [hibernate](#hibernate)
+- [faq](#faq)
 
 
 # overview
@@ -1398,34 +1390,41 @@ TODO
 TODO
 
 
-# want to contribute?
+want to contribute?
+=====
 
 * Fork the project on Github.
 * Wondering what to work on? See task/bug list and pick up something you would like to work on.
 * Write unit tests.
 * Create an issue or fix one from [issues](https://github.com/jooby-project/jooby/issues).
 * If you know the answer to a question posted to our [group](https://groups.google.com/forum/#!forum/jooby-project) - don't hesitate to write a reply.
-* Share your ideas or ask questions on [group](https://github.com/jooby-project/jooby/issues) - don't hesitate to write a reply - that helps us improve javadocs/FAQ.
+* Share your ideas or ask questions on the [jooby group](https://github.com/jooby-project/jooby/issues) - don't hesitate to write a reply - that helps us improve javadocs/FAQ.
 * If you miss a particular feature - browse or ask on the [group](https://groups.google.com/forum/#!forum/jooby-project) - don't hesitate to write a reply, show us some sample code and describe the problem.
 * Write a blog post about how you use or extend [jooby][http://jooby.org].
 * Please suggest changes to javadoc/exception messages when you find something unclear.
 * If you have problems with documentation, find it non intuitive or hard to follow - let us know about it, we'll try to make it better according to your suggestions. Any constructive critique is greatly appreciated. Don't forget that this is an open source project developed and documented in spare time.
 
-# help and support
+help and support
+=====
 
 * [jooby.org](http://jooby.org)
 * [google group](https://groups.google.com/forum/#!forum/jooby-project)
 * [issues](https://github.com/jooby-project/jooby/issues)
 
-# related projects
+related projects
+=====
 
  * [Jetty](https://www.eclipse.org/jetty/)
  * [Guice](https://github.com/google/guice)
  * [Type Safe](https://github.com/typesafehub/config)
  * [Logback](http://logback.qos.ch)
 
-# author
+author
+=====
+
  [Edgar Espina] (https://twitter.com/edgarespina)
 
-# license
+license
+=====
+
 [Apache License 2](http://www.apache.org/licenses/LICENSE-2.0.html)

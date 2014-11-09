@@ -35,7 +35,7 @@ var toc = function (file) {
     if (c > 0) {
       // clean up md links
       var item = line.replaceAll("#|\\[|\\]|\\(.+\\)", "").trim();
-      toc.append(indent(c)).append("- [").append(item).append("](#").append(item.replace(" ", "-")).append(")\n");
+      toc.append(indent(c)).append("- [").append(item).append("](#").append(item.replaceAll("\\s+", "-")).append(")\n");
     }
     content.append(line).append("\n");
   }
