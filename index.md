@@ -27,9 +27,9 @@ quickstart
 
 Just paste this into a terminal (make sure Java 8 and Maven 3.x are installed):
 
-    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app
-    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype
-    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.1.0-SNAPSHOT
+    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app \
+    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype \
+    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.1.0
 
 You might want to edit/change:
 
@@ -42,9 +42,9 @@ You might want to edit/change:
 
 Let's try it!:
 
-    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app
-    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype
-    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.1.0-SNAPSHOT
+    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app \
+    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype \
+    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.1.0
     cd my-app
     mvn jooby:run
 
