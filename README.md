@@ -164,15 +164,6 @@ table of content
 
 - [overview](#overview)
   - [technology stack](#technology-stack)
-    - [http nio server](#http-nio-server)
-    - [dependency injection](#dependency-injection)
-    - [config files](#config-files)
-    - [logging](#logging)
-    - [maven 3.x](#maven-3.x)
-  - [modules](#modules)
-  - [config files](#config-files)
-  - [routes](#routes)
-  - [web sockets](#web-sockets)
 - [modules](#modules)
   - [app module](#app-module)
   - [request module](#request-module)
@@ -223,6 +214,12 @@ table of content
   - [consumes](#consumes)
   - [produces](#produces)
 - [mvc routes](#mvc-routes)
+  - [registering a mvc route](#registering-a-mvc-route)
+  - [binding req params](#binding-req-params)
+  - [binding req body](#binding-req-body)
+  - [binding req headers](#binding-req-headers)
+  - [mvc response](#mvc-response)
+    - [customizing the response](#customizing-the-response)
 - [available modules](#available-modules)
   - [body parser & formatter](#body-parser-&-formatter)
     - [jackson json](#jackson-json)
@@ -244,40 +241,48 @@ API is short and easy to learn, around 30 classes for the core project. Java doc
 
 ## technology stack
 
-### http nio server
+http nio server
+-----
 
 Jooby believes in [Jetty 9.x](https://www.eclipse.org/jetty) for NIO HTTP. Since version 9.x Jetty use a NIO connector for HTTP.
 
 If you want to learn more about NIO in Jetty 9.x [go here](http://stackoverflow.com/questions/25195128/how-do-jetty-and-other-containers-leverage-nio-while-sticking-to-the-servlet-spe)
 
-### dependency injection
+dependency injection
+-----
 
 Jooby believes in [Guice 4.x](https://github.com/google/guice) for dependency injection.
 
-### config files
+config files
+-----
 
 Jooby believes in [Type Safe Config](https://github.com/typesafehub/config) for config files.
 
-### logging
+logging
+-----
 
 Jooby believes in [logback](http://logback.qos.ch/) for logging.
 
-### maven 3.x
+maven 3.x
+-----
 
 Jooby believes in [maven 3.x](http://maven.apache.org/) for building/running/packaging and distributing Java project.
 
-## modules
+modules
+-----
 
 Reusable software is provided from a [module](http://jooby.org/apidocs/org/jooby/Jooby.Module.html) and/or
-[request module](http://jooby.org/apidocs/org/jooby/Request.Module.html). A module in Jooby play the same role as in Guice, but API is different.
+[request module](http://jooby.org/apidocs/org/jooby/Request.Module.html). A module in Jooby plays the same role as in Guice, but API is different.
 
-## config files
+config files
+-----
 
 Supports files in three formats: ```.properties```, ```*.json```, ```*.conf``` (and a human-friendly JSON superset). It merges multiple files across all formats, can load from files, URLs, or classpath.
 
 Users can override the config with Java system properties, java ```-Dmyapp.foo.bar=10```
 
-## routes
+routes
+-----
 
 A [route](http://jooby.org/apidocs/org/jooby/Route.html) looks like:
 
@@ -297,7 +302,8 @@ or
   }
 ```
 
-## web sockets
+web sockets
+-----
 
 A web socket looks like:
 
@@ -1366,7 +1372,220 @@ This is just an utility method for formatting Java Objects as text message. Prod
 
 # mvc routes
 
-TODO
+Mvc routes are like **controllers** in [Spring](http://spring.io) and/or **resources** in [Jersey](https://jersey.java.net/) with some minor enchanment and/or simplifications.
+
+```java
+@Path("/routes")
+public class MyRoutes {
+
+  @GET
+  public View home() {
+    return View.of("home", model);
+  }
+}
+```
+
+Annotations are identical to [Jersey/JAX-RS](https://jersey.java.net/) and they can be found under the package **org.jooby.mvc**.
+
+Keep in mind, Jooby doesn't implement the **JAX-RS** spec that is why it has his own version of  the annotations.
+
+A mvc route can be provided by Guice:
+
+```java
+@Path("/routes")
+public class MyRoutes {
+
+  @Inject
+  public MyRoutes(DepA a, DepB) {
+   ...
+  }
+
+  @GET
+  public View home() {
+    return View.of("home", model);
+  }
+}
+```
+
+A method annotated with [GET](http://jooby.org/apidocs/org/jooby/mvc/GET.html), [POST](http://jooby.org/apidocs/org/jooby/mvc/GET.html),... (or any of the rest of the verbs) is considered a route handler (web method).
+
+## registering a mvc route
+
+Mvc routes must be registered, there is no auto-discover feature (and it won't be), classpath scanning, ..., etc.
+
+We learnt that the order that you defines your route have a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly declared. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
+
+So, how do I register a mvc route? Easy: in the same way everything else is registered in Jooby... from your app class:
+
+```
+public class App extends Jooby {
+  {
+     use(MyRoutes.class);
+  }
+}
+``` 
+
+Again, handlers are registered in the order they are declared, so:
+
+```java
+@Path("/routes")
+public class MyRoutes {
+  
+  @GET
+  public void first() {
+     log.info("first");
+  }
+
+  @GET
+  public void second() {
+     log.info("second");
+  }
+
+  @GET
+  public String third() {
+     return "third";
+  }
+}
+```
+
+A call to ```/routes``` will print: **first**, **second** and produces a response of **third**.
+
+
+## binding req params
+
+A mvc handler can be bound to current request parameters:
+
+```java
+   @GET
+   public List<Object> search(String q) {
+    return searcher.doSearch(q);
+   }
+```
+
+Here **q** can be any of the available param types and it will resolved as described in the [param types and precedence](#param-types-and-precedence) section.
+
+Optional params work in the same way, all you have to do is to declare the param as *java.util.Optional*:
+
+```java
+   @GET
+   public List<Object> search(Optional<String> q) {
+    return searcher.doSearch(q.orElse("*:*"));
+   }
+```
+
+Multi-value params work in the same way, all you have to do is to declare the param as *java.util.List*, *java.util.Set* or *java.util.SortedSet*:
+
+```java
+   @GET
+   public List<Object> search(List<String> q) {
+    return searcher.doSearch(q);
+   }
+```
+
+Just remember the injected collection is immutable.
+
+File uploads (again) work in the same way, just use *org.jooby.Upload*
+
+```java
+   @POST
+   public View search(Upload file) {
+    ... do something with the uploaded file
+   }
+```
+
+As you might already noticed, Jooby uses the method param name and binded it to the request param. If you want explicit mapping and/or the req param isn't a valid Java identifier:
+
+```java
+   @GET
+   public List<Object> search(@Named("req-param") String reqParam) {
+    ...
+   }
+```
+
+## binding req body
+
+Injecting a req body work in the same way:
+
+```java
+  @POST
+  public View search(MyObject object) {
+  ... do something with the uploaded file
+  }
+```
+
+Details on how the request body got parsed has been described in previous section(s). See here for example: [req.body()](#request-body)
+
+## binding req headers
+
+Works just like [req params](#binding-req-params) but you must annotated the param with *org.jooby.mvc.Header*:
+
+```java
+   @GET
+   public List<Object> search(@Header String myHeader) {
+    ...
+   }
+```
+
+Or, if the header name isn't a valid Java identifier
+
+```java
+   @GET
+   public List<Object> search(@Header("Last-Modified-Since") long lastModifedSince) {
+    ...
+   }
+```
+
+## mvc response
+
+A web method might or might not send a response to the client. Some examples:
+
+```java
+
+@GET
+public String sayHi(String name) {
+  // OK(200)
+  return "Hi " + name;
+}
+
+@GET
+public void dontSayGoodbye(String name) {
+  // NO_CONTENT(204)
+}
+
+```
+
+If you need/want to render a view, just return a *org.jooby.View* instance:
+
+```java
+@GET
+public View home() {
+  return View.of("home", model);
+}
+```
+
+or use *org.jooby.mvc.Viewable*
+
+```java
+@GET
+@Viewable("home")
+public Object home() {
+  return model;
+}
+```
+
+Last example if useful if you have want to create let's said a **text/html** (viewable) and **application/json** (data) responses.
+
+### customizing the response
+
+If you need to deal or handle status code, headers, etc... use [org.jooby.Body](http://jooby.org/apidocs/org/jooby/Body.html)
+
+```java
+@GET
+public Body handler() {
+  return Body.body(model).status(200);
+}
+```
+
 
 
 # available modules

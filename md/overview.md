@@ -8,40 +8,48 @@ API is short and easy to learn, around 30 classes for the core project. Java doc
 
 ## technology stack
 
-### http nio server
+http nio server
+-----
 
 Jooby believes in [Jetty 9.x](https://www.eclipse.org/jetty) for NIO HTTP. Since version 9.x Jetty use a NIO connector for HTTP.
 
 If you want to learn more about NIO in Jetty 9.x [go here](http://stackoverflow.com/questions/25195128/how-do-jetty-and-other-containers-leverage-nio-while-sticking-to-the-servlet-spe)
 
-### dependency injection
+dependency injection
+-----
 
 Jooby believes in [Guice 4.x](https://github.com/google/guice) for dependency injection.
 
-### config files
+config files
+-----
 
 Jooby believes in [Type Safe Config](https://github.com/typesafehub/config) for config files.
 
-### logging
+logging
+-----
 
 Jooby believes in [logback](http://logback.qos.ch/) for logging.
 
-### maven 3.x
+maven 3.x
+-----
 
 Jooby believes in [maven 3.x](http://maven.apache.org/) for building/running/packaging and distributing Java project.
 
-## modules
+modules
+-----
 
 Reusable software is provided from a [module](http://jooby.org/apidocs/org/jooby/Jooby.Module.html) and/or
-[request module](http://jooby.org/apidocs/org/jooby/Request.Module.html). A module in Jooby play the same role as in Guice, but API is different.
+[request module](http://jooby.org/apidocs/org/jooby/Request.Module.html). A module in Jooby plays the same role as in Guice, but API is different.
 
-## config files
+config files
+-----
 
 Supports files in three formats: ```.properties```, ```*.json```, ```*.conf``` (and a human-friendly JSON superset). It merges multiple files across all formats, can load from files, URLs, or classpath.
 
 Users can override the config with Java system properties, java ```-Dmyapp.foo.bar=10```
 
-## routes
+routes
+-----
 
 A [route](http://jooby.org/apidocs/org/jooby/Route.html) looks like:
 
@@ -61,7 +69,8 @@ or
   }
 ```
 
-## web sockets
+web sockets
+-----
 
 A web socket looks like:
 

@@ -55,6 +55,8 @@ import org.jooby.internal.routes.OptionsRouter;
 import org.jooby.internal.routes.TraceRouter;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.core.joran.spi.JoranException;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
@@ -1712,9 +1714,10 @@ public class Jooby {
     Map<String, Object> defaults = new LinkedHashMap<>();
 
     // set app name
-    if (!config.hasPath("application.name")) {
-      defaults.put("name", getClass().getSimpleName());
-    }
+    defaults.put("name", getClass().getSimpleName());
+
+    // namespacce
+    defaults.put("ns", getClass().getPackage().getName());
 
     // locale
     final Locale locale;
@@ -1821,8 +1824,9 @@ public class Jooby {
     };
   }
 
-  private static void logback(final Config config) {
-    System.setProperty("logback.configurationFile", config.getString("logback.configurationFile"));
+  private static void logback(final Config config) throws JoranException {
+    String confFile = config.getString("logback.configurationFile");
+    System.setProperty("logback.configurationFile", confFile);
   }
 
 }

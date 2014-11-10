@@ -788,7 +788,7 @@
               </execution>
             </executions>
             <configuration>
-              <excludePackageNames>org.jooby.internal</excludePackageNames>
+              <excludePackageNames>org.jooby.internal:org.jooby.test</excludePackageNames>
               <aggregate>true</aggregate>
             </configuration>
           </plugin>

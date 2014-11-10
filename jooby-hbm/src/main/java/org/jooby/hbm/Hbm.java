@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
@@ -66,14 +65,11 @@ import com.typesafe.config.ConfigFactory;
 
 public class Hbm extends Jdbc {
 
-  /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(getClass());
-
   private final List<Class<?>> classes = new LinkedList<>();
 
   private boolean scan = false;
 
-  private HibernateEntityManagerFactory emf;
+  private EntityManagerFactory emf;
 
   public Hbm(final String name, final Class<?>... classes) {
     super(name);
@@ -98,6 +94,8 @@ public class Hbm extends Jdbc {
   @Override
   public void configure(final Mode mode, final Config config, final Binder binder)
       throws Exception {
+    Logger log = LoggerFactory.getLogger(getClass());
+
     super.configure(mode, config, binder);
 
     EntityManagerFactoryBuilder builder = Bootstrap
@@ -115,7 +113,7 @@ public class Hbm extends Jdbc {
     Multibinder<Route.Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
 
     routes.addBinding()
-        .toInstance(new Route.Definition("*", "*", readWriteTrx(emKey)).name("hbm"));
+        .toInstance(new Route.Definition("*", "*", readWriteTrx(emKey, log)).name("hbm"));
 
     Multibinder.newSetBinder(binder, Request.Module.class).addBinding().toInstance(b -> {
       log.debug("creating entity manager");
@@ -127,7 +125,7 @@ public class Hbm extends Jdbc {
     this.emf = emf;
   }
 
-  private Route.Filter readWriteTrx(final Key<EntityManager> key) {
+  private Route.Filter readWriteTrx(final Key<EntityManager> key, final Logger log) {
     return (req, resp, chain) -> {
       EntityManager em = req.getInstance(key);
       Session session = (Session) em.getDelegate();
@@ -286,8 +284,8 @@ public class Hbm extends Jdbc {
       @Override
       public URL getPersistenceUnitRootUrl() {
         if (scan) {
-          ClassLoader loader = getClassLoader();
-          return Optional.ofNullable(loader.getResource("")).orElse(loader.getResource("/"));
+          String ns = config.getString("application.ns");
+          return ClassLoader.getSystemResource(ns);
         } else {
           return null;
         }
