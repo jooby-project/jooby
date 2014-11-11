@@ -17,7 +17,7 @@
     <div class="wrapper">
       {% include header.html %}
       <section>
-        <h1>j<msup class="infinite">&infin;</msup>by</h1>
+        <h1>j<msup class="infinite">&infin;</msup>by <a title="Get maven coordinates" class="version"></a></h1>
         <p class="desc">A minimalist web framework for Java 8, inspired by <a href="http://expressjs.com">express.js</a> and others ;)</p>
         <h2>key features</h2>
         <ul>
@@ -32,6 +32,24 @@
        {{content}}
        <h2>what is next?</h2>
        <p>Check out the <a href="/doc">documentation</a> to get more details on Jooby features.</p>
+       <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+       <script type="text/javascript">
+         $(function () {
+          var setversion = function (version) {
+            var $version = $('.version');
+            $version.attr('href', 'http://search.maven.org/#artifactdetails|org.jooby|jooby|' + version + '|');
+            $version.html('v' + version);
+          };
+          $.ajax({
+            url: 'md.json',
+            dataType: 'json'
+          }).done(function (md) {
+            setversion(md.version);
+          }).fail(function () {
+            setversion('unknown');
+          });
+        });
+       </script>
       </section>
     </div>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
