@@ -1,6 +1,7 @@
 ---
 layout: index
 title: modules
+version: 0.1.0
 ---
 
 # available modules

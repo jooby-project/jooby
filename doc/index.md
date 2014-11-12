@@ -1,6 +1,7 @@
 ---
 layout: index
 title: doc
+version: 0.1.0
 ---
 
 documentation
@@ -517,7 +518,7 @@ get("/user/:id", (req, rsp) -> rsp.send("hey " + req.param("id").stringValue()))
 get("/user/{id}", (req, rsp) -> rsp.send("hey " + req.param("id").stringValue()));
 
 // regex
-get("/user/{id:\\d+}", (req, rsp) -> rsp.send("hey " + req.param("id").intValue()));
+get("/user/{id:\d+}", (req, rsp) -> rsp.send("hey " + req.param("id").intValue()));
 ```
 
 [request params](#request params) are covered later, for now all you need to know is that you can access to a path parameter using the [Request.param(String)]({{apidocs}}/org/jooby/Request.param(java.lang.String)).

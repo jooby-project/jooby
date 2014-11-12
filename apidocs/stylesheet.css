@@ -3,23 +3,26 @@
 Overall document style
 */
 
-@import url(https://fonts.googleapis.com/css?family=Arvo:400,700,400italic);
+@import url('resources/fonts/dejavu.css');
 
 body {
-    color:#000;
-    background-color: #FBFAF7;
-    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color:#ffffff;
+    color:#353833;
+    font-family:'DejaVu Sans', Arial, Helvetica, sans-serif;
     font-size:14px;
     margin:0;
 }
 a:link, a:visited {
     text-decoration:none;
+    color:#4A6782;
 }
 a:hover, a:focus {
     text-decoration:none;
+    color:#bb7a2a;
 }
 a:active {
     text-decoration:none;
+    color:#4A6782;
 }
 a[name] {
     color:#353833;
@@ -29,64 +32,45 @@ a[name]:hover {
     color:#353833;
 }
 pre {
-    font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+    font-family:'DejaVu Sans Mono', monospace;
     font-size:14px;
 }
-h1, h2, h3 {
-    font-family: Arvo, Monaco, serif;
-  line-height:1.3;
-    font-weight: normal;
-}
-h1, h2, h3, h4, h5, h6 {
-  color:#232323;
-  margin:36px 0 10px;
-}
-h1,h2, h3 {
-    display: block;
-    padding-bottom: 5px;
-}
-
 h1 {
-    font-family: Arvo, sans-serif;
-    font-size: 30px;
+    font-size:20px;
 }
-
 h2 {
-    font-size: 24px;
+    font-size:18px;
 }
-
 h3 {
-    font-size: 18px;
+    font-size:16px;
+    font-style:italic;
 }
-
-h4, h5, h6 {
-    font-family: Arvo, Monaco, serif;
-    font-weight: 700;
+h4 {
+    font-size:13px;
 }
-
-a {
-  color:#C30000;
-  font-weight:200;
-  text-decoration:none;
+h5 {
+    font-size:12px;
+}
+h6 {
+    font-size:11px;
 }
 ul {
     list-style-type:disc;
 }
 code, tt {
-    font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
-  color:#000;
+    font-family:'DejaVu Sans Mono', monospace;
     font-size:14px;
     padding-top:4px;
     margin-top:8px;
     line-height:1.4em;
 }
 dt code {
-    font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+    font-family:'DejaVu Sans Mono', monospace;
     font-size:14px;
     padding-top:4px;
 }
 table tr td dt code {
-    font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+    font-family:'DejaVu Sans Mono', monospace;
     font-size:14px;
     vertical-align:top;
     padding-top:4px;
@@ -130,7 +114,7 @@ Document title and Copyright styles
 Navigation bar styles
 */
 .bar {
-    background-color:#000;
+    background-color:#4D7A97;
     color:#FFFFFF;
     padding:.8em .5em .4em .8em;
     height:auto;/*height:1.8em;*/
@@ -138,7 +122,7 @@ Navigation bar styles
     margin:0;
 }
 .topNav {
-    background-color:#000;
+    background-color:#4D7A97;
     color:#FFFFFF;
     float:left;
     padding:0;
@@ -151,8 +135,8 @@ Navigation bar styles
 }
 .bottomNav {
     margin-top:10px;
-    background-color:#000;
-    color:#FFF;
+    background-color:#4D7A97;
+    color:#FFFFFF;
     float:left;
     padding:0;
     width:100%;
@@ -163,8 +147,7 @@ Navigation bar styles
     font-size:12px;
 }
 .subNav {
-    color:#FFF;
-    background-color:#000;
+    background-color:#dee3e9;
     float:left;
     width:100%;
     overflow:hidden;
@@ -180,59 +163,31 @@ ul.navList, ul.subNavList {
     float:left;
     margin:0 25px 0 0;
     padding:0;
-    color:#FFF;
 }
-ul.subNavList li,
-ul.navList li {
-    float: left;
-    height:15px;
+ul.navList li{
     list-style:none;
+    float:left;
+    padding: 5px 6px;
     text-transform:uppercase;
 }
-
-.topNav a:link, .topNav a:active, .topNav a:visited, .bottomNav a:link, .bottomNav a:active, .bottomNav a:visited,
-.navList a:link, .navList a:active, .navList a:visited{
+ul.subNavList li{
+    list-style:none;
+    float:left;
+}
+.topNav a:link, .topNav a:active, .topNav a:visited, .bottomNav a:link, .bottomNav a:active, .bottomNav a:visited {
     color:#FFFFFF;
     text-decoration:none;
     text-transform:uppercase;
 }
 .topNav a:hover, .bottomNav a:hover {
-    background: #C3001D;
-    background: -moz-linear-gradient(top, #C3001D 0%, #950119 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#dddddd));
-  background: -webkit-linear-gradient(top, #C3001D 0%,#950119 100%);
-  background: -o-linear-gradient(top, #C3001D 0%,#950119 100%);
-  background: -ms-linear-gradient(top, #C3001D 0%,#950119 100%);
-  background: linear-gradient(top, #C3001D 0%,#950119 100%);
+    text-decoration:none;
+    color:#bb7a2a;
+    text-transform:uppercase;
 }
-
-ul.subNav li,
-ul.navList li {
-  list-style-type: none;
-  height:15px;
-  display: inline-block;
-  line-height: 1em;
-  padding: 6px 6px 6px 7px;
-
-    background: none;
-
-    border-radius:4px;
-  border: 1px solid #0D0D0D;
-
-    -webkit-box-shadow: inset 0px 1px 1px 0 rgba(233,2,38, 1);
-    box-shadow: inset 0px 1px 1px 0 rgba(233,2,38, 1);
-}
-
-ul li.navBarCell1Rev,
-ul.subNav li:hover,
-ul.navList li:hover {
-  background: #C3001D;
-  background: -moz-linear-gradient(top, #C3001D 0%, #950119 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#dddddd));
-  background: -webkit-linear-gradient(top, #C3001D 0%,#950119 100%);
-  background: -o-linear-gradient(top, #C3001D 0%,#950119 100%);
-  background: -ms-linear-gradient(top, #C3001D 0%,#950119 100%);
-  background: linear-gradient(top, #C3001D 0%,#950119 100%);
+.navBarCell1Rev {
+    background-color:#F8981D;
+    color:#253441;
+    margin: auto 5px;
 }
 .skipNav {
     position:absolute;
@@ -280,8 +235,8 @@ Page header and footer styles
 Heading styles
 */
 div.details ul.blockList ul.blockList ul.blockList li.blockList h4, div.details ul.blockList ul.blockList ul.blockListLast li.blockList h4 {
-    background-color:#000;
-    color: #fff;
+    background-color:#dee3e9;
+    border:1px solid #d0d9e0;
     margin:0 0 6px -8px;
     padding:7px 5px;
 }
@@ -332,7 +287,7 @@ Page layout container styles
 .contentContainer .description dl dd, .contentContainer .details dl dd, .serializedFormContainer dl dd {
     margin:5px 0 10px 0px;
     font-size:14px;
-    font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+    font-family:'DejaVu Sans Mono',monospace;
 }
 .serializedFormContainer dl.nameValue dt {
     margin-left:1px;
@@ -434,11 +389,20 @@ Table styles
 .useSummary caption a:active, .constantsSummary caption a:active, .deprecatedSummary caption a:active,
 .overviewSummary caption a:visited, .memberSummary caption a:visited, .typeSummary caption a:visited,
 .useSummary caption a:visited, .constantsSummary caption a:visited, .deprecatedSummary caption a:visited {
-    color:#000;
+    color:#FFFFFF;
 }
 .overviewSummary caption span, .memberSummary caption span, .typeSummary caption span,
 .useSummary caption span, .constantsSummary caption span, .deprecatedSummary caption span {
-  display: none;
+    white-space:nowrap;
+    padding-top:5px;
+    padding-left:12px;
+    padding-right:12px;
+    padding-bottom:7px;
+    display:inline-block;
+    float:left;
+    background-color:#F8981D;
+    border: none;
+    height:16px;
 }
 .memberSummary caption span.activeTableTab span {
     white-space:nowrap;
@@ -448,7 +412,7 @@ Table styles
     margin-right:3px;
     display:inline-block;
     float:left;
-    background-color:#FFF;
+    background-color:#F8981D;
     height:16px;
 }
 .memberSummary caption span.tableTab span {
@@ -459,7 +423,7 @@ Table styles
     margin-right:3px;
     display:inline-block;
     float:left;
-    background-color:#FFF;
+    background-color:#4D7A97;
     height:16px;
 }
 .memberSummary caption span.tableTab, .memberSummary caption span.activeTableTab {
@@ -509,7 +473,7 @@ td.colOne, td.colFirst, td.colLast, .useSummary td, .constantsSummary td{
     padding-bottom:3px;
 }
 th.colFirst, th.colLast, th.colOne, .constantsSummary th {
-    background:#000;
+    background:#dee3e9;
     text-align:left;
     padding:8px 3px 3px 7px;
 }
@@ -563,7 +527,7 @@ ul.blockList ul.blockList ul.blockList li.blockList h3 {
 
 div.block {
     font-size:14px;
-    font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+    font-family:'DejaVu Serif', Georgia, "Times New Roman", Times, serif;
 }
 
 td.colLast div {
