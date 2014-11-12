@@ -1,35 +1,30 @@
 (function ($) {
   var version = 'unknown';
 
+  ZeroClipboard.config( { swfPath: "http://jooby.org/javascripts/ZeroClipboard.swf" } );
+
+  /**
+   * Find the first .highlight element and prepend a toolbar with a copy to clipboard button.
+   */
   var copyToClipboard = function () {
-    var $button = $('<button class="copy-btn">copy</button>');
-    $('#dependency').append($button);
-    var copy_sel = $('.copy-btn');
+    var $button = $('<span class="copy-button" title="copy to clipboard">copy</span>');
+    var $div = $('<div class="copy-bar"></div>')
+    $('.highlight').first().prepend($div.append($button));
 
-    // Disables other default handlers on click (avoid issues)
-    copy_sel.on('click', function(e) {
-        e.preventDefault();
-    });
+    var client = new ZeroClipboard($button);
 
-    // Apply clipboard click event
-    copy_sel.clipboard({
-        path: 'http://jooby.org/javascripts/jquery.clipboard.swf',
+    client.on( 'ready', function(event) {
 
-        copy: function() {
-            var $el = $(this);
+      client.on( 'copy', function(event) {
+        event.clipboardData.setData('text/plain', $button.parent().parent().find('pre code').text());
+      });
 
-            // Hide "Copy" and show "Copied, copy again?" message in link
-            $el.find('.code-copy-first').hide();
-            $el.find('.code-copy-done').show();
-
-            // Return text in closest element (useful when you have multiple boxes that can be copied)
-            return $el.closest('.highlight pre code').text();
-        }
     });
   };
 
+  /** Find all the .version element and set the latest released version of jooby. */
   var setversion = function (version) {
-    $('.version').each(function () {
+    $('a.version').each(function () {
       var $version = $(this);
 
       $version.attr('href', 'http://search.maven.org/#artifactdetails|org.jooby|jooby|' + version + '|');
@@ -37,6 +32,7 @@
     });
   };
 
+  /** Find links and rewrite them to local version of doc (not github path). */
   var links = function () {
     $('a').each(function () {
       var $a = $(this),
