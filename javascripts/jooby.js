@@ -1,6 +1,33 @@
 (function ($) {
   var version = 'unknown';
 
+  var copyToClipboard = function () {
+    var $button = $('<button class="copy-btn">copy</button>');
+    $('#dependency').append($button);
+    var copy_sel = $('.copy-btn');
+
+    // Disables other default handlers on click (avoid issues)
+    copy_sel.on('click', function(e) {
+        e.preventDefault();
+    });
+
+    // Apply clipboard click event
+    copy_sel.clipboard({
+        path: 'http://jooby.org/javascripts/jquery.clipboard.swf',
+
+        copy: function() {
+            var $el = $(this);
+
+            // Hide "Copy" and show "Copied, copy again?" message in link
+            $el.find('.code-copy-first').hide();
+            $el.find('.code-copy-done').show();
+
+            // Return text in closest element (useful when you have multiple boxes that can be copied)
+            return $el.closest('.highlight pre code').text();
+        }
+    });
+  };
+
   var setversion = function (version) {
     $('.version').each(function () {
       var $version = $(this);
@@ -36,6 +63,8 @@
       setversion(version);
       // sync links
       links();
+      // clipboard
+      copyToClipboard();
     });
   });
 
