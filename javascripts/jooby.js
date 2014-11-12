@@ -1,5 +1,4 @@
 (function ($) {
-  var version = 'unknown';
 
   ZeroClipboard.config( { swfPath: "http://jooby.org/javascripts/ZeroClipboard.swf" } );
 
@@ -22,15 +21,6 @@
     });
   };
 
-  /** Find all the .version element and set the latest released version of jooby. */
-  var setversion = function (version) {
-    $('a.version').each(function () {
-      var $version = $(this);
-
-      $version.attr('href', 'http://search.maven.org/#artifactdetails|org.jooby|jooby|' + version + '|');
-      $version.html('v' + version);
-    });
-  };
 
   /** Find links and rewrite them to local version of doc (not github path). */
   var links = function () {
@@ -46,22 +36,16 @@
     });
   };
 
-  $.ajax({
-    url: '/md.json',
-    dataType: 'json'
-  }).done(function (md) {
-    version = md.version;
-  }).always(function () {
-    /**
-     * DOM ready!
-     */
-    $(function () {
-      setversion(version);
-      // sync links
-      links();
-      // clipboard
-      copyToClipboard();
-    });
+
+  /**
+   * DOM ready!
+   */
+  $(function () {
+    // sync links
+    links();
+    // clipboard
+    copyToClipboard();
   });
+
 
 })(jQuery);

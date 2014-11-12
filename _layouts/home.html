@@ -17,7 +17,7 @@
     <div class="wrapper">
       {% include header.html %}
       <section>
-        <h1>j<msup class="infinite">&infin;</msup>by <a title="Get maven coordinates" class="version"></a></h1>
+        <h1>j<msup class="infinite">&infin;</msup>by <a href="http://search.maven.org/#artifactdetails|org.jooby|jooby|{{page.version}}|" title="Get maven coordinates" class="version">v{{page.version}}</a></h1>
         <p class="desc">A minimalist web framework for Java 8, inspired by <a href="http://expressjs.com">express.js</a> and others ;)</p>
         <h2>key features</h2>
         <ul>
@@ -30,8 +30,7 @@
           <li>logging powered by <a href="http://logback.qos.ch">logback</a></li>
         </ul>
        {{content}}
-       <h2>what is next?</h2>
-       <p>Check out the <a href="/doc">documentation</a> to get more details on Jooby features.</p>
+       <p>Check out the <a href="/quickstart">quickstart guide</a> and learn how to get starting.</p>
       </section>
     </div>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
