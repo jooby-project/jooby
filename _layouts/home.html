@@ -32,26 +32,10 @@
        {{content}}
        <h2>what is next?</h2>
        <p>Check out the <a href="/doc">documentation</a> to get more details on Jooby features.</p>
-       <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-       <script type="text/javascript">
-         $(function () {
-          var setversion = function (version) {
-            var $version = $('.version');
-            $version.attr('href', 'http://search.maven.org/#artifactdetails|org.jooby|jooby|' + version + '|');
-            $version.html('v' + version);
-          };
-          $.ajax({
-            url: 'md.json',
-            dataType: 'json'
-          }).done(function (md) {
-            setversion(md.version);
-          }).fail(function () {
-            setversion('unknown');
-          });
-        });
-       </script>
       </section>
     </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="/javascripts/jooby.js"></script>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     
   </body>
