@@ -6,7 +6,7 @@ version: 0.1.0
 
 # jooby-jdbc
 
-This module provides you a database connection using a data source. The data source is powered by the excellent: [HikariCP](https://github.com/brettwooldridge/HikariCP) library.
+Give you a production like data source ready to use, powered by the [HikariCP](https://github.com/brettwooldridge/HikariCP) library.
 
 ## dependency
 
@@ -102,7 +102,7 @@ Example bellows show you how to connect to **mysql**, setting user and password.
 ## hikari configuration
 If you need to configure or tweak the [hikari pool](https://github.com/brettwooldridge/HikariCP) just add ```hikari.*``` entries to your ```application.conf``` file:
 
-```conf
+```
 db.url = jdbc:mysql://localhost/mydb
 db.user=myuser
 db.password=password
@@ -131,7 +131,7 @@ Let's suppose we have a main database and an audit database for tracking changes
 
 application.conf
 
-```conf
+```
 # main database
 db.url = ...
 db.user=...
@@ -147,7 +147,7 @@ If you specified a name to the *Jdbc* module, then a setup for ```"db." + name``
 
 Same principle applies if you need to tweak [hikari](https://github.com/brettwooldridge/HikariCP): 
 
-```conf
+```
 # max pool size for main db
 hikari.maximumPoolSize = 100
 
