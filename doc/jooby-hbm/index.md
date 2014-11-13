@@ -1,27 +1,27 @@
 ---
 layout: index
-title: jooby-jackson
+title: jooby-hbm
 version: 0.1.0
 ---
 
-# jooby-jackson
+# jooby-hbm
 
 ## dependency
 
 ```xml
 <dependency>
   <groupId>org.jooby</groupId>
-  <artifactId>jooby-jackson</artifactId>
+  <artifactId>jackson-hbm</artifactId>
   <version>0.1.0</version>
 </dependency>
 ```
 ## usage
 
 ```java
-import org.jooby.jackson.Json;
+import org.jooby.hbm.;
 
 {
-  use(new Json());
+  use(new Hbm());
  
   // sending
   get("/my-api", (req, rsp) -> rsp.send(new MyObject())); 
