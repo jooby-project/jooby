@@ -830,7 +830,7 @@
   <properties>
     <!-- Dependencies -->
     <jackson.version>2.4.3</jackson.version>
-    <jetty.version>9.2.3.v20140905</jetty.version>
+    <jetty.version>9.2.5.v20141112</jetty.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
     <logback-classic.version>1.1.2</logback-classic.version>
@@ -840,7 +840,7 @@
     <handlebars.version>1.3.2</handlebars.version>
     <h2.version>1.4.182</h2.version>
     <mysql-connector-java.version>5.1.33</mysql-connector-java.version>
-    <hikariCP.version>2.1.0</hikariCP.version>
+    <hikariCP.version>2.2.4</hikariCP.version>
     <hibernate.version>4.3.6.Final</hibernate.version>
     <jsr305.version>3.0.0</jsr305.version>
     <http-client.version>4.4-beta1</http-client.version>
@@ -850,7 +850,7 @@
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
     <easymock.version>3.2</easymock.version>
-    <powermock.version>1.5.4</powermock.version>
+    <powermock.version>1.5.6</powermock.version>
 
     <!-- Maven properties -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

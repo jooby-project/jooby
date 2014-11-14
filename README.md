@@ -37,8 +37,8 @@ quickstart
 
 Just paste this into a terminal (make sure Java 8 and Maven 3.x are installed):
 
-    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app \
-    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype \
+    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app 
+    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype 
     -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.1.0
 
 You might want to edit/change:
@@ -52,8 +52,8 @@ You might want to edit/change:
 
 Let's try it!:
 
-    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app \
-    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype \
+    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app 
+    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype 
     -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.1.0
     cd my-app
     mvn jooby:run
@@ -683,7 +683,7 @@ get("/user/:id", (req, rsp) -> rsp.send("hey " + req.param("id").stringValue()))
 get("/user/{id}", (req, rsp) -> rsp.send("hey " + req.param("id").stringValue()));
 
 // regex
-get("/user/{id:\\d+}", (req, rsp) -> rsp.send("hey " + req.param("id").intValue()));
+get("/user/{id:\d+}", (req, rsp) -> rsp.send("hey " + req.param("id").intValue()));
 ```
 
 [request params](#request params) are covered later, for now all you need to know is that you can access to a path parameter using the [Request.param(String)]({{apidocs}}/org/jooby/Request.param(java.lang.String)).

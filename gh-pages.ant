@@ -22,7 +22,7 @@
       <arg value="." />
     </exec>
 
-    <antcall target="md.generator" />
+    <antcall target="md.processor" />
 
     <delete dir="${workdir}/apidocs" failonerror="false" />
 
@@ -31,12 +31,6 @@
     <copy todir="${workdir}/apidocs" overwrite="true">
       <fileset dir="target/site/apidocs" />
     </copy>
-
-    <!-- move README.md -->
-    <move file="${workdir}/README.md" tofile="README.md" overwrite="true" />
-
-    <!-- Override javadoc stylesheet -->
-    <copy file="${workdir}/stylesheets/apidoc.css" tofile="${workdir}/apidocs/stylesheet.css" overwrite="true" />
 
     <!-- -->
     <exec executable="git" dir="${workdir}">
@@ -58,132 +52,8 @@
 
   </target>
 
-  <target name="md.generator">
-    <!-- / -->
-    <antcall target="md.processor">
-      <param name="inputmd" value="README.md" />
-    </antcall>
-
-    <!-- / -->
-    <antcall target="md.processor">
-      <param name="inputmd" value="index.md" />
-    </antcall>
-
-    <!-- /quickstart -->
-    <antcall target="md.processor">
-      <param name="inputmd" value="quickstart/index.md" />
-    </antcall>
-
-    <!-- /doc -->
-    <antcall target="md.processor">
-      <param name="inputmd" value="doc/index.md" />
-    </antcall>
-
-    <!-- /faq -->
-    <antcall target="md.processor">
-      <param name="inputmd" value="faq/index.md" />
-    </antcall>
-
-    <!-- /modules -->
-    <antcall target="md.processor">
-      <param name="inputmd" value="modules/index.md" />
-    </antcall>
-
-    <!-- /help -->
-    <antcall target="md.processor">
-      <param name="inputmd" value="help/index.md" />
-    </antcall>
-  </target>
-
-  <!--
-    Replace expressions like {{file.md}} from an input file. The expression: {{file.md}} is replaced
-    by the content of the file.md, so file.md must exists.
-
-    A table of content (toc) is generated too using the content of the generated file.
-
-    @param inputmd The file to process
-  -->
   <target name="md.processor">
-
-    <antcall target="md.merger">
-      <param name="inputmd" value="${inputmd}" />
-    </antcall>
-
-    <script language="javascript" src="md/toc.js" />
+    <script language="javascript" src="md/processor.js">
+    </script>
   </target>
-
-  <!--
-     Replace expressions like {{file.md}} from an input file. The expression: {{file.md}} is replaced
-     by the content of the file.md, so file.md must exists.
-
-     @param inputmd The file to process
-    -->
-  <target name="md.merger">
-    <macrodef name="iterate">
-      <attribute name="list" />
-      <element name="call" implicit="yes" />
-      <sequential>
-        <local name="md" />
-        <local name="md.value" />
-        <local name="tail" />
-        <local name="hasMoreElements" />
-
-        <!-- unless to not get a error on empty lists -->
-        <loadresource property="md" unless:blank="@{list}">
-          <concat>@{list}</concat>
-          <filterchain>
-            <replaceregex pattern="([^;]*).*" replace="\1" />
-          </filterchain>
-        </loadresource>
-
-        <loadfile property="md.value" srcfile="target/md/${md}" />
-
-        <!-- recursion -->
-        <condition property="hasMoreElements">
-          <contains string="@{list}" substring=";" />
-        </condition>
-
-        <loadresource property="tail" if:true="${hasMoreElements}">
-          <concat>@{list}</concat>
-          <filterchain>
-            <replaceregex pattern="[^;]*;(.*)" replace="\1" />
-          </filterchain>
-        </loadresource>
-
-        <call />
-
-        <sequential if:true="${hasMoreElements}">
-          <iterate list="${tail}">
-            <call />
-          </iterate>
-        </sequential>
-      </sequential>
-    </macrodef>
-
-    <copy todir="target/md">
-      <fileset dir="md">
-        <include name="**/*.md" />
-      </fileset>
-    </copy>
-
-    <fileset id="docfiles" dir="target/md">
-      <include name="*.md" />
-    </fileset>
-
-    <pathconvert property="docfiles" refid="docfiles" pathsep=";">
-      <mapper>
-        <flattenmapper />
-      </mapper>
-    </pathconvert>
-
-    <property name="finmd" value="target/gh-pages/${inputmd}" />
-    <copy file="target/md/${inputmd}" tofile="${finmd}" overwrite="true" />
-
-    <echo message="processing: ${finmd}" />
-    <iterate list="${docfiles}">
-      <echo message="  replacing: {{${md}}}" />
-      <replace file="${finmd}" token="{{${md}}}" value="${md.value}" />
-    </iterate>
-  </target>
-
 </project>

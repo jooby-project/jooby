@@ -1,3 +1,4 @@
+* Remove exception from Module.configure
 * Implement a default HTTP response with etags and last-modified-since
 * Model contributions for views
 * Document Public API & GitHub Page

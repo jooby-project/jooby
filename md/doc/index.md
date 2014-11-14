@@ -1,6 +1,7 @@
 ---
 layout: index
 title: doc
+version: {{version}}
 ---
 
 documentation

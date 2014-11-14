@@ -28,19 +28,6 @@
       <artifactId>HikariCP</artifactId>
     </dependency>
 
-    <!-- H2 database -->
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-    </dependency>
-
-    <!-- mySQL -->
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <optional>true</optional>
-    </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>ch.qos.logback</groupId>

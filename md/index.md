@@ -1,6 +1,7 @@
 ---
 layout: home
 title: home
+version: {{version}}
 ---
 
 
@@ -21,5 +22,3 @@ public class App extends Jooby {
 }
 
 ```
-
-{{quickstart.md}}

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
@@ -120,8 +121,9 @@ public class Json implements Jooby.Module {
     return this;
   }
 
-  public ObjectMapper mapper() {
-    return mapper;
+  public Json configure(final Consumer<ObjectMapper> configurer) {
+    requireNonNull(configurer, "A configurer is required.").accept(mapper);
+    return this;
   }
 
   @Override

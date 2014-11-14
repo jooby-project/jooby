@@ -21,79 +21,36 @@ package org.jooby.jdbc;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
-import java.io.File;
+import java.util.Arrays;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.jooby.Jooby;
 import org.jooby.Mode;
-import org.jooby.fn.Switch;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
-import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 
 public class Jdbc implements Jooby.Module {
 
   public static final String DEFAULT_DB = "db";
 
-  private abstract static class DataSourceHolder implements Provider<DataSource> {
-    private DataSource dataSource;
-
-    private String name;
-
-    public DataSourceHolder(final String name) {
-      this.name = name;
-    }
-
-    public DataSource getOrCreate() throws Exception {
-      if (dataSource == null) {
-        dataSource = doGet();
-      }
-      return dataSource;
-    }
-
-    @Override
-    public DataSource get() {
-      try {
-        return getOrCreate();
-      } catch (RuntimeException ex) {
-        throw ex;
-      } catch (Exception ex) {
-        throw new IllegalStateException("Unable to get " + DataSource.class.getName(), ex);
-      }
-    }
-
-    protected abstract DataSource doGet() throws Exception;
-
-    public void shutdown() throws Exception {
-      if (dataSource instanceof HikariDataSource) {
-        ((HikariDataSource) dataSource).shutdown();
-        dataSource = null;
-      }
-    }
-
-    @Override
-    public final String toString() {
-      return name;
-    }
-  }
-
   private final String dbName;
 
-  private DataSourceHolder ds;
+  private HikariDataSourceProvider ds;
+
+  private Optional<String> dbtype;
 
   public Jdbc(final String name) {
     checkArgument(name != null && name.length() > 0, "A database name is required.");
@@ -107,16 +64,20 @@ public class Jdbc implements Jooby.Module {
   @Override
   public void configure(final Mode mode, final Config config, final Binder binder)
       throws Exception {
-    this.ds = newDataSource(mode, dbName, dbConfig(dbName, config));
+    this.ds = newDataSource(dbName, dbConfig(dbName, config));
 
     binder.bind(dataSourceKey(DataSource.class))
-        .toProvider(ds)
-        .in(Scopes.SINGLETON);
+        .toProvider(ds);
   }
 
   @Override
   public Config config() {
     return ConfigFactory.parseResources(Jdbc.class, "jdbc.conf");
+  }
+
+  @Override
+  public void start() throws Exception {
+    ds.start();
   }
 
   @Override
@@ -128,36 +89,30 @@ public class Jdbc implements Jooby.Module {
   }
 
   private Config dbConfig(final String key, final Config source) throws Exception {
-    String db = source.getAnyRef(key).toString();
+    Object db = source.getAnyRef(key);
 
-    Function<String, Config> h2 = (url) -> ConfigFactory.empty()
-        .withValue("db.url", ConfigValueFactory.fromAnyRef(url))
-        .withValue("db.type", ConfigValueFactory.fromAnyRef("h2"))
-        .withValue("db.user", ConfigValueFactory.fromAnyRef("sa"))
-        .withValue("db.password", ConfigValueFactory.fromAnyRef(""))
-        .withFallback(source);
-
-    return Switch.<Config> newSwitch(db)
-        .when("mem", () -> {
-          String url = "jdbc:h2:mem:db;DB_CLOSE_DELAY=-1";
-          return h2.apply(url);
-        })
-        .when("fs",
-            () -> {
-              final String dbName = DEFAULT_DB.equals(key) ? source.getString("application.name")
-                  : key;
-              String url = "jdbc:h2:"
-                  + new File(source.getString("jooby.io.tmpdir"), dbName).getAbsolutePath();
-              return h2.apply(url);
-            })
-        .value().orElse(source);
+    if (db instanceof String) {
+      String embeddeddb = "databases." + db;
+      if (db.toString().indexOf(':') == -1 && source.hasPath(embeddeddb)) {
+        Config dbtree = source.getConfig(embeddeddb);
+        // write embedded with current key
+        return ConfigFactory.empty()
+            .withValue(key, dbtree.root())
+            .withFallback(source);
+      } else {
+        // assume it is a just the url
+        return ConfigFactory.empty()
+            .withValue(key + ".url", ConfigValueFactory.fromAnyRef(db.toString()))
+            .withFallback(source);
+      }
+    } else {
+      return source;
+    }
   }
 
-  private DataSourceHolder newDataSource(final Mode mode, final String key, final Config config)
+  private HikariDataSourceProvider newDataSource(final String key, final Config config)
       throws Exception {
     Properties props = new Properties();
-
-    Config $hikari = config.getConfig("hikari").withoutPath("profiles");
 
     BiConsumer<String, Entry<String, ConfigValue>> dumper = (prefix, entry) -> {
       String propertyName = prefix + entry.getKey();
@@ -169,23 +124,28 @@ public class Jdbc implements Jooby.Module {
       }
     };
 
-    /**
-     * Dump hikari properties.
-     */
-    $hikari.entrySet().forEach(entry -> dumper.accept("", entry));
+    String hikaryKey = "hikari" + (DEFAULT_DB.equals(key) ? "" : key.replace(DEFAULT_DB, ""));
+    Config $hikari = config.hasPath(hikaryKey) ? config.getConfig(hikaryKey) : ConfigFactory
+        .empty();
+
+    // figure it out db type.
+    dbtype = dbtype(key, config);
 
     /**
-     * Dump dataSource.* properties
+     * dump properties from less to higher precedence
+     *
+     * # databases.[type]
+     * # db.* -> dataSource.*
+     * # hikari.* -> * (no prefix)
      */
-    Config $db = config.getConfig(key);
-    $db.withoutPath("type").entrySet().forEach(entry -> dumper.accept("dataSource.", entry));
-    // append profile!
-    if ($db.hasPath("type")) {
-      config.getConfig("hikari.profiles." + $db.getString("type"))
-          .entrySet().forEach(entry -> dumper.accept("dataSource.", entry));
-    }
+    dbtype.ifPresent(type ->
+        config.getConfig("databases." + type)
+            .entrySet().forEach(entry -> dumper.accept("dataSource.", entry))
+        );
 
-    mode.ifMode("dev", () -> props.setProperty("maximumPoolSize", "1"));
+    config.getConfig(key).entrySet().forEach(entry -> dumper.accept("dataSource.", entry));
+
+    $hikari.entrySet().stream().forEach(entry -> dumper.accept("", entry));
 
     if (!props.containsKey("dataSourceClassName")) {
       // adjust dataSourceClassName when missing
@@ -194,12 +154,20 @@ public class Jdbc implements Jooby.Module {
     // remove dataSourceClassName under dataSource
     props.remove("dataSource.dataSourceClassName");
 
-    return new DataSourceHolder(DEFAULT_DB.equals(key) ? config.getString("application.name") : key) {
-      @Override
-      protected DataSource doGet() throws Exception {
-        return new HikariDataSource(new HikariConfig(props));
-      }
-    };
+    return new HikariDataSourceProvider(new HikariConfig(props));
+  }
+
+  private Optional<String> dbtype(final String key, final Config config) {
+    String url = config.getString(key + ".url");
+    String type = Arrays.stream(url.toLowerCase().split(":"))
+        .filter(token -> !(token.equals("jdbc") || token.equals("jtds")))
+        .findFirst()
+        .get();
+
+    if (config.hasPath("databases." + type)) {
+      return Optional.of(type);
+    }
+    return Optional.empty();
   }
 
   protected final <T> Key<T> dataSourceKey(final Class<T> type) {
@@ -207,7 +175,7 @@ public class Jdbc implements Jooby.Module {
   }
 
   protected final Provider<DataSource> dataSource() {
-    checkState(ds != null, "Data source isn't reqdy yet");
+    checkState(ds != null, "Data source isn't ready yet");
     return ds;
   }
 }

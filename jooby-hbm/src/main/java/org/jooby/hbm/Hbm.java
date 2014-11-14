@@ -43,7 +43,6 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.jpa.AvailableSettings;
-import org.hibernate.jpa.HibernateEntityManagerFactory;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
@@ -60,6 +59,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.util.Providers;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -69,7 +69,7 @@ public class Hbm extends Jdbc {
 
   private boolean scan = false;
 
-  private EntityManagerFactory emf;
+  private HbmProvider emf;
 
   public Hbm(final String name, final Class<?>... classes) {
     super(name);
@@ -102,11 +102,10 @@ public class Hbm extends Jdbc {
         .getEntityManagerFactoryBuilder(descriptor(dataSource(), config, scan),
             config(config, classes));
 
-    HibernateEntityManagerFactory emf = (HibernateEntityManagerFactory) builder.build();
-
+    emf = new HbmProvider(builder);
     Key<EntityManagerFactory> emfKey = dataSourceKey(EntityManagerFactory.class);
 
-    binder.bind(emfKey).toInstance(emf);
+    binder.bind(emfKey).toProvider(emf);
 
     Key<EntityManager> emKey = dataSourceKey(EntityManager.class);
 
@@ -117,12 +116,9 @@ public class Hbm extends Jdbc {
 
     Multibinder.newSetBinder(binder, Request.Module.class).addBinding().toInstance(b -> {
       log.debug("creating entity manager");
-      EntityManager em = emf.createEntityManager();
-      b.bind(emKey).toInstance(em);
+      EntityManager em = emf.get().createEntityManager();
+       b.bind(emKey).toProvider(Providers.of(em));
     });
-
-    // keep emf
-    this.emf = emf;
   }
 
   private Route.Filter readWriteTrx(final Key<EntityManager> key, final Logger log) {
@@ -218,9 +214,15 @@ public class Hbm extends Jdbc {
   }
 
   @Override
+  public void start() throws Exception {
+    super.start();
+    emf.start();
+  }
+
+  @Override
   public void stop() throws Exception {
     if (emf != null) {
-      emf.close();
+      emf.stop();
     }
     super.stop();
   }
