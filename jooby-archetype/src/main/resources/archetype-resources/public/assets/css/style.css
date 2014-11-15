@@ -15,6 +15,13 @@ h1 {
   font-weight: normal;
 }
 
+.infinite {
+  font-weight: lighter;
+  text-align: center;
+  vertical-align: sub;
+  font-size: 50px;
+}
+
 pre {
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
   background-color: #FDFEFB;

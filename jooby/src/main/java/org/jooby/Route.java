@@ -332,6 +332,38 @@ public interface Route {
      *
      * @param verb A HTTP verb or <code>*</code>.
      * @param pattern A path pattern.
+     * @param handler A route handler.
+     */
+    public Definition(final @Nonnull String verb, final @Nonnull String pattern,
+        final @Nonnull Route.OneArgHandler handler) {
+      this(verb, pattern, (req, rsp, chain) -> {
+        Object result = handler.handle(req);
+        rsp.send(result);
+        chain.next(req, rsp);
+      });
+    }
+
+    /**
+     * Creates a new route definition.
+     *
+     * @param verb A HTTP verb or <code>*</code>.
+     * @param pattern A path pattern.
+     * @param handler A route handler.
+     */
+    public Definition(final @Nonnull String verb, final @Nonnull String pattern,
+        final @Nonnull Route.ZeroArgHandler handler) {
+      this(verb, pattern, (req, rsp, chain) -> {
+        Object result = handler.handle();
+        rsp.send(result);
+        chain.next(req, rsp);
+      });
+    }
+
+    /**
+     * Creates a new route definition.
+     *
+     * @param verb A HTTP verb or <code>*</code>.
+     * @param pattern A path pattern.
      * @param filter A callback to execute.
      */
     public Definition(final @Nonnull String verb, final @Nonnull String pattern,
@@ -497,6 +529,10 @@ public interface Route {
      */
     public Definition produces(final MediaType... produces) {
       return produces(Arrays.asList(produces));
+    }
+
+    public Definition produces(final String... produces) {
+      return produces(MediaType.valueOf(produces));
     }
 
     /**
@@ -716,27 +752,7 @@ public interface Route {
    *   }
    * }
    * </pre>
-   *
-   * Please note that a handler is allowed to throw errors. If a service throws an exception you
-   * should NOT catch it, unless of course you want to apply logic or do something special.
-   * In particular you should AVOID wrapping exception:
-   * <pre>
-   *   {
-   *      get("/", (req, rsp) {@literal ->} {
-   *        Service service = req.getInstance(Service.class);
-   *        try {
-   *          service.doSomething();
-   *        } catch (Exception ex) {
-   *         throw new RuntimeException(ex);
-   *        }
-   *      });
-   *   }
-   * </pre>
-   * Previous is bad example of exception handling and should avoid wrapping exception. If you do
-   * that, exception become hard to ready and the stack trace get too damn long.
-   * So, if you wont do anything with the exception: DONT' catch it. Jooby will catch, logged and
-   * send an appropriated status code and response.
-   *
+
    * @author edgar
    * @since 0.1.0
    */
@@ -745,12 +761,63 @@ public interface Route {
     /**
      * Callback method for a HTTP request.
      *
-     * @param request A HTTP request.
-     * @param response A HTTP response.
+     * @param req A HTTP request.
+     * @param rsp A HTTP response.
      * @throws Exception If something goes wrong. The exception will processed by Jooby.
      */
-    void handle(Request request, Response response) throws Exception;
+    void handle(Request req, Response rsp) throws Exception;
 
+  }
+
+  /**
+   * A route handler/callback that doesn't require a {@link Response} object. This handler expect a
+   * return type to send as response.
+   *
+   * <pre>
+   * public class MyApp extends Jooby {
+   *   {
+   *      get("/", (req) {@literal ->} "Hello");
+   *   }
+   * }
+   * </pre>
+   *
+   * @author edgar
+   * @since 0.1.1
+   */
+  interface OneArgHandler {
+
+    /**
+     * Callback method for a HTTP request.
+     *
+     * @param req A HTTP request.
+     * @throws Exception If something goes wrong. The exception will processed by Jooby.
+     */
+    Object handle(Request req) throws Exception;
+  }
+
+  /**
+   * A route handler/callback that doesn't require a {@link Request} or {@link Response} objects.
+   * This handler expect a return type to send as response.
+   *
+   * <pre>
+   * public class MyApp extends Jooby {
+   *   {
+   *      get("/", () {@literal ->} "Hello");
+   *   }
+   * }
+   * </pre>
+   *
+   * @author edgar
+   * @since 0.1.1
+   */
+  interface ZeroArgHandler {
+
+    /**
+     * Callback method for a HTTP request.
+     *
+     * @throws Exception If something goes wrong. The exception will processed by Jooby.
+     */
+    Object handle() throws Exception;
   }
 
   /**

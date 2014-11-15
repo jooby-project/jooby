@@ -590,7 +590,7 @@ public class Jooby {
   }
 
   /**
-   * Define an in-line route that supports HTTP GET method:
+   * Append route that supports HTTP GET method:
    *
    * <pre>
    *   get("/", (req, rsp) {@literal ->} {
@@ -610,7 +610,47 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line filter that supports HTTP GET method:
+   * Append route that supports HTTP GET method:
+   *
+   * <pre>
+   *   get("/", (req) {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition get(final @Nonnull String path,
+      final @Nonnull Route.OneArgHandler handler) {
+    return handler(new Route.Definition("GET", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP GET method:
+   *
+   * <pre>
+   *   get("/", () {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition get(final @Nonnull String path,
+      final @Nonnull Route.ZeroArgHandler handler) {
+    return handler(new Route.Definition("GET", path, handler));
+  }
+
+  /**
+   * Append a filter that supports HTTP GET method:
    *
    * <pre>
    *   get("/", (req, rsp, chain) {@literal ->} {
@@ -630,7 +670,7 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP POST method:
+   * Append a route that supports HTTP POST method:
    *
    * <pre>
    *   post("/", (req, rsp) {@literal ->} {
@@ -650,7 +690,47 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP POST method:
+   * Append route that supports HTTP POST method:
+   *
+   * <pre>
+   *   post("/", (req) {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition post(final @Nonnull String path,
+      final @Nonnull Route.OneArgHandler handler) {
+    return handler(new Route.Definition("POST", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP POST method:
+   *
+   * <pre>
+   *   post("/", () {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition post(final @Nonnull String path,
+      final @Nonnull Route.ZeroArgHandler handler) {
+    return handler(new Route.Definition("POST", path, handler));
+  }
+
+  /**
+   * Append a route that supports HTTP POST method:
    *
    * <pre>
    *   post("/", (req, rsp, chain) {@literal ->} {
@@ -670,7 +750,7 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP HEAD method:
+   * Append a route that supports HTTP HEAD method:
    *
    * <pre>
    *   post("/", (req, rsp) {@literal ->} {
@@ -689,7 +769,47 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP HEAD method:
+   * Append route that supports HTTP HEAD method:
+   *
+   * <pre>
+   *   head("/", (req) {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition head(final @Nonnull String path,
+      final @Nonnull Route.OneArgHandler handler) {
+    return handler(new Route.Definition("HEAD", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP HEAD method:
+   *
+   * <pre>
+   *   head("/", () {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition head(final @Nonnull String path,
+      final @Nonnull Route.ZeroArgHandler handler) {
+    return handler(new Route.Definition("HEAD", path, handler));
+  }
+
+  /**
+   * Append a route that supports HTTP HEAD method:
    *
    * <pre>
    *   post("/", (req, rsp, chain) {@literal ->} {
@@ -725,7 +845,7 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP OPTIONS method:
+   * Append a route that supports HTTP OPTIONS method:
    *
    * <pre>
    *   options("/", (req, rsp) {@literal ->} {
@@ -745,7 +865,47 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP OPTIONS method:
+   * Append route that supports HTTP OPTIONS method:
+   *
+   * <pre>
+   *   options("/", (req) {@literal ->}
+   *     Body.status(200).header("Allow", "GET, POST")
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition options(final @Nonnull String path,
+      final @Nonnull Route.OneArgHandler handler) {
+    return handler(new Route.Definition("OPTIONS", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP OPTIONS method:
+   *
+   * <pre>
+   *   options("/", () {@literal ->}
+   *     Body.status(200).header("Allow", "GET, POST")
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition options(final @Nonnull String path,
+      final @Nonnull Route.ZeroArgHandler handler) {
+    return handler(new Route.Definition("OPTIONS", path, handler));
+  }
+
+  /**
+   * Append a route that supports HTTP OPTIONS method:
    *
    * <pre>
    *   options("/", (req, rsp, chain) {@literal ->} {
@@ -789,7 +949,7 @@ public class Jooby {
   }
 
   /**
-   * Define an in-line route that supports HTTP PUT method:
+   * Append route that supports HTTP PUT method:
    *
    * <pre>
    *   put("/", (req, rsp) {@literal ->} {
@@ -809,7 +969,47 @@ public class Jooby {
   }
 
   /**
-   * Define an in-line route that supports HTTP PUT method:
+   * Append route that supports HTTP PUT method:
+   *
+   * <pre>
+   *   put("/", (req) {@literal ->}
+   *    Body.status(202)
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition put(final @Nonnull String path,
+      final @Nonnull Route.OneArgHandler handler) {
+    return handler(new Route.Definition("PUT", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP PUT method:
+   *
+   * <pre>
+   *   put("/", () {@literal ->} {
+   *     Body.status(202)
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition put(final @Nonnull String path,
+      final @Nonnull Route.ZeroArgHandler handler) {
+    return handler(new Route.Definition("PUT", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP PUT method:
    *
    * <pre>
    *   put("/", (req, rsp, chain) {@literal ->} {
@@ -829,7 +1029,87 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP DELETE method:
+   * Append route that supports HTTP PATCH method:
+   *
+   * <pre>
+   *   patch("/", (req, rsp) {@literal ->} {
+   *     rsp.send(something);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A route to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition patch(final @Nonnull String path,
+      final @Nonnull Route.Handler handler) {
+    return handler(new Route.Definition("PATCH", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP PATCH method:
+   *
+   * <pre>
+   *   patch("/", (req) {@literal ->}
+   *    Body.status(202)
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition patch(final @Nonnull String path,
+      final @Nonnull Route.OneArgHandler handler) {
+    return handler(new Route.Definition("PATCH", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP PATCH method:
+   *
+   * <pre>
+   *   patch("/", () {@literal ->} {
+   *     Body.status(202)
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition patch(final @Nonnull String path,
+      final @Nonnull Route.ZeroArgHandler handler) {
+    return handler(new Route.Definition("PATCH", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP PATCH method:
+   *
+   * <pre>
+   *   patch("/", (req, rsp, chain) {@literal ->} {
+   *     chain.next(req, rsp);
+   *   });
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param filter A callback to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition patch(final @Nonnull String path,
+      final @Nonnull Route.Filter filter) {
+    return handler(new Route.Definition("PATCH", path, filter));
+  }
+
+  /**
+   * Append a route that supports HTTP DELETE method:
    *
    * <pre>
    *   delete("/", (req, rsp) {@literal ->} {
@@ -849,7 +1129,47 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP DELETE method:
+   * Append route that supports HTTP DELETE method:
+   *
+   * <pre>
+   *   delete("/", (req) {@literal ->}
+   *     Body.status(204)
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition delete(final @Nonnull String path,
+      final @Nonnull Route.OneArgHandler handler) {
+    return handler(new Route.Definition("DELETE", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP DELETE method:
+   *
+   * <pre>
+   *   delete("/", () {@literal ->}
+   *     Body.status(204)
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition delete(final @Nonnull String path,
+      final @Nonnull Route.ZeroArgHandler handler) {
+    return handler(new Route.Definition("DELETE", path, handler));
+  }
+
+  /**
+   * Append a route that supports HTTP DELETE method:
    *
    * <pre>
    *   delete("/", (req, rsp, chain) {@literal ->} {
@@ -870,7 +1190,7 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP TRACE method:
+   * Append a route that supports HTTP TRACE method:
    *
    * <pre>
    *   trace("/", (req, rsp) {@literal ->} {
@@ -890,7 +1210,47 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP TRACE method:
+   * Append route that supports HTTP TRACE method:
+   *
+   * <pre>
+   *   trace("/", (req) {@literal ->}
+   *     "trace"
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition trace(final @Nonnull String path,
+      final @Nonnull Route.OneArgHandler handler) {
+    return handler(new Route.Definition("TRACE", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP TRACE method:
+   *
+   * <pre>
+   *   trace("/", () {@literal ->}
+   *     "trace"
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition trace(final @Nonnull String path,
+      final @Nonnull Route.ZeroArgHandler handler) {
+    return handler(new Route.Definition("TRACE", path, handler));
+  }
+
+  /**
+   * Append a route that supports HTTP TRACE method:
    *
    * <pre>
    *   trace("/", (req, rsp, chain) {@literal ->} {
@@ -929,7 +1289,7 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP CONNECT method:
+   * Append a route that supports HTTP CONNECT method:
    *
    * <pre>
    *   connect("/", (req, rsp, chain) {@literal ->} {
@@ -949,7 +1309,47 @@ public class Jooby {
   }
 
   /**
-   * Append a new in-line route that supports HTTP CONNECT method:
+   * Append route that supports HTTP CONNECT method:
+   *
+   * <pre>
+   *   connect("/", (req) {@literal ->}
+   *     "hello"
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition connect(final @Nonnull String path,
+      final @Nonnull Route.OneArgHandler handler) {
+    return handler(new Route.Definition("CONNECT", path, handler));
+  }
+
+  /**
+   * Append route that supports HTTP CONNECT method:
+   *
+   * <pre>
+   *   connect("/", () {@literal ->}
+   *     "connected"
+   *   );
+   * </pre>
+   *
+   * This is a singleton route so make sure you don't share or use global variables.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public @Nonnull Route.Definition connect(final @Nonnull String path,
+      final @Nonnull Route.ZeroArgHandler handler) {
+    return handler(new Route.Definition("CONNECT", path, handler));
+  }
+
+  /**
+   * Append a route that supports HTTP CONNECT method:
    *
    * <pre>
    *   connect("/", (req, rsp, chain) {@literal ->} {

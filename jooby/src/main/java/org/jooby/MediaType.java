@@ -289,6 +289,20 @@ public class MediaType implements Comparable<MediaType> {
   private final boolean wildcardSubtype;
 
   /**
+   * Alias for most used types.
+   */
+  private static final Map<String, MediaType> alias = ImmutableMap.<String, MediaType> builder()
+      .put("html", html)
+      .put("json", json)
+      .put("css", css)
+      .put("js", javascript)
+      .put("octetstream", octetstream)
+      .put("form", form)
+      .put("multipart", multipart)
+      .put("*", all)
+      .build();
+
+  /**
    * Creates a new {@link MediaType}.
    *
    * @param type The primary type. Required.
@@ -457,8 +471,9 @@ public class MediaType implements Comparable<MediaType> {
    */
   public static MediaType valueOf(final @Nonnull String type) {
     requireNonNull(type, "A mediaType is required.");
-    if ("*".equals(type)) {
-      return MediaType.all;
+    MediaType aliastype = alias.get(type);
+    if (aliastype != null) {
+      return aliastype;
     }
     String[] parts = type.split(";");
     checkArgument(parts.length > 0, "Bad media type: %s", type);
