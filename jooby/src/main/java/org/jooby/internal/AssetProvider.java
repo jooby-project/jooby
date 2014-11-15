@@ -18,33 +18,18 @@
  */
 package org.jooby.internal;
 
-import static java.util.Objects.requireNonNull;
-
 import java.io.File;
 import java.net.URL;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import org.jooby.Asset;
 import org.jooby.Err;
 import org.jooby.MediaType;
-import org.jooby.MediaTypeProvider;
 import org.jooby.Status;
 
-@Singleton
 public class AssetProvider {
 
-  private MediaTypeProvider mediaTypeProvider;
-
-  @Inject
-  public AssetProvider(final MediaTypeProvider mediaTypeProvider) {
-    this.mediaTypeProvider = requireNonNull(mediaTypeProvider,
-        "A file media type provider is required.");
-  }
-
   public Asset get(final String path) throws Exception {
-    return resolve(path, mediaTypeProvider.forPath(path));
+    return resolve(path, MediaType.byPath(path).orElse(MediaType.octetstream));
   }
 
   private Asset resolve(final String path, final MediaType mediaType) throws Exception {

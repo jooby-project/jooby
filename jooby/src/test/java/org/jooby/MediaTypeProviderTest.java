@@ -4,47 +4,31 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 public class MediaTypeProviderTest {
 
-  private static Config config;
-
-  @BeforeClass
-  public static void loadConfig() {
-    config = ConfigFactory.load("org/jooby/mime.properties");
-  }
-
   @Test
   public void javascript() {
-    assertEquals(MediaType.javascript, new MediaTypeProvider(config).forExtension("js"));
-    assertEquals(MediaType.javascript,
-        new MediaTypeProvider(config).forFile(new File("file.js")));
+    assertEquals(MediaType.javascript, MediaType.byExtension("js").get());
+    assertEquals(MediaType.javascript, MediaType.byFile(new File("file.js")).get());
   }
 
   @Test
   public void css() {
-    assertEquals(MediaType.css, new MediaTypeProvider(config).forExtension("css"));
-    assertEquals(MediaType.css,
-        new MediaTypeProvider(config).forFile(new File("file.css")));
+    assertEquals(MediaType.css, MediaType.byExtension("css").get());
+    assertEquals(MediaType.css, MediaType.byFile(new File("file.css")).get());
   }
 
   @Test
   public void json() {
-    assertEquals(MediaType.json, new MediaTypeProvider(config).forExtension("json"));
-    assertEquals(MediaType.json,
-        new MediaTypeProvider(config).forFile(new File("file.json")));
+    assertEquals(MediaType.json, MediaType.byExtension("json").get());
+    assertEquals(MediaType.json, MediaType.byFile(new File("file.json")).get());
   }
 
   @Test
   public void png() {
-    assertEquals(MediaType.valueOf("image/png"),
-        new MediaTypeProvider(config).forExtension("png"));
-    assertEquals(MediaType.valueOf("image/png"),
-        new MediaTypeProvider(config).forFile(new File("file.png")));
+    assertEquals(MediaType.valueOf("image/png"), MediaType.byExtension("png").get());
+    assertEquals(MediaType.valueOf("image/png"), MediaType.byFile(new File("file.png")).get());
   }
 }

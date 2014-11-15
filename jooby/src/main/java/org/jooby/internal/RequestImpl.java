@@ -41,7 +41,6 @@ import org.jooby.Body;
 import org.jooby.Cookie;
 import org.jooby.Err;
 import org.jooby.MediaType;
-import org.jooby.MediaTypeProvider;
 import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Route;
@@ -301,15 +300,13 @@ public class RequestImpl implements Request {
       return Collections.emptyList();
     }
     Config config = getInstance(Config.class);
-    MediaTypeProvider typeProvider = getInstance(MediaTypeProvider.class);
-    String workDir = config.getString("java.io.tmpdir");
+    String workDir = config.getString("application.tmpdir");
     return FluentIterable
         .from(parts)
         .filter(p -> p.getSubmittedFileName() != null && p.getName().equals(name))
         .transform(
             p -> {
-              Upload upload = new PartUpload(injector, p, typeProvider.forPath(p
-                  .getSubmittedFileName()), charset, workDir);
+              Upload upload = new PartUpload(injector, p, charset, workDir);
               return upload;
             })
         .toList();

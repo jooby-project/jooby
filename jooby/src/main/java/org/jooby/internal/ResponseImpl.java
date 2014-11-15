@@ -39,7 +39,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.jooby.Body;
 import org.jooby.Err;
 import org.jooby.MediaType;
-import org.jooby.MediaTypeProvider;
 import org.jooby.Mutant;
 import org.jooby.Response;
 import org.jooby.Route;
@@ -70,8 +69,6 @@ public class ResponseImpl implements Response {
 
   private MediaType type;
 
-  private MediaTypeProvider typeProvider;
-
   private final Map<String, Object> locals;
 
   private Route route;
@@ -82,13 +79,12 @@ public class ResponseImpl implements Response {
 
   public ResponseImpl(final HttpServletResponse response, final Injector injector,
       final Route route, final Map<String, Object> locals, final BodyConverterSelector selector,
-      final MediaTypeProvider typeProvider, final Charset charset, final Optional<String> referer) {
+      final Charset charset, final Optional<String> referer) {
     this.response = requireNonNull(response, "A response is required.");
     this.injector = requireNonNull(injector, "An injector is required.");
     this.route = requireNonNull(route, "A route is required.");
     this.locals = requireNonNull(locals, "The locals is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
-    this.typeProvider = requireNonNull(typeProvider, "A type's provider is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
     this.referer = requireNonNull(referer, "A referer is required.");
 
@@ -131,7 +127,7 @@ public class ResponseImpl implements Response {
     }
     header("Content-Disposition", "attachment; filename=" + basename);
     header("Transfer-Encoding", "chunked");
-    type(typeProvider.forPath(basename));
+    type(MediaType.byPath(basename).orElse(MediaType.octetstream));
   }
 
   @Override

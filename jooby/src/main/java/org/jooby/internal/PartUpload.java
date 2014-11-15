@@ -26,8 +26,8 @@ import java.util.Collection;
 import javax.servlet.http.Part;
 
 import org.jooby.MediaType;
-import org.jooby.Upload;
 import org.jooby.Mutant;
+import org.jooby.Upload;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
@@ -44,14 +44,13 @@ class PartUpload implements Upload {
 
   private Charset charset;
 
-  public PartUpload(final Injector injector, final Part part, final MediaType type,
-      final Charset charset,
+  public PartUpload(final Injector injector, final Part part, final Charset charset,
       final String workDir) {
     this.injector = injector;
     this.part = part;
     this.charset = charset;
     this.workDir = workDir;
-    this.type = type;
+    this.type = MediaType.byPath(part.getSubmittedFileName()).orElse(MediaType.octetstream);
   }
 
   @Override

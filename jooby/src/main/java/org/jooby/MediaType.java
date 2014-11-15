@@ -21,6 +21,8 @@ package org.jooby;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -33,6 +35,8 @@ import javax.annotation.Nonnull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * An immutable implementation of HTTP media types (a.k.a mime types).
@@ -302,6 +306,10 @@ public class MediaType implements Comparable<MediaType> {
       .put("*", all)
       .build();
 
+  static final Config types = ConfigFactory
+      .parseResources("mime.properties")
+      .withFallback(ConfigFactory.parseResources(MediaType.class, "mime.properties"));
+
   /**
    * Creates a new {@link MediaType}.
    *
@@ -539,6 +547,59 @@ public class MediaType implements Comparable<MediaType> {
   public static Matcher matcher(final @Nonnull List<MediaType> acceptable) {
     requireNonNull(acceptable, "Acceptables media types are required.");
     return new Matcher(acceptable);
+  }
+
+  /**
+   * Get a {@link MediaType} for a file.
+   *
+   * @param file A candidate file.
+   * @return A {@link MediaType} or {@link MediaType#octetstream} for unknown file extensions.
+   */
+  public static @Nonnull Optional<MediaType> byFile(@Nonnull final File file) {
+    requireNonNull(file, "A file is required.");
+    return byPath(file.getAbsolutePath());
+  }
+
+  /**
+   * Get a {@link MediaType} for a file path.
+   *
+   * @param path A candidate file path.
+   * @return A {@link MediaType} or empty optional for unknown file extensions.
+   */
+  public static Optional<MediaType> byPath(final Path path) {
+    requireNonNull(path, "A path is required.");
+    return byPath(path.toString());
+  }
+
+  /**
+   * Get a {@link MediaType} for a file path.
+   *
+   * @param path A candidate file path: like <code>myfile.js</code> or <code>/js/myfile.js</code>.
+   * @return A {@link MediaType} or empty optional for unknown file extensions.
+   */
+  public static Optional<MediaType> byPath(final String path) {
+    requireNonNull(path, "A path is required.");
+    int idx = path.lastIndexOf('.');
+    if (idx != -1) {
+      String ext = path.substring(idx + 1);
+      return byExtension(ext);
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Get a {@link MediaType} for a file extension.
+   *
+   * @param ext A file extension, like <code>js</code> or <code>css</code>.
+   * @return A {@link MediaType} or empty optional for unknown file extensions.
+   */
+  public static @Nonnull Optional<MediaType> byExtension(final String ext) {
+    requireNonNull(ext, "An ext is required.");
+    String key = "mime." + ext;
+    if (types.hasPath(key)) {
+      return Optional.of(MediaType.valueOf(types.getString("mime." + ext)));
+    }
+    return Optional.empty();
   }
 
 }

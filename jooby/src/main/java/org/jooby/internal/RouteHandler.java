@@ -45,7 +45,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.jooby.Body;
 import org.jooby.Err;
 import org.jooby.MediaType;
-import org.jooby.MediaTypeProvider;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
@@ -79,8 +78,6 @@ public class RouteHandler {
 
   private Set<Request.Module> modules;
 
-  private MediaTypeProvider typeProvider;
-
   private Err.Handler err;
 
   @Inject
@@ -98,7 +95,6 @@ public class RouteHandler {
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
     this.locale = requireNonNull(defaultLocale, "A defaultLocale is required.");
     this.err = requireNonNull(err, "An err handler is required.");
-    this.typeProvider = injector.getInstance(MediaTypeProvider.class);
   }
 
   public void handle(final HttpServletRequest request, final HttpServletResponse response)
@@ -141,7 +137,7 @@ public class RouteHandler {
         new RequestImpl(request, injector, route, selector, type, accept, charset, locale);
 
     BiFunction<Injector, Route, Response> resFactory = (injector, route) ->
-        new ResponseImpl(response, injector, route, locals, selector, typeProvider, charset,
+        new ResponseImpl(response, injector, route, locals, selector, charset,
             Optional.ofNullable(request.getHeader("Referer")));
 
     Injector injector = rootInjector;

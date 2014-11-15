@@ -2024,8 +2024,7 @@ public class Jooby {
       moduleStack = moduleStack.withFallback(module.config());
     }
 
-    // add default config + mime types
-    Config mime = ConfigFactory.parseResources(Jooby.class, "mime.properties");
+    // jooby config
     Config jooby = ConfigFactory.parseResources(Jooby.class, "jooby.conf");
 
     String mode = Arrays.asList(system, source, jooby).stream()
@@ -2053,8 +2052,8 @@ public class Jooby {
     return system
         .withFallback(config)
         .withFallback(moduleStack)
+        .withFallback(MediaType.types)
         .withFallback(defaultConfig(config, mode, secret))
-        .withFallback(mime)
         .withFallback(jooby)
         .resolve();
   }
