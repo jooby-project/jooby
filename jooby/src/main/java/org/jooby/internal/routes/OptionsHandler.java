@@ -36,12 +36,12 @@ import org.jooby.Verb;
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
 
-public class OptionsRouter implements Route.Handler {
+public class OptionsHandler implements Route.Handler {
 
   private Set<Definition> routeDefs;
 
   @Inject
-  public OptionsRouter(final Set<Route.Definition> routeDefs) {
+  public OptionsHandler(final Set<Route.Definition> routeDefs) {
     this.routeDefs = requireNonNull(routeDefs, "Route definitions are required.");
   }
 

@@ -50,9 +50,9 @@ import org.jooby.internal.Server;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.jetty.Jetty;
 import org.jooby.internal.mvc.Routes;
-import org.jooby.internal.routes.HeadFilter;
-import org.jooby.internal.routes.OptionsRouter;
-import org.jooby.internal.routes.TraceRouter;
+import org.jooby.internal.routes.HeadHandler;
+import org.jooby.internal.routes.OptionsHandler;
+import org.jooby.internal.routes.TraceHandler;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.core.joran.spi.JoranException;
@@ -841,7 +841,7 @@ public class Jooby {
    * @return A new route definition.
    */
   public @Nonnull Route.Definition head(final @Nonnull String path) {
-    return handler(new Route.Definition("HEAD", path, filter(HeadFilter.class)).name("*.head"));
+    return handler(new Route.Definition("HEAD", path, filter(HeadHandler.class)).name("*.head"));
   }
 
   /**
@@ -944,7 +944,7 @@ public class Jooby {
    * @return A new route definition.
    */
   public @Nonnull Route.Definition options(final @Nonnull String path) {
-    return handler(new Route.Definition("OPTIONS", path, handler(OptionsRouter.class))
+    return handler(new Route.Definition("OPTIONS", path, handler(OptionsHandler.class))
         .name("*.options"));
   }
 
@@ -1284,7 +1284,7 @@ public class Jooby {
    * @return A new route definition.
    */
   public @Nonnull Route.Definition trace(final @Nonnull String path) {
-    return handler(new Route.Definition("TRACE", path, handler(TraceRouter.class))
+    return handler(new Route.Definition("TRACE", path, handler(TraceHandler.class))
         .name("*.trace"));
   }
 

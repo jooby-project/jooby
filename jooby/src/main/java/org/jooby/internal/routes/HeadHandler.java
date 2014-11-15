@@ -33,12 +33,12 @@ import org.jooby.internal.RouteImpl;
 
 import com.google.inject.Inject;
 
-public class HeadFilter implements Route.Filter {
+public class HeadHandler implements Route.Filter {
 
   private Set<Definition> routeDefs;
 
   @Inject
-  public HeadFilter(final Set<Route.Definition> routeDefs) {
+  public HeadHandler(final Set<Route.Definition> routeDefs) {
     this.routeDefs = requireNonNull(routeDefs, "Route definitions are required.");
   }
 

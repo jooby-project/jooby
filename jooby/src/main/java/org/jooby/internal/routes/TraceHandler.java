@@ -27,7 +27,7 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 
-public class TraceRouter implements Route.Handler {
+public class TraceHandler implements Route.Handler {
 
   @Override
   public void handle(final Request req, final Response rsp) throws Exception {
