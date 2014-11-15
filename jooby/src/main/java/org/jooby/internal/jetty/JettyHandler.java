@@ -45,7 +45,7 @@ public class JettyHandler extends SessionHandler {
 
   public JettyHandler(final RouteHandler handler, final Config config) {
     this.handler = requireNonNull(handler, "A route handler is required.");
-    multiPartConfig = new MultipartConfigElement(config.getString("java.io.tmpdir"));
+    multiPartConfig = new MultipartConfigElement(config.getString("application.tmpdir"));
   }
 
   @Override
