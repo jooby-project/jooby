@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  * <h1>Cookie configuration</h1>
  * <p>
  * A cookie will be created when a session is created. Cookie is signed using
- * <code>application.secret</code>. For {@link Mode dev mode} the default secret is set to the
+ * <code>application.secret</code>. For {@link Env dev env} the default secret is set to the
  * location of the Jooby class. For others an <code>application.secret</code> MUST be set, otherwise
  * the application will fail at startup.
  * </p>

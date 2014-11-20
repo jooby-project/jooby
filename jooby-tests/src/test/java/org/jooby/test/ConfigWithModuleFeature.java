@@ -17,7 +17,7 @@ public class ConfigWithModuleFeature extends ServerFeature {
 
     use(ConfigFactory.empty()
         .withValue("application.secret", ConfigValueFactory.fromAnyRef("123"))
-        .withValue("application.mode", ConfigValueFactory.fromAnyRef("mode")));
+        .withValue("application.env", ConfigValueFactory.fromAnyRef("prod")));
   }
 
   @Test

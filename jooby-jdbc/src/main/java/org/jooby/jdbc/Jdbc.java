@@ -31,7 +31,7 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.jooby.Jooby;
-import org.jooby.Mode;
+import org.jooby.Env;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -62,7 +62,7 @@ public class Jdbc implements Jooby.Module {
   }
 
   @Override
-  public void configure(final Mode mode, final Config config, final Binder binder)
+  public void configure(final Env mode, final Config config, final Binder binder)
       throws Exception {
     this.ds = newDataSource(dbName, dbConfig(dbName, config));
 

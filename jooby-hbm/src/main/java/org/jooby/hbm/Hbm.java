@@ -48,7 +48,7 @@ import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 import org.jooby.Body;
-import org.jooby.Mode;
+import org.jooby.Env;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
@@ -92,7 +92,7 @@ public class Hbm extends Jdbc {
   }
 
   @Override
-  public void configure(final Mode mode, final Config config, final Binder binder)
+  public void configure(final Env mode, final Config config, final Binder binder)
       throws Exception {
     Logger log = LoggerFactory.getLogger(getClass());
 

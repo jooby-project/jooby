@@ -17,7 +17,7 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.easymock.Capture;
-import org.jooby.Mode;
+import org.jooby.Env;
 import org.junit.Test;
 
 import com.google.inject.Binder;
@@ -34,7 +34,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void memdb() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -69,7 +69,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void fsdb() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -111,7 +111,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void dbPropertyCanBeJustURL() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -147,7 +147,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void dbHashMustHaveURLwhenMoreDetailsAreProvided() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -184,7 +184,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void derby() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -223,7 +223,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void db2() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -260,7 +260,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void hsql() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -297,7 +297,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void mariadb() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -334,7 +334,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void mysql() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -383,7 +383,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void dbspecific() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -436,7 +436,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void hikariDefaultsDev() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -484,7 +484,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void hikariOverrideDefaults() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -540,7 +540,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void overrideDataSource() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -578,7 +578,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void twoDatabases() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -615,7 +615,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void sqlserver() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -655,7 +655,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void oracle() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -695,7 +695,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void pgsql() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -735,7 +735,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void postgresql() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -775,7 +775,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void sybase() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -815,7 +815,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void firebirdsql() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -855,7 +855,7 @@ public class JdbcTest {
   @SuppressWarnings("unchecked")
   @Test
   public void sqlite() throws Exception {
-    Mode mode = mode("dev");
+    Env mode = mode("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Binder binder = createMock(Binder.class);
 
@@ -910,8 +910,13 @@ public class JdbcTest {
     asserts.accept(hikariConfig, hikariConfig.getDataSourceProperties());
   }
 
-  private static Mode mode(final String name) {
-    return new Mode() {
+  private static Env mode(final String name) {
+    return new Env() {
+
+      @Override
+      public Config config() {
+        return ConfigFactory.empty();
+      }
 
       @Override
       public String name() {

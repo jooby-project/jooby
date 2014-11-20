@@ -6,7 +6,7 @@ import org.apache.http.client.fluent.Request;
 import org.jooby.Body;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
-import org.jooby.Mode;
+import org.jooby.Env;
 import org.jooby.Status;
 import org.jooby.View;
 import org.jooby.mvc.Consumes;
@@ -51,7 +51,7 @@ public class ContentNegotiationFeature extends ServerFeature {
     use(new Jooby.Module() {
 
       @Override
-      public void configure(final Mode mode, final Config config, final Binder binder)
+      public void configure(final Env mode, final Config config, final Binder binder)
           throws Exception {
         Multibinder.newSetBinder(binder, Body.Formatter.class)
         .addBinding().toInstance(BodyConverters.toHtml);

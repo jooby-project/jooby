@@ -30,6 +30,7 @@ import org.jooby.Body.Parser;
 import org.jooby.Route.Handler;
 import org.jooby.Session.Definition;
 import org.jooby.Session.Store;
+import org.jooby.fn.Switch;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.FallbackBodyConverter;
 import org.jooby.internal.RouteImpl;
@@ -136,13 +137,13 @@ public class JoobyTest {
     expect(binder.bind(Config.class)).andReturn(configAnnotatedBinding);
   };
 
-  private MockUnit.Block mode = unit -> {
+  private MockUnit.Block env = unit -> {
     Binder binder = unit.get(Binder.class);
 
-    AnnotatedBindingBuilder<Mode> binding = unit.mock(AnnotatedBindingBuilder.class);
-    binding.toInstance(isA(Mode.class));
+    AnnotatedBindingBuilder<Env> binding = unit.mock(AnnotatedBindingBuilder.class);
+    binding.toInstance(isA(Env.class));
 
-    expect(binder.bind(Mode.class)).andReturn(binding);
+    expect(binder.bind(Env.class)).andReturn(binding);
   };
 
   private MockUnit.Block charset = unit -> {
@@ -352,7 +353,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -374,7 +375,7 @@ public class JoobyTest {
               Jooby jooby = new Jooby();
 
               jooby.use(ConfigFactory.empty()
-                  .withValue("application.mode", ConfigValueFactory.fromAnyRef("prod"))
+                  .withValue("application.env", ConfigValueFactory.fromAnyRef("prod"))
                   );
 
               jooby.start();
@@ -416,7 +417,7 @@ public class JoobyTest {
         })
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -438,7 +439,7 @@ public class JoobyTest {
               Jooby jooby = new Jooby();
 
               jooby.use(ConfigFactory.empty()
-                  .withValue("application.mode", ConfigValueFactory.fromAnyRef("prod"))
+                  .withValue("application.env", ConfigValueFactory.fromAnyRef("prod"))
                   .withValue("application.secret", ConfigValueFactory.fromAnyRef("234"))
                   );
 
@@ -454,7 +455,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -473,6 +474,56 @@ public class JoobyTest {
         .run(unit -> {
 
           Jooby jooby = new Jooby();
+
+          jooby.start();
+
+        }, boot);
+  }
+
+  @Test
+  public void customEnv() throws Exception {
+
+    new MockUnit(Binder.class, Env.Builder.class)
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(unit -> {
+          Env env = unit.mock(Env.class);
+          Switch<String, Stage> devswitch = unit.mock(Switch.class);
+          expect(devswitch.value()).andReturn(Optional.of(Stage.DEVELOPMENT));
+
+          expect(env.when("dev", Stage.DEVELOPMENT)).andReturn(devswitch);
+
+          Env.Builder builder = unit.get(Env.Builder.class);
+          expect(builder.build(isA(Config.class))).andReturn(env);
+
+          Binder binder = unit.get(Binder.class);
+
+          AnnotatedBindingBuilder<Env> binding = unit.mock(AnnotatedBindingBuilder.class);
+          binding.toInstance(env);
+
+          expect(binder.bind(Env.class)).andReturn(binding);
+        })
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(bodyParser)
+        .expect(bodyFormatter)
+        .expect(session)
+        .expect(routes)
+        .expect(webSockets)
+        .expect(reqModules)
+        .expect(tmpdir)
+        .expect(err)
+        .run(unit -> {
+
+          Jooby jooby = new Jooby();
+
+          jooby.env(unit.get(Env.Builder.class));
 
           jooby.start();
 
@@ -508,7 +559,7 @@ public class JoobyTest {
             })
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -532,7 +583,7 @@ public class JoobyTest {
 
           expect(module.config()).andReturn(config);
 
-          module.configure(isA(Mode.class), isA(Config.class), eq(binder));
+          module.configure(isA(Env.class), isA(Config.class), eq(binder));
 
           module.stop();
         })
@@ -558,7 +609,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -624,7 +675,7 @@ public class JoobyTest {
             })
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -686,7 +737,7 @@ public class JoobyTest {
             })
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -709,7 +760,7 @@ public class JoobyTest {
 
           expect(module.config()).andReturn(ConfigFactory.empty());
 
-          module.configure(isA(Mode.class), isA(Config.class), eq(binder));
+          module.configure(isA(Env.class), isA(Config.class), eq(binder));
 
           module.start();
 
@@ -736,7 +787,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -807,7 +858,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -879,7 +930,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -983,7 +1034,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1076,7 +1127,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1169,7 +1220,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1262,7 +1313,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1355,7 +1406,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1448,7 +1499,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1541,7 +1592,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1634,7 +1685,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1727,7 +1778,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1828,7 +1879,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2027,7 +2078,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2082,7 +2133,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2128,7 +2179,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2184,7 +2235,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2234,7 +2285,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2258,7 +2309,7 @@ public class JoobyTest {
 
           expect(module.config()).andReturn(config);
 
-          module.configure(isA(Mode.class), isA(Config.class), eq(binder));
+          module.configure(isA(Env.class), isA(Config.class), eq(binder));
 
           module.start();
 
@@ -2282,7 +2333,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2306,7 +2357,7 @@ public class JoobyTest {
 
           expect(module.config()).andReturn(config);
 
-          module.configure(isA(Mode.class), isA(Config.class), eq(binder));
+          module.configure(isA(Env.class), isA(Config.class), eq(binder));
           expectLastCall().andThrow(new NullPointerException());
 
           module.start();
@@ -2329,7 +2380,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2375,7 +2426,7 @@ public class JoobyTest {
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2414,13 +2465,47 @@ public class JoobyTest {
   }
 
   @Test
+  public void useMissingConfig() throws Exception {
+
+    new MockUnit(Binder.class)
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(bodyParser)
+        .expect(bodyFormatter)
+        .expect(session)
+        .expect(routes)
+        .expect(webSockets)
+        .expect(reqModules)
+        .expect(tmpdir)
+        .expect(err)
+        .run(unit -> {
+
+          Jooby jooby = new Jooby();
+
+          jooby.use(ConfigFactory.parseResources("missing.conf"));
+
+          jooby.start();
+
+        }, boot);
+  }
+
+  @Test
   public void useErr() throws Exception {
 
     new MockUnit(Binder.class, Err.Handler.class)
         .expect(guice)
         .expect(shutdown)
         .expect(config)
-        .expect(mode)
+        .expect(env)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)

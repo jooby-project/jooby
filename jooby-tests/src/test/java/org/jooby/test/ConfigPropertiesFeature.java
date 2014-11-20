@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.http.client.fluent.Request;
-import org.jooby.Mode;
+import org.jooby.Env;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.junit.Test;
@@ -28,13 +28,13 @@ public class ConfigPropertiesFeature extends ServerFeature {
     private Charset charset;
     private Integer intprop;
     private String stringprop;
-    private Mode mode;
+    private Env mode;
     private List<String> list;
     private Letter letter;
     private UUID uuid;
 
     @Inject
-    public Resource(final Charset charset, final Mode mode,
+    public Resource(final Charset charset, final Env mode,
         @Named("intprop") final int intprop,
         @Named("stringprop") final String stringprop,
         @Named("list") final List<String> list,

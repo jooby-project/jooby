@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.jooby.MediaType;
-import org.jooby.Mode;
+import org.jooby.Env;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.mvc.Consumes;
@@ -67,7 +67,7 @@ public class Routes {
       POST.class, PUT.class, DELETE.class, HEAD.class, OPTIONS.class, TRACE.class);
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  public static List<Route.Definition> routes(final Mode mode, final Class<?> routeClass) {
+  public static List<Route.Definition> routes(final Env env, final Class<?> routeClass) {
     Map<String, String[]> params = new HashMap<>();
     Map<String, Integer> lines = new HashMap<>();
 

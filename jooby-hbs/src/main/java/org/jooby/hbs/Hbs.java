@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.jooby.Body;
 import org.jooby.Jooby;
-import org.jooby.Mode;
+import org.jooby.Env;
 import org.jooby.View;
 
 import com.github.jknack.handlebars.Context;
@@ -106,7 +106,7 @@ public class Hbs implements HelperRegistry, Jooby.Module {
   }
 
   @Override
-  public void configure(final Mode mode, final Config config, final Binder binder)
+  public void configure(final Env mode, final Config config, final Binder binder)
       throws Exception {
 
     TemplateCache cache = mode

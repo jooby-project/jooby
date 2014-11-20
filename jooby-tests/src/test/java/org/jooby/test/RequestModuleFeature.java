@@ -7,7 +7,7 @@ import javax.inject.Singleton;
 
 import org.apache.http.client.fluent.Request;
 import org.jooby.Jooby;
-import org.jooby.Mode;
+import org.jooby.Env;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class RequestModuleFeature extends ServerFeature {
 
     use(new Jooby.Module() {
       @Override
-      public void configure(final Mode mode, final Config config, final Binder binder)
+      public void configure(final Env mode, final Config config, final Binder binder)
           throws Exception {
         Multibinder<org.jooby.Request.Module> rmb = Multibinder.newSetBinder(binder,
             org.jooby.Request.Module.class);

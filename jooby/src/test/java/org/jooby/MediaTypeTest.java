@@ -139,7 +139,7 @@ public class MediaTypeTest {
   }
 
   @Test
-  public void wildcareHasLessPrecendence() {
+  public void wildcardHasLessPrecendence() {
     assertTrue(MediaType.all.compareTo(MediaType.json) == 1);
 
     assertTrue(MediaType.json.compareTo(MediaType.all) == -1);

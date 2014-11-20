@@ -34,7 +34,7 @@ import javax.inject.Inject;
 import org.jooby.Body;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
-import org.jooby.Mode;
+import org.jooby.Env;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -127,7 +127,7 @@ public class Json implements Jooby.Module {
   }
 
   @Override
-  public void configure(final Mode mode, final Config config, final Binder binder) {
+  public void configure(final Env mode, final Config config, final Binder binder) {
     Locale locale = Locale.forLanguageTag(config.getString("application.lang").replace("_", "-"));
     // Jackson clone the date format in order to make dateFormat thread-safe
     mapper.setDateFormat(new SimpleDateFormat(config.getString("application.dateFormat"), locale));

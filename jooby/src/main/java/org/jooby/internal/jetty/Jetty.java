@@ -20,8 +20,8 @@ package org.jooby.internal.jetty;
 
 import javax.inject.Singleton;
 
+import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.Mode;
 import org.jooby.internal.Server;
 
 import com.google.inject.Binder;
@@ -32,7 +32,7 @@ import com.typesafe.config.ConfigFactory;
 public class Jetty implements Jooby.Module {
 
   @Override
-  public void configure(final Mode mode, final Config config, final Binder binder) {
+  public void configure(final Env env, final Config config, final Binder binder) {
     OptionalBinder.newOptionalBinder(binder, Server.class).setDefault()
         .to(JettyServer.class)
         .in(Singleton.class);
@@ -40,7 +40,6 @@ public class Jetty implements Jooby.Module {
 
   @Override
   public Config config() {
-    String location = getClass().getPackage().getName().replace('.', '/');
-    return ConfigFactory.parseResources(location + "/jetty.conf");
+    return ConfigFactory.parseResources(getClass(), "jetty.conf");
   }
 }

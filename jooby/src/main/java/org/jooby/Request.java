@@ -239,7 +239,7 @@ public interface Request {
    *
    * <pre>
    * class MyModule implements Jooby.Module {
-   *   void configure(Mode mode, Config config, Binder binder) {
+   *   void configure(env env, Config config, Binder binder) {
    *     Multibinder b = Multibinder.newSetBinder(binder, RequestModule.class);
    *     b.addBinding().toInstance(requestBinder {@literal ->} {
    *       b.bind(MyService.class).to(...);

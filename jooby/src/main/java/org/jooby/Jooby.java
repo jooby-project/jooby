@@ -141,32 +141,32 @@ import com.typesafe.config.ConfigValueFactory;
  * System properties takes precedence over any application specific property.
  * </p>
  *
- * <h1>Mode</h1>
+ * <h1>env</h1>
  * <p>
  * Jooby defines two modes: <strong>dev</strong> or something else. In Jooby, <strong>dev</strong>
  * is special and some modules could apply special settings while running in <strong>dev</strong>.
- * Any other mode is usually considered a <code>prod</code> like mode. But that depends on module
+ * Any other env is usually considered a <code>prod</code> like env. But that depends on module
  * implementor.
  * </p>
  * <p>
- * A mode can be defined in your <code>application.conf</code> file using the
- * <code>application.mode</code> property. If missing, Jooby set the mode for you to
+ * A env can be defined in your <code>application.conf</code> file using the
+ * <code>application.env</code> property. If missing, Jooby set the env for you to
  * <strong>dev</strong>.
  * </p>
  * <p>
- * There is more at {@link Mode} so take a few minutes to discover what a {@link Mode} can do for
+ * There is more at {@link Env} so take a few minutes to discover what a {@link Env} can do for
  * you.
  * </p>
  *
  * <h1>Modules</h1>
  * <p>
  * {@link Jooby.Module Modules} are quite similar to a Guice modules except that the configure
- * callback has been complementing with {@link Mode} and {@link Config}.
+ * callback has been complementing with {@link Env} and {@link Config}.
  * </p>
  *
  * <pre>
  *   public class MyModule implements Jooby.Module {
- *     public void configure(Mode mode, Config config, Binder binder) {
+ *     public void configure(env env, Config config, Binder binder) {
  *     }
  *   }
  * </pre>
@@ -335,7 +335,7 @@ public class Jooby {
    * application specific service or contract of your choice.
    * <p>
    * It is similar to {@link com.google.inject.Module} except for the callback method receives a
-   * {@link Mode}, {@link Config} and {@link Binder}.
+   * {@link Env}, {@link Config} and {@link Binder}.
    * </p>
    *
    * <p>
@@ -398,15 +398,15 @@ public class Jooby {
 
     /**
      * Configure and produces bindings for the underlying application. A module can optimize or
-     * customize a service by checking current the {@link Mode application mode} and/or the current
+     * customize a service by checking current the {@link Env application env} and/or the current
      * application properties available from {@link Config}.
      *
-     * @param mode The current application's mode. Not null.
+     * @param env The current application's env. Not null.
      * @param config The current config object. Not null.
      * @param binder A guice binder. Not null.
      * @throws Exception If the module fails during configuration.
      */
-    void configure(@Nonnull Mode mode, @Nonnull Config config,
+    void configure(@Nonnull Env env, @Nonnull Config config,
         @Nonnull Binder binder) throws Exception;
 
   }
@@ -451,10 +451,25 @@ public class Jooby {
   /** Session store. */
   private Session.Definition session = new Session.Definition(Session.Store.NOOP);
 
+  /** Flag to control the addition of the asset formatter. */
   private boolean assetFormatter = false;
+
+  /** Env builder. */
+  private Env.Builder env = Env.DEFAULT;
 
   {
     use(new Jetty());
+  }
+
+  /**
+   * Set a custom {@link Env.Builder} to use.
+   *
+   * @param env A custom env builder.
+   * @return This jooby instance.
+   */
+  public @Nonnull Jooby env(final Env.Builder env) {
+    this.env = requireNonNull(env, "Env builder is required.");
+    return this;
   }
 
   /**
@@ -1755,7 +1770,7 @@ public class Jooby {
    * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
    * <ol>
    * <li>An {@link Injector Guice Injector} is created.</li>
-   * <li>It calls to {@link Jooby.Module#configure(Mode, Config, Binder)} for each module.</li>
+   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
    * <li>At this point Guice is ready and all the services has been binded.</li>
    * <li>It calls to {@link Jooby.Module#start() start method} for each module.</li>
    * <li>A web server is started</li>
@@ -1782,7 +1797,7 @@ public class Jooby {
    * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
    * <ol>
    * <li>An {@link Injector Guice Injector} is created.</li>
-   * <li>It calls to {@link Jooby.Module#configure(Mode, Config, Binder)} for each module.</li>
+   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
    * <li>At this point Guice is ready and all the services has been binded.</li>
    * <li>It calls to {@link Jooby.Module#start() start method} for each module.</li>
    * <li>A web server is started</li>
@@ -1798,7 +1813,7 @@ public class Jooby {
                 () -> ConfigFactory.parseResources("application.conf")
             )
         );
-    Mode mode = mode(config.getString("application.mode").toLowerCase());
+    Env env = this.env.build(config);
 
     // logback
     logback(config);
@@ -1821,7 +1836,7 @@ public class Jooby {
     DecimalFormat numberFormat = new DecimalFormat(config.getString("application.numberFormat"));
 
     // Guice Stage
-    Stage stage = mode.when("dev", Stage.DEVELOPMENT).value().orElse(Stage.PRODUCTION);
+    Stage stage = env.when("dev", Stage.DEVELOPMENT).value().orElse(Stage.PRODUCTION);
 
     // dependency injection
     injector = Guice.createInjector(stage, new com.google.inject.Module() {
@@ -1833,8 +1848,8 @@ public class Jooby {
         // bind config
         bindConfig(binder, config);
 
-        // bind mode
-        binder.bind(Mode.class).toInstance(mode);
+        // bind env
+        binder.bind(Env.class).toInstance(env);
 
         // bind charset
         binder.bind(Charset.class).toInstance(charset);
@@ -1892,7 +1907,7 @@ public class Jooby {
         // modules, routes and websockets
         bag.forEach(candidate -> {
           if (candidate instanceof Jooby.Module) {
-            install((Jooby.Module) candidate, mode, config, binder);
+            install((Jooby.Module) candidate, env, config, binder);
           } else if (candidate instanceof Request.Module) {
             requestModule.addBinding().toInstance((Request.Module) candidate);
           } else if (candidate instanceof Route.Definition) {
@@ -1901,7 +1916,7 @@ public class Jooby {
             sockets.addBinding().toInstance((WebSocket.Definition) candidate);
           } else {
             Class<?> routeClass = (Class<?>) candidate;
-            Routes.routes(mode, routeClass)
+            Routes.routes(env, routeClass)
                 .forEach(route -> definitions.addBinding().toInstance(route));
           }
         });
@@ -1982,11 +1997,11 @@ public class Jooby {
     // jooby config
     Config jooby = ConfigFactory.parseResources(Jooby.class, "jooby.conf");
 
-    String mode = Arrays.asList(system, source, jooby).stream()
-        .filter(it -> it.hasPath("application.mode"))
+    String env = Arrays.asList(system, source, jooby).stream()
+        .filter(it -> it.hasPath("application.env"))
         .findFirst()
         .get()
-        .getString("application.mode");
+        .getString("application.env");
 
     String secret = Arrays
         .asList(system, source, jooby)
@@ -1999,46 +2014,46 @@ public class Jooby {
         )
         .getString("application.secret");
 
-    Config modeConfig = modeConfig(source, mode);
+    Config modeConfig = modeConfig(source, env);
 
-    // application.[mode].conf -> application.conf
+    // application.[env].conf -> application.conf
     Config config = modeConfig.withFallback(source);
 
     return system
         .withFallback(config)
         .withFallback(moduleStack)
         .withFallback(MediaType.types)
-        .withFallback(defaultConfig(config, mode, secret))
+        .withFallback(defaultConfig(config, env, secret))
         .withFallback(jooby)
         .resolve();
   }
 
   /**
-   * Build a mode config: <code>[application].[mode].[conf]</code>.
+   * Build a env config: <code>[application].[env].[conf]</code>.
    * Stack looks like
    *
    * <pre>
-   *   (file://[origin].[mode].[conf])?
-   *   (cp://[origin].[mode].[conf])?
-   *   file://application.[mode].[conf]
-   *   /application.[mode].[conf]
+   *   (file://[origin].[env].[conf])?
+   *   (cp://[origin].[env].[conf])?
+   *   file://application.[env].[conf]
+   *   /application.[env].[conf]
    * </pre>
    *
    * @param source App source to use.
-   * @param mode Application mode.
-   * @return A config mode.
+   * @param env Application env.
+   * @return A config env.
    */
-  private Config modeConfig(final Config source, final String mode) {
+  private Config modeConfig(final Config source, final String env) {
     String origin = source.origin().resource();
     Config result = ConfigFactory.empty();
     if (origin != null) {
-      // load [resource].[mode].[ext]
+      // load [resource].[env].[ext]
       int dot = origin.lastIndexOf('.');
-      String originConf = origin.substring(0, dot) + "." + mode + origin.substring(dot);
+      String originConf = origin.substring(0, dot) + "." + env + origin.substring(dot);
 
       result = fileConfig(originConf).withFallback(ConfigFactory.parseResources(originConf));
     }
-    String appConfig = "application." + mode + ".conf";
+    String appConfig = "application." + env + ".conf";
     return result
         .withFallback(fileConfig(appConfig))
         .withFallback(fileConfig("application.conf"))
@@ -2060,11 +2075,11 @@ public class Jooby {
    * Build default application.* properties.
    *
    * @param config A source config.
-   * @param mode Application mode.
+   * @param env Application env.
    * @param secret Application secret.
    * @return default properties.
    */
-  private Config defaultConfig(final Config config, final String mode, final String secret) {
+  private Config defaultConfig(final Config config, final String env, final String secret) {
     Map<String, Object> defaults = new LinkedHashMap<>();
 
     // set app name
@@ -2095,7 +2110,7 @@ public class Jooby {
 
     // last check app secret
     if (secret.length() == 0) {
-      if ("dev".equalsIgnoreCase(mode)) {
+      if ("dev".equalsIgnoreCase(env)) {
         // it will survive between restarts and allow to have different apps running for
         // development.
         String devRandomSecret = getClass().getResource(getClass().getSimpleName() + ".class")
@@ -2114,14 +2129,14 @@ public class Jooby {
    * Install a {@link JoobyModule}.
    *
    * @param module The module to install.
-   * @param mode Application mode.
+   * @param env Application env.
    * @param config The configuration object.
    * @param binder A Guice binder.
    */
-  private void install(final Jooby.Module module, final Mode mode, final Config config,
+  private void install(final Jooby.Module module, final Env env, final Config config,
       final Binder binder) {
     try {
-      module.configure(mode, config, binder);
+      module.configure(env, config, binder);
     } catch (Exception ex) {
       throw new IllegalStateException("Error found on module: " + module.getClass().getName(), ex);
     }
@@ -2153,26 +2168,6 @@ public class Jooby {
     }
     // bind config
     binder.bind(Config.class).toInstance(config);
-  }
-
-  /**
-   * Creates the application's mode.
-   *
-   * @param name A mode's name.
-   * @return A new mode.
-   */
-  private static Mode mode(final String name) {
-    return new Mode() {
-      @Override
-      public String name() {
-        return name;
-      }
-
-      @Override
-      public String toString() {
-        return name;
-      }
-    };
   }
 
   private static void logback(final Config config) throws JoranException {

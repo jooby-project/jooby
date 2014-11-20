@@ -27,7 +27,7 @@ import java.util.List;
 import javax.inject.Singleton;
 
 import org.jooby.Jooby;
-import org.jooby.Mode;
+import org.jooby.Env;
 import org.jooby.internal.Server;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
@@ -72,7 +72,7 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
       app = (Jooby) appClass.newInstance();
       app.use(new Jooby.Module() {
         @Override
-        public void configure(final Mode mode, final Config config, final Binder binder)
+        public void configure(final Env mode, final Config config, final Binder binder)
             throws Exception {
           OptionalBinder.newOptionalBinder(binder, Server.class).setBinding()
               .to(NoJoinServer.class)
