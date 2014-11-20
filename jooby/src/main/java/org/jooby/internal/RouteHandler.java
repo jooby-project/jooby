@@ -21,10 +21,10 @@ package org.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -155,7 +155,7 @@ public class RouteHandler {
 
       List<Route> routes = routes(verb, requestURI, type, accept);
 
-      chain(routes.iterator())
+      chain(routes)
           .next(reqFactory.apply(injector, notFound), resFactory.apply(injector, notFound));
 
     } catch (Exception ex) {
@@ -193,12 +193,13 @@ public class RouteHandler {
     return uri.endsWith("/") && uri.length() > 1 ? uri.substring(0, uri.length() - 1) : uri;
   }
 
-  private static Route.Chain chain(final Iterator<Route> it) {
+  private static Route.Chain chain(final List<Route> routes) {
     return new Route.Chain() {
 
+      private int it = 0;
       @Override
       public void next(final Request req, final Response rsp) throws Exception {
-        RouteImpl route = get(it.next());
+        RouteImpl route = get(routes.get(it++));
         if (rsp.committed()) {
           return;
         }
@@ -266,7 +267,7 @@ public class RouteHandler {
   private List<Route> findRoutes(final Verb verb, final String path, final MediaType type,
       final List<MediaType> accept, final Verb overrideVerb) {
 
-    LinkedList<Route> routes = new LinkedList<Route>();
+    List<Route> routes = new ArrayList<>();
     for (Route.Definition routeDef : routeDefs) {
       Optional<Route> route = routeDef.matches(verb, path, type, accept);
       if (route.isPresent()) {
