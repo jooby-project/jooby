@@ -369,8 +369,9 @@ public interface Route {
     public Definition(final @Nonnull String verb, final @Nonnull String pattern,
         final @Nonnull Filter filter) {
       try {
+        requireNonNull(verb, "HTTP verb is required.");
         Verb.valueOf(verb.toUpperCase());
-      } catch (NullPointerException | IllegalArgumentException ex) {
+      } catch (IllegalArgumentException ex) {
         if (!"*".equals(verb)) {
           throw new IllegalArgumentException("Invalid HTTP verb: " + verb);
         }
@@ -487,11 +488,41 @@ public interface Route {
     /**
      * Test if the route definition can consume a media type.
      *
+     * @param type A media type to test.
+     * @return True, if the route can consume the given media type.
+     */
+    public boolean canConsume(@Nonnull final String type) {
+      return MediaType.matcher(MediaType.valueOf(type)).matches(consumes);
+    }
+
+    /**
+     * Test if the route definition can consume a media type.
+     *
      * @param types A media types to test.
      * @return True, if the route can produces the given media type.
      */
     public boolean canProduce(final List<MediaType> types) {
       return MediaType.matcher(types).matches(produces);
+    }
+
+    /**
+     * Test if the route definition can consume a media type.
+     *
+     * @param types A media types to test.
+     * @return True, if the route can produces the given media type.
+     */
+    public boolean canProduce(final MediaType... types) {
+      return canProduce(Arrays.asList(types));
+    }
+
+    /**
+     * Test if the route definition can consume a media type.
+     *
+     * @param types A media types to test.
+     * @return True, if the route can produces the given media type.
+     */
+    public boolean canProduce(final String... types) {
+      return canProduce(MediaType.valueOf(types));
     }
 
     /**
@@ -502,6 +533,16 @@ public interface Route {
      */
     public Definition consumes(final MediaType... consumes) {
       return consumes(Arrays.asList(consumes));
+    }
+
+    /**
+     * Set the media types the route can consume.
+     *
+     * @param consumes The media types to test for.
+     * @return This route definition.
+     */
+    public Definition consumes(final String... consumes) {
+      return consumes(MediaType.valueOf(consumes));
     }
 
     /**

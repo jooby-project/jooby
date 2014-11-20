@@ -43,7 +43,7 @@ import java.util.TimeZone;
 import javax.annotation.Nonnull;
 
 import org.jooby.internal.AssetFormatter;
-import org.jooby.internal.AssetRoute;
+import org.jooby.internal.AssetHandler;
 import org.jooby.internal.FallbackBodyConverter;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.Server;
@@ -249,20 +249,8 @@ import com.typesafe.config.ConfigValueFactory;
  *   });
  * </pre>
  *
- *
- * <h2>Inline route</h2>
- * <p>
- * An inline route can be defined using Lambda expressions, like:
- * </p>
- *
- * <pre>
- *   get("/", (request, response) {@literal ->} {
- *     response.send("Hello Jooby");
- *   });
- * </pre>
- *
- * Due to the use of lambdas a route is a singleton and you should NOT use global variables.
- * For example this is a bad practice:
+ * Due to the use of lambdas a route is a singleton and you should NOT use global variables. For
+ * example this is a bad practice:
  *
  * <pre>
  *  List{@literal <}String{@literal >} names = new ArrayList{@literal <}{@literal >}(); // names produces side effects
@@ -273,21 +261,6 @@ import com.typesafe.config.ConfigValueFactory;
  *   });
  * </pre>
  *
- * <h2>External route</h2>
- * <p>
- * An external route can be defined by using a {@link Class route class}, like:
- * </p>
- *
- * <pre>
- *   get("/", route(ExternalRoute.class)); //or
- *
- *   ...
- *   // ExternalRoute.java
- *   public class ExternalRoute implements Route.Handler {
- *     public void handle(Request req, Response rsp) throws Exception {
- *       rsp.send("Hello Jooby");
- *     }
- *   }
  * </pre>
  *
  * <h2>Mvc Route</h2>
@@ -296,7 +269,7 @@ import com.typesafe.config.ConfigValueFactory;
  * </p>
  *
  * <pre>
- *   route(MyRoute.class);
+ *   use(MyRoute.class);
  *   ...
  *   // MyRoute.java
  *   {@literal @}Path("/")
@@ -478,10 +451,10 @@ public class Jooby {
   /** Session store. */
   private Session.Definition session = new Session.Definition(Session.Store.NOOP);
 
+  private boolean assetFormatter = false;
+
   {
     use(new Jetty());
-    // write/format static resources
-    formatters.add(new AssetFormatter());
   }
 
   /**
@@ -528,7 +501,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition use(final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
-    return handler(new Route.Definition("*", path, filter));
+    return appendDefinition(new Route.Definition("*", path, filter));
   }
 
   /**
@@ -541,7 +514,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition use(final @Nonnull String verb, final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
-    return handler(new Route.Definition(verb, path, filter));
+    return appendDefinition(new Route.Definition(verb, path, filter));
   }
 
   /**
@@ -554,7 +527,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition use(final @Nonnull String verb, final @Nonnull String path,
       final @Nonnull Route.Handler handler) {
-    return handler(new Route.Definition(verb, path, handler));
+    return appendDefinition(new Route.Definition(verb, path, handler));
   }
 
   /**
@@ -566,7 +539,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition use(final @Nonnull String path,
       final @Nonnull Route.Handler handler) {
-    return handler(new Route.Definition("*", path, handler));
+    return appendDefinition(new Route.Definition("*", path, handler));
   }
 
   /**
@@ -586,7 +559,7 @@ public class Jooby {
    * @return A new route definition.
    */
   public @Nonnull Route.Definition get(final String path) {
-    return handler(new Route.Definition("GET", path, file(path)));
+    return appendDefinition(new Route.Definition("GET", path, staticFile(path)));
   }
 
   /**
@@ -606,7 +579,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition get(final @Nonnull String path,
       final @Nonnull Route.Handler handler) {
-    return handler(new Route.Definition("GET", path, handler));
+    return appendDefinition(new Route.Definition("GET", path, handler));
   }
 
   /**
@@ -626,7 +599,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition get(final @Nonnull String path,
       final @Nonnull Route.OneArgHandler handler) {
-    return handler(new Route.Definition("GET", path, handler));
+    return appendDefinition(new Route.Definition("GET", path, handler));
   }
 
   /**
@@ -646,7 +619,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition get(final @Nonnull String path,
       final @Nonnull Route.ZeroArgHandler handler) {
-    return handler(new Route.Definition("GET", path, handler));
+    return appendDefinition(new Route.Definition("GET", path, handler));
   }
 
   /**
@@ -666,7 +639,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition get(final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
-    return handler(new Route.Definition("GET", path, filter));
+    return appendDefinition(new Route.Definition("GET", path, filter));
   }
 
   /**
@@ -686,7 +659,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition post(final @Nonnull String path,
       final @Nonnull Route.Handler handler) {
-    return handler(new Route.Definition("POST", path, handler));
+    return appendDefinition(new Route.Definition("POST", path, handler));
   }
 
   /**
@@ -706,7 +679,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition post(final @Nonnull String path,
       final @Nonnull Route.OneArgHandler handler) {
-    return handler(new Route.Definition("POST", path, handler));
+    return appendDefinition(new Route.Definition("POST", path, handler));
   }
 
   /**
@@ -726,7 +699,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition post(final @Nonnull String path,
       final @Nonnull Route.ZeroArgHandler handler) {
-    return handler(new Route.Definition("POST", path, handler));
+    return appendDefinition(new Route.Definition("POST", path, handler));
   }
 
   /**
@@ -746,7 +719,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition post(final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
-    return handler(new Route.Definition("POST", path, filter));
+    return appendDefinition(new Route.Definition("POST", path, filter));
   }
 
   /**
@@ -765,7 +738,7 @@ public class Jooby {
    * @return A new route definition.
    */
   public Route.Definition head(final @Nonnull String path, final @Nonnull Route.Handler handler) {
-    return handler(new Route.Definition("HEAD", path, handler));
+    return appendDefinition(new Route.Definition("HEAD", path, handler));
   }
 
   /**
@@ -785,7 +758,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition head(final @Nonnull String path,
       final @Nonnull Route.OneArgHandler handler) {
-    return handler(new Route.Definition("HEAD", path, handler));
+    return appendDefinition(new Route.Definition("HEAD", path, handler));
   }
 
   /**
@@ -805,7 +778,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition head(final @Nonnull String path,
       final @Nonnull Route.ZeroArgHandler handler) {
-    return handler(new Route.Definition("HEAD", path, handler));
+    return appendDefinition(new Route.Definition("HEAD", path, handler));
   }
 
   /**
@@ -825,7 +798,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition head(final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
-    return handler(new Route.Definition("HEAD", path, filter));
+    return appendDefinition(new Route.Definition("HEAD", path, filter));
   }
 
   /**
@@ -837,11 +810,11 @@ public class Jooby {
    *   });
    * </pre>
    *
-   * @param path A path pattern.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition head(final @Nonnull String path) {
-    return handler(new Route.Definition("HEAD", path, filter(HeadHandler.class)).name("*.head"));
+  public @Nonnull Route.Definition head() {
+    return appendDefinition(new Route.Definition("HEAD", "*", filter(HeadHandler.class))
+        .name("*.head"));
   }
 
   /**
@@ -861,7 +834,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition options(final @Nonnull String path,
       final @Nonnull Route.Handler handler) {
-    return handler(new Route.Definition("OPTIONS", path, handler));
+    return appendDefinition(new Route.Definition("OPTIONS", path, handler));
   }
 
   /**
@@ -881,7 +854,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition options(final @Nonnull String path,
       final @Nonnull Route.OneArgHandler handler) {
-    return handler(new Route.Definition("OPTIONS", path, handler));
+    return appendDefinition(new Route.Definition("OPTIONS", path, handler));
   }
 
   /**
@@ -901,7 +874,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition options(final @Nonnull String path,
       final @Nonnull Route.ZeroArgHandler handler) {
-    return handler(new Route.Definition("OPTIONS", path, handler));
+    return appendDefinition(new Route.Definition("OPTIONS", path, handler));
   }
 
   /**
@@ -922,7 +895,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition options(final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
-    return handler(new Route.Definition("OPTIONS", path, filter));
+    return appendDefinition(new Route.Definition("OPTIONS", path, filter));
   }
 
   /**
@@ -940,11 +913,10 @@ public class Jooby {
    *
    * OPTINOS / produces a response with a Allow header set to: GET, POST.
    *
-   * @param path A path pattern.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition options(final @Nonnull String path) {
-    return handler(new Route.Definition("OPTIONS", path, handler(OptionsHandler.class))
+  public @Nonnull Route.Definition options() {
+    return appendDefinition(new Route.Definition("OPTIONS", "*", handler(OptionsHandler.class))
         .name("*.options"));
   }
 
@@ -965,7 +937,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition put(final @Nonnull String path,
       final @Nonnull Route.Handler handler) {
-    return handler(new Route.Definition("PUT", path, handler));
+    return appendDefinition(new Route.Definition("PUT", path, handler));
   }
 
   /**
@@ -985,7 +957,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition put(final @Nonnull String path,
       final @Nonnull Route.OneArgHandler handler) {
-    return handler(new Route.Definition("PUT", path, handler));
+    return appendDefinition(new Route.Definition("PUT", path, handler));
   }
 
   /**
@@ -1005,7 +977,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition put(final @Nonnull String path,
       final @Nonnull Route.ZeroArgHandler handler) {
-    return handler(new Route.Definition("PUT", path, handler));
+    return appendDefinition(new Route.Definition("PUT", path, handler));
   }
 
   /**
@@ -1025,7 +997,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition put(final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
-    return handler(new Route.Definition("PUT", path, filter));
+    return appendDefinition(new Route.Definition("PUT", path, filter));
   }
 
   /**
@@ -1045,7 +1017,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition patch(final @Nonnull String path,
       final @Nonnull Route.Handler handler) {
-    return handler(new Route.Definition("PATCH", path, handler));
+    return appendDefinition(new Route.Definition("PATCH", path, handler));
   }
 
   /**
@@ -1065,7 +1037,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition patch(final @Nonnull String path,
       final @Nonnull Route.OneArgHandler handler) {
-    return handler(new Route.Definition("PATCH", path, handler));
+    return appendDefinition(new Route.Definition("PATCH", path, handler));
   }
 
   /**
@@ -1085,7 +1057,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition patch(final @Nonnull String path,
       final @Nonnull Route.ZeroArgHandler handler) {
-    return handler(new Route.Definition("PATCH", path, handler));
+    return appendDefinition(new Route.Definition("PATCH", path, handler));
   }
 
   /**
@@ -1105,7 +1077,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition patch(final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
-    return handler(new Route.Definition("PATCH", path, filter));
+    return appendDefinition(new Route.Definition("PATCH", path, filter));
   }
 
   /**
@@ -1125,7 +1097,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition delete(final @Nonnull String path,
       final @Nonnull Route.Handler handler) {
-    return handler(new Route.Definition("DELETE", path, handler));
+    return appendDefinition(new Route.Definition("DELETE", path, handler));
   }
 
   /**
@@ -1145,7 +1117,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition delete(final @Nonnull String path,
       final @Nonnull Route.OneArgHandler handler) {
-    return handler(new Route.Definition("DELETE", path, handler));
+    return appendDefinition(new Route.Definition("DELETE", path, handler));
   }
 
   /**
@@ -1165,7 +1137,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition delete(final @Nonnull String path,
       final @Nonnull Route.ZeroArgHandler handler) {
-    return handler(new Route.Definition("DELETE", path, handler));
+    return appendDefinition(new Route.Definition("DELETE", path, handler));
   }
 
   /**
@@ -1186,7 +1158,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition delete(final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
-    return handler(new Route.Definition("DELETE", path, filter));
+    return appendDefinition(new Route.Definition("DELETE", path, filter));
   }
 
   /**
@@ -1206,7 +1178,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition trace(final @Nonnull String path,
       final @Nonnull Route.Handler handler) {
-    return handler(new Route.Definition("TRACE", path, handler));
+    return appendDefinition(new Route.Definition("TRACE", path, handler));
   }
 
   /**
@@ -1226,7 +1198,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition trace(final @Nonnull String path,
       final @Nonnull Route.OneArgHandler handler) {
-    return handler(new Route.Definition("TRACE", path, handler));
+    return appendDefinition(new Route.Definition("TRACE", path, handler));
   }
 
   /**
@@ -1246,7 +1218,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition trace(final @Nonnull String path,
       final @Nonnull Route.ZeroArgHandler handler) {
-    return handler(new Route.Definition("TRACE", path, handler));
+    return appendDefinition(new Route.Definition("TRACE", path, handler));
   }
 
   /**
@@ -1266,7 +1238,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition trace(final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
-    return handler(new Route.Definition("TRACE", path, filter));
+    return appendDefinition(new Route.Definition("TRACE", path, filter));
   }
 
   /**
@@ -1280,11 +1252,10 @@ public class Jooby {
    *
    * </pre>
    *
-   * @param path A path pattern.
    * @return A new route definition.
    */
-  public @Nonnull Route.Definition trace(final @Nonnull String path) {
-    return handler(new Route.Definition("TRACE", path, handler(TraceHandler.class))
+  public @Nonnull Route.Definition trace() {
+    return appendDefinition(new Route.Definition("TRACE", "*", handler(TraceHandler.class))
         .name("*.trace"));
   }
 
@@ -1305,7 +1276,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition connect(final @Nonnull String path,
       @Nonnull final Route.Handler handler) {
-    return handler(new Route.Definition("CONNECT", path, handler));
+    return appendDefinition(new Route.Definition("CONNECT", path, handler));
   }
 
   /**
@@ -1325,7 +1296,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition connect(final @Nonnull String path,
       final @Nonnull Route.OneArgHandler handler) {
-    return handler(new Route.Definition("CONNECT", path, handler));
+    return appendDefinition(new Route.Definition("CONNECT", path, handler));
   }
 
   /**
@@ -1345,7 +1316,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition connect(final @Nonnull String path,
       final @Nonnull Route.ZeroArgHandler handler) {
-    return handler(new Route.Definition("CONNECT", path, handler));
+    return appendDefinition(new Route.Definition("CONNECT", path, handler));
   }
 
   /**
@@ -1365,7 +1336,7 @@ public class Jooby {
    */
   public @Nonnull Route.Definition connect(final @Nonnull String path,
       final @Nonnull Route.Filter filter) {
-    return handler(new Route.Definition("CONNECT", path, filter));
+    return appendDefinition(new Route.Definition("CONNECT", path, filter));
   }
 
   /**
@@ -1399,7 +1370,7 @@ public class Jooby {
    * @param handler The external handler class.
    * @return A new inline route handler.
    */
-  public @Nonnull Route.Handler handler(final @Nonnull Class<? extends Route.Handler> handler) {
+  private @Nonnull Route.Handler handler(final @Nonnull Class<? extends Route.Handler> handler) {
     requireNonNull(handler, "Route handler is required.");
     registerRouteScope(handler);
     return (req, rsp) -> req.getInstance(handler).handle(req, rsp);
@@ -1436,7 +1407,7 @@ public class Jooby {
    * @param filter The external filter class.
    * @return A new inline route.
    */
-  public @Nonnull Route.Filter filter(final @Nonnull Class<? extends Route.Filter> filter) {
+  private @Nonnull Route.Filter filter(final @Nonnull Class<? extends Route.Filter> filter) {
     requireNonNull(filter, "Filter is required.");
     registerRouteScope(filter);
     return (req, rsp, chain) -> req.getInstance(filter).handle(req, rsp, chain);
@@ -1456,7 +1427,11 @@ public class Jooby {
    * @return A new route definition.
    */
   public @Nonnull Route.Definition assets(final @Nonnull String path) {
-    return get(path, handler(AssetRoute.class)).name("static files");
+    if (!assetFormatter) {
+      formatters.add(new AssetFormatter());
+      assetFormatter = true;
+    }
+    return get(path, new AssetHandler());
   }
 
   /**
@@ -1574,33 +1549,15 @@ public class Jooby {
    * @param location Absolute classpath location.
    * @return A new route handler.
    */
-  public Route.Handler file(@Nonnull final String location) {
-    return staticFile(location);
-  }
-
-  /**
-   * Serve a single file from classpath.
-   * Usage:
-   *
-   * <pre>
-   *   {
-   *     // serve the welcome.html from classpath root
-   *     get("/", file(MediaType.html, "welcome.html");
-   *   }
-   * </pre>
-   *
-   * @param location Absolute classpath location.
-   * @return A new route handler.
-   */
-  private static Route.Handler staticFile(@Nonnull final String location) {
+  public Route.Filter staticFile(@Nonnull final String location) {
     requireNonNull(location, "A location is required.");
     String path = RoutePattern.normalize(location);
-    return (req, rsp) -> {
-      req.getInstance(AssetRoute.class).handle(new Request.Forwarding(req) {
+    return (req, rsp, chain) -> {
+      new AssetHandler().handle(new Request.Forwarding(req) {
 
         @Override
         public String path() {
-          return path;
+          return route().path();
         }
 
         @Override
@@ -1612,7 +1569,7 @@ public class Jooby {
             }
           };
         }
-      }, rsp);
+      }, rsp, chain);
     };
   }
 
@@ -1687,10 +1644,11 @@ public class Jooby {
    * @param route
    */
   private void registerRouteScope(final Class<?> route) {
-    if (route.getAnnotation(javax.inject.Singleton.class) == null) {
-      protoRoutes.add(route);
-    } else {
+    if (route.getAnnotation(javax.inject.Singleton.class) != null ||
+        route.getAnnotation(com.google.inject.Singleton.class) != null) {
       singletonRoutes.add(route);
+    } else {
+      protoRoutes.add(route);
     }
   }
 
@@ -1700,7 +1658,7 @@ public class Jooby {
    * @param route A route definition to append.
    * @return The same route definition.
    */
-  private Route.Definition handler(final Route.Definition route) {
+  private Route.Definition appendDefinition(final Route.Definition route) {
     bag.add(route);
     return route;
   }
@@ -1847,11 +1805,7 @@ public class Jooby {
 
     // shutdown hook
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      try {
-        stop();
-      } catch (Exception ex) {
-        LoggerFactory.getLogger(getClass()).error("Shutdown with error", ex);
-      }
+      stop();
     }));
 
     final Charset charset = Charset.forName(config.getString("application.charset"));
@@ -1921,14 +1875,15 @@ public class Jooby {
             .newSetBinder(binder, Request.Module.class);
 
         // bind prototype routes in request module
-        requestModule.addBinding().toInstance(
-            b -> protoRoutes.forEach(routeClass -> b.bind(routeClass)));
+        if (protoRoutes.size() > 0) {
+          requestModule.addBinding().toInstance(
+              b -> protoRoutes.forEach(routeClass -> b.bind(routeClass)));
+        }
 
         // tmp dir
-        binder.bind(File.class).annotatedWith(Names.named("java.io.tmpdir"))
-            .toInstance(new File(config.getString("java.io.tmpdir")));
-        binder.bind(File.class).annotatedWith(Names.named("tmpdir"))
-            .toInstance(new File(config.getString("java.io.tmpdir")));
+        File tmpdir = new File(config.getString("application.tmpdir"));
+        tmpdir.mkdirs();
+        binder.bind(File.class).annotatedWith(Names.named("application.tmpdir")).toInstance(tmpdir);
 
         // converters
         parsers.forEach(it -> parserBinder.addBinding().toInstance(it));
@@ -2152,9 +2107,7 @@ public class Jooby {
     }
 
     Map<String, Object> application = ImmutableMap.of("application", defaults);
-    return defaults.size() == 0
-        ? ConfigFactory.empty()
-        : ConfigValueFactory.fromMap(application).toConfig();
+    return ConfigValueFactory.fromMap(application).toConfig();
   }
 
   /**
@@ -2178,12 +2131,11 @@ public class Jooby {
    * Bind a {@link Config} and make it available for injection. Each property of the config is also
    * binded it and ready to be injected with {@link javax.inject.Named}.
    *
-   * @param binder
-   * @param config
+   * @param binder Guice binder.
+   * @param config App config.
    */
   @SuppressWarnings("unchecked")
-  private void bindConfig(final Binder root, final Config config) {
-    Binder binder = root.skipSources(Names.class);
+  private void bindConfig(final Binder binder, final Config config) {
     for (Entry<String, ConfigValue> entry : config.entrySet()) {
       String name = entry.getKey();
       Named named = Names.named(name);

@@ -9,6 +9,7 @@ public class SwitchTest {
 
   @Test
   public void keyValue() throws Exception {
+
     assertEquals("X", Switch.newSwitch("x")
         .when("x", "X")
         .when("y", "Y")

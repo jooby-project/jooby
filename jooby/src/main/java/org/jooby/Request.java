@@ -87,6 +87,16 @@ public interface Request {
     }
 
     @Override
+    public Optional<MediaType> accepts(final MediaType... types) {
+      return request.accepts(types);
+    }
+
+    @Override
+    public Optional<MediaType> accepts(final String... types) {
+      return request.accepts(types);
+    }
+
+    @Override
     public Map<String, Mutant> params() throws Exception {
       return request.params();
     }
@@ -119,6 +129,21 @@ public interface Request {
     @Override
     public <T> T body(final TypeLiteral<T> type) throws Exception {
       return request.body(type);
+    }
+
+    @Override
+    public <T> T body(final Class<T> type) throws Exception {
+      return request.body(type);
+    }
+
+    @Override
+    public <T> T getInstance(final Class<T> type) {
+      return request.getInstance(type);
+    }
+
+    @Override
+    public <T> T getInstance(final TypeLiteral<T> type) {
+      return request.getInstance(type);
     }
 
     @Override
@@ -169,31 +194,6 @@ public interface Request {
     @Override
     public String protocol() {
       return request.protocol();
-    }
-
-    @Override
-    public Optional<MediaType> accepts(final MediaType... types) {
-      return request.accepts(types);
-    }
-
-    @Override
-    public Optional<MediaType> accepts(final String... types) {
-      return request.accepts(types);
-    }
-
-    @Override
-    public <T> T body(final Class<T> type) throws Exception {
-      return request.body(type);
-    }
-
-    @Override
-    public <T> T getInstance(final Class<T> type) {
-      return request.getInstance(type);
-    }
-
-    @Override
-    public <T> T getInstance(final TypeLiteral<T> type) {
-      return request.getInstance(type);
     }
 
     @Override

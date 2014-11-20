@@ -17,7 +17,7 @@ public class HeadRequestFeature extends ServerFeature {
     head("/head", (req, rsp) -> rsp.send(req.path()));
 
     // global head
-    head("*");
+    head();
   }
 
   @Test

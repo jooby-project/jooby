@@ -19,12 +19,12 @@ public class TraceRequestFeature extends ServerFeature {
 
     get("/sub", (req, rsp) -> rsp.send(req.route().verb()));
 
-    trace("*");
+    trace();
 
   }
 
   @Test
-  public void trace() throws Exception {
+  public void globTrace() throws Exception {
     String rsp = execute(TRACE(uri("/")), (response) -> {
       assertEquals(200, response.getStatusLine().getStatusCode());
       assertTrue(Integer.parseInt(response.getFirstHeader("Content-Length").getValue()) >= 163);

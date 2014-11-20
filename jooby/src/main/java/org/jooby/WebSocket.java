@@ -30,7 +30,6 @@ import javax.annotation.Nonnull;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.WebSocketImpl;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
@@ -159,7 +158,7 @@ public interface WebSocket extends Closeable {
      */
     public static CloseStatus of(final int code, @Nonnull final String reason) {
       requireNonNull(reason, "A reason is required.");
-      return new CloseStatus(code);
+      return new CloseStatus(code, reason);
     }
 
     /**
@@ -377,16 +376,13 @@ public interface WebSocket extends Closeable {
     }
   }
 
-  /** The logging system. */
-  Logger log = LoggerFactory.getLogger(WebSocket.class);
-
   /** Default success callback. */
   Callback0 SUCCESS = () -> {
   };
 
   /** Default err callback. */
   Callback<Exception> ERR = (ex) -> {
-    log.error("Error while sending data", ex);
+    LoggerFactory.getLogger(WebSocket.class).error("Error while sending data", ex);
   };
 
   /**
@@ -605,8 +601,7 @@ public interface WebSocket extends Closeable {
    */
   default void send(final @Nonnull Object data, final @Nonnull Callback<Exception> err)
       throws Exception {
-    send(data, () -> {
-    }, err);
+    send(data, SUCCESS, err);
   }
 
   /**

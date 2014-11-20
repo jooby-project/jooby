@@ -78,28 +78,42 @@ public interface Response {
     }
 
     @Override
+    public void download(final String filename, final File file) throws Exception {
+      response.download(filename, file);
+    }
+
+    @Override
     public void download(final String filename) throws Exception {
       response.download(filename);
     }
 
     @Override
+    public void download(final String filename, final String location) throws Exception {
+      response.download(filename, location);
+    }
+
+    @Override
     public Response cookie(final String name, final String value) {
-      return response.cookie(name, value);
+      response.cookie(name, value);
+      return this;
     }
 
     @Override
     public Response cookie(final Cookie cookie) {
-      return response.cookie(cookie);
+      response.cookie(cookie);
+      return this;
     }
 
     @Override
     public Response cookie(final Definition cookie) {
-      return response.cookie(cookie);
+      response.cookie(cookie);
+      return this;
     }
 
     @Override
     public Response clearCookie(final String name) {
-      return response.clearCookie(name);
+      response.clearCookie(name);
+      return this;
     }
 
     @Override
@@ -109,47 +123,56 @@ public interface Response {
 
     @Override
     public Response header(final String name, final byte value) {
-      return response.header(name, value);
+      response.header(name, value);
+      return this;
     }
 
     @Override
     public Response header(final String name, final char value) {
-      return response.header(name, value);
+      response.header(name, value);
+      return this;
     }
 
     @Override
     public Response header(final String name, final Date value) {
-      return response.header(name, value);
+      response.header(name, value);
+      return this;
     }
 
     @Override
     public Response header(final String name, final double value) {
-      return response.header(name, value);
+      response.header(name, value);
+      return this;
     }
 
     @Override
     public Response header(final String name, final float value) {
-      return response.header(name, value);
+      response.header(name, value);
+      return this;
     }
 
     @Override
     public Response header(final String name, final int value) {
-      return response.header(name, value);
+      response.header(name, value);
+      return this;
     }
 
     @Override
     public Response header(final String name, final long value) {
-      return response.header(name, value);
+      response.header(name, value);
+      return this;
     }
 
     @Override
     public Response header(final String name, final short value) {
-      return response.header(name, value);
+      response.header(name, value);
+      return this;
     }
 
     @Override
     public Response header(final String name, final CharSequence value) {
-      return response.header(name, value);
+      response.header(name, value);
+      return this;
     }
 
     @Override
@@ -159,12 +182,14 @@ public interface Response {
 
     @Override
     public Response charset(final Charset charset) {
-      return response.charset(charset);
+      response.charset(charset);
+      return this;
     }
 
     @Override
     public Response length(final int length) {
-      return response.length(length);
+      response.length(length);
+      return this;
     }
 
     @Override
@@ -174,7 +199,8 @@ public interface Response {
 
     @Override
     public Response local(final String name, final Object value) {
-      return response.local(name, value);
+      response.local(name, value);
+      return this;
     }
 
     @Override
@@ -189,12 +215,14 @@ public interface Response {
 
     @Override
     public Response type(final MediaType type) {
-      return response.type(type);
+      response.type(type);
+      return this;
     }
 
     @Override
     public Response type(final String type) {
-      return response.type(type);
+      response.type(type);
+      return this;
     }
 
     @Override
@@ -229,12 +257,14 @@ public interface Response {
 
     @Override
     public Response status(final Status status) {
-      return response.status(status);
+      response.status(status);
+      return this;
     }
 
     @Override
     public Response status(final int status) {
-      return response.status(status);
+      response.status(status);
+      return this;
     }
 
     @Override
@@ -318,8 +348,7 @@ public interface Response {
   /**
    * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
    * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
-   * appear in the browser dialog) is set to path by default. However, you may provide an override
-   * filename.
+   * appear in the browser dialog) is set to filename.
    *
    * @param filename A file name to use.
    * @param stream A stream to attach.
@@ -330,8 +359,7 @@ public interface Response {
   /**
    * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
    * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
-   * appear in the browser dialog) is set to path by default. However, you may provide an override
-   * filename.
+   * appear in the browser dialog) is set to filename.
    *
    * @param filename A file name to use.
    * @param reader A reader to attach.
@@ -342,27 +370,52 @@ public interface Response {
   /**
    * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
    * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
-   * appear in the browser dialog) is set to path by default. However, you may provide an override
-   * filename.
+   * appear in the browser dialog) is set to filename by default.
    *
-   * @param filename A file name to use.
+   * @param location Classpath location of the file.
    * @throws Exception If something goes wrong.
    */
-  default void download(final @Nonnull String filename) throws Exception {
-    download(filename, getClass().getResourceAsStream(filename));
+  default void download(final @Nonnull String location) throws Exception {
+    download(location, location);
   }
 
   /**
    * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
    * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
-   * appear in the browser dialog) is set to path by default. However, you may provide an override
-   * filename.
+   * appear in the browser dialog) is set to filename by default.
+   *
+   * @param filename A file name to use.
+   * @param location classpath location of the file.
+   * @throws Exception If something goes wrong.
+   */
+  default void download(final String filename, final @Nonnull String location) throws Exception {
+    download(filename,
+        getClass().getResourceAsStream(location.startsWith("/") ? location : "/" + location));
+  }
+
+  /**
+   * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
+   * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
+   * appear in the browser dialog) is set to filename by default.
    *
    * @param file A file to use.
    * @throws Exception If something goes wrong.
    */
   default void download(final @Nonnull File file) throws Exception {
     download(file.getName(), new FileInputStream(file));
+  }
+
+  /**
+   * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
+   * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
+   * appear in the browser dialog) is set to filename.
+   *
+   * @param filename A file name to use.
+   * @param file A file to use.
+   * @throws Exception If something goes wrong.
+   */
+  default void download(final String filename, final @Nonnull File file) throws Exception {
+    download(filename, new FileInputStream(file));
   }
 
   /**

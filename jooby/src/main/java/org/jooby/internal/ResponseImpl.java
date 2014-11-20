@@ -133,15 +133,9 @@ public class ResponseImpl implements Response {
   @Override
   public Response cookie(final org.jooby.Cookie cookie) {
     requireNonNull(cookie, "A cookie is required.");
-    Cookie c = new Cookie(cookie.name(), cookie.value());
-    String comment = cookie.comment();
-    if (comment != null) {
-      c.setComment(comment);
-    }
-    String domain = cookie.domain();
-    if (domain != null) {
-      c.setDomain(domain);
-    }
+    Cookie c = new Cookie(cookie.name(), cookie.value().orElse(null));
+    cookie.comment().ifPresent(c::setComment);
+    cookie.domain().ifPresent(c::setDomain);
     c.setHttpOnly(cookie.httpOnly());
     c.setMaxAge(cookie.maxAge());
     c.setPath(cookie.path());

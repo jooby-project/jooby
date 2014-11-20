@@ -25,6 +25,7 @@ import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -48,11 +49,13 @@ public class Err extends RuntimeException {
    */
   public static class Default implements Err.Handler {
 
+    /** logger, logs!. */
+    private final Logger log = LoggerFactory.getLogger(Err.class);
+
     @Override
     public void handle(final Request req, final Response rsp, final Exception ex)
         throws Exception {
-      LoggerFactory.getLogger(Err.class).error("execution of: " + req.path() +
-          " resulted in exception", ex);
+      log.error("execution of: " + req.path() + " resulted in exception", ex);
 
       Map<String, Object> err = err(req, rsp, ex);
 
@@ -107,7 +110,7 @@ public class Err extends RuntimeException {
       error.put("stacktrace", stacktrace);
       error.put("status", status.value());
       error.put("reason", status.reason());
-      error.put("referer", req.header("referer"));
+      error.put("referer", req.header("referer").toOptional(String.class).orElse(""));
 
       return error;
     }

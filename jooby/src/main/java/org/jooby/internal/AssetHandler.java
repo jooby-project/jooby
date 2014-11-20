@@ -18,33 +18,24 @@
  */
 package org.jooby.internal;
 
-import static java.util.Objects.requireNonNull;
-
+import java.net.URL;
 import java.util.Date;
 
-import javax.inject.Singleton;
-
 import org.jooby.Asset;
+import org.jooby.Err;
+import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
 
-import com.google.inject.Inject;
-
-@Singleton
-public class AssetRoute implements Route.Handler {
-
-  private AssetProvider provider;
-
-  @Inject
-  public AssetRoute(final AssetProvider provider) {
-    this.provider = requireNonNull(provider, "Asset provider is required.");
-  }
+public class AssetHandler implements Route.Filter {
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
-    Asset resource = provider.get(req.path());
+  public void handle(final Request req, final Response rsp, final Route.Chain chain)
+      throws Exception {
+    String path = req.path();
+    Asset resource = resolve(path, MediaType.byPath(path).orElse(MediaType.octetstream));
 
     long lastModified = resource.lastModified();
 
@@ -61,4 +52,12 @@ public class AssetRoute implements Route.Handler {
     rsp.send(resource);
   }
 
+  private Asset resolve(final String path, final MediaType mediaType) throws Exception {
+    URL resource = getClass().getResource(path);
+    if (resource == null) {
+      throw new Err(Status.NOT_FOUND, path);
+    }
+
+    return new URLAsset(resource, mediaType);
+  }
 }

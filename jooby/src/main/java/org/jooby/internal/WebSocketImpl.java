@@ -38,6 +38,8 @@ import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.WebSocket;
 import org.jooby.fn.ExSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
@@ -52,6 +54,9 @@ public class WebSocketImpl implements WebSocket {
     public void invoke(final Object arg) throws Exception {
     }
   };
+
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(WebSocket.class);
 
   private String path;
 
@@ -148,16 +153,16 @@ public class WebSocketImpl implements WebSocket {
       }
     };
 
-    Optional<Body.Formatter> converter = injector.getInstance(BodyConverterSelector.class)
+    Optional<Body.Formatter> formatter = injector.getInstance(BodyConverterSelector.class)
         .forWrite(data, ImmutableList.of(produces));
-    if (converter.isPresent()) {
+    if (formatter.isPresent()) {
       ExSupplier<OutputStream> stream = () -> {
         return stream(session, callback, false);
       };
       ExSupplier<Writer> reader = () -> {
         return new PrintWriter(stream(session, callback, true));
       };
-      converter.get().format(data, new BodyWriterImpl(Charsets.UTF_8, stream, reader));
+      formatter.get().format(data, new BodyWriterImpl(Charsets.UTF_8, stream, reader));
     } else {
       RemoteEndpoint remote = session.getRemote();
       if (byte[].class == data.getClass() || Byte[].class == data.getClass()) {

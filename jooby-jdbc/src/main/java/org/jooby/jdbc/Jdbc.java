@@ -145,7 +145,7 @@ public class Jdbc implements Jooby.Module {
 
     config.getConfig(key).entrySet().forEach(entry -> dumper.accept("dataSource.", entry));
 
-    $hikari.entrySet().stream().forEach(entry -> dumper.accept("", entry));
+    $hikari.entrySet().forEach(entry -> dumper.accept("", entry));
 
     if (!props.containsKey("dataSourceClassName")) {
       // adjust dataSourceClassName when missing

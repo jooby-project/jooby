@@ -466,6 +466,16 @@ public class Body {
   }
 
   /**
+   * Set the content type of this body.
+   *
+   * @param type A content type.
+   * @return This body.
+   */
+  public @Nonnull Body type(final @Nonnull String type) {
+    return type(MediaType.valueOf(type));
+  }
+
+  /**
    * Set body content.
    *
    * @param content A body!

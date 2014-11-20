@@ -37,6 +37,9 @@ public enum Verb {
   /** HTTP PUT. */
   PUT,
 
+  /** HTTP PATCH. */
+  PATCH,
+
   /** HTTP DELETE. */
   DELETE,
 
@@ -44,7 +47,7 @@ public enum Verb {
   TRACE,
 
   /** HTTP CONNECT. */
-  CONNET;
+  CONNECT;
 
   /**
    * True if this verb matches any of the current verbs.

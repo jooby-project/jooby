@@ -149,18 +149,18 @@ public interface Cookie {
         }
 
         @Override
-        public String value() {
-          return cookie.value;
+        public Optional<String> value() {
+          return cookie.value();
         }
 
         @Override
-        public String comment() {
-          return cookie.comment;
+        public Optional<String> comment() {
+          return cookie.comment();
         }
 
         @Override
-        public String domain() {
-          return cookie.domain;
+        public Optional<String> domain() {
+          return cookie.domain();
         }
 
         @Override
@@ -452,17 +452,17 @@ public interface Cookie {
   /**
    * @return Cookie's value.
    */
-  String value();
+  Optional<String> value();
 
   /**
    * @return An optional comment.
    */
-  String comment();
+  Optional<String> comment();
 
   /**
    * @return Cookie's domain.
    */
-  String domain();
+  Optional<String> domain();
 
   /**
    * Gets the maximum age in seconds of this Cookie.

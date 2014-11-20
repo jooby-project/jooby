@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class HttpExceptionTest {
+public class ErrTest {
 
   @Test
   public void exceptionWithStatus() {

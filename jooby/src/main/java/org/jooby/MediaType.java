@@ -235,7 +235,7 @@ public class MediaType implements Comparable<MediaType> {
   /**
    * Javascript media types.
    */
-  public static final MediaType javascript = new MediaType("application", "javascript");
+  public static final MediaType js = new MediaType("application", "javascript");
 
   /**
    * HTML media type.
@@ -299,10 +299,11 @@ public class MediaType implements Comparable<MediaType> {
       .put("html", html)
       .put("json", json)
       .put("css", css)
-      .put("js", javascript)
+      .put("js", js)
       .put("octetstream", octetstream)
       .put("form", form)
       .put("multipart", multipart)
+      .put("xml", xml)
       .put("*", all)
       .build();
 
@@ -320,7 +321,7 @@ public class MediaType implements Comparable<MediaType> {
   private MediaType(final String type, final String subtype, final Map<String, String> parameters) {
     this.type = requireNonNull(type, "A mime type is required.");
     this.subtype = requireNonNull(subtype, "A mime subtype is required.");
-    this.params = ImmutableMap.copyOf(requireNonNull(parameters, "The parameters is required."));
+    this.params = ImmutableMap.copyOf(requireNonNull(parameters, "Parameters are required."));
     this.wildcardType = "*".equals(type);
     this.wildcardSubtype = "*".equals(subtype);
   }
@@ -374,7 +375,7 @@ public class MediaType implements Comparable<MediaType> {
     if (text.matches(this)) {
       return true;
     }
-    if (this.equals(MediaType.javascript)) {
+    if (this.equals(MediaType.js)) {
       return true;
     }
     if (jsonLike.matches(this)) {
@@ -437,9 +438,11 @@ public class MediaType implements Comparable<MediaType> {
       if (subtype.equals(that.subtype) || this.wildcardSubtype) {
         return true;
       }
+      if (subtype.startsWith("*+")) {
+        return that.subtype.endsWith(subtype.substring(2));
+      }
       if (subtype.startsWith("*")) {
-        return that.subtype.endsWith(subtype.substring(2))
-            || that.subtype.endsWith(subtype.substring(1));
+        return that.subtype.endsWith(subtype.substring(1));
       }
     }
     return false;
@@ -479,17 +482,16 @@ public class MediaType implements Comparable<MediaType> {
    */
   public static MediaType valueOf(final @Nonnull String type) {
     requireNonNull(type, "A mediaType is required.");
-    MediaType aliastype = alias.get(type);
+    MediaType aliastype = alias.get(type.trim());
     if (aliastype != null) {
       return aliastype;
     }
-    String[] parts = type.split(";");
-    checkArgument(parts.length > 0, "Bad media type: %s", type);
-    String[] typeAndSubtype = (parts[0].equals("*") ? "*/*" : parts[0]).split("/");
+    String[] parts = type.trim().split(";");
+    String[] typeAndSubtype = parts[0].split("/");
     checkArgument(typeAndSubtype.length == 2, "Bad media type: %s", type);
     String stype = typeAndSubtype[0].trim();
     String subtype = typeAndSubtype[1].trim();
-    checkArgument(!(type.equals("*") && !subtype.equals("*")), "Bad media type: %s", type);
+    checkArgument(!(stype.equals("*") && !subtype.equals("*")), "Bad media type: %s", type);
     Map<String, String> parameters = DEFAULT_PARAMS;
     if (parts.length > 1) {
       parameters = new LinkedHashMap<>(DEFAULT_PARAMS);

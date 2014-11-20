@@ -22,7 +22,7 @@ public class OptionsRequestFeature extends ServerFeature {
 
     delete("/sub", (req, rsp) -> rsp.send(req.route().verb()));
 
-    options("*");
+    options();
   }
 
   @Test

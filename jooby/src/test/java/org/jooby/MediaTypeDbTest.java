@@ -6,12 +6,12 @@ import java.io.File;
 
 import org.junit.Test;
 
-public class MediaTypeProviderTest {
+public class MediaTypeDbTest {
 
   @Test
   public void javascript() {
-    assertEquals(MediaType.javascript, MediaType.byExtension("js").get());
-    assertEquals(MediaType.javascript, MediaType.byFile(new File("file.js")).get());
+    assertEquals(MediaType.js, MediaType.byExtension("js").get());
+    assertEquals(MediaType.js, MediaType.byFile(new File("file.js")).get());
   }
 
   @Test
