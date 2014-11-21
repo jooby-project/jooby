@@ -22,7 +22,10 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -389,8 +392,17 @@ public interface Response {
    * @throws Exception If something goes wrong.
    */
   default void download(final String filename, final @Nonnull String location) throws Exception {
-    download(filename,
-        getClass().getResourceAsStream(location.startsWith("/") ? location : "/" + location));
+    MediaType type = MediaType.byPath(filename).orElse(MediaType.octetstream);
+    InputStream stream = getClass()
+        .getResourceAsStream(location.startsWith("/") ? location : "/" + location);
+    if (stream == null) {
+      throw new FileNotFoundException(location);
+    }
+    if (type.isText()) {
+      download(filename, new InputStreamReader(stream, charset()));
+    } else {
+      download(filename, stream);
+    }
   }
 
   /**
@@ -402,7 +414,12 @@ public interface Response {
    * @throws Exception If something goes wrong.
    */
   default void download(final @Nonnull File file) throws Exception {
-    download(file.getName(), new FileInputStream(file));
+    MediaType type = MediaType.byFile(file).orElse(MediaType.octetstream);
+    if (type.isText()) {
+      download(file.getName(), new FileReader(file));
+    } else {
+      download(file.getName(), new FileInputStream(file));
+    }
   }
 
   /**

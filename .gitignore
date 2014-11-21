@@ -18,3 +18,5 @@ dependency-reduced-pom.xml
 *.iml
 *.idea
 *.versionsBackup
+pom.xml.versionsBackup
+jacoco.exec

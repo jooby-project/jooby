@@ -131,6 +131,7 @@ public class MediaTypeTest {
     assertTrue(MediaType.valueOf("application/*+xml").isText());
     assertTrue(MediaType.valueOf("application/*xml").isText());
     assertFalse(MediaType.octetstream.isText());
+    assertTrue(MediaType.valueOf("application/hocon").isText());
   }
 
   @Test

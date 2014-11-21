@@ -62,8 +62,6 @@ public class WebSocketImpl implements WebSocket {
 
   private String pattern;
 
-  private String name;
-
   private Map<String, String> vars;
 
   private MediaType consumes;
@@ -108,6 +106,7 @@ public class WebSocketImpl implements WebSocket {
   public void resume() {
     if (suspendToken != null) {
       suspendToken.resume();
+      suspendToken = null;
     }
   }
 
@@ -165,7 +164,7 @@ public class WebSocketImpl implements WebSocket {
       formatter.get().format(data, new BodyWriterImpl(Charsets.UTF_8, stream, reader));
     } else {
       RemoteEndpoint remote = session.getRemote();
-      if (byte[].class == data.getClass() || Byte[].class == data.getClass()) {
+      if (byte[].class == data.getClass()) {
         remote.sendBytes(ByteBuffer.wrap((byte[]) data), callback);
       } else if (ByteBuffer.class.isInstance(data)) {
         remote.sendBytes((ByteBuffer) data, callback);
@@ -211,12 +210,7 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public String pattern() {
-    return pattern.substring(pattern.indexOf('/'));
-  }
-
-  @Override
-  public String name() {
-    return name;
+    return pattern;
   }
 
   @Override
@@ -244,7 +238,6 @@ public class WebSocketImpl implements WebSocket {
     StringBuilder buffer = new StringBuilder();
     buffer.append("WS ").append(path()).append("\n");
     buffer.append("  pattern: ").append(pattern()).append("\n");
-    buffer.append("  name: ").append(name()).append("\n");
     buffer.append("  vars: ").append(vars()).append("\n");
     buffer.append("  consumes: ").append(consumes()).append("\n");
     buffer.append("  produces: ").append(produces()).append("\n");

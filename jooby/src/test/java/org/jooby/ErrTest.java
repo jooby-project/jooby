@@ -11,7 +11,7 @@ public class ErrTest {
     Err exception = new Err(Status.NOT_FOUND);
 
     assertEquals(Status.NOT_FOUND.value(), exception.statusCode());
-    assertEquals("Not Found(404): ", exception.getMessage());
+    assertEquals("Not Found(404)", exception.getMessage());
   }
 
   @Test
@@ -20,7 +20,7 @@ public class ErrTest {
     Err exception = new Err(Status.NOT_FOUND, cause);
 
     assertEquals(Status.NOT_FOUND.value(), exception.statusCode());
-    assertEquals("Not Found(404): ", exception.getMessage());
+    assertEquals("Not Found(404)", exception.getMessage());
     assertEquals(cause, exception.getCause());
   }
 

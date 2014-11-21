@@ -473,12 +473,6 @@ public interface WebSocket extends Closeable {
   String pattern();
 
   /**
-   * @return Route name, defaults to <code>"anonymous"</code>
-   */
-  @Nonnull
-  String name();
-
-  /**
    * @return The currently matched path variables (if any).
    */
   @Nonnull

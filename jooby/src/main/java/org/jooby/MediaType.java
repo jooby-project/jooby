@@ -384,6 +384,9 @@ public class MediaType implements Comparable<MediaType> {
     if (xmlLike.matches(this)) {
       return true;
     }
+    if (this.type.equals("application") && this.subtype.equals("hocon")) {
+      return true;
+    }
 
     return false;
   }

@@ -239,15 +239,17 @@ public class RequestImpl implements Request {
       return Collections.emptyList();
     }
     return Arrays.stream(cookies)
-        .map(c -> new Cookie.Definition(c.getName(), c.getValue())
-            .comment(c.getComment())
-            .domain(c.getDomain())
-            .httpOnly(c.isHttpOnly())
-            .maxAge(c.getMaxAge())
-            .path(c.getPath())
-            .secure(c.getSecure())
-            .toCookie()
-        )
+        .map(c -> {
+          Cookie.Definition cookie = new Cookie.Definition(c.getName(), c.getValue());
+          Optional.ofNullable(c.getComment()).ifPresent(cookie::comment);
+          Optional.ofNullable(c.getDomain()).ifPresent(cookie::domain);
+          Optional.ofNullable(c.getPath()).ifPresent(cookie::path);
+          cookie.httpOnly(c.isHttpOnly());
+          cookie.maxAge(c.getMaxAge());
+          cookie.secure(c.getSecure());
+
+          return cookie.toCookie();
+        })
         .collect(Collectors.toList());
   }
 

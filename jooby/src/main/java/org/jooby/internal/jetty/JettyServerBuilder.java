@@ -239,7 +239,7 @@ public class JettyServerBuilder {
       public void lifeCycleStarted(final LifeCycle event) {
         StringBuilder buffer = new StringBuilder(routeHandler.toString());
         if (sockets.size() > 0) {
-          buffer.append("\nWeb Sockets:\n");
+          buffer.append("\nweb sockets:\n");
 
           int verbMax = "WS".length(), routeMax = 0, consumesMax = 0, producesMax = 0;
           for (WebSocket.Definition socketDef : sockets) {
@@ -258,7 +258,7 @@ public class JettyServerBuilder {
                 socketDef.consumes(), socketDef.produces()));
           }
         }
-        log.info("\nRoutes:\n{}", buffer);
+        log.info("\nroutes:\n{}", buffer);
       }
     });
 

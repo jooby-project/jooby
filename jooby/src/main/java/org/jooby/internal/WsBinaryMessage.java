@@ -29,8 +29,8 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import org.jooby.Err;
-import org.jooby.Status;
 import org.jooby.Mutant;
+import org.jooby.Status;
 
 import com.google.common.base.Charsets;
 import com.google.inject.TypeLiteral;

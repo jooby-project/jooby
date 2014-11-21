@@ -44,8 +44,6 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.fn.ExSupplier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -53,9 +51,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 
 public class ResponseImpl implements Response {
-
-  /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private HttpServletResponse response;
 
@@ -99,8 +94,7 @@ public class ResponseImpl implements Response {
     contentDisposition(filename);
 
     Body body = Body.body(reader);
-    status().ifPresent(body::status);
-    type().ifPresent(body::type);
+    body.type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.octetstream)));
 
     send(body, FallbackBodyConverter.formatReader);
   }
@@ -113,8 +107,7 @@ public class ResponseImpl implements Response {
     contentDisposition(filename);
 
     Body body = Body.body(stream);
-    status().ifPresent(body::status);
-    type().ifPresent(body::type);
+    body.type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.octetstream)));
 
     send(body, FallbackBodyConverter.formatStream);
   }
@@ -298,11 +291,6 @@ public class ResponseImpl implements Response {
   void send(final Body body, final Body.Formatter formatter) throws Exception {
     requireNonNull(body, "A response message is required.");
     requireNonNull(formatter, "A converter is required.");
-
-    if (response.isCommitted()) {
-      log.warn("  message ignored, response was committed already");
-      return;
-    }
 
     type(body.type().orElseGet(() -> type().orElseGet(() -> formatter.types().get(0))));
 

@@ -12,7 +12,7 @@ public class App extends Jooby {
 
     assets("/assets/**");
 
-    get("/", file("welcome.html"));
+    get("/", staticFile("welcome.html"));
   }
 
   public static void main(final String[] args) throws Exception {

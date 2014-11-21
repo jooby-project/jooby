@@ -174,7 +174,7 @@ public class Err extends RuntimeException {
    * @param cause The cause of the problem.
    */
   public Err(final Status status, final Exception cause) {
-    super(message(status, ""), cause);
+    super(message(status, null), cause);
     this.status = status.value();
   }
 
@@ -184,7 +184,7 @@ public class Err extends RuntimeException {
    * @param status A HTTP status. Required.
    */
   public Err(final Status status) {
-    super(message(status, ""));
+    super(message(status, null));
     this.status = status.value();
   }
 
@@ -204,6 +204,6 @@ public class Err extends RuntimeException {
    */
   private static String message(final Status status, final String tail) {
     requireNonNull(status, "A HTTP Status is required.");
-    return status.reason() + "(" + status.value() + "): " + tail;
+    return status.reason() + "(" + status.value() + ")" + (tail == null ? "" : ": " + tail);
   }
 }

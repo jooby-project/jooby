@@ -26,9 +26,9 @@ import java.util.Set;
 import java.util.SortedSet;
 
 import org.jooby.Err;
+import org.jooby.Mutant;
 import org.jooby.Status;
 import org.jooby.Upload;
-import org.jooby.Mutant;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.TypeLiteral;
@@ -126,7 +126,7 @@ public class UploadMutant implements Mutant {
     throw typeError(type);
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings("unchecked")
   @Override
   public <T> T to(final TypeLiteral<T> type) {
     Class<? super T> rawType = type.getRawType();
@@ -142,9 +142,6 @@ public class UploadMutant implements Mutant {
     if (rawType == Set.class) {
       return (T) toSet(classFrom(type));
     }
-    if (rawType == SortedSet.class) {
-      return (T) toSortedSet((Class) classFrom(type));
-    }
     throw typeError(rawType);
   }
 
@@ -156,12 +153,9 @@ public class UploadMutant implements Mutant {
     if (type instanceof Class) {
       return (Class<?>) type;
     }
-    if (type instanceof ParameterizedType) {
-      ParameterizedType parameterizedType = (ParameterizedType) type;
-      Type actualType = parameterizedType.getActualTypeArguments()[0];
-      return classFrom(actualType);
-    }
-    throw new Err(Status.BAD_REQUEST, "Unknown type: " + type);
+    ParameterizedType parameterizedType = (ParameterizedType) type;
+    Type actualType = parameterizedType.getActualTypeArguments()[0];
+    return classFrom(actualType);
   }
 
   private Err typeError(final Class<?> type) {

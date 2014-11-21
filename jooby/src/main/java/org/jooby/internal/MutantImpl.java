@@ -259,17 +259,6 @@ public class MutantImpl implements Mutant {
     return (T) converter.apply(name, values);
   }
 
-  // @Override
-  // public String toString() {
-  // if (values == null || values.size() == 0) {
-  // return "MISSING";
-  // }
-  // if (values.size() == 1) {
-  // return values.get(0);
-  // }
-  // return values.toString();
-  // }
-
   private static String stringValue(final String name, final List<String> values) {
     failOnEmpty(name, values);
     return values.get(0);
@@ -313,14 +302,14 @@ public class MutantImpl implements Mutant {
     } else {
       if (!type.equals(MediaType.all)) {
         BodyConverterSelector selector = injector.getInstance(BodyConverterSelector.class);
-        Optional<Body.Parser> reader = selector.forRead(literal, ImmutableList.of(type));
-        if (reader.isPresent() && reader.get().canParse(literal)) {
+        Optional<Body.Parser> parser = selector.forRead(literal, ImmutableList.of(type));
+        if (parser.isPresent() && parser.get().canParse(literal)) {
 
           return (name, values) -> {
             ExSupplier<InputStream> stream = () -> new ByteArrayInputStream(values.get(0).getBytes(
                 charset));
             try {
-              return reader.get().parse(literal, new BodyReaderImpl(charset, stream));
+              return parser.get().parse(literal, new BodyReaderImpl(charset, stream));
             } catch (Exception ex) {
               throw new IllegalArgumentException("Can't convert to type: " + rawType.getName(), ex);
             }
@@ -368,12 +357,9 @@ public class MutantImpl implements Mutant {
     if (type instanceof Class) {
       return (Class<?>) type;
     }
-    if (type instanceof ParameterizedType) {
-      ParameterizedType parameterizedType = (ParameterizedType) type;
-      Type actualType = parameterizedType.getActualTypeArguments()[0];
-      return classFrom(actualType);
-    }
-    throw new Err(Status.BAD_REQUEST, "Unknown type: " + type);
+    ParameterizedType parameterizedType = (ParameterizedType) type;
+    Type actualType = parameterizedType.getActualTypeArguments()[0];
+    return classFrom(actualType);
   }
 
   private static void failOnEmpty(final String name, final List<?> values) {

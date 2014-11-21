@@ -29,7 +29,12 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -99,20 +104,35 @@ public class JoobyRun extends AbstractMojo {
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
+    List<Resource> resources = mavenProject.getResources();
+    Set<String> cp = new LinkedHashSet<String>();
+    for (Resource resource : resources) {
+      cp.add(resource.getDirectory());
+    }
+
+    getLog().info("CP: " + cp);
+
+
     executeMojo(
         plugin(
             groupId("org.codehaus.mojo"),
             artifactId("exec-maven-plugin"),
             version(execVersion)
         ),
-        goal("java"),
+        goal("exec"),
         configuration(
+            element(name("executable"), "java"),
+            element("arguments",
+                element("argument", "-classpath"),
+                element("classpath")
+            ),
             element(name("mainClass"), "${application.main}"),
             element(name("killAfter"), "-1"),
             element(name("arguments"), "${jooby.arguments}"),
             element(name("skip"), Boolean.toString(skip)),
             element(name("cleanupDaemonThreads"), Boolean.toString(cleanupDaemonThreads)),
             element(name("daemonThreadJoinTimeout"), Long.toString(daemonThreadJoinTimeout))
+//            element("additionalClasspathElements", additionalClasspathElements)
         ),
         executionEnvironment(
             mavenProject,

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
@@ -13,6 +14,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Test;
+
+import com.google.common.base.Charsets;
 
 public class ResponseTest {
   public static class ResponseMock implements Response {
@@ -258,10 +261,15 @@ public class ResponseTest {
     String resource = "assets/js/file.js";
     new ResponseMock() {
       @Override
-      public void download(final String filename, final InputStream stream) throws Exception {
+      public void download(final String filename, final Reader stream) throws Exception {
         assertNotNull(stream);
         stream.close();
         dataList.add(filename);
+      }
+
+      @Override
+      public Charset charset() {
+        return Charsets.UTF_8;
       }
     }.download(resource);
     assertEquals(resource, dataList.getFirst());
@@ -273,10 +281,15 @@ public class ResponseTest {
     String resource = "/assets/js/file.js";
     new ResponseMock() {
       @Override
-      public void download(final String filename, final InputStream stream) throws Exception {
+      public void download(final String filename, final Reader stream) throws Exception {
         assertNotNull(stream);
         stream.close();
         dataList.add(filename);
+      }
+
+      @Override
+      public Charset charset() {
+        return Charsets.UTF_8;
       }
     }.download(resource);
     assertEquals(resource, dataList.getFirst());
@@ -288,13 +301,28 @@ public class ResponseTest {
     File resource = new File("src/test/resources/assets/js/file.js");
     new ResponseMock() {
       @Override
-      public void download(final String filename, final InputStream stream) throws Exception {
+      public void download(final String filename, final Reader stream) throws Exception {
         assertNotNull(stream);
         stream.close();
         dataList.add(filename);
       }
     }.download(resource);
     assertEquals(resource.getName(), dataList.getFirst());
+  }
+
+  @Test
+  public void downloadReader() throws Exception {
+    LinkedList<Object> dataList = new LinkedList<>();
+    FileReader resource = new FileReader("src/test/resources/assets/js/file.js");
+    new ResponseMock() {
+      @Override
+      public void download(final String filename, final Reader reader) throws Exception {
+        assertNotNull(reader);
+        reader.close();
+        dataList.add(filename);
+      }
+    }.download("alias", resource);
+    assertEquals("alias", dataList.getFirst());
   }
 
   @Test
@@ -313,7 +341,7 @@ public class ResponseTest {
   }
 
   @Test
-  public void cookiWithNameAndValue() throws Exception {
+  public void cookieWithNameAndValue() throws Exception {
     LinkedList<Cookie> dataList = new LinkedList<>();
     new ResponseMock() {
       @Override
@@ -328,7 +356,7 @@ public class ResponseTest {
   }
 
   @Test
-  public void cookiWith() throws Exception {
+  public void cookieWith() throws Exception {
     LinkedList<Cookie> dataList = new LinkedList<>();
     new ResponseMock() {
       @Override
