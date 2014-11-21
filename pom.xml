@@ -674,15 +674,34 @@
             </executions>
           </plugin>
 
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>coveralls</id>
+      <build>
+        <plugins>
+          <!-- coveralls -->
           <plugin>
             <groupId>org.eluder.coveralls</groupId>
             <artifactId>coveralls-maven-plugin</artifactId>
             <version>${coveralls-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>report</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
 
         </plugins>
       </build>
     </profile>
+
     <!-- Public directory -->
     <profile>
       <id>public-directory</id>

@@ -3,4 +3,3 @@ jdk:
   - oraclejdk8
 after_success:
   - mvn clean package -P coverage
-  - mvn coveralls:report
