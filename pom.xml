@@ -674,14 +674,6 @@
             </executions>
           </plugin>
 
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>coveralls</id>
-      <build>
-        <plugins>
           <!-- coveralls -->
           <plugin>
             <groupId>org.eluder.coveralls</groupId>

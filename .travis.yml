@@ -2,4 +2,4 @@ language: java
 jdk:
   - oraclejdk8
 after_success:
-  - mvn clean package -P coverage,coveralls
+  - mvn clean package coveralls:report -P coverage
