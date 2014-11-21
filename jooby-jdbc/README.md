@@ -1,6 +1,6 @@
 # jooby-jdbc
 
-Give you a production like data source ready to use, powered by the [HikariCP](https://github.com/brettwooldridge/HikariCP) library.
+Give you a production-ready jdbc data source, powered by the [HikariCP](https://github.com/brettwooldridge/HikariCP) library.
 
 ## dependency
 

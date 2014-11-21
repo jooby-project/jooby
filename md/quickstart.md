@@ -59,7 +59,7 @@ A new directory was created: ```my-app```. Now, let's see how it looks like:
           welcome.html
     /config
            application.conf
-           logback.dev.xml
+           logback.xml
     /src/main/java
                   /com/mycompany/App.java
 

@@ -55,8 +55,6 @@ import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.core.joran.spi.JoranException;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
@@ -1815,9 +1813,6 @@ public class Jooby {
         );
     Env env = this.env.build(config);
 
-    // logback
-    logback(config);
-
     // shutdown hook
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       stop();
@@ -2168,11 +2163,6 @@ public class Jooby {
     }
     // bind config
     binder.bind(Config.class).toInstance(config);
-  }
-
-  private static void logback(final Config config) throws JoranException {
-    String confFile = config.getString("logback.configurationFile");
-    System.setProperty("logback.configurationFile", confFile);
   }
 
 }
