@@ -29,9 +29,11 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.plugin;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.version;
 
+import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
@@ -105,14 +107,18 @@ public class JoobyRun extends AbstractMojo {
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     List<Resource> resources = mavenProject.getResources();
-    Set<String> cp = new LinkedHashSet<String>();
+    Set<String> cpdir = new LinkedHashSet<String>();
     for (Resource resource : resources) {
-      cp.add(resource.getDirectory());
+      String dir = resource.getDirectory();
+      if (!dir.endsWith("resources") && !dir.endsWith("config")) {
+        cpdir.add(resource.getDirectory());
+      }
     }
 
-    getLog().info("CP: " + cp);
+    String cp = cpdir.stream().collect(Collectors.joining(File.pathSeparator)) + File.pathSeparator
+        + "%classpath";
 
-
+    // TODO: remove exec:exec for something custom.
     executeMojo(
         plugin(
             groupId("org.codehaus.mojo"),
@@ -122,17 +128,8 @@ public class JoobyRun extends AbstractMojo {
         goal("exec"),
         configuration(
             element(name("executable"), "java"),
-            element("arguments",
-                element("argument", "-classpath"),
-                element("classpath")
-            ),
-            element(name("mainClass"), "${application.main}"),
-            element(name("killAfter"), "-1"),
-            element(name("arguments"), "${jooby.arguments}"),
-            element(name("skip"), Boolean.toString(skip)),
-            element(name("cleanupDaemonThreads"), Boolean.toString(cleanupDaemonThreads)),
-            element(name("daemonThreadJoinTimeout"), Long.toString(daemonThreadJoinTimeout))
-//            element("additionalClasspathElements", additionalClasspathElements)
+            element("commandlineArgs", "-classpath " + cp + " ${application.main}"),
+            element(name("skip"), Boolean.toString(skip))
         ),
         executionEnvironment(
             mavenProject,
