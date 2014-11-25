@@ -259,8 +259,6 @@ import com.typesafe.config.ConfigValueFactory;
  *   });
  * </pre>
  *
- * </pre>
- *
  * <h2>Mvc Route</h2>
  * <p>
  * A Mvc route use annotations to define routes:

@@ -141,8 +141,8 @@ public interface Env {
    * @param endDelimiter End delimiter.
    * @return A processed string.
    */
-  default String resolve(final String text, final String startDelimiter, final String endDelimter) {
-    return resolve(text, config(), startDelimiter, endDelimter);
+  default String resolve(final String text, final String startDelimiter, final String endDelimiter) {
+    return resolve(text, config(), startDelimiter, endDelimiter);
   }
 
   /**

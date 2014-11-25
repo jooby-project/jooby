@@ -831,6 +831,7 @@ public interface Route {
      * Callback method for a HTTP request.
      *
      * @param req A HTTP request.
+     * @return Message to send.
      * @throws Exception If something goes wrong. The exception will processed by Jooby.
      */
     Object handle(Request req) throws Exception;
@@ -856,6 +857,7 @@ public interface Route {
     /**
      * Callback method for a HTTP request.
      *
+     * @return Message to send.
      * @throws Exception If something goes wrong. The exception will processed by Jooby.
      */
     Object handle() throws Exception;
