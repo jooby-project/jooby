@@ -11,8 +11,8 @@ import org.jooby.Jooby;
 public class App extends Jooby {
 
   {
-    get("/", (req, rsp) ->
-      rsp.send("Hey Jooby!")
+    get("/", (req) ->
+      "Hey Jooby!"
     );
   }
 
