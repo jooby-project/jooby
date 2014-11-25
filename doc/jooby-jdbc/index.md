@@ -1,12 +1,12 @@
 ---
 layout: index
 title: jooby-jdbc
-version: 0.1.0
+version: 0.2.0
 ---
 
 # jooby-jdbc
 
-Give you a production like data source ready to use, powered by the [HikariCP](https://github.com/brettwooldridge/HikariCP) library.
+Give you a production-ready jdbc data source, powered by the [HikariCP](https://github.com/brettwooldridge/HikariCP) library.
 
 ## dependency
 
@@ -14,7 +14,7 @@ Give you a production like data source ready to use, powered by the [HikariCP](h
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
 </dependency>
 ```
 ## usage
