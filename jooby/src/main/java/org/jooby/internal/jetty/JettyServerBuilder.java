@@ -258,6 +258,12 @@ public class JettyServerBuilder {
                 socketDef.consumes(), socketDef.produces()));
           }
         }
+        buffer.append("\nlistening on:\n");
+        buffer.append("  http://localhost:").append(config.getInt("application.port"))
+            .append(contextPath).append("\n");
+        buffer.append("  https://localhost:").append(config.getInt("application.securePort"))
+            .append(contextPath);
+
         log.info("\nroutes:\n{}", buffer);
       }
     });
