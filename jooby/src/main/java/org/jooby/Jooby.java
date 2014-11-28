@@ -152,8 +152,7 @@ import com.typesafe.config.ConfigValueFactory;
  * <strong>dev</strong>.
  * </p>
  * <p>
- * There is more at {@link Env} so take a few minutes to discover what a {@link Env} can do for
- * you.
+ * There is more at {@link Env} so take a few minutes to discover what a {@link Env} can do for you.
  * </p>
  *
  * <h1>Modules</h1>
@@ -1957,14 +1956,16 @@ public class Jooby {
             "Module didn't stop normally: " + module.getClass().getName(), ex);
       }
     }
+    modules.clear();
 
-    try {
-      if (injector != null) {
+    if (injector != null) {
+      try {
         Server server = injector.getInstance(Server.class);
         server.stop();
+      } catch (Exception ex) {
+        LoggerFactory.getLogger(getClass()).error("Web server didn't stop normally", ex);
       }
-    } catch (Exception ex) {
-      LoggerFactory.getLogger(getClass()).error("Web server didn't stop normally", ex);
+      injector = null;
     }
   }
 

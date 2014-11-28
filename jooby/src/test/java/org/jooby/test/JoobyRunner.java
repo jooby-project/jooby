@@ -93,8 +93,8 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
   protected Object createTest() throws Exception {
     Object test = super.createTest();
     Guice.createInjector(binder -> {
-        binder.bind(Integer.class).annotatedWith(Names.named("port")).toInstance(port);
-        binder.bind(Integer.class).annotatedWith(Names.named("securePort")).toInstance(securePort);
+      binder.bind(Integer.class).annotatedWith(Names.named("port")).toInstance(port);
+      binder.bind(Integer.class).annotatedWith(Names.named("securePort")).toInstance(securePort);
     }).injectMembers(test);
 
     return test;
@@ -114,6 +114,11 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
           errors.add(e);
         }
 
+        try {
+          app.stop();
+        } catch (Exception ex) {
+          errors.add(ex);
+        }
         if (errors.isEmpty()) {
           return;
         }
