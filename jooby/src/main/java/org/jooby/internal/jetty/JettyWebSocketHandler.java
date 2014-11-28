@@ -81,7 +81,8 @@ public class JettyWebSocketHandler implements WebSocketListener {
   @Override
   public void onWebSocketClose(final int statusCode, final String reason) {
     try {
-      socket.fireClose(WebSocket.CloseStatus.of(statusCode, reason));
+      socket.fireClose(reason == null ? WebSocket.CloseStatus.of(statusCode)
+          : WebSocket.CloseStatus.of(statusCode, reason));
     } catch (Exception ex) {
       onWebSocketError(ex);
     }
@@ -121,7 +122,7 @@ public class JettyWebSocketHandler implements WebSocketListener {
       }
       socket.close(closeStatus.code(), closeStatus.reason() + " " + cause.getMessage());
     } else {
-      log.error("execution resulted in serious error", cause);
+      log.error("execution resulted in exception", cause);
     }
   }
 
