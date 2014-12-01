@@ -99,7 +99,7 @@ import org.slf4j.LoggerFactory;
  * @author edgar
  * @since 0.1.0
  */
-public interface Session {
+public interface Session extends Locals {
 
   /**
    * Hold session related configuration parameters.
@@ -359,12 +359,14 @@ public interface Session {
    * @param <T> Target type.
    * @return A value or empty optional.
    */
+  @Override
   @Nonnull
   <T> Optional<T> get(final @Nonnull String name);
 
   /**
    * @return An immutable copy of local attributes.
    */
+  @Override
   @Nonnull
   Map<String, Object> attributes();
 
@@ -374,6 +376,7 @@ public interface Session {
    * @param name A local var's name.
    * @return True, for existing locals.
    */
+  @Override
   default boolean isSet(final @Nonnull String name) {
     return get(name).isPresent();
   }
@@ -386,6 +389,7 @@ public interface Session {
    * @param value A local values.
    * @return This session.
    */
+  @Override
   @Nonnull Session set(final @Nonnull String name, final @Nonnull Object value);
 
   /**
@@ -395,6 +399,7 @@ public interface Session {
    * @param <T> A local type.
    * @return Existing value or empty optional.
    */
+  @Override
   <T> Optional<T> unset(final String name);
 
   /**
@@ -402,6 +407,7 @@ public interface Session {
    *
    * @return This session.
    */
+  @Override
   Session unset();
 
   /**

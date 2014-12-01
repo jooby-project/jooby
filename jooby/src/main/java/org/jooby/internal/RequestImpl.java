@@ -51,6 +51,7 @@ import org.jooby.internal.jetty.JoobySession;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -75,10 +76,13 @@ public class RequestImpl implements Request {
 
   private HttpServletRequest request;
 
+  private Map<String, Object> locals;
+
   public RequestImpl(
       final HttpServletRequest request,
       final Injector injector,
       final Route route,
+      final Map<String, Object> locals,
       final BodyConverterSelector selector,
       final MediaType contentType,
       final List<MediaType> accept,
@@ -87,6 +91,7 @@ public class RequestImpl implements Request {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.request = requireNonNull(request, "The request is required.");
     this.route = requireNonNull(route, "A route is required.");
+    this.locals = requireNonNull(locals, "The locals is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.type = requireNonNull(contentType, "A contentType is required.");
     this.accept = requireNonNull(accept, "An accept is required.");
@@ -276,6 +281,39 @@ public class RequestImpl implements Request {
   @Override
   public Route route() {
     return route;
+  }
+
+  @Override
+  public Map<String, Object> attributes() {
+    return ImmutableMap.copyOf(locals);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> Optional<T> get(final String name) {
+    requireNonNull(name, "A local's name is required.");
+    return Optional.ofNullable((T) locals.get(name));
+  }
+
+  @Override
+  public Request set(final String name, final Object value) {
+    requireNonNull(name, "A local's name is required.");
+    requireNonNull(value, "A local's value is required.");
+    locals.put(name, value);
+    return this;
+  }
+
+  @Override
+  public Request unset() {
+    locals.clear();
+    return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> Optional<T> unset(final String name) {
+    requireNonNull(name, "A local's name is required.");
+    return Optional.ofNullable((T) locals.remove(name));
   }
 
   void route(final Route route) {

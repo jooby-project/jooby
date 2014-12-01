@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 
@@ -225,36 +224,6 @@ public class ResponseForwardingTest {
         .run(unit -> {
           Response rsp = new Response.Forwarding(unit.get(Response.class));
           assertEquals(rsp, rsp.length(10));
-        });
-  }
-
-  @Test
-  public void local() throws Exception {
-    new MockUnit(Response.class)
-        .expect(unit -> {
-          Response rsp = unit.get(Response.class);
-          expect(rsp.local("name")).andReturn("str");
-
-          expect(rsp.local("name", "val")).andReturn(rsp);
-        })
-        .run(unit -> {
-          Response rsp = new Response.Forwarding(unit.get(Response.class));
-          assertEquals("str", rsp.local("name"));
-
-          assertEquals(rsp, rsp.local("name", "val"));
-        });
-  }
-
-  @Test
-  public void locals() throws Exception {
-    new MockUnit(Response.class)
-        .expect(unit -> {
-          Response rsp = unit.get(Response.class);
-          expect(rsp.locals()).andReturn(Collections.emptyMap());
-        })
-        .run(unit -> {
-          Response rsp = new Response.Forwarding(unit.get(Response.class));
-          assertEquals(Collections.emptyMap(), rsp.locals());
         });
   }
 

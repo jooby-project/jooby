@@ -134,11 +134,11 @@ public class RouteHandler {
         .map(l -> request.getLocale()).orElse(this.locale);
 
     BiFunction<Injector, Route, Request> reqFactory = (injector, route) ->
-        new RequestImpl(request, injector, route, selector, type, accept,
+        new RequestImpl(request, injector, route, locals, selector, type, accept,
             charset, locale);
 
     BiFunction<Injector, Route, Response> resFactory = (injector, route) ->
-        new ResponseImpl(response, injector, route, locals, selector, charset,
+        new ResponseImpl(response, injector, route, selector, charset,
             Optional.ofNullable(request.getHeader("Referer")));
 
     Injector injector = rootInjector;

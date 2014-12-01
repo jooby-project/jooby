@@ -29,7 +29,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Date;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -193,22 +192,6 @@ public interface Response {
     public Response length(final int length) {
       response.length(length);
       return this;
-    }
-
-    @Override
-    public <T> T local(final String name) {
-      return response.local(name);
-    }
-
-    @Override
-    public Response local(final String name, final Object value) {
-      response.local(name, value);
-      return this;
-    }
-
-    @Override
-    public Map<String, Object> locals() {
-      return response.locals();
     }
 
     @Override
@@ -836,33 +819,5 @@ public interface Response {
    * @return a boolean indicating if the response has been committed
    */
   boolean committed();
-
-  /**
-   * Response local variables are scoped to the request, and therefore only available to the view(s)
-   * rendered during that request / response cycle.
-   *
-   * @return Immutable version of local variables.
-   */
-  @Nonnull
-  Map<String, Object> locals();
-
-  /**
-   * Get a local variable by it's name.
-   *
-   * @param name A var's name
-   * @param <T> A local type.
-   * @return A local.
-   */
-  @Nonnull
-  <T> T local(@Nonnull String name);
-
-  /**
-   * Put a local using a var's name. It override any existing local.
-   *
-   * @param name A var's name
-   * @param value A var's value.
-   * @return This response.
-   */
-  Response local(@Nonnull String name, @Nonnull Object value);
 
 }

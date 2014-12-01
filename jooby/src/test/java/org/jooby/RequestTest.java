@@ -124,6 +124,36 @@ public class RequestTest {
       throw new UnsupportedOperationException();
     }
 
+    @Override
+    public Map<String, Object> attributes() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> Optional<T> get(final String name) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Request set(final String name, final Object value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Request unset() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> Optional<T> unset(final String name) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isSet(final String name) {
+      throw new UnsupportedOperationException();
+    }
+
   }
 
   @Test

@@ -10,7 +10,6 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -142,21 +141,6 @@ public class ResponseTest {
 
     @Override
     public boolean committed() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Map<String, Object> locals() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <T> T local(final String name) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Response local(final String name, final Object value) {
       throw new UnsupportedOperationException();
     }
 

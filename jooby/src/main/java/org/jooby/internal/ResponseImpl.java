@@ -47,7 +47,6 @@ import org.jooby.fn.ExSupplier;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 
 public class ResponseImpl implements Response {
@@ -64,8 +63,6 @@ public class ResponseImpl implements Response {
 
   private MediaType type;
 
-  private final Map<String, Object> locals;
-
   private Route route;
 
   private SetHeaderImpl setHeader;
@@ -73,12 +70,11 @@ public class ResponseImpl implements Response {
   private Optional<String> referer;
 
   public ResponseImpl(final HttpServletResponse response, final Injector injector,
-      final Route route, final Map<String, Object> locals, final BodyConverterSelector selector,
+      final Route route, final BodyConverterSelector selector,
       final Charset charset, final Optional<String> referer) {
     this.response = requireNonNull(response, "A response is required.");
     this.injector = requireNonNull(injector, "An injector is required.");
     this.route = requireNonNull(route, "A route is required.");
-    this.locals = requireNonNull(locals, "The locals is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
     this.referer = requireNonNull(referer, "A referer is required.");
@@ -232,24 +228,6 @@ public class ResponseImpl implements Response {
   @Override
   public Response length(final int length) {
     response.setContentLength(length);
-    return this;
-  }
-
-  @Override
-  public Map<String, Object> locals() {
-    return ImmutableMap.copyOf(locals);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T> T local(final String name) {
-    return (T) locals.get(name);
-  }
-
-  @Override
-  public Response local(final String name, final Object value) {
-    requireNonNull(name, "Name is required.");
-    locals.put(name, value);
     return this;
   }
 

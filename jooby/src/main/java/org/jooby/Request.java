@@ -39,7 +39,7 @@ import com.google.inject.TypeLiteral;
  * @author edgar
  * @since 0.1.0
  */
-public interface Request {
+public interface Request extends Locals {
 
   /**
    * Forwarding request.
@@ -50,7 +50,7 @@ public interface Request {
   class Forwarding implements Request {
 
     /** Target request. */
-    private Request request;
+    private Request req;
 
     /**
      * Creates a new {@link Forwarding} request.
@@ -58,157 +58,183 @@ public interface Request {
      * @param request A target request.
      */
     public Forwarding(final @Nonnull Request request) {
-      this.request = requireNonNull(request, "A HTTP request is required.");
+      this.req = requireNonNull(request, "A HTTP request is required.");
     }
 
     @Override
     public String path() {
-      return request.path();
+      return req.path();
     }
 
     @Override
     public Verb verb() {
-      return request.verb();
+      return req.verb();
     }
 
     @Override
     public MediaType type() {
-      return request.type();
+      return req.type();
     }
 
     @Override
     public List<MediaType> accept() {
-      return request.accept();
+      return req.accept();
     }
 
     @Override
     public Optional<MediaType> accepts(final List<MediaType> types) {
-      return request.accepts(types);
+      return req.accepts(types);
     }
 
     @Override
     public Optional<MediaType> accepts(final MediaType... types) {
-      return request.accepts(types);
+      return req.accepts(types);
     }
 
     @Override
     public Optional<MediaType> accepts(final String... types) {
-      return request.accepts(types);
+      return req.accepts(types);
     }
 
     @Override
     public Map<String, Mutant> params() throws Exception {
-      return request.params();
+      return req.params();
     }
 
     @Override
     public Mutant param(final String name) throws Exception {
-      return request.param(name);
+      return req.param(name);
     }
 
     @Override
     public Mutant header(final String name) {
-      return request.header(name);
+      return req.header(name);
     }
 
     @Override
     public Map<String, Mutant> headers() {
-      return request.headers();
+      return req.headers();
     }
 
     @Override
     public Optional<Cookie> cookie(final String name) {
-      return request.cookie(name);
+      return req.cookie(name);
     }
 
     @Override
     public List<Cookie> cookies() {
-      return request.cookies();
+      return req.cookies();
     }
 
     @Override
     public <T> T body(final TypeLiteral<T> type) throws Exception {
-      return request.body(type);
+      return req.body(type);
     }
 
     @Override
     public <T> T body(final Class<T> type) throws Exception {
-      return request.body(type);
+      return req.body(type);
     }
 
     @Override
     public <T> T getInstance(final Class<T> type) {
-      return request.getInstance(type);
+      return req.getInstance(type);
     }
 
     @Override
     public <T> T getInstance(final TypeLiteral<T> type) {
-      return request.getInstance(type);
+      return req.getInstance(type);
     }
 
     @Override
     public <T> T getInstance(final Key<T> key) {
-      return request.getInstance(key);
+      return req.getInstance(key);
     }
 
     @Override
     public Charset charset() {
-      return request.charset();
+      return req.charset();
     }
 
     @Override
     public long length() {
-      return request.length();
+      return req.length();
     }
 
     @Override
     public Locale locale() {
-      return request.locale();
+      return req.locale();
     }
 
     @Override
     public String ip() {
-      return request.ip();
+      return req.ip();
     }
 
     @Override
     public Route route() {
-      return request.route();
+      return req.route();
     }
 
     @Override
     public Session session() {
-      return request.session();
+      return req.session();
     }
 
     @Override
     public Optional<Session> ifSession() {
-      return request.ifSession();
+      return req.ifSession();
     }
 
     @Override
     public String hostname() {
-      return request.hostname();
+      return req.hostname();
     }
 
     @Override
     public String protocol() {
-      return request.protocol();
+      return req.protocol();
     }
 
     @Override
     public boolean secure() {
-      return request.secure();
+      return req.secure();
     }
 
     @Override
     public boolean xhr() {
-      return request.xhr();
+      return req.xhr();
+    }
+
+    @Override
+    public Map<String, Object> attributes() {
+      return req.attributes();
+    }
+
+    @Override
+    public <T> Optional<T> get(final String name) {
+      return req.get(name);
+    }
+
+    @Override
+    public Request set(final String name, final Object value) {
+      req.set(name, value);
+      return this;
+    }
+
+    @Override
+    public Request unset() {
+      return this;
+    }
+
+    @Override
+    public <T> Optional<T> unset(final String name) {
+      return req.unset(name);
     }
 
     @Override
     public String toString() {
-      return request.toString();
+      return req.toString();
     }
 
     /**
@@ -221,7 +247,7 @@ public interface Request {
       requireNonNull(req, "A request is required.");
       Request root = req;
       while (root instanceof Forwarding) {
-        root = ((Forwarding) root).request;
+        root = ((Forwarding) root).req;
       }
       return root;
     }
@@ -622,5 +648,11 @@ public interface Request {
    * @return True if this request was made using a secure channel, such as HTTPS.
    */
   boolean secure();
+
+  @Override
+  Request set(String name, Object value);
+
+  @Override
+  Request unset();
 
 }
