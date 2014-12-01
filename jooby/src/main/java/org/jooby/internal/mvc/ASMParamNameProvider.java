@@ -20,7 +20,6 @@ package org.jooby.internal.mvc;
 
 import static java.util.Objects.requireNonNull;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -43,14 +42,9 @@ public class ASMParamNameProvider implements ParamNameProvider {
     return names[index];
   }
 
-  @SuppressWarnings("rawtypes")
   private static String descriptor(final Executable exec) {
-    if (exec instanceof Method) {
-      return exec.getName() + Type.getMethodDescriptor((Method) exec);
-    } else if (exec instanceof Constructor) {
-      return exec.getName() + Type.getConstructorDescriptor((Constructor) exec);
-    }
-    throw new IllegalArgumentException(exec.getClass().getName());
+    Method method = (Method) exec;
+    return exec.getName() + Type.getMethodDescriptor(method);
   }
 
 }

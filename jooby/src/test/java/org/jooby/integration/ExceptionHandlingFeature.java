@@ -2,9 +2,8 @@ package org.jooby.integration;
 
 import org.apache.http.client.fluent.Request;
 import org.jooby.Body;
-import org.jooby.Jooby;
-import org.jooby.MediaType;
 import org.jooby.Env;
+import org.jooby.MediaType;
 import org.jooby.Status;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
@@ -30,19 +29,14 @@ public class ExceptionHandlingFeature extends ServerFeature {
 
   {
 
-    use(new Jooby.Module() {
-
-      @Override
-      public void configure(final Env mode, final Config config, final Binder binder)
-          throws Exception {
-        Multibinder<Body.Formatter> converters = Multibinder.newSetBinder(binder,
-            Body.Formatter.class);
-        converters.addBinding().toInstance(BodyConverters.toHtml);
-        converters.addBinding().toInstance(BodyConverters.toJson);
-      }
+    use((final Env mode, final Config config, final Binder binder) -> {
+      Multibinder<Body.Formatter> converters = Multibinder.newSetBinder(binder,
+          Body.Formatter.class);
+      converters.addBinding().toInstance(BodyConverters.toHtml);
+      converters.addBinding().toInstance(BodyConverters.toJson);
     });
 
-    get("/error", (req, resp) -> resp.send(null));
+    get("/error", (req, rsp) -> rsp.send(null));
 
     use(Resource.class);
   }

@@ -439,7 +439,7 @@ public interface Route {
       RouteMatcher matcher = compiledPattern.matcher(verb.name() + path);
       if (matcher.matches()) {
         List<MediaType> result = MediaType.matcher(accept).filter(this.produces);
-        if (canConsume(contentType) && result.size() > 0) {
+        if (result.size() > 0 && canConsume(contentType)) {
           // keep accept when */*
           List<MediaType> produces = result.size() == 1 && result.get(0).name().equals("*/*")
               ? accept : this.produces;

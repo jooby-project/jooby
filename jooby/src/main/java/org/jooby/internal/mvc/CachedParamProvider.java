@@ -43,9 +43,10 @@ public class CachedParamProvider implements ParamProvider {
     }
     List<Param> params = cache.get(exec);
     if (params == null) {
-      cache.put(exec, provider.parameters(exec));
+      params = provider.parameters(exec);
+      cache.put(exec, params);
     }
-    return null;
+    return params;
   }
 
 }

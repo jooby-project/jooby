@@ -302,7 +302,7 @@ public class MutantImpl implements Mutant {
     } else {
       if (!type.equals(MediaType.all)) {
         BodyConverterSelector selector = injector.getInstance(BodyConverterSelector.class);
-        Optional<Body.Parser> parser = selector.forRead(literal, ImmutableList.of(type));
+        Optional<Body.Parser> parser = selector.parser(literal, ImmutableList.of(type));
         if (parser.isPresent() && parser.get().canParse(literal)) {
 
           return (name, values) -> {

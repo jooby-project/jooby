@@ -44,7 +44,7 @@ import javax.annotation.Nonnull;
 
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetHandler;
-import org.jooby.internal.FallbackBodyConverter;
+import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.Server;
 import org.jooby.internal.TypeConverters;
@@ -1916,11 +1916,11 @@ public class Jooby {
         // Singleton routes
         singletonRoutes.forEach(routeClass -> binder.bind(routeClass).in(Scopes.SINGLETON));
 
-        formatterBinder.addBinding().toInstance(FallbackBodyConverter.formatReader);
-        formatterBinder.addBinding().toInstance(FallbackBodyConverter.formatStream);
-        formatterBinder.addBinding().toInstance(FallbackBodyConverter.formatString);
+        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
+        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatStream);
+        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
 
-        parserBinder.addBinding().toInstance(FallbackBodyConverter.parseString);
+        parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
 
         // err
         if (err == null) {

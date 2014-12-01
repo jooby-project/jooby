@@ -17,8 +17,10 @@ public class SessionDataFeature extends ServerFeature {
 
     get("/s1", (req, rsp) -> {
       Session session = req.session();
+      assertEquals(false, session.isSet("v1"));
       session.set("v1", "v1");
-      rsp.send("xx");
+      assertEquals(true, session.isSet("v1"));
+      rsp.send(session.attributes());
     });
 
     get("/s2", (req, rsp) -> {
@@ -26,11 +28,17 @@ public class SessionDataFeature extends ServerFeature {
       rsp.send(session.get("v1"));
       session.unset("v1");
     });
+
+    get("/unset-all", (req, rsp) -> {
+      Session session = req.session();
+      rsp.send(session.get("v1"));
+      session.unset();
+    });
   }
 
   @Test
   public void locals() throws Exception {
-    execute(
+    assertEquals("{v1=v1}", execute(
         GET(uri("s1")),
         (r0) -> {
           String setCookie = r0.getFirstHeader("Set-Cookie").getValue();
@@ -43,7 +51,29 @@ public class SessionDataFeature extends ServerFeature {
                         execute(GET(uri("s2")).addHeader("Cookie", setCookie), (r2) -> {
                         }));
                   }));
-        });
+        }));
+
+    assertEquals("Optional.empty", execute(GET(uri("s2")), (r) -> {
+    }));
+
+  }
+
+  @Test
+  public void unsetall() throws Exception {
+    assertEquals("Optional.empty", execute(
+        GET(uri("unset-all")),
+        (r0) -> {
+          String setCookie = r0.getFirstHeader("Set-Cookie").getValue();
+          assertEquals(
+              "Optional.empty",
+              execute(
+                  GET(uri("s2")).addHeader("Cookie", setCookie),
+                  (r1) -> {
+                    assertEquals("Optional.empty",
+                        execute(GET(uri("s2")).addHeader("Cookie", setCookie), (r2) -> {
+                        }));
+                  }));
+        }));
 
     assertEquals("Optional.empty", execute(GET(uri("s2")), (r) -> {
     }));

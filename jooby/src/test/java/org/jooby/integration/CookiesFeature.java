@@ -22,8 +22,15 @@ public class CookiesFeature extends ServerFeature {
     });
 
     get("/get", (req, rsp) -> {
+      assertEquals(
+          "[{name=X, value=Optional[x], domain=Optional.empty, path=/, maxAge=-1, secure=false}]",
+          req.cookies().toString());
       Optional<Cookie> cookie = req.cookie("X");
       rsp.send(cookie.isPresent() ? "present" : "deleted");
+    });
+
+    get("/nocookies", (req, rsp) -> {
+      rsp.send(req.cookies().toString());
     });
 
     get("/clear", (req, rsp) -> {
@@ -43,6 +50,14 @@ public class CookiesFeature extends ServerFeature {
         assertEquals(200, r0.getStatusLine().getStatusCode());
         assertEquals("present", EntityUtils.toString(r0.getEntity()));
       });
+    }));
+
+  }
+
+  @Test
+  public void noCookies() throws Exception {
+    assertEquals("[]", execute(GET(uri("nocookies")), (r1) -> {
+      assertEquals(200, r1.getStatusLine().getStatusCode());
     }));
 
   }

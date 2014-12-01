@@ -43,8 +43,13 @@ public class JoobySession extends MemSession implements Session {
 
   private String secret;
 
-  public JoobySession(final JoobySessionManager session, final HttpServletRequest request) {
-    super(session, request);
+  public JoobySession(final JoobySessionManager manager, final HttpServletRequest request) {
+    super(manager, request);
+  }
+
+  public JoobySession(final JoobySessionManager manager, final long createdAt,
+      final long accessedAt, final String clusterId) {
+    super(manager, createdAt, accessedAt, clusterId);
   }
 
   @Override
@@ -139,16 +144,6 @@ public class JoobySession extends MemSession implements Session {
     return valid;
   }
 
-  @Override
-  public void setClusterId(final String clusterId) {
-    super.setClusterId(clusterId);
-  }
-
-  @Override
-  public void setNodeId(final String nodeId) {
-    super.setNodeId(nodeId);
-  }
-
   public void setSaveInterval(final int saveInterval) {
     this.saveInterval = saveInterval;
   }
@@ -173,14 +168,6 @@ public class JoobySession extends MemSession implements Session {
   }
 
   @Override
-  public void removeAttribute(final String name) {
-    Object old = changeAttribute(name, null);
-    if (old != null) {
-      dirty = true;
-    }
-  }
-
-  @Override
   protected void complete() {
     synchronized (this) {
       super.complete();
@@ -197,7 +184,7 @@ public class JoobySession extends MemSession implements Session {
           }
         }
       } catch (Exception ex) {
-        log.warn("Can't save session: " + getId(), ex);
+        log.error("Can't save session: " + getId(), ex);
       } finally {
         dirty = false;
       }

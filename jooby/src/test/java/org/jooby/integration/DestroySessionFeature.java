@@ -25,7 +25,7 @@ public class DestroySessionFeature extends ServerFeature {
   private Store store = new Store() {
 
     @Override
-    public Session get(final String id) throws Exception {
+    public Session get(final Session.Builder builder) throws Exception {
       return null;
     }
 

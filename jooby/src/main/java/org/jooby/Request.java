@@ -291,7 +291,7 @@ public interface Request {
   }
 
   /**
-   * @return The value of the <code>Content-Type</code> header. Default is: {@literal*}/{@literal*}.
+   * @return The <code>Content-Type</code> header. Default is: {@literal*}/{@literal*}.
    */
   @Nonnull
   MediaType type();

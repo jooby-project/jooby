@@ -45,7 +45,8 @@ public class View {
     List<MediaType> HTML = ImmutableList.of(MediaType.html);
 
     default String name() {
-      return getClass().getSimpleName().toLowerCase();
+      String name = getClass().getName();
+      return name.substring(Math.max(-1, name.lastIndexOf('.')) + 1) .toLowerCase();
     }
 
     @Override

@@ -28,14 +28,6 @@ import com.google.common.base.Strings;
 
 public interface ParamNameProvider {
 
-  ParamNameProvider JAVA_8 = new ParamNameProvider() {
-
-    @Override
-    public String name(final int index, final Parameter parameter) {
-      return parameter.isNamePresent() ? parameter.getName() : null;
-    }
-  };
-
   ParamNameProvider NAMED = new ParamNameProvider() {
     @Override
     public String name(final int index, final Parameter parameter) {

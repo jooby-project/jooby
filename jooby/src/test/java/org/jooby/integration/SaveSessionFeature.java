@@ -35,7 +35,7 @@ public class SaveSessionFeature extends ServerFeature {
       }
 
       @Override
-      public Session get(final String id) {
+      public Session get(final Session.Builder builder) {
         return null;
       }
 

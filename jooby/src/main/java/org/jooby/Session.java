@@ -254,7 +254,7 @@ public interface Session {
       }
 
       @Override
-      public Session get(final String id) {
+      public Session get(final Session.Builder builder) {
         return null;
       }
 
@@ -266,12 +266,12 @@ public interface Session {
     /**
      * Get a session by ID (if any).
      *
-     * @param id Session ID.
+     * @param builder A session builder.
      * @return A session or <code>null</code>.
      * @throws Exception If something goes wrong.
      */
     @Nullable
-    Session get(@Nonnull String id) throws Exception;
+    Session get(@Nonnull Session.Builder builder) throws Exception;
 
     /**
      * Save/persist a session.
@@ -299,6 +299,21 @@ public interface Session {
     default String generateID(final long seed) {
       return UUID.randomUUID().toString();
     }
+  }
+
+  interface Builder {
+
+    String sessionId();
+
+    Builder set(final String name, final Object value);
+
+    Builder set(final Map<String, Object> attributes);
+
+    Builder createdAt(long createdAt);
+
+    Builder accessedAt(long accessedAt);
+
+    Session build();
   }
 
   /** Logger logs, man. */

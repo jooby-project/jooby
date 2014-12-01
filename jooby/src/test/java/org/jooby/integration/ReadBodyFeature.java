@@ -49,6 +49,8 @@ public class ReadBodyFeature extends ServerFeature {
     post("/json", (req, resp) -> resp.send(req.body(String.class)))
         .consumes(MediaType.json);
 
+    post("/len", (req, resp) -> resp.send(req.length()));
+
     use(Resource.class);
   }
 
@@ -62,6 +64,14 @@ public class ReadBodyFeature extends ServerFeature {
         .bodyString("..x", ContentType.WILDCARD).execute()
         .returnContent().asString());
   }
+
+  @Test
+  public void len() throws Exception {
+    assertEquals("{\"body\": \"2\"}", Request.Post(uri("len").build())
+        .bodyString("..", ContentType.WILDCARD).execute()
+        .returnContent().asString());
+  }
+
 
   @Test
   public void emptyBody() throws Exception {

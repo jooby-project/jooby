@@ -18,8 +18,8 @@
  */
 package org.jooby.internal;
 
+import java.io.Closeable;
 import java.io.InputStream;
-import java.io.Reader;
 import java.util.List;
 
 import org.jooby.Body;
@@ -29,9 +29,10 @@ import org.jooby.View;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
+import com.google.common.io.Closeables;
 import com.google.inject.TypeLiteral;
 
-public class FallbackBodyConverter {
+public class BuiltinBodyConverter {
 
   public static Body.Formatter formatStream = new Body.Formatter() {
     @Override
@@ -66,23 +67,28 @@ public class FallbackBodyConverter {
 
     @Override
     public boolean canFormat(final Class<?> type) {
-      return Reader.class.isAssignableFrom(type);
+      return Readable.class.isAssignableFrom(type);
     }
 
     @Override
     public void format(final Object body, final Body.Writer writer) throws Exception {
-      try (Reader in = (Reader) body) {
+      try {
+        Readable in = (Readable) body;
         writer.text(out -> CharStreams.copy(in, out));
+      } finally {
+        if (body instanceof Closeable) {
+          Closeables.close((Closeable) body, true);
+        }
       }
     }
 
     @Override
     public String toString() {
-      return "Formatter for: " + Reader.class.getName();
+      return "Formatter for: " + Readable.class.getName();
     }
   };
 
-  public static Body.Formatter formatString = new Body.Formatter() {
+  public static Body.Formatter formatAny = new Body.Formatter() {
 
     @Override
     public List<MediaType> types() {
@@ -91,7 +97,7 @@ public class FallbackBodyConverter {
 
     @Override
     public boolean canFormat(final Class<?> type) {
-      return type != View.class;
+      return !View.class.isAssignableFrom(type);
     }
 
     @Override
@@ -101,7 +107,7 @@ public class FallbackBodyConverter {
 
     @Override
     public String toString() {
-      return "Formatter for: toString()";
+      return "Formatter for: Object.toString()";
     }
   };
 
@@ -109,12 +115,12 @@ public class FallbackBodyConverter {
 
     @Override
     public List<MediaType> types() {
-      return ImmutableList.of(MediaType.text);
+      return ImmutableList.of(MediaType.plain);
     }
 
     @Override
     public boolean canParse(final TypeLiteral<?> type) {
-      return type.getRawType() == String.class;
+      return CharSequence.class.isAssignableFrom(type.getRawType());
     }
 
     @Override
@@ -122,6 +128,10 @@ public class FallbackBodyConverter {
       return reader.text(r -> CharStreams.toString(r));
     }
 
+    @Override
+    public String toString() {
+      return "Parser for: " + CharSequence.class.getName();
+    }
   };
 
 }

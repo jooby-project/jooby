@@ -32,15 +32,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.jooby.MediaType;
 import org.jooby.Env;
+import org.jooby.MediaType;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
+import org.jooby.mvc.CONNECT;
 import org.jooby.mvc.Consumes;
 import org.jooby.mvc.DELETE;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.HEAD;
 import org.jooby.mvc.OPTIONS;
+import org.jooby.mvc.PATCH;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.PUT;
 import org.jooby.mvc.Path;
@@ -64,7 +66,8 @@ public class Routes {
 
   @SuppressWarnings("unchecked")
   private static final Set<Class<? extends Annotation>> VERBS = ImmutableSet.of(GET.class,
-      POST.class, PUT.class, DELETE.class, HEAD.class, OPTIONS.class, TRACE.class);
+      POST.class, PUT.class, DELETE.class, PATCH.class, HEAD.class, OPTIONS.class, TRACE.class,
+      CONNECT.class);
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   public static List<Route.Definition> routes(final Env env, final Class<?> routeClass) {
@@ -73,13 +76,14 @@ public class Routes {
 
     collectParameterNamesAndLineNumbers(routeClass, params, lines);
 
-    ParamProvider provider =
+    ParamProvider candidate =
         new ParamProviderImpl(
             new ChainParamNameProvider(
                 ParamNameProvider.NAMED,
-                ParamNameProvider.JAVA_8,
                 new ASMParamNameProvider(params)
             ));
+    ParamProvider provider = "dev".equalsIgnoreCase(env.name())
+        ? candidate : new CachedParamProvider(candidate);
 
     String rootPath = path(routeClass);
 

@@ -46,7 +46,9 @@ class URLAsset implements Asset {
 
   @Override
   public String name() {
-    return url.getPath();
+    String path = url.getPath();
+    int slash = path.lastIndexOf('/');
+    return path.substring(slash + 1);
   }
 
   @Override

@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.io.BaseEncoding;
 
 /**
@@ -188,6 +189,17 @@ public interface Cookie {
           return cookie.httpOnly().orElse(Boolean.FALSE);
         }
 
+        @Override
+        public String toString() {
+          return MoreObjects.toStringHelper(this)
+              .add("name", name())
+              .add("value", value())
+              .add("domain", domain())
+              .add("path", path())
+              .add("maxAge", maxAge())
+              .add("secure", secure())
+              .toString();
+        }
       };
     }
 

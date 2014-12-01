@@ -51,6 +51,7 @@ import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 import org.jooby.Session;
+import org.jooby.Session.Store;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.Definition;
 import org.jooby.internal.RouteHandler;
@@ -133,29 +134,7 @@ public class JettyServerBuilder {
      * Session configuration
      */
     Session.Store store = sessionDef.store();
-    Session.Store forwardingStore = new Session.Store() {
-
-      @Override
-      public Session get(final String id) throws Exception {
-        return store.get(id);
-      }
-
-      @Override
-      public void save(final Session session, final SaveReason reason) throws Exception {
-        store.save(session, reason);
-        ((JoobySession) session).setLastSave(System.currentTimeMillis());
-      }
-
-      @Override
-      public void delete(final String id) throws Exception {
-        store.delete(id);
-      }
-
-      @Override
-      public String generateID(final long seed) {
-        return store.generateID(seed);
-      }
-    };
+    Session.Store forwardingStore = fwdStore(store);
     String secret = config.getString("application.secret");
     JoobySessionManager sessionManager = new JoobySessionManager(forwardingStore, secret);
     Config $session = config.getConfig("application.session");
@@ -262,13 +241,39 @@ public class JettyServerBuilder {
         buffer.append("  http://localhost:").append(config.getInt("application.port"))
             .append(contextPath).append("\n");
         buffer.append("  https://localhost:").append(config.getInt("application.securePort"))
-            .append(contextPath);
+            .append(contextPath).append("\n");
 
         log.info("\nroutes:\n{}", buffer);
       }
     });
 
     return server;
+  }
+
+  private static Store fwdStore(Session.Store store) {
+    return new Session.Store() {
+
+      @Override
+      public Session get(final Session.Builder builder) throws Exception {
+        return store.get(builder);
+      }
+
+      @Override
+      public void save(final Session session, final SaveReason reason) throws Exception {
+        store.save(session, reason);
+        ((JoobySession) session).setLastSave(System.currentTimeMillis());
+      }
+
+      @Override
+      public void delete(final String id) throws Exception {
+        store.delete(id);
+      }
+
+      @Override
+      public String generateID(final long seed) {
+        return store.generateID(seed);
+      }
+    };
   }
 
   private static long duration(final Config config, final String name, final TimeUnit unit) {

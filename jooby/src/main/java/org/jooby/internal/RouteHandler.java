@@ -134,7 +134,8 @@ public class RouteHandler {
         .map(l -> request.getLocale()).orElse(this.locale);
 
     BiFunction<Injector, Route, Request> reqFactory = (injector, route) ->
-        new RequestImpl(request, injector, route, selector, type, accept, charset, locale);
+        new RequestImpl(request, injector, route, selector, type, accept,
+            charset, locale);
 
     BiFunction<Injector, Route, Response> resFactory = (injector, route) ->
         new ResponseImpl(response, injector, route, locals, selector, charset,
@@ -147,11 +148,13 @@ public class RouteHandler {
     try {
 
       // bootstrap request modules
-      injector = rootInjector.createChildInjector(binder -> {
-        for (Request.Module module : modules) {
-          module.configure(binder);
-        }
-      });
+      if (modules.size() > 0) {
+        injector = rootInjector.createChildInjector(binder -> {
+          for (Request.Module module : modules) {
+            module.configure(binder);
+          }
+        });
+      }
 
       List<Route> routes = routes(verb, requestURI, type, accept);
 
@@ -233,7 +236,7 @@ public class RouteHandler {
 
     // 406 or 415
     routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
-      if (!rsp.committed() && !rsp.status().isPresent()) {
+      if (!rsp.status().isPresent()) {
         Err ex = handle406or415(verb, path, type, accept);
         if (ex != null) {
           throw ex;
@@ -244,7 +247,7 @@ public class RouteHandler {
 
     // 405
     routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
-      if (!rsp.committed() && !rsp.status().isPresent()) {
+      if (!rsp.status().isPresent()) {
         Err ex = handle405(verb, path, type, accept);
         if (ex != null) {
           throw ex;
@@ -261,30 +264,15 @@ public class RouteHandler {
 
   private List<Route> findRoutes(final Verb verb, final String path, final MediaType type,
       final List<MediaType> accept) {
-    return findRoutes(verb, path, type, accept, verb);
-  }
-
-  private List<Route> findRoutes(final Verb verb, final String path, final MediaType type,
-      final List<MediaType> accept, final Verb overrideVerb) {
 
     List<Route> routes = new ArrayList<>();
     for (Route.Definition routeDef : routeDefs) {
       Optional<Route> route = routeDef.matches(verb, path, type, accept);
       if (route.isPresent()) {
-        routes.add(verb.equals(overrideVerb) ? route.get()
-            : overrideVerb(route.get(), overrideVerb));
+        routes.add(route.get());
       }
     }
     return routes;
-  }
-
-  private static Route overrideVerb(final Route route, final Verb verb) {
-    return new Route.Forwarding(route) {
-      @Override
-      public Verb verb() {
-        return verb;
-      }
-    };
   }
 
   private void defaultErrorPage(final Request request, final Response rsp,
@@ -334,7 +322,7 @@ public class RouteHandler {
         }
         html.append("\">")
             .append("<code>")
-            .append(line)
+            .append(line.replace("\t", "  "))
             .append("</code>")
             .append("</p>\n");
       });
@@ -347,7 +335,7 @@ public class RouteHandler {
 
     rsp.header("Cache-Control", NO_CACHE);
     ((ResponseImpl) (Response.Forwarding.unwrap(rsp)))
-        .send(Body.body(html), FallbackBodyConverter.formatString);
+        .send(Body.body(html), BuiltinBodyConverter.formatAny);
   }
 
   private Status statusCode(final Exception ex) {

@@ -20,6 +20,7 @@ package org.jooby.internal.jetty;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jetty.server.session.AbstractSession;
 import org.eclipse.jetty.server.session.AbstractSessionManager;
 import org.jooby.Session;
+import org.jooby.Session.Builder;
 import org.jooby.Session.Store;
 import org.jooby.Session.Store.SaveReason;
 
@@ -67,7 +69,7 @@ public class JoobySessionManager extends AbstractSessionManager {
 
     if (session == null) {
       try {
-        session = (JoobySession) store.get(idInCluster);
+        session = (JoobySession) store.get(builder(this, idInCluster));
       } catch (Exception ex) {
         Session.log.error("Can't get session from storage: " + idInCluster, ex);
       }
@@ -86,6 +88,56 @@ public class JoobySessionManager extends AbstractSessionManager {
       }
     }
     return session;
+  }
+
+  private static Builder builder(final JoobySessionManager sessionManager,
+      final String clusterId) {
+    return new Builder() {
+
+      private Map<String, Object> attributes = new HashMap<>();
+      private long createdAt;
+      private long accessedAt;
+
+      @Override
+      public String sessionId() {
+        return clusterId;
+      }
+
+      @Override
+      public Builder set(final String name, final Object value) {
+        this.attributes.put(name, value);
+        return this;
+      }
+
+      @Override
+      public Builder set(final Map<String, Object> attributes) {
+        this.attributes.putAll(attributes);
+        return this;
+      }
+
+      @Override
+      public Builder createdAt(final long createdAt) {
+        this.createdAt = createdAt;
+        return this;
+      }
+
+      @Override
+      public Builder accessedAt(final long accessedAt) {
+        this.accessedAt = accessedAt;
+        return this;
+      }
+
+      @Override
+      public Session build() {
+        JoobySession session = new JoobySession(sessionManager, createdAt, accessedAt, clusterId);
+        session.setMaxInactiveInterval(sessionManager.getMaxInactiveInterval());
+        session.setSaveInterval(sessionManager.saveInterval);
+        session.setSecret(sessionManager.secret);
+        session.addAttributes(attributes);
+        return session;
+      }
+
+    };
   }
 
   @Override
@@ -123,31 +175,31 @@ public class JoobySessionManager extends AbstractSessionManager {
     }
   }
 
-  @Override
-  public void renewSessionId(final String oldClusterId, final String oldNodeId,
-      final String newClusterId, final String newNodeId) {
-    synchronized (this) {
-      JoobySession session = sessions.remove(oldClusterId);
-      try {
-        store.delete(oldClusterId);
-      } catch (Exception ex) {
-        Session.log.error("Can't delete session: " + oldClusterId, ex);
-      }
-
-      session.setClusterId(newClusterId);
-      session.setNodeId(newNodeId);
-
-      sessions.put(newClusterId, session);
-
-      try {
-        store.save(session, SaveReason.NEW);
-      } catch (Exception ex) {
-        Session.log.error("Can't save session: " + session.getId(), ex);
-      }
-    }
-
-    super.renewSessionId(oldClusterId, oldNodeId, newClusterId, newNodeId);
-  }
+//  @Override
+//  public void renewSessionId(final String oldClusterId, final String oldNodeId,
+//      final String newClusterId, final String newNodeId) {
+//    synchronized (this) {
+//      JoobySession session = sessions.remove(oldClusterId);
+//      try {
+//        store.delete(oldClusterId);
+//      } catch (Exception ex) {
+//        Session.log.error("Can't delete session: " + oldClusterId, ex);
+//      }
+//
+//      session.setClusterId(newClusterId);
+//      session.setNodeId(newNodeId);
+//
+//      sessions.put(newClusterId, session);
+//
+//      try {
+//        store.save(session, SaveReason.NEW);
+//      } catch (Exception ex) {
+//        Session.log.error("Can't save session: " + session.getId(), ex);
+//      }
+//    }
+//
+//    super.renewSessionId(oldClusterId, oldNodeId, newClusterId, newNodeId);
+//  }
 
   @Override
   public void doStop() throws Exception {

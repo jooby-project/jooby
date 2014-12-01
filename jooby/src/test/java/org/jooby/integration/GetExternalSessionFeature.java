@@ -4,12 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
@@ -19,27 +13,38 @@ import org.jooby.integration.FilterFeature.HttpResponseValidator;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
-public class SessionCookieFeature extends ServerFeature {
+public class GetExternalSessionFeature extends ServerFeature {
+
+  static final String sessionId = "1234|YCoA3Xy3SpWxF95bTC+lVLg/GtTCO8YkKFkTeQ15v3E";
+  static final String cookieId = "jooby.sid=" + sessionId + ";Path=/;Secure;HttpOnly";
+
+  static final long time = System.currentTimeMillis();
 
   {
+
     use(ConfigFactory.empty().withValue("application.secret",
         ConfigValueFactory.fromAnyRef("fixed")));
 
     use(new Session.Store() {
+
       @Override
       public void save(final Session session, final SaveReason reason) {
         assertNotNull(session);
-        session.set("saves", ((int) session.get("saves").orElse(0)) + 1);
       }
 
       @Override
       public Session get(final Session.Builder builder) {
-        return null;
+        assertEquals(sessionId, builder.sessionId());
+        return builder
+            .set("v", "persisted")
+            .set(ImmutableMap.<String, Object> builder().put("x", "y").build())
+            .accessedAt(time)
+            .createdAt(time)
+            .build();
       }
 
       @Override
@@ -50,41 +55,46 @@ public class SessionCookieFeature extends ServerFeature {
       public String generateID(final long seed) {
         return "1234";
       }
-    }).cookie()
-        .name("custom.sid")
-        .path("/session")
-        .maxAge(60);
+    });
 
     get("/session", (req, rsp) -> {
-      rsp.send(req.session().id());
+      rsp.send(req.session().attributes());
+    });
+
+    get("/session/0", (req, rsp) -> {
+      rsp.send(req.session().createdAt());
+    });
+
+    get("/session/1", (req, rsp) -> {
+      rsp.send(req.session().accessedAt());
     });
 
   }
 
   @Test
-  public void cookieConfig() throws Exception {
-    long maxAge = System.currentTimeMillis() + 60 * 1000;
-    // remove seconds to make sure test always work
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy HH:mm");
-    Instant instant = Instant.ofEpochMilli(maxAge);
-    OffsetDateTime utc = instant.atOffset(ZoneOffset.UTC);
-    String sessionId = "1234|YCoA3Xy3SpWxF95bTC+lVLg/GtTCO8YkKFkTeQ15v3E";
+  public void session() throws Exception {
     assertEquals(
-        sessionId,
+        "{x=y, v=persisted}",
         execute(
-            GET(uri("session")),
+            GET(uri("session")).addHeader("Cookie", cookieId),
             (response) -> {
               assertEquals(200, response.getStatusLine().getStatusCode());
-              List<String> setCookie = Lists.newArrayList(Splitter.on(";").splitToList(
-                  response.getFirstHeader("Set-Cookie").getValue()));
-              assertTrue(setCookie.remove("custom.sid=" + sessionId));
-              assertTrue(setCookie.remove("Path=/session"));
-              assertTrue(setCookie.remove("Secure"));
-              assertTrue(setCookie.remove("HttpOnly"));
-              assertEquals(1, setCookie.size());
-              assertTrue(setCookie.remove(0).startsWith(
-                  "Expires=" + formatter.format(utc).replace("GMT", "")));
             }));
+
+    assertEquals(
+        "" + time,
+        execute(
+            GET(uri("session/0")).addHeader("Cookie", cookieId),
+            (response) -> {
+              assertEquals(200, response.getStatusLine().getStatusCode());
+            }));
+
+    assertTrue(time < Long.parseLong(
+        execute(
+            GET(uri("session/1")).addHeader("Cookie", cookieId),
+            (response) -> {
+              assertEquals(200, response.getStatusLine().getStatusCode());
+            })));
 
   }
 

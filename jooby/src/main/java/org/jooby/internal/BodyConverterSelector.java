@@ -88,7 +88,7 @@ public class BodyConverterSelector {
     return viewableTypes;
   }
 
-  public Optional<Body.Parser> forRead(final TypeLiteral<?> type,
+  public Optional<Body.Parser> parser(final TypeLiteral<?> type,
       final Iterable<MediaType> types) {
     requireNonNull(type, "Type literal is required.");
     requireNonNull(types, "Types are required.");
@@ -110,7 +110,7 @@ public class BodyConverterSelector {
     return Optional.empty();
   }
 
-  public Optional<Body.Formatter> forWrite(final Object message,
+  public Optional<Body.Formatter> formatter(final Object message,
       final Iterable<MediaType> types) {
     requireNonNull(message, "A message is required.");
     requireNonNull(types, "Types are required.");

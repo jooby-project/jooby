@@ -271,6 +271,18 @@ public class ResponseTest {
       public Charset charset() {
         return Charsets.UTF_8;
       }
+
+      @Override
+      public Optional<MediaType> type() {
+        return Optional.empty();
+      }
+
+      @Override
+      public Response type(final MediaType type) {
+        assertEquals(MediaType.js, type);
+        return this;
+      }
+
     }.download(resource);
     assertEquals(resource, dataList.getFirst());
   }
@@ -290,6 +302,17 @@ public class ResponseTest {
       @Override
       public Charset charset() {
         return Charsets.UTF_8;
+      }
+
+      @Override
+      public Optional<MediaType> type() {
+        return Optional.empty();
+      }
+
+      @Override
+      public Response type(final MediaType type) {
+        assertEquals(MediaType.js, type);
+        return this;
       }
     }.download(resource);
     assertEquals(resource, dataList.getFirst());

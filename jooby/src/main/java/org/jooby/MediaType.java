@@ -562,7 +562,7 @@ public class MediaType implements Comparable<MediaType> {
    */
   public static @Nonnull Optional<MediaType> byFile(@Nonnull final File file) {
     requireNonNull(file, "A file is required.");
-    return byPath(file.getAbsolutePath());
+    return byPath(file.getName());
   }
 
   /**

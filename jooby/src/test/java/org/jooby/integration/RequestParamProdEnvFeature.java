@@ -12,14 +12,16 @@ import javax.inject.Named;
 
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
-import org.jooby.Cookie;
 import org.jooby.Status;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-public class RequestParamFeature extends ServerFeature {
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+
+public class RequestParamProdEnvFeature extends ServerFeature {
 
   public enum VOWELS {
     A,
@@ -123,27 +125,12 @@ public class RequestParamFeature extends ServerFeature {
     public Object namedParam(@Named("not-java-name") final String p) {
       return p.toString();
     }
-
-    @GET
-    @Path("/cookie")
-    public Object cookieParam(final Cookie galleta) {
-      return galleta.toString();
-    }
-
-    @GET
-    @Path("/ocookie")
-    public Object ocookie(final Optional<Cookie> galleta) {
-      return galleta.toString();
-    }
-
-    @GET
-    @Path("/optionalCookie")
-    public Object cookieParam(final Optional<Cookie> galleta) {
-      return galleta.toString();
-    }
   }
 
   {
+    use(ConfigFactory.empty()
+        .withValue("application.secret", ConfigValueFactory.fromAnyRef("fixed"))
+        .withValue("application.env", ConfigValueFactory.fromAnyRef("prod")));
 
     use(Resource.class);
   }
@@ -244,25 +231,6 @@ public class RequestParamFeature extends ServerFeature {
   public void decimalParam() throws Exception {
     BigDecimal decimal = new BigDecimal(Math.PI + "");
     assertEquals(decimal.toString(), GET(uri("decimal").addParameter("p", decimal.toString())));
-  }
-
-  @Test
-  public void cookieParam() throws Exception {
-    assertEquals(
-        "{name=galleta, value=Optional[galleta], domain=Optional.empty, path=/, maxAge=-1, secure=false}",
-        Request.Get((uri("cookie").build())).addHeader("Cookie", "galleta=galleta")
-            .execute().returnContent().asString());
-
-    assertEquals(
-        "Optional[{name=galleta, value=Optional[galleta], domain=Optional.empty, path=/, maxAge=-1, secure=false}]",
-        Request.Get((uri("ocookie").build())).addHeader("Cookie", "galleta=galleta")
-            .execute().returnContent().asString());
-  }
-
-  @Test
-  public void optionalCookie() throws Exception {
-    assertEquals("Optional.empty",
-        Request.Get((uri("optionalCookie").build())).execute().returnContent().asString());
   }
 
   private static String GET(final URIBuilder uri) throws Exception {

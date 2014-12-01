@@ -153,15 +153,15 @@ public class WebSocketImpl implements WebSocket {
     };
 
     Optional<Body.Formatter> formatter = injector.getInstance(BodyConverterSelector.class)
-        .forWrite(data, ImmutableList.of(produces));
+        .formatter(data, ImmutableList.of(produces));
     if (formatter.isPresent()) {
       ExSupplier<OutputStream> stream = () -> {
         return stream(session, callback, false);
       };
-      ExSupplier<Writer> reader = () -> {
+      ExSupplier<Writer> writer = () -> {
         return new PrintWriter(stream(session, callback, true));
       };
-      formatter.get().format(data, new BodyWriterImpl(Charsets.UTF_8, stream, reader));
+      formatter.get().format(data, new BodyWriterImpl(Charsets.UTF_8, stream, writer));
     } else {
       RemoteEndpoint remote = session.getRemote();
       if (byte[].class == data.getClass()) {
@@ -253,7 +253,12 @@ public class WebSocketImpl implements WebSocket {
   }
 
   public void fireClose(final CloseStatus closeStatus) throws Exception {
-    closeCallback.invoke(closeStatus);
+    try {
+      closeCallback.invoke(closeStatus);
+    } finally {
+      session = null;
+      injector = null;
+    }
   }
 
   @Override

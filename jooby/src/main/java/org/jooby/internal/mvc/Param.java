@@ -27,11 +27,11 @@ import java.util.Optional;
 
 import org.jooby.Cookie;
 import org.jooby.Err;
+import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Status;
 import org.jooby.Upload;
-import org.jooby.Mutant;
 import org.jooby.Verb;
 import org.jooby.mvc.Header;
 
@@ -48,9 +48,20 @@ public class Param {
         /**
          * If param is present or ask for an Upload, use/return the param version
          */
-        if (param.isPresent() || typeIs(md.parameter.getParameterizedType(), Upload.class)) {
+        if (param.isPresent()) {
           return param.to(type);
         } else {
+          if (typeIs(md.parameter.getParameterizedType(), Upload.class)) {
+            return param.to(type);
+          }
+          if (typeIs(md.parameter.getParameterizedType(), Cookie.class)) {
+            Optional<Cookie> cookie = req.cookie(md.name);
+            if (md.parameter.getType() == Optional.class) {
+              return cookie;
+            }
+            return cookie
+                .orElseThrow(() -> new Err(Status.BAD_REQUEST, "Cookie not found: " + md.name));
+          }
           /**
            * If param is missing, check if this is a post/put and delegates to body
            */
@@ -71,20 +82,6 @@ public class Param {
       public Object get(final Request req, final Response resp, final Param param) throws Exception {
         return req.header(param.name).to(
             TypeLiteral.get(param.parameter.getParameterizedType()));
-      }
-    },
-
-    COOKIE {
-      @Override
-      public Object get(final Request req, final Response resp, final Param param)
-          throws Exception {
-        Optional<Cookie> cookie = req.cookie(param.name);
-        if (param.parameter.getType() == Optional.class) {
-          return cookie;
-        }
-        return cookie
-            .orElseThrow(
-            () -> new Err(Status.BAD_REQUEST, "Missing cookie: " + param.name));
       }
     },
 
@@ -140,8 +137,6 @@ public class Param {
       strategy = Strategy.RESPONSE;
     } else if (parameter.getType() == Request.class) {
       strategy = Strategy.REQUEST;
-    } else if (parameter.getType() == Cookie.class) {
-      strategy = Strategy.COOKIE;
     } else {
       strategy = Strategy.PARAM;
     }
@@ -149,11 +144,6 @@ public class Param {
 
   public Object get(final Request request, final Response response) throws Exception {
     return strategy.get(request, response, this);
-  }
-
-  @Override
-  public String toString() {
-    return parameter.getType() + " " + name;
   }
 
 }

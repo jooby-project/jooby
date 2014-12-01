@@ -19,6 +19,12 @@ public class RouteReferenceFeature extends ServerFeature {
       assertEquals("GET", route.verb().name());
       assertEquals("/", route.path());
       assertEquals("/", route.pattern());
+      assertEquals("GET /\n" +
+          "  pattern: /\n" +
+          "  name: anonymous\n" +
+          "  vars: {}\n" +
+          "  consumes: [*/*]\n" +
+          "  produces: [*/*]\n", req.toString());
       rsp.send("done");
     });
 

@@ -218,7 +218,7 @@ public class RequestImpl implements Request {
 
   @Override
   public <T> T body(final TypeLiteral<T> type) throws Exception {
-    Body.Parser parser = selector.forRead(type, ImmutableList.of(this.type))
+    Body.Parser parser = selector.parser(type, ImmutableList.of(this.type))
         .orElseThrow(() -> new Err(Status.UNSUPPORTED_MEDIA_TYPE));
     return parser.parse(type, new BodyReaderImpl(charset, () -> request.getInputStream()));
   }
@@ -256,12 +256,6 @@ public class RequestImpl implements Request {
   @Override
   public <T> T getInstance(final Key<T> key) {
     return injector.getInstance(key);
-  }
-
-  public void destroy() {
-    this.selector = null;
-    this.type = null;
-    this.request = null;
   }
 
   @Override

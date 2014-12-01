@@ -162,10 +162,14 @@ public class RouteDefinitionTest {
     assertEquals(MediaType.json, def.consumes().get(0));
     assertEquals(MediaType.valueOf("text/*"), def.consumes().get(1));
 
-    assertEquals(true, def.matches(Verb.GET, "/", MediaType.all, MediaType.ALL).isPresent());
-    assertEquals(true, def.matches(Verb.GET, "/", MediaType.json, MediaType.ALL).isPresent());
-    assertEquals(false, def.matches(Verb.GET, "/", MediaType.xml, MediaType.ALL).isPresent());
-    assertEquals(false, def.matches(Verb.GET, "/", MediaType.json, Arrays.asList(MediaType.html))
+    assertEquals(true, def.matches(Verb.GET, "/", MediaType.all, MediaType.ALL)
+        .isPresent());
+    assertEquals(true, def.matches(Verb.GET, "/", MediaType.json, MediaType.ALL)
+        .isPresent());
+    assertEquals(false, def.matches(Verb.GET, "/", MediaType.xml, MediaType.ALL)
+        .isPresent());
+    assertEquals(false,
+        def.matches(Verb.GET, "/", MediaType.json, Arrays.asList(MediaType.html))
         .isPresent());
   }
 
@@ -205,7 +209,8 @@ public class RouteDefinitionTest {
     assertEquals(MediaType.json, def.produces().get(0));
     assertEquals(MediaType.valueOf("text/*"), def.produces().get(1));
 
-    assertEquals(true, def.matches(Verb.GET, "/", MediaType.all, MediaType.ALL).isPresent());
+    assertEquals(true, def.matches(Verb.GET, "/", MediaType.all, MediaType.ALL)
+        .isPresent());
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -32,7 +32,7 @@ import org.jooby.Session.Definition;
 import org.jooby.Session.Store;
 import org.jooby.fn.Switch;
 import org.jooby.internal.AssetFormatter;
-import org.jooby.internal.FallbackBodyConverter;
+import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.Server;
 import org.jooby.internal.TypeConverters;
@@ -218,7 +218,7 @@ public class JoobyTest {
     expect(Multibinder.newSetBinder(binder, Body.Parser.class)).andReturn(multibinder);
 
     LinkedBindingBuilder<Parser> parseString = unit.mock(LinkedBindingBuilder.class);
-    parseString.toInstance(FallbackBodyConverter.parseString);
+    parseString.toInstance(BuiltinBodyConverter.parseString);
 
     expect(multibinder.addBinding()).andReturn(parseString);
   };
@@ -231,13 +231,13 @@ public class JoobyTest {
     expect(Multibinder.newSetBinder(binder, Body.Formatter.class)).andReturn(multibinder);
 
     LinkedBindingBuilder<Formatter> formatReader = unit.mock(LinkedBindingBuilder.class);
-    formatReader.toInstance(FallbackBodyConverter.formatReader);
+    formatReader.toInstance(BuiltinBodyConverter.formatReader);
 
     LinkedBindingBuilder<Formatter> formatStream = unit.mock(LinkedBindingBuilder.class);
-    formatStream.toInstance(FallbackBodyConverter.formatStream);
+    formatStream.toInstance(BuiltinBodyConverter.formatStream);
 
     LinkedBindingBuilder<Formatter> formatString = unit.mock(LinkedBindingBuilder.class);
-    formatString.toInstance(FallbackBodyConverter.formatString);
+    formatString.toInstance(BuiltinBodyConverter.formatAny);
 
     expect(multibinder.addBinding()).andReturn(formatReader);
     expect(multibinder.addBinding()).andReturn(formatStream);
@@ -1795,13 +1795,13 @@ public class JoobyTest {
           expect(Multibinder.newSetBinder(binder, Body.Formatter.class)).andReturn(multibinder);
 
           LinkedBindingBuilder<Formatter> formatReader = unit.mock(LinkedBindingBuilder.class);
-          formatReader.toInstance(FallbackBodyConverter.formatReader);
+          formatReader.toInstance(BuiltinBodyConverter.formatReader);
 
           LinkedBindingBuilder<Formatter> formatStream = unit.mock(LinkedBindingBuilder.class);
-          formatStream.toInstance(FallbackBodyConverter.formatStream);
+          formatStream.toInstance(BuiltinBodyConverter.formatStream);
 
           LinkedBindingBuilder<Formatter> formatString = unit.mock(LinkedBindingBuilder.class);
-          formatString.toInstance(FallbackBodyConverter.formatString);
+          formatString.toInstance(BuiltinBodyConverter.formatAny);
 
           LinkedBindingBuilder<Formatter> assetFormatter = unit.mock(LinkedBindingBuilder.class);
           assetFormatter.toInstance(isA(AssetFormatter.class));
@@ -1855,8 +1855,8 @@ public class JoobyTest {
 
           jooby.start();
 
-          Optional<Route> route = assets.matches(Verb.GET, "/assets/js/file.js", MediaType.all,
-              MediaType.ALL);
+          Optional<Route> route = assets.matches(Verb.GET, "/assets/js/file.js",
+              MediaType.all, MediaType.ALL);
           assertNotNull(route);
           assertTrue(route.isPresent());
 
@@ -1865,7 +1865,7 @@ public class JoobyTest {
 
         }, boot, unit -> {
           Asset asset = unit.captured(Asset.class).iterator().next();
-          assertTrue(asset.name().endsWith((path)));
+          assertTrue(asset.name().equals(("file.js")));
         }, unit -> {
           List<Route.Definition> found = unit.captured(Route.Definition.class);
           assertEquals(expected, found);
@@ -2197,13 +2197,13 @@ public class JoobyTest {
           expect(Multibinder.newSetBinder(binder, Body.Formatter.class)).andReturn(multibinder);
 
           LinkedBindingBuilder<Formatter> formatReader = unit.mock(LinkedBindingBuilder.class);
-          formatReader.toInstance(FallbackBodyConverter.formatReader);
+          formatReader.toInstance(BuiltinBodyConverter.formatReader);
 
           LinkedBindingBuilder<Formatter> formatStream = unit.mock(LinkedBindingBuilder.class);
-          formatStream.toInstance(FallbackBodyConverter.formatStream);
+          formatStream.toInstance(BuiltinBodyConverter.formatStream);
 
           LinkedBindingBuilder<Formatter> formatString = unit.mock(LinkedBindingBuilder.class);
-          formatString.toInstance(FallbackBodyConverter.formatString);
+          formatString.toInstance(BuiltinBodyConverter.formatAny);
 
           LinkedBindingBuilder<Formatter> customFormatter = unit.mock(LinkedBindingBuilder.class);
           customFormatter.toInstance(unit.get(Formatter.class));
@@ -2252,7 +2252,7 @@ public class JoobyTest {
           expect(Multibinder.newSetBinder(binder, Body.Parser.class)).andReturn(multibinder);
 
           LinkedBindingBuilder<Body.Parser> parseString = unit.mock(LinkedBindingBuilder.class);
-          parseString.toInstance(FallbackBodyConverter.parseString);
+          parseString.toInstance(BuiltinBodyConverter.parseString);
 
           LinkedBindingBuilder<Body.Parser> customParser = unit.mock(LinkedBindingBuilder.class);
           customParser.toInstance(unit.get(Body.Parser.class));

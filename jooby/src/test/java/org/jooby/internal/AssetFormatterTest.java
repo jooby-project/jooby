@@ -19,7 +19,6 @@ import org.junit.Test;
 
 import com.google.common.base.Charsets;
 
-
 public class AssetFormatterTest {
 
   @Test
@@ -75,7 +74,7 @@ public class AssetFormatterTest {
 
   @Test
   public void bytes() throws Exception {
-    byte[] bytes = {7, 19, 35};
+    byte[] bytes = {7, 19, 35 };
     InputStream stream = new ByteArrayInputStream(bytes);
 
     new MockUnit(Asset.class, Body.Writer.class)

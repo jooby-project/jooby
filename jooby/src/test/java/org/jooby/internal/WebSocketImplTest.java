@@ -59,7 +59,7 @@ public class WebSocketImplTest {
         })
         .expect(unit -> {
           BodyConverterSelector selector = unit.mock(BodyConverterSelector.class);
-          expect(selector.forWrite(data, Arrays.asList(produces))).andReturn(Optional.empty());
+          expect(selector.formatter(data, Arrays.asList(produces))).andReturn(Optional.empty());
 
           Injector injector = unit.get(Injector.class);
           expect(injector.getInstance(BodyConverterSelector.class)).andReturn(selector);
@@ -108,7 +108,7 @@ public class WebSocketImplTest {
         })
         .expect(unit -> {
           BodyConverterSelector selector = unit.mock(BodyConverterSelector.class);
-          expect(selector.forWrite(data, Arrays.asList(produces))).andReturn(Optional.empty());
+          expect(selector.formatter(data, Arrays.asList(produces))).andReturn(Optional.empty());
 
           Injector injector = unit.get(Injector.class);
           expect(injector.getInstance(BodyConverterSelector.class)).andReturn(selector);
@@ -160,7 +160,7 @@ public class WebSocketImplTest {
         })
         .expect(unit -> {
           BodyConverterSelector selector = unit.mock(BodyConverterSelector.class);
-          expect(selector.forWrite(data, Arrays.asList(produces))).andReturn(Optional.empty());
+          expect(selector.formatter(data, Arrays.asList(produces))).andReturn(Optional.empty());
 
           Injector injector = unit.get(Injector.class);
           expect(injector.getInstance(BodyConverterSelector.class)).andReturn(selector);
@@ -212,7 +212,7 @@ public class WebSocketImplTest {
         })
         .expect(unit -> {
           BodyConverterSelector selector = unit.mock(BodyConverterSelector.class);
-          expect(selector.forWrite(data, Arrays.asList(produces))).andReturn(Optional.empty());
+          expect(selector.formatter(data, Arrays.asList(produces))).andReturn(Optional.empty());
 
           Injector injector = unit.get(Injector.class);
           expect(injector.getInstance(BodyConverterSelector.class)).andReturn(selector);
@@ -265,7 +265,7 @@ public class WebSocketImplTest {
               formatter.format(eq(data), unit.capture(Body.Writer.class));
 
               BodyConverterSelector selector = unit.mock(BodyConverterSelector.class);
-              expect(selector.forWrite(data, Arrays.asList(produces))).andReturn(
+              expect(selector.formatter(data, Arrays.asList(produces))).andReturn(
                   Optional.of(formatter));
 
               Injector injector = unit.get(Injector.class);
@@ -325,7 +325,7 @@ public class WebSocketImplTest {
               formatter.format(eq(data), unit.capture(Body.Writer.class));
 
               BodyConverterSelector selector = unit.mock(BodyConverterSelector.class);
-              expect(selector.forWrite(data, Arrays.asList(produces))).andReturn(
+              expect(selector.formatter(data, Arrays.asList(produces))).andReturn(
                   Optional.of(formatter));
 
               Injector injector = unit.get(Injector.class);

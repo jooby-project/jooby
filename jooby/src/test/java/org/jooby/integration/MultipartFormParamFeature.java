@@ -1,10 +1,14 @@
 package org.jooby.integration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
@@ -61,7 +65,7 @@ public class MultipartFormParamFeature extends ServerFeature {
       resp.send(name + " " + age + " " + upload.name() + " " + upload.type());
     });
 
-    post("/form/files", (req, resp) -> {
+    post("/form/files", (req, rsp) -> {
       List<Upload> uploads = req.param("uploads").toList(Upload.class);
       StringBuilder buffer = new StringBuilder();
       for (Upload upload : uploads) {
@@ -69,17 +73,34 @@ public class MultipartFormParamFeature extends ServerFeature {
           buffer.append(u.name()).append(" ");
         }
       }
-      resp.send(buffer);
+      rsp.send(buffer);
     });
 
-    post("/form/optional", (req, resp) -> {
+    post("/form/use/file", (req, rsp) -> {
+      Upload upload = req.param("myfile").to(Upload.class);
+      File file = upload.file();
+      try (Upload u = upload) {
+        assertEquals("p=1", Files.readAllLines(file.toPath()).stream()
+            .collect(Collectors.joining("\n"))
+        );
+      }
+      assertTrue(!file.exists());
+      rsp.status(200);
+    });
+
+    post("/file/header", (req, rsp) -> {
+      Upload upload = req.param("myfile").to(Upload.class);
+      rsp.send(upload.header("content-type").stringValue());
+    });
+
+    post("/form/optional", (req, rsp) -> {
       Optional<Upload> upload = req.param("upload").toOptional(Upload.class);
       if (upload.isPresent()) {
         try (Upload u = upload.get()) {
-          resp.send(u.name());
+          rsp.send(u.name());
         }
       } else {
-        resp.send(upload);
+        rsp.send(upload);
       }
     });
 
@@ -137,6 +158,36 @@ public class MultipartFormParamFeature extends ServerFeature {
                         "application.conf")
                     .addBinaryBody("uploads", "p=2".getBytes(), ContentType.DEFAULT_BINARY,
                         "m1.conf")
+                    .build()).execute().returnContent().asString());
+
+  }
+
+  @Test
+  public void useFile() throws Exception {
+    assertEquals(
+        "",
+        Request
+            .Post(uri("form", "use", "file").build())
+            .body(
+                MultipartEntityBuilder
+                    .create()
+                    .addBinaryBody("myfile", "p=1".getBytes(), ContentType.DEFAULT_BINARY,
+                        "application.conf")
+                    .build()).execute().returnContent().asString());
+
+  }
+
+  @Test
+  public void fileHeader() throws Exception {
+    assertEquals(
+        "application/json; charset=UTF-8",
+        Request
+            .Post(uri("file", "header").build())
+            .body(
+                MultipartEntityBuilder
+                    .create()
+                    .addBinaryBody("myfile", "{}".getBytes(), ContentType.APPLICATION_JSON,
+                        "f.json")
                     .build()).execute().returnContent().asString());
 
   }

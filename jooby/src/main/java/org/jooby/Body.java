@@ -71,7 +71,42 @@ public class Body {
      * @param type The candidate Type.
      * @return True if the converter can read the HTTP request body.
      */
+    default boolean canParse(@Nonnull final Class<?> type) {
+      return canParse(TypeLiteral.get(type));
+    }
+
+    /**
+     * Test if the HTTP request body or parameter can be converted to the given type.
+     *
+     * @param type The candidate Type.
+     * @return True if the converter can read the HTTP request body.
+     */
     boolean canParse(@Nonnull TypeLiteral<?> type);
+
+    /**
+     * Attempt to read a message from HTTP request body.
+     * <p>
+     * For text format (json, yaml, xml, etc.) a converter usually call to
+     * {@link Body.Reader#text(Body.Reader.Text)} in order to apply correct charset and close
+     * resources.
+     * </p>
+     *
+     * <p>
+     * For binary format a converter usually call to {@link Body.Reader#bytes(Body.Reader.Bytes)}
+     * in order to close resources.
+     * </p>
+     *
+     * @param type A type of message.
+     * @param reader A read context.
+     * @param <T> Target type.
+     * @return A body message.
+     * @throws Exception If read operation fail.
+     */
+    @Nonnull
+    default <T> T parse(@Nonnull final Class<T> type, @Nonnull final Body.Reader reader)
+        throws Exception {
+      return parse(TypeLiteral.get(type), reader);
+    }
 
     /**
      * Attempt to read a message from HTTP request body.

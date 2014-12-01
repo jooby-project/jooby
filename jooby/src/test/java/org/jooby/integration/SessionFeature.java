@@ -32,7 +32,7 @@ public class SessionFeature extends ServerFeature {
       }
 
       @Override
-      public Session get(final String id) {
+      public Session get(final Session.Builder builder) {
         return null;
       }
 
@@ -47,7 +47,7 @@ public class SessionFeature extends ServerFeature {
     }).timeout(3);
 
     get("/no-session", (req, rsp) -> {
-      rsp.send("done");
+      rsp.send(req.ifSession());
     });
 
     get("/session", (req, rsp) -> {
@@ -61,13 +61,24 @@ public class SessionFeature extends ServerFeature {
     get("/session/1", (req, rsp) -> {
       rsp.send(req.session().accessedAt());
     });
+
+    get("/session/str", (req, rsp) -> {
+      rsp.send(req.session());
+    });
   }
 
   @Test
   public void noSession() throws Exception {
-    assertEquals("done", execute(GET(uri("no-session")), (response) -> {
+    assertEquals("Optional.empty", execute(GET(uri("no-session")), (response) -> {
       assertEquals(200, response.getStatusLine().getStatusCode());
       assertEquals(null, response.getFirstHeader("Set-Cookie"));
+    }));
+  }
+
+  @Test
+  public void toStr() throws Exception {
+    assertNotNull(execute(GET(uri("session", "str")), (response) -> {
+      assertEquals(200, response.getStatusLine().getStatusCode());
     }));
   }
 

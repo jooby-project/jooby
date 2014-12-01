@@ -91,12 +91,8 @@ public class ResponseImpl implements Response {
     requireNonNull(filename, "A file's name is required.");
     requireNonNull(reader, "A reader is required.");
 
-    contentDisposition(filename);
+    download(filename, reader, BuiltinBodyConverter.formatReader);
 
-    Body body = Body.body(reader);
-    body.type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.octetstream)));
-
-    send(body, FallbackBodyConverter.formatReader);
   }
 
   @Override
@@ -104,12 +100,18 @@ public class ResponseImpl implements Response {
     requireNonNull(filename, "A file's name is required.");
     requireNonNull(stream, "A stream is required.");
 
+    download(filename, stream, BuiltinBodyConverter.formatStream);
+  }
+
+  private void download(final String filename, final Object in,
+      final Body.Formatter formatter) throws Exception {
+
     contentDisposition(filename);
 
-    Body body = Body.body(stream);
+    Body body = Body.body(in);
     body.type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.octetstream)));
 
-    send(body, FallbackBodyConverter.formatStream);
+    send(body, formatter);
   }
 
   private void contentDisposition(final String filename) {
@@ -120,7 +122,6 @@ public class ResponseImpl implements Response {
     }
     header("Content-Disposition", "attachment; filename=" + basename);
     header("Transfer-Encoding", "chunked");
-    type(MediaType.byPath(basename).orElse(MediaType.octetstream));
   }
 
   @Override
@@ -261,7 +262,7 @@ public class ResponseImpl implements Response {
     requireNonNull(body, "A body is required.");
     Optional<Object> content = body.content();
     Body.Formatter converter = content.isPresent()
-        ? selector.forWrite(content.get(), route.produces())
+        ? selector.formatter(content.get(), route.produces())
             .orElseThrow(() -> new Err(Status.NOT_ACCEPTABLE))
         : noop(route.produces());
     send(body, converter);

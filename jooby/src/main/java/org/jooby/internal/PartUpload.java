@@ -71,10 +71,9 @@ class PartUpload implements Upload {
 
   @Override
   public File file() throws IOException {
-    String name = System.currentTimeMillis() + "." + name();
-    File fout = new File(workDir, name);
-    part.write(fout.getAbsolutePath());
-    return fout;
+    String name = "tmp-" + Long.toHexString(System.currentTimeMillis()) + "." + name();
+    part.write(name);
+    return new File(workDir, name);
   }
 
   @Override
