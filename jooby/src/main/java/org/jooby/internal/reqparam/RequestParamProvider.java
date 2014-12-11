@@ -16,37 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.mvc;
+package org.jooby.internal.reqparam;
 
 import java.lang.reflect.Executable;
-import java.lang.reflect.Parameter;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class CachedParamProvider implements ParamProvider {
+public interface RequestParamProvider {
 
-  private Map<Executable, List<Param>> cache = new ConcurrentHashMap<>();
-
-  private ParamProvider provider;
-
-  public CachedParamProvider(final ParamProvider provider) {
-    this.provider = provider;
-  }
-
-  @Override
-  public List<Param> parameters(final Executable exec) {
-    Parameter[] parameters = exec.getParameters();
-    if (parameters.length == 0) {
-      return Collections.emptyList();
-    }
-    List<Param> params = cache.get(exec);
-    if (params == null) {
-      params = provider.parameters(exec);
-      cache.put(exec, params);
-    }
-    return params;
-  }
+  List<RequestParam> parameters(Executable exec);
 
 }

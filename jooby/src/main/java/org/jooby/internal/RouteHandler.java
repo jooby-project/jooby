@@ -59,6 +59,23 @@ import com.google.inject.Injector;
 @Singleton
 public class RouteHandler {
 
+  private static class Holder<T> {
+    private T ref;
+
+    private BiFunction<Injector, Route, T> fn;
+
+    public Holder(final BiFunction<Injector, Route, T> fn) {
+      this.fn = fn;
+    }
+
+    public T get(final Injector injector, final Route route) {
+      if (ref == null) {
+        ref = fn.apply(injector, route);
+      }
+      return ref;
+    }
+  }
+
   private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
 
   private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
@@ -133,13 +150,13 @@ public class RouteHandler {
     Locale locale = Optional.ofNullable(request.getHeader("Accept-Language"))
         .map(l -> request.getLocale()).orElse(this.locale);
 
-    BiFunction<Injector, Route, Request> reqFactory = (injector, route) ->
+    Holder<Request> req = new Holder<>((injector, route) ->
         new RequestImpl(request, injector, route, locals, selector, type, accept,
-            charset, locale);
+            charset, locale));
 
-    BiFunction<Injector, Route, Response> resFactory = (injector, route) ->
+    Holder<Response> rsp = new Holder<>((injector, route) ->
         new ResponseImpl(response, injector, route, selector, charset,
-            Optional.ofNullable(request.getHeader("Referer")));
+            Optional.ofNullable(request.getHeader("Referer"))));
 
     Injector injector = rootInjector;
 
@@ -148,18 +165,18 @@ public class RouteHandler {
     try {
 
       // bootstrap request modules
-      if (modules.size() > 0) {
-        injector = rootInjector.createChildInjector(binder -> {
-          for (Request.Module module : modules) {
-            module.configure(binder);
-          }
-        });
-      }
+      injector = rootInjector.createChildInjector(binder -> {
+        binder.bind(Request.class).toProvider(() -> req.ref);
+        binder.bind(Response.class).toProvider(() -> rsp.ref);
+        for (Request.Module module : modules) {
+          module.configure(binder);
+        }
+      });
 
       List<Route> routes = routes(verb, requestURI, type, accept);
 
       chain(routes)
-          .next(reqFactory.apply(injector, notFound), resFactory.apply(injector, notFound));
+          .next(req.get(injector, notFound), rsp.get(injector, notFound));
 
     } catch (Exception ex) {
       log.debug("execution of: " + path + " resulted in exception", ex);
@@ -167,20 +184,20 @@ public class RouteHandler {
       // reset response
       response.reset();
 
-      Request req = reqFactory.apply(injector, notFound);
-      Response rsp = resFactory.apply(injector, notFound);
+      Request reqerr = req.get(injector, notFound);
+      Response rsperr = rsp.get(injector, notFound);
 
       // execution failed, so find status code
       Status status = statusCode(ex);
 
-      rsp.header("Cache-Control", NO_CACHE);
-      rsp.status(status);
+      rsperr.header("Cache-Control", NO_CACHE);
+      rsperr.status(status);
 
       try {
-        err.handle(req, rsp, ex);
+        err.handle(reqerr, rsperr, ex);
       } catch (Exception ignored) {
         log.debug("rendering of error failed, fallback to default error page", ignored);
-        defaultErrorPage(req, rsp, err.err(req, rsp, ex));
+        defaultErrorPage(reqerr, rsperr, err.err(reqerr, rsperr, ex));
       }
     } finally {
       long end = System.currentTimeMillis();
@@ -200,6 +217,7 @@ public class RouteHandler {
     return new Route.Chain() {
 
       private int it = 0;
+
       @Override
       public void next(final Request req, final Response rsp) throws Exception {
         RouteImpl route = get(routes.get(it++));

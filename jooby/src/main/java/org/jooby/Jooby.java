@@ -45,6 +45,7 @@ import javax.annotation.Nonnull;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinBodyConverter;
+import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.Server;
 import org.jooby.internal.TypeConverters;
@@ -1831,105 +1832,103 @@ public class Jooby {
     Stage stage = env.when("dev", Stage.DEVELOPMENT).value().orElse(Stage.PRODUCTION);
 
     // dependency injection
-    injector = Guice.createInjector(stage, new com.google.inject.Module() {
-      @Override
-      public void configure(final Binder binder) {
+    injector = Guice.createInjector(stage, (com.google.inject.Module) binder -> {
 
-        TypeConverters.configure(binder);
+      TypeConverters.configure(binder);
 
-        // bind config
-        bindConfig(binder, config);
+      // bind config
+      bindConfig(binder, config);
 
-        // bind env
-        binder.bind(Env.class).toInstance(env);
+      // bind env
+      binder.bind(Env.class).toInstance(env);
 
-        // bind charset
-        binder.bind(Charset.class).toInstance(charset);
+      // bind charset
+      binder.bind(Charset.class).toInstance(charset);
 
-        // bind locale
-        binder.bind(Locale.class).toInstance(locale);
+      // bind locale
+      binder.bind(Locale.class).toInstance(locale);
 
-        // bind time zone
-        binder.bind(ZoneId.class).toInstance(zoneId);
-        binder.bind(TimeZone.class).toInstance(TimeZone.getTimeZone(zoneId));
+      // bind time zone
+      binder.bind(ZoneId.class).toInstance(zoneId);
+      binder.bind(TimeZone.class).toInstance(TimeZone.getTimeZone(zoneId));
 
-        // bind date format
-        binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormat);
+      // bind date format
+      binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormat);
 
-        // bind number format
-        binder.bind(NumberFormat.class).toInstance(numberFormat);
-        binder.bind(DecimalFormat.class).toInstance(numberFormat);
+      // bind number format
+      binder.bind(NumberFormat.class).toInstance(numberFormat);
+      binder.bind(DecimalFormat.class).toInstance(numberFormat);
 
-        // bind formatter & parser
-        Multibinder<Body.Parser> parserBinder = Multibinder
-            .newSetBinder(binder, Body.Parser.class);
-        Multibinder<Body.Formatter> formatterBinder = Multibinder
-            .newSetBinder(binder, Body.Formatter.class);
+      // bind formatter & parser
+      Multibinder<Body.Parser> parserBinder = Multibinder
+          .newSetBinder(binder, Body.Parser.class);
+      Multibinder<Body.Formatter> formatterBinder = Multibinder
+          .newSetBinder(binder, Body.Formatter.class);
 
-        // session definition
-        binder.bind(Session.Definition.class).toInstance(session);
+      // session definition
+      binder.bind(Session.Definition.class).toInstance(session);
 
-        // Routes
-        Multibinder<Route.Definition> definitions = Multibinder
-            .newSetBinder(binder, Route.Definition.class);
+      // Routes
+      Multibinder<Route.Definition> definitions = Multibinder
+          .newSetBinder(binder, Route.Definition.class);
 
-        // Web Sockets
-        Multibinder<WebSocket.Definition> sockets = Multibinder
-            .newSetBinder(binder, WebSocket.Definition.class);
+      // Web Sockets
+      Multibinder<WebSocket.Definition> sockets = Multibinder
+          .newSetBinder(binder, WebSocket.Definition.class);
 
-        // Request Modules
-        Multibinder<Request.Module> requestModule = Multibinder
-            .newSetBinder(binder, Request.Module.class);
+      // Request Modules
+      Multibinder<Request.Module> requestModule = Multibinder
+          .newSetBinder(binder, Request.Module.class);
 
-        // bind prototype routes in request module
-        if (protoRoutes.size() > 0) {
-          requestModule.addBinding().toInstance(
-              b -> protoRoutes.forEach(routeClass -> b.bind(routeClass)));
-        }
-
-        // tmp dir
-        File tmpdir = new File(config.getString("application.tmpdir"));
-        tmpdir.mkdirs();
-        binder.bind(File.class).annotatedWith(Names.named("application.tmpdir")).toInstance(tmpdir);
-
-        // converters
-        parsers.forEach(it -> parserBinder.addBinding().toInstance(it));
-        formatters.forEach(it -> formatterBinder.addBinding().toInstance(it));
-
-        // modules, routes and websockets
-        bag.forEach(candidate -> {
-          if (candidate instanceof Jooby.Module) {
-            install((Jooby.Module) candidate, env, config, binder);
-          } else if (candidate instanceof Request.Module) {
-            requestModule.addBinding().toInstance((Request.Module) candidate);
-          } else if (candidate instanceof Route.Definition) {
-            definitions.addBinding().toInstance((Route.Definition) candidate);
-          } else if (candidate instanceof WebSocket.Definition) {
-            sockets.addBinding().toInstance((WebSocket.Definition) candidate);
-          } else {
-            Class<?> routeClass = (Class<?>) candidate;
-            Routes.routes(env, routeClass)
-                .forEach(route -> definitions.addBinding().toInstance(route));
-          }
-        });
-
-        // Singleton routes
-        singletonRoutes.forEach(routeClass -> binder.bind(routeClass).in(Scopes.SINGLETON));
-
-        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
-        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatStream);
-        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
-
-        parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
-
-        // err
-        if (err == null) {
-          binder.bind(Err.Handler.class).toInstance(new Err.Default());
-        } else {
-          binder.bind(Err.Handler.class).toInstance(err);
-        }
+      // bind prototype routes in request module
+      if (protoRoutes.size() > 0) {
+        requestModule.addBinding().toInstance(
+            b -> protoRoutes.forEach(routeClass1 -> b.bind(routeClass1)));
       }
 
+      // tmp dir
+      File tmpdir = new File(config.getString("application.tmpdir"));
+      tmpdir.mkdirs();
+      binder.bind(File.class).annotatedWith(Names.named("application.tmpdir")).toInstance(tmpdir);
+
+      // converters
+      parsers.forEach(it1 -> parserBinder.addBinding().toInstance(it1));
+      formatters.forEach(it2 -> formatterBinder.addBinding().toInstance(it2));
+
+      RouteMetadata classInfo = new RouteMetadata(env);
+      binder.bind(RouteMetadata.class).toInstance(classInfo);
+
+      // modules, routes and websockets
+      bag.forEach(candidate -> {
+        if (candidate instanceof Jooby.Module) {
+          install((Jooby.Module) candidate, env, config, binder);
+        } else if (candidate instanceof Request.Module) {
+          requestModule.addBinding().toInstance((Request.Module) candidate);
+        } else if (candidate instanceof Route.Definition) {
+          definitions.addBinding().toInstance((Route.Definition) candidate);
+        } else if (candidate instanceof WebSocket.Definition) {
+          sockets.addBinding().toInstance((WebSocket.Definition) candidate);
+        } else {
+          Routes.routes(env, classInfo, (Class<?>) candidate)
+              .forEach(route -> definitions.addBinding().toInstance(route));
+        }
+      });
+
+      // Singleton routes
+      singletonRoutes.forEach(routeClass3 -> binder.bind(routeClass3).in(Scopes.SINGLETON));
+
+      formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
+      formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatStream);
+      formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
+
+      parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
+
+      // err
+      if (err == null) {
+        binder.bind(Err.Handler.class).toInstance(new Err.Default());
+      } else {
+        binder.bind(Err.Handler.class).toInstance(err);
+      }
     });
 
     // start modules

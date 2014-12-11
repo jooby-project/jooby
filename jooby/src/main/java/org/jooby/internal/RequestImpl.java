@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
-import org.jooby.Body;
+import org.jooby.Body.Parser;
 import org.jooby.Cookie;
 import org.jooby.Err;
 import org.jooby.MediaType;
@@ -48,6 +48,7 @@ import org.jooby.Session;
 import org.jooby.Status;
 import org.jooby.Upload;
 import org.jooby.internal.jetty.JoobySession;
+import org.jooby.internal.reqparam.BeanParamInjector;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
@@ -74,7 +75,7 @@ public class RequestImpl implements Request {
   // TODO: make route abstract? or throw UnsupportedException
   private Route route;
 
-  private HttpServletRequest request;
+  private HttpServletRequest req;
 
   private Map<String, Object> locals;
 
@@ -89,7 +90,7 @@ public class RequestImpl implements Request {
       final Charset charset,
       final Locale locale) {
     this.injector = requireNonNull(injector, "An injector is required.");
-    this.request = requireNonNull(request, "The request is required.");
+    this.req = requireNonNull(request, "The request is required.");
     this.route = requireNonNull(route, "A route is required.");
     this.locals = requireNonNull(locals, "The locals is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
@@ -132,7 +133,7 @@ public class RequestImpl implements Request {
     }
     MediaType type = MediaType.all;
     if (type().name().startsWith(MediaType.multipart.name())) {
-      Part part = request.getPart(name);
+      Part part = req.getPart(name);
       if (part != null) {
         type = Optional.ofNullable(part.getContentType()).map(MediaType::valueOf)
             .orElse(MediaType.all);
@@ -159,34 +160,40 @@ public class RequestImpl implements Request {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
+  public <T> T params(final Class<T> beanType) throws Exception {
+    return (T) BeanParamInjector.createAndInject(this, beanType);
+  }
+
+  @Override
   public String ip() {
-    return request.getRemoteAddr();
+    return req.getRemoteAddr();
   }
 
   @Override
   public String hostname() {
-    return request.getRemoteHost();
+    return req.getRemoteHost();
   }
 
   @Override
   public String protocol() {
-    return request.getProtocol();
+    return req.getProtocol();
   }
 
   @Override
   public boolean secure() {
-    return request.isSecure();
+    return req.isSecure();
   }
 
   @Override
   public Session session() {
-    JoobySession session = (JoobySession) request.getSession(true);
+    JoobySession session = (JoobySession) req.getSession(true);
     return session;
   }
 
   @Override
   public Optional<Session> ifSession() {
-    JoobySession session = (JoobySession) request.getSession(false);
+    JoobySession session = (JoobySession) req.getSession(false);
     return Optional.ofNullable(session);
   }
 
@@ -197,7 +204,7 @@ public class RequestImpl implements Request {
       names.add(name);
     }
     // param names
-    Enumeration<String> e = request.getParameterNames();
+    Enumeration<String> e = req.getParameterNames();
     while (e.hasMoreElements()) {
       names.add(e.nextElement());
     }
@@ -207,13 +214,13 @@ public class RequestImpl implements Request {
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "Header's name is missing.");
-    return newVariant(name, enumToList(request.getHeaders(name)), MediaType.all);
+    return newVariant(name, enumToList(req.getHeaders(name)), MediaType.all);
   }
 
   @Override
   public Map<String, Mutant> headers() {
     Map<String, Mutant> headers = new LinkedHashMap<>();
-    Enumeration<String> names = request.getHeaderNames();
+    Enumeration<String> names = req.getHeaderNames();
     while (names.hasMoreElements()) {
       String name = names.nextElement();
       headers.put(name, header(name));
@@ -221,21 +228,30 @@ public class RequestImpl implements Request {
     return headers;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <T> T body(final TypeLiteral<T> type) throws Exception {
-    Body.Parser parser = selector.parser(type, ImmutableList.of(this.type))
-        .orElseThrow(() -> new Err(Status.UNSUPPORTED_MEDIA_TYPE));
-    return parser.parse(type, new BodyReaderImpl(charset, () -> request.getInputStream()));
+    if (length() > 0) {
+      Optional<Parser> parser = selector.parser(type, ImmutableList.of(this.type));
+      if (parser.isPresent()) {
+        return parser.get().parse(type, new BodyReaderImpl(charset, () -> req.getInputStream()));
+      }
+      if (MediaType.form.matches(type()) || MediaType.multipart.matches(type())) {
+        return (T) BeanParamInjector.createAndInject(this, type.getRawType());
+      }
+      throw new Err(Status.UNSUPPORTED_MEDIA_TYPE);
+    }
+    throw new Err(Status.BAD_REQUEST, "no body");
   }
 
   @Override
   public Optional<Cookie> cookie(final String name) {
-    return cookies(request).stream().filter(c -> c.name().equals(name)).findFirst();
+    return cookies(req).stream().filter(c -> c.name().equals(name)).findFirst();
   }
 
   @Override
   public List<Cookie> cookies() {
-    return cookies(request);
+    return cookies(req);
   }
 
   private static List<Cookie> cookies(final HttpServletRequest request) {
@@ -270,7 +286,7 @@ public class RequestImpl implements Request {
 
   @Override
   public long length() {
-    return request.getContentLengthLong();
+    return req.getContentLengthLong();
   }
 
   @Override
@@ -329,7 +345,7 @@ public class RequestImpl implements Request {
     if (!type().name().startsWith(MediaType.multipart.name())) {
       return Collections.emptyList();
     }
-    Collection<Part> parts = request.getParts();
+    Collection<Part> parts = req.getParts();
     if (parts == null || parts.size() == 0) {
       return Collections.emptyList();
     }
@@ -355,7 +371,7 @@ public class RequestImpl implements Request {
   }
 
   protected List<String> reqParams(final String name) {
-    String[] values = request.getParameterValues(name);
+    String[] values = req.getParameterValues(name);
     if (values == null) {
       return Collections.emptyList();
     }

@@ -40,6 +40,11 @@ public class RequestTest {
     }
 
     @Override
+    public <T> T params(final Class<T> beanType) throws Exception {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Mutant param(final String name) throws Exception {
       throw new UnsupportedOperationException();
     }

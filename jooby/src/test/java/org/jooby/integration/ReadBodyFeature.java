@@ -72,12 +72,13 @@ public class ReadBodyFeature extends ServerFeature {
         .returnContent().asString());
   }
 
-
   @Test
   public void emptyBody() throws Exception {
-    assertEquals("{\"body\": \"\"}", Request.Post(uri("text").build()).execute().returnContent().asString());
+    assertEquals(400, Request.Post(uri("text").build()).execute().returnResponse().getStatusLine()
+        .getStatusCode());
 
-    assertEquals("{\"body\": \"\"}", Request.Post(uri("r", "text").build()).execute().returnContent().asString());
+    assertEquals(400, Request.Post(uri("r", "text").build()).execute().returnResponse()
+        .getStatusLine().getStatusCode());
   }
 
   @Test

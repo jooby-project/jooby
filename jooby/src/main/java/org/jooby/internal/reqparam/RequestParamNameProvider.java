@@ -16,13 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.mvc;
+package org.jooby.internal.reqparam;
 
 import java.lang.reflect.Executable;
-import java.util.List;
+import java.lang.reflect.Parameter;
+import java.util.stream.IntStream;
 
-public interface ParamProvider {
+import org.jooby.internal.RouteMetadata;
 
-  List<Param> parameters(Executable exec);
+public class RequestParamNameProvider {
+
+  private RouteMetadata classInfo;
+
+  public RequestParamNameProvider(final RouteMetadata classInfo) {
+    this.classInfo = classInfo;
+  }
+
+  public String name(final Parameter parameter) {
+    String name = RequestParam.nameFor(parameter);
+    if (name != null) {
+      return name;
+    }
+    // asm
+    Executable exec = parameter.getDeclaringExecutable();
+    Parameter[] params = exec.getParameters();
+    int idx = IntStream.range(0, params.length)
+        .filter(i -> params[i].equals(parameter))
+        .findFirst()
+        .getAsInt();
+    String[] names = classInfo.params(exec);
+    return names[idx];
+  }
 
 }

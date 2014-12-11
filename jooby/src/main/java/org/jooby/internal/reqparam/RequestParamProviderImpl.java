@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.mvc;
+package org.jooby.internal.reqparam;
 
 import static java.util.Objects.requireNonNull;
 
@@ -28,25 +28,24 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
-public class ParamProviderImpl implements ParamProvider {
+public class RequestParamProviderImpl implements RequestParamProvider {
 
-  private ParamNameProvider provider;
+  private RequestParamNameProvider provider;
 
-  public ParamProviderImpl(final ParamNameProvider provider) {
+  public RequestParamProviderImpl(final RequestParamNameProvider provider) {
     this.provider = requireNonNull(provider, "Parameter name provider is required.");
   }
 
   @Override
-  public List<Param> parameters(final Executable exec) {
+  public List<RequestParam> parameters(final Executable exec) {
     Parameter[] parameters = exec.getParameters();
     if (parameters.length == 0) {
       return Collections.emptyList();
     }
 
-    Builder<Param> builder = ImmutableList.builder();
-    for (int i = 0; i < parameters.length; i++) {
-      Parameter parameter = parameters[i];
-      builder.add(new Param(provider.name(i, parameter), parameter));
+    Builder<RequestParam> builder = ImmutableList.builder();
+    for (Parameter parameter : parameters) {
+      builder.add(new RequestParam(parameter, provider.name(parameter)));
     }
     return builder.build();
   }

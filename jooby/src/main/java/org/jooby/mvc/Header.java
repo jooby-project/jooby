@@ -23,6 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.inject.Qualifier;
+
 /**
  * Mark a MVC method parameter as a request header.
  * <pre>
@@ -37,6 +39,7 @@ import java.lang.annotation.Target;
  * @author edgar
  * @since 0.1.0
  */
+@Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface Header {

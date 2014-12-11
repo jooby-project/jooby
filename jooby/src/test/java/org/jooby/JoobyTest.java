@@ -33,6 +33,7 @@ import org.jooby.Session.Store;
 import org.jooby.fn.Switch;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.BuiltinBodyConverter;
+import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.Server;
 import org.jooby.internal.TypeConverters;
@@ -144,6 +145,15 @@ public class JoobyTest {
     binding.toInstance(isA(Env.class));
 
     expect(binder.bind(Env.class)).andReturn(binding);
+  };
+
+  private MockUnit.Block classInfo = unit -> {
+    Binder binder = unit.get(Binder.class);
+
+    AnnotatedBindingBuilder<RouteMetadata> binding = unit.mock(AnnotatedBindingBuilder.class);
+    binding.toInstance(isA(RouteMetadata.class));
+
+    expect(binder.bind(RouteMetadata.class)).andReturn(binding);
   };
 
   private MockUnit.Block charset = unit -> {
@@ -418,6 +428,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -456,6 +467,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -493,6 +505,7 @@ public class JoobyTest {
           expect(devswitch.value()).andReturn(Optional.of(Stage.DEVELOPMENT));
 
           expect(env.when("dev", Stage.DEVELOPMENT)).andReturn(devswitch);
+          expect(env.name()).andReturn("dev");
 
           Env.Builder builder = unit.get(Env.Builder.class);
           expect(builder.build(isA(Config.class))).andReturn(env);
@@ -504,6 +517,7 @@ public class JoobyTest {
 
           expect(binder.bind(Env.class)).andReturn(binding);
         })
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -560,6 +574,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -610,6 +625,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -676,6 +692,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -738,6 +755,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -788,6 +806,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -859,6 +878,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -931,6 +951,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1035,6 +1056,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1128,6 +1150,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1221,6 +1244,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1314,6 +1338,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1407,6 +1432,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1500,6 +1526,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1593,6 +1620,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1686,6 +1714,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1779,6 +1808,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -1880,6 +1910,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2079,6 +2110,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2134,6 +2166,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2180,6 +2213,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2236,6 +2270,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2286,6 +2321,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2334,6 +2370,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2381,6 +2418,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2427,6 +2465,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2472,6 +2511,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)
@@ -2506,6 +2546,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(classInfo)
         .expect(charset)
         .expect(locale)
         .expect(zoneId)

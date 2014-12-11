@@ -5,12 +5,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Optional;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.util.EntityUtils;
 import org.jooby.Session;
 import org.jooby.integration.FilterFeature.HttpResponseValidator;
+import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -18,6 +21,21 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
 public class SessionFeature extends ServerFeature {
+
+  @Path("r")
+  public static class Resource {
+
+    @org.jooby.mvc.GET @Path("session")
+    public Object session(final Session session) {
+      return session.get("saves").orElse(0);
+    }
+
+    @org.jooby.mvc.GET @Path("ifSession")
+    public Object ifSession(final Optional<Session> session) {
+      return session.get().get("saves").orElse(0);
+    }
+
+  }
 
   {
 
@@ -65,6 +83,8 @@ public class SessionFeature extends ServerFeature {
     get("/session/str", (req, rsp) -> {
       rsp.send(req.session());
     });
+
+    use(Resource.class);
   }
 
   @Test
@@ -97,7 +117,25 @@ public class SessionFeature extends ServerFeature {
     assertEquals(
         "1",
         execute(
+            GET(uri("r", "session")).addHeader("Cookie", cookieId),
+            (response) -> {
+              assertEquals(200, response.getStatusLine().getStatusCode());
+              assertNull(response.getFirstHeader("Set-Cookie"));
+            }));
+
+    assertEquals(
+        "1",
+        execute(
             GET(uri("session")).addHeader("Cookie", cookieId),
+            (response) -> {
+              assertEquals(200, response.getStatusLine().getStatusCode());
+              assertNull(response.getFirstHeader("Set-Cookie"));
+            }));
+
+    assertEquals(
+        "1",
+        execute(
+            GET(uri("r", "ifSession")).addHeader("Cookie", cookieId),
             (response) -> {
               assertEquals(200, response.getStatusLine().getStatusCode());
               assertNull(response.getFirstHeader("Set-Cookie"));

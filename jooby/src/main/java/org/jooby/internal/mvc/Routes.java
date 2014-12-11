@@ -18,13 +18,11 @@
  */
 package org.jooby.internal.mvc;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +34,11 @@ import org.jooby.Env;
 import org.jooby.MediaType;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
+import org.jooby.internal.RouteMetadata;
+import org.jooby.internal.reqparam.RequestParam;
+import org.jooby.internal.reqparam.RequestParamNameProvider;
+import org.jooby.internal.reqparam.RequestParamProvider;
+import org.jooby.internal.reqparam.RequestParamProviderImpl;
 import org.jooby.mvc.CONNECT;
 import org.jooby.mvc.Consumes;
 import org.jooby.mvc.DELETE;
@@ -48,21 +51,10 @@ import org.jooby.mvc.PUT;
 import org.jooby.mvc.Path;
 import org.jooby.mvc.Produces;
 import org.jooby.mvc.TRACE;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 public class Routes {
-
-  private static final String[] NO_ARG = new String[0];
-
-  private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
   @SuppressWarnings("unchecked")
   private static final Set<Class<? extends Annotation>> VERBS = ImmutableSet.of(GET.class,
@@ -70,20 +62,11 @@ public class Routes {
       CONNECT.class);
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  public static List<Route.Definition> routes(final Env env, final Class<?> routeClass) {
-    Map<String, String[]> params = new HashMap<>();
-    Map<String, Integer> lines = new HashMap<>();
+  public static List<Route.Definition> routes(final Env env, final RouteMetadata classInfo,
+      final Class<?> routeClass) {
 
-    collectParameterNamesAndLineNumbers(routeClass, params, lines);
-
-    ParamProvider candidate =
-        new ParamProviderImpl(
-            new ChainParamNameProvider(
-                ParamNameProvider.NAMED,
-                new ASMParamNameProvider(params)
-            ));
-    ParamProvider provider = "dev".equalsIgnoreCase(env.name())
-        ? candidate : new CachedParamProvider(candidate);
+    RequestParamProvider provider =
+        new RequestParamProviderImpl(new RequestParamNameProvider(classInfo));
 
     String rootPath = path(routeClass);
 
@@ -110,10 +93,8 @@ public class Routes {
         .keySet()
         .stream()
         .sorted((m1, m2) -> {
-          String k1 = key(m1);
-          String k2 = key(m2);
-          int l1 = lines.getOrDefault(k1, 0);
-          int l2 = lines.getOrDefault(k2, 0);
+          int l1 = classInfo.startAt(m1);
+          int l2 = classInfo.startAt(m2);
           return l1 - l2;
         })
         .forEach(
@@ -122,9 +103,18 @@ public class Routes {
               String path = rootPath + "/" + path(method);
               String name = routeClass.getSimpleName() + "." + method.getName();
               List<MediaType> produces = produces(method);
+              /**
+               * Param provider: dev vs none dev
+               */
+              RequestParamProvider paramProvider = provider;
+              if (!env.name().equals("dev")) {
+                List<RequestParam> params = provider.parameters(method);
+                paramProvider = (h) -> params;
+              }
+
               for (Class<?> verb : verbs) {
                 Definition definition = new Route.Definition(
-                    verb.getSimpleName(), path, new MvcHandler(method, provider, produces))
+                    verb.getSimpleName(), path, new MvcHandler(method, paramProvider, produces))
                     .produces(produces)
                     .consumes(consumes(method))
                     .name(name);
@@ -134,19 +124,6 @@ public class Routes {
             });
 
     return definitions;
-  }
-
-  private static String key(final Method method) {
-    return method.getName() + Type.getMethodDescriptor(method);
-  }
-
-  private static void collectParameterNamesAndLineNumbers(final Class<?> routeClass,
-      final Map<String, String[]> params, final Map<String, Integer> lines) {
-    try {
-      new ClassReader(routeClass.getName()).accept(visitor(routeClass, params, lines), 0);
-    } catch (IOException ex) {
-      throw new IllegalStateException("Unable to read class: " + routeClass.getName(), ex);
-    }
   }
 
   private static List<MediaType> produces(final Method method) {
@@ -163,7 +140,7 @@ public class Routes {
         // class level
         .orElseGet(() -> fn.apply(method.getDeclaringClass())
             // none
-            .orElse(ALL));
+            .orElse(MediaType.ALL));
   }
 
   private static List<MediaType> consumes(final Method method) {
@@ -180,7 +157,7 @@ public class Routes {
         // class level
         .orElseGet(() -> fn.apply(method.getDeclaringClass())
             // none
-            .orElse(ALL));
+            .orElse(MediaType.ALL));
   }
 
   private static String path(final AnnotatedElement owner) {
@@ -191,64 +168,4 @@ public class Routes {
     return annotation.value();
   }
 
-  private static ClassVisitor visitor(final Class<?> clazz, final Map<String, String[]> params,
-      final Map<String, Integer> lines) {
-    return new ClassVisitor(Opcodes.ASM5) {
-
-      @Override
-      public MethodVisitor visitMethod(final int access, final String name,
-          final String desc, final String signature, final String[] exceptions) {
-        boolean isPublic = ((access & Opcodes.ACC_PUBLIC) > 0) ? true : false;
-        String key = name + desc;
-        if (!isPublic) {
-          // ignore
-          return null;
-        }
-        Type[] args = Type.getArgumentTypes(desc);
-        String[] names = args.length == 0 ? NO_ARG : new String[args.length];
-        params.put(key, names);
-
-        int minIdx = ((access & Opcodes.ACC_STATIC) > 0) ? 0 : 1;
-        int maxIdx = Arrays.stream(args).mapToInt(Type::getSize).sum();
-
-        return new MethodVisitor(Opcodes.ASM5) {
-
-          private int i = 0;
-
-          private boolean skipLocalTable = false;
-
-          @Override
-          public void visitParameter(final String name, final int access) {
-            skipLocalTable = true;
-            // save current parameter
-            names[i] = name;
-            // move to next
-            i += 1;
-          }
-
-          @Override
-          public void visitLineNumber(final int line, final Label start) {
-            // save line number
-            lines.putIfAbsent(key, line);
-          }
-
-          @Override
-          public void visitLocalVariable(final String name, final String desc,
-              final String signature,
-              final Label start, final Label end, final int index) {
-            if (!skipLocalTable) {
-              if (index >= minIdx && index <= maxIdx) {
-                // save current parameter
-                names[i] = name;
-                // move to next
-                i += 1;
-              }
-            }
-          }
-
-        };
-      }
-
-    };
-  }
 }

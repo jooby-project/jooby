@@ -2,6 +2,7 @@ package org.jooby.integration;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.http.HttpResponse;
@@ -10,10 +11,21 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.util.EntityUtils;
 import org.jooby.Cookie;
 import org.jooby.integration.FilterFeature.HttpResponseValidator;
+import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
 public class CookiesFeature extends ServerFeature {
+
+  @Path("r")
+  public static class Resource {
+
+    @org.jooby.mvc.GET
+    @Path("cookies")
+    public String list(final List<Cookie> cookies) {
+      return cookies.toString();
+    }
+  }
 
   {
 
@@ -37,6 +49,8 @@ public class CookiesFeature extends ServerFeature {
       rsp.clearCookie("X");
       rsp.status(200);
     });
+
+    use(Resource.class);
 
   }
 
@@ -63,7 +77,7 @@ public class CookiesFeature extends ServerFeature {
   }
 
   @Test
-  public void clearCookieCookie() throws Exception {
+  public void clearCookie() throws Exception {
     assertEquals("done", execute(GET(uri("set")), (r0) -> {
       assertEquals(200, r0.getStatusLine().getStatusCode());
       String setCookie = r0.getFirstHeader("Set-Cookie").getValue();
@@ -74,6 +88,16 @@ public class CookiesFeature extends ServerFeature {
         assertEquals("X=;Version=1;Expires=Thu, 01-Jan-1970 00:00:00 GMT;Max-Age=0", setCookie2);
       });
     }));
+
+  }
+
+  @Test
+  public void listCookies() throws Exception {
+    assertEquals(
+        "[{name=X, value=Optional[x], domain=Optional.empty, path=/, maxAge=-1, secure=false}]",
+        execute(GET(uri("r", "cookies")).addHeader("Cookie", "X=x"), (r1) -> {
+          assertEquals(200, r1.getStatusLine().getStatusCode());
+        }));
 
   }
 

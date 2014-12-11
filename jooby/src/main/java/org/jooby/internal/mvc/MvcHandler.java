@@ -33,19 +33,21 @@ import org.jooby.Status;
 import org.jooby.View;
 import org.jooby.fn.ExSupplier;
 import org.jooby.internal.ResponseImpl;
+import org.jooby.internal.reqparam.RequestParam;
+import org.jooby.internal.reqparam.RequestParamProvider;
 import org.jooby.mvc.Viewable;
 
 class MvcHandler implements Route.Handler {
 
   private Method handler;
 
-  private ParamProvider provider;
+  private RequestParamProvider provider;
 
   private List<MediaType> produces;
 
-  public MvcHandler(final Method hanlder, final ParamProvider provider,
+  public MvcHandler(final Method handler, final RequestParamProvider provider,
       final List<MediaType> produces) {
-    this.handler = requireNonNull(hanlder, "Handler method is required.");
+    this.handler = requireNonNull(handler, "Handler method is required.");
     this.provider = requireNonNull(provider, "Param prodiver is required.");
     this.produces = requireNonNull(produces, "Produce types are required.");
   }
@@ -55,10 +57,10 @@ class MvcHandler implements Route.Handler {
 
     Object target = req.getInstance(handler.getDeclaringClass());
 
-    List<Param> parameters = provider.parameters(handler);
+    List<RequestParam> parameters = provider.parameters(handler);
     Object[] args = new Object[parameters.size()];
     for (int i = 0; i < parameters.size(); i++) {
-      args[i] = parameters.get(i).get(req, rsp);
+      args[i] = parameters.get(i).value(req, rsp);
     }
 
     final Object result = handler.invoke(target, args);

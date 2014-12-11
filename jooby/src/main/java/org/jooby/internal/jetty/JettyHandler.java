@@ -75,7 +75,8 @@ public class JettyHandler extends SessionHandler {
       }
     }
     String type = req.getContentType();
-    if (type != null && type.startsWith(MediaType.multipart.name())) {
+    if (type != null && type.startsWith(MediaType.multipart.name())
+        && req.getContentLengthLong() > 0) {
       baseRequest.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multiPartConfig);
     }
     try {
