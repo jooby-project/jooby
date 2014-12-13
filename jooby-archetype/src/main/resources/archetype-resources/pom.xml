@@ -45,11 +45,22 @@
   </dependencies>
 
   <build>
-    <!-- Build fat jar -->
     <plugins>
+      <!-- Build fat jar -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
+      </plugin>
+
+      <!-- Build zip (tar, tar.gz,  tgz, tar.bz2 or tbz2) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <formats>
+            <format>zip</format>
+          </formats>
+        </configuration>
       </plugin>
     </plugins>
   </build>
