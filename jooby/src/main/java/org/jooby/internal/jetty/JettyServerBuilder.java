@@ -18,17 +18,13 @@
  */
 package org.jooby.internal.jetty;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 import javax.servlet.SessionCookieConfig;
 
@@ -44,6 +40,7 @@ import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.log.Slf4jLog;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
@@ -61,7 +58,6 @@ import com.google.inject.Key;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
-import com.typesafe.config.ConfigValue;
 
 public class JettyServerBuilder {
 
@@ -76,13 +72,17 @@ public class JettyServerBuilder {
         config.getString("application.charset"));
     System.setProperty("org.mortbay.log.class", Slf4jLog.class.getName());
 
-    Server server = new Server();
+    QueuedThreadPool threads = new QueuedThreadPool(config.getInt("jetty.threads.max"),
+        config.getInt("jetty.threads.min"));
+    threads.setIdleTimeout(config.getInt("jetty.threads.timeout"));
+
+    Server server = new Server(threads);
     // stop is done from Jooby
     server.setStopAtShutdown(false);
 
     Config $ = config.getConfig("jetty");
 
-    HttpConfiguration httpConfig = configure(new HttpConfiguration(), $);
+    HttpConfiguration httpConfig = configure(new HttpConfiguration(), $.getConfig("http"));
 
     httpConfig.setSecurePort(config.getInt("application.securePort"));
     httpConfig.setSecureScheme("https");
@@ -107,7 +107,9 @@ public class JettyServerBuilder {
       sslContextFactory.setKeyManagerPassword(config.getString("ssl.keymanager.password"));
 
       // get config from https if present and/or fallback to http
-      HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
+      HttpConfiguration httpsConfig = configure(new HttpConfiguration(httpConfig),
+          $.getConfig("https"));
+
       httpsConfig.addCustomizer(new SecureRequestCustomizer());
 
       ServerConnector https = configure(new ServerConnector(server,
@@ -280,19 +282,46 @@ public class JettyServerBuilder {
 
   private static <T> T configure(final T target, final Config config) {
     Class<?> clazz = target.getClass();
-    Map<String, Method> methods = Arrays.stream(clazz.getMethods())
+    Set<Method> methods = Arrays.stream(clazz.getMethods())
         .filter(m -> m.getName().startsWith("set") && m.getParameterCount() == 1)
-        .collect(Collectors.toMap(m -> m.getName(), m -> m));
-    for (Entry<String, ConfigValue> entry : config.entrySet()) {
-      String name = entry.getKey();
-      if (name.contains(".")) {
-        // a sub tree, just ignore it
-        continue;
+        .collect(org.jooby.fn.Collectors.toSet());
+
+    /**
+     * Generate set method name.
+     */
+    Function<String, String> dotted = name -> {
+      StringBuilder methodName = new StringBuilder();
+      int start = "set".length();
+      methodName.append(Character.toLowerCase(name.charAt(start)));
+      for(int i = start + 1; i < name.length(); i++) {
+        char ch = name.charAt(i);
+        if (Character.isUpperCase(ch)) {
+          methodName.append('.').append(Character.toLowerCase(ch));
+        } else {
+          methodName.append(ch);
+        }
       }
-      String methodName = "set" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+
+      return methodName.toString();
+    };
+    Function<String, String> direct = name -> {
+      StringBuilder methodName = new StringBuilder();
+      int start = "set".length();
+      methodName.append(Character.toLowerCase(name.charAt(start)));
+      methodName.append(name.substring(start + 1));
+
+      return methodName.toString();
+    };
+
+    for (Method method : methods) {
+      String name = dotted.apply(method.getName());
+      if (!config.hasPath(name)) {
+        name = direct.apply(method.getName());
+        if (!config.hasPath(name)) {
+          continue;
+        }
+      }
       try {
-        Method method = methods.get(methodName);
-        checkArgument(method != null, "Unknown property: jetty.%s", name);
         Class<?> paramType = method.getParameterTypes()[0];
         final Object value;
         if (paramType == int.class) {
