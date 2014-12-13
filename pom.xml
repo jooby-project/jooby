@@ -22,6 +22,7 @@
     <module>jooby-hbm</module>
     <module>jooby-archetype</module>
     <module>jooby-maven-plugin</module>
+    <module>jooby-dist</module>
   </modules>
 
   <licenses>
@@ -472,6 +473,7 @@
 
     <pluginManagement>
       <plugins>
+        <!-- shade -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
@@ -518,6 +520,49 @@
                     <mainClass>${application.main}</mainClass>
                   </transformer>
                 </transformers>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- ant plugin -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>${maven-antrun-plugin.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.ant</groupId>
+              <artifactId>ant</artifactId>
+              <version>1.9.4</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <!-- Zip -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${maven-assembly-plugin.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.jooby</groupId>
+              <artifactId>jooby-dist</artifactId>
+              <version>${jooby.version}</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <id>make-assembly</id>
+              <phase>package</phase>
+              <goals>
+                <goal>single</goal>
+              </goals>
+              <configuration>
+                <appendAssemblyId>false</appendAssemblyId>
+                <descriptorRefs>
+                  <descriptorRef>jooby</descriptorRef>
+                </descriptorRefs>
               </configuration>
             </execution>
           </executions>
@@ -596,6 +641,45 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>${maven-surefire-plugin.version}</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- distributions -->
+    <profile>
+      <id>zip</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <configuration>
+                  <target>
+                    <makeurl file="${settings.localRepository}" property="m2.home" />
+                    <property name="script.loc"
+                      value="jar:${m2.home}/org/jooby/jooby/${jooby.version}/jooby-${jooby.version}.jar!/etc/dist.zip.ant" />
+                    <property name="zip.ant"
+                      value="${project.build.directory}${file.separator}dist.zip.ant" />
+                    <loadresource property="script.body">
+                      <url url="${script.loc}" />
+                    </loadresource>
+                    <echo file="${zip.ant}">${script.body}</echo>
+                    <property name="project.build.finalName" value="${project.build.finalName}" />
+                    <property name="project.build.directory" value="${project.build.directory}" />
+                    <property name="project.name" value="${project.name}" />
+                    <property name="application.main" value="${application.main}" />
+                    <ant antfile="${zip.ant}" target="zip" />
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>
@@ -974,6 +1058,7 @@
     <maven-site-plugin.version>3.4</maven-site-plugin.version>
     <license-maven-plugin.version>2.6</license-maven-plugin.version>
     <jacoco-maven-plugin.version>${jacoco.version}</jacoco-maven-plugin.version>
+    <maven-assembly-plugin.version>2.5.2</maven-assembly-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>
   </properties>
