@@ -22,7 +22,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -291,13 +290,14 @@ public interface Session extends Locals {
     void delete(@Nonnull String id) throws Exception;
 
     /**
-     * Generate a session ID.
+     * Generate a session ID, if <code>null</code> is returned the default ID generator will be
+     * use it.
      *
      * @param seed A seed to use (if need it).
      * @return A unique session ID.
      */
     default String generateID(final long seed) {
-      return UUID.randomUUID().toString();
+      return null;
     }
   }
 

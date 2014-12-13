@@ -20,6 +20,8 @@ package org.jooby.internal.jetty;
 
 import static java.util.Objects.requireNonNull;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -130,15 +132,17 @@ public class JoobySession extends MemSession implements Session {
   public boolean isValid() {
     boolean valid = super.isValid();
     if (valid) {
-      try {
-        String sessionId = getClusterId();
-        if (!Cookie.Signature.valid(sessionId, secret)) {
-          Session.log.warn("cookie signature invalid: {}", sessionId);
+      if (secret != null) {
+        try {
+          String sessionId = getClusterId();
+          if (!Cookie.Signature.valid(sessionId, secret)) {
+            Session.log.warn("cookie signature invalid: {}", sessionId);
+            return false;
+          }
+        } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
+          Session.log.warn("cookie signature invalid: " + getClusterId(), ex);
           return false;
         }
-      } catch (Exception ex) {
-        Session.log.warn("cookie signature invalid: " + getClusterId(), ex);
-        return false;
       }
     }
     return valid;

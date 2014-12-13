@@ -20,6 +20,8 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -411,9 +413,11 @@ public interface Cookie {
      * @param value A value to sign.
      * @param secret A secret key.
      * @return A signed value.
-     * @throws Exception When signature isn't possible.
+     * @throws NoSuchAlgorithmException If {@link #HMAC_SHA256} is missing.
+     * @throws InvalidKeyException If secret key is wrong (bad encoding, too short, etc.)
      */
-    public static String sign(final String value, final String secret) throws Exception {
+    public static String sign(final String value, final String secret)
+        throws NoSuchAlgorithmException, InvalidKeyException {
       requireNonNull(value, "A value is required.");
       requireNonNull(secret, "A secret is required.");
 
@@ -430,9 +434,11 @@ public interface Cookie {
      * @param value A signed value.
      * @param secret A secret key.
      * @return A new signed value.
-     * @throws Exception When signature isn't possible.
+     * @throws NoSuchAlgorithmException If {@link #HMAC_SHA256} is missing.
+     * @throws InvalidKeyException If secret key is wrong (bad encoding, too short, etc.)
      */
-    public static String unsign(final String value, final String secret) throws Exception {
+    public static String unsign(final String value, final String secret)
+        throws InvalidKeyException, NoSuchAlgorithmException {
       requireNonNull(value, "A value is required.");
       requireNonNull(secret, "A secret is required.");
       int dot = value.indexOf(SEP);
@@ -448,9 +454,11 @@ public interface Cookie {
      * @param value A signed value.
      * @param secret A secret key.
      * @return True, if the given signed value is valid.
-     * @throws Exception When signature isn't possible.
+     * @throws NoSuchAlgorithmException If {@link #HMAC_SHA256} is missing.
+     * @throws InvalidKeyException If secret key is wrong (bad encoding, too short, etc.)
      */
-    public static boolean valid(final String value, final String secret) throws Exception {
+    public static boolean valid(final String value, final String secret)
+        throws InvalidKeyException, NoSuchAlgorithmException {
       return value.equals(unsign(value, secret));
     }
 

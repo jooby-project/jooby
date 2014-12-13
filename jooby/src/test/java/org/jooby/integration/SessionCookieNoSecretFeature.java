@@ -21,15 +21,10 @@ import org.junit.Test;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
 
-public class SessionCookieFeature extends ServerFeature {
+public class SessionCookieNoSecretFeature extends ServerFeature {
 
   {
-    use(ConfigFactory.empty().withValue("application.secret",
-        ConfigValueFactory.fromAnyRef("fixed")));
-
     use(new Session.Store() {
       @Override
       public void save(final Session session, final SaveReason reason) {
@@ -67,7 +62,7 @@ public class SessionCookieFeature extends ServerFeature {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy HH:mm");
     Instant instant = Instant.ofEpochMilli(maxAge);
     OffsetDateTime utc = instant.atOffset(ZoneOffset.UTC);
-    String sessionId = "1234|YCoA3Xy3SpWxF95bTC+lVLg/GtTCO8YkKFkTeQ15v3E";
+    String sessionId = "1234";
     assertEquals(
         sessionId,
         execute(

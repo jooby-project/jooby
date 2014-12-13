@@ -20,6 +20,10 @@ package org.jooby.internal.jetty;
 
 import static java.util.Objects.requireNonNull;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
+
 import org.eclipse.jetty.server.session.HashSessionIdManager;
 import org.jooby.Cookie;
 import org.jooby.Session.Store;
@@ -32,17 +36,21 @@ public class JoobySessionIdManager extends HashSessionIdManager {
 
   public JoobySessionIdManager(final Store generator, final String secret) {
     this.generator = requireNonNull(generator, "A ID generator is required.");
-    this.secret = requireNonNull(secret, "An application.secret is required.");
+    this.secret = secret;
   }
 
   @Override
   public String newSessionId(final long seedTerm) {
+    // generate ID.
+    String id = Optional.ofNullable(generator.generateID(seedTerm))
+        .orElse(super.newSessionId(seedTerm));
+
+    if (secret == null) {
+      return id;
+    }
     try {
-      String id = generator.generateID(seedTerm);
       return Cookie.Signature.sign(id, secret);
-    } catch (RuntimeException ex) {
-      throw ex;
-    } catch (Exception ex) {
+    } catch (InvalidKeyException | NoSuchAlgorithmException ex) {
       throw new IllegalStateException("Can't sign session ID", ex);
     }
   }

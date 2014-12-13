@@ -1996,17 +1996,6 @@ public class Jooby {
         .get()
         .getString("application.env");
 
-    String secret = Arrays
-        .asList(system, source, jooby)
-        .stream()
-        .filter(it -> it.hasPath("application.secret"))
-        .findFirst()
-        .orElseGet(() ->
-            ConfigFactory.empty()
-                .withValue("application.secret", ConfigValueFactory.fromAnyRef(""))
-        )
-        .getString("application.secret");
-
     Config modeConfig = modeConfig(source, env);
 
     // application.[env].conf -> application.conf
@@ -2016,7 +2005,7 @@ public class Jooby {
         .withFallback(config)
         .withFallback(moduleStack)
         .withFallback(MediaType.types)
-        .withFallback(defaultConfig(config, env, secret))
+        .withFallback(defaultConfig(config, env))
         .withFallback(jooby)
         .resolve();
   }
@@ -2069,10 +2058,9 @@ public class Jooby {
    *
    * @param config A source config.
    * @param env Application env.
-   * @param secret Application secret.
    * @return default properties.
    */
-  private Config defaultConfig(final Config config, final String env, final String secret) {
+  private Config defaultConfig(final Config config, final String env) {
     Map<String, Object> defaults = new LinkedHashMap<>();
 
     // set app name
@@ -2099,19 +2087,6 @@ public class Jooby {
     if (!config.hasPath("application.numberFormat")) {
       String pattern = ((DecimalFormat) DecimalFormat.getInstance(locale)).toPattern();
       defaults.put("numberFormat", pattern);
-    }
-
-    // last check app secret
-    if (secret.length() == 0) {
-      if ("dev".equalsIgnoreCase(env)) {
-        // it will survive between restarts and allow to have different apps running for
-        // development.
-        String devRandomSecret = getClass().getResource(getClass().getSimpleName() + ".class")
-            .toString();
-        defaults.put("secret", devRandomSecret);
-      } else {
-        throw new IllegalStateException("No application.secret has been defined");
-      }
     }
 
     Map<String, Object> application = ImmutableMap.of("application", defaults);

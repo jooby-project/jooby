@@ -33,8 +33,8 @@ import org.jooby.Session.Store;
 import org.jooby.fn.Switch;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.BuiltinBodyConverter;
-import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.RouteImpl;
+import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.Server;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.jetty.JettyServer;
@@ -355,43 +355,6 @@ public class JoobyTest {
     unit.mockStatic(TypeConverters.class);
     TypeConverters.configure(unit.get(Binder.class));
   };
-
-  @Test(expected = IllegalStateException.class)
-  public void noApplicationSecret() throws Exception {
-
-    new MockUnit(Binder.class)
-        .expect(guice)
-        .expect(shutdown)
-        .expect(config)
-        .expect(env)
-        .expect(charset)
-        .expect(locale)
-        .expect(zoneId)
-        .expect(timeZone)
-        .expect(dateTimeFormatter)
-        .expect(numberFormat)
-        .expect(decimalFormat)
-        .expect(bodyParser)
-        .expect(bodyFormatter)
-        .expect(session)
-        .expect(routes)
-        .expect(webSockets)
-        .expect(reqModules)
-        .expect(tmpdir)
-        .expect(err)
-        .run(
-            unit -> {
-
-              Jooby jooby = new Jooby();
-
-              jooby.use(ConfigFactory.empty()
-                  .withValue("application.env", ConfigValueFactory.fromAnyRef("prod"))
-                  );
-
-              jooby.start();
-
-            }, boot);
-  }
 
   @Test
   public void applicationSecret() throws Exception {

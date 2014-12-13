@@ -47,9 +47,6 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
-import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 import org.jooby.Session;
 import org.jooby.Session.Store;
 import org.jooby.WebSocket;
@@ -135,7 +132,8 @@ public class JettyServerBuilder {
      */
     Session.Store store = sessionDef.store();
     Session.Store forwardingStore = fwdStore(store);
-    String secret = config.getString("application.secret");
+    String secret = config.hasPath("application.secret")
+        ? config.getString("application.secret") : null;
     JoobySessionManager sessionManager = new JoobySessionManager(forwardingStore, secret);
     Config $session = config.getConfig("application.session");
 
@@ -190,21 +188,17 @@ public class JettyServerBuilder {
       WebSocketPolicy policy = configure(new WebSocketPolicy(WebSocketBehavior.SERVER),
           config.getConfig("jetty.ws.policy"));
       WebSocketServerFactory socketServerFactory = new WebSocketServerFactory(policy);
-      socketServerFactory.setCreator(new WebSocketCreator() {
-        @Override
-        public Object createWebSocket(final ServletUpgradeRequest req,
-            final ServletUpgradeResponse resp) {
-          String path = req.getRequestPath();
-          for (WebSocket.Definition socketDef : sockets) {
-            Optional<WebSocket> matches = socketDef.matches(path);
-            if (matches.isPresent()) {
-              WebSocketImpl socket = (WebSocketImpl) matches.get();
-              return new JettyWebSocketHandler(injector, config, socket);
-            }
-          }
-          return null;
-        }
-      });
+      socketServerFactory.setCreator((req, resp) -> {
+     String path = req.getRequestPath();
+     for (WebSocket.Definition socketDef : sockets) {
+      Optional<WebSocket> matches = socketDef.matches(path);
+      if (matches.isPresent()) {
+        WebSocketImpl socket = (WebSocketImpl) matches.get();
+        return new JettyWebSocketHandler(injector, config, socket);
+      }
+     }
+     return null;
+    });
 
       handler.addBean(socketServerFactory);
     }
@@ -250,7 +244,7 @@ public class JettyServerBuilder {
     return server;
   }
 
-  private static Store fwdStore(Session.Store store) {
+  private static Store fwdStore(final Session.Store store) {
     return new Session.Store() {
 
       @Override

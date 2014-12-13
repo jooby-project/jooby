@@ -49,7 +49,7 @@ public class JoobySessionManager extends AbstractSessionManager {
 
   public JoobySessionManager(final Session.Store store, final String secret) {
     this.store = requireNonNull(store, "A session store is required.");
-    this.secret = requireNonNull(secret, "An application secret is required.");
+    this.secret = secret;
     setSessionIdManager(new JoobySessionIdManager(store, secret));
   }
 
