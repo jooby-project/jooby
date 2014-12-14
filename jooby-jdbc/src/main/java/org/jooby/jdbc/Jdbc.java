@@ -30,8 +30,8 @@ import java.util.function.BiConsumer;
 import javax.inject.Provider;
 import javax.sql.DataSource;
 
-import org.jooby.Jooby;
 import org.jooby.Env;
+import org.jooby.Jooby;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -153,6 +153,8 @@ public class Jdbc implements Jooby.Module {
     }
     // remove dataSourceClassName under dataSource
     props.remove("dataSource.dataSourceClassName");
+    // set pool name
+    props.setProperty("poolName", dbtype.map(type -> type + "." + dbName).orElse(dbName));
 
     return new HikariDataSourceProvider(new HikariConfig(props));
   }

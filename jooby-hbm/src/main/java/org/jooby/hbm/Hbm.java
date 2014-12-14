@@ -115,13 +115,13 @@ public class Hbm extends Jdbc {
         .toInstance(new Route.Definition("*", "*", readWriteTrx(emKey, log)).name("hbm"));
 
     Multibinder.newSetBinder(binder, Request.Module.class).addBinding().toInstance(b -> {
-      log.debug("creating entity manager");
       EntityManager em = emf.get().createEntityManager();
+      log.debug("opened entity manager: {}", em);
        b.bind(emKey).toProvider(Providers.of(em));
     });
   }
 
-  private Route.Filter readWriteTrx(final Key<EntityManager> key, final Logger log) {
+  private static Route.Filter readWriteTrx(final Key<EntityManager> key, final Logger log) {
     return (req, resp, chain) -> {
       EntityManager em = req.getInstance(key);
       Session session = (Session) em.getDelegate();
@@ -141,7 +141,8 @@ public class Hbm extends Jdbc {
             try {
               Connection connection = ((SessionImplementor) session).connection();
               connection.setReadOnly(readOnly);
-            } catch (SQLException ignoreMe) {
+            } catch (SQLException ignored) {
+              log.trace("  isn't possible to mark current connection as read-only", ignored);
             }
           }
 
@@ -204,9 +205,11 @@ public class Hbm extends Jdbc {
       } finally {
         try {
           if (trx.isActive()) {
+            log.debug("  rolling back transation: {}", trx);
             trx.rollback();
           }
         } finally {
+          log.debug("closing entity manager: {}", em);
           em.close();
         }
       }
@@ -286,7 +289,7 @@ public class Hbm extends Jdbc {
       @Override
       public URL getPersistenceUnitRootUrl() {
         if (scan) {
-          String ns = config.getString("application.ns");
+          String ns = config.getString("application.ns").replace('.', '/');
           return ClassLoader.getSystemResource(ns);
         } else {
           return null;
