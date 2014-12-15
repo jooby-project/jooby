@@ -20,22 +20,15 @@ package org.jooby.hbs;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.Reader;
-import java.net.URI;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.function.Consumer;
 
 import org.jooby.Body;
-import org.jooby.Jooby;
 import org.jooby.Env;
+import org.jooby.Jooby;
 import org.jooby.View;
 
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Helper;
-import com.github.jknack.handlebars.HelperRegistry;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.cache.GuavaTemplateCache;
 import com.github.jknack.handlebars.cache.NullTemplateCache;
@@ -47,11 +40,13 @@ import com.github.jknack.handlebars.context.MethodValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.google.common.cache.CacheBuilder;
 import com.google.inject.Binder;
+import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class Hbs implements HelperRegistry, Jooby.Module {
+public class Hbs implements Jooby.Module {
 
   private static class Engine implements View.Engine {
 
@@ -105,24 +100,39 @@ public class Hbs implements HelperRegistry, Jooby.Module {
     this(new Handlebars(new ClassPathTemplateLoader("/", ".html")));
   }
 
+  public Hbs doWith(final Consumer<Handlebars> block) {
+    requireNonNull(block, "A hbs block is required.").accept(hbs);
+    return this;
+  };
+
   @Override
   public void configure(final Env mode, final Config config, final Binder binder)
       throws Exception {
 
-    TemplateCache cache = mode
+    // cache
+    hbs.with(mode
         .ifMode("dev", () -> NOOP)
-        .orElseGet(() ->
-            new GuavaTemplateCache(CacheBuilder
-                .from(config.getString("hbs.cache"))
-                .build())
-        );
-    hbs.with(cache);
+        .orElseGet(() -> {
+          String cacheSpec = config.getString("hbs.cache");
+          if (cacheSpec.isEmpty()) {
+            return NOOP;
+          }
+          return new GuavaTemplateCache(
+              CacheBuilder
+                  .from(cacheSpec)
+                  .build()
+            );
+          }
+        ));
 
     binder.bind(Handlebars.class).toInstance(hbs);
+    Engine engine = new Engine(hbs);
 
     Multibinder.newSetBinder(binder, Body.Formatter.class).addBinding()
-        .toInstance(new Engine(hbs));
+        .toInstance(engine);
 
+    // direct accessf
+    binder.bind(Key.get(View.Engine.class, Names.named(engine.name()))).toInstance(engine);
   }
 
   @Override
@@ -130,70 +140,4 @@ public class Hbs implements HelperRegistry, Jooby.Module {
     return ConfigFactory.parseResources(getClass(), "hbs.conf");
   }
 
-  @Override
-  public <C> Helper<C> helper(final String name) {
-    return hbs.helper(name);
-  }
-
-  @Override
-  public Set<Entry<String, Helper<?>>> helpers() {
-    return hbs.helpers();
-  }
-
-  @Override
-  public <H> Hbs registerHelper(final String name, final Helper<H> helper) {
-    hbs.registerHelper(name, helper);
-    return this;
-  }
-
-  @Override
-  public <H> HelperRegistry registerHelperMissing(final Helper<H> helper) {
-    hbs.registerHelperMissing(helper);
-    return this;
-  }
-
-  @Override
-  public HelperRegistry registerHelpers(final Object helperSource) {
-    hbs.registerHelpers(helperSource);
-    return this;
-  }
-
-  @Override
-  public HelperRegistry registerHelpers(final Class<?> helperSource) {
-    hbs.registerHelpers(helperSource);
-    return this;
-  }
-
-  @Override
-  public HelperRegistry registerHelpers(final URI location) throws Exception {
-    hbs.registerHelpers(location);
-    return this;
-  }
-
-  @Override
-  public HelperRegistry registerHelpers(final File input) throws Exception {
-    hbs.registerHelpers(input);
-    return this;
-  }
-
-  @Override
-  public HelperRegistry registerHelpers(final String filename, final Reader source)
-      throws Exception {
-    hbs.registerHelpers(filename, source);
-    return this;
-  }
-
-  @Override
-  public HelperRegistry registerHelpers(final String filename, final InputStream source)
-      throws Exception {
-    hbs.registerHelpers(filename, source);
-    return this;
-  }
-
-  @Override
-  public HelperRegistry registerHelpers(final String filename, final String source)
-      throws Exception {
-    hbs.registerHelpers(filename, source);
-    return this;
-  }
 }

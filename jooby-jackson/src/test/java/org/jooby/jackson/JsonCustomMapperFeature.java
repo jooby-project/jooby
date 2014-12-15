@@ -1,6 +1,7 @@
 package org.jooby.jackson;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import java.net.URISyntaxException;
 
@@ -18,9 +19,11 @@ public class JsonCustomMapperFeature extends ServerFeature {
 
   {
 
-    use(new Json(new ObjectMapper()).doWith(mapper ->
-      mapper.enable(SerializationFeature.INDENT_OUTPUT)
-    ));
+    ObjectMapper mapper = new ObjectMapper();
+    use(new Json(mapper).doWith(m -> {
+      assertSame(mapper, m);
+      mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    }));
 
     get("/members", req ->
       Lists.newArrayList(ImmutableMap.<String, Object> of("id", 1, "name", "pablo"))
