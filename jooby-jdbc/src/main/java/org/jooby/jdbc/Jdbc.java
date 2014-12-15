@@ -62,8 +62,7 @@ public class Jdbc implements Jooby.Module {
   }
 
   @Override
-  public void configure(final Env mode, final Config config, final Binder binder)
-      throws Exception {
+  public void configure(final Env mode, final Config config, final Binder binder) {
     this.ds = newDataSource(dbName, dbConfig(dbName, config));
 
     binder.bind(dataSourceKey(DataSource.class))
@@ -88,7 +87,7 @@ public class Jdbc implements Jooby.Module {
     }
   }
 
-  private Config dbConfig(final String key, final Config source) throws Exception {
+  private Config dbConfig(final String key, final Config source) {
     Object db = source.getAnyRef(key);
 
     if (db instanceof String) {
@@ -110,8 +109,7 @@ public class Jdbc implements Jooby.Module {
     }
   }
 
-  private HikariDataSourceProvider newDataSource(final String key, final Config config)
-      throws Exception {
+  private HikariDataSourceProvider newDataSource(final String key, final Config config) {
     Properties props = new Properties();
 
     BiConsumer<String, Entry<String, ConfigValue>> dumper = (prefix, entry) -> {

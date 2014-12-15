@@ -92,8 +92,7 @@ public class Hbm extends Jdbc {
   }
 
   @Override
-  public void configure(final Env mode, final Config config, final Binder binder)
-      throws Exception {
+  public void configure(final Env mode, final Config config, final Binder binder) {
     Logger log = LoggerFactory.getLogger(getClass());
 
     super.configure(mode, config, binder);

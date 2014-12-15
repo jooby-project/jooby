@@ -4,9 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.apache.http.client.fluent.Request;
 import org.jooby.Body;
-import org.jooby.Jooby;
 import org.jooby.MediaType;
-import org.jooby.Env;
 import org.jooby.Status;
 import org.jooby.View;
 import org.jooby.mvc.Consumes;
@@ -16,9 +14,7 @@ import org.jooby.mvc.Produces;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
 
 public class ContentNegotiationFeature extends ServerFeature {
 
@@ -49,17 +45,12 @@ public class ContentNegotiationFeature extends ServerFeature {
 
   {
 
-    use(new Jooby.Module() {
+    use((mode, config, binder) -> {
+      Multibinder.newSetBinder(binder, Body.Formatter.class)
+          .addBinding().toInstance(BodyConverters.toHtml);
 
-      @Override
-      public void configure(final Env mode, final Config config, final Binder binder)
-          throws Exception {
-        Multibinder.newSetBinder(binder, Body.Formatter.class)
-        .addBinding().toInstance(BodyConverters.toHtml);
-
-        Multibinder.newSetBinder(binder, Body.Formatter.class)
-        .addBinding().toInstance(BodyConverters.toJson);
-      }
+      Multibinder.newSetBinder(binder, Body.Formatter.class)
+          .addBinding().toInstance(BodyConverters.toJson);
     });
 
     get("/any", (req, resp) ->
@@ -69,15 +60,15 @@ public class ContentNegotiationFeature extends ServerFeature {
             .send());
 
     get("/status", (req, resp) ->
-    resp.format()
-        .when("*", () -> Status.NOT_ACCEPTABLE)
-        .send());
+        resp.format()
+            .when("*", () -> Status.NOT_ACCEPTABLE)
+            .send());
 
     get("/like", (req, resp) ->
-    resp.format()
-        .when("text/html", () -> View.of("test", "body"))
-        .when("application/json", () -> "body")
-        .send());
+        resp.format()
+            .when("text/html", () -> View.of("test", "body"))
+            .when("application/json", () -> "body")
+            .send());
 
     get("/html", (req, resp) -> resp.send(View.of("test", "body")))
         .produces(MediaType.html);

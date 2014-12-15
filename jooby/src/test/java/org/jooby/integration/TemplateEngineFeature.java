@@ -6,8 +6,6 @@ import java.io.IOException;
 
 import org.apache.http.client.fluent.Request;
 import org.jooby.Body;
-import org.jooby.Jooby;
-import org.jooby.Env;
 import org.jooby.View;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
@@ -15,9 +13,7 @@ import org.jooby.mvc.Viewable;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
 
 public class TemplateEngineFeature extends ServerFeature {
 
@@ -39,14 +35,10 @@ public class TemplateEngineFeature extends ServerFeature {
   }
 
   {
-    use(new Jooby.Module() {
-      @Override
-      public void configure(final Env mode, final Config config, final Binder binder)
-          throws Exception {
-        Multibinder<Body.Formatter> converters = Multibinder.newSetBinder(binder,
-            Body.Formatter.class);
-        converters.addBinding().toInstance(BodyConverters.toHtml);
-      }
+    use((mode, config, binder) -> {
+      Multibinder<Body.Formatter> converters = Multibinder.newSetBinder(binder,
+          Body.Formatter.class);
+      converters.addBinding().toInstance(BodyConverters.toHtml);
     });
 
     get("/view", (req, resp) -> {

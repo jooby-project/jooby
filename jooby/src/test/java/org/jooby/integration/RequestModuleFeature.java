@@ -6,16 +6,12 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.http.client.fluent.Request;
-import org.jooby.Jooby;
-import org.jooby.Env;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
 
 public class RequestModuleFeature extends ServerFeature {
 
@@ -52,14 +48,10 @@ public class RequestModuleFeature extends ServerFeature {
 
   {
 
-    use(new Jooby.Module() {
-      @Override
-      public void configure(final Env mode, final Config config, final Binder binder)
-          throws Exception {
-        Multibinder<org.jooby.Request.Module> rmb = Multibinder.newSetBinder(binder,
-            org.jooby.Request.Module.class);
-        rmb.addBinding().toInstance(b -> b.bind(RequestScoped.class).in(Singleton.class));
-      }
+    use((mode, config, binder) -> {
+      Multibinder<org.jooby.Request.Module> rmb = Multibinder.newSetBinder(binder,
+          org.jooby.Request.Module.class);
+      rmb.addBinding().toInstance(b -> b.bind(RequestScoped.class).in(Singleton.class));
     });
 
     get("/", (req, resp) -> {

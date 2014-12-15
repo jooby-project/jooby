@@ -71,8 +71,7 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
       app = (Jooby) appClass.newInstance();
       app.use(new Jooby.Module() {
         @Override
-        public void configure(final Env mode, final Config config, final Binder binder)
-            throws Exception {
+        public void configure(final Env mode, final Config config, final Binder binder) {
           OptionalBinder.newOptionalBinder(binder, Server.class).setBinding()
               .to(NoJoinServer.class)
               .in(Singleton.class);

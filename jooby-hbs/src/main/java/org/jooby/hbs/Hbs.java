@@ -32,7 +32,6 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.cache.GuavaTemplateCache;
 import com.github.jknack.handlebars.cache.NullTemplateCache;
-import com.github.jknack.handlebars.cache.TemplateCache;
 import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
@@ -88,8 +87,6 @@ public class Hbs implements Jooby.Module {
     }
   }
 
-  private static final TemplateCache NOOP = NullTemplateCache.INSTANCE;
-
   private final Handlebars hbs;
 
   public Hbs(final Handlebars handlebars) {
@@ -106,24 +103,19 @@ public class Hbs implements Jooby.Module {
   };
 
   @Override
-  public void configure(final Env mode, final Config config, final Binder binder)
-      throws Exception {
+  public void configure(final Env mode, final Config config, final Binder binder) {
 
     // cache
-    hbs.with(mode
-        .ifMode("dev", () -> NOOP)
-        .orElseGet(() -> {
-          String cacheSpec = config.getString("hbs.cache");
-          if (cacheSpec.isEmpty()) {
-            return NOOP;
-          }
-          return new GuavaTemplateCache(
-              CacheBuilder
-                  .from(cacheSpec)
-                  .build()
-            );
-          }
-        ));
+    if ("dev".equals(mode.name()) || config.getString("hbs.cache").isEmpty()) {
+      // noop cache
+      hbs.with(NullTemplateCache.INSTANCE);
+    } else {
+      hbs.with(new GuavaTemplateCache(
+          CacheBuilder
+              .from(config.getString("hbs.cache"))
+              .build()
+          ));
+    }
 
     binder.bind(Handlebars.class).toInstance(hbs);
     Engine engine = new Engine(hbs);

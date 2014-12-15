@@ -400,10 +400,8 @@ public class Jooby {
      * @param env The current application's env. Not null.
      * @param config The current config object. Not null.
      * @param binder A guice binder. Not null.
-     * @throws Exception If the module fails during configuration.
      */
-    void configure(@Nonnull Env env, @Nonnull Config config,
-        @Nonnull Binder binder) throws Exception;
+    void configure(@Nonnull Env env, @Nonnull Config config, @Nonnull Binder binder);
 
   }
 
