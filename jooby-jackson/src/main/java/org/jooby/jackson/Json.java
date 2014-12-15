@@ -32,9 +32,9 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 
 import org.jooby.Body;
+import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
-import org.jooby.Env;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,29 +42,31 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 
 public class Json implements Jooby.Module {
 
-  static class Configurer {
+  private static class PostConfigurer {
 
     @Inject
-    public Configurer(final ObjectMapper mapper, final Set<Module> jacksonModules) {
+    public PostConfigurer(final ObjectMapper mapper, final Set<Module> jacksonModules) {
       mapper.registerModules(jacksonModules);
     }
 
   }
 
-  static class BodyHandler implements Body.Formatter, Body.Parser {
+  private static class BodyHandler implements Body.Formatter, Body.Parser {
 
     private ObjectMapper mapper;
     private List<MediaType> types;
 
     public BodyHandler(final ObjectMapper mapper, final List<MediaType> types) {
-      this.mapper = checkNotNull(mapper, "An object mapper is required.");
-      this.types = requireNonNull(types, "The types is required.");
+      this.mapper = mapper;
+      this.types = types;
     }
 
     @Override
@@ -116,13 +118,21 @@ public class Json implements Jooby.Module {
     this(new ObjectMapper());
   }
 
-  public Json with(final MediaType... types) {
+  public Json types(final MediaType... types) {
+    return types(ImmutableList.copyOf(types));
+  }
+
+  public Json types(final List<MediaType> types) {
     this.types = ImmutableList.copyOf(types);
     return this;
   }
 
-  public Json configure(final Consumer<ObjectMapper> configurer) {
-    requireNonNull(configurer, "A configurer is required.").accept(mapper);
+  public Json types(final String... types) {
+    return types(MediaType.valueOf(types));
+  }
+
+  public Json doWith(final Consumer<ObjectMapper> block) {
+    requireNonNull(block, "A json block is required.").accept(mapper);
     return this;
   }
 
@@ -141,10 +151,11 @@ public class Json implements Jooby.Module {
     binder.bind(ObjectMapper.class).toInstance(mapper);
 
     // Jackson Configurer (like a post construct)
-    binder.bind(Configurer.class).asEagerSingleton();
+    binder.bind(PostConfigurer.class).asEagerSingleton();
 
     // json body parser & formatter
     BodyHandler json = new BodyHandler(mapper, types);
+
     Multibinder.newSetBinder(binder, Body.Formatter.class)
         .addBinding()
         .toInstance(json);
@@ -152,6 +163,10 @@ public class Json implements Jooby.Module {
     Multibinder.newSetBinder(binder, Body.Parser.class)
         .addBinding()
         .toInstance(json);
+
+    // direct access?
+    binder.bind(Key.get(Body.Formatter.class, Names.named(json.toString()))).toInstance(json);
+    binder.bind(Key.get(Body.Parser.class, Names.named(json.toString()))).toInstance(json);
   }
 
 }
