@@ -18,6 +18,8 @@
  */
 package org.jooby.internal;
 
+import com.google.inject.Injector;
+
 
 /**
  * A HTTP web server.
@@ -41,4 +43,5 @@ public interface Server {
    */
   void stop() throws Exception;
 
+  void restart(Injector injector) throws Exception;
 }

@@ -216,13 +216,13 @@ public class Hbm extends Jdbc {
   }
 
   @Override
-  public void start() throws Exception {
+  public void start() {
     super.start();
     emf.start();
   }
 
   @Override
-  public void stop() throws Exception {
+  public void stop() {
     if (emf != null) {
       emf.stop();
     }

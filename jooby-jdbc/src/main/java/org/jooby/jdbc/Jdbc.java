@@ -75,12 +75,12 @@ public class Jdbc implements Jooby.Module {
   }
 
   @Override
-  public void start() throws Exception {
+  public void start() {
     ds.start();
   }
 
   @Override
-  public void stop() throws Exception {
+  public void stop() {
     if (ds != null) {
       ds.shutdown();
       ds = null;

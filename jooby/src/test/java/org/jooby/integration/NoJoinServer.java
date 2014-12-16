@@ -21,18 +21,17 @@ package org.jooby.integration;
 import javax.inject.Inject;
 
 import org.eclipse.jetty.server.Server;
-import org.jooby.internal.RouteHandler;
 import org.jooby.internal.jetty.JettyServerBuilder;
 
-import com.typesafe.config.Config;
+import com.google.inject.Injector;
 
 public class NoJoinServer implements org.jooby.internal.Server {
 
   private Server server;
 
   @Inject
-  public NoJoinServer(final Config config, final RouteHandler routeHandler) throws Exception {
-    this.server = JettyServerBuilder.build(config, routeHandler);
+  public NoJoinServer(final Injector injector) throws Exception {
+    this.server = JettyServerBuilder.build(injector);
   }
 
   @Override
@@ -43,6 +42,10 @@ public class NoJoinServer implements org.jooby.internal.Server {
   @Override
   public void stop() throws Exception {
     server.stop();
+  }
+
+  @Override
+  public void restart(final Injector injector) throws Exception {
   }
 
 }

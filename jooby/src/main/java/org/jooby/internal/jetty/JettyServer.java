@@ -20,18 +20,18 @@ package org.jooby.internal.jetty;
 
 import javax.inject.Inject;
 
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.jooby.internal.RouteHandler;
 
-import com.typesafe.config.Config;
+import com.google.inject.Injector;
 
 public class JettyServer implements org.jooby.internal.Server {
 
   private Server server;
 
   @Inject
-  public JettyServer(final Config config, final RouteHandler routeHandler) throws Exception {
-    this.server = JettyServerBuilder.build(config, routeHandler);
+  public JettyServer(final Injector injector) throws Exception {
+    this.server = JettyServerBuilder.build(injector);
   }
 
   @Override
@@ -45,4 +45,12 @@ public class JettyServer implements org.jooby.internal.Server {
     server.stop();
   }
 
+  @Override
+  public void restart(final Injector injector) throws Exception {
+    Handler handler = server.getHandler();
+    handler.stop();
+    handler.destroy();
+    
+    server.setHandler(JettyServerBuilder.buildHandler(injector));
+  }
 }
