@@ -44,6 +44,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
+import org.jooby.Env;
 import org.jooby.Session;
 import org.jooby.Session.Store;
 import org.jooby.WebSocket;
@@ -65,8 +66,9 @@ public class JettyServerBuilder {
   private static final Logger log = LoggerFactory.getLogger(org.jooby.internal.Server.class);
   protected static final String WebSocketImpl = null;
 
-  public static Server build(final Config config, final RouteHandler routeHandler)
-      throws Exception {
+  public static Server build(final Injector injector) throws Exception {
+    Config config = injector.getInstance(Config.class);
+
     // jetty URL charset
     System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset",
         config.getString("application.charset"));
@@ -121,13 +123,67 @@ public class JettyServerBuilder {
       server.addConnector(https);
     }
 
+    server.addLifeCycleListener(new AbstractLifeCycleListener() {
+      @SuppressWarnings("unchecked")
+      @Override
+      public void lifeCycleStarted(final LifeCycle event) {
+        String contextPath = config.getString("application.path");
+
+        StringBuilder buffer = new StringBuilder(injector.getInstance(RouteHandler.class)
+            .toString());
+
+        Set<WebSocket.Definition> sockets = (Set<Definition>) injector.getInstance(Key.get(Types
+            .setOf(WebSocket.Definition.class)));
+
+        if (sockets.size() > 0) {
+          buffer.append("\nweb sockets:\n");
+
+          int verbMax = "WS".length(), routeMax = 0, consumesMax = 0, producesMax = 0;
+          for (WebSocket.Definition socketDef : sockets) {
+            routeMax = Math.max(routeMax, socketDef.pattern().length());
+
+            consumesMax = Math.max(consumesMax, socketDef.consumes().toString().length());
+
+            producesMax = Math.max(producesMax, socketDef.produces().toString().length());
+          }
+
+          String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax + "s     %"
+              + producesMax + "s\n";
+
+          for (WebSocket.Definition socketDef : sockets) {
+            buffer.append(String.format(format, "WS", socketDef.pattern(),
+                socketDef.consumes(), socketDef.produces()));
+          }
+        }
+        buffer.append("\nlistening on:\n");
+        buffer.append("  http://localhost:").append(config.getInt("application.port"))
+            .append(contextPath).append("\n");
+        buffer.append("  https://localhost:").append(config.getInt("application.securePort"))
+            .append(contextPath).append("\n");
+
+        log.info("\nroutes:\n{}", buffer);
+      }
+    });
+
+    server.setHandler(buildHandler(injector));
+
+    return server;
+  }
+
+  public static ContextHandler buildHandler(final Injector injector) throws Exception {
+    Env env = injector.getInstance(Env.class);
+    Config config = injector.getInstance(Config.class);
+
     // contextPath
     String contextPath = config.getString("application.path");
 
     ContextHandler context = new ContextHandler(contextPath);
-    JettyHandler handler = new JettyHandler(routeHandler, config);
-    Injector injector = routeHandler.injector();
-    Session.Definition sessionDef = injector.getInstance(Session.Definition.class);
+
+    final JettyHandler handler = "dev".equals(env.name())
+        ? new HotswapHandler(injector, config)
+        : new StaticJettyHandler(injector, config);
+
+        Session.Definition sessionDef = injector.getInstance(Session.Definition.class);
 
     /**
      * Session configuration
@@ -165,12 +221,12 @@ public class JettyServerBuilder {
         );
 
     // session timeout
-    sessionManager.setMaxInactiveInterval(sessionDef.timeout().orElse(
-        (int) duration($session, "timeout", TimeUnit.SECONDS))
+    sessionManager.setMaxInactiveInterval(sessionDef.timeout()
+        .orElse((int) duration($session, "timeout", TimeUnit.SECONDS))
         );
 
-    sessionManager.setSaveInterval(sessionDef.saveInterval().orElse(
-        (int) duration($session, "saveInterval", TimeUnit.SECONDS))
+    sessionManager.setSaveInterval(sessionDef.saveInterval()
+        .orElse((int) duration($session, "saveInterval", TimeUnit.SECONDS))
         );
 
     sessionManager.setPreserveOnStop(sessionDef.preserveOnStop().orElse(
@@ -191,59 +247,23 @@ public class JettyServerBuilder {
           config.getConfig("jetty.ws.policy"));
       WebSocketServerFactory socketServerFactory = new WebSocketServerFactory(policy);
       socketServerFactory.setCreator((req, resp) -> {
-     String path = req.getRequestPath();
-     for (WebSocket.Definition socketDef : sockets) {
-      Optional<WebSocket> matches = socketDef.matches(path);
-      if (matches.isPresent()) {
-        WebSocketImpl socket = (WebSocketImpl) matches.get();
-        return new JettyWebSocketHandler(injector, config, socket);
-      }
-     }
-     return null;
-    });
+        String path = req.getRequestPath();
+        for (WebSocket.Definition socketDef : sockets) {
+          Optional<WebSocket> matches = socketDef.matches(path);
+          if (matches.isPresent()) {
+            WebSocketImpl socket = (WebSocketImpl) matches.get();
+            return new JettyWebSocketHandler(injector, config, socket);
+          }
+        }
+        return null;
+      });
 
       handler.addBean(socketServerFactory);
     }
 
     context.setHandler(handler);
 
-    server.setHandler(context);
-
-    server.addLifeCycleListener(new AbstractLifeCycleListener() {
-      @Override
-      public void lifeCycleStarted(final LifeCycle event) {
-        StringBuilder buffer = new StringBuilder(routeHandler.toString());
-        if (sockets.size() > 0) {
-          buffer.append("\nweb sockets:\n");
-
-          int verbMax = "WS".length(), routeMax = 0, consumesMax = 0, producesMax = 0;
-          for (WebSocket.Definition socketDef : sockets) {
-            routeMax = Math.max(routeMax, socketDef.pattern().length());
-
-            consumesMax = Math.max(consumesMax, socketDef.consumes().toString().length());
-
-            producesMax = Math.max(producesMax, socketDef.produces().toString().length());
-          }
-
-          String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax + "s     %"
-              + producesMax + "s\n";
-
-          for (WebSocket.Definition socketDef : sockets) {
-            buffer.append(String.format(format, "WS", socketDef.pattern(),
-                socketDef.consumes(), socketDef.produces()));
-          }
-        }
-        buffer.append("\nlistening on:\n");
-        buffer.append("  http://localhost:").append(config.getInt("application.port"))
-            .append(contextPath).append("\n");
-        buffer.append("  https://localhost:").append(config.getInt("application.securePort"))
-            .append(contextPath).append("\n");
-
-        log.info("\nroutes:\n{}", buffer);
-      }
-    });
-
-    return server;
+    return context;
   }
 
   private static Store fwdStore(final Session.Store store) {
@@ -274,7 +294,7 @@ public class JettyServerBuilder {
 
   private static long duration(final Config config, final String name, final TimeUnit unit) {
     try {
-    return config.getLong(name);
+      return config.getLong(name);
     } catch (ConfigException.WrongType ex) {
       return config.getDuration(name, unit);
     }
@@ -293,7 +313,7 @@ public class JettyServerBuilder {
       StringBuilder methodName = new StringBuilder();
       int start = "set".length();
       methodName.append(Character.toLowerCase(name.charAt(start)));
-      for(int i = start + 1; i < name.length(); i++) {
+      for (int i = start + 1; i < name.length(); i++) {
         char ch = name.charAt(i);
         if (Character.isUpperCase(ch)) {
           methodName.append('.').append(Character.toLowerCase(ch));

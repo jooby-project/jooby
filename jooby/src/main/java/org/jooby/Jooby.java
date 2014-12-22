@@ -24,6 +24,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.ZoneId;
@@ -42,9 +43,12 @@ import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
 
+import org.jooby.Route.Filter;
+import org.jooby.internal.AppManager;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinBodyConverter;
+import org.jooby.internal.RouteHandler;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.Server;
@@ -54,8 +58,10 @@ import org.jooby.internal.mvc.Routes;
 import org.jooby.internal.routes.HeadHandler;
 import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Binder;
@@ -379,7 +385,7 @@ public class Jooby {
      *
      * @throws Exception If something goes wrong.
      */
-    default void start() throws Exception {
+    default void start() {
     }
 
     /**
@@ -389,7 +395,7 @@ public class Jooby {
      *
      * @throws Exception If something goes wrong.
      */
-    default void stop() throws Exception {
+    default void stop() {
     }
 
     /**
@@ -404,6 +410,18 @@ public class Jooby {
     void configure(@Nonnull Env env, @Nonnull Config config, @Nonnull Binder binder);
 
   }
+
+  static {
+    // Avoid warning message from logback when multiples files are present
+    String logback = System.getProperty("logback.configurationFile");
+    if (Strings.isNullOrEmpty(logback)) {
+      // set it, when missing
+      System.setProperty("logback.configurationFile", "logback.xml");
+    }
+  }
+
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
    * Keep track of routes.
@@ -1561,6 +1579,10 @@ public class Jooby {
   public Route.Filter staticFile(@Nonnull final String location) {
     requireNonNull(location, "A location is required.");
     String path = RoutePattern.normalize(location);
+    return filehandler(path);
+  }
+
+  private static Filter filehandler(final String path) {
     return (req, rsp, chain) -> {
       new AssetHandler().handle(new Request.Forwarding(req) {
 
@@ -1801,6 +1823,49 @@ public class Jooby {
    * @throws Exception If something fails to start.
    */
   public void start(final String[] args) throws Exception {
+    // shutdown hook
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      stop();
+    }));
+
+    this.injector = bootstrap();
+
+    // Start server
+    Server server = injector.getInstance(Server.class);
+
+    server.start();
+  }
+
+  private AppManager appManager(final Jooby app, final Env env) {
+    return action -> {
+      if (action == AppManager.STOP) {
+        app.stop();
+        return app.injector;
+      }
+      try {
+        long start = System.currentTimeMillis();
+
+        Jooby newApp = app.getClass().newInstance();
+        app.stopModules();
+
+        Injector injector = newApp.bootstrap();
+        String appname = injector.getInstance(Config.class).getString("application.name");
+
+        // override modules & injector
+        app.injector = injector;
+        app.modules.addAll(newApp.modules);
+
+        log.info("routes:\n{}", injector.getInstance(RouteHandler.class));
+        log.info("{} reloaded in {}ms", appname, System.currentTimeMillis() - start);
+        return injector;
+      } catch (InstantiationException | IllegalAccessException ex) {
+        log.debug("Can't create app", ex);
+        return app.injector;
+      }
+    };
+  }
+
+  private Injector bootstrap() {
     Config config = buildConfig(
         Optional.ofNullable(this.source)
             .orElseGet(
@@ -1808,11 +1873,6 @@ public class Jooby {
             )
         );
     Env env = this.env.build(config);
-
-    // shutdown hook
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      stop();
-    }));
 
     final Charset charset = Charset.forName(config.getString("application.charset"));
 
@@ -1827,143 +1887,151 @@ public class Jooby {
     DecimalFormat numberFormat = new DecimalFormat(config.getString("application.numberFormat"));
 
     // Guice Stage
-    Stage stage = env.when("dev", Stage.DEVELOPMENT).value().orElse(Stage.PRODUCTION);
+    Stage stage = "dev".equals(env.name()) ? Stage.DEVELOPMENT : Stage.PRODUCTION;
 
     // dependency injection
-    injector = Guice.createInjector(stage, (com.google.inject.Module) binder -> {
+    Injector injector = Guice
+        .createInjector(stage, binder -> {
 
-      TypeConverters.configure(binder);
+          TypeConverters.configure(binder);
 
-      // bind config
-      bindConfig(binder, config);
+          if ("dev".equals(env.name())) {
+            binder.bind(Key.get(Class.class, Names.named("internal.appClass")))
+                .toInstance(getClass());
+            binder.bind(AppManager.class).toInstance(appManager(this, env));
+          }
 
-      // bind env
-      binder.bind(Env.class).toInstance(env);
+          // bind config
+          bindConfig(binder, config);
 
-      // bind charset
-      binder.bind(Charset.class).toInstance(charset);
+          // bind env
+          binder.bind(Env.class).toInstance(env);
 
-      // bind locale
-      binder.bind(Locale.class).toInstance(locale);
+          // bind charset
+          binder.bind(Charset.class).toInstance(charset);
 
-      // bind time zone
-      binder.bind(ZoneId.class).toInstance(zoneId);
-      binder.bind(TimeZone.class).toInstance(TimeZone.getTimeZone(zoneId));
+          // bind locale
+          binder.bind(Locale.class).toInstance(locale);
 
-      // bind date format
-      binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormat);
+          // bind time zone
+          binder.bind(ZoneId.class).toInstance(zoneId);
+          binder.bind(TimeZone.class).toInstance(TimeZone.getTimeZone(zoneId));
 
-      // bind number format
-      binder.bind(NumberFormat.class).toInstance(numberFormat);
-      binder.bind(DecimalFormat.class).toInstance(numberFormat);
+          // bind date format
+          binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormat);
 
-      // bind formatter & parser
-      Multibinder<Body.Parser> parserBinder = Multibinder
-          .newSetBinder(binder, Body.Parser.class);
-      Multibinder<Body.Formatter> formatterBinder = Multibinder
-          .newSetBinder(binder, Body.Formatter.class);
+          // bind number format
+          binder.bind(NumberFormat.class).toInstance(numberFormat);
+          binder.bind(DecimalFormat.class).toInstance(numberFormat);
 
-      // session definition
-      binder.bind(Session.Definition.class).toInstance(session);
+          // bind formatter & parser
+          Multibinder<Body.Parser> parserBinder = Multibinder
+              .newSetBinder(binder, Body.Parser.class);
+          Multibinder<Body.Formatter> formatterBinder = Multibinder
+              .newSetBinder(binder, Body.Formatter.class);
 
-      // Routes
-      Multibinder<Route.Definition> definitions = Multibinder
-          .newSetBinder(binder, Route.Definition.class);
+          // session definition
+          binder.bind(Session.Definition.class).toInstance(session);
 
-      // Web Sockets
-      Multibinder<WebSocket.Definition> sockets = Multibinder
-          .newSetBinder(binder, WebSocket.Definition.class);
+          // Routes
+          Multibinder<Route.Definition> definitions = Multibinder
+              .newSetBinder(binder, Route.Definition.class);
 
-      // Request Modules
-      Multibinder<Request.Module> requestModule = Multibinder
-          .newSetBinder(binder, Request.Module.class);
+          // Web Sockets
+          Multibinder<WebSocket.Definition> sockets = Multibinder
+              .newSetBinder(binder, WebSocket.Definition.class);
 
-      // bind prototype routes in request module
-      if (protoRoutes.size() > 0) {
-        requestModule.addBinding().toInstance(
-            b -> protoRoutes.forEach(routeClass1 -> b.bind(routeClass1)));
-      }
+          // Request Modules
+          Multibinder<Request.Module> requestModule = Multibinder
+              .newSetBinder(binder, Request.Module.class);
 
-      // tmp dir
-      File tmpdir = new File(config.getString("application.tmpdir"));
-      tmpdir.mkdirs();
-      binder.bind(File.class).annotatedWith(Names.named("application.tmpdir")).toInstance(tmpdir);
+          // bind prototype routes in request module
+          if (protoRoutes.size() > 0) {
+            requestModule.addBinding().toInstance(
+                b -> protoRoutes.forEach(routeClass1 -> b.bind(routeClass1)));
+          }
 
-      // converters
-      parsers.forEach(it1 -> parserBinder.addBinding().toInstance(it1));
-      formatters.forEach(it2 -> formatterBinder.addBinding().toInstance(it2));
+          // tmp dir
+          File tmpdir = new File(config.getString("application.tmpdir"));
+          tmpdir.mkdirs();
+          binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
+              .toInstance(tmpdir);
 
-      RouteMetadata classInfo = new RouteMetadata(env);
-      binder.bind(RouteMetadata.class).toInstance(classInfo);
+          // converters
+          parsers.forEach(it1 -> parserBinder.addBinding().toInstance(it1));
+          formatters.forEach(it2 -> formatterBinder.addBinding().toInstance(it2));
 
-      // modules, routes and websockets
-      bag.forEach(candidate -> {
-        if (candidate instanceof Jooby.Module) {
-          install((Jooby.Module) candidate, env, config, binder);
-        } else if (candidate instanceof Request.Module) {
-          requestModule.addBinding().toInstance((Request.Module) candidate);
-        } else if (candidate instanceof Route.Definition) {
-          definitions.addBinding().toInstance((Route.Definition) candidate);
-        } else if (candidate instanceof WebSocket.Definition) {
-          sockets.addBinding().toInstance((WebSocket.Definition) candidate);
-        } else {
-          Routes.routes(env, classInfo, (Class<?>) candidate)
-              .forEach(route -> definitions.addBinding().toInstance(route));
-        }
-      });
+          RouteMetadata classInfo = new RouteMetadata(env);
+          binder.bind(RouteMetadata.class).toInstance(classInfo);
 
-      // Singleton routes
-      singletonRoutes.forEach(routeClass3 -> binder.bind(routeClass3).in(Scopes.SINGLETON));
+          // modules, routes and websockets
+          bag.forEach(candidate -> {
+            if (candidate instanceof Jooby.Module) {
+              install((Jooby.Module) candidate, env, config, binder);
+            } else if (candidate instanceof Request.Module) {
+              requestModule.addBinding().toInstance((Request.Module) candidate);
+            } else if (candidate instanceof Route.Definition) {
+              definitions.addBinding().toInstance((Route.Definition) candidate);
+            } else if (candidate instanceof WebSocket.Definition) {
+              sockets.addBinding().toInstance((WebSocket.Definition) candidate);
+            } else {
+              Routes.routes(env, classInfo, (Class<?>) candidate)
+                  .forEach(route -> definitions.addBinding().toInstance(route));
+            }
+          });
 
-      formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
-      formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatStream);
-      formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
+          // Singleton routes
+          singletonRoutes.forEach(routeClass3 -> binder.bind(routeClass3).in(Scopes.SINGLETON));
 
-      parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
+          formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
+          formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatStream);
+          formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
 
-      // err
-      if (err == null) {
-        binder.bind(Err.Handler.class).toInstance(new Err.Default());
-      } else {
-        binder.bind(Err.Handler.class).toInstance(err);
-      }
-    });
+          parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
+
+          // err
+          if (err == null) {
+            binder.bind(Err.Handler.class).toInstance(new Err.Default());
+          } else {
+            binder.bind(Err.Handler.class).toInstance(err);
+          }
+        });
 
     // start modules
     for (Jooby.Module module : modules) {
       module.start();
     }
 
-    // Start server
-    Server server = injector.getInstance(Server.class);
-
-    server.start();
+    return injector;
   }
 
   /**
    * Stop the application, close all the modules and stop the web server.
    */
   public void stop() {
-    // stop modules
-    for (Jooby.Module module : modules) {
-      try {
-        module.stop();
-      } catch (Exception ex) {
-        LoggerFactory.getLogger(getClass()).warn(
-            "Module didn't stop normally: " + module.getClass().getName(), ex);
-      }
-    }
-    modules.clear();
+    stopModules();
 
     if (injector != null) {
       try {
         Server server = injector.getInstance(Server.class);
         server.stop();
       } catch (Exception ex) {
-        LoggerFactory.getLogger(getClass()).error("Web server didn't stop normally", ex);
+        log.error("Web server didn't stop normally", ex);
       }
       injector = null;
     }
+  }
+
+  private void stopModules() {
+    // stop modules
+    for (Jooby.Module module : modules) {
+      try {
+        module.stop();
+      } catch (Exception ex) {
+        log.warn("Module didn't stop normally: " + module.getClass().getName(), ex);
+      }
+    }
+    modules.clear();
   }
 
   /**
@@ -2063,6 +2131,20 @@ public class Jooby {
 
     // set app name
     defaults.put("name", getClass().getSimpleName());
+
+    // build dir (dev only)
+    defaults.put("builddir", Paths.get(System.getProperty("user.dir"), "target", "classes")
+        .toString());
+
+    // set tmpdir
+    String deftmpdir = "java.io.tmpdir";
+    String tmpdir = config.hasPath(deftmpdir)
+        ? config.getString(deftmpdir)
+        : System.getProperty(deftmpdir);
+    if (tmpdir.endsWith(File.separator)) {
+      tmpdir = tmpdir.substring(0, tmpdir.length() - File.separator.length());
+    }
+    defaults.put("tmpdir", tmpdir + File.separator + defaults.get("name"));
 
     // namespacce
     defaults.put("ns", getClass().getPackage().getName());

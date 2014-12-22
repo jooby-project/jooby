@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 
@@ -76,9 +77,13 @@ public class JdbcTest {
     // config
     String dbname = "test";
     String tmpdir = System.getProperty("java.io.tmpdir");
+    if (tmpdir.endsWith(File.separator)) {
+      tmpdir = tmpdir.substring(0, tmpdir.length() - File.separator.length());
+    }
+    String apptmpdir = tmpdir;
     config = config.withValue("db", fromAnyRef("fs"))
         .withValue("application.name", fromAnyRef(dbname))
-        .withValue("application.tmpdir", fromAnyRef(tmpdir))
+        .withValue("application.tmpdir", fromAnyRef(apptmpdir))
         .withValue("application.charset", fromAnyRef("UTF-8"))
         .resolve();
 
@@ -100,7 +105,7 @@ public class JdbcTest {
       assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());
 
       // datasource properties
-        assertEquals("jdbc:h2:" + tmpdir + dbname, properties.get("url"));
+        assertEquals("jdbc:h2:" + apptmpdir + File.separator + dbname, properties.get("url"));
         assertEquals("sa", properties.get("user"));
         assertEquals("", properties.get("password"));
       });

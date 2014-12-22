@@ -173,7 +173,7 @@ public class RouteHandler {
         }
       });
 
-      List<Route> routes = routes(verb, requestURI, type, accept);
+      List<Route> routes = routes(routeDefs, verb, requestURI, type, accept);
 
       chain(routes)
           .next(req.get(injector, notFound), rsp.get(injector, notFound));
@@ -248,14 +248,14 @@ public class RouteHandler {
     };
   }
 
-  private List<Route> routes(final Verb verb, final String path, final MediaType type,
-      final List<MediaType> accept) {
-    List<Route> routes = findRoutes(verb, path, type, accept);
+  private static List<Route> routes(final Set<Route.Definition> routeDefs, final Verb verb,
+      final String path, final MediaType type, final List<MediaType> accept) {
+    List<Route> routes = findRoutes(routeDefs, verb, path, type, accept);
 
     // 406 or 415
     routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
       if (!rsp.status().isPresent()) {
-        Err ex = handle406or415(verb, path, type, accept);
+        Err ex = handle406or415(routeDefs, verb, path, type, accept);
         if (ex != null) {
           throw ex;
         }
@@ -266,7 +266,7 @@ public class RouteHandler {
     // 405
     routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
       if (!rsp.status().isPresent()) {
-        Err ex = handle405(verb, path, type, accept);
+        Err ex = handle405(routeDefs, verb, path, type, accept);
         if (ex != null) {
           throw ex;
         }
@@ -280,8 +280,8 @@ public class RouteHandler {
     return routes;
   }
 
-  private List<Route> findRoutes(final Verb verb, final String path, final MediaType type,
-      final List<MediaType> accept) {
+  private static List<Route> findRoutes(final Set<Route.Definition> routeDefs, final Verb verb,
+      final String path, final MediaType type, final List<MediaType> accept) {
 
     List<Route> routes = new ArrayList<>();
     for (Route.Definition routeDef : routeDefs) {
@@ -369,22 +369,23 @@ public class RouteHandler {
     return Status.SERVER_ERROR;
   }
 
-  private Err handle405(final Verb verb, final String uri, final MediaType type,
-      final List<MediaType> accept) {
+  private static Err handle405(final Set<Route.Definition> routeDefs, final Verb verb, final String uri,
+      final MediaType type, final List<MediaType> accept) {
 
-    if (alternative(verb, uri).size() > 0) {
+    if (alternative(routeDefs, verb, uri).size() > 0) {
       return new Err(Status.METHOD_NOT_ALLOWED, verb + uri);
     }
 
     return null;
   }
 
-  private List<Route> alternative(final Verb verb, final String uri) {
+  private static List<Route> alternative(final Set<Route.Definition> routeDefs, final Verb verb,
+      final String uri) {
     List<Route> routes = new LinkedList<>();
     Set<Verb> verbs = EnumSet.allOf(Verb.class);
     verbs.remove(verb);
     for (Verb alt : verbs) {
-      findRoutes(alt, uri, MediaType.all, ALL)
+      findRoutes(routeDefs, alt, uri, MediaType.all, ALL)
           .stream()
           // skip glob pattern
           .filter(r -> !r.pattern().contains("*"))
@@ -394,8 +395,8 @@ public class RouteHandler {
     return routes;
   }
 
-  private Err handle406or415(final Verb verb, final String path,
-      final MediaType contentType, final List<MediaType> accept) {
+  private static Err handle406or415(final Set<Route.Definition> routeDefs, final Verb verb,
+      final String path, final MediaType contentType, final List<MediaType> accept) {
     for (Route.Definition routeDef : routeDefs) {
       Optional<Route> route = routeDef.matches(verb, path, MediaType.all, ALL);
       if (route.isPresent() && !route.get().pattern().contains("*")) {

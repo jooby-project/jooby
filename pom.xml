@@ -167,6 +167,24 @@
       </dependency>
 
       <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-deploy</artifactId>
+        <version>${jetty.version}</version>
+        <!-- 
+        <exclusions>
+          <exclusion>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-xml</artifactId>
+          </exclusion>
+        </exclusions>
+         -->
+      </dependency>
+
+      <dependency>
         <groupId>org.eclipse.jetty.websocket</groupId>
         <artifactId>websocket-server</artifactId>
         <version>${jetty.version}</version>

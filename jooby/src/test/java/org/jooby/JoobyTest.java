@@ -30,7 +30,7 @@ import org.jooby.Body.Parser;
 import org.jooby.Route.Handler;
 import org.jooby.Session.Definition;
 import org.jooby.Session.Store;
-import org.jooby.fn.Switch;
+import org.jooby.internal.AppManager;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.RouteImpl;
@@ -154,6 +154,21 @@ public class JoobyTest {
     binding.toInstance(isA(RouteMetadata.class));
 
     expect(binder.bind(RouteMetadata.class)).andReturn(binding);
+  };
+
+  private MockUnit.Block reload = unit -> {
+    Binder binder = unit.get(Binder.class);
+
+    @SuppressWarnings("rawtypes")
+    AnnotatedBindingBuilder<Class> binding = unit.mock(AnnotatedBindingBuilder.class);
+    binding.toInstance(isA(Class.class));
+
+    AnnotatedBindingBuilder<AppManager> appmanager = unit.mock(AnnotatedBindingBuilder.class);
+    appmanager.toInstance(isA(AppManager.class));
+
+    expect(binder.bind(Key.get(Class.class, Names.named("internal.appClass")))).andReturn(binding);
+
+    expect(binder.bind(AppManager.class)).andReturn(appmanager);
   };
 
   private MockUnit.Block charset = unit -> {
@@ -430,6 +445,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -464,11 +480,7 @@ public class JoobyTest {
         .expect(config)
         .expect(unit -> {
           Env env = unit.mock(Env.class);
-          Switch<String, Stage> devswitch = unit.mock(Switch.class);
-          expect(devswitch.value()).andReturn(Optional.of(Stage.DEVELOPMENT));
-
-          expect(env.when("dev", Stage.DEVELOPMENT)).andReturn(devswitch);
-          expect(env.name()).andReturn("dev");
+          expect(env.name()).andReturn("dev").times(3);
 
           Env.Builder builder = unit.get(Env.Builder.class);
           expect(builder.build(isA(Config.class))).andReturn(env);
@@ -480,6 +492,7 @@ public class JoobyTest {
 
           expect(binder.bind(Env.class)).andReturn(binding);
         })
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -537,6 +550,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -588,6 +602,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -655,6 +670,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -718,6 +734,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -769,6 +786,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -841,6 +859,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -914,6 +933,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1019,6 +1039,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1113,6 +1134,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1207,6 +1229,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1301,6 +1324,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1395,6 +1419,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1489,6 +1514,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1583,6 +1609,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1677,6 +1704,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1771,6 +1799,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1873,6 +1902,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2073,6 +2103,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2129,6 +2160,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2176,6 +2208,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2233,6 +2266,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2284,6 +2318,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2333,6 +2368,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2381,6 +2417,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2428,6 +2465,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2474,6 +2512,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2509,6 +2548,7 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
+        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)

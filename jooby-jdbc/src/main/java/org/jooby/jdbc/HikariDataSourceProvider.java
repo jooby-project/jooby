@@ -50,7 +50,7 @@ class HikariDataSourceProvider implements Provider<DataSource> {
     return dataSource;
   }
 
-  public void shutdown() throws Exception {
+  public void shutdown() {
     if (dataSource != null) {
       dataSource.shutdown();
       dataSource = null;

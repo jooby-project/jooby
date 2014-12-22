@@ -18,8 +18,6 @@
  */
 package org.jooby.internal.jetty;
 
-import static java.util.Objects.requireNonNull;
-
 import java.io.IOException;
 
 import javax.servlet.MultipartConfigElement;
@@ -35,16 +33,13 @@ import org.jooby.internal.RouteHandler;
 
 import com.typesafe.config.Config;
 
-public class JettyHandler extends SessionHandler {
-
-  private RouteHandler handler;
+public abstract class JettyHandler extends SessionHandler {
 
   private final MultipartConfigElement multiPartConfig;
 
   private WebSocketServerFactory webSocketFactory;
 
-  public JettyHandler(final RouteHandler handler, final Config config) {
-    this.handler = requireNonNull(handler, "A route handler is required.");
+  public JettyHandler(final Config config) {
     multiPartConfig = new MultipartConfigElement(config.getString("application.tmpdir"));
   }
 
@@ -80,7 +75,7 @@ public class JettyHandler extends SessionHandler {
       baseRequest.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, multiPartConfig);
     }
     try {
-      handler.handle(req, rsp);
+      routeHandler().handle(req, rsp);
       // mark as handled
       baseRequest.setHandled(true);
     } catch (RuntimeException | IOException ex) {
@@ -91,4 +86,6 @@ public class JettyHandler extends SessionHandler {
       throw new ServletException("Unexpected error", ex);
     }
   }
+
+  protected abstract RouteHandler routeHandler();
 }
