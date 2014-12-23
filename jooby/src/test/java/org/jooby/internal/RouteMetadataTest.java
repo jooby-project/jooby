@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import com.typesafe.config.Config;
 
-public class ClassInfoTest {
+public class RouteMetadataTest {
 
   public static class Mvc {
 

@@ -20,7 +20,6 @@ package org.jooby.internal.jetty;
 
 import javax.inject.Inject;
 
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 
 import com.google.inject.Injector;
@@ -45,12 +44,4 @@ public class JettyServer implements org.jooby.internal.Server {
     server.stop();
   }
 
-  @Override
-  public void restart(final Injector injector) throws Exception {
-    Handler handler = server.getHandler();
-    handler.stop();
-    handler.destroy();
-    
-    server.setHandler(JettyServerBuilder.buildHandler(injector));
-  }
 }

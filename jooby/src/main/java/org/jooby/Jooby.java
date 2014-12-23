@@ -48,7 +48,6 @@ import org.jooby.internal.AppManager;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinBodyConverter;
-import org.jooby.internal.RouteHandler;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.Server;
@@ -1836,7 +1835,7 @@ public class Jooby {
     server.start();
   }
 
-  private AppManager appManager(final Jooby app, final Env env) {
+  private static AppManager appManager(final Jooby app, final Env env, final Logger log) {
     return action -> {
       if (action == AppManager.STOP) {
         app.stop();
@@ -1849,14 +1848,12 @@ public class Jooby {
         app.stopModules();
 
         Injector injector = newApp.bootstrap();
-        String appname = injector.getInstance(Config.class).getString("application.name");
 
-        // override modules & injector
-        app.injector = injector;
+        // override modules, so they can be stopped it against restarts.
         app.modules.addAll(newApp.modules);
 
-        log.info("routes:\n{}", injector.getInstance(RouteHandler.class));
-        log.info("{} reloaded in {}ms", appname, System.currentTimeMillis() - start);
+        log.info("reloading of {} took {}ms", app.getClass().getName(),
+            System.currentTimeMillis() - start);
         return injector;
       } catch (InstantiationException | IllegalAccessException ex) {
         log.debug("Can't create app", ex);
@@ -1896,9 +1893,9 @@ public class Jooby {
           TypeConverters.configure(binder);
 
           if ("dev".equals(env.name())) {
-            binder.bind(Key.get(Class.class, Names.named("internal.appClass")))
-                .toInstance(getClass());
-            binder.bind(AppManager.class).toInstance(appManager(this, env));
+            binder.bind(Key.get(String.class, Names.named("internal.appClass")))
+                .toInstance(getClass().getName());
+            binder.bind(AppManager.class).toInstance(appManager(this, env, log));
           }
 
           // bind config

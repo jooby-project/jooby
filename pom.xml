@@ -167,24 +167,6 @@
       </dependency>
 
       <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-deploy</artifactId>
-        <version>${jetty.version}</version>
-        <!-- 
-        <exclusions>
-          <exclusion>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-xml</artifactId>
-          </exclusion>
-        </exclusions>
-         -->
-      </dependency>
-
-      <dependency>
         <groupId>org.eclipse.jetty.websocket</groupId>
         <artifactId>websocket-server</artifactId>
         <version>${jetty.version}</version>
@@ -659,45 +641,6 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>${maven-surefire-plugin.version}</version>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <!-- distributions -->
-    <profile>
-      <id>zip</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <configuration>
-                  <target>
-                    <makeurl file="${settings.localRepository}" property="m2.home" />
-                    <property name="script.loc"
-                      value="jar:${m2.home}/org/jooby/jooby/${jooby.version}/jooby-${jooby.version}.jar!/etc/dist.zip.ant" />
-                    <property name="zip.ant"
-                      value="${project.build.directory}${file.separator}dist.zip.ant" />
-                    <loadresource property="script.body">
-                      <url url="${script.loc}" />
-                    </loadresource>
-                    <echo file="${zip.ant}">${script.body}</echo>
-                    <property name="project.build.finalName" value="${project.build.finalName}" />
-                    <property name="project.build.directory" value="${project.build.directory}" />
-                    <property name="project.name" value="${project.name}" />
-                    <property name="application.main" value="${application.main}" />
-                    <ant antfile="${zip.ant}" target="zip" />
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>

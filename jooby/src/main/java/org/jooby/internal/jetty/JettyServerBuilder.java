@@ -181,7 +181,7 @@ public class JettyServerBuilder {
 
     final JettyHandler handler = "dev".equals(env.name())
         ? new HotswapHandler(injector, config)
-        : new StaticJettyHandler(injector, config);
+        : new DefaultJettyHandler(injector, config);
 
         Session.Definition sessionDef = injector.getInstance(Session.Definition.class);
 

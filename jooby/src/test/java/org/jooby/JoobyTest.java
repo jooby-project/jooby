@@ -105,6 +105,7 @@ public class JoobyTest {
 
   }
 
+  @SuppressWarnings("rawtypes")
   private MockUnit.Block config = unit -> {
     LinkedBindingBuilder<String> strLinkedBinding = unit.mock(LinkedBindingBuilder.class);
     strLinkedBinding.toInstance(isA(String.class));
@@ -128,10 +129,17 @@ public class JoobyTest {
     expect(boolAnnotatedBinding.annotatedWith(isA(Named.class))).andReturn(boolLinkedBinding)
         .anyTimes();
 
+    LinkedBindingBuilder<List<String>> listOfString = unit.mock(LinkedBindingBuilder.class);
+    listOfString.toInstance(isA(List.class));
+    expectLastCall().anyTimes();
+
     Binder binder = unit.get(Binder.class);
     expect(binder.bind(String.class)).andReturn(strAnnotatedBinding).anyTimes();
     expect(binder.bind(Integer.class)).andReturn(intAnnotatedBinding).anyTimes();
     expect(binder.bind(Boolean.class)).andReturn(boolAnnotatedBinding).anyTimes();
+    expect(binder.bind(Key.get(Types.listOf(String.class), Names.named("hotswap.reload.ext"))))
+        .andReturn((LinkedBindingBuilder) listOfString).anyTimes();
+
     AnnotatedBindingBuilder<Config> configAnnotatedBinding = unit
         .mock(AnnotatedBindingBuilder.class);
     configAnnotatedBinding.toInstance(isA(Config.class));
@@ -159,14 +167,13 @@ public class JoobyTest {
   private MockUnit.Block reload = unit -> {
     Binder binder = unit.get(Binder.class);
 
-    @SuppressWarnings("rawtypes")
-    AnnotatedBindingBuilder<Class> binding = unit.mock(AnnotatedBindingBuilder.class);
-    binding.toInstance(isA(Class.class));
+    AnnotatedBindingBuilder<String> binding = unit.mock(AnnotatedBindingBuilder.class);
+    binding.toInstance("org.jooby.Jooby");
 
     AnnotatedBindingBuilder<AppManager> appmanager = unit.mock(AnnotatedBindingBuilder.class);
     appmanager.toInstance(isA(AppManager.class));
 
-    expect(binder.bind(Key.get(Class.class, Names.named("internal.appClass")))).andReturn(binding);
+    expect(binder.bind(Key.get(String.class, Names.named("internal.appClass")))).andReturn(binding);
 
     expect(binder.bind(AppManager.class)).andReturn(appmanager);
   };

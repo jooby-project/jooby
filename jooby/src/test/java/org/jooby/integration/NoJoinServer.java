@@ -44,8 +44,4 @@ public class NoJoinServer implements org.jooby.internal.Server {
     server.stop();
   }
 
-  @Override
-  public void restart(final Injector injector) throws Exception {
-  }
-
 }

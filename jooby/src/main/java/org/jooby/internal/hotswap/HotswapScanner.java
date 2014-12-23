@@ -125,14 +125,17 @@ public class HotswapScanner {
 
       // Context for directory entry event is the file name of entry
       Path child = dir.resolve((Path) event.context());
+      boolean isdir = Files.isDirectory(child, NOFOLLOW_LINKS);
 
-      listener.changed(child.subpath(buildir.getNameCount(), child.getNameCount()).toString());
+      if (!isdir) {
+        listener.changed(child.subpath(buildir.getNameCount(), child.getNameCount()).toString());
+      }
 
       // if directory is created, and watching recursively, then
       // register it and its sub-directories
       if (kind == ENTRY_CREATE) {
         try {
-          if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
+          if (isdir) {
             registerAll(child);
           }
         } catch (IOException ex) {

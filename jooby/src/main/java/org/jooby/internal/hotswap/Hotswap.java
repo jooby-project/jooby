@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.jooby.Jooby;
 import org.jooby.internal.AppManager;
 import org.jooby.internal.RouteHandler;
 import org.objectweb.asm.ClassReader;
@@ -31,11 +30,11 @@ public class Hotswap implements HotswapScanner.Listener {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private HotswapScanner scanner;
-
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-  private Class<? extends Jooby> appClass;
+  private HotswapScanner scanner;
+
+  private String appClass;
 
   private List<String> hash;
 
@@ -43,23 +42,35 @@ public class Hotswap implements HotswapScanner.Listener {
 
   private AppManager appManager;
 
-  @SuppressWarnings("unchecked")
+  private List<String> extenstions;
+
   public Hotswap(final Injector injector) throws IOException {
     this.injector = requireNonNull(injector, "An injector is required.");
-    this.appClass = injector.getInstance(Key.get(Class.class, Names.named("internal.appClass")));
+    this.appClass = injector.getInstance(Key.get(String.class, Names.named("internal.appClass")));
     this.appManager = injector.getInstance(AppManager.class);
-    this.scanner = new HotswapScanner(this, injector.getInstance(Config.class));
-    this.hash = hash(appClass.getName());
+    Config config = injector.getInstance(Config.class);
+    this.scanner = new HotswapScanner(this, config);
+    this.extenstions = config.getStringList("hotswap.reload.ext");
+    this.hash = hash(appClass);
   }
 
   public Injector reload(final String resource) {
     try {
       lock.writeLock().lock();
+      String ext = "";
+      int dot = resource.lastIndexOf('.');
+      if (dot > 0) {
+        ext = resource.substring(dot + 1);
+      }
+      if (!extenstions.contains(ext)) {
+        log.debug("ignoring {}", resource);
+        return injector;
+      }
       String className = resource.replace('/', '.').replace(".class", "");
       final Injector result;
-      if (className.equals(appClass.getName())) {
+      if (className.equals(appClass)) {
         // let's check if we need a bounce for app
-        result = tryApp(appClass);
+        result = tryApp(className);
       } else {
         // we can't tell, so just reload
         result = appManager.execute(AppManager.RESTART);
@@ -70,17 +81,16 @@ public class Hotswap implements HotswapScanner.Listener {
       }
       return this.injector;
     } catch (Throwable ex) {
-      log.error("App didn't reload", ex);
-      log.info("Stopping...");
+      log.error("reload failed with...", ex);
       appManager.execute(AppManager.STOP);
-      return this.injector;
+      return null;
     } finally {
       lock.writeLock().unlock();
     }
   }
 
-  private Injector tryApp(final Class<? extends Jooby> appClass) throws IOException {
-    List<String> newHash = hash(appClass.getName());
+  private Injector tryApp(final String className) throws IOException {
+    List<String> newHash = hash(className);
     boolean reload = this.hash.size() != newHash.size() || !this.hash.containsAll(newHash);
     if (reload) {
       this.hash.clear();
@@ -100,7 +110,12 @@ public class Hotswap implements HotswapScanner.Listener {
   }
 
   public void stop() {
-    scanner.stop();
+    try {
+      lock.readLock().lock();
+      scanner.stop();
+    } finally {
+      lock.readLock().unlock();
+    }
   }
 
   @Override
@@ -112,7 +127,11 @@ public class Hotswap implements HotswapScanner.Listener {
     scanner.start();
   }
 
-  public static List<String> hash(final String classname) throws IOException {
+  protected List<String> hash(final String classname) throws IOException {
+    return bytecode(classname);
+  }
+
+  private static List<String> bytecode(final String classname) throws IOException {
     StringBuilder buff = new StringBuilder();
     List<String> result = new ArrayList<String>();
     new ClassReader(classname).accept(new ClassVisitor(Opcodes.ASM5) {
