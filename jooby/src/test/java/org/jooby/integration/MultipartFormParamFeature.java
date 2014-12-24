@@ -1,7 +1,6 @@
 package org.jooby.integration;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,7 +83,6 @@ public class MultipartFormParamFeature extends ServerFeature {
             .collect(Collectors.joining("\n"))
         );
       }
-      assertTrue(!file.exists());
       rsp.status(200);
     });
 
@@ -211,12 +209,14 @@ public class MultipartFormParamFeature extends ServerFeature {
                 "pom.xml")
             .build()).execute().returnContent().asString());
 
-    assertEquals("Optional.empty", Request.Post(uri("form", "optional").build())
+    assertEquals("pom.xml", Request.Post(uri("form", "optional").build())
         .body(MultipartEntityBuilder.create()
+            .addBinaryBody("upload", "".getBytes(), ContentType.APPLICATION_XML, "pom.xml")
             .build()).execute().returnContent().asString());
 
-    assertEquals("Optional.empty", Request.Post(uri("r", "form", "optional").build())
+    assertEquals("pom.xml", Request.Post(uri("r", "form", "optional").build())
         .body(MultipartEntityBuilder.create()
+            .addBinaryBody("upload", "".getBytes(), ContentType.APPLICATION_XML, "pom.xml")
             .build()).execute().returnContent().asString());
   }
 

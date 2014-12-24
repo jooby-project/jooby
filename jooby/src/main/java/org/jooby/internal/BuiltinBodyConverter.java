@@ -18,8 +18,11 @@
  */
 package org.jooby.internal;
 
+import java.io.ByteArrayInputStream;
 import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.jooby.Body;
@@ -55,6 +58,63 @@ public class BuiltinBodyConverter {
     @Override
     public String toString() {
       return "Formatter for: " + InputStream.class.getName();
+    }
+  };
+
+  public static Body.Formatter formatByteArray = new Body.Formatter() {
+    @Override
+    public List<MediaType> types() {
+      return ImmutableList.of(MediaType.octetstream);
+    }
+
+    @Override
+    public boolean canFormat(final Class<?> type) {
+      return type.isArray() && type.getComponentType() == byte.class;
+    }
+
+    @Override
+    public void format(final Object body, final Body.Writer writer) throws Exception {
+      try (InputStream in = new ByteArrayInputStream((byte[]) body)) {
+        writer.bytes(out -> ByteStreams.copy(in, out));
+      }
+    }
+
+    @Override
+    public String toString() {
+      return "Formatter for: byte[]";
+    }
+  };
+
+  public static Body.Formatter formatByteBuffer = new Body.Formatter() {
+    @Override
+    public List<MediaType> types() {
+      return ImmutableList.of(MediaType.octetstream);
+    }
+
+    @Override
+    public boolean canFormat(final Class<?> type) {
+      return ByteBuffer.class.isAssignableFrom(type);
+    }
+
+    @Override
+    public void format(final Object body, final Body.Writer writer) throws Exception {
+      ByteBuffer buffer = (ByteBuffer) body;
+      if (buffer.hasArray()) {
+        formatByteArray.format(buffer.array(), writer);
+      } else {
+        ByteBuffer readonly = buffer.asReadOnlyBuffer();
+        if (readonly.position() > 0) {
+          readonly.rewind();
+        }
+        try (InputStream in = toInputStream(readonly)) {
+          writer.bytes(out -> ByteStreams.copy(in, out));
+        }
+      }
+    }
+
+    @Override
+    public String toString() {
+      return "Formatter for: " + ByteBuffer.class.getName();
     }
   };
 
@@ -134,4 +194,28 @@ public class BuiltinBodyConverter {
     }
   };
 
+  protected static InputStream toInputStream(final ByteBuffer buffer) {
+    return new InputStream() {
+
+      @Override
+      public int available() {
+        return buffer.remaining();
+      }
+
+      @Override
+      public int read() throws IOException {
+        return buffer.hasRemaining() ? buffer.get() & 0xFF : -1;
+      }
+
+      @Override
+      public int read(final byte[] bytes, final int off, final int len) throws IOException {
+        if (!buffer.hasRemaining()) {
+          return -1;
+        }
+        int count = Math.min(len, buffer.remaining());
+        buffer.get(bytes, off, count);
+        return count;
+      }
+    };
+  }
 }

@@ -24,14 +24,14 @@ public class ResponseCharsetFeature extends ServerFeature {
   @Test
   public void defCharset() throws Exception {
     execute(GET(uri("charset")), (rsp) -> {
-      assertEquals("text/html; charset=UTF-8", rsp.getFirstHeader("Content-Type").getValue());
+      assertEquals("text/html;charset=UTF-8", rsp.getFirstHeader("Content-Type").getValue());
     });
   }
 
   @Test
   public void customCharset() throws Exception {
     execute(GET(uri("charset?charset=UTF-16")), (rsp) -> {
-      assertEquals("text/html; charset=UTF-16", rsp.getFirstHeader("Content-Type").getValue());
+      assertEquals("text/html;charset=UTF-16", rsp.getFirstHeader("Content-Type").getValue());
     });
   }
 

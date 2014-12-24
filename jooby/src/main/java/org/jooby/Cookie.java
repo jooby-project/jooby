@@ -416,15 +416,25 @@ public interface Cookie {
      * @throws NoSuchAlgorithmException If {@link #HMAC_SHA256} is missing.
      * @throws InvalidKeyException If secret key is wrong (bad encoding, too short, etc.)
      */
-    public static String sign(final String value, final String secret)
-        throws NoSuchAlgorithmException, InvalidKeyException {
+    public static String sign(final String value, final String secret) {
       requireNonNull(value, "A value is required.");
       requireNonNull(secret, "A secret is required.");
 
-      Mac mac = Mac.getInstance(HMAC_SHA256);
-      mac.init(new SecretKeySpec(secret.getBytes(), HMAC_SHA256));
-      byte[] bytes = mac.doFinal(value.getBytes());
-      return value + SEP + EQ.matcher(BaseEncoding.base64().encode(bytes)).replaceAll("");
+      try {
+        Mac mac = Mac.getInstance(HMAC_SHA256);
+        mac.init(new SecretKeySpec(secret.getBytes(), HMAC_SHA256));
+        byte[] bytes = mac.doFinal(value.getBytes());
+        return value + SEP + EQ.matcher(BaseEncoding.base64().encode(bytes)).replaceAll("");
+      } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
+        throw asRuntimeException(ex);
+      }
+    }
+
+    private static RuntimeException asRuntimeException(final Exception ex) {
+      IllegalStateException rex = new IllegalStateException(ex.getClass().getSimpleName() + ": "
+          + ex.getMessage());
+      rex.setStackTrace(ex.getStackTrace());
+      return rex;
     }
 
     /**
@@ -434,18 +444,18 @@ public interface Cookie {
      * @param value A signed value.
      * @param secret A secret key.
      * @return A new signed value.
-     * @throws NoSuchAlgorithmException If {@link #HMAC_SHA256} is missing.
-     * @throws InvalidKeyException If secret key is wrong (bad encoding, too short, etc.)
      */
-    public static String unsign(final String value, final String secret)
-        throws InvalidKeyException, NoSuchAlgorithmException {
+    public static String unsign(final String value, final String secret) {
       requireNonNull(value, "A value is required.");
       requireNonNull(secret, "A secret is required.");
-      int dot = value.indexOf(SEP);
-      if (dot <= 0) {
-        dot = value.length();
+      int sep = value.indexOf(SEP);
+      if (sep <= 0) {
+        return null;
       }
-      return sign(value.substring(0, dot), secret);
+      String str = value.substring(0, sep);
+      String mac = sign(str, secret);
+
+      return mac.equals(value) ? str : null;
     }
 
     /**
@@ -454,12 +464,9 @@ public interface Cookie {
      * @param value A signed value.
      * @param secret A secret key.
      * @return True, if the given signed value is valid.
-     * @throws NoSuchAlgorithmException If {@link #HMAC_SHA256} is missing.
-     * @throws InvalidKeyException If secret key is wrong (bad encoding, too short, etc.)
      */
-    public static boolean valid(final String value, final String secret)
-        throws InvalidKeyException, NoSuchAlgorithmException {
-      return value.equals(unsign(value, secret));
+    public static boolean valid(final String value, final String secret) {
+      return unsign(value, secret) != null;
     }
 
   }

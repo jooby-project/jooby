@@ -49,6 +49,7 @@ public class SessionCookieFeature extends ServerFeature {
       public String generateID(final long seed) {
         return "1234";
       }
+
     }).cookie()
         .name("custom.sid")
         .path("/session")
@@ -67,19 +68,21 @@ public class SessionCookieFeature extends ServerFeature {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy HH:mm");
     Instant instant = Instant.ofEpochMilli(maxAge);
     OffsetDateTime utc = instant.atOffset(ZoneOffset.UTC);
-    String sessionId = "1234|YCoA3Xy3SpWxF95bTC+lVLg/GtTCO8YkKFkTeQ15v3E";
+    String sessionId = "1234";
+    String cookieSession = sessionId + "|YCoA3Xy3SpWxF95bTC+lVLg/GtTCO8YkKFkTeQ15v3E";
     assertEquals(
         sessionId,
         execute(
             GET(uri("session")),
             (response) -> {
               assertEquals(200, response.getStatusLine().getStatusCode());
-              List<String> setCookie = Lists.newArrayList(Splitter.on(";").splitToList(
+              List<String> setCookie = Lists.newArrayList(Splitter.onPattern(";\\s*").splitToList(
                   response.getFirstHeader("Set-Cookie").getValue()));
-              assertTrue(setCookie.remove("custom.sid=" + sessionId));
-              assertTrue(setCookie.remove("Path=/session"));
-              assertTrue(setCookie.remove("Secure"));
+              assertTrue(setCookie.remove("custom.sid=" + cookieSession));
+              assertTrue(setCookie.remove("path=/session"));
+              assertTrue(setCookie.remove("secure"));
               assertTrue(setCookie.remove("HttpOnly"));
+              assertTrue(setCookie.remove("Max-Age=60"));
               assertEquals(1, setCookie.size());
               assertTrue(setCookie.remove(0).startsWith(
                   "Expires=" + formatter.format(utc).replace("GMT", "")));

@@ -36,7 +36,7 @@ public class JsonCustomStringTypeFeature extends ServerFeature {
   @Test
   public void get() throws URISyntaxException, Exception {
     HttpResponse rsp = Request.Get(uri("members").build()).execute().returnResponse();
-    assertEquals("application/vnd.github.v3+json; charset=UTF-8", rsp
+    assertEquals("application/vnd.github.v3+json;charset=UTF-8", rsp
         .getFirstHeader("Content-Type").getValue());
   }
 

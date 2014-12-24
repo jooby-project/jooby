@@ -15,7 +15,7 @@ public class CookieSignatureTest {
 
   @Test
   public void unsign() throws Exception {
-    assertEquals("jooby|qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA",
+    assertEquals("jooby",
         Signature.unsign("jooby|qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA", "124Qwerty"));
   }
 

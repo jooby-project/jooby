@@ -85,15 +85,10 @@
       <artifactId>jsr305</artifactId>
     </dependency>
 
-    <!-- Jetty -->
+    <!-- Undertow -->
     <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-server</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.eclipse.jetty.websocket</groupId>
-      <artifactId>websocket-server</artifactId>
+      <groupId>io.undertow</groupId>
+      <artifactId>undertow-core</artifactId>
     </dependency>
 
     <!-- Test dependencies -->

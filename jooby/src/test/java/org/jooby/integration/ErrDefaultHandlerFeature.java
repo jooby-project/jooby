@@ -15,7 +15,7 @@ public class ErrDefaultHandlerFeature extends ServerFeature {
 
   {
     get("/", (req, rsp) -> {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("intentional err");
     });
 
   }
@@ -43,7 +43,7 @@ public class ErrDefaultHandlerFeature extends ServerFeature {
         "</title>\n" +
         "<body>\n" +
         "<h1>Bad Request</h1>\n" +
-        "<hr><h2>message: Bad Request</h2>\n" +
+        "<hr><h2>message: intentional err</h2>\n" +
         "<h2>status: 400</h2>\n" +
         "<h2>referer: </h2>\n" +
         "<h2>stack:</h2>\n"));

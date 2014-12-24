@@ -23,7 +23,7 @@ public class RequestIPFeature extends ServerFeature {
 
   @Test
   public void hostname() throws Exception {
-    assertEquals("127.0.0.1", Request.Get(uri("hostname").build()).execute().returnContent().asString());
+    assertEquals("localhost", Request.Get(uri("hostname").build()).execute().returnContent().asString());
   }
 
 }

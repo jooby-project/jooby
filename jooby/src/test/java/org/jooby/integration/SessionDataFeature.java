@@ -41,7 +41,7 @@ public class SessionDataFeature extends ServerFeature {
     assertEquals("{v1=v1}", execute(
         GET(uri("s1")),
         (r0) -> {
-          String setCookie = r0.getFirstHeader("Set-Cookie").getValue();
+          String setCookie = r0.getFirstHeader("Set-Cookie").getValue().replace("path", "$Path");
           assertEquals(
               "Optional[v1]",
               execute(

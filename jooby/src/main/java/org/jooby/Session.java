@@ -260,6 +260,7 @@ public interface Session extends Locals {
       @Override
       public void delete(final String id) {
       }
+
     };
 
     /**
@@ -267,10 +268,9 @@ public interface Session extends Locals {
      *
      * @param builder A session builder.
      * @return A session or <code>null</code>.
-     * @throws Exception If something goes wrong.
      */
     @Nullable
-    Session get(@Nonnull Session.Builder builder) throws Exception;
+    Session get(@Nonnull Session.Builder builder);
 
     /**
      * Save/persist a session.
@@ -279,15 +279,14 @@ public interface Session extends Locals {
      * @param reason An informative session of why the session need to be persisted.
      * @throws Exception If something goes wrong.
      */
-    void save(@Nonnull Session session, @Nonnull SaveReason reason) throws Exception;
+    void save(@Nonnull Session session, @Nonnull SaveReason reason);
 
     /**
      * Delete a session by ID.
      *
      * @param id A session ID.
-     * @throws Exception If something goes wrong.
      */
-    void delete(@Nonnull String id) throws Exception;
+    void delete(@Nonnull String id);
 
     /**
      * Generate a session ID, if <code>null</code> is returned the default ID generator will be

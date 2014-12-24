@@ -21,7 +21,6 @@ package org.jooby;
 import static java.util.Objects.requireNonNull;
 
 import java.io.Closeable;
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
@@ -95,7 +94,7 @@ public interface WebSocket extends Closeable {
   interface Handler {
     /**
      * Inside a connect event, you can listen for {@link WebSocket#onMessage(Callback)},
-     * {@link WebSocket#onClose(Callback)} or {@link WebSocket#onError(Callback)} events.
+     * {@link WebSocket#onClose(Callback)} or {@link WebSocket#onError(ErrCallback)} events.
      *
      * Also, you can send text and binary message.
      *
@@ -191,7 +190,7 @@ public interface WebSocket extends Closeable {
    * @since 0.1.0
    * @param <T> Param type.
    */
-  interface Callback<T> extends Serializable {
+  interface Callback<T> {
 
     /**
      * Invoked from a web socket.
@@ -203,12 +202,12 @@ public interface WebSocket extends Closeable {
   }
 
   /**
-   * Web socket callback.
+   * Web socket success callback.
    *
    * @author edgar
    * @since 0.1.0
    */
-  interface Callback0 extends Serializable {
+  interface SuccessCallback {
 
     /**
      * Invoked from a web socket.
@@ -216,6 +215,20 @@ public interface WebSocket extends Closeable {
      * @throws Exception If something goes wrong.
      */
     void invoke() throws Exception;
+  }
+
+  /**
+   * Web socket err callback.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
+  interface ErrCallback {
+
+    /**
+     * Invoked if something goes wrong.
+     */
+    void invoke(Throwable err);
   }
 
   /**
@@ -377,12 +390,12 @@ public interface WebSocket extends Closeable {
   }
 
   /** Default success callback. */
-  Callback0 SUCCESS = () -> {
+  SuccessCallback SUCCESS = () -> {
   };
 
   /** Default err callback. */
-  Callback<Exception> ERR = (ex) -> {
-    LoggerFactory.getLogger(WebSocket.class).error("Error while sending data", ex);
+  ErrCallback ERR = (ex) -> {
+    LoggerFactory.getLogger(WebSocket.class).error("error while sending data", ex);
   };
 
   /**
@@ -504,7 +517,7 @@ public interface WebSocket extends Closeable {
    * @param callback A callback
    * @throws Exception If something goes wrong.
    */
-  void onError(@Nonnull Callback<Exception> callback) throws Exception;
+  void onError(@Nonnull ErrCallback callback);
 
   /**
    * Register an close callback to execute when client close the web socket.
@@ -582,7 +595,7 @@ public interface WebSocket extends Closeable {
    * @param success A success callback.
    * @throws Exception If something goes wrong.
    */
-  default void send(final @Nonnull Object data, final @Nonnull Callback0 success) throws Exception {
+  default void send(final @Nonnull Object data, final @Nonnull SuccessCallback success) throws Exception {
     send(data, success, ERR);
   }
 
@@ -593,7 +606,7 @@ public interface WebSocket extends Closeable {
    * @param err An err callback.
    * @throws Exception If something goes wrong.
    */
-  default void send(final @Nonnull Object data, final @Nonnull Callback<Exception> err)
+  default void send(final @Nonnull Object data, final @Nonnull ErrCallback err)
       throws Exception {
     send(data, SUCCESS, err);
   }
@@ -606,7 +619,7 @@ public interface WebSocket extends Closeable {
    * @param err An err callback.
    * @throws Exception If something goes wrong.
    */
-  void send(@Nonnull Object data, @Nonnull Callback0 success, @Nonnull Callback<Exception> err)
+  void send(@Nonnull Object data, @Nonnull SuccessCallback success, @Nonnull ErrCallback err)
       throws Exception;
 
   /**

@@ -47,7 +47,7 @@ public class LocaleFeature extends ServerFeature {
       assertEquals(200, response.getStatusLine().getStatusCode());
     }));
 
-    assertEquals("en_us", execute(GET(uri("/")).addHeader("Accept-Language", "en_us"), (response) -> {
+    assertEquals("en_US", execute(GET(uri("/")).addHeader("Accept-Language", "en-us"), (response) -> {
       assertEquals(200, response.getStatusLine().getStatusCode());
     }));
   }

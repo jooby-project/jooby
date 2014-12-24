@@ -44,7 +44,7 @@ public class DownloadFeature extends ServerFeature {
 
     assertEquals("chunked", rsp.getFirstHeader("Transfer-Encoding").getValue());
 
-    assertEquals("application/javascript; charset=UTF-8",
+    assertEquals("application/javascript;charset=UTF-8",
         rsp.getFirstHeader("Content-Type").getValue());
   }
 
@@ -93,7 +93,7 @@ public class DownloadFeature extends ServerFeature {
 
     assertEquals("chunked", rsp.getFirstHeader("Transfer-Encoding").getValue());
 
-    assertEquals("application/javascript; charset=UTF-8",
+    assertEquals("application/javascript;charset=UTF-8",
         rsp.getFirstHeader("Content-Type").getValue());
   }
 
@@ -117,7 +117,7 @@ public class DownloadFeature extends ServerFeature {
 
     assertEquals("chunked", rsp.getFirstHeader("Transfer-Encoding").getValue());
 
-    assertEquals("application/javascript; charset=UTF-8",
+    assertEquals("application/javascript;charset=UTF-8",
         rsp.getFirstHeader("Content-Type").getValue());
   }
 
@@ -133,7 +133,7 @@ public class DownloadFeature extends ServerFeature {
 
     assertEquals("chunked", rsp.getFirstHeader("Transfer-Encoding").getValue());
 
-    assertEquals("application/json; charset=UTF-8",
+    assertEquals("application/json;charset=UTF-8",
         rsp.getFirstHeader("Content-Type").getValue());
   }
 

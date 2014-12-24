@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.jetty;
+package org.jooby.internal.undertow;
 
 import javax.inject.Singleton;
 
@@ -25,21 +25,18 @@ import org.jooby.Jooby;
 import org.jooby.internal.Server;
 
 import com.google.inject.Binder;
-import com.google.inject.multibindings.OptionalBinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-public class Jetty implements Jooby.Module {
+public class Undertow implements Jooby.Module {
 
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
-    OptionalBinder.newOptionalBinder(binder, Server.class).setDefault()
-        .to(JettyServer.class)
-        .in(Singleton.class);
+    binder.bind(Server.class).to(UndertowServer.class).in(Singleton.class);
   }
 
   @Override
   public Config config() {
-    return ConfigFactory.parseResources(getClass(), "jetty.conf");
+    return ConfigFactory.parseResources(getClass(), "undertow.conf");
   }
 }

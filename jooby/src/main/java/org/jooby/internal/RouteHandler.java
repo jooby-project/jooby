@@ -19,6 +19,7 @@
 package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
+import io.undertow.server.HttpServerExchange;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -35,12 +36,11 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.jooby.Body;
 import org.jooby.Err;
@@ -50,6 +50,8 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.Verb;
+import org.jooby.internal.undertow.UndertowRequest;
+import org.jooby.internal.undertow.UndertowResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,18 +116,16 @@ public class RouteHandler {
     this.err = requireNonNull(err, "An err handler is required.");
   }
 
-  public void handle(final HttpServletRequest request, final HttpServletResponse response)
-      throws Exception {
-    requireNonNull(request, "A HTTP servlet request is required.");
-    requireNonNull(response, "A HTTP servlet response is required.");
+  public void handle(final HttpServerExchange exchange, final String method, final String uri,
+      final Function<String, String> headers) throws Exception {
 
     long start = System.currentTimeMillis();
-    Verb verb = Verb.valueOf(request.getMethod().toUpperCase());
-    String requestURI = normalizeURI(request.getRequestURI());
+    Verb verb = Verb.valueOf(method.toUpperCase());
+    String requestURI = normalizeURI(uri);
 
     Map<String, Object> locals = new LinkedHashMap<>();
 
-    List<MediaType> accept = Optional.ofNullable(request.getHeader("Accept"))
+    List<MediaType> accept = Optional.ofNullable(headers.apply("Accept"))
         .map(MediaType::parse)
         .orElse(ALL);
 
@@ -133,7 +133,7 @@ public class RouteHandler {
       Collections.sort(accept);
     }
 
-    MediaType type = Optional.ofNullable(request.getHeader("Content-Type"))
+    MediaType type = Optional.ofNullable(headers.apply("Content-Type"))
         .map(MediaType::valueOf)
         .orElse(MediaType.all);
 
@@ -143,20 +143,21 @@ public class RouteHandler {
 
     log.debug("  content-type: {}", type);
 
-    Charset charset = Optional.ofNullable(request.getCharacterEncoding())
+    Charset charset = Optional.ofNullable(type.params().get("charset"))
         .map(Charset::forName)
         .orElse(this.charset);
 
-    Locale locale = Optional.ofNullable(request.getHeader("Accept-Language"))
-        .map(l -> request.getLocale()).orElse(this.locale);
+     Locale locale = Optional.ofNullable(headers.apply("Accept-Language"))
+        .map(l -> LocaleUtils.toLocale(l, "-"))
+        .orElse(this.locale);
 
     Holder<Request> req = new Holder<>((injector, route) ->
-        new RequestImpl(request, injector, route, locals, selector, type, accept,
+        new UndertowRequest(exchange, injector, route, locals, selector, type, accept,
             charset, locale));
 
     Holder<Response> rsp = new Holder<>((injector, route) ->
-        new ResponseImpl(response, injector, route, selector, charset,
-            Optional.ofNullable(request.getHeader("Referer"))));
+        new UndertowResponse(exchange, injector, route, selector, charset,
+            Optional.ofNullable(headers.apply("Referer"))));
 
     Injector injector = rootInjector;
 
@@ -181,11 +182,9 @@ public class RouteHandler {
     } catch (Exception ex) {
       log.debug("execution of: " + path + " resulted in exception", ex);
 
-      // reset response
-      response.reset();
-
       Request reqerr = req.get(injector, notFound);
       Response rsperr = rsp.get(injector, notFound);
+      ((UndertowResponse) rsperr).reset();
 
       // execution failed, so find status code
       Status status = statusCode(ex);
@@ -196,12 +195,12 @@ public class RouteHandler {
       try {
         err.handle(reqerr, rsperr, ex);
       } catch (Exception ignored) {
-        log.debug("rendering of error failed, fallback to default error page", ignored);
+        log.trace("execution of err handler resulted in exceptiion", ignored);
         defaultErrorPage(reqerr, rsperr, err.err(reqerr, rsperr, ex));
       }
     } finally {
       long end = System.currentTimeMillis();
-      log.debug("  status -> {} in {}ms", response.getStatus(), end - start);
+      log.debug("  status -> {} in {}ms", exchange.getResponseCode(), end - start);
     }
   }
 
@@ -237,12 +236,12 @@ public class RouteHandler {
       }
 
       private void set(final Request req, final Route route) {
-        RequestImpl root = (RequestImpl) Request.Forwarding.unwrap(req);
+        UndertowRequest root = (UndertowRequest) Request.Forwarding.unwrap(req);
         root.route(route);
       }
 
       private void set(final Response rsp, final Route route) {
-        ResponseImpl root = (ResponseImpl) Response.Forwarding.unwrap(rsp);
+        UndertowResponse root = (UndertowResponse) Response.Forwarding.unwrap(rsp);
         root.route(route);
       }
     };
@@ -352,7 +351,7 @@ public class RouteHandler {
         .append("</html>\n");
 
     rsp.header("Cache-Control", NO_CACHE);
-    ((ResponseImpl) (Response.Forwarding.unwrap(rsp)))
+    ((UndertowResponse) (Response.Forwarding.unwrap(rsp)))
         .send(Body.body(html), BuiltinBodyConverter.formatAny);
   }
 

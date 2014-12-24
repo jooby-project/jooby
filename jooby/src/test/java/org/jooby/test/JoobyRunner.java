@@ -24,12 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Singleton;
-
 import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.integration.NoJoinServer;
-import org.jooby.internal.Server;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.MultipleFailureException;
@@ -37,7 +33,6 @@ import org.junit.runners.model.Statement;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
-import com.google.inject.multibindings.OptionalBinder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -66,15 +61,14 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
       }
       Config testConfig = ConfigFactory.empty()
           .withValue("application.port", ConfigValueFactory.fromAnyRef(port))
-          .withValue("application.securePort", ConfigValueFactory.fromAnyRef(securePort));
+          .withValue("application.securePort", ConfigValueFactory.fromAnyRef(securePort))
+          .withValue("undertow.worker.WORKER_TASK_CORE_THREADS", ConfigValueFactory.fromAnyRef(10))
+          .withValue("undertow.worker.WORKER_TASK_MAX_THREADS", ConfigValueFactory.fromAnyRef(10));
 
       app = (Jooby) appClass.newInstance();
       app.use(new Jooby.Module() {
         @Override
         public void configure(final Env mode, final Config config, final Binder binder) {
-          OptionalBinder.newOptionalBinder(binder, Server.class).setBinding()
-              .to(NoJoinServer.class)
-              .in(Singleton.class);
         }
 
         @Override

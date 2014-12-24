@@ -35,7 +35,7 @@ public class CookiesFeature extends ServerFeature {
 
     get("/get", (req, rsp) -> {
       assertEquals(
-          "[{name=X, value=Optional[x], domain=Optional.empty, path=/, maxAge=-1, secure=false}]",
+          "[{name=X, value=Optional[x], domain=Optional.empty, path=/set, maxAge=-1, secure=false}]",
           req.cookies().toString());
       Optional<Cookie> cookie = req.cookie("X");
       rsp.send(cookie.isPresent() ? "present" : "deleted");
@@ -59,8 +59,8 @@ public class CookiesFeature extends ServerFeature {
     assertEquals("done", execute(GET(uri("set")), (r1) -> {
       assertEquals(200, r1.getStatusLine().getStatusCode());
       String setCookie = r1.getFirstHeader("Set-Cookie").getValue();
-      assertEquals("X=x;Path=/set", setCookie);
-      execute(GET(uri("get")).addHeader("Cookie", setCookie), (r0) -> {
+      assertEquals("X=x; path=/set", setCookie);
+      execute(GET(uri("get")).addHeader("Cookie", "X=x; $Path=/set"), (r0) -> {
         assertEquals(200, r0.getStatusLine().getStatusCode());
         assertEquals("present", EntityUtils.toString(r0.getEntity()));
       });
@@ -81,11 +81,11 @@ public class CookiesFeature extends ServerFeature {
     assertEquals("done", execute(GET(uri("set")), (r0) -> {
       assertEquals(200, r0.getStatusLine().getStatusCode());
       String setCookie = r0.getFirstHeader("Set-Cookie").getValue();
-      assertEquals("X=x;Path=/set", setCookie);
-      execute(GET(uri("clear")).addHeader("Cookie", setCookie), (r1) -> {
+      assertEquals("X=x; path=/set", setCookie);
+      execute(GET(uri("clear")).addHeader("Cookie", "X=x;$Path=/clear"), (r1) -> {
         assertEquals(200, r1.getStatusLine().getStatusCode());
         String setCookie2 = r1.getFirstHeader("Set-Cookie").getValue();
-        assertEquals("X=;Version=1;Expires=Thu, 01-Jan-1970 00:00:00 GMT;Max-Age=0", setCookie2);
+        assertEquals("X=x; path=/clear; Max-Age=0; Expires=Thu, 01-Jan-1970 00:00:00 GMT", setCookie2);
       });
     }));
 

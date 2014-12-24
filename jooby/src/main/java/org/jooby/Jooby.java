@@ -1,5 +1,5 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one
+o * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
  * distributed with this work for additional information
  * regarding copyright ownership.  The ASF licenses this file
@@ -48,15 +48,17 @@ import org.jooby.internal.AppManager;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinBodyConverter;
+import org.jooby.internal.LocaleUtils;
+import org.jooby.internal.RouteHandler;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.Server;
 import org.jooby.internal.TypeConverters;
-import org.jooby.internal.jetty.Jetty;
 import org.jooby.internal.mvc.Routes;
 import org.jooby.internal.routes.HeadHandler;
 import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
+import org.jooby.internal.undertow.Undertow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -469,7 +471,7 @@ public class Jooby {
   private Env.Builder env = Env.DEFAULT;
 
   {
-    use(new Jetty());
+    use(new Undertow());
   }
 
   /**
@@ -1578,6 +1580,10 @@ public class Jooby {
   public Route.Filter staticFile(@Nonnull final String location) {
     requireNonNull(location, "A location is required.");
     String path = RoutePattern.normalize(location);
+    if (!assetFormatter) {
+      formatters.add(new AssetFormatter());
+      assetFormatter = true;
+    }
     return filehandler(path);
   }
 
@@ -1822,6 +1828,7 @@ public class Jooby {
    * @throws Exception If something fails to start.
    */
   public void start(final String[] args) throws Exception {
+    long start = System.currentTimeMillis();
     // shutdown hook
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       stop();
@@ -1833,6 +1840,12 @@ public class Jooby {
     Server server = injector.getInstance(Server.class);
 
     server.start();
+    long end = System.currentTimeMillis();
+    Config config = injector.getInstance(Config.class);
+    log.info("Server started in {}ms\n{}\nlistening on:\n  http://localhost:{}\n",
+        end - start,
+        injector.getInstance(RouteHandler.class),
+        config.getInt("application.port"));
   }
 
   private static AppManager appManager(final Jooby app, final Env env, final Logger log) {
@@ -1873,8 +1886,7 @@ public class Jooby {
 
     final Charset charset = Charset.forName(config.getString("application.charset"));
 
-    String[] lang = config.getString("application.lang").split("_");
-    final Locale locale = lang.length == 1 ? new Locale(lang[0]) : new Locale(lang[0], lang[1]);
+    final Locale locale = LocaleUtils.toLocale(config.getString("application.lang"), "_");
 
     ZoneId zoneId = ZoneId.of(config.getString("application.tz"));
     DateTimeFormatter dateTimeFormat = DateTimeFormatter
@@ -1954,9 +1966,9 @@ public class Jooby {
           binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
               .toInstance(tmpdir);
 
-          // converters
-          parsers.forEach(it1 -> parserBinder.addBinding().toInstance(it1));
-          formatters.forEach(it2 -> formatterBinder.addBinding().toInstance(it2));
+          // parser & formatter
+          parsers.forEach(it -> parserBinder.addBinding().toInstance(it));
+          formatters.forEach(it -> formatterBinder.addBinding().toInstance(it));
 
           RouteMetadata classInfo = new RouteMetadata(env);
           binder.bind(RouteMetadata.class).toInstance(classInfo);
@@ -1982,6 +1994,8 @@ public class Jooby {
 
           formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
           formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatStream);
+          formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatByteArray);
+          formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatByteBuffer);
           formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
 
           parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
@@ -2015,6 +2029,7 @@ public class Jooby {
       } catch (Exception ex) {
         log.error("Web server didn't stop normally", ex);
       }
+      log.info("Server stopped");
       injector = null;
     }
   }

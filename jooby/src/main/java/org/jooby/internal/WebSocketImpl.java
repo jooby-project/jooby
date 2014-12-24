@@ -19,6 +19,9 @@
 package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
+import io.undertow.websockets.core.WebSocketCallback;
+import io.undertow.websockets.core.WebSocketChannel;
+import io.undertow.websockets.core.WebSockets;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,10 +32,6 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Optional;
 
-import org.eclipse.jetty.websocket.api.RemoteEndpoint;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.SuspendToken;
-import org.eclipse.jetty.websocket.api.WriteCallback;
 import org.jooby.Body;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
@@ -40,6 +39,7 @@ import org.jooby.WebSocket;
 import org.jooby.fn.ExSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xnio.IoUtils;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
@@ -48,11 +48,8 @@ import com.google.inject.Key;
 
 public class WebSocketImpl implements WebSocket {
 
-  @SuppressWarnings({"rawtypes", "serial" })
-  private static final Callback NOOP = new Callback() {
-    @Override
-    public void invoke(final Object arg) throws Exception {
-    }
+  @SuppressWarnings({"rawtypes" })
+  private static final Callback NOOP = arg -> {
   };
 
   /** The logging system. */
@@ -74,13 +71,15 @@ public class WebSocketImpl implements WebSocket {
 
   private Callback<CloseStatus> closeCallback = noop();
 
-  private Callback<Exception> exceptionCallback = noop();
+  private ErrCallback exceptionCallback = cause -> {
+    log.error("execution of WS" + path() + " resulted in exception", cause);
+  };
 
-  private Session session;
+  private WebSocketChannel channel;
 
   private Injector injector;
 
-  private SuspendToken suspendToken;
+  private boolean suspended;
 
   public WebSocketImpl(final Handler handler, final String path,
       final String pattern, final Map<String, String> vars,
@@ -93,44 +92,54 @@ public class WebSocketImpl implements WebSocket {
     this.produces = produces;
   }
 
-  public boolean isOpen() {
-    return session.isOpen();
-  }
-
   @Override
   public void close(final CloseStatus status) {
-    session.close(status.code(), status.reason());
+    WebSockets.sendClose(status.code(), status.reason(), channel, new WebSocketCallback<Void>() {
+
+      @Override
+      public void onError(final WebSocketChannel channel, final Void context,
+          final Throwable throwable) {
+        log.error("closing web socket resulted in exception: " + status, throwable);
+        IoUtils.safeClose(channel);
+      }
+
+      @Override
+      public void complete(final WebSocketChannel channel, final Void context) {
+        IoUtils.safeClose(channel);
+      }
+    });
   }
 
   @Override
   public void resume() {
-    if (suspendToken != null) {
-      suspendToken.resume();
-      suspendToken = null;
+    if (suspended) {
+      channel.resumeReceives();
+      suspended = false;
     }
   }
 
   @Override
   public void pause() {
-    if (suspendToken == null) {
-      suspendToken = session.suspend();
+    if (!suspended) {
+      channel.suspendReceives();
+      suspended = true;
     }
   }
 
   @Override
   public void terminate() throws Exception {
-    session.disconnect();
+    channel.close();
   }
 
   @Override
-  public void send(final Object data, final Callback0 success, final Callback<Exception> err)
+  public void send(final Object data, final SuccessCallback success, final ErrCallback err)
       throws Exception {
     requireNonNull(data, "A data message is required.");
-    requireNonNull(success, "Success callback is required.");
-    requireNonNull(err, "Error callback is required.");
-    WriteCallback callback = new WriteCallback() {
+    requireNonNull(success, "A success callback is required.");
+    requireNonNull(err, "An error callback is required.");
+    WebSocketCallback<Void> callback = new WebSocketCallback<Void>() {
       @Override
-      public void writeSuccess() {
+      public void complete(final WebSocketChannel channel, final Void context) {
         try {
           success.invoke();
         } catch (Exception ex) {
@@ -139,16 +148,8 @@ public class WebSocketImpl implements WebSocket {
       }
 
       @Override
-      public void writeFailed(final Throwable cause) {
-        if (cause instanceof Exception) {
-          try {
-            err.invoke((Exception) cause);
-          } catch (Exception ex) {
-            log.debug("Error while invoking write failed callback", ex);
-          }
-        } else {
-          log.error("Serious error found while invoking write failed callback", cause);
-        }
+      public void onError(final WebSocketChannel channel, final Void context, final Throwable cause) {
+        err.invoke(cause);
       }
     };
 
@@ -156,37 +157,30 @@ public class WebSocketImpl implements WebSocket {
         .formatter(data, ImmutableList.of(produces));
     if (formatter.isPresent()) {
       ExSupplier<OutputStream> stream = () -> {
-        return stream(session, callback, false);
+        return stream(channel, callback, false);
       };
       ExSupplier<Writer> writer = () -> {
-        return new PrintWriter(stream(session, callback, true));
+        return new PrintWriter(stream(channel, callback, true));
       };
       formatter.get().format(data, new BodyWriterImpl(Charsets.UTF_8, stream, writer));
     } else {
-      RemoteEndpoint remote = session.getRemote();
-      if (byte[].class == data.getClass()) {
-        remote.sendBytes(ByteBuffer.wrap((byte[]) data), callback);
-      } else if (ByteBuffer.class.isInstance(data)) {
-        remote.sendBytes((ByteBuffer) data, callback);
-      } else {
-        // TODO: complete me!
-        remote.sendString(data.toString(), callback);
-      }
+      // TODO: complete me!
+      WebSockets.sendText(data.toString(), channel, callback);
     }
   }
 
-  private static OutputStream stream(final Session session, final WriteCallback callback,
+  private static OutputStream stream(final WebSocketChannel channel,
+      final WebSocketCallback<Void> callback,
       final boolean text) {
     return new ByteArrayOutputStream() {
       @Override
       public void close() throws IOException {
-        RemoteEndpoint remote = session.getRemote();
         // TODO: auto handle partial content?
         if (text) {
-          remote.sendString(toString(), callback);
+          WebSockets.sendText(toString(), channel, callback);
         } else {
           // binary
-          remote.sendBytes(ByteBuffer.wrap(toByteArray()), callback);
+          WebSockets.sendBinary(ByteBuffer.wrap(toByteArray()), channel, callback);
         }
       }
     };
@@ -197,9 +191,9 @@ public class WebSocketImpl implements WebSocket {
     this.messageCallback = requireNonNull(callback, "Message callback is required.");
   }
 
-  public void connect(final Injector injector, final Session session) throws Exception {
-    this.injector = requireNonNull(injector, "The injector is required.");
-    this.session = requireNonNull(session, "The session is required.");
+  public void connect(final Injector injector, final WebSocketChannel channel) throws Exception {
+    this.injector = requireNonNull(injector, "An injector is required.");
+    this.channel = requireNonNull(channel, "A channel is required.");
     handler.connect(this);
   }
 
@@ -248,7 +242,7 @@ public class WebSocketImpl implements WebSocket {
     this.messageCallback.invoke(variant);
   }
 
-  public void fireErr(final Exception cause) throws Exception {
+  public void fireErr(final Throwable cause) {
     exceptionCallback.invoke(cause);
   }
 
@@ -256,13 +250,13 @@ public class WebSocketImpl implements WebSocket {
     try {
       closeCallback.invoke(closeStatus);
     } finally {
-      session = null;
+      channel = null;
       injector = null;
     }
   }
 
   @Override
-  public void onError(final Callback<Exception> callback) throws Exception {
+  public void onError(final WebSocket.ErrCallback callback) {
     this.exceptionCallback = requireNonNull(callback, "A callback is required.");
   }
 

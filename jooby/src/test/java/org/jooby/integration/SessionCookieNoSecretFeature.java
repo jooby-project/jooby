@@ -44,6 +44,7 @@ public class SessionCookieNoSecretFeature extends ServerFeature {
       public String generateID(final long seed) {
         return "1234";
       }
+
     }).cookie()
         .name("custom.sid")
         .path("/session")
@@ -69,12 +70,13 @@ public class SessionCookieNoSecretFeature extends ServerFeature {
             GET(uri("session")),
             (response) -> {
               assertEquals(200, response.getStatusLine().getStatusCode());
-              List<String> setCookie = Lists.newArrayList(Splitter.on(";").splitToList(
+              List<String> setCookie = Lists.newArrayList(Splitter.onPattern(";\\s*").splitToList(
                   response.getFirstHeader("Set-Cookie").getValue()));
               assertTrue(setCookie.remove("custom.sid=" + sessionId));
-              assertTrue(setCookie.remove("Path=/session"));
-              assertTrue(setCookie.remove("Secure"));
+              assertTrue(setCookie.remove("path=/session"));
+              assertTrue(setCookie.remove("secure"));
               assertTrue(setCookie.remove("HttpOnly"));
+              assertTrue(setCookie.remove("Max-Age=60"));
               assertEquals(1, setCookie.size());
               assertTrue(setCookie.remove(0).startsWith(
                   "Expires=" + formatter.format(utc).replace("GMT", "")));

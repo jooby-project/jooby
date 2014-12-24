@@ -28,7 +28,7 @@ import java.nio.charset.Charset;
 import org.jooby.Body;
 import org.jooby.fn.ExSupplier;
 
-class BodyWriterImpl implements Body.Writer {
+public class BodyWriterImpl implements Body.Writer {
 
   private Charset charset;
 
@@ -54,7 +54,6 @@ class BodyWriterImpl implements Body.Writer {
     Writer writer = this.writer.get();
     // don't close on errors
     text.write(uncloseable(writer));
-    writer.flush();
     writer.close();
   }
 
