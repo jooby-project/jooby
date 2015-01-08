@@ -58,7 +58,7 @@ import com.google.inject.TypeLiteral;
  *
  * On new connections the {@link WebSocket.Handler#connect(WebSocket)} will be executed from there
  * you can listen on {@link #onMessage(Callback)}, {@link #onClose(Callback)} or
- * {@link #onError(Callback)} events.
+ * {@link #onError(ErrCallback)} events.
  *
  * Inside a handler you can send text or binary message.
  *
@@ -515,7 +515,6 @@ public interface WebSocket extends Closeable {
    * Register an error callback to execute when an error is found.
    *
    * @param callback A callback
-   * @throws Exception If something goes wrong.
    */
   void onError(@Nonnull ErrCallback callback);
 

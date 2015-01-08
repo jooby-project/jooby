@@ -343,7 +343,6 @@ public class WebSocketFeature extends ServerFeature {
     closeLatch.await();
 
     c.close();
-
   }
 
   @Test

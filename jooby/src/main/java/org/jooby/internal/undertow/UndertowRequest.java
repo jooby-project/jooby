@@ -1,3 +1,35 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+/**
+ * This copy of Woodstox XML processor is licensed under the
+ * Apache (Software) License, version 2.0 ("the License").
+ * See the License for details about distribution rights, and the
+ * specific rights regarding derivate works.
+ *
+ * You may obtain a copy of the License at:
+ *
+ * http://www.apache.org/licenses/
+ *
+ * A copy is also included in the downloadable source code package
+ * containing Woodstox, in file "ASL2.0", under the same directory
+ * as this file.
+ */
 package org.jooby.internal.undertow;
 
 import static java.util.Objects.requireNonNull;
@@ -5,8 +37,6 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.server.handlers.form.FormEncodedDataDefinition;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
-import io.undertow.server.session.SessionConfig;
-import io.undertow.server.session.SessionManager;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
@@ -31,6 +61,7 @@ import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Request;
+import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.Status;
@@ -39,6 +70,8 @@ import org.jooby.fn.Collectors;
 import org.jooby.internal.BodyConverterSelector;
 import org.jooby.internal.BodyReaderImpl;
 import org.jooby.internal.MutantImpl;
+import org.jooby.internal.RequestScopedSession;
+import org.jooby.internal.SessionManager;
 import org.jooby.internal.UploadMutant;
 import org.jooby.internal.reqparam.BeanParamInjector;
 
@@ -98,6 +131,8 @@ public class UndertowRequest implements Request {
   private Charset charset;
 
   private Locale locale;
+
+  private Session session;
 
   private final ExchangeFn<FormData> formParser;
 
@@ -323,19 +358,20 @@ public class UndertowRequest implements Request {
   @Override
   public Session session() {
     return ifSession().orElseGet(() -> {
-      SessionManager sm = exchange.getAttachment(SessionManager.ATTACHMENT_KEY);
-      SessionConfig sessionConfig = exchange.getAttachment(SessionConfig.ATTACHMENT_KEY);
-      Session session = (Session) sm.createSession(exchange, sessionConfig);
-      return session;
+      SessionManager sm = getInstance(SessionManager.class);
+      Session localSession = sm.get(this);
+      Response rsp = getInstance(Response.class);
+      if (localSession == null) {
+        localSession = sm.create(this, rsp);
+      }
+      this.session = new RequestScopedSession(sm, rsp, localSession, ()  -> this.session = null);
+      return this.session;
     });
   }
 
   @Override
   public Optional<Session> ifSession() {
-    SessionManager sm = exchange.getAttachment(SessionManager.ATTACHMENT_KEY);
-    SessionConfig sessionConfig = exchange.getAttachment(SessionConfig.ATTACHMENT_KEY);
-    Session session = (Session) sm.getSession(exchange, sessionConfig);
-    return Optional.ofNullable(session);
+    return Optional.ofNullable(this.session);
   }
 
   @Override

@@ -19,21 +19,18 @@
 package org.jooby.internal.undertow;
 
 import io.undertow.Undertow.Builder;
+import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.GracefulShutdownHandler;
-import io.undertow.server.session.SessionCookieConfig;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
-import org.jooby.Cookie;
-import org.jooby.Session;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.Definition;
 import org.jooby.internal.RouteHandler;
@@ -47,7 +44,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigValue;
 
 public class UndertowServer implements org.jooby.internal.Server {
@@ -71,6 +67,7 @@ public class UndertowServer implements org.jooby.internal.Server {
     this.server = configure(config, io.undertow.Undertow.builder())
         .addHttpListener(config.getInt("application.port"), "localhost")
         .setHandler(shutdown)
+        .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
         .build();
   }
 
@@ -130,7 +127,7 @@ public class UndertowServer implements org.jooby.internal.Server {
   }
 
   @SuppressWarnings("unchecked")
-  private static UndertowSessionHandler doHandler(final Injector injector, final Config config) {
+  private static HttpHandler doHandler(final Injector injector, final Config config) {
     RouteHandler routeHandler = injector.getInstance(RouteHandler.class);
     Set<WebSocket.Definition> sockets = (Set<Definition>) injector
         .getInstance(Key.get(Types.setOf(WebSocket.Definition.class)));
@@ -139,52 +136,7 @@ public class UndertowServer implements org.jooby.internal.Server {
       handler = wsHandler(injector, sockets, handler);
     }
 
-    /**
-     * Session setup
-     */
-    Config $session = config.getConfig("application.session");
-    Session.Definition sessionDef = injector.getInstance(Session.Definition.class);
-    String secret = config.hasPath("application.secret")
-        ? config.getString("application.secret")
-        : null;
-
-    int timeout = sessionDef.timeout()
-        .orElse((int) duration($session, "timeout", TimeUnit.SECONDS));
-
-    int saveInterval = sessionDef.saveInterval()
-        .orElse((int) duration($session, "saveInterval", TimeUnit.SECONDS));
-
-    UndertowSessionManager sessionManager =
-        new UndertowSessionManager(sessionDef.store(), timeout, saveInterval, secret);
-
-    SessionCookieConfig sessionConfig = new SessionCookieConfig();
-    Cookie.Definition cookieDef = sessionDef.cookie();
-    sessionConfig.setComment(cookieDef.comment()
-        .orElse($session.hasPath("cookie.comment") ? $session.getString("cookie.path") : null)
-        );
-    sessionConfig.setDomain(cookieDef.domain()
-        .orElse($session.hasPath("cookie.domain") ? $session.getString("cookie.domain") : null)
-        );
-    sessionConfig.setHttpOnly(cookieDef.httpOnly()
-        .orElse($session.getBoolean("cookie.httpOnly"))
-        );
-    sessionConfig.setMaxAge(cookieDef.maxAge()
-        .orElse((int) duration($session, "cookie.maxAge", TimeUnit.SECONDS))
-        );
-    sessionConfig.setCookieName(cookieDef.name()
-        .orElse($session.getString("cookie.name"))
-        );
-    sessionConfig.setPath(cookieDef.path()
-        .orElse($session.getString("cookie.path"))
-        );
-    sessionConfig.setSecure(cookieDef.secure()
-        .orElse($session.getBoolean("cookie.secure"))
-        );
-
-    UndertowSessionHandler sessionHandler =
-        new UndertowSessionHandler(handler, sessionManager, sessionConfig);
-
-    return sessionHandler;
+    return handler;
   }
 
   private static UndertowWebSocketHandler wsHandler(final Injector injector,
@@ -196,14 +148,6 @@ public class UndertowServer implements org.jooby.internal.Server {
       channel.getReceiveSetter().set(bridge);
       channel.resumeReceives();
     }, next, sockets);
-  }
-
-  private static long duration(final Config config, final String name, final TimeUnit unit) {
-    try {
-      return config.getLong(name);
-    } catch (ConfigException.WrongType ex) {
-      return config.getDuration(name, unit);
-    }
   }
 
   @Override

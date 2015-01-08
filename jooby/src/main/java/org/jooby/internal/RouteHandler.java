@@ -147,7 +147,7 @@ public class RouteHandler {
         .map(Charset::forName)
         .orElse(this.charset);
 
-     Locale locale = Optional.ofNullable(headers.apply("Accept-Language"))
+    Locale locale = Optional.ofNullable(headers.apply("Accept-Language"))
         .map(l -> LocaleUtils.toLocale(l, "-"))
         .orElse(this.locale);
 
@@ -201,7 +201,13 @@ public class RouteHandler {
     } finally {
       long end = System.currentTimeMillis();
       log.debug("  status -> {} in {}ms", exchange.getResponseCode(), end - start);
+
+      saveSession(req.get(injector, notFound));
     }
+  }
+
+  private void saveSession(final Request req) {
+    req.ifSession().ifPresent(session -> req.getInstance(SessionManager.class).requestDone(session));
   }
 
   public Injector injector() {
@@ -368,7 +374,8 @@ public class RouteHandler {
     return Status.SERVER_ERROR;
   }
 
-  private static Err handle405(final Set<Route.Definition> routeDefs, final Verb verb, final String uri,
+  private static Err handle405(final Set<Route.Definition> routeDefs, final Verb verb,
+      final String uri,
       final MediaType type, final List<MediaType> accept) {
 
     if (alternative(routeDefs, verb, uri).size() > 0) {

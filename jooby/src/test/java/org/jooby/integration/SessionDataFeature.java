@@ -39,44 +39,26 @@ public class SessionDataFeature extends ServerFeature {
   @Test
   public void locals() throws Exception {
     assertEquals("{v1=v1}", execute(
-        GET(uri("s1")),
-        (r0) -> {
-          String setCookie = r0.getFirstHeader("Set-Cookie").getValue().replace("path", "$Path");
-          assertEquals(
-              "Optional[v1]",
-              execute(
-                  GET(uri("s2")).addHeader("Cookie", setCookie),
-                  (r1) -> {
-                    assertEquals("Optional.empty",
-                        execute(GET(uri("s2")).addHeader("Cookie", setCookie), (r2) -> {
-                        }));
-                  }));
+        GET(uri("s1")), r0 -> {
+          assertEquals("Optional[v1]", execute(GET(uri("s2")), r1 -> {
+            assertEquals("Optional.empty", execute(GET(uri("s2")), (r2) -> {
+            }));
+          }));
         }));
-
-    assertEquals("Optional.empty", execute(GET(uri("s2")), (r) -> {
-    }));
 
   }
 
   @Test
   public void unsetall() throws Exception {
-    assertEquals("Optional.empty", execute(
-        GET(uri("unset-all")),
-        (r0) -> {
-          String setCookie = r0.getFirstHeader("Set-Cookie").getValue();
-          assertEquals(
-              "Optional.empty",
-              execute(
-                  GET(uri("s2")).addHeader("Cookie", setCookie),
-                  (r1) -> {
-                    assertEquals("Optional.empty",
-                        execute(GET(uri("s2")).addHeader("Cookie", setCookie), (r2) -> {
-                        }));
-                  }));
+    assertEquals("{v1=v1}", execute(
+        GET(uri("s1")), r -> {
+          assertEquals("Optional[v1]", execute(GET(uri("unset-all")), r0 -> {
+            assertEquals("Optional.empty", execute(GET(uri("s2")), r1 -> {
+              assertEquals("Optional.empty", execute(GET(uri("s2")), r2 -> {
+              }));
+            }));
+          }));
         }));
-
-    assertEquals("Optional.empty", execute(GET(uri("s2")), (r) -> {
-    }));
 
   }
 

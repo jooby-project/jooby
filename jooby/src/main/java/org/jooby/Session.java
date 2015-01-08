@@ -22,6 +22,9 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Session timeout is defined by the <code>application.session.timeout</code> property, by default a
  * session will be invalidated after 1800 seconds (30 minutes) of inactivity. Alternative, you can
- * set session timeout from {@link Definition#timeout(int)}.
+ * set session timeout from {@link Definition#timeout(long)}.
  * </p>
  * <h2>Session persistence</h2>
  * <p>
@@ -112,7 +115,7 @@ public interface Session extends Locals {
     private Store store;
 
     /** Session timeout . */
-    private Integer timeout;
+    private Long timeout;
 
     /** Save session on stop?. */
     private Boolean preserveOnStop;
@@ -121,7 +124,7 @@ public interface Session extends Locals {
     private Cookie.Definition cookie;
 
     /** Save interval. */
-    private Integer saveInterval;
+    private Long saveInterval;
 
     /**
      * Creates a new session definition.
@@ -139,7 +142,7 @@ public interface Session extends Locals {
      * @param timeout Session timeout in seconds or <code>-1</code> for no timeout.
      * @return This definition.
      */
-    public @Nonnull Definition timeout(final int timeout) {
+    public @Nonnull Definition timeout(final long timeout) {
       this.timeout = timeout;
       return this;
     }
@@ -147,7 +150,7 @@ public interface Session extends Locals {
     /**
      * @return Get session timeout (if any).
      */
-    public @Nonnull Optional<Integer> timeout() {
+    public @Nonnull Optional<Long> timeout() {
       return Optional.ofNullable(timeout);
     }
 
@@ -175,7 +178,7 @@ public interface Session extends Locals {
      *
      * @return A save interval that indicates how frequently no dirty session should be persisted.
      */
-    public @Nonnull Optional<Integer> saveInterval() {
+    public @Nonnull Optional<Long> saveInterval() {
       return Optional.ofNullable(saveInterval);
     }
 
@@ -185,13 +188,13 @@ public interface Session extends Locals {
      * @param saveInterval Save interval in seconds or <code>-1</code> for turning it off.
      * @return This definition.
      */
-    public @Nonnull Definition saveInterval(final int saveInterval) {
+    public @Nonnull Definition saveInterval(final long saveInterval) {
       this.saveInterval = saveInterval;
       return this;
     }
 
     /**
-     * @return A session store, defaults to {@link Store#NOOP}.
+     * @return A session store, defaults to {@link MemoryStore}.
      */
     public @Nonnull Store store() {
       return store;
@@ -214,56 +217,6 @@ public interface Session extends Locals {
   interface Store {
 
     /**
-     * Save reasons.
-     *
-     * @author edgar
-     * @since 0.1.0
-     */
-    enum SaveReason {
-      /**
-       * Indicates a save is required bc session is new.
-       */
-      NEW,
-
-      /**
-       * Indicates a save is required bc session is dirty. A session gets dirty when an attribute
-       * is added or removed.
-       */
-      DIRTY,
-
-      /**
-       * Indicates a save is required bc a save interval is expired. See
-       * {@link Session.Definition#saveInterval()}
-       */
-      TIME,
-
-      /**
-       * Indicates a save is required because the server is going to shutdown. See
-       * {@link Session.Definition#preserveOnStop()}.
-       */
-      PRESERVE_ON_STOP;
-    }
-
-    /**
-     * Default store.
-     */
-    Store NOOP = new Store() {
-      @Override
-      public void save(final Session session, final SaveReason reason) {
-      }
-
-      @Override
-      public Session get(final Session.Builder builder) {
-        return null;
-      }
-
-      @Override
-      public void delete(final String id) {
-      }
-
-    };
-
-    /**
      * Get a session by ID (if any).
      *
      * @param builder A session builder.
@@ -276,10 +229,10 @@ public interface Session extends Locals {
      * Save/persist a session.
      *
      * @param session A session to be persisted.
-     * @param reason An informative session of why the session need to be persisted.
-     * @throws Exception If something goes wrong.
      */
-    void save(@Nonnull Session session, @Nonnull SaveReason reason);
+    void save(@Nonnull Session session);
+
+    void create(final Session session);
 
     /**
      * Delete a session by ID.
@@ -289,30 +242,108 @@ public interface Session extends Locals {
     void delete(@Nonnull String id);
 
     /**
-     * Generate a session ID, if <code>null</code> is returned the default ID generator will be
-     * use it.
+     * Generate a session ID, default algorithm use an {@link UUID}.
      *
-     * @param seed A seed to use (if need it).
      * @return A unique session ID.
      */
-    default String generateID(final long seed) {
-      return null;
+    default String generateID() {
+      UUID uuid = UUID.randomUUID();
+      return Long.toString(Math.abs(uuid.getMostSignificantBits()), 36)
+          + Long.toString(Math.abs(uuid.getLeastSignificantBits()), 36);
     }
   }
 
+  /**
+   * A keep in memory session store.
+   *
+   * @author edgar
+   */
+  class MemoryStore implements Store {
+
+    private ConcurrentMap<String, Session> sessions = new ConcurrentHashMap<String, Session>();
+
+    @Override
+    public void create(final Session session) {
+      sessions.putIfAbsent(session.id(), session);
+    }
+
+    @Override
+    public void save(final Session session) {
+      sessions.put(session.id(), session);
+    }
+
+    @Override
+    public Session get(final Session.Builder builder) {
+      return sessions.get(builder.sessionId());
+    }
+
+    @Override
+    public void delete(final String id) {
+      sessions.remove(id);
+    }
+
+  }
+
+  /**
+   * Build or restore a session from a persistent storage.
+   *
+   * @author edgar
+   */
   interface Builder {
 
+    /**
+     * @return Session ID.
+     */
     String sessionId();
 
+    /**
+     * Set a session local attribute.
+     *
+     * @param name Attribute's name.
+     * @param value Attribute's value.
+     * @return This builder.
+     */
     Builder set(final String name, final Object value);
 
+    /**
+     * Set one ore more session local attributes.
+     *
+     * @param attributes Attributes to add.
+     * @return This builder.
+     */
     Builder set(final Map<String, Object> attributes);
 
+    /**
+     * Set session created date.
+     *
+     * @param createdAt Session created date.
+     * @return This builder.
+     */
     Builder createdAt(long createdAt);
 
+    /**
+     * Set session last accessed date.
+     *
+     * @param accessedAt Session last accessed date.
+     * @return This builder.
+     */
     Builder accessedAt(long accessedAt);
 
+    /**
+     * Set session last saved it date.
+     *
+     * @param savedAt Session last saved it date.
+     * @return This builder.
+     */
+    Builder savedAt(final long savedAt);
+
+    /**
+     * Final step to build a new session.
+     *
+     * @return A session.
+     */
     Session build();
+
   }
 
   /** Logger logs, man. */
@@ -329,6 +360,11 @@ public interface Session extends Locals {
    *         1, 1970 GMT.
    */
   long createdAt();
+
+  /**
+   * @return Last time the session was save it.
+   */
+  long savedAt();
 
   /**
    * The last time the client sent a request associated with this session, as the number of

@@ -1,7 +1,6 @@
-package org.jooby.integration;
+package org.jooby.integration.session;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Instant;
@@ -21,33 +20,20 @@ import org.junit.Test;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 
-public class SessionCookieNoSecretFeature extends ServerFeature {
+public class SessionCookieFeature extends ServerFeature {
 
   {
-    use(new Session.Store() {
-      @Override
-      public void save(final Session session, final SaveReason reason) {
-        assertNotNull(session);
-      }
+    use(ConfigFactory.empty().withValue("application.secret",
+        ConfigValueFactory.fromAnyRef("fixed")));
 
-      @Override
-      public Session get(final Session.Builder builder) {
-        return null;
-      }
-
-      @Override
-      public void delete(final String id) {
-      }
-
-      @Override
-      public String generateID(final long seed) {
-        return "1234";
-      }
-
-    }).cookie()
+    use(new Session.MemoryStore()).cookie()
         .name("custom.sid")
         .path("/session")
+        .comment("jooby cookie")
+        .domain("localhost")
         .maxAge(60);
 
     get("/session", (req, rsp) -> {
@@ -63,24 +49,21 @@ public class SessionCookieNoSecretFeature extends ServerFeature {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy HH:mm");
     Instant instant = Instant.ofEpochMilli(maxAge);
     OffsetDateTime utc = instant.atOffset(ZoneOffset.UTC);
-    String sessionId = "1234";
-    assertEquals(
-        sessionId,
-        execute(
-            GET(uri("session")),
-            (response) -> {
-              assertEquals(200, response.getStatusLine().getStatusCode());
-              List<String> setCookie = Lists.newArrayList(Splitter.onPattern(";\\s*").splitToList(
-                  response.getFirstHeader("Set-Cookie").getValue()));
-              assertTrue(setCookie.remove("custom.sid=" + sessionId));
-              assertTrue(setCookie.remove("path=/session"));
-              assertTrue(setCookie.remove("secure"));
-              assertTrue(setCookie.remove("HttpOnly"));
-              assertTrue(setCookie.remove("Max-Age=60"));
-              assertEquals(1, setCookie.size());
-              assertTrue(setCookie.remove(0).startsWith(
-                  "Expires=" + formatter.format(utc).replace("GMT", "")));
-            }));
+    execute(GET(uri("session")), rsp -> {
+      assertEquals(200, rsp.getStatusLine().getStatusCode());
+      List<String> setCookie = Lists.newArrayList(Splitter.onPattern(";\\s*")
+          .splitToList(rsp.getFirstHeader("Set-Cookie").getValue()));
+
+      System.out.println(setCookie);
+      assertTrue(setCookie.remove(0).startsWith("custom.sid"));
+      assertTrue(setCookie.remove("path=/session"));
+      assertTrue(setCookie.remove("HttpOnly"));
+      assertTrue(setCookie.remove("Max-Age=60"));
+      assertTrue(setCookie.remove("domain=localhost"));
+      assertEquals(1, setCookie.size());
+      assertTrue(setCookie.remove(0).startsWith(
+          "Expires=" + formatter.format(utc).replace("GMT", "")));
+    });
 
   }
 

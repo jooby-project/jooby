@@ -38,7 +38,7 @@ public class CookieDefinitionTest {
 
   @Test(expected = NullPointerException.class)
   public void newNullNameCookieDef() {
-    new Cookie.Definition(null);
+    new Cookie.Definition((String) null);
   }
 
   @Test
@@ -88,7 +88,7 @@ public class CookieDefinitionTest {
   public void cookieMaxAge() {
     Definition def = new Cookie.Definition("name");
     assertEquals(Optional.empty(), def.maxAge());
-    assertEquals(123, (int)def.maxAge(123).maxAge().get());
+    assertEquals(123L, (long) def.maxAge(123).maxAge().get());
     assertEquals(123, def.toCookie().maxAge());
   }
 

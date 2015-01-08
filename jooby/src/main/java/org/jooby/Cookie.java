@@ -100,7 +100,7 @@ public interface Cookie {
      * By default, <code>-1</code> is returned, which indicates that the cookie will persist until
      * browser shutdown.
      */
-    private Integer maxAge;
+    private Long maxAge;
 
     /**
      * Creates a new {@link Definition cookie's definition}.
@@ -109,6 +109,22 @@ public interface Cookie {
      */
     public Definition(@Nonnull final String name) {
       name(name);
+    }
+
+    /**
+     * Clone a new {@link Definition cookie's definition}.
+     *
+     * @param def A cookie's definition.
+     */
+    public Definition(@Nonnull final Definition def) {
+      this.comment = def.comment;
+      this.domain = def.domain;
+      this.httpOnly = def.httpOnly;
+      this.maxAge = def.maxAge;
+      this.name = def.name;
+      this.path = def.path;
+      this.secure = def.secure;
+      this.value = def.value;
     }
 
     /**
@@ -135,6 +151,22 @@ public interface Cookie {
      */
     public Cookie toCookie() {
       return toCookie(this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder();
+      buf.append(name).append("=");
+      value().ifPresent(buf::append);
+      path().ifPresent(p -> buf.append("; path=").append(p));
+      httpOnly().ifPresent(httpOnly -> {if (httpOnly) {
+        buf.append("; HttpOnly");
+      }});
+      secure().ifPresent(secure -> {if (secure) {
+        buf.append("; secure");
+      }});
+      maxAge().ifPresent(maxAge -> buf.append("; MaxAge=").append(maxAge));
+      return buf.toString();
     }
 
     /**
@@ -167,8 +199,8 @@ public interface Cookie {
         }
 
         @Override
-        public int maxAge() {
-          return cookie.maxAge().orElse(-1);
+        public long maxAge() {
+          return cookie.maxAge().orElse(-1L);
         }
 
         @Override
@@ -350,7 +382,7 @@ public interface Cookie {
      *        means the cookie is not stored; if zero, deletes the cookie.
      * @return This definition.
      */
-    public @Nonnull Definition maxAge(final int maxAge) {
+    public @Nonnull Definition maxAge(final long maxAge) {
       this.maxAge = maxAge;
       return this;
     }
@@ -370,7 +402,7 @@ public interface Cookie {
      * </p>
      * @return Cookie's max age in seconds.
      */
-    public @Nonnull Optional<Integer> maxAge() {
+    public @Nonnull Optional<Long> maxAge() {
       return Optional.ofNullable(maxAge);
     }
 
@@ -413,8 +445,6 @@ public interface Cookie {
      * @param value A value to sign.
      * @param secret A secret key.
      * @return A signed value.
-     * @throws NoSuchAlgorithmException If {@link #HMAC_SHA256} is missing.
-     * @throws InvalidKeyException If secret key is wrong (bad encoding, too short, etc.)
      */
     public static String sign(final String value, final String secret) {
       requireNonNull(value, "A value is required.");
@@ -502,7 +532,7 @@ public interface Cookie {
    * @return An integer specifying the maximum age of the cookie in seconds; if negative, means
    *         the cookie persists until browser shutdown
    */
-  int maxAge();
+  long maxAge();
 
   /**
    * @return Cookie's path.

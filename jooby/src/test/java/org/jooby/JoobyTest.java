@@ -37,6 +37,7 @@ import org.jooby.internal.RouteHandler;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.Server;
+import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.undertow.UndertowServer;
 import org.jooby.mvc.GET;
@@ -335,6 +336,11 @@ public class JoobyTest {
   private MockUnit.Block session = unit -> {
     Binder binder = unit.get(Binder.class);
 
+    AnnotatedBindingBuilder<SessionManager> smbinding = unit.mock(AnnotatedBindingBuilder.class);
+    smbinding.toInstance(isA(SessionManager.class));
+
+    expect(binder.bind(SessionManager.class)).andReturn(smbinding);
+
     AnnotatedBindingBuilder<Session.Definition> binding = unit.mock(AnnotatedBindingBuilder.class);
     binding.toInstance(isA(Session.Definition.class));
 
@@ -564,7 +570,8 @@ public class JoobyTest {
               ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
               serverScope.in(Singleton.class);
 
-              AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
+              AnnotatedBindingBuilder<Server> serverBinding = unit
+                  .mock(AnnotatedBindingBuilder.class);
               expect(serverBinding.to(UndertowServer.class)).andReturn(serverScope);
 
               expect(binder.bind(Server.class)).andReturn(serverBinding);
@@ -687,7 +694,8 @@ public class JoobyTest {
               ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
               serverScope.in(Singleton.class);
 
-              AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
+              AnnotatedBindingBuilder<Server> serverBinding = unit
+                  .mock(AnnotatedBindingBuilder.class);
               expect(serverBinding.to(UndertowServer.class)).andReturn(serverScope);
 
               expect(binder.bind(Server.class)).andReturn(serverBinding);
@@ -755,7 +763,8 @@ public class JoobyTest {
               ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
               serverScope.in(Singleton.class);
 
-              AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
+              AnnotatedBindingBuilder<Server> serverBinding = unit
+                  .mock(AnnotatedBindingBuilder.class);
               expect(serverBinding.to(UndertowServer.class)).andReturn(serverScope);
 
               expect(binder.bind(Server.class)).andReturn(serverBinding);
@@ -2245,16 +2254,21 @@ public class JoobyTest {
         .expect(decimalFormat)
         .expect(bodyParser)
         .expect(bodyFormatter)
-        .expect(
-            unit -> {
-              Binder binder = unit.get(Binder.class);
+        .expect(unit -> {
+          Binder binder = unit.get(Binder.class);
 
-              AnnotatedBindingBuilder<Session.Definition> binding = unit
-                  .mock(AnnotatedBindingBuilder.class);
-              binding.toInstance(unit.capture(Session.Definition.class));
+          AnnotatedBindingBuilder<SessionManager> smbinding = unit
+              .mock(AnnotatedBindingBuilder.class);
+          smbinding.toInstance(isA(SessionManager.class));
 
-              expect(binder.bind(Session.Definition.class)).andReturn(binding);
-            })
+          expect(binder.bind(SessionManager.class)).andReturn(smbinding);
+
+          AnnotatedBindingBuilder<Session.Definition> binding = unit
+              .mock(AnnotatedBindingBuilder.class);
+          binding.toInstance(unit.capture(Session.Definition.class));
+
+          expect(binder.bind(Session.Definition.class)).andReturn(binding);
+        })
         .expect(routes)
         .expect(webSockets)
         .expect(reqModules)

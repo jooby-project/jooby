@@ -1,0 +1,193 @@
+2015/01/09 10:03:39:119 ART [DEBUG] RequestAddCookies - CookieSpec selected: default
+2015/01/09 10:03:39:136 ART [DEBUG] RequestAuthCache - Auth cache not set in the context
+2015/01/09 10:03:39:137 ART [DEBUG] PoolingHttpClientConnectionManager - Connection request: [route: {}->http://localhost:64302][total kept alive: 0; route allocated: 0 of 100; total allocated: 0 of 200]
+2015/01/09 10:03:39:149 ART [DEBUG] PoolingHttpClientConnectionManager - Connection leased: [id: 0][route: {}->http://localhost:64302][total kept alive: 0; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:150 ART [DEBUG] MainClientExec - Opening connection {}->http://localhost:64302
+2015/01/09 10:03:39:152 ART [DEBUG] DefaultHttpClientConnectionOperator - Connecting to localhost/127.0.0.1:64302
+2015/01/09 10:03:39:153 ART [DEBUG] DefaultHttpClientConnectionOperator - Connection established 127.0.0.1:64304<->127.0.0.1:64302
+2015/01/09 10:03:39:153 ART [DEBUG] MainClientExec - Executing request GET /s1 HTTP/1.1
+2015/01/09 10:03:39:153 ART [DEBUG] MainClientExec - Target auth state: UNCHALLENGED
+2015/01/09 10:03:39:154 ART [DEBUG] MainClientExec - Proxy auth state: UNCHALLENGED
+2015/01/09 10:03:39:155 ART [DEBUG] headers - http-outgoing-0 >> GET /s1 HTTP/1.1
+2015/01/09 10:03:39:157 ART [DEBUG] headers - http-outgoing-0 >> Host: localhost:64302
+2015/01/09 10:03:39:157 ART [DEBUG] headers - http-outgoing-0 >> Connection: Keep-Alive
+2015/01/09 10:03:39:157 ART [DEBUG] headers - http-outgoing-0 >> User-Agent: Apache-HttpClient/4.4-beta1 (Java 1.5 minimum; Java/1.8.0)
+2015/01/09 10:03:39:157 ART [DEBUG] headers - http-outgoing-0 >> Accept-Encoding: gzip,deflate
+2015/01/09 10:03:39:157 ART [DEBUG] wire - http-outgoing-0 >> "GET /s1 HTTP/1.1[\r][\n]"
+2015/01/09 10:03:39:157 ART [DEBUG] wire - http-outgoing-0 >> "Host: localhost:64302[\r][\n]"
+2015/01/09 10:03:39:157 ART [DEBUG] wire - http-outgoing-0 >> "Connection: Keep-Alive[\r][\n]"
+2015/01/09 10:03:39:158 ART [DEBUG] wire - http-outgoing-0 >> "User-Agent: Apache-HttpClient/4.4-beta1 (Java 1.5 minimum; Java/1.8.0)[\r][\n]"
+2015/01/09 10:03:39:158 ART [DEBUG] wire - http-outgoing-0 >> "Accept-Encoding: gzip,deflate[\r][\n]"
+2015/01/09 10:03:39:158 ART [DEBUG] wire - http-outgoing-0 >> "[\r][\n]"
+INFO  [2015-01-09 10:03:39,224] [XNIO-1 task-1] session created: 1kpuvs6gc2zko1pyg2jai2pf4s
+INFO  [2015-01-09 10:03:39,224] [XNIO-1 task-1] setting cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s; path=/; HttpOnly; MaxAge=-1
+2015/01/09 10:03:39:245 ART [DEBUG] wire - http-outgoing-0 << "HTTP/1.1 200 OK[\r][\n]"
+2015/01/09 10:03:39:245 ART [DEBUG] wire - http-outgoing-0 << "Set-Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s; path=/; HttpOnly[\r][\n]"
+2015/01/09 10:03:39:245 ART [DEBUG] wire - http-outgoing-0 << "Content-Type: text/html;charset=UTF-8[\r][\n]"
+2015/01/09 10:03:39:245 ART [DEBUG] wire - http-outgoing-0 << "Content-Length: 7[\r][\n]"
+2015/01/09 10:03:39:245 ART [DEBUG] wire - http-outgoing-0 << "Date: Fri, 09 Jan 2015 13:03:39 GMT[\r][\n]"
+2015/01/09 10:03:39:245 ART [DEBUG] wire - http-outgoing-0 << "[\r][\n]"
+2015/01/09 10:03:39:245 ART [DEBUG] wire - http-outgoing-0 << "{v1=v1}"
+2015/01/09 10:03:39:247 ART [DEBUG] headers - http-outgoing-0 << HTTP/1.1 200 OK
+2015/01/09 10:03:39:247 ART [DEBUG] headers - http-outgoing-0 << Set-Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s; path=/; HttpOnly
+2015/01/09 10:03:39:248 ART [DEBUG] headers - http-outgoing-0 << Content-Type: text/html;charset=UTF-8
+2015/01/09 10:03:39:248 ART [DEBUG] headers - http-outgoing-0 << Content-Length: 7
+2015/01/09 10:03:39:248 ART [DEBUG] headers - http-outgoing-0 << Date: Fri, 09 Jan 2015 13:03:39 GMT
+2015/01/09 10:03:39:251 ART [DEBUG] MainClientExec - Connection can be kept alive indefinitely
+2015/01/09 10:03:39:254 ART [DEBUG] ResponseProcessCookies - Cookie accepted [jooby.sid="1kpuvs6gc2zko1pyg2jai2pf4s", version:0, domain:localhost, path:/, expiry:null]
+2015/01/09 10:03:39:255 ART [DEBUG] PoolingHttpClientConnectionManager - Connection [id: 0][route: {}->http://localhost:64302] can be kept alive indefinitely
+2015/01/09 10:03:39:255 ART [DEBUG] PoolingHttpClientConnectionManager - Connection released: [id: 0][route: {}->http://localhost:64302][total kept alive: 1; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:258 ART [DEBUG] RequestAddCookies - CookieSpec selected: default
+2015/01/09 10:03:39:258 ART [DEBUG] RequestAddCookies - Cookie [version: 0][name: jooby.sid][value: 1kpuvs6gc2zko1pyg2jai2pf4s][domain: localhost][path: /][expiry: null] match [localhost:64302/s2]
+2015/01/09 10:03:39:259 ART [DEBUG] RequestAuthCache - Auth cache not set in the context
+2015/01/09 10:03:39:259 ART [DEBUG] PoolingHttpClientConnectionManager - Connection request: [route: {}->http://localhost:64302][total kept alive: 1; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:259 ART [DEBUG] PoolingHttpClientConnectionManager - Connection leased: [id: 0][route: {}->http://localhost:64302][total kept alive: 0; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:259 ART [DEBUG] MainClientExec - Executing request GET /s2 HTTP/1.1
+2015/01/09 10:03:39:259 ART [DEBUG] MainClientExec - Target auth state: UNCHALLENGED
+2015/01/09 10:03:39:259 ART [DEBUG] MainClientExec - Proxy auth state: UNCHALLENGED
+2015/01/09 10:03:39:259 ART [DEBUG] headers - http-outgoing-0 >> GET /s2 HTTP/1.1
+2015/01/09 10:03:39:259 ART [DEBUG] headers - http-outgoing-0 >> Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s; $Path=/; HttpOnly
+2015/01/09 10:03:39:259 ART [DEBUG] headers - http-outgoing-0 >> Host: localhost:64302
+2015/01/09 10:03:39:259 ART [DEBUG] headers - http-outgoing-0 >> Connection: Keep-Alive
+2015/01/09 10:03:39:259 ART [DEBUG] headers - http-outgoing-0 >> User-Agent: Apache-HttpClient/4.4-beta1 (Java 1.5 minimum; Java/1.8.0)
+2015/01/09 10:03:39:259 ART [DEBUG] headers - http-outgoing-0 >> Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s
+2015/01/09 10:03:39:259 ART [DEBUG] headers - http-outgoing-0 >> Cookie2: $Version=1
+2015/01/09 10:03:39:260 ART [DEBUG] headers - http-outgoing-0 >> Accept-Encoding: gzip,deflate
+2015/01/09 10:03:39:260 ART [DEBUG] wire - http-outgoing-0 >> "GET /s2 HTTP/1.1[\r][\n]"
+2015/01/09 10:03:39:260 ART [DEBUG] wire - http-outgoing-0 >> "Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s; $Path=/; HttpOnly[\r][\n]"
+2015/01/09 10:03:39:260 ART [DEBUG] wire - http-outgoing-0 >> "Host: localhost:64302[\r][\n]"
+2015/01/09 10:03:39:260 ART [DEBUG] wire - http-outgoing-0 >> "Connection: Keep-Alive[\r][\n]"
+2015/01/09 10:03:39:260 ART [DEBUG] wire - http-outgoing-0 >> "User-Agent: Apache-HttpClient/4.4-beta1 (Java 1.5 minimum; Java/1.8.0)[\r][\n]"
+2015/01/09 10:03:39:260 ART [DEBUG] wire - http-outgoing-0 >> "Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s[\r][\n]"
+2015/01/09 10:03:39:260 ART [DEBUG] wire - http-outgoing-0 >> "Cookie2: $Version=1[\r][\n]"
+2015/01/09 10:03:39:260 ART [DEBUG] wire - http-outgoing-0 >> "Accept-Encoding: gzip,deflate[\r][\n]"
+2015/01/09 10:03:39:260 ART [DEBUG] wire - http-outgoing-0 >> "[\r][\n]"
+INFO  [2015-01-09 10:03:39,263] [XNIO-1 task-2] session cookie found: {name=jooby.sid, value=Optional[1kpuvs6gc2zko1pyg2jai2pf4s], domain=Optional.empty, path=/, maxAge=-1, secure=false}
+2015/01/09 10:03:39:264 ART [DEBUG] wire - http-outgoing-0 << "HTTP/1.1 200 OK[\r][\n]"
+2015/01/09 10:03:39:265 ART [DEBUG] wire - http-outgoing-0 << "Content-Type: text/html;charset=UTF-8[\r][\n]"
+2015/01/09 10:03:39:265 ART [DEBUG] wire - http-outgoing-0 << "Content-Length: 12[\r][\n]"
+2015/01/09 10:03:39:265 ART [DEBUG] wire - http-outgoing-0 << "Date: Fri, 09 Jan 2015 13:03:39 GMT[\r][\n]"
+2015/01/09 10:03:39:265 ART [DEBUG] wire - http-outgoing-0 << "[\r][\n]"
+2015/01/09 10:03:39:265 ART [DEBUG] wire - http-outgoing-0 << "Optional[v1]"
+2015/01/09 10:03:39:265 ART [DEBUG] headers - http-outgoing-0 << HTTP/1.1 200 OK
+2015/01/09 10:03:39:265 ART [DEBUG] headers - http-outgoing-0 << Content-Type: text/html;charset=UTF-8
+2015/01/09 10:03:39:265 ART [DEBUG] headers - http-outgoing-0 << Content-Length: 12
+2015/01/09 10:03:39:265 ART [DEBUG] headers - http-outgoing-0 << Date: Fri, 09 Jan 2015 13:03:39 GMT
+2015/01/09 10:03:39:265 ART [DEBUG] MainClientExec - Connection can be kept alive indefinitely
+2015/01/09 10:03:39:265 ART [DEBUG] PoolingHttpClientConnectionManager - Connection [id: 0][route: {}->http://localhost:64302] can be kept alive indefinitely
+2015/01/09 10:03:39:265 ART [DEBUG] PoolingHttpClientConnectionManager - Connection released: [id: 0][route: {}->http://localhost:64302][total kept alive: 1; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:266 ART [DEBUG] RequestAddCookies - CookieSpec selected: default
+2015/01/09 10:03:39:266 ART [DEBUG] RequestAddCookies - Cookie [version: 0][name: jooby.sid][value: 1kpuvs6gc2zko1pyg2jai2pf4s][domain: localhost][path: /][expiry: null] match [localhost:64302/s2]
+2015/01/09 10:03:39:266 ART [DEBUG] RequestAuthCache - Auth cache not set in the context
+2015/01/09 10:03:39:266 ART [DEBUG] PoolingHttpClientConnectionManager - Connection request: [route: {}->http://localhost:64302][total kept alive: 1; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:266 ART [DEBUG] PoolingHttpClientConnectionManager - Connection leased: [id: 0][route: {}->http://localhost:64302][total kept alive: 0; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:266 ART [DEBUG] MainClientExec - Executing request GET /s2 HTTP/1.1
+2015/01/09 10:03:39:266 ART [DEBUG] MainClientExec - Target auth state: UNCHALLENGED
+2015/01/09 10:03:39:266 ART [DEBUG] MainClientExec - Proxy auth state: UNCHALLENGED
+2015/01/09 10:03:39:266 ART [DEBUG] headers - http-outgoing-0 >> GET /s2 HTTP/1.1
+2015/01/09 10:03:39:266 ART [DEBUG] headers - http-outgoing-0 >> Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s; $Path=/; HttpOnly
+2015/01/09 10:03:39:266 ART [DEBUG] headers - http-outgoing-0 >> Host: localhost:64302
+2015/01/09 10:03:39:267 ART [DEBUG] headers - http-outgoing-0 >> Connection: Keep-Alive
+2015/01/09 10:03:39:267 ART [DEBUG] headers - http-outgoing-0 >> User-Agent: Apache-HttpClient/4.4-beta1 (Java 1.5 minimum; Java/1.8.0)
+2015/01/09 10:03:39:267 ART [DEBUG] headers - http-outgoing-0 >> Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s
+2015/01/09 10:03:39:267 ART [DEBUG] headers - http-outgoing-0 >> Cookie2: $Version=1
+2015/01/09 10:03:39:267 ART [DEBUG] headers - http-outgoing-0 >> Accept-Encoding: gzip,deflate
+2015/01/09 10:03:39:267 ART [DEBUG] wire - http-outgoing-0 >> "GET /s2 HTTP/1.1[\r][\n]"
+2015/01/09 10:03:39:267 ART [DEBUG] wire - http-outgoing-0 >> "Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s; $Path=/; HttpOnly[\r][\n]"
+2015/01/09 10:03:39:267 ART [DEBUG] wire - http-outgoing-0 >> "Host: localhost:64302[\r][\n]"
+2015/01/09 10:03:39:267 ART [DEBUG] wire - http-outgoing-0 >> "Connection: Keep-Alive[\r][\n]"
+2015/01/09 10:03:39:267 ART [DEBUG] wire - http-outgoing-0 >> "User-Agent: Apache-HttpClient/4.4-beta1 (Java 1.5 minimum; Java/1.8.0)[\r][\n]"
+2015/01/09 10:03:39:267 ART [DEBUG] wire - http-outgoing-0 >> "Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s[\r][\n]"
+2015/01/09 10:03:39:267 ART [DEBUG] wire - http-outgoing-0 >> "Cookie2: $Version=1[\r][\n]"
+2015/01/09 10:03:39:267 ART [DEBUG] wire - http-outgoing-0 >> "Accept-Encoding: gzip,deflate[\r][\n]"
+2015/01/09 10:03:39:267 ART [DEBUG] wire - http-outgoing-0 >> "[\r][\n]"
+INFO  [2015-01-09 10:03:39,268] [XNIO-1 task-3] session cookie found: {name=jooby.sid, value=Optional[1kpuvs6gc2zko1pyg2jai2pf4s], domain=Optional.empty, path=/, maxAge=-1, secure=false}
+2015/01/09 10:03:39:269 ART [DEBUG] wire - http-outgoing-0 << "HTTP/1.1 200 OK[\r][\n]"
+2015/01/09 10:03:39:269 ART [DEBUG] wire - http-outgoing-0 << "Content-Type: text/html;charset=UTF-8[\r][\n]"
+2015/01/09 10:03:39:269 ART [DEBUG] wire - http-outgoing-0 << "Content-Length: 14[\r][\n]"
+2015/01/09 10:03:39:269 ART [DEBUG] wire - http-outgoing-0 << "Date: Fri, 09 Jan 2015 13:03:39 GMT[\r][\n]"
+2015/01/09 10:03:39:269 ART [DEBUG] wire - http-outgoing-0 << "[\r][\n]"
+2015/01/09 10:03:39:269 ART [DEBUG] wire - http-outgoing-0 << "Optional.empty"
+2015/01/09 10:03:39:269 ART [DEBUG] headers - http-outgoing-0 << HTTP/1.1 200 OK
+2015/01/09 10:03:39:269 ART [DEBUG] headers - http-outgoing-0 << Content-Type: text/html;charset=UTF-8
+2015/01/09 10:03:39:269 ART [DEBUG] headers - http-outgoing-0 << Content-Length: 14
+2015/01/09 10:03:39:269 ART [DEBUG] headers - http-outgoing-0 << Date: Fri, 09 Jan 2015 13:03:39 GMT
+2015/01/09 10:03:39:269 ART [DEBUG] MainClientExec - Connection can be kept alive indefinitely
+2015/01/09 10:03:39:269 ART [DEBUG] PoolingHttpClientConnectionManager - Connection [id: 0][route: {}->http://localhost:64302] can be kept alive indefinitely
+2015/01/09 10:03:39:270 ART [DEBUG] PoolingHttpClientConnectionManager - Connection released: [id: 0][route: {}->http://localhost:64302][total kept alive: 1; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:270 ART [DEBUG] RequestAddCookies - CookieSpec selected: default
+2015/01/09 10:03:39:270 ART [DEBUG] RequestAddCookies - Cookie [version: 0][name: jooby.sid][value: 1kpuvs6gc2zko1pyg2jai2pf4s][domain: localhost][path: /][expiry: null] match [localhost:64302/s2]
+2015/01/09 10:03:39:270 ART [DEBUG] RequestAuthCache - Auth cache not set in the context
+2015/01/09 10:03:39:270 ART [DEBUG] PoolingHttpClientConnectionManager - Connection request: [route: {}->http://localhost:64302][total kept alive: 1; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:270 ART [DEBUG] PoolingHttpClientConnectionManager - Connection leased: [id: 0][route: {}->http://localhost:64302][total kept alive: 0; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:271 ART [DEBUG] MainClientExec - Executing request GET /s2 HTTP/1.1
+2015/01/09 10:03:39:271 ART [DEBUG] MainClientExec - Target auth state: UNCHALLENGED
+2015/01/09 10:03:39:271 ART [DEBUG] MainClientExec - Proxy auth state: UNCHALLENGED
+2015/01/09 10:03:39:271 ART [DEBUG] headers - http-outgoing-0 >> GET /s2 HTTP/1.1
+2015/01/09 10:03:39:271 ART [DEBUG] headers - http-outgoing-0 >> Host: localhost:64302
+2015/01/09 10:03:39:271 ART [DEBUG] headers - http-outgoing-0 >> Connection: Keep-Alive
+2015/01/09 10:03:39:271 ART [DEBUG] headers - http-outgoing-0 >> User-Agent: Apache-HttpClient/4.4-beta1 (Java 1.5 minimum; Java/1.8.0)
+2015/01/09 10:03:39:271 ART [DEBUG] headers - http-outgoing-0 >> Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s
+2015/01/09 10:03:39:271 ART [DEBUG] headers - http-outgoing-0 >> Cookie2: $Version=1
+2015/01/09 10:03:39:271 ART [DEBUG] headers - http-outgoing-0 >> Accept-Encoding: gzip,deflate
+2015/01/09 10:03:39:271 ART [DEBUG] wire - http-outgoing-0 >> "GET /s2 HTTP/1.1[\r][\n]"
+2015/01/09 10:03:39:271 ART [DEBUG] wire - http-outgoing-0 >> "Host: localhost:64302[\r][\n]"
+2015/01/09 10:03:39:271 ART [DEBUG] wire - http-outgoing-0 >> "Connection: Keep-Alive[\r][\n]"
+2015/01/09 10:03:39:271 ART [DEBUG] wire - http-outgoing-0 >> "User-Agent: Apache-HttpClient/4.4-beta1 (Java 1.5 minimum; Java/1.8.0)[\r][\n]"
+2015/01/09 10:03:39:271 ART [DEBUG] wire - http-outgoing-0 >> "Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s[\r][\n]"
+2015/01/09 10:03:39:271 ART [DEBUG] wire - http-outgoing-0 >> "Cookie2: $Version=1[\r][\n]"
+2015/01/09 10:03:39:271 ART [DEBUG] wire - http-outgoing-0 >> "Accept-Encoding: gzip,deflate[\r][\n]"
+2015/01/09 10:03:39:271 ART [DEBUG] wire - http-outgoing-0 >> "[\r][\n]"
+INFO  [2015-01-09 10:03:39,272] [XNIO-1 task-4] session cookie found: {name=jooby.sid, value=Optional[1kpuvs6gc2zko1pyg2jai2pf4s], domain=Optional.empty, path=/, maxAge=-1, secure=false}
+2015/01/09 10:03:39:273 ART [DEBUG] wire - http-outgoing-0 << "HTTP/1.1 200 OK[\r][\n]"
+2015/01/09 10:03:39:273 ART [DEBUG] wire - http-outgoing-0 << "Content-Type: text/html;charset=UTF-8[\r][\n]"
+2015/01/09 10:03:39:273 ART [DEBUG] wire - http-outgoing-0 << "Content-Length: 14[\r][\n]"
+2015/01/09 10:03:39:273 ART [DEBUG] wire - http-outgoing-0 << "Date: Fri, 09 Jan 2015 13:03:39 GMT[\r][\n]"
+2015/01/09 10:03:39:273 ART [DEBUG] wire - http-outgoing-0 << "[\r][\n]"
+2015/01/09 10:03:39:273 ART [DEBUG] wire - http-outgoing-0 << "Optional.empty"
+2015/01/09 10:03:39:273 ART [DEBUG] headers - http-outgoing-0 << HTTP/1.1 200 OK
+2015/01/09 10:03:39:273 ART [DEBUG] headers - http-outgoing-0 << Content-Type: text/html;charset=UTF-8
+2015/01/09 10:03:39:273 ART [DEBUG] headers - http-outgoing-0 << Content-Length: 14
+2015/01/09 10:03:39:273 ART [DEBUG] headers - http-outgoing-0 << Date: Fri, 09 Jan 2015 13:03:39 GMT
+2015/01/09 10:03:39:273 ART [DEBUG] MainClientExec - Connection can be kept alive indefinitely
+2015/01/09 10:03:39:273 ART [DEBUG] PoolingHttpClientConnectionManager - Connection [id: 0][route: {}->http://localhost:64302] can be kept alive indefinitely
+2015/01/09 10:03:39:273 ART [DEBUG] PoolingHttpClientConnectionManager - Connection released: [id: 0][route: {}->http://localhost:64302][total kept alive: 1; route allocated: 1 of 100; total allocated: 1 of 200]
+*************************
+2015/01/09 10:03:39:276 ART [DEBUG] RequestAddCookies - CookieSpec selected: default
+2015/01/09 10:03:39:276 ART [DEBUG] RequestAddCookies - Cookie [version: 0][name: jooby.sid][value: 1kpuvs6gc2zko1pyg2jai2pf4s][domain: localhost][path: /][expiry: null] match [localhost:64302/unset-all]
+2015/01/09 10:03:39:276 ART [DEBUG] RequestAuthCache - Auth cache not set in the context
+2015/01/09 10:03:39:276 ART [DEBUG] PoolingHttpClientConnectionManager - Connection request: [route: {}->http://localhost:64302][total kept alive: 1; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:276 ART [DEBUG] PoolingHttpClientConnectionManager - Connection leased: [id: 0][route: {}->http://localhost:64302][total kept alive: 0; route allocated: 1 of 100; total allocated: 1 of 200]
+2015/01/09 10:03:39:276 ART [DEBUG] MainClientExec - Executing request GET /unset-all HTTP/1.1
+2015/01/09 10:03:39:276 ART [DEBUG] MainClientExec - Target auth state: UNCHALLENGED
+2015/01/09 10:03:39:276 ART [DEBUG] MainClientExec - Proxy auth state: UNCHALLENGED
+2015/01/09 10:03:39:276 ART [DEBUG] headers - http-outgoing-0 >> GET /unset-all HTTP/1.1
+2015/01/09 10:03:39:276 ART [DEBUG] headers - http-outgoing-0 >> Host: localhost:64302
+2015/01/09 10:03:39:276 ART [DEBUG] headers - http-outgoing-0 >> Connection: Keep-Alive
+2015/01/09 10:03:39:276 ART [DEBUG] headers - http-outgoing-0 >> User-Agent: Apache-HttpClient/4.4-beta1 (Java 1.5 minimum; Java/1.8.0)
+2015/01/09 10:03:39:276 ART [DEBUG] headers - http-outgoing-0 >> Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s
+2015/01/09 10:03:39:276 ART [DEBUG] headers - http-outgoing-0 >> Cookie2: $Version=1
+2015/01/09 10:03:39:276 ART [DEBUG] headers - http-outgoing-0 >> Accept-Encoding: gzip,deflate
+2015/01/09 10:03:39:276 ART [DEBUG] wire - http-outgoing-0 >> "GET /unset-all HTTP/1.1[\r][\n]"
+2015/01/09 10:03:39:276 ART [DEBUG] wire - http-outgoing-0 >> "Host: localhost:64302[\r][\n]"
+2015/01/09 10:03:39:276 ART [DEBUG] wire - http-outgoing-0 >> "Connection: Keep-Alive[\r][\n]"
+2015/01/09 10:03:39:276 ART [DEBUG] wire - http-outgoing-0 >> "User-Agent: Apache-HttpClient/4.4-beta1 (Java 1.5 minimum; Java/1.8.0)[\r][\n]"
+2015/01/09 10:03:39:276 ART [DEBUG] wire - http-outgoing-0 >> "Cookie: jooby.sid=1kpuvs6gc2zko1pyg2jai2pf4s[\r][\n]"
+2015/01/09 10:03:39:277 ART [DEBUG] wire - http-outgoing-0 >> "Cookie2: $Version=1[\r][\n]"
+2015/01/09 10:03:39:277 ART [DEBUG] wire - http-outgoing-0 >> "Accept-Encoding: gzip,deflate[\r][\n]"
+2015/01/09 10:03:39:277 ART [DEBUG] wire - http-outgoing-0 >> "[\r][\n]"
+INFO  [2015-01-09 10:03:39,277] [XNIO-1 task-5] session cookie found: {name=jooby.sid, value=Optional[1kpuvs6gc2zko1pyg2jai2pf4s], domain=Optional.empty, path=/, maxAge=-1, secure=false}
+2015/01/09 10:03:39:278 ART [DEBUG] wire - http-outgoing-0 << "HTTP/1.1 200 OK[\r][\n]"
+2015/01/09 10:03:39:278 ART [DEBUG] wire - http-outgoing-0 << "Content-Type: text/html;charset=UTF-8[\r][\n]"
+2015/01/09 10:03:39:278 ART [DEBUG] wire - http-outgoing-0 << "Content-Length: 14[\r][\n]"
+2015/01/09 10:03:39:278 ART [DEBUG] wire - http-outgoing-0 << "Date: Fri, 09 Jan 2015 13:03:39 GMT[\r][\n]"
+2015/01/09 10:03:39:278 ART [DEBUG] wire - http-outgoing-0 << "[\r][\n]"
+2015/01/09 10:03:39:278 ART [DEBUG] wire - http-outgoing-0 << "Optional.empty"
+2015/01/09 10:03:39:278 ART [DEBUG] headers - http-outgoing-0 << HTTP/1.1 200 OK
+2015/01/09 10:03:39:278 ART [DEBUG] headers - http-outgoing-0 << Content-Type: text/html;charset=UTF-8
+2015/01/09 10:03:39:278 ART [DEBUG] headers - http-outgoing-0 << Content-Length: 14
+2015/01/09 10:03:39:278 ART [DEBUG] headers - http-outgoing-0 << Date: Fri, 09 Jan 2015 13:03:39 GMT
+2015/01/09 10:03:39:278 ART [DEBUG] MainClientExec - Connection can be kept alive indefinitely
+2015/01/09 10:03:39:279 ART [DEBUG] PoolingHttpClientConnectionManager - Connection [id: 0][route: {}->http://localhost:64302] can be kept alive indefinitely
+2015/01/09 10:03:39:279 ART [DEBUG] PoolingHttpClientConnectionManager - Connection released: [id: 0][route: {}->http://localhost:64302][total kept alive: 1; route allocated: 1 of 100; total allocated: 1 of 200]
+INFO  [2015-01-09 10:03:39,283] [main] Server stopped
