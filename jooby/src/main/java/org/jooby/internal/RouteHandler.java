@@ -210,10 +210,6 @@ public class RouteHandler {
     req.ifSession().ifPresent(session -> req.getInstance(SessionManager.class).requestDone(session));
   }
 
-  public Injector injector() {
-    return rootInjector;
-  }
-
   private static String normalizeURI(final String uri) {
     return uri.endsWith("/") && uri.length() > 1 ? uri.substring(0, uri.length() - 1) : uri;
   }
