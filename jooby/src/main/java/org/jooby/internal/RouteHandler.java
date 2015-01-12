@@ -40,6 +40,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.jooby.Body;
@@ -99,18 +100,22 @@ public class RouteHandler {
 
   private Err.Handler err;
 
+  private String applicationPath;
+
   @Inject
   public RouteHandler(final Injector injector,
       final BodyConverterSelector selector,
       final Set<Request.Module> modules,
       final Set<Route.Definition> routes,
+      final @Named("application.path") String path,
       final Charset defaultCharset,
       final Locale defaultLocale,
       final Err.Handler err) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.modules = requireNonNull(modules, "Request modules are required.");
-    this.routeDefs = requireNonNull(routes, "The routes are required.");
+    this.routeDefs = requireNonNull(routes, "Routes are required.");
+    this.applicationPath = normalizeURI(requireNonNull(path, "An application.path is required."));
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
     this.locale = requireNonNull(defaultLocale, "A defaultLocale is required.");
     this.err = requireNonNull(err, "An err handler is required.");
@@ -122,6 +127,14 @@ public class RouteHandler {
     long start = System.currentTimeMillis();
     Verb verb = Verb.valueOf(method.toUpperCase());
     String requestURI = normalizeURI(uri);
+    boolean resolveAs404 = false;
+    if (applicationPath.equals(requestURI)) {
+      requestURI = "/";
+    } else if (requestURI.startsWith(applicationPath)) {
+      requestURI = requestURI.substring(applicationPath.length());
+    } else {
+      resolveAs404 = true;
+    }
 
     Map<String, Object> locals = new LinkedHashMap<>();
 
@@ -174,7 +187,9 @@ public class RouteHandler {
         }
       });
 
-      List<Route> routes = routes(routeDefs, verb, requestURI, type, accept);
+      List<Route> routes = resolveAs404
+          ? ImmutableList.of(notFound)
+          : routes(routeDefs, verb, requestURI, type, accept);
 
       chain(routes)
           .next(req.get(injector, notFound), rsp.get(injector, notFound));
@@ -207,7 +222,8 @@ public class RouteHandler {
   }
 
   private void saveSession(final Request req) {
-    req.ifSession().ifPresent(session -> req.getInstance(SessionManager.class).requestDone(session));
+    req.ifSession()
+        .ifPresent(session -> req.getInstance(SessionManager.class).requestDone(session));
   }
 
   private static String normalizeURI(final String uri) {
