@@ -26,21 +26,15 @@ Let's try it!:
 
 You should see something similar to this at the end of the output:
 
-    INFO  [2014-11-04 09:20:12,526] Logging initialized @645ms
-    INFO  [2014-11-04 09:20:12,574] jetty-9.2.3.v20140905
-    INFO  [2014-11-04 09:20:12,599] Started o.e.j.s.h.ContextHandler@26b3fd41{/,null,AVAILABLE}
-    INFO  [2014-11-04 09:20:12,612] Started ServerConnector@53e8321d{HTTP/1.1}{0.0.0.0:8080}
-    INFO  [2014-11-04 09:20:12,736] Started ServerConnector@74ea2410{SSL-HTTP/1.1}{0.0.0.0:8443}
-    INFO  [2014-11-04 09:20:12,736] Started @859ms
-    INFO  [2014-11-04 09:20:12,736] 
-    Routes:
-      GET /favicon.ico    [*/*]     [*/*]    (anonymous)
-      GET /assets/**/*    [*/*]     [*/*]    (static files)
-      GET /               [*/*]     [*/*]    (anonymous)
+    INFO  [2015-01-12 17:22:52,193] XNIO version 3.3.0.Final
+    INFO  [2015-01-12 17:22:52,237] XNIO NIO Implementation Version 3.3.0.Final
+    INFO  [2015-01-12 17:22:52,525] Server started in 650ms
+    GET /favicon.ico    [*/*]     [*/*]    (anonymous)
+    GET /assets/**/*    [*/*]     [*/*]    (anonymous)
+    GET /               [*/*]     [*/*]    (anonymous)
 
-Open a browser and type:
-
-    http://localhost:8080/
+    listening on:
+      http://localhost:8080
 
 Jooby! is up and running!!!
 

@@ -88,7 +88,7 @@ help and support
 related projects
 =====
 
- * [Jetty](https://www.eclipse.org/jetty/)
+ * [Undertow](http://undertow.io/)
  * [Guice](https://github.com/google/guice)
  * [Type Safe](https://github.com/typesafehub/config)
  * [Logback](http://logback.qos.ch)

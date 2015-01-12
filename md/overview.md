@@ -1,6 +1,6 @@
 # overview
 
-Jooby is an micro-web framework for Java 8 (or higher) inspired by [Express](http://expressjs.com/). 
+A minimalist web framework for Java 8, inspired by [express.js](http://expressjs.com/) (between others).
 
 Jooby API mimics (as much as possible) the [Express API](http://expressjs.com/4x/api.html).
 
@@ -8,29 +8,11 @@ API is short and easy to learn, around 30 classes for the core project. Java doc
 
 ## technology stack
 
-http nio server
------
-
-Jooby believes in [Jetty 9.x](https://www.eclipse.org/jetty) for NIO HTTP. Since version 9.x Jetty use a NIO connector for HTTP.
-
-If you want to learn more about NIO in Jetty 9.x [go here](http://stackoverflow.com/questions/25195128/how-do-jetty-and-other-containers-leverage-nio-while-sticking-to-the-servlet-spe)
-
-dependency injection
------
-
-Jooby believes in [Guice 4.x](https://github.com/google/guice) for dependency injection.
-
-config files
------
-
-Jooby believes in [Type Safe Config](https://github.com/typesafehub/config) for config files.
-
-logging
------
-
-Jooby believes in [logback](http://logback.qos.ch/) for logging.
-
-maven 3.x
+* [Undertow](http://undertow.io/): for a high performance and non-blocking IO web server. is the web server behind [WildFly](http://wildfly.org/about/) (a.k.a JBoss App Server).
+* [Guice](https://github.com/google/guice): for dependency injection and modularity.
+* [Config](https://github.com/typesafehub/config): for powerful config files.
+* [logback](http://logback.qos.ch/): for debugging and logging.
+* [maven 3.x](http://maven.apache.org/): for building apps.
 -----
 
 Jooby believes in [maven 3.x](http://maven.apache.org/) for building/running/packaging and distributing Java project.
