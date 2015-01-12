@@ -184,7 +184,7 @@ get("/", (req, rsp) -> {
 
 ```
 
-The 3rd arg is required if you need to decided if the next route need to be executed or not. If you always call **chain.next** the 3rd arg isn't require and does is exactly what the 2arg handler does: **always call chain.next**
+The 3rd arg is required if you need to decide if the next route need to be executed or not. If you always call **chain.next** the 3rd arg isn't required and does exactly what the 2arg handler does: **always call chain.next**
 
 A good example for a filter is to handle for example authentication:
 

@@ -46,7 +46,7 @@ get("/", (req, rsp) -> {
 
 Retrieval of response headers is done via [rsp.header("name")](http://jooby.org/apidocs/org/jooby/Response.html#header-java.lang.String-). The method always returns a [Mutant](http://jooby.org/apidocs/org/jooby/Mutant.html) and from there you can convert to any of the supported types.
 
-Setting a header is pretty straight forward too:
+Setting a header is pretty straightforward too:
 
    rsp.header("Header-Name", value).header("Header2", value);
 

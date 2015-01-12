@@ -50,7 +50,7 @@ Now, let's suppose a very poor API design and we have a route handler that accep
 
 A call like:
 
-    curl -X POST -d "name=third" http://localhost:8080/user/first?name=second
+    curl -X POST -d "id=third" http://localhost:8080/user/first?id=second
 
 Produces:
 
@@ -68,7 +68,7 @@ get("/user/:id", (req, rsp) -> {
 });
 ```
 
-An API like this should be avoided and we mention here this is possible so you can take note and figure it out if something doesn't work as you expect.
+An API like this should be avoided and we mention it here to say that this is possible so you can take note and figure out if something doesn't work as you expect.
 
 #### param type conversion
 

@@ -15,6 +15,6 @@ On such cases all you have to do is to put the ```logback.xml``` file outside th
     ls
     myapp.jar logback.xml
 
-The bootstrap process look for a file in the same directory where you app was launched (user.dir property) if the file is found there it will be selected. Otherwise, it fallback to the root of the classpath.
+The bootstrap process looks for a file in the same directory where you app was launched (user.dir property) if the file is found there it will be selected. Otherwise, it falls back to the root of the classpath.
 
 If at the time you started your app the console shows a lot of logs statement, that is because log wasn't configured properly. Either, the config file is missing or it has syntax errors.

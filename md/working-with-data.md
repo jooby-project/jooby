@@ -25,7 +25,7 @@ A call like:
 
 Results in ```415 - Unsupported Media Type```. That is because Jooby has no idea how to parse ```application/json```. For that, we need a **json** parser.
 
-Let's said we need to implement a JSON body parser (in real life you wont ever implement a json parser, this is just to demonstrate how they work):
+Let's said we need to implement a JSON body parser (in real life you wont ever implement a json parser, this is just to demonstrate how it works):
 
 ```java
 public class Json implements Body.Parser {
@@ -59,7 +59,7 @@ Using it:
 
 **How it works**?
 
-A route by default consumes ```*/*``` (any media type). Jooby will find/choose the **parser** who best matches the ```Content-Type``` header.
+A route by default consumes ```*/*``` (any media type). Jooby will find/choose the **parser** which best matches the ```Content-Type``` header.
 
 The ```Content-Type``` header is compared against the [parser.types()](http://jooby.org/apidocs/org/jooby/Body.Parser.html#types--) method.
 
@@ -87,7 +87,7 @@ The **consumes** method control what a route can consume or parse explicitly.
     curl -X POST -H 'Content-Type: application/xml' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
 
 
-In general, you hardly will use **consumes** in your routes. It is been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depends on your app requirements. For example if you need more than **json** for your routes (xml, yaml, etc..).
+In general, you hardly will use **consumes** in your routes. It has been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depend on your app requirements. For example if you need more than **json** for your routes (xml, yaml, etc..).
 
 Another small advantage of using **consumes** is that the ```415``` response can be detected early (at the time a route is resolved) and not later or lazy (at the time you ask for type conversion).
 
@@ -195,7 +195,7 @@ The **produces** method control what a route can accept or format explicitly.
 
     curl 'Accept: application/xml' http://localhost:8080/
 
-In general, you hardly will use **produces** in your routes. It is been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depends on your app requirements.
+In general, you hardly will use **produces** in your routes. It has been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depend on your app requirements.
 
 Another small advantage of using **produces** is that the ```406``` response can be detected early (at the time a route is resolved) and not lazily (at the time you ask for type conversion).
 
@@ -230,7 +230,7 @@ There is no much to say about views & engines, any other detail or documentation
 
 ## response.format
 
-As you learn before, content negotiation is done and executed every time a request is processed. Sometimes this isn't enough and that's why [rsp.format](http://jooby.org/apidocs/org/jooby/Response.html#format--) exists:
+As you learnt before, content negotiation is done and executed every time a request is processed. Sometimes this isn't enough and that's why [rsp.format](http://jooby.org/apidocs/org/jooby/Response.html#format--) exists:
 
 ```java
 get("/", (req, rsp)  ->

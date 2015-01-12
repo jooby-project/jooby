@@ -36,7 +36,7 @@ But remember, there isn't a child injector and/or request objects.
 
 ## consumes
 
-Web socket can defined a type to consumes: 
+Web socket can define a type to consume:
 
 ```
 {
@@ -55,7 +55,7 @@ This is just an utility method for parsing socket message to Java Object. Consum
 
 ## produces
 
-Web socket can defined a type to produces: 
+Web socket can define a type to produce: 
 
 ```
 {

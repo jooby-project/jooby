@@ -41,7 +41,7 @@ A method annotated with [GET](http://jooby.org/apidocs/org/jooby/mvc/GET.html), 
 
 Mvc routes must be registered, there is no auto-discover feature (and it won't be), classpath scanning, ..., etc.
 
-We learnt that the order that you defines your route have a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly declared. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
+We learnt that the order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly declared. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
 
 So, how do I register a mvc route? Easy: in the same way everything else is registered in Jooby... from your app class:
 
@@ -201,7 +201,7 @@ public Object home() {
 }
 ```
 
-Last example if useful if you have want to create let's said a **text/html** (viewable) and **application/json** (data) responses.
+Last example is useful if you want to create let's said a **text/html** (viewable) and **application/json** (data) responses.
 
 ### customizing the response
 

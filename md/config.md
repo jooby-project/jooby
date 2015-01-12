@@ -73,23 +73,23 @@ System properties can override any other property. A sys property is be set at s
 
 ### file://[application].[mode].[conf] 
 
-The use of this conf file is optional, because Jooby recommend to deploy your as a **fat jar** and all the properties files should be bundled inside the jar.
+The use of this conf file is optional, because Jooby recommend to deploy your application as a **fat jar** and all the properties files should be bundled inside the jar.
 
 If you find this impractical, then this option will work for you.
 
-Let's said your app includes a default property file: ```application.conf``` bundled with your **fat jar**. Now if you want/need to override two or more properties, just do this
+Let's say your app includes a default property file: ```application.conf``` bundled with your **fat jar**. Now if you want/need to override two or more properties, just do this:
 
 * find a directory to deploy your app
 * inside that directory create a file: ```application.conf```
 * start the app from same directory
 
-That's all. The file system conf file will takes precedence over the classpath path config files overriding any property.
+That's all. The file system conf file will take precedence over the classpath path config files overriding any property.
 
 A good practice is to start up your app with a **mode**, like:
 
     java -jar myapp.jar -Dapplication.mode=prod
 
-The process is the same, except but this time you can name your file as: 
+The process is the same, except this time you can name your file as:
 
     application.prod.conf
 
@@ -103,7 +103,7 @@ Example: you have two config files: ```application.conf``` and ```application.pr
 
 So here the ```application.prod.conf``` will takes precedence over the ```application.conf``` conf file.
 
-This is the recommended option from Jooby, because your app doesn't have a external dependency. If you need to deploy the app in a new server all you need is your **fat jar**
+This is the recommended option from Jooby, because your app doesn't have an external dependency. If you need to deploy the app in a new server all you need is your **fat jar**
 
 ### [application].[conf]
 
@@ -118,7 +118,7 @@ This is your default config files and it should be bundle inside the **fat jar**
 
 ### [modules in reverse].[conf]
 
-As mentioned in the [modules](#modules) section a module might defines his own set of properties.
+As mentioned in the [modules](#modules) section a module might define his own set of properties.
 
 ```
   {

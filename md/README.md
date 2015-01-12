@@ -5,7 +5,7 @@
 jooby
 =====
 
-A minimalist web framework for Java 8, inspired by express.js and others ;)
+A minimalist web framework for Java 8, inspired by [express.js](http://expressjs.com/) and others ;)
 
 ```java
 
@@ -74,7 +74,7 @@ want to contribute?
 * If you know the answer to a question posted to our [group](https://groups.google.com/forum/#!forum/jooby-project) - don't hesitate to write a reply.
 * Share your ideas or ask questions on the [jooby group](https://github.com/jooby-project/jooby/issues) - don't hesitate to write a reply - that helps us improve javadocs/FAQ.
 * If you miss a particular feature - browse or ask on the [group](https://groups.google.com/forum/#!forum/jooby-project) - don't hesitate to write a reply, show us some sample code and describe the problem.
-* Write a blog post about how you use or extend [jooby][http://jooby.org].
+* Write a blog post about how you use or extend [jooby](http://jooby.org).
 * Please suggest changes to javadoc/exception messages when you find something unclear.
 * If you have problems with documentation, find it non intuitive or hard to follow - let us know about it, we'll try to make it better according to your suggestions. Any constructive critique is greatly appreciated. Don't forget that this is an open source project developed and documented in spare time.
 
