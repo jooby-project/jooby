@@ -33,6 +33,7 @@
 package org.jooby.internal.undertow;
 
 import static java.util.Objects.requireNonNull;
+import io.undertow.io.UndertowOutputStream;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.CookieImpl;
 import io.undertow.util.Headers;
@@ -315,7 +316,7 @@ public class UndertowResponse implements Response {
   }
 
   public void reset() {
-    ((TmpOutputStream) exchange.getOutputStream()).resetBuffer();
+    ((UndertowOutputStream) exchange.getOutputStream()).resetBuffer();
     status = null;
     exchange.getResponseHeaders().clear();
   }
