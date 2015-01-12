@@ -8,7 +8,6 @@ target
 .classpath
 .project
 .settings
-bin
 dependency-reduced-pom.xml
 
 # OSX
