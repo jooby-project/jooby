@@ -72,8 +72,16 @@ public class Hbs implements Jooby.Module {
         // build new context
         context = Context
             .newBuilder(model)
-            .resolver(MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE,
-                FieldValueResolver.INSTANCE, MethodValueResolver.INSTANCE)
+            // merge request locals (req+sessions locals)
+            .combine(writer.locals())
+            .resolver(
+                MapValueResolver.INSTANCE,
+                JavaBeanValueResolver.INSTANCE,
+                MethodValueResolver.INSTANCE,
+                FieldValueResolver.INSTANCE,
+                new LocalValueResolver(),
+                new ConfigValueResolver()
+            )
             .build();
       }
 

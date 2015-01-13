@@ -63,8 +63,11 @@ public class RequestLocalsFeature extends ServerFeature {
 
   @Test
   public void attributes() throws Exception {
-    assertEquals("{l1=v1}", Request.Get(uri("locals", "attributes").build()).execute()
-        .returnContent().asString());
+    String rsp = Request.Get(uri("locals", "attributes").build()).execute().returnContent().asString();
+    rsp = rsp.replace("contextPath=/", "");
+    rsp = rsp.replace("path=/locals/attributes", "");
+    rsp = rsp.replace("l1=v1", "");
+    assertEquals("{, , }", rsp);
   }
 
 }
