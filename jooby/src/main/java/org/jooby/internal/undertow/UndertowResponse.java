@@ -68,6 +68,7 @@ import org.jooby.internal.MutantImpl;
 import org.jooby.internal.SetHeaderImpl;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 
 public class UndertowResponse implements Response {
@@ -86,16 +87,23 @@ public class UndertowResponse implements Response {
 
   private Route route;
 
+  private Map<String, Object> locals;
+
   private SetHeaderImpl setHeader;
 
   private Optional<String> referer;
 
-  public UndertowResponse(final HttpServerExchange exchange, final Injector injector,
-      final Route route, final BodyConverterSelector selector,
-      final Charset charset, final Optional<String> referer) {
+  public UndertowResponse(final HttpServerExchange exchange,
+      final Injector injector,
+      final Route route,
+      final Map<String, Object> locals,
+      final BodyConverterSelector selector,
+      final Charset charset,
+      final Optional<String> referer) {
     this.exchange = requireNonNull(exchange, "An exchange is required.");
     this.injector = requireNonNull(injector, "An injector is required.");
     this.route = requireNonNull(route, "A route is required.");
+    this.locals = requireNonNull(locals, "The locals is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
     this.charset = requireNonNull(charset, "A charset is required.");
     this.referer = requireNonNull(referer, "A referer is required.");
@@ -364,7 +372,9 @@ public class UndertowResponse implements Response {
         // override status when message is a status
         status((Status) message);
       }
-      formatter.format(message, new BodyWriterImpl(charset, stream, writer));
+
+      formatter.format(message, new BodyWriterImpl(charset, ImmutableMap.copyOf(locals),
+          stream, writer));
     } else {
       // close output
       stream.get().close();

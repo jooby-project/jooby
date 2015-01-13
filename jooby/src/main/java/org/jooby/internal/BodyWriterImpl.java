@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Map;
 
 import org.jooby.Body;
 import org.jooby.fn.ExSupplier;
@@ -36,12 +38,24 @@ public class BodyWriterImpl implements Body.Writer {
 
   private ExSupplier<Writer> writer;
 
-  public BodyWriterImpl(final Charset charset,
-      final ExSupplier<OutputStream> stream,
-      final ExSupplier<Writer> writer) {
+  private Map<String, Object> locals;
+
+  public BodyWriterImpl(final Charset charset, final Map<String, Object> locals,
+      final ExSupplier<OutputStream> stream, final ExSupplier<Writer> writer) {
     this.charset = requireNonNull(charset, "A charset is required.");
+    this.locals = requireNonNull(locals, "Request locals are required.");
     this.stream = requireNonNull(stream, "A stream is required.");
     this.writer = requireNonNull(writer, "A writer is required.");
+  }
+
+  public BodyWriterImpl(final Charset charset, final ExSupplier<OutputStream> stream,
+      final ExSupplier<Writer> writer) {
+    this(charset, Collections.emptyMap(), stream, writer);
+  }
+
+  @Override
+  public Map<String, Object> locals() {
+    return locals;
   }
 
   @Override

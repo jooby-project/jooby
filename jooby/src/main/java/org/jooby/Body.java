@@ -247,9 +247,8 @@ public class Body {
   }
 
   /**
-   * Utility class to properly write data into the HTTP response body. It provides methods for
-   * writing text and bytes efficiently. Clients shouldn't worry about closing the HTTP response
-   * body.
+   * A write context. It provides methods for writing text and binary responses efficiently.
+   * Access to current request locals is available too from: {@link #locals()}.
    *
    * @author edgar
    * @since 0.1.0
@@ -298,6 +297,13 @@ public class Body {
      * @return A charset.
      */
     Charset charset();
+
+    /**
+     * Access to request locals. See {@link Request#attributes()} and {@link Locals}.
+     *
+     * @return Current request locals.
+     */
+    Map<String, Object> locals();
 
     /**
      * Write text into the HTTP response body using the {@link #charset()} and close the resources.
