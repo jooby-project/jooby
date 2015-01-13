@@ -126,19 +126,22 @@ public class RouteHandler {
 
     long start = System.currentTimeMillis();
     Verb verb = Verb.valueOf(method.toUpperCase());
-    String requestURI = normalizeURI(uri);
+    String requestPath = normalizeURI(uri);
     boolean resolveAs404 = false;
-    if (applicationPath.equals(requestURI)) {
-      requestURI = "/";
-    } else if (requestURI.startsWith(applicationPath)) {
+    if (applicationPath.equals(requestPath)) {
+      requestPath = "/";
+    } else if (requestPath.startsWith(applicationPath)) {
       if (!applicationPath.equals("/")) {
-        requestURI = requestURI.substring(applicationPath.length());
+        requestPath = requestPath.substring(applicationPath.length());
       }
     } else {
       resolveAs404 = true;
     }
 
     Map<String, Object> locals = new LinkedHashMap<>();
+    // default locals
+    locals.put("contextPath", applicationPath);
+    locals.put("path", requestPath);
 
     List<MediaType> accept = Optional.ofNullable(headers.apply("Accept"))
         .map(MediaType::parse)
@@ -152,7 +155,7 @@ public class RouteHandler {
         .map(MediaType::valueOf)
         .orElse(MediaType.all);
 
-    final String path = verb + requestURI;
+    final String path = verb + requestPath;
 
     log.debug("handling: {}", path);
 
@@ -171,7 +174,7 @@ public class RouteHandler {
             charset, locale));
 
     Holder<Response> rsp = new Holder<>((injector, route) ->
-        new UndertowResponse(exchange, injector, route, selector, charset,
+        new UndertowResponse(exchange, injector, route, locals, selector, charset,
             Optional.ofNullable(headers.apply("Referer"))));
 
     Injector injector = rootInjector;
@@ -191,7 +194,7 @@ public class RouteHandler {
 
       List<Route> routes = resolveAs404
           ? ImmutableList.of(notFound)
-          : routes(routeDefs, verb, requestURI, type, accept);
+          : routes(routeDefs, verb, requestPath, type, accept);
 
       chain(routes)
           .next(req.get(injector, notFound), rsp.get(injector, notFound));
