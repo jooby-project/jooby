@@ -131,7 +131,9 @@ public class RouteHandler {
     if (applicationPath.equals(requestURI)) {
       requestURI = "/";
     } else if (requestURI.startsWith(applicationPath)) {
-      requestURI = requestURI.substring(applicationPath.length());
+      if (!applicationPath.equals("/")) {
+        requestURI = requestURI.substring(applicationPath.length());
+      }
     } else {
       resolveAs404 = true;
     }

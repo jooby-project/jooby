@@ -1,4 +1,4 @@
-package org.jooby.integration;
+package org.jooby.issues;
 
 import static org.junit.Assert.assertEquals;
 
@@ -13,7 +13,7 @@ import org.junit.Test;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
-public class AppContextPathFeature extends ServerFeature {
+public class Issue22 extends ServerFeature {
 
   {
 

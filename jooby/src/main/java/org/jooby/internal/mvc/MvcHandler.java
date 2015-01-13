@@ -20,6 +20,7 @@ package org.jooby.internal.mvc;
 
 import static java.util.Objects.requireNonNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,8 @@ import org.jooby.internal.reqparam.RequestParam;
 import org.jooby.internal.reqparam.RequestParamProvider;
 import org.jooby.internal.undertow.UndertowResponse;
 import org.jooby.mvc.Viewable;
+
+import com.google.common.base.Throwables;
 
 class MvcHandler implements Route.Handler {
 
@@ -55,59 +58,65 @@ class MvcHandler implements Route.Handler {
   @Override
   public void handle(final Request req, final Response rsp) throws Exception {
 
-    Object target = req.getInstance(handler.getDeclaringClass());
+    try {
+      Object target = req.getInstance(handler.getDeclaringClass());
 
-    List<RequestParam> parameters = provider.parameters(handler);
-    Object[] args = new Object[parameters.size()];
-    for (int i = 0; i < parameters.size(); i++) {
-      args[i] = parameters.get(i).value(req, rsp);
-    }
-
-    final Object result = handler.invoke(target, args);
-
-    Class<?> returnType = handler.getReturnType();
-    if (returnType == void.class || returnType == Void.class) {
-      // ignore glob pattern
-      if (!req.route().pattern().contains("*")) {
-        rsp.status(Status.NO_CONTENT);
+      List<RequestParam> parameters = provider.parameters(handler);
+      Object[] args = new Object[parameters.size()];
+      for (int i = 0; i < parameters.size(); i++) {
+        args[i] = parameters.get(i).value(req, rsp);
       }
-      return;
-    }
-    rsp.status(Status.OK);
 
-    // format!
-    List<MediaType> accept = req.accept();
+      final Object result = handler.invoke(target, args);
 
-    ExSupplier<Object> viewable = () -> {
-      if (result instanceof View) {
-        return result;
+      Class<?> returnType = handler.getReturnType();
+      if (returnType == void.class || returnType == Void.class) {
+        // ignore glob pattern
+        if (!req.route().pattern().contains("*")) {
+          rsp.status(Status.NO_CONTENT);
+        }
+        return;
       }
-      // default view name
-      String defaultViewName = Optional.ofNullable(handler.getAnnotation(Viewable.class))
-          .map(template -> template.value().isEmpty() ? handler.getName() : template.value())
-          .orElse(handler.getName());
-      return View.of(defaultViewName, result);
-    };
+      rsp.status(Status.OK);
 
-    ExSupplier<Object> notViewable = () -> result;
+      // format!
+      List<MediaType> accept = req.accept();
 
-    List<MediaType> viewableTypes = ((UndertowResponse) Response.Forwarding.unwrap(rsp))
-        .viewableTypes();
+      ExSupplier<Object> viewable = () -> {
+        if (result instanceof View) {
+          return result;
+        }
+        // default view name
+        String defaultViewName = Optional.ofNullable(handler.getAnnotation(Viewable.class))
+            .map(template -> template.value().isEmpty() ? handler.getName() : template.value())
+            .orElse(handler.getName());
+        return View.of(defaultViewName, result);
+      };
 
-    Function<MediaType, ExSupplier<Object>> provider = (type) -> {
-      Optional<MediaType> matches = viewableTypes.stream()
-          .filter(it -> it.matches(type))
-          .findFirst();
-      return matches.isPresent() ? viewable : notViewable;
-    };
+      ExSupplier<Object> notViewable = () -> result;
 
-    Response.Formatter formatter = rsp.format();
+      List<MediaType> viewableTypes = ((UndertowResponse) Response.Forwarding.unwrap(rsp))
+          .viewableTypes();
 
-    // add formatters
-    accept.forEach(type -> formatter.when(type, provider.apply(type)));
-    produces.forEach(type -> formatter.when(type, provider.apply(type)));
+      Function<MediaType, ExSupplier<Object>> provider = (type) -> {
+        Optional<MediaType> matches = viewableTypes.stream()
+            .filter(it -> it.matches(type))
+            .findFirst();
+        return matches.isPresent() ? viewable : notViewable;
+      };
 
-    // send!
-    formatter.send();
+      Response.Formatter formatter = rsp.format();
+
+      // add formatters
+      accept.forEach(type -> formatter.when(type, provider.apply(type)));
+      produces.forEach(type -> formatter.when(type, provider.apply(type)));
+
+      // send!
+      formatter.send();
+    } catch (InvocationTargetException ex) {
+      Throwable cause = ex.getCause();
+      Throwables.propagateIfInstanceOf(cause, Exception.class);
+      Throwables.propagate(cause);
+    }
   }
 }
