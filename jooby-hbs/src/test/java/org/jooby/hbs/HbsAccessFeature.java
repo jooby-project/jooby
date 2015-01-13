@@ -15,7 +15,7 @@ public class HbsAccessFeature extends ServerFeature {
   {
     use(new Hbs());
 
-    get("/", req -> req.getInstance(Key.get(View.Engine.class, Names.named("hbs"))));
+    get("/", req -> req.require(Key.get(View.Engine.class, Names.named("hbs"))));
   }
 
   @Test

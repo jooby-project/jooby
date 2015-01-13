@@ -122,7 +122,7 @@ public class Hbm extends Jdbc {
 
   private static Route.Filter readWriteTrx(final Key<EntityManager> key, final Logger log) {
     return (req, resp, chain) -> {
-      EntityManager em = req.getInstance(key);
+      EntityManager em = req.require(key);
       Session session = (Session) em.getDelegate();
       FlushMode flushMode = FlushMode.AUTO;
       log.debug("setting flush mode to: {}", flushMode);

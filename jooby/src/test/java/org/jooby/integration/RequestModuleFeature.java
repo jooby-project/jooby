@@ -56,11 +56,11 @@ public class RequestModuleFeature extends ServerFeature {
 
     get("/", (req, resp) -> {
       // ask once
-        req.getInstance(RequestScoped.class);
+        req.require(RequestScoped.class);
         // ask twice
-        req.getInstance(RequestScoped.class);
+        req.require(RequestScoped.class);
         // get it
-        resp.send(req.getInstance(RequestScoped.class));
+        resp.send(req.require(RequestScoped.class));
       });
 
     use(Resource.class);

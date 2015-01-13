@@ -59,7 +59,7 @@ class MvcHandler implements Route.Handler {
   public void handle(final Request req, final Response rsp) throws Exception {
 
     try {
-      Object target = req.getInstance(handler.getDeclaringClass());
+      Object target = req.require(handler.getDeclaringClass());
 
       List<RequestParam> parameters = provider.parameters(handler);
       Object[] args = new Object[parameters.size()];

@@ -26,14 +26,14 @@ public class HbmScanFeature extends ServerFeature {
     use(new Hbm().scan());
 
     get("/members", req -> {
-      EntityManager em = req.getInstance(EntityManager.class);
+      EntityManager em = req.require(EntityManager.class);
       Query query = em.createQuery("from Member");
       return query.getResultList();
     });
 
     post("/members", (req, rsp, chain) -> {
       Member member = req.params(Member.class);
-      EntityManager em = req.getInstance(EntityManager.class);
+      EntityManager em = req.require(EntityManager.class);
       em.persist(member);
       if (req.param("err").toOptional(Boolean.class).orElse(false)) {
         throw new IllegalArgumentException("Rollback on err");

@@ -202,18 +202,18 @@ public class RequestForwardingTest {
     new MockUnit(Request.class)
         .expect(unit -> {
           Request req = unit.get(Request.class);
-          expect(req.getInstance(key)).andReturn(null);
+          expect(req.require(key)).andReturn(null);
 
-          expect(req.getInstance(typeLiteral)).andReturn(null);
+          expect(req.require(typeLiteral)).andReturn(null);
 
-          expect(req.getInstance(Object.class)).andReturn(null);
+          expect(req.require(Object.class)).andReturn(null);
         })
         .run(unit -> {
-          assertEquals(null, new Request.Forwarding(unit.get(Request.class)).getInstance(key));
+          assertEquals(null, new Request.Forwarding(unit.get(Request.class)).require(key));
 
-          assertEquals(null, new Request.Forwarding(unit.get(Request.class)).getInstance(typeLiteral));
+          assertEquals(null, new Request.Forwarding(unit.get(Request.class)).require(typeLiteral));
 
-          assertEquals(null, new Request.Forwarding(unit.get(Request.class)).getInstance(Object.class));
+          assertEquals(null, new Request.Forwarding(unit.get(Request.class)).require(Object.class));
         });
   }
 

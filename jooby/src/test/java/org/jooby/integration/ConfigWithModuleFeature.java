@@ -14,7 +14,7 @@ public class ConfigWithModuleFeature extends ServerFeature {
 
   {
 
-    get("/", (req, rsp) -> rsp.send(req.getInstance(Config.class).getString("m1.prop")));
+    get("/", (req, rsp) -> rsp.send(req.require(Config.class).getString("m1.prop")));
 
     use(ConfigFactory.parseResources("test.prod.conf")
         .withValue("application.secret", ConfigValueFactory.fromAnyRef("123"))

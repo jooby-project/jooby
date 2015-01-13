@@ -75,7 +75,7 @@ public class RequestTest {
     }
 
     @Override
-    public <T> T getInstance(final Key<T> key) {
+    public <T> T require(final Key<T> key) {
       throw new UnsupportedOperationException();
     }
 
@@ -205,11 +205,11 @@ public class RequestTest {
     LinkedList<Object> dataList = new LinkedList<>();
     new RequestMock() {
       @Override
-      public <T> T getInstance(final Key<T> key) {
+      public <T> T require(final Key<T> key) {
         dataList.add(key);
         return null;
       }
-    }.getInstance(Object.class);
+    }.require(Object.class);
     assertEquals(Arrays.asList(Key.get(Object.class)), dataList);
   }
 
@@ -218,11 +218,11 @@ public class RequestTest {
     LinkedList<Object> dataList = new LinkedList<>();
     new RequestMock() {
       @Override
-      public <T> T getInstance(final Key<T> key) {
+      public <T> T require(final Key<T> key) {
         dataList.add(key);
         return null;
       }
-    }.getInstance(TypeLiteral.get(Object.class));
+    }.require(TypeLiteral.get(Object.class));
     assertEquals(Arrays.asList(Key.get(Object.class)), dataList);
   }
 

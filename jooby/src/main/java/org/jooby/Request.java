@@ -142,18 +142,18 @@ public interface Request extends Locals {
     }
 
     @Override
-    public <T> T getInstance(final Class<T> type) {
-      return req.getInstance(type);
+    public <T> T require(final Class<T> type) {
+      return req.require(type);
     }
 
     @Override
-    public <T> T getInstance(final TypeLiteral<T> type) {
-      return req.getInstance(type);
+    public <T> T require(final TypeLiteral<T> type) {
+      return req.require(type);
     }
 
     @Override
-    public <T> T getInstance(final Key<T> key) {
-      return req.getInstance(key);
+    public <T> T require(final Key<T> key) {
+      return req.require(key);
     }
 
     @Override
@@ -564,8 +564,8 @@ public interface Request extends Locals {
    * @see Request.Module
    */
   @Nonnull
-  default <T> T getInstance(@Nonnull final Class<T> type) {
-    return getInstance(Key.get(type));
+  default <T> T require(@Nonnull final Class<T> type) {
+    return require(Key.get(type));
   }
 
   /**
@@ -577,8 +577,8 @@ public interface Request extends Locals {
    * @see Request.Module
    */
   @Nonnull
-  default <T> T getInstance(@Nonnull final TypeLiteral<T> type) {
-    return getInstance(Key.get(type));
+  default <T> T require(@Nonnull final TypeLiteral<T> type) {
+    return require(Key.get(type));
   }
 
   /**
@@ -590,7 +590,7 @@ public interface Request extends Locals {
    * @see Request.Module
    */
   @Nonnull
-  <T> T getInstance(@Nonnull Key<T> key);
+  <T> T require(@Nonnull Key<T> key);
 
   /**
    * The charset defined in the request body. If the request doesn't specify a character

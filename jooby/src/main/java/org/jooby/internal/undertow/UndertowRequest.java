@@ -311,7 +311,7 @@ public class UndertowRequest implements Request {
   }
 
   @Override
-  public <T> T getInstance(final Key<T> key) {
+  public <T> T require(final Key<T> key) {
     return injector.getInstance(key);
   }
 
@@ -358,9 +358,9 @@ public class UndertowRequest implements Request {
   @Override
   public Session session() {
     return ifSession().orElseGet(() -> {
-      SessionManager sm = getInstance(SessionManager.class);
+      SessionManager sm = require(SessionManager.class);
       Session localSession = sm.get(this);
-      Response rsp = getInstance(Response.class);
+      Response rsp = require(Response.class);
       if (localSession == null) {
         localSession = sm.create(this, rsp);
       }

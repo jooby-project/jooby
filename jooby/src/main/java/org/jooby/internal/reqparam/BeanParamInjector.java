@@ -48,8 +48,8 @@ public class BeanParamInjector {
   }
 
   private static Object newBean(final Request req, final Class<?> beanType) throws Exception {
-    Response rsp = req.getInstance(Response.class);
-    RouteMetadata classInfo = req.getInstance(RouteMetadata.class);
+    Response rsp = req.require(Response.class);
+    RouteMetadata classInfo = req.require(RouteMetadata.class);
     Constructor<?>[] constructors = beanType.getDeclaredConstructors();
     if (constructors.length > 1) {
       throw new IllegalArgumentException("Bean param has multiple constructors: " + beanType);

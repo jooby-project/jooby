@@ -17,9 +17,9 @@ public class JsonAccessFeature extends ServerFeature {
   {
     use(new Json());
 
-    get("/formatter", req -> req.getInstance(Key.get(Body.Formatter.class, Names.named("json"))));
+    get("/formatter", req -> req.require(Key.get(Body.Formatter.class, Names.named("json"))));
 
-    get("/parser", req -> req.getInstance(Key.get(Body.Formatter.class, Names.named("json"))));
+    get("/parser", req -> req.require(Key.get(Body.Formatter.class, Names.named("json"))));
   }
 
   @Test

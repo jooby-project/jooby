@@ -225,7 +225,7 @@ public class RouteHandler {
 
   private void saveSession(final Request req) {
     req.ifSession()
-        .ifPresent(session -> req.getInstance(SessionManager.class).requestDone(session));
+        .ifPresent(session -> req.require(SessionManager.class).requestDone(session));
   }
 
   private static String normalizeURI(final String uri) {

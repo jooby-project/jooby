@@ -17,7 +17,7 @@ public class HbsNoCacheFeature extends ServerFeature {
     use(new Hbs());
 
     get("/", req -> {
-      assertSame(NullTemplateCache.INSTANCE, req.getInstance(Handlebars.class).getCache());
+      assertSame(NullTemplateCache.INSTANCE, req.require(Handlebars.class).getCache());
       return "noop";
     });
   }

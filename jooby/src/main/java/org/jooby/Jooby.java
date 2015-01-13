@@ -1429,7 +1429,7 @@ public class Jooby {
   private @Nonnull Route.Handler handler(final @Nonnull Class<? extends Route.Handler> handler) {
     requireNonNull(handler, "Route handler is required.");
     registerRouteScope(handler);
-    return (req, rsp) -> req.getInstance(handler).handle(req, rsp);
+    return (req, rsp) -> req.require(handler).handle(req, rsp);
   }
 
   /**
@@ -1466,7 +1466,7 @@ public class Jooby {
   private @Nonnull Route.Filter filter(final @Nonnull Class<? extends Route.Filter> filter) {
     requireNonNull(filter, "Filter is required.");
     registerRouteScope(filter);
-    return (req, rsp, chain) -> req.getInstance(filter).handle(req, rsp, chain);
+    return (req, rsp, chain) -> req.require(filter).handle(req, rsp, chain);
   }
 
   /**

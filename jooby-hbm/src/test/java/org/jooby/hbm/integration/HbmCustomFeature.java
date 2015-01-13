@@ -28,14 +28,14 @@ public class HbmCustomFeature extends ServerFeature {
     use(new Hbm("audit", Member.class));
 
     get("/members", req -> {
-      EntityManager em = req.getInstance(Key.get(EntityManager.class, Names.named("db.audit")));
+      EntityManager em = req.require(Key.get(EntityManager.class, Names.named("db.audit")));
       Query query = em.createQuery("from Member");
       return query.getResultList();
     });
 
     post("/members", (req, rsp, chain) -> {
       Member member = req.params(Member.class);
-      EntityManager em = req.getInstance(Key.get(EntityManager.class, Names.named("db.audit")));
+      EntityManager em = req.require(Key.get(EntityManager.class, Names.named("db.audit")));
       em.persist(member);
       if (req.param("err").toOptional(Boolean.class).orElse(false)) {
         throw new IllegalArgumentException("Rollback on err");

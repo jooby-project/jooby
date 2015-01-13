@@ -22,7 +22,7 @@ public class HbsWithCacheFeature extends ServerFeature {
     use(new Hbs());
 
     get("/", req -> {
-      assertTrue(req.getInstance(Handlebars.class).getCache() instanceof GuavaTemplateCache);
+      assertTrue(req.require(Handlebars.class).getCache() instanceof GuavaTemplateCache);
       return "guava";
     });
   }
