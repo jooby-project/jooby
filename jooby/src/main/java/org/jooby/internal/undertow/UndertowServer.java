@@ -67,7 +67,6 @@ public class UndertowServer implements org.jooby.internal.Server {
     this.server = configure(config, io.undertow.Undertow.builder())
         .addHttpListener(config.getInt("application.port"), "localhost")
         .setHandler(shutdown)
-        .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false)
         .build();
   }
 
@@ -108,16 +107,27 @@ public class UndertowServer implements org.jooby.internal.Server {
     return entry -> {
       String name = entry.getKey();
       Object value = entry.getValue().unwrapped();
-      try {
-        log.debug("setting undertow.{}.{} to {}", level, name, value);
-        Field fld = Options.class.getDeclaredField(name);
-        Option option = (Option) fld.get(null);
-        setter.accept(option, value);
-      } catch (NoSuchFieldException | IllegalAccessException ex) {
+      Option option = findOption(name, UndertowOptions.class, Options.class);
+      if (option != null) {
+        // parse option to adjust correct type
+        setter.accept(option, option.parseValue(value.toString(), null));
+      } else {
         log.error("Unknown option: 'undertow.{}.{} = {}'", level, name, value);
-        log.debug("Error while setting option: " + name, ex);
       }
     };
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static Option findOption(final String name, final Class... where) {
+    for (Class owner : where) {
+      try {
+        Field fld = owner.getDeclaredField(name);
+        return (Option) fld.get(null);
+      } catch (NoSuchFieldException | IllegalAccessException ex) {
+        log.trace("Unknown option: '{}'", name);
+      }
+    }
+    return null;
   }
 
   private static void set(final Config config, final String name, final SetOption setter) {

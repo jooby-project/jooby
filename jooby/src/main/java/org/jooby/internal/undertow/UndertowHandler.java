@@ -59,7 +59,7 @@ public class UndertowHandler implements HttpHandler {
     HeaderMap headers = exchange.getRequestHeaders();
 
     handler.handle(exchange, exchange.getRequestMethod().toString(),
-        exchange.getRequestURI(), (name) -> {
+        exchange.getRequestPath(), (name) -> {
           HeaderValues values = headers.get(name);
           return values == null ? null : values.getFirst();
         });
