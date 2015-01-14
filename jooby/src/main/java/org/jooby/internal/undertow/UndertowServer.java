@@ -65,7 +65,7 @@ public class UndertowServer implements org.jooby.internal.Server {
 
     shutdown = new GracefulShutdownHandler(doHandler(injector, config));
     this.server = configure(config, io.undertow.Undertow.builder())
-        .addHttpListener(config.getInt("application.port"), "localhost")
+        .addHttpListener(config.getInt("application.port"), config.getString("application.host"))
         .setHandler(shutdown)
         .build();
   }
