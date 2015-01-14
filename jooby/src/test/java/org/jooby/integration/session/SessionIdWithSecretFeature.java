@@ -34,9 +34,11 @@ public class SessionIdWithSecretFeature extends ServerFeature {
       rsp.send(session.id());
     });
 
-    get("/sessionCookie", (req, rsp) -> {
-      rsp.send("jooby.sid=" + req.cookie("jooby.sid").get().value().get() + ";" + req.session().id());
-    });
+    get("/sessionCookie",
+        (req, rsp) -> {
+          rsp.send("jooby.sid=" + req.cookie("jooby.sid").get().value().get() + ";"
+              + req.session().id());
+        });
 
   }
 

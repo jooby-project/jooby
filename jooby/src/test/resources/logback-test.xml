@@ -6,6 +6,8 @@
     </encoder>
   </appender>
 
+  <logger name="org.jooby.internal.SessionManager" level="DEBUG" />
+
   <root level="info">
     <appender-ref ref="STDOUT" />
   </root>

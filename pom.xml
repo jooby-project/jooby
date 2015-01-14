@@ -489,6 +489,7 @@
                   <exclude>META-INF/*.DSA</exclude>
                   <exclude>META-INF/*.RSA</exclude>
                   <exclude>LICENSE</exclude>
+                  <exclude>LICENSE.txt</exclude>
                   <exclude>NOTICE</exclude>
                 </excludes>
               </filter>
