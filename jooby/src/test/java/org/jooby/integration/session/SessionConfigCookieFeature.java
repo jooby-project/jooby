@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.util.EntityUtils;
@@ -56,7 +57,6 @@ public class SessionConfigCookieFeature extends ServerFeature {
       List<String> setCookie = Lists.newArrayList(Splitter.onPattern(";\\s*")
           .splitToList(rsp.getFirstHeader("Set-Cookie").getValue()));
 
-      System.out.println(setCookie);
       assertTrue(setCookie.remove(0).startsWith("custom.sid"));
       assertTrue(setCookie.remove("path=/session"));
       assertTrue(setCookie.remove("HttpOnly"));
@@ -75,7 +75,7 @@ public class SessionConfigCookieFeature extends ServerFeature {
 
   private static String execute(final Request request, final HttpResponseValidator validator)
       throws Exception {
-    HttpResponse resp = request.execute().returnResponse();
+    HttpResponse resp = Executor.newInstance().execute(request).returnResponse();
     validator.validate(resp);
     return EntityUtils.toString(resp.getEntity());
   }

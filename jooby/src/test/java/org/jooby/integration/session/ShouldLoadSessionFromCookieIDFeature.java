@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.util.EntityUtils;
@@ -47,7 +48,7 @@ public class ShouldLoadSessionFromCookieIDFeature extends ServerFeature {
 
   private static String execute(final Request request, final HttpResponseValidator validator)
       throws Exception {
-    HttpResponse resp = request.execute().returnResponse();
+    HttpResponse resp = Executor.newInstance().execute(request).returnResponse();
     validator.validate(resp);
     return EntityUtils.toString(resp.getEntity());
   }
