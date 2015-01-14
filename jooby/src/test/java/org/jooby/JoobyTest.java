@@ -31,9 +31,9 @@ import org.jooby.Route.Handler;
 import org.jooby.Session.Definition;
 import org.jooby.Session.Store;
 import org.jooby.internal.AppManager;
+import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.BuiltinBodyConverter;
-import org.jooby.internal.RouteHandler;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.Server;
@@ -371,15 +371,11 @@ public class JoobyTest {
     server.start();
     server.stop();
 
-    Config config = unit.mock(Config.class);
-    expect(config.getInt("application.port")).andReturn(8080);
-
-    RouteHandler handler = unit.mock(RouteHandler.class);
+    AppPrinter printer = unit.mock(AppPrinter.class);
 
     Injector injector = unit.mock(Injector.class);
     expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
-    expect(injector.getInstance(RouteHandler.class)).andReturn(handler);
-    expect(injector.getInstance(Config.class)).andReturn(config);
+    expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
 
     unit.mockStatic(Guice.class);
     expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class))).andReturn(
@@ -409,15 +405,11 @@ public class JoobyTest {
           server.start();
           server.stop();
 
-          Config config = unit.mock(Config.class);
-          expect(config.getInt("application.port")).andReturn(8080);
-
-          RouteHandler handler = unit.mock(RouteHandler.class);
+          AppPrinter printer = unit.mock(AppPrinter.class);
 
           Injector injector = unit.mock(Injector.class);
           expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
-          expect(injector.getInstance(RouteHandler.class)).andReturn(handler);
-          expect(injector.getInstance(Config.class)).andReturn(config);
+          expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
 
           unit.mockStatic(Guice.class);
           expect(Guice.createInjector(eq(Stage.PRODUCTION), unit.capture(Module.class))).andReturn(
@@ -673,15 +665,11 @@ public class JoobyTest {
               server.stop();
               expectLastCall().andThrow(new Exception());
 
-              Config config = unit.mock(Config.class);
-              expect(config.getInt("application.port")).andReturn(8080);
-
-              RouteHandler handler = unit.mock(RouteHandler.class);
+              AppPrinter printer = unit.mock(AppPrinter.class);
 
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
-              expect(injector.getInstance(RouteHandler.class)).andReturn(handler);
-              expect(injector.getInstance(Config.class)).andReturn(config);
+              expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
@@ -742,15 +730,11 @@ public class JoobyTest {
               server.start();
               server.stop();
 
-              Config config = unit.mock(Config.class);
-              expect(config.getInt("application.port")).andReturn(8080);
-
-              RouteHandler handler = unit.mock(RouteHandler.class);
+              AppPrinter printer = unit.mock(AppPrinter.class);
 
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
-              expect(injector.getInstance(RouteHandler.class)).andReturn(handler);
-              expect(injector.getInstance(Config.class)).andReturn(config);
+              expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))

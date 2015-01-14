@@ -17,15 +17,6 @@ import org.junit.Test;
 
 public class ShouldCreateMultipleSessionsFeature extends ServerFeature {
 
-  private static final CookieStore cookieStore = new BasicCookieStore();
-
-  private static final Executor executor;
-
-  static {
-
-    executor = Executor.newInstance().cookieStore(cookieStore);
-  }
-
   {
     get("/shouldCreateMutipleSessions", req -> {
       return req.session().get("count").map(c -> "updated").orElse("created");
@@ -46,6 +37,10 @@ public class ShouldCreateMultipleSessionsFeature extends ServerFeature {
       }));
     }));
   }
+
+  private static final CookieStore cookieStore = new BasicCookieStore();
+
+  private static final Executor executor = Executor.newInstance().cookieStore(cookieStore);
 
   @Before
   public void resetCookies() {

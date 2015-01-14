@@ -77,11 +77,11 @@ import javax.annotation.Nonnull;
 
 import org.jooby.Route.Filter;
 import org.jooby.internal.AppManager;
+import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.LocaleUtils;
-import org.jooby.internal.RouteHandler;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.Server;
@@ -1869,11 +1869,9 @@ public class Jooby {
 
     server.start();
     long end = System.currentTimeMillis();
-    Config config = injector.getInstance(Config.class);
-    log.info("Server started in {}ms\n{}\nlistening on:\n  http://localhost:{}\n",
+    log.info("Server started in {}ms\n\n{}\n",
         end - start,
-        injector.getInstance(RouteHandler.class),
-        config.getInt("application.port"));
+        injector.getInstance(AppPrinter.class));
   }
 
   private static AppManager appManager(final Jooby app, final Env env, final Logger log) {
