@@ -5,7 +5,7 @@
 jooby
 =====
 
-A minimalist web framework for Java 8, inspired by express.js and others ;)
+A minimalist web framework for Java 8, inspired by [express.js](http://expressjs.com/) and others ;)
 
 ```java
 
@@ -40,7 +40,7 @@ Just paste this into a terminal (make sure Java 8 and Maven 3.x are installed):
 
     mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app 
     -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype 
-    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.3.0
+    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.4.0
 
 You might want to edit/change:
 
@@ -55,27 +55,21 @@ Let's try it!:
 
     mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app 
     -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype 
-    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.3.0
+    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.4.0
     cd my-app
     mvn jooby:run
 
 You should see something similar to this at the end of the output:
 
-    INFO  [2014-11-04 09:20:12,526] Logging initialized @645ms
-    INFO  [2014-11-04 09:20:12,574] jetty-9.2.3.v20140905
-    INFO  [2014-11-04 09:20:12,599] Started o.e.j.s.h.ContextHandler@26b3fd41{/,null,AVAILABLE}
-    INFO  [2014-11-04 09:20:12,612] Started ServerConnector@53e8321d{HTTP/1.1}{0.0.0.0:8080}
-    INFO  [2014-11-04 09:20:12,736] Started ServerConnector@74ea2410{SSL-HTTP/1.1}{0.0.0.0:8443}
-    INFO  [2014-11-04 09:20:12,736] Started @859ms
-    INFO  [2014-11-04 09:20:12,736] 
-    Routes:
-      GET /favicon.ico    [*/*]     [*/*]    (anonymous)
-      GET /assets/**/*    [*/*]     [*/*]    (static files)
-      GET /               [*/*]     [*/*]    (anonymous)
+    INFO  [2015-01-12 17:22:52,193] XNIO version 3.3.0.Final
+    INFO  [2015-01-12 17:22:52,237] XNIO NIO Implementation Version 3.3.0.Final
+    INFO  [2015-01-12 17:22:52,525] Server started in 650ms
+    GET /favicon.ico    [*/*]     [*/*]    (anonymous)
+    GET /assets/**/*    [*/*]     [*/*]    (anonymous)
+    GET /               [*/*]     [*/*]    (anonymous)
 
-Open a browser and type:
-
-    http://localhost:8080/
+    listening on:
+      http://localhost:8080
 
 Jooby! is up and running!!!
 
@@ -235,7 +229,7 @@ table of content
 
 # overview
 
-Jooby is an micro-web framework for Java 8 (or higher) inspired by [Express](http://expressjs.com/). 
+A minimalist web framework for Java 8, inspired by [express.js](http://expressjs.com/) (between others).
 
 Jooby API mimics (as much as possible) the [Express API](http://expressjs.com/4x/api.html).
 
@@ -243,29 +237,11 @@ API is short and easy to learn, around 30 classes for the core project. Java doc
 
 ## technology stack
 
-http nio server
------
-
-Jooby believes in [Jetty 9.x](https://www.eclipse.org/jetty) for NIO HTTP. Since version 9.x Jetty use a NIO connector for HTTP.
-
-If you want to learn more about NIO in Jetty 9.x [go here](http://stackoverflow.com/questions/25195128/how-do-jetty-and-other-containers-leverage-nio-while-sticking-to-the-servlet-spe)
-
-dependency injection
------
-
-Jooby believes in [Guice 4.x](https://github.com/google/guice) for dependency injection.
-
-config files
------
-
-Jooby believes in [Type Safe Config](https://github.com/typesafehub/config) for config files.
-
-logging
------
-
-Jooby believes in [logback](http://logback.qos.ch/) for logging.
-
-maven 3.x
+* [Undertow](http://undertow.io/): for a high performance and non-blocking IO web server. is the web server behind [WildFly](http://wildfly.org/about/) (a.k.a JBoss App Server).
+* [Guice](https://github.com/google/guice): for dependency injection and modularity.
+* [Config](https://github.com/typesafehub/config): for powerful config files.
+* [logback](http://logback.qos.ch/): for debugging and logging.
+* [maven 3.x](http://maven.apache.org/): for building apps.
 -----
 
 Jooby believes in [maven 3.x](http://maven.apache.org/) for building/running/packaging and distributing Java project.
@@ -520,23 +496,23 @@ System properties can override any other property. A sys property is be set at s
 
 ### file://[application].[mode].[conf] 
 
-The use of this conf file is optional, because Jooby recommend to deploy your as a **fat jar** and all the properties files should be bundled inside the jar.
+The use of this conf file is optional, because Jooby recommend to deploy your application as a **fat jar** and all the properties files should be bundled inside the jar.
 
 If you find this impractical, then this option will work for you.
 
-Let's said your app includes a default property file: ```application.conf``` bundled with your **fat jar**. Now if you want/need to override two or more properties, just do this
+Let's say your app includes a default property file: ```application.conf``` bundled with your **fat jar**. Now if you want/need to override two or more properties, just do this:
 
 * find a directory to deploy your app
 * inside that directory create a file: ```application.conf```
 * start the app from same directory
 
-That's all. The file system conf file will takes precedence over the classpath path config files overriding any property.
+That's all. The file system conf file will take precedence over the classpath path config files overriding any property.
 
 A good practice is to start up your app with a **mode**, like:
 
     java -jar myapp.jar -Dapplication.mode=prod
 
-The process is the same, except but this time you can name your file as: 
+The process is the same, except this time you can name your file as:
 
     application.prod.conf
 
@@ -550,7 +526,7 @@ Example: you have two config files: ```application.conf``` and ```application.pr
 
 So here the ```application.prod.conf``` will takes precedence over the ```application.conf``` conf file.
 
-This is the recommended option from Jooby, because your app doesn't have a external dependency. If you need to deploy the app in a new server all you need is your **fat jar**
+This is the recommended option from Jooby, because your app doesn't have an external dependency. If you need to deploy the app in a new server all you need is your **fat jar**
 
 ### [application].[conf]
 
@@ -565,7 +541,7 @@ This is your default config files and it should be bundle inside the **fat jar**
 
 ### [modules in reverse].[conf]
 
-As mentioned in the [modules](#modules) section a module might defines his own set of properties.
+As mentioned in the [modules](#modules) section a module might define his own set of properties.
 
 ```
   {
@@ -597,7 +573,7 @@ On such cases all you have to do is to put the ```logback.xml``` file outside th
     ls
     myapp.jar logback.xml
 
-The bootstrap process look for a file in the same directory where you app was launched (user.dir property) if the file is found there it will be selected. Otherwise, it fallback to the root of the classpath.
+The bootstrap process looks for a file in the same directory where you app was launched (user.dir property) if the file is found there it will be selected. Otherwise, it falls back to the root of the classpath.
 
 If at the time you started your app the console shows a lot of logs statement, that is because log wasn't configured properly. Either, the config file is missing or it has syntax errors.
 
@@ -788,7 +764,7 @@ get("/", (req, rsp) -> {
 
 ```
 
-The 3rd arg is required if you need to decided if the next route need to be executed or not. If you always call **chain.next** the 3rd arg isn't require and does is exactly what the 2arg handler does: **always call chain.next**
+The 3rd arg is required if you need to decide if the next route need to be executed or not. If you always call **chain.next** the 3rd arg isn't required and does exactly what the 2arg handler does: **always call chain.next**
 
 A good example for a filter is to handle for example authentication:
 
@@ -856,7 +832,7 @@ Now, let's suppose a very poor API design and we have a route handler that accep
 
 A call like:
 
-    curl -X POST -d "name=third" http://localhost:8080/user/first?name=second
+    curl -X POST -d "id=third" http://localhost:8080/user/first?id=second
 
 Produces:
 
@@ -874,7 +850,7 @@ get("/user/:id", (req, rsp) -> {
 });
 ```
 
-An API like this should be avoided and we mention here this is possible so you can take note and figure it out if something doesn't work as you expect.
+An API like this should be avoided and we mention it here to say that this is possible so you can take note and figure out if something doesn't work as you expect.
 
 #### param type conversion
 
@@ -1013,7 +989,7 @@ get("/", (req, rsp) -> {
 
 Retrieval of response headers is done via [rsp.header("name")](http://jooby.org/apidocs/org/jooby/Response.html#header-java.lang.String-). The method always returns a [Mutant](http://jooby.org/apidocs/org/jooby/Mutant.html) and from there you can convert to any of the supported types.
 
-Setting a header is pretty straight forward too:
+Setting a header is pretty straightforward too:
 
    rsp.header("Header-Name", value).header("Header2", value);
 
@@ -1052,7 +1028,7 @@ A call like:
 
 Results in ```415 - Unsupported Media Type```. That is because Jooby has no idea how to parse ```application/json```. For that, we need a **json** parser.
 
-Let's said we need to implement a JSON body parser (in real life you wont ever implement a json parser, this is just to demonstrate how they work):
+Let's said we need to implement a JSON body parser (in real life you wont ever implement a json parser, this is just to demonstrate how it works):
 
 ```java
 public class Json implements Body.Parser {
@@ -1086,7 +1062,7 @@ Using it:
 
 **How it works**?
 
-A route by default consumes ```*/*``` (any media type). Jooby will find/choose the **parser** who best matches the ```Content-Type``` header.
+A route by default consumes ```*/*``` (any media type). Jooby will find/choose the **parser** which best matches the ```Content-Type``` header.
 
 The ```Content-Type``` header is compared against the [parser.types()](http://jooby.org/apidocs/org/jooby/Body.Parser.html#types--) method.
 
@@ -1114,7 +1090,7 @@ The **consumes** method control what a route can consume or parse explicitly.
     curl -X POST -H 'Content-Type: application/xml' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
 
 
-In general, you hardly will use **consumes** in your routes. It is been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depends on your app requirements. For example if you need more than **json** for your routes (xml, yaml, etc..).
+In general, you hardly will use **consumes** in your routes. It has been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depend on your app requirements. For example if you need more than **json** for your routes (xml, yaml, etc..).
 
 Another small advantage of using **consumes** is that the ```415``` response can be detected early (at the time a route is resolved) and not later or lazy (at the time you ask for type conversion).
 
@@ -1222,7 +1198,7 @@ The **produces** method control what a route can accept or format explicitly.
 
     curl 'Accept: application/xml' http://localhost:8080/
 
-In general, you hardly will use **produces** in your routes. It is been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depends on your app requirements.
+In general, you hardly will use **produces** in your routes. It has been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depend on your app requirements.
 
 Another small advantage of using **produces** is that the ```406``` response can be detected early (at the time a route is resolved) and not lazily (at the time you ask for type conversion).
 
@@ -1257,7 +1233,7 @@ There is no much to say about views & engines, any other detail or documentation
 
 ## response.format
 
-As you learn before, content negotiation is done and executed every time a request is processed. Sometimes this isn't enough and that's why [rsp.format](http://jooby.org/apidocs/org/jooby/Response.html#format--) exists:
+As you learnt before, content negotiation is done and executed every time a request is processed. Sometimes this isn't enough and that's why [rsp.format](http://jooby.org/apidocs/org/jooby/Response.html#format--) exists:
 
 ```java
 get("/", (req, rsp)  ->
@@ -1311,7 +1287,7 @@ But remember, there isn't a child injector and/or request objects.
 
 ## consumes
 
-Web socket can defined a type to consumes: 
+Web socket can define a type to consume:
 
 ```
 {
@@ -1330,7 +1306,7 @@ This is just an utility method for parsing socket message to Java Object. Consum
 
 ## produces
 
-Web socket can defined a type to produces: 
+Web socket can define a type to produce: 
 
 ```
 {
@@ -1389,7 +1365,7 @@ A method annotated with [GET](http://jooby.org/apidocs/org/jooby/mvc/GET.html), 
 
 Mvc routes must be registered, there is no auto-discover feature (and it won't be), classpath scanning, ..., etc.
 
-We learnt that the order that you defines your route have a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly declared. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
+We learnt that the order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly declared. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
 
 So, how do I register a mvc route? Easy: in the same way everything else is registered in Jooby... from your app class:
 
@@ -1549,7 +1525,7 @@ public Object home() {
 }
 ```
 
-Last example if useful if you have want to create let's said a **text/html** (viewable) and **application/json** (data) responses.
+Last example is useful if you want to create let's said a **text/html** (viewable) and **application/json** (data) responses.
 
 ### customizing the response
 
@@ -1595,7 +1571,7 @@ want to contribute?
 * If you know the answer to a question posted to our [group](https://groups.google.com/forum/#!forum/jooby-project) - don't hesitate to write a reply.
 * Share your ideas or ask questions on the [jooby group](https://github.com/jooby-project/jooby/issues) - don't hesitate to write a reply - that helps us improve javadocs/FAQ.
 * If you miss a particular feature - browse or ask on the [group](https://groups.google.com/forum/#!forum/jooby-project) - don't hesitate to write a reply, show us some sample code and describe the problem.
-* Write a blog post about how you use or extend [jooby][http://jooby.org].
+* Write a blog post about how you use or extend [jooby](http://jooby.org).
 * Please suggest changes to javadoc/exception messages when you find something unclear.
 * If you have problems with documentation, find it non intuitive or hard to follow - let us know about it, we'll try to make it better according to your suggestions. Any constructive critique is greatly appreciated. Don't forget that this is an open source project developed and documented in spare time.
 
@@ -1609,7 +1585,7 @@ help and support
 related projects
 =====
 
- * [Jetty](https://www.eclipse.org/jetty/)
+ * [Undertow](http://undertow.io/)
  * [Guice](https://github.com/google/guice)
  * [Type Safe](https://github.com/typesafehub/config)
  * [Logback](http://logback.qos.ch)
