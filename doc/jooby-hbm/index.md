@@ -1,7 +1,7 @@
 ---
 layout: index
 title: jooby-hbm
-version: 0.4.0
+version: 0.4.1
 ---
 
 # jooby-hbm
@@ -12,7 +12,7 @@ version: 0.4.0
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbm</artifactId>
-  <version>0.4.0</version>
+  <version>0.4.1</version>
 </dependency>
 ```
 ## usage
