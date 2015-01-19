@@ -100,7 +100,7 @@ public class ResponseTest {
     }
 
     @Override
-    public Response length(final int length) {
+    public Response length(final long length) {
       throw new UnsupportedOperationException();
     }
 

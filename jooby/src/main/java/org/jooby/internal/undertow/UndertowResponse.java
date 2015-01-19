@@ -227,7 +227,7 @@ public class UndertowResponse implements Response {
   }
 
   @Override
-  public Response length(final int length) {
+  public Response length(final long length) {
     exchange.getResponseHeaders().put(Headers.CONTENT_LENGTH, length);
     return this;
   }

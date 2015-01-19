@@ -189,7 +189,7 @@ public interface Response {
     }
 
     @Override
-    public Response length(final int length) {
+    public Response length(final long length) {
       response.length(length);
       return this;
     }
@@ -586,7 +586,7 @@ public interface Response {
    * @return This response.
    */
   @Nonnull
-  Response length(int length);
+  Response length(long length);
 
   /**
    * @return Get the response type.

@@ -30,20 +30,28 @@ public class URLAssetTest {
 
   @Test
   public void lastModified() throws IOException {
-    assertTrue(
-        new URLAsset(new File("src/test/resources/assets/file.js").toURI().toURL(), MediaType.js)
-            .lastModified() > 0);
+    assertTrue(new URLAsset(new File("src/test/resources/assets/file.js").toURI().toURL(),
+        MediaType.js)
+        .lastModified() > 0);
+  }
+
+  @Test
+  public void length() throws IOException {
+    assertEquals(15, new URLAsset(new File("src/test/resources/assets/file.js").toURI().toURL(),
+        MediaType.js).length());
   }
 
   @Test
   public void type() throws IOException {
     assertEquals(MediaType.js,
-        new URLAsset(new File("src/test/resources/assets/file.js").toURI().toURL(), MediaType.js).type());
+        new URLAsset(new File("src/test/resources/assets/file.js").toURI().toURL(), MediaType.js)
+            .type());
   }
 
   @Test
   public void stream() throws IOException {
-    InputStream stream = new URLAsset(new File("src/test/resources/assets/file.js").toURI().toURL(), MediaType.js)
+    InputStream stream = new URLAsset(
+        new File("src/test/resources/assets/file.js").toURI().toURL(), MediaType.js)
         .stream();
     assertEquals("function () {}\n", new String(ByteStreams.toByteArray(stream)));
     stream.close();

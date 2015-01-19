@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Optional;
 
 import org.jooby.Asset;
 import org.jooby.MediaType;
@@ -36,12 +37,17 @@ class URLAsset implements Asset {
 
   private MediaType mediaType;
 
-  private long lastModified;
+  private long lastModified = -1;
+
+  private long length = -1;
 
   public URLAsset(final URL url, final MediaType mediaType) throws IOException {
     this.url = requireNonNull(url, "An url is required.");
     this.mediaType = requireNonNull(mediaType, "A mediaType is required.");
-    this.lastModified = lastModified(url);
+    Optional.ofNullable(lastModified(url)).ifPresent(md -> {
+      this.length = md[0];
+      this.lastModified = md[1];
+    });
   }
 
   @Override
@@ -49,6 +55,11 @@ class URLAsset implements Asset {
     String path = url.getPath();
     int slash = path.lastIndexOf('/');
     return path.substring(slash + 1);
+  }
+
+  @Override
+  public long length() {
+    return length;
   }
 
   @Override
@@ -71,13 +82,13 @@ class URLAsset implements Asset {
     return name() + "(" + type() + ")";
   }
 
-  private static long lastModified(final URL resource) throws IOException {
+  private static long[] lastModified(final URL resource) throws IOException {
     URLConnection uc = null;
     try {
       uc = resource.openConnection();
-      return uc.getLastModified();
+      return new long[]{uc.getContentLengthLong(), uc.getLastModified() };
     } catch (IOException ex) {
-      return -1;
+      return null;
     } finally {
       if (uc != null) {
         // http://stackoverflow.com/questions/2057351/how-do-i-get-the-last-modification-time-of

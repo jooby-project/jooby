@@ -50,6 +50,11 @@ class FileAsset implements Asset {
   }
 
   @Override
+  public long length() {
+    return file.length();
+  }
+
+  @Override
   public long lastModified() {
     return file.lastModified();
   }

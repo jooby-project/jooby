@@ -48,6 +48,10 @@ public class AssetHandler implements Route.Filter {
       }
       rsp.header("Last-Modified", new Date(lastModified));
     }
+    long length = resource.length();
+    if (length >= 0) {
+      rsp.length(length);
+    }
     rsp.type(resource.type());
     rsp.send(resource);
   }

@@ -39,6 +39,11 @@ public interface Asset {
   @Nonnull String name();
 
   /**
+   * @return Asset size (in bytes) or <code>-1</code> if undefined.
+   */
+  long length();
+
+  /**
    * @return The last modified date if possible or -1 when isn't.
    */
   long lastModified();

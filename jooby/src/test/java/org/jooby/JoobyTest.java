@@ -1931,6 +1931,7 @@ public class JoobyTest {
               expect(rsp.header(eq("Last-Modified"), unit.capture(java.util.Date.class)))
                   .andReturn(rsp);
               expect(rsp.type(MediaType.js)).andReturn(rsp);
+              expect(rsp.length(20)).andReturn(rsp);
               rsp.send(unit.capture(Asset.class));
             })
         .run(unit -> {
@@ -2146,6 +2147,7 @@ public class JoobyTest {
           expect(rsp.header(eq("Last-Modified"), unit.capture(java.util.Date.class)))
               .andReturn(rsp);
           expect(rsp.type(MediaType.js)).andReturn(rsp);
+          expect(rsp.length(20)).andReturn(rsp);
           rsp.send(unit.capture(Asset.class));
         })
         .run(

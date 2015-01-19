@@ -33,6 +33,13 @@ public class FileAssetTest {
   }
 
   @Test
+  public void length() throws IOException {
+    assertEquals(15, new FileAsset(new File("src/test/resources/assets/file.js"),
+        MediaType.js).length());
+  }
+
+
+  @Test
   public void type() {
     assertEquals(MediaType.js,
         new FileAsset(new File("src/test/resources/assets/file.js"), MediaType.js).type());
