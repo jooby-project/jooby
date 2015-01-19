@@ -105,6 +105,11 @@ public class ResponseTest {
     }
 
     @Override
+    public void end() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Optional<MediaType> type() {
       throw new UnsupportedOperationException();
     }

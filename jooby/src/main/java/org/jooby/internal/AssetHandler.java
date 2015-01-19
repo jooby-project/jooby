@@ -43,7 +43,7 @@ public class AssetHandler implements Route.Filter {
     if (lastModified > 0) {
       long ifModified = req.header("If-Modified-Since").toOptional(Long.class).orElse(-1l);
       if (ifModified > 0 && lastModified / 1000 <= ifModified / 1000) {
-        rsp.status(Status.NOT_MODIFIED);
+        rsp.status(Status.NOT_MODIFIED).end();
         return;
       }
       rsp.header("Last-Modified", new Date(lastModified));

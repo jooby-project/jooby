@@ -219,8 +219,12 @@ public class RouteHandler {
         defaultErrorPage(reqerr, rsperr, err.err(reqerr, rsperr, ex));
       }
     } finally {
+      // mark request/response as done.
+      Response rspdone = rsp.get(injector, notFound);
+      rspdone.end();
+
       long end = System.currentTimeMillis();
-      log.debug("  status -> {} in {}ms", exchange.getResponseCode(), end - start);
+      log.debug("  status -> {} in {}ms", rspdone.status().get(), end - start);
 
       saveSession(req.get(injector, notFound));
     }

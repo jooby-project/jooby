@@ -333,6 +333,17 @@ public class UndertowResponse implements Response {
     return selector.viewableTypes();
   }
 
+  @Override
+  public void end() {
+    if (!committed()) {
+      if (status == null) {
+        status(200);
+      }
+    }
+    // this is a noop when response has been set, still call it...
+    exchange.endExchange();
+  }
+
   public void send(final Body body, final Body.Formatter formatter) throws Exception {
     requireNonNull(body, "A response message is required.");
     requireNonNull(formatter, "A converter is required.");
@@ -376,9 +387,11 @@ public class UndertowResponse implements Response {
       formatter.format(message, new BodyWriterImpl(charset, ImmutableMap.copyOf(locals),
           stream, writer));
     } else {
-      // close output
+      // noop, but we apply headers.
       stream.get().close();
     }
+    // end response
+    end();
   }
 
   private io.undertow.server.handlers.Cookie toUndertowCookie(final Cookie cookie) {

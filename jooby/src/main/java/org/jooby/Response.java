@@ -53,7 +53,7 @@ public interface Response {
   class Forwarding implements Response {
 
     /** The target response. */
-    private Response response;
+    private Response rsp;
 
     /**
      * Creates a new {@link Forwarding} response.
@@ -61,206 +61,211 @@ public interface Response {
      * @param response A response object.
      */
     public Forwarding(final Response response) {
-      this.response = requireNonNull(response, "A response is required.");
+      this.rsp = requireNonNull(response, "A response is required.");
     }
 
     @Override
     public void download(final String filename, final InputStream stream) throws Exception {
-      response.download(filename, stream);
+      rsp.download(filename, stream);
     }
 
     @Override
     public void download(final String filename, final Reader reader) throws Exception {
-      response.download(filename, reader);
+      rsp.download(filename, reader);
     }
 
     @Override
     public void download(final File file) throws Exception {
-      response.download(file);
+      rsp.download(file);
     }
 
     @Override
     public void download(final String filename, final File file) throws Exception {
-      response.download(filename, file);
+      rsp.download(filename, file);
     }
 
     @Override
     public void download(final String filename) throws Exception {
-      response.download(filename);
+      rsp.download(filename);
     }
 
     @Override
     public void download(final String filename, final String location) throws Exception {
-      response.download(filename, location);
+      rsp.download(filename, location);
     }
 
     @Override
     public Response cookie(final String name, final String value) {
-      response.cookie(name, value);
+      rsp.cookie(name, value);
       return this;
     }
 
     @Override
     public Response cookie(final Cookie cookie) {
-      response.cookie(cookie);
+      rsp.cookie(cookie);
       return this;
     }
 
     @Override
     public Response cookie(final Definition cookie) {
-      response.cookie(cookie);
+      rsp.cookie(cookie);
       return this;
     }
 
     @Override
     public Response clearCookie(final String name) {
-      response.clearCookie(name);
+      rsp.clearCookie(name);
       return this;
     }
 
     @Override
     public Mutant header(final String name) {
-      return response.header(name);
+      return rsp.header(name);
     }
 
     @Override
     public Response header(final String name, final byte value) {
-      response.header(name, value);
+      rsp.header(name, value);
       return this;
     }
 
     @Override
     public Response header(final String name, final char value) {
-      response.header(name, value);
+      rsp.header(name, value);
       return this;
     }
 
     @Override
     public Response header(final String name, final Date value) {
-      response.header(name, value);
+      rsp.header(name, value);
       return this;
     }
 
     @Override
     public Response header(final String name, final double value) {
-      response.header(name, value);
+      rsp.header(name, value);
       return this;
     }
 
     @Override
     public Response header(final String name, final float value) {
-      response.header(name, value);
+      rsp.header(name, value);
       return this;
     }
 
     @Override
     public Response header(final String name, final int value) {
-      response.header(name, value);
+      rsp.header(name, value);
       return this;
     }
 
     @Override
     public Response header(final String name, final long value) {
-      response.header(name, value);
+      rsp.header(name, value);
       return this;
     }
 
     @Override
     public Response header(final String name, final short value) {
-      response.header(name, value);
+      rsp.header(name, value);
       return this;
     }
 
     @Override
     public Response header(final String name, final CharSequence value) {
-      response.header(name, value);
+      rsp.header(name, value);
       return this;
     }
 
     @Override
     public Charset charset() {
-      return response.charset();
+      return rsp.charset();
     }
 
     @Override
     public Response charset(final Charset charset) {
-      response.charset(charset);
+      rsp.charset(charset);
       return this;
     }
 
     @Override
     public Response length(final long length) {
-      response.length(length);
+      rsp.length(length);
       return this;
     }
 
     @Override
     public Optional<MediaType> type() {
-      return response.type();
+      return rsp.type();
     }
 
     @Override
     public Response type(final MediaType type) {
-      response.type(type);
+      rsp.type(type);
       return this;
     }
 
     @Override
     public Response type(final String type) {
-      response.type(type);
+      rsp.type(type);
       return this;
     }
 
     @Override
     public void send(final Object body) throws Exception {
-      response.send(body);
+      rsp.send(body);
     }
 
     @Override
     public void send(final Body body) throws Exception {
-      response.send(body);
+      rsp.send(body);
+    }
+
+    @Override
+    public void end() {
+      rsp.end();
     }
 
     @Override
     public Formatter format() {
-      return response.format();
+      return rsp.format();
     }
 
     @Override
     public void redirect(final String location) throws Exception {
-      response.redirect(location);
+      rsp.redirect(location);
     }
 
     @Override
     public void redirect(final Status status, final String location) throws Exception {
-      response.redirect(status, location);
+      rsp.redirect(status, location);
     }
 
     @Override
     public Optional<Status> status() {
-      return response.status();
+      return rsp.status();
     }
 
     @Override
     public Response status(final Status status) {
-      response.status(status);
+      rsp.status(status);
       return this;
     }
 
     @Override
     public Response status(final int status) {
-      response.status(status);
+      rsp.status(status);
       return this;
     }
 
     @Override
     public boolean committed() {
-      return response.committed();
+      return rsp.committed();
     }
 
     @Override
     public String toString() {
-      return response.toString();
+      return rsp.toString();
     }
 
     /**
@@ -273,7 +278,7 @@ public interface Response {
       requireNonNull(rsp, "A response is required.");
       Response root = rsp;
       while (root instanceof Forwarding) {
-        root = ((Forwarding) root).response;
+        root = ((Forwarding) root).rsp;
       }
       return root;
     }
@@ -819,5 +824,22 @@ public interface Response {
    * @return a boolean indicating if the response has been committed
    */
   boolean committed();
+
+  /**
+   * Ends current request/response cycle by releasing any existing resources and committing the
+   * response into the channel.
+   *
+   * This method is automatically call it from a send method, so you are not force to call this
+   * method per each request/response cycle.
+   *
+   * It's recommended for quickly ending the response without any data:
+   * <pre>
+   *   rsp.status(304).end();
+   * </pre>
+   *
+   * Keep in mind that an explicit call to this method will stop the execution of handlers. So,
+   * any handler further in the chain won't be executed once end has been called.
+   */
+  void end();
 
 }
