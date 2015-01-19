@@ -38,15 +38,12 @@ import io.undertow.server.handlers.form.FormData;
 import io.undertow.server.handlers.form.FormEncodedDataDefinition;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.HeaderMap;
-import io.undertow.util.HeaderValues;
-import io.undertow.util.Headers;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedHashMap;
@@ -65,15 +62,14 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.Status;
-import org.jooby.Upload;
 import org.jooby.fn.Collectors;
 import org.jooby.internal.BodyConverterSelector;
 import org.jooby.internal.BodyReaderImpl;
 import org.jooby.internal.MutantImpl;
 import org.jooby.internal.RequestScopedSession;
 import org.jooby.internal.SessionManager;
-import org.jooby.internal.UploadMutant;
 import org.jooby.internal.reqparam.BeanParamInjector;
+import org.jooby.internal.reqparam.RootParamConverter;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -220,47 +216,36 @@ public class UndertowRequest implements Request {
   @Override
   public Mutant param(final String name) throws Exception {
     requireNonNull(name, "Parameter's name is missing.");
-    String pathvalue = route.vars().get(name);
-    Builder<String> builder = ImmutableList.builder();
+    String pathparam = route.vars().get(name);
+    Builder<Object> builder = ImmutableList.builder();
     // path params
-    if (pathvalue != null) {
-      builder.add(pathvalue);
+    if (pathparam != null) {
+      builder.add(pathparam);
     }
     // query params
-    Deque<String> qparams = exchange.getQueryParameters().get(name);
-    if (qparams != null) {
-      qparams.forEach(builder::add);
+    Deque<String> query = exchange.getQueryParameters().get(name);
+    if (query != null) {
+      query.forEach(builder::add);
     }
     // form params
     FormData form = formParser.get(exchange);
-    Deque<MediaType> types = new ArrayDeque<MediaType>(2);
-    List<Upload> uploads = new ArrayList<Upload>();
-    types.add(MediaType.all);
     Optional.ofNullable(form.get(name)).ifPresent(values -> {
       values.forEach(value -> {
-        if (!value.isFile()) {
-          Optional.ofNullable(value.getHeaders()).ifPresent(headers ->
-              Optional.ofNullable(headers.get(Headers.CONTENT_TYPE))
-                  .ifPresent(type -> types.addLast(MediaType.valueOf(type.getFirst())))
-          );
-          builder.add(value.getValue());
+        if (value.isFile()) {
+          builder.add(new UndertowUpload(injector, value));
         } else {
-          uploads.add(new UndertowUpload(injector, value, charset));
+          builder.add(value.getValue());
         }
       });
     });
-    // TODO: FIXME, uploads should have his own method and we should NOT guess what user want.
-    if (uploads.size() > 0) {
-      return new UploadMutant(name, uploads);
-    }
-    return newVariant(name, builder.build(), types.getLast());
+    List<Object> params = builder.build();
+    return newMutant(name, params);
   }
 
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "Header's name is missing.");
-    HeaderValues values = exchange.getRequestHeaders().get(name);
-    return newVariant(name, values, MediaType.all);
+    return newMutant(name, exchange.getRequestHeaders().get(name));
   }
 
   @Override
@@ -269,7 +254,7 @@ public class UndertowRequest implements Request {
     HeaderMap headers = exchange.getRequestHeaders();
     headers.getHeaderNames().forEach(name -> {
       result.put(name.toString(),
-          newVariant(name.toString(), headers.get(name), MediaType.all));
+          newMutant(name.toString(), headers.get(name)));
     });
     return result;
   }
@@ -364,7 +349,7 @@ public class UndertowRequest implements Request {
       if (localSession == null) {
         localSession = sm.create(this, rsp);
       }
-      this.session = new RequestScopedSession(sm, rsp, localSession, ()  -> this.session = null);
+      this.session = new RequestScopedSession(sm, rsp, localSession, () -> this.session = null);
       return this.session;
     });
   }
@@ -397,7 +382,6 @@ public class UndertowRequest implements Request {
     locals.clear();
     return this;
   }
-
 
   public void route(final Route route) {
     this.route = requireNonNull(route, "A route is required.");
@@ -441,8 +425,8 @@ public class UndertowRequest implements Request {
     return cookie.toCookie();
   }
 
-  private Mutant newVariant(final String name, final List<String> values, final MediaType type) {
-    return new MutantImpl(injector, name, values, type, charset);
+  private Mutant newMutant(final String name, final List<?> values) {
+    return new MutantImpl(injector.getInstance(RootParamConverter.class), values);
   }
 
 }

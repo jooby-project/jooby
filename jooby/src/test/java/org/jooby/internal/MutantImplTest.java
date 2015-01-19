@@ -2,21 +2,31 @@ package org.jooby.internal;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jooby.MediaType;
+import org.jooby.Err;
 import org.jooby.Mutant;
+import org.jooby.internal.reqparam.CollectionParamConverter;
+import org.jooby.internal.reqparam.CommonTypesParamConverter;
+import org.jooby.internal.reqparam.DateParamConverter;
+import org.jooby.internal.reqparam.EnumParamConverter;
+import org.jooby.internal.reqparam.LocalDateParamConverter;
+import org.jooby.internal.reqparam.LocaleParamConverter;
+import org.jooby.internal.reqparam.OptionalParamConverter;
+import org.jooby.internal.reqparam.RootParamConverter;
+import org.jooby.internal.reqparam.StaticMethodParamConverter;
+import org.jooby.internal.reqparam.StringConstructorParamConverter;
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.common.collect.Sets;
 import com.google.inject.TypeLiteral;
 
 public class MutantImplTest {
@@ -77,7 +87,7 @@ public class MutantImplTest {
     assertEquals(Optional.of(true), newMutant("true").toOptional(Boolean.class));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = Err.class)
   public void notABoolean() throws Exception {
     assertEquals(true, newMutant("True").booleanValue());
   }
@@ -89,12 +99,12 @@ public class MutantImplTest {
     assertEquals((byte) 23, (byte) newMutant("23").to(Byte.class));
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = Err.class)
   public void notAByte() throws Exception {
     assertEquals(23, newMutant("23x").byteValue());
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = Err.class)
   public void byteOverflow() throws Exception {
     assertEquals(255, newMutant("255").byteValue());
   }
@@ -140,12 +150,12 @@ public class MutantImplTest {
     assertEquals((short) 23, (short) newMutant("23").to(short.class));
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = Err.class)
   public void notAShort() throws Exception {
     assertEquals(23, newMutant("23x").shortValue());
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = Err.class)
   public void shortOverflow() throws Exception {
     assertEquals(45071, newMutant("45071").shortValue());
   }
@@ -231,7 +241,7 @@ public class MutantImplTest {
     assertEquals(Optional.of(1), newMutant("1").toOptional(int.class));
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = Err.class)
   public void notAnInt() throws Exception {
     assertEquals(23, newMutant("23x").intValue());
   }
@@ -245,7 +255,7 @@ public class MutantImplTest {
     assertEquals(6781919191l, (long) newMutant("6781919191").to(Long.class));
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = Err.class)
   public void notALong() throws Exception {
     assertEquals(2323113, newMutant("23113x").longValue());
   }
@@ -291,7 +301,7 @@ public class MutantImplTest {
     assertEquals(4.3f, newMutant("4.3").to(float.class), 0);
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = Err.class)
   public void notAFloat() throws Exception {
     assertEquals(23.113, newMutant("23.113x").floatValue(), 0);
   }
@@ -338,7 +348,7 @@ public class MutantImplTest {
     assertEquals(4.3d, newMutant("4.3").to(double.class), 0);
   }
 
-  @Test(expected = NumberFormatException.class)
+  @Test(expected = Err.class)
   public void notADouble() throws Exception {
     assertEquals(23.113, newMutant("23.113x").doubleValue(), 0);
   }
@@ -411,7 +421,7 @@ public class MutantImplTest {
     assertEquals(Optional.of(LETTER.A), newMutant("A").toOptional(LETTER.class));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = Err.class)
   public void notAnEnum() throws Exception {
     assertEquals(LETTER.A, newMutant("c").enumValue(LETTER.class));
   }
@@ -467,16 +477,29 @@ public class MutantImplTest {
   }
 
   private Mutant newMutant(final String... values) {
-    return new MutantImpl(injector(), "param", ImmutableList.copyOf(values), MediaType.all,
-        Charsets.UTF_8);
-  }
-
-  private Injector injector() {
-    return Guice.createInjector(TypeConverters::configure);
+    return new MutantImpl(newConverter(), values);
   }
 
   private Mutant newMutant(final String value) {
-    return new MutantImpl(injector(), "param", value == null ? null : ImmutableList.of(value),
-        MediaType.all, Charsets.UTF_8);
+    return new MutantImpl(newConverter(), value == null ? null
+        : new String[]{value });
+  }
+
+  private RootParamConverter newConverter() {
+    return new RootParamConverter(
+        Sets.newLinkedHashSet(
+            Arrays.asList(
+                new CommonTypesParamConverter(),
+                new CollectionParamConverter(),
+                new OptionalParamConverter(),
+                new EnumParamConverter(),
+                new DateParamConverter("dd/MM/yyyy"),
+                new LocalDateParamConverter(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                new LocaleParamConverter(),
+                new StaticMethodParamConverter("valueOf"),
+                new StringConstructorParamConverter(),
+                new StaticMethodParamConverter("fromString"),
+                new StaticMethodParamConverter("forName")
+                )));
   }
 }

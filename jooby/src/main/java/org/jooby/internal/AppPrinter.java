@@ -76,12 +76,11 @@ public class AppPrinter {
           route.consumes(), route.produces(), route.name()));
     }
 
-    sockets(buffer, verbMax, routeMax, consumesMax, producesMax);
+    sockets(buffer, Math.max(verbMax, "WS".length()), routeMax, consumesMax, producesMax);
   }
 
   private void sockets(final StringBuilder buffer, final int verbMax, int routeMax,
-      int consumesMax,
-      int producesMax) {
+      int consumesMax, int producesMax) {
     for (WebSocket.Definition socket : sockets) {
       routeMax = Math.max(routeMax, socket.pattern().length());
 
@@ -93,9 +92,9 @@ public class AppPrinter {
     String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax + "s     %"
         + producesMax + "s\n";
 
-    for (WebSocket.Definition socketDef : sockets) {
-      buffer.append(String.format(format, "WS", socketDef.pattern(),
-          "[" + socketDef.consumes() + "]", "[" + socketDef.produces() + "]"));
+    for (WebSocket.Definition socket : sockets) {
+      buffer.append(String.format(format, "WS", socket.pattern(),
+          "[" + socket.consumes() + "]", "[" + socket.produces() + "]"));
     }
   }
 }

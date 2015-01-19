@@ -464,6 +464,7 @@ public interface Request extends Locals {
    * <li>Query parameter, like: <code>?name=jooby</code></li>
    * </ul>
    *
+   * @param <T> Target type.
    * @return A bean with request params and/or headers.
    * @throws Exception On param retrieval failures.
    */

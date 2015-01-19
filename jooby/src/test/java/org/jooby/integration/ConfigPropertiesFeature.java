@@ -20,6 +20,36 @@ import com.typesafe.config.ConfigFactory;
 
 public class ConfigPropertiesFeature extends ServerFeature {
 
+  public static class ValueOf {
+
+    private String value;
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (obj instanceof ValueOf) {
+        return value.equals(((ValueOf) obj).value);
+      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      return value.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return value.toString();
+    }
+
+    public static ValueOf valueOf(final String value) {
+      ValueOf v = new ValueOf();
+      v.value = value;
+      return v;
+    }
+
+  }
+
   public enum Letter {
     A,
     B;
@@ -35,6 +65,7 @@ public class ConfigPropertiesFeature extends ServerFeature {
     private List<String> list;
     private Letter letter;
     private UUID uuid;
+    private ValueOf valueOf;
 
     @Inject
     public Resource(final Charset charset, final Env mode,
@@ -42,7 +73,8 @@ public class ConfigPropertiesFeature extends ServerFeature {
         @Named("stringprop") final String stringprop,
         @Named("list") final List<String> list,
         @Named("letter") final Letter letter,
-        @Named("uuid") final UUID uuid) {
+        @Named("uuid") final UUID uuid,
+        @Named("valueOf") final ValueOf valueOf) {
       this.charset = charset;
       this.mode = mode;
       this.intprop = intprop;
@@ -50,12 +82,13 @@ public class ConfigPropertiesFeature extends ServerFeature {
       this.list = list;
       this.letter = letter;
       this.uuid = uuid;
+      this.valueOf = valueOf;
     }
 
     @GET
     @Path("/properties")
     public Object properties() {
-      return charset + " " + intprop + " " + stringprop + " " + uuid;
+      return charset + " " + intprop + " " + stringprop + " " + uuid + " " + valueOf;
     }
 
     @GET
@@ -84,7 +117,7 @@ public class ConfigPropertiesFeature extends ServerFeature {
 
   @Test
   public void properties() throws Exception {
-    assertEquals("UTF-8 14 The man who sold the world a8843f4a-2c71-42ef-82aa-83fa8246c0d4", Request.Get(uri("r", "properties").build())
+    assertEquals("UTF-8 14 The man who sold the world a8843f4a-2c71-42ef-82aa-83fa8246c0d4 valueOf", Request.Get(uri("r", "properties").build())
         .execute().returnContent()
         .asString());
   }

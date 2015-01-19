@@ -167,6 +167,7 @@ public class Json implements Jooby.Module {
     // direct access?
     binder.bind(Key.get(Body.Formatter.class, Names.named(json.toString()))).toInstance(json);
     binder.bind(Key.get(Body.Parser.class, Names.named(json.toString()))).toInstance(json);
+
   }
 
 }

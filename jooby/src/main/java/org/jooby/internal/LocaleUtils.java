@@ -36,8 +36,8 @@ import java.util.Locale;
 
 public class LocaleUtils {
 
-  public static Locale toLocale(final String locale, final String separator) {
-    final String[] parts = locale.split(separator);
+  public static Locale toLocale(final String locale) {
+    final String[] parts = locale.replace("-", "_").split("_");
     if (parts.length == 1) {
       return new Locale(locale, "");
     } else if (parts.length == 2) {

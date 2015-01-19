@@ -18,8 +18,6 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSink;
-import com.google.common.io.CharStreams;
-import com.google.inject.TypeLiteral;
 
 public class BodyParamFeature extends ServerFeature {
 
@@ -40,25 +38,7 @@ public class BodyParamFeature extends ServerFeature {
 
   {
 
-    use(new Body.Parser() {
-      @SuppressWarnings("unchecked")
-      @Override
-      public <T> T parse(final TypeLiteral<T> type, final Body.Reader reader) throws Exception {
-        String body = reader.text(in -> CharStreams.toString(in));
-        assertEquals("{}", body);
-        return (T) new Bean();
-      }
-
-      @Override
-      public boolean canParse(final TypeLiteral<?> type) {
-        return type.getRawType() == Bean.class;
-      }
-
-      @Override
-      public List<MediaType> types() {
-        return ImmutableList.of(MediaType.json);
-      }
-    });
+    param((toType,values, next) -> new Bean());
 
     use(new Body.Formatter() {
 

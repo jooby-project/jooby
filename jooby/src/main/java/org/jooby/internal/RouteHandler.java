@@ -166,7 +166,7 @@ public class RouteHandler {
         .orElse(this.charset);
 
     Locale locale = Optional.ofNullable(headers.apply("Accept-Language"))
-        .map(l -> LocaleUtils.toLocale(l, "-"))
+        .map(l -> LocaleUtils.toLocale(l))
         .orElse(this.locale);
 
     Holder<Request> req = new Holder<>((injector, route) ->
@@ -187,9 +187,9 @@ public class RouteHandler {
       injector = rootInjector.createChildInjector(binder -> {
         binder.bind(Request.class).toProvider(() -> req.ref);
         binder.bind(Response.class).toProvider(() -> rsp.ref);
-        for (Request.Module module : modules) {
-          module.configure(binder);
-        }
+
+        // request modules
+        modules.forEach(module -> module.configure(binder));
       });
 
       List<Route> routes = resolveAs404
@@ -434,28 +434,4 @@ public class RouteHandler {
     return null;
   }
 
-  @Override
-  public String toString() {
-    StringBuilder buffer = new StringBuilder();
-    int verbMax = 0, routeMax = 0, consumesMax = 0, producesMax = 0;
-    for (Route.Definition routeDef : routeDefs) {
-      verbMax = Math.max(verbMax, routeDef.verb().length());
-
-      routeMax = Math.max(routeMax, routeDef.pattern().length());
-
-      consumesMax = Math.max(consumesMax, routeDef.consumes().toString().length());
-
-      producesMax = Math.max(producesMax, routeDef.produces().toString().length());
-    }
-
-    String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax + "s     %"
-        + producesMax + "s    (%s)\n";
-
-    for (Route.Definition routeDef : routeDefs) {
-      buffer.append(String.format(format, routeDef.verb(), routeDef.pattern(),
-          routeDef.consumes(), routeDef.produces(), routeDef.name()));
-    }
-
-    return buffer.toString();
-  }
 }
