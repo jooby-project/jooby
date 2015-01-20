@@ -1,7 +1,7 @@
 ---
 layout: index
 title: quickstart
-version: 0.4.1
+version: 0.4.2
 ---
 
 quickstart
@@ -11,7 +11,7 @@ Just paste this into a terminal (make sure Java 8 and Maven 3.x are installed):
 
     mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app 
     -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype 
-    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.4.1
+    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.4.2
 
 You might want to edit/change:
 
@@ -26,7 +26,7 @@ Let's try it!:
 
     mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app 
     -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype 
-    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.4.1
+    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.4.2
     cd my-app
     mvn jooby:run
 

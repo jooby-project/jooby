@@ -1,7 +1,7 @@
 ---
 layout: index
 title: doc
-version: 0.4.1
+version: 0.4.2
 ---
 
 documentation
