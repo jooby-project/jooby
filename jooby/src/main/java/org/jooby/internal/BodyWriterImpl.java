@@ -76,7 +76,6 @@ public class BodyWriterImpl implements Body.Writer {
     OutputStream out = this.stream.get();
     // don't close on errors
     bin.write(uncloseable(out));
-    out.flush();
     out.close();
   }
 
