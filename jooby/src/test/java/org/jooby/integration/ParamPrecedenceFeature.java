@@ -26,8 +26,7 @@ public class ParamPrecedenceFeature extends ServerFeature {
   @Test
   public void paramPrecedence() throws Exception {
     assertEquals("[a, b, c]", Request.Post(uri("precedence/a?name=b").build())
-        .bodyForm(
-            new BasicNameValuePair("name", "c")
+        .bodyForm(new BasicNameValuePair("name", "c")
         ).execute().returnContent().asString());
   }
 

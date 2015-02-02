@@ -16,27 +16,22 @@ import com.google.inject.TypeLiteral;
 
 public class RootParamConverter {
 
-  private List<ParamConverter> chain;
+  private List<ParamConverter> converters;
 
   @Inject
   public RootParamConverter(final Set<ParamConverter> converters) {
-    this.chain = ImmutableList.<ParamConverter> builder()
-        .addAll(converters)
-        .add((toType, values, chain) -> {
-          throw new Err(Status.BAD_REQUEST, "No converter for " + toType);
-        })
-        .build();
+    this.converters = ImmutableList.copyOf(converters);
   }
 
   public <T> T convert(final TypeLiteral<?> type, final Object value) {
-    return convert(type, new Object[]{value });
+    return convert(type, value == null ? null : new Object[]{value });
   }
 
   @SuppressWarnings("unchecked")
   public <T> T convert(final TypeLiteral<?> type, final Object[] values) {
     try {
       requireNonNull(type, "A type is required.");
-      return (T) chain(type, chain).convert(type, values);
+      return (T) chain(type, converters).convert(type, values);
     } catch (Err err) {
       throw err;
     } catch (Exception ex) {
@@ -52,16 +47,19 @@ public class RootParamConverter {
       TypeLiteral<?> type = seed;
 
       @Override
-      public Object convert(final TypeLiteral<?> nextType, final Object[] nextVals)
+      public Object convert(final TypeLiteral<?> nexttype, final Object[] values)
           throws Exception {
-        if (!type.equals(nextType)) {
+        if (cursor == converters.size()) {
+          throw new Err(Status.BAD_REQUEST, "No converter for " + type);
+        }
+        if (!type.equals(nexttype)) {
           // reset cursor on type changes.
           cursor = 0;
-          type = nextType;
+          type = nexttype;
         }
         ParamConverter next = converters.get(cursor);
         cursor += 1;
-        Object result = next.convert(nextType, nextVals, this);
+        Object result = next.convert(nexttype, values, this);
         cursor -= 1;
         return result;
       }

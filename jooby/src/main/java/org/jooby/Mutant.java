@@ -25,7 +25,9 @@ import java.util.SortedSet;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.primitives.Primitives;
 import com.google.inject.TypeLiteral;
+import com.google.inject.util.Types;
 
 /**
  * <p>
@@ -57,86 +59,114 @@ public interface Mutant {
   /**
    * @return Get a boolean when possible.
    */
-  boolean booleanValue();
+  default boolean booleanValue() {
+    return to(boolean.class);
+  }
 
   /**
    * @return Get a byte when possible.
    */
-  byte byteValue();
+  default byte byteValue() {
+    return to(byte.class);
+  }
 
   /**
    * @return Get a short when possible.
    */
-  short shortValue();
+  default short shortValue() {
+    return to(short.class);
+  }
 
   /**
    * @return Get an integer when possible.
    */
-  int intValue();
+  default int intValue() {
+    return to(int.class);
+  }
 
   /**
    * @return Get a long when possible.
    */
-  long longValue();
+  default long longValue() {
+    return to(long.class);
+  }
 
   /**
    * @return Get a string when possible.
    */
-  String stringValue();
+  default String stringValue() {
+    return to(String.class);
+  }
 
   /**
    * @return Get a float when possible.
    */
-  float floatValue();
+  default float floatValue() {
+    return to(float.class);
+  }
 
   /**
    * @return Get a double when possible.
    */
-  double doubleValue();
+  default double doubleValue() {
+    return to(double.class);
+  }
 
   /**
    * @param type The enum type.
    * @param <T> Enum type.
    * @return Get an enum when possible.
    */
-  <T extends Enum<T>> T enumValue(@Nonnull Class<T> type);
+  default <T extends Enum<T>> T enumValue(@Nonnull final Class<T> type) {
+    return to(type);
+  }
 
   /**
    * @param type The element type.
    * @param <T> List type.
    * @return Get list of values when possible.
    */
-  <T> List<T> toList(@Nonnull Class<T> type);
+  @SuppressWarnings("unchecked")
+  default <T> List<T> toList(@Nonnull final Class<T> type) {
+    return (List<T>) to(TypeLiteral.get(Types.listOf(Primitives.wrap(type))));
+  }
 
   /**
    * @param type The element type.
    * @param <T> Set type.
    * @return Get set of values when possible.
    */
-  <T> Set<T> toSet(@Nonnull Class<T> type);
+  @SuppressWarnings("unchecked")
+  default <T> Set<T> toSet(@Nonnull final Class<T> type) {
+    return (Set<T>) to(TypeLiteral.get(Types.setOf(Primitives.wrap(type))));
+  }
 
   /**
    * @param type The element type.
    * @param <T> Set type.
    * @return Get sorted set of values when possible.
    */
-  <T extends Comparable<T>> SortedSet<T> toSortedSet(@Nonnull Class<T> type);
+  @SuppressWarnings("unchecked")
+  default <T extends Comparable<T>> SortedSet<T> toSortedSet(@Nonnull final Class<T> type) {
+    return (SortedSet<T>) to(TypeLiteral.get(
+        Types.newParameterizedType(SortedSet.class, Primitives.wrap(type))
+        ));
+  }
 
   /**
    * @param type The optional type.
    * @param <T> Optional type.
    * @return Get an optional value when possible.
    */
-  <T> Optional<T> toOptional(@Nonnull Class<T> type);
+  @SuppressWarnings("unchecked")
+  default <T> Optional<T> toOptional(@Nonnull final Class<T> type) {
+    return (Optional<T>) to(TypeLiteral.get(
+        Types.newParameterizedType(Optional.class, Primitives.wrap(type))
+        ));
+  }
 
   /**
-   * Get a value using one of the existing and specific converters or an arbitrary type that has:
-   *
-   * <ol>
-   * <li>A constructor that accepts a {@link String}</li>
-   * <li>A static method <code>valueOf</code> that takes a single {@link String} parameter.</li>
-   * <li>A static method <code>fromString</code> that takes a single {@link String} parameter.</li>
-   * </ol>
+   * Convert a raw value to the given type.
    *
    * @param type The type to convert to.
    * @param <T> Target type.
@@ -147,13 +177,7 @@ public interface Mutant {
   }
 
   /**
-   * Get a value using one of the existing and specific converters or an arbitrary type that has:
-   *
-   * <ol>
-   * <li>A constructor that accepts a {@link String}</li>
-   * <li>A static method <code>valueOf</code> that takes a single {@link String} parameter.</li>
-   * <li>A static method <code>fromString</code> that takes a single {@link String} parameter.</li>
-   * </ol>
+   * Convert a raw value to the given type.
    *
    * @param type The type to convert to.
    * @param <T> Target type.

@@ -46,6 +46,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -132,6 +133,10 @@ public class UndertowRequest implements Request {
 
   private final ExchangeFn<FormData> formParser;
 
+  private RootParamConverter converter;
+
+  private Map<String, Mutant> params = new HashMap<>();
+
   public UndertowRequest(final HttpServerExchange exchange,
       final Injector injector,
       final Route route,
@@ -151,6 +156,7 @@ public class UndertowRequest implements Request {
     this.charset = requireNonNull(charset, "A charset is required.");
     this.locale = requireNonNull(locale, "A locale is required.");
     formParser = formParser(contentType, injector.getInstance(Config.class));
+    converter = injector.getInstance(RootParamConverter.class);
   }
 
   @SuppressWarnings("unchecked")
@@ -216,46 +222,49 @@ public class UndertowRequest implements Request {
   @Override
   public Mutant param(final String name) throws Exception {
     requireNonNull(name, "Parameter's name is missing.");
-    String pathparam = route.vars().get(name);
-    Builder<Object> builder = ImmutableList.builder();
-    // path params
-    if (pathparam != null) {
-      builder.add(pathparam);
-    }
-    // query params
-    Deque<String> query = exchange.getQueryParameters().get(name);
-    if (query != null) {
-      query.forEach(builder::add);
-    }
-    // form params
-    FormData form = formParser.get(exchange);
-    Optional.ofNullable(form.get(name)).ifPresent(values -> {
-      values.forEach(value -> {
-        if (value.isFile()) {
-          builder.add(new UndertowUpload(injector, value));
-        } else {
-          builder.add(value.getValue());
-        }
+    Mutant param = this.params.get(name);
+    if (param == null) {
+      String pathparam = route.vars().get(name);
+      Builder<Object> builder = ImmutableList.builder();
+      // path params
+      if (pathparam != null) {
+        builder.add(pathparam);
+      }
+      // query params
+      Deque<String> query = exchange.getQueryParameters().get(name);
+      if (query != null) {
+        query.forEach(builder::add);
+      }
+      // form params
+      FormData form = formParser.get(exchange);
+      Optional.ofNullable(form.get(name)).ifPresent(values -> {
+        values.forEach(value -> {
+          if (value.isFile()) {
+            builder.add(new UndertowUpload(injector, value));
+          } else {
+            builder.add(value.getValue());
+          }
+        });
       });
-    });
-    List<Object> params = builder.build();
-    return newMutant(name, params);
+      param = new MutantImpl(converter, builder.build());
+      this.params.put(name, param);
+    }
+    return param;
   }
 
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "Header's name is missing.");
-    return newMutant(name, exchange.getRequestHeaders().get(name));
+    return new MutantImpl(converter, exchange.getRequestHeaders().get(name));
   }
 
   @Override
   public Map<String, Mutant> headers() {
     Map<String, Mutant> result = new LinkedHashMap<>();
     HeaderMap headers = exchange.getRequestHeaders();
-    headers.getHeaderNames().forEach(name -> {
-      result.put(name.toString(),
-          newMutant(name.toString(), headers.get(name)));
-    });
+    headers.getHeaderNames().forEach(name ->
+      result.put(name.toString(), new MutantImpl(converter, headers.get(name)))
+    );
     return result;
   }
 
@@ -423,10 +432,6 @@ public class UndertowRequest implements Request {
     cookie.secure(c.isSecure());
 
     return cookie.toCookie();
-  }
-
-  private Mutant newMutant(final String name, final List<?> values) {
-    return new MutantImpl(injector.getInstance(RootParamConverter.class), values);
   }
 
 }

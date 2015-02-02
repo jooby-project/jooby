@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
@@ -23,25 +24,29 @@ public class SessionRestoreFeature extends ServerFeature {
 
   private static final CountDownLatch latch = new CountDownLatch(1);
 
-  private static final long createdAt = System.currentTimeMillis() - 500;
+  private static final AtomicLong createdAt = new AtomicLong();
 
-  private static final long lastAccessed = System.currentTimeMillis() - 200;
+  private static final AtomicLong lastAccessed = new AtomicLong();
 
-  private static final long lastSaved = lastAccessed;
+  private static final AtomicLong lastSaved = new AtomicLong();
 
-  private static final long expiryAt = lastAccessed + 2000;
+  private static final AtomicLong expiryAt = new AtomicLong();
 
   {
+    createdAt.set(System.currentTimeMillis() - 1000);
+    lastAccessed.set(System.currentTimeMillis() - 200);
+    lastSaved.set(lastAccessed.get());
+    expiryAt.set(lastAccessed.get() + 2000);
     use(new Session.MemoryStore() {
       @Override
       public Session get(final Session.Builder builder) {
-        assertEquals("123", builder.sessionId());
+        assertEquals("678", builder.sessionId());
         Map<String, Object> attrs = new LinkedHashMap<String, Object>();
         attrs.put("k1", "v1.1");
         Session session = builder
-            .accessedAt(lastAccessed)
-            .createdAt(createdAt)
-            .savedAt(lastSaved)
+            .accessedAt(lastAccessed.get())
+            .createdAt(createdAt.get())
+            .savedAt(lastSaved.get())
             .set("k1", "v1")
             .set(attrs)
             .build();
@@ -65,7 +70,7 @@ public class SessionRestoreFeature extends ServerFeature {
   public void shouldRestoreSessionFromCookieID() throws Exception {
     assertEquals(createdAt + "; " + lastAccessed + "; " + lastSaved + "; " + expiryAt
         + "; {k1=v1.1}",
-        execute(GET(uri("restore")).addHeader("Cookie", "jooby.sid=123"), rsp -> {
+        execute(GET(uri("restore")).addHeader("Cookie", "jooby.sid=678"), rsp -> {
           assertEquals(200, rsp.getStatusLine().getStatusCode());
         }));
 
