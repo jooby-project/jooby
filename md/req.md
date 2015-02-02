@@ -81,8 +81,21 @@ Automatic type conversion is provided when a type:
 * Has a static method **valueOf** that accepts a single **String** argument
 * Has a static method **fromString** that accepts a single **String** argument. Like ```java.util.UUID```
 * Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
-* There is custom Guice type converter for the type
 * It is an Optional<T>, List<T>, Set<T> or SortedSet<T> where T satisfies one of previous rules
+
+Custom type conversion is also possible:
+
+```java
+
+param((type, values, next) -> {
+  if (type.getRawType() == MyType.class) {
+    // convert the type here
+    return ...;
+  }
+  // no luck! move to next converter
+  return next.convert(type, values);
+});
+```
 
 ### request headers
 

@@ -37,7 +37,6 @@ import io.undertow.util.Headers;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -46,10 +45,10 @@ import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Upload;
 import org.jooby.internal.MutantImpl;
+import org.jooby.internal.reqparam.RootParamConverter;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 
 public class UndertowUpload implements Upload {
@@ -60,12 +59,9 @@ public class UndertowUpload implements Upload {
 
   private Supplier<MediaType> type;
 
-  private Charset charset;
-
-  public UndertowUpload(final Injector injector, final FormValue value, final Charset charset) {
+  public UndertowUpload(final Injector injector, final FormValue value) {
     this.injector = injector;
     this.value = value;
-    this.charset = charset;
     this.type = Suppliers.memoize(
         () -> Optional
             .ofNullable(value.getHeaders())
@@ -102,7 +98,7 @@ public class UndertowUpload implements Upload {
             h -> Optional.<List<String>> ofNullable(h.get(name))
                 .orElse(Collections.<String> emptyList()))
         .orElse(Collections.<String> emptyList());
-    return new MutantImpl(injector, name, ImmutableList.copyOf(headers), MediaType.all, charset);
+    return new MutantImpl(injector.getInstance(RootParamConverter.class), headers);
   }
 
   @Override

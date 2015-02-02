@@ -88,6 +88,17 @@ import org.jooby.internal.Server;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.mvc.Routes;
+import org.jooby.internal.reqparam.CollectionParamConverter;
+import org.jooby.internal.reqparam.CommonTypesParamConverter;
+import org.jooby.internal.reqparam.DateParamConverter;
+import org.jooby.internal.reqparam.EnumParamConverter;
+import org.jooby.internal.reqparam.LocalDateParamConverter;
+import org.jooby.internal.reqparam.LocaleParamConverter;
+import org.jooby.internal.reqparam.OptionalParamConverter;
+import org.jooby.internal.reqparam.RootParamConverter;
+import org.jooby.internal.reqparam.StaticMethodParamConverter;
+import org.jooby.internal.reqparam.StringConstructorParamConverter;
+import org.jooby.internal.reqparam.UploadParamConverter;
 import org.jooby.internal.routes.HeadHandler;
 import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
@@ -498,6 +509,8 @@ public class Jooby {
   /** Env builder. */
   private Env.Builder env = Env.DEFAULT;
 
+  private LinkedList<ParamConverter> converters = new LinkedList<>();
+
   {
     use(new Undertow());
   }
@@ -524,6 +537,17 @@ public class Jooby {
     this.session = new Session.Definition(requireNonNull(sessionStore,
         "A session store is required."));
     return this.session;
+  }
+
+  /**
+   * Register a new param converter. See {@link ParamConverter} for more details.
+   *
+   * @param converter A param converter.
+   * @return This jooby instance.
+   */
+  public @Nonnull Jooby param(@Nonnull final ParamConverter converter) {
+    converters.add(requireNonNull(converter, "A param converter is required."));
+    return this;
   }
 
   /**
@@ -1858,9 +1882,7 @@ public class Jooby {
   public void start(final String[] args) throws Exception {
     long start = System.currentTimeMillis();
     // shutdown hook
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      stop();
-    }));
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
 
     this.injector = bootstrap();
 
@@ -1912,11 +1934,12 @@ public class Jooby {
 
     final Charset charset = Charset.forName(config.getString("application.charset"));
 
-    final Locale locale = LocaleUtils.toLocale(config.getString("application.lang"), "_");
+    final Locale locale = LocaleUtils.toLocale(config.getString("application.lang"));
 
+    String dateFormat = config.getString("application.dateFormat");
     ZoneId zoneId = ZoneId.of(config.getString("application.tz"));
-    DateTimeFormatter dateTimeFormat = DateTimeFormatter
-        .ofPattern(config.getString("application.dateFormat"), locale)
+    DateTimeFormatter dateTimeFormatter = DateTimeFormatter
+        .ofPattern(dateFormat, locale)
         .withZone(zoneId);
 
     DecimalFormat numberFormat = new DecimalFormat(config.getString("application.numberFormat"));
@@ -1953,7 +1976,7 @@ public class Jooby {
           binder.bind(TimeZone.class).toInstance(TimeZone.getTimeZone(zoneId));
 
           // bind date format
-          binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormat);
+          binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormatter);
 
           // bind number format
           binder.bind(NumberFormat.class).toInstance(numberFormat);
@@ -1980,12 +2003,6 @@ public class Jooby {
           Multibinder<Request.Module> requestModule = Multibinder
               .newSetBinder(binder, Request.Module.class);
 
-          // bind prototype routes in request module
-          if (protoRoutes.size() > 0) {
-            requestModule.addBinding().toInstance(
-                b -> protoRoutes.forEach(routeClass1 -> b.bind(routeClass1)));
-          }
-
           // tmp dir
           File tmpdir = new File(config.getString("application.tmpdir"));
           tmpdir.mkdirs();
@@ -1998,6 +2015,30 @@ public class Jooby {
 
           RouteMetadata classInfo = new RouteMetadata(env);
           binder.bind(RouteMetadata.class).toInstance(classInfo);
+
+          // prototype routes & converters goes into the request module
+          requestModule.addBinding().toInstance(reqbinder -> {
+            protoRoutes.forEach(routeClass1 -> reqbinder.bind(routeClass1));
+
+            converters.add(new CommonTypesParamConverter());
+            converters.add(new CollectionParamConverter());
+            converters.add(new OptionalParamConverter());
+            converters.add(new UploadParamConverter());
+            converters.add(new EnumParamConverter());
+            converters.add(new DateParamConverter(dateFormat));
+            converters.add(new LocalDateParamConverter(dateTimeFormatter));
+            converters.add(new LocaleParamConverter());
+            converters.add(new StaticMethodParamConverter("valueOf"));
+            converters.add(new StaticMethodParamConverter("fromString"));
+            converters.add(new StaticMethodParamConverter("forName"));
+            converters.add(new StringConstructorParamConverter());
+
+            reqbinder.bind(RootParamConverter.class);
+
+            Multibinder<ParamConverter> converterBinder = Multibinder
+                .newSetBinder(reqbinder, ParamConverter.class);
+            converters.forEach(it -> converterBinder.addBinding().toInstance(it));
+          });
 
           // modules, routes and websockets
           bag.forEach(candidate -> {
@@ -2196,7 +2237,7 @@ public class Jooby {
       locale = Locale.getDefault();
       defaults.put("lang", locale.getLanguage() + "_" + locale.getCountry());
     } else {
-      locale = Locale.forLanguageTag(config.getString("application.lang").replace("_", "-"));
+      locale = LocaleUtils.toLocale(config.getString("application.lang"));
     }
 
     // time zone

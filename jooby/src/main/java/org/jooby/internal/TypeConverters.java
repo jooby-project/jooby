@@ -18,10 +18,11 @@
  */
 package org.jooby.internal;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Locale;
+
+import org.jooby.internal.reqparam.LocaleParamConverter;
+import org.jooby.internal.reqparam.StaticMethodParamConverter;
+import org.jooby.internal.reqparam.StringConstructorParamConverter;
 
 import com.google.inject.Binder;
 import com.google.inject.TypeLiteral;
@@ -32,8 +33,6 @@ import com.google.inject.spi.TypeConverter;
 public class TypeConverters {
 
   public static void configure(final Binder binder) {
-    binder.convertToTypes(stringConstructorMatcher(), stringConstructorTypeConverter());
-
     binder.convertToTypes(staticMethodMatcher("valueOf"),
         staticMethodTypeConverter("valueOf"));
 
@@ -43,49 +42,19 @@ public class TypeConverters {
     binder.convertToTypes(staticMethodMatcher("forName"),
         staticMethodTypeConverter("forName"));
 
-    binder.convertToTypes(localeMatcher(), localeTypeConverter());
-
-  }
-
-  private static TypeConverter localeTypeConverter() {
-    return new TypeConverter() {
-
-      @Override
-      public Object convert(final String value, final TypeLiteral<?> type) {
-        String[] locale = value.split("_");
-        return locale.length == 1 ? new Locale(locale[0]) : new Locale(locale[0], locale[1]);
-      }
-    };
-  }
-
-  private static Matcher<TypeLiteral<?>> localeMatcher() {
-    return new AbstractMatcher<TypeLiteral<?>>() {
-      @Override
-      public boolean matches(final TypeLiteral<?> type) {
-        Class<?> rawType = type.getRawType();
-        return rawType == Locale.class;
-      }
-
-      @Override
-      public String toString() {
-        return "Locale(String, String)";
-      }
-    };
+    binder.convertToTypes(stringConstructorMatcher(), stringConstructorTypeConverter());
   }
 
   private static TypeConverter stringConstructorTypeConverter() {
-    return new TypeConverter() {
-
-      @Override
-      public Object convert(final String value, final TypeLiteral<?> type) {
-        Class<?> rawType = type.getRawType();
-        try {
-          return rawType.getDeclaredConstructor(String.class).newInstance(value);
-        } catch (NoSuchMethodException | SecurityException | InstantiationException
-            | InvocationTargetException | IllegalAccessException ex) {
-          throw new IllegalStateException("Invocation of " + rawType.getName() + "(String) failed",
-              ex);
+    return (value, type) -> {
+      Class<?> rawType = type.getRawType();
+      try {
+        if (rawType == Locale.class) {
+          return new LocaleParamConverter().convert(type, new Object[] {value}, null);
         }
+        return new StringConstructorParamConverter().convert(type, new Object[] {value}, null);
+      } catch (Exception ex) {
+        throw new IllegalStateException("Can't convert: " + value + " to " + type, ex);
       }
     };
   }
@@ -94,13 +63,7 @@ public class TypeConverters {
     return new AbstractMatcher<TypeLiteral<?>>() {
       @Override
       public boolean matches(final TypeLiteral<?> type) {
-        Class<?> rawType = type.getRawType();
-        try {
-          rawType.getDeclaredConstructor(String.class);
-          return true;
-        } catch (NoSuchMethodException | SecurityException ex) {
-          return false;
-        }
+        return new StringConstructorParamConverter().matches(type);
       }
 
       @Override
@@ -114,13 +77,10 @@ public class TypeConverters {
     return new TypeConverter() {
       @Override
       public Object convert(final String value, final TypeLiteral<?> toType) {
-        Class<?> rawType = toType.getRawType();
         try {
-          Method method = method(rawType, name);
-          return method.invoke(null, value);
-        } catch (ReflectiveOperationException ex) {
-          throw new IllegalArgumentException("Execution of: " + rawType + "." + name
-              + " results in error", ex);
+          return new StaticMethodParamConverter(name).convert(toType, new Object[] {value}, null);
+        } catch (Exception ex) {
+          throw new IllegalStateException("Can't convert: " + value + " to " + toType, ex);
         }
       }
 
@@ -135,12 +95,7 @@ public class TypeConverters {
     return new AbstractMatcher<TypeLiteral<?>>() {
       @Override
       public boolean matches(final TypeLiteral<?> type) {
-        Method method = method(type.getRawType(), name);
-        if (method == null) {
-          return false;
-        }
-        int mods = method.getModifiers();
-        return Modifier.isStatic(mods) && Modifier.isPublic(mods);
+        return new StaticMethodParamConverter(name).matches(type);
       }
 
       @Override
@@ -148,14 +103,6 @@ public class TypeConverters {
         return name + "(String)";
       }
     };
-  }
-
-  private static Method method(final Class<?> type, final String name) {
-    try {
-      return type.getDeclaredMethod(name, String.class);
-    } catch (NoSuchMethodException | SecurityException | IllegalArgumentException ex) {
-      return null;
-    }
   }
 
 }

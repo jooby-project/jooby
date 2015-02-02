@@ -43,21 +43,25 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 
 import org.jooby.Err;
 import org.jooby.Mutant;
+import org.jooby.Request;
 import org.jooby.Status;
 import org.jooby.WebSocket;
 import org.jooby.internal.MutantImpl;
 import org.jooby.internal.WebSocketImpl;
 import org.jooby.internal.WsBinaryMessage;
+import org.jooby.internal.reqparam.RootParamConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnio.Pooled;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 public class UndertowWebSocketBridge extends AbstractReceiveListener {
 
@@ -65,8 +69,16 @@ public class UndertowWebSocketBridge extends AbstractReceiveListener {
     void run() throws Exception;
   }
 
+  private interface BridgeCallWithInjector {
+    void run(Injector injector) throws Exception;
+  }
+
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(WebSocket.class);
+
+  private static final Key<Set<Request.Module>> REQ_MOD = Key
+      .get(new TypeLiteral<Set<Request.Module>>() {
+      });
 
   private Injector injector;
 
@@ -84,9 +96,9 @@ public class UndertowWebSocketBridge extends AbstractReceiveListener {
   @Override
   protected void onFullTextMessage(final WebSocketChannel channel,
       final BufferedTextMessage message) throws IOException {
-    doCall(channel, () -> {
-      Mutant variant = new MutantImpl(injector, "textMessage", ImmutableList.of(message.getData()),
-          socket.consumes(), Charsets.UTF_8);
+    doCall(channel, (injector) -> {
+      Mutant variant = new MutantImpl(injector.getInstance(RootParamConverter.class),
+          ImmutableList.of(message.getData()));
       socket.fireMessage(variant);
     });
   }
@@ -98,6 +110,7 @@ public class UndertowWebSocketBridge extends AbstractReceiveListener {
     doCall(channel, () -> {
       Pooled<ByteBuffer[]> data = message.getData();
       try {
+        // TODO: review bin message
         Mutant variant = new WsBinaryMessage(WebSockets.mergeBuffers(data.getResource()));
         socket.fireMessage(variant);
       } finally {
@@ -128,6 +141,16 @@ public class UndertowWebSocketBridge extends AbstractReceiveListener {
   private void doCall(final WebSocketChannel channel, final BridgeCall callable) {
     try {
       callable.run();
+    } catch (Throwable ex) {
+      handleErr(channel, ex);
+    }
+  }
+
+  private void doCall(final WebSocketChannel channel, final BridgeCallWithInjector callable) {
+    try {
+      callable.run(injector.createChildInjector(binder ->
+          injector.getInstance(REQ_MOD).forEach(m -> m.configure(binder))
+          ));
     } catch (Throwable ex) {
       handleErr(channel, ex);
     }

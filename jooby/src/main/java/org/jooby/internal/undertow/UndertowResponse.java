@@ -36,6 +36,7 @@ import static java.util.Objects.requireNonNull;
 import io.undertow.io.UndertowOutputStream;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.CookieImpl;
+import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 
@@ -66,6 +67,7 @@ import org.jooby.internal.BodyWriterImpl;
 import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.MutantImpl;
 import org.jooby.internal.SetHeaderImpl;
+import org.jooby.internal.reqparam.RootParamConverter;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
@@ -154,9 +156,8 @@ public class UndertowResponse implements Response {
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "A header's name is required.");
-
-    return new MutantImpl(injector, name, exchange.getResponseHeaders().get(name), MediaType.all,
-        charset);
+    HeaderValues headers = exchange.getResponseHeaders().get(name);
+    return new MutantImpl(injector.getInstance(RootParamConverter.class), headers);
   }
 
   @Override
