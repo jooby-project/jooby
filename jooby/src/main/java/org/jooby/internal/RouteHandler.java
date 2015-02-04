@@ -35,7 +35,6 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -62,23 +61,6 @@ import com.google.inject.Injector;
 @Singleton
 public class RouteHandler {
 
-  private static class Holder<T> {
-    private T ref;
-
-    private BiFunction<Injector, Route, T> fn;
-
-    public Holder(final BiFunction<Injector, Route, T> fn) {
-      this.fn = fn;
-    }
-
-    public T get(final Injector injector, final Route route) {
-      if (ref == null) {
-        ref = fn.apply(injector, route);
-      }
-      return ref;
-    }
-  }
-
   private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
 
   private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
@@ -96,24 +78,24 @@ public class RouteHandler {
 
   private Injector rootInjector;
 
-  private Set<Request.Module> modules;
-
   private Err.Handler err;
 
   private String applicationPath;
 
+  private RequestScope requestScope;
+
   @Inject
   public RouteHandler(final Injector injector,
+      final RequestScope requestScope,
       final BodyConverterSelector selector,
-      final Set<Request.Module> modules,
       final Set<Route.Definition> routes,
       final @Named("application.path") String path,
       final Charset defaultCharset,
       final Locale defaultLocale,
       final Err.Handler err) {
     this.rootInjector = requireNonNull(injector, "An injector is required.");
+    this.requestScope = requireNonNull(requestScope, "A request scope is required.");
     this.selector = requireNonNull(selector, "A message converter selector is required.");
-    this.modules = requireNonNull(modules, "Request modules are required.");
     this.routeDefs = requireNonNull(routes, "Routes are required.");
     this.applicationPath = normalizeURI(requireNonNull(path, "An application.path is required."));
     this.charset = requireNonNull(defaultCharset, "A defaultCharset is required.");
@@ -125,6 +107,9 @@ public class RouteHandler {
       final Function<String, String> headers) throws Exception {
 
     long start = System.currentTimeMillis();
+
+    requestScope.enter();
+
     Verb verb = Verb.valueOf(method.toUpperCase());
     String requestPath = normalizeURI(uri);
     boolean resolveAs404 = false;
@@ -169,64 +154,52 @@ public class RouteHandler {
         .map(l -> LocaleUtils.toLocale(l))
         .orElse(this.locale);
 
-    Holder<Request> req = new Holder<>((injector, route) ->
-        new UndertowRequest(exchange, injector, route, locals, selector, type, accept,
-            charset, locale));
-
-    Holder<Response> rsp = new Holder<>((injector, route) ->
-        new UndertowResponse(exchange, injector, route, locals, selector, charset,
-            Optional.ofNullable(headers.apply("Referer"))));
-
-    Injector injector = rootInjector;
-
     Route notFound = RouteImpl.notFound(verb, path, accept);
 
+    Request req = new UndertowRequest(exchange, rootInjector, notFound, locals, selector, type,
+        accept, charset, locale);
+
+    Response rsp = new UndertowResponse(exchange, rootInjector, notFound, locals, selector,
+        charset, Optional.ofNullable(headers.apply("Referer")));
+
+    requestScope.seed(Request.class, req);
+    requestScope.seed(Response.class, rsp);
+
     try {
-
-      // bootstrap request modules
-      injector = rootInjector.createChildInjector(binder -> {
-        binder.bind(Request.class).toProvider(() -> req.ref);
-        binder.bind(Response.class).toProvider(() -> rsp.ref);
-
-        // request modules
-        modules.forEach(module -> module.configure(binder));
-      });
 
       List<Route> routes = resolveAs404
           ? ImmutableList.of(notFound)
           : routes(routeDefs, verb, requestPath, type, accept);
 
-      chain(routes)
-          .next(req.get(injector, notFound), rsp.get(injector, notFound));
+      chain(routes).next(req, rsp);
 
     } catch (Exception ex) {
       log.debug("execution of: " + path + " resulted in exception", ex);
 
-      Request reqerr = req.get(injector, notFound);
-      Response rsperr = rsp.get(injector, notFound);
-      ((UndertowResponse) rsperr).reset();
+      ((UndertowResponse) rsp).reset();
 
       // execution failed, so find status code
       Status status = statusCode(ex);
 
-      rsperr.header("Cache-Control", NO_CACHE);
-      rsperr.status(status);
+      rsp.header("Cache-Control", NO_CACHE);
+      rsp.status(status);
 
       try {
-        err.handle(reqerr, rsperr, ex);
+        err.handle(req, rsp, ex);
       } catch (Exception ignored) {
         log.trace("execution of err handler resulted in exceptiion", ignored);
-        defaultErrorPage(reqerr, rsperr, err.err(reqerr, rsperr, ex));
+        defaultErrorPage(req, rsp, err.err(req, rsp, ex));
       }
     } finally {
+      requestScope.exit();
+
       // mark request/response as done.
-      Response rspdone = rsp.get(injector, notFound);
-      rspdone.end();
+      rsp.end();
 
       long end = System.currentTimeMillis();
-      log.debug("  status -> {} in {}ms", rspdone.status().get(), end - start);
+      log.debug("  status -> {} in {}ms", rsp.status().get(), end - start);
 
-      saveSession(req.get(injector, notFound));
+      saveSession(req);
     }
   }
 

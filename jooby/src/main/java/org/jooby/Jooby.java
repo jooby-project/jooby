@@ -82,6 +82,7 @@ import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.LocaleUtils;
+import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.Server;
@@ -113,7 +114,6 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.Scopes;
 import com.google.inject.Stage;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
@@ -472,16 +472,6 @@ public class Jooby {
    * Keep track of modules.
    */
   private final Set<Jooby.Module> modules = new LinkedHashSet<>();
-
-  /**
-   * Keep track of singleton MVC routes.
-   */
-  private final Set<Class<?>> singletonRoutes = new LinkedHashSet<>();
-
-  /**
-   * Keep track of prototype MVC routes.
-   */
-  private final Set<Class<?>> protoRoutes = new LinkedHashSet<>();
 
   /**
    * The override config. Optional.
@@ -1452,7 +1442,6 @@ public class Jooby {
    */
   private @Nonnull Route.Handler handler(final @Nonnull Class<? extends Route.Handler> handler) {
     requireNonNull(handler, "Route handler is required.");
-    registerRouteScope(handler);
     return (req, rsp) -> req.require(handler).handle(req, rsp);
   }
 
@@ -1489,7 +1478,6 @@ public class Jooby {
    */
   private @Nonnull Route.Filter filter(final @Nonnull Class<? extends Route.Filter> filter) {
     requireNonNull(filter, "Filter is required.");
-    registerRouteScope(filter);
     return (req, rsp, chain) -> req.require(filter).handle(req, rsp, chain);
   }
 
@@ -1548,7 +1536,6 @@ public class Jooby {
    */
   public @Nonnull Jooby use(final @Nonnull Class<?> routeClass) {
     requireNonNull(routeClass, "Route class is required.");
-    registerRouteScope(routeClass);
     bag.add(routeClass);
     return this;
   }
@@ -1726,21 +1713,6 @@ public class Jooby {
   }
 
   /**
-   * Check if the class had a Singleton annotation or not in order to register the route as
-   * singleton or prototype.
-   *
-   * @param route
-   */
-  private void registerRouteScope(final Class<?> route) {
-    if (route.getAnnotation(javax.inject.Singleton.class) != null ||
-        route.getAnnotation(com.google.inject.Singleton.class) != null) {
-      singletonRoutes.add(route);
-    } else {
-      protoRoutes.add(route);
-    }
-  }
-
-  /**
    * Keep track of routes in the order user define them.
    *
    * @param route A route definition to append.
@@ -1761,19 +1733,6 @@ public class Jooby {
   public @Nonnull Jooby use(final @Nonnull Jooby.Module module) {
     requireNonNull(module, "A module is required.");
     modules.add(module);
-    bag.add(module);
-    return this;
-  }
-
-  /**
-   * Register a request module.
-   *
-   * @param module The module to register.
-   * @return This jooby instance.
-   * @see Request.Module
-   */
-  public @Nonnull Jooby use(final @Nonnull Request.Module module) {
-    requireNonNull(module, "A module is required.");
     bag.add(module);
     return this;
   }
@@ -1999,10 +1958,6 @@ public class Jooby {
           Multibinder<WebSocket.Definition> sockets = Multibinder
               .newSetBinder(binder, WebSocket.Definition.class);
 
-          // Request Modules
-          Multibinder<Request.Module> requestModule = Multibinder
-              .newSetBinder(binder, Request.Module.class);
-
           // tmp dir
           File tmpdir = new File(config.getString("application.tmpdir"));
           tmpdir.mkdirs();
@@ -2016,48 +1971,39 @@ public class Jooby {
           RouteMetadata classInfo = new RouteMetadata(env);
           binder.bind(RouteMetadata.class).toInstance(classInfo);
 
-          // prototype routes & converters goes into the request module
-          requestModule.addBinding().toInstance(reqbinder -> {
-            protoRoutes.forEach(routeClass1 -> reqbinder.bind(routeClass1));
+          converters.add(new CommonTypesParamConverter());
+          converters.add(new CollectionParamConverter());
+          converters.add(new OptionalParamConverter());
+          converters.add(new UploadParamConverter());
+          converters.add(new EnumParamConverter());
+          converters.add(new DateParamConverter(dateFormat));
+          converters.add(new LocalDateParamConverter(dateTimeFormatter));
+          converters.add(new LocaleParamConverter());
+          converters.add(new StaticMethodParamConverter("valueOf"));
+          converters.add(new StaticMethodParamConverter("fromString"));
+          converters.add(new StaticMethodParamConverter("forName"));
+          converters.add(new StringConstructorParamConverter());
 
-            converters.add(new CommonTypesParamConverter());
-            converters.add(new CollectionParamConverter());
-            converters.add(new OptionalParamConverter());
-            converters.add(new UploadParamConverter());
-            converters.add(new EnumParamConverter());
-            converters.add(new DateParamConverter(dateFormat));
-            converters.add(new LocalDateParamConverter(dateTimeFormatter));
-            converters.add(new LocaleParamConverter());
-            converters.add(new StaticMethodParamConverter("valueOf"));
-            converters.add(new StaticMethodParamConverter("fromString"));
-            converters.add(new StaticMethodParamConverter("forName"));
-            converters.add(new StringConstructorParamConverter());
+          binder.bind(RootParamConverter.class);
 
-            reqbinder.bind(RootParamConverter.class);
-
-            Multibinder<ParamConverter> converterBinder = Multibinder
-                .newSetBinder(reqbinder, ParamConverter.class);
-            converters.forEach(it -> converterBinder.addBinding().toInstance(it));
-          });
+          Multibinder<ParamConverter> converterBinder = Multibinder
+              .newSetBinder(binder, ParamConverter.class);
+          converters.forEach(it -> converterBinder.addBinding().toInstance(it));
 
           // modules, routes and websockets
           bag.forEach(candidate -> {
             if (candidate instanceof Jooby.Module) {
               install((Jooby.Module) candidate, env, config, binder);
-            } else if (candidate instanceof Request.Module) {
-              requestModule.addBinding().toInstance((Request.Module) candidate);
             } else if (candidate instanceof Route.Definition) {
               definitions.addBinding().toInstance((Route.Definition) candidate);
             } else if (candidate instanceof WebSocket.Definition) {
               sockets.addBinding().toInstance((WebSocket.Definition) candidate);
             } else {
+              binder.bind((Class<?>) candidate);
               Routes.routes(env, classInfo, (Class<?>) candidate)
                   .forEach(route -> definitions.addBinding().toInstance(route));
             }
           });
-
-          // Singleton routes
-          singletonRoutes.forEach(routeClass3 -> binder.bind(routeClass3).in(Scopes.SINGLETON));
 
           formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
           formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatStream);
@@ -2067,8 +2013,20 @@ public class Jooby {
 
           parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
 
+          RequestScope requestScope = new RequestScope();
+          binder.bind(RequestScope.class).toInstance(requestScope);
+          binder.bindScope(RequestScoped.class, requestScope);
+
           // session manager
           binder.bind(SessionManager.class).toInstance(new SessionManager(config, session));
+
+          binder.bind(Request.class).toProvider(() -> {
+            throw new IllegalStateException("Request must be manually seeded");
+          }).in(RequestScoped.class);
+
+          binder.bind(Response.class).toProvider(() -> {
+            throw new IllegalStateException("Response must be manually seeded");
+          }).in(RequestScoped.class);
 
           // err
           if (err == null) {

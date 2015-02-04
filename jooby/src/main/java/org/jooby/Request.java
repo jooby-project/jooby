@@ -29,7 +29,6 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
@@ -256,47 +255,6 @@ public interface Request extends Locals {
       }
       return root;
     }
-  }
-
-  /**
-   * Jooby doesn't use a custom scope annotation for request scoped object. Request scoped object
-   * are binded using a child injector per each request.
-   *
-   * <h1>Providing request scoped objects</h1>
-   * <p>
-   * Jooby give you an extension point in order to register scope requested objects, here is how do
-   * you usually do it.
-   * </p>
-   *
-   * <pre>
-   * class MyModule implements Jooby.Module {
-   *   void configure(env env, Config config, Binder binder) {
-   *     Multibinder b = Multibinder.newSetBinder(binder, RequestModule.class);
-   *     b.addBinding().toInstance(requestBinder {@literal ->} {
-   *       b.bind(MyService.class).to(...);
-   *     })
-   *   }
-   * }
-   * </pre>
-   *
-   * <h1>Do I have to provide request objects?</h1>
-   * <p>
-   * You don't. Request scoped object are useful if you need/want to have a single instance of an
-   * object per request. A good example of such object is a db session, bc you want to reuse the
-   * session during the request execution.
-   * </p>
-   * <p>
-   * If you don't need/have that requirement. You shouldn't use request scoped object and just work
-   * with prototype objects, as Guice suggest.
-   * </p>
-   *
-   * @author edgar
-   * @since 0.1.0
-   */
-  interface Module {
-
-    void configure(Binder binder);
-
   }
 
   /**

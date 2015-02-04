@@ -4,8 +4,6 @@ import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -34,6 +32,7 @@ import org.jooby.internal.AppManager;
 import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.BuiltinBodyConverter;
+import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.Server;
@@ -54,7 +53,6 @@ import org.jooby.internal.undertow.UndertowServer;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -65,7 +63,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
-import com.google.inject.Scopes;
 import com.google.inject.Stage;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
@@ -316,19 +313,6 @@ public class JoobyTest {
     expect(Multibinder.newSetBinder(binder, WebSocket.Definition.class)).andReturn(multibinder);
   };
 
-  private MockUnit.Block reqModules = unit -> {
-    Multibinder<Request.Module> multibinder = unit.mock(Multibinder.class);
-
-    Binder binder = unit.get(Binder.class);
-
-    expect(Multibinder.newSetBinder(binder, Request.Module.class)).andReturn(multibinder);
-
-    LinkedBindingBuilder<Request.Module> reqmodule = unit.mock(LinkedBindingBuilder.class);
-    reqmodule.toInstance(unit.capture(Request.Module.class));
-
-    expect(multibinder.addBinding()).andReturn(reqmodule);
-  };
-
   private MockUnit.Block tmpdir = unit -> {
     Binder binder = unit.get(Binder.class);
 
@@ -370,6 +354,67 @@ public class JoobyTest {
     module.configure(unit.get(Binder.class));
 
     unit.captured(Runnable.class).get(0).run();
+  };
+
+  @SuppressWarnings("rawtypes")
+  private MockUnit.Block requestScope = unit -> {
+    Binder binder = unit.get(Binder.class);
+
+    AnnotatedBindingBuilder<RequestScope> reqscopebinding = unit.mock(AnnotatedBindingBuilder.class);
+    reqscopebinding.toInstance(isA(RequestScope.class));
+
+    expect(binder.bind(RequestScope.class)).andReturn(reqscopebinding);
+    binder.bindScope(eq(RequestScoped.class), isA(RequestScope.class));
+
+    ScopedBindingBuilder reqscope = unit.mock(ScopedBindingBuilder.class);
+    reqscope.in(RequestScoped.class);
+
+    AnnotatedBindingBuilder<Request> reqbinding = unit.mock(AnnotatedBindingBuilder.class);
+    expect(reqbinding.toProvider(isA(com.google.inject.Provider.class))).andReturn(reqscope);
+
+    expect(binder.bind(Request.class)).andReturn(reqbinding);
+
+    ScopedBindingBuilder rspscope = unit.mock(ScopedBindingBuilder.class);
+    rspscope.in(RequestScoped.class);
+    AnnotatedBindingBuilder<Response> rspbinding = unit.mock(AnnotatedBindingBuilder.class);
+    expect(rspbinding.toProvider(isA(com.google.inject.Provider.class))).andReturn(rspscope);
+
+    expect(binder.bind(Response.class)).andReturn(rspbinding);
+  };
+
+  private MockUnit.Block params = unit -> {
+    Binder binder = unit.get(Binder.class);
+
+    AnnotatedBindingBuilder<RootParamConverter> parambinding = unit
+        .mock(AnnotatedBindingBuilder.class);
+
+    expect(binder.bind(RootParamConverter.class)).andReturn(parambinding);
+
+    Multibinder<ParamConverter> multibinder = unit.mock(Multibinder.class, true);
+
+    @SuppressWarnings("rawtypes")
+    Class[] converters = {CommonTypesParamConverter.class,
+        CollectionParamConverter.class,
+        OptionalParamConverter.class,
+        UploadParamConverter.class,
+        EnumParamConverter.class,
+        DateParamConverter.class,
+        LocalDateParamConverter.class,
+        LocaleParamConverter.class,
+        StaticMethodParamConverter.class,
+        StaticMethodParamConverter.class,
+        StaticMethodParamConverter.class,
+        StringConstructorParamConverter.class
+    };
+
+    for (Class<? extends ParamConverter> converter : converters) {
+      LinkedBindingBuilder<ParamConverter> converterBinding = unit.mock(LinkedBindingBuilder.class);
+      converterBinding.toInstance(isA(converter));
+      expect(multibinder.addBinding()).andReturn(converterBinding);
+    }
+
+    expect(Multibinder.newSetBinder(binder, ParamConverter.class)).andReturn(multibinder);
+
   };
 
   private MockUnit.Block shutdown = unit -> {
@@ -461,8 +506,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(
@@ -501,8 +547,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -548,8 +595,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -603,8 +651,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .expect(unit -> {
@@ -655,8 +704,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(
@@ -724,8 +774,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -789,8 +840,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .expect(unit -> {
@@ -854,8 +906,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -927,8 +980,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -1037,8 +1091,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -1142,8 +1197,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -1237,8 +1293,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -1332,8 +1389,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -1427,8 +1485,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -1522,8 +1581,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -1617,8 +1677,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -1712,8 +1773,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -1807,8 +1869,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -1931,8 +1994,9 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .expect(
@@ -1979,9 +2043,7 @@ public class JoobyTest {
         });
   }
 
- // TODO: FIXME
- @Test
- @Ignore
+  @Test
   public void mvcRoute() throws Exception {
 
     new MockUnit(Binder.class)
@@ -2019,31 +2081,15 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
 
-          AnnotatedBindingBuilder<SingletonTestRoute> singletonBinding = unit
-              .mock(AnnotatedBindingBuilder.class);
-          singletonBinding.in(Scopes.SINGLETON);
+          expect(binder.bind(SingletonTestRoute.class)).andReturn(null);
 
-          expect(binder.bind(SingletonTestRoute.class)).andReturn(singletonBinding);
+          expect(binder.bind(GuiceSingletonTestRoute.class)).andReturn(null);
 
-          AnnotatedBindingBuilder<GuiceSingletonTestRoute> guiceSingletonBinding = unit
-              .mock(AnnotatedBindingBuilder.class);
-          guiceSingletonBinding.in(Scopes.SINGLETON);
-
-          expect(binder.bind(GuiceSingletonTestRoute.class)).andReturn(guiceSingletonBinding);
+          expect(binder.bind(ProtoTestRoute.class)).andReturn(null);
         })
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(unit -> {
-          Multibinder<Request.Module> multibinder = unit.mock(Multibinder.class);
-
-          LinkedBindingBuilder<Request.Module> binding = unit.mock(LinkedBindingBuilder.class);
-          binding.toInstance(unit.capture(Request.Module.class));
-
-          expect(multibinder.addBinding()).andReturn(binding);
-
-          Binder binder = unit.get(Binder.class);
-
-          expect(Multibinder.newSetBinder(binder, Request.Module.class)).andReturn(multibinder);
-        })
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -2054,8 +2100,10 @@ public class JoobyTest {
           jooby.use(ProtoTestRoute.class);
           jooby.start();
 
-        }, boot, unit -> {
-          // assert routes
+        },
+            boot,
+            unit -> {
+              // assert routes
             List<Route.Definition> defs = unit.captured(Route.Definition.class);
             assertEquals(5, defs.size());
 
@@ -2078,66 +2126,6 @@ public class JoobyTest {
             assertEquals("GET", defs.get(4).verb());
             assertEquals("/proto", defs.get(4).pattern());
             assertEquals("ProtoTestRoute.m1", defs.get(4).name());
-          }, unit -> {
-            // assert proto route are in the correct scope
-            Binder binder = unit.mock(Binder.class);
-
-            Request.Module module = unit.captured(Request.Module.class).iterator().next();
-
-            expect(binder.bind(ProtoTestRoute.class)).andReturn(null);
-
-            expect(binder.bind(RootParamConverter.class)).andReturn(null);
-
-            Multibinder<ParamConverter> multibinder = unit.mock(Multibinder.class);
-
-            expect(Multibinder.newSetBinder(binder, ParamConverter.class)).andReturn(multibinder);
-
-            LinkedBindingBuilder<ParamConverter> commonTypes = unit.mock(LinkedBindingBuilder.class);
-            commonTypes.toInstance(isA(CommonTypesParamConverter.class));
-
-            LinkedBindingBuilder<ParamConverter> collection = unit.mock(LinkedBindingBuilder.class);
-            collection.toInstance(isA(CollectionParamConverter.class));
-
-            LinkedBindingBuilder<ParamConverter> optional = unit.mock(LinkedBindingBuilder.class);
-            optional.toInstance(isA(OptionalParamConverter.class));
-
-            LinkedBindingBuilder<ParamConverter> upload = unit.mock(LinkedBindingBuilder.class);
-            upload.toInstance(isA(UploadParamConverter.class));
-
-            LinkedBindingBuilder<ParamConverter> enums = unit.mock(LinkedBindingBuilder.class);
-            enums.toInstance(isA(EnumParamConverter.class));
-
-            LinkedBindingBuilder<ParamConverter> date = unit.mock(LinkedBindingBuilder.class);
-            date.toInstance(isA(DateParamConverter.class));
-
-            LinkedBindingBuilder<ParamConverter> localdate = unit.mock(LinkedBindingBuilder.class);
-            localdate.toInstance(isA(LocalDateParamConverter.class));
-
-            LinkedBindingBuilder<ParamConverter> locale = unit.mock(LinkedBindingBuilder.class);
-            locale.toInstance(isA(LocaleParamConverter.class));
-
-            LinkedBindingBuilder<ParamConverter> staticMethod = unit.mock(LinkedBindingBuilder.class);
-            staticMethod.toInstance(isA(StaticMethodParamConverter.class));
-            expectLastCall().times(3);
-
-            LinkedBindingBuilder<ParamConverter> stringConstructor =
-                unit.mock(LinkedBindingBuilder.class);
-            stringConstructor.toInstance(isA(StringConstructorParamConverter.class));
-
-            expect(multibinder.addBinding()).andReturn(commonTypes);
-            expect(multibinder.addBinding()).andReturn(collection);
-            expect(multibinder.addBinding()).andReturn(optional);
-            expect(multibinder.addBinding()).andReturn(upload);
-            expect(multibinder.addBinding()).andReturn(enums);
-            expect(multibinder.addBinding()).andReturn(date);
-            expect(multibinder.addBinding()).andReturn(localdate);
-            expect(multibinder.addBinding()).andReturn(locale);
-            expect(multibinder.addBinding()).andReturn(staticMethod).times(3);
-            expect(multibinder.addBinding()).andReturn(stringConstructor);
-
-            replay(binder, multibinder);
-            module.configure(binder);
-            verify(binder, multibinder);
           });
   }
 
@@ -2255,6 +2243,8 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(
             unit -> {
               Multibinder<WebSocket.Definition> multibinder = unit.mock(Multibinder.class);
@@ -2270,7 +2260,6 @@ public class JoobyTest {
               expect(Multibinder.newSetBinder(binder, WebSocket.Definition.class)).andReturn(
                   multibinder);
             })
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -2326,8 +2315,9 @@ public class JoobyTest {
           expect(binder.bind(Session.Definition.class)).andReturn(binding);
         })
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -2396,8 +2386,9 @@ public class JoobyTest {
           expect(multibinder.addBinding()).andReturn(formatString);
         })
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -2447,8 +2438,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -2483,8 +2475,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .expect(unit -> {
@@ -2533,8 +2526,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .expect(unit -> {
@@ -2555,56 +2549,6 @@ public class JoobyTest {
           Jooby jooby = new Jooby();
 
           jooby.use(unit.get(Jooby.Module.class));
-
-          jooby.start();
-
-        }, boot);
-  }
-
-  // TODO: FIXME
-  @Test
-  @Ignore
-  public void useRequestModule() throws Exception {
-
-    new MockUnit(Binder.class, Request.Module.class)
-        .expect(guice)
-        .expect(shutdown)
-        .expect(config)
-        .expect(env)
-        .expect(reload)
-        .expect(classInfo)
-        .expect(charset)
-        .expect(locale)
-        .expect(zoneId)
-        .expect(timeZone)
-        .expect(dateTimeFormatter)
-        .expect(numberFormat)
-        .expect(decimalFormat)
-        .expect(bodyParser)
-        .expect(bodyFormatter)
-        .expect(session)
-        .expect(routes)
-        .expect(webSockets)
-        .expect(unit -> {
-          Multibinder<Request.Module> multibinder = unit.mock(Multibinder.class);
-
-          Binder binder = unit.get(Binder.class);
-
-          expect(Multibinder.newSetBinder(binder, Request.Module.class)).andReturn(multibinder);
-
-          LinkedBindingBuilder<Request.Module> binding = unit.mock(LinkedBindingBuilder.class);
-          binding.toInstance(unit.get(Request.Module.class));
-
-          expect(multibinder.addBinding()).andReturn(binding);
-        })
-        .expect(tmpdir)
-        .expect(err)
-
-        .run(unit -> {
-
-          Jooby jooby = new Jooby();
-
-          jooby.use(unit.get(Request.Module.class));
 
           jooby.start();
 
@@ -2632,8 +2576,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .expect(
@@ -2679,8 +2624,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(err)
         .run(unit -> {
@@ -2715,8 +2661,9 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(params)
+        .expect(requestScope)
         .expect(webSockets)
-        .expect(reqModules)
         .expect(tmpdir)
         .expect(unit -> {
           Binder binder = unit.get(Binder.class);

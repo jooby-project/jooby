@@ -43,11 +43,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 
 import org.jooby.Err;
 import org.jooby.Mutant;
-import org.jooby.Request;
 import org.jooby.Status;
 import org.jooby.WebSocket;
 import org.jooby.internal.MutantImpl;
@@ -60,8 +58,6 @@ import org.xnio.Pooled;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 
 public class UndertowWebSocketBridge extends AbstractReceiveListener {
 
@@ -75,10 +71,6 @@ public class UndertowWebSocketBridge extends AbstractReceiveListener {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(WebSocket.class);
-
-  private static final Key<Set<Request.Module>> REQ_MOD = Key
-      .get(new TypeLiteral<Set<Request.Module>>() {
-      });
 
   private Injector injector;
 
@@ -148,9 +140,7 @@ public class UndertowWebSocketBridge extends AbstractReceiveListener {
 
   private void doCall(final WebSocketChannel channel, final BridgeCallWithInjector callable) {
     try {
-      callable.run(injector.createChildInjector(binder ->
-          injector.getInstance(REQ_MOD).forEach(m -> m.configure(binder))
-          ));
+      callable.run(injector);
     } catch (Throwable ex) {
       handleErr(channel, ex);
     }

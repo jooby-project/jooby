@@ -50,9 +50,9 @@ public class TypeConverters {
       Class<?> rawType = type.getRawType();
       try {
         if (rawType == Locale.class) {
-          return new LocaleParamConverter().convert(type, new Object[] {value}, null);
+          return new LocaleParamConverter().convert(type, new Object[]{value }, null);
         }
-        return new StringConstructorParamConverter().convert(type, new Object[] {value}, null);
+        return new StringConstructorParamConverter().convert(type, new Object[]{value }, null);
       } catch (Exception ex) {
         throw new IllegalStateException("Can't convert: " + value + " to " + type, ex);
       }
@@ -78,7 +78,7 @@ public class TypeConverters {
       @Override
       public Object convert(final String value, final TypeLiteral<?> toType) {
         try {
-          return new StaticMethodParamConverter(name).convert(toType, new Object[] {value}, null);
+          return new StaticMethodParamConverter(name).convert(toType, new Object[]{value }, null);
         } catch (Exception ex) {
           throw new IllegalStateException("Can't convert: " + value + " to " + toType, ex);
         }
@@ -95,7 +95,8 @@ public class TypeConverters {
     return new AbstractMatcher<TypeLiteral<?>>() {
       @Override
       public boolean matches(final TypeLiteral<?> type) {
-        return new StaticMethodParamConverter(name).matches(type);
+        return !Enum.class.isAssignableFrom(type.getRawType())
+            && new StaticMethodParamConverter(name).matches(type);
       }
 
       @Override

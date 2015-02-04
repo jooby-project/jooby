@@ -23,11 +23,6 @@ public class APICompileFeature extends ServerFeature {
       assertEquals("dev", mode.name());
     });
 
-    // Request module
-    use((binder) -> {
-      binder.bind(Object.class).toInstance(new Object());
-    });
-
     use(ConfigFactory.empty());
   }
 

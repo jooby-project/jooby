@@ -49,7 +49,6 @@ import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 import org.jooby.Body;
 import org.jooby.Env;
-import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.jdbc.Jdbc;
@@ -59,7 +58,6 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
-import com.google.inject.util.Providers;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -113,11 +111,11 @@ public class Hbm extends Jdbc {
     routes.addBinding()
         .toInstance(new Route.Definition("*", "*", readWriteTrx(emKey, log)).name("hbm"));
 
-    Multibinder.newSetBinder(binder, Request.Module.class).addBinding().toInstance(b -> {
-      EntityManager em = emf.get().createEntityManager();
-      log.debug("opened entity manager: {}", em);
-       b.bind(emKey).toProvider(Providers.of(em));
-    });
+//    Multibinder.newSetBinder(binder, Request.Module.class).addBinding().toInstance(b -> {
+//      EntityManager em = emf.get().createEntityManager();
+//      log.debug("opened entity manager: {}", em);
+//       b.bind(emKey).toProvider(Providers.of(em));
+//    });
   }
 
   private static Route.Filter readWriteTrx(final Key<EntityManager> key, final Logger log) {
