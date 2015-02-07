@@ -1,5 +1,24 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.jooby;
 
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -41,17 +60,54 @@ import com.google.inject.TypeLiteral;
  *
  * @author edgar
  * @see Jooby#param(ParamConverter)
+ * @since 0.5.0
  */
 public interface ParamConverter {
 
   /**
-   * Contains a reference to the next param converter that is going to be executed.
+   * Param execution context. Provides access to the conversion service thought the
+   * {@link #convert(TypeLiteral, Object[])} method.
+   *
+   * But also let you access to request/app services.
    *
    * @author edgar
+   * @since 0.5.0
    */
-  interface Chain {
+  interface Context {
+
     /**
-     * Ask to the next convert to resolve a type and make the conversion.
+     * Find and return a service using the provided type.
+     *
+     * @param type A service type.
+     * @param <T> Service type.
+     * @return Binded service.
+     */
+    default <T> T require(final Class<T> type) {
+      return require(Key.get(type));
+    }
+
+    /**
+     * Find and return a service using the provided type.
+     *
+     * @param type A service type.
+     * @param <T> Service type.
+     * @return Binded service.
+     */
+    default <T> T require(final TypeLiteral<T> type) {
+      return require(Key.get(type));
+    }
+
+    /**
+     * Find and return a service using the provided key.
+     *
+     * @param key A key for a service.
+     * @param <T> Service type.
+     * @return Binded service.
+     */
+    <T> T require(Key<T> key);
+
+    /**
+     * Ask to the next convert to resolve a type.
      *
      * @param type A type to resolve.
      * @param values Raw values. Types is one of two: <code>String</code> or <code>Upload</code>.
@@ -84,7 +140,7 @@ public interface ParamConverter {
    * <pre>
    *  public class MyType&lt;T&gt; {}
    *
-   *  ParamConverter converter = (type, values, next) {@literal ->} {
+   *  ParamConverter converter = (type, values, ctx) {@literal ->} {
    *    if (type.getRawType() == MyType.class) {
    *      // Creates a new type from current generic type
    *      TypeLiterale&lt;?&gt; paramType = TypeLiteral
@@ -95,17 +151,17 @@ public interface ParamConverter {
    *      return new MyType(result);
    *    }
    *    // no luck! move next
-   *    return next.convert(type, values);
+   *    return ctx.convert(type, values);
    *  }
    * </pre>
    *
    *
    * @param type Requested type.
    * @param values Raw values. Types is one of two: <code>String</code> or <code>Upload</code>.
-   * @param next The next converter in the chain.
+   * @param ctx Execution context.
    * @return A converted value.
    * @throws Exception If conversion fails.
    */
-  Object convert(TypeLiteral<?> type, Object[] values, Chain next) throws Exception;
+  Object convert(TypeLiteral<?> type, Object[] values, Context ctx) throws Exception;
 
 }

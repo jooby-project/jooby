@@ -28,6 +28,8 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
+import org.jooby.scope.RequestScoped;
+
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -224,6 +226,21 @@ public interface Request extends Locals {
     public Request set(final String name, final Object value) {
       req.set(name, value);
       return this;
+    }
+
+    @Override
+    public Request set(final Key<?> key, final Object value) {
+      return req.set(key, value);
+    }
+
+    @Override
+    public Request set(final Class<?> type, final Object value) {
+      return req.set(type, value);
+    }
+
+    @Override
+    public Request set(final TypeLiteral<?> type, final Object value) {
+      return req.set(type, value);
     }
 
     @Override
@@ -630,6 +647,37 @@ public interface Request extends Locals {
 
   @Override
   Request set(String name, Object value);
+
+  /**
+   * Seed a {@link RequestScoped} object.
+   *
+   * @param type Object type.
+   * @param value Actual object to bind.
+   * @return Current request.
+   */
+  default Request set(final Class<?> type, final Object value) {
+    return set(Key.get(type), value);
+  }
+
+  /**
+   * Seed a {@link RequestScoped} object.
+   *
+   * @param type Seed type.
+   * @param value Actual object to bind.
+   * @return Current request.
+   */
+  default Request set(final TypeLiteral<?> type, final Object value) {
+    return set(Key.get(type), value);
+  }
+
+  /**
+   * Seed a {@link RequestScoped} object.
+   *
+   * @param key Seed key.
+   * @param value Actual object to bind.
+   * @return Current request.
+   */
+  Request set(Key<?> key, Object value);
 
   @Override
   Request unset();
