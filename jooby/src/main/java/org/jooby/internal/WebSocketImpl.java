@@ -223,7 +223,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public <T> T getInstance(final Key<T> key) {
+  public <T> T require(final Key<T> key) {
     return injector.getInstance(key);
   }
 

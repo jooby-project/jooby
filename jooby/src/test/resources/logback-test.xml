@@ -8,7 +8,7 @@
 
   <logger name="org.jooby.internal.SessionManager" level="DEBUG" />
 
-  <root level="info">
+  <root level="debug">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>

@@ -11,8 +11,8 @@ public class CollectorsTest {
 
   @Test
   public void listAddOne() {
-    assertEquals(Lists.newArrayList("1"),
-        Lists.newArrayList("1").stream().collect(Collectors.toList()));
+    assertEquals(Lists.newArrayList("1", Lists.newArrayList("1")),
+        Lists.newArrayList("1", Lists.newArrayList("1")).stream().collect(Collectors.toList()));
   }
 
   @Test

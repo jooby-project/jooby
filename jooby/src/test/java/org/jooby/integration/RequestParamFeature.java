@@ -1,6 +1,7 @@
 package org.jooby.integration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -141,11 +142,47 @@ public class RequestParamFeature extends ServerFeature {
     public Object cookieParam(final Optional<Cookie> galleta) {
       return galleta.toString();
     }
+
+    @GET
+    @Path("/req")
+    public Object reqparam(final org.jooby.Request req) {
+      assertNotNull(req);
+      return req.path();
+    }
+
+    @GET
+    @Path("/rsp")
+    public Object rspparam(final org.jooby.Response rsp) {
+      assertNotNull(rsp);
+      return "/rsp";
+    }
+
+    @GET
+    @Path("/session")
+    public Object session(final org.jooby.Session session) {
+      assertNotNull(session);
+      return "/session";
+    }
   }
 
   {
 
     use(Resource.class);
+  }
+
+  @Test
+  public void reqParam() throws Exception {
+    assertEquals("/req", GET(uri("req")));
+  }
+
+  @Test
+  public void rspParam() throws Exception {
+    assertEquals("/rsp", GET(uri("rsp")));
+  }
+
+  @Test
+  public void sessionParam() throws Exception {
+    assertEquals("/session", GET(uri("session")));
   }
 
   @Test

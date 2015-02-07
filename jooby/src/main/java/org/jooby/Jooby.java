@@ -104,16 +104,19 @@ import org.jooby.internal.routes.HeadHandler;
 import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
 import org.jooby.internal.undertow.Undertow;
+import org.jooby.scope.RequestScoped;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.OutOfScopeException;
 import com.google.inject.Stage;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
@@ -1847,12 +1850,35 @@ public class Jooby {
 
     // Start server
     Server server = injector.getInstance(Server.class);
+    Config config = injector.getInstance(Config.class);
 
     server.start();
     long end = System.currentTimeMillis();
-    log.info("Server started in {}ms\n\n{}\n",
+    if (log.isDebugEnabled()) {
+      log.debug("config tree:\n{}", configTree(config.origin().description()));
+    }
+    log.info("[{}]: {} server started in {}ms\n\n{}\n",
+        config.getString("application.env"),
+        getClass().getSimpleName(),
         end - start,
         injector.getInstance(AppPrinter.class));
+  }
+
+  private String configTree(final String description) {
+    return configTree(description.split(":\\s+\\d+,|,"), 0);
+  }
+
+  private String configTree(final String[] sources, final int i) {
+    if (i < sources.length) {
+      return new StringBuilder()
+        .append(Strings.padStart("", i, ' '))
+        .append("└── ")
+        .append(sources[i])
+        .append("\n")
+        .append(configTree(sources, i + 1))
+        .toString();
+    }
+    return "";
   }
 
   private static AppManager appManager(final Jooby app, final Env env, final Logger log) {
@@ -1964,10 +1990,6 @@ public class Jooby {
           binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
               .toInstance(tmpdir);
 
-          // parser & formatter
-          parsers.forEach(it -> parserBinder.addBinding().toInstance(it));
-          formatters.forEach(it -> formatterBinder.addBinding().toInstance(it));
-
           RouteMetadata classInfo = new RouteMetadata(env);
           binder.bind(RouteMetadata.class).toInstance(classInfo);
 
@@ -2005,6 +2027,10 @@ public class Jooby {
             }
           });
 
+          // parser & formatter
+          parsers.forEach(it -> parserBinder.addBinding().toInstance(it));
+          formatters.forEach(it -> formatterBinder.addBinding().toInstance(it));
+
           formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
           formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatStream);
           formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatByteArray);
@@ -2021,11 +2047,15 @@ public class Jooby {
           binder.bind(SessionManager.class).toInstance(new SessionManager(config, session));
 
           binder.bind(Request.class).toProvider(() -> {
-            throw new IllegalStateException("Request must be manually seeded");
+            throw new OutOfScopeException(Request.class.getName());
           }).in(RequestScoped.class);
 
           binder.bind(Response.class).toProvider(() -> {
-            throw new IllegalStateException("Response must be manually seeded");
+            throw new OutOfScopeException(Response.class.getName());
+          }).in(RequestScoped.class);
+
+          binder.bind(Session.class).toProvider(() -> {
+            throw new OutOfScopeException(Session.class.getName());
           }).in(RequestScoped.class);
 
           // err
@@ -2093,14 +2123,11 @@ public class Jooby {
       moduleStack = moduleStack.withFallback(module.config());
     }
 
-    // jooby config
-    Config jooby = ConfigFactory.parseResources(Jooby.class, "jooby.conf");
-
-    String env = Arrays.asList(system, source, jooby).stream()
+    String env = Arrays.asList(system, source).stream()
         .filter(it -> it.hasPath("application.env"))
         .findFirst()
-        .get()
-        .getString("application.env");
+        .map(c -> c.getString("application.env"))
+        .orElse("dev");
 
     Config modeConfig = modeConfig(source, env);
 
@@ -2112,7 +2139,6 @@ public class Jooby {
         .withFallback(moduleStack)
         .withFallback(MediaType.types)
         .withFallback(defaultConfig(config, env))
-        .withFallback(jooby)
         .resolve();
   }
 
@@ -2155,8 +2181,16 @@ public class Jooby {
    * @return A config for the file name.
    */
   private Config fileConfig(final String fname) {
-    File in = new File(fname);
-    return in.exists() ? ConfigFactory.parseFile(in) : ConfigFactory.empty();
+    File froot = new File(fname);
+    File fconfig = new File("config", fname);
+    Config config = ConfigFactory.empty();
+    if (froot.exists()) {
+      config = config.withFallback(ConfigFactory.parseFile(froot));
+    }
+    if (fconfig.exists()) {
+      config = config.withFallback(ConfigFactory.parseFile(fconfig));
+    }
+    return config;
   }
 
   /**
@@ -2171,6 +2205,28 @@ public class Jooby {
 
     // set app name
     defaults.put("name", getClass().getSimpleName());
+
+    defaults.put("env", "dev");
+    defaults.put("path", "/");
+    defaults.put("host", "0.0.0.0");
+    defaults.put("port", 8080);
+    defaults.put("charset", "UTF-8");
+    defaults.put("dateFormat", "dd-MM-yy");
+
+    Builder<String, Object> session = ImmutableMap.<String, Object> builder()
+        .put("cookie", ImmutableMap.<String, Object> builder()
+            .put("name", "jooby.sid")
+            .put("path", "/")
+            .put("maxAge", -1)
+            .put("httpOnly", true)
+            .put("secure", false)
+            .build()
+        )
+        .put("timeout", "30m")
+        .put("saveInterval",  "60s")
+        .put("preserveOnStop", true);
+
+    defaults.put("session", session.build());
 
     // build dir (dev only)
     defaults.put("builddir", Paths.get(System.getProperty("user.dir"), "target", "classes")
@@ -2210,7 +2266,7 @@ public class Jooby {
     }
 
     Map<String, Object> application = ImmutableMap.of("application", defaults);
-    return ConfigValueFactory.fromMap(application).toConfig();
+    return ConfigValueFactory.fromMap(application, "jooby-defaults").toConfig();
   }
 
   /**

@@ -1,5 +1,6 @@
 package org.jooby.internal;
 
+import static org.easymock.EasyMock.createMock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -20,6 +21,7 @@ import java.util.UUID;
 
 import org.jooby.Err;
 import org.jooby.ParamConverter;
+import org.jooby.Request;
 import org.jooby.internal.reqparam.CollectionParamConverter;
 import org.jooby.internal.reqparam.CommonTypesParamConverter;
 import org.jooby.internal.reqparam.DateParamConverter;
@@ -369,8 +371,8 @@ public class ParamConverterTest {
 
   @Test(expected = Err.class)
   public void shouldFailOnNoMatch() throws Exception {
-    RootParamConverter resolver = new RootParamConverter(
-        Sets.newHashSet((ParamConverter) (toType, values, chain) -> chain.convert(toType, values)));
+    RootParamConverter resolver = new RootParamConverter(() -> createMock(Request.class),
+        Sets.newHashSet((ParamConverter) (toType, values, ctx) -> ctx.convert(toType, values)));
 
     resolver.convert(TypeLiteral.get(Types.newParameterizedType(Optional.class, Boolean.class)),
         new Object[]{"true" });
@@ -378,7 +380,7 @@ public class ParamConverterTest {
   }
 
   private RootParamConverter newConverter() {
-    return new RootParamConverter(
+    return new RootParamConverter(() -> createMock(Request.class),
         Sets.newLinkedHashSet(
             Arrays.asList(
                 new CommonTypesParamConverter(),

@@ -7,9 +7,9 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.apache.http.client.fluent.Request;
-import org.jooby.RequestScoped;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
+import org.jooby.scope.RequestScoped;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 

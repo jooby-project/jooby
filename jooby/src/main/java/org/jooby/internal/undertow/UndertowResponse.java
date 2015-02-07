@@ -36,6 +36,7 @@ import static java.util.Objects.requireNonNull;
 import io.undertow.io.UndertowOutputStream;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.CookieImpl;
+import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
@@ -65,6 +66,7 @@ import org.jooby.fn.ExSupplier;
 import org.jooby.internal.BodyConverterSelector;
 import org.jooby.internal.BodyWriterImpl;
 import org.jooby.internal.BuiltinBodyConverter;
+import org.jooby.internal.FastByteArrayOutputStream;
 import org.jooby.internal.MutantImpl;
 import org.jooby.internal.SetHeaderImpl;
 import org.jooby.internal.reqparam.RootParamConverter;
@@ -89,7 +91,7 @@ public class UndertowResponse implements Response {
 
   private Route route;
 
-  private Map<String, Object> locals;
+  private Map<Object, Object> locals;
 
   private SetHeaderImpl setHeader;
 
@@ -98,7 +100,7 @@ public class UndertowResponse implements Response {
   public UndertowResponse(final HttpServerExchange exchange,
       final Injector injector,
       final Route route,
-      final Map<String, Object> locals,
+      final Map<Object, Object> locals,
       final BodyConverterSelector selector,
       final Charset charset,
       final Optional<String> referer) {
@@ -134,7 +136,7 @@ public class UndertowResponse implements Response {
   public Response cookie(final Cookie cookie) {
     requireNonNull(cookie, "A cookie is required.");
     exchange.getResponseCookies()
-      .put(cookie.name(), toUndertowCookie(cookie));
+        .put(cookie.name(), toUndertowCookie(cookie));
 
     return this;
   }
@@ -353,28 +355,38 @@ public class UndertowResponse implements Response {
 
     status(body.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
 
-    Runnable setHeaders = () -> body.headers().forEach(
-        (name, value) -> {
-          // reset back header while doing a redirect
-          if ("location".equalsIgnoreCase(name) && "back".equalsIgnoreCase(value)
-              && status().map(s -> s.value() >= 300 && s.value() < 400).orElse(false)) {
-            header(name, referer.orElse("/"));
-          } else {
-            header(name, value);
-          }
-        });
+    HeaderMap headers = exchange.getResponseHeaders();
+
+    body.headers().forEach((name, value) -> {
+      // reset back header while doing a redirect
+      if ("location".equalsIgnoreCase(name) && "back".equalsIgnoreCase(value)
+          && status().map(s -> s.value() >= 300 && s.value() < 400).orElse(false)) {
+        header(name, referer.orElse("/"));
+      } else {
+        header(name, value);
+      }
+    });
+
+    /**
+     * Do we need to figure it out Content-Length?
+     */
+    boolean direct = headers.contains("Content-Length") ||
+        headers.contains("Transfer-Encoding");
 
     // byte version of http body
     ExSupplier<OutputStream> stream = () -> {
-      setHeaders.run();
-      return exchange.getOutputStream();
+      return direct
+          ? exchange.getOutputStream()
+          : new FastByteArrayOutputStream(
+              () -> exchange.getOutputStream(),
+              (name, value) -> header(name, value)
+          );
     };
 
     // text version of http body
     ExSupplier<Writer> writer = () -> {
       charset(charset);
-      setHeaders.run();
-      return new OutputStreamWriter(exchange.getOutputStream(), charset);
+      return new OutputStreamWriter(stream.get(), charset);
     };
 
     Optional<Object> content = body.content();
@@ -387,9 +399,6 @@ public class UndertowResponse implements Response {
 
       formatter.format(message, new BodyWriterImpl(charset, ImmutableMap.copyOf(locals),
           stream, writer));
-    } else {
-      // noop, but we apply headers.
-      stream.get().close();
     }
     // end response
     end();
@@ -402,7 +411,7 @@ public class UndertowResponse implements Response {
     cookie.comment().ifPresent(result::setComment);
     cookie.domain().ifPresent(result::setDomain);
     result.setHttpOnly(cookie.httpOnly());
-    result.setMaxAge((int)cookie.maxAge());
+    result.setMaxAge((int) cookie.maxAge());
     result.setPath(cookie.path());
     result.setSecure(cookie.secure());
     result.setVersion(cookie.version());

@@ -94,6 +94,9 @@ public class Jdbc implements Jooby.Module {
       String embeddeddb = "databases." + db;
       if (db.toString().indexOf(':') == -1 && source.hasPath(embeddeddb)) {
         Config dbtree = source.getConfig(embeddeddb);
+        dbtree = dbtree.withValue("url", ConfigValueFactory.fromAnyRef(
+                  dbtree.getString("url").replace("{mem.seed}", System.currentTimeMillis() + "")
+               ));
         // write embedded with current key
         return ConfigFactory.empty()
             .withValue(key, dbtree.root())

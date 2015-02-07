@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.jooby.internal.reqparam;
 
 import static java.util.Objects.requireNonNull;
@@ -6,20 +24,26 @@ import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 import org.jooby.Err;
 import org.jooby.ParamConverter;
+import org.jooby.Request;
 import org.jooby.Status;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 public class RootParamConverter {
 
   private List<ParamConverter> converters;
 
+  private Provider<Request> req;
+
   @Inject
-  public RootParamConverter(final Set<ParamConverter> converters) {
+  public RootParamConverter(final Provider<Request> req, final Set<ParamConverter> converters) {
+    this.req = requireNonNull(req, "A HTTP request is required.");
     this.converters = ImmutableList.copyOf(converters);
   }
 
@@ -31,7 +55,7 @@ public class RootParamConverter {
   public <T> T convert(final TypeLiteral<?> type, final Object[] values) {
     try {
       requireNonNull(type, "A type is required.");
-      return (T) chain(type, converters).convert(type, values);
+      return (T) chain(req, type, converters).convert(type, values);
     } catch (Err err) {
       throw err;
     } catch (Exception ex) {
@@ -39,9 +63,9 @@ public class RootParamConverter {
     }
   }
 
-  private static ParamConverter.Chain chain(final TypeLiteral<?> seed,
-      final List<ParamConverter> converters) {
-    return new ParamConverter.Chain() {
+  private static ParamConverter.Context chain(final Provider<Request> req,
+      final TypeLiteral<?> seed, final List<ParamConverter> converters) {
+    return new ParamConverter.Context() {
       int cursor = 0;
 
       TypeLiteral<?> type = seed;
@@ -62,6 +86,11 @@ public class RootParamConverter {
         Object result = next.convert(nexttype, values, this);
         cursor -= 1;
         return result;
+      }
+
+      @Override
+      public <T> T require(final Key<T> key) {
+        return req.get().require(key);
       }
     };
   }

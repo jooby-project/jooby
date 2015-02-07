@@ -532,7 +532,7 @@ public class WebSocketImplTest {
               unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces
               );
           ws.connect(unit.get(Injector.class), unit.get(WebSocketChannel.class));
-          assertEquals(instance, ws.getInstance(Object.class));
+          assertEquals(instance, ws.require(Object.class));
         });
   }
 

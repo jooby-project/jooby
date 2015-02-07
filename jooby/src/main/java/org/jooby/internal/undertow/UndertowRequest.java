@@ -117,7 +117,7 @@ public class UndertowRequest implements Request {
   // TODO: make route abstract? or throw UnsupportedException
   private Route route;
 
-  private Map<String, Object> locals;
+  private Map<Object, Object> locals;
 
   private BodyConverterSelector selector;
 
@@ -140,7 +140,7 @@ public class UndertowRequest implements Request {
   public UndertowRequest(final HttpServerExchange exchange,
       final Injector injector,
       final Route route,
-      final Map<String, Object> locals,
+      final Map<Object, Object> locals,
       final BodyConverterSelector selector,
       final MediaType contentType,
       final List<MediaType> accept,
@@ -168,7 +168,13 @@ public class UndertowRequest implements Request {
 
   @Override
   public Map<String, Object> attributes() {
-    return ImmutableMap.copyOf(locals);
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+    locals.forEach((k, v) -> {
+      if (k instanceof String) {
+        builder.put((String) k, v);
+      }
+    });
+    return builder.build();
   }
 
   @SuppressWarnings("unchecked")
@@ -383,6 +389,12 @@ public class UndertowRequest implements Request {
     requireNonNull(name, "A local's name is required.");
     requireNonNull(value, "A local's value is required.");
     locals.put(name, value);
+    return this;
+  }
+
+  @Override
+  public Request set(final Key<?> key, final Object value) {
+    locals.put(key, value);
     return this;
   }
 

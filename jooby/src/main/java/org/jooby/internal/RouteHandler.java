@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.jooby.Body;
@@ -48,6 +49,7 @@ import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.Session;
 import org.jooby.Status;
 import org.jooby.Verb;
 import org.jooby.internal.undertow.UndertowRequest;
@@ -57,6 +59,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 
 @Singleton
 public class RouteHandler {
@@ -67,6 +70,12 @@ public class RouteHandler {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
+
+  private final Key<Request> REQ = Key.get(Request.class);
+
+  private final Key<Response> RSP = Key.get(Response.class);
+
+  private final Key<Session> SESSION = Key.get(Session.class);
 
   private BodyConverterSelector selector;
 
@@ -108,7 +117,9 @@ public class RouteHandler {
 
     long start = System.currentTimeMillis();
 
-    requestScope.enter();
+    Map<Object, Object> locals = new LinkedHashMap<>();
+
+    requestScope.enter(locals);
 
     Verb verb = Verb.valueOf(method.toUpperCase());
     String requestPath = normalizeURI(uri);
@@ -123,7 +134,6 @@ public class RouteHandler {
       resolveAs404 = true;
     }
 
-    Map<String, Object> locals = new LinkedHashMap<>();
     // default locals
     locals.put("contextPath", applicationPath);
     locals.put("path", requestPath);
@@ -162,8 +172,13 @@ public class RouteHandler {
     Response rsp = new UndertowResponse(exchange, rootInjector, notFound, locals, selector,
         charset, Optional.ofNullable(headers.apply("Referer")));
 
-    requestScope.seed(Request.class, req);
-    requestScope.seed(Response.class, rsp);
+    // seed req & rsp
+    locals.put(REQ, req);
+    locals.put(RSP, rsp);
+
+    // seed session
+    Provider<Session> session = () -> req.session();
+    locals.put(SESSION, session);
 
     try {
 

@@ -38,7 +38,7 @@ public class BodyParamFeature extends ServerFeature {
 
   {
 
-    param((toType,values, next) -> new Bean());
+    param((toType,values, ctx) -> new Bean());
 
     use(new Body.Formatter() {
 

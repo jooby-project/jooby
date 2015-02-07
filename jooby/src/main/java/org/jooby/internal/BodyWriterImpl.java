@@ -30,6 +30,8 @@ import java.util.Map;
 import org.jooby.Body;
 import org.jooby.fn.ExSupplier;
 
+import com.google.common.collect.ImmutableMap;
+
 public class BodyWriterImpl implements Body.Writer {
 
   private Charset charset;
@@ -40,10 +42,16 @@ public class BodyWriterImpl implements Body.Writer {
 
   private Map<String, Object> locals;
 
-  public BodyWriterImpl(final Charset charset, final Map<String, Object> locals,
+  public BodyWriterImpl(final Charset charset, final Map<Object, Object> locals,
       final ExSupplier<OutputStream> stream, final ExSupplier<Writer> writer) {
     this.charset = requireNonNull(charset, "A charset is required.");
-    this.locals = requireNonNull(locals, "Request locals are required.");
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+    requireNonNull(locals, "Request locals are required.").forEach((k, v) -> {
+      if (k instanceof String) {
+        builder.put((String) k, v);
+      }
+    });
+    this.locals = builder.build();
     this.stream = requireNonNull(stream, "A stream is required.");
     this.writer = requireNonNull(writer, "A writer is required.");
   }

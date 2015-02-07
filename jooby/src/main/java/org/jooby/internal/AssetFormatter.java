@@ -29,6 +29,8 @@ import org.jooby.MediaType;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
+import com.google.common.io.Closeables;
+
 
 public class AssetFormatter implements Body.Formatter {
 
@@ -49,14 +51,22 @@ public class AssetFormatter implements Body.Formatter {
 
     if (type.isText()) {
       writer.text(to -> {
-        try (Reader from = new InputStreamReader(asset.stream(), writer.charset())) {
+        Reader from = null;
+        try {
+          from = new InputStreamReader(asset.stream(), writer.charset());
           CharStreams.copy(from, to);
+        } finally {
+          Closeables.closeQuietly(from);
         }
       });
     } else {
       writer.bytes(to -> {
-        try (InputStream from = asset.stream()) {
+        InputStream from = null;
+        try {
+          from = asset.stream();
           ByteStreams.copy(from, to);
+        } finally {
+          Closeables.closeQuietly(from);
         }
       });
     }

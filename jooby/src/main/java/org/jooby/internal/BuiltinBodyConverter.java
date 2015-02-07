@@ -50,8 +50,11 @@ public class BuiltinBodyConverter {
 
     @Override
     public void format(final Object body, final Body.Writer writer) throws Exception {
-      try (InputStream in = (InputStream) body) {
+      InputStream in = (InputStream) body;
+      try {
         writer.bytes(out -> ByteStreams.copy(in, out));
+      } finally {
+        Closeables.closeQuietly(in);
       }
     }
 

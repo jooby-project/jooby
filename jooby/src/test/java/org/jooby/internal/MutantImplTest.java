@@ -1,5 +1,6 @@
 package org.jooby.internal;
 
+import static org.easymock.EasyMock.createMock;
 import static org.junit.Assert.assertEquals;
 
 import java.time.format.DateTimeFormatter;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 import org.jooby.Err;
 import org.jooby.Mutant;
+import org.jooby.Request;
 import org.jooby.internal.reqparam.CollectionParamConverter;
 import org.jooby.internal.reqparam.CommonTypesParamConverter;
 import org.jooby.internal.reqparam.DateParamConverter;
@@ -486,7 +488,7 @@ public class MutantImplTest {
   }
 
   private RootParamConverter newConverter() {
-    return new RootParamConverter(
+    return new RootParamConverter(() -> createMock(Request.class),
         Sets.newLinkedHashSet(
             Arrays.asList(
                 new CommonTypesParamConverter(),

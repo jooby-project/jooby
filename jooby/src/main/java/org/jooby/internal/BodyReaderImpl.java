@@ -28,6 +28,8 @@ import java.nio.charset.Charset;
 import org.jooby.Body;
 import org.jooby.fn.ExSupplier;
 
+import com.google.common.io.Closeables;
+
 public class BodyReaderImpl implements Body.Reader {
 
   private Charset charset;
@@ -42,16 +44,24 @@ public class BodyReaderImpl implements Body.Reader {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T text(final Text text) throws Exception {
-    try (Reader reader = new InputStreamReader(this.stream.get(), charset)) {
+    Reader reader = null;
+    try {
+      reader = new InputStreamReader(this.stream.get(), charset);
       return (T) text.read(reader);
+    } finally {
+      Closeables.closeQuietly(reader);
     }
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public <T> T bytes(final Bytes bin) throws Exception {
-    try (InputStream in = this.stream.get()) {
+    InputStream in = null;
+    try {
+      in = this.stream.get();
       return (T) bin.read(in);
+    } finally {
+      Closeables.closeQuietly(in);
     }
   }
 }

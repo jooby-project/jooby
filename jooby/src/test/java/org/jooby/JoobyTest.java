@@ -53,6 +53,7 @@ import org.jooby.internal.undertow.UndertowServer;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
+import org.jooby.scope.RequestScoped;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -74,6 +75,7 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigOrigin;
 import com.typesafe.config.ConfigValueFactory;
 
 @RunWith(PowerMockRunner.class)
@@ -356,7 +358,6 @@ public class JoobyTest {
     unit.captured(Runnable.class).get(0).run();
   };
 
-  @SuppressWarnings("rawtypes")
   private MockUnit.Block requestScope = unit -> {
     Binder binder = unit.get(Binder.class);
 
@@ -380,6 +381,14 @@ public class JoobyTest {
     expect(rspbinding.toProvider(isA(com.google.inject.Provider.class))).andReturn(rspscope);
 
     expect(binder.bind(Response.class)).andReturn(rspbinding);
+
+    ScopedBindingBuilder sessionscope = unit.mock(ScopedBindingBuilder.class);
+    sessionscope.in(RequestScoped.class);
+
+    AnnotatedBindingBuilder<Session> sessionbinding = unit.mock(AnnotatedBindingBuilder.class);
+    expect(sessionbinding.toProvider(isA(com.google.inject.Provider.class))).andReturn(sessionscope);
+
+    expect(binder.bind(Session.class)).andReturn(sessionbinding);
   };
 
   private MockUnit.Block params = unit -> {
@@ -435,9 +444,17 @@ public class JoobyTest {
 
     AppPrinter printer = unit.mock(AppPrinter.class);
 
+    ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
+    expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+
+    Config config = unit.mock(Config.class);
+    expect(config.getString("application.env")).andReturn("dev");
+    expect(config.origin()).andReturn(configOrigin);
+
     Injector injector = unit.mock(Injector.class);
     expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
     expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
+    expect(injector.getInstance(Config.class)).andReturn(config);
 
     unit.mockStatic(Guice.class);
     expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class))).andReturn(
@@ -469,9 +486,17 @@ public class JoobyTest {
 
           AppPrinter printer = unit.mock(AppPrinter.class);
 
+          ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
+          expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+
+          Config config = unit.mock(Config.class);
+          expect(config.getString("application.env")).andReturn("dev");
+          expect(config.origin()).andReturn(configOrigin);
+
           Injector injector = unit.mock(Injector.class);
           expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
           expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
+          expect(injector.getInstance(Config.class)).andReturn(config);
 
           unit.mockStatic(Guice.class);
           expect(Guice.createInjector(eq(Stage.PRODUCTION), unit.capture(Module.class))).andReturn(
@@ -734,9 +759,17 @@ public class JoobyTest {
 
               AppPrinter printer = unit.mock(AppPrinter.class);
 
+              ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
+              expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+
+              Config config = unit.mock(Config.class);
+              expect(config.getString("application.env")).andReturn("dev");
+              expect(config.origin()).andReturn(configOrigin);
+
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
               expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
+              expect(injector.getInstance(Config.class)).andReturn(config);
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
@@ -800,9 +833,17 @@ public class JoobyTest {
 
               AppPrinter printer = unit.mock(AppPrinter.class);
 
+              ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
+              expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+
+              Config config = unit.mock(Config.class);
+              expect(config.getString("application.env")).andReturn("dev");
+              expect(config.origin()).andReturn(configOrigin);
+
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
               expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
+              expect(injector.getInstance(Config.class)).andReturn(config);
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))

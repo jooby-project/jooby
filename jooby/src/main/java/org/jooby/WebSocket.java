@@ -622,35 +622,35 @@ public interface WebSocket extends Closeable {
       throws Exception;
 
   /**
-   * Ask Guice for a type.
+   * Find and return a service using the provided type.
    *
    * @param type A service type.
    * @param <T> Service type.
-   * @return A ready to use object.
+   * @return Binded service.
    */
-  default @Nonnull <T> T getInstance(@Nonnull final Class<T> type) {
-    return getInstance(Key.get(type));
+  default @Nonnull <T> T require(@Nonnull final Class<T> type) {
+    return require(Key.get(type));
   }
 
   /**
-   * Ask Guice for a type.
+   * Find and return a service using the provided type.
    *
    * @param type A service type.
    * @param <T> Service type.
-   * @return A ready to use object.
+   * @return Binded service.
    */
-  default @Nonnull <T> T getInstance(@Nonnull final TypeLiteral<T> type) {
-    return getInstance(Key.get(type));
+  default @Nonnull <T> T require(@Nonnull final TypeLiteral<T> type) {
+    return require(Key.get(type));
   }
 
   /**
-   * Ask Guice for a type.
+   * Find and return a service using the provided key.
    *
-   * @param key A service key.
+   * @param key A key for a service.
    * @param <T> Service type.
-   * @return A ready to use object.
+   * @return Binded service.
    */
   @Nonnull
-  <T> T getInstance(@Nonnull Key<T> key);
+  <T> T require(@Nonnull Key<T> key);
 
 }

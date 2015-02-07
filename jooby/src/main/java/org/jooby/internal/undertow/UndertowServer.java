@@ -155,8 +155,6 @@ public class UndertowServer implements org.jooby.internal.Server {
       WebSocketImpl socket = exchange.getAttachment(UndertowWebSocketHandler.SOCKET);
       UndertowWebSocketBridge bridge = new UndertowWebSocketBridge(injector, socket);
       bridge.connect(channel);
-      channel.getReceiveSetter().set(bridge);
-      channel.resumeReceives();
     }, next, sockets);
   }
 

@@ -84,7 +84,7 @@ public class WebSocketFeature extends ServerFeature {
 
     ws("/runtime-err", ws -> {
 
-      ws.getInstance(ScheduledExecutorService.class);
+      ws.require(ScheduledExecutorService.class);
     });
 
     ws("/checked-err", ws -> {

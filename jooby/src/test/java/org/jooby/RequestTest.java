@@ -145,6 +145,21 @@ public class RequestTest {
     }
 
     @Override
+    public Request set(final Key<?> key, final Object value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Request set(final Class<?> type, final Object value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Request set(final TypeLiteral<?> type, final Object value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Request unset() {
       throw new UnsupportedOperationException();
     }

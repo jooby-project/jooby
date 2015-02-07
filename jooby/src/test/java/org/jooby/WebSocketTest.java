@@ -81,7 +81,7 @@ public class WebSocketTest {
     }
 
     @Override
-    public <T> T getInstance(final Key<T> key) {
+    public <T> T require(final Key<T> key) {
       throw new UnsupportedOperationException();
     }
 
@@ -320,12 +320,12 @@ public class WebSocketTest {
     WebSocket ws = new WebSocketMock() {
       @SuppressWarnings("unchecked")
       @Override
-      public <T> T getInstance(final Key<T> key) {
+      public <T> T require(final Key<T> key) {
         return (T) instance;
       }
     };
-    assertEquals(instance, ws.getInstance(WebSocket.class));
-    assertEquals(instance, ws.getInstance(TypeLiteral.get(String.class)));
+    assertEquals(instance, ws.require(WebSocket.class));
+    assertEquals(instance, ws.require(TypeLiteral.get(String.class)));
   }
 
 }

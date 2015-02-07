@@ -294,6 +294,25 @@ public class Body {
     }
 
     /**
+     * Send text to the client and takes care of charset.
+     *
+     * @author edgar
+     * @since 0.5.0
+     */
+    interface Text2 {
+
+      /**
+       * Write text into the given {@link java.io.Writer}. The {@link java.io.Writer} will be
+       * close it automatically after this call. Clients shouldn't worry about closing the
+       * {@link Writer}. The writer is configured with the application/request charset.
+       *
+       * @param writer The HTTP response body.
+       * @throws Exception When the operation fails.
+       */
+      void write(CharSequence text) throws Exception;
+    }
+
+    /**
      * @return A charset.
      */
     Charset charset();

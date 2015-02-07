@@ -83,6 +83,8 @@ public class UndertowWebSocketBridge extends AbstractReceiveListener {
 
   public void connect(final WebSocketChannel channel) {
     doCall(channel, () -> socket.connect(injector, channel));
+    channel.getReceiveSetter().set(this);
+    channel.resumeReceives();
   }
 
   @Override

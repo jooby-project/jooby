@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.Properties;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 
 import javax.inject.Provider;
 import javax.sql.DataSource;
@@ -59,7 +60,8 @@ public class JdbcTest {
       assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());
 
       // datasource properties
-        assertEquals("jdbc:h2:mem:;DB_CLOSE_DELAY=-1", properties.get("url"));
+        assertTrue(Pattern.matches("jdbc:h2:mem:\\d+;DB_CLOSE_DELAY=-1", properties.get("url")
+            .toString()));
         assertEquals("sa", properties.get("user"));
         assertEquals("", properties.get("password"));
       });
@@ -572,7 +574,8 @@ public class JdbcTest {
         (hikariConfig, properties) -> {
           assertEquals("test.MyDataSource", hikariConfig.getDataSourceClassName());
 
-          assertEquals("jdbc:h2:mem:;DB_CLOSE_DELAY=-1", properties.get("url"));
+          assertTrue(Pattern.matches("jdbc:h2:mem:\\d+;DB_CLOSE_DELAY=-1", properties.get("url")
+              .toString()));
           assertEquals("sa", properties.get("user"));
           assertEquals("", properties.get("password"));
         });
@@ -609,7 +612,8 @@ public class JdbcTest {
       assertEquals(1, hikariConfig.getMaximumPoolSize());
 
       // datasource properties
-        assertEquals("jdbc:h2:mem:;DB_CLOSE_DELAY=-1", properties.get("url"));
+        assertTrue(Pattern.matches("jdbc:h2:mem:\\d+;DB_CLOSE_DELAY=-1", properties.get("url")
+            .toString()));
         assertEquals("h2.db.audit", hikariConfig.getPoolName());
         assertEquals("sa", properties.get("user"));
         assertEquals("", properties.get("password"));
