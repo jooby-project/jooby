@@ -135,7 +135,7 @@ public interface WebSocket extends Closeable {
     private CloseStatus(final int code, final String reason) {
       Preconditions.checkArgument((code >= 1000 && code < 5000), "Invalid code: %s", code);
       this.code = code;
-      this.reason = reason;
+      this.reason = reason == null || reason.isEmpty() ? null : reason;
     }
 
     /**

@@ -244,11 +244,6 @@ public interface Request extends Locals {
     }
 
     @Override
-    public Request unset() {
-      return this;
-    }
-
-    @Override
     public <T> Optional<T> unset(final String name) {
       return req.unset(name);
     }
@@ -678,8 +673,5 @@ public interface Request extends Locals {
    * @return Current request.
    */
   Request set(Key<?> key, Object value);
-
-  @Override
-  Request unset();
 
 }

@@ -375,7 +375,7 @@ public class MediaType implements Comparable<MediaType> {
     if (text.matches(this)) {
       return true;
     }
-    if (this.equals(MediaType.js)) {
+    if (js.matches(this)) {
       return true;
     }
     if (jsonLike.matches(this)) {

@@ -1,13 +1,9 @@
 package org.jooby.hbm.integration;
 
-import static org.junit.Assert.assertEquals;
-
 import java.net.URISyntaxException;
 
 import javax.persistence.EntityManager;
 
-import org.apache.http.client.fluent.Request;
-import org.apache.http.message.BasicNameValuePair;
 import org.jooby.hbm.Hbm;
 import org.jooby.hbm.integration.data.Member;
 import org.jooby.test.ServerFeature;
@@ -47,20 +43,20 @@ public class HbmParamConverterFeature extends ServerFeature {
   @Test
   public void hbm() throws URISyntaxException, Exception {
     // create member
-    assertEquals("pedro(1)", Request.Post(uri("members").build())
-        .bodyForm(new BasicNameValuePair("id", "1"), new BasicNameValuePair("name", "pedro"))
-        .execute()
-        .returnContent()
-        .asString());
+    request()
+        .post("/members")
+        .form()
+        .add("id", 1)
+        .add("name", "pedro")
+        .expect("pedro(1)");
 
-    assertEquals("pedro(1)", Request.Get(uri("members", "1").build())
-        .execute()
-        .returnContent()
-        .asString());
+    request()
+        .get("/members/1")
+        .expect("pedro(1)");
 
-    assertEquals("pedro(1)", Request.Get(uri("members").addParameter("member", "1").build())
-        .execute()
-        .returnContent()
-        .asString());
+    request()
+        .get("/members?member=1")
+        .expect("pedro(1)");
+
   }
 }

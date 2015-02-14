@@ -76,11 +76,4 @@ public interface Locals {
    */
   <T> Optional<T> unset(final String name);
 
-  /**
-   * Unset/remove all the session data.
-   *
-   * @return This locals.
-   */
-  Locals unset();
-
 }

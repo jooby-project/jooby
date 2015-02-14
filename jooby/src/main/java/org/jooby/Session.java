@@ -442,7 +442,6 @@ public interface Session extends Locals {
    *
    * @return This session.
    */
-  @Override
   Session unset();
 
   /**

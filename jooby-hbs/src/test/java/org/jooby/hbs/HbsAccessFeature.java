@@ -1,8 +1,5 @@
 package org.jooby.hbs;
 
-import static org.junit.Assert.assertEquals;
-
-import org.apache.http.client.fluent.Request;
 import org.jooby.View;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -20,7 +17,9 @@ public class HbsAccessFeature extends ServerFeature {
 
   @Test
   public void access() throws Exception {
-    assertEquals("hbs", Request.Get(uri("/").build()).execute().returnContent().asString());
+    request()
+      .get("/")
+      .expect("hbs");
   }
 
 }

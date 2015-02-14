@@ -407,6 +407,7 @@ public interface Response {
    */
   default void download(final @Nonnull File file) throws Exception {
     MediaType type = MediaType.byFile(file).orElse(MediaType.octetstream);
+    header("Content-Length", file.length());
     if (type.isText()) {
       download(file.getName(), new FileReader(file));
     } else {
@@ -424,6 +425,7 @@ public interface Response {
    * @throws Exception If something goes wrong.
    */
   default void download(final String filename, final @Nonnull File file) throws Exception {
+    header("Content-Length", file.length());
     download(filename, new FileInputStream(file));
   }
 

@@ -247,7 +247,7 @@ public class ResponseTest {
   @Test
   public void downloadWithRelativeCpLocation() throws Exception {
     LinkedList<Object> dataList = new LinkedList<>();
-    String resource = "assets/js/file.js";
+    String resource = "org/jooby/ResponseTest.js";
     new ResponseMock() {
       @Override
       public void download(final String filename, final Reader stream) throws Exception {
@@ -279,7 +279,7 @@ public class ResponseTest {
   @Test
   public void downloadWithAbsoluteCpLocation() throws Exception {
     LinkedList<Object> dataList = new LinkedList<>();
-    String resource = "/assets/js/file.js";
+    String resource = "/org/jooby/ResponseTest.js";
     new ResponseMock() {
       @Override
       public void download(final String filename, final Reader stream) throws Exception {
@@ -310,8 +310,15 @@ public class ResponseTest {
   @Test
   public void downloadFile() throws Exception {
     LinkedList<Object> dataList = new LinkedList<>();
-    File resource = new File("src/test/resources/assets/js/file.js");
+    File resource = file("src/test/resources/org/jooby/ResponseTest.js");
     new ResponseMock() {
+      @Override
+      public Response header(final String name, final long value) {
+        dataList.add(name);
+        dataList.add(value);
+        return this;
+      }
+
       @Override
       public void download(final String filename, final Reader stream) throws Exception {
         assertNotNull(stream);
@@ -319,13 +326,13 @@ public class ResponseTest {
         dataList.add(filename);
       }
     }.download(resource);
-    assertEquals(resource.getName(), dataList.getFirst());
+    assertEquals("[Content-Length, 20, ResponseTest.js]", dataList.toString());
   }
 
   @Test
   public void downloadReader() throws Exception {
     LinkedList<Object> dataList = new LinkedList<>();
-    FileReader resource = new FileReader("src/test/resources/assets/js/file.js");
+    FileReader resource = new FileReader(file("src/test/resources/org/jooby/ResponseTest.js"));
     new ResponseMock() {
       @Override
       public void download(final String filename, final Reader reader) throws Exception {
@@ -340,8 +347,14 @@ public class ResponseTest {
   @Test
   public void downloadFileWithName() throws Exception {
     LinkedList<Object> dataList = new LinkedList<>();
-    File resource = new File("src/test/resources/assets/js/file.js");
+    File resource = file("src/test/resources/org/jooby/ResponseTest.js");
     new ResponseMock() {
+      @Override
+      public Response header(final String name, final long value) {
+        dataList.add(name);
+        dataList.add(value);
+        return this;
+      }
       @Override
       public void download(final String filename, final InputStream stream) throws Exception {
         assertNotNull(stream);
@@ -349,7 +362,7 @@ public class ResponseTest {
         dataList.add(filename);
       }
     }.download("alias.js", resource);
-    assertEquals("alias.js", dataList.getFirst());
+    assertEquals("[Content-Length, 20, alias.js]", dataList.toString());
   }
 
   @Test
@@ -380,6 +393,22 @@ public class ResponseTest {
 
     assertEquals("name", dataList.getFirst().name());
     assertEquals("value", dataList.getFirst().value().get());
+  }
+
+  /**
+   * Attempt to load a file from multiple location. required by unit and integration tests.
+   *
+   * @param location
+   * @return
+   */
+  private File file(final String location) {
+    for (String candidate : new String[]{location, "jooby/" + location, "../jooby/" + location }) {
+      File file = new File(candidate);
+      if (file.exists()) {
+        return file;
+      }
+    }
+    return file(location);
   }
 
 }

@@ -13,7 +13,6 @@
 
   <name>hibernate module</name>
   <description>Hibernate and JPA support for Jooby</description>
-
   <build>
     <plugins>
       <!-- sure-fire -->
@@ -105,6 +104,13 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- Servers -->
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-undertow</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>

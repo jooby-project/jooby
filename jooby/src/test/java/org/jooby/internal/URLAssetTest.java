@@ -17,41 +17,45 @@ public class URLAssetTest {
   @Test
   public void name() throws IOException {
     assertEquals("pom.xml",
-        new URLAsset(new File("pom.xml").toURI().toURL(), MediaType.js)
+        new URLAsset(file("pom.xml").toURI().toURL(), MediaType.js)
             .name());
   }
 
   @Test
   public void toStr() throws IOException {
-    assertEquals("file.js(application/javascript)",
-        new URLAsset(new File("src/test/resources/assets/file.js").toURI().toURL(), MediaType.js)
+    assertEquals("URLAssetTest.js(application/javascript)",
+        new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI().toURL(),
+            MediaType.js)
             .toString());
   }
 
   @Test
   public void lastModified() throws IOException {
-    assertTrue(new URLAsset(new File("src/test/resources/assets/file.js").toURI().toURL(),
+    assertTrue(new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI()
+        .toURL(),
         MediaType.js)
         .lastModified() > 0);
   }
 
   @Test
   public void length() throws IOException {
-    assertEquals(15, new URLAsset(new File("src/test/resources/assets/file.js").toURI().toURL(),
+    assertEquals(15, new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js")
+        .toURI().toURL(),
         MediaType.js).length());
   }
 
   @Test
   public void type() throws IOException {
     assertEquals(MediaType.js,
-        new URLAsset(new File("src/test/resources/assets/file.js").toURI().toURL(), MediaType.js)
+        new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI().toURL(),
+            MediaType.js)
             .type());
   }
 
   @Test
   public void stream() throws IOException {
     InputStream stream = new URLAsset(
-        new File("src/test/resources/assets/file.js").toURI().toURL(), MediaType.js)
+        file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI().toURL(), MediaType.js)
         .stream();
     assertEquals("function () {}\n", new String(ByteStreams.toByteArray(stream)));
     stream.close();
@@ -64,7 +68,23 @@ public class URLAssetTest {
 
   @Test(expected = NullPointerException.class)
   public void nullType() throws IOException {
-    new URLAsset(new File("src/test/resources/assets/file.js").toURI().toURL(), null);
+    new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI().toURL(),
+        null);
   }
 
+  /**
+   * Attempt to load a file from multiple location. required by unit and integration tests.
+   *
+   * @param location
+   * @return
+   */
+  private File file(final String location) {
+    for (String candidate : new String[]{location, "jooby/" + location, "../jooby/" + location }) {
+      File file = new File(candidate);
+      if (file.exists()) {
+        return file;
+      }
+    }
+    return file(location);
+  }
 }

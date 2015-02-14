@@ -86,12 +86,6 @@
       <artifactId>jsr305</artifactId>
     </dependency>
 
-    <!-- Undertow -->
-    <dependency>
-      <groupId>io.undertow</groupId>
-      <artifactId>undertow-core</artifactId>
-    </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>junit</groupId>
@@ -134,13 +128,6 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpmime</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Async Http Client -->
-    <dependency>
-      <groupId>com.ning</groupId>
-      <artifactId>async-http-client</artifactId>
       <scope>test</scope>
     </dependency>
 

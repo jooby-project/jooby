@@ -1,10 +1,7 @@
 package org.jooby.jackson;
 
-import static org.junit.Assert.assertEquals;
-
 import java.net.URISyntaxException;
 
-import org.apache.http.client.fluent.Request;
 import org.jooby.Body;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -24,12 +21,16 @@ public class JsonAccessFeature extends ServerFeature {
 
   @Test
   public void formatter() throws URISyntaxException, Exception {
-    assertEquals("json", Request.Get(uri("formatter").build()).execute().returnContent().asString());
+    request()
+        .get("/formatter")
+        .expect("json");
   }
 
   @Test
   public void parser() throws URISyntaxException, Exception {
-    assertEquals("json", Request.Get(uri("parser").build()).execute().returnContent().asString());
+    request()
+        .get("/parser")
+        .expect("json");
   }
 
 }

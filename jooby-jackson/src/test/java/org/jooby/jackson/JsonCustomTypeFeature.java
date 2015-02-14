@@ -1,14 +1,9 @@
 package org.jooby.jackson;
 
-import static org.junit.Assert.assertEquals;
-
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.ContentType;
 import org.jooby.MediaType;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -36,27 +31,28 @@ public class JsonCustomTypeFeature extends ServerFeature {
 
   @Test
   public void get() throws URISyntaxException, Exception {
-    HttpResponse rsp = Request.Get(uri("members").build()).execute().returnResponse();
-    assertEquals("application/vnd.github.v3+json;charset=UTF-8", rsp
-        .getFirstHeader("Content-Type").getValue());
+    request()
+        .get("/members")
+        .expect(200)
+        .header("Content-Type", "application/vnd.github.v3+json;charset=UTF-8");
   }
 
   @Test
   public void post() throws URISyntaxException, Exception {
-    assertEquals(
-        "[{\"id\":1,\"name\":\"vilma\"}]",
-        Request
-            .Post(uri("members").build())
-            .bodyString("[{\"id\":1,\"name\":\"vilma\"}]",
-                ContentType.parse("application/vnd.github.v3+json")).execute()
-            .returnContent().asString());
+    request()
+        .post("/members")
+        .body("[{\"id\":1,\"name\":\"vilma\"}]", "application/vnd.github.v3+json")
+        .expect(200)
+        .expect("[{\"id\":1,\"name\":\"vilma\"}]")
+        .header("Content-Type", "application/vnd.github.v3+json;charset=UTF-8");
   }
 
   @Test
   public void err415() throws URISyntaxException, Exception {
-    assertEquals(415, Request.Post(uri("members").build())
-        .bodyString("[{\"id\":1,\"name\":\"vilma\"}]", ContentType.APPLICATION_JSON).execute()
-        .returnResponse().getStatusLine().getStatusCode());
+    request()
+        .post("/members")
+        .body("[{\"id\":1,\"name\":\"vilma\"}]", "application/json")
+        .expect(415);
   }
 
 }

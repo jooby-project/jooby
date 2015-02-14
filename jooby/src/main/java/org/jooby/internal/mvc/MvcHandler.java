@@ -33,9 +33,9 @@ import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.View;
 import org.jooby.fn.ExSupplier;
+import org.jooby.internal.ResponseImpl;
 import org.jooby.internal.reqparam.RequestParam;
 import org.jooby.internal.reqparam.RequestParamProvider;
-import org.jooby.internal.undertow.UndertowResponse;
 import org.jooby.mvc.Viewable;
 
 import com.google.common.base.Throwables;
@@ -95,7 +95,7 @@ class MvcHandler implements Route.Handler {
 
       ExSupplier<Object> notViewable = () -> result;
 
-      List<MediaType> viewableTypes = ((UndertowResponse) Response.Forwarding.unwrap(rsp))
+      List<MediaType> viewableTypes = ((ResponseImpl) Response.Forwarding.unwrap(rsp))
           .viewableTypes();
 
       Function<MediaType, ExSupplier<Object>> provider = (type) -> {

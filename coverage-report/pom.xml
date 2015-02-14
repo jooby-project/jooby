@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.jooby</groupId>
+    <artifactId>jooby-project</artifactId>
+    <version>0.5.0-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>coverage-report</artifactId>
+
+  <name>coverage report</name>
+  <description>feature set and coverage report</description>
+
+  <profiles>
+    <profile>
+      <id>coverage</id>
+      <build>
+        <plugins>
+          <!-- Hack Jacoco! by adding all the source code (test included) into the current cp -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>1.9.1</version>
+            <executions>
+              <execution>
+                <id>source-coverage</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${project.parent.basedir}/jooby/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-hbm/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-hbs/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-jackson/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-jdbc/src/main/java</source>
+                  </sources>
+                </configuration>
+              </execution>
+              <execution>
+                <id>test-source-coverage</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                  <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${project.parent.basedir}/jooby/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-hbm/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-hbs/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-jackson/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-jdbc/src/test/java</source>
+                  </sources>
+                </configuration>
+              </execution>
+              <execution>
+                <id>test-resource-coverage</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>add-test-resource</goal>
+                </goals>
+                <configuration>
+                  <resources>
+                    <resource>
+                      <directory>${project.parent.basedir}/jooby/src/test/resources</directory>
+                    </resource>
+                    <resource>
+                      <directory>${project.parent.basedir}/jooby-hbs/src/test/resources</directory>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>instrument</id>
+                <phase>process-classes</phase>
+                <goals>
+                  <goal>instrument</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>restore</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>restore-instrumented-classes</goal>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- sure-fire -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${maven-surefire-plugin.version}</version>
+            <configuration>
+              <systemPropertyVariables>
+                <!-- JaCoCo runtime must know where to dump coverage: -->
+                <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <!-- sure-fire -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*Feature.java</include>
+            <include>**/Issue*.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+
+      <!-- Deploy plugin -->
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <configuration>
+          <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <dependencies>
+    <!-- Jooby -->
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-hbm</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-hbs</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-jackson</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- H2 database -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <classifier>tests</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-easymock</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jacoco</groupId>
+      <artifactId>org.jacoco.agent</artifactId>
+      <classifier>runtime</classifier>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Fluent HC -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>fluent-hc</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpmime</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Async Http Client -->
+    <dependency>
+      <groupId>com.ning</groupId>
+      <artifactId>async-http-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Servers -->
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-undertow</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+</project>

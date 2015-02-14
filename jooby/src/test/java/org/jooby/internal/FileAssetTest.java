@@ -16,38 +16,44 @@ public class FileAssetTest {
 
   @Test
   public void name() {
-    assertEquals("file.js",
-        new FileAsset(new File("src/test/resources/assets/file.js"), MediaType.js).name());
+    assertEquals("FileAssetTest.js",
+        new FileAsset(file("src/test/resources/org/jooby/internal/FileAssetTest.js"),
+            MediaType.js)
+            .name());
   }
 
   @Test
   public void toStr() {
-    assertEquals("file.js(application/javascript)",
-        new FileAsset(new File("src/test/resources/assets/file.js"), MediaType.js).toString());
+    assertEquals("FileAssetTest.js(application/javascript)",
+        new FileAsset(file("src/test/resources/org/jooby/internal/FileAssetTest.js"),
+            MediaType.js)
+            .toString());
   }
 
   @Test
   public void lastModified() {
-    assertTrue(new FileAsset(new File("src/test/resources/assets/file.js"), MediaType.js)
+    assertTrue(new FileAsset(file("src/test/resources/org/jooby/internal/FileAssetTest.js"),
+        MediaType.js)
         .lastModified() > 0);
   }
 
   @Test
   public void length() throws IOException {
-    assertEquals(15, new FileAsset(new File("src/test/resources/assets/file.js"),
+    assertEquals(15, new FileAsset(file("src/test/resources/org/jooby/internal/FileAssetTest.js"),
         MediaType.js).length());
   }
-
 
   @Test
   public void type() {
     assertEquals(MediaType.js,
-        new FileAsset(new File("src/test/resources/assets/file.js"), MediaType.js).type());
+        new FileAsset(file("src/test/resources/org/jooby/internal/FileAssetTest.js"), MediaType.js)
+            .type());
   }
 
   @Test
   public void stream() throws IOException {
-    InputStream stream = new FileAsset(new File("src/test/resources/assets/file.js"), MediaType.js)
+    InputStream stream = new FileAsset(file(
+        "src/test/resources/org/jooby/internal/FileAssetTest.js"), MediaType.js)
         .stream();
     assertEquals("function () {}\n", new String(ByteStreams.toByteArray(stream)));
     stream.close();
@@ -60,7 +66,22 @@ public class FileAssetTest {
 
   @Test(expected = NullPointerException.class)
   public void nullType() {
-    new FileAsset(new File("src/test/resources/assets/file.js"), null);
+    new FileAsset(file("src/test/resources/org/jooby/internal/FileAssetTest.js"), null);
   }
 
+  /**
+   * Attempt to load a file from multiple location. required by unit and integration tests.
+   *
+   * @param location
+   * @return
+   */
+  private File file(final String location) {
+    for (String candidate : new String[]{location, "jooby/" + location, "../jooby/" + location }) {
+      File file = new File(candidate);
+      if (file.exists()) {
+        return file;
+      }
+    }
+    return new File(location);
+  }
 }

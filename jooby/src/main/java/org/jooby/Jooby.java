@@ -74,6 +74,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import javax.annotation.Nonnull;
+import javax.inject.Singleton;
 
 import org.jooby.Route.Filter;
 import org.jooby.internal.AppManager;
@@ -83,9 +84,10 @@ import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.LocaleUtils;
 import org.jooby.internal.RequestScope;
+import org.jooby.internal.RouteHandlerImpl;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.RoutePattern;
-import org.jooby.internal.Server;
+import org.jooby.internal.ServerLookup;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.mvc.Routes;
@@ -103,8 +105,9 @@ import org.jooby.internal.reqparam.UploadParamConverter;
 import org.jooby.internal.routes.HeadHandler;
 import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
-import org.jooby.internal.undertow.Undertow;
 import org.jooby.scope.RequestScoped;
+import org.jooby.spi.Dispatcher;
+import org.jooby.spi.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -463,6 +466,10 @@ public class Jooby {
     }
   }
 
+  public Jooby() {
+    use(new ServerLookup());
+  }
+
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -503,10 +510,6 @@ public class Jooby {
   private Env.Builder env = Env.DEFAULT;
 
   private LinkedList<ParamConverter> converters = new LinkedList<>();
-
-  {
-    use(new Undertow());
-  }
 
   /**
    * Set a custom {@link Env.Builder} to use.
@@ -2038,6 +2041,8 @@ public class Jooby {
           formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
 
           parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
+
+          binder.bind(Dispatcher.class).to(RouteHandlerImpl.class).in(Singleton.class);
 
           RequestScope requestScope = new RequestScope();
           binder.bind(RequestScope.class).toInstance(requestScope);

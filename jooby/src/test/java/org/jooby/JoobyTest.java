@@ -33,9 +33,9 @@ import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.RequestScope;
+import org.jooby.internal.RouteHandlerImpl;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
-import org.jooby.internal.Server;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.reqparam.CollectionParamConverter;
@@ -49,11 +49,12 @@ import org.jooby.internal.reqparam.RootParamConverter;
 import org.jooby.internal.reqparam.StaticMethodParamConverter;
 import org.jooby.internal.reqparam.StringConstructorParamConverter;
 import org.jooby.internal.reqparam.UploadParamConverter;
-import org.jooby.internal.undertow.UndertowServer;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
 import org.jooby.scope.RequestScoped;
+import org.jooby.spi.Dispatcher;
+import org.jooby.spi.Server;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -307,6 +308,17 @@ public class JoobyTest {
     expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(multibinder);
   };
 
+  private MockUnit.Block routeHandler = unit -> {
+    ScopedBindingBuilder routehandlerscope = unit.mock(ScopedBindingBuilder.class);
+    routehandlerscope.in(Singleton.class);
+
+    AnnotatedBindingBuilder<Dispatcher> routehandlerbinding =
+        unit.mock(AnnotatedBindingBuilder.class);
+    expect(routehandlerbinding.to(RouteHandlerImpl.class)).andReturn(routehandlerscope);
+
+    expect(unit.get(Binder.class).bind(Dispatcher.class)).andReturn(routehandlerbinding);
+  };
+
   private MockUnit.Block webSockets = unit -> {
     Multibinder<WebSocket.Definition> multibinder = unit.mock(Multibinder.class);
 
@@ -361,7 +373,8 @@ public class JoobyTest {
   private MockUnit.Block requestScope = unit -> {
     Binder binder = unit.get(Binder.class);
 
-    AnnotatedBindingBuilder<RequestScope> reqscopebinding = unit.mock(AnnotatedBindingBuilder.class);
+    AnnotatedBindingBuilder<RequestScope> reqscopebinding = unit
+        .mock(AnnotatedBindingBuilder.class);
     reqscopebinding.toInstance(isA(RequestScope.class));
 
     expect(binder.bind(RequestScope.class)).andReturn(reqscopebinding);
@@ -386,7 +399,8 @@ public class JoobyTest {
     sessionscope.in(RequestScoped.class);
 
     AnnotatedBindingBuilder<Session> sessionbinding = unit.mock(AnnotatedBindingBuilder.class);
-    expect(sessionbinding.toProvider(isA(com.google.inject.Provider.class))).andReturn(sessionscope);
+    expect(sessionbinding.toProvider(isA(com.google.inject.Provider.class)))
+        .andReturn(sessionscope);
 
     expect(binder.bind(Session.class)).andReturn(sessionbinding);
   };
@@ -439,8 +453,19 @@ public class JoobyTest {
 
   private MockUnit.Block guice = unit -> {
     Server server = unit.mock(Server.class);
+
     server.start();
     server.stop();
+
+    ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
+    serverScope.in(Singleton.class);
+    expectLastCall().times(0, 1);
+
+    AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
+    expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
+
+    Binder binder = unit.get(Binder.class);
+    expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
     AppPrinter printer = unit.mock(AppPrinter.class);
 
@@ -460,16 +485,7 @@ public class JoobyTest {
     expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class))).andReturn(
         injector);
 
-    Binder binder = unit.get(Binder.class);
     unit.mockStatic(OptionalBinder.class);
-
-    ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
-    serverScope.in(Singleton.class);
-
-    AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
-    expect(serverBinding.to(UndertowServer.class)).andReturn(serverScope);
-
-    expect(binder.bind(Server.class)).andReturn(serverBinding);
 
     unit.mockStatic(TypeConverters.class);
     TypeConverters.configure(unit.get(Binder.class));
@@ -483,6 +499,16 @@ public class JoobyTest {
           Server server = unit.mock(Server.class);
           server.start();
           server.stop();
+
+          ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
+          serverScope.in(Singleton.class);
+          expectLastCall().times(0, 1);
+
+          AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
+          expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
+
+          Binder binder = unit.get(Binder.class);
+          expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
           AppPrinter printer = unit.mock(AppPrinter.class);
 
@@ -502,16 +528,7 @@ public class JoobyTest {
           expect(Guice.createInjector(eq(Stage.PRODUCTION), unit.capture(Module.class))).andReturn(
               injector);
 
-          Binder binder = unit.get(Binder.class);
           unit.mockStatic(OptionalBinder.class);
-
-          ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
-          serverScope.in(Singleton.class);
-
-          AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
-          expect(serverBinding.to(UndertowServer.class)).andReturn(serverScope);
-
-          expect(binder.bind(Server.class)).andReturn(serverBinding);
 
           unit.mockStatic(TypeConverters.class);
           TypeConverters.configure(unit.get(Binder.class));
@@ -531,6 +548,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -572,6 +590,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -620,6 +639,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -640,26 +660,27 @@ public class JoobyTest {
   public void noInjector() throws Exception {
 
     new MockUnit(Binder.class, Jooby.Module.class)
-        .expect(
-            unit -> {
-              unit.mockStatic(Guice.class);
-              expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
-                  .andThrow(new RuntimeException());
+        .expect(unit -> {
+          ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
+          serverScope.in(Singleton.class);
+          expectLastCall().times(0, 1);
 
-              Binder binder = unit.get(Binder.class);
-              unit.mockStatic(OptionalBinder.class);
+          AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
+          expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
 
-              ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
-              serverScope.in(Singleton.class);
+          Binder binder = unit.get(Binder.class);
+          expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
+        })
+        .expect(unit -> {
+          unit.mockStatic(Guice.class);
+          expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
+              .andThrow(new RuntimeException());
 
-              AnnotatedBindingBuilder<Server> serverBinding = unit
-                  .mock(AnnotatedBindingBuilder.class);
-              expect(serverBinding.to(UndertowServer.class)).andReturn(serverScope);
+          unit.mockStatic(OptionalBinder.class);
 
-              expect(binder.bind(Server.class)).andReturn(serverBinding);
-              unit.mockStatic(TypeConverters.class);
-              TypeConverters.configure(unit.get(Binder.class));
-            })
+          unit.mockStatic(TypeConverters.class);
+          TypeConverters.configure(unit.get(Binder.class));
+        })
         .expect(shutdown)
         .expect(config)
         .expect(env)
@@ -676,6 +697,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -729,6 +751,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -757,6 +780,17 @@ public class JoobyTest {
               server.stop();
               expectLastCall().andThrow(new Exception());
 
+              ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
+              serverScope.in(Singleton.class);
+              expectLastCall().times(0, 1);
+
+              AnnotatedBindingBuilder<Server> serverBinding = unit
+                  .mock(AnnotatedBindingBuilder.class);
+              expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
+
+              Binder binder = unit.get(Binder.class);
+              expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
+
               AppPrinter printer = unit.mock(AppPrinter.class);
 
               ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
@@ -776,17 +810,7 @@ public class JoobyTest {
                   .andReturn(
                       injector);
 
-              Binder binder = unit.get(Binder.class);
               unit.mockStatic(OptionalBinder.class);
-
-              ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
-              serverScope.in(Singleton.class);
-
-              AnnotatedBindingBuilder<Server> serverBinding = unit
-                  .mock(AnnotatedBindingBuilder.class);
-              expect(serverBinding.to(UndertowServer.class)).andReturn(serverScope);
-
-              expect(binder.bind(Server.class)).andReturn(serverBinding);
 
               unit.mockStatic(TypeConverters.class);
               TypeConverters.configure(unit.get(Binder.class));
@@ -807,6 +831,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -825,46 +850,45 @@ public class JoobyTest {
   public void stopOnModuleFailure() throws Exception {
 
     new MockUnit(Binder.class, Jooby.Module.class)
-        .expect(
-            unit -> {
-              Server server = unit.mock(Server.class);
-              server.start();
-              server.stop();
+        .expect(unit -> {
+          Server server = unit.mock(Server.class);
+          server.start();
+          server.stop();
 
-              AppPrinter printer = unit.mock(AppPrinter.class);
+          ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
+          serverScope.in(Singleton.class);
+          expectLastCall().times(0, 1);
 
-              ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
-              expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+          AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
+          expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
 
-              Config config = unit.mock(Config.class);
-              expect(config.getString("application.env")).andReturn("dev");
-              expect(config.origin()).andReturn(configOrigin);
+          Binder binder = unit.get(Binder.class);
+          expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
-              Injector injector = unit.mock(Injector.class);
-              expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
-              expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
-              expect(injector.getInstance(Config.class)).andReturn(config);
+          AppPrinter printer = unit.mock(AppPrinter.class);
 
-              unit.mockStatic(Guice.class);
-              expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
-                  .andReturn(
-                      injector);
+          ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
+          expect(configOrigin.description()).andReturn("test.conf, mock.conf");
 
-              Binder binder = unit.get(Binder.class);
-              unit.mockStatic(OptionalBinder.class);
+          Config config = unit.mock(Config.class);
+          expect(config.getString("application.env")).andReturn("dev");
+          expect(config.origin()).andReturn(configOrigin);
 
-              ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
-              serverScope.in(Singleton.class);
+          Injector injector = unit.mock(Injector.class);
+          expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
+          expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
+          expect(injector.getInstance(Config.class)).andReturn(config);
 
-              AnnotatedBindingBuilder<Server> serverBinding = unit
-                  .mock(AnnotatedBindingBuilder.class);
-              expect(serverBinding.to(UndertowServer.class)).andReturn(serverScope);
+          unit.mockStatic(Guice.class);
+          expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
+              .andReturn(
+                  injector);
 
-              expect(binder.bind(Server.class)).andReturn(serverBinding);
+          unit.mockStatic(OptionalBinder.class);
 
-              unit.mockStatic(TypeConverters.class);
-              TypeConverters.configure(unit.get(Binder.class));
-            })
+          unit.mockStatic(TypeConverters.class);
+          TypeConverters.configure(unit.get(Binder.class));
+        })
         .expect(shutdown)
         .expect(config)
         .expect(env)
@@ -881,6 +905,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -947,6 +972,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -1021,6 +1047,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -1132,6 +1159,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -1238,6 +1266,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -1334,6 +1363,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -1430,6 +1460,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -1526,6 +1557,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -1622,6 +1654,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -1718,6 +1751,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -1814,6 +1848,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -1910,6 +1945,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -1973,7 +2009,7 @@ public class JoobyTest {
 
     List<Route.Definition> expected = new LinkedList<>();
 
-    String path = "/assets/js/file.js";
+    String path = "/org/jooby/JoobyTest.js";
     new MockUnit(Binder.class, Request.class, Response.class, Route.Chain.class)
         .expect(guice)
         .expect(shutdown)
@@ -2035,6 +2071,7 @@ public class JoobyTest {
           binding.toInstance(unit.capture(Route.Definition.class));
           binding.toInstance(unit.capture(Route.Definition.class));
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -2059,7 +2096,7 @@ public class JoobyTest {
         .run(unit -> {
           Jooby jooby = new Jooby();
 
-          Route.Definition assets = jooby.assets("/assets/**");
+          Route.Definition assets = jooby.assets("/org/jooby/**");
           expected.add(assets);
 
           Route.Definition dir = jooby.assets("/dir/**");
@@ -2067,7 +2104,7 @@ public class JoobyTest {
 
           jooby.start();
 
-          Optional<Route> route = assets.matches(Verb.GET, "/assets/js/file.js",
+          Optional<Route> route = assets.matches(Verb.GET, "/org/jooby/JoobyTest.js",
               MediaType.all, MediaType.ALL);
           assertNotNull(route);
           assertTrue(route.isPresent());
@@ -2077,7 +2114,7 @@ public class JoobyTest {
 
         }, boot, unit -> {
           Asset asset = unit.captured(Asset.class).iterator().next();
-          assertTrue(asset.name().equals(("file.js")));
+          assertTrue(asset.name().equals(("JoobyTest.js")));
         }, unit -> {
           List<Route.Definition> found = unit.captured(Route.Definition.class);
           assertEquals(expected, found);
@@ -2128,6 +2165,7 @@ public class JoobyTest {
 
           expect(binder.bind(ProtoTestRoute.class)).andReturn(null);
         })
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -2253,7 +2291,7 @@ public class JoobyTest {
             unit -> {
               Jooby jooby = new Jooby();
 
-              Route.Filter handler = jooby.staticFile("/assets/js/file.js");
+              Route.Filter handler = jooby.staticFile("/org/jooby/JoobyTest.js");
               assertNotNull(handler);
 
               handler.handle(unit.get(Request.class), unit.get(Response.class),
@@ -2284,6 +2322,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(
@@ -2356,6 +2395,7 @@ public class JoobyTest {
           expect(binder.bind(Session.Definition.class)).andReturn(binding);
         })
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -2427,6 +2467,7 @@ public class JoobyTest {
           expect(multibinder.addBinding()).andReturn(formatString);
         })
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -2479,6 +2520,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -2516,6 +2558,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -2617,6 +2660,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -2637,7 +2681,7 @@ public class JoobyTest {
 
           Jooby jooby = new Jooby();
 
-          jooby.use(ConfigFactory.parseResources("demo.conf"));
+          jooby.use(ConfigFactory.parseResources(getClass(), "JoobyTest.conf"));
 
           jooby.start();
 
@@ -2665,6 +2709,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)
@@ -2702,6 +2747,7 @@ public class JoobyTest {
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
+        .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
         .expect(webSockets)

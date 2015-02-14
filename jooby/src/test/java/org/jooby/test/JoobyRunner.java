@@ -66,7 +66,7 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
           .withValue("undertow.socket.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
           .withValue("undertow.worker.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
           .withValue("undertow.ioThreads", ConfigValueFactory.fromAnyRef(2))
-          .withValue("undertow.workerThreads", ConfigValueFactory.fromAnyRef(2));
+          .withValue("undertow.workerThreads", ConfigValueFactory.fromAnyRef(1));
 
       app = (Jooby) appClass.newInstance();
       app.use(new Jooby.Module() {

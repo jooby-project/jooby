@@ -1,13 +1,9 @@
 package org.jooby.jackson;
 
-import static org.junit.Assert.assertEquals;
-
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.ContentType;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
@@ -34,8 +30,7 @@ public class JsonFeature extends ServerFeature {
     use(new Json());
 
     get("/members", req ->
-      Lists.newArrayList(ImmutableMap.<String, Object> of("id", 1, "name", "pablo"))
-    );
+        Lists.newArrayList(ImmutableMap.<String, Object> of("id", 1, "name", "pablo")));
 
     post("/members", req -> {
       List<Map<String, Object>> members = req.body(new TypeLiteral<List<Map<String, Object>>>() {
@@ -49,19 +44,26 @@ public class JsonFeature extends ServerFeature {
 
   @Test
   public void get() throws URISyntaxException, Exception {
-    assertEquals("[{\"id\":1,\"name\":\"pablo\"}]", Request.Get(uri("members").build()).execute()
-        .returnContent().asString());
+    request()
+        .get("/members")
+        .expect("[{\"id\":1,\"name\":\"pablo\"}]")
+        .header("Content-Type", "application/json;charset=UTF-8");
   }
 
   @Test
   public void post() throws URISyntaxException, Exception {
-    assertEquals("[{\"id\":1,\"name\":\"vilma\"}]", Request.Post(uri("members").build())
-        .bodyString("[{\"id\":1,\"name\":\"vilma\"}]", ContentType.APPLICATION_JSON).execute()
-        .returnContent().asString());
+    request()
+        .post("/members")
+        .body("[{\"id\":1,\"name\":\"vilma\"}]", "application/json")
+        .expect("[{\"id\":1,\"name\":\"vilma\"}]")
+        .header("Content-Type", "application/json;charset=UTF-8");
 
-    assertEquals("[{\"id\":1,\"name\":\"vilma\"}]", Request.Post(uri("r", "members").build())
-        .bodyString("[{\"id\":1,\"name\":\"vilma\"}]", ContentType.APPLICATION_JSON).execute()
-        .returnContent().asString());
+    request()
+        .post("/r/members")
+        .body("[{\"id\":1,\"name\":\"vilma\"}]", "application/json")
+        .expect("[{\"id\":1,\"name\":\"vilma\"}]")
+        .header("Content-Type", "application/json;charset=UTF-8");
+
   }
 
 }

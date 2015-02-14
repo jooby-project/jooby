@@ -108,6 +108,14 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- Servers -->
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-undertow</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 </project>

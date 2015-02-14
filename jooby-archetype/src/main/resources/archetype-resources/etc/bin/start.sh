@@ -46,4 +46,4 @@ echo "Logback file: $LOGBACK_FILE"
 echo "JVM options: $JAVA_OPTIONS"
 echo "Starting $APP_MAIN"
 
-java $VM_ARGS &
+nohup java $VM_ARGS > /dev/null 2>&1 &

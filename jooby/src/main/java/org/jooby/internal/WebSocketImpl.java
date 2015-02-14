@@ -19,29 +19,30 @@
 package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
-import io.undertow.websockets.core.WebSocketCallback;
-import io.undertow.websockets.core.WebSocketChannel;
-import io.undertow.websockets.core.WebSockets;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.jooby.Body;
+import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.WebSocket;
 import org.jooby.fn.ExSupplier;
+import org.jooby.internal.reqparam.RootParamConverter;
+import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xnio.IoUtils;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -75,7 +76,7 @@ public class WebSocketImpl implements WebSocket {
     log.error("execution of WS" + path() + " resulted in exception", cause);
   };
 
-  private WebSocketChannel channel;
+  private NativeWebSocket ws;
 
   private Injector injector;
 
@@ -94,26 +95,13 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void close(final CloseStatus status) {
-    WebSockets.sendClose(status.code(), status.reason(), channel, new WebSocketCallback<Void>() {
-
-      @Override
-      public void onError(final WebSocketChannel channel, final Void context,
-          final Throwable throwable) {
-        log.error("closing web socket resulted in exception: " + status, throwable);
-        IoUtils.safeClose(channel);
-      }
-
-      @Override
-      public void complete(final WebSocketChannel channel, final Void context) {
-        IoUtils.safeClose(channel);
-      }
-    });
+    ws.close(status.code(), status.reason());
   }
 
   @Override
   public void resume() {
     if (suspended) {
-      channel.resumeReceives();
+      ws.resume();
       suspended = false;
     }
   }
@@ -121,14 +109,14 @@ public class WebSocketImpl implements WebSocket {
   @Override
   public void pause() {
     if (!suspended) {
-      channel.suspendReceives();
+      ws.pause();
       suspended = true;
     }
   }
 
   @Override
   public void terminate() throws Exception {
-    channel.close();
+    ws.terminte();
   }
 
   @Override
@@ -137,53 +125,18 @@ public class WebSocketImpl implements WebSocket {
     requireNonNull(data, "A data message is required.");
     requireNonNull(success, "A success callback is required.");
     requireNonNull(err, "An error callback is required.");
-    WebSocketCallback<Void> callback = new WebSocketCallback<Void>() {
-      @Override
-      public void complete(final WebSocketChannel channel, final Void context) {
-        try {
-          success.invoke();
-        } catch (Exception ex) {
-          log.debug("Error while invoking write success callback", ex);
-        }
-      }
-
-      @Override
-      public void onError(final WebSocketChannel channel, final Void context, final Throwable cause) {
-        err.invoke(cause);
-      }
-    };
 
     Optional<Body.Formatter> formatter = injector.getInstance(BodyConverterSelector.class)
         .formatter(data, ImmutableList.of(produces));
     if (formatter.isPresent()) {
-      ExSupplier<OutputStream> stream = () -> {
-        return stream(channel, callback, false);
-      };
-      ExSupplier<Writer> writer = () -> {
-        return new PrintWriter(stream(channel, callback, true));
-      };
+      ExSupplier<OutputStream> stream = () -> stream(ws, success, err, false);
+      ExSupplier<Writer> writer = () -> new OutputStreamWriter(stream(ws, success, err, true),
+          Charsets.UTF_8);
       formatter.get().format(data, new BodyWriterImpl(Charsets.UTF_8, stream, writer));
     } else {
       // TODO: complete me!
-      WebSockets.sendText(data.toString(), channel, callback);
+      ws.send(data.toString(), success, err);
     }
-  }
-
-  private static OutputStream stream(final WebSocketChannel channel,
-      final WebSocketCallback<Void> callback,
-      final boolean text) {
-    return new ByteArrayOutputStream() {
-      @Override
-      public void close() throws IOException {
-        // TODO: auto handle partial content?
-        if (text) {
-          WebSockets.sendText(toString(), channel, callback);
-        } else {
-          // binary
-          WebSockets.sendBinary(ByteBuffer.wrap(toByteArray()), channel, callback);
-        }
-      }
-    };
   }
 
   @Override
@@ -191,10 +144,45 @@ public class WebSocketImpl implements WebSocket {
     this.messageCallback = requireNonNull(callback, "Message callback is required.");
   }
 
-  public void connect(final Injector injector, final WebSocketChannel channel) throws Exception {
+  public void connect(final Injector injector, final NativeWebSocket ws) {
     this.injector = requireNonNull(injector, "An injector is required.");
-    this.channel = requireNonNull(channel, "A channel is required.");
-    handler.connect(this);
+    this.ws = requireNonNull(ws, "A channel is required.");
+
+    /**
+     * Bind callbacks
+     */
+    ws.onBinaryMessage(buffer -> {
+      try {
+        messageCallback.invoke(new WsBinaryMessage(buffer));
+      } catch (Throwable ex) {
+        handleErr(ex);
+      }
+    });
+    ws.onTextMessage(message -> {
+      try {
+        messageCallback.invoke(
+            new MutantImpl(injector.getInstance(RootParamConverter.class), new Object[]{message })
+            );
+      } catch (Throwable ex) {
+        handleErr(ex);
+      }
+    });
+    ws.onCloseMessage((code, reason) -> {
+      try {
+        closeCallback.invoke(reason.map(r -> WebSocket.CloseStatus.of(code, r)).orElse(
+            WebSocket.CloseStatus.of(code)));
+      } catch (Throwable ex) {
+        handleErr(ex);
+      }
+    });
+    ws.onErrorMessage(cause -> handleErr(cause));
+
+    // connect now
+    try {
+      handler.connect(this);
+    } catch (Throwable ex) {
+      handleErr(ex);
+    }
   }
 
   @Override
@@ -238,23 +226,6 @@ public class WebSocketImpl implements WebSocket {
     return buffer.toString();
   }
 
-  public void fireMessage(final Mutant variant) throws Exception {
-    this.messageCallback.invoke(variant);
-  }
-
-  public void fireErr(final Throwable cause) {
-    exceptionCallback.invoke(cause);
-  }
-
-  public void fireClose(final CloseStatus closeStatus) throws Exception {
-    try {
-      closeCallback.invoke(closeStatus);
-    } finally {
-      channel = null;
-      injector = null;
-    }
-  }
-
   @Override
   public void onError(final WebSocket.ErrCallback callback) {
     this.exceptionCallback = requireNonNull(callback, "A callback is required.");
@@ -269,4 +240,54 @@ public class WebSocketImpl implements WebSocket {
   private static <T> Callback<T> noop() {
     return NOOP;
   }
+
+  private void handleErr(final Throwable cause) {
+    try {
+      exceptionCallback.invoke(cause);
+    } finally {
+      cleanup(cause);
+    }
+  }
+
+  private void cleanup(final Throwable cause) {
+    NativeWebSocket lws = ws;
+    this.ws = null;
+    this.injector = null;
+    this.handler = null;
+    this.closeCallback = null;
+    this.exceptionCallback = null;
+    this.messageCallback = null;
+
+    if (lws.isOpen()) {
+      WebSocket.CloseStatus closeStatus = WebSocket.SERVER_ERROR;
+      if (cause instanceof IllegalArgumentException) {
+        closeStatus = WebSocket.BAD_DATA;
+      } else if (cause instanceof NoSuchElementException) {
+        closeStatus = WebSocket.BAD_DATA;
+      } else if (cause instanceof Err) {
+        Err err = (Err) cause;
+        if (err.statusCode() == 400) {
+          closeStatus = WebSocket.BAD_DATA;
+        }
+      }
+      String reason = closeStatus.reason() + " " + Strings.nullToEmpty(cause.getMessage());
+      lws.close(closeStatus.code(), reason.trim());
+    }
+  }
+
+  private static OutputStream stream(final NativeWebSocket ws, final SuccessCallback success,
+      final ErrCallback err, final boolean text) {
+    return new ByteArrayOutputStream(1024) {
+      @Override
+      public void close() throws IOException {
+        // TODO: auto handle partial content?
+        if (text) {
+          ws.send(new String(buf, 0, count, Charsets.UTF_8), success, err);
+        } else {
+          ws.send(ByteBuffer.wrap(buf, 0, count), success, err);
+        }
+      }
+    };
+  }
+
 }

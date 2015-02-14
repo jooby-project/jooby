@@ -160,11 +160,6 @@ public class RequestTest {
     }
 
     @Override
-    public Request unset() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public <T> Optional<T> unset(final String name) {
       throw new UnsupportedOperationException();
     }
