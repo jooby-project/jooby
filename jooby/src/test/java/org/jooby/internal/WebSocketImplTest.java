@@ -179,7 +179,7 @@ public class WebSocketImplTest {
         .expect(callbacks)
         .expect(unit -> {
           NativeWebSocket ws = unit.get(NativeWebSocket.class);
-          ws.terminte();
+          ws.terminate();
         })
         .run(unit -> {
           WebSocketImpl ws = new WebSocketImpl(

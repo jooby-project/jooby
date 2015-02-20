@@ -455,6 +455,7 @@ public class JoobyTest {
     Server server = unit.mock(Server.class);
 
     server.start();
+    server.join();
     server.stop();
 
     ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
@@ -474,6 +475,8 @@ public class JoobyTest {
 
     Config config = unit.mock(Config.class);
     expect(config.getString("application.env")).andReturn("dev");
+    expect(config.hasPath("server.join")).andReturn(true);
+    expect(config.getBoolean("server.join")).andReturn(true);
     expect(config.origin()).andReturn(configOrigin);
 
     Injector injector = unit.mock(Injector.class);
@@ -498,6 +501,7 @@ public class JoobyTest {
         .expect(unit -> {
           Server server = unit.mock(Server.class);
           server.start();
+          server.join();
           server.stop();
 
           ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
@@ -517,6 +521,8 @@ public class JoobyTest {
 
           Config config = unit.mock(Config.class);
           expect(config.getString("application.env")).andReturn("dev");
+          expect(config.hasPath("server.join")).andReturn(true);
+          expect(config.getBoolean("server.join")).andReturn(true);
           expect(config.origin()).andReturn(configOrigin);
 
           Injector injector = unit.mock(Injector.class);
@@ -777,6 +783,7 @@ public class JoobyTest {
             unit -> {
               Server server = unit.mock(Server.class);
               server.start();
+              server.join();
               server.stop();
               expectLastCall().andThrow(new Exception());
 
@@ -798,6 +805,8 @@ public class JoobyTest {
 
               Config config = unit.mock(Config.class);
               expect(config.getString("application.env")).andReturn("dev");
+              expect(config.hasPath("server.join")).andReturn(true);
+              expect(config.getBoolean("server.join")).andReturn(true);
               expect(config.origin()).andReturn(configOrigin);
 
               Injector injector = unit.mock(Injector.class);
@@ -853,6 +862,7 @@ public class JoobyTest {
         .expect(unit -> {
           Server server = unit.mock(Server.class);
           server.start();
+          server.join();
           server.stop();
 
           ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
@@ -872,6 +882,8 @@ public class JoobyTest {
 
           Config config = unit.mock(Config.class);
           expect(config.getString("application.env")).andReturn("dev");
+          expect(config.hasPath("server.join")).andReturn(true);
+          expect(config.getBoolean("server.join")).andReturn(true);
           expect(config.origin()).andReturn(configOrigin);
 
           Injector injector = unit.mock(Injector.class);

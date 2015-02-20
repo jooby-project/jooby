@@ -28,8 +28,6 @@ import org.jooby.WebSocket;
 
 public interface NativeWebSocket {
 
-  void close(int status);
-
   void close(int status, String reason);
 
   void resume();
@@ -46,7 +44,7 @@ public interface NativeWebSocket {
 
   void pause();
 
-  void terminte() throws IOException;
+  void terminate() throws IOException;
 
   void send(ByteBuffer data, WebSocket.SuccessCallback success, WebSocket.ErrCallback err);
 

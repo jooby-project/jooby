@@ -20,13 +20,16 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -70,6 +73,9 @@ public class ResponseImpl implements Response {
 
   private Status status;
 
+  private Map<String, Cookie> cookies = new HashMap<>();
+
+  private List<String> clearCookies = new ArrayList<>();
 
   public ResponseImpl(final Injector injector,
       final NativeResponse rsp,
@@ -106,15 +112,16 @@ public class ResponseImpl implements Response {
 
   @Override
   public Response cookie(final Cookie cookie) {
-    rsp.cookie(requireNonNull(cookie, "A cookie is required."));
+    requireNonNull(cookie, "A cookie is required.");
+    cookies.put(cookie.name(), cookie);
     return this;
   }
 
   @Override
   public Response clearCookie(final String name) {
     requireNonNull(name, "A cookie's name is required.");
-    rsp.clearCookie(name);
-
+    cookies.remove(name);
+    clearCookies.add(name);
     return this;
   }
 
@@ -286,11 +293,12 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public void end() {
+  public void end() throws IOException {
     if (!committed()) {
       if (status == null) {
-        status(200);
+        status(rsp.statusCode());
       }
+      cookies();
     }
     // this is a noop when response has been set, still call it...
     rsp.end();
@@ -324,6 +332,8 @@ public class ResponseImpl implements Response {
           header(name, value);
         }
       });
+
+    cookies();
 
     if (route.verb().is(Verb.HEAD)) {
       end();
@@ -364,12 +374,21 @@ public class ResponseImpl implements Response {
     end();
   }
 
+  private void cookies() {
+    this.cookies.forEach((name, cookie) -> rsp.cookie(cookie));
+    this.clearCookies.forEach(rsp::clearCookie);
+    this.cookies.clear();
+    this.clearCookies.clear();
+  }
+
   public List<MediaType> viewableTypes() {
     return selector.viewableTypes();
   }
 
   public void reset() {
     status = null;
+    this.cookies.clear();
+    this.clearCookies.clear();
     rsp.reset();
   }
 

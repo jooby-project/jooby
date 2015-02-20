@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.undertow.internal;
+package org.jooby.internal.undertow;
 
 import static java.util.Objects.requireNonNull;
 import io.undertow.io.UndertowOutputStream;
@@ -37,6 +37,7 @@ import org.jooby.spi.NativeResponse;
 public class UndertowResponse implements NativeResponse {
 
   private HttpServerExchange exchange;
+
   private OutputStream stream;
 
   public UndertowResponse(final HttpServerExchange exchange)

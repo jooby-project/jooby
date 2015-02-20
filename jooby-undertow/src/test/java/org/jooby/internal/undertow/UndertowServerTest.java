@@ -1,11 +1,11 @@
-package org.jooby.undertow.internal;
+package org.jooby.internal.undertow;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 import io.undertow.Undertow.Builder;
 
 import org.jooby.MockUnit;
-import org.jooby.undertow.internal.UndertowServer;
+import org.jooby.internal.undertow.UndertowServer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

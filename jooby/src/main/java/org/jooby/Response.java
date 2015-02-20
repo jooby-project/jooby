@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -222,7 +223,7 @@ public interface Response {
     }
 
     @Override
-    public void end() {
+    public void end() throws IOException {
       rsp.end();
     }
 
@@ -841,7 +842,8 @@ public interface Response {
    *
    * Keep in mind that an explicit call to this method will stop the execution of handlers. So,
    * any handler further in the chain won't be executed once end has been called.
+   * @throws IOException If something goes wrong.
    */
-  void end();
+  void end() throws IOException;
 
 }

@@ -38,6 +38,8 @@
                     <source>${project.parent.basedir}/jooby-hbs/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-jackson/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-jdbc/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-undertow/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-jetty/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -170,6 +172,19 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- Servers -->
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-undertow</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-jetty</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- H2 database -->
     <dependency>
       <groupId>com.h2database</groupId>
@@ -233,14 +248,6 @@
     <dependency>
       <groupId>com.ning</groupId>
       <artifactId>async-http-client</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Servers -->
-    <dependency>
-      <groupId>org.jooby</groupId>
-      <artifactId>jooby-undertow</artifactId>
-      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 

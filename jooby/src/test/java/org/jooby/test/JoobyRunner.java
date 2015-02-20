@@ -27,6 +27,7 @@ import java.util.List;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.MultipleFailureException;
 import org.junit.runners.model.Statement;
@@ -46,20 +47,45 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
 
   private int securePort;
 
+  private Class<?> server;
+
   public JoobyRunner(final Class<?> klass) throws InitializationError {
     super(klass);
-    start(klass);
+    start(klass, null);
   }
 
-  private void start(final Class<?> klass) throws InitializationError {
+  public JoobyRunner(final Class<?> klass, final Class<?> server) throws InitializationError {
+    super(klass);
+    start(klass, server);
+  }
+
+  @Override
+  protected String getName() {
+    if (server != null) {
+      return "[" + server.getSimpleName().toLowerCase() + "]";
+    }
+    return super.getName();
+  }
+
+  @Override
+  protected String testName(final FrameworkMethod method) {
+    if (server != null) {
+      return method.getName() + getName();
+    }
+    return super.testName(method);
+  }
+
+  private void start(final Class<?> klass, final Class<?> server) throws InitializationError {
     try {
+      this.server = server;
       Class<?> appClass = klass;
       port = freePort();
       securePort = freePort();
       if (!Jooby.class.isAssignableFrom(appClass)) {
         throw new InitializationError("Invalid jooby app: " + appClass);
       }
-      Config testConfig = ConfigFactory.empty()
+      Config config = ConfigFactory.empty()
+          .withValue("server.join", ConfigValueFactory.fromAnyRef(false))
           .withValue("application.port", ConfigValueFactory.fromAnyRef(port))
           .withValue("application.securePort", ConfigValueFactory.fromAnyRef(securePort))
           .withValue("undertow.server.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
@@ -67,6 +93,12 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
           .withValue("undertow.worker.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
           .withValue("undertow.ioThreads", ConfigValueFactory.fromAnyRef(2))
           .withValue("undertow.workerThreads", ConfigValueFactory.fromAnyRef(1));
+
+      if (server != null) {
+        config = config.withFallback(ConfigFactory.empty()
+            .withValue("server.module", ConfigValueFactory.fromAnyRef(server.getName())));
+      }
+      Config testConfig = config;
 
       app = (Jooby) appClass.newInstance();
       app.use(new Jooby.Module() {

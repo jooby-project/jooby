@@ -40,4 +40,6 @@ public interface Server {
    */
   void stop() throws Exception;
 
+  void join() throws InterruptedException;
+
 }

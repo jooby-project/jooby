@@ -116,7 +116,7 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void terminate() throws Exception {
-    ws.terminte();
+    ws.terminate();
   }
 
   @Override
@@ -146,7 +146,7 @@ public class WebSocketImpl implements WebSocket {
 
   public void connect(final Injector injector, final NativeWebSocket ws) {
     this.injector = requireNonNull(injector, "An injector is required.");
-    this.ws = requireNonNull(ws, "A channel is required.");
+    this.ws = requireNonNull(ws, "Web socket is required.");
 
     /**
      * Bind callbacks

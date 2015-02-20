@@ -30,7 +30,7 @@
  * containing Woodstox, in file "ASL2.0", under the same directory
  * as this file.
  */
-package org.jooby.undertow.internal;
+package org.jooby.internal.undertow;
 
 import static java.util.Objects.requireNonNull;
 import io.undertow.websockets.core.AbstractReceiveListener;
@@ -76,7 +76,6 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
     this.channel.getReceiveSetter().set(this);
     this.channel.resumeReceives();
   }
-
 
   @Override
   public void onConnect(final Runnable callback) {
@@ -133,11 +132,6 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
   }
 
   @Override
-  public void close(final int status) {
-    close(status, null);
-  }
-
-  @Override
   public void close(final int status, final String reason) {
     WebSockets.sendClose(status, reason, channel, new WebSocketCallback<Void>() {
 
@@ -167,7 +161,8 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
   }
 
   @Override
-  public void terminte() throws IOException {
+  public void terminate() throws IOException {
+    this.onCloseCallback.accept(1006, Optional.of("Harsh disconnect"));
     IoUtils.safeClose(channel);
   }
 

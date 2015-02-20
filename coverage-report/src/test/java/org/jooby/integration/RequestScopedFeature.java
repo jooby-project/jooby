@@ -15,7 +15,7 @@ public class RequestScopedFeature extends ServerFeature {
   @RequestScoped
   public static class RequestScopedObject {
 
-    private static int instances = 0;
+    static int instances = 0;
 
     {
       instances += 1;
@@ -32,7 +32,7 @@ public class RequestScopedFeature extends ServerFeature {
 
     static int instances = 0;
 
-    static {
+    {
       instances += 1;
     }
 
@@ -58,7 +58,7 @@ public class RequestScopedFeature extends ServerFeature {
 
     static int instances = 0;
 
-    static {
+    {
       instances += 1;
     }
 
@@ -92,6 +92,10 @@ public class RequestScopedFeature extends ServerFeature {
 
   @Test
   public void numberOfInstances() throws Exception {
+    RequestScopedObject.instances = 0;
+    DefScope.instances = 0;
+    SingletonScope.instances = 0;
+
     request()
         .get("/")
         .expect("1");
@@ -102,7 +106,7 @@ public class RequestScopedFeature extends ServerFeature {
 
     request()
         .get("/r")
-        .expect("d1:3");
+        .expect("d2:3");
 
     request()
         .get("/s")

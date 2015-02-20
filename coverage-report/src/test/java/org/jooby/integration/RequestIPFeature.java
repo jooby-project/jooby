@@ -1,5 +1,7 @@
 package org.jooby.integration;
 
+import static org.junit.Assert.fail;
+
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -24,7 +26,12 @@ public class RequestIPFeature extends ServerFeature {
   public void hostname() throws Exception {
     request()
         .get("/hostname")
-        .expect("localhost");
+        .expect(rsp -> {
+          if ("localhost".equals(rsp) || "127.0.0.1".equals(rsp)) {
+            return;
+          }
+          fail(rsp);
+        });
   }
 
 }

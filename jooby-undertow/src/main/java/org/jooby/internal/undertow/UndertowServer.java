@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.undertow.internal;
+package org.jooby.internal.undertow;
 
 import io.undertow.Undertow.Builder;
 import io.undertow.UndertowOptions;
@@ -139,6 +139,11 @@ public class UndertowServer implements org.jooby.spi.Server {
   @Override
   public void start() throws Exception {
     server.start();
+  }
+
+  @Override
+  public void join() throws InterruptedException {
+    // NOOP
   }
 
   @Override

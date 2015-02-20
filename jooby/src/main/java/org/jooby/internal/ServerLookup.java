@@ -15,9 +15,9 @@ public class ServerLookup implements Module {
 
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
-    if (config.hasPath("jooby.server")) {
+    if (config.hasPath("server.module")) {
       try {
-        delegate = (Jooby.Module) Class.forName(config.getString("jooby.server")).newInstance();
+        delegate = (Jooby.Module) Class.forName(config.getString("server.module")).newInstance();
         delegate.configure(env, config, binder);
       } catch (Exception ex) {
         throw new IllegalStateException("No " + Server.class.getName()

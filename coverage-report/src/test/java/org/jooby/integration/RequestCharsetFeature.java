@@ -6,10 +6,7 @@ import org.junit.Test;
 public class RequestCharsetFeature extends ServerFeature {
 
   {
-
-    get("/", (req, resp) ->
-        resp.send(req.charset()));
-
+    get("/", (req, resp) -> resp.send(req.charset()));
   }
 
   @Test

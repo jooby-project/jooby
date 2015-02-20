@@ -95,7 +95,7 @@ public class CookieDefinitionTest {
   @Test
   public void cookieVersion() {
     Definition def = new Cookie.Definition("name");
-    assertEquals(0, def.toCookie().version());
+    assertEquals(1, def.toCookie().version());
   }
 
   @Test

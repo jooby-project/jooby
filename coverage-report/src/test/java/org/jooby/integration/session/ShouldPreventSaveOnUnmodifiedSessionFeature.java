@@ -12,10 +12,9 @@ import org.junit.Test;
 
 public class ShouldPreventSaveOnUnmodifiedSessionFeature extends ServerFeature {
 
-  private static final CountDownLatch latch = new CountDownLatch(2);
+  private static CountDownLatch latch = null;
 
   {
-
     use(new Session.MemoryStore() {
 
       @Override
@@ -28,6 +27,7 @@ public class ShouldPreventSaveOnUnmodifiedSessionFeature extends ServerFeature {
       public void save(final Session session) {
         super.save(session);
         latch.countDown();
+        throw new IllegalStateException();
       }
     });
 
@@ -41,6 +41,8 @@ public class ShouldPreventSaveOnUnmodifiedSessionFeature extends ServerFeature {
 
   @Test
   public void shouldPreventSaveOnUnmodifiedSession() throws Exception {
+    latch = new CountDownLatch(2);
+
     request()
         .get("/shouldPreventSaveOnUnmodifiedSession")
         .expect(200)

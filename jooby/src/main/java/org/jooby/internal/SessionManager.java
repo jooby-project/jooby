@@ -149,8 +149,12 @@ public class SessionManager {
       store.create(session);
     } else if (session.isDirty()) {
       store.save(session);
-    } else if ((System.currentTimeMillis() - session.savedAt()) >= saveInterval) {
-      store.save(session);
+    } else {
+      long now = System.currentTimeMillis();
+      long interval = now - session.savedAt();
+      if (interval >= saveInterval) {
+        store.save(session);
+      }
     }
     session.markAsSaved();
   }

@@ -30,7 +30,7 @@
  * containing Woodstox, in file "ASL2.0", under the same directory
  * as this file.
  */
-package org.jooby.undertow.internal;
+package org.jooby.internal.undertow;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;

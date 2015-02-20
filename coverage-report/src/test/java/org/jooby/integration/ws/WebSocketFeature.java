@@ -1,9 +1,10 @@
-package org.jooby.integration;
+package org.jooby.integration.ws;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -27,7 +28,7 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 public class WebSocketFeature extends ServerFeature {
 
-  private static final CountDownLatch closeLatch = new CountDownLatch(1);
+  private static CountDownLatch closeLatch = new CountDownLatch(1);
 
   {
     ws("/connect", (ws) -> {
@@ -76,7 +77,8 @@ public class WebSocketFeature extends ServerFeature {
 
       ws.onClose(status -> {
         assertNotNull(status);
-        assertEquals(1000, status.code());
+        // undertow vs jetty
+        assertTrue(status.code() == 1000 || status.code() == 1005);
         assertNull(status.reason());
         closeLatch.countDown();
       });
@@ -190,7 +192,6 @@ public class WebSocketFeature extends ServerFeature {
               }
             }).build()).get();
     latch.await();
-    System.out.println(messages.get(0).getClass());
     assertEquals(Arrays.asList("=hey!"), messages);
     c.close();
   }
@@ -320,6 +321,8 @@ public class WebSocketFeature extends ServerFeature {
 
   @Test
   public void sendClose() throws Exception {
+    closeLatch = new CountDownLatch(1);
+
     AsyncHttpClientConfig cf = new AsyncHttpClientConfig.Builder().build();
     AsyncHttpClient c = new AsyncHttpClient(cf);
 

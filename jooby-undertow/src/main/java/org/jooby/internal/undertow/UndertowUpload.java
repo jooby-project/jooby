@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.undertow.internal;
+package org.jooby.internal.undertow;
 
 import io.undertow.server.handlers.form.FormData.FormValue;
 import io.undertow.util.HeaderValues;

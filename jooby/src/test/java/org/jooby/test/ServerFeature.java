@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolException;
@@ -37,7 +38,7 @@ import org.junit.runner.RunWith;
 
 import com.google.common.base.Joiner;
 
-@RunWith(JoobyRunner.class)
+@RunWith(JoobySuite.class)
 public abstract class ServerFeature extends Jooby {
 
   public static class Server {
@@ -236,7 +237,10 @@ public abstract class ServerFeature extends Jooby {
       }
 
       public Response empty() throws Exception {
-        header("Content-Length", "0");
+        HttpEntity entity = this.rsp.getEntity();
+        if (entity != null) {
+          assertEquals("", EntityUtils.toString(entity));
+        }
         return this;
       }
 

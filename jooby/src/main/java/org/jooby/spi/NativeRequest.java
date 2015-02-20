@@ -18,6 +18,7 @@
  */
 package org.jooby.spi;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +33,7 @@ public interface NativeRequest {
 
   List<String> paramNames();
 
-  List<String> params(String name);
+  List<String> params(String name) throws Exception;
 
   List<String> headers(String name);
 
@@ -42,9 +43,9 @@ public interface NativeRequest {
 
   List<Cookie> cookies();
 
-  List<NativeUpload> files(String name);
+  List<NativeUpload> files(String name) throws IOException;
 
-  InputStream in();
+  InputStream in() throws IOException;
 
   String ip();
 

@@ -22,7 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.function.BiConsumer;
-import java.util.function.Supplier;
 
 import com.google.common.io.Closeables;
 
@@ -35,14 +34,14 @@ public class FastByteArrayOutputStream extends ByteArrayOutputStream {
 
   private BiConsumer<String, String> headers;
 
-  private Supplier<OutputStream> stream;
+  private IOSupplier<OutputStream> stream;
 
-  public FastByteArrayOutputStream(final Supplier<OutputStream> stream,
+  public FastByteArrayOutputStream(final IOSupplier<OutputStream> stream,
       final BiConsumer<String, String> headers) {
     this(stream, headers, 1024);
   }
 
-  public FastByteArrayOutputStream(final Supplier<OutputStream> stream,
+  public FastByteArrayOutputStream(final IOSupplier<OutputStream> stream,
       final BiConsumer<String, String> headers, final int size) {
     super(size);
     this.stream = stream;

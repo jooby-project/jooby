@@ -22,8 +22,8 @@ import javax.inject.Singleton;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
+import org.jooby.internal.undertow.UndertowServer;
 import org.jooby.spi.Server;
-import org.jooby.undertow.internal.UndertowServer;
 
 import com.google.inject.Binder;
 import com.typesafe.config.Config;

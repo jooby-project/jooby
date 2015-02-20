@@ -51,7 +51,9 @@ public class ShouldDestroyAndExpireCookieFeature extends ServerFeature {
         .expect(200)
         .header("Set-Cookie", setCookie -> {
           assertNotNull(setCookie);
-          assertTrue(setCookie.endsWith("01-Jan-1970 00:00:00 GMT"));
+          if (!setCookie.endsWith("01-Jan-1970 00:00:00 GMT;Max-Age=0")) {
+            assertTrue(setCookie.endsWith("Max-Age=0"));
+          }
         });
 
     latch.await();

@@ -51,6 +51,7 @@ o * Licensed to the Apache Software Foundation (ASF) under one
 package org.jooby;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
@@ -520,6 +521,11 @@ public class Jooby {
   public @Nonnull Jooby env(final Env.Builder env) {
     this.env = requireNonNull(env, "Env builder is required.");
     return this;
+  }
+
+  public <T> T require(final Class<T> type) {
+    checkState(injector != null, "App didn't start yet");
+    return injector.getInstance(type);
   }
 
   /**
@@ -1860,11 +1866,17 @@ public class Jooby {
     if (log.isDebugEnabled()) {
       log.debug("config tree:\n{}", configTree(config.origin().description()));
     }
+
     log.info("[{}]: {} server started in {}ms\n\n{}\n",
         config.getString("application.env"),
         getClass().getSimpleName(),
         end - start,
         injector.getInstance(AppPrinter.class));
+
+    boolean join = config.hasPath("server.join") ? config.getBoolean("server.join") : true;
+    if (join) {
+      server.join();
+    }
   }
 
   private String configTree(final String description) {

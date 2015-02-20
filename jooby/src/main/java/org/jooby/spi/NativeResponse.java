@@ -18,6 +18,7 @@
  */
 package org.jooby.spi;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +40,7 @@ public interface NativeResponse {
 
   void header(String name, String value);
 
-  OutputStream out();
+  OutputStream out() throws IOException;
 
   int statusCode();
 
@@ -47,7 +48,7 @@ public interface NativeResponse {
 
   boolean committed();
 
-  void end();
+  void end() throws IOException;
 
   void reset();
 

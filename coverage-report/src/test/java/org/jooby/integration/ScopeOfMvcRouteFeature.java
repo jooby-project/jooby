@@ -13,7 +13,7 @@ public class ScopeOfMvcRouteFeature extends ServerFeature {
 
   public static class RequestScoped {
 
-    private static int instances = 0;
+    static int instances = 0;
 
     {
       instances += 1;
@@ -29,7 +29,7 @@ public class ScopeOfMvcRouteFeature extends ServerFeature {
   @Singleton
   public static class Single {
 
-    private static int instances = 0;
+    static int instances = 0;
 
     private Provider<RequestScoped> requestScoped;
 
@@ -49,7 +49,7 @@ public class ScopeOfMvcRouteFeature extends ServerFeature {
   @Path("/p")
   public static class Proto {
 
-    private static int instances = 0;
+    static int instances = 0;
     private RequestScoped requestScoped;
 
     @Inject
@@ -74,6 +74,10 @@ public class ScopeOfMvcRouteFeature extends ServerFeature {
 
   @Test
   public void singleton() throws Exception {
+    RequestScoped.instances = 0;
+    Single.instances = 0;
+    Proto.instances = 0;
+
     request()
         .get("/s")
         .expect("1=1");
@@ -90,17 +94,21 @@ public class ScopeOfMvcRouteFeature extends ServerFeature {
 
   @Test
   public void proto() throws Exception {
-    request()
-        .get("/p")
-        .expect("1=4");
+    RequestScoped.instances = 0;
+    Single.instances = 0;
+    Proto.instances = 0;
 
     request()
         .get("/p")
-        .expect("2=5");
+        .expect("1=1");
 
     request()
         .get("/p")
-        .expect("3=6");
+        .expect("2=2");
+
+    request()
+        .get("/p")
+        .expect("3=3");
 
   }
 

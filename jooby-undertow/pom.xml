@@ -12,7 +12,7 @@
   <artifactId>jooby-undertow</artifactId>
 
   <name>undertow module</name>
-  <description>High performance web server</description>
+  <description>Undertow web server</description>
 
   <build>
     <plugins>

@@ -215,7 +215,7 @@ public interface Cookie {
 
         @Override
         public int version() {
-          return 0;
+          return 1;
         }
 
         @Override

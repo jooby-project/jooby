@@ -8,6 +8,8 @@
 
   <logger name="org.jooby.internal.SessionManager" level="DEBUG" />
 
+  <logger name="org.eclipse.jetty" level="INFO" />
+
   <root level="debug">
     <appender-ref ref="STDOUT" />
   </root>

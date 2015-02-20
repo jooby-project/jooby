@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.undertow.internal;
+package org.jooby.internal.undertow;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
@@ -164,7 +164,7 @@ public class UndertowRequest implements NativeRequest {
       return "";
     }
     InetAddress address = sourceAddress.getAddress();
-    return address == null ? "" : address.getHostName();
+    return address == null ? ip() : address.getHostName();
   }
 
   @Override
