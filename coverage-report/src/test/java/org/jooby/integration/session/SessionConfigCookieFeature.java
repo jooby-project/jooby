@@ -59,12 +59,14 @@ public class SessionConfigCookieFeature extends ServerFeature {
                       .splitToList(value)
                   );
 
+              System.out.println(setCookie);
               assertTrue(setCookie.remove(0).startsWith("custom.sid"));
-              assertTrue(setCookie.remove("Path=/session"));
-              assertTrue(setCookie.remove("HttpOnly"));
+              assertTrue(setCookie.remove("Path=/session") || setCookie.remove("Path=\"/session\""));
+              assertTrue(setCookie.remove("HttpOnly") || setCookie.remove("HTTPOnly"));
               assertTrue(setCookie.remove("Max-Age=60"));
               assertTrue(setCookie.remove("Domain=localhost"));
               assertTrue(setCookie.remove("Version=1"));
+              setCookie.remove("Comment=\"jooby cookie\"");
               if (setCookie.size() > 0) {
                 // Expires is optional on version=1?
                 assertTrue(setCookie.remove(0).startsWith(

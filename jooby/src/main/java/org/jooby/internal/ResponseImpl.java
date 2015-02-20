@@ -89,7 +89,11 @@ public class ResponseImpl implements Response {
     this.locals = requireNonNull(locals, "Request locals are required.");
 
     this.selector = injector.getInstance(BodyConverterSelector.class);
-    this.setHeader = new SetHeaderImpl((name, value) -> rsp.header(name, value));
+    this.setHeader = new SetHeaderImpl((name, value) -> {
+      if (!committed()) {
+        rsp.header(name, value);
+      }
+    });
     this.charset = requireNonNull(charset, "A charset is required.");
     this.referer = requireNonNull(referer, "A referer header is required.");
   }
@@ -298,9 +302,25 @@ public class ResponseImpl implements Response {
       if (status == null) {
         status(rsp.statusCode());
       }
-      cookies();
+      writeCookies();
+      /**
+       * Do we need to figure it out Content-Length?
+       */
+      boolean lenSet = rsp.header("Content-Length").isPresent()
+          || rsp.header("Transfer-Encoding").isPresent();
+      if (!lenSet) {
+        int statusCode = status.value();
+        boolean hasBody = true;
+        if (statusCode >= 100 && statusCode < 200) {
+          hasBody = false;
+        } else if (statusCode == 204 || statusCode == 304) {
+          hasBody = false;
+        }
+        if (hasBody) {
+          rsp.header("Content-Length", "0");
+        }
+      }
     }
-    // this is a noop when response has been set, still call it...
     rsp.end();
   }
 
@@ -333,7 +353,7 @@ public class ResponseImpl implements Response {
         }
       });
 
-    cookies();
+    writeCookies();
 
     if (route.verb().is(Verb.HEAD)) {
       end();
@@ -374,7 +394,7 @@ public class ResponseImpl implements Response {
     end();
   }
 
-  private void cookies() {
+  private void writeCookies() {
     this.cookies.forEach((name, cookie) -> rsp.cookie(cookie));
     this.clearCookies.forEach(rsp::clearCookie);
     this.cookies.clear();

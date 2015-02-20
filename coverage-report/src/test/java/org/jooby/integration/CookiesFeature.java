@@ -24,19 +24,21 @@ public class CookiesFeature extends ServerFeature {
     }
   }
 
-//  @Before
-//  public void debug() {
-//    java.util.logging.Logger.getLogger("httpclient.wire.header").setLevel(
-//        java.util.logging.Level.FINEST);
-//    // java.util.logging.Logger.getLogger("httpclient.wire.content").setLevel(java.util.logging.Level.FINEST);
-//
-//    System.setProperty("org.apache.commons.logging.Log",
-//        "org.apache.commons.logging.impl.SimpleLog");
-//    System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-//    System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", "debug");
-//    System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http", "debug");
-//    System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.headers", "debug");
-//  }
+  // @Before
+  // public void debug() {
+  // java.util.logging.Logger.getLogger("httpclient.wire.header").setLevel(
+  // java.util.logging.Level.FINEST);
+  // //
+  // java.util.logging.Logger.getLogger("httpclient.wire.content").setLevel(java.util.logging.Level.FINEST);
+  //
+  // System.setProperty("org.apache.commons.logging.Log",
+  // "org.apache.commons.logging.impl.SimpleLog");
+  // System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+  // System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", "debug");
+  // System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http", "debug");
+  // System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.headers",
+  // "debug");
+  // }
 
   {
 
@@ -71,12 +73,16 @@ public class CookiesFeature extends ServerFeature {
   public void responseCookie() throws Exception {
     request()
         .get("/set")
-        .expect("{name=X, value=Optional[x], domain=Optional.empty, path=/set, maxAge=-1, secure=false}")
+        .expect(
+            "{name=X, value=Optional[x], domain=Optional.empty, path=/set, maxAge=-1, secure=false}")
         .header("Set-Cookie", setCookie -> {
-          assertFirst(setCookie, "X=x; Version=1; Path=/set", "X=x;Version=1;Path=/set");
+          String undertow = "X=x; Version=1; Path=/set";
+          String jetty = "X=x;Version=1;Path=/set";
+          String netty = "X=x; Path=\"/set\"; Version=1";
+          assertFirst(setCookie, undertow, jetty, netty);
           request()
               .get("/get")
-              .header("Cookie", "X=x; $Path=/set")
+              .header("Cookie", "X=x; $Path=/set; $Version=1")
               .expect(200)
               .expect("present");
         });
@@ -94,17 +100,20 @@ public class CookiesFeature extends ServerFeature {
   public void clearCookie() throws Exception {
     request()
         .get("/set")
-        .expect("{name=X, value=Optional[x], domain=Optional.empty, path=/set, maxAge=-1, secure=false}")
+        .expect(
+            "{name=X, value=Optional[x], domain=Optional.empty, path=/set, maxAge=-1, secure=false}")
         .header("Set-Cookie", setCookie -> {
-          assertFirst(setCookie, "X=x; Version=1; Path=/set", "X=x;Version=1;Path=/set");
+          assertFirst(setCookie, "X=x; Version=1; Path=/set", "X=x;Version=1;Path=/set",
+              "X=x; Path=\"/set\"; Version=1");
           request()
               .get("/clear")
-              .header("Cookie", "X=x; $Path=/clear")
+              .header("Cookie", "X=x; $Path=/clear; $Version=1")
               .expect(200)
               .header("Set-Cookie", expiredCookie -> {
-                assertFirst(expiredCookie,
-                    "X=x; path=/clear; Max-Age=0; Expires=Thu, 01-Jan-1970 00:00:00 GMT",
-                    "X=x;Path=/clear;Expires=Thu, 01-Jan-1970 00:00:00 GMT");
+                String undertow = "X=x; Version=1; Path=/clear; Max-Age=0";
+                String jetty = "X=x;Path=/clear;Expires=Thu, 01-Jan-1970 00:00:00 GMT";
+                String netty = "X=x; Max-Age=0; Path=\"/clear\"; Version=1";
+                assertFirst(expiredCookie, undertow, jetty, netty);
               });
         });
 

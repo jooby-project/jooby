@@ -17,7 +17,16 @@ import com.google.common.io.CharSink;
 public class BodyParamFeature extends ServerFeature {
 
   private static class Bean {
+    private Object value;
 
+    public Bean(final Object value) {
+      this.value = value;
+    }
+
+    @Override
+    public String toString() {
+      return value.toString();
+    }
   }
 
   @Path("/r")
@@ -35,7 +44,7 @@ public class BodyParamFeature extends ServerFeature {
 
     param((type, values, ctx) -> {
       if (values != null) {
-        return new Bean();
+        return new Bean(values[0]);
       }
       return ctx.convert(type, values);
     });
@@ -49,7 +58,7 @@ public class BodyParamFeature extends ServerFeature {
           public Writer openStream() throws IOException {
             return out;
           }
-        }.write("{}"));
+        }.write(body.toString()));
       }
 
       @Override

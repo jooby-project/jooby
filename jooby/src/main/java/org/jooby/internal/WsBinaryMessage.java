@@ -118,7 +118,12 @@ public class WsBinaryMessage implements Mutant {
   public <T> T to(final TypeLiteral<T> type) {
     Class<? super T> rawType = type.getRawType();
     if (rawType == byte[].class) {
-      return (T) buffer.array();
+      if (buffer.hasArray()) {
+        return (T) buffer.array();
+      }
+      byte[] bytes = new byte[buffer.remaining()];
+      buffer.get(bytes);
+      return (T) bytes;
     }
     if (rawType == ByteBuffer.class) {
       return (T) buffer;

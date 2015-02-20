@@ -26,6 +26,7 @@
     <module>jooby-undertow</module>
     <module>jooby-servlet</module>
     <module>jooby-jetty</module>
+    <module>jooby-netty</module>
     <module>coverage-report</module>
   </modules>
 
@@ -177,7 +178,7 @@
         <version>${undertow.version}</version>
       </dependency>
 
-       <!-- Jetty -->
+      <!-- Jetty -->
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-server</artifactId>
@@ -188,6 +189,13 @@
         <groupId>org.eclipse.jetty.websocket</groupId>
         <artifactId>websocket-server</artifactId>
         <version>${jetty.version}</version>
+      </dependency>
+
+      <!-- Netty -->
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-codec-http</artifactId>
+        <version>${netty.version}</version>
       </dependency>
 
       <!-- Jackson 2.x -->
@@ -915,6 +923,7 @@
     <undertow.version>1.2.0.Beta8</undertow.version>
     <servlet.version>3.1.0</servlet.version>
     <jetty.version>9.2.7.v20150116</jetty.version>
+    <netty.version>4.0.9.Final</netty.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
     <logback-classic.version>1.1.2</logback-classic.version>

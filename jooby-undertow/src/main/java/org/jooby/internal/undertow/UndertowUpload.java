@@ -40,6 +40,7 @@ public class UndertowUpload implements NativeUpload {
   @Override
   public void close() throws IOException {
     // undertow will delete the file, we don't have to worry about.
+    file().delete();
   }
 
   @Override

@@ -13,6 +13,8 @@ public class RequestIPFeature extends ServerFeature {
 
     get("/hostname", (req) -> req.hostname());
 
+    get("/protocol", (req) -> req.protocol());
+
   }
 
   @Test
@@ -32,6 +34,13 @@ public class RequestIPFeature extends ServerFeature {
           }
           fail(rsp);
         });
+  }
+
+  @Test
+  public void protocol() throws Exception {
+    request()
+        .get("/protocol")
+        .expect("HTTP/1.1");
   }
 
 }

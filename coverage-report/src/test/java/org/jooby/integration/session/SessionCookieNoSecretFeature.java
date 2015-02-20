@@ -43,10 +43,11 @@ public class SessionCookieNoSecretFeature extends ServerFeature {
           List<String> setCookie = Lists.newArrayList(Splitter.onPattern(";\\s*")
               .splitToList(value));
           assertTrue(setCookie.remove(0).startsWith("custom.sid="));
-          assertTrue(setCookie.remove("Path=/session"));
-          assertTrue(setCookie.remove("HttpOnly"));
+          assertTrue(setCookie.remove("Path=/session") || setCookie.remove("Path=\"/session\""));
+          assertTrue(setCookie.remove("HttpOnly") || setCookie.remove("HTTPOnly"));
           assertTrue(setCookie.remove("Max-Age=60"));
           assertTrue(setCookie.remove("Version=1"));
+          setCookie.remove("Comment=\"jooby cookie\"");
           if (setCookie.size() > 0) {
             // Expires is optional on version=1?
             assertTrue(setCookie.remove(0).startsWith(

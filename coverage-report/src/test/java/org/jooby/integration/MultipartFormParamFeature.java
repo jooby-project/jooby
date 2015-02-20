@@ -24,7 +24,10 @@ public class MultipartFormParamFeature extends ServerFeature {
     @POST
     public String form(final String name, final int age, final Upload myfile) throws IOException {
       try (Upload upload = myfile) {
+        assertEquals(true, myfile.file().exists());
         return name + " " + age + " " + upload.name() + " " + myfile.type().name();
+      } finally {
+        assertEquals(false, myfile.file().exists());
       }
     }
 
@@ -34,7 +37,10 @@ public class MultipartFormParamFeature extends ServerFeature {
       StringBuilder buffer = new StringBuilder();
       for (Upload upload : uploads) {
         try (Upload u = upload) {
+          assertEquals(true, upload.file().exists());
           buffer.append(u.name()).append(" ");
+        } finally {
+          assertEquals(false, upload.file().exists());
         }
       }
       return buffer.toString();

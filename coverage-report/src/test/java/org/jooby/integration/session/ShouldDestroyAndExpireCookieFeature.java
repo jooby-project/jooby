@@ -52,7 +52,7 @@ public class ShouldDestroyAndExpireCookieFeature extends ServerFeature {
         .header("Set-Cookie", setCookie -> {
           assertNotNull(setCookie);
           if (!setCookie.endsWith("01-Jan-1970 00:00:00 GMT;Max-Age=0")) {
-            assertTrue(setCookie.endsWith("Max-Age=0"));
+            assertTrue(setCookie.contains("Max-Age=0"));
           }
         });
 

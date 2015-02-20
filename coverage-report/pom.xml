@@ -40,6 +40,7 @@
                     <source>${project.parent.basedir}/jooby-jdbc/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-undertow/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-jetty/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-netty/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -182,6 +183,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-jetty</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-netty</artifactId>
       <version>${project.version}</version>
     </dependency>
 

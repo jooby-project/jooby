@@ -31,7 +31,7 @@ public interface NativeRequest {
 
   String path();
 
-  List<String> paramNames();
+  List<String> paramNames() throws Exception;
 
   List<String> params(String name) throws Exception;
 
