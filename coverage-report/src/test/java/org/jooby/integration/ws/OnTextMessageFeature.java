@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 
 import org.jooby.test.ServerFeature;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.ning.http.client.AsyncHttpClient;
@@ -21,23 +23,33 @@ public class OnTextMessageFeature extends ServerFeature {
     ws("/ws", (ws) -> {
 
       ws.onMessage(message -> {
-        ws.send("=" + message.stringValue());
-        ws.close();
+        ws.send("=" + message.stringValue(), () -> {
+          ws.close();
+        });
       });
     });
 
   }
 
+  private AsyncHttpClient client;
+
+  @Before
+  public void before() {
+    client = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().build());
+  }
+
+  @After
+  public void after() {
+    client.close();
+  }
+
   @Test
   public void sendText() throws Exception {
-    AsyncHttpClientConfig cf = new AsyncHttpClientConfig.Builder().build();
-    AsyncHttpClient c = new AsyncHttpClient(cf);
-
     LinkedList<String> messages = new LinkedList<>();
 
     CountDownLatch latch = new CountDownLatch(1);
 
-    c.prepareGet(ws("ws").toString())
+    client.prepareGet(ws("ws").toString())
         .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(
             new WebSocketTextListener() {
 
@@ -66,7 +78,6 @@ public class OnTextMessageFeature extends ServerFeature {
             }).build()).get();
     latch.await();
     assertEquals(Arrays.asList("=hey!"), messages);
-    c.close();
   }
 
 }

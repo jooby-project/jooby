@@ -19,6 +19,7 @@
 package org.jooby.internal.undertow;
 
 import static java.util.Objects.requireNonNull;
+import io.undertow.Handlers;
 import io.undertow.io.UndertowOutputStream;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.CookieImpl;
@@ -33,8 +34,14 @@ import java.util.Optional;
 
 import org.jooby.Cookie;
 import org.jooby.spi.NativeResponse;
+import org.jooby.spi.NativeWebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UndertowResponse implements NativeResponse {
+
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(NativeResponse.class);
 
   private HttpServerExchange exchange;
 
@@ -110,6 +117,18 @@ public class UndertowResponse implements NativeResponse {
 
   @Override
   public void end() {
+    NativeWebSocket ws = exchange.getAttachment(UndertowRequest.SOCKET);
+    if (ws != null) {
+      try {
+        Handlers.websocket((wsExchange, channel) -> {
+          ((UndertowWebSocket) ws).connect(channel);
+        }).handleRequest(exchange);
+      } catch (Exception ex) {
+        log.error("Upgrade result in exception", ex);
+      } finally {
+        exchange.removeAttachment(UndertowRequest.SOCKET);
+      }
+    }
     // this is a noop when response has been set, still call it...
     exchange.endExchange();
   }

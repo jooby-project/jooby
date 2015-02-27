@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.jooby.internal.netty;
 
 import io.netty.handler.codec.http.multipart.FileUpload;
@@ -9,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.jooby.MediaType;
 import org.jooby.spi.NativeUpload;
 
 import com.google.common.collect.ImmutableList;
@@ -41,18 +58,17 @@ public class NettyUpload implements NativeUpload {
   @Override
   public Optional<String> header(final String name) {
     switch (name.toLowerCase()) {
-      case "content-length":
-        return Optional.of(Long.toString(data.length()));
+      case "content-transfer-encoding":
+        return Optional.of(data.getContentTransferEncoding());
+      case "content-disposition":
+        return Optional.of("form-data; name=\"" + data.getName() + "\"; filename=\""
+            + data.getFilename() + "\"");
       case "content-type":
-        String contentType = data.getContentType();
-        if (contentType == null) {
-          return Optional.of(MediaType.octetstream.name());
-        }
         Charset charset = data.getCharset();
         if (charset == null) {
-          return Optional.of(contentType);
+          return Optional.ofNullable(data.getContentType());
         }
-        return Optional.of(contentType + "; charset=" + charset.name());
+        return Optional.ofNullable(data.getContentType() + "; charset=" + charset.name());
       default:
         return Optional.empty();
     }

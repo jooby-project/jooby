@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.jooby.test.ServerFeature;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.ning.http.client.AsyncHttpClient;
@@ -30,14 +32,23 @@ public class WebSocketTerminateFeature extends ServerFeature {
 
   }
 
+  private AsyncHttpClient client;
+
+  @Before
+  public void before() {
+    client = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().build());
+  }
+
+  @After
+  public void after() {
+    client.close();
+  }
+
   @Test
   public void terminate() throws Exception {
-    AsyncHttpClientConfig cf = new AsyncHttpClientConfig.Builder().build();
-    AsyncHttpClient c = new AsyncHttpClient(cf);
-
     CountDownLatch latch = new CountDownLatch(1);
 
-    c.prepareGet(ws("ws").toString())
+    client.prepareGet(ws("ws").toString())
         .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(
             new WebSocketTextListener() {
 
@@ -63,8 +74,6 @@ public class WebSocketTerminateFeature extends ServerFeature {
               }
             }).build()).get();
     latch.await();
-
-    c.close();
 
     assertEquals(new Integer(1006), statusList.get(0));
     statusList.clear();

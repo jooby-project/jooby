@@ -44,6 +44,7 @@ import io.undertow.websockets.core.WebSockets;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -55,6 +56,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnio.IoUtils;
 import org.xnio.Pooled;
+
+import com.typesafe.config.Config;
 
 public class UndertowWebSocket extends AbstractReceiveListener implements NativeWebSocket {
 
@@ -71,15 +74,43 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
 
   private Consumer<Throwable> onErrorCallback;
 
-  public UndertowWebSocket(final WebSocketChannel channel) {
+  private long maxBinaryBufferSize;
+
+  private long maxTextBufferSize;
+
+  private Runnable onConnectCallback;
+
+  private long idleTimeout;
+
+  public UndertowWebSocket(final Config config) {
+    idleTimeout = config.getDuration("undertow.ws.IdleTimeout", TimeUnit.MILLISECONDS);
+    maxBinaryBufferSize = config.getBytes("undertow.ws.MaxBinaryBufferSize");
+    maxTextBufferSize = config.getBytes("undertow.ws.MaxTextBufferSize");
+  }
+
+  public void connect(final WebSocketChannel channel) {
     this.channel = channel;
+
+    this.onConnectCallback.run();
+
+    this.channel.setIdleTimeout(idleTimeout);
     this.channel.getReceiveSetter().set(this);
     this.channel.resumeReceives();
   }
 
   @Override
+  protected long getMaxBinaryBufferSize() {
+    return maxBinaryBufferSize;
+  }
+
+  @Override
+  protected long getMaxTextBufferSize() {
+    return maxTextBufferSize;
+  }
+
+  @Override
   public void onConnect(final Runnable callback) {
-    requireNonNull(callback, "A callback is required.").run();
+    this.onConnectCallback = requireNonNull(callback, "A callback is required.");
   }
 
   @Override
@@ -123,6 +154,13 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
   @Override
   protected void onCloseMessage(final CloseMessage cm, final WebSocketChannel channel) {
     onCloseCallback.accept(cm.getCode(), Optional.ofNullable(cm.getReason()));
+  }
+
+  @Override
+  protected void onFullCloseMessage(final WebSocketChannel channel, final BufferedBinaryMessage message)
+      throws IOException {
+    // TODO Auto-generated method stub
+    super.onFullCloseMessage(channel, message);
   }
 
   @Override

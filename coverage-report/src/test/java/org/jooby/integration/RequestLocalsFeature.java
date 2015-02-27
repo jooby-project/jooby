@@ -51,7 +51,7 @@ public class RequestLocalsFeature extends ServerFeature {
   public void attributes() throws Exception {
     request()
         .get("/locals/attributes")
-        .expect("{contextPath=/, path=/locals/attributes, l1=v1}");
+        .expect("{contextPath=, path=/locals/attributes, l1=v1}");
 
   }
 

@@ -7,7 +7,7 @@ esac
 
 ## application
 APP_ENV=${1:-dev}
-APP_MAIN=${application.main}
+APP_MAIN=${application.class}
 APP_NAME=${project.build.finalName}.jar
 
 ## logback file

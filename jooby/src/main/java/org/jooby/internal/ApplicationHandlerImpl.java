@@ -50,7 +50,7 @@ import org.jooby.Status;
 import org.jooby.Verb;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.Definition;
-import org.jooby.spi.Dispatcher;
+import org.jooby.spi.ApplicationHandler;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeResponse;
 import org.jooby.spi.NativeWebSocket;
@@ -61,14 +61,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 
 @Singleton
-public class RouteHandlerImpl implements Dispatcher {
+public class ApplicationHandlerImpl implements ApplicationHandler {
 
   private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
 
   private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
   /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private final Logger log = LoggerFactory.getLogger(ApplicationHandler.class);
 
   private Set<Route.Definition> routeDefs;
 
@@ -83,7 +83,7 @@ public class RouteHandlerImpl implements Dispatcher {
   private Set<Definition> socketDefs;
 
   @Inject
-  public RouteHandlerImpl(final Injector injector,
+  public ApplicationHandlerImpl(final Injector injector,
       final RequestScope requestScope,
       final Set<Route.Definition> routes,
       final Set<WebSocket.Definition> sockets,
@@ -119,7 +119,7 @@ public class RouteHandlerImpl implements Dispatcher {
     }
 
     // default locals
-    locals.put("contextPath", applicationPath);
+    locals.put("contextPath", "/".equals(applicationPath) ? "" : applicationPath);
     locals.put("path", requestPath);
 
     final String path = verb + requestPath;

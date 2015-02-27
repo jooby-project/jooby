@@ -11,7 +11,7 @@ public class Issue25 extends ServerFeature {
 
   {
     get("/contextPath", req -> {
-      assertEquals("/", req.get("contextPath").get());
+      assertEquals("", req.get("contextPath").get());
       assertEquals("/", req.require(Config.class).getString("application.path"));
       return req.path();
     });

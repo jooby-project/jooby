@@ -1,75 +1,75 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.jooby.servlet;
-
-import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jooby.spi.Dispatcher;
+import org.jooby.Jooby;
+import org.jooby.spi.ApplicationHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.typesafe.config.Config;
 
 @SuppressWarnings("serial")
-@MultipartConfig
 public class ServletHandler extends HttpServlet {
 
-  private Dispatcher dispatcher;
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
+
+  private ApplicationHandler dispatcher;
+
   private String tmpdir;
 
-  public ServletHandler(final Dispatcher dispatcher, final String tmpdir) {
-    this.dispatcher = requireNonNull(dispatcher, "A dispatcher is required.");
-    this.tmpdir = requireNonNull(tmpdir, "A tmpdir is required.");
+  @Override
+  public void init(final ServletConfig config) throws ServletException {
+    super.init(config);
+
+    ServletContext ctx = config.getServletContext();
+
+    Jooby app = (Jooby) ctx.getAttribute(Jooby.class.getName());
+
+    dispatcher = app.require(ApplicationHandler.class);
+    tmpdir = app.require(Config.class).getString("application.tmpdir");
   }
 
   @Override
-  protected void doGet(final HttpServletRequest req, final HttpServletResponse rsp)
+  protected void service(final HttpServletRequest req, final HttpServletResponse rsp)
       throws ServletException, IOException {
     try {
-      dispatcher.handle(new ServletServletRequest(req, tmpdir),
+      dispatcher.handle(
+          new ServletServletRequest(req, tmpdir),
           new ServletServletResponse(req, rsp));
-    } catch (Exception ex) {
-      // TODO Auto-generated catch block
-      ex.printStackTrace();
+    } catch (IOException | ServletException | RuntimeException ex) {
+      log.error("execution of: " + req.getRequestURI() + " resulted in error", ex);
+      throw ex;
+    } catch (Throwable ex) {
+      log.error("execution of: " + req.getRequestURI() + " resulted in error", ex);
+      throw new IllegalStateException(ex);
     }
-  }
-
-  @Override
-  protected void doDelete(final HttpServletRequest req, final HttpServletResponse resp)
-      throws ServletException, IOException {
-    doGet(req, resp);
-  }
-
-  @Override
-  protected void doHead(final HttpServletRequest req, final HttpServletResponse resp)
-      throws ServletException, IOException {
-    doGet(req, resp);
-  }
-
-  @Override
-  protected void doOptions(final HttpServletRequest req, final HttpServletResponse resp)
-      throws ServletException, IOException {
-    doGet(req, resp);
-  }
-
-  @Override
-  protected void doPost(final HttpServletRequest req, final HttpServletResponse resp)
-      throws ServletException, IOException {
-    doGet(req, resp);
-  }
-
-  @Override
-  protected void doPut(final HttpServletRequest req, final HttpServletResponse resp)
-      throws ServletException, IOException {
-    doGet(req, resp);
-  }
-
-  @Override
-  protected void doTrace(final HttpServletRequest req, final HttpServletResponse resp)
-      throws ServletException, IOException {
-    doGet(req, resp);
   }
 
 }

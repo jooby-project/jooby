@@ -104,6 +104,30 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-undertow</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-jetty</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-netty</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-servlet</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
       <!-- Logging System -->
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -523,20 +547,14 @@
                   <exclude>LICENSE</exclude>
                   <exclude>LICENSE.txt</exclude>
                   <exclude>NOTICE</exclude>
-                </excludes>
-              </filter>
-              <filter>
-                <artifact>org.eclipse.jetty:*</artifact>
-                <excludes>
                   <exclude>about.html</exclude>
                   <exclude>jetty-dir.css</exclude>
                 </excludes>
               </filter>
               <filter>
-                <artifact>org.eclipse.jetty.websocket:*</artifact>
+                <artifact>org.jooby:jooby</artifact>
                 <excludes>
-                  <exclude>about.html</exclude>
-                  <exclude>jetty-dir.css</exclude>
+                  <exclude>*.sh</exclude>
                 </excludes>
               </filter>
             </filters>
@@ -594,9 +612,6 @@
               </goals>
               <configuration>
                 <appendAssemblyId>false</appendAssemblyId>
-                <descriptorRefs>
-                  <descriptorRef>jooby</descriptorRef>
-                </descriptorRefs>
               </configuration>
             </execution>
           </executions>
@@ -922,7 +937,7 @@
     <jackson.version>2.4.3</jackson.version>
     <undertow.version>1.2.0.Beta8</undertow.version>
     <servlet.version>3.1.0</servlet.version>
-    <jetty.version>9.2.7.v20150116</jetty.version>
+    <jetty.version>9.2.9.v20150224</jetty.version>
     <netty.version>4.0.9.Final</netty.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
@@ -981,7 +996,7 @@
     <maven-site-plugin.version>3.4</maven-site-plugin.version>
     <license-maven-plugin.version>2.6</license-maven-plugin.version>
     <jacoco-maven-plugin.version>${jacoco.version}</jacoco-maven-plugin.version>
-    <maven-assembly-plugin.version>2.5.2</maven-assembly-plugin.version>
+    <maven-assembly-plugin.version>2.5.3</maven-assembly-plugin.version>
     <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>

@@ -35,21 +35,17 @@ package org.jooby.internal.undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 
-import java.nio.charset.Charset;
+import com.typesafe.config.Config;
 
 public class UndertowHandler implements HttpHandler {
 
-  private org.jooby.spi.Dispatcher handler;
+  private org.jooby.spi.ApplicationHandler handler;
 
-  private String tmpdir;
+  private Config config;
 
-  private Charset charset;
-
-  public UndertowHandler(final org.jooby.spi.Dispatcher handler, final String tmpdir,
-      final Charset charset) {
+  public UndertowHandler(final org.jooby.spi.ApplicationHandler handler, final Config config) {
     this.handler = handler;
-    this.tmpdir = tmpdir;
-    this.charset = charset;
+    this.config = config;
   }
 
   @Override
@@ -61,8 +57,7 @@ public class UndertowHandler implements HttpHandler {
       return;
     }
 
-    handler.handle(new UndertowRequest(exchange, tmpdir, charset),
-        new UndertowResponse(exchange));
+    handler.handle(new UndertowRequest(exchange, config), new UndertowResponse(exchange));
   }
 
 }

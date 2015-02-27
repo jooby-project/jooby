@@ -23,7 +23,7 @@
       <directory>public</directory>
     </fileSet>
     <fileSet filtered="false" encoding="UTF-8">
-      <directory>etc</directory>
+      <directory>src/etc</directory>
     </fileSet>
 
   </fileSets>

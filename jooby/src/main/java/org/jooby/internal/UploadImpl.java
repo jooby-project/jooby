@@ -68,4 +68,9 @@ public class UploadImpl implements Upload {
     return upload.file();
   }
 
+  @Override
+  public String toString() {
+    return name();
+  }
+
 }

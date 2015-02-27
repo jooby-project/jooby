@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createStrictMock;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -89,6 +90,10 @@ public class MockUnit {
   }
 
   public <T> T mock(final Class<T> type, final boolean strict) {
+    if (Modifier.isFinal(type.getModifiers())) {
+      T mock = PowerMock.createMock(type);
+      partialMocks.add(mock);
+    }
     T mock = strict ? createStrictMock(type) : createMock(type);
     mocks.add(mock);
     return mock;

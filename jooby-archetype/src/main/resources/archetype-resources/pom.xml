@@ -21,7 +21,7 @@
     <jooby.version>${jooby-version}</jooby.version>
 
     <!-- Startup class -->
-    <application.main>${package}.App</application.main>
+    <application.class>${package}.App</application.class>
   </properties>
 
   <dependencies>
@@ -34,7 +34,14 @@
     <!-- Server -->
     <dependency>
       <groupId>org.jooby</groupId>
-      <artifactId>jooby-undertow</artifactId>
+      <artifactId>jooby-netty</artifactId>
+    </dependency>
+
+    <!-- WAR -->
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-servlet</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -58,14 +65,14 @@
         <artifactId>maven-shade-plugin</artifactId>
       </plugin>
 
-      <!-- Build zip (tar, tar.gz,  tgz, tar.bz2 or tbz2) -->
+      <!-- Build jooby.zip | jooby.war -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
-          <formats>
-            <format>zip</format>
-          </formats>
+          <descriptorRefs>
+            <descriptorRef>jooby.zip</descriptorRef>
+          </descriptorRefs>
         </configuration>
       </plugin>
     </plugins>

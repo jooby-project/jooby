@@ -59,7 +59,6 @@ public class SessionConfigCookieFeature extends ServerFeature {
                       .splitToList(value)
                   );
 
-              System.out.println(setCookie);
               assertTrue(setCookie.remove(0).startsWith("custom.sid"));
               assertTrue(setCookie.remove("Path=/session") || setCookie.remove("Path=\"/session\""));
               assertTrue(setCookie.remove("HttpOnly") || setCookie.remove("HTTPOnly"));

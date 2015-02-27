@@ -18,7 +18,12 @@
  */
 package org.jooby.spi;
 
-public interface Dispatcher {
+/**
+ *
+ * @author edgar
+ * @since 0.5.0
+ */
+public interface ApplicationHandler {
 
   void handle(final NativeRequest request, final NativeResponse response) throws Exception;
 

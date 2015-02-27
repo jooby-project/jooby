@@ -1,3 +1,21 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.jooby.servlet;
 
 import static java.util.Objects.requireNonNull;
@@ -17,13 +35,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.jooby.spi.NativeResponse;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.Closeables;
 
 public class ServletServletResponse implements NativeResponse {
 
   private HttpServletRequest req;
 
   private HttpServletResponse rsp;
+
+  private boolean committed;
 
   public ServletServletResponse(final HttpServletRequest req, final HttpServletResponse rsp) {
     this.req = requireNonNull(req, "A request is required.");
@@ -96,14 +115,16 @@ public class ServletServletResponse implements NativeResponse {
 
   @Override
   public boolean committed() {
+    if (committed) {
+      return true;
+    }
     return rsp.isCommitted();
   }
 
   @Override
-  public void end() throws IOException {
-    if (!committed()) {
-      Closeables.close(out(), true);
-    }
+  public void end() {
+    // NOOP
+    committed = true;
   }
 
   @Override

@@ -45,8 +45,6 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
 
   private int port;
 
-  private int securePort;
-
   private Class<?> server;
 
   public JoobyRunner(final Class<?> klass) throws InitializationError {
@@ -80,19 +78,21 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
       this.server = server;
       Class<?> appClass = klass;
       port = freePort();
-      securePort = freePort();
       if (!Jooby.class.isAssignableFrom(appClass)) {
         throw new InitializationError("Invalid jooby app: " + appClass);
       }
       Config config = ConfigFactory.empty()
           .withValue("server.join", ConfigValueFactory.fromAnyRef(false))
+          .withValue("server.threads.min", ConfigValueFactory.fromAnyRef(1))
+          .withValue("server.threads.max", ConfigValueFactory.fromAnyRef(6))
           .withValue("application.port", ConfigValueFactory.fromAnyRef(port))
-          .withValue("application.securePort", ConfigValueFactory.fromAnyRef(securePort))
           .withValue("undertow.server.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
           .withValue("undertow.socket.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
           .withValue("undertow.worker.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
           .withValue("undertow.ioThreads", ConfigValueFactory.fromAnyRef(2))
-          .withValue("undertow.workerThreads", ConfigValueFactory.fromAnyRef(1));
+          .withValue("undertow.workerThreads", ConfigValueFactory.fromAnyRef(4))
+          .withValue("netty.bossThreads", ConfigValueFactory.fromAnyRef(1))
+          .withValue("netty.workerThreads", ConfigValueFactory.fromAnyRef(2));
 
       if (server != null) {
         config = config.withFallback(ConfigFactory.empty()
@@ -122,7 +122,6 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
     Object test = super.createTest();
     Guice.createInjector(binder -> {
       binder.bind(Integer.class).annotatedWith(Names.named("port")).toInstance(port);
-      binder.bind(Integer.class).annotatedWith(Names.named("securePort")).toInstance(securePort);
     }).injectMembers(test);
 
     return test;

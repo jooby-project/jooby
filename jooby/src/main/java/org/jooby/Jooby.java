@@ -85,7 +85,7 @@ import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.LocaleUtils;
 import org.jooby.internal.RequestScope;
-import org.jooby.internal.RouteHandlerImpl;
+import org.jooby.internal.ApplicationHandlerImpl;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.ServerLookup;
@@ -107,7 +107,7 @@ import org.jooby.internal.routes.HeadHandler;
 import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
 import org.jooby.scope.RequestScoped;
-import org.jooby.spi.Dispatcher;
+import org.jooby.spi.ApplicationHandler;
 import org.jooby.spi.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1857,18 +1857,22 @@ public class Jooby {
 
     this.injector = bootstrap();
 
-    // Start server
-    Server server = injector.getInstance(Server.class);
     Config config = injector.getInstance(Config.class);
 
-    server.start();
-    long end = System.currentTimeMillis();
     if (log.isDebugEnabled()) {
       log.debug("config tree:\n{}", configTree(config.origin().description()));
     }
 
-    log.info("[{}]: {} server started in {}ms\n\n{}\n",
+    // Start server
+    Server server = injector.getInstance(Server.class);
+    String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
+
+    server.start();
+    long end = System.currentTimeMillis();
+
+    log.info("[{}@{}]: {} server started in {}ms\n\n{}\n",
         config.getString("application.env"),
+        serverName,
         getClass().getSimpleName(),
         end - start,
         injector.getInstance(AppPrinter.class));
@@ -2054,7 +2058,7 @@ public class Jooby {
 
           parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
 
-          binder.bind(Dispatcher.class).to(RouteHandlerImpl.class).in(Singleton.class);
+          binder.bind(ApplicationHandler.class).to(ApplicationHandlerImpl.class).in(Singleton.class);
 
           RequestScope requestScope = new RequestScope();
           binder.bind(RequestScope.class).toInstance(requestScope);

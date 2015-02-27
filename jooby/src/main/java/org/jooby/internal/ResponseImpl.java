@@ -20,7 +20,6 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -297,7 +296,7 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public void end() throws IOException {
+  public void end() {
     if (!committed()) {
       if (status == null) {
         status(rsp.statusCode());

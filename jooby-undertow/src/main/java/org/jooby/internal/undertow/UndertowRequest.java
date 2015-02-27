@@ -18,9 +18,7 @@
  */
 package org.jooby.internal.undertow;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
-import io.undertow.Handlers;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.server.handlers.form.FormData.FormValue;
@@ -35,7 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -50,6 +47,7 @@ import org.jooby.spi.NativeWebSocket;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.typesafe.config.Config;
 
 public class UndertowRequest implements NativeRequest {
 
@@ -58,12 +56,15 @@ public class UndertowRequest implements NativeRequest {
 
   private HttpServerExchange exchange;
 
+  private Config config;
+
   private final FormData form;
 
-  public UndertowRequest(final HttpServerExchange exchange, final String tmpdir,
-      final Charset charset) throws IOException {
+  public UndertowRequest(final HttpServerExchange exchange, final Config config) throws IOException {
     this.exchange = requireNonNull(exchange, "An undertow exchange is required.");
-    this.form = parseForm(exchange, tmpdir, charset);
+    this.config = requireNonNull(config, "A config is required.");
+    this.form = parseForm(exchange, config.getString("application.tmpdir"),
+        config.getString("application.charset"));
   }
 
   @Override
@@ -78,9 +79,10 @@ public class UndertowRequest implements NativeRequest {
 
   @Override
   public List<String> paramNames() {
-    return ImmutableList.<String> builder()
-        .addAll(exchange.getQueryParameters().keySet())
-        .build();
+    ImmutableList.Builder<String> builder = ImmutableList.<String> builder();
+    builder.addAll(exchange.getQueryParameters().keySet());
+    form.forEach(builder::add);
+    return builder.build();
   }
 
   @Override
@@ -181,31 +183,27 @@ public class UndertowRequest implements NativeRequest {
   @SuppressWarnings("unchecked")
   public <T> T upgrade(final Class<T> type) throws Exception {
     if (type == NativeWebSocket.class) {
-      Handlers.websocket((wsExchange, channel) -> {
-        exchange.putAttachment(SOCKET, new UndertowWebSocket(channel));
-      }).handleRequest(exchange);
-
-      T ws = (T) exchange.getAttachment(SOCKET);
-      checkState(ws != null, "Upgrade didn't success");
-      return ws;
+      UndertowWebSocket ws = new UndertowWebSocket(config);
+      exchange.putAttachment(SOCKET, ws);
+      return (T) ws;
     }
     throw new UnsupportedOperationException("Not Supported: " + type);
   }
 
   private FormData parseForm(final HttpServerExchange exchange, final String tmpdir,
-      final Charset charset) throws IOException {
+      final String charset) throws IOException {
     String value = exchange.getRequestHeaders().getFirst("Content-Type");
     if (value != null) {
       MediaType type = MediaType.valueOf(value);
       if (MediaType.form.name().equals(type.name())) {
         return new FormEncodedDataDefinition()
-            .setDefaultEncoding(charset.name())
+            .setDefaultEncoding(charset)
             .create(exchange)
             .parseBlocking();
       } else if (MediaType.multipart.name().equals(type.name())) {
         return new MultiPartParserDefinition()
             .setTempFileLocation(new File(tmpdir))
-            .setDefaultEncoding(charset.name())
+            .setDefaultEncoding(charset)
             .create(exchange)
             .parseBlocking();
 

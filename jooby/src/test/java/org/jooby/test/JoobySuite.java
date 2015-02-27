@@ -24,8 +24,8 @@ public class JoobySuite extends Suite {
 
   private List<Runner> runners() throws InitializationError {
     List<Runner> runners = new ArrayList<>();
-    String[] servers = {"org.jooby.undertow.Undertow", "org.jooby.jetty.Jetty",
-        "org.jooby.netty.Netty" };
+    String[] servers = {"org.jooby.undertow.Undertow", "org.jooby.jetty.Jetty"
+        , "org.jooby.netty.Netty"};
     for (String server : servers) {
       try {
         Class<?> serverClass = getClass().getClassLoader().loadClass(server);

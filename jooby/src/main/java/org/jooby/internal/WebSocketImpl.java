@@ -42,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -270,8 +269,7 @@ public class WebSocketImpl implements WebSocket {
           closeStatus = WebSocket.BAD_DATA;
         }
       }
-      String reason = closeStatus.reason() + " " + Strings.nullToEmpty(cause.getMessage());
-      lws.close(closeStatus.code(), reason.trim());
+      lws.close(closeStatus.code(), closeStatus.reason());
     }
   }
 

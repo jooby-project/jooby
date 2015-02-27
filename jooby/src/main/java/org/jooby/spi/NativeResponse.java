@@ -48,7 +48,7 @@ public interface NativeResponse {
 
   boolean committed();
 
-  void end() throws IOException;
+  void end();
 
   void reset();
 

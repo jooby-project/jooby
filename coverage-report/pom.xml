@@ -41,6 +41,7 @@
                     <source>${project.parent.basedir}/jooby-undertow/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-jetty/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-netty/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-servlet/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -57,6 +58,10 @@
                     <source>${project.parent.basedir}/jooby-hbs/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-jackson/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-jdbc/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-undertow/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-jetty/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-netty/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-servlet/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
