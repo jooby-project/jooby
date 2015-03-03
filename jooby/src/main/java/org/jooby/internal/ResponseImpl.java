@@ -76,14 +76,14 @@ public class ResponseImpl implements Response {
 
   private List<String> clearCookies = new ArrayList<>();
 
+  private int maxBufferSize;
+
   public ResponseImpl(final Injector injector,
-      final NativeResponse rsp,
-      final Route route,
-      final Map<Object, Object> locals,
-      final Charset charset,
-      final Optional<String> referer) {
+      final NativeResponse rsp, final int maxBufferSize, final Route route,
+      final Map<Object, Object> locals, final Charset charset, final Optional<String> referer) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.rsp = requireNonNull(rsp, "A raw response is required.");
+    this.maxBufferSize = maxBufferSize;
     this.route = requireNonNull(route, "A route is required.");
     this.locals = requireNonNull(locals, "Request locals are required.");
 
@@ -301,7 +301,9 @@ public class ResponseImpl implements Response {
       if (status == null) {
         status(rsp.statusCode());
       }
+
       writeCookies();
+
       /**
        * Do we need to figure it out Content-Length?
        */
@@ -338,6 +340,10 @@ public class ResponseImpl implements Response {
     requireNonNull(body, "A response message is required.");
     requireNonNull(formatter, "A converter is required.");
 
+    if (committed()) {
+      // TODO: warn? exception?
+      return;
+    }
     type(body.type().orElseGet(() -> type().orElseGet(() -> formatter.types().get(0))));
 
     status(body.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
@@ -362,14 +368,12 @@ public class ResponseImpl implements Response {
     /**
      * Do we need to figure it out Content-Length?
      */
-    boolean direct = rsp.header("Content-Length").isPresent()
-        || rsp.header("Transfer-Encoding").isPresent();
+    long len = rsp.header("Content-Length").map(Long::parseLong).orElse((long) Integer.MAX_VALUE);
+    int bufferSize = Math.min(maxBufferSize, (int) len);
 
     // byte version of http body
     ExSupplier<OutputStream> stream = () -> {
-      return direct
-          ? rsp.out()
-          : new FastByteArrayOutputStream(() -> rsp.out(), (name, value) -> header(name, value));
+      return rsp.out(bufferSize);
     };
 
     // text version of http body

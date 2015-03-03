@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jooby.Jooby;
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class ServletHandler extends HttpServlet {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private ApplicationHandler dispatcher;
+  private HttpHandler dispatcher;
 
   private String tmpdir;
 
@@ -52,7 +52,7 @@ public class ServletHandler extends HttpServlet {
 
     Jooby app = (Jooby) ctx.getAttribute(Jooby.class.getName());
 
-    dispatcher = app.require(ApplicationHandler.class);
+    dispatcher = app.require(HttpHandler.class);
     tmpdir = app.require(Config.class).getString("application.tmpdir");
   }
 

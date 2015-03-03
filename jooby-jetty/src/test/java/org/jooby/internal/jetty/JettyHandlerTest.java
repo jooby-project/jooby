@@ -16,7 +16,7 @@ import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
 import org.jooby.MockUnit;
 import org.jooby.servlet.ServletServletRequest;
 import org.jooby.servlet.ServletServletResponse;
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.jooby.spi.NativeWebSocket;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public class JettyHandlerTest {
 
   @Test
   public void handleShouldSetMultipartConfig() throws Exception {
-    new MockUnit(Request.class, ApplicationHandler.class, WebSocketServerFactory.class,
+    new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class)
         .expect(unit -> {
           Request request = unit.get(Request.class);
@@ -42,11 +42,11 @@ public class JettyHandlerTest {
           expect(request.getRequestURI()).andReturn("/");
         })
         .expect(unit -> {
-          ApplicationHandler dispatcher = unit.get(ApplicationHandler.class);
+          HttpHandler dispatcher = unit.get(HttpHandler.class);
           dispatcher.handle(isA(ServletServletRequest.class), isA(ServletServletResponse.class));
         })
         .run(unit -> {
-          new JettyHandler(unit.get(ApplicationHandler.class), unit.get(WebSocketServerFactory.class),
+          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
               "target")
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
@@ -56,7 +56,7 @@ public class JettyHandlerTest {
 
   @Test
   public void handleShouldIgnoreMultipartConfig() throws Exception {
-    new MockUnit(Request.class, ApplicationHandler.class, WebSocketServerFactory.class,
+    new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class)
         .expect(unit -> {
           Request request = unit.get(Request.class);
@@ -71,11 +71,11 @@ public class JettyHandlerTest {
           expect(request.getRequestURI()).andReturn("/");
         })
         .expect(unit -> {
-          ApplicationHandler dispatcher = unit.get(ApplicationHandler.class);
+          HttpHandler dispatcher = unit.get(HttpHandler.class);
           dispatcher.handle(isA(ServletServletRequest.class), isA(ServletServletResponse.class));
         })
         .run(unit -> {
-          new JettyHandler(unit.get(ApplicationHandler.class), unit.get(WebSocketServerFactory.class),
+          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
               "target")
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
@@ -85,7 +85,7 @@ public class JettyHandlerTest {
 
   @Test
   public void handleWsUpgrade() throws Exception {
-    new MockUnit(Request.class, ApplicationHandler.class, WebSocketServerFactory.class,
+    new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class, NativeWebSocket.class)
         .expect(unit -> {
           Request request = unit.get(Request.class);
@@ -114,12 +114,12 @@ public class JettyHandlerTest {
           req.removeAttribute(JettyWebSocket.class.getName());
         })
         .expect(unit -> {
-          ApplicationHandler dispatcher = unit.get(ApplicationHandler.class);
+          HttpHandler dispatcher = unit.get(HttpHandler.class);
           dispatcher.handle(unit.capture(ServletServletRequest.class),
               unit.capture(ServletServletResponse.class));
         })
         .run(unit -> {
-          new JettyHandler(unit.get(ApplicationHandler.class), unit.get(WebSocketServerFactory.class),
+          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
               "target")
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
@@ -132,7 +132,7 @@ public class JettyHandlerTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void handleThrowUnsupportedOperationExceptionWhenWsIsMissing() throws Exception {
-    new MockUnit(Request.class, ApplicationHandler.class, WebSocketServerFactory.class,
+    new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class, NativeWebSocket.class)
         .expect(unit -> {
           Request request = unit.get(Request.class);
@@ -159,12 +159,12 @@ public class JettyHandlerTest {
           expect(req.getAttribute(JettyWebSocket.class.getName())).andReturn(null);
         })
         .expect(unit -> {
-          ApplicationHandler dispatcher = unit.get(ApplicationHandler.class);
+          HttpHandler dispatcher = unit.get(HttpHandler.class);
           dispatcher.handle(unit.capture(ServletServletRequest.class),
               unit.capture(ServletServletResponse.class));
         })
         .run(unit -> {
-          new JettyHandler(unit.get(ApplicationHandler.class), unit.get(WebSocketServerFactory.class),
+          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
               "target")
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
@@ -177,7 +177,7 @@ public class JettyHandlerTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void handleThrowUnsupportedOperationExceptionOnNoWebSocketRequest() throws Exception {
-    new MockUnit(Request.class, ApplicationHandler.class, WebSocketServerFactory.class,
+    new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class, NativeWebSocket.class)
         .expect(unit -> {
           Request request = unit.get(Request.class);
@@ -200,12 +200,12 @@ public class JettyHandlerTest {
           expect(factory.isUpgradeRequest(req, rsp)).andReturn(false);
         })
         .expect(unit -> {
-          ApplicationHandler dispatcher = unit.get(ApplicationHandler.class);
+          HttpHandler dispatcher = unit.get(HttpHandler.class);
           dispatcher.handle(unit.capture(ServletServletRequest.class),
               unit.capture(ServletServletResponse.class));
         })
         .run(unit -> {
-          new JettyHandler(unit.get(ApplicationHandler.class), unit.get(WebSocketServerFactory.class),
+          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
               "target")
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
@@ -218,7 +218,7 @@ public class JettyHandlerTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void handleThrowUnsupportedOperationExceptionOnHankshakeRejection() throws Exception {
-    new MockUnit(Request.class, ApplicationHandler.class, WebSocketServerFactory.class,
+    new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class, NativeWebSocket.class)
         .expect(unit -> {
           Request request = unit.get(Request.class);
@@ -243,12 +243,12 @@ public class JettyHandlerTest {
           expect(factory.acceptWebSocket(req, rsp)).andReturn(false);
         })
         .expect(unit -> {
-          ApplicationHandler dispatcher = unit.get(ApplicationHandler.class);
+          HttpHandler dispatcher = unit.get(HttpHandler.class);
           dispatcher.handle(unit.capture(ServletServletRequest.class),
               unit.capture(ServletServletResponse.class));
         })
         .run(unit -> {
-          new JettyHandler(unit.get(ApplicationHandler.class), unit.get(WebSocketServerFactory.class),
+          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
               "target")
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
@@ -261,7 +261,7 @@ public class JettyHandlerTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void handleThrowUnsupportedOperationExceptionOnWrongType() throws Exception {
-    new MockUnit(Request.class, ApplicationHandler.class, WebSocketServerFactory.class,
+    new MockUnit(Request.class, HttpHandler.class, WebSocketServerFactory.class,
         HttpServletRequest.class, HttpServletResponse.class, NativeWebSocket.class)
         .expect(unit -> {
           Request request = unit.get(Request.class);
@@ -276,12 +276,12 @@ public class JettyHandlerTest {
           expect(request.getRequestURI()).andReturn("/");
         })
         .expect(unit -> {
-          ApplicationHandler dispatcher = unit.get(ApplicationHandler.class);
+          HttpHandler dispatcher = unit.get(HttpHandler.class);
           dispatcher.handle(unit.capture(ServletServletRequest.class),
               unit.capture(ServletServletResponse.class));
         })
         .run(unit -> {
-          new JettyHandler(unit.get(ApplicationHandler.class), unit.get(WebSocketServerFactory.class),
+          new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
               "target")
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
@@ -294,7 +294,7 @@ public class JettyHandlerTest {
 
   @Test(expected = ServletException.class)
   public void handleShouldReThrowServletException() throws Exception {
-    ApplicationHandler dispatcher = (request, response) -> {
+    HttpHandler dispatcher = (request, response) -> {
       throw new ServletException("intentional err");
     };
     new MockUnit(Request.class, WebSocketServerFactory.class,
@@ -327,7 +327,7 @@ public class JettyHandlerTest {
 
   @Test(expected = IOException.class)
   public void handleShouldReThrowIOException() throws Exception {
-    ApplicationHandler dispatcher = (request, response) -> {
+    HttpHandler dispatcher = (request, response) -> {
       throw new IOException("intentional err");
     };
     new MockUnit(Request.class, WebSocketServerFactory.class,
@@ -360,7 +360,7 @@ public class JettyHandlerTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void handleShouldReThrowIllegalArgumentException() throws Exception {
-    ApplicationHandler dispatcher = (request, response) -> {
+    HttpHandler dispatcher = (request, response) -> {
       throw new IllegalArgumentException("intentional err");
     };
     new MockUnit(Request.class, WebSocketServerFactory.class,
@@ -393,7 +393,7 @@ public class JettyHandlerTest {
 
   @Test(expected = IllegalStateException.class)
   public void handleShouldReThrowIllegalStateException() throws Exception {
-    ApplicationHandler dispatcher = (request, response) -> {
+    HttpHandler dispatcher = (request, response) -> {
       throw new Exception("intentional err");
     };
     new MockUnit(Request.class, WebSocketServerFactory.class,

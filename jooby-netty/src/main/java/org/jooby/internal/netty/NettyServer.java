@@ -37,7 +37,7 @@ import java.util.function.BiConsumer;
 
 import javax.inject.Inject;
 
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,10 +59,10 @@ public class NettyServer implements Server {
 
   private Config config;
 
-  private ApplicationHandler dispatcher;
+  private HttpHandler dispatcher;
 
   @Inject
-  public NettyServer(final ApplicationHandler dispatcher, final Config config) {
+  public NettyServer(final HttpHandler dispatcher, final Config config) {
     this.bossGroup = eventLoop(config, "netty.boss");
     this.workerGroup = eventLoop(config, "netty.worker");
     this.dispatcher = dispatcher;

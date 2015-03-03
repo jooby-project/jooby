@@ -18,17 +18,16 @@
  */
 package org.jooby.internal.netty;
 
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.DefaultCookie;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.ServerCookieEncoder;
 import io.netty.util.Attribute;
 
@@ -49,22 +48,22 @@ public class NettyResponse implements NativeResponse {
 
   private NettyRequest req;
 
-  private FullHttpResponse rsp;
-
   private boolean keepAlive;
 
-  private HttpResponseStatus status = HttpResponseStatus.OK;
+  HttpResponseStatus status = HttpResponseStatus.OK;
 
   private Map<String, Cookie> cookies = new HashMap<>();
+
+  HttpHeaders headers;
+
+  private NettyOutputStream out;
 
   public NettyResponse(final ChannelHandlerContext ctx, final NettyRequest req,
       final boolean keepAlive) {
     this.ctx = ctx;
     this.req = req;
     this.keepAlive = keepAlive;
-    // TODO: make me better
-    this.rsp = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.OK,
-        Unpooled.buffer(1204));
+    this.headers = new DefaultHttpHeaders();
   }
 
   @Override
@@ -85,18 +84,25 @@ public class NettyResponse implements NativeResponse {
 
   @Override
   public List<String> headers(final String name) {
-    List<String> headers = rsp.headers().getAll(name);
+    List<String> headers = this.headers.getAll(name);
     return headers == null ? Collections.emptyList() : ImmutableList.copyOf(headers);
   }
 
   @Override
   public void header(final String name, final String value) {
-    rsp.headers().add(name, value);
+    headers.set(name, value);
   }
 
   @Override
-  public OutputStream out() throws IOException {
-    return new ByteBufOutputStream(rsp.content());
+  public OutputStream out(final int bufferSize) throws IOException {
+    if (out == null) {
+      if (cookies.size() > 0) {
+        headers.set(HttpHeaders.Names.SET_COOKIE,
+            ServerCookieEncoder.encode(cookies.values()));
+      }
+      out = new NettyOutputStream(this, ctx, Unpooled.buffer(0, bufferSize), keepAlive, headers);
+    }
+    return out;
   }
 
   @Override
@@ -107,7 +113,6 @@ public class NettyResponse implements NativeResponse {
   @Override
   public void statusCode(final int code) {
     this.status = HttpResponseStatus.valueOf(code);
-    rsp.setStatus(status);
   }
 
   @Override
@@ -122,29 +127,37 @@ public class NettyResponse implements NativeResponse {
       if (ws != null && ws.get() != null) {
         status = HttpResponseStatus.SWITCHING_PROTOCOLS;
         ws.get().hankshake();
-        rsp = null;
         ctx = null;
         return;
       }
-      if (cookies.size() > 0) {
-        rsp.headers().set(HttpHeaders.Names.SET_COOKIE,
-            ServerCookieEncoder.encode(cookies.values()));
+      if (out == null) {
+        if (cookies.size() > 0) {
+          headers.set(HttpHeaders.Names.SET_COOKIE,
+              ServerCookieEncoder.encode(cookies.values()));
+        }
+        DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status);
+        rsp.headers().set(headers);
+        if (headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
+          if (keepAlive) {
+            ctx.write(rsp);
+          } else {
+            ctx.write(rsp).addListener(ChannelFutureListener.CLOSE);
+          }
+        } else {
+          ctx.write(rsp).addListener(ChannelFutureListener.CLOSE);
+        }
       }
-      if (!keepAlive) {
-        ctx.write(rsp).addListener(ChannelFutureListener.CLOSE);
-      } else {
-        rsp.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
-        ctx.write(rsp);
-      }
-      rsp = null;
       ctx = null;
     }
   }
 
   @Override
   public void reset() {
-    rsp.headers().clear();
-    rsp.content().clear();
+    headers.clear();
+    status = HttpResponseStatus.OK;
+    if (out != null) {
+      out.reset();
+    }
   }
 
   private Cookie toCookie(final org.jooby.Cookie cookie) {
@@ -166,4 +179,5 @@ public class NettyResponse implements NativeResponse {
 
     return result;
   }
+
 }

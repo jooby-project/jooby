@@ -33,7 +33,7 @@ import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.RequestScope;
-import org.jooby.internal.ApplicationHandlerImpl;
+import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.SessionManager;
@@ -53,7 +53,7 @@ import org.jooby.mvc.GET;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
 import org.jooby.scope.RequestScoped;
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -312,11 +312,11 @@ public class JoobyTest {
     ScopedBindingBuilder routehandlerscope = unit.mock(ScopedBindingBuilder.class);
     routehandlerscope.in(Singleton.class);
 
-    AnnotatedBindingBuilder<ApplicationHandler> routehandlerbinding =
+    AnnotatedBindingBuilder<HttpHandler> routehandlerbinding =
         unit.mock(AnnotatedBindingBuilder.class);
-    expect(routehandlerbinding.to(ApplicationHandlerImpl.class)).andReturn(routehandlerscope);
+    expect(routehandlerbinding.to(HttpHandlerImpl.class)).andReturn(routehandlerscope);
 
-    expect(unit.get(Binder.class).bind(ApplicationHandler.class)).andReturn(routehandlerbinding);
+    expect(unit.get(Binder.class).bind(HttpHandler.class)).andReturn(routehandlerbinding);
   };
 
   private MockUnit.Block webSockets = unit -> {

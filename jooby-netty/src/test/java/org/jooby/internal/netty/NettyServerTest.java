@@ -1,7 +1,7 @@
 package org.jooby.internal.netty;
 
 import org.jooby.MockUnit;
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.junit.Test;
 
 import com.typesafe.config.Config;
@@ -26,9 +26,9 @@ public class NettyServerTest {
         .withValue("application.port", ConfigValueFactory.fromAnyRef(6789))
         .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"));
 
-    new MockUnit(ApplicationHandler.class)
+    new MockUnit(HttpHandler.class)
         .run(unit -> {
-          NettyServer server = new NettyServer(unit.get(ApplicationHandler.class), config);
+          NettyServer server = new NettyServer(unit.get(HttpHandler.class), config);
           try {
             server.start();
           } finally {

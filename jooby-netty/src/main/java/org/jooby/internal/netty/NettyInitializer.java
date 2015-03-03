@@ -24,7 +24,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.util.concurrent.EventExecutorGroup;
 
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 
 import com.typesafe.config.Config;
 
@@ -32,7 +32,7 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
 
   private EventExecutorGroup executor;
 
-  private ApplicationHandler handler;
+  private HttpHandler handler;
 
   private Config config;
 
@@ -44,7 +44,7 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
 
   private int maxContentLength;
 
-  public NettyInitializer(final EventExecutorGroup executor, final ApplicationHandler handler,
+  public NettyInitializer(final EventExecutorGroup executor, final HttpHandler handler,
       final Config config) {
     this.executor = executor;
     this.handler = handler;

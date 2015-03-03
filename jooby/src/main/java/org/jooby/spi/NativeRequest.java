@@ -25,8 +25,17 @@ import java.util.Optional;
 
 import org.jooby.Cookie;
 
+/**
+ * Minimal/basic implementation of HTTP request. A server implementor must provide an implementation
+ * of {@link NativeRequest}.
+ *
+ * @author edgar
+ * @since 0.5.0
+ */
 public interface NativeRequest {
-
+  /**
+   * @return Http method.
+   */
   String method();
 
   String path();

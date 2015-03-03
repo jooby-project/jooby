@@ -85,7 +85,7 @@ import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.LocaleUtils;
 import org.jooby.internal.RequestScope;
-import org.jooby.internal.ApplicationHandlerImpl;
+import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.ServerLookup;
@@ -107,7 +107,7 @@ import org.jooby.internal.routes.HeadHandler;
 import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
 import org.jooby.scope.RequestScoped;
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2058,7 +2058,7 @@ public class Jooby {
 
           parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
 
-          binder.bind(ApplicationHandler.class).to(ApplicationHandlerImpl.class).in(Singleton.class);
+          binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
 
           RequestScope requestScope = new RequestScope();
           binder.bind(RequestScope.class).toInstance(requestScope);

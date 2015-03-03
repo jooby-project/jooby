@@ -1,7 +1,7 @@
 package org.jooby.internal.undertow;
 
 import org.jooby.MockUnit;
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.junit.Test;
 
 import com.typesafe.config.Config;
@@ -26,9 +26,9 @@ public class UndertowServerTest {
         .withValue("application.port", ConfigValueFactory.fromAnyRef(6789))
         .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"));
 
-    new MockUnit(ApplicationHandler.class)
+    new MockUnit(HttpHandler.class)
         .run(unit -> {
-          UndertowServer server = new UndertowServer(unit.get(ApplicationHandler.class), config);
+          UndertowServer server = new UndertowServer(unit.get(HttpHandler.class), config);
           try {
             server.start();
           } finally {

@@ -32,7 +32,7 @@ import org.jooby.MediaType;
 import org.jooby.servlet.ServletServletRequest;
 import org.jooby.servlet.ServletServletResponse;
 import org.jooby.servlet.ServletUpgrade;
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class JettyHandler extends AbstractHandler {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private ApplicationHandler dispatcher;
+  private HttpHandler dispatcher;
 
   private WebSocketServerFactory webSocketServerFactory;
 
@@ -50,7 +50,7 @@ public class JettyHandler extends AbstractHandler {
 
   private MultipartConfigElement multiPartConfig;
 
-  public JettyHandler(final ApplicationHandler dispatcher,
+  public JettyHandler(final HttpHandler dispatcher,
       final WebSocketServerFactory webSocketServerFactory, final String tmpdir) {
     this.dispatcher = dispatcher;
     this.webSocketServerFactory = webSocketServerFactory;

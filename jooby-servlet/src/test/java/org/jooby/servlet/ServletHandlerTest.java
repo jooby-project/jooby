@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jooby.Jooby;
 import org.jooby.MockUnit;
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -25,13 +25,13 @@ import com.typesafe.config.Config;
 public class ServletHandlerTest {
 
   MockUnit.Block init = unit -> {
-    ApplicationHandler dispatcher = unit.get(ApplicationHandler.class);
+    HttpHandler dispatcher = unit.get(HttpHandler.class);
 
     Config config = unit.mock(Config.class);
     expect(config.getString("application.tmpdir")).andReturn("target");
 
     Jooby app = unit.mock(Jooby.class);
-    expect(app.require(ApplicationHandler.class)).andReturn(dispatcher);
+    expect(app.require(HttpHandler.class)).andReturn(dispatcher);
     expect(app.require(Config.class)).andReturn(config);
 
     ServletContext ctx = unit.mock(ServletContext.class);
@@ -44,7 +44,7 @@ public class ServletHandlerTest {
 
   @Test
   public void initMethodMustAskForDependencies() throws Exception {
-    new MockUnit(ServletConfig.class, ApplicationHandler.class)
+    new MockUnit(ServletConfig.class, HttpHandler.class)
         .expect(init)
         .run(unit ->
             new ServletHandler()
@@ -54,12 +54,12 @@ public class ServletHandlerTest {
 
   @Test
   public void serviceShouldDispatchToHandler() throws Exception {
-    new MockUnit(ServletConfig.class, ApplicationHandler.class, HttpServletRequest.class,
+    new MockUnit(ServletConfig.class, HttpHandler.class, HttpServletRequest.class,
         HttpServletResponse.class)
         .expect(init)
         .expect(
             unit -> {
-              ApplicationHandler dispatcher = unit.get(ApplicationHandler.class);
+              HttpHandler dispatcher = unit.get(HttpHandler.class);
 
               ServletServletRequest req = unit.mockConstructor(ServletServletRequest.class,
                   new Class[]{HttpServletRequest.class, String.class },
@@ -79,7 +79,7 @@ public class ServletHandlerTest {
 
   @Test(expected = IllegalStateException.class)
   public void serviceShouldCatchExceptionAndRethrowAsRuntime() throws Exception {
-    ApplicationHandler dispatcher = (request, response) -> {
+    HttpHandler dispatcher = (request, response) -> {
       throw new Exception("intentional err");
     };
 
@@ -90,7 +90,7 @@ public class ServletHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
 
           Jooby app = unit.mock(Jooby.class);
-          expect(app.require(ApplicationHandler.class)).andReturn(dispatcher);
+          expect(app.require(HttpHandler.class)).andReturn(dispatcher);
           expect(app.require(Config.class)).andReturn(config);
 
           ServletContext ctx = unit.mock(ServletContext.class);
@@ -121,7 +121,7 @@ public class ServletHandlerTest {
 
   @Test(expected = IOException.class)
   public void serviceShouldCatchIOExceptionAndRethrow() throws Exception {
-    ApplicationHandler dispatcher = (request, response) -> {
+    HttpHandler dispatcher = (request, response) -> {
       throw new IOException("intentional err");
     };
 
@@ -132,7 +132,7 @@ public class ServletHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
 
           Jooby app = unit.mock(Jooby.class);
-          expect(app.require(ApplicationHandler.class)).andReturn(dispatcher);
+          expect(app.require(HttpHandler.class)).andReturn(dispatcher);
           expect(app.require(Config.class)).andReturn(config);
 
           ServletContext ctx = unit.mock(ServletContext.class);
@@ -163,7 +163,7 @@ public class ServletHandlerTest {
 
   @Test(expected = ServletException.class)
   public void serviceShouldCatchServletExceptionAndRethrow() throws Exception {
-    ApplicationHandler dispatcher = (request, response) -> {
+    HttpHandler dispatcher = (request, response) -> {
       throw new ServletException("intentional err");
     };
 
@@ -174,7 +174,7 @@ public class ServletHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
 
           Jooby app = unit.mock(Jooby.class);
-          expect(app.require(ApplicationHandler.class)).andReturn(dispatcher);
+          expect(app.require(HttpHandler.class)).andReturn(dispatcher);
           expect(app.require(Config.class)).andReturn(config);
 
           ServletContext ctx = unit.mock(ServletContext.class);

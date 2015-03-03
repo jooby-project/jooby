@@ -39,25 +39,10 @@ public class ServerInitializer implements ServletContextListener {
 
     @Override
     public void configure(final Env env, final Config config, final Binder binder) {
-      binder.bind(Server.class).toInstance(NOOP);
+      binder.bind(Server.class).toInstance(ServletContainer.NOOP);
     }
 
   }
-
-  private static final Server NOOP = new Server() {
-    @Override
-    public void stop() throws Exception {
-    }
-
-    @Override
-    public void start() throws Exception {
-    }
-
-    @Override
-    public void join() throws InterruptedException {
-
-    }
-  };
 
   @Override
   public void contextInitialized(final ServletContextEvent sce) {

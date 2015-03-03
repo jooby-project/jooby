@@ -29,7 +29,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.Attribute;
 
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +40,11 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private ApplicationHandler handler;
+  private HttpHandler handler;
 
   private Config config;
 
-  public NettyHandler(final ApplicationHandler handler, final Config config) {
+  public NettyHandler(final HttpHandler handler, final Config config) {
     this.handler = requireNonNull(handler, "Application handler is required.");
     this.config = requireNonNull(config, "Application config is required.");
   }

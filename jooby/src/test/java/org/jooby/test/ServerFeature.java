@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -216,8 +218,16 @@ public abstract class ServerFeature extends Jooby {
             // friendly junit err
             assertEquals(headerValue, header);
           } else {
-            assertEquals(headerValue, header.getValue());
+            assertEquals(headerValue.toLowerCase(), header.getValue().toLowerCase());
           }
+        }
+        return this;
+      }
+
+      public Response headers(final BiConsumer<String, String> headers)
+          throws Exception {
+        for (Header header : rsp.getAllHeaders()) {
+          headers.accept(header.getName(), header.getValue());
         }
         return this;
       }
@@ -229,6 +239,15 @@ public abstract class ServerFeature extends Jooby {
         } else {
           return header(headerName, headerValue.toString());
         }
+      }
+
+      public Response header(final String headerName, final Optional<Object> headerValue)
+          throws Exception {
+        Header header = rsp.getFirstHeader(headerName);
+        if (header != null) {
+          assertEquals(headerValue.get(), header.getValue());
+        }
+        return this;
       }
 
       public Response header(final String headerName, final Callback callback) throws Exception {
@@ -243,7 +262,6 @@ public abstract class ServerFeature extends Jooby {
         }
         return this;
       }
-
 
       public void request(final ServerCallback request) throws Exception {
         request.execute(server);

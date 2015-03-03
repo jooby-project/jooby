@@ -18,40 +18,23 @@
  */
 package org.jooby.spi;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Optional;
+/**
+ * Bridge between Jooby app and a {@link Server} implementation. Server implementors are not
+ * required to implement this contract, instead they should use or inject the provided
+ * implementation.
+ *
+ * @author edgar
+ * @since 0.5.0
+ */
+public interface HttpHandler {
 
-import org.jooby.Cookie;
-
-public interface NativeResponse {
-
-
-
-  void cookie(Cookie cookie);
-
-  void clearCookie(String name);
-
-  default Optional<String> header(final String name) {
-    List<String> headers = headers(name);
-    return headers.size() == 0 ? Optional.empty() : Optional.of(headers.get(0));
-  }
-
-  List<String> headers(String name);
-
-  void header(String name, String value);
-
-  OutputStream out(int bufferSize) throws IOException;
-
-  int statusCode();
-
-  void statusCode(int code);
-
-  boolean committed();
-
-  void end();
-
-  void reset();
+  /**
+   * Handle an incoming HTTP request.
+   *
+   * @param request HTTP request.
+   * @param response HTTP response.
+   * @throws Exception If execution resulted in exception.
+   */
+  void handle(final NativeRequest request, final NativeResponse response) throws Exception;
 
 }

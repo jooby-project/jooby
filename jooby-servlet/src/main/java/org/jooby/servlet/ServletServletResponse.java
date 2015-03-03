@@ -99,7 +99,8 @@ public class ServletServletResponse implements NativeResponse {
   }
 
   @Override
-  public OutputStream out() throws IOException {
+  public OutputStream out(final int bufferSize) throws IOException {
+    rsp.setBufferSize(bufferSize);
     return rsp.getOutputStream();
   }
 

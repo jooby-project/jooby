@@ -39,11 +39,11 @@ import com.typesafe.config.Config;
 
 public class UndertowHandler implements HttpHandler {
 
-  private org.jooby.spi.ApplicationHandler handler;
+  private org.jooby.spi.HttpHandler handler;
 
   private Config config;
 
-  public UndertowHandler(final org.jooby.spi.ApplicationHandler handler, final Config config) {
+  public UndertowHandler(final org.jooby.spi.HttpHandler handler, final Config config) {
     this.handler = handler;
     this.config = config;
   }

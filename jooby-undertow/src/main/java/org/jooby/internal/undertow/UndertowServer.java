@@ -30,7 +30,6 @@ import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
-import org.jooby.spi.ApplicationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnio.Option;
@@ -53,7 +52,8 @@ public class UndertowServer implements org.jooby.spi.Server {
   private final GracefulShutdownHandler shutdown;
 
   @Inject
-  public UndertowServer(final ApplicationHandler dispatcher, final Config config) throws Exception {
+  public UndertowServer(final org.jooby.spi.HttpHandler dispatcher, final Config config)
+      throws Exception {
 
     shutdown = new GracefulShutdownHandler(doHandler(dispatcher, config));
     this.server = configure(config, io.undertow.Undertow.builder())
@@ -155,7 +155,7 @@ public class UndertowServer implements org.jooby.spi.Server {
     }
   }
 
-  private static HttpHandler doHandler(final ApplicationHandler dispatcher,
+  private static HttpHandler doHandler(final org.jooby.spi.HttpHandler dispatcher,
       final Config config) {
     return new UndertowHandler(dispatcher, config);
   }

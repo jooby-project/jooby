@@ -50,7 +50,7 @@ import org.jooby.Status;
 import org.jooby.Verb;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.Definition;
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeResponse;
 import org.jooby.spi.NativeWebSocket;
@@ -59,16 +59,17 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
+import com.typesafe.config.Config;
 
 @Singleton
-public class ApplicationHandlerImpl implements ApplicationHandler {
+public class HttpHandlerImpl implements HttpHandler {
 
   private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
 
   private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
 
   /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(ApplicationHandler.class);
+  private final Logger log = LoggerFactory.getLogger(HttpHandler.class);
 
   private Set<Route.Definition> routeDefs;
 
@@ -82,8 +83,10 @@ public class ApplicationHandlerImpl implements ApplicationHandler {
 
   private Set<Definition> socketDefs;
 
+  private int maxBufferSize;
+
   @Inject
-  public ApplicationHandlerImpl(final Injector injector,
+  public HttpHandlerImpl(final Injector injector,
       final RequestScope requestScope,
       final Set<Route.Definition> routes,
       final Set<WebSocket.Definition> sockets,
@@ -95,6 +98,8 @@ public class ApplicationHandlerImpl implements ApplicationHandler {
     this.socketDefs = requireNonNull(sockets, "Sockets are required.");
     this.applicationPath = normalizeURI(requireNonNull(path, "An application.path is required."));
     this.err = requireNonNull(err, "An err handler is required.");
+    Config config = injector.getInstance(Config.class);
+    this.maxBufferSize = config.getBytes("server.http.ResponseBufferSize").intValue();
   }
 
   @Override
@@ -128,8 +133,8 @@ public class ApplicationHandlerImpl implements ApplicationHandler {
 
     RequestImpl req = new RequestImpl(injector, request, notFound, locals);
 
-    ResponseImpl rsp = new ResponseImpl(injector, response, notFound, locals, req.charset(),
-        request.header("Referer"));
+    ResponseImpl rsp = new ResponseImpl(injector, response, maxBufferSize, notFound, locals,
+        req.charset(), request.header("Referer"));
 
     MediaType type = req.type();
 

@@ -16,15 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.spi;
+package org.jooby.servlet;
+
+import org.jooby.spi.Server;
 
 /**
+ * NOOP server for servlets.
  *
  * @author edgar
- * @since 0.5.0
  */
-public interface ApplicationHandler {
+public class ServletContainer implements Server {
 
-  void handle(final NativeRequest request, final NativeResponse response) throws Exception;
+  public static final Server NOOP = new ServletContainer();
+
+  private ServletContainer() {
+  }
+
+  @Override
+  public void start() throws Exception {
+  }
+
+  @Override
+  public void stop() throws Exception {
+  }
+
+  @Override
+  public void join() throws InterruptedException {
+  }
 
 }

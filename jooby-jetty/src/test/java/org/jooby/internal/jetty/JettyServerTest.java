@@ -3,7 +3,7 @@ package org.jooby.internal.jetty;
 import java.util.Map;
 
 import org.jooby.MockUnit;
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
 import org.junit.Test;
 
@@ -56,9 +56,9 @@ public class JettyServerTest {
         .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"))
         .withValue("application.tmpdir", ConfigValueFactory.fromAnyRef("target"));
 
-    new MockUnit(ApplicationHandler.class)
+    new MockUnit(HttpHandler.class)
         .run(unit -> {
-          Server server = new JettyServer(unit.get(ApplicationHandler.class), config);
+          Server server = new JettyServer(unit.get(HttpHandler.class), config);
           try {
             server.start();
           } finally {

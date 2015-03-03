@@ -36,7 +36,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
-import org.jooby.spi.ApplicationHandler;
+import org.jooby.spi.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,11 +52,11 @@ public class JettyServer implements org.jooby.spi.Server {
   private Server server;
 
   @Inject
-  public JettyServer(final ApplicationHandler handler, final Config config) {
+  public JettyServer(final HttpHandler handler, final Config config) {
     this.server = server(handler, config);
   }
 
-  private Server server(final ApplicationHandler handler, final Config config) {
+  private Server server(final HttpHandler handler, final Config config) {
     System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset",
         config.getString("jetty.url.charset"));
 

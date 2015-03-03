@@ -85,7 +85,7 @@ public class UndertowResponse implements NativeResponse {
   }
 
   @Override
-  public OutputStream out() {
+  public OutputStream out(final int bufferSize) {
     if (stream == null) {
       stream = exchange.getOutputStream();
     }
