@@ -40,6 +40,11 @@ public interface Server {
    */
   void stop() throws Exception;
 
+  /**
+   * Waits for this thread to die.
+   *
+   * @throws InterruptedException If wait didn't success.
+   */
   void join() throws InterruptedException;
 
 }

@@ -24,14 +24,41 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * File upload from multipart/form-data post.
+ *
+ * @author edgar
+ * @since 0.5.0
+ */
 public interface NativeUpload extends Closeable {
 
+  /**
+   * @return File name.
+   */
   String name();
 
+  /**
+   * File header, like <code>Content-Type</code>, <code>Content-Transfer-Encoding</code>, etc.
+   *
+   * @param name Header's name.
+   * @return A header value or empty optional.
+   */
   Optional<String> header(String name);
 
+  /**
+   * Get all the file headers for the given name.
+   *
+   * @param name A header's name.
+   * @return All available values or and empty list.
+   */
   List<String> headers(String name);
 
+  /**
+   * Get the actual file link/reference and do something with it.
+   *
+   * @return A file from local file system.
+   * @throws IOException If file failed to read/write from local file system.
+   */
   File file() throws IOException;
 
 }
