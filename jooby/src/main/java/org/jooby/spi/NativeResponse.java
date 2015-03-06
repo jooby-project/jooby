@@ -74,12 +74,13 @@ public interface NativeResponse {
 
   /**
    * Get an output stream and prepare to send a response. You need to make sure status and headers
-   * are set beforing calling this method. Attempt to set status and headers after calling output
+   * are set before calling this method. Attempt to set status and headers after calling output
    * stream if undefined and might result in error or just ignored.
    *
    * @param bufferSize The preferred buffer size for sending a response. Default buffer size is:
    *        <code>16k</code>. Default buffer size by setting the:
-   *        <code>server.http.ResponseBufferSize</code> property in your <code>*.conf property file.
+   *        <code>server.http.ResponseBufferSize</code> property in your <code>*.conf</code>
+   *        property file.
    *        If the <code>Content-Length</code> header was set and it is less than buffer size, the
    *        the <code>Content-Length</code> will be used it as buffer size.
    * @return

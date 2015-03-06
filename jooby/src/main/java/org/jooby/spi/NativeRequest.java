@@ -134,6 +134,7 @@ public interface NativeRequest {
    * Upgrade the request to something else...like a web socket.
    *
    * @param type Upgrade type.
+   * @param <T> Upgrade type.
    * @return A instance of the upgrade.
    * @throws Exception If the upgrade fails or it is un-supported.
    * @see NativeWebSocket

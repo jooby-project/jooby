@@ -227,6 +227,8 @@ public interface WebSocket extends Closeable {
 
     /**
      * Invoked if something goes wrong.
+     *
+     * @param err Err cause.
      */
     void invoke(Throwable err);
   }

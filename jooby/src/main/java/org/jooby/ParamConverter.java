@@ -120,7 +120,7 @@ public interface ParamConverter {
   /**
    * <p>
    *  Convert one or more values to the required type. If the converter doesn't support the
-   *  required type a call to {@link Chain#convert(TypeLiteral, Object[])} must be done.
+   *  required type a call to {@link Context#convert(TypeLiteral, Object[])} must be done.
    * </p>
    *
    * Example:

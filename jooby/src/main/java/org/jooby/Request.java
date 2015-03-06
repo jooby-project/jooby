@@ -437,6 +437,7 @@ public interface Request extends Locals {
    * <li>Query parameter, like: <code>?name=jooby</code></li>
    * </ul>
    *
+   * @param beanType Type of the target bean.
    * @param <T> Target type.
    * @return A bean with request params and/or headers.
    * @throws Exception On param retrieval failures.
@@ -535,7 +536,6 @@ public interface Request extends Locals {
    * @param type A service type.
    * @param <T> Service type.
    * @return A ready to use object.
-   * @see Request.Module
    */
   @Nonnull
   default <T> T require(@Nonnull final Class<T> type) {
@@ -548,7 +548,6 @@ public interface Request extends Locals {
    * @param type A service type.
    * @param <T> Service type.
    * @return A ready to use object.
-   * @see Request.Module
    */
   @Nonnull
   default <T> T require(@Nonnull final TypeLiteral<T> type) {
@@ -561,7 +560,6 @@ public interface Request extends Locals {
    * @param key A service key.
    * @param <T> Service type.
    * @return A ready to use object.
-   * @see Request.Module
    */
   @Nonnull
   <T> T require(@Nonnull Key<T> key);

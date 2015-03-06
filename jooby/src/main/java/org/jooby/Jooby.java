@@ -382,8 +382,7 @@ public class Jooby {
 
   /**
    * A module can publish or produces: {@link Route.Definition routes}, {@link Body.Parser},
-   * {@link Body.Formatter}, {@link Request.Module request modules} and any other
-   * application specific service or contract of your choice.
+   * {@link Body.Formatter}, and any other application specific service or contract of your choice.
    * <p>
    * It is similar to {@link com.google.inject.Module} except for the callback method receives a
    * {@link Env}, {@link Config} and {@link Binder}.
@@ -870,7 +869,7 @@ public class Jooby {
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
-   * @param handler A handler to execute.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definitions get(final @Nonnull String path1, final @Nonnull String path2,
@@ -893,7 +892,7 @@ public class Jooby {
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param path3 A path pattern.
-   * @param handler A handler to execute.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definitions get(final @Nonnull String path1, final @Nonnull String path2,
@@ -1130,7 +1129,7 @@ public class Jooby {
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
-   * @param handler A handler to execute.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definitions post(final @Nonnull String path1, final @Nonnull String path2,
@@ -1153,7 +1152,7 @@ public class Jooby {
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param path3 A path pattern.
-   * @param handler A handler to execute.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definitions post(final @Nonnull String path1, final @Nonnull String path2,
@@ -1588,7 +1587,7 @@ public class Jooby {
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
-   * @param handler A handler to execute.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definitions put(final @Nonnull String path1, final @Nonnull String path2,
@@ -1611,7 +1610,7 @@ public class Jooby {
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param path3 A path pattern.
-   * @param handler A handler to execute.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definitions put(final @Nonnull String path1, final @Nonnull String path2,
@@ -1851,7 +1850,7 @@ public class Jooby {
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
-   * @param handler A handler to execute.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definitions patch(final @Nonnull String path1, final @Nonnull String path2,
@@ -1874,7 +1873,7 @@ public class Jooby {
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param path3 A path pattern.
-   * @param handler A handler to execute.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definitions patch(final @Nonnull String path1, final @Nonnull String path2,
@@ -2120,7 +2119,7 @@ public class Jooby {
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
-   * @param handler A handler to execute.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definitions delete(final @Nonnull String path1,
@@ -2143,7 +2142,7 @@ public class Jooby {
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param path3 A path pattern.
-   * @param handler A handler to execute.
+   * @param filter A filter to execute.
    * @return A new route definition.
    */
   public @Nonnull Route.Definitions delete(final @Nonnull String path1,
