@@ -35,14 +35,16 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
-public class RootParamConverter {
+public class ParamResolver {
+
+  private static final Object NOT_FOUND = new Object();
 
   private List<ParamConverter> converters;
 
   private Provider<Request> req;
 
   @Inject
-  public RootParamConverter(final Provider<Request> req, final Set<ParamConverter> converters) {
+  public ParamResolver(final Provider<Request> req, final Set<ParamConverter> converters) {
     this.req = requireNonNull(req, "A HTTP request is required.");
     this.converters = ImmutableList.copyOf(converters);
   }
@@ -55,7 +57,11 @@ public class RootParamConverter {
   public <T> T convert(final TypeLiteral<?> type, final Object[] values) {
     try {
       requireNonNull(type, "A type is required.");
-      return (T) chain(req, type, converters).convert(type, values);
+      Object result = chain(req, type, converters).convert(type, values);
+      if (result == NOT_FOUND) {
+        throw new Err(Status.BAD_REQUEST, "No converter for " + type);
+      }
+      return (T) result;
     } catch (Err err) {
       throw err;
     } catch (Exception ex) {
@@ -74,7 +80,7 @@ public class RootParamConverter {
       public Object convert(final TypeLiteral<?> nexttype, final Object[] values)
           throws Exception {
         if (cursor == converters.size()) {
-          throw new Err(Status.BAD_REQUEST, "No converter for " + type);
+          return NOT_FOUND;
         }
         if (!type.equals(nexttype)) {
           // reset cursor on type changes.

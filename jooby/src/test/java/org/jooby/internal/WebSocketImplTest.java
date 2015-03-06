@@ -19,7 +19,7 @@ import org.jooby.Mutant;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.Callback;
 import org.jooby.WebSocket.CloseStatus;
-import org.jooby.internal.reqparam.RootParamConverter;
+import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.spi.NativeWebSocket;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -269,8 +269,8 @@ public class WebSocketImplTest {
         })
         .expect(unit -> {
           Injector injector = unit.get(Injector.class);
-          expect(injector.getInstance(RootParamConverter.class)).andReturn(
-              unit.mock(RootParamConverter.class));
+          expect(injector.getInstance(ParamResolver.class)).andReturn(
+              unit.mock(ParamResolver.class));
         })
         .run(unit -> {
           WebSocketImpl ws = new WebSocketImpl(

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jooby.Mutant;
-import org.jooby.internal.reqparam.RootParamConverter;
+import org.jooby.internal.reqparam.ParamResolver;
 
 import com.google.inject.TypeLiteral;
 
@@ -39,16 +39,16 @@ public class MutantImpl implements Mutant {
 
   private final Map<Object, Object> results = new HashMap<>(1);
 
-  private final RootParamConverter converter;
+  private final ParamResolver converter;
 
   private final Object[] values;
 
-  public MutantImpl(final RootParamConverter converter, final Object[] values) {
+  public MutantImpl(final ParamResolver converter, final Object[] values) {
     this.converter = converter;
     this.values = values;
   }
 
-  public MutantImpl(final RootParamConverter converter,
+  public MutantImpl(final ParamResolver converter,
       final List<? extends Object> headers) {
     this(converter, headers == null || headers.size() == 0
         ? null

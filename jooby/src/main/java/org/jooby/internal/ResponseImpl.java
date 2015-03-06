@@ -45,7 +45,7 @@ import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.Verb;
 import org.jooby.fn.ExSupplier;
-import org.jooby.internal.reqparam.RootParamConverter;
+import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.spi.NativeResponse;
 
 import com.google.common.base.Joiner;
@@ -131,7 +131,7 @@ public class ResponseImpl implements Response {
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "A header's name is required.");
-    return new MutantImpl(injector.getInstance(RootParamConverter.class), rsp.headers(name));
+    return new MutantImpl(injector.getInstance(ParamResolver.class), rsp.headers(name));
   }
 
   @Override

@@ -36,7 +36,7 @@ import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.WebSocket;
 import org.jooby.fn.ExSupplier;
-import org.jooby.internal.reqparam.RootParamConverter;
+import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,7 +160,7 @@ public class WebSocketImpl implements WebSocket {
     ws.onTextMessage(message -> {
       try {
         messageCallback.invoke(
-            new MutantImpl(injector.getInstance(RootParamConverter.class), new Object[]{message })
+            new MutantImpl(injector.getInstance(ParamResolver.class), new Object[]{message })
             );
       } catch (Throwable ex) {
         handleErr(ex);

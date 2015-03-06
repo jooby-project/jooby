@@ -44,7 +44,7 @@ import org.jooby.Session;
 import org.jooby.Status;
 import org.jooby.fn.Collectors;
 import org.jooby.internal.reqparam.BeanParamInjector;
-import org.jooby.internal.reqparam.RootParamConverter;
+import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 
@@ -166,7 +166,7 @@ public class RequestImpl implements Request {
     if (param == null) {
       List<NativeUpload> files = req.files(name);
       if (files.size() > 0) {
-        param = new MutantImpl(require(RootParamConverter.class), req.files(name).stream()
+        param = new MutantImpl(require(ParamResolver.class), req.files(name).stream()
             .map(upload -> new UploadImpl(injector, upload))
             .collect(Collectors.toList()));
       } else {
@@ -176,7 +176,7 @@ public class RequestImpl implements Request {
           values.add(pathvar);
         }
         values.addAll(req.params(name));
-        param = new MutantImpl(require(RootParamConverter.class), values);
+        param = new MutantImpl(require(ParamResolver.class), values);
       }
       this.params.put(name, param);
     }
@@ -186,7 +186,7 @@ public class RequestImpl implements Request {
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "Header's name is missing.");
-    return new MutantImpl(require(RootParamConverter.class), req.headers(name));
+    return new MutantImpl(require(ParamResolver.class), req.headers(name));
   }
 
   @Override

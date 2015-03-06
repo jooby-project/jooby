@@ -44,7 +44,7 @@ import org.jooby.internal.reqparam.EnumParamConverter;
 import org.jooby.internal.reqparam.LocalDateParamConverter;
 import org.jooby.internal.reqparam.LocaleParamConverter;
 import org.jooby.internal.reqparam.OptionalParamConverter;
-import org.jooby.internal.reqparam.RootParamConverter;
+import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.internal.reqparam.StaticMethodParamConverter;
 import org.jooby.internal.reqparam.StringConstructorParamConverter;
 import org.jooby.internal.reqparam.UploadParamConverter;
@@ -393,10 +393,10 @@ public class JoobyTest {
   private MockUnit.Block params = unit -> {
     Binder binder = unit.get(Binder.class);
 
-    AnnotatedBindingBuilder<RootParamConverter> parambinding = unit
+    AnnotatedBindingBuilder<ParamResolver> parambinding = unit
         .mock(AnnotatedBindingBuilder.class);
 
-    expect(binder.bind(RootParamConverter.class)).andReturn(parambinding);
+    expect(binder.bind(ParamResolver.class)).andReturn(parambinding);
 
     Multibinder<ParamConverter> multibinder = unit.mock(Multibinder.class, true);
 

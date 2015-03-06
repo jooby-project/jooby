@@ -20,7 +20,7 @@ import org.jooby.internal.reqparam.EnumParamConverter;
 import org.jooby.internal.reqparam.LocalDateParamConverter;
 import org.jooby.internal.reqparam.LocaleParamConverter;
 import org.jooby.internal.reqparam.OptionalParamConverter;
-import org.jooby.internal.reqparam.RootParamConverter;
+import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.internal.reqparam.StaticMethodParamConverter;
 import org.jooby.internal.reqparam.StringConstructorParamConverter;
 import org.junit.Test;
@@ -487,8 +487,8 @@ public class MutantImplTest {
         : new String[]{value });
   }
 
-  private RootParamConverter newConverter() {
-    return new RootParamConverter(() -> createMock(Request.class),
+  private ParamResolver newConverter() {
+    return new ParamResolver(() -> createMock(Request.class),
         Sets.newLinkedHashSet(
             Arrays.asList(
                 new CommonTypesParamConverter(),

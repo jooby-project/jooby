@@ -96,7 +96,7 @@ import org.jooby.internal.reqparam.EnumParamConverter;
 import org.jooby.internal.reqparam.LocalDateParamConverter;
 import org.jooby.internal.reqparam.LocaleParamConverter;
 import org.jooby.internal.reqparam.OptionalParamConverter;
-import org.jooby.internal.reqparam.RootParamConverter;
+import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.internal.reqparam.StaticMethodParamConverter;
 import org.jooby.internal.reqparam.StringConstructorParamConverter;
 import org.jooby.internal.reqparam.UploadParamConverter;
@@ -2873,7 +2873,7 @@ public class Jooby {
       converters.add(new StaticMethodParamConverter("forName"));
       converters.add(new StringConstructorParamConverter());
 
-      binder.bind(RootParamConverter.class);
+      binder.bind(ParamResolver.class);
 
       Multibinder<ParamConverter> converterBinder = Multibinder
           .newSetBinder(binder, ParamConverter.class);
