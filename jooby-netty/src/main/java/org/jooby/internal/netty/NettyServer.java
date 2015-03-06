@@ -74,7 +74,8 @@ public class NettyServer implements Server {
     ServerBootstrap bootstrap = new ServerBootstrap();
 
     DefaultEventExecutorGroup executor =
-          new DefaultEventExecutorGroup(config.getInt("server.threads.Max"));
+          new DefaultEventExecutorGroup(config.getInt("netty.threads.Max"),
+              new DefaultThreadFactory(config.getString("netty.threads.Name")));
 
     bootstrap.group(bossGroup, workerGroup)
         .channel(NioServerSocketChannel.class)

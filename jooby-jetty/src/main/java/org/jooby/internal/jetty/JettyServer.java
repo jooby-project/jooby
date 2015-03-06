@@ -65,6 +65,7 @@ public class JettyServer implements org.jooby.spi.Server {
 
     QueuedThreadPool pool = configure(new QueuedThreadPool(), config.getConfig("jetty.threads"),
         "jetty.threads");
+    pool.setName("jetty");
 
     Server server = new Server(pool);
     server.setStopAtShutdown(false);
