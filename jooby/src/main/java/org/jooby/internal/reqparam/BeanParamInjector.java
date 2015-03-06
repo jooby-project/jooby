@@ -22,12 +22,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.jooby.Err;
+import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Status;
 import org.jooby.internal.RouteMetadata;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.Reflection;
@@ -67,18 +70,23 @@ public class BeanParamInjector {
     bean = constructor.newInstance(args);
 
     // inject fields
-    Field[] fields = beanType.getDeclaredFields();
-    for (Field field : fields) {
-      int mods = field.getModifiers();
-      if (!Modifier.isFinal(mods) && !Modifier.isStatic(mods)) {
-        // get
-        RequestParam param = new RequestParam(field);
-        @SuppressWarnings("unchecked")
-        Object value = req.param(param.name).to(param.type);
+    for (Entry<String, Mutant> param : req.params().entrySet()) {
+      String name = param.getKey();
+      try {
+        Field field = beanType.getDeclaredField(name);
+        int mods = field.getModifiers();
+        if (!Modifier.isFinal(mods) && !Modifier.isStatic(mods)) {
+          // get
+          RequestParam fparam = new RequestParam(field);
+          @SuppressWarnings("unchecked")
+          Object value = req.param(fparam.name).to(fparam.type);
 
-        // set
-        field.setAccessible(true);
-        field.set(bean, value);
+          // set
+          field.setAccessible(true);
+          field.set(bean, value);
+        }
+      } catch (NoSuchFieldException ex) {
+        LoggerFactory.getLogger(Request.class).info("No matching field: {}", name);
       }
     }
     return bean;

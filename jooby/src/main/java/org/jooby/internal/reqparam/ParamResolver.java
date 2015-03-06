@@ -57,7 +57,7 @@ public class ParamResolver {
   public <T> T convert(final TypeLiteral<?> type, final Object[] values) {
     try {
       requireNonNull(type, "A type is required.");
-      Object result = chain(req, type, converters).convert(type, values);
+      Object result = ctx(req, type, converters).convert(type, values);
       if (result == NOT_FOUND) {
         throw new Err(Status.BAD_REQUEST, "No converter for " + type);
       }
@@ -69,7 +69,7 @@ public class ParamResolver {
     }
   }
 
-  private static ParamConverter.Context chain(final Provider<Request> req,
+  private static ParamConverter.Context ctx(final Provider<Request> req,
       final TypeLiteral<?> seed, final List<ParamConverter> converters) {
     return new ParamConverter.Context() {
       int cursor = 0;
@@ -98,6 +98,7 @@ public class ParamResolver {
       public <T> T require(final Key<T> key) {
         return req.get().require(key);
       }
+
     };
   }
 }

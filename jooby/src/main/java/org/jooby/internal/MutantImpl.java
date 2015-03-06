@@ -49,10 +49,10 @@ public class MutantImpl implements Mutant {
   }
 
   public MutantImpl(final ParamResolver converter,
-      final List<? extends Object> headers) {
-    this(converter, headers == null || headers.size() == 0
+      final List<? extends Object> values) {
+    this(converter, values == null || values.size() == 0
         ? null
-        : headers.toArray(new Object[headers.size()]));
+        : values.toArray(new Object[values.size()]));
   }
 
   @SuppressWarnings("unchecked")
