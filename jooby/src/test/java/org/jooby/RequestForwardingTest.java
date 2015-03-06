@@ -2,9 +2,11 @@ package org.jooby;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.util.Collections;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -208,13 +210,16 @@ public class RequestForwardingTest {
 
           expect(req.require(Object.class)).andReturn(null);
         })
-        .run(unit -> {
-          assertEquals(null, new Request.Forwarding(unit.get(Request.class)).require(key));
+        .run(
+            unit -> {
+              assertEquals(null, new Request.Forwarding(unit.get(Request.class)).require(key));
 
-          assertEquals(null, new Request.Forwarding(unit.get(Request.class)).require(typeLiteral));
+              assertEquals(null,
+                  new Request.Forwarding(unit.get(Request.class)).require(typeLiteral));
 
-          assertEquals(null, new Request.Forwarding(unit.get(Request.class)).require(Object.class));
-        });
+              assertEquals(null,
+                  new Request.Forwarding(unit.get(Request.class)).require(Object.class));
+            });
   }
 
   @Test
@@ -355,6 +360,107 @@ public class RequestForwardingTest {
         .run(unit -> {
           assertEquals(true, new Request.Forwarding(unit.get(Request.class)).xhr());
         });
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void attributes() throws Exception {
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.attributes()).andReturn(unit.get(Map.class));
+        })
+        .run(unit -> {
+          assertEquals(unit.get(Map.class),
+              new Request.Forwarding(unit.get(Request.class)).attributes());
+        });
+  }
+
+  @Test
+  public void get() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.get("name")).andReturn(Optional.of("value"));
+        })
+        .run(unit -> {
+          assertEquals(Optional.of("value"),
+              new Request.Forwarding(unit.get(Request.class)).get("name"));
+        });
+  }
+
+  @Test
+  public void set() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.set("name", "value")).andReturn(req);
+        })
+        .run(unit -> {
+          assertNotEquals(unit.get(Request.class),
+              new Request.Forwarding(unit.get(Request.class)).set("name", "value"));
+        });
+  }
+
+  @Test
+  public void setWithKey() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.set(Key.get(String.class), "value")).andReturn(req);
+        })
+        .run(unit -> {
+          assertNotEquals(unit.get(Request.class),
+              new Request.Forwarding(unit.get(Request.class)).set(Key.get(String.class), "value"));
+        });
+  }
+
+  @Test
+  public void setWithClass() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.set(String.class, "value")).andReturn(req);
+        })
+        .run(unit -> {
+          assertNotEquals(unit.get(Request.class),
+              new Request.Forwarding(unit.get(Request.class)).set(String.class, "value"));
+        });
+  }
+
+  @Test
+  public void setWithTypeLiteral() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.set(TypeLiteral.get(String.class), "value")).andReturn(req);
+        })
+        .run(unit -> {
+          assertNotEquals(unit.get(Request.class),
+              new Request.Forwarding(unit.get(Request.class)).set(TypeLiteral.get(String.class), "value"));
+        });
+  }
+
+  @Test
+  public void unset() throws Exception {
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.unset("name")).andReturn(Optional.empty());
+        })
+        .run(unit -> {
+              assertEquals(Optional.empty(),
+                  new Request.Forwarding(unit.get(Request.class)).unset("name"));
+            });
+  }
+
+  @Test
+  public void toStringFwd() throws Exception {
+    new MockUnit(Request.class, Map.class)
+        .run(unit -> {
+              assertEquals(unit.get(Request.class).toString(),
+                  new Request.Forwarding(unit.get(Request.class)).toString());
+            });
   }
 
 }

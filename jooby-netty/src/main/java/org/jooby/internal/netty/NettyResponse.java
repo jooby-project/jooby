@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jooby.spi.NativeResponse;
 
@@ -86,6 +87,12 @@ public class NettyResponse implements NativeResponse {
   public List<String> headers(final String name) {
     List<String> headers = this.headers.getAll(name);
     return headers == null ? Collections.emptyList() : ImmutableList.copyOf(headers);
+  }
+
+  @Override
+  public Optional<String> header(final String name) {
+    String value = this.headers.get(name);
+    return Optional.ofNullable(value);
   }
 
   @Override

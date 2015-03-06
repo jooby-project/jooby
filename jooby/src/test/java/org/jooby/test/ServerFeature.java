@@ -356,6 +356,24 @@ public abstract class ServerFeature extends Jooby {
       return req;
     }
 
+    public Request put(final String path) throws URISyntaxException {
+      this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Put(host
+          + path));
+      return req;
+    }
+
+    public Request delete(final String path) throws URISyntaxException {
+      this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Delete(host
+          + path));
+      return req;
+    }
+
+    public Request patch(final String path) throws URISyntaxException {
+      this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Patch(host
+          + path));
+      return req;
+    }
+
     void stop() throws IOException {
       if (this.req != null) {
         this.req.close();

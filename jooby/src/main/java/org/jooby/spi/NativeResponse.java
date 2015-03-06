@@ -54,10 +54,7 @@ public interface NativeResponse {
    * @param name Header's name.
    * @return Header.
    */
-  default Optional<String> header(final String name) {
-    List<String> headers = headers(name);
-    return headers.size() == 0 ? Optional.empty() : Optional.of(headers.get(0));
-  }
+  Optional<String> header(final String name);
 
   /**
    * Get all the response headers for the provided name.

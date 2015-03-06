@@ -230,17 +230,20 @@ public interface Request extends Locals {
 
     @Override
     public Request set(final Key<?> key, final Object value) {
-      return req.set(key, value);
+      req.set(key, value);
+      return this;
     }
 
     @Override
     public Request set(final Class<?> type, final Object value) {
-      return req.set(type, value);
+      req.set(type, value);
+      return this;
     }
 
     @Override
     public Request set(final TypeLiteral<?> type, final Object value) {
-      return req.set(type, value);
+      req.set(type, value);
+      return this;
     }
 
     @Override

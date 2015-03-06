@@ -150,11 +150,11 @@ class NettyOutputStream extends OutputStream {
         // send keep alive and don't close the channel
         headers.set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
         rsp.headers().set(headers);
-        ctx.write(rsp);
+        ctx.writeAndFlush(rsp);
       } else {
         // don't send keep alive and close the channel.
         rsp.headers().set(headers);
-        ctx.write(rsp).addListener(ChannelFutureListener.CLOSE);
+        ctx.writeAndFlush(rsp).addListener(ChannelFutureListener.CLOSE);
       }
       return;
     }

@@ -438,7 +438,7 @@ public class MediaType implements Comparable<MediaType> {
       return true;
     }
     if (type.equals(that.type)) {
-      if (subtype.equals(that.subtype) || this.wildcardSubtype) {
+      if (subtype.equals(that.subtype) || this.wildcardSubtype || that.wildcardSubtype) {
         return true;
       }
       if (subtype.startsWith("*+")) {

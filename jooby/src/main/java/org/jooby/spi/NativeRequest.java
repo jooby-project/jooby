@@ -76,10 +76,7 @@ public interface NativeRequest {
    * @param name Header name.
    * @return The first header for the provided name or a empty list.
    */
-  default Optional<String> header(final String name) {
-    List<String> headers = headers(name);
-    return headers.size() == 0 ? Optional.empty() : Optional.of(headers.get(0));
-  }
+  Optional<String> header(final String name);
 
   /**
    * @return All the header names or an empty list.

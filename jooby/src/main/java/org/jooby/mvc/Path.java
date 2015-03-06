@@ -77,5 +77,5 @@ public @interface Path {
   /**
    * @return Route path pattern.
    */
-  String value();
+  String[] value();
 }

@@ -18,6 +18,8 @@
  */
 package org.jooby.internal;
 
+import static java.util.Objects.requireNonNull;
+
 import java.net.URL;
 import java.util.Date;
 
@@ -31,11 +33,17 @@ import org.jooby.Status;
 
 public class AssetHandler implements Route.Filter {
 
+  private String location;
+
+  public AssetHandler(final String location) {
+    this.location = RoutePattern.normalize(requireNonNull(location, "A location is required."));
+  }
+
   @Override
   public void handle(final Request req, final Response rsp, final Route.Chain chain)
       throws Exception {
     String path = req.path();
-    Asset resource = resolve(path, MediaType.byPath(path).orElse(MediaType.octetstream));
+    Asset resource = resolve(path);
 
     long lastModified = resource.lastModified();
 
@@ -56,12 +64,16 @@ public class AssetHandler implements Route.Filter {
     rsp.send(resource);
   }
 
-  private Asset resolve(final String path, final MediaType mediaType) throws Exception {
-    URL resource = getClass().getResource(path);
+  private Asset resolve(final String path) throws Exception {
+    String absolutePath = location;
+    if (!path.equals("/")) {
+      absolutePath += path.substring(1);
+    }
+    URL resource = getClass().getResource(absolutePath);
     if (resource == null) {
       throw new Err(Status.NOT_FOUND, path);
     }
 
-    return new URLAsset(resource, mediaType);
+    return new URLAsset(resource, MediaType.byPath(absolutePath).orElse(MediaType.octetstream));
   }
 }

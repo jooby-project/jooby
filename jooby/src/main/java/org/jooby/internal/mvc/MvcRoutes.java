@@ -54,7 +54,9 @@ import org.jooby.mvc.TRACE;
 
 import com.google.common.collect.ImmutableSet;
 
-public class Routes {
+public class MvcRoutes {
+
+  private static final String[] NO_PATHS = new String[0];
 
   @SuppressWarnings("unchecked")
   private static final Set<Class<? extends Annotation>> VERBS = ImmutableSet.of(GET.class,
@@ -68,7 +70,7 @@ public class Routes {
     RequestParamProvider provider =
         new RequestParamProviderImpl(new RequestParamNameProvider(classInfo));
 
-    String rootPath = path(routeClass);
+    String[] rootPaths = path(routeClass);
 
     Map<Method, List<Class<?>>> methods = new HashMap<>();
     for (Method method : routeClass.getDeclaredMethods()) {
@@ -97,31 +99,34 @@ public class Routes {
           int l2 = classInfo.startAt(m2);
           return l1 - l2;
         })
-        .forEach(
-            method -> {
-              List<Class<?>> verbs = methods.get(method);
-              String path = rootPath + "/" + path(method);
+        .forEach(method -> {
+          /**
+           * Param provider: dev vs none dev
+           */
+          RequestParamProvider paramProvider = provider;
+          if (!env.name().equals("dev")) {
+            List<RequestParam> params = provider.parameters(method);
+            paramProvider = (h) -> params;
+          }
+
+          List<Class<?>> verbs = methods.get(method);
+          List<MediaType> produces = produces(method);
+          List<MediaType> consumes = consumes(method);
+
+          for (String path : expandPaths(rootPaths, method)) {
+            for (Class<?> verb : verbs) {
               String name = routeClass.getSimpleName() + "." + method.getName();
-              List<MediaType> produces = produces(method);
-              /**
-               * Param provider: dev vs none dev
-               */
-              RequestParamProvider paramProvider = provider;
-              if (!env.name().equals("dev")) {
-                List<RequestParam> params = provider.parameters(method);
-                paramProvider = (h) -> params;
-              }
 
-              for (Class<?> verb : verbs) {
-                Definition definition = new Route.Definition(
-                    verb.getSimpleName(), path, new MvcHandler(method, paramProvider, produces))
-                    .produces(produces)
-                    .consumes(consumes(method))
-                    .name(name);
+              Definition definition = new Route.Definition(
+                  verb.getSimpleName(), path, new MvcHandler(method, paramProvider, produces))
+                  .produces(produces)
+                  .consumes(consumes)
+                  .name(name);
 
-                definitions.add(definition);
-              }
-            });
+              definitions.add(definition);
+            }
+          }
+        });
 
     return definitions;
   }
@@ -160,12 +165,33 @@ public class Routes {
             .orElse(MediaType.ALL));
   }
 
-  private static String path(final AnnotatedElement owner) {
+  private static String[] path(final AnnotatedElement owner) {
     Path annotation = owner.getAnnotation(Path.class);
     if (annotation == null) {
-      return "";
+      return NO_PATHS;
     }
     return annotation.value();
   }
 
+  private static String[] expandPaths(final String[] root, final Method m) {
+    String[] path = path(m);
+    if (root.length == 0) {
+      if (path.length == 0) {
+        throw new IllegalArgumentException("No path(s) found for: " + m);
+      }
+      return path;
+    }
+    if (path.length == 0) {
+      return root;
+    }
+    String[] result = new String[root.length * path.length];
+    int k = 0;
+    for (String base : root) {
+      for (String element : path) {
+        result[k] = base + "/" + element;
+        k += 1;
+      }
+    }
+    return result;
+  }
 }

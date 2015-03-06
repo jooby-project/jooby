@@ -43,9 +43,9 @@ import com.google.common.collect.Lists;
  *
  * <h1>Handlers</h1>
  * <p>
- * There are two types of handlers: {@link Route.Handler} and {@link Route.Filter}. They behave
- * very similar, except that a {@link Route.Filter} can decide if the next route handler can be
- * executed or not. For example:
+ * There are two types of handlers: {@link Route.Handler} and {@link Route.Filter}. They behave very
+ * similar, except that a {@link Route.Filter} can decide if the next route handler can be executed
+ * or not. For example:
  * </p>
  *
  * <pre>
@@ -206,14 +206,99 @@ import com.google.common.collect.Lists;
  *
  * <p>
  * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
- * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes} and
- * {@link org.jooby.mvc.Viewable}.
+ * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes} and {@link org.jooby.mvc.Viewable}.
  * </p>
  *
  * @author edgar
  * @since 0.1.0
  */
 public interface Route {
+
+  /**
+   * Collection of {@link Route.Definition} useful for registering/setting route options at once.
+   *
+   * @author edgar
+   * @since 0.5.0
+   */
+  class Definitions {
+
+    /** List of definitions. */
+    private Route.Definition[] definitions;
+
+    /**
+     * Creates a new collection of route definitions.
+     *
+     * @param definitions Collection of route definitions.
+     */
+    public Definitions(final Route.Definition[] definitions) {
+      this.definitions = requireNonNull(definitions, "Route definitions are required.");
+    }
+
+    /**
+     * Set the route name to the whole collection.
+     *
+     * @param name Name to use/set.
+     * @return This instance.
+     */
+    public Definitions name(final String name) {
+      for (Definition definition : definitions) {
+        definition.name(name);
+      }
+      return this;
+    }
+
+    /**
+     * Set what a route can consumes.
+     *
+     * @param types Media types.
+     * @return This instance.
+     */
+    public Definitions consumes(final MediaType... types) {
+      for (Definition definition : definitions) {
+        definition.consumes(types);
+      }
+      return this;
+    }
+
+    /**
+     * Set what a route can consumes.
+     *
+     * @param types Media types.
+     * @return This instance.
+     */
+    public Definitions consumes(final String... types) {
+      for (Definition definition : definitions) {
+        definition.consumes(types);
+      }
+      return this;
+    }
+
+    /**
+     * Set what a route can produces.
+     *
+     * @param types Media types.
+     * @return This instance.
+     */
+    public Definitions produces(final MediaType... types) {
+      for (Definition definition : definitions) {
+        definition.produces(types);
+      }
+      return this;
+    }
+
+    /**
+     * Set what a route can produces.
+     *
+     * @param types Media types.
+     * @return This instance.
+     */
+    public Definitions produces(final String... types) {
+      for (Definition definition : definitions) {
+        definition.produces(types);
+      }
+      return this;
+    }
+  }
 
   /**
    * DSL for customize routes.
@@ -793,7 +878,7 @@ public interface Route {
    *   }
    * }
    * </pre>
-
+   *
    * @author edgar
    * @since 0.1.0
    */

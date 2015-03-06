@@ -80,6 +80,12 @@ public class UndertowResponse implements NativeResponse {
   }
 
   @Override
+  public Optional<String> header(final String name) {
+    String value = exchange.getResponseHeaders().getFirst(name);
+    return Optional.ofNullable(value);
+  }
+
+  @Override
   public void header(final String name, final String value) {
     exchange.getResponseHeaders().put(new HttpString(name), value);
   }

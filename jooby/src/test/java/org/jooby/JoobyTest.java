@@ -28,12 +28,11 @@ import org.jooby.Body.Parser;
 import org.jooby.Route.Handler;
 import org.jooby.Session.Definition;
 import org.jooby.Session.Store;
-import org.jooby.internal.AppManager;
 import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.BuiltinBodyConverter;
-import org.jooby.internal.RequestScope;
 import org.jooby.internal.HttpHandlerImpl;
+import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.SessionManager;
@@ -176,20 +175,6 @@ public class JoobyTest {
     binding.toInstance(isA(RouteMetadata.class));
 
     expect(binder.bind(RouteMetadata.class)).andReturn(binding);
-  };
-
-  private MockUnit.Block reload = unit -> {
-    Binder binder = unit.get(Binder.class);
-
-    AnnotatedBindingBuilder<String> binding = unit.mock(AnnotatedBindingBuilder.class);
-    binding.toInstance("org.jooby.Jooby");
-
-    AnnotatedBindingBuilder<AppManager> appmanager = unit.mock(AnnotatedBindingBuilder.class);
-    appmanager.toInstance(isA(AppManager.class));
-
-    expect(binder.bind(Key.get(String.class, Names.named("internal.appClass")))).andReturn(binding);
-
-    expect(binder.bind(AppManager.class)).andReturn(appmanager);
   };
 
   private MockUnit.Block charset = unit -> {
@@ -583,7 +568,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -620,7 +604,7 @@ public class JoobyTest {
         .expect(config)
         .expect(unit -> {
           Env env = unit.mock(Env.class);
-          expect(env.name()).andReturn("dev").times(3);
+          expect(env.name()).andReturn("dev").times(2);
 
           Env.Builder builder = unit.get(Env.Builder.class);
           expect(builder.build(isA(Config.class))).andReturn(env);
@@ -632,7 +616,6 @@ public class JoobyTest {
 
           expect(binder.bind(Env.class)).andReturn(binding);
         })
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -690,7 +673,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -744,7 +726,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -827,7 +808,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -904,7 +884,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -958,7 +937,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1033,7 +1011,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1099,148 +1076,6 @@ public class JoobyTest {
   }
 
   @Test
-  public void getHandlers() throws Exception {
-
-    List<Route.Definition> expected = new LinkedList<>();
-
-    new MockUnit(Binder.class, Route.Handler.class, Route.OneArgHandler.class,
-        Route.ZeroArgHandler.class, Route.Filter.class)
-        .expect(guice)
-        .expect(shutdown)
-        .expect(config)
-        .expect(env)
-        .expect(reload)
-        .expect(classInfo)
-        .expect(charset)
-        .expect(locale)
-        .expect(zoneId)
-        .expect(timeZone)
-        .expect(dateTimeFormatter)
-        .expect(numberFormat)
-        .expect(decimalFormat)
-        .expect(bodyParser)
-        .expect(unit -> {
-          Multibinder<Body.Formatter> multibinder = unit.mock(Multibinder.class);
-
-          Binder binder = unit.get(Binder.class);
-
-          expect(Multibinder.newSetBinder(binder, Body.Formatter.class)).andReturn(multibinder);
-
-          LinkedBindingBuilder<Formatter> formatReader = unit.mock(LinkedBindingBuilder.class);
-          formatReader.toInstance(BuiltinBodyConverter.formatReader);
-
-          LinkedBindingBuilder<Formatter> formatStream = unit.mock(LinkedBindingBuilder.class);
-          formatStream.toInstance(BuiltinBodyConverter.formatStream);
-
-          LinkedBindingBuilder<Formatter> formatByteArray = unit.mock(LinkedBindingBuilder.class);
-          formatByteArray.toInstance(BuiltinBodyConverter.formatByteArray);
-
-          LinkedBindingBuilder<Formatter> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
-          formatByteBuffer.toInstance(BuiltinBodyConverter.formatByteBuffer);
-
-          LinkedBindingBuilder<Formatter> formatAny = unit.mock(LinkedBindingBuilder.class);
-          formatAny.toInstance(BuiltinBodyConverter.formatAny);
-
-          LinkedBindingBuilder<Formatter> assertFormatter = unit.mock(LinkedBindingBuilder.class);
-          assertFormatter.toInstance(isA(AssetFormatter.class));
-
-          expect(multibinder.addBinding()).andReturn(assertFormatter);
-
-          expect(multibinder.addBinding()).andReturn(formatReader);
-          expect(multibinder.addBinding()).andReturn(formatStream);
-          expect(multibinder.addBinding()).andReturn(formatByteArray);
-          expect(multibinder.addBinding()).andReturn(formatByteBuffer);
-
-          expect(multibinder.addBinding()).andReturn(formatAny);
-
-        })
-        .expect(session)
-        .expect(unit -> {
-          Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
-
-          Binder binder = unit.get(Binder.class);
-
-          expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(multibinder);
-
-          LinkedBindingBuilder<Route.Definition> binding = unit.mock(LinkedBindingBuilder.class);
-          expect(multibinder.addBinding()).andReturn(binding).times(5);
-
-          binding.toInstance(unit.capture(Route.Definition.class));
-          binding.toInstance(unit.capture(Route.Definition.class));
-          binding.toInstance(unit.capture(Route.Definition.class));
-          binding.toInstance(unit.capture(Route.Definition.class));
-          binding.toInstance(unit.capture(Route.Definition.class));
-        })
-        .expect(routeHandler)
-        .expect(params)
-        .expect(requestScope)
-        .expect(webSockets)
-        .expect(tmpdir)
-        .expect(err)
-        .run(unit -> {
-
-          Jooby jooby = new Jooby();
-
-          Route.Definition first = jooby.get("first.html");
-          assertNotNull(first);
-          assertEquals("/first.html", first.pattern());
-          assertEquals("GET", first.verb());
-          assertEquals("anonymous", first.name());
-          assertEquals(MediaType.ALL, first.consumes());
-          assertEquals(MediaType.ALL, first.produces());
-
-          expected.add(first);
-
-          Route.Definition second = jooby.get("/second", unit.get(Route.Handler.class));
-          assertNotNull(second);
-          assertEquals("/second", second.pattern());
-          assertEquals("GET", second.verb());
-          assertEquals("anonymous", second.name());
-          assertEquals(MediaType.ALL, second.consumes());
-          assertEquals(MediaType.ALL, second.produces());
-
-          expected.add(second);
-
-          Route.Definition third = jooby.get("/third", unit.get(Route.OneArgHandler.class));
-          assertNotNull(third);
-          assertEquals("/third", third.pattern());
-          assertEquals("GET", third.verb());
-          assertEquals("anonymous", third.name());
-          assertEquals(MediaType.ALL, third.consumes());
-          assertEquals(MediaType.ALL, third.produces());
-
-          expected.add(third);
-
-          Route.Definition fourth = jooby.get("/fourth", unit.get(Route.ZeroArgHandler.class));
-          assertNotNull(fourth);
-          assertEquals("/fourth", fourth.pattern());
-          assertEquals("GET", fourth.verb());
-          assertEquals("anonymous", fourth.name());
-          assertEquals(MediaType.ALL, fourth.consumes());
-          assertEquals(MediaType.ALL, fourth.produces());
-
-          expected.add(fourth);
-
-          Route.Definition fifth = jooby.get("/fifth", unit.get(Route.Filter.class));
-          assertNotNull(fifth);
-          assertEquals("/fifth", fifth.pattern());
-          assertEquals("GET", fifth.verb());
-          assertEquals("anonymous", fifth.name());
-          assertEquals(MediaType.ALL, fifth.consumes());
-          assertEquals(MediaType.ALL, fifth.produces());
-
-          expected.add(fifth);
-
-          jooby.start();
-
-        }, boot,
-            unit -> {
-              List<Route.Definition> found = unit.captured(Route.Definition.class);
-              assertEquals(expected, found);
-            });
-  }
-
-  @Test
   public void postHandlers() throws Exception {
 
     List<Route.Definition> expected = new LinkedList<>();
@@ -1251,7 +1086,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1348,7 +1182,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1445,7 +1278,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1542,7 +1374,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1639,7 +1470,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1736,7 +1566,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1833,7 +1662,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -1930,7 +1758,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2027,7 +1854,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2141,7 +1967,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2282,36 +2107,6 @@ public class JoobyTest {
   }
 
   @Test
-  public void staticFile() throws Exception {
-    new MockUnit(Request.class, Response.class, Route.Chain.class)
-        .expect(unit -> {
-          Mutant ifModifiedSince = unit.mock(Mutant.class);
-          expect(ifModifiedSince.toOptional(Long.class)).andReturn(Optional.empty());
-
-          Request req = unit.get(Request.class);
-          expect(req.header("If-Modified-Since")).andReturn(ifModifiedSince);
-          expect(req.route()).andReturn(unit.mock(Route.class));
-
-          Response rsp = unit.get(Response.class);
-          expect(rsp.header(eq("Last-Modified"), unit.capture(java.util.Date.class)))
-              .andReturn(rsp);
-          expect(rsp.type(MediaType.js)).andReturn(rsp);
-          expect(rsp.length(20)).andReturn(rsp);
-          rsp.send(unit.capture(Asset.class));
-        })
-        .run(
-            unit -> {
-              Jooby jooby = new Jooby();
-
-              Route.Filter handler = jooby.staticFile("/org/jooby/JoobyTest.js");
-              assertNotNull(handler);
-
-              handler.handle(unit.get(Request.class), unit.get(Response.class),
-                  unit.get(Route.Chain.class));
-            });
-  }
-
-  @Test
   public void ws() throws Exception {
 
     List<WebSocket.Definition> defs = new LinkedList<>();
@@ -2321,7 +2116,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2380,7 +2174,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2435,7 +2228,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2503,7 +2295,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2557,7 +2348,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2609,7 +2399,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2659,7 +2448,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2708,7 +2496,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
@@ -2746,7 +2533,6 @@ public class JoobyTest {
         .expect(shutdown)
         .expect(config)
         .expect(env)
-        .expect(reload)
         .expect(classInfo)
         .expect(charset)
         .expect(locale)
