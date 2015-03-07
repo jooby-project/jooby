@@ -112,7 +112,7 @@ public class WsBinaryMessageTest {
 
   @Test(expected = Err.class)
   public void stringValue() throws Exception {
-    new WsBinaryMessage(ByteBuffer.wrap("bytes".getBytes())).stringValue();
+    new WsBinaryMessage(ByteBuffer.wrap("bytes".getBytes())).value();
   }
 
   @Test(expected = Err.class)
@@ -128,7 +128,7 @@ public class WsBinaryMessageTest {
   @SuppressWarnings("unchecked")
   @Test(expected = Err.class)
   public void enumValue() throws Exception {
-    new WsBinaryMessage(ByteBuffer.wrap("bytes".getBytes())).enumValue(Enum.class);
+    new WsBinaryMessage(ByteBuffer.wrap("bytes".getBytes())).toEnum(Enum.class);
   }
 
   @Test(expected = Err.class)

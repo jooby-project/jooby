@@ -9,9 +9,9 @@ public class UploadHeadersFeature extends ServerFeature {
   {
     post("/file", req -> {
       Upload upload = req.param("file").to(Upload.class);
-      String encoding = upload.header("Content-Transfer-Encoding").stringValue();
-      String type = upload.header("Content-Type").stringValue();
-      String disposition = upload.header("Content-Disposition").stringValue();
+      String encoding = upload.header("Content-Transfer-Encoding").value();
+      String type = upload.header("Content-Type").value();
+      String disposition = upload.header("Content-Disposition").value();
       return encoding + ";" + type + ";" + disposition + ";"
           + upload.header("noHeader").toOptional(String.class);
     });

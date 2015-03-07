@@ -11,7 +11,7 @@ public class HbsWithContextResultFeature extends ServerFeature {
   {
     use(new Hbs());
 
-    get("/", req -> View.of("org/jooby/hbs/index", Context.newContext(req.param("model").stringValue())));
+    get("/", req -> View.of("org/jooby/hbs/index", Context.newContext(req.param("model").value())));
   }
 
   @Test

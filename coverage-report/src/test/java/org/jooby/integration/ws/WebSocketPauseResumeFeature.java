@@ -30,7 +30,7 @@ public class WebSocketPauseResumeFeature extends ServerFeature {
       ws.onMessage(message -> {
         System.out.println("on message");
 
-        ws.send("=" + message.stringValue(), () -> {
+        ws.send("=" + message.value(), () -> {
           System.out.println("client close");
           ws.close();
         });

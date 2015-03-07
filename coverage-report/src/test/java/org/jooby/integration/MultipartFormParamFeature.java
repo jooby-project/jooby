@@ -61,7 +61,7 @@ public class MultipartFormParamFeature extends ServerFeature {
   {
 
     post("/form", (req, resp) -> {
-      String name = req.param("name").stringValue();
+      String name = req.param("name").value();
       int age = req.param("age").intValue();
       Upload upload = req.param("myfile").to(Upload.class);
       resp.send(name + " " + age + " " + upload.name() + " " + upload.type());
@@ -91,7 +91,7 @@ public class MultipartFormParamFeature extends ServerFeature {
 
     post("/file/header", (req, rsp) -> {
       Upload upload = req.param("myfile").to(Upload.class);
-      rsp.send(upload.header("content-type").stringValue());
+      rsp.send(upload.header("content-type").value());
     });
 
     post("/form/optional", (req, rsp) -> {

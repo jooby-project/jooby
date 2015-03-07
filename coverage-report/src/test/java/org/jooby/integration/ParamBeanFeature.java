@@ -63,7 +63,7 @@ public class ParamBeanFeature extends ServerFeature {
     @org.jooby.mvc.GET
     @Path("/ibean")
     public String getibean(final org.jooby.Request req, final IBean bean) throws Exception {
-      assertEquals(req.param("name").stringValue(), bean.name());
+      assertEquals(req.param("name").value(), bean.name());
       assertEquals(req.param("valid").booleanValue(), bean.isValid());
       assertEquals(req.param("age").intValue(), bean.getAge());
       return "OK";
@@ -72,7 +72,7 @@ public class ParamBeanFeature extends ServerFeature {
     @org.jooby.mvc.POST
     @Path("/ibean")
     public String postibean(final org.jooby.Request req, final IBean bean) throws Exception {
-      assertEquals(req.param("name").stringValue(), bean.name());
+      assertEquals(req.param("name").value(), bean.name());
       assertEquals(req.param("valid").booleanValue(), bean.isValid());
       assertEquals(req.param("age").intValue(), bean.getAge());
       return "OK";
@@ -82,7 +82,7 @@ public class ParamBeanFeature extends ServerFeature {
     @Path("/beanwithargs")
     public String getbeanwithargs(final org.jooby.Request req, final BeanWithArgs bean)
         throws Exception {
-      assertEquals(req.param("name").stringValue(), bean.name);
+      assertEquals(req.param("name").value(), bean.name);
       assertEquals(req.param("age").intValue(), (int) bean.age.get());
       return "OK";
     }
@@ -91,7 +91,7 @@ public class ParamBeanFeature extends ServerFeature {
     @Path("/beanwithargs")
     public String postbeanwithargs(final org.jooby.Request req, final BeanWithArgs bean)
         throws Exception {
-      assertEquals(req.param("name").stringValue(), bean.name);
+      assertEquals(req.param("name").value(), bean.name);
       assertEquals(req.param("age").intValue(), (int) bean.age.get());
       return "OK";
     }
@@ -99,7 +99,7 @@ public class ParamBeanFeature extends ServerFeature {
     @org.jooby.mvc.GET
     @Path("/beannoarg")
     public String getbeannoarg(final org.jooby.Request req, final BeanNoArg bean) throws Exception {
-      assertEquals(req.param("name").stringValue(), bean.getName());
+      assertEquals(req.param("name").value(), bean.getName());
       assertEquals(req.param("age").intValue(), (int) bean.getAge().get());
       return "OK";
     }
@@ -107,7 +107,7 @@ public class ParamBeanFeature extends ServerFeature {
     @org.jooby.mvc.POST
     @Path("/beannoarg")
     public String postbeannoarg(final org.jooby.Request req, final BeanNoArg bean) throws Exception {
-      assertEquals(req.param("name").stringValue(), bean.getName());
+      assertEquals(req.param("name").value(), bean.getName());
       assertEquals(req.param("age").intValue(), (int) bean.getAge().get());
       return "OK";
     }
@@ -123,7 +123,7 @@ public class ParamBeanFeature extends ServerFeature {
   {
     get("/ibean", req -> {
       IBean bean = req.params(IBean.class);
-      assertEquals(req.param("name").stringValue(), bean.name());
+      assertEquals(req.param("name").value(), bean.name());
       assertEquals(req.param("valid").booleanValue(), bean.isValid());
       assertEquals(req.param("age").intValue(), bean.getAge());
       return "OK";
@@ -131,7 +131,7 @@ public class ParamBeanFeature extends ServerFeature {
 
     post("/ibean", req -> {
       IBean bean = req.body(IBean.class);
-      assertEquals(req.param("name").stringValue(), bean.name());
+      assertEquals(req.param("name").value(), bean.name());
       assertEquals(req.param("valid").booleanValue(), bean.isValid());
       assertEquals(req.param("age").intValue(), bean.getAge());
       return "OK";
@@ -139,7 +139,7 @@ public class ParamBeanFeature extends ServerFeature {
 
     get("/beanwithargs", req -> {
       BeanWithArgs bean = req.params(BeanWithArgs.class);
-      assertEquals(req.param("name").stringValue(), bean.name);
+      assertEquals(req.param("name").value(), bean.name);
       assertEquals(req.param("age").intValue(), (int) bean.age.get());
       return "OK";
     });
@@ -151,21 +151,21 @@ public class ParamBeanFeature extends ServerFeature {
 
     post("/beanwithargs", req -> {
       BeanWithArgs bean = req.body(BeanWithArgs.class);
-      assertEquals(req.param("name").stringValue(), bean.name);
+      assertEquals(req.param("name").value(), bean.name);
       assertEquals(req.param("age").intValue(), (int) bean.age.get());
       return "OK";
     });
 
     get("/beannoarg", req -> {
       BeanNoArg bean = req.params(BeanNoArg.class);
-      assertEquals(req.param("name").stringValue(), bean.getName());
+      assertEquals(req.param("name").value(), bean.getName());
       assertEquals(req.param("age").intValue(), (int) bean.getAge().get());
       return "OK";
     });
 
     post("/beannoarg", req -> {
       BeanNoArg bean = req.body(BeanNoArg.class);
-      assertEquals(req.param("name").stringValue(), bean.getName());
+      assertEquals(req.param("name").value(), bean.getName());
       assertEquals(req.param("age").intValue(), (int) bean.getAge().get());
       return "OK";
     });

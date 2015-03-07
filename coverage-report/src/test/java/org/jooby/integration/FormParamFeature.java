@@ -20,7 +20,7 @@ public class FormParamFeature extends ServerFeature {
 
   {
     post("/form", (req, resp) -> {
-      String name = req.param("name").stringValue();
+      String name = req.param("name").value();
       int age = req.param("age").intValue();
       resp.send(name + " " + age);
     });

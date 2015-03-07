@@ -28,10 +28,10 @@ public class ParamIdentityFeature extends ServerFeature {
       assertEquals(call2, call3);
       assertEquals(call3, call4);
 
-      String callb1 = req.param("p").stringValue();
-      String callb2 = req.param("p").stringValue();
-      String callb3 = req.param("p").stringValue();
-      String callb4 = req.param("p").stringValue();
+      String callb1 = req.param("p").value();
+      String callb2 = req.param("p").value();
+      String callb3 = req.param("p").value();
+      String callb4 = req.param("p").value();
       assertEquals(callb1, callb2);
       assertEquals(callb2, callb3);
       assertEquals(callb3, callb4);

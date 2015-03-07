@@ -24,7 +24,7 @@ public class FilterFeature extends ServerFeature {
     });
 
     get("/before", (req, rsp) -> {
-      rsp.send(rsp.header("before").stringValue());
+      rsp.send(rsp.header("before").value());
     });
 
     get("/after", (req, rsp, chain) -> {

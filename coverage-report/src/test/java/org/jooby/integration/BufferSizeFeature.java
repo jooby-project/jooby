@@ -20,7 +20,7 @@ public class BufferSizeFeature extends ServerFeature {
         .withValue("server.http.ResponseBufferSize", ConfigValueFactory.fromAnyRef(len / 2)));
 
     get("/", req -> {
-      String value = req.param("data").stringValue();
+      String value = req.param("data").value();
       Optional<Long> len = req.param("len").toOptional(Long.class);
       Optional<Boolean> chunked = req.param("chunked").toOptional(Boolean.class);
       Body rsp = Body.ok(value);

@@ -74,7 +74,7 @@ public class WsBinaryMessage implements Mutant {
   }
 
   @Override
-  public String stringValue() {
+  public String value() {
     throw typeError(String.class);
   }
 
@@ -89,7 +89,7 @@ public class WsBinaryMessage implements Mutant {
   }
 
   @Override
-  public <T extends Enum<T>> T enumValue(final Class<T> type) {
+  public <T extends Enum<T>> T toEnum(final Class<T> type) {
     throw typeError(type);
   }
 

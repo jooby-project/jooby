@@ -391,9 +391,9 @@ public class MutantImplTest {
 
   @Test
   public void asEnum() throws Exception {
-    assertEquals(LETTER.A, newMutant("A").enumValue(LETTER.class));
-    assertEquals(LETTER.A, newMutant("A").enumValue(LETTER.class));
-    assertEquals(LETTER.B, newMutant("B").enumValue(LETTER.class));
+    assertEquals(LETTER.A, newMutant("A").toEnum(LETTER.class));
+    assertEquals(LETTER.A, newMutant("A").toEnum(LETTER.class));
+    assertEquals(LETTER.B, newMutant("B").toEnum(LETTER.class));
 
     assertEquals(LETTER.B, newMutant("B").to(LETTER.class));
   }
@@ -425,12 +425,12 @@ public class MutantImplTest {
 
   @Test(expected = Err.class)
   public void notAnEnum() throws Exception {
-    assertEquals(LETTER.A, newMutant("c").enumValue(LETTER.class));
+    assertEquals(LETTER.A, newMutant("c").toEnum(LETTER.class));
   }
 
   @Test
   public void asString() throws Exception {
-    assertEquals("xx", newMutant("xx").stringValue());
+    assertEquals("xx", newMutant("xx").value());
 
     assertEquals("xx", newMutant("xx").to(String.class));
 

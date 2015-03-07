@@ -23,7 +23,7 @@ public class OnTextMessageFeature extends ServerFeature {
     ws("/ws", (ws) -> {
 
       ws.onMessage(message -> {
-        ws.send("=" + message.stringValue(), () -> {
+        ws.send("=" + message.value(), () -> {
           ws.close();
         });
       });

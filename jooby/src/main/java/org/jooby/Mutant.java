@@ -94,7 +94,7 @@ public interface Mutant {
   /**
    * @return Get a string when possible.
    */
-  default String stringValue() {
+  default String value() {
     return to(String.class);
   }
 
@@ -117,7 +117,7 @@ public interface Mutant {
    * @param <T> Enum type.
    * @return Get an enum when possible.
    */
-  default <T extends Enum<T>> T enumValue(@Nonnull final Class<T> type) {
+  default <T extends Enum<T>> T toEnum(@Nonnull final Class<T> type) {
     return to(type);
   }
 

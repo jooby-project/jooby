@@ -11,7 +11,7 @@ public class ParamPrecedenceFeature extends ServerFeature {
 
     post("/precedence/:name", (req, resp) -> {
       // path param
-      assertEquals("a", req.param("name").stringValue());
+      assertEquals("a", req.param("name").value());
       // query param
       assertEquals("b", req.param("name").toList(String.class).get(1));
       // body param

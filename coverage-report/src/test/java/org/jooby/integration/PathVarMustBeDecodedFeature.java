@@ -6,7 +6,7 @@ import org.junit.Test;
 public class PathVarMustBeDecodedFeature extends ServerFeature {
 
   {
-    get("/:var", req -> req.param("var").stringValue());
+    get("/:var", req -> req.param("var").value());
   }
 
   @Test
