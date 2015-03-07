@@ -2741,9 +2741,7 @@ public class Jooby {
 
     Config config = injector.getInstance(Config.class);
 
-    if (log.isDebugEnabled()) {
-      log.debug("config tree:\n{}", configTree(config.origin().description()));
-    }
+    log.debug("config tree:\n{}", configTree(config.origin().description()));
 
     // Start server
     Server server = injector.getInstance(Server.class);

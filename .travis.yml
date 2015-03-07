@@ -1,5 +1,8 @@
 language: java
+cache:
+  directories:
+  - $HOME/.m2
 jdk:
   - oraclejdk8
 after_success:
-  - mvn -Pcoverage clean package coveralls:report
+  - mvn -Dlogback.configurationFile=logback-travis.xml clean package coveralls:report -P coverage
