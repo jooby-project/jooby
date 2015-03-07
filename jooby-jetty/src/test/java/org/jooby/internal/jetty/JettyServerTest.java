@@ -46,7 +46,7 @@ public class JettyServerTest {
 
     Config config = ConfigFactory.empty()
         .withValue("jetty.threads.MinThreads", ConfigValueFactory.fromAnyRef("1"))
-        .withValue("jetty.threads.MaxThreads", ConfigValueFactory.fromAnyRef("6"))
+        .withValue("jetty.threads.MaxThreads", ConfigValueFactory.fromAnyRef("10"))
         .withValue("jetty.threads.IdleTimeout", ConfigValueFactory.fromAnyRef("3s"))
         .withValue("jetty.url.charset", ConfigValueFactory.fromAnyRef("UTF-8"))
         .withValue("jetty.http", ConfigValueFactory.fromAnyRef(httpConfig))

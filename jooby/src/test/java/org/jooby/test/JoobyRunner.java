@@ -84,7 +84,7 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
       Config config = ConfigFactory.empty()
           .withValue("server.join", ConfigValueFactory.fromAnyRef(false))
           .withValue("server.threads.min", ConfigValueFactory.fromAnyRef(1))
-          .withValue("server.threads.max", ConfigValueFactory.fromAnyRef(6))
+          .withValue("server.threads.max", ConfigValueFactory.fromAnyRef(10))
           .withValue("application.port", ConfigValueFactory.fromAnyRef(port))
           .withValue("undertow.server.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
           .withValue("undertow.socket.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
