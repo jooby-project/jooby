@@ -79,7 +79,7 @@ public class Hbs implements Jooby.Module {
                 JavaBeanValueResolver.INSTANCE,
                 MethodValueResolver.INSTANCE,
                 FieldValueResolver.INSTANCE,
-                new LocalValueResolver(),
+                new LocalsValueResolver(),
                 new ConfigValueResolver()
             )
             .build();

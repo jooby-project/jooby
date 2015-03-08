@@ -31,7 +31,7 @@ import com.github.jknack.handlebars.ValueResolver;
  *
  * @author edgar
  */
-public class LocalValueResolver implements ValueResolver {
+public class LocalsValueResolver implements ValueResolver {
 
   @Override
   public Object resolve(final Object context, final String name) {
