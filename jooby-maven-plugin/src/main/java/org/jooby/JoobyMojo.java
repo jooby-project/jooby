@@ -154,6 +154,7 @@ public class JoobyMojo extends AbstractMojo {
     if (vmArgs != null) {
       results.addAll(vmArgs);
     }
+    // logback
     File[] logbackFiles = {localFile("config", "logback-test.xml"),
         localFile("config", "logback.xml") };
     for (File logback : logbackFiles) {
@@ -161,6 +162,19 @@ public class JoobyMojo extends AbstractMojo {
         results.add("-Dlogback.configurationFile=" + logback.getAbsolutePath());
         break;
       }
+    }
+    // dcevm?
+    String altjvm = null;
+    for (String boot : System.getProperty("sun.boot.library.path", "").split(File.pathSeparator)) {
+      File dcevm = new File(boot, "dcevm");
+      if (dcevm.exists()) {
+        altjvm = dcevm.getName();
+      }
+    }
+    if (altjvm == null) {
+      getLog().warn("dcevm not found, we recommend to install it: https://github.com/dcevm/dcevm");
+    } else {
+      results.add("-XXaltjvm=" + altjvm);
     }
     return results;
   }

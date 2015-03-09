@@ -60,12 +60,15 @@ public class Hotswap {
 
   private PathMatcher excludes;
 
+  private boolean dcevm;
+
   public Hotswap(final String mainClass, final File[] cp) throws IOException {
     this.mainClass = mainClass;
     this.cp = cp;
     this.paths = toPath(cp);
     this.executor = Executors.newSingleThreadExecutor();
     this.scanner = new Watcher(this::onChange, paths);
+    dcevm = System.getProperty("java.vm.version").toLowerCase().contains("dcevm");
   }
 
   public static void main(final String[] args) throws Exception {
@@ -122,8 +125,12 @@ public class Hotswap {
 
   public void run() {
     log.info("Hotswap available on: {}", Arrays.toString(cp));
+    log.info("  unlimited runtime class redefinition: {}", dcevm
+        ? "yes"
+        : "no (see https://github.com/dcevm/dcevm)");
     log.info("  includes: {}", includes);
     log.info("  excludes: {}", excludes);
+
     this.scanner.start();
     this.startApp();
   }
@@ -238,7 +245,7 @@ public class Hotswap {
 
       @Override
       public String toString() {
-        return expressions;
+        return "[" + expressions + "]";
       }
     };
   }
