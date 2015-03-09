@@ -222,6 +222,12 @@
         <version>${netty.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.javassist</groupId>
+        <artifactId>javassist</artifactId>
+        <version>${javassist.version}</version>
+      </dependency>
+
       <!-- Jackson 2.x -->
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -939,6 +945,7 @@
     <servlet.version>3.1.0</servlet.version>
     <jetty.version>9.2.9.v20150224</jetty.version>
     <netty.version>4.0.9.Final</netty.version>
+    <javassist.version>3.19.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
     <logback-classic.version>1.1.2</logback-classic.version>
