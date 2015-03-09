@@ -125,6 +125,7 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
 
@@ -2809,129 +2810,129 @@ public class Jooby {
 
       TypeConverters.configure(binder);
 
-    // bind config
-      bindConfig(binder, config);
+      // bind config
+        bindConfig(binder, config);
 
-      // bind env
-      binder.bind(Env.class).toInstance(env);
+        // bind env
+        binder.bind(Env.class).toInstance(env);
 
-      // bind charset
-      binder.bind(Charset.class).toInstance(charset);
+        // bind charset
+        binder.bind(Charset.class).toInstance(charset);
 
-      // bind locale
-      binder.bind(Locale.class).toInstance(locale);
+        // bind locale
+        binder.bind(Locale.class).toInstance(locale);
 
-      // bind time zone
-      binder.bind(ZoneId.class).toInstance(zoneId);
-      binder.bind(TimeZone.class).toInstance(TimeZone.getTimeZone(zoneId));
+        // bind time zone
+        binder.bind(ZoneId.class).toInstance(zoneId);
+        binder.bind(TimeZone.class).toInstance(TimeZone.getTimeZone(zoneId));
 
-      // bind date format
-      binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormatter);
+        // bind date format
+        binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormatter);
 
-      // bind number format
-      binder.bind(NumberFormat.class).toInstance(numberFormat);
-      binder.bind(DecimalFormat.class).toInstance(numberFormat);
+        // bind number format
+        binder.bind(NumberFormat.class).toInstance(numberFormat);
+        binder.bind(DecimalFormat.class).toInstance(numberFormat);
 
-      // bind formatter & parser
-      Multibinder<Body.Parser> parserBinder = Multibinder
-          .newSetBinder(binder, Body.Parser.class);
-      Multibinder<Body.Formatter> formatterBinder = Multibinder
-          .newSetBinder(binder, Body.Formatter.class);
+        // bind formatter & parser
+        Multibinder<Body.Parser> parserBinder = Multibinder
+            .newSetBinder(binder, Body.Parser.class);
+        Multibinder<Body.Formatter> formatterBinder = Multibinder
+            .newSetBinder(binder, Body.Formatter.class);
 
-      // session definition
-      binder.bind(Session.Definition.class).toInstance(session);
+        // session definition
+        binder.bind(Session.Definition.class).toInstance(session);
 
-      // Routes
-      Multibinder<Route.Definition> definitions = Multibinder
-          .newSetBinder(binder, Route.Definition.class);
+        // Routes
+        Multibinder<Route.Definition> definitions = Multibinder
+            .newSetBinder(binder, Route.Definition.class);
 
-      // Web Sockets
-      Multibinder<WebSocket.Definition> sockets = Multibinder
-          .newSetBinder(binder, WebSocket.Definition.class);
+        // Web Sockets
+        Multibinder<WebSocket.Definition> sockets = Multibinder
+            .newSetBinder(binder, WebSocket.Definition.class);
 
-      // tmp dir
-      File tmpdir = new File(config.getString("application.tmpdir"));
-      tmpdir.mkdirs();
-      binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
-          .toInstance(tmpdir);
+        // tmp dir
+        File tmpdir = new File(config.getString("application.tmpdir"));
+        tmpdir.mkdirs();
+        binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
+            .toInstance(tmpdir);
 
-      RouteMetadata classInfo = new RouteMetadata(env);
-      binder.bind(RouteMetadata.class).toInstance(classInfo);
+        RouteMetadata classInfo = new RouteMetadata(env);
+        binder.bind(RouteMetadata.class).toInstance(classInfo);
 
-      converters.add(new CommonTypesParamConverter());
-      converters.add(new CollectionParamConverter());
-      converters.add(new OptionalParamConverter());
-      converters.add(new UploadParamConverter());
-      converters.add(new EnumParamConverter());
-      converters.add(new DateParamConverter(dateFormat));
-      converters.add(new LocalDateParamConverter(dateTimeFormatter));
-      converters.add(new LocaleParamConverter());
-      converters.add(new StaticMethodParamConverter("valueOf"));
-      converters.add(new StaticMethodParamConverter("fromString"));
-      converters.add(new StaticMethodParamConverter("forName"));
-      converters.add(new StringConstructorParamConverter());
+        converters.add(new CommonTypesParamConverter());
+        converters.add(new CollectionParamConverter());
+        converters.add(new OptionalParamConverter());
+        converters.add(new UploadParamConverter());
+        converters.add(new EnumParamConverter());
+        converters.add(new DateParamConverter(dateFormat));
+        converters.add(new LocalDateParamConverter(dateTimeFormatter));
+        converters.add(new LocaleParamConverter());
+        converters.add(new StaticMethodParamConverter("valueOf"));
+        converters.add(new StaticMethodParamConverter("fromString"));
+        converters.add(new StaticMethodParamConverter("forName"));
+        converters.add(new StringConstructorParamConverter());
 
-      binder.bind(ParamResolver.class);
+        binder.bind(ParamResolver.class);
 
-      Multibinder<ParamConverter> converterBinder = Multibinder
-          .newSetBinder(binder, ParamConverter.class);
-      converters.forEach(it -> converterBinder.addBinding().toInstance(it));
+        Multibinder<ParamConverter> converterBinder = Multibinder
+            .newSetBinder(binder, ParamConverter.class);
+        converters.forEach(it -> converterBinder.addBinding().toInstance(it));
 
-      // modules, routes and websockets
-      bag.forEach(candidate -> {
-        if (candidate instanceof Jooby.Module) {
-          install((Jooby.Module) candidate, env, config, binder);
-        } else if (candidate instanceof Route.Definition) {
-          definitions.addBinding().toInstance((Route.Definition) candidate);
-        } else if (candidate instanceof WebSocket.Definition) {
-          sockets.addBinding().toInstance((WebSocket.Definition) candidate);
+        // modules, routes and websockets
+        bag.forEach(candidate -> {
+          if (candidate instanceof Jooby.Module) {
+            install((Jooby.Module) candidate, env, config, binder);
+          } else if (candidate instanceof Route.Definition) {
+            definitions.addBinding().toInstance((Route.Definition) candidate);
+          } else if (candidate instanceof WebSocket.Definition) {
+            sockets.addBinding().toInstance((WebSocket.Definition) candidate);
+          } else {
+            binder.bind((Class<?>) candidate);
+            MvcRoutes.routes(env, classInfo, (Class<?>) candidate)
+                .forEach(route -> definitions.addBinding().toInstance(route));
+          }
+        });
+
+        // parser & formatter
+        parsers.forEach(it -> parserBinder.addBinding().toInstance(it));
+        formatters.forEach(it -> formatterBinder.addBinding().toInstance(it));
+
+        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
+        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatStream);
+        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatByteArray);
+        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatByteBuffer);
+        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
+
+        parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
+
+        binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
+
+        RequestScope requestScope = new RequestScope();
+        binder.bind(RequestScope.class).toInstance(requestScope);
+        binder.bindScope(RequestScoped.class, requestScope);
+
+        // session manager
+        binder.bind(SessionManager.class).toInstance(new SessionManager(config, session));
+
+        binder.bind(Request.class).toProvider(() -> {
+          throw new OutOfScopeException(Request.class.getName());
+        }).in(RequestScoped.class);
+
+        binder.bind(Response.class).toProvider(() -> {
+          throw new OutOfScopeException(Response.class.getName());
+        }).in(RequestScoped.class);
+
+        binder.bind(Session.class).toProvider(() -> {
+          throw new OutOfScopeException(Session.class.getName());
+        }).in(RequestScoped.class);
+
+        // err
+        if (err == null) {
+          binder.bind(Err.Handler.class).toInstance(new Err.Default());
         } else {
-          binder.bind((Class<?>) candidate);
-          MvcRoutes.routes(env, classInfo, (Class<?>) candidate)
-              .forEach(route -> definitions.addBinding().toInstance(route));
+          binder.bind(Err.Handler.class).toInstance(err);
         }
       });
-
-      // parser & formatter
-      parsers.forEach(it -> parserBinder.addBinding().toInstance(it));
-      formatters.forEach(it -> formatterBinder.addBinding().toInstance(it));
-
-      formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
-      formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatStream);
-      formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatByteArray);
-      formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatByteBuffer);
-      formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
-
-      parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
-
-      binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
-
-      RequestScope requestScope = new RequestScope();
-      binder.bind(RequestScope.class).toInstance(requestScope);
-      binder.bindScope(RequestScoped.class, requestScope);
-
-      // session manager
-      binder.bind(SessionManager.class).toInstance(new SessionManager(config, session));
-
-      binder.bind(Request.class).toProvider(() -> {
-        throw new OutOfScopeException(Request.class.getName());
-      }).in(RequestScoped.class);
-
-      binder.bind(Response.class).toProvider(() -> {
-        throw new OutOfScopeException(Response.class.getName());
-      }).in(RequestScoped.class);
-
-      binder.bind(Session.class).toProvider(() -> {
-        throw new OutOfScopeException(Session.class.getName());
-      }).in(RequestScoped.class);
-
-      // err
-      if (err == null) {
-        binder.bind(Err.Handler.class).toInstance(new Err.Default());
-      } else {
-        binder.bind(Err.Handler.class).toInstance(err);
-      }
-    });
 
     // start modules
     for (Jooby.Module module : modules) {
@@ -3162,6 +3163,10 @@ public class Jooby {
    */
   @SuppressWarnings("unchecked")
   private void bindConfig(final Binder binder, final Config config) {
+    // root nodes
+    traverse(binder, "", config.root());
+
+    // terminal nodes
     for (Entry<String, ConfigValue> entry : config.entrySet()) {
       String name = entry.getKey();
       Named named = Names.named(name);
@@ -3179,6 +3184,18 @@ public class Jooby {
     }
     // bind config
     binder.bind(Config.class).toInstance(config);
+  }
+
+  private void traverse(final Binder binder, final String p, final ConfigObject root) {
+    root.forEach((n, v) -> {
+      if (v instanceof ConfigObject) {
+        ConfigObject child = (ConfigObject) v;
+        String path = p + n;
+        Named named = Names.named(path);
+        binder.bind(Config.class).annotatedWith(named).toInstance(child.toConfig());
+        traverse(binder, path + ".", child);
+      }
+    });
   }
 
 }
