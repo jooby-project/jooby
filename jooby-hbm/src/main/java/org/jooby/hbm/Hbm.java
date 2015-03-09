@@ -18,39 +18,30 @@
  */
 package org.jooby.hbm;
 
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.Callable;
 
-import javax.inject.Provider;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.SharedCacheMode;
-import javax.persistence.ValidationMode;
-import javax.persistence.spi.PersistenceUnitTransactionType;
-import javax.sql.DataSource;
 
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.jpa.AvailableSettings;
-import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
-import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
 import org.jooby.Body;
 import org.jooby.Env;
 import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.internal.hbm.HbmUnitDescriptor;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.scope.RequestScoped;
 import org.slf4j.Logger;
@@ -97,9 +88,11 @@ public class Hbm extends Jdbc {
 
     super.configure(mode, config, binder);
 
+    HbmUnitDescriptor descriptor = new HbmUnitDescriptor(getClass().getClassLoader(), dataSource(),
+        config, scan);
+
     EntityManagerFactoryBuilder builder = Bootstrap
-        .getEntityManagerFactoryBuilder(descriptor(dataSource(), config, scan),
-            config(config, classes));
+        .getEntityManagerFactoryBuilder(descriptor, config(config, classes));
 
     emf = new HbmProvider(builder);
     Key<EntityManagerFactory> emfKey = dataSourceKey(EntityManagerFactory.class);
@@ -228,109 +221,6 @@ public class Hbm extends Jdbc {
       emf.stop();
     }
     super.stop();
-  }
-
-  private static PersistenceUnitDescriptor descriptor(final Provider<DataSource> dataSourceHolder,
-      final Config config, final boolean scan) {
-    return new PersistenceUnitDescriptor() {
-      @SuppressWarnings("unchecked")
-      private <T> T property(final String name, final T defaultValue) {
-        if (config.hasPath(name)) {
-          return (T) config.getAnyRef(name);
-        }
-        return defaultValue;
-      }
-
-      @Override
-      public void pushClassTransformer(final List<String> entityClassNames) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean isUseQuotedIdentifiers() {
-        return property("hibernate.useQuotedIdentifiers", false);
-      }
-
-      @Override
-      public boolean isExcludeUnlistedClasses() {
-        return property("hibernate.excludeUnlistedClasses", false);
-      }
-
-      @Override
-      public ValidationMode getValidationMode() {
-        return ValidationMode.valueOf(property(AvailableSettings.VALIDATION_MODE, "NONE")
-            .toUpperCase());
-      }
-
-      @Override
-      public PersistenceUnitTransactionType getTransactionType() {
-        return PersistenceUnitTransactionType.RESOURCE_LOCAL;
-      }
-
-      @Override
-      public SharedCacheMode getSharedCacheMode() {
-        return property(AvailableSettings.SHARED_CACHE_MODE, null);
-      }
-
-      @Override
-      public String getProviderClassName() {
-        return HibernatePersistenceProvider.class.getName();
-      }
-
-      @Override
-      public Properties getProperties() {
-        Properties $ = new Properties();
-        config.getConfig("javax.persistence")
-            .entrySet()
-            .forEach(e -> $.put("javax.persistence" + e.getKey(), e.getValue().unwrapped()));
-        return $;
-      }
-
-      @Override
-      public URL getPersistenceUnitRootUrl() {
-        if (scan) {
-          String ns = config.getString("application.ns").replace('.', '/');
-          return ClassLoader.getSystemResource(ns);
-        } else {
-          return null;
-        }
-      }
-
-      @Override
-      public Object getNonJtaDataSource() {
-        return dataSourceHolder.get();
-      }
-
-      @Override
-      public String getName() {
-        return dataSourceHolder.toString();
-      }
-
-      @Override
-      public List<String> getMappingFileNames() {
-        return Collections.emptyList();
-      }
-
-      @Override
-      public List<String> getManagedClassNames() {
-        return Collections.emptyList();
-      }
-
-      @Override
-      public Object getJtaDataSource() {
-        return null;
-      }
-
-      @Override
-      public List<URL> getJarFileUrls() {
-        return null;
-      }
-
-      @Override
-      public ClassLoader getClassLoader() {
-        return getClass().getClassLoader();
-      }
-    };
   }
 
   private static Map<Object, Object> config(final Config config, final List<Class<?>> classes) {
