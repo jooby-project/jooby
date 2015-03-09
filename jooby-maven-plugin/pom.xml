@@ -13,7 +13,7 @@
   <packaging>maven-plugin</packaging>
 
   <name>maven plugins</name>
-  <description>Set of Maven plugins for Jooby</description>
+  <description>Maven plugins for Jooby</description>
 
   <dependencies>
     <dependency>

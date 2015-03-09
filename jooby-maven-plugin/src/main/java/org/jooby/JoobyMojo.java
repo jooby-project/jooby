@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,20 +59,37 @@ public class JoobyMojo extends AbstractMojo {
   @Parameter(property = "jooby.vmArgs")
   private List<String> vmArgs;
 
+  @Parameter(property = "jooby.includes")
+  private List<String> includes;
+
+  @Parameter(property = "jooby.excludes")
+  private List<String> excludes;
+
+  @Parameter(defaultValue = "${plugin.artifacts}")
+  private List<org.apache.maven.artifact.Artifact> pluginArtifacts;
+
+  @SuppressWarnings("unchecked")
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
-    Set<String> classpath = new LinkedHashSet<String>();
+    Set<String> appcp = new LinkedHashSet<String>();
 
     // public / config, etc..
-    classpath.addAll(resources(mavenProject.getResources()));
+    appcp.addAll(resources(mavenProject.getResources()));
 
     // target/classes
-    classpath.add(buildOutputDirectory);
+    appcp.add(buildOutputDirectory);
 
     // *.jar
+    Set<String> classpath = new LinkedHashSet<String>();
+    Optional<Artifact> hotreload = hotreload(pluginArtifacts);
+    if (hotreload.isPresent()) {
+      classpath.add(hotreload.get().getFile().getAbsolutePath());
+    } else {
+      classpath.addAll(appcp);
+    }
     for (Object candidate : mavenProject.getArtifacts()) {
       Artifact artifact = (Artifact) candidate;
-      classpath.add(artifact.getFile().toString());
+      classpath.add(artifact.getFile().getAbsolutePath());
     }
     String cp = classpath.stream().collect(Collectors.joining(File.pathSeparator));
 
@@ -84,7 +102,20 @@ public class JoobyMojo extends AbstractMojo {
     args.addAll(vmArgs(vmArgs));
     args.add("-cp");
     args.add(cp);
-    args.add(mainClass);
+    if (hotreload.isPresent()) {
+      args.add("org.jooby.Hotswap");
+      args.add(mainClass);
+      args.addAll(appcp);
+      if (includes != null && includes.size() > 0) {
+        args.add("includes=" + join(includes));
+      }
+      if (excludes != null && excludes.size() > 0) {
+        args.add("excludes=" + join(excludes));
+      }
+    } else {
+      args.add(mainClass);
+    }
+
     cmds.add(new Command(mainClass, "java", args));
 
     for (Command cmd : cmds) {
@@ -108,6 +139,14 @@ public class JoobyMojo extends AbstractMojo {
       }
     }
 
+  }
+
+  private String join(final List<String> includes) {
+    StringBuilder buff = new StringBuilder();
+    for (String include : includes) {
+      buff.append(include).append(":");
+    }
+    return buff.toString();
   }
 
   private List<String> vmArgs(final List<String> vmArgs) {
@@ -159,5 +198,16 @@ public class JoobyMojo extends AbstractMojo {
         }
       }
     };
+  }
+
+  private Optional<Artifact> hotreload(final List<Artifact> artifacts) {
+    for (Artifact artifact : artifacts) {
+      for (String tail : artifact.getDependencyTrail()) {
+        if (tail.contains("jooby-hotreload")) {
+          return Optional.of(artifact);
+        }
+      }
+    }
+    return Optional.empty();
   }
 }

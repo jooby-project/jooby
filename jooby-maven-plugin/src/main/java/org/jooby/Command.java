@@ -39,8 +39,6 @@ public class Command {
 
   private ProcessOutput out;
 
-  private ProcessOutput err;
-
   public Command(final String alias, final String name, final List<String> args) {
     this.alias = alias;
     this.name = name;
@@ -87,12 +85,10 @@ public class Command {
   public void stop() throws InterruptedException {
     if (this.process != null) {
       this.out.stopIt();
-      this.err.stopIt();
       this.process.destroy();
       this.process.waitFor();
       this.process = null;
       this.out = null;
-      this.err = null;
     }
   }
 
@@ -102,13 +98,10 @@ public class Command {
     cmd.addAll(arguments);
     process = new ProcessBuilder(cmd)
         .directory(workdir)
+        .redirectErrorStream(true)
         .start();
-    // info
-    out = new ProcessOutput(process.getInputStream(), false);
+    out = new ProcessOutput(process.getInputStream());
     out.start();
-    // err
-    err = new ProcessOutput(process.getErrorStream(), true);
-    err.start();
     if (wait) {
       process.waitFor();
     }

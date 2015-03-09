@@ -166,6 +166,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- H2 database -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-hbs</artifactId>

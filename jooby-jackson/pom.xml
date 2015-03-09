@@ -57,14 +57,6 @@
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>org.jooby</groupId>
-      <artifactId>jooby</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-      <classifier>tests</classifier>
-    </dependency>
-
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
@@ -92,27 +84,6 @@
       <groupId>org.jacoco</groupId>
       <artifactId>org.jacoco.agent</artifactId>
       <classifier>runtime</classifier>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Fluent HC -->
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>fluent-hc</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpmime</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Servers -->
-    <dependency>
-      <groupId>org.jooby</groupId>
-      <artifactId>jooby-undertow</artifactId>
-      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
 

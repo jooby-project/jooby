@@ -28,11 +28,8 @@ public class ProcessOutput extends Thread {
 
   private BufferedReader reader;
 
-  private boolean err;
-
-  public ProcessOutput(final InputStream in, final boolean err) {
+  public ProcessOutput(final InputStream in) {
     this.reader = new BufferedReader(new InputStreamReader(in), 2048);
-    this.err = err;
     setDaemon(true);
   }
 
@@ -49,11 +46,7 @@ public class ProcessOutput extends Thread {
         if (stopped) {
           break;
         }
-        if (err) {
-          System.err.println(line);
-        } else {
-          System.out.println(line);
-        }
+        System.out.println(line);
         line = reader.readLine();
       }
     } catch (IOException ex) {

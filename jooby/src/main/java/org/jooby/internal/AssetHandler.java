@@ -35,8 +35,14 @@ public class AssetHandler implements Route.Filter {
 
   private String location;
 
-  public AssetHandler(final String location) {
+  private boolean file;
+
+  private Class<?> loader;
+
+  public AssetHandler(final String location, final Class<?> loader) {
     this.location = RoutePattern.normalize(requireNonNull(location, "A location is required."));
+    file = MediaType.byPath(location).isPresent();
+    this.loader = loader;
   }
 
   @Override
@@ -66,12 +72,12 @@ public class AssetHandler implements Route.Filter {
 
   private Asset resolve(final String path) throws Exception {
     String absolutePath = location;
-    if (!path.equals("/")) {
+    if (!path.equals("/") && !file) {
       absolutePath += path.substring(1);
     }
-    URL resource = getClass().getResource(absolutePath);
+    URL resource = loader.getResource(absolutePath);
     if (resource == null) {
-      throw new Err(Status.NOT_FOUND, path);
+      throw new Err(Status.NOT_FOUND, absolutePath);
     }
 
     return new URLAsset(resource, MediaType.byPath(absolutePath).orElse(MediaType.octetstream));

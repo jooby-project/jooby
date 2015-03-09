@@ -9,6 +9,7 @@ target
 .project
 .settings
 dependency-reduced-pom.xml
+bin
 
 # OSX
 *.DS_Store

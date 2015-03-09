@@ -6,6 +6,10 @@
     </encoder>
   </appender>
 
+  <logger name="org.jooby.hbm" level="debug" />
+
+  <logger name="org.hibernate.engine.transaction.internal.jdbc.JdbcTransaction" level="debug" />
+
   <logger name="org.jooby.internal.SessionManager" level="DEBUG" />
 
   <root level="INFO">

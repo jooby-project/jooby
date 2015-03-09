@@ -2439,7 +2439,7 @@ public class Jooby {
       formatters.add(new AssetFormatter());
       assetFormatter = true;
     }
-    return get(path, new AssetHandler(location));
+    return get(path, new AssetHandler(location, getClass()));
   }
 
   /**
