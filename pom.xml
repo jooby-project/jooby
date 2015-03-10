@@ -25,6 +25,7 @@
     <module>jooby-servlet</module>
     <module>jooby-jetty</module>
     <module>jooby-netty</module>
+    <module>jooby-quartz</module>
     <module>jooby-hotreload</module>
     <module>jooby-archetype</module>
     <module>jooby-maven-plugin</module>
@@ -126,6 +127,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-servlet</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-quartz</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -258,6 +265,13 @@
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-guava</artifactId>
         <version>${jackson.version}</version>
+      </dependency>
+
+      <!-- Quartz -->
+      <dependency>
+        <groupId>org.quartz-scheduler</groupId>
+        <artifactId>quartz</artifactId>
+        <version>${quartz.version}</version>
       </dependency>
 
       <!-- Fluent HC -->
@@ -976,6 +990,7 @@
     <async-http-client.version>1.8.14</async-http-client.version>
     <cglib.version>3.1</cglib.version>
     <asm.version>5.0.3</asm.version>
+    <quartz.version>2.2.1</quartz.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
