@@ -146,6 +146,8 @@ public class Hotswap {
         Thread.currentThread().setContextClassLoader(loader);
         this.app = loader.loadClass(mainClass).getDeclaredConstructors()[0].newInstance();
         app.getClass().getMethod("start").invoke(app);
+      } catch (InvocationTargetException ex) {
+        log.error("Error found while starting: " + mainClass, ex.getCause());
       } catch (Exception ex) {
         log.error("Error found while starting: " + mainClass, ex);
       } finally {
