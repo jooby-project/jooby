@@ -619,7 +619,7 @@ public class JdbcTest {
 
     replay(mocks);
 
-    new Jdbc("audit").configure(mode, config, binder);
+    new Jdbc("db.audit").configure(mode, config, binder);
 
     withHikariConfig(provider, (hikariConfig, properties) -> {
       assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());

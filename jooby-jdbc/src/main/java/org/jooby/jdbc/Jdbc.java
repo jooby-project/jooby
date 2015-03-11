@@ -44,7 +44,7 @@ import com.zaxxer.hikari.HikariConfig;
 
 public class Jdbc implements Jooby.Module {
 
-  public static final String DEFAULT_DB = "db";
+  private static final String DEFAULT_DB = "db";
 
   private final String dbName;
 
@@ -54,7 +54,7 @@ public class Jdbc implements Jooby.Module {
 
   public Jdbc(final String name) {
     checkArgument(name != null && name.length() > 0, "A database name is required.");
-    this.dbName = DEFAULT_DB.equals(name) ? name : DEFAULT_DB + "." + name;
+    this.dbName = name;
   }
 
   public Jdbc() {

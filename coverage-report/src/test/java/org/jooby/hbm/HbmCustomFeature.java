@@ -6,7 +6,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.jooby.Body;
-import org.jooby.hbm.Hbm;
 import org.jooby.hbm.data.Member;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -21,7 +20,7 @@ public class HbmCustomFeature extends ServerFeature {
   {
     use(ConfigFactory.empty().withValue("db.audit", ConfigValueFactory.fromAnyRef("mem")));
 
-    use(new Hbm("audit", Member.class));
+    use(new Hbm("db.audit", Member.class));
 
     get("/members", req -> {
       EntityManager em = req.require(Key.get(EntityManager.class, Names.named("db.audit")));
