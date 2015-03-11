@@ -16,26 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.hbm;
+package org.jooby.internal.hbm;
 
 import static com.google.common.base.Preconditions.checkState;
+
+import java.util.Map;
 
 import javax.inject.Provider;
 
 import org.hibernate.jpa.HibernateEntityManagerFactory;
+import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
+import org.jooby.Managed;
 
-class HbmProvider implements Provider<HibernateEntityManagerFactory> {
-
-  private EntityManagerFactoryBuilder builder;
+public class HbmProvider implements Provider<HibernateEntityManagerFactory>, Managed {
 
   private HibernateEntityManagerFactory emf;
 
-  public HbmProvider(final EntityManagerFactoryBuilder builder) {
-    this.builder = builder;
+  private HbmUnitDescriptor descriptor;
+
+  private Map<Object, Object> config;
+
+  public HbmProvider(final HbmUnitDescriptor descriptor, final Map<Object, Object> config) {
+    this.descriptor = descriptor;
+    this.config = config;
   }
 
+  @Override
   public void start() {
+    EntityManagerFactoryBuilder builder = Bootstrap
+        .getEntityManagerFactoryBuilder(descriptor, config);
     emf = (HibernateEntityManagerFactory) builder.build();
   }
 
@@ -45,6 +55,7 @@ class HbmProvider implements Provider<HibernateEntityManagerFactory> {
     return emf;
   }
 
+  @Override
   public void stop() {
     if (emf != null) {
       emf.close();

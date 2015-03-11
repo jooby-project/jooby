@@ -18,15 +18,15 @@
  */
 package org.jooby.jdbc;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import javax.inject.Provider;
 import javax.sql.DataSource;
+
+import org.jooby.Managed;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-class HikariDataSourceProvider implements Provider<DataSource> {
+class HikariDataSourceProvider implements Provider<DataSource>, Managed {
 
   private HikariDataSource dataSource;
 
@@ -40,17 +40,21 @@ class HikariDataSourceProvider implements Provider<DataSource> {
     return config;
   }
 
+  @Override
   public void start() {
-    checkState(dataSource == null, "start can't be called it twice");
-    dataSource = new HikariDataSource(config);
+    if (dataSource == null) {
+      dataSource = new HikariDataSource(config);
+    }
   }
 
   @Override
   public DataSource get() {
+    start();
     return dataSource;
   }
 
-  public void shutdown() {
+  @Override
+  public void stop() {
     if (dataSource != null) {
       dataSource.shutdown();
       dataSource = null;

@@ -45,20 +45,6 @@ public class ServerLookup implements Module {
   }
 
   @Override
-  public void start() {
-    if (delegate != null) {
-      delegate.start();
-    }
-  }
-
-  @Override
-  public void stop() {
-    if (delegate != null) {
-      delegate.stop();
-    }
-  }
-
-  @Override
   public Config config() {
     return ConfigFactory.parseResources(Server.class, "server.conf")
           .withFallback(ConfigFactory.parseResources(Server.class, "server-defaults.conf"));

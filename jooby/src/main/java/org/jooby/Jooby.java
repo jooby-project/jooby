@@ -82,6 +82,7 @@ import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.HttpHandlerImpl;
+import org.jooby.internal.LifecycleProcessor;
 import org.jooby.internal.LocaleUtils;
 import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteMetadata;
@@ -119,6 +120,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.OutOfScopeException;
 import com.google.inject.Stage;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -426,20 +428,6 @@ public class Jooby {
      */
     default @Nonnull Config config() {
       return ConfigFactory.empty();
-    }
-
-    /**
-     * Callback method to start a module. This method will be invoked after all the registered
-     * modules has been configured.
-     */
-    default void start() {
-    }
-
-    /**
-     * Callback method to stop a module and clean any resources. Invoked when the application is
-     * about to shutdown.
-     */
-    default void stop() {
     }
 
     /**
@@ -2781,7 +2769,7 @@ public class Jooby {
     return "";
   }
 
-  private Injector bootstrap() {
+  private Injector bootstrap() throws Exception {
     Config config = buildConfig(
         Optional.ofNullable(this.source)
             .orElseGet(
@@ -2832,6 +2820,9 @@ public class Jooby {
         // bind number format
         binder.bind(NumberFormat.class).toInstance(numberFormat);
         binder.bind(DecimalFormat.class).toInstance(numberFormat);
+
+        // bind managed
+        binder.bindListener(Matchers.any(), new LifecycleProcessor());
 
         // bind formatter & parser
         Multibinder<Body.Parser> parserBinder = Multibinder
@@ -2934,11 +2925,6 @@ public class Jooby {
         }
       });
 
-    // start modules
-    for (Jooby.Module module : modules) {
-      module.start();
-    }
-
     return injector;
   }
 
@@ -2946,29 +2932,23 @@ public class Jooby {
    * Stop the application, close all the modules and stop the web server.
    */
   public void stop() {
-    stopModules();
-
     if (injector != null) {
+      stopManaged();
+
       try {
         Server server = injector.getInstance(Server.class);
         server.stop();
+        log.info("Server stopped");
       } catch (Exception ex) {
         log.error("Web server didn't stop normally", ex);
       }
-      log.info("Server stopped");
       injector = null;
     }
   }
 
-  private void stopModules() {
+  private void stopManaged() {
     // stop modules
-    for (Jooby.Module module : modules) {
-      try {
-        module.stop();
-      } catch (Exception ex) {
-        log.warn("Module didn't stop normally: " + module.getClass().getName(), ex);
-      }
-    }
+    LifecycleProcessor.onPreDestroy(injector, log);
     modules.clear();
   }
 

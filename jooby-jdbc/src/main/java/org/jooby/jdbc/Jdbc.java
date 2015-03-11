@@ -66,25 +66,12 @@ public class Jdbc implements Jooby.Module {
     this.ds = newDataSource(dbName, dbConfig(dbName, config));
 
     binder.bind(dataSourceKey(DataSource.class))
-        .toProvider(ds);
+        .toProvider(ds).asEagerSingleton();
   }
 
   @Override
   public Config config() {
     return ConfigFactory.parseResources(Jdbc.class, "jdbc.conf");
-  }
-
-  @Override
-  public void start() {
-    ds.start();
-  }
-
-  @Override
-  public void stop() {
-    if (ds != null) {
-      ds.shutdown();
-      ds = null;
-    }
   }
 
   private Config dbConfig(final String key, final Config source) {

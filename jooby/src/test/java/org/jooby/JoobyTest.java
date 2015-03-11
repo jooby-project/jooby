@@ -15,9 +15,11 @@ import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -32,6 +34,7 @@ import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.BuiltinBodyConverter;
 import org.jooby.internal.HttpHandlerImpl;
+import org.jooby.internal.LifecycleProcessor;
 import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
@@ -60,6 +63,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.inject.Binder;
+import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -68,6 +72,7 @@ import com.google.inject.Stage;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.OptionalBinder;
 import com.google.inject.name.Named;
@@ -146,17 +151,24 @@ public class JoobyTest {
     listOfString.toInstance(isA(List.class));
     expectLastCall().anyTimes();
 
+    LinkedBindingBuilder<Config> configBinding = unit.mock(LinkedBindingBuilder.class);
+    configBinding.toInstance(isA(Config.class));
+    expectLastCall().anyTimes();
+    AnnotatedBindingBuilder<Config> configAnnotatedBinding =
+        unit.mock(AnnotatedBindingBuilder.class);
+
+    expect(configAnnotatedBinding.annotatedWith(isA(Named.class))).andReturn(configBinding)
+        .anyTimes();
+    // root config
+    configAnnotatedBinding.toInstance(isA(Config.class));
+
     Binder binder = unit.get(Binder.class);
     expect(binder.bind(String.class)).andReturn(strAnnotatedBinding).anyTimes();
     expect(binder.bind(Integer.class)).andReturn(intAnnotatedBinding).anyTimes();
     expect(binder.bind(Boolean.class)).andReturn(boolAnnotatedBinding).anyTimes();
+    expect(binder.bind(Config.class)).andReturn(configAnnotatedBinding).anyTimes();
     expect(binder.bind(Key.get(Types.listOf(String.class), Names.named("hotswap.reload.ext"))))
         .andReturn((LinkedBindingBuilder) listOfString).anyTimes();
-
-    AnnotatedBindingBuilder<Config> configAnnotatedBinding = unit
-        .mock(AnnotatedBindingBuilder.class);
-    configAnnotatedBinding.toInstance(isA(Config.class));
-    expect(binder.bind(Config.class)).andReturn(configAnnotatedBinding);
   };
 
   private MockUnit.Block env = unit -> {
@@ -476,7 +488,14 @@ public class JoobyTest {
     unit.mockStatic(OptionalBinder.class);
 
     unit.mockStatic(TypeConverters.class);
-    TypeConverters.configure(unit.get(Binder.class));
+    TypeConverters.configure(binder);
+
+    Map<Key<?>, Binding<?>> bindings = unit.mock(Map.class);
+    expect(bindings.values()).andReturn(Collections.emptyList());
+
+    expect(injector.getAllBindings()).andReturn(bindings);
+
+    binder.bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
   };
 
   @Test
@@ -523,6 +542,13 @@ public class JoobyTest {
 
           unit.mockStatic(TypeConverters.class);
           TypeConverters.configure(unit.get(Binder.class));
+
+          Map<Key<?>, Binding<?>> bindings = unit.mock(Map.class);
+          expect(bindings.values()).andReturn(Collections.emptyList());
+
+          expect(injector.getAllBindings()).andReturn(bindings);
+
+          binder.bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
         })
         .expect(shutdown)
         .expect(config)
@@ -545,19 +571,18 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(err)
-        .run(
-            unit -> {
+        .run(unit -> {
 
-              Jooby jooby = new Jooby();
+          Jooby jooby = new Jooby();
 
-              jooby.use(ConfigFactory.empty()
-                  .withValue("application.env", ConfigValueFactory.fromAnyRef("prod"))
-                  .withValue("application.secret", ConfigValueFactory.fromAnyRef("234"))
-                  );
+          jooby.use(ConfigFactory.empty()
+              .withValue("application.env", ConfigValueFactory.fromAnyRef("prod"))
+              .withValue("application.secret", ConfigValueFactory.fromAnyRef("234"))
+              );
 
-              jooby.start();
+          jooby.start();
 
-            }, boot);
+        }, boot);
   }
 
   @Test
@@ -669,6 +694,8 @@ public class JoobyTest {
 
           unit.mockStatic(TypeConverters.class);
           TypeConverters.configure(unit.get(Binder.class));
+
+          unit.get(Binder.class).bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
         })
         .expect(shutdown)
         .expect(config)
@@ -701,8 +728,8 @@ public class JoobyTest {
 
           module.configure(isA(Env.class), isA(Config.class), eq(binder));
 
-          module.stop();
-        })
+          // module.stop();
+          })
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -803,7 +830,14 @@ public class JoobyTest {
               unit.mockStatic(OptionalBinder.class);
 
               unit.mockStatic(TypeConverters.class);
-              TypeConverters.configure(unit.get(Binder.class));
+              TypeConverters.configure(binder);
+
+              Map<Key<?>, Binding<?>> bindings = unit.mock(Map.class);
+              expect(bindings.values()).andReturn(Collections.emptyList());
+
+              expect(injector.getAllBindings()).andReturn(bindings);
+
+              binder.bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
             })
         .expect(shutdown)
         .expect(config)
@@ -829,98 +863,6 @@ public class JoobyTest {
         .run(unit -> {
 
           Jooby jooby = new Jooby();
-
-          jooby.start();
-
-        }, boot);
-  }
-
-  @Test
-  public void stopOnModuleFailure() throws Exception {
-
-    new MockUnit(Binder.class, Jooby.Module.class)
-        .expect(unit -> {
-          Server server = unit.mock(Server.class);
-          server.start();
-          server.join();
-          server.stop();
-
-          ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
-          serverScope.in(Singleton.class);
-          expectLastCall().times(0, 1);
-
-          AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
-          expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
-
-          Binder binder = unit.get(Binder.class);
-          expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
-
-          AppPrinter printer = unit.mock(AppPrinter.class);
-
-          ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
-          expect(configOrigin.description()).andReturn("test.conf, mock.conf");
-
-          Config config = unit.mock(Config.class);
-          expect(config.getString("application.env")).andReturn("dev");
-          expect(config.hasPath("server.join")).andReturn(true);
-          expect(config.getBoolean("server.join")).andReturn(true);
-          expect(config.origin()).andReturn(configOrigin);
-
-          Injector injector = unit.mock(Injector.class);
-          expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
-          expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
-          expect(injector.getInstance(Config.class)).andReturn(config);
-
-          unit.mockStatic(Guice.class);
-          expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
-              .andReturn(
-                  injector);
-
-          unit.mockStatic(OptionalBinder.class);
-
-          unit.mockStatic(TypeConverters.class);
-          TypeConverters.configure(unit.get(Binder.class));
-        })
-        .expect(shutdown)
-        .expect(config)
-        .expect(env)
-        .expect(classInfo)
-        .expect(charset)
-        .expect(locale)
-        .expect(zoneId)
-        .expect(timeZone)
-        .expect(dateTimeFormatter)
-        .expect(numberFormat)
-        .expect(decimalFormat)
-        .expect(bodyParser)
-        .expect(bodyFormatter)
-        .expect(session)
-        .expect(routes)
-        .expect(routeHandler)
-        .expect(params)
-        .expect(requestScope)
-        .expect(webSockets)
-        .expect(tmpdir)
-        .expect(err)
-        .expect(unit -> {
-          Binder binder = unit.get(Binder.class);
-
-          Jooby.Module module = unit.get(Jooby.Module.class);
-
-          expect(module.config()).andReturn(ConfigFactory.empty());
-
-          module.configure(isA(Env.class), isA(Config.class), eq(binder));
-
-          module.start();
-
-          module.stop();
-          expectLastCall().andThrow(new IllegalArgumentException());
-        })
-        .run(unit -> {
-
-          Jooby jooby = new Jooby();
-
-          jooby.use(unit.get(Jooby.Module.class));
 
           jooby.start();
 
@@ -2376,10 +2318,10 @@ public class JoobyTest {
 
           module.configure(isA(Env.class), isA(Config.class), eq(binder));
 
-          module.start();
+          // module.start();
 
-          module.stop();
-        })
+            // module.stop();
+          })
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2427,8 +2369,8 @@ public class JoobyTest {
           module.configure(isA(Env.class), isA(Config.class), eq(binder));
           expectLastCall().andThrow(new NullPointerException());
 
-          module.start();
-        })
+          // module.start();
+          })
         .run(unit -> {
 
           Jooby jooby = new Jooby();

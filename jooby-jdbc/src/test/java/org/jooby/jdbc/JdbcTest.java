@@ -41,6 +41,7 @@ public class JdbcTest {
     Binder binder = createMock(Binder.class);
 
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     // config
     config = config.withValue("db", fromAnyRef("mem"));
@@ -91,6 +92,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -127,6 +129,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -164,6 +167,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -200,6 +204,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -240,6 +245,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -277,6 +283,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -314,6 +321,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -355,6 +363,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -408,6 +417,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -452,6 +462,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -508,6 +519,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -557,6 +569,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -595,6 +608,7 @@ public class JdbcTest {
         .withValue("hikari.audit.maximumPoolSize", fromAnyRef(1));
 
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -635,6 +649,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -675,6 +690,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -715,6 +731,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -755,6 +772,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -795,6 +813,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -835,6 +854,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
@@ -875,6 +895,7 @@ public class JdbcTest {
 
     // binder
     ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);

@@ -35,12 +35,11 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.jpa.AvailableSettings;
-import org.hibernate.jpa.boot.spi.Bootstrap;
-import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.jooby.Body;
 import org.jooby.Env;
 import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.internal.hbm.HbmProvider;
 import org.jooby.internal.hbm.HbmUnitDescriptor;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.scope.RequestScoped;
@@ -91,13 +90,10 @@ public class Hbm extends Jdbc {
     HbmUnitDescriptor descriptor = new HbmUnitDescriptor(getClass().getClassLoader(), dataSource(),
         config, scan);
 
-    EntityManagerFactoryBuilder builder = Bootstrap
-        .getEntityManagerFactoryBuilder(descriptor, config(config, classes));
-
-    emf = new HbmProvider(builder);
+    emf = new HbmProvider(descriptor, config(config, classes));
     Key<EntityManagerFactory> emfKey = dataSourceKey(EntityManagerFactory.class);
 
-    binder.bind(emfKey).toProvider(emf);
+    binder.bind(emfKey).toProvider(emf).asEagerSingleton();
 
     Key<EntityManager> emKey = dataSourceKey(EntityManager.class);
 
@@ -207,20 +203,6 @@ public class Hbm extends Jdbc {
         }
       }
     };
-  }
-
-  @Override
-  public void start() {
-    super.start();
-    emf.start();
-  }
-
-  @Override
-  public void stop() {
-    if (emf != null) {
-      emf.stop();
-    }
-    super.stop();
   }
 
   private static Map<Object, Object> config(final Config config, final List<Class<?>> classes) {
