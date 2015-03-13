@@ -46,11 +46,18 @@
 
     <!-- Test dependencies -->
     <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <classifier>tests</classifier>
+    </dependency>
+
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>

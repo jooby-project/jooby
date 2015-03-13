@@ -32,11 +32,11 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.View;
-import org.jooby.fn.ExSupplier;
 import org.jooby.internal.ResponseImpl;
 import org.jooby.internal.reqparam.RequestParam;
 import org.jooby.internal.reqparam.RequestParamProvider;
 import org.jooby.mvc.Viewable;
+import org.jooby.util.ExSupplier;
 
 import com.google.common.base.Throwables;
 

@@ -31,7 +31,7 @@ import javax.inject.Singleton;
 import org.jooby.Body;
 import org.jooby.MediaType;
 import org.jooby.View;
-import org.jooby.fn.Collectors;
+import org.jooby.util.Collectors;
 
 import com.google.inject.TypeLiteral;
 

@@ -40,10 +40,10 @@ import java.util.Optional;
 
 import org.jooby.Cookie;
 import org.jooby.MediaType;
-import org.jooby.fn.Collectors;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.spi.NativeWebSocket;
+import org.jooby.util.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;

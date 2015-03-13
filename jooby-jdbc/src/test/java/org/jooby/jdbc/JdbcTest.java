@@ -48,8 +48,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -96,8 +97,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -133,8 +135,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -171,8 +174,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -208,8 +212,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -249,8 +254,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -287,8 +293,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -325,8 +332,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -367,8 +375,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -421,8 +430,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -466,8 +476,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -523,8 +534,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -573,8 +585,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -653,8 +666,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -694,8 +708,10 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
+
 
     Object[] mocks = {binder, binding, scope };
 
@@ -735,8 +751,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -776,8 +793,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -817,8 +835,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -858,8 +877,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 
@@ -899,8 +919,9 @@ public class JdbcTest {
 
     Capture<Provider<DataSource>> provider = new Capture<>();
     LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
     expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
 
     Object[] mocks = {binder, binding, scope };
 

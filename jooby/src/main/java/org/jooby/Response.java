@@ -34,7 +34,7 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import org.jooby.Cookie.Definition;
-import org.jooby.fn.ExSupplier;
+import org.jooby.util.ExSupplier;
 
 /**
  * Give you access to the actual HTTP response. You can read/write headers and write HTTP body.

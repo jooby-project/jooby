@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.jooby.fn.ExSupplier;
+import org.jooby.util.ExSupplier;
 import org.junit.Test;
 
 import com.google.common.base.Charsets;

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.fn;
+package org.jooby.util;
 
 import java.util.List;
 import java.util.Set;

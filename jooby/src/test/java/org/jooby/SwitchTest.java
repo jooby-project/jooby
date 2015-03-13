@@ -2,7 +2,7 @@ package org.jooby;
 
 import static org.junit.Assert.assertEquals;
 
-import org.jooby.fn.Switch;
+import org.jooby.util.Switch;
 import org.junit.Test;
 
 public class SwitchTest {

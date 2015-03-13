@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.jooby.Response.Formatter;
-import org.jooby.fn.ExSupplier;
+import org.jooby.util.ExSupplier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

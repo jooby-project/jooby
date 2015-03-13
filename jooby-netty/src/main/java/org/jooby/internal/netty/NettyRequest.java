@@ -45,9 +45,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.jooby.fn.Collectors;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
+import org.jooby.util.Collectors;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;

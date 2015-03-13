@@ -3113,7 +3113,18 @@ public class Jooby {
       defaults.put("numberFormat", pattern);
     }
 
-    Map<String, Object> application = ImmutableMap.of("application", defaults);
+    int processors = Runtime.getRuntime().availableProcessors();
+    Map<String, Object> runtime = ImmutableMap.<String, Object> builder()
+      .put("processors", processors)
+      .put("processors-plus1", processors + 1)
+      .put("processors-plus2", processors + 2)
+      .put("processors-x2", processors * 2)
+      .build();
+
+    Map<String, Object> application = ImmutableMap.<String, Object> builder()
+        .put("application", defaults)
+        .put("runtime", runtime)
+        .build();
     return ConfigValueFactory.fromMap(application, "jooby-defaults").toConfig();
   }
 

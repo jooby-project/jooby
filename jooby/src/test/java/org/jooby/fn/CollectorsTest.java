@@ -2,6 +2,7 @@ package org.jooby.fn;
 
 import static org.junit.Assert.assertEquals;
 
+import org.jooby.util.Collectors;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;

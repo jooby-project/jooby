@@ -16,18 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.quartz;
+package org.jooby.internal.quartz;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import org.jooby.quartz.Scheduled;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -48,38 +50,55 @@ import com.typesafe.config.ConfigValueFactory;
 public class JobExpander {
 
   @SuppressWarnings("unchecked")
-  public static Map<JobDetail, Trigger> triggers(final Config config,
-      final List<Class<?>> jobs)
-      throws Exception {
+  public static Map<JobDetail, Trigger> jobs(final Config config, final List<Class<?>> jobs) {
     Map<JobDetail, Trigger> triggers = new HashMap<>();
     for (Class<?> job : jobs) {
       if (Job.class.isAssignableFrom(job)) {
-        triggers.put(job((Class<? extends Job>) job), trigger(config, (Class<? extends Job>) job));
+        triggers.put(
+            job((Class<? extends Job>) job),
+            trigger(config, (Class<? extends Job>) job)
+            );
       } else {
         Method[] methods = job.getDeclaredMethods();
+        int size = triggers.size();
         for (Method method : methods) {
           Scheduled scheduled = method.getAnnotation(Scheduled.class);
           if (scheduled != null) {
-            if (Modifier.isPublic(method.getModifiers())) {
-              triggers.put(job(method), newTrigger(config, scheduled, jobKey(method)));
-            } else {
+            int mods = method.getModifiers();
+            if (!Modifier.isPublic(mods)) {
               throw new IllegalArgumentException("Job method must be public: " + method);
             }
+            if (Modifier.isStatic(mods)) {
+              throw new IllegalArgumentException("Job method should NOT be public: " + method);
+            }
+            if (method.getParameterCount() > 0) {
+              if (method.getParameterCount() > 1) {
+                throw new IllegalArgumentException("Job method args must be ZERO/ONE: "
+                    + method);
+              }
+              if (method.getParameterTypes()[0] != JobExecutionContext.class) {
+                throw new IllegalArgumentException("Job method args isn't a "
+                    + JobExecutionContext.class.getName() + ": " + method);
+              }
+            }
+            triggers.put(job(method), newTrigger(config, scheduled, jobKey(method)));
           }
         }
+        checkArgument(size < triggers.size(), "Scheduled is missing on %s", job.getName());
       }
     }
     return triggers;
   }
 
-  private static JobDetail job(final Class<? extends Job> jobType) throws Exception {
+  private static JobDetail job(final Class<? extends Job> jobType) {
+    JobKey key = jobKey(jobType);
     return JobBuilder.newJob(jobType)
-        .withIdentity(jobKey(jobType))
+        .withIdentity(key)
         .build();
   }
 
-  private static JobDetail job(final Method method) throws Exception {
-    JobDetailImpl detail = new JobDetailImpl();
+  private static JobDetail job(final Method method) {
+    JobDetailImpl detail = new MethodJobDetail(method);
     detail.setJobClass(ReflectiveJob.class);
     detail.setKey(jobKey(method));
     return detail;
@@ -90,19 +109,30 @@ public class JobExpander {
   }
 
   private static JobKey jobKey(final Method method) {
-    return JobKey.jobKey(method.getDeclaringClass().getSimpleName() + "." + method.getName(),
+    Class<?> klass = method.getDeclaringClass();
+    String classname = klass.getSimpleName();
+    klass = klass.getDeclaringClass();
+    while (klass != null) {
+      classname = klass.getSimpleName() + "$" + classname;
+      klass = klass.getDeclaringClass();
+    }
+    return JobKey.jobKey(classname + "." + method.getName(),
         method.getDeclaringClass().getPackage().getName());
   }
 
-  private static Trigger trigger(final Config config, final Class<? extends Job> jobType)
-      throws Exception {
-    Method execute = jobType.getDeclaredMethod("execute", JobExecutionContext.class);
+  private static Trigger trigger(final Config config, final Class<? extends Job> jobType) {
+    Method execute = Arrays.stream(jobType.getDeclaredMethods())
+        .filter(m -> m.getName().equals("execute"))
+        .findFirst()
+        .get();
     Scheduled scheduled = execute.getAnnotation(Scheduled.class);
-    checkArgument(scheduled != null, Scheduled.class.getName() + " is missing on " + execute);
+    checkArgument(scheduled != null, "Scheduled is missing on %s.%s()", jobType.getName(),
+        execute.getName());
     return newTrigger(config, scheduled, jobKey(jobType));
   }
 
-  private static Trigger newTrigger(final Config config, final Scheduled scheduled, final JobKey key) {
+  private static Trigger newTrigger(final Config config, final Scheduled scheduled,
+      final JobKey key) {
     Function<String, Boolean> hasPath = p -> {
       try {
         return config.hasPath(p);
@@ -121,20 +151,16 @@ public class JobExpander {
           ConfigFactory.empty().withValue("expr", ConfigValueFactory.fromAnyRef(expr)), "expr");
     }
     // almost there
-    final String desc;
     if (value instanceof String) {
       // cron
-      desc = (String) value;
       return TriggerBuilder.newTrigger()
           .withSchedule(
               CronScheduleBuilder
                   .cronSchedule((String) value)
           )
           .withIdentity(TriggerKey.triggerKey(key.getName(), key.getGroup()))
-          .withDescription(desc)
           .build();
     } else {
-      desc = "run every " + value + "ms";
       return TriggerBuilder.newTrigger()
           .withSchedule(
               SimpleScheduleBuilder
@@ -143,7 +169,6 @@ public class JobExpander {
                   .repeatForever()
           )
           .withIdentity(TriggerKey.triggerKey(key.getName(), key.getGroup()))
-          .withDescription(desc)
           .startNow()
           .build();
     }

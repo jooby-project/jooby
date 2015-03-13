@@ -444,8 +444,9 @@ public class JoobyTest {
         unit.capture(Runnable.class));
 
     Runtime runtime = unit.mock(Runtime.class);
-    expect(Runtime.getRuntime()).andReturn(runtime);
+    expect(Runtime.getRuntime()).andReturn(runtime).times(2);
     runtime.addShutdownHook(thread);
+    expect(runtime.availableProcessors()).andReturn(1);
   };
 
   private MockUnit.Block guice = unit -> {

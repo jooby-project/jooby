@@ -35,9 +35,9 @@ import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.WebSocket;
-import org.jooby.fn.ExSupplier;
 import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.spi.NativeWebSocket;
+import org.jooby.util.ExSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

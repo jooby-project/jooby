@@ -42,11 +42,11 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.Status;
-import org.jooby.fn.Collectors;
 import org.jooby.internal.reqparam.BeanParamInjector;
 import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
+import org.jooby.util.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

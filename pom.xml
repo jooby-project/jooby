@@ -272,6 +272,19 @@
         <groupId>org.quartz-scheduler</groupId>
         <artifactId>quartz</artifactId>
         <version>${quartz.version}</version>
+        <exclusions>
+          <exclusion>
+            <!-- we use hikari, not need for c3p0 -->
+            <groupId>c3p0</groupId>
+            <artifactId>c3p0</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>net.redhogs.cronparser</groupId>
+        <artifactId>cron-parser-core</artifactId>
+        <version>${cron-parser-core.version}</version>
       </dependency>
 
       <!-- Fluent HC -->
@@ -991,6 +1004,7 @@
     <cglib.version>3.1</cglib.version>
     <asm.version>5.0.3</asm.version>
     <quartz.version>2.2.1</quartz.version>
+    <cron-parser-core.version>2.7</cron-parser-core.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

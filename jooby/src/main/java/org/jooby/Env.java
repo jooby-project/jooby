@@ -26,8 +26,8 @@ import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
 
-import org.jooby.fn.ExSupplier;
-import org.jooby.fn.Switch;
+import org.jooby.util.ExSupplier;
+import org.jooby.util.Switch;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;

@@ -26,7 +26,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 
 import org.jooby.Body;
-import org.jooby.fn.ExSupplier;
+import org.jooby.util.ExSupplier;
 
 import com.google.common.io.Closeables;
 

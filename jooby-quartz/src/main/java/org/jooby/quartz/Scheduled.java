@@ -24,19 +24,54 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE})
+import org.quartz.CronTrigger;
+import org.quartz.SimpleTrigger;
+import org.quartz.Trigger;
+
+/**
+ * <p>
+ * Define a {@link Trigger Quartz Trigger}. There you can put expressions
+ * like: <code>5s</code>, <code>15minutes</code>, <code>2hours</code>, etc... or a CRON expression:
+ * <code>0/3 * * * * ?</code>.
+ * </p>
+ * <p>
+ * It is also possible to put the name of property:
+ * </p>
+ *
+ * <pre>
+ *  public class MyJob {
+ *    &#64;Scheduled("job.expr")
+ *    public void doWork() {
+ *      ...
+ *    }
+ *  }
+ * </pre>
+ * <p>
+ * And again the property: <code>job.expr</code> must be one of the previously described
+ * expressions.
+ * </p>
+ *
+ * Keep in mind the annotation represent a {@link SimpleTrigger} that repeat for ever or
+ * {@link CronTrigger}.
+ *
+ * @author edgar
+ * @since 0.5.0
+ */
+@Target({ElementType.METHOD, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Scheduled {
 
   /**
-   * A cron-like expression, extending the usual UN*X definition to include
-   * triggers on the second as well as minute, hour, day of month, month
-   * and day of week.  e.g. {@code "0 * * * * MON-FRI"} means once per minute on
-   * weekdays (at the top of the minute - the 0th second).
+   * Expression can be one of these three options:
+   * <ol>
+   * <li>Interval: 10s, 10secs, 10minutes, 1h, etc...</li>
+   * <li>Cron expression: 0/3 * * * * ?</li>
+   * <li>Reference to a property, where the property value is one of the two previous options</li>
+   * </ol>
    *
-   *
-   * @return an expression that can be parsed to a cron schedule
+   * @return an expression to create an scheduler.
+   * @see com.typesafe.config.Config#getDuration(String, java.util.concurrent.TimeUnit)
    */
   String value();
 

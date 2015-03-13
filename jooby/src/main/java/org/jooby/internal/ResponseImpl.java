@@ -44,9 +44,9 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.Verb;
-import org.jooby.fn.ExSupplier;
 import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.spi.NativeResponse;
+import org.jooby.util.ExSupplier;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;

@@ -67,6 +67,10 @@ public class Jdbc implements Jooby.Module {
 
     binder.bind(dataSourceKey(DataSource.class))
         .toProvider(ds).asEagerSingleton();
+    if (DEFAULT_DB.equals(dbName)) {
+      // bind with db name too
+      binder.bind(Key.get(DataSource.class, Names.named(dbName))).toProvider(ds);
+    }
   }
 
   @Override

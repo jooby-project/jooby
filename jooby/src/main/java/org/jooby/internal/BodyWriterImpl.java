@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.jooby.Body;
-import org.jooby.fn.ExSupplier;
+import org.jooby.util.ExSupplier;
 
 import com.google.common.collect.ImmutableMap;
 
