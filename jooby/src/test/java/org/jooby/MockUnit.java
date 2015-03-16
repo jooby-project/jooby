@@ -148,4 +148,8 @@ public class MockUnit {
     return mock;
   }
 
+  public <T> T mockConstructor(final Class<T> type) throws Exception {
+    return mockConstructor(type, new Class[0]);
+  }
+
 }

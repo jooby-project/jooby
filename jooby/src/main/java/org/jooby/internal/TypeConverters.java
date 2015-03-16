@@ -18,92 +18,23 @@
  */
 package org.jooby.internal;
 
-import java.util.Locale;
-
-import org.jooby.internal.reqparam.LocaleParamConverter;
-import org.jooby.internal.reqparam.StaticMethodParamConverter;
-import org.jooby.internal.reqparam.StringConstructorParamConverter;
-
 import com.google.inject.Binder;
-import com.google.inject.TypeLiteral;
-import com.google.inject.matcher.AbstractMatcher;
-import com.google.inject.matcher.Matcher;
-import com.google.inject.spi.TypeConverter;
 
 public class TypeConverters {
 
-  public static void configure(final Binder binder) {
-    binder.convertToTypes(staticMethodMatcher("valueOf"),
-        staticMethodTypeConverter("valueOf"));
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  public void configure(final Binder binder) {
+    StaticMethodTypeConverter valueOf = new StaticMethodTypeConverter("valueOf");
+    binder.convertToTypes(valueOf, valueOf);
 
-    binder.convertToTypes(staticMethodMatcher("fromString"),
-        staticMethodTypeConverter("fromString"));
+    StaticMethodTypeConverter fromString = new StaticMethodTypeConverter("fromString");
+    binder.convertToTypes(fromString, fromString);
 
-    binder.convertToTypes(staticMethodMatcher("forName"),
-        staticMethodTypeConverter("forName"));
+    StaticMethodTypeConverter forName = new StaticMethodTypeConverter("forName");
+    binder.convertToTypes(forName, forName);
 
-    binder.convertToTypes(stringConstructorMatcher(), stringConstructorTypeConverter());
-  }
-
-  private static TypeConverter stringConstructorTypeConverter() {
-    return (value, type) -> {
-      Class<?> rawType = type.getRawType();
-      try {
-        if (rawType == Locale.class) {
-          return new LocaleParamConverter().convert(type, new Object[]{value }, null);
-        }
-        return new StringConstructorParamConverter().convert(type, new Object[]{value }, null);
-      } catch (Exception ex) {
-        throw new IllegalStateException("Can't convert: " + value + " to " + type, ex);
-      }
-    };
-  }
-
-  private static Matcher<TypeLiteral<?>> stringConstructorMatcher() {
-    return new AbstractMatcher<TypeLiteral<?>>() {
-      @Override
-      public boolean matches(final TypeLiteral<?> type) {
-        return new StringConstructorParamConverter().matches(type);
-      }
-
-      @Override
-      public String toString() {
-        return "TypeConverter init(String)";
-      }
-    };
-  }
-
-  private static TypeConverter staticMethodTypeConverter(final String name) {
-    return new TypeConverter() {
-      @Override
-      public Object convert(final String value, final TypeLiteral<?> toType) {
-        try {
-          return new StaticMethodParamConverter(name).convert(toType, new Object[]{value }, null);
-        } catch (Exception ex) {
-          throw new IllegalStateException("Can't convert: " + value + " to " + toType, ex);
-        }
-      }
-
-      @Override
-      public String toString() {
-        return name + "(String)";
-      }
-    };
-  }
-
-  private static Matcher<TypeLiteral<?>> staticMethodMatcher(final String name) {
-    return new AbstractMatcher<TypeLiteral<?>>() {
-      @Override
-      public boolean matches(final TypeLiteral<?> type) {
-        return !Enum.class.isAssignableFrom(type.getRawType())
-            && new StaticMethodParamConverter(name).matches(type);
-      }
-
-      @Override
-      public String toString() {
-        return name + "(String)";
-      }
-    };
+    StringConstructTypeConverter stringConstruct = new StringConstructTypeConverter();
+    binder.convertToTypes(stringConstruct, stringConstruct);
   }
 
 }

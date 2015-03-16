@@ -11,9 +11,11 @@ import java.io.CharArrayReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 
 import org.jooby.Body.Formatter;
@@ -59,6 +61,45 @@ public class BuiltinBodyConverterTest {
     assertEquals("string", writer2.toString());
 
     assertEquals("Formatter for: java.lang.Readable", formatter.toString());
+  }
+
+  @Test
+  public void formatByteArray() throws Exception {
+    Formatter formatter = BuiltinBodyConverter.formatByteArray;
+
+    assertEquals(ImmutableList.of(MediaType.octetstream), formatter.types());
+
+    assertTrue(formatter.canFormat(byte[].class));
+    assertFalse(formatter.canFormat(InputStream.class));
+
+    OutputStream stream = new ByteArrayOutputStream();
+    formatter.format("string".getBytes(), new BodyWriterImpl(Charsets.UTF_8, () -> stream,
+        () -> {
+          throw new IOException();
+        }));
+    assertEquals("string", stream.toString());
+
+    assertEquals("Formatter for: byte[]", formatter.toString());
+  }
+
+  @Test
+  public void formatByteBuffer() throws Exception {
+    Formatter formatter = BuiltinBodyConverter.formatByteBuffer;
+
+    assertEquals(ImmutableList.of(MediaType.octetstream), formatter.types());
+
+    assertTrue(formatter.canFormat(ByteBuffer.class));
+    assertFalse(formatter.canFormat(InputStream.class));
+
+    OutputStream stream = new ByteArrayOutputStream();
+    formatter.format(ByteBuffer.wrap("string".getBytes()), new BodyWriterImpl(Charsets.UTF_8,
+        () -> stream,
+        () -> {
+          throw new IOException();
+        }));
+    assertEquals("string", stream.toString());
+
+    assertEquals("Formatter for: java.nio.ByteBuffer", formatter.toString());
   }
 
   @Test

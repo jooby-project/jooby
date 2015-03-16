@@ -35,7 +35,8 @@ public class ServerLookup implements Module {
   public void configure(final Env env, final Config config, final Binder binder) {
     if (config.hasPath("server.module")) {
       try {
-        delegate = (Jooby.Module) Class.forName(config.getString("server.module")).newInstance();
+        delegate = (Jooby.Module) getClass().getClassLoader()
+            .loadClass(config.getString("server.module")).newInstance();
         delegate.configure(env, config, binder);
       } catch (Exception ex) {
         throw new IllegalStateException("No " + Server.class.getName()

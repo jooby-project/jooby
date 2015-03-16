@@ -20,7 +20,6 @@ package org.jooby.internal;
 
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -105,11 +104,7 @@ public class BuiltinBodyConverter {
       if (buffer.hasArray()) {
         formatByteArray.format(buffer.array(), writer);
       } else {
-        ByteBuffer readonly = buffer.asReadOnlyBuffer();
-        if (readonly.position() > 0) {
-          readonly.rewind();
-        }
-        try (InputStream in = toInputStream(readonly)) {
+        try (InputStream in = new ByteByfferInputStream(buffer)) {
           writer.bytes(out -> ByteStreams.copy(in, out));
         }
       }
@@ -197,28 +192,4 @@ public class BuiltinBodyConverter {
     }
   };
 
-  protected static InputStream toInputStream(final ByteBuffer buffer) {
-    return new InputStream() {
-
-      @Override
-      public int available() {
-        return buffer.remaining();
-      }
-
-      @Override
-      public int read() throws IOException {
-        return buffer.hasRemaining() ? buffer.get() & 0xFF : -1;
-      }
-
-      @Override
-      public int read(final byte[] bytes, final int off, final int len) throws IOException {
-        if (!buffer.hasRemaining()) {
-          return -1;
-        }
-        int count = Math.min(len, buffer.remaining());
-        buffer.get(bytes, off, count);
-        return count;
-      }
-    };
-  }
 }

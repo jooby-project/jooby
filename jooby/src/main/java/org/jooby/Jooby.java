@@ -2796,9 +2796,10 @@ public class Jooby {
     // dependency injection
     Injector injector = Guice.createInjector(stage, binder -> {
 
-      TypeConverters.configure(binder);
+      // type converters
+        new TypeConverters().configure(binder);
 
-      // bind config
+        // bind config
         bindConfig(binder, config);
 
         // bind env
@@ -3115,11 +3116,11 @@ public class Jooby {
 
     int processors = Runtime.getRuntime().availableProcessors();
     Map<String, Object> runtime = ImmutableMap.<String, Object> builder()
-      .put("processors", processors)
-      .put("processors-plus1", processors + 1)
-      .put("processors-plus2", processors + 2)
-      .put("processors-x2", processors * 2)
-      .build();
+        .put("processors", processors)
+        .put("processors-plus1", processors + 1)
+        .put("processors-plus2", processors + 2)
+        .put("processors-x2", processors * 2)
+        .build();
 
     Map<String, Object> application = ImmutableMap.<String, Object> builder()
         .put("application", defaults)

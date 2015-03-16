@@ -15,6 +15,8 @@ public class RequestIPFeature extends ServerFeature {
 
     get("/protocol", (req) -> req.protocol());
 
+    get("/secure", (req) -> req.secure());
+
   }
 
   @Test
@@ -22,6 +24,13 @@ public class RequestIPFeature extends ServerFeature {
     request()
         .get("/ip")
         .expect("127.0.0.1");
+  }
+
+  @Test
+  public void secure() throws Exception {
+    request()
+        .get("/secure")
+        .expect("false");
   }
 
   @Test

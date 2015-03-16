@@ -488,8 +488,8 @@ public class JoobyTest {
 
     unit.mockStatic(OptionalBinder.class);
 
-    unit.mockStatic(TypeConverters.class);
-    TypeConverters.configure(binder);
+    TypeConverters tc = unit.mockConstructor(TypeConverters.class);
+    tc.configure(binder);
 
     Map<Key<?>, Binding<?>> bindings = unit.mock(Map.class);
     expect(bindings.values()).andReturn(Collections.emptyList());
@@ -541,8 +541,8 @@ public class JoobyTest {
 
           unit.mockStatic(OptionalBinder.class);
 
-          unit.mockStatic(TypeConverters.class);
-          TypeConverters.configure(unit.get(Binder.class));
+          TypeConverters tc = unit.mockConstructor(TypeConverters.class);
+          tc.configure(binder);
 
           Map<Key<?>, Binding<?>> bindings = unit.mock(Map.class);
           expect(bindings.values()).andReturn(Collections.emptyList());
@@ -693,8 +693,8 @@ public class JoobyTest {
 
           unit.mockStatic(OptionalBinder.class);
 
-          unit.mockStatic(TypeConverters.class);
-          TypeConverters.configure(unit.get(Binder.class));
+          TypeConverters tc = unit.mockConstructor(TypeConverters.class);
+          tc.configure(unit.get(Binder.class));
 
           unit.get(Binder.class).bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
         })
@@ -830,8 +830,8 @@ public class JoobyTest {
 
               unit.mockStatic(OptionalBinder.class);
 
-              unit.mockStatic(TypeConverters.class);
-              TypeConverters.configure(binder);
+              TypeConverters tc = unit.mockConstructor(TypeConverters.class);
+              tc.configure(binder);
 
               Map<Key<?>, Binding<?>> bindings = unit.mock(Map.class);
               expect(bindings.values()).andReturn(Collections.emptyList());

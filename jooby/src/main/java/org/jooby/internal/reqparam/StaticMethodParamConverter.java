@@ -59,4 +59,8 @@ public class StaticMethodParamConverter implements ParamConverter {
     }
   }
 
+  @Override
+  public String toString() {
+    return methodName + "(" + String.class.getName() + ")";
+  }
 }
