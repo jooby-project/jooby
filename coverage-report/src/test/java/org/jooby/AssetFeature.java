@@ -7,23 +7,6 @@ public class AssetFeature extends ServerFeature {
 
   {
     assets("/assets/**");
-
-    assets("/", "welcome.html");
-  }
-
-  @Test
-  public void root() throws Exception {
-    request()
-        .get("/")
-        .expect(200)
-        .header("Content-Type", "text/html;charset=UTF-8")
-        .header("Last-Modified", lastModified -> {
-          request()
-              .get("/")
-              .header("If-Modified-Since", lastModified)
-              .expect(304)
-              .empty();
-        });
   }
 
   @Test

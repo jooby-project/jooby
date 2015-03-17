@@ -2393,7 +2393,7 @@ public class Jooby {
   }
 
   /**
-   * Send a static file to browser.
+   * Send a static file.
    *
    * <pre>
    *   assets("/assets/**");
@@ -2410,14 +2410,34 @@ public class Jooby {
   }
 
   /**
-   * Send a static file to browser.
+   * Send a static file.
+   *
+   * <p>Basic example</p>
    *
    * <pre>
-   *   assets("/assets/**", "/dir");
+   *   assets("/js/**", "/");
    * </pre>
    *
-   * Resources are served from root of classpath, for example <code>GET /assets/logo.png</code> will
-   * be resolve as classpath resource at: <code>/dir/assets/logo.png</code>.
+   * A request for: <code>/js/jquery.js</code> will be translated to: <code>/lib/jquery.js</code>.
+   *
+   * <p>Webjars example:</p>
+   * <pre>
+   *   assets("/js/**", "/resources/webjars/{0}");
+   * </pre>
+   *
+   * A request for: <code>/js/jquery/2.1.3/jquery.js</code> will be translated to:
+   * <code>/resources/webjars/jquery/2.1.3/jquery.js</code>.
+   * The <code>{0}</code> represent the <code>**</code> capturing group.
+   *
+   * <p>Another webjars example:</p>
+   * <pre>
+   *   assets("/js/*-*.js", "/resources/webjars/{0}/{1}/{0}.js");
+   * </pre>
+   *
+   * <p>
+   * A request for: <code>/js/jquery-2.1.3.js</code> will be translated to:
+   * <code>/resources/webjars/jquery/2.1.3/jquery.js</code>.
+   * </p>
    *
    * @param path The path to publish.
    * @param location A resource location.

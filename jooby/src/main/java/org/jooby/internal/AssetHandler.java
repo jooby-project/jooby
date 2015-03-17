@@ -18,13 +18,13 @@
  */
 package org.jooby.internal;
 
-import static java.util.Objects.requireNonNull;
-
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.Date;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 import org.jooby.Asset;
-import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
@@ -33,15 +33,17 @@ import org.jooby.Status;
 
 public class AssetHandler implements Route.Filter {
 
-  private String location;
-
-  private boolean file;
+  private BiFunction<Request, String, String> fn;
 
   private Class<?> loader;
 
-  public AssetHandler(final String location, final Class<?> loader) {
-    this.location = RoutePattern.normalize(requireNonNull(location, "A location is required."));
-    file = MediaType.byPath(location).isPresent();
+  public AssetHandler(final String path, final Class<?> loader) {
+    String pattern = RoutePattern.normalize(path);
+    this.fn = pattern.equals("/")
+        ? (req, p) -> p
+        : (req, p) -> {
+          return MessageFormat.format(pattern, vars(req));
+        };
     this.loader = loader;
   }
 
@@ -49,7 +51,13 @@ public class AssetHandler implements Route.Filter {
   public void handle(final Request req, final Response rsp, final Route.Chain chain)
       throws Exception {
     String path = req.path();
-    Asset resource = resolve(path);
+    Asset resource = resolve(req, path);
+
+    if (resource == null) {
+      // ignore and move next;
+      chain.next(req, rsp);
+      return;
+    }
 
     long lastModified = resource.lastModified();
 
@@ -70,16 +78,18 @@ public class AssetHandler implements Route.Filter {
     rsp.send(resource);
   }
 
-  private Asset resolve(final String path) throws Exception {
-    String absolutePath = location;
-    if (!path.equals("/") && !file) {
-      absolutePath += path.substring(1);
-    }
-    URL resource = loader.getResource(absolutePath);
+  private Asset resolve(final Request req, final String path) throws Exception {
+    String target = fn.apply(req, path);
+    URL resource = loader.getResource(target);
     if (resource == null) {
-      throw new Err(Status.NOT_FOUND, absolutePath);
+      return null;
     }
 
-    return new URLAsset(resource, MediaType.byPath(absolutePath).orElse(MediaType.octetstream));
+    return new URLAsset(resource, MediaType.byPath(target).orElse(MediaType.octetstream));
+  }
+
+  private static Object[] vars(final Request req) {
+    Map<Object, String> vars = req.route().vars();
+    return vars.values().toArray(new Object[vars.size()]);
   }
 }
