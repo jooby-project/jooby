@@ -6,7 +6,7 @@
     </encoder>
   </appender>
 
-  <logger name="org.jooby.hbm" level="debug" />
+  <logger name="org.jooby" level="info" />
 
   <logger name="org.jooby.internal.HttpHandlerImpl" level="debug" />
 

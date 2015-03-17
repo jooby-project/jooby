@@ -57,7 +57,6 @@ import static java.util.Objects.requireNonNull;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
-import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.ZoneId;
@@ -3096,10 +3095,6 @@ public class Jooby {
         .put("preserveOnStop", true);
 
     defaults.put("session", session.build());
-
-    // build dir (dev only)
-    defaults.put("builddir", Paths.get(System.getProperty("user.dir"), "target", "classes")
-        .toString());
 
     // set tmpdir
     String deftmpdir = "java.io.tmpdir";

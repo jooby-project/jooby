@@ -13,8 +13,8 @@ public class NettyServerTest {
   @Test
   public void server() throws Exception {
     Config config = ConfigFactory.empty()
-        .withValue("netty.bossThreads", ConfigValueFactory.fromAnyRef(1))
-        .withValue("netty.workerThreads", ConfigValueFactory.fromAnyRef(2))
+        .withValue("netty.threads.Parent", ConfigValueFactory.fromAnyRef(1))
+        .withValue("netty.threads.Child", ConfigValueFactory.fromAnyRef(2))
         .withValue("netty.threads.Max", ConfigValueFactory.fromAnyRef(2))
         .withValue("netty.threads.Name", ConfigValueFactory.fromAnyRef("netty"))
         .withValue("netty.options.SO_BACKLOG", ConfigValueFactory.fromAnyRef(1024))

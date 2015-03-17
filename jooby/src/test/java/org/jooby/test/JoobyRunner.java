@@ -81,23 +81,24 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
       if (!Jooby.class.isAssignableFrom(appClass)) {
         throw new InitializationError("Invalid jooby app: " + appClass);
       }
-      Config config = ConfigFactory.empty()
+      int maxThreads = Math.max(4, Runtime.getRuntime().availableProcessors() / 2) + 2;
+      Config config = ConfigFactory.empty("test-config")
           .withValue("server.join", ConfigValueFactory.fromAnyRef(false))
-          .withValue("server.threads.min", ConfigValueFactory.fromAnyRef(1))
-          .withValue("server.threads.max", ConfigValueFactory.fromAnyRef(10))
+          .withValue("server.threads.Min", ConfigValueFactory.fromAnyRef(1))
+          .withValue("server.threads.Max", ConfigValueFactory.fromAnyRef(maxThreads))
           .withValue("application.port", ConfigValueFactory.fromAnyRef(port))
           .withValue("undertow.server.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
           .withValue("undertow.socket.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
           .withValue("undertow.worker.KEEP_ALIVE", ConfigValueFactory.fromAnyRef(false))
           .withValue("undertow.ioThreads", ConfigValueFactory.fromAnyRef(2))
           .withValue("undertow.workerThreads", ConfigValueFactory.fromAnyRef(4))
-          .withValue("netty.bossThreads", ConfigValueFactory.fromAnyRef(1))
-          .withValue("netty.workerThreads", ConfigValueFactory.fromAnyRef(2));
+          .withValue("netty.threads.Parent", ConfigValueFactory.fromAnyRef(2));
 
       if (server != null) {
         config = config.withFallback(ConfigFactory.empty()
             .withValue("server.module", ConfigValueFactory.fromAnyRef(server.getName())));
       }
+
       Config testConfig = config;
 
       app = (Jooby) appClass.newInstance();

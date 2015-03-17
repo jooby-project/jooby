@@ -51,9 +51,9 @@ public class NettyServer implements Server {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(Server.class);
 
-  private NioEventLoopGroup bossGroup;
+  private NioEventLoopGroup parentGroup;
 
-  private NioEventLoopGroup workerGroup;
+  private NioEventLoopGroup childGroup;
 
   private Channel ch;
 
@@ -63,21 +63,28 @@ public class NettyServer implements Server {
 
   @Inject
   public NettyServer(final HttpHandler dispatcher, final Config config) {
-    this.bossGroup = eventLoop(config, "netty.boss");
-    this.workerGroup = eventLoop(config, "netty.worker");
     this.dispatcher = dispatcher;
     this.config = config;
   }
 
   @Override
   public void start() throws Exception {
+    int parentThreads = config.getInt("netty.threads.Parent");
+    parentGroup = eventLoop(parentThreads, "parent");
+    if (config.hasPath("netty.threads.Child")) {
+      int childThreads = config.getInt("netty.threads.Child");
+      childGroup = eventLoop(childThreads, "child");
+    } else {
+      childGroup = parentGroup;
+    }
+
     ServerBootstrap bootstrap = new ServerBootstrap();
 
     DefaultEventExecutorGroup executor =
-          new DefaultEventExecutorGroup(config.getInt("netty.threads.Max"),
-              new DefaultThreadFactory(config.getString("netty.threads.Name")));
+        new DefaultEventExecutorGroup(config.getInt("netty.threads.Max"),
+            new DefaultThreadFactory(config.getString("netty.threads.Name")));
 
-    bootstrap.group(bossGroup, workerGroup)
+    bootstrap.group(parentGroup)
         .channel(NioServerSocketChannel.class)
         .handler(new LoggingHandler(Server.class, LogLevel.DEBUG))
         .childHandler(new NettyInitializer(executor, dispatcher, config));
@@ -95,8 +102,10 @@ public class NettyServer implements Server {
 
   @Override
   public void stop() throws Exception {
-    bossGroup.shutdownGracefully();
-    workerGroup.shutdownGracefully();
+    parentGroup.shutdownGracefully();
+    if (!childGroup.isShutdown()) {
+      childGroup.shutdownGracefully();
+    }
   }
 
   @Override
@@ -148,16 +157,10 @@ public class NettyServer implements Server {
     }
   }
 
-  private NioEventLoopGroup eventLoop(final Config config, final String poolName) {
-    final int threads;
-    if (config.hasPath(poolName + "Threads")) {
-      threads = config.getInt(poolName + "Threads");
-    } else {
-      threads = Math.max(1, Runtime.getRuntime().availableProcessors() * 2);
-    }
-    log.debug("{}Threads({})", poolName, threads);
+  private NioEventLoopGroup eventLoop(final int threads, final String name) {
+    log.debug("netty.threads.{}({})", name, threads);
     NioEventLoopGroup group = new NioEventLoopGroup(threads,
-        new DefaultThreadFactory(poolName, Thread.MAX_PRIORITY));
+        new DefaultThreadFactory(name, Thread.MAX_PRIORITY));
     return group;
   }
 }
