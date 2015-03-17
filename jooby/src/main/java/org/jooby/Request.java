@@ -33,6 +33,7 @@ import org.jooby.scope.RequestScoped;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 
 /**
  * Give you access at the current HTTP request in order to read parameters, headers and body.
@@ -540,6 +541,19 @@ public interface Request extends Locals {
   @Nonnull
   default <T> T require(@Nonnull final Class<T> type) {
     return require(Key.get(type));
+  }
+
+  /**
+   * Ask Guice for the given type.
+   *
+   * @param name A service name.
+   * @param type A service type.
+   * @param <T> Service type.
+   * @return A ready to use object.
+   */
+  @Nonnull
+  default <T> T require(final String name, @Nonnull final Class<T> type) {
+    return require(Key.get(type, Names.named(name)));
   }
 
   /**

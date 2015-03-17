@@ -26,6 +26,7 @@
     <module>jooby-jetty</module>
     <module>jooby-netty</module>
     <module>jooby-quartz</module>
+    <module>jooby-jdbi</module>
     <module>jooby-hotreload</module>
     <module>jooby-archetype</module>
     <module>jooby-maven-plugin</module>
@@ -281,10 +282,11 @@
         </exclusions>
       </dependency>
 
+      <!-- JDBI -->
       <dependency>
-        <groupId>net.redhogs.cronparser</groupId>
-        <artifactId>cron-parser-core</artifactId>
-        <version>${cron-parser-core.version}</version>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi</artifactId>
+        <version>${jdbi.version}</version>
       </dependency>
 
       <!-- Fluent HC -->
@@ -1004,7 +1006,7 @@
     <cglib.version>3.1</cglib.version>
     <asm.version>5.0.3</asm.version>
     <quartz.version>2.2.1</quartz.version>
-    <cron-parser-core.version>2.7</cron-parser-core.version>
+    <jdbi.version>2.59</jdbi.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

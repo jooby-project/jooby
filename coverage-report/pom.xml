@@ -43,6 +43,7 @@
                     <source>${project.parent.basedir}/jooby-netty/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-servlet/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-quartz/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-jdbi/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -64,6 +65,7 @@
                     <source>${project.parent.basedir}/jooby-netty/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-servlet/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-quartz/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-jdbi/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -190,6 +192,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-jackson</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-jdbi</artifactId>
       <version>${project.version}</version>
     </dependency>
 

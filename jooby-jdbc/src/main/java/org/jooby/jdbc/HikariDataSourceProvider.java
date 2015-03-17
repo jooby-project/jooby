@@ -22,6 +22,7 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.jooby.Managed;
+import org.slf4j.LoggerFactory;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -44,6 +45,8 @@ class HikariDataSourceProvider implements Provider<DataSource>, Managed {
   public void start() {
     if (dataSource == null) {
       dataSource = new HikariDataSource(config);
+      LoggerFactory.getLogger(HikariDataSource.class).info("  {}",
+          config.getDataSourceProperties().getProperty("url"));
     }
   }
 

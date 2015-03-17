@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import javax.inject.Provider;
 import javax.sql.DataSource;
@@ -65,12 +66,7 @@ public class Jdbc implements Jooby.Module {
   public void configure(final Env mode, final Config config, final Binder binder) {
     this.ds = newDataSource(dbName, dbConfig(dbName, config));
 
-    binder.bind(dataSourceKey(DataSource.class))
-        .toProvider(ds).asEagerSingleton();
-    if (DEFAULT_DB.equals(dbName)) {
-      // bind with db name too
-      binder.bind(Key.get(DataSource.class, Names.named(dbName))).toProvider(ds);
-    }
+    keys(DataSource.class, key -> binder.bind(key).toProvider(ds).asEagerSingleton());
   }
 
   @Override
@@ -86,8 +82,8 @@ public class Jdbc implements Jooby.Module {
       if (db.toString().indexOf(':') == -1 && source.hasPath(embeddeddb)) {
         Config dbtree = source.getConfig(embeddeddb);
         dbtree = dbtree.withValue("url", ConfigValueFactory.fromAnyRef(
-                  dbtree.getString("url").replace("{mem.seed}", System.currentTimeMillis() + "")
-               ));
+            dbtree.getString("url").replace("{mem.seed}", System.currentTimeMillis() + "")
+            ));
         // write embedded with current key
         return ConfigFactory.empty()
             .withValue(key, dbtree.root())
@@ -164,8 +160,19 @@ public class Jdbc implements Jooby.Module {
     return Optional.empty();
   }
 
-  protected final <T> Key<T> dataSourceKey(final Class<T> type) {
-    return DEFAULT_DB.equals(dbName) ? Key.get(type) : Key.get(type, Names.named(dbName));
+  /**
+   * Build keys for the given resource type. When database name is: <code>db</code> two keys
+   * (binding) are generated, once without a name and other with a name. A database: <code>db</code>
+   * is considered the default database.
+   *
+   * @param type A type to bind.
+   * @param callback A generated key.
+   */
+  protected final <T> void keys(final Class<T> type, final Consumer<Key<T>> callback) {
+    if (DEFAULT_DB.equals(dbName)) {
+      callback.accept(Key.get(type));
+    }
+    callback.accept(Key.get(type, Names.named(dbName)));
   }
 
   protected final Provider<DataSource> dataSource() {

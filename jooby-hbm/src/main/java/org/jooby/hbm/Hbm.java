@@ -20,6 +20,7 @@ package org.jooby.hbm;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -91,28 +92,28 @@ public class Hbm extends Jdbc {
         config, scan);
 
     emf = new HbmProvider(descriptor, config(config, classes));
-    Key<EntityManagerFactory> emfKey = dataSourceKey(EntityManagerFactory.class);
-
-    binder.bind(emfKey).toProvider(emf).asEagerSingleton();
-
-    Key<EntityManager> emKey = dataSourceKey(EntityManager.class);
+    keys(EntityManagerFactory.class, key -> binder.bind(key).toProvider(emf).asEagerSingleton());
 
     Multibinder<Route.Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
 
-    routes.addBinding()
-        .toInstance(new Route.Definition("*", "*", readWriteTrx(emf, emKey, log)).name("hbm"));
+    List<Key<EntityManager>> emkeys = new ArrayList<>();
+    keys(EntityManager.class, key -> {
+      binder.bind(key).toProvider(() -> {
+        throw new OutOfScopeException("Cannot access " + key + " outside of a scoping block");
+      }).in(RequestScoped.class);
+      emkeys.add(key);
+    });
 
-    binder.bind(emKey).toProvider(() -> {
-      throw new OutOfScopeException("Cannot access " + emKey + " outside of a scoping block");
-    }).in(RequestScoped.class);
+    routes.addBinding()
+        .toInstance(new Route.Definition("*", "*", readWriteTrx(emf, emkeys, log)).name("hbm"));
   }
 
-  private static Route.Filter readWriteTrx(final HbmProvider emf, final Key<EntityManager> key,
-      final Logger log) {
+  private static Route.Filter readWriteTrx(final HbmProvider emf,
+      final List<Key<EntityManager>> keys, final Logger log) {
     return (req, resp, chain) -> {
-      log.debug("creating entity manager: {}", key);
+      log.debug("creating entity manager: {}", keys.get(0));
       EntityManager em = emf.get().createEntityManager();
-      req.set(key, em);
+      keys.forEach(key -> req.set(key, em));
       Session session = (Session) em.getDelegate();
       FlushMode flushMode = FlushMode.AUTO;
       log.debug("setting flush mode to: {}", flushMode);

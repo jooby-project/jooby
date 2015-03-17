@@ -59,6 +59,7 @@ public class HbmProvider implements Provider<HibernateEntityManagerFactory>, Man
   public void stop() {
     if (emf != null) {
       emf.close();
+      emf = null;
     }
   }
 }
