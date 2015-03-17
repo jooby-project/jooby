@@ -70,6 +70,7 @@ public class BuiltinBodyConverterTest {
     assertEquals(ImmutableList.of(MediaType.octetstream), formatter.types());
 
     assertTrue(formatter.canFormat(byte[].class));
+    assertFalse(formatter.canFormat(int[].class));
     assertFalse(formatter.canFormat(InputStream.class));
 
     OutputStream stream = new ByteArrayOutputStream();

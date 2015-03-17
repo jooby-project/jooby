@@ -340,10 +340,6 @@ public class ResponseImpl implements Response {
     requireNonNull(body, "A response message is required.");
     requireNonNull(formatter, "A converter is required.");
 
-    if (committed()) {
-      // TODO: warn? exception?
-      return;
-    }
     type(body.type().orElseGet(() -> type().orElseGet(() -> formatter.types().get(0))));
 
     status(body.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));

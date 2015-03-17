@@ -76,9 +76,7 @@ public class BuiltinBodyConverter {
 
     @Override
     public void format(final Object body, final Body.Writer writer) throws Exception {
-      try (InputStream in = new ByteArrayInputStream((byte[]) body)) {
-        writer.bytes(out -> ByteStreams.copy(in, out));
-      }
+      writer.bytes(out -> ByteStreams.copy(new ByteArrayInputStream((byte[]) body), out));
     }
 
     @Override
@@ -104,9 +102,7 @@ public class BuiltinBodyConverter {
       if (buffer.hasArray()) {
         formatByteArray.format(buffer.array(), writer);
       } else {
-        try (InputStream in = new ByteByfferInputStream(buffer)) {
-          writer.bytes(out -> ByteStreams.copy(in, out));
-        }
+        writer.bytes(out -> ByteStreams.copy(new ByteByfferInputStream(buffer), out));
       }
     }
 

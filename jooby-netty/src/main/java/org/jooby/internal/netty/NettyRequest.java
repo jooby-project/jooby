@@ -135,7 +135,7 @@ public class NettyRequest implements NativeRequest {
   @Override
   public List<NativeUpload> files(final String name) throws IOException {
     decodeParams();
-    if (files == null) {
+    if (files.size() == 0) {
       return Collections.emptyList();
     }
     Collection<NativeUpload> files = this.files.get(name);

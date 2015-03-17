@@ -57,7 +57,7 @@ public class HeadHandler implements Route.Filter {
         return;
       }
     }
-    // not handle, just call next
+    // not handled, just call next
     chain.next(req, rsp);
   }
 

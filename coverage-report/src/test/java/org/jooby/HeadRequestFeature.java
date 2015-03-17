@@ -31,4 +31,12 @@ public class HeadRequestFeature extends ServerFeature {
         .empty();
   }
 
+  @Test
+  public void notFound() throws Exception {
+    request()
+        .head("/404")
+        .expect(404)
+        .empty();
+  }
+
 }

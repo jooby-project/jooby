@@ -26,22 +26,26 @@ public class WebSocketPauseResumeFeature extends ServerFeature {
   static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   {
     ws("/ws", ws -> {
-      System.out.println("connet server");
+      CountDownLatch latch = new CountDownLatch(1);
       ws.onMessage(message -> {
-        System.out.println("on message");
 
         ws.send("=" + message.value(), () -> {
-          System.out.println("client close");
+          latch.await();
           ws.close();
         });
 
-        ws.pause();
-
-        executor.schedule(() -> {
-          System.out.println("on resume");
-          ws.resume();
-        }, 1, TimeUnit.SECONDS);
       });
+
+      ws.pause();
+      // 2nd ignored
+      ws.pause();
+
+      executor.schedule(() -> {
+        ws.resume();
+        // 2nd call ignored
+        ws.resume();
+        latch.countDown();
+      }, 1, TimeUnit.SECONDS);
     });
 
   }
@@ -74,20 +78,17 @@ public class WebSocketPauseResumeFeature extends ServerFeature {
 
               @Override
               public void onMessage(final String message) {
-                System.out.println("on client message");
                 messages.add(message);
                 latch.countDown();
               }
 
               @Override
               public void onOpen(final WebSocket websocket) {
-                System.out.println("on open");
                 websocket.sendTextMessage("hey!");
               }
 
               @Override
               public void onClose(final WebSocket websocket) {
-                System.out.println("on close");
                 latch.countDown();
               }
 
