@@ -31,7 +31,7 @@ public class RegexRouteMatcher implements RouteMatcher {
 
   private final List<String> varNames;
 
-  private final Map<String, String> vars = new HashMap<>();
+  private final Map<Object, String> vars = new HashMap<>();
 
   private final String path;
 
@@ -50,17 +50,24 @@ public class RegexRouteMatcher implements RouteMatcher {
   @Override
   public boolean matches() {
     boolean matches = matcher.matches();
-    if (matches && varNames.size() > 0) {
-      int varCount = matcher.groupCount();
-      for (int idx = 0; idx < varCount; idx++) {
-        vars.put(varNames.get(idx), matcher.group(idx + 1));
+    if (matches) {
+      int varCount = varNames.size();
+      int groupCount = matcher.groupCount();
+      for (int idx = 0; idx < groupCount; idx++) {
+        String var = matcher.group(idx + 1);
+        // idx indices
+        vars.put(idx, var);
+        // named vars
+        if (idx < varCount) {
+          vars.put(varNames.get(idx), matcher.group("v" + idx));
+        }
       }
     }
     return matches;
   }
 
   @Override
-  public Map<String, String> vars() {
+  public Map<Object, String> vars() {
     return vars;
   }
 

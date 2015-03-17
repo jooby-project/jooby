@@ -491,7 +491,7 @@ public interface WebSocket extends Closeable {
    * @return The currently matched path variables (if any).
    */
   @Nonnull
-  Map<String, String> vars();
+  Map<Object, String> vars();
 
   /**
    * @return The type this route can consumes, defaults is: {@code * / *}.

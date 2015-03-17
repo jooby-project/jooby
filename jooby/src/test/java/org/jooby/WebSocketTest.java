@@ -66,7 +66,7 @@ public class WebSocketTest {
     }
 
     @Override
-    public Map<String, String> vars() {
+    public Map<Object, String> vars() {
       throw new UnsupportedOperationException();
     }
 

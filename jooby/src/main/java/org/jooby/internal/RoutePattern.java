@@ -29,11 +29,9 @@ import java.util.regex.Pattern;
 public class RoutePattern {
 
   private static final Pattern GLOB = Pattern
-      .compile("\\?|\\*\\*/?|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
+      .compile("\\?|\\*\\*|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
 
   private static final Pattern SLASH = Pattern.compile("//+");
-
-  private static final String ANY_DIR = "**";
 
   private final Function<String, RouteMatcher> matcher;
 
@@ -43,7 +41,7 @@ public class RoutePattern {
     requireNonNull(verb, "A HTTP verb is required.");
     requireNonNull(pattern, "A path pattern is required.");
     this.pattern = normalize(pattern);
-    this.matcher = rewrite(this, verb.toUpperCase() + this.pattern);
+    this.matcher = rewrite(this, verb.toUpperCase() + this.pattern.replace("/**/", "/**"));
   }
 
   public String pattern() {
@@ -66,31 +64,34 @@ public class RoutePattern {
       patternBuilder.append(quote(pattern, end, matcher.start()));
       String match = matcher.group();
       if ("?".equals(match)) {
-        patternBuilder.append("[^/]");
+        patternBuilder.append("([^/])");
         regex = true;
       } else if ("*".equals(match)) {
-        patternBuilder.append("[^/]*");
+        patternBuilder.append("([^/]*)");
         regex = true;
-      } else if ("**/".equals(match)) {
-        patternBuilder.append("(.*/)*");
+      } else if (match.equals("**")) {
+        patternBuilder.append("(.*)");
         regex = true;
       } else if (match.startsWith(":")) {
         regex = true;
-        patternBuilder.append("([^/]+)");
-        vars.add(match.substring(1));
+        String varName = match.substring(1);
+        patternBuilder.append("(?<v").append(vars.size()).append(">[^/]+)");
+        vars.add(varName);
       } else if (match.startsWith("{") && match.endsWith("}")) {
         regex = true;
         int colonIdx = match.indexOf(':');
         if (colonIdx == -1) {
-          patternBuilder.append("([^/]+)");
-          vars.add(match.substring(1, match.length() - 1));
+          String varName = match.substring(1, match.length() - 1);
+          patternBuilder.append("(?<v").append(vars.size()).append(">[^/]+)");
+          vars.add(varName);
         }
         else {
+          String varName = match.substring(1, colonIdx);
           String regexpr = match.substring(colonIdx + 1, match.length() - 1);
-          patternBuilder.append('(');
+          patternBuilder.append("(?<v").append(vars.size()).append(">");
           patternBuilder.append(regexpr);
           patternBuilder.append(')');
-          vars.add(match.substring(1, colonIdx));
+          vars.add(varName);
         }
       }
       end = matcher.end();
@@ -122,21 +123,21 @@ public class RoutePattern {
   }
 
   public static String normalize(final String pattern) {
+    if (pattern.equals("*")) {
+      return "/**";
+    }
+    if (pattern.equals("/")) {
+      return "/";
+    }
     String normalized = SLASH.matcher(pattern).replaceAll("/");
-    StringBuilder buffer = new StringBuilder();
     if (normalized.equals("/")) {
-      return buffer.append(normalized).toString();
+      return "/";
     }
-    if (normalized.equals("*")) {
-      return buffer.append("/**/*").toString();
-    }
+    StringBuilder buffer = new StringBuilder();
     if (!normalized.startsWith("/")) {
       buffer.append("/");
     }
     buffer.append(normalized);
-    if (normalized.endsWith(ANY_DIR)) {
-      buffer.append("/*");
-    }
     if (normalized.endsWith("/")) {
       buffer.setLength(buffer.length() - 1);;
     }

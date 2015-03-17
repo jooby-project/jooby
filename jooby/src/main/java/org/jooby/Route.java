@@ -761,7 +761,7 @@ public interface Route {
     }
 
     @Override
-    public Map<String, String> vars() {
+    public Map<Object, String> vars() {
       return route.vars();
     }
 
@@ -986,9 +986,17 @@ public interface Route {
   String name();
 
   /**
+   * Path variables, either named or by index (capturing group).
+   *
+   * <pre>
+   *   /path/:var
+   * </pre>
+   *
+   * Variable <code>var</code> is accesible by name: <code>var</code> or index: <code>0</code>.
+   *
    * @return The currently matched path variables (if any).
    */
-  Map<String, String> vars();
+  Map<Object, String> vars();
 
   /**
    * @return List all the types this route can consumes, defaults is: {@code * / *}.

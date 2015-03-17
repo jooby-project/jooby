@@ -39,7 +39,7 @@ public interface RouteMatcher {
    *
    * @return Get path vars from current path. Or empty map if there is none.
    */
-  default Map<String, String> vars() {
+  default Map<Object, String> vars() {
     return Collections.emptyMap();
   }
 }

@@ -40,7 +40,7 @@ public class RouteImpl implements Route, Route.Filter {
 
   private String name;
 
-  private Map<String, String> vars;
+  private Map<Object, String> vars;
 
   private List<MediaType> consumes;
 
@@ -64,7 +64,7 @@ public class RouteImpl implements Route, Route.Filter {
   }
 
   public RouteImpl(final Filter filter, final Verb verb, final String path,
-      final String pattern, final String name, final Map<String, String> vars,
+      final String pattern, final String name, final Map<Object, String> vars,
       final List<MediaType> consumes, final List<MediaType> produces) {
     this.filter = filter;
     this.verb = verb;
@@ -103,7 +103,7 @@ public class RouteImpl implements Route, Route.Filter {
   }
 
   @Override
-  public Map<String, String> vars() {
+  public Map<Object, String> vars() {
     return vars;
   }
 

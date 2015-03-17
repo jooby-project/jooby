@@ -53,7 +53,7 @@ public class WebSocketImplTest {
     Object data = "String";
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
 
@@ -91,7 +91,7 @@ public class WebSocketImplTest {
   public void toStr() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
 
@@ -114,7 +114,7 @@ public class WebSocketImplTest {
   public void pauseAndResume() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
 
@@ -146,7 +146,7 @@ public class WebSocketImplTest {
   public void close() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
 
@@ -170,7 +170,7 @@ public class WebSocketImplTest {
   public void terminate() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
 
@@ -195,7 +195,7 @@ public class WebSocketImplTest {
   public void props() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
 
@@ -217,7 +217,7 @@ public class WebSocketImplTest {
   public void require() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
     Object instance = new Object();
@@ -249,7 +249,7 @@ public class WebSocketImplTest {
   public void onMessage() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
 
@@ -288,7 +288,7 @@ public class WebSocketImplTest {
   public void onErr() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
     Exception ex = new Exception();
@@ -325,7 +325,7 @@ public class WebSocketImplTest {
   public void onErrAndWsOpen() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
     Exception ex = new Exception();
@@ -363,7 +363,7 @@ public class WebSocketImplTest {
   public void onClose() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
     WebSocket.CloseStatus status = WebSocket.NORMAL;
@@ -402,7 +402,7 @@ public class WebSocketImplTest {
   public void onCloseNullReason() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
     WebSocket.CloseStatus status = WebSocket.CloseStatus.of(1000);
@@ -441,7 +441,7 @@ public class WebSocketImplTest {
   public void onCloseEmptyReason() throws Exception {
     String path = "/";
     String pattern = "/pattern";
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
     WebSocket.CloseStatus status = WebSocket.CloseStatus.of(1000, "");

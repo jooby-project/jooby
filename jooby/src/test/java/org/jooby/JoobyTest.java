@@ -927,7 +927,7 @@ public class JoobyTest {
 
           Route.Definition second = jooby.use("GET", "*", unit.get(Route.Filter.class));
           assertNotNull(second);
-          assertEquals("/**/*", second.pattern());
+          assertEquals("/**", second.pattern());
           assertEquals("GET", second.verb());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
@@ -1001,7 +1001,7 @@ public class JoobyTest {
 
           Route.Definition second = jooby.use("GET", "*", unit.get(Route.Handler.class));
           assertNotNull(second);
-          assertEquals("/**/*", second.pattern());
+          assertEquals("/**", second.pattern());
           assertEquals("GET", second.verb());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
@@ -2018,7 +2018,7 @@ public class JoobyTest {
 
           Route.Definition head = jooby.head();
           assertNotNull(head);
-          assertEquals("/**/*", head.pattern());
+          assertEquals("/**", head.pattern());
           assertEquals("HEAD", head.verb());
         });
   }
@@ -2031,7 +2031,7 @@ public class JoobyTest {
 
           Route.Definition options = jooby.options();
           assertNotNull(options);
-          assertEquals("/**/*", options.pattern());
+          assertEquals("/**", options.pattern());
           assertEquals("OPTIONS", options.verb());
         });
   }
@@ -2044,7 +2044,7 @@ public class JoobyTest {
 
           Route.Definition trace = jooby.trace();
           assertNotNull(trace);
-          assertEquals("/**/*", trace.pattern());
+          assertEquals("/**", trace.pattern());
           assertEquals("TRACE", trace.verb());
         });
   }

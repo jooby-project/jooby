@@ -145,7 +145,12 @@ public class RequestImpl implements Request {
   @Override
   public Map<String, Mutant> params() throws Exception {
     Map<String, Mutant> params = new LinkedHashMap<>();
-    Set<String> names = new LinkedHashSet<>(route.vars().keySet());
+    Set<String> names = new LinkedHashSet<>();
+    for(Object name: route.vars().keySet()) {
+      if (name instanceof String) {
+        names.add((String) name);
+      }
+    }
     names.addAll(req.paramNames());
     for (String name : names) {
       params.put(name, param(name));

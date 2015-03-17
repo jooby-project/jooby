@@ -102,7 +102,7 @@ public class RouteForwardingTest {
 
   @Test
   public void vars() throws Exception {
-    Map<String, String> vars = new HashMap<>();
+    Map<Object, String> vars = new HashMap<>();
     new MockUnit(Route.class)
         .expect(unit -> {
           Route route = unit.get(Route.class);

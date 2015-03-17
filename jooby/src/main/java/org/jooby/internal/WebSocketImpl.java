@@ -59,7 +59,7 @@ public class WebSocketImpl implements WebSocket {
 
   private String pattern;
 
-  private Map<String, String> vars;
+  private Map<Object, String> vars;
 
   private MediaType consumes;
 
@@ -82,7 +82,7 @@ public class WebSocketImpl implements WebSocket {
   private boolean suspended;
 
   public WebSocketImpl(final Handler handler, final String path,
-      final String pattern, final Map<String, String> vars,
+      final String pattern, final Map<Object, String> vars,
       final MediaType consumes, final MediaType produces) {
     this.handler = handler;
     this.path = path;
@@ -195,7 +195,7 @@ public class WebSocketImpl implements WebSocket {
   }
 
   @Override
-  public Map<String, String> vars() {
+  public Map<Object, String> vars() {
     return vars;
   }
 
