@@ -34,6 +34,7 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,8 +42,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 import org.jooby.Session;
-
-import com.google.common.collect.ImmutableMap;
 
 public class SessionImpl implements Session {
 
@@ -155,7 +154,7 @@ public class SessionImpl implements Session {
 
   @Override
   public Map<String, Object> attributes() {
-    return ImmutableMap.copyOf(attributes);
+    return Collections.unmodifiableMap(attributes);
   }
 
   @Override

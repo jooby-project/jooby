@@ -58,7 +58,7 @@ public class ResponseImpl implements Response {
 
   private final NativeResponse rsp;
 
-  private final Map<Object, Object> locals;
+  private final Map<String, Object> locals;
 
   private Route route;
 
@@ -80,7 +80,7 @@ public class ResponseImpl implements Response {
 
   public ResponseImpl(final Injector injector,
       final NativeResponse rsp, final int maxBufferSize, final Route route,
-      final Map<Object, Object> locals, final Charset charset, final Optional<String> referer) {
+      final Map<String, Object> locals, final Charset charset, final Optional<String> referer) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.rsp = requireNonNull(rsp, "A raw response is required.");
     this.maxBufferSize = maxBufferSize;

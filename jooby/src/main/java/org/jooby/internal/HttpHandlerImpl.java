@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -106,9 +107,11 @@ public class HttpHandlerImpl implements HttpHandler {
   public void handle(final NativeRequest request, final NativeResponse response) throws Exception {
     long start = System.currentTimeMillis();
 
-    Map<Object, Object> locals = new LinkedHashMap<>();
+    Map<String, Object> locals = new LinkedHashMap<>();
 
-    requestScope.enter(locals);
+    Map<Object, Object> scope = new HashMap<>();
+
+    requestScope.enter(scope);
 
     Verb verb = Verb.valueOf(request.method().toUpperCase());
     String requestPath = normalizeURI(request.path());
@@ -131,7 +134,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
     Route notFound = RouteImpl.notFound(verb, path, MediaType.ALL);
 
-    RequestImpl req = new RequestImpl(injector, request, notFound, locals);
+    RequestImpl req = new RequestImpl(injector, request, notFound, scope, locals);
 
     ResponseImpl rsp = new ResponseImpl(injector, response, maxBufferSize, notFound, locals,
         req.charset(), request.header("Referer"));

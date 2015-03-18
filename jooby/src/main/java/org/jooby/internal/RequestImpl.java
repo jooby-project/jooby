@@ -49,7 +49,6 @@ import org.jooby.spi.NativeUpload;
 import org.jooby.util.Collectors;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -68,7 +67,9 @@ public class RequestImpl implements Request {
 
   private final NativeRequest req;
 
-  private final Map<Object, Object> locals;
+  private final Map<Object, Object> scope;
+
+  private final Map<String, Object> locals;
 
   private final BodyConverterSelector selector;
 
@@ -81,10 +82,12 @@ public class RequestImpl implements Request {
   public RequestImpl(final Injector injector,
       final NativeRequest req,
       final Route route,
-      final Map<Object, Object> locals) {
+      final Map<Object, Object> scope,
+      final Map<String, Object> locals) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.req = requireNonNull(req, "An exchange is required.");
     this.route = requireNonNull(route, "A route is required.");
+    this.scope = requireNonNull(scope, "Scope is required.");
     this.locals = requireNonNull(locals, "Request locals are required.");
     this.selector = injector.getInstance(BodyConverterSelector.class);
 
@@ -110,13 +113,7 @@ public class RequestImpl implements Request {
 
   @Override
   public Map<String, Object> attributes() {
-    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-    locals.forEach((k, v) -> {
-      if (k instanceof String) {
-        builder.put((String) k, v);
-      }
-    });
-    return builder.build();
+    return Collections.unmodifiableMap(locals);
   }
 
   @SuppressWarnings("unchecked")
@@ -309,7 +306,7 @@ public class RequestImpl implements Request {
   public Request set(final Key<?> key, final Object value) {
     requireNonNull(key, "A local's jey is required.");
     requireNonNull(value, "A local's value is required.");
-    locals.put(key, value);
+    scope.put(key, value);
     return this;
   }
 

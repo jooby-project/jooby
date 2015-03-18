@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -318,25 +317,25 @@ public abstract class ServerFeature extends Jooby {
       return this;
     }
 
-    public Request get(final String path) throws URISyntaxException {
+    public Request get(final String path) {
       this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Get(host
           + path));
       return req;
     }
 
-    public Request trace(final String path) throws URISyntaxException {
+    public Request trace(final String path) {
       this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Trace(host
           + path));
       return req;
     }
 
-    public Request options(final String path) throws URISyntaxException {
+    public Request options(final String path) {
       this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Options(host
           + path));
       return req;
     }
 
-    public Request head(final String path) throws URISyntaxException {
+    public Request head(final String path) {
       this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Head(host
           + path));
       return req;
@@ -350,25 +349,25 @@ public abstract class ServerFeature extends Jooby {
       return executor;
     }
 
-    public Request post(final String path) throws URISyntaxException {
+    public Request post(final String path) {
       this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Post(host
           + path));
       return req;
     }
 
-    public Request put(final String path) throws URISyntaxException {
+    public Request put(final String path) {
       this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Put(host
           + path));
       return req;
     }
 
-    public Request delete(final String path) throws URISyntaxException {
+    public Request delete(final String path) {
       this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Delete(host
           + path));
       return req;
     }
 
-    public Request patch(final String path) throws URISyntaxException {
+    public Request patch(final String path) {
       this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Patch(host
           + path));
       return req;

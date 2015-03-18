@@ -18,6 +18,7 @@
     <module>jooby</module>
     <module>jooby-jackson</module>
     <module>jooby-hbs</module>
+    <module>jooby-ftl</module>
     <module>jooby-jdbc</module>
     <module>jooby-hbm</module>
     <module>jooby-dist</module>
@@ -134,6 +135,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-quartz</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-ftl</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -320,6 +327,13 @@
         <groupId>com.github.jknack</groupId>
         <artifactId>handlebars-guava-cache</artifactId>
         <version>${handlebars.version}</version>
+      </dependency>
+
+      <!-- Freemarker -->
+      <dependency>
+        <groupId>org.freemarker</groupId>
+        <artifactId>freemarker</artifactId>
+        <version>${freemarker.version}</version>
       </dependency>
 
       <!-- Connection Pool -->
@@ -1007,6 +1021,7 @@
     <asm.version>5.0.3</asm.version>
     <quartz.version>2.2.1</quartz.version>
     <jdbi.version>2.59</jdbi.version>
+    <freemarker.version>2.3.22</freemarker.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

@@ -6,9 +6,11 @@
 
 ## view engine
 
-### [handlebars](https://github.com/jooby-project/jooby/tree/master/jooby-hbs)
+### [handlebars/mustache](https://github.com/jooby-project/jooby/tree/master/jooby-hbs)
+### [freemarker](https://github.com/jooby-project/jooby/tree/master/jooby-ftl)
 
 ## persistence
 
 ### [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc)
+### [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi)
 ### [hibernate](https://github.com/jooby-project/jooby/tree/master/jooby-hbm)
