@@ -64,17 +64,32 @@ Run: ```mvn clean package``` and find the ```*.war``` file in the ```target``` d
 
 * web-sockets are not supported
 * some properties has no effect when deploying into a Servlet Container:
- - application.path
+ - application.path / contextPath
  - appplication.port
  - any other server specific property: server.*, jetty.*, netty.*, undertow.*
+
+### special note on contextPath
+
+To avoid a headache... make sure to use the ```contextPath``` variable while loading static/dynamic
+resources (.css, .js, etc..).
+
+For example:
+
+```html
+<html>
+<head>
+  <link rel="stylesheet" text="text/css" href="{{contextPath}}/css/styles.css">
+  <script src="{{contextPath}}/js/app.js"></script>
+</head>
+</html>
+```
+
+Here the expression: ```{{contextPath}}``` correspond to the template engine (handlebars here) or ```${contextPath}``` for Freemarker.
 
 ## how it works?
 
 The ```maven-assembly-plugin``` generates the *.war file. The assembly descriptor can be found
 [here](https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml)
-
-All it does, is to adapt the project structure to the one required by a Servlet Container.
-
 
 ### web.xml
 
@@ -126,7 +141,7 @@ the ```war.maxRequestSize``` property to ```pom.xml```:
 
 #### custom web.xml
 
-It is possible to provide your own ```web.xml``` file too. Follow these steps
+Follow these steps:
 
 1. create a dir: ```src/etc/war/WEB-INF```
 2. save a ```web.xml``` file inside that dir
