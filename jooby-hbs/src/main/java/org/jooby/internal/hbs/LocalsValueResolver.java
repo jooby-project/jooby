@@ -16,36 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.hbs;
+package org.jooby.internal.hbs;
 
 import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.jooby.Locals;
+
 import com.github.jknack.handlebars.ValueResolver;
-import com.typesafe.config.Config;
 
 /**
- * Handlebars value resolver for accessing config properties from {@link Config} objects.
+ * Handlebars value resolver for accessing to {@link Locals}, like request and session objects.
  *
  * @author edgar
  */
-public class ConfigValueResolver implements ValueResolver {
+public class LocalsValueResolver implements ValueResolver {
 
   @Override
   public Object resolve(final Object context, final String name) {
-    if (context instanceof Config) {
-      Config config = (Config) context;
-      if (config.hasPath(name)) {
-        return config.getAnyRef(name);
-      }
+    Object value = null;
+    if (context instanceof Locals) {
+      value = ((Locals) context).get(name).orElse(null);
     }
-    return UNRESOLVED;
+    return value == null ? UNRESOLVED : value;
   }
 
   @Override
   public Object resolve(final Object context) {
-    if (context instanceof Config) {
+    if (context instanceof Locals) {
       return context;
     }
     return UNRESOLVED;
@@ -53,8 +52,8 @@ public class ConfigValueResolver implements ValueResolver {
 
   @Override
   public Set<Entry<String, Object>> propertySet(final Object context) {
-    if (context instanceof Config) {
-      return ((Config) context).root().unwrapped().entrySet();
+    if (context instanceof Locals) {
+      return ((Locals) context).attributes().entrySet();
     }
     return Collections.emptySet();
   }

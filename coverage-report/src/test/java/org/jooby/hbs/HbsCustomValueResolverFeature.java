@@ -1,0 +1,46 @@
+package org.jooby.hbs;
+
+import java.util.Collections;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.jooby.View;
+import org.jooby.test.ServerFeature;
+import org.junit.Test;
+
+import com.github.jknack.handlebars.ValueResolver;
+
+public class HbsCustomValueResolverFeature extends ServerFeature {
+
+  public static class VR implements ValueResolver {
+
+    @Override
+    public Object resolve(final Object context, final String name) {
+      return "VR";
+    }
+
+    @Override
+    public Object resolve(final Object context) {
+      return "VR";
+    }
+
+    @Override
+    public Set<Entry<String, Object>> propertySet(final Object context) {
+      return Collections.emptySet();
+    }
+  }
+
+  {
+    use(new Hbs().with(new VR()));
+
+    get("/", req -> View.of("org/jooby/hbs/index"));
+  }
+
+  @Test
+  public void shouldInjectHelpers() throws Exception {
+    request()
+        .get("/")
+        .expect("<html><body>VR</body></html>");
+  }
+
+}

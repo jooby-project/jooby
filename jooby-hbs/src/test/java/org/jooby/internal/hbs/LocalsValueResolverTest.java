@@ -1,4 +1,4 @@
-package org.jooby.hbs;
+package org.jooby.internal.hbs;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.jooby.Locals;
 import org.jooby.MockUnit;
+import org.jooby.internal.hbs.LocalsValueResolver;
 import org.junit.Test;
 
 import com.github.jknack.handlebars.ValueResolver;

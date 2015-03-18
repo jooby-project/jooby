@@ -20,16 +20,23 @@ package org.jooby.hbs;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 import org.jooby.Body;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.View;
+import org.jooby.internal.hbs.ConfigValueResolver;
+import org.jooby.internal.hbs.HbsEngine;
+import org.jooby.internal.hbs.HbsHelpers;
+import org.jooby.internal.hbs.LocalsValueResolver;
 
-import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.ValueResolver;
 import com.github.jknack.handlebars.cache.GuavaTemplateCache;
 import com.github.jknack.handlebars.cache.NullTemplateCache;
 import com.github.jknack.handlebars.context.FieldValueResolver;
@@ -38,72 +45,159 @@ import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheBuilderSpec;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 
+/**
+ * Exposes a {@link Handlebars} and a {@link Body.Formatter}.
+ *
+ * <h1>usage</h1>
+ * <p>
+ * It is pretty straightforward:
+ * </p>
+ *
+ * <pre>
+ * {
+ *   use(new Hbs());
+ *
+ *   get("/", req {@literal ->} View.of("index", "model", new MyModel());
+ * }
+ * </pre>
+ * <p>
+ * public/index.html:
+ * </p>
+ *
+ * <pre>
+ *   {{model}}
+ * </pre>
+ *
+ * <p>
+ * Templates are loaded from root of classpath: <code>/</code> and must end with: <code>.html</code>
+ * file extension.
+ * </p>
+ *
+ * <h1>helpers</h1>
+ * <p>
+ * Simple/basic helpers are add it at startup time:
+ * </p>
+ *
+ * <pre>
+ * {
+ *   use(new Hbs().doWith((hbs, config) {@literal ->} {
+ *     hbs.registerHelper("myhelper", (ctx, options) {@literal ->} {
+ *       return ...;
+ *     });
+ *     hbs.registerHelpers(Helpers.class);
+ *   });
+ * }
+ * </pre>
+ * <p>
+ * Now, if the helper depends on a service and require injection:
+ * </p>
+ *
+ * <pre>
+ * {
+ *   use(new Hbs().with(Helpers.class));
+ * }
+ * </pre>
+ *
+ * <p>
+ * The <code>Helpers</code> will be injected by Guice and Handlebars will scan and discover any
+ * helper method.
+ * </p>
+ *
+ * <h1>template loader</h1>
+ * <p>
+ * Templates are loaded from the root of classpath and must end with <code>.html</code>. You can
+ * change the default template location and extensions too:
+ * </p>
+ *
+ * <pre>
+ * {
+ *   use(new Hbs("/", ".hbs"));
+ * }
+ * </pre>
+ *
+ * <h1>cache</h1>
+ * <p>
+ * Cache is OFF when <code>env=dev</code> (useful for template reloading), otherwise is ON.
+ * </p>
+ * <p>
+ * Cache is backed by Guava and the default cache will expire after <code>100</code> entries.
+ * </p>
+ * <p>
+ * If <code>100</code> entries is not enough or you need a more advanced cache setting, just set the
+ * <code>hbs.cache</code> option:
+ * </p>
+ *
+ * <pre>
+ * hbs.cache = "expireAfterWrite=1h"
+ * </pre>
+ *
+ * <p>
+ * See {@link CacheBuilderSpec}.
+ * </p>
+ *
+ * <p>
+ * That's all folks! Enjoy it!!!
+ * </p>
+ *
+ * @author edgar
+ * @since 0.5.0
+ */
 public class Hbs implements Jooby.Module {
-
-  private static class Engine implements View.Engine {
-
-    private Handlebars handlebars;
-
-    public Engine(final Handlebars handlebars) {
-      this.handlebars = requireNonNull(handlebars, "A handlebars instance required.");
-    }
-
-    @Override
-    public String name() {
-      return "hbs";
-    }
-
-    @Override
-    public void render(final View view, final Body.Writer writer) throws Exception {
-      Template template = handlebars.compile(view.name());
-
-      Context context = Context
-          .newBuilder(view.model())
-          // merge request locals (req+sessions locals)
-          .combine(writer.locals())
-          .resolver(
-              MapValueResolver.INSTANCE,
-              JavaBeanValueResolver.INSTANCE,
-              MethodValueResolver.INSTANCE,
-              FieldValueResolver.INSTANCE,
-              new LocalsValueResolver(),
-              new ConfigValueResolver()
-          )
-          .build();
-
-      // rendering it
-      writer.text(out -> template.apply(context, out));
-    }
-
-    @Override
-    public String toString() {
-      return name();
-    }
-  }
 
   private final Handlebars hbs;
 
   private BiConsumer<Handlebars, Config> configurer;
 
-  public Hbs(final Handlebars handlebars) {
-    this.hbs = requireNonNull(handlebars, "A handlebars instance is required.");
+  private Set<Class<?>> helpers = new HashSet<>();
+
+  private Deque<ValueResolver> resolvers = new LinkedList<>();
+
+  public Hbs(final String prefix, final String suffix, final Class<?>... helpers) {
+    this.hbs = new Handlebars(new ClassPathTemplateLoader(prefix, suffix));
+    with(helpers);
+    // default value resolvers.
+    this.resolvers.add(MapValueResolver.INSTANCE);
+    this.resolvers.add(JavaBeanValueResolver.INSTANCE);
+    this.resolvers.add(MethodValueResolver.INSTANCE);
+    this.resolvers.add(new LocalsValueResolver());
+    this.resolvers.add(new ConfigValueResolver());
+    this.resolvers.add(FieldValueResolver.INSTANCE);
   }
 
-  public Hbs() {
-    this(new Handlebars(new ClassPathTemplateLoader("/", ".html")));
+  public Hbs(final String prefix, final Class<?>... helpers) {
+    this(prefix, ".html", helpers);
+  }
+
+  public Hbs(final Class<?>... helpers) {
+    this("/", helpers);
   }
 
   public Hbs doWith(final BiConsumer<Handlebars, Config> configurer) {
     this.configurer = requireNonNull(configurer, "Configurer is required.");
     return this;
-  };
+  }
+
+  public Hbs with(final Class<?>... helper) {
+    for (Class<?> h : helper) {
+      helpers.add(h);
+    }
+    return this;
+  }
+
+  public Hbs with(final ValueResolver resolver) {
+    requireNonNull(resolver, "Value resolver is required.");
+    this.resolvers.addFirst(resolver);
+    return this;
+  }
 
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
@@ -126,18 +220,26 @@ public class Hbs implements Jooby.Module {
 
     binder.bind(Handlebars.class).toInstance(hbs);
 
-    Engine engine = new Engine(hbs);
+    Multibinder<Object> helpersBinding = Multibinder
+        .newSetBinder(binder, Object.class, Names.named("hbs.helpers"));
+    helpers.forEach(h -> helpersBinding.addBinding().to(h));
+
+    HbsEngine engine = new HbsEngine(hbs, resolvers.toArray(new ValueResolver[resolvers.size()]));
 
     Multibinder.newSetBinder(binder, Body.Formatter.class).addBinding()
         .toInstance(engine);
 
     // direct access
     binder.bind(Key.get(View.Engine.class, Names.named(engine.name()))).toInstance(engine);
+
+    // helper bootstrap
+    binder.bind(HbsHelpers.class).asEagerSingleton();
   }
 
   @Override
   public Config config() {
-    return ConfigFactory.parseResources(getClass(), "hbs.conf");
+    return ConfigFactory.empty(Hbs.class.getName())
+        .withValue("hbs.cache", ConfigValueFactory.fromAnyRef("maximumSize=100"));
   }
 
 }

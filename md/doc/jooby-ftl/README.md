@@ -1,6 +1,6 @@
 # jooby-ftl
 
-Freemarker templates for Jooby. Exposes a Configuration and [Body.Formatter].
+[Freemarker] templates for Jooby. Exposes a Configuration and [Body.Formatter].
 
 ## dependency
 
@@ -11,6 +11,7 @@ Freemarker templates for Jooby. Exposes a Configuration and [Body.Formatter].
   <version>{{version}}</version>
 </dependency>
 ```
+
 ## usage
 It is pretty straightforward:
 
@@ -77,6 +78,6 @@ If ```100``` entries is not enough or you need a more advanced cache setting, ju
 freemarker.cache = "expireAfterWrite=1h"
 ```
 
-See {@link CacheBuilderSpec}.
+See [CacheBuilderSpec] for more detailed expressions.
 
 That's all folks! Enjoy it!!!
