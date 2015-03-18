@@ -2,7 +2,6 @@ package org.jooby.hbs;
 
 import static org.junit.Assert.assertSame;
 
-import org.jooby.hbs.Hbs;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -29,7 +28,7 @@ public class HbsCacheOffFeature extends ServerFeature {
   @Test
   public void hbs() throws Exception {
     request()
-        .get("/?model=jooby")
+        .get("/")
         .expect("noop");
   }
 

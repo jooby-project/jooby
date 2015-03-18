@@ -18,13 +18,13 @@ public class Issue27 extends ServerFeature {
 
     get("*", (req, rsp) -> req.set("session", req.session()));
 
-    get("/config", req -> View.of("org/jooby/issues/27/config", new Object()));
+    get("/config", req -> View.of("org/jooby/issues/27/config", "this", new Object()));
 
-    get("/req", req -> View.of("org/jooby/issues/27/req", new Object()));
+    get("/req", req -> View.of("org/jooby/issues/27/req", "this", new Object()));
 
     get("/session", req -> {
       req.session().set("attr", "session-attr");
-      return View.of("org/jooby/issues/27/session", new Object());
+      return View.of("org/jooby/issues/27/session", "this", new Object());
     });
   }
 

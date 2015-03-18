@@ -64,26 +64,19 @@ public class Hbs implements Jooby.Module {
     public void render(final View view, final Body.Writer writer) throws Exception {
       Template template = handlebars.compile(view.name());
 
-      final Context context;
-      Object model = view.model();
-      if (model instanceof Context) {
-        context = (Context) model;
-      } else {
-        // build new context
-        context = Context
-            .newBuilder(model)
-            // merge request locals (req+sessions locals)
-            .combine(writer.locals())
-            .resolver(
-                MapValueResolver.INSTANCE,
-                JavaBeanValueResolver.INSTANCE,
-                MethodValueResolver.INSTANCE,
-                FieldValueResolver.INSTANCE,
-                new LocalsValueResolver(),
-                new ConfigValueResolver()
-            )
-            .build();
-      }
+      Context context = Context
+          .newBuilder(view.model())
+          // merge request locals (req+sessions locals)
+          .combine(writer.locals())
+          .resolver(
+              MapValueResolver.INSTANCE,
+              JavaBeanValueResolver.INSTANCE,
+              MethodValueResolver.INSTANCE,
+              FieldValueResolver.INSTANCE,
+              new LocalsValueResolver(),
+              new ConfigValueResolver()
+          )
+          .build();
 
       // rendering it
       writer.text(out -> template.apply(context, out));
@@ -111,10 +104,10 @@ public class Hbs implements Jooby.Module {
   };
 
   @Override
-  public void configure(final Env mode, final Config config, final Binder binder) {
+  public void configure(final Env env, final Config config, final Binder binder) {
 
     // cache
-    if ("dev".equals(mode.name()) || config.getString("hbs.cache").isEmpty()) {
+    if ("dev".equals(env.name()) || config.getString("hbs.cache").isEmpty()) {
       // noop cache
       hbs.with(NullTemplateCache.INSTANCE);
     } else {
@@ -131,7 +124,7 @@ public class Hbs implements Jooby.Module {
     Multibinder.newSetBinder(binder, Body.Formatter.class).addBinding()
         .toInstance(engine);
 
-    // direct accessf
+    // direct access
     binder.bind(Key.get(View.Engine.class, Names.named(engine.name()))).toInstance(engine);
   }
 

@@ -1,9 +1,5 @@
 package org.jooby;
 
-import org.jooby.Body;
-import org.jooby.MediaType;
-import org.jooby.Status;
-import org.jooby.View;
 import org.jooby.mvc.Consumes;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
@@ -52,7 +48,7 @@ public class ContentNegotiationFeature extends ServerFeature {
 
     get("/any", (req, resp) ->
         resp.format()
-            .when("text/html", () -> View.of("test", "body"))
+            .when("text/html", () -> View.of("test", "this", "body"))
             .when("*/*", () -> "body")
             .send());
 
@@ -63,11 +59,11 @@ public class ContentNegotiationFeature extends ServerFeature {
 
     get("/like", (req, resp) ->
         resp.format()
-            .when("text/html", () -> View.of("test", "body"))
+            .when("text/html", () -> View.of("test", "this", "body"))
             .when("application/json", () -> "body")
             .send());
 
-    get("/html", (req, resp) -> resp.send(View.of("test", "body")))
+    get("/html", (req, resp) -> resp.send(View.of("test", "this", "body")))
         .produces(MediaType.html);
 
     get("/json", (req, resp) -> resp.send("body"))
@@ -84,12 +80,12 @@ public class ContentNegotiationFeature extends ServerFeature {
     request()
         .get("/any")
         .header("Accept", CHROME_ACCEPT)
-        .expect("<html><body>test: body</body></html>");
+        .expect("<html><body>test: {this=body}</body></html>");
 
     request()
         .get("/r/any")
         .header("Accept", CHROME_ACCEPT)
-        .expect("<html><body>any: body</body></html>");
+        .expect("<html><body>any: {this=body}</body></html>");
   }
 
   @Test
@@ -97,22 +93,22 @@ public class ContentNegotiationFeature extends ServerFeature {
     request()
         .get("/any")
         .header("Accept", "text/html")
-        .expect("<html><body>test: body</body></html>");
+        .expect("<html><body>test: {this=body}</body></html>");
 
     request()
         .get("/r/any")
         .header("Accept", "text/html")
-        .expect("<html><body>any: body</body></html>");
+        .expect("<html><body>any: {this=body}</body></html>");
 
     request()
         .get("/html")
         .header("Accept", CHROME_ACCEPT)
-        .expect("<html><body>test: body</body></html>");
+        .expect("<html><body>test: {this=body}</body></html>");
 
     request()
         .get("/r/html")
         .header("Accept", CHROME_ACCEPT)
-        .expect("<html><body>html: body</body></html>");
+        .expect("<html><body>html: {this=body}</body></html>");
 
     request()
         .get("/json")

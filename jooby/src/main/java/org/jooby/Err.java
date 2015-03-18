@@ -60,7 +60,7 @@ public class Err extends RuntimeException {
       Map<String, Object> err = err(req, rsp, ex);
 
       rsp.format()
-          .when(MediaType.html, () -> View.of(errPage(req, rsp, ex), err))
+          .when(MediaType.html, () -> View.of(errPage(req, rsp, ex), "err", err))
           .when(MediaType.all, () -> err)
           .send();
     }

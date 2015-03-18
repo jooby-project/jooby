@@ -1,7 +1,6 @@
 package org.jooby;
 
 import org.jooby.Body.Writer;
-import org.jooby.View;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ public class ViewWithExplicitEngineFeature extends ServerFeature {
 
     get("/:engine", (req, rsp) -> {
       String engine = req.param("engine").value();
-      rsp.send(View.of("view", new Object()).engine(engine));
+      rsp.send(View.of("view", "this", new Object()).engine(engine));
     });
 
   }

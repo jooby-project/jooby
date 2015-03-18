@@ -28,7 +28,7 @@ public class ViewEngineTest {
             }
           };
 
-          engine.format(View.of("index", new Object()), unit.get(Body.Writer.class));
+          engine.format(View.of("index", "this", new Object()), unit.get(Body.Writer.class));
           assertEquals(true, engine.canFormat(View.class));
           assertTrue(engine.name().startsWith("viewenginetest"));
           assertEquals(Arrays.asList(MediaType.html), engine.types());

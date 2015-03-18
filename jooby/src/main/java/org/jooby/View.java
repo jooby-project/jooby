@@ -20,7 +20,9 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jooby.Body.Writer;
 
@@ -83,18 +85,15 @@ public class View {
   private String engine = "";
 
   /** View's model. */
-  private final Object model;
+  private final Map<String, Object> model = new HashMap<>();
 
   /**
    * Creates a new {@link View}.
    *
    * @param name View's name.
-   * @param model View's model.
    */
-  private View(final String name, final Object model) {
+  private View(final String name) {
     this.name = requireNonNull(name, "A view name is required.");
-
-    this.model = requireNonNull(model, "A view model is required.");
   }
 
   /**
@@ -104,10 +103,22 @@ public class View {
     return name;
   }
 
+  public View put(final String name, final Object value) {
+    requireNonNull(name, "Model name is required.");
+    model.put(name, value);
+    return this;
+  }
+
+  public View put(final Map<String, ?> values) {
+    requireNonNull(name, "Model name is required.");
+    values.forEach((k, v) -> model.put(k, v));
+    return this;
+  }
+
   /**
    * @return View's model.
    */
-  public Object model() {
+  public Map<String, ?> model() {
     return model;
   }
 
@@ -137,11 +148,34 @@ public class View {
   /**
    * Creates a new {@link View}.
    *
-   * @param name View's name.
-   * @param model View's model.
+   * @param view View's name.
    * @return A new viewable.
    */
-  public static View of(final String name, final Object model) {
-    return new View(name, model);
+  public static View of(final String view) {
+    return new View(view);
   }
+
+  /**
+   * Creates a new {@link View}.
+   *
+   * @param view View's name.
+   * @param name Model's name.
+   * @param value Model's value.
+   * @return A new viewable.
+   */
+  public static View of(final String view, final String name, final Object value) {
+    return new View(view).put(name, value);
+  }
+
+  /**
+   * Creates a new {@link View}. Default model name is: <code>this</code>.
+   *
+   * @param view View's name.
+   * @param value Model's value.
+   * @return A new viewable.
+   */
+  public static View of(final String view, final Object value) {
+    return new View(view).put("this", value);
+  }
+
 }

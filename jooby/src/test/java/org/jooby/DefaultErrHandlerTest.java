@@ -73,7 +73,7 @@ public class DefaultErrHandlerTest {
           List<ExSupplier> suppliers = unit.captured(ExSupplier.class);
           View view = (View) suppliers.get(0).get();
           assertEquals("/err", view.name());
-          checkErr(stacktrace, "Server Error", (Map<String, Object>) view.model());
+          checkErr(stacktrace, "Server Error", (Map<String, Object>) view.model().get("err"));
 
           assertEquals(0, ((Map<String, Object>) suppliers.get(1).get()).size());
         });
@@ -128,7 +128,7 @@ public class DefaultErrHandlerTest {
           List<ExSupplier> suppliers = unit.captured(ExSupplier.class);
           View view = (View) suppliers.get(0).get();
           assertEquals("/err", view.name());
-          checkErr(stacktrace, "Something something dark", (Map<String, Object>) view.model());
+          checkErr(stacktrace, "Something something dark", (Map<String, Object>) view.model().get("err"));
 
           assertEquals(0, ((Map<String, Object>) suppliers.get(1).get()).size());
         });
