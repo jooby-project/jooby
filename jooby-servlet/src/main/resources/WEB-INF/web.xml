@@ -18,8 +18,7 @@
     <!-- MultiPart setup -->
     <multipart-config>
       <file-size-threshold>0</file-size-threshold>
-      <!-- 200k -->
-      <max-request-size>204800</max-request-size>
+      <max-request-size>${war.maxRequestSize}</max-request-size>
     </multipart-config>
   </servlet>
 

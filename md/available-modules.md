@@ -14,3 +14,6 @@
 ### [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc)
 ### [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi)
 ### [hibernate](https://github.com/jooby-project/jooby/tree/master/jooby-hbm)
+
+## servlet deployment
+### [servlet](https://github.com/jooby-project/jooby/tree/master/jooby-servlet)
