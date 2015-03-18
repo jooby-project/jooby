@@ -20,7 +20,7 @@ package org.jooby.hbs;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.jooby.Body;
 import org.jooby.Env;
@@ -90,6 +90,8 @@ public class Hbs implements Jooby.Module {
 
   private final Handlebars hbs;
 
+  private BiConsumer<Handlebars, Config> configurer;
+
   public Hbs(final Handlebars handlebars) {
     this.hbs = requireNonNull(handlebars, "A handlebars instance is required.");
   }
@@ -98,8 +100,8 @@ public class Hbs implements Jooby.Module {
     this(new Handlebars(new ClassPathTemplateLoader("/", ".html")));
   }
 
-  public Hbs doWith(final Consumer<Handlebars> block) {
-    requireNonNull(block, "A hbs block is required.").accept(hbs);
+  public Hbs doWith(final BiConsumer<Handlebars, Config> configurer) {
+    this.configurer = requireNonNull(configurer, "Configurer is required.");
     return this;
   };
 
@@ -118,7 +120,12 @@ public class Hbs implements Jooby.Module {
           ));
     }
 
+    if (configurer != null) {
+      configurer.accept(hbs, config);
+    }
+
     binder.bind(Handlebars.class).toInstance(hbs);
+
     Engine engine = new Engine(hbs);
 
     Multibinder.newSetBinder(binder, Body.Formatter.class).addBinding()

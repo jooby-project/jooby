@@ -13,7 +13,7 @@ public class HbsCustomFeature extends ServerFeature {
 
   {
     Handlebars handlebars = new Handlebars(new ClassPathTemplateLoader("/org/jooby/hbs", ".html"));
-    use(new Hbs(handlebars).doWith(h -> assertSame(handlebars, h)));
+    use(new Hbs(handlebars).doWith((h, c) -> assertSame(handlebars, h)));
 
     get("/", req -> View.of("index", "model", req.param("model").value()));
   }
