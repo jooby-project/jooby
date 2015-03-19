@@ -1,6 +1,5 @@
 package org.jooby;
 
-import org.jooby.Body;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
@@ -13,26 +12,26 @@ public class RedirectFeature extends ServerFeature {
 
     @Path("/redirect")
     @GET
-    public Body redirect() {
-      return Body.redirect("/r/here");
+    public Result redirect() {
+      return Results.redirect("/r/here");
     }
 
     @Path("/seeOther")
     @GET
-    public Body seeOther() {
-      return Body.seeOther("/r/here");
+    public Result seeOther() {
+      return Results.seeOther("/r/here");
     }
 
     @Path("/tempRedirect")
     @GET
-    public Body tempRedirect() {
-      return Body.tempRedirect("/r/here");
+    public Result tempRedirect() {
+      return Results.tempRedirect("/r/here");
     }
 
     @Path("/moved")
     @GET
-    public Body moved() {
-      return Body.moved("/r/here");
+    public Result moved() {
+      return Results.moved("/r/here");
     }
 
     @Path("/here")

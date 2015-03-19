@@ -212,13 +212,13 @@ public interface Response {
     }
 
     @Override
-    public void send(final Object body) throws Exception {
-      rsp.send(body);
+    public void send(final Object result) throws Exception {
+      rsp.send(result);
     }
 
     @Override
-    public void send(final Body body) throws Exception {
-      rsp.send(body);
+    public void send(final Result result) throws Exception {
+      rsp.send(result);
     }
 
     @Override
@@ -624,16 +624,16 @@ public interface Response {
    * Responsible of writing the given body into the HTTP response. The {@link Body.Formatter} that
    * best matches the <code>Accept</code> header will be selected for writing the response.
    *
-   * @param body The HTTP body.
+   * @param result The HTTP body.
    * @throws Exception If the response write fails.
    */
-  default void send(@Nonnull final Object body) throws Exception {
-    requireNonNull(body, "A response message is required.");
-    if (body instanceof Body) {
-      send((Body) body);
+  default void send(@Nonnull final Object result) throws Exception {
+    requireNonNull(result, "A response message is required.");
+    if (result instanceof Result) {
+      send((Result) result);
     } else {
       // wrap body
-      Body b = Body.body(body);
+      Result b = Results.with(result);
       status().ifPresent(b::status);
       type().ifPresent(b::type);
       send(b);
@@ -644,10 +644,10 @@ public interface Response {
    * Responsible of writing the given body into the HTTP response. The {@link Body.Formatter} that
    * best matches the <code>Accept</code> header will be selected for writing the response.
    *
-   * @param body A HTTP body.
+   * @param result A HTTP response.
    * @throws Exception If the response write fails.
    */
-  void send(@Nonnull Body body) throws Exception;
+  void send(@Nonnull Result result) throws Exception;
 
   /**
    * Performs content-negotiation on the Accept HTTP header on the request object. It select a

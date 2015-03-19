@@ -1,6 +1,5 @@
 package org.jooby;
 
-import org.jooby.Body;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
@@ -12,26 +11,26 @@ public class ResponseBodyFeature extends ServerFeature {
 
     @GET
     @Path("/200")
-    public Body ok() {
-      return Body.ok();
+    public Result ok() {
+      return Results.ok();
     }
 
     @GET
     @Path("/200/body")
-    public Body okWithBody() {
-      return Body.ok("***");
+    public Result okWithBody() {
+      return Results.ok("***");
     }
 
     @GET
     @Path("/204")
-    public Body noContent() {
-      return Body.noContent();
+    public Result noContent() {
+      return Results.noContent();
     }
 
     @GET
     @Path("/headers")
-    public Body headers() {
-      return Body.ok().header("x", "y");
+    public Result headers() {
+      return Results.ok().header("x", "y");
     }
 
   }

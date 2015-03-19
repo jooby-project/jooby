@@ -40,11 +40,11 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.jooby.Body;
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
+import org.jooby.Results;
 import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.Status;
@@ -175,7 +175,7 @@ public class HttpHandlerImpl implements HttpHandler {
       chain(routes).next(req, rsp);
 
     } catch (Exception ex) {
-      log.debug("execution of: " + path + " resulted in exception", ex);
+      log.error("execution of: " + path + " resulted in exception", ex);
 
       rsp.reset();
 
@@ -363,7 +363,7 @@ public class HttpHandlerImpl implements HttpHandler {
         .append("</html>\n");
 
     rsp.header("Cache-Control", NO_CACHE);
-    rsp.send(Body.body(html), BuiltinBodyConverter.formatAny);
+    rsp.send(Results.with(html), BuiltinBodyConverter.formatAny);
   }
 
   private Status statusCode(final Exception ex) {

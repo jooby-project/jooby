@@ -36,9 +36,9 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.jpa.AvailableSettings;
-import org.jooby.Body;
 import org.jooby.Env;
 import org.jooby.Response;
+import org.jooby.Result;
 import org.jooby.Route;
 import org.jooby.internal.hbm.HbmProvider;
 import org.jooby.internal.hbm.HbmUnitDescriptor;
@@ -184,9 +184,9 @@ public class Hbm extends Jdbc {
           }
 
           @Override
-          public void send(final Body body) throws Exception {
+          public void send(final Result result) throws Exception {
             transactionalSend(() -> {
-              super.send(body);
+              super.send(result);
               return null;
             });
           }

@@ -120,7 +120,7 @@ public class ResponseTest {
     }
 
     @Override
-    public void send(final Body body) throws Exception {
+    public void send(final Result result) throws Exception {
       throw new UnsupportedOperationException();
     }
 
@@ -170,11 +170,11 @@ public class ResponseTest {
     LinkedList<Object> dataList = new LinkedList<>();
     new ResponseMock() {
       @Override
-      public void send(final Body body) throws Exception {
-        assertNotNull(body);
-        assertEquals(Status.OK, body.status().get());
-        assertEquals(MediaType.json, body.type().get());
-        dataList.add(body.content().get());
+      public void send(final Result result) throws Exception {
+        assertNotNull(result);
+        assertEquals(Status.OK, result.status().get());
+        assertEquals(MediaType.json, result.type().get());
+        dataList.add(result.get().get());
       }
 
       @Override
@@ -194,11 +194,11 @@ public class ResponseTest {
 
   @Test
   public void sendBody() throws Exception {
-    Object data = Body.noContent();
+    Object data = Results.noContent();
     LinkedList<Object> dataList = new LinkedList<>();
     new ResponseMock() {
       @Override
-      public void send(final Body body) throws Exception {
+      public void send(final Result body) throws Exception {
         assertNotNull(body);
         dataList.add(body);
       }

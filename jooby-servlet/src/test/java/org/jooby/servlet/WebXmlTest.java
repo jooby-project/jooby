@@ -35,8 +35,7 @@ public class WebXmlTest {
       "    <!-- MultiPart setup -->\n" +
       "    <multipart-config>\n" +
       "      <file-size-threshold>0</file-size-threshold>\n" +
-      "      <!-- 200k -->\n" +
-      "      <max-request-size>204800</max-request-size>\n" +
+      "      <max-request-size>${war.maxRequestSize}</max-request-size>\n" +
       "    </multipart-config>\n" +
       "  </servlet>\n" +
       "\n" +

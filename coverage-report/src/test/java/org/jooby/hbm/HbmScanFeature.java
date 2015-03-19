@@ -5,8 +5,7 @@ import java.net.URISyntaxException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.jooby.Body;
-import org.jooby.hbm.Hbm;
+import org.jooby.Results;
 import org.jooby.hbm.data.Member;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -35,7 +34,7 @@ public class HbmScanFeature extends ServerFeature {
         throw new IllegalArgumentException("Rollback on err");
       }
       // we do this way just to make sure the correct delegate got executed
-        rsp.send(Body.body(member));
+        rsp.send(Results.with(member));
         chain.next(req, rsp);
       });
   }

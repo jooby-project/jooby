@@ -2,7 +2,6 @@ package org.jooby;
 
 import java.util.Optional;
 
-import org.jooby.Body;
 import org.jooby.test.ServerFeature;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +22,7 @@ public class BufferSizeFeature extends ServerFeature {
       String value = req.param("data").value();
       Optional<Long> len = req.param("len").toOptional(Long.class);
       Optional<Boolean> chunked = req.param("chunked").toOptional(Boolean.class);
-      Body rsp = Body.ok(value);
+      Result rsp = Results.ok(value);
       len.ifPresent(l -> rsp.header("Content-Length", l));
       chunked.ifPresent(c -> rsp.header("Transfer-Encoding", "Chunked"));
       return rsp;

@@ -246,7 +246,7 @@ public class ResponseForwardingTest {
 
   @Test
   public void send() throws Exception {
-    Body body = Body.ok();
+    Result body = Results.ok();
     Object obody = new Object();
     new MockUnit(Response.class)
         .expect(unit -> {

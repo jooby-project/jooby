@@ -27,6 +27,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -41,6 +42,8 @@ import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Response;
+import org.jooby.Result;
+import org.jooby.Results;
 import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.Verb;
@@ -49,7 +52,6 @@ import org.jooby.spi.NativeResponse;
 import org.jooby.util.ExSupplier;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 
 public class ResponseImpl implements Response {
@@ -222,17 +224,6 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public void send(final Body body) throws Exception {
-    requireNonNull(body, "A body is required.");
-    Optional<Object> content = body.content();
-    Body.Formatter converter = content.isPresent()
-        ? selector.formatter(content.get(), route.produces())
-            .orElseThrow(() -> new Err(Status.NOT_ACCEPTABLE))
-        : noop(route.produces());
-    send(body, converter);
-  }
-
-  @Override
   public Formatter format() {
     final Map<MediaType, ExSupplier<Object>> strategies = new LinkedHashMap<>();
     List<MediaType> types = new LinkedList<>();
@@ -275,7 +266,7 @@ public class ResponseImpl implements Response {
     requireNonNull(status, "A status is required.");
     requireNonNull(location, "A location is required.");
 
-    send(Body.body(status).header("Location", location));
+    send(Results.with(status).header("Location", location));
   }
 
   @Override
@@ -330,21 +321,42 @@ public class ResponseImpl implements Response {
 
     contentDisposition(filename);
 
-    Body body = Body.body(in);
-    body.type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.octetstream)));
+    Result result = Results.with(in);
+    result.type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.octetstream)));
 
-    send(body, formatter);
+    send(result, formatter);
   }
 
-  public void send(final Body body, final Body.Formatter formatter) throws Exception {
-    requireNonNull(body, "A response message is required.");
+  @Override
+  public void send(final Result result) throws Exception {
+    requireNonNull(result, "A result is required.");
+    List<MediaType> produces = route.produces();
+    Optional<Object> entity = result.get(produces);
+    Body.Formatter converter = entity.isPresent()
+        ? selector.formatter(entity.get(), produces)
+            .orElseThrow(() -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces)))
+        : null;
+    send(result, entity, converter);
+  }
+
+  public void send(final Result result, final Body.Formatter formatter) throws Exception {
+    requireNonNull(result, "A response message is required.");
     requireNonNull(formatter, "A converter is required.");
 
-    type(body.type().orElseGet(() -> type().orElseGet(() -> formatter.types().get(0))));
+    List<MediaType> produces = route.produces();
+    Optional<Object> entity = result.get(produces);
+    send(result, entity, formatter);
+  }
 
-    status(body.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
+  private void send(final Result result, final Optional<Object> entity,
+      final Body.Formatter fmt) throws Exception {
 
-    body.headers().forEach((name, value) -> {
+    type(result.type().orElseGet(() -> type()
+        .orElseGet(() -> fmt == null ? MediaType.html : fmt.types().get(0))));
+
+    status(result.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
+
+    result.headers().forEach((name, value) -> {
       // reset back header while doing a redirect
         if ("location".equalsIgnoreCase(name) && "back".equalsIgnoreCase(value)
             && status().map(s -> s.value() >= 300 && s.value() < 400).orElse(false)) {
@@ -378,15 +390,14 @@ public class ResponseImpl implements Response {
       return new OutputStreamWriter(stream.get(), charset());
     };
 
-    Optional<Object> content = body.content();
-    if (content.isPresent()) {
-      Object message = content.get();
+    if (entity.isPresent()) {
+      Object message = entity.get();
       if (message instanceof Status) {
         // override status when message is a status
         status((Status) message);
       }
 
-      formatter.format(message, new BodyWriterImpl(charset(), ImmutableMap.copyOf(locals),
+      fmt.format(message, new BodyWriterImpl(charset(), Collections.unmodifiableMap(locals),
           stream, writer));
     }
     // end response
@@ -422,27 +433,6 @@ public class ResponseImpl implements Response {
       basename = basename.substring(last + 1);
     }
     header("Content-Disposition", "attachment; filename=" + basename);
-  }
-
-  private static Body.Formatter noop(final List<MediaType> types) {
-    return new Body.Formatter() {
-
-      @Override
-      public void format(final Object body, final Body.Writer writer) throws Exception {
-        writer.bytes(out -> out.close());
-      }
-
-      @Override
-      public List<MediaType> types() {
-        return types;
-      }
-
-      @Override
-      public boolean canFormat(final Class<?> type) {
-        return true;
-      }
-
-    };
   }
 
 }
