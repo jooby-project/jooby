@@ -26,12 +26,12 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 
-import org.jooby.Body;
+import org.jooby.BodyFormatter;
 import org.jooby.util.ExSupplier;
 
 import com.google.common.collect.ImmutableMap;
 
-public class BodyWriterImpl implements Body.Writer {
+public class BodyFormatterContext implements BodyFormatter.Context {
 
   private Charset charset;
 
@@ -41,7 +41,7 @@ public class BodyWriterImpl implements Body.Writer {
 
   private Map<String, Object> locals;
 
-  public BodyWriterImpl(final Charset charset, final Map<Object, Object> locals,
+  public BodyFormatterContext(final Charset charset, final Map<Object, Object> locals,
       final ExSupplier<OutputStream> stream, final ExSupplier<Writer> writer) {
     this.charset = requireNonNull(charset, "A charset is required.");
     ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
@@ -55,7 +55,7 @@ public class BodyWriterImpl implements Body.Writer {
     this.writer = requireNonNull(writer, "A writer is required.");
   }
 
-  public BodyWriterImpl(final Charset charset, final ExSupplier<OutputStream> stream,
+  public BodyFormatterContext(final Charset charset, final ExSupplier<OutputStream> stream,
       final ExSupplier<Writer> writer) {
     this(charset, Collections.emptyMap(), stream, writer);
   }

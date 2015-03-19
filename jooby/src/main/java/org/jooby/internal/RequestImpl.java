@@ -32,11 +32,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jooby.Body.Parser;
 import org.jooby.Cookie;
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
+import org.jooby.BodyParser;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
@@ -215,9 +215,9 @@ public class RequestImpl implements Request {
   public <T> T body(final TypeLiteral<T> type) throws Exception {
     // TODO: review len
     if (length() > 0) {
-      Optional<Parser> parser = selector.parser(type, ImmutableList.of(type()));
+      Optional<BodyParser> parser = selector.parser(type, ImmutableList.of(type()));
       if (parser.isPresent()) {
-        return parser.get().parse(type, new BodyReaderImpl(charset(), () -> req.in()));
+        return parser.get().parse(type, new BodyParserContext(charset(), () -> req.in()));
       }
       // TODO: review form and multipart post, we might not need them any more since we got .param
       if (MediaType.form.matches(type()) || MediaType.multipart.matches(type())) {

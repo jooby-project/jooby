@@ -23,8 +23,8 @@ import static java.util.Objects.requireNonNull;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 
-import org.jooby.Body;
 import org.jooby.Env;
+import org.jooby.BodyFormatter;
 import org.jooby.Jooby;
 import org.jooby.View;
 import org.jooby.internal.ftl.Engine;
@@ -47,7 +47,7 @@ import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 
 /**
- * Exposes a {@link Configuration} and a {@link Body.Formatter}.
+ * Exposes a {@link Configuration} and a {@link BodyFormatter}.
  *
  * <h1>usage</h1>
  * <p>
@@ -199,7 +199,7 @@ public class Ftl implements Jooby.Module {
 
       Engine engine = new Engine(freemarker, prefix, suffix);
 
-      Multibinder.newSetBinder(binder, Body.Formatter.class)
+      Multibinder.newSetBinder(binder, BodyFormatter.class)
           .addBinding().toInstance(engine);
 
       // direct access

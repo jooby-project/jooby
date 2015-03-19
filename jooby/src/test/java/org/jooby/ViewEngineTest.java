@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jooby.Body.Writer;
 import org.junit.Test;
 
 public class ViewEngineTest {
@@ -17,18 +16,18 @@ public class ViewEngineTest {
 
   @Test
   public void engine() throws Exception {
-    new MockUnit(Body.Writer.class)
+    new MockUnit(BodyFormatter.Context.class)
         .run(unit -> {
           List<View> views = new ArrayList<>();
           TestEngine engine = new TestEngine() {
 
             @Override
-            public void render(final View view, final Writer writer) throws Exception {
+            public void render(final View view, final Context writer) throws Exception {
               views.add(view);
             }
           };
 
-          engine.format(View.of("index", "this", new Object()), unit.get(Body.Writer.class));
+          engine.format(View.of("index", "this", new Object()), unit.get(BodyFormatter.Context.class));
           assertEquals(true, engine.canFormat(View.class));
           assertTrue(engine.name().startsWith("viewenginetest"));
           assertEquals(Arrays.asList(MediaType.html), engine.types());

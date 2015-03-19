@@ -2,17 +2,13 @@ package org.jooby;
 
 import java.util.List;
 
-import org.jooby.Body;
-import org.jooby.MediaType;
-import org.jooby.View;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.google.inject.TypeLiteral;
 
 public class BodyConverters {
 
-  public static final Body.Parser fromJson = new Body.Parser() {
+  public static final BodyParser fromJson = new BodyParser() {
 
     @Override
     public boolean canParse(final TypeLiteral<?> type) {
@@ -20,8 +16,8 @@ public class BodyConverters {
     }
 
     @Override
-    public <T> T parse(final TypeLiteral<T> type, final Body.Reader reader) throws Exception {
-      return reader.text(r -> CharStreams.toString(r));
+    public <T> T parse(final TypeLiteral<T> type, final BodyParser.Context ctx) throws Exception {
+      return ctx.text(r -> CharStreams.toString(r));
     }
 
     @Override
@@ -31,7 +27,7 @@ public class BodyConverters {
 
   };
 
-  public static final Body.Formatter toJson = new Body.Formatter() {
+  public static final BodyFormatter toJson = new BodyFormatter() {
 
     @Override
     public boolean canFormat(final Class<?> type) {
@@ -39,7 +35,7 @@ public class BodyConverters {
     }
 
     @Override
-    public void format(final Object body, final Body.Writer writer)
+    public void format(final Object body, final BodyFormatter.Context writer)
         throws Exception {
       writer.text(w -> w.write("{\"body\": \"" + body + "\"}"));
     }
@@ -50,9 +46,9 @@ public class BodyConverters {
     }
   };
 
-  public static final Body.Formatter toHtml = new View.Engine() {
+  public static final BodyFormatter toHtml = new View.Engine() {
     @Override
-    public void render(final View viewable, final Body.Writer writer) throws Exception {
+    public void render(final View viewable, final BodyFormatter.Context writer) throws Exception {
       writer.text(w -> w.write("<html><body>" + viewable + "</body></html>"));
     }
   };

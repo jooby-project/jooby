@@ -31,7 +31,8 @@ import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
-import org.jooby.Body;
+import org.jooby.BodyFormatter;
+import org.jooby.BodyParser;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
@@ -59,7 +60,7 @@ public class Json implements Jooby.Module {
 
   }
 
-  private static class BodyHandler implements Body.Formatter, Body.Parser {
+  private static class BodyHandler implements BodyFormatter, BodyParser {
 
     private ObjectMapper mapper;
     private List<MediaType> types;
@@ -85,12 +86,12 @@ public class Json implements Jooby.Module {
     }
 
     @Override
-    public <T> T parse(final TypeLiteral<T> type, final Body.Reader reader) throws Exception {
-      return reader.text(in -> mapper.readValue(in, mapper.constructType(type.getType())));
+    public <T> T parse(final TypeLiteral<T> type, final BodyParser.Context ctx) throws Exception {
+      return ctx.text(in -> mapper.readValue(in, mapper.constructType(type.getType())));
     }
 
     @Override
-    public void format(final Object body, final Body.Writer writer) throws Exception {
+    public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
       writer.text(out -> mapper.writeValue(out, body));
     }
 
@@ -156,17 +157,17 @@ public class Json implements Jooby.Module {
     // json body parser & formatter
     BodyHandler json = new BodyHandler(mapper, types);
 
-    Multibinder.newSetBinder(binder, Body.Formatter.class)
+    Multibinder.newSetBinder(binder, BodyFormatter.class)
         .addBinding()
         .toInstance(json);
 
-    Multibinder.newSetBinder(binder, Body.Parser.class)
+    Multibinder.newSetBinder(binder, BodyParser.class)
         .addBinding()
         .toInstance(json);
 
     // direct access?
-    binder.bind(Key.get(Body.Formatter.class, Names.named(json.toString()))).toInstance(json);
-    binder.bind(Key.get(Body.Parser.class, Names.named(json.toString()))).toInstance(json);
+    binder.bind(Key.get(BodyFormatter.class, Names.named(json.toString()))).toInstance(json);
+    binder.bind(Key.get(BodyParser.class, Names.named(json.toString()))).toInstance(json);
 
   }
 

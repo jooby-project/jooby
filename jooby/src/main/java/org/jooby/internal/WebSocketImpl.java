@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.jooby.Body;
 import org.jooby.Err;
+import org.jooby.BodyFormatter;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.WebSocket;
@@ -125,13 +125,13 @@ public class WebSocketImpl implements WebSocket {
     requireNonNull(success, "A success callback is required.");
     requireNonNull(err, "An error callback is required.");
 
-    Optional<Body.Formatter> formatter = injector.getInstance(BodyConverterSelector.class)
+    Optional<BodyFormatter> formatter = injector.getInstance(BodyConverterSelector.class)
         .formatter(data, ImmutableList.of(produces));
     if (formatter.isPresent()) {
       ExSupplier<OutputStream> stream = () -> stream(ws, success, err, false);
       ExSupplier<Writer> writer = () -> new OutputStreamWriter(stream(ws, success, err, true),
           Charsets.UTF_8);
-      formatter.get().format(data, new BodyWriterImpl(Charsets.UTF_8, stream, writer));
+      formatter.get().format(data, new BodyFormatterContext(Charsets.UTF_8, stream, writer));
     } else {
       // TODO: complete me!
       ws.send(data.toString(), success, err);

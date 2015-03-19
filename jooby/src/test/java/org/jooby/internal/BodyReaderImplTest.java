@@ -22,7 +22,7 @@ public class BodyReaderImplTest {
     InputStream stream = new ByteArrayInputStream(bytes);
     ExSupplier<InputStream> supplier = () -> stream;
     assertEquals("bytes",
-        new BodyReaderImpl(Charsets.UTF_8, supplier).text(r -> {
+        new BodyParserContext(Charsets.UTF_8, supplier).text(r -> {
           assertEquals("UTF8", ((InputStreamReader) r).getEncoding());
           return CharStreams.toString(r);
         }));
@@ -34,7 +34,7 @@ public class BodyReaderImplTest {
     InputStream stream = new ByteArrayInputStream(bytes);
     ExSupplier<InputStream> supplier = () -> stream;
     assertEquals("bytes",
-        new BodyReaderImpl(Charsets.US_ASCII, supplier).text(r -> {
+        new BodyParserContext(Charsets.US_ASCII, supplier).text(r -> {
           assertEquals("ASCII", ((InputStreamReader) r).getEncoding());
           return CharStreams.toString(r);
         }));
@@ -45,7 +45,7 @@ public class BodyReaderImplTest {
     ExSupplier<InputStream> supplier = () -> {
       throw new IOException();
     };
-    new BodyReaderImpl(Charsets.UTF_8, supplier).text(r -> CharStreams.toString(r));
+    new BodyParserContext(Charsets.UTF_8, supplier).text(r -> CharStreams.toString(r));
   }
 
   @Test
@@ -54,7 +54,7 @@ public class BodyReaderImplTest {
     InputStream stream = new ByteArrayInputStream(bytes);
     ExSupplier<InputStream> supplier = () -> stream;
     assertEquals("bytes",
-        new BodyReaderImpl(Charsets.UTF_8, supplier).bytes(s ->
+        new BodyParserContext(Charsets.UTF_8, supplier).bytes(s ->
             new String(ByteStreams.toByteArray(s))
             ));
   }
@@ -65,7 +65,7 @@ public class BodyReaderImplTest {
       throw new IOException();
     };
 
-    new BodyReaderImpl(Charsets.UTF_8, supplier).bytes(s ->
+    new BodyParserContext(Charsets.UTF_8, supplier).bytes(s ->
         new String(ByteStreams.toByteArray(s))
         );
   }

@@ -25,18 +25,18 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
-import org.jooby.Body;
+import org.jooby.BodyParser;
 import org.jooby.util.ExSupplier;
 
 import com.google.common.io.Closeables;
 
-public class BodyReaderImpl implements Body.Reader {
+public class BodyParserContext implements BodyParser.Context {
 
   private Charset charset;
 
   private ExSupplier<InputStream> stream;
 
-  public BodyReaderImpl(final Charset charset, final ExSupplier<InputStream> stream) {
+  public BodyParserContext(final Charset charset, final ExSupplier<InputStream> stream) {
     this.charset = requireNonNull(charset, "A charset is required.");
     this.stream = requireNonNull(stream, "An stream  supplier is required.");
   }

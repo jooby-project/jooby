@@ -24,8 +24,8 @@ public class TemplateEngineFeature extends ServerFeature {
 
   {
     use((mode, config, binder) -> {
-      Multibinder<Body.Formatter> converters = Multibinder.newSetBinder(binder,
-          Body.Formatter.class);
+      Multibinder<BodyFormatter> converters = Multibinder.newSetBinder(binder,
+          BodyFormatter.class);
       converters.addBinding().toInstance(BodyConverters.toHtml);
     });
 

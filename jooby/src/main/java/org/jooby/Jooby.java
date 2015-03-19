@@ -133,7 +133,7 @@ import com.typesafe.config.ConfigValueFactory;
 /**
  * <h1>Getting Started:</h1>
  * <p>
- * A new application must extends Jooby, register one ore more {@link Body.Formatter} and some
+ * A new application must extends Jooby, register one ore more {@link BodyFormatter} and some
  * {@link Route routes}. It sounds like a lot of work to do, but it isn't.
  * </p>
  *
@@ -383,8 +383,8 @@ import com.typesafe.config.ConfigValueFactory;
 public class Jooby {
 
   /**
-   * A module can publish or produces: {@link Route.Definition routes}, {@link Body.Parser},
-   * {@link Body.Formatter}, and any other application specific service or contract of your choice.
+   * A module can publish or produces: {@link Route.Definition routes}, {@link BodyParser},
+   * {@link BodyFormatter}, and any other application specific service or contract of your choice.
    * <p>
    * It is similar to {@link com.google.inject.Module} except for the callback method receives a
    * {@link Env}, {@link Config} and {@link Binder}.
@@ -480,10 +480,10 @@ public class Jooby {
   private Err.Handler err;
 
   /** Body formatters. */
-  private List<Body.Formatter> formatters = new LinkedList<>();
+  private List<BodyFormatter> formatters = new LinkedList<>();
 
   /** Body parsers. */
-  private List<Body.Parser> parsers = new LinkedList<>();
+  private List<BodyParser> parsers = new LinkedList<>();
 
   /** Session store. */
   private Session.Definition session = new Session.Definition(new Session.MemoryStore());
@@ -498,7 +498,7 @@ public class Jooby {
 
   /**
    * Import ALL the direct routes from the given app. PLEASE NOTE: that ONLY routes are imported.
-   * {@link Jooby.Module modules}, {@link Body.Formatter formatters}, etc... won't be import it.
+   * {@link Jooby.Module modules}, {@link BodyFormatter formatters}, etc... won't be import it.
    *
    * @param app Routes provider.
    * @return This jooby instance.
@@ -563,7 +563,7 @@ public class Jooby {
    * @param formatter A body formatter.
    * @return This jooby instance.
    */
-  public @Nonnull Jooby use(@Nonnull final Body.Formatter formatter) {
+  public @Nonnull Jooby use(@Nonnull final BodyFormatter formatter) {
     this.formatters.add(requireNonNull(formatter, "A body formatter is required."));
     return this;
   }
@@ -574,7 +574,7 @@ public class Jooby {
    * @param parser A body parser.
    * @return This jooby instance.
    */
-  public @Nonnull Jooby use(@Nonnull final Body.Parser parser) {
+  public @Nonnull Jooby use(@Nonnull final BodyParser parser) {
     this.parsers.add(requireNonNull(parser, "A body parser is required."));
     return this;
   }
@@ -2844,10 +2844,10 @@ public class Jooby {
         binder.bindListener(Matchers.any(), new LifecycleProcessor());
 
         // bind formatter & parser
-        Multibinder<Body.Parser> parserBinder = Multibinder
-            .newSetBinder(binder, Body.Parser.class);
-        Multibinder<Body.Formatter> formatterBinder = Multibinder
-            .newSetBinder(binder, Body.Formatter.class);
+        Multibinder<BodyParser> parserBinder = Multibinder
+            .newSetBinder(binder, BodyParser.class);
+        Multibinder<BodyFormatter> formatterBinder = Multibinder
+            .newSetBinder(binder, BodyFormatter.class);
 
         // session definition
         binder.bind(Session.Definition.class).toInstance(session);

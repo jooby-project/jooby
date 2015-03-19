@@ -6,7 +6,7 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.jooby.Body;
+import org.jooby.BodyFormatter;
 import org.jooby.MediaType;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class Issue26 extends ServerFeature {
   private static final CountDownLatch latch = new CountDownLatch(1);
 
   {
-    use(new Body.Formatter() {
+    use(new BodyFormatter() {
 
       @Override
       public List<MediaType> types() {
@@ -28,7 +28,7 @@ public class Issue26 extends ServerFeature {
       }
 
       @Override
-      public void format(final Object body, final Body.Writer writer) throws Exception {
+      public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
         Config config = (Config) writer.locals().get("config");
         assertNotNull(config);
         writer.text(out -> CharStreams.copy(new StringReader(body.toString()), out));

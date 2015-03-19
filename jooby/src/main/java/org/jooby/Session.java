@@ -117,9 +117,6 @@ public interface Session extends Locals {
     /** Session timeout . */
     private Long timeout;
 
-    /** Save session on stop?. */
-    private Boolean preserveOnStop;
-
     /** Session cookie. */
     private Cookie.Definition cookie;
 
@@ -152,25 +149,6 @@ public interface Session extends Locals {
      */
     public @Nonnull Optional<Long> timeout() {
       return Optional.ofNullable(timeout);
-    }
-
-    /**
-     * @return True, when sessions are saved/persisted at shutdown time.
-     */
-    public @Nonnull Optional<Boolean> preserveOnStop() {
-      return Optional.ofNullable(preserveOnStop);
-    }
-
-    /**
-     * Set/override preserve on stop flag. If true, session will be persisted at shutdown time.
-     * Otherwise, a session is invalidated.
-     *
-     * @param preserveOnStop True, for persisting session on shutdown.
-     * @return This definition.
-     */
-    public @Nonnull Definition preserveOnStop(final boolean preserveOnStop) {
-      this.preserveOnStop = preserveOnStop;
-      return this;
     }
 
     /**

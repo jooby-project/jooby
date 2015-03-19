@@ -563,7 +563,7 @@ public interface Response {
   }
 
   /**
-   * Responsible of writing the given body into the HTTP response. The {@link Body.Formatter} that
+   * Responsible of writing the given body into the HTTP response. The {@link BodyFormatter} that
    * best matches the <code>Accept</code> header will be selected for writing the response.
    *
    * @param result The HTTP body.
@@ -583,7 +583,7 @@ public interface Response {
   }
 
   /**
-   * Responsible of writing the given body into the HTTP response. The {@link Body.Formatter} that
+   * Responsible of writing the given body into the HTTP response. The {@link BodyFormatter} that
    * best matches the <code>Accept</code> header will be selected for writing the response.
    *
    * @param result A HTTP response.

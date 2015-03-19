@@ -26,8 +26,8 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import org.jooby.Body;
 import org.jooby.Env;
+import org.jooby.BodyFormatter;
 import org.jooby.Jooby;
 import org.jooby.View;
 import org.jooby.internal.hbs.ConfigValueResolver;
@@ -55,7 +55,7 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
 /**
- * Exposes a {@link Handlebars} and a {@link Body.Formatter}.
+ * Exposes a {@link Handlebars} and a {@link BodyFormatter}.
  *
  * <h1>usage</h1>
  * <p>
@@ -226,7 +226,7 @@ public class Hbs implements Jooby.Module {
 
     HbsEngine engine = new HbsEngine(hbs, resolvers.toArray(new ValueResolver[resolvers.size()]));
 
-    Multibinder.newSetBinder(binder, Body.Formatter.class).addBinding()
+    Multibinder.newSetBinder(binder, BodyFormatter.class).addBinding()
         .toInstance(engine);
 
     // direct access

@@ -3,9 +3,6 @@ package org.jooby;
 import java.util.List;
 import java.util.Optional;
 
-import org.jooby.Body;
-import org.jooby.MediaType;
-import org.jooby.Request;
 import org.jooby.mvc.Consumes;
 import org.jooby.mvc.DELETE;
 import org.jooby.mvc.GET;
@@ -46,7 +43,7 @@ public class HandlersFeature extends ServerFeature {
 
   {
 
-    use(new Body.Formatter() {
+    use(new BodyFormatter() {
 
       @Override
       public List<MediaType> types() {
@@ -54,7 +51,7 @@ public class HandlersFeature extends ServerFeature {
       }
 
       @Override
-      public void format(final Object body, final Body.Writer writer) throws Exception {
+      public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
         writer.text(w -> w.write(body.toString()));
 
       }

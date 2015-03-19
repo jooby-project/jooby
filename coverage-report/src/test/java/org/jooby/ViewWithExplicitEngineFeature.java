@@ -1,6 +1,5 @@
 package org.jooby;
 
-import org.jooby.Body.Writer;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -16,7 +15,7 @@ public class ViewWithExplicitEngineFeature extends ServerFeature {
       }
 
       @Override
-      public void render(final View viewable, final Writer writer) throws Exception {
+      public void render(final View viewable, final BodyFormatter.Context writer) throws Exception {
         writer.text(w -> w.write(name()));
       }
     });
@@ -29,7 +28,7 @@ public class ViewWithExplicitEngineFeature extends ServerFeature {
       }
 
       @Override
-      public void render(final View viewable, final Writer writer) throws Exception {
+      public void render(final View viewable, final Context writer) throws Exception {
         writer.text(w -> w.write(name()));
       }
     });

@@ -3,9 +3,8 @@ package org.jooby.hbs;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 
-import org.jooby.Body;
-import org.jooby.Body.Formatter;
 import org.jooby.Env;
+import org.jooby.BodyFormatter;
 import org.jooby.MockUnit;
 import org.jooby.View;
 import org.jooby.View.Engine;
@@ -53,12 +52,12 @@ public class HbsTest {
           expect(Multibinder.newSetBinder(binder, Object.class, Names.named("hbs.helpers")))
               .andReturn(mbinder);
 
-          LinkedBindingBuilder<Formatter> fLBB = unit.mock(LinkedBindingBuilder.class);
+          LinkedBindingBuilder<BodyFormatter> fLBB = unit.mock(LinkedBindingBuilder.class);
           fLBB.toInstance(isA(HbsEngine.class));
 
-          Multibinder<Formatter> mfbinder = unit.mock(Multibinder.class);
+          Multibinder<BodyFormatter> mfbinder = unit.mock(Multibinder.class);
           expect(mfbinder.addBinding()).andReturn(fLBB);
-          expect(Multibinder.newSetBinder(binder, Body.Formatter.class))
+          expect(Multibinder.newSetBinder(binder, BodyFormatter.class))
               .andReturn(mfbinder);
 
           LinkedBindingBuilder<Engine> neLBB = unit.mock(LinkedBindingBuilder.class);

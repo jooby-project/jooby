@@ -24,7 +24,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.jooby.Body;
+import org.jooby.BodyFormatter;
+import org.jooby.BodyParser;
 import org.jooby.MediaType;
 import org.jooby.View;
 
@@ -36,7 +37,7 @@ import com.google.inject.TypeLiteral;
 
 public class BuiltinBodyConverter {
 
-  public static Body.Formatter formatStream = new Body.Formatter() {
+  public static BodyFormatter formatStream = new BodyFormatter() {
     @Override
     public List<MediaType> types() {
       return ImmutableList.of(MediaType.octetstream);
@@ -48,7 +49,7 @@ public class BuiltinBodyConverter {
     }
 
     @Override
-    public void format(final Object body, final Body.Writer writer) throws Exception {
+    public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
       InputStream in = (InputStream) body;
       try {
         writer.bytes(out -> ByteStreams.copy(in, out));
@@ -63,7 +64,7 @@ public class BuiltinBodyConverter {
     }
   };
 
-  public static Body.Formatter formatByteArray = new Body.Formatter() {
+  public static BodyFormatter formatByteArray = new BodyFormatter() {
     @Override
     public List<MediaType> types() {
       return ImmutableList.of(MediaType.octetstream);
@@ -75,7 +76,7 @@ public class BuiltinBodyConverter {
     }
 
     @Override
-    public void format(final Object body, final Body.Writer writer) throws Exception {
+    public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
       writer.bytes(out -> ByteStreams.copy(new ByteArrayInputStream((byte[]) body), out));
     }
 
@@ -85,7 +86,7 @@ public class BuiltinBodyConverter {
     }
   };
 
-  public static Body.Formatter formatByteBuffer = new Body.Formatter() {
+  public static BodyFormatter formatByteBuffer = new BodyFormatter() {
     @Override
     public List<MediaType> types() {
       return ImmutableList.of(MediaType.octetstream);
@@ -97,7 +98,7 @@ public class BuiltinBodyConverter {
     }
 
     @Override
-    public void format(final Object body, final Body.Writer writer) throws Exception {
+    public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
       ByteBuffer buffer = (ByteBuffer) body;
       if (buffer.hasArray()) {
         formatByteArray.format(buffer.array(), writer);
@@ -112,7 +113,7 @@ public class BuiltinBodyConverter {
     }
   };
 
-  public static Body.Formatter formatReader = new Body.Formatter() {
+  public static BodyFormatter formatReader = new BodyFormatter() {
 
     @Override
     public List<MediaType> types() {
@@ -125,7 +126,7 @@ public class BuiltinBodyConverter {
     }
 
     @Override
-    public void format(final Object body, final Body.Writer writer) throws Exception {
+    public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
       try {
         Readable in = (Readable) body;
         writer.text(out -> CharStreams.copy(in, out));
@@ -142,7 +143,7 @@ public class BuiltinBodyConverter {
     }
   };
 
-  public static Body.Formatter formatAny = new Body.Formatter() {
+  public static BodyFormatter formatAny = new BodyFormatter() {
 
     @Override
     public List<MediaType> types() {
@@ -155,7 +156,7 @@ public class BuiltinBodyConverter {
     }
 
     @Override
-    public void format(final Object body, final Body.Writer writer) throws Exception {
+    public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
       writer.text(out -> out.write(body.toString()));
     }
 
@@ -165,7 +166,7 @@ public class BuiltinBodyConverter {
     }
   };
 
-  public static Body.Parser parseString = new Body.Parser() {
+  public static BodyParser parseString = new BodyParser() {
 
     @Override
     public List<MediaType> types() {
@@ -178,7 +179,7 @@ public class BuiltinBodyConverter {
     }
 
     @Override
-    public <T> T parse(final TypeLiteral<T> type, final Body.Reader reader) throws Exception {
+    public <T> T parse(final TypeLiteral<T> type, final BodyParser.Context reader) throws Exception {
       return reader.text(r -> CharStreams.toString(r));
     }
 

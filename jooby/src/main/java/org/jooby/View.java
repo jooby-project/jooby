@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jooby.Body.Writer;
-
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -42,7 +40,7 @@ public class View {
    * @author edgar
    * @since 0.1.0
    */
-  public interface Engine extends Body.Formatter {
+  public interface Engine extends BodyFormatter {
 
     List<MediaType> HTML = ImmutableList.of(MediaType.html);
 
@@ -62,7 +60,7 @@ public class View {
     }
 
     @Override
-    default void format(final Object body, final Writer writer) throws Exception {
+    default void format(final Object body, final BodyFormatter.Context writer) throws Exception {
       final View viewable = (View) body;
       render(viewable, writer);
     }
@@ -74,7 +72,7 @@ public class View {
      * @param writer A body writer.
      * @throws Exception If view rendering fails.
      */
-    void render(final View viewable, final Body.Writer writer) throws Exception;
+    void render(final View viewable, final BodyFormatter.Context writer) throws Exception;
 
   }
 

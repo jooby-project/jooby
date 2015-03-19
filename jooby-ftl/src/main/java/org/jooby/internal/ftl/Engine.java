@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jooby.Body.Writer;
+import org.jooby.BodyFormatter;
 import org.jooby.View;
 
 import freemarker.template.Configuration;
@@ -46,7 +46,7 @@ public class Engine implements View.Engine {
   }
 
   @Override
-  public void render(final View viewable, final Writer writer) throws Exception {
+  public void render(final View viewable, final BodyFormatter.Context writer) throws Exception {
     // template
     String name = prefix + viewable.name() + suffix;
 

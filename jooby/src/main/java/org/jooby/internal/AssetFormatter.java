@@ -24,15 +24,14 @@ import java.io.Reader;
 import java.util.List;
 
 import org.jooby.Asset;
-import org.jooby.Body;
+import org.jooby.BodyFormatter;
 import org.jooby.MediaType;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Closeables;
 
-
-public class AssetFormatter implements Body.Formatter {
+public class AssetFormatter implements BodyFormatter {
 
   @Override
   public boolean canFormat(final Class<?> type) {
@@ -45,7 +44,7 @@ public class AssetFormatter implements Body.Formatter {
   }
 
   @Override
-  public void format(final Object body, final Body.Writer writer) throws Exception {
+  public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
     Asset asset = (Asset) body;
     MediaType type = asset.type();
 

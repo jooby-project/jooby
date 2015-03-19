@@ -34,9 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jooby.Body;
 import org.jooby.Cookie;
 import org.jooby.Err;
+import org.jooby.BodyFormatter;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Response;
@@ -277,7 +277,7 @@ public class ResponseImpl implements Response {
   }
 
   private void download(final String filename, final Object in,
-      final Body.Formatter formatter) throws Exception {
+      final BodyFormatter formatter) throws Exception {
 
     contentDisposition(filename);
 
@@ -292,14 +292,14 @@ public class ResponseImpl implements Response {
     requireNonNull(result, "A result is required.");
     List<MediaType> produces = route.produces();
     Optional<Object> entity = result.get(produces);
-    Body.Formatter converter = entity.isPresent()
+    BodyFormatter converter = entity.isPresent()
         ? selector.formatter(entity.get(), produces)
             .orElseThrow(() -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces)))
         : null;
     send(result, entity, converter);
   }
 
-  public void send(final Result result, final Body.Formatter formatter) throws Exception {
+  public void send(final Result result, final BodyFormatter formatter) throws Exception {
     requireNonNull(result, "A response message is required.");
     requireNonNull(formatter, "A converter is required.");
 
@@ -309,7 +309,7 @@ public class ResponseImpl implements Response {
   }
 
   private void send(final Result result, final Optional<Object> entity,
-      final Body.Formatter fmt) throws Exception {
+      final BodyFormatter fmt) throws Exception {
 
     type(result.type().orElseGet(() -> type()
         .orElseGet(() -> fmt == null ? MediaType.html : fmt.types().get(0))));
@@ -357,7 +357,7 @@ public class ResponseImpl implements Response {
         status((Status) message);
       }
 
-      fmt.format(message, new BodyWriterImpl(charset(), Collections.unmodifiableMap(locals),
+      fmt.format(message, new BodyFormatterContext(charset(), Collections.unmodifiableMap(locals),
           stream, writer));
     }
     // end response

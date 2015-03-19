@@ -18,9 +18,9 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 
-import org.jooby.Body.Formatter;
-import org.jooby.Body.Parser;
+import org.jooby.BodyFormatter;
 import org.jooby.MediaType;
+import org.jooby.BodyParser;
 import org.junit.Test;
 
 import com.google.common.base.Charsets;
@@ -30,7 +30,7 @@ public class BuiltinBodyConverterTest {
 
   @Test
   public void formatReader() throws Exception {
-    Formatter formatter = BuiltinBodyConverter.formatReader;
+    BodyFormatter formatter = BuiltinBodyConverter.formatReader;
 
     assertEquals(ImmutableList.of(MediaType.html), formatter.types());
 
@@ -44,7 +44,7 @@ public class BuiltinBodyConverterTest {
 
     StringWriter writer = new StringWriter();
     formatter.format(new StringReader("string"),
-        new BodyWriterImpl(Charsets.UTF_8,
+        new BodyFormatterContext(Charsets.UTF_8,
             () -> {
               throw new IOException();
             },
@@ -53,7 +53,7 @@ public class BuiltinBodyConverterTest {
 
     StringWriter writer2 = new StringWriter();
     formatter.format(CharBuffer.wrap("string"),
-        new BodyWriterImpl(Charsets.UTF_8,
+        new BodyFormatterContext(Charsets.UTF_8,
             () -> {
               throw new IOException();
             },
@@ -65,7 +65,7 @@ public class BuiltinBodyConverterTest {
 
   @Test
   public void formatByteArray() throws Exception {
-    Formatter formatter = BuiltinBodyConverter.formatByteArray;
+    BodyFormatter formatter = BuiltinBodyConverter.formatByteArray;
 
     assertEquals(ImmutableList.of(MediaType.octetstream), formatter.types());
 
@@ -74,7 +74,7 @@ public class BuiltinBodyConverterTest {
     assertFalse(formatter.canFormat(InputStream.class));
 
     OutputStream stream = new ByteArrayOutputStream();
-    formatter.format("string".getBytes(), new BodyWriterImpl(Charsets.UTF_8, () -> stream,
+    formatter.format("string".getBytes(), new BodyFormatterContext(Charsets.UTF_8, () -> stream,
         () -> {
           throw new IOException();
         }));
@@ -85,7 +85,7 @@ public class BuiltinBodyConverterTest {
 
   @Test
   public void formatByteBuffer() throws Exception {
-    Formatter formatter = BuiltinBodyConverter.formatByteBuffer;
+    BodyFormatter formatter = BuiltinBodyConverter.formatByteBuffer;
 
     assertEquals(ImmutableList.of(MediaType.octetstream), formatter.types());
 
@@ -93,7 +93,7 @@ public class BuiltinBodyConverterTest {
     assertFalse(formatter.canFormat(InputStream.class));
 
     OutputStream stream = new ByteArrayOutputStream();
-    formatter.format(ByteBuffer.wrap("string".getBytes()), new BodyWriterImpl(Charsets.UTF_8,
+    formatter.format(ByteBuffer.wrap("string".getBytes()), new BodyFormatterContext(Charsets.UTF_8,
         () -> stream,
         () -> {
           throw new IOException();
@@ -105,7 +105,7 @@ public class BuiltinBodyConverterTest {
 
   @Test
   public void formatStream() throws Exception {
-    Formatter formatter = BuiltinBodyConverter.formatStream;
+    BodyFormatter formatter = BuiltinBodyConverter.formatStream;
 
     assertEquals(ImmutableList.of(MediaType.octetstream), formatter.types());
 
@@ -117,7 +117,7 @@ public class BuiltinBodyConverterTest {
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     formatter.format(new ByteArrayInputStream("string".getBytes()),
-        new BodyWriterImpl(Charsets.UTF_8,
+        new BodyFormatterContext(Charsets.UTF_8,
             () -> out,
             () -> {
               throw new IOException();
@@ -129,7 +129,7 @@ public class BuiltinBodyConverterTest {
 
   @Test
   public void formatAny() throws Exception {
-    Formatter formatter = BuiltinBodyConverter.formatAny;
+    BodyFormatter formatter = BuiltinBodyConverter.formatAny;
 
     assertEquals(ImmutableList.of(MediaType.html), formatter.types());
 
@@ -141,7 +141,7 @@ public class BuiltinBodyConverterTest {
 
     StringWriter writer = new StringWriter();
     formatter.format("string",
-        new BodyWriterImpl(Charsets.UTF_8,
+        new BodyFormatterContext(Charsets.UTF_8,
             () -> {
               throw new IOException();
             },
@@ -150,7 +150,7 @@ public class BuiltinBodyConverterTest {
 
     StringWriter writer2 = new StringWriter();
     formatter.format(76.8,
-        new BodyWriterImpl(Charsets.UTF_8,
+        new BodyFormatterContext(Charsets.UTF_8,
             () -> {
               throw new IOException();
             },
@@ -165,7 +165,7 @@ public class BuiltinBodyConverterTest {
             return "toString";
           }
         },
-        new BodyWriterImpl(Charsets.UTF_8,
+        new BodyFormatterContext(Charsets.UTF_8,
             () -> {
               throw new IOException();
             },
@@ -177,7 +177,7 @@ public class BuiltinBodyConverterTest {
 
   @Test
   public void parseString() throws Exception {
-    Parser parser = BuiltinBodyConverter.parseString;
+    BodyParser parser = BuiltinBodyConverter.parseString;
 
     assertEquals(ImmutableList.of(MediaType.plain), parser.types());
 
@@ -187,7 +187,7 @@ public class BuiltinBodyConverterTest {
 
     InputStream stream = new ByteArrayInputStream("string".getBytes());
     assertEquals("string",
-        parser.parse(String.class, new BodyReaderImpl(Charsets.UTF_8, () -> stream)));
+        parser.parse(String.class, new BodyParserContext(Charsets.UTF_8, () -> stream)));
 
     assertEquals("Parser for: java.lang.CharSequence", parser.toString());
   }

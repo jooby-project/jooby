@@ -28,15 +28,16 @@ import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.jooby.Body;
+import org.jooby.BodyFormatter;
 import org.jooby.MediaType;
+import org.jooby.BodyParser;
 import org.jooby.View;
 import org.jooby.util.Collectors;
 
 import com.google.inject.TypeLiteral;
 
 /**
- * Choose or select a {@link Body.Parser} or {@link Body.Formatter} using {@link MediaType media
+ * Choose or select a {@link BodyParser} or {@link BodyFormatter} using {@link MediaType media
  * types.}. Examples:
  *
  * <pre>
@@ -62,9 +63,9 @@ public class BodyConverterSelector {
   /**
    * The available converters in the system.
    */
-  private final Set<Body.Formatter> formatters;
+  private final Set<BodyFormatter> formatters;
 
-  private final Set<Body.Parser> parsers;
+  private final Set<BodyParser> parsers;
 
   private List<MediaType> viewableTypes;
 
@@ -75,8 +76,8 @@ public class BodyConverterSelector {
    * @param formatters The available body formatters in the system.
    */
   @Inject
-  public BodyConverterSelector(final Set<Body.Parser> parsers,
-      final Set<Body.Formatter> formatters) {
+  public BodyConverterSelector(final Set<BodyParser> parsers,
+      final Set<BodyFormatter> formatters) {
     this.parsers = requireNonNull(parsers, "The parsers is required.");
     this.formatters = requireNonNull(formatters, "The formatters is required.");
     this.viewableTypes = this.formatters.stream().filter(View.Engine.class::isInstance)
@@ -88,12 +89,12 @@ public class BodyConverterSelector {
     return viewableTypes;
   }
 
-  public Optional<Body.Parser> parser(final TypeLiteral<?> type,
+  public Optional<BodyParser> parser(final TypeLiteral<?> type,
       final Iterable<MediaType> types) {
     requireNonNull(type, "Type literal is required.");
     requireNonNull(types, "Types are required.");
 
-    for (Body.Parser parser : parsers) {
+    for (BodyParser parser : parsers) {
       if (parser.canParse(type)) {
         for (MediaType mtype : types) {
           Optional<MediaType> found = parser.types()
@@ -110,16 +111,16 @@ public class BodyConverterSelector {
     return Optional.empty();
   }
 
-  public Optional<Body.Formatter> formatter(final Object message,
+  public Optional<BodyFormatter> formatter(final Object message,
       final Iterable<MediaType> types) {
     requireNonNull(message, "A message is required.");
     requireNonNull(types, "Types are required.");
 
     Class<?> clazz = message.getClass();
 
-    Predicate<Body.Formatter> noop = (f) -> true;
+    Predicate<BodyFormatter> noop = (f) -> true;
 
-    Predicate<Body.Formatter> viewable = (f) -> {
+    Predicate<BodyFormatter> viewable = (f) -> {
       if (f instanceof View.Engine) {
         String engine = ((View) message).engine();
         return engine.isEmpty() || ((View.Engine) f).name().equals(engine);
@@ -127,9 +128,9 @@ public class BodyConverterSelector {
       return true;
     };
 
-    Predicate<Body.Formatter> nameMatcher = message instanceof View ? viewable : noop;
+    Predicate<BodyFormatter> nameMatcher = message instanceof View ? viewable : noop;
 
-    for (Body.Formatter formatter : formatters) {
+    for (BodyFormatter formatter : formatters) {
       if (formatter.canFormat(clazz) && nameMatcher.test(formatter)) {
         for (MediaType type : types) {
           Optional<MediaType> found = formatter.types()

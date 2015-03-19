@@ -28,8 +28,8 @@ import java.lang.annotation.Target;
 /**
  * Defines what media types a route can consume. By default a route can consume any type
  * {@code *}/{@code *}.
- * The <code>Content-Type</code> header is used for finding the best {@link org.jooby.Body.Parser}.
- * If there isn't a {@link org.jooby.Body.Parser} a "415 Unsupported Media Type"
+ * The <code>Content-Type</code> header is used for finding the best {@link org.jooby.BodyParser}.
+ * If there isn't a {@link org.jooby.BodyParser} a "415 Unsupported Media Type"
  * response will be generated.
  * <pre>
  *   class Resources {

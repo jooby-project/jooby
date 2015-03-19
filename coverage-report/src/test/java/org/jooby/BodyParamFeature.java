@@ -1,11 +1,8 @@
 package org.jooby;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
-import org.jooby.Body;
-import org.jooby.MediaType;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
@@ -49,13 +46,13 @@ public class BodyParamFeature extends ServerFeature {
       return ctx.convert(type, values);
     });
 
-    use(new Body.Formatter() {
+    use(new BodyFormatter() {
 
       @Override
-      public void format(final Object body, final Body.Writer writer) throws Exception {
+      public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
         writer.text(out -> new CharSink() {
           @Override
-          public Writer openStream() throws IOException {
+          public java.io.Writer openStream() throws IOException {
             return out;
           }
         }.write(body.toString()));

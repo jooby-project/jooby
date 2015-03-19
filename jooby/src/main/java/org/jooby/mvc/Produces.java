@@ -28,8 +28,8 @@ import java.lang.annotation.Target;
 /**
  * Defines what media types a route can produces. By default a route can produces any type
  * {@code *}/{@code *}.
- * The <code>Accept</code> header is used for finding the best {@link org.jooby.Body.Formatter}.
- * If there isn't a {@link org.jooby.Body.Formatter} a "406 Not Acceptable" response will be
+ * The <code>Accept</code> header is used for finding the best {@link org.jooby.BodyFormatter}.
+ * If there isn't a {@link org.jooby.BodyFormatter} a "406 Not Acceptable" response will be
  * generated.
  *
  * <pre>
