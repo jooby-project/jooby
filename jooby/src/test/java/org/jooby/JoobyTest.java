@@ -25,7 +25,6 @@ import java.util.TimeZone;
 
 import javax.inject.Singleton;
 
-import org.jooby.Route.Handler;
 import org.jooby.Session.Definition;
 import org.jooby.Session.Store;
 import org.jooby.internal.AppPrinter;
@@ -1984,28 +1983,6 @@ public class JoobyTest {
             assertEquals("/proto", defs.get(4).pattern());
             assertEquals("ProtoTestRoute.m1", defs.get(4).name());
           });
-  }
-
-  @Test
-  public void redirect() throws Exception {
-    new MockUnit(Request.class, Response.class)
-        .expect(unit -> {
-          Response rsp = unit.get(Response.class);
-          rsp.redirect(Status.FOUND, "/location");
-
-          rsp.redirect(Status.MOVED_PERMANENTLY, "/location");
-        })
-        .run(unit -> {
-          Jooby jooby = new Jooby();
-
-          Handler redirect = jooby.redirect("/location");
-          assertNotNull(redirect);
-          redirect.handle(unit.get(Request.class), unit.get(Response.class));
-
-          redirect = jooby.redirect(Status.MOVED_PERMANENTLY, "/location");
-          assertNotNull(redirect);
-          redirect.handle(unit.get(Request.class), unit.get(Response.class));
-        });
   }
 
   @Test

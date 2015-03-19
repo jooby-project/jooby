@@ -124,7 +124,59 @@ public class Results {
   }
 
   /**
-   * Produces a redirect (302) status code and set the <code>Location</code> header too.
+   * Redirect to the given url with status code defaulting to {@link Status#FOUND}.
+   *
+   * <pre>
+   *  rsp.redirect("/foo/bar");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("../login");
+   * </pre>
+   *
+   * Redirects can be a fully qualified URI for redirecting to a different site:
+   *
+   * <pre>
+   *   rsp.redirect("http://google.com");
+   * </pre>
+   *
+   * Redirects can be relative to the root of the host name. For example, if you were
+   * on <code>http://example.com/admin/post/new</code>, the following redirect to /admin would
+   * land you at <code>http://example.com/admin</code>:
+   *
+   * <pre>
+   *   rsp.redirect("/admin");
+   * </pre>
+   *
+   * Redirects can be relative to the current URL. A redirection of post/new, from
+   * <code>http://example.com/blog/admin/</code> (notice the trailing slash), would give you
+   * <code>http://example.com/blog/admin/post/new.</code>
+   *
+   * <pre>
+   *   rsp.redirect("post/new");
+   * </pre>
+   *
+   * Redirecting to post/new from <code>http://example.com/blog/admin</code> (no trailing slash),
+   * will take you to <code>http://example.com/blog/post/new</code>.
+   *
+   * <p>
+   * If you found the above behavior confusing, think of path segments as directories (have trailing
+   * slashes) and files, it will start to make sense.
+   * </p>
+   *
+   * Pathname relative redirects are also possible. If you were on
+   * <code>http://example.com/admin/post/new</code>, the following redirect would land you at
+   * <code>http//example.com/admin</code>:
+   *
+   * <pre>
+   *   rsp.redirect("..");
+   * </pre>
+   *
+   * A back redirection will redirect the request back to the <code>Referer</code>, defaulting to
+   * <code>/</code> when missing.
+   *
+   * <pre>
+   *   rsp.redirect("back");
+   * </pre>
    *
    * @param location A location.
    * @return A new result.
@@ -134,7 +186,59 @@ public class Results {
   }
 
   /**
-   * Produces a redirect (307) status code and set the <code>Location</code> header too.
+   * Redirect to the given url with status code defaulting to {@link Status#FOUND}.
+   *
+   * <pre>
+   *  rsp.redirect("/foo/bar");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("../login");
+   * </pre>
+   *
+   * Redirects can be a fully qualified URI for redirecting to a different site:
+   *
+   * <pre>
+   *   rsp.redirect("http://google.com");
+   * </pre>
+   *
+   * Redirects can be relative to the root of the host name. For example, if you were
+   * on <code>http://example.com/admin/post/new</code>, the following redirect to /admin would
+   * land you at <code>http://example.com/admin</code>:
+   *
+   * <pre>
+   *   rsp.redirect("/admin");
+   * </pre>
+   *
+   * Redirects can be relative to the current URL. A redirection of post/new, from
+   * <code>http://example.com/blog/admin/</code> (notice the trailing slash), would give you
+   * <code>http://example.com/blog/admin/post/new.</code>
+   *
+   * <pre>
+   *   rsp.redirect("post/new");
+   * </pre>
+   *
+   * Redirecting to post/new from <code>http://example.com/blog/admin</code> (no trailing slash),
+   * will take you to <code>http://example.com/blog/post/new</code>.
+   *
+   * <p>
+   * If you found the above behavior confusing, think of path segments as directories (have trailing
+   * slashes) and files, it will start to make sense.
+   * </p>
+   *
+   * Pathname relative redirects are also possible. If you were on
+   * <code>http://example.com/admin/post/new</code>, the following redirect would land you at
+   * <code>http//example.com/admin</code>:
+   *
+   * <pre>
+   *   rsp.redirect("..");
+   * </pre>
+   *
+   * A back redirection will redirect the request back to the <code>Referer</code>, defaulting to
+   * <code>/</code> when missing.
+   *
+   * <pre>
+   *   rsp.redirect("back");
+   * </pre>
    *
    * @param location A location.
    * @return A new result.
@@ -144,7 +248,59 @@ public class Results {
   }
 
   /**
-   * Produces a redirect (302) status code and set the <code>Location</code> header too.
+   * Redirect to the given url with status code defaulting to {@link Status#FOUND}.
+   *
+   * <pre>
+   *  rsp.redirect("/foo/bar");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("../login");
+   * </pre>
+   *
+   * Redirects can be a fully qualified URI for redirecting to a different site:
+   *
+   * <pre>
+   *   rsp.redirect("http://google.com");
+   * </pre>
+   *
+   * Redirects can be relative to the root of the host name. For example, if you were
+   * on <code>http://example.com/admin/post/new</code>, the following redirect to /admin would
+   * land you at <code>http://example.com/admin</code>:
+   *
+   * <pre>
+   *   rsp.redirect("/admin");
+   * </pre>
+   *
+   * Redirects can be relative to the current URL. A redirection of post/new, from
+   * <code>http://example.com/blog/admin/</code> (notice the trailing slash), would give you
+   * <code>http://example.com/blog/admin/post/new.</code>
+   *
+   * <pre>
+   *   rsp.redirect("post/new");
+   * </pre>
+   *
+   * Redirecting to post/new from <code>http://example.com/blog/admin</code> (no trailing slash),
+   * will take you to <code>http://example.com/blog/post/new</code>.
+   *
+   * <p>
+   * If you found the above behavior confusing, think of path segments as directories (have trailing
+   * slashes) and files, it will start to make sense.
+   * </p>
+   *
+   * Pathname relative redirects are also possible. If you were on
+   * <code>http://example.com/admin/post/new</code>, the following redirect would land you at
+   * <code>http//example.com/admin</code>:
+   *
+   * <pre>
+   *   rsp.redirect("..");
+   * </pre>
+   *
+   * A back redirection will redirect the request back to the <code>Referer</code>, defaulting to
+   * <code>/</code> when missing.
+   *
+   * <pre>
+   *   rsp.redirect("back");
+   * </pre>
    *
    * @param location A location.
    * @return A new result.
@@ -154,7 +310,59 @@ public class Results {
   }
 
   /**
-   * Produces a redirect (302) status code and set the <code>Location</code> header too.
+   * Redirect to the given url with status code defaulting to {@link Status#FOUND}.
+   *
+   * <pre>
+   *  rsp.redirect("/foo/bar");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("http://example.com");
+   *  rsp.redirect("../login");
+   * </pre>
+   *
+   * Redirects can be a fully qualified URI for redirecting to a different site:
+   *
+   * <pre>
+   *   rsp.redirect("http://google.com");
+   * </pre>
+   *
+   * Redirects can be relative to the root of the host name. For example, if you were
+   * on <code>http://example.com/admin/post/new</code>, the following redirect to /admin would
+   * land you at <code>http://example.com/admin</code>:
+   *
+   * <pre>
+   *   rsp.redirect("/admin");
+   * </pre>
+   *
+   * Redirects can be relative to the current URL. A redirection of post/new, from
+   * <code>http://example.com/blog/admin/</code> (notice the trailing slash), would give you
+   * <code>http://example.com/blog/admin/post/new.</code>
+   *
+   * <pre>
+   *   rsp.redirect("post/new");
+   * </pre>
+   *
+   * Redirecting to post/new from <code>http://example.com/blog/admin</code> (no trailing slash),
+   * will take you to <code>http://example.com/blog/post/new</code>.
+   *
+   * <p>
+   * If you found the above behavior confusing, think of path segments as directories (have trailing
+   * slashes) and files, it will start to make sense.
+   * </p>
+   *
+   * Pathname relative redirects are also possible. If you were on
+   * <code>http://example.com/admin/post/new</code>, the following redirect would land you at
+   * <code>http//example.com/admin</code>:
+   *
+   * <pre>
+   *   rsp.redirect("..");
+   * </pre>
+   *
+   * A back redirection will redirect the request back to the <code>Referer</code>, defaulting to
+   * <code>/</code> when missing.
+   *
+   * <pre>
+   *   rsp.redirect("back");
+   * </pre>
    *
    * @param location A location.
    * @return A new result.

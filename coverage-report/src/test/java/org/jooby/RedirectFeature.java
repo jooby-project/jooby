@@ -44,23 +44,23 @@ public class RedirectFeature extends ServerFeature {
 
   {
 
-    get("/l1/l2/l3", redirect("/l1"));
+    get("/l1/l2/l3", () -> Results.redirect("/l1"));
 
     get("/l1", (req, rsp) -> rsp.send(req.path()));
 
-    get("/blog/admin", redirect("post/new"));
+    get("/blog/admin", () -> Results.redirect("post/new"));
 
     get("/blog/admin/post/new", (req, rsp) -> rsp.send(req.path()));
 
     get("/blog/post/new", (req, rsp) -> rsp.send(req.path()));
 
-    get("/d1/d2/d3", redirect(".."));
+    get("/d1/d2/d3", () -> Results.redirect(".."));
 
-    get("/d1/d2/d3b", redirect("../d2"));
+    get("/d1/d2/d3b", () -> Results.redirect("../d2"));
 
-    get("/d1/d2/d3c", redirect("./d2"));
+    get("/d1/d2/d3c", () -> Results.redirect("./d2"));
 
-    get("/back", redirect("back"));
+    get("/back", () -> Results.redirect("back"));
 
     get("/d1", (req, rsp) -> rsp.send(req.path()));
 
