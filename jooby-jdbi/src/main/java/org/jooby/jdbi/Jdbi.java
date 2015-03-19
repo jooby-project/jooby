@@ -112,7 +112,7 @@ import com.typesafe.config.Config;
  *
  * <pre>
  * {
- *   use(new Jdbi().doWith((dbi, config) -> {
+ *   use(new Jdbi().doWith((dbi, config) {@literal ->} {
  *     // set custom option
  *   }));
  * }

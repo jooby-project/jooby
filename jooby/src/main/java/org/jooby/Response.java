@@ -34,7 +34,6 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import org.jooby.Cookie.Definition;
-import org.jooby.util.ExSupplier;
 
 /**
  * Give you access to the actual HTTP response. You can read/write headers and write HTTP body.
@@ -227,11 +226,6 @@ public interface Response {
     }
 
     @Override
-    public Formatter format() {
-      return rsp.format();
-    }
-
-    @Override
     public void redirect(final String location) throws Exception {
       rsp.redirect(location);
     }
@@ -282,58 +276,6 @@ public interface Response {
       }
       return root;
     }
-  }
-
-  /**
-   * Handle content negotiation. For example:
-   *
-   * <pre>
-   *  {{
-   *      get("/", (req, resp) {@literal ->} {
-   *        Object model = ...;
-   *        resp.when("text/html", () {@literal ->} Viewable.of("view", model))
-   *            .when("application/json", () {@literal ->} model)
-   *            .send();
-   *      });
-   *  }}
-   * </pre>
-   *
-   * The example above will render a view when accept header is "text/html" or just send a text
-   * version of model when the accept header is "application/json".
-   *
-   * @author edgar
-   * @since 0.1.0
-   */
-  interface Formatter {
-
-    /**
-     * Add a new when clause for a custom media-type.
-     *
-     * @param type A media type to test for.
-     * @param supplier An object supplier.
-     * @return The current {@link Response.Formatter}.
-     */
-    default @Nonnull Formatter when(final String type,
-        final @Nonnull ExSupplier<Object> supplier) {
-      return when(MediaType.valueOf(type), supplier);
-    }
-
-    /**
-     * Add a new when clause for a custom media-type.
-     *
-     * @param type A media type to test for.
-     * @param supplier An object supplier.
-     * @return A {@link Response.Formatter}.
-     */
-    @Nonnull
-    Formatter when(MediaType type, @Nonnull ExSupplier<Object> supplier);
-
-    /**
-     * Send the response.
-     *
-     * @throws Exception If something fails.
-     */
-    void send() throws Exception;
   }
 
   /**
@@ -648,27 +590,6 @@ public interface Response {
    * @throws Exception If the response write fails.
    */
   void send(@Nonnull Result result) throws Exception;
-
-  /**
-   * Performs content-negotiation on the Accept HTTP header on the request object. It select a
-   * handler for the request, based on the acceptable types ordered by their quality values.
-   * If the header is not specified, the first callback is invoked. When no match is found,
-   * the server responds with 406 "Not Acceptable", or invokes the default callback: {@code ** / *}.
-   *
-   * <pre>
-   *   get("/jsonOrHtml", (req, rsp) {@literal ->}
-   *     rsp.format()
-   *         .when("text/html", () {@literal ->} Viewable.of("view", model))
-   *         .when("application/json", () {@literal ->} model)
-   *         .when("*", () {@literal ->} Status.NOT_ACCEPTABLE)
-   *         .send()
-   *   );
-   * </pre>
-   *
-   * @return A response formatter.
-   */
-  @Nonnull
-  Formatter format();
 
   /**
    * Redirect to the given url with status code defaulting to {@link Status#FOUND}.

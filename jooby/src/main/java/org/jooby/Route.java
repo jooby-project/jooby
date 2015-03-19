@@ -206,7 +206,7 @@ import com.google.common.collect.Lists;
  *
  * <p>
  * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
- * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes} and {@link org.jooby.mvc.Viewable}.
+ * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}.
  * </p>
  *
  * @author edgar

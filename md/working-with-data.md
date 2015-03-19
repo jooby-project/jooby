@@ -221,7 +221,7 @@ A [view engine](http://jooby.org/apidocs/org/jooby/View.Engine.html) is a specia
 {
   use(new MyTemplateEngine());
 
-  get("/", (req, rsp) -> rsp.send(View.of("viewname", model));
+  get("/", (req, rsp) -> rsp.send(View.of("viewname", "model", model));
 
 }
 ```
@@ -233,12 +233,11 @@ There is no much to say about views & engines, any other detail or documentation
 As you learnt before, content negotiation is done and executed every time a request is processed. Sometimes this isn't enough and that's why [rsp.format](http://jooby.org/apidocs/org/jooby/Response.html#format--) exists:
 
 ```java
-get("/", (req, rsp)  ->
-  rsp.format()
-    .when("text/html", ()  -> View.of("viewname", model))
+get("/", () ->
+  Results
+    .when("text/html", ()  -> View.of("viewname", "model", model))
     .when("application/json", ()  -> model)
     .when("*", ()  -> Status.NOT_ACCEPTABLE)
-    .send()
 );
 ```
 

@@ -8,7 +8,7 @@ public class MyRoutes {
 
   @GET
   public View home() {
-    return View.of("home", model);
+    return View.of("home", "model", model);
   }
 }
 ```
@@ -30,7 +30,7 @@ public class MyRoutes {
 
   @GET
   public View home() {
-    return View.of("home", model);
+    return View.of("home", "model", model);
   }
 }
 ```
@@ -187,7 +187,7 @@ If you need/want to render a view, just return a *org.jooby.View* instance:
 ```java
 @GET
 public View home() {
-  return View.of("home", model);
+  return View.of("home", "model", model);
 }
 ```
 

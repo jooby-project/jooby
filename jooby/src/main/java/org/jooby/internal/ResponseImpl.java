@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -221,44 +219,6 @@ public class ResponseImpl implements Response {
       header("Content-Type", type.name());
     }
     return this;
-  }
-
-  @Override
-  public Formatter format() {
-    final Map<MediaType, ExSupplier<Object>> strategies = new LinkedHashMap<>();
-    List<MediaType> types = new LinkedList<>();
-
-    return new Formatter() {
-
-      @Override
-      public Formatter when(final MediaType type, final ExSupplier<Object> supplier) {
-        requireNonNull(type, "A media type is required.");
-        requireNonNull(supplier, "A supplier fn is required.");
-        strategies.put(type, supplier);
-        types.add(type);
-        return this;
-      }
-
-      @Override
-      public void send() throws Exception {
-        List<MediaType> produces = route.produces();
-
-        ExSupplier<Object> provider = MediaType
-            .matcher(produces)
-            .first(types)
-            .map(it -> strategies.get(it))
-            .orElseThrow(
-                () -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces))
-            );
-
-        Object result = provider.get();
-        if (result instanceof Exception) {
-          throw (Exception) result;
-        }
-        ResponseImpl.this.send(result);
-      }
-
-    };
   }
 
   @Override

@@ -167,15 +167,4 @@ public class View {
     return new View(view).put(name, value);
   }
 
-  /**
-   * Creates a new {@link View}. Default model name is: <code>this</code>.
-   *
-   * @param view View's name.
-   * @param value Model's value.
-   * @return A new viewable.
-   */
-  public static View of(final String view, final Object value) {
-    return new View(view).put("this", value);
-  }
-
 }

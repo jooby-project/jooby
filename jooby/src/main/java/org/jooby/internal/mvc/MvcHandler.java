@@ -23,20 +23,13 @@ import static java.util.Objects.requireNonNull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 
-import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
-import org.jooby.View;
-import org.jooby.internal.ResponseImpl;
 import org.jooby.internal.reqparam.RequestParam;
 import org.jooby.internal.reqparam.RequestParamProvider;
-import org.jooby.mvc.Viewable;
-import org.jooby.util.ExSupplier;
 
 import com.google.common.base.Throwables;
 
@@ -46,13 +39,9 @@ class MvcHandler implements Route.Handler {
 
   private RequestParamProvider provider;
 
-  private List<MediaType> produces;
-
-  public MvcHandler(final Method handler, final RequestParamProvider provider,
-      final List<MediaType> produces) {
+  public MvcHandler(final Method handler, final RequestParamProvider provider) {
     this.handler = requireNonNull(handler, "Handler method is required.");
     this.provider = requireNonNull(provider, "Param prodiver is required.");
-    this.produces = requireNonNull(produces, "Produce types are required.");
   }
 
   @Override
@@ -77,42 +66,8 @@ class MvcHandler implements Route.Handler {
         }
         return;
       }
-      rsp.status(Status.OK);
 
-      // format!
-      List<MediaType> accept = req.accept();
-
-      ExSupplier<Object> viewable = () -> {
-        if (result instanceof View) {
-          return result;
-        }
-        // default view name
-        String defaultViewName = Optional.ofNullable(handler.getAnnotation(Viewable.class))
-            .map(template -> template.value().isEmpty() ? handler.getName() : template.value())
-            .orElse(handler.getName());
-        return View.of(defaultViewName, result);
-      };
-
-      ExSupplier<Object> notViewable = () -> result;
-
-      List<MediaType> viewableTypes = ((ResponseImpl) Response.Forwarding.unwrap(rsp))
-          .viewableTypes();
-
-      Function<MediaType, ExSupplier<Object>> provider = (type) -> {
-        Optional<MediaType> matches = viewableTypes.stream()
-            .filter(it -> it.matches(type))
-            .findFirst();
-        return matches.isPresent() ? viewable : notViewable;
-      };
-
-      Response.Formatter formatter = rsp.format();
-
-      // add formatters
-      accept.forEach(type -> formatter.when(type, provider.apply(type)));
-      produces.forEach(type -> formatter.when(type, provider.apply(type)));
-
-      // send!
-      formatter.send();
+      rsp.send(result);
     } catch (InvocationTargetException ex) {
       Throwable cause = ex.getCause();
       Throwables.propagateIfInstanceOf(cause, Exception.class);

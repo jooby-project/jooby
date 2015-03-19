@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
-import org.jooby.mvc.Viewable;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -21,12 +20,6 @@ public class TemplateEngineFeature extends ServerFeature {
       return View.of("test", "this", "model");
     }
 
-    @Path("/view/template")
-    @Viewable("template")
-    @GET
-    public Object template() throws IOException {
-      return "model";
-    }
   }
 
   {
@@ -52,14 +45,6 @@ public class TemplateEngineFeature extends ServerFeature {
     request()
         .get("/r/view")
         .expect("<html><body>test: {this=model}</body></html>");
-  }
-
-  @Test
-  public void templateAnnotation() throws Exception {
-    request()
-        .get("/r/view/template")
-        .expect("<html><body>template: {this=model}</body></html>");
-
   }
 
 }

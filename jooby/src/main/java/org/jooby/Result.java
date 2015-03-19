@@ -35,6 +35,23 @@ import com.google.common.collect.ImmutableMap;
  * }
  * </pre>
  *
+ * A result is also responsible for content negotiation (if required):
+ *
+ * <pre>
+ * {
+ *   get("/", () {@literal ->} {
+ *     Object model = ...;
+ *     return Results.when("text/html", () {@literal ->} Viewable.of("view", "model", model))
+ *       .when("application/json", () {@literal ->} model);
+ *   });
+ * }
+ * </pre>
+ *
+ * <p>
+ * The example above will render a view when accept header is "text/html" or just send a text
+ * version of model when the accept header is "application/json".
+ * </p>
+ *
  * @author edgar
  * @since 0.5.0
  * @see Results
@@ -135,13 +152,6 @@ public class Result {
   }
 
   /**
-   * @return True if result has content.
-   */
-  public boolean hasContent() {
-    return data.size() > 0;
-  }
-
-  /**
    * @return Raw headers for content.
    */
   public @Nonnull Map<String, String> headers() {
@@ -167,6 +177,9 @@ public class Result {
   }
 
   /**
+   * Get a result value for the given types (accept header).
+   *
+   * @param types Accept header.
    * @return Result content.
    */
   public @Nonnull Optional<Object> get(final List<MediaType> types) {
@@ -181,7 +194,7 @@ public class Result {
     Supplier<Object> provider = MediaType
         .matcher(types)
         .first(ImmutableList.copyOf(data.keySet()))
-        .map(it -> data.get(it))
+        .map(it -> data.remove(it))
         .orElseThrow(
             () -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(types))
         );

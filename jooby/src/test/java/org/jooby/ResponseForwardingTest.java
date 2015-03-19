@@ -156,22 +156,6 @@ public class ResponseForwardingTest {
   }
 
   @Test
-  public void format() throws Exception {
-    new MockUnit(Response.class, Response.Formatter.class)
-        .expect(unit -> {
-          Response rsp = unit.get(Response.class);
-
-          expect(rsp.format()).andReturn(unit.get(Response.Formatter.class));
-
-        })
-        .run(unit -> {
-          Response rsp = new Response.Forwarding(unit.get(Response.class));
-
-          assertEquals(unit.get(Response.Formatter.class), rsp.format());
-        });
-  }
-
-  @Test
   public void charset() throws Exception {
     new MockUnit(Response.class)
         .expect(unit -> {

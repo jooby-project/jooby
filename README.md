@@ -1224,7 +1224,7 @@ A [view engine](http://jooby.org/apidocs/org/jooby/View.Engine.html) is a specia
 {
   use(new MyTemplateEngine());
 
-  get("/", (req, rsp) -> rsp.send(View.of("viewname", model));
+  get("/", (req, rsp) -> rsp.send(View.of("viewname", "model", model));
 
 }
 ```
@@ -1238,7 +1238,7 @@ As you learnt before, content negotiation is done and executed every time a requ
 ```java
 get("/", (req, rsp)  ->
   rsp.format()
-    .when("text/html", ()  -> View.of("viewname", model))
+    .when("text/html", ()  -> View.of("viewname", "model", model))
     .when("application/json", ()  -> model)
     .when("*", ()  -> Status.NOT_ACCEPTABLE)
     .send()
@@ -1332,7 +1332,7 @@ public class MyRoutes {
 
   @GET
   public View home() {
-    return View.of("home", model);
+    return View.of("home", "model", model);
   }
 }
 ```
@@ -1354,7 +1354,7 @@ public class MyRoutes {
 
   @GET
   public View home() {
-    return View.of("home", model);
+    return View.of("home", "model", model);
   }
 }
 ```
@@ -1511,7 +1511,7 @@ If you need/want to render a view, just return a *org.jooby.View* instance:
 ```java
 @GET
 public View home() {
-  return View.of("home", model);
+  return View.of("home", "model", model);
 }
 ```
 

@@ -2,6 +2,8 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.function.Supplier;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -41,7 +43,7 @@ public class Results {
    * @return A new result.
    */
   public static @Nonnull Result with(final @Nonnull Object entity, final int status) {
-    return new Result().status(status).set(entity);
+    return with(entity, Status.valueOf(status));
   }
 
   /**
@@ -141,6 +143,52 @@ public class Results {
    */
   public static @Nonnull Result seeOther(final @Nonnull String location) {
     return redirect(Status.SEE_OTHER, location);
+  }
+
+  /**
+   * Performs content-negotiation on the Accept HTTP header on the request object. It select a
+   * handler for the request, based on the acceptable types ordered by their quality values.
+   * If the header is not specified, the first callback is invoked. When no match is found,
+   * the server responds with 406 "Not Acceptable", or invokes the default callback: {@code ** / *}.
+   *
+   * <pre>
+   *   get("/jsonOrHtml", () {@literal ->}
+   *     Results
+   *         .when("text/html", () {@literal ->} View.of("view", "model", model))
+   *         .when("application/json", () {@literal ->} model)
+   *         .when("*", () {@literal ->} Status.NOT_ACCEPTABLE)
+   *   );
+   * </pre>
+   *
+   * @param type A media type.
+   * @param supplier A result supplier.
+   * @return A new result.
+   */
+  public static Result when(final String type, final Supplier<Object> supplier) {
+    return new Result().when(type, supplier);
+  }
+
+  /**
+   * Performs content-negotiation on the Accept HTTP header on the request object. It select a
+   * handler for the request, based on the acceptable types ordered by their quality values.
+   * If the header is not specified, the first callback is invoked. When no match is found,
+   * the server responds with 406 "Not Acceptable", or invokes the default callback: {@code ** / *}.
+   *
+   * <pre>
+   *   get("/jsonOrHtml", () {@literal ->}
+   *     Results
+   *         .when("text/html", () {@literal ->} View.of("view", "model", model))
+   *         .when("application/json", () {@literal ->} model)
+   *         .when("*", () {@literal ->} Status.NOT_ACCEPTABLE)
+   *   );
+   * </pre>
+   *
+   * @param type A media type.
+   * @param supplier A result supplier.
+   * @return A new result.
+   */
+  public static Result when(final MediaType type, final Supplier<Object> supplier) {
+    return new Result().when(type, supplier);
   }
 
   /**

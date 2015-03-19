@@ -118,7 +118,7 @@ public class MvcRoutes {
               String name = routeClass.getSimpleName() + "." + method.getName();
 
               Definition definition = new Route.Definition(
-                  verb.getSimpleName(), path, new MvcHandler(method, paramProvider, produces))
+                  verb.getSimpleName(), path, new MvcHandler(method, paramProvider))
                   .produces(produces)
                   .consumes(consumes)
                   .name(name);

@@ -125,11 +125,6 @@ public class ResponseTest {
     }
 
     @Override
-    public Formatter format() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void redirect(final Status status, final String location) throws Exception {
       throw new UnsupportedOperationException();
     }

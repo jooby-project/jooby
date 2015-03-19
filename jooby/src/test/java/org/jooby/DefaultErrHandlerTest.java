@@ -1,18 +1,14 @@
 package org.jooby;
 
-import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jooby.Response.Formatter;
-import org.jooby.util.ExSupplier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -20,11 +16,13 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Err.Default.class, LoggerFactory.class })
 public class DefaultErrHandlerTest {
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked" })
   @Test
   public void handleNoErrMessage() throws Exception {
     Exception ex = new Exception();
@@ -51,17 +49,10 @@ public class DefaultErrHandlerTest {
               expect(req.verb()).andReturn(Verb.GET);
               expect(req.header("referer")).andReturn(referer);
 
-              Formatter formatter = unit.mock(Formatter.class);
-              expect(formatter.when(eq(MediaType.html), unit.capture(ExSupplier.class))).andReturn(
-                  formatter);
-              expect(formatter.when(eq(MediaType.all), unit.capture(ExSupplier.class))).andReturn(
-                  formatter);
-              formatter.send();
-
               Response rsp = unit.get(Response.class);
 
+              rsp.send(unit.capture(Result.class));
               expect(rsp.status()).andReturn(Optional.of(Status.SERVER_ERROR));
-              expect(rsp.format()).andReturn(formatter);
             })
         .run(unit -> {
 
@@ -70,16 +61,18 @@ public class DefaultErrHandlerTest {
 
           new Err.Default().handle(req, rsp, ex);
         }, unit -> {
-          List<ExSupplier> suppliers = unit.captured(ExSupplier.class);
-          View view = (View) suppliers.get(0).get();
+          Result result = unit.captured(Result.class).iterator().next();
+          View view = (View) result.get(ImmutableList.of(MediaType.html)).get();
           assertEquals("/err", view.name());
-          checkErr(stacktrace, "Server Error", (Map<String, Object>) view.model().get("err"));
+          checkErr(stacktrace, "Server Error", (Map<String, Object>) view.model()
+              .get("err"));
 
-          assertEquals(0, ((Map<String, Object>) suppliers.get(1).get()).size());
+          Object hash = result.get(MediaType.ALL).get();
+          assertEquals(0, ((Map<String, Object>) hash).size());
         });
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked" })
   @Test
   public void handleWithErrMessage() throws Exception {
     Exception ex = new Exception("Something something dark");
@@ -106,17 +99,10 @@ public class DefaultErrHandlerTest {
               expect(req.verb()).andReturn(Verb.GET);
               expect(req.header("referer")).andReturn(referer);
 
-              Formatter formatter = unit.mock(Formatter.class);
-              expect(formatter.when(eq(MediaType.html), unit.capture(ExSupplier.class))).andReturn(
-                  formatter);
-              expect(formatter.when(eq(MediaType.all), unit.capture(ExSupplier.class))).andReturn(
-                  formatter);
-              formatter.send();
-
               Response rsp = unit.get(Response.class);
 
+              rsp.send(unit.capture(Result.class));
               expect(rsp.status()).andReturn(Optional.of(Status.SERVER_ERROR));
-              expect(rsp.format()).andReturn(formatter);
             })
         .run(unit -> {
 
@@ -125,16 +111,19 @@ public class DefaultErrHandlerTest {
 
           new Err.Default().handle(req, rsp, ex);
         }, unit -> {
-          List<ExSupplier> suppliers = unit.captured(ExSupplier.class);
-          View view = (View) suppliers.get(0).get();
+          Result result = unit.captured(Result.class).iterator().next();
+          View view = (View) result.get(ImmutableList.of(MediaType.html)).get();
           assertEquals("/err", view.name());
-          checkErr(stacktrace, "Something something dark", (Map<String, Object>) view.model().get("err"));
+          checkErr(stacktrace, "Something something dark", (Map<String, Object>) view.model()
+              .get("err"));
 
-          assertEquals(0, ((Map<String, Object>) suppliers.get(1).get()).size());
+          Object hash = result.get(MediaType.ALL).get();
+          assertEquals(0, ((Map<String, Object>) hash).size());
         });
   }
 
-  private void checkErr(final String[] stacktrace, final String message, final Map<String, Object> err) {
+  private void checkErr(final String[] stacktrace, final String message,
+      final Map<String, Object> err) {
     assertEquals(message, err.remove("message"));
     assertEquals("Server Error", err.remove("reason"));
     assertEquals(500, err.remove("status"));

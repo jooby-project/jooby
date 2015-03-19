@@ -341,7 +341,7 @@ import com.typesafe.config.ConfigValueFactory;
  *
  * <p>
  * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
- * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}, and {@link org.jooby.mvc.Viewable}
+ * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}
  * .
  * </p>
  *
@@ -2475,8 +2475,7 @@ public class Jooby {
    *
    * <p>
    * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
-   * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes} and
-   * {@link org.jooby.mvc.Viewable}.
+   * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}.
    * </p>
    *
    * @param routeClass A route(s) class.
