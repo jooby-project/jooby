@@ -25,6 +25,7 @@ import io.undertow.server.handlers.GracefulShutdownHandler;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -36,6 +37,7 @@ import org.xnio.Option;
 import org.xnio.Options;
 
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigValue;
 
 public class UndertowServer implements org.jooby.spi.Server {
@@ -126,7 +128,13 @@ public class UndertowServer implements org.jooby.spi.Server {
           parsedValue = option.parseValue(value.toString(), null);
         } catch (NumberFormatException ex) {
           // try bytes
-          parsedValue = option.parseValue(config.getBytes(level + "." + name).toString(), null);
+          try {
+            parsedValue = option.parseValue(config.getBytes(level + "." + name).toString(), null);
+          } catch (ConfigException.BadValue badvalue) {
+            // try duration
+            parsedValue = option.parseValue(
+                config.getDuration(level + "." + name, TimeUnit.MILLISECONDS) + "", null);
+          }
         }
         log.debug("{}.{}({})", level, option.getName(), parsedValue);
         setter.accept(option, parsedValue);

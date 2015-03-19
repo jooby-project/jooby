@@ -71,13 +71,16 @@ public class NettyRequest implements NativeRequest {
 
   private ChannelHandlerContext ctx;
 
-  public NettyRequest(final ChannelHandlerContext ctx, final HttpRequest req, final String tmpdir)
-      throws IOException {
+  private int wsMaxMessageSize;
+
+  public NettyRequest(final ChannelHandlerContext ctx, final HttpRequest req, final String tmpdir,
+      final int wsMaxMessageSize) throws IOException {
     this.ctx = ctx;
     this.req = req;
     this.tmpdir = tmpdir;
     this.query = new QueryStringDecoder(req.getUri());
     this.path = URLDecoder.decode(query.path(), "UTF-8");
+    this.wsMaxMessageSize = wsMaxMessageSize;
   }
 
   @Override
@@ -177,7 +180,7 @@ public class NettyRequest implements NativeRequest {
     String webSocketURL = protocol + "://" + req.headers().get(HttpHeaders.Names.HOST) + path;
 
     WebSocketServerHandshakerFactory wsFactory =
-        new WebSocketServerHandshakerFactory(webSocketURL, null, true);
+        new WebSocketServerHandshakerFactory(webSocketURL, null, true, wsMaxMessageSize);
     WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(req);
     NettyWebSocket result = new NettyWebSocket(ctx, handshaker, (ws) -> {
       handshaker.handshake(ctx.channel(), (FullHttpRequest) req)

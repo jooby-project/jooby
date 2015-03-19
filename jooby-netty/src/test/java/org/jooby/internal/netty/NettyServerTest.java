@@ -23,6 +23,7 @@ public class NettyServerTest {
         .withValue("netty.http.MaxInitialLineLength", ConfigValueFactory.fromAnyRef("4k"))
         .withValue("netty.http.MaxHeaderSize", ConfigValueFactory.fromAnyRef("8k"))
         .withValue("netty.http.MaxChunkSize", ConfigValueFactory.fromAnyRef("8k"))
+        .withValue("netty.http.IdleTimeout", ConfigValueFactory.fromAnyRef("30s"))
         .withValue("netty.channel.CONNECT_TIMEOUT_MILLIS", ConfigValueFactory.fromAnyRef("1s"))
         .withValue("application.port", ConfigValueFactory.fromAnyRef(6789))
         .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"));

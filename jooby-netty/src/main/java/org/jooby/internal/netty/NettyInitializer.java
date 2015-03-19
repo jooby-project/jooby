@@ -22,7 +22,10 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.EventExecutorGroup;
+
+import java.util.concurrent.TimeUnit;
 
 import org.jooby.spi.HttpHandler;
 
@@ -44,6 +47,8 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
 
   private int maxContentLength;
 
+  private long idleTimeOut;
+
   public NettyInitializer(final EventExecutorGroup executor, final HttpHandler handler,
       final Config config) {
     this.executor = executor;
@@ -54,6 +59,7 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
     maxHeaderSize = config.getBytes("netty.http.MaxHeaderSize").intValue();
     maxChunkSize = config.getBytes("netty.http.MaxChunkSize").intValue();
     maxContentLength = config.getBytes("netty.http.MaxContentLength").intValue();
+    idleTimeOut = config.getDuration("netty.http.IdleTimeout", TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -61,6 +67,7 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
     ch.pipeline()
         .addLast(new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
         .addLast(new HttpObjectAggregator(maxContentLength))
+        .addLast(new IdleStateHandler(0, 0, idleTimeOut, TimeUnit.MILLISECONDS))
         .addLast(executor, new NettyHandler(handler, config));
   }
 

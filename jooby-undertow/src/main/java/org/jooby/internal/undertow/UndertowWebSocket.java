@@ -91,11 +91,11 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
   public void connect(final WebSocketChannel channel) {
     this.channel = channel;
 
-    this.onConnectCallback.run();
-
     this.channel.setIdleTimeout(idleTimeout);
     this.channel.getReceiveSetter().set(this);
     this.channel.resumeReceives();
+
+    this.onConnectCallback.run();
   }
 
   @Override

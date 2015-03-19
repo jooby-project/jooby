@@ -27,6 +27,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.Attribute;
 
 import org.jooby.spi.HttpHandler;
@@ -42,11 +43,18 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
 
   private HttpHandler handler;
 
-  private Config config;
+  private String tmpdir;
+
+  private int wsMaxMessageSize;
 
   public NettyHandler(final HttpHandler handler, final Config config) {
     this.handler = requireNonNull(handler, "Application handler is required.");
-    this.config = requireNonNull(config, "Application config is required.");
+    this.tmpdir = config.getString("application.tmpdir");
+    this.wsMaxMessageSize = Math
+        .max(
+            config.getBytes("server.ws.MaxTextMessageSize").intValue(),
+            config.getBytes("server.ws.MaxBinaryMessageSize").intValue()
+        );
   }
 
   @Override
@@ -65,7 +73,7 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
       boolean keepAlive = HttpHeaders.isKeepAlive(req);
 
       try {
-        NettyRequest nreq = new NettyRequest(ctx, req, config.getString("application.tmpdir"));
+        NettyRequest nreq = new NettyRequest(ctx, req, tmpdir, wsMaxMessageSize);
         handler.handle(nreq, new NettyResponse(ctx, nreq, keepAlive));
       } catch (Throwable ex) {
         exceptionCaught(ctx, ex);
@@ -87,6 +95,18 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
       }
     } finally {
       ctx.close();
+    }
+  }
+
+  @Override
+  public void userEventTriggered(final ChannelHandlerContext ctx, final Object evt)
+      throws Exception {
+    // Idle timeout
+    if (evt instanceof IdleStateEvent) {
+      log.debug("idle timeout: {}", ctx);
+      ctx.close();
+    } else {
+      super.userEventTriggered(ctx, evt);
     }
   }
 
