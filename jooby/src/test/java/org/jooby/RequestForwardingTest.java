@@ -53,10 +53,10 @@ public class RequestForwardingTest {
     new MockUnit(Request.class)
         .expect(unit -> {
           Request req = unit.get(Request.class);
-          expect(req.verb()).andReturn(Verb.HEAD);
+          expect(req.method()).andReturn("HEAD");
         })
         .run(unit -> {
-          assertEquals(Verb.HEAD, new Request.Forwarding(unit.get(Request.class)).verb());
+          assertEquals("HEAD", new Request.Forwarding(unit.get(Request.class)).method());
         });
   }
 

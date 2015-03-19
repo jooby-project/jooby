@@ -31,7 +31,7 @@ public class RouteDefinitionTest {
             rsp.send("x");
           });
 
-          RouteImpl route = (RouteImpl) (def.matches(Verb.GET, "/", MediaType.all,
+          RouteImpl route = (RouteImpl) (def.matches("GET", "/", MediaType.all,
               MediaType.ALL).get());
 
           route.handle(unit.get(Request.class), unit.get(Response.class),
@@ -57,7 +57,7 @@ public class RouteDefinitionTest {
             return "x";
           });
 
-          RouteImpl route = (RouteImpl) (def.matches(Verb.GET, "/", MediaType.all,
+          RouteImpl route = (RouteImpl) (def.matches("GET", "/", MediaType.all,
               MediaType.ALL).get());
 
           route.handle(unit.get(Request.class), unit.get(Response.class),
@@ -83,7 +83,7 @@ public class RouteDefinitionTest {
             return "x";
           });
 
-          RouteImpl route = (RouteImpl) (def.matches(Verb.GET, "/", MediaType.all,
+          RouteImpl route = (RouteImpl) (def.matches("GET", "/", MediaType.all,
               MediaType.ALL).get());
 
           route.handle(unit.get(Request.class), unit.get(Response.class),
@@ -104,7 +104,7 @@ public class RouteDefinitionTest {
             rsp.send("x");
           });
 
-          RouteImpl route = (RouteImpl) (def.matches(Verb.GET, "/", MediaType.all,
+          RouteImpl route = (RouteImpl) (def.matches("GET", "/", MediaType.all,
               MediaType.ALL).get());
 
           route.handle(unit.get(Request.class), unit.get(Response.class),
@@ -128,12 +128,6 @@ public class RouteDefinitionTest {
         });
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void unknownVerb() throws Exception {
-    new Route.Definition("METHOD", "/", (req, rsp, chain) -> {
-    });
-  }
-
   @Test(expected = NullPointerException.class)
   public void nullVerb() throws Exception {
     new Route.Definition(null, "/", (req, rsp, chain) -> {
@@ -143,14 +137,14 @@ public class RouteDefinitionTest {
   @Test
   public void noMatches() throws Exception {
     Optional<Route> matches = new Route.Definition("delete", "/", (req, rsp, chain) -> {
-    }).matches(Verb.POST, "/", MediaType.all, MediaType.ALL);
+    }).matches("POST", "/", MediaType.all, MediaType.ALL);
     assertEquals(Optional.empty(), matches);
   }
 
   @Test
   public void chooseMostSpecific() throws Exception {
     Optional<Route> matches = new Route.Definition("GET", "/", (req, rsp, chain) -> {
-    }).matches(Verb.GET, "/", MediaType.all, Arrays.asList(MediaType.json));
+    }).matches("GET", "/", MediaType.all, Arrays.asList(MediaType.json));
     assertEquals(true, matches.isPresent());
   }
 
@@ -162,14 +156,14 @@ public class RouteDefinitionTest {
     assertEquals(MediaType.json, def.consumes().get(0));
     assertEquals(MediaType.valueOf("text/*"), def.consumes().get(1));
 
-    assertEquals(true, def.matches(Verb.GET, "/", MediaType.all, MediaType.ALL)
+    assertEquals(true, def.matches("GET", "/", MediaType.all, MediaType.ALL)
         .isPresent());
-    assertEquals(true, def.matches(Verb.GET, "/", MediaType.json, MediaType.ALL)
+    assertEquals(true, def.matches("GET", "/", MediaType.json, MediaType.ALL)
         .isPresent());
-    assertEquals(false, def.matches(Verb.GET, "/", MediaType.xml, MediaType.ALL)
+    assertEquals(false, def.matches("GET", "/", MediaType.xml, MediaType.ALL)
         .isPresent());
     assertEquals(false,
-        def.matches(Verb.GET, "/", MediaType.json, Arrays.asList(MediaType.html))
+        def.matches("GET", "/", MediaType.json, Arrays.asList(MediaType.html))
         .isPresent());
   }
 
@@ -209,7 +203,7 @@ public class RouteDefinitionTest {
     assertEquals(MediaType.json, def.produces().get(0));
     assertEquals(MediaType.valueOf("text/*"), def.produces().get(1));
 
-    assertEquals(true, def.matches(Verb.GET, "/", MediaType.all, MediaType.ALL)
+    assertEquals(true, def.matches("GET", "/", MediaType.all, MediaType.ALL)
         .isPresent());
   }
 
@@ -265,7 +259,7 @@ public class RouteDefinitionTest {
 
     assertEquals("test", def.name());
     assertEquals("/test/path", def.pattern());
-    assertEquals("PUT", def.verb());
+    assertEquals("PUT", def.method());
     assertEquals(MediaType.json, def.consumes().get(0));
     assertEquals(MediaType.json, def.produces().get(0));
   }

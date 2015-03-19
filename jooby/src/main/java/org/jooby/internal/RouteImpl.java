@@ -28,11 +28,10 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
-import org.jooby.Verb;
 
 public class RouteImpl implements Route, Route.Filter {
 
-  private Verb verb;
+  private String method;
 
   private String path;
 
@@ -48,26 +47,26 @@ public class RouteImpl implements Route, Route.Filter {
 
   private Filter filter;
 
-  public static RouteImpl notFound(final Verb verb, final String path,
+  public static RouteImpl notFound(final String method, final String path,
       final List<MediaType> produces) {
     return fromStatus((req, rsp, chain) -> {
       if (!rsp.status().isPresent()) {
         throw new Err(Status.NOT_FOUND, path);
       }
-    }, verb, path, Status.NOT_FOUND, produces);
+    }, method, path, Status.NOT_FOUND, produces);
   }
 
-  public static RouteImpl fromStatus(final Filter filter, final Verb verb,
+  public static RouteImpl fromStatus(final Filter filter, final String method,
       final String path, final Status status, final List<MediaType> produces) {
-    return new RouteImpl(filter, verb, path, path, status.value() + "", Collections.emptyMap(),
+    return new RouteImpl(filter, method, path, path, status.value() + "", Collections.emptyMap(),
         MediaType.ALL, produces);
   }
 
-  public RouteImpl(final Filter filter, final Verb verb, final String path,
+  public RouteImpl(final Filter filter, final String method, final String path,
       final String pattern, final String name, final Map<Object, String> vars,
       final List<MediaType> consumes, final List<MediaType> produces) {
     this.filter = filter;
-    this.verb = verb;
+    this.method = method;
     this.path = path;
     this.pattern = pattern;
     this.name = name;
@@ -88,8 +87,8 @@ public class RouteImpl implements Route, Route.Filter {
   }
 
   @Override
-  public Verb verb() {
-    return verb;
+  public String method() {
+    return method;
   }
 
   @Override
@@ -120,7 +119,7 @@ public class RouteImpl implements Route, Route.Filter {
   @Override
   public String toString() {
     StringBuilder buffer = new StringBuilder();
-    buffer.append(verb()).append(" ").append(path()).append("\n");
+    buffer.append(method()).append(" ").append(path()).append("\n");
     buffer.append("  pattern: ").append(pattern()).append("\n");
     buffer.append("  name: ").append(name()).append("\n");
     buffer.append("  vars: ").append(vars()).append("\n");

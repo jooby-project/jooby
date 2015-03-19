@@ -20,7 +20,6 @@ package org.jooby.internal.routes;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -31,7 +30,6 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.Status;
-import org.jooby.Verb;
 
 import com.google.common.base.Joiner;
 import com.google.inject.Inject;
@@ -49,14 +47,14 @@ public class OptionsHandler implements Route.Handler {
   public void handle(final Request req, final Response rsp) throws Exception {
     if (!rsp.header("Allow").toOptional(String.class).isPresent()) {
       Set<String> allow = new LinkedHashSet<>();
-      Set<Verb> verbs = EnumSet.allOf(Verb.class);
+      Set<String> methods = new LinkedHashSet<>(Route.METHODS);
       String path = req.path();
-      verbs.remove(req.route().verb());
-      for (Verb alt : verbs) {
+      methods.remove(req.method());
+      for (String alt : methods) {
         for (Route.Definition routeDef : routeDefs) {
           Optional<Route> route = routeDef.matches(alt, path, MediaType.all, MediaType.ALL);
           if (route.isPresent()) {
-            allow.add(route.get().verb().name());
+            allow.add(route.get().method());
           }
         }
       }

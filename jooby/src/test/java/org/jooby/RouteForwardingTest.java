@@ -93,10 +93,10 @@ public class RouteForwardingTest {
     new MockUnit(Route.class)
         .expect(unit -> {
           Route route = unit.get(Route.class);
-          expect(route.verb()).andReturn(Verb.OPTIONS);
+          expect(route.method()).andReturn("OPTIONS");
         })
         .run(unit -> {
-          assertEquals(Verb.OPTIONS, new Route.Forwarding(unit.get(Route.class)).verb());
+          assertEquals("OPTIONS", new Route.Forwarding(unit.get(Route.class)).method());
         });
   }
 

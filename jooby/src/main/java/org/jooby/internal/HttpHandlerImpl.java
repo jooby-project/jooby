@@ -23,7 +23,6 @@ import static java.util.Objects.requireNonNull;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -48,7 +47,6 @@ import org.jooby.Results;
 import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.Status;
-import org.jooby.Verb;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.Definition;
 import org.jooby.spi.HttpHandler;
@@ -59,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.google.inject.Injector;
 import com.typesafe.config.Config;
 
@@ -113,7 +112,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
     requestScope.enter(scope);
 
-    Verb verb = Verb.valueOf(request.method().toUpperCase());
+    String verb = request.method().toUpperCase();
     String requestPath = normalizeURI(request.path());
     boolean resolveAs404 = false;
     if (applicationPath.equals(requestPath)) {
@@ -248,44 +247,44 @@ public class HttpHandlerImpl implements HttpHandler {
     };
   }
 
-  private static List<Route> routes(final Set<Route.Definition> routeDefs, final Verb verb,
+  private static List<Route> routes(final Set<Route.Definition> routeDefs, final String method,
       final String path, final MediaType type, final List<MediaType> accept) {
-    List<Route> routes = findRoutes(routeDefs, verb, path, type, accept);
+    List<Route> routes = findRoutes(routeDefs, method, path, type, accept);
 
     // 406 or 415
     routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
       if (!rsp.status().isPresent()) {
-        Err ex = handle406or415(routeDefs, verb, path, type, accept);
+        Err ex = handle406or415(routeDefs, method, path, type, accept);
         if (ex != null) {
           throw ex;
         }
       }
       chain.next(req, rsp);
-    }, verb, path, Status.NOT_ACCEPTABLE, accept));
+    }, method, path, Status.NOT_ACCEPTABLE, accept));
 
     // 405
     routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
       if (!rsp.status().isPresent()) {
-        Err ex = handle405(routeDefs, verb, path, type, accept);
+        Err ex = handle405(routeDefs, method, path, type, accept);
         if (ex != null) {
           throw ex;
         }
       }
       chain.next(req, rsp);
-    }, verb, path, Status.METHOD_NOT_ALLOWED, accept));
+    }, method, path, Status.METHOD_NOT_ALLOWED, accept));
 
     // 404
-    routes.add(RouteImpl.notFound(verb, path, accept));
+    routes.add(RouteImpl.notFound(method, path, accept));
 
     return routes;
   }
 
-  private static List<Route> findRoutes(final Set<Route.Definition> routeDefs, final Verb verb,
+  private static List<Route> findRoutes(final Set<Route.Definition> routeDefs, final String method,
       final String path, final MediaType type, final List<MediaType> accept) {
 
     List<Route> routes = new ArrayList<>();
     for (Route.Definition routeDef : routeDefs) {
-      Optional<Route> route = routeDef.matches(verb, path, type, accept);
+      Optional<Route> route = routeDef.matches(method, path, type, accept);
       if (route.isPresent()) {
         routes.add(route.get());
       }
@@ -382,23 +381,23 @@ public class HttpHandlerImpl implements HttpHandler {
     return Status.SERVER_ERROR;
   }
 
-  private static Err handle405(final Set<Route.Definition> routeDefs, final Verb verb,
+  private static Err handle405(final Set<Route.Definition> routeDefs, final String method,
       final String uri,
       final MediaType type, final List<MediaType> accept) {
 
-    if (alternative(routeDefs, verb, uri).size() > 0) {
-      return new Err(Status.METHOD_NOT_ALLOWED, verb + uri);
+    if (alternative(routeDefs, method, uri).size() > 0) {
+      return new Err(Status.METHOD_NOT_ALLOWED, method + uri);
     }
 
     return null;
   }
 
-  private static List<Route> alternative(final Set<Route.Definition> routeDefs, final Verb verb,
+  private static List<Route> alternative(final Set<Route.Definition> routeDefs, final String verb,
       final String uri) {
     List<Route> routes = new LinkedList<>();
-    Set<Verb> verbs = EnumSet.allOf(Verb.class);
+    Set<String> verbs = Sets.newHashSet(Route.METHODS);
     verbs.remove(verb);
-    for (Verb alt : verbs) {
+    for (String alt : verbs) {
       findRoutes(routeDefs, alt, uri, MediaType.all, ALL)
           .stream()
           // skip glob pattern
@@ -409,10 +408,10 @@ public class HttpHandlerImpl implements HttpHandler {
     return routes;
   }
 
-  private static Err handle406or415(final Set<Route.Definition> routeDefs, final Verb verb,
+  private static Err handle406or415(final Set<Route.Definition> routeDefs, final String method,
       final String path, final MediaType contentType, final List<MediaType> accept) {
     for (Route.Definition routeDef : routeDefs) {
-      Optional<Route> route = routeDef.matches(verb, path, MediaType.all, ALL);
+      Optional<Route> route = routeDef.matches(method, path, MediaType.all, ALL);
       if (route.isPresent() && !route.get().pattern().contains("*")) {
         if (!routeDef.canProduce(accept)) {
           return new Err(Status.NOT_ACCEPTABLE, accept.stream()

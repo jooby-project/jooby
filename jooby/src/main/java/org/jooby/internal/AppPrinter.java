@@ -59,7 +59,7 @@ public class AppPrinter {
   private void routes(final StringBuilder buffer) {
     int verbMax = 0, routeMax = 0, consumesMax = 0, producesMax = 0;
     for (Route.Definition route : routes) {
-      verbMax = Math.max(verbMax, route.verb().length());
+      verbMax = Math.max(verbMax, route.method().length());
 
       routeMax = Math.max(routeMax, route.pattern().length());
 
@@ -72,7 +72,7 @@ public class AppPrinter {
         + producesMax + "s    (%s)\n";
 
     for (Route.Definition route : routes) {
-      buffer.append(String.format(format, route.verb(), route.pattern(),
+      buffer.append(String.format(format, route.method(), route.pattern(),
           route.consumes(), route.produces(), route.name()));
     }
 

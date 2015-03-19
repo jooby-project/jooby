@@ -34,9 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jooby.BodyFormatter;
 import org.jooby.Cookie;
 import org.jooby.Err;
-import org.jooby.BodyFormatter;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Response;
@@ -44,7 +44,6 @@ import org.jooby.Result;
 import org.jooby.Results;
 import org.jooby.Route;
 import org.jooby.Status;
-import org.jooby.Verb;
 import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.spi.NativeResponse;
 import org.jooby.util.ExSupplier;
@@ -328,7 +327,7 @@ public class ResponseImpl implements Response {
 
     writeCookies();
 
-    if (route.verb().is(Verb.HEAD)) {
+    if (route.method().equals("HEAD")) {
       end();
       return;
     }

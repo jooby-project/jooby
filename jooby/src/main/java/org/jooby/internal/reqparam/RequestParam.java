@@ -32,7 +32,6 @@ import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Session;
-import org.jooby.Verb;
 import org.jooby.mvc.Header;
 
 import com.google.common.base.Strings;
@@ -138,7 +137,8 @@ public class RequestParam {
       if (value.isPresent() || param.optional) {
         return value.to(param.type);
       } else {
-        if (req.verb().is(Verb.POST, Verb.PUT)) {
+        String method = req.method();
+        if (method.equals("POST") || method.equals("PUT")) {
           return req.body(param.type);
         } else {
           return req.params(param.type.getRawType());

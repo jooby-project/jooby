@@ -3,7 +3,6 @@ package org.jooby;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.jooby.Route;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -15,7 +14,7 @@ public class RouteReferenceFeature extends ServerFeature {
       Route route = req.route();
       assertNotNull(route);
       assertEquals("anonymous", route.name());
-      assertEquals("GET", route.verb().name());
+      assertEquals("GET", route.method());
       assertEquals("/", route.path());
       assertEquals("/", route.pattern());
       assertEquals("GET /\n" +
@@ -31,7 +30,7 @@ public class RouteReferenceFeature extends ServerFeature {
       Route route = req.route();
       assertNotNull(route);
       assertEquals("anonymous", route.name());
-      assertEquals("GET", route.verb().name());
+      assertEquals("GET", route.method());
       assertEquals("/" + req.param("var").value(), route.path());
       assertEquals("/:var", route.pattern());
       rsp.send("done");

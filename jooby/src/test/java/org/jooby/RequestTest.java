@@ -286,15 +286,15 @@ public class RequestTest {
     new MockUnit(Route.class)
         .expect(unit -> {
           Route route = unit.get(Route.class);
-          expect(route.verb()).andReturn(Verb.PATCH);
+          expect(route.method()).andReturn("PATCH");
         })
         .run(unit -> {
-          assertEquals(Verb.PATCH, new RequestMock() {
+          assertEquals("PATCH", new RequestMock() {
             @Override
             public Route route() {
               return unit.get(Route.class);
             }
-          }.verb());
+          }.method());
         });
   }
 

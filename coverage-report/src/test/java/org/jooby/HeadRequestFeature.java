@@ -6,7 +6,7 @@ import org.junit.Test;
 public class HeadRequestFeature extends ServerFeature {
 
   {
-    get("/", (req, rsp) -> rsp.send(req.route().verb()));
+    get("/", (req, rsp) -> rsp.send(req.route().method()));
 
     // custom head
     head("/head", (req, rsp) -> rsp.send(req.path()));

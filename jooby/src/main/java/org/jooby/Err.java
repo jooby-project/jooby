@@ -55,7 +55,7 @@ public class Err extends RuntimeException {
     @Override
     public void handle(final Request req, final Response rsp, final Exception ex)
         throws Exception {
-      log.error("execution of: " + req.verb() + " " + req.path() + " resulted in exception", ex);
+      log.error("execution of: " + req.method() + " " + req.path() + " resulted in exception", ex);
 
       Map<String, Object> err = err(req, rsp, ex);
 

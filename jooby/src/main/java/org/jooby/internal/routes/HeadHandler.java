@@ -28,7 +28,6 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
-import org.jooby.Verb;
 import org.jooby.internal.RouteImpl;
 
 import com.google.inject.Inject;
@@ -49,7 +48,7 @@ public class HeadHandler implements Route.Filter {
     String path = req.path();
     for (Route.Definition routeDef : routeDefs) {
       Optional<Route> route = routeDef
-          .matches(Verb.GET, path, MediaType.all, MediaType.ALL);
+          .matches("GET", path, MediaType.all, MediaType.ALL);
       if (route.isPresent() && !route.get().pattern().contains("*")) {
         // route found
         rsp.length(0);

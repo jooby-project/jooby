@@ -46,7 +46,7 @@ public class DefaultErrHandlerTest {
               Request req = unit.get(Request.class);
 
               expect(req.path()).andReturn("/path");
-              expect(req.verb()).andReturn(Verb.GET);
+              expect(req.method()).andReturn("GET");
               expect(req.header("referer")).andReturn(referer);
 
               Response rsp = unit.get(Response.class);
@@ -96,7 +96,7 @@ public class DefaultErrHandlerTest {
               Request req = unit.get(Request.class);
 
               expect(req.path()).andReturn("/path");
-              expect(req.verb()).andReturn(Verb.GET);
+              expect(req.method()).andReturn("GET");
               expect(req.header("referer")).andReturn(referer);
 
               Response rsp = unit.get(Response.class);

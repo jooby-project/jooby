@@ -390,7 +390,7 @@ public interface Route {
     /**
      * A HTTP verb or <code>*</code>.
      */
-    private String verb;
+    private String method;
 
     /**
      * A path pattern.
@@ -447,25 +447,17 @@ public interface Route {
     /**
      * Creates a new route definition.
      *
-     * @param verb A HTTP verb or <code>*</code>.
+     * @param method A HTTP verb or <code>*</code>.
      * @param pattern A path pattern.
      * @param filter A callback to execute.
      */
-    public Definition(final @Nonnull String verb, final @Nonnull String pattern,
+    public Definition(final @Nonnull String method, final @Nonnull String pattern,
         final @Nonnull Filter filter) {
-      try {
-        requireNonNull(verb, "HTTP verb is required.");
-        Verb.valueOf(verb.toUpperCase());
-      } catch (IllegalArgumentException ex) {
-        if (!"*".equals(verb)) {
-          throw new IllegalArgumentException("Invalid HTTP verb: " + verb);
-        }
-      }
       requireNonNull(pattern, "A route path is required.");
       requireNonNull(filter, "A filter is required.");
 
-      this.verb = verb.toUpperCase();
-      this.compiledPattern = new RoutePattern(verb, pattern);
+      this.method = method.toUpperCase();
+      this.compiledPattern = new RoutePattern(method, pattern);
       // normalized pattern
       this.pattern = compiledPattern.pattern();
       this.filter = filter;
@@ -518,10 +510,10 @@ public interface Route {
      * @param accept The <code>Accept</code> header.
      * @return A route or an empty optional.
      */
-    public @Nonnull Optional<Route> matches(final @Nonnull Verb verb,
+    public @Nonnull Optional<Route> matches(final @Nonnull String verb,
         final @Nonnull String path, final @Nonnull MediaType contentType,
         final @Nonnull List<MediaType> accept) {
-      RouteMatcher matcher = compiledPattern.matcher(verb.name() + path);
+      RouteMatcher matcher = compiledPattern.matcher(verb.toUpperCase() + path);
       if (matcher.matches()) {
         List<MediaType> result = MediaType.matcher(accept).filter(this.produces);
         if (result.size() > 0 && canConsume(contentType)) {
@@ -535,10 +527,10 @@ public interface Route {
     }
 
     /**
-     * @return HTTP verb or <code>*</code>
+     * @return HTTP method or <code>*</code>.
      */
-    public @Nonnull String verb() {
-      return verb;
+    public @Nonnull String method() {
+      return method;
     }
 
     /**
@@ -695,7 +687,7 @@ public interface Route {
     @Override
     public String toString() {
       StringBuilder buffer = new StringBuilder();
-      buffer.append(verb()).append(" ").append(pattern()).append("\n");
+      buffer.append(method()).append(" ").append(pattern()).append("\n");
       buffer.append("  name: ").append(name()).append("\n");
       buffer.append("  consume: ").append(consumes()).append("\n");
       buffer.append("  produces: ").append(produces()).append("\n");
@@ -705,14 +697,14 @@ public interface Route {
     /**
      * Creates a new route.
      *
-     * @param verb A HTTP verb.
+     * @param method A HTTP verb.
      * @param matcher A route matcher.
      * @param produces List of produces types.
      * @return A new route.
      */
-    private Route asRoute(final Verb verb, final RouteMatcher matcher,
+    private Route asRoute(final String method, final RouteMatcher matcher,
         final List<MediaType> produces) {
-      return new RouteImpl(filter, verb, matcher.path(), pattern, name, matcher.vars(), consumes,
+      return new RouteImpl(filter, method, matcher.path(), pattern, name, matcher.vars(), consumes,
           produces);
     }
 
@@ -746,8 +738,8 @@ public interface Route {
     }
 
     @Override
-    public Verb verb() {
-      return route.verb();
+    public String method() {
+      return route.method();
     }
 
     @Override
@@ -966,14 +958,31 @@ public interface Route {
   }
 
   /**
+   * Well known HTTP methods.
+   */
+  List<String> METHODS = ImmutableList.<String> builder()
+      .add(
+          "GET",
+          "POST",
+          "PUT",
+          "DELETE",
+          "PATCH",
+          "HEAD",
+          "CONNECT",
+          "OPTIONS",
+          "TRACE"
+      )
+      .build();
+
+  /**
    * @return Current request path.
    */
   String path();
 
   /**
-   * @return Current request verb.
+   * @return Current HTTP method.
    */
-  Verb verb();
+  String method();
 
   /**
    * @return The currently matched pattern.

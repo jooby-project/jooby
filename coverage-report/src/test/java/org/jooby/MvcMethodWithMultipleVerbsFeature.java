@@ -13,7 +13,7 @@ public class MvcMethodWithMultipleVerbsFeature extends ServerFeature {
     @POST
     @Path("/")
     public String getOrPost(final org.jooby.Request req) {
-      return req.route().verb().toString();
+      return req.route().method().toString();
     }
   }
 

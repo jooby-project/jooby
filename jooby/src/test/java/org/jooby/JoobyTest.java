@@ -915,7 +915,7 @@ public class JoobyTest {
           Route.Definition first = jooby.use("/filter", unit.get(Route.Filter.class));
           assertNotNull(first);
           assertEquals("/filter", first.pattern());
-          assertEquals("*", first.verb());
+          assertEquals("*", first.method());
           assertEquals("anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
@@ -925,7 +925,7 @@ public class JoobyTest {
           Route.Definition second = jooby.use("GET", "*", unit.get(Route.Filter.class));
           assertNotNull(second);
           assertEquals("/**", second.pattern());
-          assertEquals("GET", second.verb());
+          assertEquals("GET", second.method());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
@@ -989,7 +989,7 @@ public class JoobyTest {
           Route.Definition first = jooby.use("/first", unit.get(Route.Handler.class));
           assertNotNull(first);
           assertEquals("/first", first.pattern());
-          assertEquals("*", first.verb());
+          assertEquals("*", first.method());
           assertEquals("anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
@@ -999,7 +999,7 @@ public class JoobyTest {
           Route.Definition second = jooby.use("GET", "*", unit.get(Route.Handler.class));
           assertNotNull(second);
           assertEquals("/**", second.pattern());
-          assertEquals("GET", second.verb());
+          assertEquals("GET", second.method());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
@@ -1065,7 +1065,7 @@ public class JoobyTest {
           Route.Definition first = jooby.post("/first", unit.get(Route.Handler.class));
           assertNotNull(first);
           assertEquals("/first", first.pattern());
-          assertEquals("POST", first.verb());
+          assertEquals("POST", first.method());
           assertEquals("anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
@@ -1075,7 +1075,7 @@ public class JoobyTest {
           Route.Definition second = jooby.post("/second", unit.get(Route.OneArgHandler.class));
           assertNotNull(second);
           assertEquals("/second", second.pattern());
-          assertEquals("POST", second.verb());
+          assertEquals("POST", second.method());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
@@ -1085,7 +1085,7 @@ public class JoobyTest {
           Route.Definition third = jooby.post("/third", unit.get(Route.ZeroArgHandler.class));
           assertNotNull(third);
           assertEquals("/third", third.pattern());
-          assertEquals("POST", third.verb());
+          assertEquals("POST", third.method());
           assertEquals("anonymous", third.name());
           assertEquals(MediaType.ALL, third.consumes());
           assertEquals(MediaType.ALL, third.produces());
@@ -1095,7 +1095,7 @@ public class JoobyTest {
           Route.Definition fourth = jooby.post("/fourth", unit.get(Route.Filter.class));
           assertNotNull(fourth);
           assertEquals("/fourth", fourth.pattern());
-          assertEquals("POST", fourth.verb());
+          assertEquals("POST", fourth.method());
           assertEquals("anonymous", fourth.name());
           assertEquals(MediaType.ALL, fourth.consumes());
           assertEquals(MediaType.ALL, fourth.produces());
@@ -1161,7 +1161,7 @@ public class JoobyTest {
           Route.Definition first = jooby.head("/first", unit.get(Route.Handler.class));
           assertNotNull(first);
           assertEquals("/first", first.pattern());
-          assertEquals("HEAD", first.verb());
+          assertEquals("HEAD", first.method());
           assertEquals("anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
@@ -1171,7 +1171,7 @@ public class JoobyTest {
           Route.Definition second = jooby.head("/second", unit.get(Route.OneArgHandler.class));
           assertNotNull(second);
           assertEquals("/second", second.pattern());
-          assertEquals("HEAD", second.verb());
+          assertEquals("HEAD", second.method());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
@@ -1181,7 +1181,7 @@ public class JoobyTest {
           Route.Definition third = jooby.head("/third", unit.get(Route.ZeroArgHandler.class));
           assertNotNull(third);
           assertEquals("/third", third.pattern());
-          assertEquals("HEAD", third.verb());
+          assertEquals("HEAD", third.method());
           assertEquals("anonymous", third.name());
           assertEquals(MediaType.ALL, third.consumes());
           assertEquals(MediaType.ALL, third.produces());
@@ -1191,7 +1191,7 @@ public class JoobyTest {
           Route.Definition fourth = jooby.head("/fourth", unit.get(Route.Filter.class));
           assertNotNull(fourth);
           assertEquals("/fourth", fourth.pattern());
-          assertEquals("HEAD", fourth.verb());
+          assertEquals("HEAD", fourth.method());
           assertEquals("anonymous", fourth.name());
           assertEquals(MediaType.ALL, fourth.consumes());
           assertEquals(MediaType.ALL, fourth.produces());
@@ -1257,7 +1257,7 @@ public class JoobyTest {
           Route.Definition first = jooby.options("/first", unit.get(Route.Handler.class));
           assertNotNull(first);
           assertEquals("/first", first.pattern());
-          assertEquals("OPTIONS", first.verb());
+          assertEquals("OPTIONS", first.method());
           assertEquals("anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
@@ -1267,7 +1267,7 @@ public class JoobyTest {
           Route.Definition second = jooby.options("/second", unit.get(Route.OneArgHandler.class));
           assertNotNull(second);
           assertEquals("/second", second.pattern());
-          assertEquals("OPTIONS", second.verb());
+          assertEquals("OPTIONS", second.method());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
@@ -1277,7 +1277,7 @@ public class JoobyTest {
           Route.Definition third = jooby.options("/third", unit.get(Route.ZeroArgHandler.class));
           assertNotNull(third);
           assertEquals("/third", third.pattern());
-          assertEquals("OPTIONS", third.verb());
+          assertEquals("OPTIONS", third.method());
           assertEquals("anonymous", third.name());
           assertEquals(MediaType.ALL, third.consumes());
           assertEquals(MediaType.ALL, third.produces());
@@ -1287,7 +1287,7 @@ public class JoobyTest {
           Route.Definition fourth = jooby.options("/fourth", unit.get(Route.Filter.class));
           assertNotNull(fourth);
           assertEquals("/fourth", fourth.pattern());
-          assertEquals("OPTIONS", fourth.verb());
+          assertEquals("OPTIONS", fourth.method());
           assertEquals("anonymous", fourth.name());
           assertEquals(MediaType.ALL, fourth.consumes());
           assertEquals(MediaType.ALL, fourth.produces());
@@ -1353,7 +1353,7 @@ public class JoobyTest {
           Route.Definition first = jooby.put("/first", unit.get(Route.Handler.class));
           assertNotNull(first);
           assertEquals("/first", first.pattern());
-          assertEquals("PUT", first.verb());
+          assertEquals("PUT", first.method());
           assertEquals("anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
@@ -1363,7 +1363,7 @@ public class JoobyTest {
           Route.Definition second = jooby.put("/second", unit.get(Route.OneArgHandler.class));
           assertNotNull(second);
           assertEquals("/second", second.pattern());
-          assertEquals("PUT", second.verb());
+          assertEquals("PUT", second.method());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
@@ -1373,7 +1373,7 @@ public class JoobyTest {
           Route.Definition third = jooby.put("/third", unit.get(Route.ZeroArgHandler.class));
           assertNotNull(third);
           assertEquals("/third", third.pattern());
-          assertEquals("PUT", third.verb());
+          assertEquals("PUT", third.method());
           assertEquals("anonymous", third.name());
           assertEquals(MediaType.ALL, third.consumes());
           assertEquals(MediaType.ALL, third.produces());
@@ -1383,7 +1383,7 @@ public class JoobyTest {
           Route.Definition fourth = jooby.put("/fourth", unit.get(Route.Filter.class));
           assertNotNull(fourth);
           assertEquals("/fourth", fourth.pattern());
-          assertEquals("PUT", fourth.verb());
+          assertEquals("PUT", fourth.method());
           assertEquals("anonymous", fourth.name());
           assertEquals(MediaType.ALL, fourth.consumes());
           assertEquals(MediaType.ALL, fourth.produces());
@@ -1449,7 +1449,7 @@ public class JoobyTest {
           Route.Definition first = jooby.patch("/first", unit.get(Route.Handler.class));
           assertNotNull(first);
           assertEquals("/first", first.pattern());
-          assertEquals("PATCH", first.verb());
+          assertEquals("PATCH", first.method());
           assertEquals("anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
@@ -1459,7 +1459,7 @@ public class JoobyTest {
           Route.Definition second = jooby.patch("/second", unit.get(Route.OneArgHandler.class));
           assertNotNull(second);
           assertEquals("/second", second.pattern());
-          assertEquals("PATCH", second.verb());
+          assertEquals("PATCH", second.method());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
@@ -1469,7 +1469,7 @@ public class JoobyTest {
           Route.Definition third = jooby.patch("/third", unit.get(Route.ZeroArgHandler.class));
           assertNotNull(third);
           assertEquals("/third", third.pattern());
-          assertEquals("PATCH", third.verb());
+          assertEquals("PATCH", third.method());
           assertEquals("anonymous", third.name());
           assertEquals(MediaType.ALL, third.consumes());
           assertEquals(MediaType.ALL, third.produces());
@@ -1479,7 +1479,7 @@ public class JoobyTest {
           Route.Definition fourth = jooby.patch("/fourth", unit.get(Route.Filter.class));
           assertNotNull(fourth);
           assertEquals("/fourth", fourth.pattern());
-          assertEquals("PATCH", fourth.verb());
+          assertEquals("PATCH", fourth.method());
           assertEquals("anonymous", fourth.name());
           assertEquals(MediaType.ALL, fourth.consumes());
           assertEquals(MediaType.ALL, fourth.produces());
@@ -1545,7 +1545,7 @@ public class JoobyTest {
           Route.Definition first = jooby.delete("/first", unit.get(Route.Handler.class));
           assertNotNull(first);
           assertEquals("/first", first.pattern());
-          assertEquals("DELETE", first.verb());
+          assertEquals("DELETE", first.method());
           assertEquals("anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
@@ -1555,7 +1555,7 @@ public class JoobyTest {
           Route.Definition second = jooby.delete("/second", unit.get(Route.OneArgHandler.class));
           assertNotNull(second);
           assertEquals("/second", second.pattern());
-          assertEquals("DELETE", second.verb());
+          assertEquals("DELETE", second.method());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
@@ -1565,7 +1565,7 @@ public class JoobyTest {
           Route.Definition third = jooby.delete("/third", unit.get(Route.ZeroArgHandler.class));
           assertNotNull(third);
           assertEquals("/third", third.pattern());
-          assertEquals("DELETE", third.verb());
+          assertEquals("DELETE", third.method());
           assertEquals("anonymous", third.name());
           assertEquals(MediaType.ALL, third.consumes());
           assertEquals(MediaType.ALL, third.produces());
@@ -1575,7 +1575,7 @@ public class JoobyTest {
           Route.Definition fourth = jooby.delete("/fourth", unit.get(Route.Filter.class));
           assertNotNull(fourth);
           assertEquals("/fourth", fourth.pattern());
-          assertEquals("DELETE", fourth.verb());
+          assertEquals("DELETE", fourth.method());
           assertEquals("anonymous", fourth.name());
           assertEquals(MediaType.ALL, fourth.consumes());
           assertEquals(MediaType.ALL, fourth.produces());
@@ -1641,7 +1641,7 @@ public class JoobyTest {
           Route.Definition first = jooby.connect("/first", unit.get(Route.Handler.class));
           assertNotNull(first);
           assertEquals("/first", first.pattern());
-          assertEquals("CONNECT", first.verb());
+          assertEquals("CONNECT", first.method());
           assertEquals("anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
@@ -1651,7 +1651,7 @@ public class JoobyTest {
           Route.Definition second = jooby.connect("/second", unit.get(Route.OneArgHandler.class));
           assertNotNull(second);
           assertEquals("/second", second.pattern());
-          assertEquals("CONNECT", second.verb());
+          assertEquals("CONNECT", second.method());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
@@ -1661,7 +1661,7 @@ public class JoobyTest {
           Route.Definition third = jooby.connect("/third", unit.get(Route.ZeroArgHandler.class));
           assertNotNull(third);
           assertEquals("/third", third.pattern());
-          assertEquals("CONNECT", third.verb());
+          assertEquals("CONNECT", third.method());
           assertEquals("anonymous", third.name());
           assertEquals(MediaType.ALL, third.consumes());
           assertEquals(MediaType.ALL, third.produces());
@@ -1671,7 +1671,7 @@ public class JoobyTest {
           Route.Definition fourth = jooby.connect("/fourth", unit.get(Route.Filter.class));
           assertNotNull(fourth);
           assertEquals("/fourth", fourth.pattern());
-          assertEquals("CONNECT", fourth.verb());
+          assertEquals("CONNECT", fourth.method());
           assertEquals("anonymous", fourth.name());
           assertEquals(MediaType.ALL, fourth.consumes());
           assertEquals(MediaType.ALL, fourth.produces());
@@ -1737,7 +1737,7 @@ public class JoobyTest {
           Route.Definition first = jooby.trace("/first", unit.get(Route.Handler.class));
           assertNotNull(first);
           assertEquals("/first", first.pattern());
-          assertEquals("TRACE", first.verb());
+          assertEquals("TRACE", first.method());
           assertEquals("anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
@@ -1747,7 +1747,7 @@ public class JoobyTest {
           Route.Definition second = jooby.trace("/second", unit.get(Route.OneArgHandler.class));
           assertNotNull(second);
           assertEquals("/second", second.pattern());
-          assertEquals("TRACE", second.verb());
+          assertEquals("TRACE", second.method());
           assertEquals("anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
@@ -1757,7 +1757,7 @@ public class JoobyTest {
           Route.Definition third = jooby.trace("/third", unit.get(Route.ZeroArgHandler.class));
           assertNotNull(third);
           assertEquals("/third", third.pattern());
-          assertEquals("TRACE", third.verb());
+          assertEquals("TRACE", third.method());
           assertEquals("anonymous", third.name());
           assertEquals(MediaType.ALL, third.consumes());
           assertEquals(MediaType.ALL, third.produces());
@@ -1767,7 +1767,7 @@ public class JoobyTest {
           Route.Definition fourth = jooby.trace("/fourth", unit.get(Route.Filter.class));
           assertNotNull(fourth);
           assertEquals("/fourth", fourth.pattern());
-          assertEquals("TRACE", fourth.verb());
+          assertEquals("TRACE", fourth.method());
           assertEquals("anonymous", fourth.name());
           assertEquals(MediaType.ALL, fourth.consumes());
           assertEquals(MediaType.ALL, fourth.produces());
@@ -1882,7 +1882,7 @@ public class JoobyTest {
 
           jooby.start();
 
-          Optional<Route> route = assets.matches(Verb.GET, "/org/jooby/JoobyTest.js",
+          Optional<Route> route = assets.matches("GET", "/org/jooby/JoobyTest.js",
               MediaType.all, MediaType.ALL);
           assertNotNull(route);
           assertTrue(route.isPresent());
@@ -1963,23 +1963,23 @@ public class JoobyTest {
             List<Route.Definition> defs = unit.captured(Route.Definition.class);
             assertEquals(5, defs.size());
 
-            assertEquals("GET", defs.get(0).verb());
+            assertEquals("GET", defs.get(0).method());
             assertEquals("/singleton", defs.get(0).pattern());
             assertEquals("SingletonTestRoute.m1", defs.get(0).name());
 
-            assertEquals("POST", defs.get(1).verb());
+            assertEquals("POST", defs.get(1).method());
             assertEquals("/singleton", defs.get(1).pattern());
             assertEquals("SingletonTestRoute.m1", defs.get(1).name());
 
-            assertEquals("GET", defs.get(2).verb());
+            assertEquals("GET", defs.get(2).method());
             assertEquals("/singleton", defs.get(2).pattern());
             assertEquals("GuiceSingletonTestRoute.m1", defs.get(2).name());
 
-            assertEquals("POST", defs.get(3).verb());
+            assertEquals("POST", defs.get(3).method());
             assertEquals("/singleton", defs.get(3).pattern());
             assertEquals("GuiceSingletonTestRoute.m1", defs.get(3).name());
 
-            assertEquals("GET", defs.get(4).verb());
+            assertEquals("GET", defs.get(4).method());
             assertEquals("/proto", defs.get(4).pattern());
             assertEquals("ProtoTestRoute.m1", defs.get(4).name());
           });
@@ -1994,7 +1994,7 @@ public class JoobyTest {
           Route.Definition head = jooby.head();
           assertNotNull(head);
           assertEquals("/**", head.pattern());
-          assertEquals("HEAD", head.verb());
+          assertEquals("HEAD", head.method());
         });
   }
 
@@ -2007,7 +2007,7 @@ public class JoobyTest {
           Route.Definition options = jooby.options();
           assertNotNull(options);
           assertEquals("/**", options.pattern());
-          assertEquals("OPTIONS", options.verb());
+          assertEquals("OPTIONS", options.method());
         });
   }
 
@@ -2020,7 +2020,7 @@ public class JoobyTest {
           Route.Definition trace = jooby.trace();
           assertNotNull(trace);
           assertEquals("/**", trace.pattern());
-          assertEquals("TRACE", trace.verb());
+          assertEquals("TRACE", trace.method());
         });
   }
 

@@ -6,7 +6,6 @@ import java.util.Collections;
 
 import org.jooby.MediaType;
 import org.jooby.Route;
-import org.jooby.Verb;
 import org.junit.Test;
 
 public class RouteImplTest {
@@ -14,7 +13,7 @@ public class RouteImplTest {
   @Test
   public void toStr() {
     Route route = new RouteImpl((req, rsp, chain) -> {
-    }, Verb.GET, "/path", "/p?th", "path", Collections.emptyMap(),
+    }, "GET", "/path", "/p?th", "path", Collections.emptyMap(),
         MediaType.valueOf("html", "json"),
         MediaType.valueOf("json", "html"));
 
@@ -30,7 +29,7 @@ public class RouteImplTest {
   @Test
   public void consumes() {
     Route route = new RouteImpl((req, rsp, chain) -> {
-    }, Verb.GET, "/path", "/p?th", "path", Collections.emptyMap(),
+    }, "GET", "/path", "/p?th", "path", Collections.emptyMap(),
         MediaType.valueOf("html", "json"),
         MediaType.valueOf("json", "html"));
 

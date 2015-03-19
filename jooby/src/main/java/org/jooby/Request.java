@@ -69,8 +69,8 @@ public interface Request extends Locals {
     }
 
     @Override
-    public Verb verb() {
-      return req.verb();
+    public String method() {
+      return req.method();
     }
 
     @Override
@@ -289,10 +289,10 @@ public interface Request extends Locals {
   }
 
   /**
-   * @return Current request verb.
+   * @return HTTP method.
    */
-  default Verb verb() {
-    return route().verb();
+  default String method() {
+    return route().method();
   }
 
   /**
