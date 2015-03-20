@@ -34,13 +34,21 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+/**
+ * Start a target app with a custom classloader. The classloader is responsible for loading
+ * resources from:
+ *
+ * 1. public and config directories (probably src/main/resources too)
+ * 2. target/classes, current app (*.class)
+ *
+ * The parent classloader must load 1) and all the *.jars files.
+ *
+ * On changes ONLY the custom classloader (App classlaoder) is bounced it.
+ *
+ * @author edgar
+ *
+ */
 public class Hotswap {
-
-  /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private URLClassLoader loader;
 
@@ -62,10 +70,18 @@ public class Hotswap {
 
   private boolean dcevm;
 
+  private List<File> dirs;
+
   public Hotswap(final String mainClass, final File[] cp) throws IOException {
     this.mainClass = mainClass;
     this.cp = cp;
-    this.paths = toPath(cp);
+    this.dirs = new ArrayList<File>();
+    for (File file : cp) {
+      if (file.isDirectory()) {
+        dirs.add(file);
+      }
+    }
+    this.paths = toPath(dirs.toArray(new File[dirs.size()]));
     this.executor = Executors.newSingleThreadExecutor();
     this.scanner = new Watcher(this::onChange, paths);
     dcevm = System.getProperty("java.vm.version").toLowerCase().contains("dcevm");
@@ -124,12 +140,12 @@ public class Hotswap {
   }
 
   public void run() {
-    log.info("Hotswap available on: {}", Arrays.toString(cp));
-    log.info("  unlimited runtime class redefinition: {}", dcevm
+    System.out.printf("Hotswap available on: %s\n", dirs);
+    System.out.printf("  unlimited runtime class redefinition: %s\n", dcevm
         ? "yes"
         : "no (see https://github.com/dcevm/dcevm)");
-    log.info("  includes: {}", includes);
-    log.info("  excludes: {}", excludes);
+    System.out.printf("  includes: %s\n", includes);
+    System.out.printf("  excludes: %s\n", excludes);
 
     this.scanner.start();
     this.startApp();
@@ -140,27 +156,37 @@ public class Hotswap {
       stopApp(app);
     }
     executor.execute(() -> {
-      ClassLoader old = Thread.currentThread().getContextClassLoader();
+      URLClassLoader old = loader;
       try {
         this.loader = newClassLoader(cp);
-        Thread.currentThread().setContextClassLoader(loader);
         this.app = loader.loadClass(mainClass).getDeclaredConstructors()[0].newInstance();
         app.getClass().getMethod("start").invoke(app);
       } catch (InvocationTargetException ex) {
-        log.error("Error found while starting: " + mainClass, ex.getCause());
+        System.err.println("Error found while starting: " + mainClass);
+        ex.printStackTrace();
       } catch (Exception ex) {
-        log.error("Error found while starting: " + mainClass, ex);
+        System.err.println("Error found while starting: " + mainClass);
+        ex.printStackTrace();
       } finally {
-        Thread.currentThread().setContextClassLoader(old);
+        if (old != null) {
+          try {
+            old.close();
+          } catch (Exception ex) {
+            System.err.println("Can't close classloader");
+            ex.printStackTrace();
+          }
+          // not sure it how useful is it, but...
+        System.gc();
       }
-    });
+    }
+  });
   }
 
   private static URLClassLoader newClassLoader(final File[] cp) throws MalformedURLException {
     return new URLClassLoader(toURLs(cp), Hotswap.class.getClassLoader()) {
       @Override
       public String toString() {
-        return "AppLoader@" + Arrays.toString(cp);
+        return "Hotswap@" + Arrays.toString(cp);
       }
     };
   }
@@ -169,21 +195,22 @@ public class Hotswap {
     try {
       Path candidate = relativePath(path);
       if (candidate == null) {
-        log.debug("Can't resolve path: {}... ignoring it", path);
+        // System.("Can't resolve path: {}... ignoring it", path);
         return;
       }
       if (!includes.matches(path)) {
-        log.debug("ignoring file {} -> ~{}", path, includes);
+        // log.debug("ignoring file {} -> ~{}", path, includes);
         return;
       }
       if (excludes.matches(path)) {
-        log.debug("ignoring file {} -> {}", path, excludes);
+        // log.debug("ignoring file {} -> {}", path, excludes);
         return;
       }
       // reload
       startApp();
     } catch (Exception ex) {
-      log.error("Err found while processing: " + path, ex);
+      System.err.printf("Err found while processing: %s\n" + path);
+      ex.printStackTrace();
     }
   }
 
@@ -201,18 +228,13 @@ public class Hotswap {
       app.getClass().getMethod("stop").invoke(app);
     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
         | NoSuchMethodException | SecurityException ex) {
-      log.error("couldn't stop app", ex);
-    } finally {
-      try {
-        this.loader.close();
-      } catch (IOException ex) {
-        log.debug("Can't close classloader", ex);
-      }
+      System.err.println("couldn't stop app");
+      ex.printStackTrace();
     }
 
   }
 
-  private static URL[] toURLs(final File[] cp) throws MalformedURLException {
+  static URL[] toURLs(final File[] cp) throws MalformedURLException {
     URL[] urls = new URL[cp.length];
     for (int i = 0; i < urls.length; i++) {
       urls[i] = cp[i].toURI().toURL();

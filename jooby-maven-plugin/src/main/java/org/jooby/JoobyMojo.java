@@ -80,16 +80,18 @@ public class JoobyMojo extends AbstractMojo {
     appcp.add(buildOutputDirectory);
 
     // *.jar
+    Set<Artifact> artifacts = new LinkedHashSet<Artifact>(mavenProject.getArtifacts());
+
     Set<String> classpath = new LinkedHashSet<String>();
+
     Optional<Artifact> hotreload = hotreload(pluginArtifacts);
-    if (hotreload.isPresent()) {
-      classpath.add(hotreload.get().getFile().getAbsolutePath());
-    } else {
-      classpath.addAll(appcp);
-    }
-    for (Object candidate : mavenProject.getArtifacts()) {
-      Artifact artifact = (Artifact) candidate;
-      classpath.add(artifact.getFile().getAbsolutePath());
+    classpath.add(hotreload.get().getFile().getAbsolutePath());
+
+    for (Artifact artifact : artifacts) {
+      String scope = artifact.getScope();
+      if ("runtime".equals(scope) || "compile".equals(scope)) {
+        appcp.add(artifact.getFile().getAbsolutePath());
+      }
     }
     String cp = classpath.stream().collect(Collectors.joining(File.pathSeparator));
 
@@ -102,18 +104,14 @@ public class JoobyMojo extends AbstractMojo {
     args.addAll(vmArgs(vmArgs));
     args.add("-cp");
     args.add(cp);
-    if (hotreload.isPresent()) {
-      args.add("org.jooby.Hotswap");
-      args.add(mainClass);
-      args.addAll(appcp);
-      if (includes != null && includes.size() > 0) {
-        args.add("includes=" + join(includes));
-      }
-      if (excludes != null && excludes.size() > 0) {
-        args.add("excludes=" + join(excludes));
-      }
-    } else {
-      args.add(mainClass);
+    args.add("org.jooby.Hotswap");
+    args.add(mainClass);
+    args.addAll(appcp);
+    if (includes != null && includes.size() > 0) {
+      args.add("includes=" + join(includes));
+    }
+    if (excludes != null && excludes.size() > 0) {
+      args.add("excludes=" + join(excludes));
     }
 
     cmds.add(new Command(mainClass, "java", args));
@@ -224,4 +222,5 @@ public class JoobyMojo extends AbstractMojo {
     }
     return Optional.empty();
   }
+
 }

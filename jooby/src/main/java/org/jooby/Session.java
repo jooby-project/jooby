@@ -29,8 +29,6 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.istack.internal.Nullable;
-
 /**
  * Sessions are created on demand from {@link Request#session()}.
  *
@@ -199,7 +197,6 @@ public interface Session extends Locals {
      * @param builder A session builder.
      * @return A session or <code>null</code>.
      */
-    @Nullable
     Session get(Session.Builder builder);
 
     /**
