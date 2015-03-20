@@ -1,60 +1,89 @@
 # routes
 
-A route describes the interface for making requests to your web app. It combines a HTTP verb (a.k.a. HTTP request method) and a path pattern.
+A route describes the interface for making requests to your web app. It combines a HTTP method (a.k.a. HTTP verb) and a path pattern.
 
-A route has an associated  handler, which does the job of performing ab action in the app and sending a HTTP response.
+A route has an associated handler, which does some job and produces some kind of output (HTTP response).
 
 ## defining routes
 A route definition looks like:
 
 ```java
-get("/", (req, rsp) -> rsp.send("hey jooby"));
+get("/", () -> "hey jooby");
 ```
 
-We just created a route to handle GET request at the root of our app. Any other verb can be created in the same way.
+We created a route to handle GET request at the root of our app. Any other HTTP method can be created in the same way.
 
 If you need a POST all you have to do is:
 
 ```java
-post("/", (req, rsp) -> rsp.send("hey jooby"));
+post("/", () -> "hey jooby");
 ```
-And of course if you want or need to listen to any verb:
+And of course if you want or need to listen to every HTTP method:
 
 ```java
-use("*", "/", (req, rsp) -> rsp.send("hey jooby"));
+use("*", "/", () -> "hey jooby");
 ```
 
 It is possible to name a route explicitly:
 
 ```java
-get("/", (req, rsp) -> rsp.send("hey jooby"))
+get("/", () -> "hey jooby")
    .name("salute");
 ```
 
-By default a route named as **anonymous**. Naming a route is useful for debugging purpose, specially if you two or more routes mounted on the same path.
+Default route name is **anonymous**. Naming a route is useful for debugging purpose, specially if you have two or more routes mounted on the same path.
+
+## route handler
+
+### Zero arg handler
+
+```java
+get("/", () -> "hey jooby");
+```
+
+### One arg handler: req
+
+```java
+get("/", req -> "hey jooby");
+```
+
+### Two args handler: req and rsp
+
+```java
+get("/", (req, rsp) -> rsp.send("hey jooby"));
+```
+
+### Three args handler: req, rsp and chain (a.k.a as Filter)
+
+```java
+get("/", (req, rsp, chain) -> {
+  // do something
+  chain.next(req, rsp);
+});
+```
 
 ## path patterns
 
 ### static patterns
 
 ```java
-get("/", (req, rsp) -> rsp.send("hey jooby"));
+get("/", () -> "hey jooby");
 
-get("/help", (req, rsp) -> rsp.send("hey jooby"));
+get("/help", () -> "hey jooby");
 
-get("/mail/inbox", (req, rsp) -> rsp.send("hey jooby"));
+get("/mail/inbox", () -> "hey jooby");
 ```
 
 ### var/regex patterns
 
 ```java
-get("/user/:id", (req, rsp) -> rsp.send("hey " + req.param("id").stringValue()));
+get("/user/:id", req -> "hey " + req.param("id").value());
 
 // alternative syntax
-get("/user/{id}", (req, rsp) -> rsp.send("hey " + req.param("id").stringValue()));
+get("/user/{id}", req -> "hey " + req.param("id").value());
 
 // regex
-get("/user/{id:\\d+}", (req, rsp) -> rsp.send("hey " + req.param("id").intValue()));
+get("/user/{id:\\d+}", req -> "hey " + req.param("id").intValue());
 ```
 
 [request params](#request params) are covered later, for now all you need to know is that you can access to a path parameter using the [Request.param(String)]({{apidocs}}/org/jooby/Request.param(java.lang.String)).
@@ -67,33 +96,33 @@ get("/user/{id:\\d+}", (req, rsp) -> rsp.send("hey " + req.param("id").intValue(
 
   ```com/**/test.html``` - matches all ```test.html``` files underneath the ```com``` path
 
-  ```**/*``` - matches any path at any level
+  ```**``` - matches any path at any level
 
-  ```*``` - matches any path at any level, shortcut for ```**/*```
+  ```*``` - matches any path at any level, shortcut for ```**```
 
 ## order
 
-Routes are executed in the order they are defined. So the ordering of routes is crucial to the behavior of an app. Let's review this fact via some examples.
+Routes are executed in the order they are defined. So the ordering of routes is crucial to the behavior of an application. Let's review this fact via some examples.
 
 ```java
-get("/abc", (req, rsp) -> rsp.send("first"));
+get("/abc", req -> "first");
 
-get("/abc", (req, rsp) -> rsp.send("second"));
+get("/abc", req -> "second");
 ```
 
 A call to ```/abc``` produces a response of ```first```. If we revert the order:
 
 ```java
-get("/abc", (req, rsp) -> rsp.send("second"));
+get("/abc", req -> "second");
 
-get("/abc", (req, rsp) -> rsp.send("first"));
+get("/abc", req -> "first");
 ```
 
-It produces a response of ```second```. As you can see **order is very important**. Second route got ignored and due that we are trying to send a response after we sent one already a warning will be logged.
+It produces a response of ```second```. As you can see **order is very important**. Second route got ignored because first route send a response.
 
 Now, why is it allowed to have two routes for the same exactly path?
 
-Because we want to **filter** or **intercept** routes.
+Because we want **filters** for routes.
 
 A route handler accept a third parameter, commonly named chain, which refers to the next route handler in line. We will learn more about it in the next section:
 
@@ -128,10 +157,6 @@ get("/", function(req, rsp, chain) {
 
 If there is no matching callback function after the current callback function, next refers to the built-in 404 error handler, and it will be triggered when you call it.
 
-The two (2) args route handler is represented by [Route.Handler]({{apidocs}}/org/jooby/Route.Handler).
-
-The three (3) args route handler is represented by [Route.Filter]({{apidocs}}/org/jooby/Route.Filter).
-
 Try to guess the output of:
 
 ```java
@@ -144,7 +169,7 @@ get("/", (req, rsp) -> rsp.send("third"));
 
 Will the server print all of them, or "first" or, "third"?
 
-The server will print just "one". The act of doing a ```rsp.send()``` terminates the flow of the request then and there; the request is not passed on to any other route handler.
+The server will print just "first". The act of doing a ```rsp.send()``` terminates the flow of the request then and there; the request is not passed on to any other route handler.
 
 So, how do we specify multiple handlers for a route, and use them all at the same time? Call the **chain.next()** function from the callback, without calling **send** because it terminates the request flow. Here is an example:
 

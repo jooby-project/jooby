@@ -111,7 +111,7 @@ public class WsBinaryMessageTest {
   }
 
   @Test(expected = Err.class)
-  public void stringValue() throws Exception {
+  public void value() throws Exception {
     new WsBinaryMessage(ByteBuffer.wrap("bytes".getBytes())).value();
   }
 

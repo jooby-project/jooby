@@ -7,23 +7,20 @@ An application module is represented by the [Jooby.Module](http://jooby.org/apid
 
 ```java
 public class M1 implements Jooby.Module {
-    public void configure(Mode mode, Config config, Binder binder) {
+    public void configure(Env env, Config config, Binder binder) {
       binder.bind(...).to(...);
     }
 }
 ```
 
-Configure callback is similar to a [Guice module](https://github.com/google/guice), except you can acess to the [Mode](http://jooby.org/apidocs/org/jooby/Mode.html) and [Type Safe Config](https://github.com/typesafehub/config) objects.
+The configure callback is similar to a [Guice module](https://github.com/google/guice), except you can access to the [Env](http://jooby.org/apidocs/org/jooby/Env.html) and [Type Safe Config](https://github.com/typesafehub/config) objects.
 
-In addition to the **configure** callback, a module in Jooby has two additional and useful methods:  **start** and **close**. If your module need/have to start an expensive resource, you should do it in the start callback and dispose/shutdown in the close callback.
+In addition to the **configure** callback, a module in Jooby has one additional method:  **config**. The ```config``` method allow a module to specify default properties, by default a module has an empty config.
 
-From a module, you can bind your objects to the default [Guice scope](https://github.com/google/guice/wiki/Scopes) and/or to the Singleton scope.
-
-An app module (might) defines his own set of defaults properties:
 
 ```java
 public class M1 implements Jooby.Module {
-    public void configure(Mode mode, Config config, Binder binder) {
+    public void configure(Env env, Config config, Binder binder) {
       binder.bind(...).to(...);
     }
 

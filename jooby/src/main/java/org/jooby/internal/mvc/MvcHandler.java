@@ -27,7 +27,6 @@ import java.util.List;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
-import org.jooby.Status;
 import org.jooby.internal.reqparam.RequestParam;
 import org.jooby.internal.reqparam.RequestParamProvider;
 
@@ -59,11 +58,7 @@ class MvcHandler implements Route.Handler {
       final Object result = handler.invoke(target, args);
 
       Class<?> returnType = handler.getReturnType();
-      if (returnType == void.class || returnType == Void.class) {
-        // ignore glob pattern
-        if (!req.route().pattern().contains("*")) {
-          rsp.status(Status.NO_CONTENT);
-        }
+      if (returnType == void.class) {
         return;
       }
 

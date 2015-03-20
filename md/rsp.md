@@ -6,29 +6,27 @@ The response object contains methods for reading and setting headers, status cod
 
 The [rsp.send](http://jooby.org/apidocs/org/jooby/Response.html#send-org.jooby.Body-) method is responsible for sending and writing a body into the HTTP Response.
 
-A [body formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter) is responsible for converting a Java Object into something else (json, html, etc..).
+A [body formatter](http://jooby.org/apidocs/org/jooby/BodyFormatter) is responsible for converting a Java Object into something else (json, html, etc..).
 
 Let's see a simple example:
 
 ```java
-get("/", (req, rsp) -> {
-   rsp.send(data);
-});
+get("/", req -> rsp.send(data));
 ```
 
-The **send** method select the best [body formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter) to use base on the ```Accept``` header and if the current data type is supported.
+The **send** method select the best [body formatter](http://jooby.org/apidocs/org/jooby/BodyFormatter) to use base on the ```Accept``` header and if the current data type is supported.
 
-The resulting ```Content-Type``` when not set is the first returned by the  [formatter.types()](http://jooby.org/apidocs/org/jooby/Body.Formatter#types) method.
+The resulting ```Content-Type``` when is not set is the first returned by the  [formatter.types()](http://jooby.org/apidocs/org/jooby/BodyFormatter#types) method.
 
-The resulting ```Status Code``` when not set is ```200```.
+The resulting ```Status Code``` when is not set is ```200```.
 
 Some examples:
 
 ```java
-get("/", (req, rsp) -> {
+get("/", req -> {
    // text/html with 200
    String data = ...;
-   rsp.send(data);
+   return data;
 });
 ```
 
@@ -42,6 +40,17 @@ get("/", (req, rsp) -> {
 });
 ```
 
+Alternative:
+
+```java
+get("/", req -> {
+   // text/plain with 200 explicitly 
+   String data = ...;
+   return Results.with(data, 200)
+        .type("text/plain");
+});
+```
+
 ### response headers
 
 Retrieval of response headers is done via [rsp.header("name")](http://jooby.org/apidocs/org/jooby/Response.html#header-java.lang.String-). The method always returns a [Mutant](http://jooby.org/apidocs/org/jooby/Mutant.html) and from there you can convert to any of the supported types.
@@ -49,10 +58,3 @@ Retrieval of response headers is done via [rsp.header("name")](http://jooby.org/
 Setting a header is pretty straightforward too:
 
    rsp.header("Header-Name", value).header("Header2", value);
-
-### locals
-Locals variables are bound to the current request. They are created every time a new request is processed and destroyed at the end of the request.
-
-    rsp.locals("var", var);
-    String var = rsp.local("var");
-

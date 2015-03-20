@@ -460,7 +460,7 @@ public interface Request extends Locals {
    * produces:
    *
    * <pre>
-   *  assertEquals("jooby", req.param(name).stringValue());
+   *  assertEquals("jooby", req.param(name).value());
    *
    *  assertEquals("jooby", req.param(name).toList(String.class).get(0));
    *  assertEquals("rocks", req.param(name).toList(String.class).get(1));

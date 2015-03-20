@@ -43,7 +43,7 @@ import com.google.inject.TypeLiteral;
  *    ws("/", (ws) {@literal ->} {
  *      // connected
  *      ws.onMessage(message {@literal ->} {
- *        System.out.println(message.stringValue());
+ *        System.out.println(message.value());
  *        ws.send("Message Received");
  *      });
  *      ws.send("Connected");

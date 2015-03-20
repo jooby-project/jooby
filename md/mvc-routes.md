@@ -1,6 +1,6 @@
 # mvc routes
 
-Mvc routes are like **controllers** in [Spring](http://spring.io) and/or **resources** in [Jersey](https://jersey.java.net/) with some minor enchanment and/or simplifications.
+Mvc routes are like **controllers** in [Spring](http://spring.io) and/or **resources** in [Jersey](https://jersey.java.net/) with some minor enhancements and/or simplifications.
 
 ```java
 @Path("/routes")
@@ -15,9 +15,9 @@ public class MyRoutes {
 
 Annotations are identical to [Jersey/JAX-RS](https://jersey.java.net/) and they can be found under the package **org.jooby.mvc**.
 
-Keep in mind, Jooby doesn't implement the **JAX-RS** spec that is why it has his own version of  the annotations.
+Keep in mind, Jooby doesn't implement the **JAX-RS** spec that is why it has his own version of the annotations.
 
-A mvc route can be provided by Guice:
+A mvc route can be injected by Guice:
 
 ```java
 @Path("/routes")
@@ -41,11 +41,11 @@ A method annotated with [GET](http://jooby.org/apidocs/org/jooby/mvc/GET.html), 
 
 Mvc routes must be registered, there is no auto-discover feature (and it won't be), classpath scanning, ..., etc.
 
-We learnt that the order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly declared. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
+We learnt that the order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly registered. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
 
 So, how do I register a mvc route? Easy: in the same way everything else is registered in Jooby... from your app class:
 
-```
+```java
 public class App extends Jooby {
   {
      use(MyRoutes.class);
@@ -110,7 +110,7 @@ Multi-value params work in the same way, all you have to do is to declare the pa
    }
 ```
 
-Just remember the injected collection is immutable.
+Just remember the injected collection is not mutable.
 
 File uploads (again) work in the same way, just use *org.jooby.Upload*
 
@@ -176,8 +176,9 @@ public String sayHi(String name) {
 }
 
 @GET
-public void dontSayGoodbye(String name) {
+public Result dontSayGoodbye(String name) {
   // NO_CONTENT(204)
+  return Results.noContent();
 }
 
 ```
@@ -191,26 +192,14 @@ public View home() {
 }
 ```
 
-or use *org.jooby.mvc.Viewable*
-
-```java
-@GET
-@Viewable("home")
-public Object home() {
-  return model;
-}
-```
-
-Last example is useful if you want to create let's said a **text/html** (viewable) and **application/json** (data) responses.
-
 ### customizing the response
 
-If you need to deal or handle status code, headers, etc... use [org.jooby.Body](http://jooby.org/apidocs/org/jooby/Body.html)
+If you need to deal with HTTP metadata like: status code, headers, etc... use a [org.jooby.Result](http://jooby.org/apidocs/org/jooby/Result.html)
 
 ```java
 @GET
-public Body handler() {
-  return Body.body(model).status(200);
+public Result handler() {
+  // 201 = created
+  return Results.with(model, 201);
 }
 ```
-

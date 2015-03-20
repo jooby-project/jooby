@@ -14,31 +14,31 @@ Any property can be injected using the ```javax.inject.Named``` annotation and a
 
 2) Is an enum
 
-1) Has a public **constructor** that accepts a single **String** argument
+3) Has a public **constructor** that accepts a single **String** argument
 
-2) Has a static method **valueOf** that accepts a single **String** argument
+4) Has a static method **valueOf** that accepts a single **String** argument
 
-3) Has a static method **fromString** that accepts a single **String** argument. Like ```java.util.UUID```
+5) Has a static method **fromString** that accepts a single **String** argument. Like ```java.util.UUID```
 
-4) Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
+6) Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
 
-5) There is custom Guice type converter for the type
+7) There is custom Guice type converter for the type
 
-It is also possible to inject a ```com.typesafe.config.Config``` object.
+It is also possible to inject the root ```com.typesafe.config.Config``` object or a child of it.
 
 ## special properties
 
-### application.mode
+### application.env
 
-Jooby internals and the module system rely on the ```application.mode``` property. By defaults, this property is set to ```dev```.
+Jooby internals and the module system rely on the ```application.env``` property. By defaults, this property is set to ```dev```.
 
-For example, the [development stage](https://github.com/google/guice/wiki/Bootstrap) is set in [Guice](https://github.com/google/guice) when ```application.mode == dev```. A module provider, might decided to create a connection pool, cache, etc when ```application.mode != dev ```.
+For example, the [development stage](https://github.com/google/guice/wiki/Bootstrap) is set in [Guice](https://github.com/google/guice) when ```application.env == dev```. A module provider, might decided to create a connection pool, cache, etc when ```application.env != dev ```.
 
-This special property is represented at runtime with the [Mode]({{apidocs}}/org/jooby/Mode.html) class.
+This special property is represented at runtime with the [Env]({{apidocs}}/org/jooby/Env.html) class.
 
 ### application.secret
 
-The session cookie is signed with an ```application.secret```, while you are in **dev** you aren't required to provide an ```application.secret```. A secret is required when environment isn't **dev** and if you fail to provide a secret your application wont startup.
+If present, the session cookie will be signed with the ```application.secret```.
 
 ### default properties
 
@@ -67,7 +67,7 @@ It does, but at the same time it is very intuitive and makes a lot of sense. Let
 
 ### system properties
 
-System properties can override any other property. A sys property is be set at startup time, like: 
+System properties can override any other property. A sys property is set at startup time, like: 
 
     java -jar myapp.jar -Dapplication.secret=xyz
 
@@ -83,11 +83,11 @@ Let's say your app includes a default property file: ```application.conf``` bund
 * inside that directory create a file: ```application.conf```
 * start the app from same directory
 
-That's all. The file system conf file will take precedence over the classpath path config files overriding any property.
+That's all. The file system conf file will take precedence over the classpath config file, overriding any property.
 
-A good practice is to start up your app with a **mode**, like:
+A good practice is to start up your app with a **env**, like:
 
-    java -jar myapp.jar -Dapplication.mode=prod
+    java -jar myapp.jar -Dapplication.env=prod
 
 The process is the same, except this time you can name your file as:
 
@@ -95,11 +95,11 @@ The process is the same, except this time you can name your file as:
 
 ### cp://[application].[mode].[conf]
 
-Again, the use of this conf file is optional and works like previous config option, except that here the **fat jar** was bundled with all your config files (dev, stage, prod, etc.)
+Again, the use of this conf file is optional and works like previous config option, except here the **fat jar** was bundled with all your config files (dev, stage, prod, etc.)
 
-Example: you have two config files: ```application.conf``` and ```application.prod.conf````. Both files were bundled with the **fat jar**, starting the app in **prod** mode is:
+Example: you have two config files: ```application.conf``` and ```application.prod.conf````. Both files were bundled inside the **fat jar**, starting the app in **prod** env:
 
-    java -jar myapp.jar -Dapplication.mode=prod
+    java -jar myapp.jar -Dapplication.env=prod
 
 So here the ```application.prod.conf``` will takes precedence over the ```application.conf``` conf file.
 
@@ -107,7 +107,7 @@ This is the recommended option from Jooby, because your app doesn't have an exte
 
 ### [application].[conf]
 
-This is your default config files and it should be bundle inside the **fat jar**. As mentioned early, the default name is: **application.conf**, but if you don't like it or need to change it just call **use** in Jooby:
+This is the default config files and it should be bundle inside the **fat jar**. As mentioned early, the default name is: **application.conf**, but if you don't like it or need to change it:
 
 ```java
   {
@@ -130,4 +130,3 @@ As mentioned in the [modules](#modules) section a module might define his own se
 In the previous example the M2 modules properties will take precedence over M1 properties.
 
 As you can see the config system is very powerful and can do a lot for you.
-

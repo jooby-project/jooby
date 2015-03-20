@@ -5,7 +5,7 @@ The use of web sockets is pretty easy too:
 ```java
 {
    ws("/", (ws) -> {
-     ws.onMessage(message -> System.out.println(message.stringValue()));
+     ws.onMessage(message -> System.out.println(message.value()));
      
      ws.send("connected");
    });
@@ -18,21 +18,19 @@ A **path pattern** can be as simple or complex as you need. All the path pattern
 
 A [handler](http://jooby.org/apidocs/org/jooby/WebSocket.Handler.html) is executed on new connections, from there we can listen for message, errors and/or send data to the client.
 
-Keep in mind that **web socket** are not like routes. There is no stack/pipe, chain or request modules.
+Keep in mind that **web socket** are not like routes. There is no stack/pipe or chain.
 
 You can mount a socket to a path used by a route, but you can't have two or more web sockets under the same path.
 
 ## guice access
 
-You can ask [Guice](https://github.com/google/guice) to wired an object from the [ws.getInstance(type)](http://jooby.org/apidocs/org/jooby/WebSocket.html#getInstance-com.google.inject.Key-)
+You can ask [Guice](https://github.com/google/guice) to wired an object from the [ws.require(type)](http://jooby.org/apidocs/org/jooby/WebSocket.html#require-com.google.inject.Key-)
 
 ```java
 ws("/", (ws) -> {
-  A a = ws.getInstance(A.class);
+  A a = ws.require(A.class);
 });
 ```
-
-But remember, there isn't a child injector and/or request objects.
 
 ## consumes
 

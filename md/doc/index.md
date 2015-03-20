@@ -28,5 +28,3 @@ documentation
 {{web-sockets.md}}
 
 {{mvc-routes.md}}
-
-

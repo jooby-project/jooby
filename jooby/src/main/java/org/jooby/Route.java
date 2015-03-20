@@ -158,7 +158,7 @@ import com.google.common.collect.Lists;
  * <pre>
  *  List{@literal <}String{@literal >} names = new ArrayList{@literal <>}(); // names produces side effects
  *  get("/", (req, rsp) {@literal ->} {
- *     names.add(req.param("name").stringValue();
+ *     names.add(req.param("name").value();
  *     // response will be different between calls.
  *     rsp.send(names);
  *   });
@@ -796,7 +796,7 @@ public interface Route {
    * <h3>Auth handler example</h3>
    *
    * <pre>
-   *   String token = req.header("token").stringValue();
+   *   String token = req.header("token").value();
    *   if (token != null) {
    *     // validate token...
    *     if (valid(token)) {

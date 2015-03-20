@@ -14,7 +14,7 @@ import org.jooby.Jooby;
 public class App extends Jooby {
 
   {
-    get("/", (req) ->
+    get("/", () ->
       "Hey Jooby!"
     );
   }
@@ -32,6 +32,7 @@ versioning
 Jooby uses [semantic versioning](http://semver.org/) for releases.
 
 API is considered unstable while release version is: ```0.x.x``` and it might changes and/or broke without previous notification.
+This might sounds terrible but isn't. Jooby is plain Java there, then any change on the API will be reported by the Java Compiler :)
 
 {{quickstart.md}}
 
@@ -88,6 +89,8 @@ help and support
 related projects
 =====
 
+ * [Netty](http://netty.io/)
+ * [Jetty](http://eclipse.org/jetty)
  * [Undertow](http://undertow.io/)
  * [Guice](https://github.com/google/guice)
  * [Type Safe](https://github.com/typesafehub/config)

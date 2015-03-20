@@ -11,7 +11,7 @@ import org.jooby.Jooby;
 public class App extends Jooby {
 
   {
-    get("/", (req) ->
+    get("/", () ->
       "Hey Jooby!"
     );
   }

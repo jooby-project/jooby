@@ -4,17 +4,17 @@ The request object contains methods for reading params, headers and body (betwee
 
 ### request params
 
-The method is defined by the [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) method.
+Retrieval of param is done via: [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) method.
 
-The [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant]({{apidocs}}/org/jooby/Mutant.html) instance. A mutant had several utility method for doing type conversion.
+The [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant]({{apidocs}}/org/jooby/Mutant.html) instance. A mutant had several utility method for doing type conversion and check for presence and/or absence.
 
 Some examples:
 
 ```java
-get("/", (req, rsp) -> {
+get("/", (req) -> {
   int iparam = req.param("intparam").intValue();
 
-  String str = req.param("str").stringValue();
+  String str = req.param("str").value();
 
   // custom object type using type conversion
   MyObject object = req.param("object").to(MyObject.class);
@@ -46,7 +46,7 @@ A request param can be present at (first listed are higher precedence):
 
 3) body: */user* and params are *formurlenconded* or *multipart*
 
-Now, let's suppose a very poor API design and we have a route handler that accept an **id** param in the 3 forms:
+Now, let's suppose a very poor API design where we have a route handler that accept an **id** param in the 3 forms:
 
 A call like:
 
@@ -55,9 +55,9 @@ A call like:
 Produces:
 
 ```java
-get("/user/:id", (req, rsp) -> {
+get("/user/:id", req -> {
   // path param at idx = 0
-  assertEquals("first", req.param("id").stringValue());
+  assertEquals("first", req.param("id").value());
   assertEquals("first", req.param("id").toList(String.class).get(0));
 
   // query param at idx = 1
@@ -68,7 +68,7 @@ get("/user/:id", (req, rsp) -> {
 });
 ```
 
-An API like this should be avoided and we mention it here to say that this is possible so you can take note and figure out if something doesn't work as you expect.
+It is clear that an API like this should be avoided.
 
 #### param type conversion
 
@@ -102,10 +102,10 @@ param((type, values, next) -> {
 Retrieval of request headers is done via: [request.header("name")]({{}}Request.html#header-java.lang.String-). All the explained before for [request params](#request params) apply for headers too.
 
 ```java
-get("/", (req, rsp) -> {
+get("/", req -> {
   int iparam = req.header("intparam").intValue();
 
-  String str = req.header("str").stringValue();
+  String str = req.header("str").value();
 
   // custom object type using type conversion
   MyObject object = req.header("object").to(MyObject.class);
@@ -131,15 +131,15 @@ get("/", (req, rsp) -> {
 
 Retrieval of request body is done via [request.body(type)]({{apidocs}}/org/jooby/Request.html#body-com.google.inject.TypeLiteral-).
 
-A [body parser]({{apidocs}}/org/jooby/Body.Parser.html) is responsible for parse or convert the HTTP request body to something else.
+A [body parser]({{apidocs}}/org/jooby/BodyParser.html) is responsible for parse or convert the HTTP request body to something else.
 
-There are a few built-in parsers for reading body as String or Reader objects. Once the body is read it, it can't be read it again. Jooby distribution includes a [Jackson module](http://jackson.codehaus.org/) that provides support for **json**.
+There are a few built-in parsers for reading body as String or Reader objects. Once the body is read it, it can't be read it again.
 
 A detailed explanation for body parser is covered later. For now, all you need to know is that they can read/parse the HTTP body.
 
 A body parser is registered in one of two ways:
 
-* with [use]({{apidocs}}/org/jooby/Jooby.html#use-org.jooby.Body.Parser-)
+* with [use]({{apidocs}}/org/jooby/Jooby.html#use-org.jooby.BodyParser-)
 
 ```java
 {
@@ -151,22 +151,26 @@ A body parser is registered in one of two ways:
 
 ```java
 public void configure(Mode mode, Config config, Binder binder) {
-  Multibinder.newSetBinder(binder, Body.Formatter.class)
+  Multibinder.newSetBinder(binder, BodyParser.class)
         .addBinding()
-        .toInstance(new MyFormatter());
+        .toInstance(new MyParser());
 }
 ```
 
+### locals
+Locals variables are bound to the current request. They are created every time a new request is processed and destroyed at the end of the request.
+
+    req.set("var", var);
+    String var = rsp.get("var");
+
 ### guice access
 
-In previous section we learn you can bind/wire your objects with [Guice](https://github.com/google/guice).
-
-We also learn that a new child injector is created and binded to the current request.
+In previous section we learnt you can bind/wire your objects with [Guice](https://github.com/google/guice).
 
 You can ask [Guice](https://github.com/google/guice) to wired an object from the [request.getInstance(type)](http://jooby.org/apidocs/org/jooby/Request.html#getInstance-com.google.inject.Key-)
 
 ```java
-get("/", (req, rsp) -> {
-  A a = req.getInstance(A.class);
+get("/", req -> {
+  A a = req.require(A.class);
 });
 ```

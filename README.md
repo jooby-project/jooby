@@ -289,7 +289,7 @@ A web socket looks like:
   {
     ws("/", (ws) -> {
 
-      ws.onMessage(message -> ws.send("Hello " + message.stringValue()));
+      ws.onMessage(message -> ws.send("Hello " + message.value()));
 
       ws.send("connected");
     });
@@ -628,10 +628,10 @@ get("/mail/inbox", (req, rsp) -> rsp.send("hey jooby"));
 ### var/regex patterns
 
 ```java
-get("/user/:id", (req, rsp) -> rsp.send("hey " + req.param("id").stringValue()));
+get("/user/:id", (req, rsp) -> rsp.send("hey " + req.param("id").value()));
 
 // alternative syntax
-get("/user/{id}", (req, rsp) -> rsp.send("hey " + req.param("id").stringValue()));
+get("/user/{id}", (req, rsp) -> rsp.send("hey " + req.param("id").value()));
 
 // regex
 get("/user/{id:\d+}", (req, rsp) -> rsp.send("hey " + req.param("id").intValue()));
@@ -796,7 +796,7 @@ Some examples:
 get("/", (req, rsp) -> {
   int iparam = req.param("intparam").intValue();
 
-  String str = req.param("str").stringValue();
+  String str = req.param("str").value();
 
   // custom object type using type conversion
   MyObject object = req.param("object").to(MyObject.class);
@@ -839,7 +839,7 @@ Produces:
 ```java
 get("/user/:id", (req, rsp) -> {
   // path param at idx = 0
-  assertEquals("first", req.param("id").stringValue());
+  assertEquals("first", req.param("id").value());
   assertEquals("first", req.param("id").toList(String.class).get(0));
 
   // query param at idx = 1
@@ -874,7 +874,7 @@ Retrieval of request headers is done via: [request.header("name")]({{}}Request.h
 get("/", (req, rsp) -> {
   int iparam = req.header("intparam").intValue();
 
-  String str = req.header("str").stringValue();
+  String str = req.header("str").value();
 
   // custom object type using type conversion
   MyObject object = req.header("object").to(MyObject.class);
@@ -1256,7 +1256,7 @@ The use of web sockets is pretty easy too:
 ```java
 {
    ws("/", (ws) -> {
-     ws.onMessage(message -> System.out.println(message.stringValue()));
+     ws.onMessage(message -> System.out.println(message.value()));
      
      ws.send("connected");
    });

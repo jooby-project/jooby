@@ -1,10 +1,10 @@
 # working with data
 
-## body.parser
+## body parser
 
-A [Body.Parser](http://jooby.org/apidocs/org/jooby/Body.Parser.html) is responsible for parsing the HTTP body to something else.
+A [BodyParser](http://jooby.org/apidocs/org/jooby/BodyParser.html) is responsible for parsing the HTTP body to something else.
 
-A [Body.Parser](http://jooby.org/apidocs/org/jooby/Body.Parser.html) has three(3) methods:
+A [BodyParser](http://jooby.org/apidocs/org/jooby/BodyParser.html) has three(3) methods:
 
 * **types**: list of [media types](http://jooby.org/apidocs/org/jooby/MediaType.html) supported by the body parser.
 * **canParse**(*type)*: test if the Java type is supported by the body parser.
@@ -28,7 +28,7 @@ Results in ```415 - Unsupported Media Type```. That is because Jooby has no idea
 Let's said we need to implement a JSON body parser (in real life you wont ever implement a json parser, this is just to demonstrate how it works):
 
 ```java
-public class Json implements Body.Parser {
+public class Json implements BodyParser {
 
   public List<MediaType> types() {
     return ImmutableList.of(MediaType.json);
@@ -38,7 +38,7 @@ public class Json implements Body.Parser {
     return true; 
   }
 
-  public <T> T parse(TypeLiteral<?> type, Body.Reader reader) throws Exception {
+  public <T> T parse(TypeLiteral<?> type, Context ctx) throws Exception {
     ... parse it!
   }
 }
@@ -50,9 +50,9 @@ Using it:
 {
   use(new Json()); // now Jooby has a json parser
 
-  post("/", (req, rsp) -> {
+  post("/", req -> {
     MyObject obj = req.body(MyObject.class);
-    rsp.send(obj.getFirstName());
+    return obj;
   });
 }
 ```
@@ -61,9 +61,9 @@ Using it:
 
 A route by default consumes ```*/*``` (any media type). Jooby will find/choose the **parser** which best matches the ```Content-Type``` header.
 
-The ```Content-Type``` header is compared against the [parser.types()](http://jooby.org/apidocs/org/jooby/Body.Parser.html#types--) method.
+The ```Content-Type``` header is compared against the [parser.types()](http://jooby.org/apidocs/org/jooby/BodyParser.html#types--) method.
 
-Once an acceptable media type is found it call the **canParse** method of the [parser](http://jooby.org/apidocs/org/jooby/Body.Parser.html).
+Once an acceptable media type is found it call the **canParse** method of the [parser](http://jooby.org/apidocs/org/jooby/BodyParser.html).
 
 ### consumes
 
@@ -71,7 +71,7 @@ The **consumes** method control what a route can consume or parse explicitly.
 
 ```java
 {
-  post("/", (req, rsp) -> {
+  post("/", req -> {
     MyObject obj = req.body(MyObject.class);
   })
    .consumes("application/json");
@@ -95,7 +95,7 @@ Keep in mind, you still need a **parser** for your media types. For example:
 
 ```java
 {
-  post("/", (req, rsp) -> {
+  post("/", req -> {
     MyObject obj = req.body(MyObject.class);
   })
    .consumes("application/json", "application/xml");
@@ -104,11 +104,11 @@ Keep in mind, you still need a **parser** for your media types. For example:
 
 Require two parsers one for **json** and one for **xml**.
 
-## body.formatter
+## body formatter
 
-A [Body.Formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter.html) is responsible for format a Java Object to a series of bytes in order to send them as HTTP response.
+A [BodyFormatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html) is responsible for format a Java Object to a series of bytes in order to send them as HTTP response.
 
-A [Body.Formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter.html) has three(3) methods:
+A [BodyFormatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html) has three(3) methods:
 
 * **types**: list of [media types](http://jooby.org/apidocs/org/jooby/MediaType.html) supported by the body formatter.
 * **canFormat**(*type)*: test if the Java type is supported by the body formatter.
@@ -117,9 +117,9 @@ A [Body.Formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter.html) has t
 In the next example we will try to send **MyObject** as HTTP response.
 
 ```java
-get("/", (req, rsp) -> {
+get("/", req -> {
    MyObject obj = ...
-   rsp.send(obj);
+   return obj;
 });
 ```
 
@@ -136,7 +136,7 @@ Results in ```406 - Not Acceptable```. That is because Jooby has no idea how to 
 Let's said we need to implement a JSON body formatter (in real life you wont ever implement a json formatter, this is just to demonstrate how they work):
 
 ```java
-public class Json implements Body.Formatter {
+public class Json implements BodyFormatter {
 
   public List<MediaType> types() {
     return ImmutableList.of(MediaType.json);
@@ -146,7 +146,7 @@ public class Json implements Body.Formatter {
     return true; 
   }
 
-  public void format(Object data, Body.Writer writer) throws Exception {
+  public void format(Object data, Context ctx) throws Exception {
     ... format and write it!
   }
 }
@@ -169,9 +169,9 @@ Using it:
 
 A route by default produces ```*/*``` (any media type). Jooby will find/choose the **formatter** who best matches the ```Accept``` header.
 
-The ```Accept``` header is compared against the [formatter.types()](http://jooby.org/apidocs/org/jooby/Body.Formatter.html#types--) method.
+The ```Accept``` header is compared against the [formatter.types()](http://jooby.org/apidocs/org/jooby/BodyFormatter.html#types--) method.
 
-Once an acceptable media type is found it call the **canFormat** method of the [formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter.html).
+Once an acceptable media type is found it call the **canFormat** method of the [formatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html).
 
 ### produces
 
@@ -179,9 +179,9 @@ The **produces** method control what a route can accept or format explicitly.
 
 ```java
 {
-  post("/", (req, rsp) -> {
+  post("/", req -> {
     MyObject obj = ...
-    rsp.send(obj);
+    return obj;
   })
    .produces("application/json");
 }
@@ -203,9 +203,9 @@ Keep in mind, you still need a **formatter** for your media types. For example:
 
 ```java
 {
-  post("/", (req, rsp) -> {
+  post("/", req -> {
     MyObject obj = ...
-    rsp.send(obj);
+    return obj;
   })
    .produces("application/json", "application/xml");
 }
@@ -215,22 +215,22 @@ Require two formatters one for **json** and one for **xml**.
 
 ## view engine
 
-A [view engine](http://jooby.org/apidocs/org/jooby/View.Engine.html) is a specialized [body formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter.html) that ONLY accept instances of a [view](http://jooby.org/apidocs/org/jooby/View.html).
+A [view engine](http://jooby.org/apidocs/org/jooby/View.Engine.html) is a specialized [body formatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html) that ONLY accept instances of a [view](http://jooby.org/apidocs/org/jooby/View.html).
 
 ```java
 {
   use(new MyTemplateEngine());
 
-  get("/", (req, rsp) -> rsp.send(View.of("viewname", "model", model));
+  get("/", req -> View.of("viewname", "model", model);
 
 }
 ```
 
 There is no much to say about views & engines, any other detail or documentation should be provided in the specific module (mustache, handlebars, freemarker, etc.).
 
-## response.format
+## response format (a.k.a content negotiation)
 
-As you learnt before, content negotiation is done and executed every time a request is processed. Sometimes this isn't enough and that's why [rsp.format](http://jooby.org/apidocs/org/jooby/Response.html#format--) exists:
+A route can produces different results base on the ```Accept``` header: 
 
 ```java
 get("/", () ->

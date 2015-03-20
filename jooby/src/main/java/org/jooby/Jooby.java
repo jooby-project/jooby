@@ -310,7 +310,7 @@ import com.typesafe.config.ConfigValueFactory;
  * <pre>
  *  List{@literal <}String{@literal >} names = new ArrayList{@literal <}{@literal >}(); // names produces side effects
  *  get("/", (req, rsp) {@literal ->} {
- *     names.add(req.param("name").stringValue();
+ *     names.add(req.param("name").value();
  *     // response will be different between calls.
  *     rsp.send(names);
  *   });
