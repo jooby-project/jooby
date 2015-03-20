@@ -31,22 +31,27 @@ import com.google.inject.util.Types;
 
 /**
  * <p>
- * A type safe {@link Mutant} useful for reading parameters and headers. It let you retrieve a
- * HTTP value: <code>param</code> or <code>header</code> in a type safe manner.
+ * A type safe {@link Mutant} useful for reading parameters and headers.
  * </p>
  *
  * <pre>
+ *   // str param
+ *   String value = request.param("str").value();
+ *
+ *   // optional str
+ *   String value = request.param("str").toOptional().orElse("defs");
+ *
  *   // int param
- *   int value = request.param("some").getInt();
+ *   int value = request.param("some").intValue();
  *
  *   // optional int param
- *   Optional{@literal <}Integer{@literal >} value = request.param("some").getOptional(Integer.class);
+ *   Optional{@literal <}Integer{@literal >} value = request.param("some").toOptional(Integer.class);
 
  *   // list param
- *   List{@literal <}String{@literal >} values = request.param("some").getList(String.class);
+ *   List{@literal <}String{@literal >} values = request.param("some").toList(String.class);
  *
  *   // file upload
- *   Upload upload = request.param("file").get(Upload.class);
+ *   Upload upload = request.param("file").to(Upload.class);
  * </pre>
  *
  * @author edgar
@@ -151,6 +156,13 @@ public interface Mutant {
     return (SortedSet<T>) to(TypeLiteral.get(
         Types.newParameterizedType(SortedSet.class, Primitives.wrap(type))
         ));
+  }
+
+  /**
+   * @return An optional string value.
+   */
+  default Optional<String> toOptional() {
+    return toOptional(String.class);
   }
 
   /**

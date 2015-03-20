@@ -27,14 +27,6 @@ public class WebSocketPauseResumeFeature extends ServerFeature {
   {
     ws("/ws", ws -> {
       CountDownLatch latch = new CountDownLatch(1);
-      ws.onMessage(message -> {
-
-        ws.send("=" + message.value(), () -> {
-          latch.await();
-          ws.close();
-        });
-
-      });
 
       ws.pause();
       // 2nd ignored
@@ -46,6 +38,16 @@ public class WebSocketPauseResumeFeature extends ServerFeature {
         ws.resume();
         latch.countDown();
       }, 1, TimeUnit.SECONDS);
+
+      ws.onMessage(message -> {
+
+        ws.send("=" + message.value(), () -> {
+          latch.await();
+          ws.close();
+        });
+
+      });
+
     });
 
   }

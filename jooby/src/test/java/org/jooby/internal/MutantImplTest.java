@@ -461,7 +461,11 @@ public class MutantImplTest {
   public void asOptionalString() throws Exception {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(String.class));
 
+    assertEquals(Optional.empty(), newMutant((String) null).toOptional());
+
     assertEquals(Optional.of("A"), newMutant("A").toOptional(String.class));
+
+    assertEquals(Optional.of("A"), newMutant("A").toOptional());
   }
 
   @Test
