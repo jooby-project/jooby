@@ -26,8 +26,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-
 import org.jooby.scope.RequestScoped;
 
 import com.google.common.collect.ImmutableList;
@@ -59,7 +57,7 @@ public interface Request extends Locals {
      *
      * @param request A target request.
      */
-    public Forwarding(final @Nonnull Request request) {
+    public Forwarding(final Request request) {
       this.req = requireNonNull(request, "A HTTP request is required.");
     }
 
@@ -263,7 +261,7 @@ public interface Request extends Locals {
      * @param req A request.
      * @return A target instance (not a {@link Forwarding}).
      */
-    public static Request unwrap(final @Nonnull Request req) {
+    public static Request unwrap(final Request req) {
       requireNonNull(req, "A request is required.");
       Request root = req;
       while (root instanceof Forwarding) {
@@ -283,7 +281,6 @@ public interface Request extends Locals {
    *
    * @return The request URL pathname.
    */
-  @Nonnull
   default String path() {
     return route().path();
   }
@@ -298,13 +295,11 @@ public interface Request extends Locals {
   /**
    * @return The <code>Content-Type</code> header. Default is: {@literal*}/{@literal*}.
    */
-  @Nonnull
   MediaType type();
 
   /**
    * @return The value of the <code>Accept header</code>. Default is: {@literal*}/{@literal*}.
    */
-  @Nonnull
   List<MediaType> accept();
 
   /**
@@ -338,7 +333,7 @@ public interface Request extends Locals {
    * @param types Types to test.
    * @return The best acceptable type.
    */
-  default @Nonnull Optional<MediaType> accepts(@Nonnull final String... types) {
+  default Optional<MediaType> accepts(final String... types) {
     return accepts(MediaType.valueOf(types));
   }
 
@@ -373,7 +368,7 @@ public interface Request extends Locals {
    * @param types Types to test.
    * @return The best acceptable type.
    */
-  default @Nonnull Optional<MediaType> accepts(@Nonnull final MediaType... types) {
+  default Optional<MediaType> accepts(final MediaType... types) {
     return accepts(ImmutableList.copyOf(types));
   }
 
@@ -408,8 +403,7 @@ public interface Request extends Locals {
    * @param types Types to test for.
    * @return The best acceptable type.
    */
-  @Nonnull
-  Optional<MediaType> accepts(@Nonnull List<MediaType> types);
+  Optional<MediaType> accepts(List<MediaType> types);
 
   /**
    * Get all the available parameters. A HTTP parameter can be provided in any of
@@ -425,7 +419,6 @@ public interface Request extends Locals {
    * @return All the parameters.
    * @throws Exception On param retrieval failures.
    */
-  @Nonnull
   Map<String, Mutant> params() throws Exception;
 
   /**
@@ -473,8 +466,7 @@ public interface Request extends Locals {
    * @return A HTTP request parameter.
    * @throws Exception On param retrieval failures.
    */
-  @Nonnull
-  Mutant param(@Nonnull String name) throws Exception;
+  Mutant param(String name) throws Exception;
 
   /**
    * Get a HTTP header.
@@ -482,13 +474,11 @@ public interface Request extends Locals {
    * @param name A header's name.
    * @return A HTTP request header.
    */
-  @Nonnull
-  Mutant header(@Nonnull String name);
+  Mutant header(String name);
 
   /**
    * @return All the headers.
    */
-  @Nonnull
   Map<String, Mutant> headers();
 
   /**
@@ -497,13 +487,11 @@ public interface Request extends Locals {
    * @param name Cookie's name.
    * @return A cookie or an empty optional.
    */
-  @Nonnull
-  Optional<Cookie> cookie(@Nonnull String name);
+  Optional<Cookie> cookie(String name);
 
   /**
    * @return All the cookies.
    */
-  @Nonnull
   List<Cookie> cookies();
 
   /**
@@ -514,8 +502,7 @@ public interface Request extends Locals {
    * @return The HTTP body as an object.
    * @throws Exception If body can't be converted or there is no HTTP body.
    */
-  @Nonnull
-  default <T> T body(@Nonnull final Class<T> type) throws Exception {
+  default <T> T body(final Class<T> type) throws Exception {
     requireNonNull(type, "A body type is required.");
     return body(TypeLiteral.get(type));
   }
@@ -528,8 +515,7 @@ public interface Request extends Locals {
    * @return The HTTP body as an object.
    * @throws Exception If body can't be converted or there is no HTTP body.
    */
-  @Nonnull
-  <T> T body(@Nonnull TypeLiteral<T> type) throws Exception;
+  <T> T body(TypeLiteral<T> type) throws Exception;
 
   /**
    * Ask Guice for the given type.
@@ -538,8 +524,7 @@ public interface Request extends Locals {
    * @param <T> Service type.
    * @return A ready to use object.
    */
-  @Nonnull
-  default <T> T require(@Nonnull final Class<T> type) {
+  default <T> T require(final Class<T> type) {
     return require(Key.get(type));
   }
 
@@ -551,8 +536,7 @@ public interface Request extends Locals {
    * @param <T> Service type.
    * @return A ready to use object.
    */
-  @Nonnull
-  default <T> T require(final String name, @Nonnull final Class<T> type) {
+  default <T> T require(final String name, final Class<T> type) {
     return require(Key.get(type, Names.named(name)));
   }
 
@@ -563,8 +547,7 @@ public interface Request extends Locals {
    * @param <T> Service type.
    * @return A ready to use object.
    */
-  @Nonnull
-  default <T> T require(@Nonnull final TypeLiteral<T> type) {
+  default <T> T require(final TypeLiteral<T> type) {
     return require(Key.get(type));
   }
 
@@ -575,8 +558,7 @@ public interface Request extends Locals {
    * @param <T> Service type.
    * @return A ready to use object.
    */
-  @Nonnull
-  <T> T require(@Nonnull Key<T> key);
+  <T> T require(Key<T> key);
 
   /**
    * The charset defined in the request body. If the request doesn't specify a character
@@ -584,7 +566,6 @@ public interface Request extends Locals {
    *
    * @return A current charset.
    */
-  @Nonnull
   Charset charset();
 
   /**
@@ -593,7 +574,6 @@ public interface Request extends Locals {
    *
    * @return A locale.
    */
-  @Nonnull
   Locale locale();
 
   /**
@@ -605,13 +585,11 @@ public interface Request extends Locals {
   /**
    * @return The IP address of the client or last proxy that sent the request.
    */
-  @Nonnull
   String ip();
 
   /**
    * @return The currently matched {@link Route}.
    */
-  @Nonnull
   Route route();
 
   /**

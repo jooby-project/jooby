@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
@@ -404,8 +402,8 @@ public interface Route {
      * @param pattern A path pattern.
      * @param handler A route handler.
      */
-    public Definition(final @Nonnull String verb, final @Nonnull String pattern,
-        final @Nonnull Route.Handler handler) {
+    public Definition(final String verb, final String pattern,
+        final Route.Handler handler) {
       this(verb, pattern, (req, rsp, chain) -> {
         handler.handle(req, rsp);
         chain.next(req, rsp);
@@ -419,8 +417,8 @@ public interface Route {
      * @param pattern A path pattern.
      * @param handler A route handler.
      */
-    public Definition(final @Nonnull String verb, final @Nonnull String pattern,
-        final @Nonnull Route.OneArgHandler handler) {
+    public Definition(final String verb, final String pattern,
+        final Route.OneArgHandler handler) {
       this(verb, pattern, (req, rsp, chain) -> {
         Object result = handler.handle(req);
         rsp.send(result);
@@ -435,8 +433,8 @@ public interface Route {
      * @param pattern A path pattern.
      * @param handler A route handler.
      */
-    public Definition(final @Nonnull String verb, final @Nonnull String pattern,
-        final @Nonnull Route.ZeroArgHandler handler) {
+    public Definition(final String verb, final String pattern,
+        final Route.ZeroArgHandler handler) {
       this(verb, pattern, (req, rsp, chain) -> {
         Object result = handler.handle();
         rsp.send(result);
@@ -451,8 +449,8 @@ public interface Route {
      * @param pattern A path pattern.
      * @param filter A callback to execute.
      */
-    public Definition(final @Nonnull String method, final @Nonnull String pattern,
-        final @Nonnull Filter filter) {
+    public Definition(final String method, final String pattern,
+        final Filter filter) {
       requireNonNull(pattern, "A route path is required.");
       requireNonNull(filter, "A filter is required.");
 
@@ -497,7 +495,7 @@ public interface Route {
      *
      * @return A path pattern.
      */
-    public @Nonnull String pattern() {
+    public String pattern() {
       return pattern;
     }
 
@@ -510,9 +508,9 @@ public interface Route {
      * @param accept The <code>Accept</code> header.
      * @return A route or an empty optional.
      */
-    public @Nonnull Optional<Route> matches(final @Nonnull String verb,
-        final @Nonnull String path, final @Nonnull MediaType contentType,
-        final @Nonnull List<MediaType> accept) {
+    public Optional<Route> matches(final String verb,
+        final String path, final MediaType contentType,
+        final List<MediaType> accept) {
       RouteMatcher matcher = compiledPattern.matcher(verb.toUpperCase() + path);
       if (matcher.matches()) {
         List<MediaType> result = MediaType.matcher(accept).filter(this.produces);
@@ -529,14 +527,14 @@ public interface Route {
     /**
      * @return HTTP method or <code>*</code>.
      */
-    public @Nonnull String method() {
+    public String method() {
       return method;
     }
 
     /**
      * @return Route name. Default is: <code>anonymous</code>.
      */
-    public @Nonnull String name() {
+    public String name() {
       return name;
     }
 
@@ -546,7 +544,7 @@ public interface Route {
      * @param name A route's name.
      * @return This definition.
      */
-    public @Nonnull Definition name(final @Nonnull String name) {
+    public Definition name(final String name) {
       checkArgument(!Strings.isNullOrEmpty(name), "A route's name is required.");
       this.name = name;
       return this;
@@ -558,7 +556,7 @@ public interface Route {
      * @param type A media type to test.
      * @return True, if the route can consume the given media type.
      */
-    public boolean canConsume(@Nonnull final MediaType type) {
+    public boolean canConsume(final MediaType type) {
       return MediaType.matcher(Arrays.asList(type)).matches(consumes);
     }
 
@@ -568,7 +566,7 @@ public interface Route {
      * @param type A media type to test.
      * @return True, if the route can consume the given media type.
      */
-    public boolean canConsume(@Nonnull final String type) {
+    public boolean canConsume(final String type) {
       return MediaType.matcher(MediaType.valueOf(type)).matches(consumes);
     }
 
@@ -778,7 +776,7 @@ public interface Route {
      * @param route A route to check.
      * @return A target route.
      */
-    public static @Nonnull Route unwrap(final @Nonnull Route route) {
+    public static Route unwrap(final Route route) {
       requireNonNull(route, "A route is required.");
       Route root = route;
       while (root instanceof Forwarding) {
@@ -954,7 +952,7 @@ public interface Route {
      * @param rsp A HTTP response.
      * @throws Exception If invocation goes wrong.
      */
-    void next(@Nonnull Request req, @Nonnull Response rsp) throws Exception;
+    void next(Request req, Response rsp) throws Exception;
   }
 
   /**

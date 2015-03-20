@@ -22,8 +22,6 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 
-import javax.annotation.Nonnull;
-
 /**
  * File upload from a browser on {@link MediaType#multipart} request.
  *
@@ -35,13 +33,11 @@ public interface Upload extends Closeable {
   /**
    * @return File's name.
    */
-  @Nonnull
   String name();
 
   /**
    * @return File media type.
    */
-  @Nonnull
   MediaType type();
 
   /**
@@ -50,8 +46,7 @@ public interface Upload extends Closeable {
    * @param name Header's name.
    * @return A header value.
    */
-  @Nonnull
-  Mutant header(@Nonnull String name);
+  Mutant header(String name);
 
   /**
    * Get this upload as temporary file.
@@ -59,6 +54,6 @@ public interface Upload extends Closeable {
    * @return A temp file.
    * @throws IOException If file doesn't exist.
    */
-  @Nonnull File file() throws IOException;
+  File file() throws IOException;
 
 }

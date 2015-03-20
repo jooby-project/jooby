@@ -23,8 +23,6 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-
 /**
  * Format a Java object into bytes and/or text. A formatter is responsible for converting a Java
  * Object to HTML, JSON, XML, etc..
@@ -101,7 +99,7 @@ public interface BodyFormatter {
      * @param text A text strategy.
      * @throws Exception When the operation fails.
      */
-    void text(@Nonnull Text text) throws Exception;
+    void text(Text text) throws Exception;
 
     /**
      * Write bytes into the HTTP response body and close the resources.
@@ -109,7 +107,7 @@ public interface BodyFormatter {
      * @param bytes A bytes strategy.
      * @throws Exception When the operation fails.
      */
-    void bytes(@Nonnull Bytes bytes) throws Exception;
+    void bytes(Bytes bytes) throws Exception;
 
   }
 
@@ -127,7 +125,7 @@ public interface BodyFormatter {
    * @param type The candidate type.
    * @return True if the converter can write into the HTTP response body.
    */
-  boolean canFormat(@Nonnull Class<?> type);
+  boolean canFormat(Class<?> type);
 
   /**
    * Attempt to write a message into the HTTP response body.
@@ -146,6 +144,6 @@ public interface BodyFormatter {
    * @param ctx A write context.
    * @throws Exception If write operation fail.
    */
-  void format(@Nonnull Object body, @Nonnull BodyFormatter.Context ctx) throws Exception;
+  void format(Object body, BodyFormatter.Context ctx) throws Exception;
 
 }

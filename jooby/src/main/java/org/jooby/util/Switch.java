@@ -26,8 +26,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import javax.annotation.Nonnull;
-
 /**
  * A programmatic switch:
  *
@@ -56,7 +54,7 @@ public class Switch<In, Out> {
    *
    * @param value Input value.
    */
-  private Switch(final @Nonnull In value) {
+  private Switch(final In value) {
     this.value = requireNonNull(value, "Input value is required.");
   }
 
@@ -67,7 +65,7 @@ public class Switch<In, Out> {
    * @param result A constant value.
    * @return This switch.
    */
-  public @Nonnull Switch<In, Out> when(final @Nonnull In value, final @Nonnull Out result) {
+  public Switch<In, Out> when(final In value, final Out result) {
     return when(value, () -> result);
   }
 
@@ -78,7 +76,7 @@ public class Switch<In, Out> {
    * @param result A constant value.
    * @return This switch.
    */
-  public @Nonnull Switch<In, Out> when(final @Nonnull Predicate<In> predicate, final @Nonnull Out result) {
+  public Switch<In, Out> when(final Predicate<In> predicate, final Out result) {
     return when(predicate, () -> result);
   }
 
@@ -89,7 +87,7 @@ public class Switch<In, Out> {
    * @param fn A result supplier value.
    * @return This switch.
    */
-  public @Nonnull Switch<In, Out> when(final @Nonnull In value, final @Nonnull ExSupplier<Out> fn) {
+  public Switch<In, Out> when(final In value, final ExSupplier<Out> fn) {
     return when(value::equals, fn);
   }
 
@@ -100,7 +98,7 @@ public class Switch<In, Out> {
    * @param fn A result supplier value.
    * @return This switch.
    */
-  public @Nonnull Switch<In, Out> when(final @Nonnull Predicate<In> predicate, final @Nonnull ExSupplier<Out> fn) {
+  public Switch<In, Out> when(final Predicate<In> predicate, final ExSupplier<Out> fn) {
     requireNonNull(value, "A value is required.");
     requireNonNull(fn, "A function is required.");
     strategies.put(predicate, fn);
@@ -113,7 +111,7 @@ public class Switch<In, Out> {
    * @return A value or empty optional.
    * @throws Exception If something goes wrong.
    */
-  public @Nonnull Optional<Out> value() throws Exception {
+  public Optional<Out> value() throws Exception {
     for (Entry<Predicate<In>, ExSupplier<Out>> entry : strategies.entrySet()) {
       if (entry.getKey().test(value)) {
         return Optional.ofNullable(entry.getValue().get());
@@ -130,7 +128,7 @@ public class Switch<In, Out> {
    * @param <Out> Output value.
    * @return A new switch.
    */
-  public static @Nonnull <In, Out>  Switch<In, Out> newSwitch(final @Nonnull In value) {
+  public static <In, Out>  Switch<In, Out> newSwitch(final In value) {
     return new Switch<In, Out>(value);
   }
 
@@ -141,7 +139,7 @@ public class Switch<In, Out> {
    * @param <Out> Output value.
    * @return A new switch.
    */
-  public static @Nonnull <Out> Switch<String, Out> newSwitch(final @Nonnull String value) {
+  public static <Out> Switch<String, Out> newSwitch(final String value) {
     return new Switch<String, Out>(value);
   }
 }

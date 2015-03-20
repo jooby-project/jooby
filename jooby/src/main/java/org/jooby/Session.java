@@ -26,11 +26,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.istack.internal.Nullable;
 
 /**
  * Sessions are created on demand from {@link Request#session()}.
@@ -128,7 +127,7 @@ public interface Session extends Locals {
      *
      * @param store A session store.
      */
-    public Definition(final @Nonnull Store store) {
+    public Definition(final Store store) {
       this.store = requireNonNull(store, "A session store is required.");
       cookie = new Cookie.Definition();
     }
@@ -139,7 +138,7 @@ public interface Session extends Locals {
      * @param timeout Session timeout in seconds or <code>-1</code> for no timeout.
      * @return This definition.
      */
-    public @Nonnull Definition timeout(final long timeout) {
+    public Definition timeout(final long timeout) {
       this.timeout = timeout;
       return this;
     }
@@ -147,7 +146,7 @@ public interface Session extends Locals {
     /**
      * @return Get session timeout (if any).
      */
-    public @Nonnull Optional<Long> timeout() {
+    public Optional<Long> timeout() {
       return Optional.ofNullable(timeout);
     }
 
@@ -156,7 +155,7 @@ public interface Session extends Locals {
      *
      * @return A save interval that indicates how frequently no dirty session should be persisted.
      */
-    public @Nonnull Optional<Long> saveInterval() {
+    public Optional<Long> saveInterval() {
       return Optional.ofNullable(saveInterval);
     }
 
@@ -166,7 +165,7 @@ public interface Session extends Locals {
      * @param saveInterval Save interval in seconds or <code>-1</code> for turning it off.
      * @return This definition.
      */
-    public @Nonnull Definition saveInterval(final long saveInterval) {
+    public Definition saveInterval(final long saveInterval) {
       this.saveInterval = saveInterval;
       return this;
     }
@@ -174,14 +173,14 @@ public interface Session extends Locals {
     /**
      * @return A session store, defaults to {@link MemoryStore}.
      */
-    public @Nonnull Store store() {
+    public Store store() {
       return store;
     }
 
     /**
      * @return Configure cookie session.
      */
-    public @Nonnull Cookie.Definition cookie() {
+    public Cookie.Definition cookie() {
       return cookie;
     }
   }
@@ -201,14 +200,14 @@ public interface Session extends Locals {
      * @return A session or <code>null</code>.
      */
     @Nullable
-    Session get(@Nonnull Session.Builder builder);
+    Session get(Session.Builder builder);
 
     /**
      * Save/persist a session.
      *
      * @param session A session to be persisted.
      */
-    void save(@Nonnull Session session);
+    void save(Session session);
 
     void create(final Session session);
 
@@ -217,7 +216,7 @@ public interface Session extends Locals {
      *
      * @param id A session ID.
      */
-    void delete(@Nonnull String id);
+    void delete(String id);
 
     /**
      * Generate a session ID, default algorithm use an {@link UUID}.
@@ -330,7 +329,6 @@ public interface Session extends Locals {
   /**
    * @return Session ID.
    */
-  @Nonnull
   String id();
 
   /**
@@ -373,14 +371,12 @@ public interface Session extends Locals {
    * @return A value or empty optional.
    */
   @Override
-  @Nonnull
-  <T> Optional<T> get(final @Nonnull String name);
+  <T> Optional<T> get(final String name);
 
   /**
    * @return An immutable copy of local attributes.
    */
   @Override
-  @Nonnull
   Map<String, Object> attributes();
 
   /**
@@ -390,7 +386,7 @@ public interface Session extends Locals {
    * @return True, for existing locals.
    */
   @Override
-  default boolean isSet(final @Nonnull String name) {
+  default boolean isSet(final String name) {
     return get(name).isPresent();
   }
 
@@ -403,7 +399,7 @@ public interface Session extends Locals {
    * @return This session.
    */
   @Override
-  @Nonnull Session set(final @Nonnull String name, final @Nonnull Object value);
+  Session set(final String name, final Object value);
 
   /**
    * Remove a local value (if any) from session locals.

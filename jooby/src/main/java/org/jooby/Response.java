@@ -31,8 +31,6 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-
 import org.jooby.Cookie.Definition;
 
 /**
@@ -268,7 +266,7 @@ public interface Response {
      * @param rsp A response.
      * @return A target instance (not a {@link Response.Forwarding}).
      */
-    public static Response unwrap(final @Nonnull Response rsp) {
+    public static Response unwrap(final Response rsp) {
       requireNonNull(rsp, "A response is required.");
       Response root = rsp;
       while (root instanceof Forwarding) {
@@ -287,7 +285,7 @@ public interface Response {
    * @param stream A stream to attach.
    * @throws Exception If something goes wrong.
    */
-  void download(@Nonnull String filename, @Nonnull InputStream stream) throws Exception;
+  void download(String filename, InputStream stream) throws Exception;
 
   /**
    * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
@@ -298,7 +296,7 @@ public interface Response {
    * @param reader A reader to attach.
    * @throws Exception If something goes wrong.
    */
-  void download(@Nonnull String filename, @Nonnull Reader reader) throws Exception;
+  void download(String filename, Reader reader) throws Exception;
 
   /**
    * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
@@ -308,7 +306,7 @@ public interface Response {
    * @param location Classpath location of the file.
    * @throws Exception If something goes wrong.
    */
-  default void download(final @Nonnull String location) throws Exception {
+  default void download(final String location) throws Exception {
     download(location, location);
   }
 
@@ -321,7 +319,7 @@ public interface Response {
    * @param location classpath location of the file.
    * @throws Exception If something goes wrong.
    */
-  default void download(final String filename, final @Nonnull String location) throws Exception {
+  default void download(final String filename, final String location) throws Exception {
     InputStream stream = getClass()
         .getResourceAsStream(location.startsWith("/") ? location : "/" + location);
     if (stream == null) {
@@ -347,7 +345,7 @@ public interface Response {
    * @param file A file to use.
    * @throws Exception If something goes wrong.
    */
-  default void download(final @Nonnull File file) throws Exception {
+  default void download(final File file) throws Exception {
     MediaType type = MediaType.byFile(file).orElse(MediaType.octetstream);
     header("Content-Length", file.length());
     if (type.isText()) {
@@ -366,7 +364,7 @@ public interface Response {
    * @param file A file to use.
    * @throws Exception If something goes wrong.
    */
-  default void download(final String filename, final @Nonnull File file) throws Exception {
+  default void download(final String filename, final File file) throws Exception {
     header("Content-Length", file.length());
     download(filename, new FileInputStream(file));
   }
@@ -378,7 +376,7 @@ public interface Response {
    * @param value A cookie's value.
    * @return This response.
    */
-  default Response cookie(final @Nonnull String name, final @Nonnull String value) {
+  default Response cookie(final String name, final String value) {
     return cookie(new Cookie.Definition(name, value).toCookie());
   }
 
@@ -388,7 +386,7 @@ public interface Response {
    * @param cookie A cookie definition.
    * @return This response.
    */
-  default Response cookie(final @Nonnull Cookie.Definition cookie) {
+  default Response cookie(final Cookie.Definition cookie) {
     requireNonNull(cookie, "A cookie is required.");
     return cookie(cookie.toCookie());
   }
@@ -399,7 +397,7 @@ public interface Response {
    * @param cookie A cookie.
    * @return This response.
    */
-  Response cookie(@Nonnull Cookie cookie);
+  Response cookie(Cookie cookie);
 
   /**
    * Discard a cookie from response. Discard is done by setting maxAge=0.
@@ -407,7 +405,7 @@ public interface Response {
    * @param name Cookie's name.
    * @return This response.
    */
-  Response clearCookie(@Nonnull String name);
+  Response clearCookie(String name);
 
   /**
    * Get a header with the given name.
@@ -415,8 +413,7 @@ public interface Response {
    * @param name A name.
    * @return A HTTP header.
    */
-  @Nonnull
-  Mutant header(@Nonnull String name);
+  Mutant header(String name);
 
   /**
    * Sets a response header with the given name and value. If the header had already been set,
@@ -426,7 +423,7 @@ public interface Response {
    * @param value Header's value.
    * @return This response.
    */
-  Response header(@Nonnull String name, char value);
+  Response header(String name, char value);
 
   /**
    * Sets a response header with the given name and value. If the header had already been set,
@@ -436,7 +433,7 @@ public interface Response {
    * @param value Header's value.
    * @return This response.
    */
-  Response header(@Nonnull String name, byte value);
+  Response header(String name, byte value);
 
   /**
    * Sets a response header with the given name and value. If the header had already been set,
@@ -446,7 +443,7 @@ public interface Response {
    * @param value Header's value.
    * @return This response.
    */
-  Response header(@Nonnull String name, short value);
+  Response header(String name, short value);
 
   /**
    * Sets a response header with the given name and value. If the header had already been set,
@@ -456,7 +453,7 @@ public interface Response {
    * @param value Header's value.
    * @return This response.
    */
-  Response header(@Nonnull String name, int value);
+  Response header(String name, int value);
 
   /**
    * Sets a response header with the given name and value. If the header had already been set,
@@ -466,7 +463,7 @@ public interface Response {
    * @param value Header's value.
    * @return This response.
    */
-  Response header(@Nonnull String name, long value);
+  Response header(String name, long value);
 
   /**
    * Sets a response header with the given name and value. If the header had already been set,
@@ -476,7 +473,7 @@ public interface Response {
    * @param value Header's value.
    * @return This response.
    */
-  Response header(@Nonnull String name, float value);
+  Response header(String name, float value);
 
   /**
    * Sets a response header with the given name and value. If the header had already been set,
@@ -486,7 +483,7 @@ public interface Response {
    * @param value Header's value.
    * @return This response.
    */
-  Response header(@Nonnull String name, double value);
+  Response header(String name, double value);
 
   /**
    * Sets a response header with the given name and value. If the header had already been set,
@@ -496,7 +493,7 @@ public interface Response {
    * @param value Header's value.
    * @return This response.
    */
-  Response header(@Nonnull String name, CharSequence value);
+  Response header(String name, CharSequence value);
 
   /**
    * Sets a response header with the given name and value. If the header had already been set,
@@ -506,7 +503,7 @@ public interface Response {
    * @param value Header's value.
    * @return This response.
    */
-  Response header(@Nonnull String name, Date value);
+  Response header(String name, Date value);
 
   /**
    * If charset is not set this method returns charset defined in the request body. If the request
@@ -515,7 +512,6 @@ public interface Response {
    *
    * @return A current charset.
    */
-  @Nonnull
   Charset charset();
 
   /**
@@ -525,8 +521,7 @@ public interface Response {
    * @param charset A charset.
    * @return This response.
    */
-  @Nonnull
-  Response charset(@Nonnull Charset charset);
+  Response charset(Charset charset);
 
   /**
    * Set the length of the response and set the <code>Content-Length</code> header.
@@ -534,13 +529,11 @@ public interface Response {
    * @param length Length of response.
    * @return This response.
    */
-  @Nonnull
   Response length(long length);
 
   /**
    * @return Get the response type.
    */
-  @Nonnull
   Optional<MediaType> type();
 
   /**
@@ -549,8 +542,7 @@ public interface Response {
    * @param type A media type.
    * @return This response.
    */
-  @Nonnull
-  Response type(@Nonnull MediaType type);
+  Response type(MediaType type);
 
   /**
    * Set the response media type and set the <code>Content-Type</code> header.
@@ -558,7 +550,7 @@ public interface Response {
    * @param type A media type.
    * @return This response.
    */
-  default @Nonnull Response type(@Nonnull final String type) {
+  default Response type(final String type) {
     return type(MediaType.valueOf(type));
   }
 
@@ -569,7 +561,7 @@ public interface Response {
    * @param result The HTTP body.
    * @throws Exception If the response write fails.
    */
-  default void send(@Nonnull final Object result) throws Exception {
+  default void send(final Object result) throws Exception {
     requireNonNull(result, "A response message is required.");
     if (result instanceof Result) {
       send((Result) result);
@@ -589,7 +581,7 @@ public interface Response {
    * @param result A HTTP response.
    * @throws Exception If the response write fails.
    */
-  void send(@Nonnull Result result) throws Exception;
+  void send(Result result) throws Exception;
 
   /**
    * Redirect to the given url with status code defaulting to {@link Status#FOUND}.
@@ -649,7 +641,7 @@ public interface Response {
    * @param location Either a relative or absolute location.
    * @throws Exception If redirection fails.
    */
-  default void redirect(final @Nonnull String location) throws Exception {
+  default void redirect(final String location) throws Exception {
     redirect(Status.FOUND, location);
   }
 
@@ -712,12 +704,11 @@ public interface Response {
    * @param location Either a relative or absolute location.
    * @throws Exception If redirection fails.
    */
-  void redirect(@Nonnull Status status, @Nonnull String location) throws Exception;
+  void redirect(Status status, String location) throws Exception;
 
   /**
    * @return A HTTP status or empty if status was not set yet.
    */
-  @Nonnull
   Optional<Status> status();
 
   /**
@@ -726,8 +717,7 @@ public interface Response {
    * @param status A HTTP status.
    * @return This response.
    */
-  @Nonnull
-  Response status(@Nonnull Status status);
+  Response status(Status status);
 
   /**
    * Set the HTTP response status.
@@ -735,7 +725,6 @@ public interface Response {
    * @param status A HTTP status.
    * @return This response.
    */
-  @Nonnull
   default Response status(final int status) {
     return status(Status.valueOf(status));
   }

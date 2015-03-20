@@ -174,7 +174,7 @@ public class HttpHandlerImpl implements HttpHandler {
       chain(routes).next(req, rsp);
 
     } catch (Exception ex) {
-      log.error("execution of: " + path + " resulted in exception", ex);
+      log.debug("execution of: " + path + " resulted in exception", ex);
 
       rsp.reset();
 

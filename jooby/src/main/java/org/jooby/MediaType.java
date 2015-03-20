@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -83,7 +81,7 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidate A candidate media type. Required.
      * @return True if the matcher matches the given media type.
      */
-    public boolean matches(final @Nonnull MediaType candidate) {
+    public boolean matches(final MediaType candidate) {
       requireNonNull(candidate, "A candidate media type is required.");
       return doFirst(ImmutableList.of(candidate)) != null;
     }
@@ -103,7 +101,7 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidates One ore more candidates media type. Required.
      * @return True if the matcher matches the given media type.
      */
-    public boolean matches(final @Nonnull List<MediaType> candidates) {
+    public boolean matches(final List<MediaType> candidates) {
       return filter(candidates).size() > 0;
     }
 
@@ -122,7 +120,7 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidate A candidate media type. Required.
      * @return A first most relevant media type or an empty optional.
      */
-    public Optional<MediaType> first(final @Nonnull MediaType candidate) {
+    public Optional<MediaType> first(final MediaType candidate) {
       return first(ImmutableList.of(candidate));
     }
 
@@ -141,7 +139,7 @@ public class MediaType implements Comparable<MediaType> {
      * @param candidates One ore more candidates media type. Required.
      * @return A first most relevant media type or an empty optional.
      */
-    public Optional<MediaType> first(final @Nonnull List<MediaType> candidates) {
+    public Optional<MediaType> first(final List<MediaType> candidates) {
       return Optional.ofNullable(doFirst(candidates));
     }
 
@@ -164,7 +162,7 @@ public class MediaType implements Comparable<MediaType> {
      * @return Filtered types that matches the given types ordered from more specific to less
      *         specific.
      */
-    public List<MediaType> filter(final @Nonnull List<MediaType> types) {
+    public List<MediaType> filter(final List<MediaType> types) {
       checkArgument(types != null && types.size() > 0, "Media types are required");
       List<MediaType> result = new ArrayList<>();
       final List<MediaType> sortedTypes;
@@ -392,7 +390,7 @@ public class MediaType implements Comparable<MediaType> {
   }
 
   @Override
-  public int compareTo(final @Nonnull MediaType that) {
+  public int compareTo(final MediaType that) {
     requireNonNull(that, "A media type is required.");
     if (this == that) {
       return 0;
@@ -431,7 +429,7 @@ public class MediaType implements Comparable<MediaType> {
    * @param that A media type to compare to.
    * @return True, if the given media type matches the current one.
    */
-  public boolean matches(final @Nonnull MediaType that) {
+  public boolean matches(final MediaType that) {
     requireNonNull(that, "A media type is required.");
     if (this == that || this.wildcardType || that.wildcardType) {
       // same or */*
@@ -483,7 +481,7 @@ public class MediaType implements Comparable<MediaType> {
    * @param type A media type to parse.
    * @return An immutable {@link MediaType}.
    */
-  public static MediaType valueOf(final @Nonnull String type) {
+  public static MediaType valueOf(final String type) {
     requireNonNull(type, "A mediaType is required.");
     MediaType aliastype = alias.get(type.trim());
     if (aliastype != null) {
@@ -514,7 +512,7 @@ public class MediaType implements Comparable<MediaType> {
    * @param types Media types to parse.
    * @return An list of immutable {@link MediaType}.
    */
-  public static List<MediaType> valueOf(final @Nonnull String... types) {
+  public static List<MediaType> valueOf(final String... types) {
     requireNonNull(types, "Types are required.");
     List<MediaType> result = new ArrayList<>();
     for (String type : types) {
@@ -529,7 +527,7 @@ public class MediaType implements Comparable<MediaType> {
    * @param value The string separated by commas.
    * @return One ore more {@link MediaType}.
    */
-  public static List<MediaType> parse(final @Nonnull String value) {
+  public static List<MediaType> parse(final String value) {
     return valueOf(value.split(","));
   }
 
@@ -539,7 +537,7 @@ public class MediaType implements Comparable<MediaType> {
    * @param acceptable The acceptable/target media type.
    * @return A media type matcher.
    */
-  public static Matcher matcher(final @Nonnull MediaType acceptable) {
+  public static Matcher matcher(final MediaType acceptable) {
     return matcher(ImmutableList.of(acceptable));
   }
 
@@ -549,7 +547,7 @@ public class MediaType implements Comparable<MediaType> {
    * @param acceptable The acceptable/target media types.
    * @return A media type matcher.
    */
-  public static Matcher matcher(final @Nonnull List<MediaType> acceptable) {
+  public static Matcher matcher(final List<MediaType> acceptable) {
     requireNonNull(acceptable, "Acceptables media types are required.");
     return new Matcher(acceptable);
   }
@@ -560,7 +558,7 @@ public class MediaType implements Comparable<MediaType> {
    * @param file A candidate file.
    * @return A {@link MediaType} or {@link MediaType#octetstream} for unknown file extensions.
    */
-  public static @Nonnull Optional<MediaType> byFile(@Nonnull final File file) {
+  public static Optional<MediaType> byFile(final File file) {
     requireNonNull(file, "A file is required.");
     return byPath(file.getName());
   }
@@ -598,7 +596,7 @@ public class MediaType implements Comparable<MediaType> {
    * @param ext A file extension, like <code>js</code> or <code>css</code>.
    * @return A {@link MediaType} or empty optional for unknown file extensions.
    */
-  public static @Nonnull Optional<MediaType> byExtension(final String ext) {
+  public static Optional<MediaType> byExtension(final String ext) {
     requireNonNull(ext, "An ext is required.");
     String key = "mime." + ext;
     if (types.hasPath(key)) {

@@ -21,8 +21,6 @@ package org.jooby;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.annotation.Nonnull;
-
 /**
  * Usually a public file/resource like javascript, css, images files, etc...
  * An asset consist of content type, stream and last modified since, between others.
@@ -36,7 +34,7 @@ public interface Asset {
   /**
    * @return The asset name (without path).
    */
-  @Nonnull String name();
+  String name();
 
   /**
    * @return Asset size (in bytes) or <code>-1</code> if undefined.
@@ -52,10 +50,10 @@ public interface Asset {
    * @return The content of this asset.
    * @throws IOException If content can't be read it.
    */
-  @Nonnull InputStream stream() throws IOException;
+  InputStream stream() throws IOException;
 
   /**
    * @return Asset media type.
    */
-  @Nonnull MediaType type();
+  MediaType type();
 }

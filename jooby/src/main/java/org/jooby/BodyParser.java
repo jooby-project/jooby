@@ -22,8 +22,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import com.google.inject.TypeLiteral;
 
 /**
@@ -96,8 +94,7 @@ public interface BodyParser {
      * @return A HTTP body converted to something else.
      * @throws Exception When the operation fails.
      */
-    @Nonnull
-    <T> T text(@Nonnull Text text) throws Exception;
+    <T> T text(Text text) throws Exception;
 
     /**
      * Convert a HTTP request body to something else.
@@ -107,8 +104,7 @@ public interface BodyParser {
      * @return A HTTP body converted to something else.
      * @throws Exception When the operation fails.
      */
-    @Nonnull
-    <T> T bytes(@Nonnull Bytes bytes) throws Exception;
+    <T> T bytes(Bytes bytes) throws Exception;
 
   }
 
@@ -126,7 +122,7 @@ public interface BodyParser {
    * @param type The candidate Type.
    * @return True if the converter can read the HTTP request body.
    */
-  default boolean canParse(@Nonnull final Class<?> type) {
+  default boolean canParse(final Class<?> type) {
     return canParse(TypeLiteral.get(type));
   }
 
@@ -136,7 +132,7 @@ public interface BodyParser {
    * @param type The candidate Type.
    * @return True if the converter can read the HTTP request body.
    */
-  boolean canParse(@Nonnull TypeLiteral<?> type);
+  boolean canParse(TypeLiteral<?> type);
 
   /**
    * Attempt to read a message from HTTP request body.
@@ -157,8 +153,7 @@ public interface BodyParser {
    * @return A body message.
    * @throws Exception If read operation fail.
    */
-  @Nonnull
-  default <T> T parse(@Nonnull final Class<T> type, @Nonnull final Context ctx)
+  default <T> T parse(final Class<T> type, final Context ctx)
       throws Exception {
     return parse(TypeLiteral.get(type), ctx);
   }
@@ -182,7 +177,6 @@ public interface BodyParser {
    * @return A body message.
    * @throws Exception If read operation fail.
    */
-  @Nonnull
-  <T> T parse(@Nonnull TypeLiteral<T> type, @Nonnull BodyParser.Context ctx) throws Exception;
+  <T> T parse(TypeLiteral<T> type, BodyParser.Context ctx) throws Exception;
 
 }

@@ -24,8 +24,6 @@ import java.io.Closeable;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.WebSocketImpl;
@@ -155,7 +153,7 @@ public interface WebSocket extends Closeable {
      * @param reason A close reason.
      * @return A new close status.
      */
-    public static CloseStatus of(final int code, @Nonnull final String reason) {
+    public static CloseStatus of(final int code, final String reason) {
       requireNonNull(reason, "A reason is required.");
       return new CloseStatus(code, reason);
     }
@@ -198,7 +196,7 @@ public interface WebSocket extends Closeable {
      * @param data A data argument.
      * @throws Exception If something goes wrong.
      */
-    void invoke(@Nonnull T data) throws Exception;
+    void invoke(T data) throws Exception;
   }
 
   /**
@@ -269,7 +267,7 @@ public interface WebSocket extends Closeable {
      * @param pattern A path pattern.
      * @param handler A ws handler.
      */
-    public Definition(final @Nonnull String pattern, final @Nonnull Handler handler) {
+    public Definition(final String pattern, final Handler handler) {
       requireNonNull(pattern, "A route path is required.");
       requireNonNull(handler, "A handler is required.");
 
@@ -282,7 +280,7 @@ public interface WebSocket extends Closeable {
     /**
      * @return A route pattern.
      */
-    public @Nonnull String pattern() {
+    public String pattern() {
       return pattern;
     }
 
@@ -292,7 +290,7 @@ public interface WebSocket extends Closeable {
      * @param path A path pattern.
      * @return A web socket or empty optional.
      */
-    public @Nonnull Optional<WebSocket> matches(final @Nonnull String path) {
+    public Optional<WebSocket> matches(final String path) {
       RouteMatcher matcher = routePattern.matcher("WS" + path);
       if (matcher.matches()) {
         return Optional.of(asWebSocket(matcher));
@@ -306,7 +304,7 @@ public interface WebSocket extends Closeable {
      * @param type The media types to test for.
      * @return This route definition.
      */
-    public @Nonnull Definition consumes(final @Nonnull String type) {
+    public Definition consumes(final String type) {
       return consumes(MediaType.valueOf(type));
     }
 
@@ -316,7 +314,7 @@ public interface WebSocket extends Closeable {
      * @param type The media types to test for.
      * @return This route definition.
      */
-    public @Nonnull Definition consumes(final @Nonnull MediaType type) {
+    public Definition consumes(final MediaType type) {
       this.consumes = requireNonNull(type, "A type is required.");
       return this;
     }
@@ -327,7 +325,7 @@ public interface WebSocket extends Closeable {
      * @param type The media types to test for.
      * @return This route definition.
      */
-    public @Nonnull Definition produces(final @Nonnull String type) {
+    public Definition produces(final String type) {
       return produces(MediaType.valueOf(type));
     }
 
@@ -337,7 +335,7 @@ public interface WebSocket extends Closeable {
      * @param type The media types to test for.
      * @return This route definition.
      */
-    public @Nonnull Definition produces(final @Nonnull MediaType type) {
+    public Definition produces(final MediaType type) {
       this.produces = requireNonNull(type, "A type is required.");
       return this;
     }
@@ -345,14 +343,14 @@ public interface WebSocket extends Closeable {
     /**
      * @return All the types this route can consumes.
      */
-    public @Nonnull MediaType consumes() {
+    public MediaType consumes() {
       return this.consumes;
     }
 
     /**
      * @return All the types this route can produces.
      */
-    public @Nonnull MediaType produces() {
+    public MediaType produces() {
       return this.produces;
     }
 
@@ -478,31 +476,26 @@ public interface WebSocket extends Closeable {
   /**
    * @return Current request path.
    */
-  @Nonnull
   String path();
 
   /**
    * @return The currently matched pattern.
    */
-  @Nonnull
   String pattern();
 
   /**
    * @return The currently matched path variables (if any).
    */
-  @Nonnull
   Map<Object, String> vars();
 
   /**
    * @return The type this route can consumes, defaults is: {@code * / *}.
    */
-  @Nonnull
   MediaType consumes();
 
   /**
    * @return The type this route can produces, defaults is: {@code * / *}.
    */
-  @Nonnull
   MediaType produces();
 
   /**
@@ -511,14 +504,14 @@ public interface WebSocket extends Closeable {
    * @param callback A callback
    * @throws Exception If something goes wrong.
    */
-  void onMessage(@Nonnull Callback<Mutant> callback) throws Exception;
+  void onMessage(Callback<Mutant> callback) throws Exception;
 
   /**
    * Register an error callback to execute when an error is found.
    *
    * @param callback A callback
    */
-  void onError(@Nonnull ErrCallback callback);
+  void onError(ErrCallback callback);
 
   /**
    * Register an close callback to execute when client close the web socket.
@@ -526,7 +519,7 @@ public interface WebSocket extends Closeable {
    * @param callback A callback
    * @throws Exception If something goes wrong.
    */
-  void onClose(@Nonnull Callback<CloseStatus> callback) throws Exception;
+  void onClose(Callback<CloseStatus> callback) throws Exception;
 
   /**
    * Gracefully closes the connection, after sending a description message
@@ -534,7 +527,7 @@ public interface WebSocket extends Closeable {
    * @param code Close status code.
    * @param reason Close reason.
    */
-  default void close(final int code, final @Nonnull String reason) {
+  default void close(final int code, final String reason) {
     close(CloseStatus.of(code, reason));
   }
 
@@ -560,7 +553,7 @@ public interface WebSocket extends Closeable {
    *
    * @param status Close status code.
    */
-  void close(@Nonnull CloseStatus status);
+  void close(CloseStatus status);
 
   /**
    * Resume the client stream.
@@ -585,7 +578,7 @@ public interface WebSocket extends Closeable {
    * @param data Data to send.
    * @throws Exception If something goes wrong.
    */
-  default void send(final @Nonnull Object data) throws Exception {
+  default void send(final Object data) throws Exception {
     send(data, SUCCESS, ERR);
   }
 
@@ -596,7 +589,7 @@ public interface WebSocket extends Closeable {
    * @param success A success callback.
    * @throws Exception If something goes wrong.
    */
-  default void send(final @Nonnull Object data, final @Nonnull SuccessCallback success) throws Exception {
+  default void send(final Object data, final SuccessCallback success) throws Exception {
     send(data, success, ERR);
   }
 
@@ -607,7 +600,7 @@ public interface WebSocket extends Closeable {
    * @param err An err callback.
    * @throws Exception If something goes wrong.
    */
-  default void send(final @Nonnull Object data, final @Nonnull ErrCallback err)
+  default void send(final Object data, final ErrCallback err)
       throws Exception {
     send(data, SUCCESS, err);
   }
@@ -620,7 +613,7 @@ public interface WebSocket extends Closeable {
    * @param err An err callback.
    * @throws Exception If something goes wrong.
    */
-  void send(@Nonnull Object data, @Nonnull SuccessCallback success, @Nonnull ErrCallback err)
+  void send(Object data, SuccessCallback success, ErrCallback err)
       throws Exception;
 
   /**
@@ -630,7 +623,7 @@ public interface WebSocket extends Closeable {
    * @param <T> Service type.
    * @return Binded service.
    */
-  default @Nonnull <T> T require(@Nonnull final Class<T> type) {
+  default <T> T require(final Class<T> type) {
     return require(Key.get(type));
   }
 
@@ -641,7 +634,7 @@ public interface WebSocket extends Closeable {
    * @param <T> Service type.
    * @return Binded service.
    */
-  default @Nonnull <T> T require(@Nonnull final TypeLiteral<T> type) {
+  default <T> T require(final TypeLiteral<T> type) {
     return require(Key.get(type));
   }
 
@@ -652,7 +645,6 @@ public interface WebSocket extends Closeable {
    * @param <T> Service type.
    * @return Binded service.
    */
-  @Nonnull
-  <T> T require(@Nonnull Key<T> key);
+  <T> T require(Key<T> key);
 
 }

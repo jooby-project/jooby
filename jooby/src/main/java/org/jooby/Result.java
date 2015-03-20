@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-
 import org.jooby.internal.SetHeaderImpl;
 
 import com.google.common.base.Joiner;
@@ -96,7 +94,7 @@ public class Result {
    * @param status A new response status to use.
    * @return This content.
    */
-  public @Nonnull Result status(final @Nonnull Status status) {
+  public Result status(final Status status) {
     this.status = requireNonNull(status, "A status is required.");
     return this;
   }
@@ -107,7 +105,7 @@ public class Result {
    * @param status A new response status to use.
    * @return This content.
    */
-  public @Nonnull Result status(final int status) {
+  public Result status(final int status) {
     return status(Status.valueOf(status));
   }
 
@@ -117,7 +115,7 @@ public class Result {
    * @param type A content type.
    * @return This content.
    */
-  public @Nonnull Result type(final @Nonnull MediaType type) {
+  public Result type(final MediaType type) {
     this.type = requireNonNull(type, "A content type is required.");
     return this;
   }
@@ -128,7 +126,7 @@ public class Result {
    * @param type A content type.
    * @return This content.
    */
-  public @Nonnull Result type(final @Nonnull String type) {
+  public Result type(final String type) {
     return type(MediaType.valueOf(type));
   }
 
@@ -138,7 +136,7 @@ public class Result {
    * @param content A result content.
    * @return This content.
    */
-  public @Nonnull Result set(final @Nonnull Object content) {
+  public Result set(final Object content) {
     requireNonNull(content, "Content is required.");
     data.put(MediaType.all, () -> content);
     return this;
@@ -151,7 +149,7 @@ public class Result {
    * @param supplier An object supplier.
    * @return This result.
    */
-  public @Nonnull Result when(final String type, final @Nonnull Supplier<Object> supplier) {
+  public Result when(final String type, final Supplier<Object> supplier) {
     return when(MediaType.valueOf(type), supplier);
   }
 
@@ -162,7 +160,7 @@ public class Result {
    * @param supplier An object supplier.
    * @return This result.
    */
-  public @Nonnull Result when(final MediaType type, @Nonnull final Supplier<Object> supplier) {
+  public Result when(final MediaType type, final Supplier<Object> supplier) {
     requireNonNull(type, "A media type is required.");
     requireNonNull(supplier, "A supplier fn is required.");
     data.put(type, supplier);
@@ -172,25 +170,25 @@ public class Result {
   /**
    * @return Raw headers for content.
    */
-  public @Nonnull Map<String, String> headers() {
+  public Map<String, String> headers() {
     return ImmutableMap.copyOf(headers);
   }
 
   /**
    * @return Body status.
    */
-  public @Nonnull Optional<Status> status() {
+  public Optional<Status> status() {
     return Optional.ofNullable(status);
   }
 
   /**
    * @return Body type.
    */
-  public @Nonnull Optional<MediaType> type() {
+  public Optional<MediaType> type() {
     return Optional.ofNullable(type);
   }
 
-  public @Nonnull Optional<Object> get() {
+  public Optional<Object> get() {
     return get(MediaType.ALL);
   }
 
@@ -200,7 +198,7 @@ public class Result {
    * @param types Accept header.
    * @return Result content.
    */
-  public @Nonnull Optional<Object> get(final List<MediaType> types) {
+  public Optional<Object> get(final List<MediaType> types) {
     requireNonNull(types, "Types are required.");
     int size = data.size();
     if (size == 1) {
@@ -227,7 +225,7 @@ public class Result {
    * @param value Header's value.
    * @return This content.
    */
-  public @Nonnull Result header(final @Nonnull String name, final char value) {
+  public Result header(final String name, final char value) {
     setHeader.header(name, value);
     return this;
   }
@@ -240,7 +238,7 @@ public class Result {
    * @param value Header's value.
    * @return This content.
    */
-  public @Nonnull Result header(final @Nonnull String name, final byte value) {
+  public Result header(final String name, final byte value) {
     setHeader.header(name, value);
     return this;
   }
@@ -253,7 +251,7 @@ public class Result {
    * @param value Header's value.
    * @return This content.
    */
-  public @Nonnull Result header(final @Nonnull String name, final short value) {
+  public Result header(final String name, final short value) {
     setHeader.header(name, value);
     return this;
   }
@@ -266,7 +264,7 @@ public class Result {
    * @param value Header's value.
    * @return This content.
    */
-  public @Nonnull Result header(final @Nonnull String name, final int value) {
+  public Result header(final String name, final int value) {
     setHeader.header(name, value);
     return this;
   }
@@ -292,7 +290,7 @@ public class Result {
    * @param value Header's value.
    * @return This content.
    */
-  public @Nonnull Result header(final @Nonnull String name, final float value) {
+  public Result header(final String name, final float value) {
     setHeader.header(name, value);
     return this;
   }
@@ -305,7 +303,7 @@ public class Result {
    * @param value Header's value.
    * @return This content.
    */
-  public @Nonnull Result header(final @Nonnull String name, final double value) {
+  public Result header(final String name, final double value) {
     setHeader.header(name, value);
     return this;
   }
@@ -318,7 +316,7 @@ public class Result {
    * @param value Header's value.
    * @return This content.
    */
-  public @Nonnull Result header(final @Nonnull String name, final CharSequence value) {
+  public Result header(final String name, final CharSequence value) {
     setHeader.header(name, value);
     return this;
   }
@@ -331,7 +329,7 @@ public class Result {
    * @param value Header's value.
    * @return This content.
    */
-  public @Nonnull Result header(final @Nonnull String name, final @Nonnull Date value) {
+  public Result header(final String name, final Date value) {
     setHeader.header(name, value);
     return this;
   }

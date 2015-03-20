@@ -21,8 +21,6 @@ package org.jooby;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-
 /**
  * Local attributes for {@link Request} and {@link Session}.
  *
@@ -38,13 +36,11 @@ public interface Locals {
    * @param <T> Target type.
    * @return A value or empty optional.
    */
-  @Nonnull
-  <T> Optional<T> get(final @Nonnull String name);
+  <T> Optional<T> get(final String name);
 
   /**
    * @return An immutable copy of local attributes.
    */
-  @Nonnull
   Map<String, Object> attributes();
 
   /**
@@ -53,7 +49,7 @@ public interface Locals {
    * @param name A local var's name.
    * @return True, for existing locals.
    */
-  default boolean isSet(final @Nonnull String name) {
+  default boolean isSet(final String name) {
     return get(name).isPresent();
   }
 
@@ -65,7 +61,7 @@ public interface Locals {
    * @param value A local values.
    * @return This locals.
    */
-  @Nonnull Locals set(final @Nonnull String name, final @Nonnull Object value);
+  Locals set(final String name, final Object value);
 
   /**
    * Remove a local value (if any) from session locals.

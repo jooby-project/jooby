@@ -24,8 +24,6 @@ import static java.util.Objects.requireNonNull;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import javax.annotation.Nonnull;
-
 import org.jooby.util.ExSupplier;
 import org.jooby.util.Switch;
 
@@ -71,43 +69,38 @@ public interface Env {
      * @param config A config instance.
      * @return A new environment.
      */
-    Env build(@Nonnull Config config);
+    Env build(Config config);
 
   }
 
   /**
    * Default builder.
    */
-  Env.Builder DEFAULT = new Builder() {
+  Env.Builder DEFAULT = config -> {
+    requireNonNull(config, "A config is required.");
+    String name = config.hasPath("application.env") ? config.getString("application.env") : "dev";
+    return new Env() {
 
-    @Override
-    public Env build(final Config config) {
-      requireNonNull(config, "A config is required.");
-      String name = config.hasPath("application.env") ? config.getString("application.env") : "dev";
-      return new Env() {
+      @Override
+      public String name() {
+        return name;
+      }
 
-        @Override
-        public String name() {
-          return name;
-        }
+      @Override
+      public Config config() {
+        return config;
+      }
 
-        @Override
-        public Config config() {
-          return config;
-        }
-
-        @Override
-        public String toString() {
-          return name();
-        }
-      };
-    }
+      @Override
+      public String toString() {
+        return name();
+      }
+    };
   };
 
   /**
    * @return Env's name.
    */
-  @Nonnull
   String name();
 
   /**
@@ -156,7 +149,7 @@ public interface Env {
    * @param source The source config to use.
    * @return A processed string.
    */
-  default @Nonnull String resolve(@Nonnull final String text, @Nonnull final Config source) {
+  default String resolve(final String text, final Config source) {
     return resolve(text, source, "${", "}");
   }
 
@@ -173,8 +166,8 @@ public interface Env {
    * @param endDelimiter End delimiter.
    * @return A processed string.
    */
-  default @Nonnull String resolve(@Nonnull final String text, @Nonnull final Config source,
-      @Nonnull final String startDelimiter, @Nonnull final String endDelimiter) {
+  default String resolve(final String text, final Config source,
+      final String startDelimiter, final String endDelimiter) {
     requireNonNull(text, "Text is required.");
     requireNonNull(source, "A config source is required.");
     checkArgument(!Strings.isNullOrEmpty(startDelimiter), "Start delimiter is required.");
@@ -216,7 +209,7 @@ public interface Env {
    * @return A resulting object.
    * @throws Exception If something fails.
    */
-  default <T> Optional<T> ifMode(@Nonnull final String name, @Nonnull final ExSupplier<T> fn)
+  default <T> Optional<T> ifMode(final String name, final ExSupplier<T> fn)
       throws Exception {
     return when(name, fn).value();
   }
@@ -236,8 +229,7 @@ public interface Env {
    * @param <T> A resulting type.
    * @return A new switch.
    */
-  @Nonnull
-  default <T> Switch<String, T> when(@Nonnull final String name, @Nonnull final ExSupplier<T> fn) {
+  default <T> Switch<String, T> when(final String name, final ExSupplier<T> fn) {
     return Switch.<T> newSwitch(name()).when(name, fn);
   }
 
@@ -256,8 +248,7 @@ public interface Env {
    * @param <T> A resulting type.
    * @return A new switch.
    */
-  @Nonnull
-  default <T> Switch<String, T> when(@Nonnull final String name, @Nonnull final T result) {
+  default <T> Switch<String, T> when(final String name, final T result) {
     return Switch.<T> newSwitch(name()).when(name, result);
   }
 
@@ -276,9 +267,8 @@ public interface Env {
    * @param <T> A resulting type.
    * @return A new switch.
    */
-  @Nonnull
-  default <T> Switch<String, T> when(@Nonnull final Predicate<String> predicate,
-      @Nonnull final T result) {
+  default <T> Switch<String, T> when(final Predicate<String> predicate,
+      final T result) {
     return Switch.<T> newSwitch(name()).when(predicate, result);
   }
 }

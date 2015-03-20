@@ -23,8 +23,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 
-import javax.annotation.Nonnull;
-
 import com.google.common.primitives.Primitives;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Types;
@@ -122,7 +120,7 @@ public interface Mutant {
    * @param <T> Enum type.
    * @return Get an enum when possible.
    */
-  default <T extends Enum<T>> T toEnum(@Nonnull final Class<T> type) {
+  default <T extends Enum<T>> T toEnum(final Class<T> type) {
     return to(type);
   }
 
@@ -132,7 +130,7 @@ public interface Mutant {
    * @return Get list of values when possible.
    */
   @SuppressWarnings("unchecked")
-  default <T> List<T> toList(@Nonnull final Class<T> type) {
+  default <T> List<T> toList(final Class<T> type) {
     return (List<T>) to(TypeLiteral.get(Types.listOf(Primitives.wrap(type))));
   }
 
@@ -142,7 +140,7 @@ public interface Mutant {
    * @return Get set of values when possible.
    */
   @SuppressWarnings("unchecked")
-  default <T> Set<T> toSet(@Nonnull final Class<T> type) {
+  default <T> Set<T> toSet(final Class<T> type) {
     return (Set<T>) to(TypeLiteral.get(Types.setOf(Primitives.wrap(type))));
   }
 
@@ -152,7 +150,7 @@ public interface Mutant {
    * @return Get sorted set of values when possible.
    */
   @SuppressWarnings("unchecked")
-  default <T extends Comparable<T>> SortedSet<T> toSortedSet(@Nonnull final Class<T> type) {
+  default <T extends Comparable<T>> SortedSet<T> toSortedSet(final Class<T> type) {
     return (SortedSet<T>) to(TypeLiteral.get(
         Types.newParameterizedType(SortedSet.class, Primitives.wrap(type))
         ));
@@ -171,7 +169,7 @@ public interface Mutant {
    * @return Get an optional value when possible.
    */
   @SuppressWarnings("unchecked")
-  default <T> Optional<T> toOptional(@Nonnull final Class<T> type) {
+  default <T> Optional<T> toOptional(final Class<T> type) {
     return (Optional<T>) to(TypeLiteral.get(
         Types.newParameterizedType(Optional.class, Primitives.wrap(type))
         ));
