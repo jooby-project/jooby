@@ -45,7 +45,7 @@ import com.typesafe.config.Config;
  * module.
  * </p>
  *
- * <h1>Getting Started</h1>
+ * <h1>usage</h1>
  *
  * <p>
  * It is pretty straightforward:
@@ -67,8 +67,12 @@ import com.typesafe.config.Config;
  *   });
  * }
  * </pre>
+ * <p>
+ * A call to <code>req.require(Handle.class)</code> is the same as:
+ * <code>req.require(DBI.class).open(Handle.class)</code>.
+ * </p>
  *
- * <h1>Working with SQL Objects</h1>
+ * <h1>sql objects</h1>
  *
  * <p>
  * It is pretty straightforward (too):
@@ -105,7 +109,7 @@ import com.typesafe.config.Config;
  * }
  * </pre>
  *
- * <h1>Configuration</h1>
+ * <h1>configuration</h1>
  * <p>
  * If you need to configure and/or customize a {@link DBI} instance, just do:
  * </p>
@@ -152,6 +156,8 @@ public class Jdbi extends Jdbc {
 
     DBI dbi = new DBI(() -> dataSource().get().getConnection());
     dbi.setSQLLog(new SLF4JLog());
+    dbi.registerArgumentFactory(new OptionalArgumentFactory());
+    dbi.registerContainerFactory(new OptionalContainerFactory());
 
     keys(DBI.class, key -> binder.bind(key).toInstance(dbi));
 

@@ -114,7 +114,7 @@ import com.zaxxer.hikari.HikariConfig;
  * <h2>hikari configuration</h2>
  * <p>
  * If you need to configure or tweak the <a
- * href="https://github.com/brettwooldridge/HikariCP">hikari poll</a> just add <code>hikari.*</code>
+ * href="https://github.com/brettwooldridge/HikariCP">hikari pool</a> just add <code>hikari.*</code>
  * entries to your <code>application.conf</code> file:
  * </p>
  *
