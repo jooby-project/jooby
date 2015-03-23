@@ -29,6 +29,7 @@
     <module>jooby-quartz</module>
     <module>jooby-jdbi</module>
     <module>jooby-hotreload</module>
+    <module>jooby-camel</module>
     <module>jooby-archetype</module>
     <module>jooby-maven-plugin</module>
     <module>coverage-report</module>
@@ -141,6 +142,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-ftl</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-camel</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -294,6 +301,13 @@
         <groupId>org.jdbi</groupId>
         <artifactId>jdbi</artifactId>
         <version>${jdbi.version}</version>
+      </dependency>
+
+      <!-- Apache Camel -->
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-core</artifactId>
+        <version>${camel.version}</version>
       </dependency>
 
       <!-- Fluent HC -->
@@ -1023,6 +1037,7 @@
     <jdbi.version>2.59</jdbi.version>
     <freemarker.version>2.3.22</freemarker.version>
     <war.maxRequestSize>204800</war.maxRequestSize>
+    <camel.version>2.15.0</camel.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

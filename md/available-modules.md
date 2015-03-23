@@ -17,3 +17,6 @@
 
 ## servlet deployment
 ### [servlet](https://github.com/jooby-project/jooby/tree/master/jooby-servlet)
+
+## enterprise integration patterns (EIP)
+### [camel](https://github.com/jooby-project/jooby/tree/master/jooby-camel)
