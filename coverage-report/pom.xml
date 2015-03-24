@@ -46,6 +46,7 @@
                     <source>${project.parent.basedir}/jooby-jdbi/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-ftl/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-camel/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-jedis/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -70,6 +71,7 @@
                     <source>${project.parent.basedir}/jooby-jdbi/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-ftl/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-camel/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-jedis/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -171,6 +173,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-hbm</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-jedis</artifactId>
       <version>${project.version}</version>
     </dependency>
 

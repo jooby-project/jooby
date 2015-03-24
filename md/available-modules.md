@@ -14,6 +14,10 @@
 ### [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc)
 ### [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi)
 ### [hibernate](https://github.com/jooby-project/jooby/tree/master/jooby-hbm)
+### [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis)
+
+## scheduling
+### [quartz](https://github.com/jooby-project/jooby/tree/master/jooby-quartz)
 
 ## servlet deployment
 ### [servlet](https://github.com/jooby-project/jooby/tree/master/jooby-servlet)

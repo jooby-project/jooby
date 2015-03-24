@@ -29,6 +29,7 @@
     <module>jooby-quartz</module>
     <module>jooby-jdbi</module>
     <module>jooby-hotreload</module>
+    <module>jooby-jedis</module>
     <module>jooby-camel</module>
     <module>jooby-archetype</module>
     <module>jooby-maven-plugin</module>
@@ -148,6 +149,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-camel</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-jedis</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -355,6 +362,13 @@
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
         <version>${hikariCP.version}</version>
+      </dependency>
+
+      <!-- Jedis -->
+      <dependency>
+        <groupId>redis.clients</groupId>
+        <artifactId>jedis</artifactId>
+        <version>${jedis.version}</version>
       </dependency>
 
       <!-- H2 database -->
@@ -1038,6 +1052,7 @@
     <freemarker.version>2.3.22</freemarker.version>
     <war.maxRequestSize>204800</war.maxRequestSize>
     <camel.version>2.15.0</camel.version>
+    <jedis.version>2.6.2</jedis.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

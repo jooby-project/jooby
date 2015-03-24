@@ -6,3 +6,5 @@ jdk:
   - oraclejdk8
 after_success:
   - mvn -Dlogback.configurationFile=logback-travis.xml clean package coveralls:report -P coverage
+services:
+  - redis-server
