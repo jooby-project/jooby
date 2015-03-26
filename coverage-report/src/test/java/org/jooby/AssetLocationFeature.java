@@ -8,9 +8,9 @@ public class AssetLocationFeature extends ServerFeature {
   {
     assets("/", "welcome.html");
 
-    assets("/js/lib/*-*.js", "/resources/webjars/{0}/{1}/{0}.js");
+    assets("/js/lib/*-*.js", "/META-INF/resources/webjars/{0}/{1}/{0}.js");
 
-    assets("/js/**", "/resources/webjars/{0}");
+    assets("/js/**", "/META-INF/resources/webjars/{0}");
 
   }
 
@@ -34,7 +34,14 @@ public class AssetLocationFeature extends ServerFeature {
     request()
         .get("/js/jquery/2.1.3/jquery.js")
         .expect(200)
-        .header("Content-Type", "application/javascript;charset=UTF-8");
+        .header("Content-Type", "application/javascript;charset=UTF-8")
+        .header("Content-Length", "247387");
+
+    request()
+        .get("/js/jquery/2.1.3/jquery.min.js")
+        .expect(200)
+        .header("Content-Type", "application/javascript;charset=UTF-8")
+        .header("Content-Length", "84355");
   }
 
   @Test
@@ -42,7 +49,9 @@ public class AssetLocationFeature extends ServerFeature {
     request()
         .get("/js/lib/jquery-2.1.3.js")
         .expect(200)
-        .header("Content-Type", "application/javascript;charset=UTF-8");
+        .header("Content-Type", "application/javascript;charset=UTF-8")
+        .header("Content-Length", "247387");
+
   }
 
 }

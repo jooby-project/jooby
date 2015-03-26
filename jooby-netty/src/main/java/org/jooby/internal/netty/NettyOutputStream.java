@@ -18,7 +18,9 @@
  */
 package org.jooby.internal.netty;
 
+import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -93,10 +95,15 @@ class NettyOutputStream extends OutputStream {
     try {
       flush();
     } finally {
-      if (!headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
-        // close chunked responses
-        ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
-            .addListener(ChannelFutureListener.CLOSE);
+      if (chunkState > 0) {
+        ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
+            .addListener(FIRE_EXCEPTION_ON_FAILURE);
+        /**
+         * no Keep alive?
+         */
+        if (!keepAlive || !headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
+          future.addListener(ChannelFutureListener.CLOSE);
+        }
       }
     }
   }
@@ -150,11 +157,11 @@ class NettyOutputStream extends OutputStream {
         // send keep alive and don't close the channel
         headers.set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
         rsp.headers().set(headers);
-        ctx.writeAndFlush(rsp);
+        ctx.writeAndFlush(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
       } else {
         // don't send keep alive and close the channel.
         rsp.headers().set(headers);
-        ctx.writeAndFlush(rsp).addListener(ChannelFutureListener.CLOSE);
+        ctx.writeAndFlush(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
       }
       return;
     }
@@ -179,12 +186,13 @@ class NettyOutputStream extends OutputStream {
       // dump headers
       rsp.headers().set(headers);
       // send headers
-      ctx.write(rsp);
+      ctx.write(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
     }
     /**
      * Write chunk and clear the buffer.
      */
-    ctx.writeAndFlush(new DefaultHttpContent(buffer.copy()));
+    ctx.writeAndFlush(new DefaultHttpContent(buffer.copy()))
+        .addListener(FIRE_EXCEPTION_ON_FAILURE);
     buffer.clear();
   }
 

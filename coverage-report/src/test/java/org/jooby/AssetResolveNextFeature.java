@@ -8,7 +8,7 @@ public class AssetResolveNextFeature extends ServerFeature {
   {
     assets("/assets/**", "/");
 
-    assets("/assets/js/*-*.js", "/resources/webjars/{0}/{1}/{0}.js");
+    assets("/assets/js/*-*.js", "/META-INF/resources/webjars/{0}/{1}/{0}.js");
   }
 
   @Test

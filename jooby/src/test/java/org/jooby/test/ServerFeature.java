@@ -29,6 +29,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
@@ -290,6 +291,7 @@ public abstract class ServerFeature extends Jooby {
       this.cookieStore = new BasicCookieStore();
       this.builder = HttpClientBuilder.create()
           .setMaxConnTotal(1)
+          .setRetryHandler(new StandardHttpRequestRetryHandler(0, false))
           .setMaxConnPerRoute(1)
           .setDefaultCookieStore(cookieStore);
     }
@@ -384,11 +386,31 @@ public abstract class ServerFeature extends Jooby {
 
   }
 
+  public static boolean DEBUG = false;
+
   @Named("port")
   @Inject
   protected int port;
 
   private Server server = null;
+
+  @Before
+  public void debug() {
+    if (DEBUG) {
+      java.util.logging.Logger.getLogger("httpclient.wire.header").setLevel(
+          java.util.logging.Level.FINEST);
+      java.util.logging.Logger.getLogger("httpclient.wire.content").setLevel(
+          java.util.logging.Level.FINEST);
+
+      System.setProperty("org.apache.commons.logging.Log",
+          "org.apache.commons.logging.impl.SimpleLog");
+      System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+      System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", "debug");
+      System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http", "debug");
+      System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.headers",
+          "debug");
+    }
+  }
 
   @Before
   public void createServer() {

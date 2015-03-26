@@ -317,10 +317,8 @@ public class RoutePatternTest {
 
     new RoutePathAssert("GET", "/js/**/*.js")
         .matches("GET/js/jquery/2.1.3/jquery.js", vars -> {
-          System.out.println(vars);
           assertEquals("jquery/2.1.3/jquery", vars.get(0));
         });
-
   }
 
 }

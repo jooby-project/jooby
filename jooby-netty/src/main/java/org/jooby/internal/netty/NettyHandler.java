@@ -29,6 +29,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 
 import org.jooby.spi.HttpHandler;
 import org.slf4j.Logger;
@@ -40,6 +41,9 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
+
+  public static final AttributeKey<String> PATH =
+      new AttributeKey<String>(NettyHandler.class.getName());
 
   private HttpHandler handler;
 
@@ -66,10 +70,12 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
   public void channelRead0(final ChannelHandlerContext ctx, final Object msg) {
     if (msg instanceof FullHttpRequest) {
       FullHttpRequest req = (FullHttpRequest) msg;
+      ctx.attr(PATH).set(req.getMethod().name() + " " + req.getUri());
 
       if (HttpHeaders.is100ContinueExpected(req)) {
         ctx.write(new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.CONTINUE));
       }
+
       boolean keepAlive = HttpHeaders.isKeepAlive(req);
 
       try {
@@ -91,7 +97,7 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
       if (ws != null && ws.get() != null) {
         ws.get().handle(cause);
       } else {
-        log.error("execution of: " + ctx + " resulted in error", cause);
+        log.error("execution of: " + ctx.attr(PATH).get() + " resulted in error", cause);
       }
     } finally {
       ctx.close();
