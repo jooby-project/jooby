@@ -15,7 +15,7 @@ public class ShouldPreventSaveOnUnmodifiedSessionFeature extends ServerFeature {
   private static CountDownLatch latch = null;
 
   {
-    use(new Session.MemoryStore() {
+    session(new Session.MemoryStore() {
 
       @Override
       public void create(final Session session) {

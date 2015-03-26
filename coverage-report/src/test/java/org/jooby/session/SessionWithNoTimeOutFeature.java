@@ -10,7 +10,7 @@ import org.junit.Test;
 public class SessionWithNoTimeOutFeature extends ServerFeature {
 
   {
-    use(new Session.MemoryStore()).timeout(-1);
+    session(new Session.MemoryStore()).timeout(-1);
 
     get("/session", (req, rsp) -> {
       Session session = req.session();

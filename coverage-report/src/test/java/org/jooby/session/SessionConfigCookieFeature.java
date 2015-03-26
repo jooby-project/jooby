@@ -32,7 +32,7 @@ public class SessionConfigCookieFeature extends ServerFeature {
         .withValue("application.session.cookie.httpOnly", ConfigValueFactory.fromAnyRef(true))
         .withValue("application.session.cookie.secure", ConfigValueFactory.fromAnyRef(false)));
 
-    use(new Session.MemoryStore());
+    session(new Session.MemoryStore());
 
     get("/session", (req, rsp) -> {
       rsp.send(req.session().id());

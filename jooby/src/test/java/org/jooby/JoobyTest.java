@@ -2127,7 +2127,7 @@ public class JoobyTest {
         .run(unit -> {
 
           Jooby jooby = new Jooby();
-          jooby.use(unit.get(Store.class));
+          jooby.session(unit.get(Store.class));
 
           jooby.start();
 

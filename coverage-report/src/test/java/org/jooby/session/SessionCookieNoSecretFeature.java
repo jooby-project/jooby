@@ -18,7 +18,7 @@ import com.google.common.collect.Lists;
 public class SessionCookieNoSecretFeature extends ServerFeature {
 
   {
-    use(new Session.MemoryStore()).cookie()
+    session(new Session.MemoryStore()).cookie()
         .name("custom.sid")
         .path("/session")
         .maxAge(60);

@@ -13,7 +13,7 @@ public class ShouldHaveSavedSessionEventWithEmptyResponseFeature extends ServerF
   private static final CountDownLatch latch = new CountDownLatch(1);
 
   {
-    use(new Session.MemoryStore() {
+    session(new Session.MemoryStore() {
 
       @Override
       public void create(final Session session) {

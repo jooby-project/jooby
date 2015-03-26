@@ -13,7 +13,7 @@ public class SessionIdWithSecretFeature extends ServerFeature {
     use(ConfigFactory.empty().withValue("application.secret",
         ConfigValueFactory.fromAnyRef("1234$")));
 
-    use(new Session.MemoryStore() {
+    session(new Session.MemoryStore() {
       @Override
       public String generateID() {
         return "1234";

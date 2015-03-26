@@ -28,7 +28,7 @@ public class SessionRestoreFeature extends ServerFeature {
     lastAccessed.set(System.currentTimeMillis() - 200);
     lastSaved.set(lastAccessed.get());
     expiryAt.set(lastAccessed.get() + 2000);
-    use(new Session.MemoryStore() {
+    session(new Session.MemoryStore() {
       @Override
       public Session get(final Session.Builder builder) {
         assertEquals("678", builder.sessionId());

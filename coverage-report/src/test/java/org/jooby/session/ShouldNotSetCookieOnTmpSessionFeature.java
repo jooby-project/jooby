@@ -13,7 +13,7 @@ public class ShouldNotSetCookieOnTmpSessionFeature extends ServerFeature {
   private static final CountDownLatch latch = new CountDownLatch(1);
 
   {
-    use(new Session.MemoryStore() {
+    session(new Session.MemoryStore() {
       @Override
       public void delete(final String id) {
         super.delete(id);

@@ -536,12 +536,11 @@ public class Jooby {
    * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns.
    * Sessions are not persisted by defaults.
    *
-   * @param sessionStore A session store.
+   * @param store A session store.
    * @return A session store definition.
    */
-  public Session.Definition use(final Session.Store sessionStore) {
-    this.session = new Session.Definition(requireNonNull(sessionStore,
-        "A session store is required."));
+  public Session.Definition session(final Session.Store store) {
+    this.session = new Session.Definition(requireNonNull(store, "A session store is required."));
     return this.session;
   }
 
