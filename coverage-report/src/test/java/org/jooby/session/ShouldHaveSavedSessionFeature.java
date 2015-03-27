@@ -13,8 +13,7 @@ public class ShouldHaveSavedSessionFeature extends ServerFeature {
   private static final CountDownLatch latch = new CountDownLatch(1);
 
   {
-    session(new Session.MemoryStore() {
-
+    session(new Session.Mem() {
       @Override
       public void create(final Session session) {
         super.create(session);
@@ -24,7 +23,7 @@ public class ShouldHaveSavedSessionFeature extends ServerFeature {
 
     get("/shouldHaveSavedSession", req -> {
       req.session().set("k1", "v1");
-      return req.session().get("k1").get();
+      return req.session().get("k1").value();
     });
   }
 

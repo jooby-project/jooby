@@ -36,12 +36,12 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
 
+import org.jooby.Mutant;
 import org.jooby.Session;
+import org.jooby.internal.reqparam.ParamResolver;
 
 public class SessionImpl implements Session {
 
@@ -97,7 +97,7 @@ public class SessionImpl implements Session {
 
   }
 
-  private ConcurrentMap<String, Object> attributes = new ConcurrentHashMap<>();
+  private ConcurrentMap<String, String> attributes = new ConcurrentHashMap<>();
 
   private String sessionId;
 
@@ -113,14 +113,18 @@ public class SessionImpl implements Session {
 
   private volatile long savedAt;
 
-  public SessionImpl(final boolean isNew, final String sessionId, final long timeout) {
+  private ParamResolver resolver;
+
+  public SessionImpl(final ParamResolver resolver, final boolean isNew, final String sessionId,
+      final long timeout) {
+    this.resolver = resolver;
     this.isNew = isNew;
     this.sessionId = sessionId;
     long now = System.currentTimeMillis();
     this.createdAt = now;
     this.accessedAt = now;
     this.savedAt = -1;
-    this.timeout = TimeUnit.SECONDS.toMillis(timeout);
+    this.timeout = timeout;
   }
 
   @Override
@@ -206,23 +210,18 @@ public class SessionImpl implements Session {
   void markAsSaved() {
     isNew = false;
     dirty = false;
-    savedAt = System.currentTimeMillis();
   }
 
   public void touch() {
     this.accessedAt = System.currentTimeMillis();
   }
 
-  public boolean validate() {
-    if (timeout <= 0) {
-      return true;
-    }
-    long now = System.currentTimeMillis();
-    return now - accessedAt < timeout;
-  }
-
   @Override
   public String toString() {
     return sessionId;
+  }
+
+  public void aboutToSave() {
+    savedAt = System.currentTimeMillis();
   }
 }

@@ -9,7 +9,7 @@ public class ShouldCreateMultipleSessionsFeature extends ServerFeature {
 
   {
     get("/shouldCreateMutipleSessions", req -> {
-      return req.session().get("count").map(c -> "updated").orElse("created");
+      return req.session().get("count").toOptional().map(c -> "updated").orElse("created");
     });
   }
 

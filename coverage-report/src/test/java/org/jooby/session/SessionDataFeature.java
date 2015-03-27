@@ -38,10 +38,10 @@ public class SessionDataFeature extends ServerFeature {
         .expect("{v1=v1}")
         .request(r1 ->
             r1.get("/s2")
-                .expect("Optional[v1]")
+                .expect("v1")
                 .request(r2 ->
                     r2.get("/s2")
-                        .expect("Optional.empty")
+                        .expect("")
                 )
         );
 
@@ -54,13 +54,13 @@ public class SessionDataFeature extends ServerFeature {
         .expect("{v1=v1}")
         .request(r1 ->
             r1.get("/unset-all")
-                .expect("Optional[v1]")
+                .expect("v1")
                 .request(r2 ->
                     r2.get("/s2")
-                        .expect("Optional.empty")
+                        .expect("")
                         .request(r3 ->
                             r3.get("/s2")
-                                .expect("Optional.empty")
+                                .expect("")
                         )
                 )
         );

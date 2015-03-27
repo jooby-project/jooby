@@ -32,7 +32,7 @@ public class SessionConfigCookieFeature extends ServerFeature {
         .withValue("application.session.cookie.httpOnly", ConfigValueFactory.fromAnyRef(true))
         .withValue("application.session.cookie.secure", ConfigValueFactory.fromAnyRef(false)));
 
-    session(new Session.MemoryStore());
+    session(new Session.Mem());
 
     get("/session", (req, rsp) -> {
       rsp.send(req.session().id());
@@ -51,27 +51,25 @@ public class SessionConfigCookieFeature extends ServerFeature {
     request()
         .get("/session")
         .expect(200)
-        .header(
-            "Set-Cookie",
-            value -> {
-              List<String> setCookie = Lists.newArrayList(
-                  Splitter.onPattern(";\\s*")
-                      .splitToList(value)
-                  );
+        .header("Set-Cookie", value -> {
+          List<String> setCookie = Lists.newArrayList(
+              Splitter.onPattern(";\\s*")
+                  .splitToList(value)
+              );
 
-              assertTrue(setCookie.remove(0).startsWith("custom.sid"));
-              assertTrue(setCookie.remove("Path=/session") || setCookie.remove("Path=\"/session\""));
-              assertTrue(setCookie.remove("HttpOnly") || setCookie.remove("HTTPOnly"));
-              assertTrue(setCookie.remove("Max-Age=60"));
-              assertTrue(setCookie.remove("Domain=localhost"));
-              assertTrue(setCookie.remove("Version=1"));
-              setCookie.remove("Comment=\"jooby cookie\"");
-              if (setCookie.size() > 0) {
-                // Expires is optional on version=1?
-                assertTrue(setCookie.remove(0).startsWith(
-                    "Expires=" + formatter.format(utc).replace("GMT", "")));
-              }
-            });
+          assertTrue(setCookie.remove(0).startsWith("custom.sid"));
+          assertTrue(setCookie.remove("Path=/session") || setCookie.remove("Path=\"/session\""));
+          assertTrue(setCookie.remove("HttpOnly") || setCookie.remove("HTTPOnly"));
+          assertTrue(value, setCookie.remove("Max-Age=60"));
+          assertTrue(setCookie.remove("Domain=localhost"));
+          assertTrue(value, setCookie.remove("Version=1"));
+          setCookie.remove("Comment=\"jooby cookie\"");
+          if (setCookie.size() > 0) {
+            // Expires is optional on version=1?
+            assertTrue(setCookie.remove(0).startsWith(
+                "Expires=" + formatter.format(utc).replace("GMT", "")));
+          }
+        });
   }
 
 }

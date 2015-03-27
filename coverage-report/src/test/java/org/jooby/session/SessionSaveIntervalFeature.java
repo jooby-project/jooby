@@ -13,12 +13,11 @@ public class SessionSaveIntervalFeature extends ServerFeature {
   private static final CountDownLatch saveCalls = new CountDownLatch(2);
 
   {
-    session(new Session.MemoryStore() {
+    session(new Session.Mem() {
       @Override
       public void save(final Session session) {
         saveCalls.countDown();
       }
-
     }).saveInterval(1);
 
     get("/session", (req, rsp) -> {

@@ -15,8 +15,7 @@ public class ShouldPreventSaveOnUnmodifiedSessionFeature extends ServerFeature {
   private static CountDownLatch latch = null;
 
   {
-    session(new Session.MemoryStore() {
-
+    session(new Session.Mem() {
       @Override
       public void create(final Session session) {
         super.create(session);
@@ -34,7 +33,7 @@ public class ShouldPreventSaveOnUnmodifiedSessionFeature extends ServerFeature {
     get("/shouldPreventSaveOnUnmodifiedSession", req -> {
       Session session = req.session();
       session.set("k1", "v1");
-      return session.get("k1").get();
+      return session.get("k1").value();
     });
 
   }

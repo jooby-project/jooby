@@ -34,125 +34,137 @@ package org.jooby.internal;
 
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.jooby.Cookie;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Session;
 import org.jooby.Session.Definition;
+import org.jooby.internal.reqparam.ParamResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
 
+@Singleton
 public class SessionManager {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final Session.Definition def;
-
   private final Session.Store store;
 
-  private final Cookie.Definition cookie;
+  private final Cookie.Definition template;
 
   private final String secret;
 
-  private final long timeout;
-
   private final long saveInterval;
 
-  public SessionManager(final Config config, final Definition def) {
-    this.def = def;
-    this.store = this.def.store();
+  private final ParamResolver resolver;
+
+  private final long timeout;
+
+  @Inject
+  public SessionManager(final Config config, final Definition def, final Session.Store store,
+      final ParamResolver resolver) {
+    this.store = store;
+    this.resolver = resolver;
     this.secret = config.hasPath("application.secret")
         ? config.getString("application.secret")
         : null;
 
     Config $session = config.getConfig("application.session");
 
-    // timeout
-    this.timeout = def.timeout().orElse(duration($session, "timeout", TimeUnit.SECONDS));
-
     // save interval
     this.saveInterval = def.saveInterval()
-        .orElse(duration($session, "saveInterval", TimeUnit.SECONDS));
+        .orElse($session.getDuration("saveInterval", TimeUnit.MILLISECONDS));
 
     // build cookie
     Cookie.Definition source = def.cookie();
 
-    this.cookie = new Cookie.Definition(source);
+    this.template = new Cookie.Definition(source);
 
-    cookie.name(source.name().orElse($session.getString("cookie.name")));
+    template.name(source.name().orElse($session.getString("cookie.name")));
 
-    if (!cookie.comment().isPresent() && $session.hasPath("cookie.comment")) {
-      cookie.comment($session.getString("cookie.comment"));
+    if (!template.comment().isPresent() && $session.hasPath("cookie.comment")) {
+      template.comment($session.getString("cookie.comment"));
     }
-    if (!cookie.domain().isPresent() && $session.hasPath("cookie.domain")) {
-      cookie.domain($session.getString("cookie.domain"));
+    if (!template.domain().isPresent() && $session.hasPath("cookie.domain")) {
+      template.domain($session.getString("cookie.domain"));
     }
-    cookie.httpOnly(source.httpOnly().orElse($session.getBoolean("cookie.httpOnly")));
-    cookie.maxAge(source.maxAge()
-        .orElse(duration($session, "cookie.maxAge", TimeUnit.SECONDS))
+    template.httpOnly(
+        source.httpOnly()
+            .orElse($session.getBoolean("cookie.httpOnly"))
         );
-    cookie.path(source.path()
+
+    template.maxAge(
+        source.maxAge()
+            .orElse(seconds($session, "cookie.maxAge"))
+        );
+    template.path(source.path()
         .orElse($session.getString("cookie.path"))
         );
-    cookie.secure(source.secure()
+    template.secure(source.secure()
         .orElse($session.getBoolean("cookie.secure"))
         );
+
+    this.timeout = TimeUnit.SECONDS.toMillis(template.maxAge().get());
   }
 
   public Session create(final Request req, final Response rsp) {
-    Session session = new SessionImpl.Builder(true, store.generateID(), timeout)
-        .build();
+    Session session = new SessionImpl.Builder(resolver, true, store.generateID(), timeout).build();
     log.debug("session created: {}", session);
-    // set cookie
-    Cookie.Definition cookie = new Cookie.Definition(this.cookie)
-        .value(sign(session.id()));
-    log.debug("setting cookie: {}", cookie);
+    Cookie.Definition cookie = cookie(session);
+    log.debug("  new cookie: {}", cookie);
     rsp.cookie(cookie);
     return session;
   }
 
-  public Session get(final Request req) {
-    SessionImpl session = req.cookie(cookie.name().get())
+  public Session get(final Request req, final Response rsp) {
+    return req.cookie(template.name().get())
         .map(cookie -> {
-          log.debug("session cookie found: {}", cookie);
-          return (SessionImpl) store.get(
-              new SessionImpl.Builder(false, unsign(cookie.value().get()), timeout)
+          String sessionId = unsign(cookie.value().get());
+          log.debug("loading session: {}", sessionId);
+          Session session = store.get(
+              new SessionImpl.Builder(resolver, false, sessionId, timeout)
               );
+          if (timeout >= 0 && session != null) {
+            Cookie.Definition setCookie = cookie(session);
+            log.debug("  touch cookie: {}", setCookie);
+            rsp.cookie(setCookie);
+          }
+          return session;
         }).orElse(null);
-
-    if (session != null && !session.validate()) {
-      destroy(session);
-      return null;
-    }
-    return session;
   }
 
   public void destroy(final Session session) {
+    log.debug("  deleting: {}", session.id());
     store.delete(session.id());
   }
 
   public void requestDone(final Session session) {
-    createOrUpdate((SessionImpl) ((RequestScopedSession) session).session);
+    createOrUpdate((SessionImpl) ((RequestScopedSession) session).session());
   }
 
   public Cookie.Definition cookie() {
-    return cookie;
+    return template;
   }
 
   private void createOrUpdate(final SessionImpl session) {
     session.touch();
     if (session.isNew()) {
+      session.aboutToSave();
       store.create(session);
     } else if (session.isDirty()) {
+      session.aboutToSave();
       store.save(session);
     } else {
       long now = System.currentTimeMillis();
       long interval = now - session.savedAt();
       if (interval >= saveInterval) {
+        session.aboutToSave();
         store.save(session);
       }
     }
@@ -170,12 +182,18 @@ public class SessionManager {
     return Cookie.Signature.unsign(sessionId, secret);
   }
 
-  private static long duration(final Config config, final String name, final TimeUnit unit) {
-    try {
-      return config.getLong(name);
-    } catch (ConfigException.WrongType ex) {
-      return config.getDuration(name, unit);
+  private Cookie.Definition cookie(final Session session) {
+    // set cookie
+    return new Cookie.Definition(this.template).value(sign(session.id()));
+  }
+
+  private long seconds(final Config $session, final String name) {
+    Object value = $session.getAnyRef(name);
+    if (value instanceof Number) {
+      // it isn't exactly as getDuration. Here the default time unit for number is seconds
+      return ((Number) value).longValue();
     }
+    return $session.getDuration(name, TimeUnit.SECONDS);
   }
 
 }

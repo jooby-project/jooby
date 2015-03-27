@@ -23,7 +23,7 @@ public class SessionCookieFeature extends ServerFeature {
     use(ConfigFactory.empty().withValue("application.secret",
         ConfigValueFactory.fromAnyRef("fixed")));
 
-    session(new Session.MemoryStore()).cookie()
+    session(new Session.Mem()).cookie()
         .name("custom.sid")
         .path("/session")
         .comment("jooby cookie")

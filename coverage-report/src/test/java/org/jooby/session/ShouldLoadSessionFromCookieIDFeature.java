@@ -17,7 +17,7 @@ public class ShouldLoadSessionFromCookieIDFeature extends ServerFeature {
       if (!session.get("count").isPresent()) {
         session.set("count", cookieIDCounter.incrementAndGet());
       }
-      return session.get("count").get();
+      return session.get("count").value();
     });
   }
 
