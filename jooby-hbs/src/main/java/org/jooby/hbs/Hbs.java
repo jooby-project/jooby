@@ -26,14 +26,15 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import org.jooby.Env;
 import org.jooby.BodyFormatter;
+import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.View;
 import org.jooby.internal.hbs.ConfigValueResolver;
 import org.jooby.internal.hbs.HbsEngine;
 import org.jooby.internal.hbs.HbsHelpers;
-import org.jooby.internal.hbs.LocalsValueResolver;
+import org.jooby.internal.hbs.RequestValueResolver;
+import org.jooby.internal.hbs.SessionValueResolver;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.ValueResolver;
@@ -168,7 +169,8 @@ public class Hbs implements Jooby.Module {
     this.resolvers.add(MapValueResolver.INSTANCE);
     this.resolvers.add(JavaBeanValueResolver.INSTANCE);
     this.resolvers.add(MethodValueResolver.INSTANCE);
-    this.resolvers.add(new LocalsValueResolver());
+    this.resolvers.add(new RequestValueResolver());
+    this.resolvers.add(new SessionValueResolver());
     this.resolvers.add(new ConfigValueResolver());
     this.resolvers.add(FieldValueResolver.INSTANCE);
   }

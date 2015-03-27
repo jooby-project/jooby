@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Sets;
+import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 public class MutantImplTest {
@@ -492,7 +493,7 @@ public class MutantImplTest {
   }
 
   private ParamResolver newConverter() {
-    return new ParamResolver(() -> createMock(Request.class),
+    return new ParamResolver(createMock(Injector.class),
         Sets.newLinkedHashSet(
             Arrays.asList(
                 new CommonTypesParamConverter(),

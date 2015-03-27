@@ -26,79 +26,84 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
- * Sessions are created on demand from {@link Request#session()}.
+ * <p>
+ * Sessions are created on demand via: {@link Request#session()}.
+ * </p>
  *
+ * <p>
  * Sessions have a lot of uses cases but most commons are: auth, store information about current
  * user, etc.
+ * </p>
  *
- * <h1>Session configuration</h1> <h2>Session timeout</h2>
  * <p>
- * Session timeout is defined by the <code>application.session.timeout</code> property, by default a
- * session will be invalidated after 1800 seconds (30 minutes) of inactivity. Alternative, you can
- * set session timeout from {@link Definition#timeout(long)}.
+ * A session attribute must be {@link String} or a primitive. Session doesn't allow to store
+ * arbitrary objects. It is a simple mechanism to store basic data.
  * </p>
- * <h2>Session persistence</h2>
+ *
+ * <h1>Session configuration</h1>
+ *
+ * <h2>No timeout</h2>
  * <p>
- * Session data can be persisted, in order to do that you must provide an implementation of
- * {@link Session.Store}. Sessions are kept in memory, by default.
+ * There is no timeout for sessions from server perspective. By default, a session will expire when
+ * the user close the browser (a.k.a session cookie).
  * </p>
- * Sessions are persisted every time a request exit if they are dirty. A session get dirty if an
+ *
+ * <h2>Session store</h2>
+ * <p>
+ * A {@link Session.Store} is responsible for saving session data. Sessions are kept in memory, by
+ * default using the {@link Session.Mem} store, which is useful for development, but wont scale well
+ * on production environments. An redis, memcached, ehcache store will be a better option.
+ * </p>
+ *
+ * <h3>Store life-cycle</h3>
+ * <p>
+ * Sessions are persisted every time a request exit, if they are dirty. A session get dirty if an
  * attribute is added or removed from it.
- * <p>
- * The <code>application.session.saveInterval</code> property indicates how frequently a session
- * will be persisted. Again, it will be persisted at the time a request exit.
  * </p>
  * <p>
- * In short, a session is persisted when: 1) are dirty; or 2) save interval is expired it.
+ * The <code>session.saveInterval</code> property indicates how frequently a session will be
+ * persisted (in millis).
  * </p>
  * <p>
- * Finally, the <code>application.session.preseverOnStop</code> indicates whenever existing session
- * need to be store at exit time (persisted) or not (invalidated). By default session are preserved
- * on stop.
+ * In short, a session is persisted when: 1) it is dirty; or 2) save interval has expired it.
  * </p>
  *
  * <h1>Cookie configuration</h1>
  * <p>
- * A cookie will be created when a session is created. Cookie is signed using
- * <code>application.secret</code>. For {@link Env dev env} the default secret is set to the
- * location of the Jooby class. For others an <code>application.secret</code> MUST be set, otherwise
- * the application will fail at startup.
- * </p>
- * <p>
- * The <code>application.session.cookie.name</code> indicates the name of the cookie that hold the
- * session ID, by defaults: <code>jooby.sid</code>. Cookie's name can be explicitly set with
- * {@link Cookie.Definition#name(String)} on {@link Session.Definition#cookie()}.
+ * Next session describe the most important options:
  * </p>
  *
+ * <h2>max-age</h2>
  * <p>
- * The <code>application.session.cookie.maxAge</code> sets the maximum age in seconds. A positive
- * value indicates that the cookie will expire after that many seconds have passed. Note that the
- * value is the <i>maximum</i> age when the cookie will expire, not the cookie's current age.
+ * The <code>session.cookie.maxAge</code> sets the maximum age in seconds. A positive value
+ * indicates that the cookie will expire after that many seconds have passed. Note that the value is
+ * the <i>maximum</i> age when the cookie will expire, not the cookie's current age.
  *
  * A negative value means that the cookie is not stored persistently and will be deleted when the
- * Web browser exits. A zero value causes the cookie to be deleted.
+ * Web browser exits.
  *
  * Default maxAge is: <code>-1</code>.
  *
- * Cookie's name can be explicitly set with {@link Cookie.Definition#name(String)} on
- * {@link Session.Definition#cookie()}.
- *
- * <p>
- * A session cookie is marked as secure and httpOnly.
  * </p>
+ *
+ * <h2>signed cookie</h2>
  * <p>
- * Please note that session data is NOT persisted in the cookie, just the session ID. If need to
- * persist a session, see {@link Session.Store}
+ * If the <code>application.secret</code> property has been set, then the session cookie will be
+ * signed it with it.
+ * </p>
+ *
+ * <h2>cookie's name</h2>
+ * <p>
+ * The <code>session.cookie.name</code> indicates the name of the cookie that hold the session ID,
+ * by defaults: <code>jooby.sid</code>. Cookie's name can be explicitly set with
+ * {@link Cookie.Definition#name(String)} on {@link Session.Definition#cookie()}.
  * </p>
  *
  * @author edgar
  * @since 0.1.0
  */
-public interface Session extends Locals {
+public interface Session {
 
   /**
    * Hold session related configuration parameters.
@@ -109,10 +114,7 @@ public interface Session extends Locals {
   class Definition {
 
     /** Session store. */
-    private Store store;
-
-    /** Session timeout . */
-    private Long timeout;
+    private Object store;
 
     /** Session cookie. */
     private Cookie.Definition cookie;
@@ -125,31 +127,23 @@ public interface Session extends Locals {
      *
      * @param store A session store.
      */
+    public Definition(final Class<? extends Store> store) {
+      this.store = requireNonNull(store, "A session store is required.");
+      cookie = new Cookie.Definition();
+    }
+
+    /**
+     * Creates a new session definition.
+     *
+     * @param store A session store.
+     */
     public Definition(final Store store) {
       this.store = requireNonNull(store, "A session store is required.");
       cookie = new Cookie.Definition();
     }
 
     /**
-     * Set and override default session time out of 30 to something else.
-     *
-     * @param timeout Session timeout in seconds or <code>-1</code> for no timeout.
-     * @return This definition.
-     */
-    public Definition timeout(final long timeout) {
-      this.timeout = timeout;
-      return this;
-    }
-
-    /**
-     * @return Get session timeout (if any).
-     */
-    public Optional<Long> timeout() {
-      return Optional.ofNullable(timeout);
-    }
-
-    /**
-     * Indicates in seconds how frequently a no-dirty session should be persisted.
+     * Indicates how frequently a no-dirty session should be persisted (in millis).
      *
      * @return A save interval that indicates how frequently no dirty session should be persisted.
      */
@@ -158,9 +152,9 @@ public interface Session extends Locals {
     }
 
     /**
-     * Set/override how frequently a no-dirty session should be persisted.
+     * Set/override how frequently a no-dirty session should be persisted (in millis).
      *
-     * @param saveInterval Save interval in seconds or <code>-1</code> for turning it off.
+     * @param saveInterval Save interval in millis or <code>-1</code> for turning it off.
      * @return This definition.
      */
     public Definition saveInterval(final long saveInterval) {
@@ -169,9 +163,9 @@ public interface Session extends Locals {
     }
 
     /**
-     * @return A session store, defaults to {@link MemoryStore}.
+     * @return A session store instance or class.
      */
-    public Store store() {
+    public Object store() {
       return store;
     }
 
@@ -277,7 +271,7 @@ public interface Session extends Locals {
      * @param value Attribute's value.
      * @return This builder.
      */
-    Builder set(final String name, final Object value);
+    Builder set(final String name, final String value);
 
     /**
      * Set one ore more session local attributes.
@@ -285,7 +279,7 @@ public interface Session extends Locals {
      * @param attributes Attributes to add.
      * @return This builder.
      */
-    Builder set(final Map<String, Object> attributes);
+    Builder set(final Map<String, String> attributes);
 
     /**
      * Set session created date.
@@ -319,9 +313,6 @@ public interface Session extends Locals {
     Session build();
 
   }
-
-  /** Logger logs, man. */
-  Logger log = LoggerFactory.getLogger(Session.class);
 
   /**
    * @return Session ID.
@@ -367,14 +358,12 @@ public interface Session extends Locals {
    * @param <T> Target type.
    * @return A value or empty optional.
    */
-  @Override
-  <T> Optional<T> get(final String name);
+  Mutant get(final String name);
 
   /**
    * @return An immutable copy of local attributes.
    */
-  @Override
-  Map<String, Object> attributes();
+  Map<String, String> attributes();
 
   /**
    * Test if the var name exists inside the session local attributes.
@@ -382,21 +371,127 @@ public interface Session extends Locals {
    * @param name A local var's name.
    * @return True, for existing locals.
    */
-  @Override
   default boolean isSet(final String name) {
     return get(name).isPresent();
   }
 
   /**
    * Set a session local using a the given name. If a local already exists, it will be replaced
-   * with the new value. Keep in mind that ONLY none null values are allowed.
+   * with the new value. Keep in mind that null values are NOT allowed.
    *
-   * @param name A local var's name.
-   * @param value A local values.
+   * @param name A local's name.
+   * @param value A local's value.
    * @return This session.
    */
-  @Override
-  Session set(final String name, final Object value);
+  default Session set(final String name, final byte value) {
+    return set(name, Byte.toString(value));
+  }
+
+  /**
+   * Set a session local using a the given name. If a local already exists, it will be replaced
+   * with the new value. Keep in mind that null values are NOT allowed.
+   *
+   * @param name A local's name.
+   * @param value A local's value.
+   * @return This session.
+   */
+  default Session set(final String name, final char value) {
+    return set(name, Character.toString(value));
+  }
+
+  /**
+   * Set a session local using a the given name. If a local already exists, it will be replaced
+   * with the new value. Keep in mind that null values are NOT allowed.
+   *
+   * @param name A local's name.
+   * @param value A local's value.
+   * @return This session.
+   */
+  default Session set(final String name, final boolean value) {
+    return set(name, Boolean.toString(value));
+  }
+
+  /**
+   * Set a session local using a the given name. If a local already exists, it will be replaced
+   * with the new value. Keep in mind that null values are NOT allowed.
+   *
+   * @param name A local's name.
+   * @param value A local's value.
+   * @return This session.
+   */
+  default Session set(final String name, final short value) {
+    return set(name, Short.toString(value));
+  }
+
+  /**
+   * Set a session local using a the given name. If a local already exists, it will be replaced
+   * with the new value. Keep in mind that null values are NOT allowed.
+   *
+   * @param name A local's name.
+   * @param value A local's value.
+   * @return This session.
+   */
+  default Session set(final String name, final int value) {
+    return set(name, Integer.toString(value));
+  }
+
+  /**
+   * Set a session local using a the given name. If a local already exists, it will be replaced
+   * with the new value. Keep in mind that null values are NOT allowed.
+   *
+   * @param name A local's name.
+   * @param value A local's value.
+   * @return This session.
+   */
+  default Session set(final String name, final long value) {
+    return set(name, Long.toString(value));
+  }
+
+  /**
+   * Set a session local using a the given name. If a local already exists, it will be replaced
+   * with the new value. Keep in mind that null values are NOT allowed.
+   *
+   * @param name A local's name.
+   * @param value A local's value.
+   * @return This session.
+   */
+  default Session set(final String name, final float value) {
+    return set(name, Float.toString(value));
+  }
+
+  /**
+   * Set a session local using a the given name. If a local already exists, it will be replaced
+   * with the new value. Keep in mind that null values are NOT allowed.
+   *
+   * @param name A local's name.
+   * @param value A local's value.
+   * @return This session.
+   */
+  default Session set(final String name, final double value) {
+    return set(name, Double.toString(value));
+  }
+
+  /**
+   * Set a session local using a the given name. If a local already exists, it will be replaced
+   * with the new value. Keep in mind that null values are NOT allowed.
+   *
+   * @param name A local's name.
+   * @param value A local's value.
+   * @return This session.
+   */
+  default Session set(final String name, final CharSequence value) {
+    return set(name, value.toString());
+  }
+
+  /**
+   * Set a session local using a the given name. If a local already exists, it will be replaced
+   * with the new value. Keep in mind that null values are NOT allowed.
+   *
+   * @param name A local's name.
+   * @param value A local's value.
+   * @return This session.
+   */
+  Session set(final String name, final String value);
 
   /**
    * Remove a local value (if any) from session locals.
@@ -405,8 +500,7 @@ public interface Session extends Locals {
    * @param <T> A local type.
    * @return Existing value or empty optional.
    */
-  @Override
-  <T> Optional<T> unset(final String name);
+  Mutant unset(final String name);
 
   /**
    * Unset/remove all the session data.

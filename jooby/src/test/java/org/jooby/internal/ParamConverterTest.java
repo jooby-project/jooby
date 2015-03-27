@@ -21,7 +21,6 @@ import java.util.UUID;
 
 import org.jooby.Err;
 import org.jooby.ParamConverter;
-import org.jooby.Request;
 import org.jooby.internal.reqparam.CollectionParamConverter;
 import org.jooby.internal.reqparam.CommonTypesParamConverter;
 import org.jooby.internal.reqparam.DateParamConverter;
@@ -36,6 +35,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Types;
 
@@ -374,7 +374,7 @@ public class ParamConverterTest {
 
   @Test(expected = Err.class)
   public void shouldFailOnNoMatch() throws Exception {
-    ParamResolver resolver = new ParamResolver(() -> createMock(Request.class),
+    ParamResolver resolver = new ParamResolver(createMock(Injector.class),
         Sets.newHashSet((ParamConverter) (toType, values, ctx) -> ctx.convert(toType, values)));
 
     resolver.convert(TypeLiteral.get(Types.newParameterizedType(Optional.class, Boolean.class)),
@@ -383,7 +383,7 @@ public class ParamConverterTest {
   }
 
   private ParamResolver newConverter() {
-    return new ParamResolver(() -> createMock(Request.class),
+    return new ParamResolver(createMock(Injector.class),
         Sets.newLinkedHashSet(
             Arrays.asList(
                 new CommonTypesParamConverter(),

@@ -49,8 +49,9 @@ public class SessionImpl implements Session {
 
     private SessionImpl session;
 
-    public Builder(final boolean isNew, final String sessionId, final long timeout) {
-      this.session = new SessionImpl(isNew, sessionId, timeout);
+    public Builder(final ParamResolver resolver, final boolean isNew, final String sessionId,
+        final long timeout) {
+      this.session = new SessionImpl(resolver, isNew, sessionId, timeout);
     }
 
     @Override
@@ -59,13 +60,13 @@ public class SessionImpl implements Session {
     }
 
     @Override
-    public org.jooby.Session.Builder set(final String name, final Object value) {
+    public org.jooby.Session.Builder set(final String name, final String value) {
       session.attributes.put(name, value);
       return this;
     }
 
     @Override
-    public Session.Builder set(final Map<String, Object> attributes) {
+    public Session.Builder set(final Map<String, String> attributes) {
       session.attributes.putAll(attributes);
       return this;
     }
@@ -145,35 +146,36 @@ public class SessionImpl implements Session {
     return accessedAt + timeout;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public <T> Optional<T> get(final String name) {
-    T value = (T) attributes.get(name);
-    return Optional.ofNullable(value);
+  public Mutant get(final String name) {
+    String value = attributes.get(name);
+    Object[] values = value == null ? null : new Object[]{value };
+    return new MutantImpl(resolver, values);
   }
 
   @Override
-  public Map<String, Object> attributes() {
+  public Map<String, String> attributes() {
     return Collections.unmodifiableMap(attributes);
   }
 
   @Override
-  public Session set(final String name, final Object value) {
+  public Session set(final String name, final String value) {
     requireNonNull(name, "An attribute name is required.");
     requireNonNull(value, "An attribute value is required.");
-    Object existing = attributes.put(name, value);
+    String existing = attributes.put(name, value);
     dirty = existing == null || !existing.equals(value);
     return this;
   }
 
   @Override
-  public <T> Optional<T> unset(final String name) {
-    @SuppressWarnings("unchecked")
-    T value = (T) attributes.remove(name);
+  public Mutant unset(final String name) {
+    String value = attributes.remove(name);
+    Object[] values = null;
     if (value != null) {
+      values = new Object[]{value };
       dirty = true;
     }
-    return Optional.ofNullable(value);
+    return new MutantImpl(resolver, values);
   }
 
   @Override

@@ -20,7 +20,8 @@ package org.jooby.internal.ftl;
 
 import java.util.Map;
 
-import org.jooby.Locals;
+import org.jooby.Request;
+import org.jooby.Session;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigObject;
@@ -45,9 +46,13 @@ public class FtlWrapper implements ObjectWrapper {
       ConfigObject config = ((Config) obj).root();
       return DefaultMapAdapter.adapt(config.unwrapped(), (ObjectWrapperWithAPISupport) wrapper);
     }
-    if (obj instanceof Locals) {
-      Map<String, Object> locals = ((Locals) obj).attributes();
-      return DefaultMapAdapter.adapt(locals, (ObjectWrapperWithAPISupport) wrapper);
+    if (obj instanceof Request) {
+      Map<String, Object> req = ((Request) obj).attributes();
+      return DefaultMapAdapter.adapt(req, (ObjectWrapperWithAPISupport) wrapper);
+    }
+    if (obj instanceof Session) {
+      Map<String, String> session = ((Session) obj).attributes();
+      return DefaultMapAdapter.adapt(session, (ObjectWrapperWithAPISupport) wrapper);
     }
     return wrapper.wrap(obj);
   }

@@ -12,9 +12,11 @@ public class FtlLocalsFeature extends ServerFeature {
     use(new Ftl());
 
     get("*", (req, rsp) -> {
+      req.session().set("a", "A");
       req.set("app", req.require(Config.class).getConfig("application"));
       req.set("attr", "x");
       req.set("req", req);
+      req.set("session", req.session());
     });
 
     get("/", req -> {
@@ -26,6 +28,6 @@ public class FtlLocalsFeature extends ServerFeature {
   public void locals() throws Exception {
     request()
         .get("/")
-        .expect("<html><body>dev:x:x</body></html>");
+        .expect("<html><body>dev:x:x:A</body></html>");
   }
 }

@@ -41,11 +41,12 @@ public class ParamResolver {
 
   private List<ParamConverter> converters;
 
-  private Provider<Request> req;
+  private Injector injector;
+
 
   @Inject
-  public ParamResolver(final Provider<Request> req, final Set<ParamConverter> converters) {
-    this.req = requireNonNull(req, "A HTTP request is required.");
+  public ParamResolver(final Injector injector, final Set<ParamConverter> converters) {
+    this.injector = requireNonNull(injector, "An injector is required.");
     this.converters = ImmutableList.copyOf(converters);
   }
 
@@ -57,7 +58,7 @@ public class ParamResolver {
   public <T> T convert(final TypeLiteral<?> type, final Object[] values) {
     try {
       requireNonNull(type, "A type is required.");
-      Object result = ctx(req, type, converters).convert(type, values);
+      Object result = ctx(injector, type, converters).convert(type, values);
       if (result == NOT_FOUND) {
         throw new Err(Status.BAD_REQUEST, "No converter for " + type);
       }
@@ -69,7 +70,7 @@ public class ParamResolver {
     }
   }
 
-  private static ParamConverter.Context ctx(final Provider<Request> req,
+  private static ParamConverter.Context ctx(final Injector injector,
       final TypeLiteral<?> seed, final List<ParamConverter> converters) {
     return new ParamConverter.Context() {
       int cursor = 0;
@@ -96,7 +97,7 @@ public class ParamResolver {
 
       @Override
       public <T> T require(final Key<T> key) {
-        return req.get().require(key);
+        return injector.getInstance(key);
       }
 
     };
