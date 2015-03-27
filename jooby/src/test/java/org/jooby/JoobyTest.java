@@ -345,15 +345,22 @@ public class JoobyTest {
   private MockUnit.Block session = unit -> {
     Binder binder = unit.get(Binder.class);
 
-    AnnotatedBindingBuilder<SessionManager> smbinding = unit.mock(AnnotatedBindingBuilder.class);
-    smbinding.toInstance(isA(SessionManager.class));
+    AnnotatedBindingBuilder<SessionManager> smABB = unit.mock(AnnotatedBindingBuilder.class);
+    smABB.asEagerSingleton();
 
-    expect(binder.bind(SessionManager.class)).andReturn(smbinding);
+    ScopedBindingBuilder ssSBB = unit.mock(ScopedBindingBuilder.class);
+    ssSBB.asEagerSingleton();
 
-    AnnotatedBindingBuilder<Session.Definition> binding = unit.mock(AnnotatedBindingBuilder.class);
-    binding.toInstance(isA(Session.Definition.class));
+    AnnotatedBindingBuilder<Store> ssABB= unit.mock(AnnotatedBindingBuilder.class);
+    expect(ssABB.to(Session.Mem.class)).andReturn(ssSBB);
 
-    expect(binder.bind(Session.Definition.class)).andReturn(binding);
+    expect(binder.bind(SessionManager.class)).andReturn(smABB);
+    expect(binder.bind(Session.Store.class)).andReturn(ssABB);
+
+    AnnotatedBindingBuilder<Session.Definition> sdABB = unit.mock(AnnotatedBindingBuilder.class);
+    sdABB.toInstance(isA(Session.Definition.class));
+
+    expect(binder.bind(Session.Definition.class)).andReturn(sdABB);
   };
 
   private MockUnit.Block boot = unit -> {
@@ -2105,17 +2112,22 @@ public class JoobyTest {
         .expect(unit -> {
           Binder binder = unit.get(Binder.class);
 
-          AnnotatedBindingBuilder<SessionManager> smbinding = unit
-              .mock(AnnotatedBindingBuilder.class);
-          smbinding.toInstance(isA(SessionManager.class));
+          AnnotatedBindingBuilder<SessionManager> smABB = unit.mock(AnnotatedBindingBuilder.class);
+          smABB.asEagerSingleton();
 
-          expect(binder.bind(SessionManager.class)).andReturn(smbinding);
+          ScopedBindingBuilder ssSBB = unit.mock(ScopedBindingBuilder.class);
+          ssSBB.asEagerSingleton();
 
-          AnnotatedBindingBuilder<Session.Definition> binding = unit
-              .mock(AnnotatedBindingBuilder.class);
-          binding.toInstance(unit.capture(Session.Definition.class));
+          AnnotatedBindingBuilder<Store> ssABB= unit.mock(AnnotatedBindingBuilder.class);
+          expect(ssABB.to(unit.get(Session.Store.class).getClass())).andReturn(ssSBB);
 
-          expect(binder.bind(Session.Definition.class)).andReturn(binding);
+          expect(binder.bind(SessionManager.class)).andReturn(smABB);
+          expect(binder.bind(Session.Store.class)).andReturn(ssABB);
+
+          AnnotatedBindingBuilder<Session.Definition> sdABB = unit.mock(AnnotatedBindingBuilder.class);
+          sdABB.toInstance(unit.capture(Session.Definition.class));
+
+          expect(binder.bind(Session.Definition.class)).andReturn(sdABB);
         })
         .expect(routes)
         .expect(routeHandler)
@@ -2127,14 +2139,14 @@ public class JoobyTest {
         .run(unit -> {
 
           Jooby jooby = new Jooby();
-          jooby.session(unit.get(Store.class));
+          jooby.session(unit.get(Store.class).getClass());
 
           jooby.start();
 
         }, boot,
             unit -> {
               Definition def = unit.captured(Session.Definition.class).iterator().next();
-              assertEquals(unit.get(Store.class), def.store());
+              assertEquals(unit.get(Store.class).getClass(), def.store());
             });
   }
 

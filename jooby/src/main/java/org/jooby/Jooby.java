@@ -75,6 +75,7 @@ import java.util.TimeZone;
 
 import javax.inject.Singleton;
 
+import org.jooby.Session.Store;
 import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetHandler;
@@ -485,7 +486,7 @@ public class Jooby {
   private List<BodyParser> parsers = new LinkedList<>();
 
   /** Session store. */
-  private Session.Definition session = new Session.Definition(new Session.MemoryStore());
+  private Session.Definition session = new Session.Definition(Session.Mem.class);
 
   /** Flag to control the addition of the asset formatter. */
   private boolean assetFormatter = false;
@@ -530,6 +531,18 @@ public class Jooby {
   public <T> T require(final Class<T> type) {
     checkState(injector != null, "App didn't start yet");
     return injector.getInstance(type);
+  }
+
+  /**
+   * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns.
+   * Sessions are not persisted by defaults.
+   *
+   * @param store A session store.
+   * @return A session store definition.
+   */
+  public Session.Definition session(final Class<? extends Session.Store> store) {
+    this.session = new Session.Definition(requireNonNull(store, "A session store is required."));
+    return this.session;
   }
 
   /**
@@ -2684,6 +2697,7 @@ public class Jooby {
     Stage stage = "dev".equals(env.name()) ? Stage.DEVELOPMENT : Stage.PRODUCTION;
 
     // dependency injection
+    @SuppressWarnings("unchecked")
     Injector injector = Guice.createInjector(stage, binder -> {
 
       // type converters
@@ -2720,9 +2734,6 @@ public class Jooby {
             .newSetBinder(binder, BodyParser.class);
         Multibinder<BodyFormatter> formatterBinder = Multibinder
             .newSetBinder(binder, BodyFormatter.class);
-
-        // session definition
-        binder.bind(Session.Definition.class).toInstance(session);
 
         // Routes
         Multibinder<Route.Definition> definitions = Multibinder
@@ -2794,7 +2805,15 @@ public class Jooby {
         binder.bindScope(RequestScoped.class, requestScope);
 
         // session manager
-        binder.bind(SessionManager.class).toInstance(new SessionManager(config, session));
+        binder.bind(SessionManager.class).asEagerSingleton();
+        binder.bind(Session.Definition.class).toInstance(session);
+        Object sstore = session.store();
+        if (sstore instanceof Class) {
+          binder.bind(Session.Store.class).to((Class<? extends Store>) sstore)
+              .asEagerSingleton();
+        } else {
+          binder.bind(Session.Store.class).toInstance((Store) sstore);;
+        }
 
         binder.bind(Request.class).toProvider(() -> {
           throw new OutOfScopeException(Request.class.getName());

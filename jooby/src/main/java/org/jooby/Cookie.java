@@ -520,7 +520,7 @@ public interface Cookie {
   Optional<String> domain();
 
   /**
-   * Gets the maximum age in seconds of this Cookie.
+   * Gets the maximum age of this cookie (in seconds).
    *
    * <p>
    * By default, <code>-1</code> is returned, which indicates that the cookie will persist until
