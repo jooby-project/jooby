@@ -32,11 +32,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jooby.BodyParser;
 import org.jooby.Cookie;
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
-import org.jooby.BodyParser;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
@@ -75,7 +75,7 @@ public class RequestImpl implements Request {
 
   private Route route;
 
-  private Session session;
+  private Session reqSession;
 
   private Charset charset;
 
@@ -269,19 +269,19 @@ public class RequestImpl implements Request {
   public Session session() {
     return ifSession().orElseGet(() -> {
       SessionManager sm = require(SessionManager.class);
-      Session localSession = sm.get(this);
       Response rsp = require(Response.class);
-      if (localSession == null) {
-        localSession = sm.create(this, rsp);
+      Session gsession = sm.get(this, rsp);
+      if (gsession == null) {
+        gsession = sm.create(this, rsp);
       }
-      this.session = new RequestScopedSession(sm, rsp, localSession, () -> this.session = null);
-      return this.session;
+      this.reqSession = new RequestScopedSession(sm, rsp, gsession, () -> this.reqSession = null);
+      return this.reqSession;
     });
   }
 
   @Override
   public Optional<Session> ifSession() {
-    return Optional.ofNullable(this.session);
+    return Optional.ofNullable(this.reqSession);
   }
 
   @Override

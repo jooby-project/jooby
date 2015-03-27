@@ -24,14 +24,13 @@ import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 import org.jooby.Err;
 import org.jooby.ParamConverter;
-import org.jooby.Request;
 import org.jooby.Status;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 

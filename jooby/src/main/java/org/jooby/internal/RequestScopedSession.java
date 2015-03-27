@@ -33,20 +33,25 @@
 package org.jooby.internal;
 
 import java.util.Map;
-import java.util.Optional;
 
+import org.jooby.Mutant;
 import org.jooby.Response;
 import org.jooby.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RequestScopedSession implements Session {
 
-  private final SessionManager sm;
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(Session.class);
 
-  private final Response rsp;
+  private SessionManager sm;
 
-  public final Session session;
+  private Response rsp;
 
-  private final Runnable resetSession;
+  private Session session;
+
+  private Runnable resetSession;
 
   public RequestScopedSession(final SessionManager sm, final Response rsp,
       final Session session, final Runnable resetSession) {
@@ -82,44 +87,61 @@ public class RequestScopedSession implements Session {
   }
 
   @Override
-  public <T> Optional<T> get(final String name) {
+  public Mutant get(final String name) {
     return session.get(name);
   }
 
   @Override
-  public Map<String, Object> attributes() {
+  public Map<String, String> attributes() {
     return session.attributes();
   }
 
   @Override
-  public Session set(final String name, final Object value) {
-    return session.set(name, value);
+  public Session set(final String name, final String value) {
+    session.set(name, value);
+    return this;
   }
 
   @Override
-  public <T> Optional<T> unset(final String name) {
+  public Mutant unset(final String name) {
     return session.unset(name);
   }
 
   @Override
   public Session unset() {
-    return session.unset();
+    session.unset();
+    return this;
   }
 
   @Override
   public void destroy() {
-    // clear attributes
-    session.destroy();
-    // reset req session
-    resetSession.run();
-    // clear cookie
-    rsp.clearCookie(sm.cookie().name().get());
-    // destroy session from storage
-    sm.destroy(session);
+    if (this.session != null) {
+      // clear attributes
+      log.debug("destroying session: {}", session.id());
+      session.destroy();
+      // reset req session
+      resetSession.run();
+      // clear cookie
+      org.jooby.Cookie.Definition cookie = sm.cookie();
+      log.debug("  removing cookie: {}", cookie);
+      rsp.clearCookie(cookie.name().get());
+      // destroy session from storage
+      sm.destroy(session);
+
+      // null everything
+      this.resetSession = null;
+      this.rsp = null;
+      this.session = null;
+      this.sm = null;
+    }
   }
 
   @Override
   public String toString() {
     return session.toString();
+  }
+
+  public Session session() {
+    return session;
   }
 }

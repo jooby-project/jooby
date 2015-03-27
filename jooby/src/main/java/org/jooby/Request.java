@@ -39,7 +39,7 @@ import com.google.inject.name.Names;
  * @author edgar
  * @since 0.1.0
  */
-public interface Request extends Locals {
+public interface Request {
 
   /**
    * Forwarding request.
@@ -633,8 +633,45 @@ public interface Request extends Locals {
    */
   boolean secure();
 
-  @Override
+  /**
+   * Set local attribute.
+   *
+   * @param name Attribute's name.
+   * @param value Attribute's local. NOT null.
+   * @return This request.
+   */
   Request set(String name, Object value);
+
+  /**
+   * @param name Attribute's name.
+   * @return True if the local attribute is set.
+   */
+  default boolean isSet(final String name) {
+    return get(name).isPresent();
+  }
+
+  /**
+   * Get a request local attribute.
+   *
+   * @param name Attribute's name.
+   * @return A local attribute.
+   */
+  <T> Optional<T> get(String name);
+
+  /**
+   * Remove a request local attribute.
+   *
+   * @param name Attribute's name.
+   * @return A local attribute.
+   */
+  <T> Optional<T> unset(String name);
+
+  /**
+   * A read only version of the current locals.
+   *
+   * @return Attributes locals.
+   */
+  Map<String, Object> attributes();
 
   /**
    * Seed a {@link RequestScoped} object.

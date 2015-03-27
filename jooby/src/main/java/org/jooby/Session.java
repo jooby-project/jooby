@@ -226,7 +226,7 @@ public interface Session {
    *
    * @author edgar
    */
-  class MemoryStore implements Store {
+  class Mem implements Store {
 
     private ConcurrentMap<String, Session> sessions = new ConcurrentHashMap<String, Session>();
 

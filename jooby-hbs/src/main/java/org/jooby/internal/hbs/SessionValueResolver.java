@@ -19,41 +19,44 @@
 package org.jooby.internal.hbs;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.jooby.Request;
+import org.jooby.Session;
 
 import com.github.jknack.handlebars.ValueResolver;
 
 /**
- * Handlebars value resolver for accessing to {@link Request}, like request and session objects.
+ * Handlebars value resolver for accessing to {@link Session}, like request and session objects.
  *
  * @author edgar
  */
-public class RequestValueResolver implements ValueResolver {
+public class SessionValueResolver implements ValueResolver {
 
   @Override
   public Object resolve(final Object context, final String name) {
     Object value = null;
-    if (context instanceof Request) {
-      value = ((Request) context).get(name).orElse(null);
+    if (context instanceof Session) {
+      value = ((Session) context).get(name).toOptional().orElse(null);
     }
     return value == null ? UNRESOLVED : value;
   }
 
   @Override
   public Object resolve(final Object context) {
-    if (context instanceof Request) {
+    if (context instanceof Session) {
       return context;
     }
     return UNRESOLVED;
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Set<Entry<String, Object>> propertySet(final Object context) {
-    if (context instanceof Request) {
-      return ((Request) context).attributes().entrySet();
+    if (context instanceof Session) {
+      Map session = ((Session) context).attributes();
+      return session.entrySet();
     }
     return Collections.emptySet();
   }

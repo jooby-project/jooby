@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.jooby.Err;
 import org.jooby.Mutant;
-import org.jooby.Request;
 import org.jooby.internal.reqparam.CollectionParamConverter;
 import org.jooby.internal.reqparam.CommonTypesParamConverter;
 import org.jooby.internal.reqparam.DateParamConverter;

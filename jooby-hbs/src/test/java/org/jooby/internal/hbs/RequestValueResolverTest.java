@@ -10,66 +10,65 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jooby.Locals;
 import org.jooby.MockUnit;
-import org.jooby.internal.hbs.LocalsValueResolver;
+import org.jooby.Request;
 import org.junit.Test;
 
 import com.github.jknack.handlebars.ValueResolver;
 
-public class LocalsValueResolverTest {
+public class RequestValueResolverTest {
 
   @Test
   public void resolveProperty() throws Exception {
-    new MockUnit(Locals.class)
+    new MockUnit(Request.class)
         .expect(unit -> {
-          Locals locals = unit.get(Locals.class);
-          expect(locals.get("prop")).andReturn(Optional.of("x"));
+          Request Request = unit.get(Request.class);
+          expect(Request.get("prop")).andReturn(Optional.of("x"));
         })
         .run(unit -> {
-          assertEquals("x", new LocalsValueResolver().resolve(unit.get(Locals.class), "prop"));
+          assertEquals("x", new RequestValueResolver().resolve(unit.get(Request.class), "prop"));
         });
   }
 
   @Test
   public void resolveMissingProperty() throws Exception {
-    new MockUnit(Locals.class)
+    new MockUnit(Request.class)
         .expect(unit -> {
-          Locals locals = unit.get(Locals.class);
-          expect(locals.get("prop")).andReturn(Optional.empty());
+          Request Request = unit.get(Request.class);
+          expect(Request.get("prop")).andReturn(Optional.empty());
         })
         .run(
             unit -> {
               assertEquals(ValueResolver.UNRESOLVED,
-                  new LocalsValueResolver().resolve(unit.get(Locals.class), "prop"));
+                  new RequestValueResolver().resolve(unit.get(Request.class), "prop"));
             });
   }
 
   @Test
-  public void skipNoLocals() throws Exception {
-    new MockUnit(Locals.class)
+  public void skipNoRequest() throws Exception {
+    new MockUnit(Request.class)
         .run(
             unit -> {
               assertEquals(ValueResolver.UNRESOLVED,
-                  new LocalsValueResolver().resolve(new Object(), "prop"));
+                  new RequestValueResolver().resolve(new Object(), "prop"));
             });
   }
 
   @Test
   public void resolveContext() throws Exception {
-    new MockUnit(Locals.class)
+    new MockUnit(Request.class)
         .run(unit -> {
-          assertEquals(unit.get(Locals.class),
-              new LocalsValueResolver().resolve(unit.get(Locals.class)));
+          assertEquals(unit.get(Request.class),
+              new RequestValueResolver().resolve(unit.get(Request.class)));
         });
   }
 
   @Test
-  public void resolveNoLocals() throws Exception {
+  public void resolveNoRequest() throws Exception {
     new MockUnit()
         .run(unit -> {
           assertEquals(ValueResolver.UNRESOLVED,
-              new LocalsValueResolver().resolve(new Object()));
+              new RequestValueResolver().resolve(new Object()));
         });
   }
 
@@ -77,25 +76,25 @@ public class LocalsValueResolverTest {
   @Test
   public void propertySet() throws Exception {
     Set<Entry<String, Object>> entries = new HashSet<>();
-    new MockUnit(Locals.class)
+    new MockUnit(Request.class)
         .expect(unit -> {
-          Locals locals = unit.get(Locals.class);
+          Request Request = unit.get(Request.class);
           Map<String, Object> attributes = unit.mock(Map.class);
-          expect(locals.attributes()).andReturn(attributes);
+          expect(Request.attributes()).andReturn(attributes);
           expect(attributes.entrySet()).andReturn(entries);
         })
         .run(unit -> {
           assertEquals(entries,
-              new LocalsValueResolver().propertySet(unit.get(Locals.class)));
+              new RequestValueResolver().propertySet(unit.get(Request.class)));
         });
   }
 
   @Test
   public void propertySetAnything() throws Exception {
-    new MockUnit(Locals.class)
+    new MockUnit(Request.class)
         .run(unit -> {
           assertEquals(Collections.emptySet(),
-              new LocalsValueResolver().propertySet(new Object()));
+              new RequestValueResolver().propertySet(new Object()));
         });
   }
 

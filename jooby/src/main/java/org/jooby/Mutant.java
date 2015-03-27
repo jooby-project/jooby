@@ -74,6 +74,13 @@ public interface Mutant {
   }
 
   /**
+   * @return Get a byte when possible.
+   */
+  default char charValue() {
+    return to(char.class);
+  }
+
+  /**
    * @return Get a short when possible.
    */
   default short shortValue() {
