@@ -654,6 +654,7 @@ public interface Request {
    * Get a request local attribute.
    *
    * @param name Attribute's name.
+   * @param <T> Target type.
    * @return A local attribute.
    */
   <T> Optional<T> get(String name);
@@ -662,6 +663,7 @@ public interface Request {
    * Remove a request local attribute.
    *
    * @param name Attribute's name.
+   * @param <T> Target type.
    * @return A local attribute.
    */
   <T> Optional<T> unset(String name);

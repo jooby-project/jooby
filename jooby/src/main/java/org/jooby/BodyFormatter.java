@@ -86,7 +86,7 @@ public interface BodyFormatter {
     Charset charset();
 
     /**
-     * Access to request locals. See {@link Request#attributes()} and {@link Locals}.
+     * Access to request locals. See {@link Request#attributes()}.
      *
      * @return Current request locals.
      */
@@ -132,12 +132,14 @@ public interface BodyFormatter {
    *
    * <p>
    * For text format (json, yaml, xml, etc.) a converter usually call to
-   * {@link Context#text(Context.Text)} in order to set charset and close resources.
+   * {@link BodyFormatter.Context#text(BodyFormatter.Context.Text)} in order
+   * to set charset and close resources.
    * </p>
    *
    * <p>
    * For binary format a converter usually call to
-   * {@link Context#bytes(Context.Bytes)} in order to close resources.
+   * {@link BodyFormatter.Context#bytes(BodyFormatter.Context.Bytes)} in order
+   * to close resources.
    * </p>
    *
    * @param body A body message.

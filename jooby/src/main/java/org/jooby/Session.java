@@ -355,7 +355,6 @@ public interface Session {
    * optional.
    *
    * @param name A local var's name.
-   * @param <T> Target type.
    * @return A value or empty optional.
    */
   Mutant get(final String name);
@@ -497,7 +496,6 @@ public interface Session {
    * Remove a local value (if any) from session locals.
    *
    * @param name A local var's name.
-   * @param <T> A local type.
    * @return Existing value or empty optional.
    */
   Mutant unset(final String name);

@@ -138,13 +138,13 @@ public interface BodyParser {
    * Attempt to read a message from HTTP request body.
    * <p>
    * For text format (json, yaml, xml, etc.) a converter usually call to
-   * {@link Context#text(Context.Text)} in order to apply correct charset and close
-   * resources.
+   * {@link BodyParser.Context#text(BodyParser.Context.Text)} in order to
+   * apply correct charset and close resources.
    * </p>
    *
    * <p>
-   * For binary format a converter usually call to {@link Context#bytes(Context.Bytes)} in
-   * order to close resources.
+   * For binary format a converter usually call to
+   * {@link BodyParser.Context#bytes(BodyParser.Context.Bytes)} in order to close resources.
    * </p>
    *
    * @param type A type of message.
@@ -162,13 +162,13 @@ public interface BodyParser {
    * Attempt to read a message from HTTP request body.
    * <p>
    * For text format (json, yaml, xml, etc.) a converter usually call to
-   * {@link Context#text(Context.Text)} in order to apply correct charset and close
-   * resources.
+   * {@link BodyParser.Context#text(BodyParser.Context.Text)} in order to apply correct charset
+   * and close resources.
    * </p>
    *
    * <p>
-   * For binary format a converter usually call to {@link Context#bytes(Context.Bytes)} in
-   * order to close resources.
+   * For binary format a converter usually call to
+   * {@link BodyParser.Context#bytes(BodyParser.Context.Bytes)} in order to close resources.
    * </p>
    *
    * @param type A type of message.
