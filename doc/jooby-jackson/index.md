@@ -1,7 +1,7 @@
 ---
 layout: index
 title: jooby-jackson
-version: 0.4.2
+version: 0.4.2.1
 ---
 
 # jooby-jackson
@@ -12,7 +12,7 @@ version: 0.4.2
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>0.4.2</version>
+  <version>0.4.2.1</version>
 </dependency>
 ```
 ## usage

@@ -1,11 +1,31 @@
 <header>
-  <ul class="navbar">
-    <li class="{% if page.dir == '/' %}selected{% endif %}"><a href="/">home</a></li>
-    <li class="{% if page.dir == '/quickstart' %}selected{% endif %}"><a href="/quickstart">quick start</a></li>
-    <li class="{% if page.dir == '/doc' %}selected{% endif %}"><a href="/doc">doc</a></li>
-    <li class="{% if page.dir == '/modules' %}selected{% endif %}"><a href="/modules">modules</a></li>
-    <li class="{% if page.dir == '/help' %}selected{% endif %}"><a href="/help">help and support</a></li>
-    <li class="{% if page.dir == '/faq' %}selected{% endif %}"><a href="/faq">faq</a></li>
-    <li class="apidocs"><a href="/apidocs">api docs</a></li>
-  </ul>
+  <nav class="container">
+    <a class="menu-icon"href="#">
+      <span class="mega-octicon octicon-three-bars"></span>
+    </a>
+    <ul class="right">
+      <li class="{% if page.dir == '/quickstart' %}active{% endif %}">
+        <a href="/quickstart"><span>quick start</span></a>
+      </li>
+      <li class="{% if page.dir == '/doc' %}active{% endif %}">
+        <a href="/doc"><span>doc</span></a>
+      </li>
+      <li class="{% if page.dir == '/modules' %}active{% endif %}">
+        <a href="/modules"><span>modules</span></a>
+      </li>
+      <li class="{% if page.dir == '/help' %}active{% endif %}">
+        <a href="/help"><span>help and support</span></a>
+      </li>
+      <li class="{% if page.dir == '/faq' %}active{% endif %}">
+        <a href="/faq"><span>faq</span></a>
+      </li>
+      <li class="apidocs"><a href="/apidocs">api docs</a></li>
+    </ul>
+    <div class="logo">
+      <h1>
+        <a href="/">j<msup class="loop">&infin;</msup>by</a><a href="http://search.maven.org/#artifactdetails|org.jooby|jooby|{{page.version}}|"
+          title="Get maven coordinates" class="version"><span>v{{page.version}}</span></a>
+      </h1>
+    </div>
+  </nav>
 </header>

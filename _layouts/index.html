@@ -3,11 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>jooby: a minimalist web framework for Java 8</title>
+    <title>jooby: do more, more easily</title>
 
     <link rel="stylesheet" href="/stylesheets/pygment_trac.css">
-    <link rel="stylesheet" href="/stylesheets/styles.css">
-    <script src="/javascripts/scale.fix.js"></script>
+    <link rel="stylesheet" href="/stylesheets/octicons.css">
+    <link rel="stylesheet" href="/stylesheets/normalize.css">
+    <link rel="stylesheet" href="/stylesheets/jooby.css">
+    <!-- -->
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu+Mono&subset=latin">
+    <!--<script src="/javascripts/scale.fix.js"></script>-->
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -16,12 +20,18 @@
   <body>
     <div class="wrapper">
       {% include header.html %}
-      <section>
+      <section class="container">
        {{content}}
       </section>
+      {% include footer.html %}
     </div>
+    <!-- -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="http://jooby.org/javascripts/ZeroClipboard.min.js"></script>
+    <script>
+      window.jQuery || document.write('<script src="/javascripts/jquery.2.1.1.js"><\/script>');
+    </script>
+    <!-- -->
+    <script src="//jooby.org/javascripts/ZeroClipboard.min.js"></script>
     <script src="/javascripts/jooby.js"></script>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
     <script>

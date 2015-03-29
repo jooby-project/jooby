@@ -6,9 +6,9 @@
    * Find the first .highlight element and prepend a toolbar with a copy to clipboard button.
    */
   var copyToClipboard = function () {
-    var $button = $('<span class="copy-button" title="copy to clipboard">copy</span>');
+    var $button = $('<span class="copy-button octicon octicon-clippy" title="copy to clipboard"></span>');
     var $div = $('<div class="copy-bar"></div>')
-    $('.highlight').first().prepend($div.append($button));
+    $('.highlight').prepend($div.append($button));
 
     var client = new ZeroClipboard($button);
 

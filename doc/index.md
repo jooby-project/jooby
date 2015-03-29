@@ -1,7 +1,7 @@
 ---
 layout: index
 title: doc
-version: 0.4.2
+version: 0.4.2.1
 ---
 
 documentation
@@ -11,13 +11,11 @@ documentation
   - [technology stack](#technology-stack)
 - [modules](#modules)
   - [app module](#app-module)
-  - [request module](#request-module)
-    - [scope](#scope)
 - [config files](#config-files)
   - [application.conf](#application.conf)
   - [injecting properties](#injecting-properties)
   - [special properties](#special-properties)
-    - [application.mode](#application.mode)
+    - [application.env](#application.env)
     - [application.secret](#application.secret)
     - [default properties](#default-properties)
   - [precedence](#precedence)
@@ -30,6 +28,11 @@ documentation
   - [bootstrap](#bootstrap)
 - [routes](#routes)
   - [defining routes](#defining-routes)
+  - [route handler](#route-handler)
+    - [Zero arg handler](#Zero-arg-handler)
+    - [One arg handler: req](#One-arg-handler:-req)
+    - [Two args handler: req and rsp](#Two-args-handler:-req-and-rsp)
+    - [Three args handler: req, rsp and chain](#Three-args-handler:-req,-rsp-and-chain)
   - [path patterns](#path-patterns)
     - [static patterns](#static-patterns)
     - [var/regex patterns](#var/regex-patterns)
@@ -42,18 +45,18 @@ documentation
       - [param type conversion](#param-type-conversion)
     - [request headers](#request-headers)
     - [request body](#request-body)
+    - [locals](#locals)
     - [guice access](#guice-access)
   - [response](#response)
     - [sending data](#sending-data)
     - [response headers](#response-headers)
-    - [locals](#locals)
 - [working with data](#working-with-data)
-  - [body.parser](#body.parser)
+  - [body parser](#body-parser)
     - [consumes](#consumes)
-  - [body.formatter](#body.formatter)
+  - [body formatter](#body-formatter)
     - [produces](#produces)
   - [view engine](#view-engine)
-  - [response.format](#response.format)
+  - [response format](#response-format)
 - [web sockets](#web-sockets)
   - [guice access](#guice-access)
   - [consumes](#consumes)
@@ -71,33 +74,31 @@ documentation
 
 A minimalist web framework for Java 8, inspired by [express.js](http://expressjs.com/) (between others).
 
-Jooby API mimics (as much as possible) the [Express API](http://expressjs.com/4x/api.html).
-
 API is short and easy to learn, around 30 classes for the core project. Java doc is available here: [apidocs](http://jooby.org/apidocs).
 
 ## technology stack
 
-* [Undertow](http://undertow.io/): for a high performance and non-blocking IO web server. is the web server behind [WildFly](http://wildfly.org/about/) (a.k.a JBoss App Server).
+* [Multi Server]:
+  * [Netty](http://netty.io/)
+  * [Jetty](www.eclipse.org/jetty)
+  * [Undertow](http://undertow.io/)
+  * [Servlet Container](http://jooby.org/modules/servlet-container)
 * [Guice](https://github.com/google/guice): for dependency injection and modularity.
 * [Config](https://github.com/typesafehub/config): for powerful config files.
 * [logback](http://logback.qos.ch/): for debugging and logging.
 * [maven 3.x](http://maven.apache.org/): for building apps.
------
-
-Jooby believes in [maven 3.x](http://maven.apache.org/) for building/running/packaging and distributing Java project.
 
 modules
 -----
 
-Reusable software is provided from a [module](http://jooby.org/apidocs/org/jooby/Jooby.Module.html) and/or
-[request module](http://jooby.org/apidocs/org/jooby/Request.Module.html). A module in Jooby plays the same role as in Guice, but API is different.
+Reusable software is provided from a [module](http://jooby.org/apidocs/org/jooby/Jooby.Module.html). A module in Jooby plays the same role as in Guice, but API is a bit different.
 
 config files
 -----
 
-Supports files in three formats: ```.properties```, ```*.json```, ```*.conf``` (and a human-friendly JSON superset). It merges multiple files across all formats, can load from files, URLs, or classpath.
+Supports files in three formats: ```.properties```, ```*.json```, ```*.conf``` (and a human-friendly JSON superset). Merge multiple files across all formats, can load from files, URLs, or classpath.
 
-Users can override the config with Java system properties, java ```-Dmyapp.foo.bar=10```
+Users can override config properties with Java system properties, java ```-Dmyapp.foo.bar=10```
 
 routes
 -----
@@ -106,7 +107,7 @@ A [route](http://jooby.org/apidocs/org/jooby/Route.html) looks like:
 
 ```java
   {
-    get("/", (req, rsp) -> rsp.send("Hello Jooby!"));
+    get("/", () -> "Hello Jooby!");
   }
 ```
 
@@ -129,7 +130,7 @@ A web socket looks like:
   {
     ws("/", (ws) -> {
 
-      ws.onMessage(message -> ws.send("Hello " + message.stringValue()));
+      ws.onMessage(message -> ws.send("Hello " + message.value()));
 
       ws.send("connected");
     });
@@ -146,23 +147,20 @@ An application module is represented by the [Jooby.Module](http://jooby.org/apid
 
 ```java
 public class M1 implements Jooby.Module {
-    public void configure(Mode mode, Config config, Binder binder) {
+    public void configure(Env env, Config config, Binder binder) {
       binder.bind(...).to(...);
     }
 }
 ```
 
-Configure callback is similar to a [Guice module](https://github.com/google/guice), except you can acess to the [Mode](http://jooby.org/apidocs/org/jooby/Mode.html) and [Type Safe Config](https://github.com/typesafehub/config) objects.
+The configure callback is similar to a [Guice module](https://github.com/google/guice), except you can access to the [Env](http://jooby.org/apidocs/org/jooby/Env.html) and [Type Safe Config](https://github.com/typesafehub/config) objects.
 
-In addition to the **configure** callback, a module in Jooby has two additional and useful methods:  **start** and **close**. If your module need/have to start an expensive resource, you should do it in the start callback and dispose/shutdown in the close callback.
+In addition to the **configure** callback, a module in Jooby has one additional method:  **config**. The ```config``` method allow a module to specify default properties, by default a module has an empty config.
 
-From a module, you can bind your objects to the default [Guice scope](https://github.com/google/guice/wiki/Scopes) and/or to the Singleton scope.
-
-An app module (might) defines his own set of defaults properties:
 
 ```java
 public class M1 implements Jooby.Module {
-    public void configure(Mode mode, Config config, Binder binder) {
+    public void configure(Env env, Config config, Binder binder) {
       binder.bind(...).to(...);
     }
 
@@ -199,68 +197,6 @@ Now, let's say M1 has a ```foo=bar``` property and M2 ```foo=foo``` then ```foo=
 Cool, isn't?
 
 
-## request module
-A request module is represented by the [Request.Module]({{apidocs}}/Request.Module.html). The configure callback looks like:
-
-```java
-public class RM1 implements Request.Module {
-   public void configure(Binder binder) {
-      binder.bind(...).to(...);
-   }
-}
-```
-
-A request module is useful to wire and provide request scoped objects. In jooby, if you need a request scoped object you must bind it from a request module. 
-
-A **new child injector** is created every time a new request is processed by Jooby.
-
-### scope
-
-If you need a single instance per request you need to bind the object with the **@Singleton** annotation. Otherwise, a new object will be created every time Guice need to inject a dependency.
-
-```java
-public class RM1 extends Request.Module {
-   public void configure(Binder binder) {
-      // request scoped
-      binder.bind(...).to(...).in(Singleton.class);
-     // or
-     binder.bind(...).toInstance(...);
-   }
-}
-```
-
-Annotations like **RequestScoped** or **SessionScoped** are not supported in Jooby and they are ignored. A **request scoped** objects must be **explicitly declared inside a request module**.
-
-There are two way of registering a request module:
-
-1) by calling [Jooby.use(module)]({{apidocs}}/org/jooby/Jooby.html#use-org.jooby.Request.Module-)
-
-```java
-{
-  // as lambda
-  use(binder -> {
-    binder.bind(...).to(...);
-  });
-
-  // as instance
-  use(new RM1());
-}
-```
-
-2) from [Jooby.Module.configure(module)]({{apidocs}}/org/jooby/Jooby.htmll#configure-org.jooby.Mode-com.typesafe.config.Config-com.google.inject.Binder-)
-
-```java
-public class M1 implements Jooby.Module {
-    public void configure(Mode mode, Config config, Binder binder) {
-      Multibinder<Request.Module> rm = Multibinder.newSetBinder(binder, Request.Module.class);
-      rm.addBinding().toInstance(b -> {
-        b.bind(...).toInstance(...);
-      });
-    }
-}
-```
-
-
 # config files
 
 Jooby delegates configuration management to [TypeSafe Config](https://github.com/typesafehub/config). If you aren't familiar with [TypeSafe Config](https://github.com/typesafehub/config) please take a few minutes to discover what [TypeSafe Config](https://github.com/typesafehub/config) can do for you.
@@ -277,31 +213,31 @@ Any property can be injected using the ```javax.inject.Named``` annotation and a
 
 2) Is an enum
 
-1) Has a public **constructor** that accepts a single **String** argument
+3) Has a public **constructor** that accepts a single **String** argument
 
-2) Has a static method **valueOf** that accepts a single **String** argument
+4) Has a static method **valueOf** that accepts a single **String** argument
 
-3) Has a static method **fromString** that accepts a single **String** argument. Like ```java.util.UUID```
+5) Has a static method **fromString** that accepts a single **String** argument. Like ```java.util.UUID```
 
-4) Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
+6) Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
 
-5) There is custom Guice type converter for the type
+7) There is custom Guice type converter for the type
 
-It is also possible to inject a ```com.typesafe.config.Config``` object.
+It is also possible to inject the root ```com.typesafe.config.Config``` object or a child of it.
 
 ## special properties
 
-### application.mode
+### application.env
 
-Jooby internals and the module system rely on the ```application.mode``` property. By defaults, this property is set to ```dev```.
+Jooby internals and the module system rely on the ```application.env``` property. By defaults, this property is set to ```dev```.
 
-For example, the [development stage](https://github.com/google/guice/wiki/Bootstrap) is set in [Guice](https://github.com/google/guice) when ```application.mode == dev```. A module provider, might decided to create a connection pool, cache, etc when ```application.mode != dev ```.
+For example, the [development stage](https://github.com/google/guice/wiki/Bootstrap) is set in [Guice](https://github.com/google/guice) when ```application.env == dev```. A module provider, might decided to create a connection pool, cache, etc when ```application.env != dev ```.
 
-This special property is represented at runtime with the [Mode]({{apidocs}}/org/jooby/Mode.html) class.
+This special property is represented at runtime with the [Env]({{apidocs}}/org/jooby/Env.html) class.
 
 ### application.secret
 
-The session cookie is signed with an ```application.secret```, while you are in **dev** you aren't required to provide an ```application.secret```. A secret is required when environment isn't **dev** and if you fail to provide a secret your application wont startup.
+If present, the session cookie will be signed with the ```application.secret```.
 
 ### default properties
 
@@ -330,7 +266,7 @@ It does, but at the same time it is very intuitive and makes a lot of sense. Let
 
 ### system properties
 
-System properties can override any other property. A sys property is be set at startup time, like: 
+System properties can override any other property. A sys property is set at startup time, like: 
 
     java -jar myapp.jar -Dapplication.secret=xyz
 
@@ -346,11 +282,11 @@ Let's say your app includes a default property file: ```application.conf``` bund
 * inside that directory create a file: ```application.conf```
 * start the app from same directory
 
-That's all. The file system conf file will take precedence over the classpath path config files overriding any property.
+That's all. The file system conf file will take precedence over the classpath config file, overriding any property.
 
-A good practice is to start up your app with a **mode**, like:
+A good practice is to start up your app with a **env**, like:
 
-    java -jar myapp.jar -Dapplication.mode=prod
+    java -jar myapp.jar -Dapplication.env=prod
 
 The process is the same, except this time you can name your file as:
 
@@ -358,11 +294,11 @@ The process is the same, except this time you can name your file as:
 
 ### cp://[application].[mode].[conf]
 
-Again, the use of this conf file is optional and works like previous config option, except that here the **fat jar** was bundled with all your config files (dev, stage, prod, etc.)
+Again, the use of this conf file is optional and works like previous config option, except here the **fat jar** was bundled with all your config files (dev, stage, prod, etc.)
 
-Example: you have two config files: ```application.conf``` and ```application.prod.conf````. Both files were bundled with the **fat jar**, starting the app in **prod** mode is:
+Example: you have two config files: ```application.conf``` and ```application.prod.conf````. Both files were bundled inside the **fat jar**, starting the app in **prod** env:
 
-    java -jar myapp.jar -Dapplication.mode=prod
+    java -jar myapp.jar -Dapplication.env=prod
 
 So here the ```application.prod.conf``` will takes precedence over the ```application.conf``` conf file.
 
@@ -370,7 +306,7 @@ This is the recommended option from Jooby, because your app doesn't have an exte
 
 ### [application].[conf]
 
-This is your default config files and it should be bundle inside the **fat jar**. As mentioned early, the default name is: **application.conf**, but if you don't like it or need to change it just call **use** in Jooby:
+This is the default config files and it should be bundle inside the **fat jar**. As mentioned early, the default name is: **application.conf**, but if you don't like it or need to change it:
 
 ```java
   {
@@ -395,7 +331,6 @@ In the previous example the M2 modules properties will take precedence over M1 p
 As you can see the config system is very powerful and can do a lot for you.
 
 
-
 # logging
 
 Logging is done via [logback](http://logback.qos.ch). Logback bootstrap and configuration is described here [logback configuration](http://logback.qos.ch/manual/configuration.html)
@@ -405,76 +340,101 @@ Logging is done via [logback](http://logback.qos.ch). Logback bootstrap and conf
 
 It is useful that we can bundle logging  configuration files inside our jar, it works very well for small/simple apps.
 
-For medium/complex apps and/or if you need want to debug errors the configuration files should /must be outside the jar, so you can turn on/off loggers, change log level etc..
+For medium/complex apps and/or if you need/want to debug errors the configuration files should/must be outside the jar, so you can turn on/off loggers, change log level etc..
 
-On such cases all you have to do is to put the ```logback.xml``` file outside the jar and in the same directory where the jar is.
+On such cases all you have to do is start the application with the location of the logback configuration file:
 
-    cd /myapp-dir
-    ls
-    myapp.jar logback.xml
+    java -Dlogback.configFile=logback.xml -jar myapp.jar
 
-The bootstrap process looks for a file in the same directory where you app was launched (user.dir property) if the file is found there it will be selected. Otherwise, it falls back to the root of the classpath.
-
-If at the time you started your app the console shows a lot of logs statement, that is because log wasn't configured properly. Either, the config file is missing or it has syntax errors.
+The ```-Dlogback.configFile``` property controls the configuration file to load. More information can be found [here](http://logback.qos.ch/manual/configuration.html)
 
 
 # routes
 
-A route describes the interface for making requests to your web app. It combines a HTTP verb (a.k.a. HTTP request method) and a path pattern.
+A route describes the interface for making requests to your web app. It combines a HTTP method (a.k.a. HTTP verb) and a path pattern.
 
-A route has an associated  handler, which does the job of performing ab action in the app and sending a HTTP response.
+A route has an associated handler, which does some job and produces some kind of output (HTTP response).
 
 ## defining routes
 A route definition looks like:
 
 ```java
-get("/", (req, rsp) -> rsp.send("hey jooby"));
+get("/", () -> "hey jooby");
 ```
 
-We just created a route to handle GET request at the root of our app. Any other verb can be created in the same way.
+We created a route to handle GET request at the root of our app. Any other HTTP method can be created in the same way.
 
 If you need a POST all you have to do is:
 
 ```java
-post("/", (req, rsp) -> rsp.send("hey jooby"));
+post("/", () -> "hey jooby");
 ```
-And of course if you want or need to listen to any verb:
+And of course if you want or need to listen to every HTTP method:
 
 ```java
-use("*", "/", (req, rsp) -> rsp.send("hey jooby"));
+use("*", "/", () -> "hey jooby");
 ```
 
 It is possible to name a route explicitly:
 
 ```java
-get("/", (req, rsp) -> rsp.send("hey jooby"))
+get("/", () -> "hey jooby")
    .name("salute");
 ```
 
-By default a route named as **anonymous**. Naming a route is useful for debugging purpose, specially if you two or more routes mounted on the same path.
+Default route name is **anonymous**. Naming a route is useful for debugging purpose, specially if you have two or more routes mounted on the same path.
+
+## route handler
+
+### Zero arg handler
+
+```java
+get("/", () -> "hey jooby");
+```
+
+### One arg handler: req
+
+```java
+get("/", req -> "hey jooby");
+```
+
+### Two args handler: req and rsp
+
+```java
+get("/", (req, rsp) -> rsp.send("hey jooby"));
+```
+
+### Three args handler: req, rsp and chain (a.k.a as Filter)
+
+```java
+get("/", (req, rsp, chain) -> {
+  // do something
+  chain.next(req, rsp);
+});
+```
 
 ## path patterns
 
 ### static patterns
 
 ```java
-get("/", (req, rsp) -> rsp.send("hey jooby"));
+get("/", () -> "hey jooby");
 
-get("/help", (req, rsp) -> rsp.send("hey jooby"));
+get("/help", () -> "hey jooby");
 
-get("/mail/inbox", (req, rsp) -> rsp.send("hey jooby"));
+get("/mail/inbox", () -> "hey jooby");
 ```
 
 ### var/regex patterns
 
 ```java
-get("/user/:id", (req, rsp) -> rsp.send("hey " + req.param("id").stringValue()));
+get("/user/:id", req -> "hey " + req.param("id").value());
 
 // alternative syntax
-get("/user/{id}", (req, rsp) -> rsp.send("hey " + req.param("id").stringValue()));
+get("/user/{id}", req -> "hey " + req.param("id").value());
 
 // regex
-get("/user/{id:\d+}", (req, rsp) -> rsp.send("hey " + req.param("id").intValue()));
+get("/user/{id:\d+}", req -> "hey " + req.param("id").intValue());
 ```
 
 [request params](#request params) are covered later, for now all you need to know is that you can access to a path parameter using the [Request.param(String)]({{apidocs}}/org/jooby/Request.param(java.lang.String)).
@@ -487,33 +447,33 @@ get("/user/{id:\d+}", (req, rsp) -> rsp.send("hey " + req.param("id").intValue()
 
   ```com/**/test.html``` - matches all ```test.html``` files underneath the ```com``` path
 
-  ```**/*``` - matches any path at any level
+  ```**``` - matches any path at any level
 
-  ```*``` - matches any path at any level, shortcut for ```**/*```
+  ```*``` - matches any path at any level, shortcut for ```**```
 
 ## order
 
-Routes are executed in the order they are defined. So the ordering of routes is crucial to the behavior of an app. Let's review this fact via some examples.
+Routes are executed in the order they are defined. So the ordering of routes is crucial to the behavior of an application. Let's review this fact via some examples.
 
 ```java
-get("/abc", (req, rsp) -> rsp.send("first"));
+get("/abc", req -> "first");
 
-get("/abc", (req, rsp) -> rsp.send("second"));
+get("/abc", req -> "second");
 ```
 
 A call to ```/abc``` produces a response of ```first```. If we revert the order:
 
 ```java
-get("/abc", (req, rsp) -> rsp.send("second"));
+get("/abc", req -> "second");
 
-get("/abc", (req, rsp) -> rsp.send("first"));
+get("/abc", req -> "first");
 ```
 
-It produces a response of ```second```. As you can see **order is very important**. Second route got ignored and due that we are trying to send a response after we sent one already a warning will be logged.
+It produces a response of ```second```. As you can see **order is very important**. Second route got ignored because first route send a response.
 
 Now, why is it allowed to have two routes for the same exactly path?
 
-Because we want to **filter** or **intercept** routes.
+Because we want **filters** for routes.
 
 A route handler accept a third parameter, commonly named chain, which refers to the next route handler in line. We will learn more about it in the next section:
 
@@ -548,10 +508,6 @@ get("/", function(req, rsp, chain) {
 
 If there is no matching callback function after the current callback function, next refers to the built-in 404 error handler, and it will be triggered when you call it.
 
-The two (2) args route handler is represented by [Route.Handler]({{apidocs}}/org/jooby/Route.Handler).
-
-The three (3) args route handler is represented by [Route.Filter]({{apidocs}}/org/jooby/Route.Filter).
-
 Try to guess the output of:
 
 ```java
@@ -564,7 +520,7 @@ get("/", (req, rsp) -> rsp.send("third"));
 
 Will the server print all of them, or "first" or, "third"?
 
-The server will print just "one". The act of doing a ```rsp.send()``` terminates the flow of the request then and there; the request is not passed on to any other route handler.
+The server will print just "first". The act of doing a ```rsp.send()``` terminates the flow of the request then and there; the request is not passed on to any other route handler.
 
 So, how do we specify multiple handlers for a route, and use them all at the same time? Call the **chain.next()** function from the callback, without calling **send** because it terminates the request flow. Here is an example:
 
@@ -626,17 +582,17 @@ The request object contains methods for reading params, headers and body (betwee
 
 ### request params
 
-The method is defined by the [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) method.
+Retrieval of param is done via: [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) method.
 
-The [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant]({{apidocs}}/org/jooby/Mutant.html) instance. A mutant had several utility method for doing type conversion.
+The [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant]({{apidocs}}/org/jooby/Mutant.html) instance. A mutant had several utility method for doing type conversion and check for presence and/or absence.
 
 Some examples:
 
 ```java
-get("/", (req, rsp) -> {
+get("/", (req) -> {
   int iparam = req.param("intparam").intValue();
 
-  String str = req.param("str").stringValue();
+  String str = req.param("str").value();
 
   // custom object type using type conversion
   MyObject object = req.param("object").to(MyObject.class);
@@ -668,7 +624,7 @@ A request param can be present at (first listed are higher precedence):
 
 3) body: */user* and params are *formurlenconded* or *multipart*
 
-Now, let's suppose a very poor API design and we have a route handler that accept an **id** param in the 3 forms:
+Now, let's suppose a very poor API design where we have a route handler that accept an **id** param in the 3 forms:
 
 A call like:
 
@@ -677,9 +633,9 @@ A call like:
 Produces:
 
 ```java
-get("/user/:id", (req, rsp) -> {
+get("/user/:id", req -> {
   // path param at idx = 0
-  assertEquals("first", req.param("id").stringValue());
+  assertEquals("first", req.param("id").value());
   assertEquals("first", req.param("id").toList(String.class).get(0));
 
   // query param at idx = 1
@@ -690,7 +646,7 @@ get("/user/:id", (req, rsp) -> {
 });
 ```
 
-An API like this should be avoided and we mention it here to say that this is possible so you can take note and figure out if something doesn't work as you expect.
+It is clear that an API like this should be avoided.
 
 #### param type conversion
 
@@ -703,18 +659,31 @@ Automatic type conversion is provided when a type:
 * Has a static method **valueOf** that accepts a single **String** argument
 * Has a static method **fromString** that accepts a single **String** argument. Like ```java.util.UUID```
 * Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
-* There is custom Guice type converter for the type
 * It is an Optional<T>, List<T>, Set<T> or SortedSet<T> where T satisfies one of previous rules
+
+Custom type conversion is also possible:
+
+```java
+
+param((type, values, next) -> {
+  if (type.getRawType() == MyType.class) {
+    // convert the type here
+    return ...;
+  }
+  // no luck! move to next converter
+  return next.convert(type, values);
+});
+```
 
 ### request headers
 
 Retrieval of request headers is done via: [request.header("name")]({{}}Request.html#header-java.lang.String-). All the explained before for [request params](#request params) apply for headers too.
 
 ```java
-get("/", (req, rsp) -> {
+get("/", req -> {
   int iparam = req.header("intparam").intValue();
 
-  String str = req.header("str").stringValue();
+  String str = req.header("str").value();
 
   // custom object type using type conversion
   MyObject object = req.header("object").to(MyObject.class);
@@ -740,15 +709,15 @@ get("/", (req, rsp) -> {
 
 Retrieval of request body is done via [request.body(type)]({{apidocs}}/org/jooby/Request.html#body-com.google.inject.TypeLiteral-).
 
-A [body parser]({{apidocs}}/org/jooby/Body.Parser.html) is responsible for parse or convert the HTTP request body to something else.
+A [body parser]({{apidocs}}/org/jooby/BodyParser.html) is responsible for parse or convert the HTTP request body to something else.
 
-There are a few built-in parsers for reading body as String or Reader objects. Once the body is read it, it can't be read it again. Jooby distribution includes a [Jackson module](http://jackson.codehaus.org/) that provides support for **json**.
+There are a few built-in parsers for reading body as String or Reader objects. Once the body is read it, it can't be read it again.
 
 A detailed explanation for body parser is covered later. For now, all you need to know is that they can read/parse the HTTP body.
 
 A body parser is registered in one of two ways:
 
-* with [use]({{apidocs}}/org/jooby/Jooby.html#use-org.jooby.Body.Parser-)
+* with [use]({{apidocs}}/org/jooby/Jooby.html#use-org.jooby.BodyParser-)
 
 ```java
 {
@@ -760,23 +729,27 @@ A body parser is registered in one of two ways:
 
 ```java
 public void configure(Mode mode, Config config, Binder binder) {
-  Multibinder.newSetBinder(binder, Body.Formatter.class)
+  Multibinder.newSetBinder(binder, BodyParser.class)
         .addBinding()
-        .toInstance(new MyFormatter());
+        .toInstance(new MyParser());
 }
 ```
 
+### locals
+Locals variables are bound to the current request. They are created every time a new request is processed and destroyed at the end of the request.
+
+    req.set("var", var);
+    String var = rsp.get("var");
+
 ### guice access
 
-In previous section we learn you can bind/wire your objects with [Guice](https://github.com/google/guice).
-
-We also learn that a new child injector is created and binded to the current request.
+In previous section we learnt you can bind/wire your objects with [Guice](https://github.com/google/guice).
 
 You can ask [Guice](https://github.com/google/guice) to wired an object from the [request.getInstance(type)](http://jooby.org/apidocs/org/jooby/Request.html#getInstance-com.google.inject.Key-)
 
 ```java
-get("/", (req, rsp) -> {
-  A a = req.getInstance(A.class);
+get("/", req -> {
+  A a = req.require(A.class);
 });
 ```
 
@@ -789,29 +762,27 @@ The response object contains methods for reading and setting headers, status cod
 
 The [rsp.send](http://jooby.org/apidocs/org/jooby/Response.html#send-org.jooby.Body-) method is responsible for sending and writing a body into the HTTP Response.
 
-A [body formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter) is responsible for converting a Java Object into something else (json, html, etc..).
+A [body formatter](http://jooby.org/apidocs/org/jooby/BodyFormatter) is responsible for converting a Java Object into something else (json, html, etc..).
 
 Let's see a simple example:
 
 ```java
-get("/", (req, rsp) -> {
-   rsp.send(data);
-});
+get("/", req -> rsp.send(data));
 ```
 
-The **send** method select the best [body formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter) to use base on the ```Accept``` header and if the current data type is supported.
+The **send** method select the best [body formatter](http://jooby.org/apidocs/org/jooby/BodyFormatter) to use base on the ```Accept``` header and if the current data type is supported.
 
-The resulting ```Content-Type``` when not set is the first returned by the  [formatter.types()](http://jooby.org/apidocs/org/jooby/Body.Formatter#types) method.
+The resulting ```Content-Type``` when is not set is the first returned by the  [formatter.types()](http://jooby.org/apidocs/org/jooby/BodyFormatter#types) method.
 
-The resulting ```Status Code``` when not set is ```200```.
+The resulting ```Status Code``` when is not set is ```200```.
 
 Some examples:
 
 ```java
-get("/", (req, rsp) -> {
+get("/", req -> {
    // text/html with 200
    String data = ...;
-   rsp.send(data);
+   return data;
 });
 ```
 
@@ -825,6 +796,17 @@ get("/", (req, rsp) -> {
 });
 ```
 
+Alternative:
+
+```java
+get("/", req -> {
+   // text/plain with 200 explicitly 
+   String data = ...;
+   return Results.with(data, 200)
+        .type("text/plain");
+});
+```
+
 ### response headers
 
 Retrieval of response headers is done via [rsp.header("name")](http://jooby.org/apidocs/org/jooby/Response.html#header-java.lang.String-). The method always returns a [Mutant](http://jooby.org/apidocs/org/jooby/Mutant.html) and from there you can convert to any of the supported types.
@@ -833,21 +815,14 @@ Setting a header is pretty straightforward too:
 
    rsp.header("Header-Name", value).header("Header2", value);
 
-### locals
-Locals variables are bound to the current request. They are created every time a new request is processed and destroyed at the end of the request.
-
-    rsp.locals("var", var);
-    String var = rsp.local("var");
-
-
 
 # working with data
 
-## body.parser
+## body parser
 
-A [Body.Parser](http://jooby.org/apidocs/org/jooby/Body.Parser.html) is responsible for parsing the HTTP body to something else.
+A [BodyParser](http://jooby.org/apidocs/org/jooby/BodyParser.html) is responsible for parsing the HTTP body to something else.
 
-A [Body.Parser](http://jooby.org/apidocs/org/jooby/Body.Parser.html) has three(3) methods:
+A [BodyParser](http://jooby.org/apidocs/org/jooby/BodyParser.html) has three(3) methods:
 
 * **types**: list of [media types](http://jooby.org/apidocs/org/jooby/MediaType.html) supported by the body parser.
 * **canParse**(*type)*: test if the Java type is supported by the body parser.
@@ -871,7 +846,7 @@ Results in ```415 - Unsupported Media Type```. That is because Jooby has no idea
 Let's said we need to implement a JSON body parser (in real life you wont ever implement a json parser, this is just to demonstrate how it works):
 
 ```java
-public class Json implements Body.Parser {
+public class Json implements BodyParser {
 
   public List<MediaType> types() {
     return ImmutableList.of(MediaType.json);
@@ -881,7 +856,7 @@ public class Json implements Body.Parser {
     return true; 
   }
 
-  public <T> T parse(TypeLiteral<?> type, Body.Reader reader) throws Exception {
+  public <T> T parse(TypeLiteral<?> type, Context ctx) throws Exception {
     ... parse it!
   }
 }
@@ -893,9 +868,9 @@ Using it:
 {
   use(new Json()); // now Jooby has a json parser
 
-  post("/", (req, rsp) -> {
+  post("/", req -> {
     MyObject obj = req.body(MyObject.class);
-    rsp.send(obj.getFirstName());
+    return obj;
   });
 }
 ```
@@ -904,9 +879,9 @@ Using it:
 
 A route by default consumes ```*/*``` (any media type). Jooby will find/choose the **parser** which best matches the ```Content-Type``` header.
 
-The ```Content-Type``` header is compared against the [parser.types()](http://jooby.org/apidocs/org/jooby/Body.Parser.html#types--) method.
+The ```Content-Type``` header is compared against the [parser.types()](http://jooby.org/apidocs/org/jooby/BodyParser.html#types--) method.
 
-Once an acceptable media type is found it call the **canParse** method of the [parser](http://jooby.org/apidocs/org/jooby/Body.Parser.html).
+Once an acceptable media type is found it call the **canParse** method of the [parser](http://jooby.org/apidocs/org/jooby/BodyParser.html).
 
 ### consumes
 
@@ -914,7 +889,7 @@ The **consumes** method control what a route can consume or parse explicitly.
 
 ```java
 {
-  post("/", (req, rsp) -> {
+  post("/", req -> {
     MyObject obj = req.body(MyObject.class);
   })
    .consumes("application/json");
@@ -938,7 +913,7 @@ Keep in mind, you still need a **parser** for your media types. For example:
 
 ```java
 {
-  post("/", (req, rsp) -> {
+  post("/", req -> {
     MyObject obj = req.body(MyObject.class);
   })
    .consumes("application/json", "application/xml");
@@ -947,11 +922,11 @@ Keep in mind, you still need a **parser** for your media types. For example:
 
 Require two parsers one for **json** and one for **xml**.
 
-## body.formatter
+## body formatter
 
-A [Body.Formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter.html) is responsible for format a Java Object to a series of bytes in order to send them as HTTP response.
+A [BodyFormatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html) is responsible for format a Java Object to a series of bytes in order to send them as HTTP response.
 
-A [Body.Formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter.html) has three(3) methods:
+A [BodyFormatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html) has three(3) methods:
 
 * **types**: list of [media types](http://jooby.org/apidocs/org/jooby/MediaType.html) supported by the body formatter.
 * **canFormat**(*type)*: test if the Java type is supported by the body formatter.
@@ -960,9 +935,9 @@ A [Body.Formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter.html) has t
 In the next example we will try to send **MyObject** as HTTP response.
 
 ```java
-get("/", (req, rsp) -> {
+get("/", req -> {
    MyObject obj = ...
-   rsp.send(obj);
+   return obj;
 });
 ```
 
@@ -979,7 +954,7 @@ Results in ```406 - Not Acceptable```. That is because Jooby has no idea how to 
 Let's said we need to implement a JSON body formatter (in real life you wont ever implement a json formatter, this is just to demonstrate how they work):
 
 ```java
-public class Json implements Body.Formatter {
+public class Json implements BodyFormatter {
 
   public List<MediaType> types() {
     return ImmutableList.of(MediaType.json);
@@ -989,7 +964,7 @@ public class Json implements Body.Formatter {
     return true; 
   }
 
-  public void format(Object data, Body.Writer writer) throws Exception {
+  public void format(Object data, Context ctx) throws Exception {
     ... format and write it!
   }
 }
@@ -1012,9 +987,9 @@ Using it:
 
 A route by default produces ```*/*``` (any media type). Jooby will find/choose the **formatter** who best matches the ```Accept``` header.
 
-The ```Accept``` header is compared against the [formatter.types()](http://jooby.org/apidocs/org/jooby/Body.Formatter.html#types--) method.
+The ```Accept``` header is compared against the [formatter.types()](http://jooby.org/apidocs/org/jooby/BodyFormatter.html#types--) method.
 
-Once an acceptable media type is found it call the **canFormat** method of the [formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter.html).
+Once an acceptable media type is found it call the **canFormat** method of the [formatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html).
 
 ### produces
 
@@ -1022,9 +997,9 @@ The **produces** method control what a route can accept or format explicitly.
 
 ```java
 {
-  post("/", (req, rsp) -> {
+  post("/", req -> {
     MyObject obj = ...
-    rsp.send(obj);
+    return obj;
   })
    .produces("application/json");
 }
@@ -1046,9 +1021,9 @@ Keep in mind, you still need a **formatter** for your media types. For example:
 
 ```java
 {
-  post("/", (req, rsp) -> {
+  post("/", req -> {
     MyObject obj = ...
-    rsp.send(obj);
+    return obj;
   })
    .produces("application/json", "application/xml");
 }
@@ -1058,30 +1033,29 @@ Require two formatters one for **json** and one for **xml**.
 
 ## view engine
 
-A [view engine](http://jooby.org/apidocs/org/jooby/View.Engine.html) is a specialized [body formatter](http://jooby.org/apidocs/org/jooby/Body.Formatter.html) that ONLY accept instances of a [view](http://jooby.org/apidocs/org/jooby/View.html).
+A [view engine](http://jooby.org/apidocs/org/jooby/View.Engine.html) is a specialized [body formatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html) that ONLY accept instances of a [view](http://jooby.org/apidocs/org/jooby/View.html).
 
 ```java
 {
   use(new MyTemplateEngine());
 
-  get("/", (req, rsp) -> rsp.send(View.of("viewname", model));
+  get("/", req -> View.of("viewname", "model", model);
 
 }
 ```
 
 There is no much to say about views & engines, any other detail or documentation should be provided in the specific module (mustache, handlebars, freemarker, etc.).
 
-## response.format
+## response format (a.k.a content negotiation)
 
-As you learnt before, content negotiation is done and executed every time a request is processed. Sometimes this isn't enough and that's why [rsp.format](http://jooby.org/apidocs/org/jooby/Response.html#format--) exists:
+A route can produces different results base on the ```Accept``` header: 
 
 ```java
-get("/", (req, rsp)  ->
-  rsp.format()
-    .when("text/html", ()  -> View.of("viewname", model))
+get("/", () ->
+  Results
+    .when("text/html", ()  -> View.of("viewname", "model", model))
     .when("application/json", ()  -> model)
     .when("*", ()  -> Status.NOT_ACCEPTABLE)
-    .send()
 );
 ```
 
@@ -1096,7 +1070,7 @@ The use of web sockets is pretty easy too:
 ```java
 {
    ws("/", (ws) -> {
-     ws.onMessage(message -> System.out.println(message.stringValue()));
+     ws.onMessage(message -> System.out.println(message.value()));
      
      ws.send("connected");
    });
@@ -1109,21 +1083,19 @@ A **path pattern** can be as simple or complex as you need. All the path pattern
 
 A [handler](http://jooby.org/apidocs/org/jooby/WebSocket.Handler.html) is executed on new connections, from there we can listen for message, errors and/or send data to the client.
 
-Keep in mind that **web socket** are not like routes. There is no stack/pipe, chain or request modules.
+Keep in mind that **web socket** are not like routes. There is no stack/pipe or chain.
 
 You can mount a socket to a path used by a route, but you can't have two or more web sockets under the same path.
 
 ## guice access
 
-You can ask [Guice](https://github.com/google/guice) to wired an object from the [ws.getInstance(type)](http://jooby.org/apidocs/org/jooby/WebSocket.html#getInstance-com.google.inject.Key-)
+You can ask [Guice](https://github.com/google/guice) to wired an object from the [ws.require(type)](http://jooby.org/apidocs/org/jooby/WebSocket.html#require-com.google.inject.Key-)
 
 ```java
 ws("/", (ws) -> {
-  A a = ws.getInstance(A.class);
+  A a = ws.require(A.class);
 });
 ```
-
-But remember, there isn't a child injector and/or request objects.
 
 ## consumes
 
@@ -1164,7 +1136,7 @@ This is just an utility method for formatting Java Objects as text message. Prod
 
 # mvc routes
 
-Mvc routes are like **controllers** in [Spring](http://spring.io) and/or **resources** in [Jersey](https://jersey.java.net/) with some minor enchanment and/or simplifications.
+Mvc routes are like **controllers** in [Spring](http://spring.io) and/or **resources** in [Jersey](https://jersey.java.net/) with some minor enhancements and/or simplifications.
 
 ```java
 @Path("/routes")
@@ -1172,16 +1144,16 @@ public class MyRoutes {
 
   @GET
   public View home() {
-    return View.of("home", model);
+    return View.of("home", "model", model);
   }
 }
 ```
 
 Annotations are identical to [Jersey/JAX-RS](https://jersey.java.net/) and they can be found under the package **org.jooby.mvc**.
 
-Keep in mind, Jooby doesn't implement the **JAX-RS** spec that is why it has his own version of  the annotations.
+Keep in mind, Jooby doesn't implement the **JAX-RS** spec that is why it has his own version of the annotations.
 
-A mvc route can be provided by Guice:
+A mvc route can be injected by Guice:
 
 ```java
 @Path("/routes")
@@ -1194,7 +1166,7 @@ public class MyRoutes {
 
   @GET
   public View home() {
-    return View.of("home", model);
+    return View.of("home", "model", model);
   }
 }
 ```
@@ -1205,11 +1177,11 @@ A method annotated with [GET](http://jooby.org/apidocs/org/jooby/mvc/GET.html), 
 
 Mvc routes must be registered, there is no auto-discover feature (and it won't be), classpath scanning, ..., etc.
 
-We learnt that the order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly declared. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
+We learnt that the order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly registered. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
 
 So, how do I register a mvc route? Easy: in the same way everything else is registered in Jooby... from your app class:
 
-```
+```java
 public class App extends Jooby {
   {
      use(MyRoutes.class);
@@ -1274,7 +1246,7 @@ Multi-value params work in the same way, all you have to do is to declare the pa
    }
 ```
 
-Just remember the injected collection is immutable.
+Just remember the injected collection is not mutable.
 
 File uploads (again) work in the same way, just use *org.jooby.Upload*
 
@@ -1340,8 +1312,9 @@ public String sayHi(String name) {
 }
 
 @GET
-public void dontSayGoodbye(String name) {
+public Result dontSayGoodbye(String name) {
   // NO_CONTENT(204)
+  return Results.noContent();
 }
 
 ```
@@ -1351,33 +1324,19 @@ If you need/want to render a view, just return a *org.jooby.View* instance:
 ```java
 @GET
 public View home() {
-  return View.of("home", model);
+  return View.of("home", "model", model);
 }
 ```
-
-or use *org.jooby.mvc.Viewable*
-
-```java
-@GET
-@Viewable("home")
-public Object home() {
-  return model;
-}
-```
-
-Last example is useful if you want to create let's said a **text/html** (viewable) and **application/json** (data) responses.
 
 ### customizing the response
 
-If you need to deal or handle status code, headers, etc... use [org.jooby.Body](http://jooby.org/apidocs/org/jooby/Body.html)
+If you need to deal with HTTP metadata like: status code, headers, etc... use a [org.jooby.Result](http://jooby.org/apidocs/org/jooby/Result.html)
 
 ```java
 @GET
-public Body handler() {
-  return Body.body(model).status(200);
+public Result handler() {
+  // 201 = created
+  return Results.with(model, 201);
 }
 ```
-
-
-
 

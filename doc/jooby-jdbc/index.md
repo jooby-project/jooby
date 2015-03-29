@@ -1,12 +1,12 @@
 ---
 layout: index
 title: jooby-jdbc
-version: 0.4.2
+version: 0.4.2.1
 ---
 
 # jooby-jdbc
 
-Give you a production-ready jdbc data source, powered by the [HikariCP](https://github.com/brettwooldridge/HikariCP) library.
+Production-ready jdbc data source, powered by the [HikariCP](https://github.com/brettwooldridge/HikariCP) library.
 
 ## dependency
 
@@ -14,7 +14,7 @@ Give you a production-ready jdbc data source, powered by the [HikariCP](https://
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>0.4.2</version>
+  <version>0.4.2.1</version>
 </dependency>
 ```
 ## usage
@@ -90,7 +90,7 @@ db.user=myuser
 db.password=password
 ```
 
-Example bellows show you how to connect to **mysql**, setting user and password. But of course you need the jdbc driver on your ```pom.xml```:
+Previous example, show you how to connect to **mysql**, setting user and password. But of course you need the jdbc driver on your ```pom.xml```:
 
 ```xml
 <dependency>
@@ -124,8 +124,8 @@ Let's suppose we have a main database and an audit database for tracking changes
 
 ```java
 {
-   use(new Jdbc()); // main database
-   use(new Jdbc("audit")); // audit database
+   use(new Jdbc("db.main")); // main database
+   use(new Jdbc("db.audit")); // audit database
 }
 ```
 
@@ -133,9 +133,9 @@ application.conf
 
 ```
 # main database
-db.url = ...
-db.user=...
-db.password = ...
+db.main.url = ...
+db.main.user=...
+db.main.password = ...
 
 # audit
 db.audit.url = ....
@@ -143,18 +143,16 @@ db.audit.user = ....
 db.audit.password = ....
 ```
 
-If you specified a name to the *Jdbc* module, then a setup for ```"db." + name``` is used to configure your database.
-
 Same principle applies if you need to tweak [hikari](https://github.com/brettwooldridge/HikariCP): 
 
 ```
 # max pool size for main db
-hikari.maximumPoolSize = 100
+hikari.db.main.maximumPoolSize = 100
 
 # max pool size for audit db
-hikari.audit.maximumPoolSize = 20
+hikari.db.audit.maximumPoolSize = 20
 ```
 
 Finally, if you need to inject the audit data source, all you have to do is to use the *Name* annotation, like ```@Name("db.audit")```
 
-Cool, isn't?
+That's all folks! Enjoy it!!!
