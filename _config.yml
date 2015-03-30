@@ -1,5 +1,5 @@
 markdown: redcarpet
 redcarpet:
-    extensions: [with_toc_data]
+  extensions: ["with_toc_data", "tables"]
 title: jooby
-desc: A micro-web framework for Java 8
+desc: do more, more easily

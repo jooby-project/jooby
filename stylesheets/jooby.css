@@ -7,20 +7,41 @@ body {
 }
 
 body {
-  font-family: 'Ubuntu Mono', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background-color: rgb(249, 247, 243);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #FBFAF7;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: normal;
   font-variant: normal;
+  font-family: 'Ubuntu Mono', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+h3, h4, h5, h6 {
+  font-weight: bold;
+  font-variant: bold;
 }
 
 section h1,
 section h2,
 section h3 {
-  padding-bottom: 3px;
+  padding: 10px 0;
   border-bottom: 1px solid #ccc;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+table,
+th,
+td {
+  border: 1px solid #D7D8C8;
+}
+
+td,
+th {
+  padding: 8px;
 }
 
 .container {
@@ -74,6 +95,7 @@ a:hover.version span {
 header {
   background-color: #34302d;
   border-top: 4px solid #da4939;
+  font-family: 'Ubuntu Mono', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 header a {
@@ -155,7 +177,7 @@ footer ul.social-media li a {
   width: 32px;
   height: 32px;
   padding: 0;
-  background: #f9f7f3;
+  background: #FBFAF7;
   background-image: url("/images/socials-icons.svg");
   background-size: 224px 64px;
   border-radius: 0.25em;
@@ -198,10 +220,23 @@ footer .disclamer a {
 /**
  * Code blocks
  */
-code, pre {
+code {
+  color: #da4939;
+  border-radius: 4px;
+  background: #FDFEFB;
+  border: 1px solid #D7D8C8;
+  padding: 2px 5px;
+  font-size: 14px;
+}
+
+pre code {
   font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
   color: #000;
   font-size: 14px;
+  border-radius: inherit;
+  border: none;
+  background-color: transparent;
+  padding: 0;
 }
 
 pre {
@@ -212,6 +247,10 @@ pre {
   overflow: auto;
   overflow-y: hidden;
   margin-bottom: 32px;
+}
+
+pre code.language-properties .err {
+  background-color: transparent;
 }
 
 .highlight {

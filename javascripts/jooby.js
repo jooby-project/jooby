@@ -1,6 +1,8 @@
 (function ($) {
 
-  ZeroClipboard.config( { swfPath: "http://jooby.org/javascripts/ZeroClipboard.swf" } );
+  if (window.ZeroClipboard) {
+    ZeroClipboard.config( { swfPath: "http://jooby.org/javascripts/ZeroClipboard.swf" } );
+  }
 
   /**
    * Find the first .highlight element and prepend a toolbar with a copy to clipboard button.
@@ -31,20 +33,31 @@
           idx = href.indexOf(prefix);
 
       if (idx === 0) {
-        $a.attr('href', '/doc/' + href.substring(prefix.length));
+        var project = href.substring(prefix.length);
+        if (project !== 'coverage-report') {
+          $a.attr('href', '/doc/' + project);
+        }
       }
     });
   };
 
+  var page = function () {
+    var page = window.location.pathname.replace(/\//g, '');
+    $(document.body).addClass(page);
+  };
 
   /**
    * DOM ready!
    */
   $(function () {
+    // page
+    page();
     // sync links
     links();
     // clipboard
-    copyToClipboard();
+    if (window.ZeroClipboard) {
+      copyToClipboard();
+    }
   });
 
 
