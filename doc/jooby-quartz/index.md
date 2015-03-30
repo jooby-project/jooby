@@ -29,7 +29,7 @@ import org.jooby.quartz.Quartz;
 
 Previous example will startup Quartz and schedule MyJob.
 
-# Jobs
+## jobs
 A job can implement the ```Job``` interface as described in the [Quartz documentation]
 (http://quartz-scheduler.org/documentation)
 
@@ -37,7 +37,7 @@ If you prefer to not implement the ```Job``` interface, all you have to do is to
 
 By default, job name is set the class name or to the method name. Default group is set to the package name of the job class.
 
-## Job methods
+### job methods
 
 A job method must follow this rules:
 
@@ -48,7 +48,7 @@ A job method must follow this rules:
 
 The next section will you show how to add a trigger to a job and some examples too.
 
-# Triggers
+## triggers
 
 Trigger are defined by the ```Scheduled``` annotation. The annotation defined a single and required attributes, which is basically a trigger expression or a reference to it.
 
@@ -91,7 +91,7 @@ public class MyJob {
 And again the property: ```job.expr``` must be one of the previously described expressions.
  
 
-# Grouping jobs together
+## grouping jobs together
 
 If you have two or more jobs doing something similar, it is possible to group all them into one single class:
 
@@ -109,7 +109,7 @@ public class MyJobs {
 }
 ```
 
-# Dependency Injection
+## dependency injection
 
 Not much to add here, just let you know jobs are created by Guice.
 
@@ -142,7 +142,7 @@ public class MyJobManager {
 }
 ```
 
-# Configuration
+## configuration
 
 Example: Setting max number of threads
 
@@ -154,7 +154,7 @@ org.quartz.threadPool.threadCount = 1 # default is number of available processor
 Configuration follows the [Quartz
 documentation](http://quartz-scheduler.org/documentation). The only difference is that you need to put add the properties on your ```*.conf``` file, NOT in a custom ```quartz.properties``` file.
 
-## Jdbc Store
+### jdbc store
 
 Jdbc Store is fully supported but it depends on the <code>jooby-jdbc</code> module. So, in order to use the Jdbc Store you need to follow these steps:
 
@@ -174,7 +174,7 @@ org.quartz.jobStore.driverDelegateClass = org.quartz.impl.jdbcjobstore.StdJDBCDe
 org.quartz.jobStore.dataSource = db
 ```
 
-# Adding jobs programmatically
+## adding jobs programmatically
 
 When ```Scheduled``` isn't not enough and/or if you prefer to build jobs manually, you can try
 one of the available alternatives.

@@ -18,7 +18,7 @@ version: 0.4.2.1
 </dependency>
 ```
 
-# usage
+## usage
 It is pretty straightforward:
 
 ```properties
@@ -39,7 +39,7 @@ db = "redis://localhost:6379"
 }
 ```
 
-# pool configuration
+## configuration
 This module creates a [JedisPool]. A default pool is created with a max of ```128``` instances.
 
 The pool can be customized from your ```application.conf```:
@@ -51,7 +51,7 @@ db = "redis://localhost:6379"
 jedis.pool.maxTotal = 200
 ```
 
-## two or more redis connections
+### two or more redis connections
 In case you need two or more Redis connection, just do:
 
 ```java

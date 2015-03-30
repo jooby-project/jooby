@@ -46,7 +46,7 @@ public class Service {
 }
 ```
 
-## db configuration
+## configuration
 Database configuration is controlled from your ```application.conf``` file using the ```db``` property and friends: ```db.*```.
 
 ### mem db

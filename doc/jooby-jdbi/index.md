@@ -26,7 +26,7 @@ See [JDBI](http://www.jdbi.org/) for a detailed usage.
 </dependency>
 ```
 
-# Getting Started
+## usage
 
 It is pretty straightforward:
 
@@ -47,7 +47,7 @@ It is pretty straightforward:
 }
 ```
 
-# Working with SQL Objects
+## sql objects
 
 It is pretty straightforward (too):
 
@@ -82,7 +82,7 @@ public interface MyRepository extends Closeable {
 }
 ```
 
-# Configuration
+## configuration
 
 If you need to configure and/or customize a [DBI](http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/DBI.html) instance, just do:
 

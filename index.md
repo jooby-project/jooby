@@ -1,17 +1,22 @@
 ---
 layout: index
-title: 
+title: do more, more easily
 version: 0.4.2.1
 ---
 
-A minimalist web framework for Java 8, inspired by [express.js](http://expressjs.com) and others ;)
+# &infin; do more, more easily
 
-## key features
+Introducing [Jooby](http://jooby.org) a minimalist web framework for Java 8 or higher.
 
-* powerful and easy to use
-* fast and modular
-* highly flexible and configurable
-* high performance NIO web server
+* Simple and effective programming model for building scalable web applications.
+
+* Easy to learn and to get started. Ideal for small but also large scale applications.
+
+* Fast, modular and extensible. It is so extensible that even the web server is plugable.
+
+* Ready for modern web, with a lot of JavaScript/HTML/CSS. It is pretty simple to integrate with [grunt](http://gruntjs.com/), [gulp](http://gulpjs.com/), etc...
+
+## hello world!
 
 ```java
 import org.jooby.Jooby;
@@ -19,9 +24,7 @@ import org.jooby.Jooby;
 public class App extends Jooby {
 
   {
-    get("/", () ->
-      "Hey Jooby!"
-    );
+    get("/", () -> "Hey Jooby!");
   }
 
   public static void main(final String[] args) throws Exception {
@@ -31,4 +34,7 @@ public class App extends Jooby {
 
 ```
 
-Check out the [quickstart guide](/quickstart) and learn how to get starting.
+Want to learn more?
+
+Check out the [quickstart](/quickstart) guide.
+

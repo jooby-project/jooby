@@ -31,3 +31,4 @@ version: 0.4.2.1
 ## enterprise integration patterns (EIP)
 
 * [camel](https://github.com/jooby-project/jooby/tree/master/jooby-camel): enterprise service bus for Jooby.
+
