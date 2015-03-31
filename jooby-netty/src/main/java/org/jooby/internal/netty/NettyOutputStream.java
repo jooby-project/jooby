@@ -66,6 +66,8 @@ class NettyOutputStream extends OutputStream {
 
   private HttpHeaders headers;
 
+  private boolean committed;
+
   NettyOutputStream(final NettyResponse rsp, final ChannelHandlerContext ctx, final ByteBuf buffer,
       final boolean keepAlive, final HttpHeaders headers) {
     this.rsp = rsp;
@@ -88,6 +90,10 @@ class NettyOutputStream extends OutputStream {
   public void reset() {
     chunkState = 0;
     buffer.clear();
+  }
+
+  public boolean committed() {
+    return committed;
   }
 
   @Override
@@ -163,12 +169,13 @@ class NettyOutputStream extends OutputStream {
         rsp.headers().set(headers);
         ctx.writeAndFlush(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
       }
+      committed = true;
       return;
     }
     /**
      * Case 1; we need to send chunks and check if content-length was set or not.
      */
-    if (chunkState == 1) {
+    if (chunkState == 1 && !committed) {
       /**
        * Set headers, if Content-Length wasn't set force/set Transfer-Encoding
        */
@@ -188,6 +195,7 @@ class NettyOutputStream extends OutputStream {
       // send headers
       ctx.write(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
     }
+    committed = true;
     /**
      * Write chunk and clear the buffer.
      */

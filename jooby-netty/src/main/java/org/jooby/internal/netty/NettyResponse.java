@@ -124,7 +124,13 @@ public class NettyResponse implements NativeResponse {
 
   @Override
   public boolean committed() {
-    return ctx == null;
+    if (ctx == null) {
+      return true;
+    }
+    if (out != null) {
+      return out.committed();
+    }
+    return false;
   }
 
   @Override
