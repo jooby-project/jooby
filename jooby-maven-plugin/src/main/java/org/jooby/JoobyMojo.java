@@ -65,6 +65,9 @@ public class JoobyMojo extends AbstractMojo {
   @Parameter(property = "jooby.excludes")
   private List<String> excludes;
 
+  @Parameter(property = "application.debug", defaultValue = "true")
+  private String debug;
+
   @Parameter(defaultValue = "${plugin.artifacts}")
   private List<org.apache.maven.artifact.Artifact> pluginArtifacts;
 
@@ -84,8 +87,8 @@ public class JoobyMojo extends AbstractMojo {
 
     Set<String> classpath = new LinkedHashSet<String>();
 
-    Optional<Artifact> hotreload = hotreload(pluginArtifacts);
-    classpath.add(hotreload.get().getFile().getAbsolutePath());
+    String hotreload = hotreload(pluginArtifacts).get().getFile().getAbsolutePath();
+    classpath.add(hotreload);
 
     for (Artifact artifact : artifacts) {
       String scope = artifact.getScope();
@@ -101,7 +104,7 @@ public class JoobyMojo extends AbstractMojo {
       cmds.addAll(0, this.commands);
     }
     List<String> args = new ArrayList<String>();
-    args.addAll(vmArgs(vmArgs));
+    args.addAll(vmArgs(hotreload, vmArgs));
     args.add("-cp");
     args.add(cp);
     args.add("org.jooby.Hotswap");
@@ -147,10 +150,26 @@ public class JoobyMojo extends AbstractMojo {
     return buff.toString();
   }
 
-  private List<String> vmArgs(final List<String> vmArgs) {
+  private List<String> vmArgs(final String agentpath, final List<String> vmArgs) {
     List<String> results = new ArrayList<String>();
     if (vmArgs != null) {
       results.addAll(vmArgs);
+    }
+    results.add("-javaagent:" + agentpath);
+    if (!"false".equals(debug)) {
+      // true, number, debug line
+      if ("true".equals(debug)) {
+        // default debug
+        results.add("-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n");
+      } else {
+        try {
+          int port = Integer.parseInt(debug);
+          results.add("-agentlib:jdwp=transport=dt_socket,address=" + port + ",server=y,suspend=n");
+        } catch (NumberFormatException ex) {
+          // assume it is a debug line
+          results.add(debug);
+        }
+      }
     }
     // logback
     File[] logbackFiles = {localFile("config", "logback-test.xml"),
@@ -161,19 +180,20 @@ public class JoobyMojo extends AbstractMojo {
         break;
       }
     }
-    // dcevm?
-    String altjvm = null;
-    for (String boot : System.getProperty("sun.boot.library.path", "").split(File.pathSeparator)) {
-      File dcevm = new File(boot, "dcevm");
-      if (dcevm.exists()) {
-        altjvm = dcevm.getName();
-      }
-    }
-    if (altjvm == null) {
-      getLog().warn("dcevm not found, we recommend to install it: https://github.com/dcevm/dcevm");
-    } else {
-      results.add("-XXaltjvm=" + altjvm);
-    }
+    // dcevm? OFF
+    // String altjvm = null;
+    // for (String boot : System.getProperty("sun.boot.library.path", "").split(File.pathSeparator))
+    // {
+    // File dcevm = new File(boot, "dcevm");
+    // if (dcevm.exists()) {
+    // altjvm = dcevm.getName();
+    // }
+    // }
+    // if (altjvm == null) {
+    // getLog().warn("dcevm not found, we recommend to install it: https://github.com/dcevm/dcevm");
+    // } else {
+    // results.add("-XXaltjvm=" + altjvm);
+    // }
     return results;
   }
 

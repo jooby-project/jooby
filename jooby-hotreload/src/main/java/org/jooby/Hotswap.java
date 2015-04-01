@@ -20,6 +20,7 @@ package org.jooby;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,20 +35,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * Start a target app with a custom classloader. The classloader is responsible for loading
- * resources from:
- *
- * 1. public and config directories (probably src/main/resources too)
- * 2. target/classes, current app (*.class)
- *
- * The parent classloader must load 1) and all the *.jars files.
- *
- * On changes ONLY the custom classloader (App classlaoder) is bounced it.
- *
- * @author edgar
- *
- */
+
 public class Hotswap {
 
   private URLClassLoader loader;
@@ -68,7 +56,7 @@ public class Hotswap {
 
   private PathMatcher excludes;
 
-  private boolean dcevm;
+  // OFF private boolean dcevm;
 
   private List<File> dirs;
 
@@ -84,7 +72,11 @@ public class Hotswap {
     this.paths = toPath(dirs.toArray(new File[dirs.size()]));
     this.executor = Executors.newSingleThreadExecutor();
     this.scanner = new Watcher(this::onChange, paths);
-    dcevm = System.getProperty("java.vm.version").toLowerCase().contains("dcevm");
+    // OFF dcevm = System.getProperty("java.vm.version").toLowerCase().contains("dcevm");
+  }
+
+  public static void premain(final String args, final Instrumentation inst) throws Exception {
+   // TODO:
   }
 
   public static void main(final String[] args) throws Exception {
@@ -141,9 +133,9 @@ public class Hotswap {
 
   public void run() {
     System.out.printf("Hotswap available on: %s\n", dirs);
-    System.out.printf("  unlimited runtime class redefinition: %s\n", dcevm
-        ? "yes"
-        : "no (see https://github.com/dcevm/dcevm)");
+    // System.out.printf("  unlimited runtime class redefinition: %s\n", dcevm
+    // ? "yes"
+    // : "no (see https://github.com/dcevm/dcevm)");
     System.out.printf("  includes: %s\n", includes);
     System.out.printf("  excludes: %s\n", excludes);
 
@@ -273,4 +265,5 @@ public class Hotswap {
       }
     };
   }
+
 }

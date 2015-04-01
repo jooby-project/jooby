@@ -29,7 +29,7 @@ public class Command {
 
   private String name;
 
-  private List<String> arguments;
+  private List<String> args;
 
   private File workdir;
 
@@ -42,7 +42,7 @@ public class Command {
   public Command(final String alias, final String name, final List<String> args) {
     this.alias = alias;
     this.name = name;
-    this.arguments = new ArrayList<String>(args);
+    this.args = new ArrayList<String>(args);
   }
 
   public Command() {
@@ -74,12 +74,12 @@ public class Command {
     this.name = name;
   }
 
-  public List<String> getArguments() {
-    return arguments;
+  public List<String> getArgs() {
+    return args;
   }
 
-  public void setArguments(final List<String> arguments) {
-    this.arguments = arguments;
+  public void setArgs(final List<String> arguments) {
+    this.args = arguments;
   }
 
   public void stop() throws InterruptedException {
@@ -95,7 +95,7 @@ public class Command {
   public void execute() throws IOException, InterruptedException {
     List<String> cmd = new ArrayList<String>();
     cmd.add(name);
-    cmd.addAll(arguments);
+    cmd.addAll(args);
     process = new ProcessBuilder(cmd)
         .directory(workdir)
         .redirectErrorStream(true)
@@ -113,7 +113,7 @@ public class Command {
     StringBuilder str = new StringBuilder();
     if (alias == null) {
       str.append(name);
-      for (String arg : arguments) {
+      for (String arg : args) {
         str.append(" ").append(arg);
       }
     } else {
@@ -122,10 +122,20 @@ public class Command {
     return str.toString();
   }
 
+  public void set(final String cmd) {
+    String[] cmdline = cmd.split("\\s+");
+    setName(cmdline[0].trim());
+    List<String> args = new ArrayList<String>();
+    for (int i = 1; i < cmdline.length; i++) {
+      args.add(cmdline[i].trim());
+    }
+    setArgs(args);
+  }
+
   public String debug() {
     StringBuilder str = new StringBuilder();
     str.append(name);
-    for (String arg : arguments) {
+    for (String arg : args) {
       str.append(" ").append(arg);
     }
     return str.toString();
