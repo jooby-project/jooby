@@ -20,6 +20,7 @@ package org.jooby.internal;
 
 import org.jooby.internal.reqparam.StaticMethodParamConverter;
 
+import com.google.common.primitives.Primitives;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.spi.TypeConverter;
@@ -44,8 +45,11 @@ class StaticMethodTypeConverter<T> extends AbstractMatcher<TypeLiteral<T>>
 
   @Override
   public boolean matches(final TypeLiteral<T> type) {
-    return !Enum.class.isAssignableFrom(type.getRawType())
-        && converter.matches(type);
+    Class<? super T> rawType = type.getRawType();
+    if (Primitives.isWrapperType(rawType)) {
+      return false;
+    }
+    return !Enum.class.isAssignableFrom(rawType) && converter.matches(type);
   }
 
   @Override

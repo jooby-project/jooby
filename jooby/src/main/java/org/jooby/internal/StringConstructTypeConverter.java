@@ -23,6 +23,7 @@ import java.util.Locale;
 import org.jooby.internal.reqparam.LocaleParamConverter;
 import org.jooby.internal.reqparam.StringConstructorParamConverter;
 
+import com.google.common.primitives.Primitives;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.spi.TypeConverter;
@@ -45,6 +46,10 @@ class StringConstructTypeConverter<T> extends AbstractMatcher<TypeLiteral<T>>
 
   @Override
   public boolean matches(final TypeLiteral<T> type) {
+    Class<? super T> rawType = type.getRawType();
+    if (Primitives.isWrapperType(rawType)) {
+      return false;
+    }
     return new StringConstructorParamConverter().matches(type);
   }
 
