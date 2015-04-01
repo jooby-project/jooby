@@ -1,9 +1,22 @@
 # modules
 
-Modules are reusable and configurable piece of software. Modules like in [Guice](https://github.com/google/guice) are used to wire services, connect data, etc...
+Modules are a key concept for building reusable and configurable piece of software. Modules like in [Guice](https://github.com/google/guice) are used to wire services, connect data, etc...
 
-## app module
-An application module is represented by the [Jooby.Module](http://jooby.org/apidocs/org/jooby/Jooby.Module.html) class. The configure callback looks like:
+A module is usually a small piece of software that bootstrap and configure common code and/or an external library.
+
+### do less and be flexible
+
+A module should do as less as possible (key difference with other frameworks). A module for a library *X* should:
+
+* Bootstrap X
+* Configure X
+* Exposes raw API of X
+
+This means a module should NOT create wrapper for a library. Instead, it should provide a way to extend, configure and use the raw library.
+
+This principle, keep module usually small, maintainable and flexible.
+
+A module is represented by the [Jooby.Module]({{defdocs}}/Jooby.Module.html) class. The configure callback looks like:
 
 ```java
 public class M1 implements Jooby.Module {
@@ -13,10 +26,9 @@ public class M1 implements Jooby.Module {
 }
 ```
 
-The configure callback is similar to a [Guice module](https://github.com/google/guice), except you can access to the [Env](http://jooby.org/apidocs/org/jooby/Env.html) and [Type Safe Config](https://github.com/typesafehub/config) objects.
+The configure callback is similar to a [Guice module](https://github.com/google/guice), except you can access to the [Env]({{defdocs}}/Env.html) and [Type Safe Config](https://github.com/typesafehub/config) objects.
 
-In addition to the **configure** callback, a module in Jooby has one additional method:  **config**. The ```config``` method allow a module to specify default properties, by default a module has an empty config.
-
+In addition to the **configure** callback, a module in Jooby has one additional method:  **config**. The ```config``` method allow a module to specify default properties.
 
 ```java
 public class M1 implements Jooby.Module {
@@ -29,9 +41,10 @@ public class M1 implements Jooby.Module {
    }
 }
 ```
+
 This is useful for setting defaults values or similar.
 
-**Finally**, an app module is registered at startup time:
+A module is registered at startup time:
 
 ```java
 import org.jooby.Jooby;
@@ -48,10 +61,7 @@ public class MyApp extends Jooby {
      use(new M2());
   }
 
-  ...
 }
 ```
-
-Now, let's say M1 has a ```foo=bar``` property and M2 ```foo=foo``` then ```foo=foo``` wins! because last registered module can override/hide a property from previous module.
 
 Cool, isn't?

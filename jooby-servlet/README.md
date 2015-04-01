@@ -16,7 +16,7 @@ Add the ```jooby-servlet``` dependency to your ```pom.xml```:
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>{{version}}</version>
+  <version>0.4.2.1</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -151,4 +151,4 @@ When the generated file isn't enough, follow these steps:
 
 That's all folks! Enjoy it!!!
 
-{{appendix}}
+

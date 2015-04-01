@@ -2,11 +2,11 @@
 
 ## body parser
 
-A [BodyParser](http://jooby.org/apidocs/org/jooby/BodyParser.html) is responsible for parsing the HTTP body to something else.
+A [BodyParser]({{defdocs}}/BodyParser.html) is responsible for parsing the HTTP body to something else.
 
-A [BodyParser](http://jooby.org/apidocs/org/jooby/BodyParser.html) has three(3) methods:
+A [BodyParser]({{defdocs}}/BodyParser.html) has three(3) methods:
 
-* **types**: list of [media types](http://jooby.org/apidocs/org/jooby/MediaType.html) supported by the body parser.
+* **types**: list of [media types]({{defdocs}}/MediaType.html) supported by the body parser.
 * **canParse**(*type)*: test if the Java type is supported by the body parser.
 * **parse***(type, reader)*: do the actual parsing using the type and reader.
 
@@ -21,7 +21,9 @@ post("/", (req, rsp) -> {
 
 A call like:
 
-    curl -X POST -H 'Content-Type: application/json' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
+```bash
+curl -X POST -H 'Content-Type: application/json' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
+```
 
 Results in ```415 - Unsupported Media Type```. That is because Jooby has no idea how to parse ```application/json```. For that, we need a **json** parser.
 
@@ -61,9 +63,9 @@ Using it:
 
 A route by default consumes ```*/*``` (any media type). Jooby will find/choose the **parser** which best matches the ```Content-Type``` header.
 
-The ```Content-Type``` header is compared against the [parser.types()](http://jooby.org/apidocs/org/jooby/BodyParser.html#types--) method.
+The ```Content-Type``` header is compared against the [parser.types()]({{defdocs}}/BodyParser.html#types--) method.
 
-Once an acceptable media type is found it call the **canParse** method of the [parser](http://jooby.org/apidocs/org/jooby/BodyParser.html).
+Once an acceptable media type is found it call the **canParse** method of the [parser]({{defdocs}}/BodyParser.html).
 
 ### consumes
 
@@ -80,12 +82,15 @@ The **consumes** method control what a route can consume or parse explicitly.
 
 **200** response:
 
-    curl -X POST -H 'Content-Type: application/json' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
+```bash
+curl -X POST -H 'Content-Type: application/json' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
+```
 
 **415** response bc **application/xml** isn't supported:
 
-    curl -X POST -H 'Content-Type: application/xml' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
-
+```bash
+curl -X POST -H 'Content-Type: application/xml' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
+```
 
 In general, you hardly will use **consumes** in your routes. It has been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depend on your app requirements. For example if you need more than **json** for your routes (xml, yaml, etc..).
 
@@ -106,11 +111,11 @@ Require two parsers one for **json** and one for **xml**.
 
 ## body formatter
 
-A [BodyFormatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html) is responsible for format a Java Object to a series of bytes in order to send them as HTTP response.
+A [BodyFormatter]({{defdocs}}/BodyFormatter.html) is responsible for format a Java Object to a series of bytes in order to send them as HTTP response.
 
-A [BodyFormatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html) has three(3) methods:
+A [BodyFormatter]({{defdocs}}/BodyFormatter.html) has three(3) methods:
 
-* **types**: list of [media types](http://jooby.org/apidocs/org/jooby/MediaType.html) supported by the body formatter.
+* **types**: list of [media types]({{defdocs}}/MediaType.html) supported by the body formatter.
 * **canFormat**(*type)*: test if the Java type is supported by the body formatter.
 * **formatter***(data, writer)*: do the actual formatting using the data and writer.
 
@@ -125,11 +130,15 @@ get("/", req -> {
 
 A call like:
 
-    curl http://localhost:8080/
+```bash
+curl http://localhost:8080/
+```
 
 Give us a ```text/html``` and body content is ```obj.toString()```
 
-    curl -H 'Accept: application/json' http://localhost:8080/
+```bash
+curl -H 'Accept: application/json' http://localhost:8080/
+```
 
 Results in ```406 - Not Acceptable```. That is because Jooby has no idea how to format ```application/json```. For that, we need a **json** formatter.
 
@@ -169,9 +178,9 @@ Using it:
 
 A route by default produces ```*/*``` (any media type). Jooby will find/choose the **formatter** who best matches the ```Accept``` header.
 
-The ```Accept``` header is compared against the [formatter.types()](http://jooby.org/apidocs/org/jooby/BodyFormatter.html#types--) method.
+The ```Accept``` header is compared against the [formatter.types()]({{defdocs}}/BodyFormatter.html#types--) method.
 
-Once an acceptable media type is found it call the **canFormat** method of the [formatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html).
+Once an acceptable media type is found it call the **canFormat** method of the [formatter]({{defdocs}}/BodyFormatter.html).
 
 ### produces
 
@@ -189,11 +198,15 @@ The **produces** method control what a route can accept or format explicitly.
 
 **200** response:
 
-    curl -H 'Accept: application/json' http://localhost:8080/
+```bash
+curl -H 'Accept: application/json' http://localhost:8080/
+```
 
 **406** response bc **application/xml** isn't supported:
 
-    curl 'Accept: application/xml' http://localhost:8080/
+```bash
+curl 'Accept: application/xml' http://localhost:8080/
+```
 
 In general, you hardly will use **produces** in your routes. It has been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depend on your app requirements.
 
@@ -215,7 +228,7 @@ Require two formatters one for **json** and one for **xml**.
 
 ## view engine
 
-A [view engine](http://jooby.org/apidocs/org/jooby/View.Engine.html) is a specialized [body formatter](http://jooby.org/apidocs/org/jooby/BodyFormatter.html) that ONLY accept instances of a [view](http://jooby.org/apidocs/org/jooby/View.html).
+A [view engine]({{defdocs}}/View.Engine.html) is a specialized [body formatter]({{defdocs}}/BodyFormatter.html) that ONLY accept instances of a [view]({{defdocs}}/View.html).
 
 ```java
 {
@@ -242,4 +255,3 @@ get("/", () ->
 ```
 
 Performs content-negotiation on the Accept HTTP header of the request object. It select a handler for the request, based on the acceptable types ordered by their quality values. If the header is not specified, the first callback is invoked. When no match is found, the server responds with ```406 Not Acceptable```, or invokes the default callback: ```**/*```.
-

@@ -4,7 +4,7 @@ A route describes the interface for making requests to your web app. It combines
 
 A route has an associated handler, which does some job and produces some kind of output (HTTP response).
 
-## defining routes
+## creating routes
 A route definition looks like:
 
 ```java
@@ -18,7 +18,8 @@ If you need a POST all you have to do is:
 ```java
 post("/", () -> "hey jooby");
 ```
-And of course if you want or need to listen to every HTTP method:
+
+or need to listen to any HTTP method:
 
 ```java
 use("*", "/", () -> "hey jooby");
@@ -35,25 +36,28 @@ Default route name is **anonymous**. Naming a route is useful for debugging purp
 
 ## route handler
 
-### Zero arg handler
+Jooby offers serveral flavors for creating routes:
+
+### no arg handler: ()
 
 ```java
 get("/", () -> "hey jooby");
 ```
 
-### One arg handler: req
+### one arg handler: req
 
 ```java
 get("/", req -> "hey jooby");
 ```
 
-### Two args handler: req and rsp
+### two args handler: (req, rsp)
 
 ```java
 get("/", (req, rsp) -> rsp.send("hey jooby"));
 ```
 
-### Three args handler: req, rsp and chain (a.k.a as Filter)
+### filter: (req, rsp, chain)
+
 
 ```java
 get("/", (req, rsp, chain) -> {
@@ -86,7 +90,7 @@ get("/user/{id}", req -> "hey " + req.param("id").value());
 get("/user/{id:\\d+}", req -> "hey " + req.param("id").intValue());
 ```
 
-[request params](#request params) are covered later, for now all you need to know is that you can access to a path parameter using the [Request.param(String)]({{apidocs}}/org/jooby/Request.param(java.lang.String)).
+Reques params are covered later, for now all you need to know is that you can access to a path parameter using the [Request.param(String)]({{apidocs}}/org/jooby/Request.param(java.lang.String)).
 
 ### ant style patterns
 
@@ -100,7 +104,7 @@ get("/user/{id:\\d+}", req -> "hey " + req.param("id").intValue());
 
   ```*``` - matches any path at any level, shortcut for ```**```
 
-## order
+## precedence and order
 
 Routes are executed in the order they are defined. So the ordering of routes is crucial to the behavior of an application. Let's review this fact via some examples.
 
@@ -118,13 +122,13 @@ get("/abc", req -> "second");
 get("/abc", req -> "first");
 ```
 
-It produces a response of ```second```. As you can see **order is very important**. Second route got ignored because first route send a response.
+It produces a response of ```second```. As you can see **order is very important**.
 
 Now, why is it allowed to have two routes for the same exactly path?
 
 Because we want **filters** for routes.
 
-A route handler accept a third parameter, commonly named chain, which refers to the next route handler in line. We will learn more about it in the next section:
+A route handler accept a third parameter, commonly named chain, which refers to the next route handler in line:
 
 ```java
 get("/abc", (req, rsp, chain) -> {

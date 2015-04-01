@@ -1,6 +1,6 @@
 # jooby-hbs
 
-Mustache/Handlebars templates for [Jooby]({{site}}). Exposes a [Handlebars](https://github.com/jknack/handlebars.java) and [body formatter]({{defdocs}}/BodyFormatter.html).
+Mustache/Handlebars templates for [Jooby](/). Exposes a [Handlebars](https://github.com/jknack/handlebars.java) and [body formatter](/apidocs/org/jooby/BodyFormatter.html).
 
 ## dependency
 
@@ -8,7 +8,7 @@ Mustache/Handlebars templates for [Jooby]({{site}}). Exposes a [Handlebars](http
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbs</artifactId>
-  <version>{{version}}</version>
+  <version>0.4.2.1</version>
 </dependency>
 ```
 
@@ -101,5 +101,5 @@ See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/co
 
 That's all folks! Enjoy it!!!
 
-{{appendix}}
+
 

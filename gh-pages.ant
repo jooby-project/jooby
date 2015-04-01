@@ -16,7 +16,7 @@
     <exec executable="git" dir="${workdir}">
       <arg value="clone" />
       <arg value="-b" />
-      <arg value="gh-pages" />
+      <arg value="site" />
       <arg value="--single-branch" />
       <arg value="${gitrepo}" />
       <arg value="." />
@@ -32,7 +32,7 @@
       <fileset dir="target/site/apidocs" />
     </copy>
 
-    <!-- -->
+    <!--
     <exec executable="git" dir="${workdir}">
       <arg value="add" />
       <arg value="-A" />
@@ -41,14 +41,14 @@
     <exec executable="git" dir="${workdir}">
       <arg value="commit" />
       <arg value="-m" />
-      <arg value="Sync docs from master branch to docs gh-pages directory" />
+      <arg value="prepare web site" />
     </exec>
 
     <exec executable="git" dir="${workdir}">
       <arg value="push" />
       <arg value="origin" />
-      <arg value="gh-pages" />
-    </exec>
+      <arg value="site" />
+    </exec>-->
 
   </target>
 

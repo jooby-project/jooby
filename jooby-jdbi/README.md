@@ -16,7 +16,7 @@ See [JDBI](http://www.jdbi.org/) for a detailed usage.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbi</artifactId>
-  <version>{{version}}</version>
+  <version>0.4.2.1</version>
 </dependency>
 ```
 
@@ -90,5 +90,5 @@ If you need to configure and/or customize a [DBI](http://jdbi.org/maven_site/api
 
 That's all folks! Enjoy it!!!
 
-{{appendix}}
+
 

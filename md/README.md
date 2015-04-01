@@ -2,29 +2,7 @@
 [![Coverage Status](https://img.shields.io/coveralls/jooby-project/jooby.svg)](https://coveralls.io/r/jooby-project/jooby?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby)
 
-jooby
-=====
-
-A minimalist web framework for Java 8, inspired by [express.js](http://expressjs.com/) and others ;)
-
-```java
-
-import org.jooby.Jooby;
-
-public class App extends Jooby {
-
-  {
-    get("/", () ->
-      "Hey Jooby!"
-    );
-  }
-
-  public static void main(final String[] args) throws Exception {
-    new App().start(args);
-  }
-}
-
-```
+{{jooby.md}}
 
 versioning
 =====
@@ -32,38 +10,10 @@ versioning
 Jooby uses [semantic versioning](http://semver.org/) for releases.
 
 API is considered unstable while release version is: ```0.x.x``` and it might changes and/or broke without previous notification.
-This might sounds terrible but isn't. Jooby is plain Java there, then any change on the API will be reported by the Java Compiler :)
+
+This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it.
 
 {{quickstart.md}}
-
-table of content
-=====
-
-{{toc.md}}
-
-{{overview.md}}
-
-{{modules.md}}
-
-{{config.md}}
-
-{{logging.md}}
-
-{{routes.md}}
-
-{{req.md}}
-
-{{rsp.md}}
-
-{{working-with-data.md}}
-
-{{web-sockets.md}}
-
-{{mvc-routes.md}}
-
-{{available-modules.md}}
-
-{{faq.md}}
 
 want to contribute?
 =====

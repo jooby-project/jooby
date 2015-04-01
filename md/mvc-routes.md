@@ -1,4 +1,4 @@
-# mvc routes
+## mvc routes
 
 Mvc routes are like **controllers** in [Spring](http://spring.io) and/or **resources** in [Jersey](https://jersey.java.net/) with some minor enhancements and/or simplifications.
 
@@ -35,15 +35,17 @@ public class MyRoutes {
 }
 ```
 
-A method annotated with [GET](http://jooby.org/apidocs/org/jooby/mvc/GET.html), [POST](http://jooby.org/apidocs/org/jooby/mvc/GET.html),... (or any of the rest of the verbs) is considered a route handler (web method).
+A method annotated with [GET]({{defdocs}}/mvc/GET.html), [POST]({{defdocs}}/mvc/POST.html),... (or any of the rest of the verbs) is considered a route handler (web method).
 
-## registering a mvc route
+### registering a mvc route
 
 Mvc routes must be registered, there is no auto-discover feature (and it won't be), classpath scanning, ..., etc.
 
 We learnt that the order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly registered. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
 
-So, how do I register a mvc route? Easy: in the same way everything else is registered in Jooby... from your app class:
+So, how do I register a mvc route?
+
+In the same way everything else is registered in Jooby!! from your app class:
 
 ```java
 public class App extends Jooby {
@@ -51,7 +53,7 @@ public class App extends Jooby {
      use(MyRoutes.class);
   }
 }
-``` 
+```
 
 Again, handlers are registered in the order they are declared, so:
 
@@ -79,7 +81,7 @@ public class MyRoutes {
 A call to ```/routes``` will print: **first**, **second** and produces a response of **third**.
 
 
-## binding req params
+### binding req params
 
 A mvc handler can be bound to current request parameters:
 
@@ -110,7 +112,7 @@ Multi-value params work in the same way, all you have to do is to declare the pa
    }
 ```
 
-Just remember the injected collection is not mutable.
+Just remember the injected collection is immutable.
 
 File uploads (again) work in the same way, just use *org.jooby.Upload*
 
@@ -130,7 +132,7 @@ As you might already noticed, Jooby uses the method param name and binded it to 
    }
 ```
 
-## binding req body
+### binding req body
 
 Injecting a req body work in the same way:
 
@@ -141,9 +143,7 @@ Injecting a req body work in the same way:
   }
 ```
 
-Details on how the request body got parsed has been described in previous section(s). See here for example: [req.body()](#request-body)
-
-## binding req headers
+### binding req headers
 
 Works just like [req params](#binding-req-params) but you must annotated the param with *org.jooby.mvc.Header*:
 
@@ -163,7 +163,7 @@ Or, if the header name isn't a valid Java identifier
    }
 ```
 
-## mvc response
+### mvc response
 
 A web method might or might not send a response to the client. Some examples:
 
@@ -192,9 +192,9 @@ public View home() {
 }
 ```
 
-### customizing the response
+#### customizing the response
 
-If you need to deal with HTTP metadata like: status code, headers, etc... use a [org.jooby.Result](http://jooby.org/apidocs/org/jooby/Result.html)
+If you need to deal with HTTP metadata like: status code, headers, etc... use a [org.jooby.Result]({{defdocs}}/Result.html)
 
 ```java
 @GET

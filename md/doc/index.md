@@ -6,25 +6,26 @@ version: {{version}}
 
 documentation
 =====
-
 {{toc.md}}
 
-{{overview.md}}
-
-{{modules.md}}
+{{philosophy.md}}
 
 {{config.md}}
 
 {{logging.md}}
 
+{{modules.md}}
+
 {{routes.md}}
+
+{{mvc-routes.md}}
+
+{{web-sockets.md}}
 
 {{req.md}}
 
 {{rsp.md}}
 
+{{session.md}}
+
 {{working-with-data.md}}
-
-{{web-sockets.md}}
-
-{{mvc-routes.md}}

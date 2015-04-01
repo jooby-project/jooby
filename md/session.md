@@ -1,5 +1,5 @@
-## session
-Sessions are created on demand via: {@link Request#session()}.
+# session
+Sessions are created on demand via: [req.session()]({{defdocs}}/Request.html#session--).
 
 Sessions have a lot of uses cases but most commons are: auth, store information about current
 user, etc.
@@ -7,19 +7,19 @@ user, etc.
 A session attribute must be {@link String} or a primitive. Session doesn't allow to store
 arbitrary objects. It is a simple mechanism to store basic data.
 
-### options
+## options
 
-#### No timeout
+### No timeout
 There is no timeout for sessions from server perspective. By default, a session will expire when
 the user close the browser (a.k.a session cookie).
 
-### session store
+## session store
 
-A {@link Session.Store} is responsible for saving session data. Sessions are kept in memory, by
-default using the {@link Session.Mem} store, which is useful for development, but wont scale well
+A [Session.Store]({{defdocs}}/Session.Store.html) is responsible for saving session data. Sessions are kept in memory, by
+default using the [Session.Mem]({{defdocs}}/Session.Mem.html) store, which is useful for development, but wont scale well
 on production environments. An redis, memcached, ehcache store will be a better option.
 
-#### store life-cycle
+### store life-cycle
 
 Sessions are persisted every time a request exit, if they are dirty. A session get dirty if an
 attribute is added or removed from it.
@@ -29,9 +29,9 @@ persisted (in millis).
 
 In short, a session is persisted when: 1) it is dirty; or 2) save interval has expired it.
 
-### cookie
+## cookie
 
-#### max-age
+### max-age
 The <code>session.cookie.maxAge</code> sets the maximum age in seconds. A positive value
 indicates that the cookie will expire after that many seconds have passed. Note that the value is
 the <i>maximum</i> age when the cookie will expire, not the cookie's current age.
@@ -41,12 +41,13 @@ Web browser exits.
 
 Default maxAge is: <code>-1</code>.
 
-#### signed cookie
+### signed cookie
 If the <code>application.secret</code> property has been set, then the session cookie will be
 signed it with it.
 
-#### cookie's name
+### cookie's name
 
 The <code>session.cookie.name</code> indicates the name of the cookie that hold the session ID,
 by defaults: <code>jooby.sid</code>. Cookie's name can be explicitly set with
-{@link Cookie.Definition#name(String)} on {@link Session.Definition#cookie()}.
+[cookie.name("name")]({{defdocs}}/Cookie.Definition.html#name-java.lang.String-) on
+[Session.Definition#cookie()]({{defdocs}}/Session.Definition.html#cookie).

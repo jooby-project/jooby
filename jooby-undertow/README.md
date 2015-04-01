@@ -1,3 +1,25 @@
+# jooby-undertow
+
+[Undertow](http://undertow.io/) web server for Jooby.
+
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-undertow</artifactId>
+  <version>0.4.2.1</version>
+</dependency>
+```
+
+## usage
+
+In order to use a web server all you have to do is add the dependency to your build system.
+[Jooby](/) will found the server and start it.
+
+
+## appendix: server.conf
+```properties
 # undertow defaults
 server.module = org.jooby.undertow.Undertow
 
@@ -60,3 +82,6 @@ undertow {
     IdleTimeout = ${server.ws.IdleTimeout}
   }
 }
+
+```
+

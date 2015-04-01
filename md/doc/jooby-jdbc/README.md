@@ -14,6 +14,7 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
 ## usage
 
 ```java
+
 import org.jooby.jdbc.Jdbc;
 import javax.sql.DataSource;
 
@@ -21,8 +22,8 @@ import javax.sql.DataSource;
   use(new Jdbc());
  
   // accessing to the data source
-  get("/my-api", (req, rsp) -> {
-    DataSource db = req.getInstance(DataSource.class);
+  get("/my-api", req -> {
+    DataSource db = req.require(DataSource.class);
     // do something with datasource
   }); 
 }
@@ -40,12 +41,14 @@ public class Service {
 }
 ```
 
-## db configuration
+## configuration
 Database configuration is controlled from your ```application.conf``` file using the ```db``` property and friends: ```db.*```.
 
 ### mem db
 
-    db = mem
+```properties
+db = mem
+```
 
 Mem db is implemented with [h2 database](http://www.h2database.com/), before using it make sure to add the h2 dependency to your ```pom.xml```:
 
@@ -60,7 +63,9 @@ Mem db is useful for dev environment and/or transient data that can be regenerat
 
 ### fs db
 
-    db = fs
+```properties
+db = fs
+```
 
 File system db is implemented with [h2 database](http://www.h2database.com/), before using it make sure to add the h2 dependency to your ```pom.xml```:
 
@@ -77,11 +82,11 @@ File system db is useful for dev environment and/or transient data that can be r
 ### db.url
 Connect to a database using a jdbc url, some examples here:
 
-```
+```properties
 # mysql
 db.url = jdbc:mysql://localhost/mydb
-db.user=myuser
-db.password=password
+db.user = myuser
+db.password = password
 ```
 
 Previous example, show you how to connect to **mysql**, setting user and password. But of course you need the jdbc driver on your ```pom.xml```:
@@ -96,14 +101,14 @@ Previous example, show you how to connect to **mysql**, setting user and passwor
 ## hikari configuration
 If you need to configure or tweak the [hikari pool](https://github.com/brettwooldridge/HikariCP) just add ```hikari.*``` entries to your ```application.conf``` file:
 
-```
+```properties
 db.url = jdbc:mysql://localhost/mydb
-db.user=myuser
-db.password=password
-db.cachePrepStmts=true
+db.user = myuser
+db.password = password
+db.cachePrepStmts = true
 
 # hikari
-hikari. autoCommit = true
+hikari.autoCommit = true
 hikari.maximumPoolSize = 20
 # etc...
 ```
@@ -118,14 +123,14 @@ Let's suppose we have a main database and an audit database for tracking changes
 
 ```java
 {
-   use(new Jdbc("db.main")); // main database
-   use(new Jdbc("db.audit")); // audit database
+  use(new Jdbc("db.main")); // main database
+  use(new Jdbc("db.audit")); // audit database
 }
 ```
 
 application.conf
 
-```
+```properties
 # main database
 db.main.url = ...
 db.main.user=...
@@ -139,7 +144,7 @@ db.audit.password = ....
 
 Same principle applies if you need to tweak [hikari](https://github.com/brettwooldridge/HikariCP): 
 
-```
+```properties
 # max pool size for main db
 hikari.db.main.maximumPoolSize = 100
 
@@ -150,3 +155,5 @@ hikari.db.audit.maximumPoolSize = 20
 Finally, if you need to inject the audit data source, all you have to do is to use the *Name* annotation, like ```@Name("db.audit")```
 
 That's all folks! Enjoy it!!!
+
+{{appendix}}

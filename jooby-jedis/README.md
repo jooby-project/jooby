@@ -1,6 +1,6 @@
 # jooby-jedis
 
-[Redis](http://redis.io/) cache and key/value data store for Jooby. Exposes a {{jedis}} service.
+[Redis](http://redis.io/) cache and key/value data store for Jooby. Exposes a [Jedis](https://github.com/xetorthio/jedis) service.
 
 ## dependency
 
@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>{{version}}</version>
+  <version>0.4.2.1</version>
 </dependency>
 ```
 
@@ -99,13 +99,13 @@ For more information about [Jedis](https://github.com/xetorthio/jedis) checkout 
 }
 ```
 
-The ```name``` attribute and value will be stored in a {{redis}}. Sessions are persisted as [hashes](http://redis.io/topics/data-types#hashes).
+The ```name``` attribute and value will be stored in a [Redis](http://redis.io). Sessions are persisted as [hashes](http://redis.io/topics/data-types#hashes).
 
 ### options
 
 #### timeout
 
-By default, a {{redis}} session will expire after ```30 minutes```. Changing the default timeout is as simple as:
+By default, a [Redis](http://redis.io) session will expire after ```30 minutes```. Changing the default timeout is as simple as:
 
 ```properties
 # 8 hours
@@ -131,4 +131,34 @@ That's all folks! Enjoy it!
 
 TBD: Object mapping? https://github.com/xetorthio/johm?
 
-{{appendix}}
+## appendix: jedis.conf
+```properties
+# jedis default config
+
+# jedis
+jedis.timeout = 2s
+
+# pool config
+jedis.pool.maxTotal = 128
+jedis.pool.maxIdle = 10
+jedis.pool.minIdle = 10
+jedis.pool.lifo = true
+jedis.pool.maxWait = -1
+jedis.pool.minEvictableIdle = 30m
+jedis.pool.softMinEvictableIdle = 30m
+jedis.pool.numTestsPerEvictionRun = 3
+jedis.pool.evictionPolicyClassName = org.apache.commons.pool2.impl.DefaultEvictionPolicy
+jedis.pool.testOnBorrow = false
+jedis.pool.testOnReturn = false
+jedis.pool.testWhileIdle = false
+jedis.pool.timeBetweenEvictionRuns = -1
+jedis.pool.blockWhenExhausted = true
+jedis.pool.jmxEnabled = false
+jedis.pool.jmxNamePrefix = redis-pool
+
+# session store, key prefix and timeout in seconds 
+jedis.session.prefix = sessions
+jedis.session.timeout = ${application.session.timeout}
+
+```
+

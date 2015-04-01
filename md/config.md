@@ -1,4 +1,4 @@
-# config files
+# config, environment and logging
 
 Jooby delegates configuration management to [TypeSafe Config](https://github.com/typesafehub/config). If you aren't familiar with [TypeSafe Config](https://github.com/typesafehub/config) please take a few minutes to discover what [TypeSafe Config](https://github.com/typesafehub/config) can do for you.
 
@@ -22,7 +22,7 @@ Any property can be injected using the ```javax.inject.Named``` annotation and a
 
 6) Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
 
-7) There is custom Guice type converter for the type
+7) There is custom [Guice](https://github.com/google/guice) type converter for the type
 
 It is also possible to inject the root ```com.typesafe.config.Config``` object or a child of it.
 
@@ -30,11 +30,12 @@ It is also possible to inject the root ```com.typesafe.config.Config``` object o
 
 ### application.env
 
-Jooby internals and the module system rely on the ```application.env``` property. By defaults, this property is set to ```dev```.
-
-For example, the [development stage](https://github.com/google/guice/wiki/Bootstrap) is set in [Guice](https://github.com/google/guice) when ```application.env == dev```. A module provider, might decided to create a connection pool, cache, etc when ```application.env != dev ```.
+Jooby internals and the module system rely on the ```application.env``` property. By defaults, this property is set to: ```dev```.
 
 This special property is represented at runtime with the [Env]({{apidocs}}/org/jooby/Env.html) class.
+
+For example, the [development stage](https://github.com/google/guice/wiki/Bootstrap) is set in [Guice](https://github.com/google/guice) when ```application.env == dev```.
+A module provider, might decided to create a connection pool, cache, etc when ```application.env != dev ```.
 
 ### application.secret
 
@@ -45,13 +46,14 @@ If present, the session cookie will be signed with the ```application.secret```.
 Here is the list of default properties provided by  Jooby:
 
 * **application.name**: describes the name of your application. Default is: *app.getClass().getSimpleName()*
+* **application.tmpdir**: location of the temporary directory. Default is: *${java.io.tmpdir}/${application.name}*
 * **application.charset**: charset to use. Default is: *UTF-8*
 * **application.lang**: locale to use. Default is: *Locale.getDefault()*. A ```java.util.Locale``` can be injected.
 * **application.dateFormat**: date format to use. Default is: *dd-MM-yyyy*. A ```java.time.format.DateTimeFormatter``` can be injected.
 * **application.numberFormat**: number format to use. Default is: *DecimalFormat.getInstance("application.lang")*
 * **application.tz**: time zone to use. Default is: *ZoneId.systemDefault().getId()*. A ```java.time.ZoneId``` can be injected.
 
-## precedence
+## config precedence
 
 Config files are loaded in the following order (first-listed are higher priority)
 
@@ -75,7 +77,7 @@ System properties can override any other property. A sys property is set at star
 
 The use of this conf file is optional, because Jooby recommend to deploy your application as a **fat jar** and all the properties files should be bundled inside the jar.
 
-If you find this impractical, then this option will work for you.
+If you find this impractical, then this option is for you.
 
 Let's say your app includes a default property file: ```application.conf``` bundled with your **fat jar**. Now if you want/need to override two or more properties, just do this:
 
@@ -110,9 +112,9 @@ This is the recommended option from Jooby, because your app doesn't have an exte
 This is the default config files and it should be bundle inside the **fat jar**. As mentioned early, the default name is: **application.conf**, but if you don't like it or need to change it:
 
 ```java
-  {
-     use(ConfigFactory.parseResources("myconfig.conf"));
-  }
+{
+   use(ConfigFactory.parseResources("myconfig.conf"));
+}
 ```
 
 
@@ -121,10 +123,10 @@ This is the default config files and it should be bundle inside the **fat jar**.
 As mentioned in the [modules](#modules) section a module might define his own set of properties.
 
 ```
-  {
-     use(new M1());
-     use(new M2());
-  }
+{
+   use(new M1());
+   use(new M2());
+}
 ```
 
 In the previous example the M2 modules properties will take precedence over M1 properties.

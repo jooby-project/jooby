@@ -1,6 +1,6 @@
 # jooby-ftl
 
-[Freemarker](http://freemarker.org) templates for [Jooby]({{site}}). Exposes a Configuration and [body formatter]({{defdocs}}/BodyFormatter.html).
+[Freemarker](http://freemarker.org) templates for [Jooby](/). Exposes a Configuration and [body formatter](/apidocs/org/jooby/BodyFormatter.html).
 
 ## dependency
 
@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>{{version}}</version>
+  <version>0.4.2.1</version>
 </dependency>
 ```
 
@@ -100,5 +100,27 @@ See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/co
 
 That's all folks! Enjoy it!!!
 
-{{appendix}}
+## appendix: freemarker.conf
+```properties
+#freemarker defaults
+
+freemarker.locale = ${application.lang}
+
+freemarker.number_format = ${application.numberFormat}
+
+freemarker.date_format = ${application.dateFormat}
+
+freemarker.time_zone = ${application.tz}
+
+freemarker.object_wrapper = default
+
+freemarker.template_exception_handler = default
+
+freemarker.defaultEncoding = ${application.charset}
+
+# cache for env != dev
+freemarker.cache = "maximumSize=100"
+
+```
+
 

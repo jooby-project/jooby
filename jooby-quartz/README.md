@@ -8,7 +8,7 @@ A job scheduler from [Quartz](http://quartz-scheduler.org/).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>{{version}}</version>
+  <version>0.4.2.1</version>
 </dependency>
 ```
 ## usage
@@ -224,4 +224,14 @@ Example 3: build and set everything from scratch
 
 That's all folks! Enjoy it!!
 
-{{appendix}}
+## appendix: quartz.conf
+```properties
+org.quartz.scheduler.instanceName = quartz
+org.quartz.scheduler.instanceId = local
+
+# thread pool
+org.quartz.threadPool.threadNamePrefix = quartz
+org.quartz.threadPool.threadCount = ${runtime.processors}
+
+```
+

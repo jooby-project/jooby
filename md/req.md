@@ -1,8 +1,8 @@
-## request
+# request
 
 The request object contains methods for reading params, headers and body (between others). In the next section we will mention the most important method of a request object, if you need more information please refer to the [javadoc]({{apidocs}}/org/jooby/Request.html).
 
-### request params
+## request params
 
 Retrieval of param is done via: [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) method.
 
@@ -11,7 +11,7 @@ The [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.Strin
 Some examples:
 
 ```java
-get("/", (req) -> {
+get("/", req -> {
   int iparam = req.param("intparam").intValue();
 
   String str = req.param("str").value();
@@ -36,9 +36,9 @@ get("/", (req) -> {
 });
 ```
 
-#### param types and precedence
+### param types and precedence
 
-A request param can be present at (first listed are higher precedence):
+A request param can be present at:
 
 1) path: */user:id*
 
@@ -46,11 +46,15 @@ A request param can be present at (first listed are higher precedence):
 
 3) body: */user* and params are *formurlenconded* or *multipart*
 
-Now, let's suppose a very poor API design where we have a route handler that accept an **id** param in the 3 forms:
+(first listed are higher precedence)
+
+Now, let's suppose a very poor API where we have a route handler that accept an **id** param in the 3 forms:
 
 A call like:
 
-    curl -X POST -d "id=third" http://localhost:8080/user/first?id=second
+```bash
+curl -X POST -d "id=third" http://localhost:8080/user/first?id=second
+```
 
 Produces:
 
@@ -70,7 +74,7 @@ get("/user/:id", req -> {
 
 It is clear that an API like this should be avoided.
 
-#### param type conversion
+### param type conversion
 
 Automatic type conversion is provided when a type:
 
@@ -97,7 +101,7 @@ param((type, values, next) -> {
 });
 ```
 
-### request headers
+## request headers
 
 Retrieval of request headers is done via: [request.header("name")]({{}}Request.html#header-java.lang.String-). All the explained before for [request params](#request params) apply for headers too.
 
@@ -127,7 +131,7 @@ get("/", req -> {
 });
 ```
 
-### request body
+## request body
 
 Retrieval of request body is done via [request.body(type)]({{apidocs}}/org/jooby/Request.html#body-com.google.inject.TypeLiteral-).
 
@@ -147,7 +151,7 @@ A body parser is registered in one of two ways:
 }
 ```
 
-* or  from inside an app module:
+* or  from inside a module:
 
 ```java
 public void configure(Mode mode, Config config, Binder binder) {
@@ -157,17 +161,19 @@ public void configure(Mode mode, Config config, Binder binder) {
 }
 ```
 
-### locals
+## locals
 Locals variables are bound to the current request. They are created every time a new request is processed and destroyed at the end of the request.
 
-    req.set("var", var);
-    String var = rsp.get("var");
+```java
+  req.set("var", var);
+  String var = rsp.get("var");
+```
 
-### guice access
+## guice access
 
 In previous section we learnt you can bind/wire your objects with [Guice](https://github.com/google/guice).
 
-You can ask [Guice](https://github.com/google/guice) to wired an object from the [request.getInstance(type)](http://jooby.org/apidocs/org/jooby/Request.html#getInstance-com.google.inject.Key-)
+You can ask [Guice](https://github.com/google/guice) to wired an object from the [request.require(type)]({{defdocs}}/Request.html#require-com.google.inject.Key-)
 
 ```java
 get("/", req -> {
