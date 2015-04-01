@@ -212,22 +212,32 @@ vars.push({
 
 vars.push({
   name: 'jooby',
-  data: '[Jooby](http://jooby.org/)'
+  data: '[Jooby](http://jooby.org)'
 });
 
 vars.push({
   name: 'netty',
-  data: '[Netty](http://netty.io/)'
+  data: '[Netty](http://netty.io)'
 });
 
 vars.push({
   name: 'npm',
-  data: '[npm](https://www.npmjs.com/)'
+  data: '[npm](https://www.npmjs.com)'
 });
 
 vars.push({
   name: 'grunt',
-  data: '[npm](http://gruntjs.com/)'
+  data: '[npm](http://gruntjs.com)'
+});
+
+vars.push({
+  name: 'redis',
+  data: '[Redis](http://redis.io)'
+});
+
+vars.push({
+  name: 'jedis',
+  data: '[Jedis](https://github.com/xetorthio/jedis)'
 });
 
 /**

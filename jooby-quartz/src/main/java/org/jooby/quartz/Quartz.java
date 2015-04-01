@@ -50,7 +50,7 @@ import com.typesafe.config.ConfigFactory;
 /**
  * Build and create a {@link Scheduler Quartz Scheduler} and {@link Job jobs}.
  *
- * <h1>Getting Started</h1>
+ * <h1>usage</h1>
  *
  * <pre>
  *  {
@@ -60,7 +60,7 @@ import com.typesafe.config.ConfigFactory;
  *
  * Previous example will startup Quartz and schedule MyJob.
  *
- * <h1>Jobs</h1>
+ * <h1>jobs</h1>
  * <p>
  * A job can implement the {@link Job} interface as described in the <a
  * href="http://quartz-scheduler.org/documentation">Quartz documentation</a>
@@ -75,7 +75,7 @@ import com.typesafe.config.ConfigFactory;
  * package name of the job class.
  * </p>
  *
- * <h2>Job methods</h2>
+ * <h2>job methods</h2>
  * <p>
  * A job method must follow this rules:
  * </p>
@@ -89,9 +89,9 @@ import com.typesafe.config.ConfigFactory;
  *
  * The next section will you show how to add a trigger to a job and some examples too.
  *
- * <h1>Triggers</h1>
+ * <h1>triggers</h1>
  * <p>
- * Trigger are defined by the {@link Scheduled} annotation. The annotation defined a single and
+ * Trigger are defined by the {@link Scheduled} annotation. The annotation defines a single and
  * required attributes, which is basically a trigger expression or a reference to it.
  * </p>
  *
@@ -143,7 +143,7 @@ import com.typesafe.config.ConfigFactory;
  * expressions.
  * </p>
  *
- * <h1>Grouping jobs together</h1>
+ * <h1>grouping jobs together</h1>
  * <p>
  * If you have two or more jobs doing something similar, it is possible to group all them into one
  * single class:
@@ -163,7 +163,7 @@ import com.typesafe.config.ConfigFactory;
  *  }
  * </pre>
  *
- * <h1>Dependency Injection</h1>
+ * <h1>dependency injection</h1>
  * <p>
  * Not much to add here, just let you know jobs are created by Guice.
  * </p>
@@ -201,7 +201,7 @@ import com.typesafe.config.ConfigFactory;
  *  }
  * </pre>
  *
- * <h1>Configuration</h1>
+ * <h1>configuration</h1>
  * <p>
  * Example: Setting max number of threads
  * </p>
@@ -216,7 +216,7 @@ import com.typesafe.config.ConfigFactory;
  * <code>*.conf</code> file, NOT in a custom <code>quartz.properties</code> file.
  * </p>
  *
- * <h2>Jdbc Store</h2>
+ * <h2>jdbc store</h2>
  * <p>
  * Jdbc Store is fully supported but it depends on the <code>jooby-jdbc</code> module. So, in order
  * to use the Jdbc Store you need to follow these steps:
@@ -243,9 +243,11 @@ import com.typesafe.config.ConfigFactory;
  *  org.quartz.jobStore.dataSource = db
  * </pre>
  *
- * <h1>Adding jobs programmatically</h1> When {@link Scheduled} isn't not enough and/or if you
- * prefer to build jobs manually, you can try
+ * <h1>adding jobs programmatically</h1>
+ * <p>
+ * When {@link Scheduled} isn't not enough and/or if you prefer to build jobs manually, you can try
  * one of the available alternatives.
+ * </p>
  *
  * <p>
  * Example 1: build the trigger and use default job naming
