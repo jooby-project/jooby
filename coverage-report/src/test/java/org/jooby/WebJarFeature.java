@@ -7,7 +7,7 @@ public class WebJarFeature extends ServerFeature {
 
   {
     assets("/webjars/**", "/META-INF/resources/webjars/{0}");
-
+    assets("/css/**", "/assets/{0}");
   }
 
   @Test
@@ -29,6 +29,15 @@ public class WebJarFeature extends ServerFeature {
         .expect(200)
         .header("Content-Type", "text/plain;charset=UTF-8")
         .header("Content-Length", 127542);
+  }
+
+  @Test
+  public void jqueryui() throws Exception {
+    request()
+        .get("/css/jquery-ui.css")
+        .expect(200)
+        .header("Content-Type", "text/css;charset=UTF-8")
+        .header("Content-Length", 25272);
   }
 
   @Test
