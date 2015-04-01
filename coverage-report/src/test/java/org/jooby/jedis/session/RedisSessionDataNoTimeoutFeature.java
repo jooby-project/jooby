@@ -11,12 +11,12 @@ import org.junit.Test;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
-public class RedisSessionDataFeature extends ServerFeature {
+public class RedisSessionDataNoTimeoutFeature extends ServerFeature {
 
   {
     use(ConfigFactory.empty()
         .withValue("db", ConfigValueFactory.fromAnyRef("redis://localhost:6379"))
-        .withValue("application.session.timeout", ConfigValueFactory.fromAnyRef(120)));
+        .withValue("application.session.timeout", ConfigValueFactory.fromAnyRef("0")));
 
     use(new Redis());
 
@@ -35,6 +35,10 @@ public class RedisSessionDataFeature extends ServerFeature {
       return session.attributes();
     });
 
+    get("/destroy", req -> {
+      req.session().destroy();;
+      return "done";
+    });
   }
 
   @Test
@@ -49,7 +53,11 @@ public class RedisSessionDataFeature extends ServerFeature {
                 .expect(rsp -> {
                   assertTrue(rsp.equals("{name=edgar, age=34}")
                       || rsp.equals("{age=34, name=edgar}"));
-                })
+                }).request(r2 -> {
+                  // cleanup
+                    r2.get("/destroy")
+                        .expect("done");
+                  })
         );
 
   }

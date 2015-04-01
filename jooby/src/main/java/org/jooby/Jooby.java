@@ -3074,9 +3074,7 @@ public class Jooby {
         Key<Object> key = (Key<Object>) Key.get(listType, Names.named(name));
         binder.bind(key).toInstance(values);
       } else {
-        @SuppressWarnings("rawtypes")
-        Class type = value.getClass();
-        binder.bind(type).annotatedWith(named).toInstance(value);
+        binder.bindConstant().annotatedWith(named).to(value.toString());
       }
     }
     // bind config

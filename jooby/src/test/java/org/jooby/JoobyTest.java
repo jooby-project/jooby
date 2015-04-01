@@ -67,6 +67,8 @@ import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Stage;
 import com.google.inject.binder.AnnotatedBindingBuilder;
+import com.google.inject.binder.AnnotatedConstantBindingBuilder;
+import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.matcher.Matchers;
@@ -122,27 +124,12 @@ public class JoobyTest {
 
   @SuppressWarnings("rawtypes")
   private MockUnit.Block config = unit -> {
-    LinkedBindingBuilder<String> strLinkedBinding = unit.mock(LinkedBindingBuilder.class);
-    strLinkedBinding.toInstance(isA(String.class));
+    ConstantBindingBuilder strCBB = unit.mock(ConstantBindingBuilder.class);
+    strCBB.to(isA(String.class));
     expectLastCall().anyTimes();
-    AnnotatedBindingBuilder<String> strAnnotatedBinding = unit.mock(AnnotatedBindingBuilder.class);
-    expect(strAnnotatedBinding.annotatedWith(isA(Named.class))).andReturn(strLinkedBinding)
-        .anyTimes();
 
-    LinkedBindingBuilder<Integer> intLinkedBinding = unit.mock(LinkedBindingBuilder.class);
-    intLinkedBinding.toInstance(isA(Integer.class));
-    expectLastCall().anyTimes();
-    AnnotatedBindingBuilder<Integer> intAnnotatedBinding = unit.mock(AnnotatedBindingBuilder.class);
-    expect(intAnnotatedBinding.annotatedWith(isA(Named.class))).andReturn(intLinkedBinding)
-        .anyTimes();
-
-    LinkedBindingBuilder<Boolean> boolLinkedBinding = unit.mock(LinkedBindingBuilder.class);
-    boolLinkedBinding.toInstance(isA(Boolean.class));
-    expectLastCall().anyTimes();
-    AnnotatedBindingBuilder<Boolean> boolAnnotatedBinding = unit
-        .mock(AnnotatedBindingBuilder.class);
-    expect(boolAnnotatedBinding.annotatedWith(isA(Named.class))).andReturn(boolLinkedBinding)
-        .anyTimes();
+    AnnotatedConstantBindingBuilder strACBB = unit.mock(AnnotatedConstantBindingBuilder.class);
+    expect(strACBB.annotatedWith(isA(Named.class))).andReturn(strCBB).anyTimes();
 
     LinkedBindingBuilder<List<String>> listOfString = unit.mock(LinkedBindingBuilder.class);
     listOfString.toInstance(isA(List.class));
@@ -160,9 +147,7 @@ public class JoobyTest {
     configAnnotatedBinding.toInstance(isA(Config.class));
 
     Binder binder = unit.get(Binder.class);
-    expect(binder.bind(String.class)).andReturn(strAnnotatedBinding).anyTimes();
-    expect(binder.bind(Integer.class)).andReturn(intAnnotatedBinding).anyTimes();
-    expect(binder.bind(Boolean.class)).andReturn(boolAnnotatedBinding).anyTimes();
+    expect(binder.bindConstant()).andReturn(strACBB).anyTimes();
     expect(binder.bind(Config.class)).andReturn(configAnnotatedBinding).anyTimes();
     expect(binder.bind(Key.get(Types.listOf(String.class), Names.named("hotswap.reload.ext"))))
         .andReturn((LinkedBindingBuilder) listOfString).anyTimes();
