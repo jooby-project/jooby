@@ -75,7 +75,7 @@ public class SessionManager {
         ? config.getString("application.secret")
         : null;
 
-    Config $session = config.getConfig("application.session");
+    Config $session = config.getConfig("session");
 
     // save interval
     this.saveInterval = def.saveInterval()

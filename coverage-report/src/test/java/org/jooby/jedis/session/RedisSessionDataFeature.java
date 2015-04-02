@@ -16,7 +16,7 @@ public class RedisSessionDataFeature extends ServerFeature {
   {
     use(ConfigFactory.empty()
         .withValue("db", ConfigValueFactory.fromAnyRef("redis://localhost:6379"))
-        .withValue("application.session.timeout", ConfigValueFactory.fromAnyRef(120)));
+        .withValue("session.timeout", ConfigValueFactory.fromAnyRef(120)));
 
     use(new Redis());
 

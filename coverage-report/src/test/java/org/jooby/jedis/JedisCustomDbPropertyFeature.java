@@ -23,8 +23,9 @@ public class JedisCustomDbPropertyFeature extends ServerFeature {
 
     get("/:key/:value", req -> {
       try (Jedis jedis = req.require(Key.get(Jedis.class, Names.named("mydb")))) {
-        jedis.set(req.param("key").value(), req.param("value").value());
-        return jedis.get(req.param("key").value());
+        String key = req.param("key").value();
+        jedis.setex(key, 120, req.param("value").value());
+        return jedis.get(key);
       }
     });
   }
@@ -32,7 +33,7 @@ public class JedisCustomDbPropertyFeature extends ServerFeature {
   @Test
   public void connect() throws Exception {
     request()
-        .get("/foo/bar")
+        .get("/foo2/bar")
         .expect("bar");
   }
 }

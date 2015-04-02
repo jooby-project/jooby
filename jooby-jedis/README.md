@@ -158,7 +158,7 @@ jedis.pool.jmxNamePrefix = redis-pool
 
 # session store, key prefix and timeout in seconds 
 jedis.session.prefix = sessions
-jedis.session.timeout = ${application.session.timeout}
+jedis.session.timeout = ${session.timeout}
 
 ```
 

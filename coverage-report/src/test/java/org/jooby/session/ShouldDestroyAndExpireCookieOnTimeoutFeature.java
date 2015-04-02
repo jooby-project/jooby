@@ -13,7 +13,7 @@ import com.typesafe.config.ConfigValueFactory;
 public class ShouldDestroyAndExpireCookieOnTimeoutFeature extends ServerFeature {
 
   {
-    use(ConfigFactory.empty().withValue("application.session.cookie.maxAge", ConfigValueFactory.fromAnyRef("1s")));
+    use(ConfigFactory.empty().withValue("session.cookie.maxAge", ConfigValueFactory.fromAnyRef("1s")));
 
     session(new Session.Mem());
 

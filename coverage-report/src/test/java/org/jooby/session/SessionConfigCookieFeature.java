@@ -23,14 +23,14 @@ public class SessionConfigCookieFeature extends ServerFeature {
     use(ConfigFactory
         .empty()
         .withValue("application.secret", ConfigValueFactory.fromAnyRef("fixed"))
-        .withValue("application.session.cookie.name", ConfigValueFactory.fromAnyRef("custom.sid"))
-        .withValue("application.session.cookie.path", ConfigValueFactory.fromAnyRef("/session"))
-        .withValue("application.session.cookie.comment",
+        .withValue("session.cookie.name", ConfigValueFactory.fromAnyRef("custom.sid"))
+        .withValue("session.cookie.path", ConfigValueFactory.fromAnyRef("/session"))
+        .withValue("session.cookie.comment",
             ConfigValueFactory.fromAnyRef("jooby cookie"))
-        .withValue("application.session.cookie.domain", ConfigValueFactory.fromAnyRef("localhost"))
-        .withValue("application.session.cookie.maxAge", ConfigValueFactory.fromAnyRef(60))
-        .withValue("application.session.cookie.httpOnly", ConfigValueFactory.fromAnyRef(true))
-        .withValue("application.session.cookie.secure", ConfigValueFactory.fromAnyRef(false)));
+        .withValue("session.cookie.domain", ConfigValueFactory.fromAnyRef("localhost"))
+        .withValue("session.cookie.maxAge", ConfigValueFactory.fromAnyRef(60))
+        .withValue("session.cookie.httpOnly", ConfigValueFactory.fromAnyRef(true))
+        .withValue("session.cookie.secure", ConfigValueFactory.fromAnyRef(false)));
 
     session(new Session.Mem());
 

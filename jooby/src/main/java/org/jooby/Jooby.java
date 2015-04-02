@@ -2981,10 +2981,7 @@ public class Jooby {
             .build()
         )
         .put("timeout", "30m")
-        .put("saveInterval", "60s")
-        .put("preserveOnStop", true);
-
-    defaults.put("session", session.build());
+        .put("saveInterval", "60s");
 
     // set tmpdir
     String deftmpdir = "java.io.tmpdir";
@@ -3030,6 +3027,7 @@ public class Jooby {
     Map<String, Object> application = ImmutableMap.<String, Object> builder()
         .put("application", defaults)
         .put("runtime", runtime)
+        .put("session", session.build())
         .build();
     return ConfigValueFactory.fromMap(application, "jooby-defaults").toConfig();
   }
