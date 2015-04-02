@@ -100,7 +100,7 @@ See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/co
 
 That's all folks! Enjoy it!!!
 
-## appendix: freemarker.conf
+# appendix: freemarker.conf
 ```properties
 #freemarker defaults
 
@@ -122,5 +122,6 @@ freemarker.defaultEncoding = ${application.charset}
 freemarker.cache = "maximumSize=100"
 
 ```
+
 
 

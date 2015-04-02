@@ -20,13 +20,13 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Throwables;
 
 /**
  * An exception that carry a {@link Status}. The status field will be set in the HTTP
@@ -105,13 +105,11 @@ public class Err extends RuntimeException {
       String message = ex.getMessage();
       message = message == null ? status.reason() : message;
       error.put("message", message);
-      StringWriter writer = new StringWriter();
-      ex.printStackTrace(new PrintWriter(writer));
-      String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
+      String[] stacktrace = Throwables.getStackTraceAsString(ex).replace("\r", "").split("\\n");
       error.put("stacktrace", stacktrace);
       error.put("status", status.value());
       error.put("reason", status.reason());
-      error.put("referer", req.header("referer").toOptional(String.class).orElse(""));
+      error.put("referer", req.header("referer").toOptional(String.class).orElse(null));
 
       return error;
     }
@@ -162,10 +160,31 @@ public class Err extends RuntimeException {
    *
    * @param status A HTTP status. Required.
    * @param message A error message. Required.
+   * @param cause The cause of the problem.
+   */
+  public Err(final int status, final String message, final Exception cause) {
+    this(Status.valueOf(status), message, cause);
+  }
+
+  /**
+   * Creates a new {@link Err}.
+   *
+   * @param status A HTTP status. Required.
+   * @param message A error message. Required.
    */
   public Err(final Status status, final String message) {
     super(message(status, message));
     this.status = status.value();
+  }
+
+  /**
+   * Creates a new {@link Err}.
+   *
+   * @param status A HTTP status. Required.
+   * @param message A error message. Required.
+   */
+  public Err(final int status, final String message) {
+    this(Status.valueOf(status), message);
   }
 
   /**
@@ -183,10 +202,29 @@ public class Err extends RuntimeException {
    * Creates a new {@link Err}.
    *
    * @param status A HTTP status. Required.
+   * @param cause The cause of the problem.
+   */
+  public Err(final int status, final Exception cause) {
+    this(Status.valueOf(status), cause);
+  }
+
+  /**
+   * Creates a new {@link Err}.
+   *
+   * @param status A HTTP status. Required.
    */
   public Err(final Status status) {
     super(message(status, null));
     this.status = status.value();
+  }
+
+  /**
+   * Creates a new {@link Err}.
+   *
+   * @param status A HTTP status. Required.
+   */
+  public Err(final int status) {
+    this(Status.valueOf(status));
   }
 
   /**

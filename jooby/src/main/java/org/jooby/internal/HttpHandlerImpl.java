@@ -20,7 +20,6 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -85,6 +83,8 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private int maxBufferSize;
 
+  private Config config;
+
   @Inject
   public HttpHandlerImpl(final Injector injector,
       final RequestScope requestScope,
@@ -98,7 +98,7 @@ public class HttpHandlerImpl implements HttpHandler {
     this.socketDefs = requireNonNull(sockets, "Sockets are required.");
     this.applicationPath = normalizeURI(requireNonNull(path, "An application.path is required."));
     this.err = requireNonNull(err, "An err handler is required.");
-    Config config = injector.getInstance(Config.class);
+    this.config = injector.getInstance(Config.class);
     this.maxBufferSize = config.getBytes("server.http.ResponseBufferSize").intValue();
   }
 
@@ -369,16 +369,17 @@ public class HttpHandlerImpl implements HttpHandler {
     if (ex instanceof Err) {
       return Status.valueOf(((Err) ex).statusCode());
     }
-    if (ex instanceof IllegalArgumentException) {
-      return Status.BAD_REQUEST;
+    Config err = config.getConfig("err");
+    int status = -1;
+    Class<?> type = ex.getClass();
+    while (type != Throwable.class && status == -1) {
+      if (err.hasPath(type.getName())) {
+        status = err.getInt(type.getName());
+      } else {
+        type = type.getSuperclass();
+      }
     }
-    if (ex instanceof NoSuchElementException) {
-      return Status.BAD_REQUEST;
-    }
-    if (ex instanceof FileNotFoundException) {
-      return Status.NOT_FOUND;
-    }
-    return Status.SERVER_ERROR;
+    return status == -1 ? Status.SERVER_ERROR : Status.valueOf(status);
   }
 
   private static Err handle405(final Set<Route.Definition> routeDefs, final String method,

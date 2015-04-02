@@ -131,7 +131,7 @@ That's all folks! Enjoy it!
 
 TBD: Object mapping? https://github.com/xetorthio/johm?
 
-## appendix: jedis.conf
+# appendix: jedis.conf
 ```properties
 # jedis default config
 
@@ -161,4 +161,5 @@ jedis.session.prefix = sessions
 jedis.session.timeout = ${session.timeout}
 
 ```
+
 

@@ -224,7 +224,7 @@ Example 3: build and set everything from scratch
 
 That's all folks! Enjoy it!!
 
-## appendix: quartz.conf
+# appendix: quartz.conf
 ```properties
 org.quartz.scheduler.instanceName = quartz
 org.quartz.scheduler.instanceId = local
@@ -234,4 +234,5 @@ org.quartz.threadPool.threadNamePrefix = quartz
 org.quartz.threadPool.threadCount = ${runtime.processors}
 
 ```
+
 

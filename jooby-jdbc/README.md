@@ -156,7 +156,7 @@ Finally, if you need to inject the audit data source, all you have to do is to u
 
 That's all folks! Enjoy it!!!
 
-## appendix: jdbc.conf
+# appendix: jdbc.conf
 ```properties
 # Jdbc defaults
 
@@ -287,4 +287,5 @@ databases {
 }
 
 ```
+
 

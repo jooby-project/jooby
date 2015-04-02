@@ -28,4 +28,8 @@ documentation
 
 {{session.md}}
 
+{{err.md}}
+
 {{working-with-data.md}}
+
+{{appendix}}

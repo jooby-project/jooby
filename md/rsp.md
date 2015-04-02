@@ -53,6 +53,21 @@ get("/", req -> {
 });
 ```
 
+## content negotiation
+
+A route can produces different results base on the ```Accept``` header: 
+
+```java
+get("/", () ->
+  Results
+    .when("text/html", ()  -> View.of("viewname", "model", model))
+    .when("application/json", ()  -> model)
+    .when("*", ()  -> Status.NOT_ACCEPTABLE)
+);
+```
+
+Performs content-negotiation on the Accept HTTP header of the request object. It select a handler for the request, based on the acceptable types ordered by their quality values. If the header is not specified, the first callback is invoked. When no match is found, the server responds with ```406 Not Acceptable```, or invokes the default callback: ```**/*```.
+
 ## response headers
 
 Retrieval of response headers is done via [rsp.header("name")]({{defdocs}}/Response.html#header-java.lang.String-). The method always returns a [Mutant]({{defdocs}}/Mutant.html) and from there you can convert to any of the supported types.

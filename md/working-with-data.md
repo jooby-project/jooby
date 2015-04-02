@@ -1,4 +1,4 @@
-# working with data
+# body parser, formatter and view engine
 
 ## body parser
 
@@ -240,18 +240,3 @@ A [view engine]({{defdocs}}/View.Engine.html) is a specialized [body formatter](
 ```
 
 There is no much to say about views & engines, any other detail or documentation should be provided in the specific module (mustache, handlebars, freemarker, etc.).
-
-## response format (a.k.a content negotiation)
-
-A route can produces different results base on the ```Accept``` header: 
-
-```java
-get("/", () ->
-  Results
-    .when("text/html", ()  -> View.of("viewname", "model", model))
-    .when("application/json", ()  -> model)
-    .when("*", ()  -> Status.NOT_ACCEPTABLE)
-);
-```
-
-Performs content-negotiation on the Accept HTTP header of the request object. It select a handler for the request, based on the acceptable types ordered by their quality values. If the header is not specified, the first callback is invoked. When no match is found, the server responds with ```406 Not Acceptable```, or invokes the default callback: ```**/*```.

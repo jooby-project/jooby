@@ -38,7 +38,6 @@ public class ErrDefaultHandlerFeature extends ServerFeature {
                 "<h1>Bad Request</h1>\n" +
                 "<hr><h2>message: intentional err</h2>\n" +
                 "<h2>status: 400</h2>\n" +
-                "<h2>referer: </h2>\n" +
                 "<h2>stack:</h2>\n"
         );
   }

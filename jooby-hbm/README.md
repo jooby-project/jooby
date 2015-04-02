@@ -12,7 +12,7 @@
 ## usage
 
 
-## appendix: hbm.conf
+# appendix: hbm.conf
 ```properties
 hibernate {
   id.new_generator_mappings = true
@@ -24,4 +24,5 @@ javax.persistence {
 }
 
 ```
+
 

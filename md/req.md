@@ -161,8 +161,8 @@ public void configure(Mode mode, Config config, Binder binder) {
 }
 ```
 
-## locals
-Locals variables are bound to the current request. They are created every time a new request is processed and destroyed at the end of the request.
+## local variables
+Local variables are bound to the current request. They are created every time a new request is processed and destroyed at the end of the request.
 
 ```java
   req.set("var", var);

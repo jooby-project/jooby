@@ -1,4 +1,4 @@
-## jooby:run
+## mvn jooby:run
 
 * [jooby:run](https://github.com/jooby-project/jooby/tree/master/jooby-maven-plugin): maven plugin with hot reload of classes.
 

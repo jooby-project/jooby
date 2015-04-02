@@ -52,22 +52,22 @@ package org.jooby;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -111,8 +111,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -341,8 +339,7 @@ import com.typesafe.config.ConfigValueFactory;
  *
  * <p>
  * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
- * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}
- * .
+ * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes} .
  * </p>
  *
  * <h1>Static Files</h1>
@@ -528,6 +525,13 @@ public class Jooby {
     return this;
   }
 
+  /**
+   * Ask Guice for the given type.
+   *
+   * @param type A service type.
+   * @param <T> Service type.
+   * @return A ready to use object.
+   */
   public <T> T require(final Class<T> type) {
     checkState(injector != null, "App didn't start yet");
     return injector.getInstance(type);
@@ -2422,7 +2426,9 @@ public class Jooby {
   /**
    * Send a static file.
    *
-   * <p>Basic example</p>
+   * <p>
+   * Basic example
+   * </p>
    *
    * <pre>
    *   assets("/js/**", "/");
@@ -2430,7 +2436,10 @@ public class Jooby {
    *
    * A request for: <code>/js/jquery.js</code> will be translated to: <code>/lib/jquery.js</code>.
    *
-   * <p>Webjars example:</p>
+   * <p>
+   * Webjars example:
+   * </p>
+   *
    * <pre>
    *   assets("/js/**", "/resources/webjars/{0}");
    * </pre>
@@ -2439,7 +2448,10 @@ public class Jooby {
    * <code>/resources/webjars/jquery/2.1.3/jquery.js</code>.
    * The <code>{0}</code> represent the <code>**</code> capturing group.
    *
-   * <p>Another webjars example:</p>
+   * <p>
+   * Another webjars example:
+   * </p>
+   *
    * <pre>
    *   assets("/js/*-*.js", "/resources/webjars/{0}/{1}/{0}.js");
    * </pre>
@@ -2812,7 +2824,8 @@ public class Jooby {
           binder.bind(Session.Store.class).to((Class<? extends Store>) sstore)
               .asEagerSingleton();
         } else {
-          binder.bind(Session.Store.class).toInstance((Store) sstore);;
+          binder.bind(Session.Store.class).toInstance((Store) sstore);
+          ;
         }
 
         binder.bind(Request.class).toProvider(() -> {
@@ -2869,11 +2882,16 @@ public class Jooby {
    * @return A configuration properties ready to use.
    */
   private Config buildConfig(final Config source) {
+    // normalize tmpdir
+    Config system = ConfigFactory.systemProperties();
+    Config tmpdir = source.hasPath("java.io.tmpdir") ? source: system;
+
     // system properties
-    Config system = ConfigFactory.systemProperties()
-        // file encoding got corrupted sometimes so we force and override.
-        .withValue("file.encoding",
-            ConfigValueFactory.fromAnyRef(System.getProperty("file.encoding")));
+    system = system
+        // file encoding got corrupted sometimes, override it.
+        .withValue("file.encoding", fromAnyRef(System.getProperty("file.encoding")))
+        .withValue("java.io.tmpdir",
+            fromAnyRef(Paths.get(tmpdir.getString("java.io.tmpdir")).normalize().toString()));
 
     // set module config
     Config moduleStack = ConfigFactory.empty();
@@ -2896,7 +2914,7 @@ public class Jooby {
         .withFallback(config)
         .withFallback(moduleStack)
         .withFallback(MediaType.types)
-        .withFallback(defaultConfig(config, env))
+        .withFallback(defaultConfig(config))
         .resolve();
   }
 
@@ -2955,81 +2973,51 @@ public class Jooby {
    * Build default application.* properties.
    *
    * @param config A source config.
-   * @param env Application env.
    * @return default properties.
    */
-  private Config defaultConfig(final Config config, final String env) {
-    Map<String, Object> defaults = new LinkedHashMap<>();
-
-    // set app name
-    defaults.put("name", getClass().getSimpleName());
-
-    defaults.put("env", "dev");
-    defaults.put("path", "/");
-    defaults.put("host", "0.0.0.0");
-    defaults.put("port", 8080);
-    defaults.put("charset", "UTF-8");
-    defaults.put("dateFormat", "dd-MM-yy");
-
-    Builder<String, Object> session = ImmutableMap.<String, Object> builder()
-        .put("cookie", ImmutableMap.<String, Object> builder()
-            .put("name", "jooby.sid")
-            .put("path", "/")
-            .put("maxAge", -1)
-            .put("httpOnly", true)
-            .put("secure", false)
-            .build()
-        )
-        .put("timeout", "30m")
-        .put("saveInterval", "60s");
-
-    // set tmpdir
-    String deftmpdir = "java.io.tmpdir";
-    String tmpdir = config.hasPath(deftmpdir)
-        ? config.getString(deftmpdir)
-        : System.getProperty(deftmpdir);
-    if (tmpdir.endsWith(File.separator)) {
-      tmpdir = tmpdir.substring(0, tmpdir.length() - File.separator.length());
-    }
-    defaults.put("tmpdir", tmpdir + File.separator + defaults.get("name"));
-
-    // namespacce
-    defaults.put("ns", getClass().getPackage().getName());
+  private Config defaultConfig(final Config config) {
+    String appname = getClass().getSimpleName();
+    String ns = getClass().getPackage().getName();
 
     // locale
     final Locale locale;
     if (!config.hasPath("application.lang")) {
       locale = Locale.getDefault();
-      defaults.put("lang", locale.getLanguage() + "_" + locale.getCountry());
     } else {
       locale = LocaleUtils.toLocale(config.getString("application.lang"));
     }
+    String lang = locale.getLanguage() + "_" + locale.getCountry();
 
     // time zone
+    final String tz;
     if (!config.hasPath("application.tz")) {
-      defaults.put("tz", ZoneId.systemDefault().getId());
+      tz = ZoneId.systemDefault().getId();
+    } else {
+      tz = config.getString("application.tz");
     }
 
     // number format
+    final String nf;
     if (!config.hasPath("application.numberFormat")) {
-      String pattern = ((DecimalFormat) DecimalFormat.getInstance(locale)).toPattern();
-      defaults.put("numberFormat", pattern);
+      nf = ((DecimalFormat) DecimalFormat.getInstance(locale)).toPattern();
+    } else {
+      nf = config.getString("application.numberFormat");
     }
 
     int processors = Runtime.getRuntime().availableProcessors();
-    Map<String, Object> runtime = ImmutableMap.<String, Object> builder()
-        .put("processors", processors)
-        .put("processors-plus1", processors + 1)
-        .put("processors-plus2", processors + 2)
-        .put("processors-x2", processors * 2)
-        .build();
 
-    Map<String, Object> application = ImmutableMap.<String, Object> builder()
-        .put("application", defaults)
-        .put("runtime", runtime)
-        .put("session", session.build())
-        .build();
-    return ConfigValueFactory.fromMap(application, "jooby-defaults").toConfig();
+    Config defs = ConfigFactory.parseResources(Jooby.class, "jooby.conf")
+        .withValue("application.name", ConfigValueFactory.fromAnyRef(appname))
+        .withValue("application.ns", ConfigValueFactory.fromAnyRef(ns))
+        .withValue("application.lang", ConfigValueFactory.fromAnyRef(lang))
+        .withValue("application.tz", ConfigValueFactory.fromAnyRef(tz))
+        .withValue("application.numberFormat", ConfigValueFactory.fromAnyRef(nf))
+        .withValue("runtime.processors", ConfigValueFactory.fromAnyRef(processors))
+        .withValue("runtime.processors-plus1", ConfigValueFactory.fromAnyRef(processors + 1))
+        .withValue("runtime.processors-plus2", ConfigValueFactory.fromAnyRef(processors + 2))
+        .withValue("runtime.processors-x2", ConfigValueFactory.fromAnyRef(processors * 2));
+
+    return defs;
   }
 
   /**

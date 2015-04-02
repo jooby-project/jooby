@@ -138,7 +138,7 @@ Using the ```doWith(Configurer)``` method:
 
 That's all folks! Enjoy it!!!
 
-## appendix: camel.conf
+# appendix: camel.conf
 ```properties
 # Camel defaults
 camel.handleFault = false
@@ -175,4 +175,5 @@ camel.streamCaching.enabled = false
 camel.streamCaching.spoolDirectory = ${application.tmpdir}${file.separator}"camel"${file.separator}"#uuid#"
 
 ```
+
 

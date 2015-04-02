@@ -18,7 +18,7 @@ In order to use a web server all you have to do is add the dependency to your bu
 [Jooby](/) will found the server and start it.
 
 
-## appendix: server.conf
+# appendix: server.conf
 ```properties
 # jetty defaults
 server.module = org.jooby.jetty.Jetty
@@ -103,4 +103,5 @@ jetty {
 }
 
 ```
+
 

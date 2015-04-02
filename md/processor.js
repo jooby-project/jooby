@@ -81,15 +81,20 @@ var toc = function (data) {
     return str;
   };
 
+  var insideblock = false;
   while (scanner.hasNext()) {
     var line = scanner.next(),
       c = count(line);
-
-    if (c > 0 && c < 3) {
-      // clean up md links
-      var item = line.replaceAll('#|\\[|\\]|\\(.+\\)', '').trim();
-      toc.append(indent(c)).append('- [').append(item).append('](#')
-          .append(item.replaceAll('\\s+', '-')).append(')\n');
+    if (line.indexOf('```') === 0) {
+      insideblock = !insideblock;
+    }
+    if (!insideblock) {
+      if (c > 0 && c < 3) {
+        // clean up md links
+        var item = line.replaceAll('#|\\[|\\]|\\(.+\\)', '').trim();
+        toc.append(indent(c)).append('- [').append(item).append('](#')
+            .append(item.replaceAll('\\s+', '-')).append(')\n');
+      }
     }
   }
 
@@ -122,13 +127,15 @@ var freplace = function (source, token, value) {
 }
 
 var readConf = function (file) {
-  var name = file.parentFile.name,
+  var name = file.parentFile.name === 'doc' ? 'jooby' : file.parentFile.name,
       dir = paths.get(basedir, name, "src", "main", "resources");
+
   var data = '';
   ls(dir.toFile(), function (file) {
-    return file.name.endsWith('.conf');
+    return file.name.endsWith('.conf') || file.name.endsWith('.properties');
   }).forEach(function (file) {
-    data += '## appendix: ' + file.name + '\n```properties\n' + readString(file) + '\n```\n';
+    console.log("properties found: " + file);
+    data += '# appendix: ' + file.name + '\n```properties\n' + readString(file) + '\n```\n\n';
   });
   return data;
 }
@@ -218,6 +225,16 @@ vars.push({
 vars.push({
   name: 'netty',
   data: '[Netty](http://netty.io)'
+});
+
+vars.push({
+  name: 'jetty',
+  data: '[Jetty](http://www.eclipse.org/jetty/)'
+});
+
+vars.push({
+  name: 'undertow',
+  data: '[Undertow](http://undertow.io)'
 });
 
 vars.push({
