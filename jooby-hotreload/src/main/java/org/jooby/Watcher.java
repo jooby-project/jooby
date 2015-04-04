@@ -91,9 +91,6 @@ public class Watcher {
     });
   }
 
-  /**
-   * Creates a WatchService and registers the given directory
-   */
   public Watcher(final BiConsumer<Kind<?>, Path> listener, final Path... dirs)
       throws IOException {
     this.watcher = FileSystems.getDefault().newWatchService();

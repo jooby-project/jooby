@@ -307,6 +307,7 @@ public class Jdbc implements Jooby.Module {
    *
    * @param type A type to bind.
    * @param callback A generated key.
+   * @param <T> Consumer type.
    */
   protected final <T> void keys(final Class<T> type, final Consumer<Key<T>> callback) {
     if (DEFAULT_DB.equals(dbName)) {

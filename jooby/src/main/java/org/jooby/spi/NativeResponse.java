@@ -83,8 +83,8 @@ public interface NativeResponse {
    *        property file.
    *        If the <code>Content-Length</code> header was set and it is less than buffer size, the
    *        the <code>Content-Length</code> will be used it as buffer size.
-   * @return
-   * @throws IOException
+   * @return An output stream.
+   * @throws IOException If output stream can be acquire it.
    */
   OutputStream out(int bufferSize) throws IOException;
 

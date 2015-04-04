@@ -133,7 +133,8 @@ public class RedisSessionStore implements Session.Store {
 
   @Override
   public Session get(final Builder builder) {
-    try (Jedis jedis = pool.getResource()) {
+    Jedis jedis = pool.getResource();
+    try {
       String key = key(builder.sessionId());
       Map<String, String> attrs = jedis.hgetAll(key);
       if (timeout > 0) {
@@ -146,12 +147,15 @@ public class RedisSessionStore implements Session.Store {
           .savedAt(Long.parseLong(attrs.remove("_savedAt")))
           .set(attrs)
           .build();
+    } finally {
+      jedis.close();
     }
   }
 
   @Override
   public void save(final Session session) {
-    try (Jedis jedis = pool.getResource()) {
+    Jedis jedis = pool.getResource();
+    try {
       String key = key(session);
       Map<String, String> attrs = new HashMap<>(session.attributes());
       attrs.put("_createdAt", Long.toString(session.createdAt()));
@@ -161,6 +165,8 @@ public class RedisSessionStore implements Session.Store {
       if (timeout > 0) {
         jedis.expire(key, timeout);
       }
+    } finally {
+      jedis.close();
     }
   }
 
@@ -171,8 +177,11 @@ public class RedisSessionStore implements Session.Store {
 
   @Override
   public void delete(final String id) {
-    try (Jedis jedis = pool.getResource()) {
+    Jedis jedis = pool.getResource();
+    try {
       jedis.del(key(id));
+    } finally {
+      jedis.close();
     }
 
   }
