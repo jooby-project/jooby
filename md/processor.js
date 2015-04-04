@@ -257,6 +257,32 @@ vars.push({
   data: '[Jedis](https://github.com/xetorthio/jedis)'
 });
 
+vars.push({
+  name: 'mongodb',
+  data: '[MongoDB](http://mongodb.github.io/mongo-java-driver/)'
+});
+
+vars.push({
+  name: 'mongodbapi',
+  data: 'http://api.mongodb.org/java/2.13/com/mongodb'
+});
+
+vars.push({
+  name: 'gh',
+  data: 'https://github.com/jooby-project/jooby/tree/master'
+});
+
+vars.push({
+  name: 'morphia',
+  data: 'https://github.com/mongodb/morphia'
+});
+
+vars.push({
+  name: 'morphiaapi',
+  data: 'https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia'
+});
+
+
 /**
  * replace expressions like: {{var}}
  */

@@ -17,8 +17,12 @@
 * [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi): fluent API for JDBC.
 * [hibernate](https://github.com/jooby-project/jooby/tree/master/jooby-hbm): ORM for Java.
 
-## no sql
-* [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis): Advanced cache and key/value store for Java.
+## mongodb
+* [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb): Mongodb driver.
+* [morphia](https://github.com/jooby-project/jooby/tree/master/jooby-morphia): Object/Document mapper via [Morphia]({{morphia}}).
+
+## redis
+* [jedis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis): Advanced cache and key/value store for Java.
 
 ## scheduling
 

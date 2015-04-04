@@ -30,6 +30,8 @@
     <module>jooby-jdbi</module>
     <module>jooby-hotreload</module>
     <module>jooby-jedis</module>
+    <module>jooby-mongodb</module>
+    <module>jooby-morphia</module>
     <module>jooby-camel</module>
     <module>jooby-archetype</module>
     <module>jooby-maven-plugin</module>
@@ -155,6 +157,18 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-jedis</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-mongodb</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-morphia</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -369,6 +383,25 @@
         <groupId>redis.clients</groupId>
         <artifactId>jedis</artifactId>
         <version>${jedis.version}</version>
+      </dependency>
+
+      <!-- Mongodb -->
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongo-java-driver</artifactId>
+        <version>${mongo-java-driver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb.morphia</groupId>
+        <artifactId>morphia</artifactId>
+        <version>${morphia.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb.morphia</groupId>
+        <artifactId>morphia-logging-slf4j</artifactId>
+        <version>${morphia.version}</version>
       </dependency>
 
       <!-- H2 database -->
@@ -1053,6 +1086,8 @@
     <war.maxRequestSize>204800</war.maxRequestSize>
     <camel.version>2.15.0</camel.version>
     <jedis.version>2.6.2</jedis.version>
+    <mongo-java-driver.version>2.13.0</mongo-java-driver.version>
+    <morphia.version>0.111</morphia.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
