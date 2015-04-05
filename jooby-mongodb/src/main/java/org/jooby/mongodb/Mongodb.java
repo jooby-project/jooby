@@ -190,7 +190,7 @@ public class Mongodb implements Jooby.Module {
     MongoClientURI uri = new MongoClientURI(config.getString(db), options);
     MongodbManaged mongodb = new MongodbManaged(uri);
     String database = uri.getDatabase();
-    checkArgument(database != null, "No database was set: " + uri);
+    checkArgument(database != null, "Database not found: " + uri);
 
     binder.bind(key(MongoClient.class, database))
         .toProvider(mongodb)

@@ -11,6 +11,10 @@
 * [handlebars/mustache](https://github.com/jooby-project/jooby/tree/master/jooby-hbs): logic less and semantic Mustache templates.
 * [freemarker](https://github.com/jooby-project/jooby/tree/master/jooby-ftl): render templates with FreeMarker.
 
+## session stores
+* [redis](/doc/jooby-jedis/#redis-session-store)
+* [mongodb](/doc/jooby-mongodb/#mongodb-session-store)
+
 ## sql
 
 * [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc): high performance connection pool for jdbc.

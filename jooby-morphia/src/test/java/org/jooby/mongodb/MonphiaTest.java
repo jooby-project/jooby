@@ -204,6 +204,59 @@ public class MonphiaTest {
 
   @SuppressWarnings("unchecked")
   @Test
+  public void defaultsWithoutDatastoreCallback() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(unit -> {
+          Config config = unit.get(Config.class);
+          expect(config.getConfig("mongodb")).andReturn($mongodb.getConfig("mongodb"));
+          expect(config.hasPath("mongodb.db")).andReturn(false);
+          expect(config.getString("db")).andReturn("mongodb://127.0.0.1/mydb");
+        })
+        .expect(mongodb)
+        .expect(unit -> {
+          MongoClientURI uri = new MongoClientURI("mongodb://127.0.0.1/mydb");
+          MongoClient client = unit.mockConstructor(MongoClient.class,
+              new Class[]{MongoClientURI.class }, uri);
+
+          Datastore ds = unit.mock(Datastore.class);
+
+          Mapper mapper = unit.mockConstructor(Mapper.class);
+
+          Morphia morphia = unit.mockConstructor(Morphia.class, new Class[]{Mapper.class },
+              mapper);
+          expect(morphia.createDatastore(client, "mydb")).andReturn(ds);
+
+          LinkedBindingBuilder<Morphia> mLBB = unit.mock(LinkedBindingBuilder.class);
+          mLBB.toInstance(morphia);
+
+          LinkedBindingBuilder<GuiceObjectFactory> gofLBB = unit
+              .mock(LinkedBindingBuilder.class);
+          gofLBB.asEagerSingleton();
+
+          ScopedBindingBuilder dsSBB = unit.mock(ScopedBindingBuilder.class);
+          dsSBB.asEagerSingleton();
+
+          LinkedBindingBuilder<Datastore> dsLBB = unit.mock(LinkedBindingBuilder.class);
+          expect(dsLBB.toProvider(unit.capture(Provider.class))).andReturn(dsSBB);
+
+          Binder binder = unit.get(Binder.class);
+
+          expect(binder.bind(Key.get(Morphia.class))).andReturn(mLBB);
+          expect(binder.bind(Key.get(GuiceObjectFactory.class))).andReturn(gofLBB);
+          expect(binder.bind(Key.get(Datastore.class))).andReturn(dsLBB);
+        })
+        .run(unit -> {
+          new Monphia()
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(MongodbManaged.class).iterator().next().start();
+
+          unit.captured(Provider.class).forEach(Provider::get);
+        });
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
   public void defaultsWithDatastoreCallback() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(unit -> {

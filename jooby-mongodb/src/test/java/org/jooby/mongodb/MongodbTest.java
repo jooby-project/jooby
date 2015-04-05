@@ -99,6 +99,22 @@ public class MongodbTest {
         });
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void shouldFaileWhenDbIsMissing() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(unit -> {
+          Config config = unit.get(Config.class);
+          expect(config.getConfig("mongodb")).andReturn($mongodb.getConfig("mongodb"));
+          expect(config.hasPath("mongodb.db")).andReturn(false);
+          expect(config.getString("db")).andReturn("mongodb://127.0.0.1");
+        })
+        .expect(mongodb)
+        .run(unit -> {
+          Mongodb mongodb = new Mongodb();
+          mongodb.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
+  }
+
   @Test
   public void defaultsWithCustomOption() throws Exception {
 
