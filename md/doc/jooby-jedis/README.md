@@ -116,9 +116,10 @@ session.timeout = 15
 
 # 120 minutes
 session.timeout = 120m
-```
 
-If no timeout is required, use ```-1```.
+# no timeout
+session.timeout = -1
+```
 
 #### key prefix
 

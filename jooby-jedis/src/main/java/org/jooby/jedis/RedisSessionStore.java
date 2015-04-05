@@ -78,9 +78,10 @@ import com.typesafe.config.ConfigValueFactory;
  *
  * # 120 minutes
  * session.timeout = 120m
- * </pre>
  *
- * If no timeout is required, use <code>-1</code>.
+ * # no timeout
+ * session.timeout = -1
+ * </pre>
  *
  * <h3>key prefix</h3>
  * <p>
@@ -137,6 +138,10 @@ public class RedisSessionStore implements Session.Store {
     try {
       String key = key(builder.sessionId());
       Map<String, String> attrs = jedis.hgetAll(key);
+      if (attrs == null || attrs.size() == 0) {
+        // expired
+        return null;
+      }
       if (timeout > 0) {
         // touch session
         jedis.expire(key, timeout);
