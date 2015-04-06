@@ -18,7 +18,8 @@ public class HbmProdEnvFeature extends ServerFeature {
   {
     use(ConfigFactory.empty()
         .withValue("application.env", ConfigValueFactory.fromAnyRef("prod"))
-        .withValue("db", ConfigValueFactory.fromAnyRef("mem")));
+        .withValue("db", ConfigValueFactory.fromAnyRef("mem"))
+        .withValue("hibernate.hbm2ddl.auto", ConfigValueFactory.fromAnyRef("update")));
 
     use(new Hbm(Member.class));
 

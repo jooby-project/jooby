@@ -32,7 +32,7 @@
       <fileset dir="target/site/apidocs" />
     </copy>
 
-    <!--
+    <!-- -->
     <exec executable="git" dir="${workdir}">
       <arg value="add" />
       <arg value="-A" />
@@ -48,7 +48,7 @@
       <arg value="push" />
       <arg value="origin" />
       <arg value="site" />
-    </exec>-->
+    </exec>
 
   </target>
 

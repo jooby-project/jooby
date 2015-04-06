@@ -50,7 +50,7 @@ public interface Response {
   class Forwarding implements Response {
 
     /** The target response. */
-    private Response rsp;
+    protected final Response rsp;
 
     /**
      * Creates a new {@link Forwarding} response.

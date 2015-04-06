@@ -18,7 +18,9 @@ import com.typesafe.config.ConfigValueFactory;
 public class HbmCustomFeature extends ServerFeature {
 
   {
-    use(ConfigFactory.empty().withValue("db.audit", ConfigValueFactory.fromAnyRef("mem")));
+    use(ConfigFactory.empty()
+        .withValue("db.audit", ConfigValueFactory.fromAnyRef("mem"))
+        .withValue("hibernate.hbm2ddl.auto", ConfigValueFactory.fromAnyRef("update")));
 
     use(new Hbm("db.audit", Member.class));
 
