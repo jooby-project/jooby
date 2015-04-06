@@ -17,7 +17,7 @@ public class TemplateEngineFeature extends ServerFeature {
     @Path("/view")
     @GET
     public View view() throws IOException {
-      return View.of("test", "this", "model");
+      return Results.html("test").put("this", "model");
     }
 
   }
@@ -30,7 +30,7 @@ public class TemplateEngineFeature extends ServerFeature {
     });
 
     get("/view", (req, resp) -> {
-      resp.send(View.of("test", "this", "model"));
+      resp.send(Results.html("test").put("this", "model"));
     });
 
     use(Resource.class);

@@ -7,6 +7,4 @@ jdk:
 install:
   - mvn install -Dlogback.configurationFile=logback-travis.xml -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 script:
-  - mvn test -Dlogback.configurationFile=logback-travis.xml -B
-after_success:
   - mvn -Dlogback.configurationFile=logback-travis.xml clean package coveralls:report -P coverage

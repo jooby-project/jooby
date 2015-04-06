@@ -92,6 +92,30 @@ public class Results {
   }
 
   /**
+   * @param view View to render.
+   * @return A new view.
+   */
+  public static View html(final String view) {
+    return new View(view);
+  }
+
+  /**
+   * @param entity A result content!
+   * @return A new json result.
+   */
+  public static Result json(final Object entity) {
+    return with(entity, 200).type(MediaType.json);
+  }
+
+  /**
+   * @param entity A result content!
+   * @return A new json result.
+   */
+  public static Result xml(final Object entity) {
+    return with(entity, 200).type(MediaType.xml);
+  }
+
+  /**
    * @param entity A result content!
    * @return A new result with {@link Status#OK} and given content.
    */

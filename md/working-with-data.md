@@ -234,7 +234,7 @@ A [view engine]({{defdocs}}/View.Engine.html) is a specialized [body formatter](
 {
   use(new MyTemplateEngine());
 
-  get("/", req -> View.of("viewname", "model", model);
+  get("/", req -> Results.html("viewname").put("model", model);
 
 }
 ```

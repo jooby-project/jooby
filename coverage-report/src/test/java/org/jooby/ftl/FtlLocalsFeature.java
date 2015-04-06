@@ -1,6 +1,6 @@
 package org.jooby.ftl;
 
-import org.jooby.View;
+import org.jooby.Results;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class FtlLocalsFeature extends ServerFeature {
     });
 
     get("/", req -> {
-      return View.of("org/jooby/ftl/locals");
+      return Results.html("org/jooby/ftl/locals");
     });
   }
 

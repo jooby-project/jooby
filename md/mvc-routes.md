@@ -7,8 +7,8 @@ Mvc routes are like **controllers** in [Spring](http://spring.io) and/or **resou
 public class MyRoutes {
 
   @GET
-  public View home() {
-    return View.of("home", "model", model);
+  public Result home() {
+    return Results.html("home").put("model", model);
   }
 }
 ```
@@ -29,8 +29,8 @@ public class MyRoutes {
   }
 
   @GET
-  public View home() {
-    return View.of("home", "model", model);
+  public Result home() {
+    return Results.html("home").put("model", model);
   }
 }
 ```
@@ -187,8 +187,8 @@ If you need/want to render a view, just return a *org.jooby.View* instance:
 
 ```java
 @GET
-public View home() {
-  return View.of("home", "model", model);
+public Result home() {
+  return Results.html("home").put("model", model);
 }
 ```
 

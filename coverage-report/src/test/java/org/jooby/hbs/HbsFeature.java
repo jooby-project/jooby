@@ -1,6 +1,6 @@
 package org.jooby.hbs;
 
-import org.jooby.View;
+import org.jooby.Results;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -9,7 +9,7 @@ public class HbsFeature extends ServerFeature {
   {
     use(new Hbs());
 
-    get("/", req -> View.of("org/jooby/hbs/index", "model", req.param("model").value()));
+    get("/", req -> Results.html("org/jooby/hbs/index").put("model", req.param("model").value()));
   }
 
   @Test

@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.jooby.View;
+import org.jooby.Results;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ public class HbsCustomValueResolverFeature extends ServerFeature {
   {
     use(new Hbs().with(new VR()));
 
-    get("/", req -> View.of("org/jooby/hbs/index"));
+    get("/", req -> Results.html("org/jooby/hbs/index"));
   }
 
   @Test

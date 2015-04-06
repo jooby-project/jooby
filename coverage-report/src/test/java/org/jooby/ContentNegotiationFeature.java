@@ -16,7 +16,7 @@ public class ContentNegotiationFeature extends ServerFeature {
     @GET
     public Result any() {
       return Results
-          .when("text/html", () -> View.of("test", "this", "body"))
+          .when("text/html", () -> Results.html("test").put("this", "body"))
           .when("*/*", () -> "body");
     }
 
@@ -24,7 +24,7 @@ public class ContentNegotiationFeature extends ServerFeature {
     @GET
     @Produces("text/html")
     public View html() {
-      return View.of("test", "this", "body");
+      return Results.html("test").put("this", "body");
     }
 
     @Path("/json")
@@ -44,7 +44,7 @@ public class ContentNegotiationFeature extends ServerFeature {
 
     get("/any", req ->
         Results
-            .when("text/html", () -> View.of("test", "this", "body"))
+            .when("text/html", () -> Results.html("test").put("this", "body"))
             .when("*/*", () -> "body"));
 
     get("/status", req ->
@@ -53,10 +53,10 @@ public class ContentNegotiationFeature extends ServerFeature {
 
     get("/like", req ->
         Results
-            .when("text/html", () -> View.of("test", "this", "body"))
+            .when("text/html", () -> Results.html("test").put("this", "body"))
             .when("application/json", () -> "body"));
 
-    get("/html", (req, resp) -> resp.send(View.of("test", "this", "body")))
+    get("/html", (req, resp) -> resp.send(Results.html("test").put("this", "body")))
         .produces(MediaType.html);
 
     get("/json", (req, resp) -> resp.send("body"))

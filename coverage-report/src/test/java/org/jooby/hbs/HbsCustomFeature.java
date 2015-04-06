@@ -1,6 +1,6 @@
 package org.jooby.hbs;
 
-import org.jooby.View;
+import org.jooby.Results;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -13,7 +13,7 @@ public class HbsCustomFeature extends ServerFeature {
       h.with(new ClassPathTemplateLoader("/org/jooby/hbs", ".html"));
     }));
 
-    get("/", req -> View.of("index", "model", req.param("model").value()));
+    get("/", req -> Results.html("index").put("model", req.param("model").value()));
   }
 
   @Test

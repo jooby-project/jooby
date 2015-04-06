@@ -1,6 +1,6 @@
 package org.jooby.hbs;
 
-import org.jooby.View;
+import org.jooby.Results;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class HbsHelpersFeature extends ServerFeature {
   {
     use(new Hbs(Helpers.class));
 
-    get("/", req -> View.of("org/jooby/hbs/helpers"));
+    get("/", req -> Results.html("org/jooby/hbs/helpers"));
   }
 
   @Test

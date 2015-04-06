@@ -36,7 +36,6 @@ import org.mongodb.morphia.mapping.MapperOptions;
 import com.google.inject.Injector;
 import com.mongodb.DBObject;
 
-@SuppressWarnings("rawtypes")
 class GuiceObjectFactory implements ObjectFactory {
 
   private Injector injector;
@@ -77,17 +76,17 @@ class GuiceObjectFactory implements ObjectFactory {
   }
 
   @Override
-  public Map createMap(final MappedField mf) {
+  public Map<?, ?> createMap(final MappedField mf) {
     return delegate.createMap(mf);
   }
 
   @Override
-  public List createList(final MappedField mf) {
+  public List<?> createList(final MappedField mf) {
     return delegate.createList(mf);
   }
 
   @Override
-  public Set createSet(final MappedField mf) {
+  public Set<?> createSet(final MappedField mf) {
     return delegate.createSet(mf);
   }
 

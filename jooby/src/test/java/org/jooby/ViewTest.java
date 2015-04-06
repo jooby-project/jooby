@@ -10,7 +10,7 @@ public class ViewTest {
 
   @Test
   public void viewOnly() {
-    View view = View.of("v");
+    View view = Results.html("v");
     assertEquals("v", view.name());
     assertEquals("", view.engine());
     assertEquals(0, view.model().size());
@@ -18,15 +18,21 @@ public class ViewTest {
 
   @Test
   public void viewWithDefModel() {
-    View view = View.of("v", "m", "x");
+    View view = Results.html("v").put("m", "x");
     assertEquals("v", view.name());
     assertEquals(1, view.model().size());
     assertEquals("x", view.model().get("m"));
   }
 
+  @Test(expected = UnsupportedOperationException.class)
+  public void failOnSet() {
+    View view = Results.html("v").put("m", "x");
+    view.set(view);
+  }
+
   @Test
   public void viewBuildModel() {
-    View view = View.of("v").put("m", "x");
+    View view = Results.html("v").put("m", "x");
     assertEquals("v", view.name());
     assertEquals(1, view.model().size());
     assertEquals("x", view.model().get("m"));
@@ -34,7 +40,7 @@ public class ViewTest {
 
   @Test
   public void viewBuildModelMap() {
-    View view = View.of("v").put("m", ImmutableMap.of("k", "v"));
+    View view = Results.html("v").put("m", ImmutableMap.of("k", "v"));
     assertEquals("v", view.name());
     assertEquals(1, view.model().size());
     assertEquals(ImmutableMap.of("k", "v"), view.model().get("m"));
@@ -42,7 +48,7 @@ public class ViewTest {
 
   @Test
   public void viewPutMap() {
-    View view = View.of("v").put(ImmutableMap.of("k", "v"));
+    View view = Results.html("v").put(ImmutableMap.of("k", "v"));
     assertEquals("v", view.name());
     assertEquals(1, view.model().size());
     assertEquals("v", view.model().get("k"));

@@ -1,7 +1,7 @@
 package org.jooby.hbs;
 
+import org.jooby.Results;
 import org.jooby.Session;
-import org.jooby.View;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class HbsLocalsFeature extends ServerFeature {
     });
 
     get("/", req -> {
-      return View.of("org/jooby/hbs/locals");
+      return Results.html("org/jooby/hbs/locals");
     });
   }
 

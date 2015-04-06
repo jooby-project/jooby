@@ -291,4 +291,124 @@ public class RedisSessionStoreTest {
         });
   }
 
+  @Test(expected = IllegalStateException.class)
+  public void shouldCloseJedisOnGetErr() throws Exception {
+    new MockUnit(JedisPool.class, Session.Builder.class)
+        .expect(unit -> {
+          Session.Builder sb = unit.get(Session.Builder.class);
+          expect(sb.sessionId()).andReturn("1234");
+        })
+        .expect(unit -> {
+          Jedis jedis = unit.mock(Jedis.class);
+          expect(jedis.hgetAll("sessions:1234"))
+              .andThrow(new IllegalStateException("intentional err"));
+
+          jedis.close();
+
+          JedisPool pool = unit.get(JedisPool.class);
+          expect(pool.getResource()).andReturn(jedis);
+        })
+        .run(unit -> {
+          new RedisSessionStore(unit.get(JedisPool.class), "sessions", "30m")
+              .get(unit.get(Session.Builder.class));
+        });
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldNotCloseJedisOnGetPoolErr() throws Exception {
+    new MockUnit(JedisPool.class, Session.Builder.class)
+        .expect(unit -> {
+          JedisPool pool = unit.get(JedisPool.class);
+          expect(pool.getResource())
+              .andThrow(new IllegalStateException("intentional err"));
+        })
+        .run(unit -> {
+          new RedisSessionStore(unit.get(JedisPool.class), "sessions", "30m")
+              .get(unit.get(Session.Builder.class));
+        });
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldCloseJedisOnSaveErr() throws Exception {
+    Map<String, String> attrs = ImmutableMap.of("x", "X");
+    Map<String, String> attrsToSave = ImmutableMap
+        .of(
+            "x", "X",
+            "_accessedAt", "2",
+            "_createdAt", "1",
+            "_savedAt", "3"
+        );
+    new MockUnit(JedisPool.class, Session.class)
+        .expect(unit -> {
+          Session session = unit.get(Session.class);
+          expect(session.id()).andReturn("1234");
+          expect(session.attributes()).andReturn(attrs);
+          expect(session.createdAt()).andReturn(1L);
+          expect(session.accessedAt()).andReturn(2L);
+          expect(session.savedAt()).andReturn(3L);
+        })
+        .expect(unit -> {
+          Jedis jedis = unit.mock(Jedis.class);
+          expect(jedis.hmset("sessions:1234", attrsToSave))
+              .andThrow(new IllegalStateException("intentional err"));
+          jedis.close();
+
+          JedisPool pool = unit.get(JedisPool.class);
+          expect(pool.getResource()).andReturn(jedis);
+        })
+        .run(unit -> {
+          new RedisSessionStore(unit.get(JedisPool.class), "sessions", "30m")
+              .save(unit.get(Session.class));
+        });
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldNotCloseJedisOnSavePoolErr() throws Exception {
+    new MockUnit(JedisPool.class, Session.class)
+        .expect(unit -> {
+
+          JedisPool pool = unit.get(JedisPool.class);
+          expect(pool.getResource())
+              .andThrow(new IllegalStateException("intentional err"));
+        })
+        .run(unit -> {
+          new RedisSessionStore(unit.get(JedisPool.class), "sessions", "30m")
+              .save(unit.get(Session.class));
+        });
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldCloseJedisOnDeleteErr() throws Exception {
+    new MockUnit(JedisPool.class, Session.class)
+        .expect(unit -> {
+
+          Jedis jedis = unit.mock(Jedis.class);
+          expect(jedis.del("sessions:1234"))
+              .andThrow(new IllegalStateException("intentional err"));
+          jedis.close();
+
+          JedisPool pool = unit.get(JedisPool.class);
+          expect(pool.getResource()).andReturn(jedis);
+        })
+        .run(unit -> {
+          new RedisSessionStore(unit.get(JedisPool.class), "sessions", "30m")
+              .delete("1234");
+        });
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void shouldNotCloseJedisOnDeletePoolErr() throws Exception {
+    new MockUnit(JedisPool.class, Session.class)
+        .expect(unit -> {
+
+          JedisPool pool = unit.get(JedisPool.class);
+          expect(pool.getResource())
+              .andThrow(new IllegalStateException("intentional err"));
+        })
+        .run(unit -> {
+          new RedisSessionStore(unit.get(JedisPool.class), "sessions", "30m")
+              .delete("1234");
+        });
+  }
+
 }

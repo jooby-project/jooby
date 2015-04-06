@@ -61,7 +61,7 @@ public class Err extends RuntimeException {
 
       rsp.send(
           Results
-              .when(MediaType.html, () -> View.of(errPage(req, rsp, ex), "err", err))
+              .when(MediaType.html, () -> Results.html(errPage(req, rsp, ex)).put("err", err))
               .when(MediaType.all, () -> err)
           );
     }

@@ -19,7 +19,7 @@ It is pretty straightforward:
 {
   use(new Hbs());
 
-  get("/", req -> View.of("index", "model", new MyModel());
+  get("/", req -> Results.html("index").put("model", new MyModel());
 }
 ```
 

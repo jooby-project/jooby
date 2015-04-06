@@ -35,7 +35,7 @@ public class ViewWithExplicitEngineFeature extends ServerFeature {
 
     get("/:engine", (req, rsp) -> {
       String engine = req.param("engine").value();
-      rsp.send(View.of("view", "this", new Object()).engine(engine));
+      rsp.send(Results.html("view").put("this", new Object()).engine(engine));
     });
 
   }

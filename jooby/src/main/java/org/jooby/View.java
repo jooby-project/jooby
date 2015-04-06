@@ -27,12 +27,12 @@ import java.util.Map;
 import com.google.common.collect.ImmutableList;
 
 /**
- * Hold view information like view's name and model.
+ * Special result that hold view name and model. It will be processed by a {@link View.Engine}.
  *
  * @author edgar
  * @since 0.1.0
  */
-public class View {
+public class View extends Result {
 
   /**
    * Special body serializer for dealing with {@link View}.
@@ -90,8 +90,10 @@ public class View {
    *
    * @param name View's name.
    */
-  private View(final String name) {
-    this.name = requireNonNull(name, "A view name is required.");
+  protected View(final String name) {
+    this.name = requireNonNull(name, "View name is required.");
+    type(MediaType.html);
+    super.set(this);
   }
 
   /**
@@ -101,12 +103,26 @@ public class View {
     return name;
   }
 
+  /**
+   * Set a model attribute and override existing attribute.
+   *
+   * @param name Attribute's name.
+   * @param value Attribute's value.
+   * @return This view.
+   */
   public View put(final String name, final Object value) {
     requireNonNull(name, "Model name is required.");
     model.put(name, value);
     return this;
   }
 
+  /**
+   * Set model attributes and override existing values.
+   *
+   * @param name Attribute's name.
+   * @param value Attribute's value.
+   * @return This view.
+   */
   public View put(final Map<String, ?> values) {
     requireNonNull(name, "Model name is required.");
     values.forEach((k, v) -> model.put(k, v));
@@ -127,6 +143,11 @@ public class View {
     return engine;
   }
 
+  @Override
+  public Result set(final Object content) {
+    throw new UnsupportedOperationException("Not allowed in views, use one of the put methods.");
+  }
+
   /**
    * Set the view engine to use.
    *
@@ -141,28 +162,6 @@ public class View {
   @Override
   public String toString() {
     return name + ": " + model;
-  }
-
-  /**
-   * Creates a new {@link View}.
-   *
-   * @param view View's name.
-   * @return A new viewable.
-   */
-  public static View of(final String view) {
-    return new View(view);
-  }
-
-  /**
-   * Creates a new {@link View}.
-   *
-   * @param view View's name.
-   * @param name Model's name.
-   * @param value Model's value.
-   * @return A new viewable.
-   */
-  public static View of(final String view, final String name, final Object value) {
-    return new View(view).put(name, value);
   }
 
 }

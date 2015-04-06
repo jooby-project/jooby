@@ -24,6 +24,22 @@ public class ResultTest {
   }
 
   @Test
+  public void json() {
+    Result result = Results.json("{}");
+    assertEquals("{}", result.get().get());
+    assertEquals(MediaType.json, result.type().get());
+    assertEquals(Status.OK, result.status().get());
+  }
+
+  @Test
+  public void xml() {
+    Result result = Results.xml("{}");
+    assertEquals("{}", result.get().get());
+    assertEquals(MediaType.xml, result.type().get());
+    assertEquals(Status.OK, result.status().get());
+  }
+
+  @Test
   public void accepted() {
     Result result = Results.accepted();
     assertEquals(Optional.empty(), result.get());

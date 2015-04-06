@@ -58,7 +58,7 @@ import freemarker.template.TemplateException;
  * {
  *   use(new Ftl());
  *
- *   get("/", req {@literal ->} View.of("index", "model", new MyModel());
+ *   get("/", req {@literal ->} Results.html("index").put("model", new MyModel());
  * }
  * </pre>
  * <p>

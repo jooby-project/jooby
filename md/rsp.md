@@ -60,7 +60,7 @@ A route can produces different results base on the ```Accept``` header:
 ```java
 get("/", () ->
   Results
-    .when("text/html", ()  -> View.of("viewname", "model", model))
+    .when("text/html", ()  -> Results.html("viewname").put("model", model))
     .when("application/json", ()  -> model)
     .when("*", ()  -> Status.NOT_ACCEPTABLE)
 );
