@@ -201,17 +201,17 @@ public class Hbm extends Jdbc {
     emf = new HbmProvider(descriptor, config(config, classes));
     keys(EntityManagerFactory.class, key -> binder.bind(key).toProvider(emf).asEagerSingleton());
 
-    Multibinder<Route.Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
-
     List<Key<EntityManager>> emkeys = new ArrayList<>();
 
     keys(EntityManager.class, key -> {
-      binder.bind(key).toProvider(() -> {
+      Provider<EntityManager> em = () -> {
         throw new OutOfScopeException("Cannot access " + key + " outside of a scoping block");
-      }).in(RequestScoped.class);
+      };
+      binder.bind(key).toProvider(em).in(RequestScoped.class);
       emkeys.add(key);
     });
 
+    Multibinder<Route.Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
     routes.addBinding().toInstance(
         new Route.Definition("*", "*", new OpenSessionInView(emf, emkeys)).name("hbm")
         );
