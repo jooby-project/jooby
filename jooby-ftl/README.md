@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>0.4.2.1</version>
+  <version>0.5.0</version>
 </dependency>
 ```
 
@@ -19,7 +19,7 @@ It is pretty straightforward:
 {
   use(new Ftl());
 
-  get("/", req {@literal ->} View.of("index", "model", new MyModel());
+  get("/", req {@literal ->} Results.html("index").put("model", new MyModel());
 }
 ```
 

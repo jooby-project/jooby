@@ -54,9 +54,9 @@ A new directory was created: ```my-app```. Now, let's see how it looks like:
 ├── public
 |   ├── assets
 |   |   ├── js
-|   |   |   ├── index.js
+|   |   |   └── index.js
 |   |   ├── css
-|   |   |   ├── style.js
+|   |   |   └── style.css
 |   |   └── images
 |   └── welcome.html
 ├── config

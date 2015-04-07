@@ -119,8 +119,7 @@ public class View extends Result {
   /**
    * Set model attributes and override existing values.
    *
-   * @param name Attribute's name.
-   * @param value Attribute's value.
+   * @param values Attribute's value.
    * @return This view.
    */
   public View put(final Map<String, ?> values) {

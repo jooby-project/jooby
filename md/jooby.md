@@ -2,13 +2,15 @@
 
 Introducing [Jooby](http://jooby.org) a minimalist web framework for Java 8 or higher.
 
-* Simple and effective programming model for building scalable web applications.
+* **Solid**. build on top of mature technologies.
 
-* Easy to learn and to get started. Ideal for small but also large scale applications.
+* **Scalable**. Stateless application development.
 
-* Fast, modular and extensible. It is so extensible that even the web server is plugable.
+* **Fast, modular and extensible**. It is so extensible that even the web server is plugable.
 
-* Ready for modern web, with a lot of JavaScript/HTML/CSS. It is pretty simple to integrate with [grunt](http://gruntjs.com/), [gulp](http://gulpjs.com/), etc...
+* **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
+
+* **Ready for modern web**. That require a lot of JavaScript/HTML/CSS
 
 ## hello world!
 
@@ -27,7 +29,3 @@ public class App extends Jooby {
 }
 
 ```
-
-Want to learn more?
-
-Check out the [quickstart](/quickstart) guide.

@@ -6,13 +6,15 @@
 
 Introducing [Jooby](http://jooby.org) a minimalist web framework for Java 8 or higher.
 
-* Simple and effective programming model for building scalable web applications.
+* **Solid**. build on top of mature technologies.
 
-* Easy to learn and to get started. Ideal for small but also large scale applications.
+* **Scalable**. Stateless application development.
 
-* Fast, modular and extensible. It is so extensible that even the web server is plugable.
+* **Fast, modular and extensible**. It is so extensible that even the web server is plugable.
 
-* Ready for modern web, with a lot of JavaScript/HTML/CSS. It is pretty simple to integrate with [grunt](http://gruntjs.com/), [gulp](http://gulpjs.com/), etc...
+* **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
+
+* **Ready for modern web**. That require a lot of JavaScript/HTML/CSS
 
 ## hello world!
 
@@ -32,10 +34,6 @@ public class App extends Jooby {
 
 ```
 
-Want to learn more?
-
-Check out the [quickstart](/quickstart) guide.
-
 
 versioning
 =====
@@ -52,7 +50,7 @@ quickstart
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.4.2.1
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.5.0
 ```
 
 You might want to edit/change:
@@ -67,7 +65,7 @@ You might want to edit/change:
 Let's try it!:
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.4.2.1
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.5.0
 cd my-app
 mvn jooby:run
 ```
@@ -102,9 +100,9 @@ A new directory was created: ```my-app```. Now, let's see how it looks like:
 ├── public
 |   ├── assets
 |   |   ├── js
-|   |   |   ├── index.js
+|   |   |   └── index.js
 |   |   ├── css
-|   |   |   ├── style.js
+|   |   |   └── style.css
 |   |   └── images
 |   └── welcome.html
 ├── config

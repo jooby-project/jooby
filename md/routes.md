@@ -104,6 +104,71 @@ Reques params are covered later, for now all you need to know is that you can ac
 
   ```*``` - matches any path at any level, shortcut for ```**```
 
+## static files
+
+Static files are located under the ```public``` directory.
+
+```bash
+├── public
+    ├── assets
+    |   ├── js
+    |   |   └── index.js
+    |   ├── css
+    |   |   └── style.css
+    |   └── images
+    |       └── logo.png
+    └── welcome.html
+```
+
+Now, let's add an asset handler:
+
+```java
+{
+  assets("/assets/**");
+}
+```
+
+The asset route handler resolves requests like:
+
+```bash
+GET /assets/js/index.js
+GET /assets/css/style.css
+```
+
+It is possible to map a single static file to a path:
+
+```java
+{
+  assets("/", "welcome.html");
+}
+```
+
+A ```GET /``` will display the static file ```welcome.html```.
+
+Here is another example that uses [Webjars](http://www.webjars.org/):
+
+```java
+{
+  assets("/assets/**", "/META-INF/resources/webjars/{0}");
+
+  assets("/assets/**");
+}
+```
+
+and responds to the following requests:
+
+```bash
+GET /assets/jquery/2.1.3/jquery.js
+GET /assets/bootstrap/3.3.4/css/bootstrap.css
+```
+
+but also to any other application specific resource:
+
+```bash
+GET /assets/js/index.js
+GET /assets/css/style.css
+```
+
 ## precedence and order
 
 Routes are executed in the order they are defined. So the ordering of routes is crucial to the behavior of an application. Let's review this fact via some examples.

@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jooby</groupId>
     <artifactId>jooby-project</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <version>0.5.0</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -137,6 +137,28 @@
         </plugins>
       </build>
     </profile>
+    <!-- Sonatype OSS release -->
+    <profile>
+      <id>sonatype-oss-release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <build>
@@ -151,15 +173,6 @@
             <include>**/*Feature.java</include>
             <include>**/*Issue*.java</include>
           </includes>
-        </configuration>
-      </plugin>
-
-      <!-- Deploy plugin -->
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <configuration>
-          <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
         </configuration>
       </plugin>
 

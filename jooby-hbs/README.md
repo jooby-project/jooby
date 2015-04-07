@@ -8,7 +8,7 @@ Mustache/Handlebars templates for [Jooby](/). Exposes a [Handlebars](https://git
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbs</artifactId>
-  <version>0.4.2.1</version>
+  <version>0.5.0</version>
 </dependency>
 ```
 
@@ -19,7 +19,7 @@ It is pretty straightforward:
 {
   use(new Hbs());
 
-  get("/", req -> View.of("index", "model", new MyModel());
+  get("/", req -> Results.html("index").put("model", new MyModel());
 }
 ```
 

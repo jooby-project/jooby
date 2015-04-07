@@ -5,3 +5,7 @@ version: {{version}}
 ---
 
 {{jooby.md}}
+
+Want to learn more?
+
+Check out the [quickstart](/quickstart) guide.

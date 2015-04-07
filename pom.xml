@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>0.5.0-SNAPSHOT</version>
+  <version>0.5.0</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
@@ -643,6 +643,12 @@
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${maven-deploy-plugin.version}</version>
+      </plugin>
     </plugins>
 
     <pluginManagement>
@@ -921,7 +927,7 @@
 
     <!-- Sonatype OSS release -->
     <profile>
-      <id>release</id>
+      <id>sonatype-oss-release</id>
       <build>
         <plugins>
           <!-- Source -->
@@ -983,6 +989,18 @@
               <tagNameFormat>v@{project.version}</tagNameFormat>
               <scmCommentPrefix>release</scmCommentPrefix>
               <goals>deploy</goals>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>${nexus-staging-maven-plugin.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>
         </plugins>
@@ -1131,6 +1149,7 @@
     <jacoco-maven-plugin.version>${jacoco.version}</jacoco-maven-plugin.version>
     <maven-assembly-plugin.version>2.5.3</maven-assembly-plugin.version>
     <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
+    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>
   </properties>

@@ -16,7 +16,7 @@ Add the ```jooby-servlet``` dependency to your ```pom.xml```:
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>0.4.2.1</version>
+  <version>0.5.0</version>
   <scope>provided</scope>
 </dependency>
 ```
