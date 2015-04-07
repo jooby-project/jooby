@@ -18,6 +18,7 @@
  */
 package org.jooby.internal.netty;
 
+import static io.netty.channel.ChannelFutureListener.CLOSE;
 import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -52,7 +53,7 @@ import java.io.OutputStream;
  *
  * @author tbussier
  */
-class NettyOutputStream extends OutputStream {
+public class NettyOutputStream extends OutputStream {
 
   private NettyResponse rsp;
 
@@ -68,8 +69,8 @@ class NettyOutputStream extends OutputStream {
 
   private boolean committed;
 
-  NettyOutputStream(final NettyResponse rsp, final ChannelHandlerContext ctx, final ByteBuf buffer,
-      final boolean keepAlive, final HttpHeaders headers) {
+  public NettyOutputStream(final NettyResponse rsp, final ChannelHandlerContext ctx,
+      final ByteBuf buffer, final boolean keepAlive, final HttpHeaders headers) {
     this.rsp = rsp;
     this.buffer = buffer;
     this.ctx = ctx;
@@ -105,9 +106,14 @@ class NettyOutputStream extends OutputStream {
         ChannelFuture future = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
             .addListener(FIRE_EXCEPTION_ON_FAILURE);
         /**
-         * no Keep alive?
+         * check for len, if present and we don't require keep-alive, close the connection
          */
-        if (!keepAlive || !headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
+        if (headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
+          if (!keepAlive) {
+            future.addListener(ChannelFutureListener.CLOSE);
+          }
+        } else {
+          // content len is not set, just close the connection regardless keep alive or not.
           future.addListener(ChannelFutureListener.CLOSE);
         }
       }
@@ -146,8 +152,7 @@ class NettyOutputStream extends OutputStream {
           buffer);
       String len = headers.get(HttpHeaders.Names.CONTENT_LENGTH);
       /**
-       * Is Content-Length present? When not we check for transfer-encoding, if transfer-encoding
-       * was set, we do nothing. Otherwise, we set the Content-Length bc we know it.
+       * Set the content len when missing and make sure transfer encoding isn't there.
        */
       if (len == null) {
         // remove transfer encoding
@@ -167,7 +172,9 @@ class NettyOutputStream extends OutputStream {
       } else {
         // don't send keep alive and close the channel.
         rsp.headers().set(headers);
-        ctx.writeAndFlush(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
+        ctx.writeAndFlush(rsp)
+            .addListener(CLOSE)
+            .addListener(FIRE_EXCEPTION_ON_FAILURE);
       }
       committed = true;
       return;
