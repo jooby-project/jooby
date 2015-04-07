@@ -6,15 +6,15 @@
 
 Introducing [Jooby](http://jooby.org) a minimalist web framework for Java 8 or higher.
 
-* **Solid**. build on top of mature technologies.
+* **Solid**. Build on top of mature technologies.
 
 * **Scalable**. Stateless application development.
 
-* **Fast, modular and extensible**. It is so extensible that even the web server is plugable.
+* **Fast, modular and extensible**. So extensible that even the web server is plugable.
 
 * **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
 
-* **Ready for modern web**. That require a lot of JavaScript/HTML/CSS
+* **Ready for modern web**. That requires a lot of JavaScript/HTML/CSS
 
 ## hello world!
 
@@ -34,15 +34,6 @@ public class App extends Jooby {
 
 ```
 
-
-versioning
-=====
-
-Jooby uses [semantic versioning](http://semver.org/) for releases.
-
-API is considered unstable while release version is: ```0.x.x``` and it might changes and/or broke without previous notification.
-
-This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it.
 
 quickstart
 =====
@@ -168,6 +159,15 @@ The maven plugin will compile the code (if necessary) and startup the applicatio
 Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.
 Then all you have to do is run the: ```App.java``` class. After all, this is plain Java application with a ```main``` method.
 
+
+versioning
+=====
+
+Jooby uses [semantic versioning](http://semver.org/) for releases.
+
+API is considered unstable while release version is: ```0.x.x``` and it might changes and/or broke without previous notification.
+
+This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it.
 
 want to contribute?
 =====

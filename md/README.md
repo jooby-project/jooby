@@ -4,6 +4,8 @@
 
 {{jooby.md}}
 
+{{quickstart.md}}
+
 versioning
 =====
 
@@ -12,8 +14,6 @@ Jooby uses [semantic versioning](http://semver.org/) for releases.
 API is considered unstable while release version is: ```0.x.x``` and it might changes and/or broke without previous notification.
 
 This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it.
-
-{{quickstart.md}}
 
 want to contribute?
 =====
