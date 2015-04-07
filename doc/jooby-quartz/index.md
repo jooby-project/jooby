@@ -1,7 +1,7 @@
 ---
 layout: index
 title: jooby-quartz
-version: 0.4.2.1
+version: 0.5.0
 ---
 
 # jooby-quartz
@@ -14,7 +14,7 @@ A job scheduler from [Quartz](http://quartz-scheduler.org/).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>0.4.2.1</version>
+  <version>0.5.0</version>
 </dependency>
 ```
 ## usage
@@ -50,7 +50,7 @@ The next section will you show how to add a trigger to a job and some examples t
 
 ## triggers
 
-Trigger are defined by the ```Scheduled``` annotation. The annotation defined a single and required attributes, which is basically a trigger expression or a reference to it.
+Trigger are defined by the ```Scheduled``` annotation. The annotation defines a single and required attributes, which is basically a trigger expression or a reference to it.
 
 Example 1: run every 10s
 
@@ -148,7 +148,8 @@ Example: Setting max number of threads
 
 ```properties
 # application.conf
-org.quartz.threadPool.threadCount = 1 # default is number of available processors
+# default is number of available processors
+org.quartz.threadPool.threadCount = 1
 ```
 
 Configuration follows the [Quartz
@@ -228,3 +229,16 @@ Example 3: build and set everything from scratch
 ```
 
 That's all folks! Enjoy it!!
+
+# appendix: quartz.conf
+```properties
+org.quartz.scheduler.instanceName = quartz
+org.quartz.scheduler.instanceId = local
+
+# thread pool
+org.quartz.threadPool.threadNamePrefix = quartz
+org.quartz.threadPool.threadCount = ${runtime.processors}
+
+```
+
+

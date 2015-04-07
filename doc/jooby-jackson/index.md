@@ -1,10 +1,16 @@
 ---
 layout: index
 title: jooby-jackson
-version: 0.4.2.1
+version: 0.5.0
 ---
 
 # jooby-jackson
+
+JSON support from the excelent [Jackson](https://github.com/FasterXML/jackson) library.
+
+This module provides a JSON body [parser](/apidocs/Body.Parser.html) and [formatter](/apidocs/Body.Formatter.html).
+
+Exposes [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2.5.2/com/fasterxml/jackson/databind/ObjectMapper.html) services.
 
 ## dependency
 
@@ -12,7 +18,7 @@ version: 0.4.2.1
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>0.4.2.1</version>
+  <version>0.5.0</version>
 </dependency>
 ```
 ## usage
@@ -40,9 +46,7 @@ import org.jooby.jackson.Json;
 }
 ```
 
-The [jackson](http://jackson.codehaus.org/) module provides a JSON body [parser]({{apidocs}}/Body.Parser.html) and [formatter]({{apidocs}}/Body.Formatter.html).
-
-The underlying *com.fasterxml.jackson.databind.ObjectMapper* is bound too:
+## direct access
 
 ```java
 // Injecting
@@ -56,13 +60,13 @@ public class Service {
 
 // or ask for it
 {
-  get("/", (req, rsp) -> ObjectMapper mapper = req.getInstance(ObjectMapper.class));
+  get("/", (req, rsp) -> ObjectMapper mapper = req.require(ObjectMapper.class));
 }
 ```
 
 ### advanced configuration
 
-If you need a special setting or configuration for your *ObjectMapper* you have two alternatives:
+If you need a special setting or configuration for your [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2.2.0/com/fasterxml/jackson/databind/ObjectMapper.html) you have two alternatives:
 
 ```java
 {
@@ -72,7 +76,7 @@ If you need a special setting or configuration for your *ObjectMapper* you have 
 }
 ```
 
-or providing an *ObjectMapper* instance:
+or providing an [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2.2.0/com/fasterxml/jackson/databind/ObjectMapper.html) instance:
 
 ```java
 {
@@ -81,7 +85,7 @@ or providing an *ObjectMapper* instance:
 }
 ```
 
-It is possible to wire your *com.fasterxml.jackson.databind.Module* modules with Guice:
+It is possible to wire Jackson modules too:
 
 ```java
 {
@@ -96,4 +100,7 @@ It is possible to wire your *com.fasterxml.jackson.databind.Module* modules with
 
 This is useful when your *MyJacksonModuleWiredByGuice* module require some dependencies.
 
-Cool, isn't?
+That's all folks! Enjoy it!!!
+
+
+

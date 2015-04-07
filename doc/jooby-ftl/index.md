@@ -1,12 +1,12 @@
 ---
 layout: index
 title: jooby-ftl
-version: 0.4.2.1
+version: 0.5.0
 ---
 
 # jooby-ftl
 
-[Freemarker] templates for Jooby. Exposes a Configuration and [Body.Formatter].
+[Freemarker](http://freemarker.org) templates for [Jooby](/). Exposes a Configuration and [body formatter](/apidocs/org/jooby/BodyFormatter.html).
 
 ## dependency
 
@@ -14,7 +14,7 @@ version: 0.4.2.1
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>0.4.2.1</version>
+  <version>0.5.0</version>
 </dependency>
 ```
 
@@ -25,18 +25,36 @@ It is pretty straightforward:
 {
   use(new Ftl());
 
-  get("/", req {@literal ->} View.of("index", "model", new MyModel());
+  get("/", req {@literal ->} Results.html("index").put("model", new MyModel());
 }
 ```
 
 public/index.html:
 
 ```java
-  ${model}
+${model}
 ```
 
 Templates are loaded from root of classpath: ```/``` and must end with: ```.html```
 file extension.
+
+## req locals
+
+A template engine has access to ```request locals```. Here is an example:
+
+```java
+{
+  use(new Ftl());
+
+  get("*", req -> {
+    req.set("req", req);
+    req.set("session", req.session());
+  });
+}
+```
+
+By default, there is no access to ```req``` or ```session``` from your template. This example shows how to do it.
+
 
 ## configuration
 There are two ways of changing a Freemarker configuration:
@@ -44,7 +62,7 @@ There are two ways of changing a Freemarker configuration:
 ### application.conf
 Just add a ```freemarker.*``` option to your ```application.conf``` file:
 
-```
+```properties
 freemarker.default_encoding = UTF-8
 ```
 
@@ -75,15 +93,41 @@ change the default template location and extensions too:
 
 Cache is OFF when ```env=dev``` (useful for template reloading), otherwise is ON.
 
-Cache is backed by Guava and default cache will expire after ```100``` entries.
+Cache is backed by [Guava](https://github.com/google/guava) and default cache will expire after ```100``` entries.
 
 If ```100``` entries is not enough or you need a more advanced cache setting, just set the
 ```freemarker.cache``` option:
 
-```
+```properties
 freemarker.cache = "expireAfterWrite=1h"
 ```
 
-See [CacheBuilderSpec] for more detailed expressions.
+See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/CacheBuilderSpec.html) for more detailed expressions.
 
 That's all folks! Enjoy it!!!
+
+# appendix: freemarker.conf
+```properties
+#freemarker defaults
+
+freemarker.locale = ${application.lang}
+
+freemarker.number_format = ${application.numberFormat}
+
+freemarker.date_format = ${application.dateFormat}
+
+freemarker.time_zone = ${application.tz}
+
+freemarker.object_wrapper = default
+
+freemarker.template_exception_handler = default
+
+freemarker.defaultEncoding = ${application.charset}
+
+# cache for env != dev
+freemarker.cache = "maximumSize=100"
+
+```
+
+
+

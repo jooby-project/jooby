@@ -1,12 +1,12 @@
 ---
 layout: index
 title: jooby-hbs
-version: 0.4.2.1
+version: 0.5.0
 ---
 
 # jooby-hbs
 
-Mustache/Handlebars templates for Jooby. Exposes a [Handlebars](https://github.com/jknack/handlebars.java) and [Body.Formatter].
+Mustache/Handlebars templates for [Jooby](/). Exposes a [Handlebars](https://github.com/jknack/handlebars.java) and [body formatter](/apidocs/org/jooby/BodyFormatter.html).
 
 ## dependency
 
@@ -14,7 +14,7 @@ Mustache/Handlebars templates for Jooby. Exposes a [Handlebars](https://github.c
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbs</artifactId>
-  <version>0.4.2.1</version>
+  <version>0.5.0</version>
 </dependency>
 ```
 
@@ -25,17 +25,34 @@ It is pretty straightforward:
 {
   use(new Hbs());
 
-  get("/", req {@literal ->} View.of("index", "model", new MyModel());
+  get("/", req -> Results.html("index").put("model", new MyModel());
 }
 ```
 
 public/index.html:
 
 ```
-  {{model}}
+{{ "{{ model " }}}}
 ```
 
 Templates are loaded from root of classpath: ```/``` and must end with: ```.html``` file extension.
+
+## req locals
+
+A template engine has access to ```request locals```. Here is an example:
+
+```java
+{
+  use(new Hbs());
+
+  get("*", req -> {
+    req.set("req", req);
+    req.set("session", req.session());
+  });
+}
+```
+
+By default, there is no access to ```req``` or ```session``` from your template. This example shows how to do it.
 
 ## helpers
 
@@ -43,8 +60,8 @@ Simple/basic helpers are add it at startup time:
 
 ```java
 {
-  use(new Hbs().doWith((hbs, config) {@literal ->} {
-    hbs.registerHelper("myhelper", (ctx, options) {@literal ->} {
+  use(new Hbs().doWith((hbs, config) -> {
+    hbs.registerHelper("myhelper", (ctx, options) -> {
       return ...;
     });
     hbs.registerHelpers(Helpers.class);
@@ -60,7 +77,7 @@ Now, if the helper depends on a service and require injection:
 }
 ```
 
-The ```Helpers``` will be injected by Guice and Handlebars will scan and discover any helper method.
+The ```Helpers``` will be injected by [Guice](https://github.com/google/guice) and [Handlebars](https://github.com/jknack/handlebars.java) will scan and discover any helper method.
 
 ## template loader
 
@@ -77,15 +94,18 @@ change the default template location and extensions too:
 
 Cache is OFF when ```env=dev``` (useful for template reloading), otherwise is ON.
 
-Cache is backed by Guava and the default cache will expire after ```100``` entries.
+Cache is backed by [Guava](https://github.com/google/guava) and the default cache will expire after ```100``` entries.
 
 If ```100``` entries is not enough or you need a more advanced cache setting, just set the
 ```hbs.cache``` option:
 
-```
+```properties
 hbs.cache = "expireAfterWrite=1h"
 ```
 
-See [CacheBuilderSpec] for more detailed expressions.
+See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/CacheBuilderSpec.html) for more detailed expressions.
 
 That's all folks! Enjoy it!!!
+
+
+
