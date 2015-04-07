@@ -1,17 +1,17 @@
 ---
 layout: index
 title: quickstart
-version: 0.4.2
+version: 0.5.0
 ---
 
 quickstart
 =====
 
-Just paste this into a terminal (make sure Java 8 and Maven 3.x are installed):
+Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
-    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app 
-    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype 
-    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.4.2
+```bash
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.5.0
+```
 
 You might want to edit/change:
 
@@ -24,23 +24,26 @@ You might want to edit/change:
 
 Let's try it!:
 
-    mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app 
-    -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype 
-    -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.4.2
-    cd my-app
-    mvn jooby:run
+```bash
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.5.0
+cd my-app
+mvn jooby:run
+```
 
 You should see something similar to this at the end of the output:
 
-    INFO  [2015-01-12 17:22:52,193] XNIO version 3.3.0.Final
-    INFO  [2015-01-12 17:22:52,237] XNIO NIO Implementation Version 3.3.0.Final
-    INFO  [2015-01-12 17:22:52,525] Server started in 650ms
-    GET /favicon.ico    [*/*]     [*/*]    (anonymous)
-    GET /assets/**/*    [*/*]     [*/*]    (anonymous)
-    GET /               [*/*]     [*/*]    (anonymous)
+```bash
+INFO  [2015-03-19 21:34:00,365] Hotswap available on: [my-app/public, my-app/config, my-app/target/classes]
+INFO  [2015-03-19 21:34:00,368]   includes: [**/*.class,**/*.conf,**/*.properties]
+INFO  [2015-03-19 21:34:00,369]   excludes: []
+INFO  [2015-03-19 21:34:00,937] [dev@netty]: App server started in 502ms
 
-    listening on:
-      http://localhost:8080
+GET /assets/**    [*/*]     [*/*]    (anonymous)
+GET /             [*/*]     [*/*]    (anonymous)
+
+listening on:
+  http://0.0.0.0:8080/
+```
 
 Jooby! is up and running!!!
 
@@ -52,35 +55,37 @@ exploring the newly created project
 
 A new directory was created: ```my-app```. Now, let's see how it looks like:
 
-    /public
-           /assets/js/index.js
-           /assets/css/style.css
-           /images
-          welcome.html
-    /config
-           application.conf
-           logback.xml
-    /src/main/java
-                  /com/mycompany/App.java
+```bash
+.
+├── public
+|   ├── assets
+|   |   ├── js
+|   |   |   └── index.js
+|   |   ├── css
+|   |   |   └── style.css
+|   |   └── images
+|   └── welcome.html
+├── config
+|   ├── application.conf
+|   └── logback.xml
+└── src
+    └── main
+        └── java
+            └── com
+                └── mycompany
+                    └── App.java
+```
 
-The **public** directory contains ```*.html```, ```*.js```, ```*.css```, ```*.png```, ... etc., files.
+The **public** directory contains ```*.html```, ```*.js```, ```*.css```, ..., ```*.png``` files.
 
-The **config** directory contains ```*.conf```, ```*.properties```, ```*.json```, ... etc., files.
+The **config** directory contains ```*.conf```, ```*.properties```, ..., ```*.json``` files.
 
 The **src/main/java** contains ```*.java``` (of course) files.
 
-**NOTE**: The three directory are part of the classpath.
+**NOTE**: Directories: ```public``` and ```config``` are part of the classpath.
 
-**NOTE**: So this is Maven, Why don't use the default directory layout?
+### App.java
 
-Good question, in a Java project not all the team members are backend developers. The **public** folder
-was specially created for frontend developer or web designers with no experience in Java. 
-
-This is a matter of taste and if you find it problematic, you can use the default directory layout of Maven.
-
-
-App.java
------
 
 ```java
 
@@ -89,12 +94,10 @@ import org.jooby.Jooby;
 public class App extends Jooby { // 1
 
   {
-    // 2 routes
-    get("/favicon.ico");
-
+    // 2
     assets("/assets/**");
 
-    get("/", file("welcome.html"));
+    assets("/", "/welcome.html");
   }
 
   public static void main(final String[] args) throws Exception {
@@ -122,6 +125,6 @@ Just open a console and type:
 
 The maven plugin will compile the code (if necessary) and startup the application.
 
-Of course, you can generate the IDE metadata from Maven and/or import as a Maven project on your favorite IDE.
-Then all you have to do is run the: ```App.java``` class. After all, this is plain Java with a ```main``` method.
+Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.
+Then all you have to do is run the: ```App.java``` class. After all, this is plain Java application with a ```main``` method.
 
