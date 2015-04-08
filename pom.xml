@@ -692,7 +692,7 @@
                 <transformers>
                   <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                   <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                    <mainClass>${application.main}</mainClass>
+                    <mainClass>${application.class}</mainClass>
                   </transformer>
                 </transformers>
               </configuration>
@@ -894,7 +894,7 @@
             <artifactId>jooby-maven-plugin</artifactId>
             <version>${jooby.version}</version>
             <configuration>
-              <mainClass>${application.main}</mainClass>
+              <mainClass>${application.class}</mainClass>
             </configuration>
             <dependencies>
               <dependency>
