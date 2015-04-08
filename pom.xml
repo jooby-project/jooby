@@ -1077,7 +1077,7 @@
   <properties>
     <!-- Dependencies -->
     <jackson.version>2.4.3</jackson.version>
-    <undertow.version>1.2.0.Beta8</undertow.version>
+    <undertow.version>1.2.0.Beta10</undertow.version>
     <servlet.version>3.1.0</servlet.version>
     <jetty.version>9.2.9.v20150224</jetty.version>
     <netty.version>4.0.9.Final</netty.version>

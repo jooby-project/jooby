@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -60,11 +61,14 @@ public class UndertowRequest implements NativeRequest {
 
   private final FormData form;
 
+  private String path;
+
   public UndertowRequest(final HttpServerExchange exchange, final Config config) throws IOException {
     this.exchange = requireNonNull(exchange, "An undertow exchange is required.");
     this.config = requireNonNull(config, "A config is required.");
     this.form = parseForm(exchange, config.getString("application.tmpdir"),
         config.getString("application.charset"));
+    this.path = URLDecoder.decode(exchange.getRequestPath(), "UTF-8");
   }
 
   @Override
@@ -74,7 +78,7 @@ public class UndertowRequest implements NativeRequest {
 
   @Override
   public String path() {
-    return exchange.getRequestPath();
+    return path;
   }
 
   @Override
