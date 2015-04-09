@@ -26,7 +26,7 @@ import com.typesafe.config.Config;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NettyHandler.class, NettyRequest.class, NettyResponse.class,
-    DefaultFullHttpResponse.class })
+    DefaultFullHttpResponse.class, HttpHeaders.class })
 public class NettyHandlerTest {
 
   @Test
@@ -54,16 +54,16 @@ public class NettyHandlerTest {
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class,
         FullHttpRequest.class)
         .expect(unit -> {
-          HttpHeaders headers = unit.mock(HttpHeaders.class);
-          expect(headers.get("Expect")).andReturn("100-Continue");
 
           FullHttpRequest req = unit.get(FullHttpRequest.class);
-          expect(req.getProtocolVersion()).andReturn(HttpVersion.HTTP_1_1);
-          expect(req.headers()).andReturn(headers);
           expect(req.getUri()).andReturn("/");
           expect(req.getMethod()).andReturn(HttpMethod.GET);
 
           ChannelFuture future = unit.mock(ChannelFuture.class);
+
+          unit.mockStatic(HttpHeaders.class);
+          expect(HttpHeaders.is100ContinueExpected(req)).andReturn(true);
+          expect(HttpHeaders.isKeepAlive(req)).andReturn(false);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           DefaultFullHttpResponse rsp = unit.mockConstructor(DefaultFullHttpResponse.class,
@@ -75,13 +75,6 @@ public class NettyHandlerTest {
           attr.set("GET /");
 
           expect(ctx.attr(NettyHandler.PATH)).andReturn(attr);
-        })
-        .expect(unit -> {
-          HttpHeaders headers = unit.mock(HttpHeaders.class);
-          expect(headers.get("Connection")).andReturn("Close");
-
-          FullHttpRequest req = unit.get(FullHttpRequest.class);
-          expect(req.headers()).andReturn(headers);
         })
         .expect(
             unit -> {
@@ -117,14 +110,14 @@ public class NettyHandlerTest {
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class,
         FullHttpRequest.class)
         .expect(unit -> {
-          HttpHeaders headers = unit.mock(HttpHeaders.class);
-          expect(headers.get("Expect")).andReturn("100-Continue");
 
           FullHttpRequest req = unit.get(FullHttpRequest.class);
-          expect(req.getProtocolVersion()).andReturn(HttpVersion.HTTP_1_1);
-          expect(req.headers()).andReturn(headers);
           expect(req.getUri()).andReturn("/");
           expect(req.getMethod()).andReturn(HttpMethod.GET);
+
+          unit.mockStatic(HttpHeaders.class);
+          expect(HttpHeaders.is100ContinueExpected(req)).andReturn(true);
+          expect(HttpHeaders.isKeepAlive(req)).andReturn(true);
 
           ChannelFuture future = unit.mock(ChannelFuture.class);
 
@@ -138,14 +131,6 @@ public class NettyHandlerTest {
           attr.set("GET /");
 
           expect(ctx.attr(NettyHandler.PATH)).andReturn(attr);
-        })
-        .expect(unit -> {
-          HttpHeaders headers = unit.mock(HttpHeaders.class);
-          expect(headers.get("Connection")).andReturn("Keep-Alive");
-
-          FullHttpRequest req = unit.get(FullHttpRequest.class);
-          expect(req.getProtocolVersion()).andReturn(HttpVersion.HTTP_1_1);
-          expect(req.headers()).andReturn(headers);
         })
         .expect(unit -> {
           Config config = unit.get(Config.class);
@@ -205,14 +190,13 @@ public class NettyHandlerTest {
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class,
         FullHttpRequest.class)
         .expect(unit -> {
-          HttpHeaders headers = unit.mock(HttpHeaders.class);
-          expect(headers.get("Expect")).andReturn("100-Continue");
-
           FullHttpRequest req = unit.get(FullHttpRequest.class);
-          expect(req.getProtocolVersion()).andReturn(HttpVersion.HTTP_1_1);
-          expect(req.headers()).andReturn(headers);
           expect(req.getUri()).andReturn("/");
           expect(req.getMethod()).andReturn(HttpMethod.GET);
+
+          unit.mockStatic(HttpHeaders.class);
+          expect(HttpHeaders.is100ContinueExpected(req)).andReturn(true);
+          expect(HttpHeaders.isKeepAlive(req)).andReturn(true);
 
           ChannelFuture future = unit.mock(ChannelFuture.class);
 
@@ -227,14 +211,6 @@ public class NettyHandlerTest {
           expect(attr.get()).andReturn("GET /");
 
           expect(ctx.attr(NettyHandler.PATH)).andReturn(attr).times(2);
-        })
-        .expect(unit -> {
-          HttpHeaders headers = unit.mock(HttpHeaders.class);
-          expect(headers.get("Connection")).andReturn("Keep-Alive");
-
-          FullHttpRequest req = unit.get(FullHttpRequest.class);
-          expect(req.getProtocolVersion()).andReturn(HttpVersion.HTTP_1_1);
-          expect(req.headers()).andReturn(headers);
         })
         .expect(unit -> {
           Config config = unit.get(Config.class);
