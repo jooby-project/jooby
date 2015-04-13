@@ -22,14 +22,11 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jooby.spi.NativeResponse;
@@ -38,44 +35,12 @@ import com.google.common.collect.ImmutableList;
 
 public class ServletServletResponse implements NativeResponse {
 
-  private HttpServletRequest req;
-
   private HttpServletResponse rsp;
 
   private boolean committed;
 
-  public ServletServletResponse(final HttpServletRequest req, final HttpServletResponse rsp) {
-    this.req = requireNonNull(req, "A request is required.");
+  public ServletServletResponse(final HttpServletResponse rsp) {
     this.rsp = requireNonNull(rsp, "A response is required.");
-  }
-
-  @Override
-  public void cookie(final org.jooby.Cookie cookie) {
-    Cookie c = new Cookie(cookie.name(), cookie.value().orElse(null));
-    cookie.comment().ifPresent(c::setComment);
-    cookie.domain().ifPresent(c::setDomain);
-    c.setHttpOnly(cookie.httpOnly());
-    c.setMaxAge((int) cookie.maxAge());
-    c.setPath(cookie.path());
-    c.setSecure(cookie.secure());
-    c.setVersion(cookie.version());
-
-    rsp.addCookie(c);
-  }
-
-  @Override
-  public void clearCookie(final String name) {
-    Cookie[] cookies = req.getCookies();
-    Optional<Cookie> result = Optional.empty();
-    if (cookies != null) {
-      result = Arrays.stream(cookies)
-          .filter(c -> c.getName().equals(name))
-          .findFirst();
-    }
-    result.ifPresent(cookie -> {
-      cookie.setMaxAge(0);
-      rsp.addCookie(cookie);
-    });
   }
 
   @Override
@@ -96,6 +61,13 @@ public class ServletServletResponse implements NativeResponse {
   @Override
   public void header(final String name, final String value) {
     rsp.setHeader(name, value);
+  }
+
+  @Override
+  public void header(final String name, final Iterable<String> values) {
+    for (String value : values) {
+      rsp.addHeader(name, value);
+    }
   }
 
   @Override

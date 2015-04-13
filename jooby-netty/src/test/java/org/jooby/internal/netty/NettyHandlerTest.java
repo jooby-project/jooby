@@ -91,8 +91,8 @@ public class NettyHandlerTest {
                   ctx, unit.get(FullHttpRequest.class), "target", 3000);
 
               NettyResponse rsp = unit.mockConstructor(NettyResponse.class,
-                  new Class[]{ChannelHandlerContext.class, NettyRequest.class, boolean.class },
-                  ctx, req, false);
+                  new Class[]{ChannelHandlerContext.class, boolean.class },
+                  ctx, false);
 
               HttpHandler dispatcher = unit.get(HttpHandler.class);
               dispatcher.handle(req, rsp);
@@ -145,8 +145,7 @@ public class NettyHandlerTest {
                   int.class },
               ctx, unit.get(FullHttpRequest.class), "target", 3000);
           NettyResponse rsp = unit.mockConstructor(NettyResponse.class,
-              new Class[]{ChannelHandlerContext.class, NettyRequest.class, boolean.class },
-              ctx, req, true);
+              new Class[]{ChannelHandlerContext.class, boolean.class }, ctx, true);
 
           HttpHandler dispatcher = unit.get(HttpHandler.class);
           dispatcher.handle(req, rsp);
@@ -225,8 +224,7 @@ public class NettyHandlerTest {
                   int.class },
               ctx, unit.get(FullHttpRequest.class), "target", 3000);
           NettyResponse rsp = unit.mockConstructor(NettyResponse.class,
-              new Class[]{ChannelHandlerContext.class, NettyRequest.class, boolean.class },
-              ctx, req, true);
+              new Class[]{ChannelHandlerContext.class, boolean.class }, ctx, true);
 
           HttpHandler dispatcher = unit.get(HttpHandler.class);
           dispatcher.handle(req, rsp);

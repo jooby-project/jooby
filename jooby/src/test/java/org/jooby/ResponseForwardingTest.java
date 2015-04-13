@@ -16,6 +16,7 @@ import java.util.Optional;
 import org.junit.Test;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 
 public class ResponseForwardingTest {
 
@@ -280,6 +281,65 @@ public class ResponseForwardingTest {
     });
 
     assertEquals("something something dark", rsp.toString());
+  }
+
+  @Test
+  public void singleHeader() throws Exception {
+    new MockUnit(Response.class)
+        .expect(unit -> {
+          Response rsp = unit.get(Response.class);
+
+          expect(rsp.header("h", "v")).andReturn(rsp);
+        })
+        .run(unit -> {
+          Response rsp = new Response.Forwarding(unit.get(Response.class));
+
+          assertEquals(rsp, rsp.header("h", "v"));
+        });
+  }
+
+  @Test
+  public void arrayHeader() throws Exception {
+    new MockUnit(Response.class)
+        .expect(unit -> {
+          Response rsp = unit.get(Response.class);
+
+          expect(rsp.header("h", "v1", 2)).andReturn(rsp);
+        })
+        .run(unit -> {
+          Response rsp = new Response.Forwarding(unit.get(Response.class));
+
+          assertEquals(rsp, rsp.header("h", "v1", 2));
+        });
+  }
+
+  @Test
+  public void listHeader() throws Exception {
+    new MockUnit(Response.class)
+        .expect(unit -> {
+          Response rsp = unit.get(Response.class);
+
+          expect(rsp.header("h", Lists.<Object> newArrayList("v1", 2))).andReturn(rsp);
+        })
+        .run(unit -> {
+          Response rsp = new Response.Forwarding(unit.get(Response.class));
+
+          assertEquals(rsp, rsp.header("h", Lists.<Object> newArrayList("v1", 2)));
+        });
+  }
+
+  @Test
+  public void end() throws Exception {
+    new MockUnit(Response.class)
+        .expect(unit -> {
+          Response rsp = unit.get(Response.class);
+          rsp.end();
+        })
+        .run(unit -> {
+          Response rsp = new Response.Forwarding(unit.get(Response.class));
+
+          rsp.end();
+        });
   }
 
 }

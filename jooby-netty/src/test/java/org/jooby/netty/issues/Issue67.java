@@ -65,7 +65,7 @@ public class Issue67 {
             })
         .run(unit -> {
           NettyOutputStream stream = new NettyOutputStream(new NettyResponse(unit
-              .get(ChannelHandlerContext.class), unit.get(NettyRequest.class), false), unit
+              .get(ChannelHandlerContext.class), false), unit
               .get(ChannelHandlerContext.class), unit.get(ByteBuf.class), false, unit
               .get(HttpHeaders.class));
           stream.write(bytes);

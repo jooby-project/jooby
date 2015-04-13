@@ -3,13 +3,14 @@ package org.jooby.session;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jooby.Session;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
-
-import com.google.common.collect.Sets;
 
 public class SessionWithMaxAgeShouldAlwaysSendHeaderFeature extends ServerFeature {
 
@@ -36,16 +37,15 @@ public class SessionWithMaxAgeShouldAlwaysSendHeaderFeature extends ServerFeatur
   public void shouldRestoreSessionFromCookieID() throws Exception {
     ID.set(null);
 
+    long maxAge = System.currentTimeMillis() + 2 * 1000;
+    // remove seconds to make sure test always work
+    Instant instant = Instant.ofEpochMilli(maxAge);
+
     request()
         .get("/session")
         .expect(200)
-        .header("Set-Cookie", h -> {
-          h = h.replaceAll("Expires[^;]*;", "");
-          assertTrue(h, Sets.newHashSet(
-              "jooby.sid=" + ID.get() + "; Version=1; Path=/; HttpOnly; Max-Age=2",
-              "jooby.sid=" + ID.get() + ";Version=1;Path=/;Max-Age=2;HttpOnly",
-              "jooby.sid=" + ID.get() + "; Max-Age=2; Path=\"/\"; HTTPOnly; Version=1"
-              ).contains(h));
+        .header("Set-Cookie", setCookie -> {
+          assertTrue(setCookie.startsWith(sessionId(ID.get(), instant)));
         });
 
     String existingID = ID.get();
@@ -53,25 +53,15 @@ public class SessionWithMaxAgeShouldAlwaysSendHeaderFeature extends ServerFeatur
     request()
         .get("/session")
         .expect(200)
-        .header("Set-Cookie", h -> {
-          h = h.replaceAll("Expires[^;]*;", "");
-          assertTrue(h, Sets.newHashSet(
-              "jooby.sid=" + ID.get() + "; Version=1; Path=/; HttpOnly; Max-Age=2",
-              "jooby.sid=" + ID.get() + ";Version=1;Path=/;Max-Age=2;HttpOnly",
-              "jooby.sid=" + ID.get() + "; Max-Age=2; Path=\"/\"; HTTPOnly; Version=1"
-              ).contains(h));
+        .header("Set-Cookie", setCookie -> {
+          assertTrue(setCookie.startsWith(sessionId(ID.get(), instant)));
         });
 
     request()
         .get("/session")
         .expect(200)
-        .header("Set-Cookie", h -> {
-          h = h.replaceAll("Expires[^;]*;", "");
-          assertTrue(h, Sets.newHashSet(
-              "jooby.sid=" + ID.get() + "; Version=1; Path=/; HttpOnly; Max-Age=2",
-              "jooby.sid=" + ID.get() + ";Version=1;Path=/;Max-Age=2;HttpOnly",
-              "jooby.sid=" + ID.get() + "; Max-Age=2; Path=\"/\"; HTTPOnly; Version=1"
-              ).contains(h));
+        .header("Set-Cookie", setCookie -> {
+          assertTrue(setCookie.startsWith(sessionId(ID.get(), instant)));
         });
 
     // reset cookies
@@ -79,15 +69,17 @@ public class SessionWithMaxAgeShouldAlwaysSendHeaderFeature extends ServerFeatur
         .resetCookies()
         .get("/session")
         .expect(200)
-        .header("Set-Cookie", h -> {
-          h = h.replaceAll("Expires[^;]*;", "");
+        .header("Set-Cookie", setCookie -> {
           assertNotEquals(ID.get(), existingID);
-          assertTrue(h, Sets.newHashSet(
-              "jooby.sid=" + ID.get() + "; Version=1; Path=/; HttpOnly; Max-Age=2",
-              "jooby.sid=" + ID.get() + ";Version=1;Path=/;Max-Age=2;HttpOnly",
-              "jooby.sid=" + ID.get() + "; Max-Age=2; Path=\"/\"; HTTPOnly; Version=1"
-              ).contains(h));
+          assertTrue(setCookie.startsWith(sessionId(ID.get(), instant)));
         });
+  }
+
+  private String sessionId(final String id, final Instant instant) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E, dd-MMM-yyyy HH:mm")
+        .withZone(ZoneId.of("GMT"));
+    return "jooby.sid=" + id + ";Version=1;Path=/;HttpOnly;Max-Age=2;Expires="
+        + formatter.format(instant);
   }
 
 }

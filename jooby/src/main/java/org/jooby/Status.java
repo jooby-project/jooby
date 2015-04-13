@@ -28,8 +28,8 @@ package org.jooby;
  *
  * @author Arjen Poutsma
  * @see <a href="http://www.iana.org/assignments/http-status-codes">HTTP Status Code Registry</a>
- * @see <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">List of HTTP status codes
- *      - Wikipedia</a>
+ * @see <a href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">List of HTTP status codes -
+ *      Wikipedia</a>
  */
 public enum Status {
 
@@ -56,8 +56,8 @@ public enum Status {
   /**
    * {@code 103 Checkpoint}.
    *
-   * @see <a href="http://code.google.com/p/gears/wiki/ResumableHttpRequestsProposal">A proposal
-   *      for supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
+   * @see <a href="http://code.google.com/p/gears/wiki/ResumableHttpRequestsProposal">A proposal for
+   *      supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
    */
   CHECKPOINT(103, "Checkpoint"),
 
@@ -171,8 +171,8 @@ public enum Status {
   /**
    * {@code 308 Resume Incomplete}.
    *
-   * @see <a href="http://code.google.com/p/gears/wiki/ResumableHttpRequestsProposal">A proposal
-   *      for supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
+   * @see <a href="http://code.google.com/p/gears/wiki/ResumableHttpRequestsProposal">A proposal for
+   *      supporting resumable POST/PUT HTTP requests in HTTP/1.0</a>
    */
   RESUME_INCOMPLETE(308, "Resume Incomplete"),
 
@@ -439,6 +439,14 @@ public enum Status {
   @Override
   public String toString() {
     return reason() + " (" + value + ")";
+  }
+
+  public boolean in(final int min, final int max) {
+    return value >= min && value < max;
+  }
+
+  public boolean redirect() {
+    return in(300, 400);
   }
 
   /**

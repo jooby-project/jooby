@@ -50,6 +50,11 @@ public abstract class ServerFeature extends Jooby {
       void execute(String value) throws Exception;
     }
 
+    public interface ArrayCallback {
+
+      void execute(String[] values) throws Exception;
+    }
+
     public interface ServerCallback {
 
       void execute(Server request) throws Exception;
@@ -252,6 +257,16 @@ public abstract class ServerFeature extends Jooby {
 
       public Response header(final String headerName, final Callback callback) throws Exception {
         callback.execute(rsp.getFirstHeader(headerName).getValue());
+        return this;
+      }
+
+      public Response headers(final String headerName, final ArrayCallback callback) throws Exception {
+        Header[] headers = rsp.getHeaders(headerName);
+        String[] values = new String[headers.length];
+        for (int i = 0; i < values.length; i++) {
+          values[i] = headers[i].getValue();
+        }
+        callback.execute(values);
         return this;
       }
 

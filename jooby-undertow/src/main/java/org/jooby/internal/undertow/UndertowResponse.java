@@ -22,7 +22,7 @@ import static java.util.Objects.requireNonNull;
 import io.undertow.Handlers;
 import io.undertow.io.UndertowOutputStream;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.CookieImpl;
+import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
 
@@ -32,11 +32,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.jooby.Cookie;
 import org.jooby.spi.NativeResponse;
 import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
 
 public class UndertowResponse implements NativeResponse {
 
@@ -50,26 +51,6 @@ public class UndertowResponse implements NativeResponse {
   public UndertowResponse(final HttpServerExchange exchange)
       throws IOException {
     this.exchange = requireNonNull(exchange, "An undertow exchange is required.");
-  }
-
-  @Override
-  public void cookie(final Cookie cookie) {
-    requireNonNull(cookie, "A cookie is required.");
-
-    exchange.getResponseCookies().put(cookie.name(), toUndertowCookie(cookie));
-  }
-
-  @Override
-  public void clearCookie(final String name) {
-    requireNonNull(name, "A cookie's name is required.");
-    // it was set in the current req/rsp call?
-    exchange.getResponseCookies().remove(name);
-
-    // or clear existing cookie
-    Optional.ofNullable(exchange.getRequestCookies().get(name)).ifPresent(cookie -> {
-      cookie.setMaxAge(0);
-      exchange.getResponseCookies().put(name, cookie);
-    });
   }
 
   @Override
@@ -88,6 +69,12 @@ public class UndertowResponse implements NativeResponse {
   @Override
   public void header(final String name, final String value) {
     exchange.getResponseHeaders().put(new HttpString(name), value);
+  }
+
+  @Override
+  public void header(final String name, final Iterable<String> values) {
+    HeaderMap headers = exchange.getResponseHeaders();
+    headers.putAll(new HttpString(name), ImmutableList.copyOf(values));
   }
 
   @Override
@@ -139,18 +126,4 @@ public class UndertowResponse implements NativeResponse {
     exchange.endExchange();
   }
 
-  private io.undertow.server.handlers.Cookie toUndertowCookie(final Cookie cookie) {
-    io.undertow.server.handlers.Cookie result =
-        new CookieImpl(cookie.name(), cookie.value().orElse(null));
-
-    cookie.comment().ifPresent(result::setComment);
-    cookie.domain().ifPresent(result::setDomain);
-    result.setHttpOnly(cookie.httpOnly());
-    result.setMaxAge((int) cookie.maxAge());
-    result.setPath(cookie.path());
-    result.setSecure(cookie.secure());
-    result.setVersion(cookie.version());
-
-    return result;
-  }
 }

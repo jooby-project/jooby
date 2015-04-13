@@ -28,7 +28,9 @@ import java.util.regex.Pattern;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.google.common.base.MoreObjects;
+import org.jooby.internal.CookieImpl;
+
+import com.google.common.base.Strings;
 import com.google.common.io.BaseEncoding;
 
 /**
@@ -99,15 +101,12 @@ public interface Cookie {
      * By default, <code>-1</code> is returned, which indicates that the cookie will persist until
      * browser shutdown.
      */
-    private Long maxAge;
+    private Integer maxAge;
 
     /**
      * Creates a new {@link Definition cookie's definition}.
-     *
-     * @param name Cookie's name.
      */
-    public Definition(final String name) {
-      name(name);
+    protected Definition() {
     }
 
     /**
@@ -138,18 +137,12 @@ public interface Cookie {
     }
 
     /**
-     * Internal use ONLY.
-     */
-    protected Definition() {
-    }
-
-    /**
      * Produces a cookie from current definition.
      *
      * @return A new cookie.
      */
     public Cookie toCookie() {
-      return toCookie(this);
+      return new CookieImpl(this);
     }
 
     @Override
@@ -166,74 +159,6 @@ public interface Cookie {
       }});
       maxAge().ifPresent(maxAge -> buf.append("; MaxAge=").append(maxAge));
       return buf.toString();
-    }
-
-    /**
-     * Produces a cookie from a definition.
-     *
-     * @param cookie A definition.
-     * @return A new cookie.
-     */
-    private static Cookie toCookie(final Definition cookie) {
-      return new Cookie() {
-
-        @Override
-        public String name() {
-          return cookie.name;
-        }
-
-        @Override
-        public Optional<String> value() {
-          return cookie.value();
-        }
-
-        @Override
-        public Optional<String> comment() {
-          return cookie.comment();
-        }
-
-        @Override
-        public Optional<String> domain() {
-          return cookie.domain();
-        }
-
-        @Override
-        public long maxAge() {
-          return cookie.maxAge().orElse(-1L);
-        }
-
-        @Override
-        public String path() {
-          return cookie.path().orElse("/");
-        }
-
-        @Override
-        public boolean secure() {
-          return cookie.secure().orElse(Boolean.FALSE);
-        }
-
-        @Override
-        public int version() {
-          return 1;
-        }
-
-        @Override
-        public boolean httpOnly() {
-          return cookie.httpOnly().orElse(Boolean.FALSE);
-        }
-
-        @Override
-        public String toString() {
-          return MoreObjects.toStringHelper(this)
-              .add("name", name())
-              .add("value", value())
-              .add("domain", domain())
-              .add("path", path())
-              .add("maxAge", maxAge())
-              .add("secure", secure())
-              .toString();
-        }
-      };
     }
 
     /**
@@ -269,7 +194,10 @@ public interface Cookie {
      * @return Cookie's value.
      */
     public Optional<String> value() {
-      return Optional.ofNullable(value);
+      if (Strings.isNullOrEmpty(value)) {
+        return Optional.empty();
+      }
+      return Optional.of(value);
     }
 
     /**
@@ -380,7 +308,7 @@ public interface Cookie {
      *        means the cookie is not stored; if zero, deletes the cookie.
      * @return This definition.
      */
-    public Definition maxAge(final long maxAge) {
+    public Definition maxAge(final int maxAge) {
       this.maxAge = maxAge;
       return this;
     }
@@ -400,7 +328,7 @@ public interface Cookie {
      * </p>
      * @return Cookie's max age in seconds.
      */
-    public Optional<Long> maxAge() {
+    public Optional<Integer> maxAge() {
       return Optional.ofNullable(maxAge);
     }
 
@@ -530,12 +458,12 @@ public interface Cookie {
    * @return An integer specifying the maximum age of the cookie in seconds; if negative, means
    *         the cookie persists until browser shutdown
    */
-  long maxAge();
+  int maxAge();
 
   /**
    * @return Cookie's path.
    */
-  String path();
+  Optional<String> path();
 
   /**
    * Returns <code>true</code> if the browser is sending cookies only over a secure protocol, or
@@ -546,13 +474,12 @@ public interface Cookie {
   boolean secure();
 
   /**
-   * @return Cookie's version.
-   */
-  int version();
-
-  /**
    * @return True if HTTP Only.
    */
   boolean httpOnly();
 
+  /**
+   * @return Encode the cookie.
+   */
+  String encode();
 }

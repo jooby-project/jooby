@@ -187,13 +187,13 @@ public class SessionManager {
     return new Cookie.Definition(this.template).value(sign(session.id()));
   }
 
-  private long seconds(final Config $session, final String name) {
+  private int seconds(final Config $session, final String name) {
     Object value = $session.getAnyRef(name);
     if (value instanceof Number) {
       // it isn't exactly as getDuration. Here the default time unit for number is seconds
-      return ((Number) value).longValue();
+      return ((Number) value).intValue();
     }
-    return $session.getDuration(name, TimeUnit.SECONDS);
+    return (int) $session.getDuration(name, TimeUnit.SECONDS);
   }
 
 }

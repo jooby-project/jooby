@@ -43,7 +43,7 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   public static final AttributeKey<String> PATH =
-      new AttributeKey<String>(NettyHandler.class.getName());
+      AttributeKey.newInstance(NettyHandler.class.getName());
 
   private HttpHandler handler;
 
@@ -79,8 +79,10 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
       boolean keepAlive = HttpHeaders.isKeepAlive(req);
 
       try {
-        NettyRequest nreq = new NettyRequest(ctx, req, tmpdir, wsMaxMessageSize);
-        handler.handle(nreq, new NettyResponse(ctx, nreq, keepAlive));
+        handler.handle(
+            new NettyRequest(ctx, req, tmpdir, wsMaxMessageSize),
+            new NettyResponse(ctx, keepAlive)
+            );
       } catch (Throwable ex) {
         exceptionCaught(ctx, ex);
       }

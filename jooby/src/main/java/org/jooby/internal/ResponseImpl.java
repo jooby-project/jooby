@@ -26,13 +26,12 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import org.jooby.BodyFormatter;
 import org.jooby.Cookie;
@@ -46,6 +45,7 @@ import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.spi.NativeResponse;
+import org.jooby.util.Collectors;
 import org.jooby.util.ExSupplier;
 
 import com.google.common.base.Joiner;
@@ -67,13 +67,9 @@ public class ResponseImpl implements Response {
 
   private BodyConverterSelector selector;
 
-  private SetHeaderImpl setHeader;
-
   private Status status;
 
   private Map<String, Cookie> cookies = new HashMap<>();
-
-  private List<String> clearCookies = new ArrayList<>();
 
   private int maxBufferSize;
 
@@ -87,11 +83,6 @@ public class ResponseImpl implements Response {
     this.locals = requireNonNull(locals, "Request locals are required.");
 
     this.selector = injector.getInstance(BodyConverterSelector.class);
-    this.setHeader = new SetHeaderImpl((name, value) -> {
-      if (!committed()) {
-        rsp.header(name, value);
-      }
-    });
     this.charset = requireNonNull(charset, "A charset is required.");
     this.referer = requireNonNull(referer, "A referer header is required.");
   }
@@ -122,8 +113,10 @@ public class ResponseImpl implements Response {
   @Override
   public Response clearCookie(final String name) {
     requireNonNull(name, "A cookie's name is required.");
-    cookies.remove(name);
-    clearCookies.add(name);
+    if (cookies.remove(name) == null) {
+      // cookie was set in a previous req, we must send a expire header.
+      cookies.put(name, new Cookie.Definition(name, "").maxAge(0).toCookie());
+    }
     return this;
   }
 
@@ -134,57 +127,19 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public Response header(final String name, final char value) {
-    setHeader.header(name, value);
-    return this;
+  public Response header(final String name, final Object value) {
+    requireNonNull(name, "Header's name is required.");
+    requireNonNull(value, "Header's value is required.");
+
+    return setHeader(name, value);
   }
 
   @Override
-  public Response header(final String name, final byte value) {
-    setHeader.header(name, value);
-    return this;
-  }
+  public Response header(final String name, final Iterable<Object> values) {
+    requireNonNull(name, "Header's name is required.");
+    requireNonNull(values, "Header's values are required.");
 
-  @Override
-  public Response header(final String name, final short value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  @Override
-  public Response header(final String name, final int value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  @Override
-  public Response header(final String name, final long value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  @Override
-  public Response header(final String name, final float value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  @Override
-  public Response header(final String name, final double value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  @Override
-  public Response header(final String name, final CharSequence value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  @Override
-  public Response header(final String name, final Date value) {
-    setHeader.header(name, value);
-    return this;
+    return setHeader(name, values);
   }
 
   @Override
@@ -201,7 +156,7 @@ public class ResponseImpl implements Response {
 
   @Override
   public Response length(final long length) {
-    setHeader.header("Content-Length", length);
+    rsp.header("Content-Length", Headers.encode(length));
     return this;
   }
 
@@ -315,17 +270,11 @@ public class ResponseImpl implements Response {
 
     status(result.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
 
-    result.headers().forEach((name, value) -> {
-      // reset back header while doing a redirect
-        if ("location".equalsIgnoreCase(name) && "back".equalsIgnoreCase(value)
-            && status().map(s -> s.value() >= 300 && s.value() < 400).orElse(false)) {
-          header(name, referer.orElse("/"));
-        } else {
-          header(name, value);
-        }
-      });
-
     writeCookies();
+
+    result.headers().forEach((name, value) -> {
+      header(name, value);
+    });
 
     if (route.method().equals("HEAD")) {
       end();
@@ -364,20 +313,16 @@ public class ResponseImpl implements Response {
   }
 
   private void writeCookies() {
-    this.cookies.forEach((name, cookie) -> rsp.cookie(cookie));
-    this.clearCookies.forEach(rsp::clearCookie);
+    if (cookies.size() > 0) {
+      rsp.header("Set-Cookie",
+          cookies.values().stream().map(Cookie::encode).collect(Collectors.toList()));
+    }
     this.cookies.clear();
-    this.clearCookies.clear();
-  }
-
-  public List<MediaType> viewableTypes() {
-    return selector.viewableTypes();
   }
 
   public void reset() {
     status = null;
     this.cookies.clear();
-    this.clearCookies.clear();
     rsp.reset();
   }
 
@@ -392,6 +337,26 @@ public class ResponseImpl implements Response {
       basename = basename.substring(last + 1);
     }
     header("Content-Disposition", "attachment; filename=" + basename);
+  }
+
+  @SuppressWarnings("unchecked")
+  private Response setHeader(final String name, final Object value) {
+    if (!committed()) {
+      if (value instanceof Iterable) {
+        List<String> values = StreamSupport.stream(((Iterable<Object>) value).spliterator(), false)
+            .map(Headers::encode)
+            .collect(Collectors.toList());
+        rsp.header(name, values);
+      } else {
+        if ("location".equalsIgnoreCase(name) && "back".equalsIgnoreCase(value.toString())) {
+          rsp.header(name, referer.orElse("/"));
+        } else {
+          rsp.header(name, Headers.encode(value));
+        }
+      }
+    }
+
+    return this;
   }
 
 }

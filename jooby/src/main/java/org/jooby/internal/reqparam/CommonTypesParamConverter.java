@@ -23,12 +23,12 @@ import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.jooby.ParamConverter;
+import org.jooby.internal.Headers;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.TypeLiteral;
@@ -91,8 +91,7 @@ public class CommonTypesParamConverter implements ParamConverter {
     } catch (NumberFormatException ex) {
       // long as date, like If-Modified-Since
       try {
-        DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
-        LocalDateTime date = LocalDateTime.parse(value, formatter);
+        LocalDateTime date = LocalDateTime.parse(value, Headers.fmt);
         Instant instant = date.toInstant(ZoneOffset.UTC);
         return instant.toEpochMilli();
       } catch (DateTimeParseException ignored) {

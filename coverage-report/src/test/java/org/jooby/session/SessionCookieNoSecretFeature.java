@@ -3,8 +3,7 @@ package org.jooby.session;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -33,9 +32,10 @@ public class SessionCookieNoSecretFeature extends ServerFeature {
   public void cookieConfig() throws Exception {
     long maxAge = System.currentTimeMillis() + 60 * 1000;
     // remove seconds to make sure test always work
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, dd-MMM-yyyy HH:mm");
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E, dd-MMM-yyyy HH:mm")
+        .withZone(ZoneId.of("GMT"));
     Instant instant = Instant.ofEpochMilli(maxAge);
-    OffsetDateTime utc = instant.atOffset(ZoneOffset.UTC);
+
     request()
         .get("/session")
         .expect(200)
@@ -47,12 +47,8 @@ public class SessionCookieNoSecretFeature extends ServerFeature {
           assertTrue(setCookie.remove("HttpOnly") || setCookie.remove("HTTPOnly"));
           assertTrue(setCookie.remove("Max-Age=60"));
           assertTrue(setCookie.remove("Version=1"));
-          setCookie.remove("Comment=\"jooby cookie\"");
-          if (setCookie.size() > 0) {
-            // Expires is optional on version=1?
-            assertTrue(setCookie.remove(0).startsWith(
-                "Expires=" + formatter.format(utc).replace("GMT", "")));
-          }
+          assertTrue(setCookie.remove(0).startsWith(
+              "Expires=" + formatter.format(instant).replace("GMT", "")));
         });
 
   }

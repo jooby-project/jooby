@@ -21,22 +21,17 @@ package org.jooby.internal.netty;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.DefaultCookie;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.ServerCookieEncoder;
 import io.netty.util.Attribute;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.jooby.spi.NativeResponse;
@@ -47,40 +42,18 @@ public class NettyResponse implements NativeResponse {
 
   private ChannelHandlerContext ctx;
 
-  private NettyRequest req;
-
   private boolean keepAlive;
 
   HttpResponseStatus status = HttpResponseStatus.OK;
-
-  private Map<String, Cookie> cookies = new HashMap<>();
 
   HttpHeaders headers;
 
   private NettyOutputStream out;
 
-  public NettyResponse(final ChannelHandlerContext ctx, final NettyRequest req,
-      final boolean keepAlive) {
+  public NettyResponse(final ChannelHandlerContext ctx, final boolean keepAlive) {
     this.ctx = ctx;
-    this.req = req;
     this.keepAlive = keepAlive;
     this.headers = new DefaultHttpHeaders();
-  }
-
-  @Override
-  public void cookie(final org.jooby.Cookie cookie) {
-    cookies.put(cookie.name(), toCookie(cookie));
-  }
-
-  @Override
-  public void clearCookie(final String name) {
-    cookies.remove(name);
-    req.cookies().stream().filter(c -> c.name().equals(name)).findFirst().ifPresent(c -> {
-      Cookie cookie = toCookie(c);
-      cookie.setMaxAge(0);
-      cookies.put(name, cookie);
-    });
-
   }
 
   @Override
@@ -101,12 +74,14 @@ public class NettyResponse implements NativeResponse {
   }
 
   @Override
+  public void header(final String name, final Iterable<String> values) {
+    headers.remove(name);
+    headers.add(name, values);
+  }
+
+  @Override
   public OutputStream out(final int bufferSize) throws IOException {
     if (out == null) {
-      if (cookies.size() > 0) {
-        headers.set(HttpHeaders.Names.SET_COOKIE,
-            ServerCookieEncoder.encode(cookies.values()));
-      }
       out = new NettyOutputStream(this, ctx, Unpooled.buffer(0, bufferSize), keepAlive, headers);
     }
     return out;
@@ -144,10 +119,6 @@ public class NettyResponse implements NativeResponse {
         return;
       }
       if (out == null) {
-        if (cookies.size() > 0) {
-          headers.set(HttpHeaders.Names.SET_COOKIE,
-              ServerCookieEncoder.encode(cookies.values()));
-        }
         DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status);
         rsp.headers().set(headers);
         if (headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
@@ -171,26 +142,6 @@ public class NettyResponse implements NativeResponse {
     if (out != null) {
       out.reset();
     }
-  }
-
-  private Cookie toCookie(final org.jooby.Cookie cookie) {
-    Cookie result =
-        new DefaultCookie(cookie.name(), cookie.value().orElse(null));
-
-    cookie.comment().ifPresent(result::setComment);
-    cookie.domain().ifPresent(result::setDomain);
-    result.setHttpOnly(cookie.httpOnly());
-    long maxAge = cookie.maxAge();
-    if (maxAge >= 0) {
-      result.setMaxAge(maxAge);
-    } else {
-      result.setMaxAge(Long.MIN_VALUE);
-    }
-    result.setPath(cookie.path());
-    result.setSecure(cookie.secure());
-    result.setVersion(cookie.version());
-
-    return result;
   }
 
 }

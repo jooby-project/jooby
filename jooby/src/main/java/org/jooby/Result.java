@@ -20,18 +20,14 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import org.jooby.internal.SetHeaderImpl;
-
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Utility class for HTTP responses. Usually you start with a result builder {@link Results} and
@@ -75,10 +71,7 @@ import com.google.common.collect.ImmutableMap;
 public class Result {
 
   /** Response headers. */
-  private Map<String, String> headers = new LinkedHashMap<>();
-
-  /** Response header setter. */
-  private SetHeaderImpl setHeader = new SetHeaderImpl((name, value) -> headers.put(name, value));
+  private Map<String, Object> headers = new LinkedHashMap<>();
 
   /** Response status. */
   private Status status;
@@ -168,10 +161,10 @@ public class Result {
   }
 
   /**
-   * @return Raw headers for content.
+   * @return headers for content.
    */
-  public Map<String, String> headers() {
-    return ImmutableMap.copyOf(headers);
+  public Map<String, Object> headers() {
+    return headers;
   }
 
   /**
@@ -225,8 +218,11 @@ public class Result {
    * @param value Header's value.
    * @return This content.
    */
-  public Result header(final String name, final char value) {
-    setHeader.header(name, value);
+  public Result header(final String name, final Object value) {
+    requireNonNull(name, "Header's name is required.");
+    requireNonNull(value, "Header's value is required.");
+
+    headers.put(name, value);
     return this;
   }
 
@@ -235,102 +231,14 @@ public class Result {
    * the new value overwrites the previous one.
    *
    * @param name Header's name.
-   * @param value Header's value.
+   * @param values Header's values.
    * @return This content.
    */
-  public Result header(final String name, final byte value) {
-    setHeader.header(name, value);
-    return this;
-  }
+  public Result header(final String name, final Iterable<Object> values) {
+    requireNonNull(name, "Header's name is required.");
+    requireNonNull(values, "Header's values are required.");
 
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This content.
-   */
-  public Result header(final String name, final short value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This content.
-   */
-  public Result header(final String name, final int value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This content.
-   */
-  public Result header(final String name, final long value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This content.
-   */
-  public Result header(final String name, final float value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This content.
-   */
-  public Result header(final String name, final double value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This content.
-   */
-  public Result header(final String name, final CharSequence value) {
-    setHeader.header(name, value);
-    return this;
-  }
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This content.
-   */
-  public Result header(final String name, final Date value) {
-    setHeader.header(name, value);
+    headers.put(name, values);
     return this;
   }
 

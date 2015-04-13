@@ -8,7 +8,6 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.Optional;
 
@@ -45,47 +44,12 @@ public class ResponseTest {
     }
 
     @Override
-    public Response header(final String name, final char value) {
+    public Response header(final String name, final Object value) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Response header(final String name, final byte value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Response header(final String name, final short value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Response header(final String name, final int value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Response header(final String name, final long value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Response header(final String name, final float value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Response header(final String name, final double value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Response header(final String name, final CharSequence value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Response header(final String name, final Date value) {
+    public Response header(final String name, final Iterable<Object> values) {
       throw new UnsupportedOperationException();
     }
 
@@ -308,7 +272,7 @@ public class ResponseTest {
     File resource = file("src/test/resources/org/jooby/ResponseTest.js");
     new ResponseMock() {
       @Override
-      public Response header(final String name, final long value) {
+      public Response header(final String name, final Object value) {
         dataList.add(name);
         dataList.add(value);
         return this;
@@ -345,7 +309,7 @@ public class ResponseTest {
     File resource = file("src/test/resources/org/jooby/ResponseTest.js");
     new ResponseMock() {
       @Override
-      public Response header(final String name, final long value) {
+      public Response header(final String name, final Object value) {
         dataList.add(name);
         dataList.add(value);
         return this;

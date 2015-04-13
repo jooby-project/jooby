@@ -24,7 +24,7 @@ public class CookieDefinitionTest {
 
   @Test
   public void newNamedCookieDef() {
-    Definition def = new Cookie.Definition("name");
+    Definition def = new Cookie.Definition("name", "");
     assertEquals("name", def.name().get());
     assertEquals("name", def.toCookie().name());
     assertEquals(Optional.empty(), def.comment());
@@ -38,7 +38,7 @@ public class CookieDefinitionTest {
 
   @Test(expected = NullPointerException.class)
   public void newNullNameCookieDef() {
-    new Cookie.Definition((String) null);
+    new Cookie.Definition(null, "x");
   }
 
   @Test
@@ -62,7 +62,7 @@ public class CookieDefinitionTest {
 
   @Test
   public void cookieWithComment() {
-    Definition def = new Cookie.Definition("name");
+    Definition def = new Cookie.Definition("name", "c");
     assertEquals(Optional.empty(), def.comment());
     assertEquals("a comment", def.comment("a comment").comment().get());
     assertEquals("a comment", def.toCookie().comment().get());
@@ -70,7 +70,7 @@ public class CookieDefinitionTest {
 
   @Test
   public void cookieWithDomain() {
-    Definition def = new Cookie.Definition("name");
+    Definition def = new Cookie.Definition("name", "");
     assertEquals(Optional.empty(), def.domain());
     assertEquals("jooby.org", def.domain("jooby.org").domain().get());
     assertEquals("jooby.org", def.toCookie().domain().get());
@@ -78,7 +78,7 @@ public class CookieDefinitionTest {
 
   @Test
   public void cookieHttpOnly() {
-    Definition def = new Cookie.Definition("name");
+    Definition def = new Cookie.Definition("name", "x");
     assertEquals(Optional.empty(), def.httpOnly());
     assertEquals(true, def.httpOnly(true).httpOnly().get());
     assertEquals(true, def.toCookie().httpOnly());
@@ -86,29 +86,23 @@ public class CookieDefinitionTest {
 
   @Test
   public void cookieMaxAge() {
-    Definition def = new Cookie.Definition("name");
+    Definition def = new Cookie.Definition("name", "s");
     assertEquals(Optional.empty(), def.maxAge());
     assertEquals(123L, (long) def.maxAge(123).maxAge().get());
     assertEquals(123, def.toCookie().maxAge());
   }
 
   @Test
-  public void cookieVersion() {
-    Definition def = new Cookie.Definition("name");
-    assertEquals(1, def.toCookie().version());
-  }
-
-  @Test
   public void cookiePath() {
-    Definition def = new Cookie.Definition("name");
+    Definition def = new Cookie.Definition("name", "x");
     assertEquals(Optional.empty(), def.path());
     assertEquals("/", def.path("/").path().get());
-    assertEquals("/", def.toCookie().path());
+    assertEquals("/", def.toCookie().path().get());
   }
 
   @Test
   public void cookieSecure() {
-    Definition def = new Cookie.Definition("name");
+    Definition def = new Cookie.Definition("name", "q");
     assertEquals(Optional.empty(), def.secure());
     assertEquals(true, def.secure(true).secure().get());
     assertEquals(true, def.toCookie().secure());

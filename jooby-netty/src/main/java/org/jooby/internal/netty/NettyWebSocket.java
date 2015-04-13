@@ -43,7 +43,7 @@ import org.jooby.spi.NativeWebSocket;
 public class NettyWebSocket implements NativeWebSocket {
 
   public static final AttributeKey<NettyWebSocket> KEY =
-      new AttributeKey<NettyWebSocket>(NettyWebSocket.class.getName());
+      AttributeKey.newInstance(NettyWebSocket.class.getName());
 
   private ChannelHandlerContext ctx;
 

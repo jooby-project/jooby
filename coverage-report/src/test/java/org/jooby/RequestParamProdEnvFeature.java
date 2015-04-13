@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import javax.inject.Named;
 
-import org.jooby.Cookie;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
@@ -320,14 +319,12 @@ public class RequestParamProdEnvFeature extends ServerFeature {
     request()
         .get("/cookie")
         .header("Cookie", "galleta=galleta")
-        .expect(
-            "{name=galleta, value=Optional[galleta], domain=Optional.empty, path=/, maxAge=-1, secure=false}");
+        .expect("galleta=galleta;Version=1");
 
     request()
         .get("/ocookie")
         .header("Cookie", "galleta=galleta")
-        .expect(
-            "Optional[{name=galleta, value=Optional[galleta], domain=Optional.empty, path=/, maxAge=-1, secure=false}]");
+        .expect("Optional[galleta=galleta;Version=1]");
 
   }
 

@@ -23,8 +23,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
 
-import org.jooby.Cookie;
-
 /**
  * Minimal/basic implementation of HTTP request. A server implementor must provide an implementation
  * of {@link NativeResponse}.
@@ -33,20 +31,6 @@ import org.jooby.Cookie;
  * @since 0.5.0
  */
 public interface NativeResponse {
-
-  /**
-   * Set a response cookie.
-   *
-   * @param cookie A cookie to add.
-   */
-  void cookie(Cookie cookie);
-
-  /**
-   * Clear a cookie and force a client to expire and delete it.
-   *
-   * @param name Cookie's name.
-   */
-  void clearCookie(String name);
 
   /**
    * Get a response header (previously set).
@@ -63,6 +47,14 @@ public interface NativeResponse {
    * @return All the response headers.
    */
   List<String> headers(String name);
+
+  /**
+   * Set a response header.
+   *
+   * @param name Header's name.
+   * @param values Header's values.
+   */
+  void header(String name, Iterable<String> values);
 
   /**
    * Set a response header.

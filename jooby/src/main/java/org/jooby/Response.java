@@ -28,10 +28,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
-import java.util.Date;
 import java.util.Optional;
 
 import org.jooby.Cookie.Definition;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * Give you access to the actual HTTP response. You can read/write headers and write HTTP body.
@@ -121,56 +122,20 @@ public interface Response {
     }
 
     @Override
-    public Response header(final String name, final byte value) {
+    public Response header(final String name, final Object value) {
       rsp.header(name, value);
       return this;
     }
 
     @Override
-    public Response header(final String name, final char value) {
-      rsp.header(name, value);
+    public Response header(final String name, final Object... values) {
+      rsp.header(name, values);
       return this;
     }
 
     @Override
-    public Response header(final String name, final Date value) {
-      rsp.header(name, value);
-      return this;
-    }
-
-    @Override
-    public Response header(final String name, final double value) {
-      rsp.header(name, value);
-      return this;
-    }
-
-    @Override
-    public Response header(final String name, final float value) {
-      rsp.header(name, value);
-      return this;
-    }
-
-    @Override
-    public Response header(final String name, final int value) {
-      rsp.header(name, value);
-      return this;
-    }
-
-    @Override
-    public Response header(final String name, final long value) {
-      rsp.header(name, value);
-      return this;
-    }
-
-    @Override
-    public Response header(final String name, final short value) {
-      rsp.header(name, value);
-      return this;
-    }
-
-    @Override
-    public Response header(final String name, final CharSequence value) {
-      rsp.header(name, value);
+    public Response header(final String name, final Iterable<Object> values) {
+      rsp.header(name, values);
       return this;
     }
 
@@ -423,87 +388,29 @@ public interface Response {
    * @param value Header's value.
    * @return This response.
    */
-  Response header(String name, char value);
+  Response header(String name, Object value);
 
   /**
    * Sets a response header with the given name and value. If the header had already been set,
    * the new value overwrites the previous one.
    *
    * @param name Header's name.
-   * @param value Header's value.
+   * @param values Header's value.
    * @return This response.
    */
-  Response header(String name, byte value);
+  default Response header(final String name, final Object... values) {
+    return header(name, ImmutableList.builder().add(values).build());
+  }
 
   /**
    * Sets a response header with the given name and value. If the header had already been set,
    * the new value overwrites the previous one.
    *
    * @param name Header's name.
-   * @param value Header's value.
+   * @param values Header's value.
    * @return This response.
    */
-  Response header(String name, short value);
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This response.
-   */
-  Response header(String name, int value);
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This response.
-   */
-  Response header(String name, long value);
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This response.
-   */
-  Response header(String name, float value);
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This response.
-   */
-  Response header(String name, double value);
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This response.
-   */
-  Response header(String name, CharSequence value);
-
-  /**
-   * Sets a response header with the given name and value. If the header had already been set,
-   * the new value overwrites the previous one.
-   *
-   * @param name Header's name.
-   * @param value Header's value.
-   * @return This response.
-   */
-  Response header(String name, Date value);
+  Response header(String name, Iterable<Object> values);
 
   /**
    * If charset is not set this method returns charset defined in the request body. If the request

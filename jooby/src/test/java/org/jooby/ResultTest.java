@@ -106,13 +106,13 @@ public class ResultTest {
         .header("double", 8d)
         .header("date", new Date());
 
-    assertEquals("c", result.headers().get("char"));
-    assertEquals("3", result.headers().get("byte"));
-    assertEquals("4", result.headers().get("short"));
-    assertEquals("5", result.headers().get("int"));
-    assertEquals("6", result.headers().get("long"));
-    assertEquals("7.0", result.headers().get("float"));
-    assertEquals("8.0", result.headers().get("double"));
+    assertEquals('c', result.headers().get("char"));
+    assertEquals((byte) 3, result.headers().get("byte"));
+    assertEquals((short) 4, result.headers().get("short"));
+    assertEquals(5, result.headers().get("int"));
+    assertEquals((long) 6, result.headers().get("long"));
+    assertEquals(7.0f, result.headers().get("float"));
+    assertEquals(8.0d, result.headers().get("double"));
     assertNotNull(result.headers().get("date"));
   }
 

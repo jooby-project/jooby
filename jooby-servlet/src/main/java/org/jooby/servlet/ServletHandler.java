@@ -62,7 +62,7 @@ public class ServletHandler extends HttpServlet {
     try {
       dispatcher.handle(
           new ServletServletRequest(req, tmpdir),
-          new ServletServletResponse(req, rsp));
+          new ServletServletResponse(rsp));
     } catch (IOException | ServletException | RuntimeException ex) {
       log.error("execution of: " + req.getRequestURI() + " resulted in error", ex);
       throw ex;

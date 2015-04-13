@@ -20,7 +20,6 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -29,10 +28,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.jooby.BodyFormatter;
-import org.jooby.MediaType;
 import org.jooby.BodyParser;
+import org.jooby.MediaType;
 import org.jooby.View;
-import org.jooby.util.Collectors;
 
 import com.google.inject.TypeLiteral;
 
@@ -67,8 +65,6 @@ public class BodyConverterSelector {
 
   private final Set<BodyParser> parsers;
 
-  private List<MediaType> viewableTypes;
-
   /**
    * Creates a new {@link BodyConverterSelector}.
    *
@@ -80,13 +76,6 @@ public class BodyConverterSelector {
       final Set<BodyFormatter> formatters) {
     this.parsers = requireNonNull(parsers, "The parsers is required.");
     this.formatters = requireNonNull(formatters, "The formatters is required.");
-    this.viewableTypes = this.formatters.stream().filter(View.Engine.class::isInstance)
-        .flatMap(engine -> engine.types().stream())
-        .collect(Collectors.toList());
-  }
-
-  public List<MediaType> viewableTypes() {
-    return viewableTypes;
   }
 
   public Optional<BodyParser> parser(final TypeLiteral<?> type,
