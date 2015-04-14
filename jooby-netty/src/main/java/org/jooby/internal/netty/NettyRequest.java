@@ -18,6 +18,7 @@
  */
 package org.jooby.internal.netty;
 
+import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
@@ -184,7 +185,9 @@ public class NettyRequest implements NativeRequest {
     WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(req);
     NettyWebSocket result = new NettyWebSocket(ctx, handshaker, (ws) -> {
       handshaker.handshake(ctx.channel(), (FullHttpRequest) req)
-          .addListener(payload -> ws.connect());
+          .addListener(FIRE_EXCEPTION_ON_FAILURE)
+          .addListener(payload -> ws.connect())
+          .addListener(FIRE_EXCEPTION_ON_FAILURE);
     });
     ctx.attr(NettyWebSocket.KEY).set(result);
     return (T) result;

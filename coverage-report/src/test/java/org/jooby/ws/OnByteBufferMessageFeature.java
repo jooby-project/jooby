@@ -23,15 +23,12 @@ public class OnByteBufferMessageFeature extends ServerFeature {
     ws("/onBinaryMessage/buffer", (ws) -> {
 
       ws.onMessage(message -> {
-        System.out.println("on message");
         String bytes = "=" + new String(message.to(byte[].class));
         ws.send(ByteBuffer.wrap(bytes.getBytes()), () -> {
-          System.out.println("closing server");
           ws.close();
         });
       });
 
-      System.out.println("server open");
     });
 
   }
@@ -52,7 +49,7 @@ public class OnByteBufferMessageFeature extends ServerFeature {
   public void sendBinaryMessageBuffer() throws Exception {
     LinkedList<Object> messages = new LinkedList<>();
 
-    CountDownLatch latch = new CountDownLatch(1);
+    CountDownLatch latch = new CountDownLatch(3);
 
     client.prepareGet(ws("onBinaryMessage", "buffer").toString())
         .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(
@@ -65,17 +62,17 @@ public class OnByteBufferMessageFeature extends ServerFeature {
               @Override
               public void onMessage(final byte[] message) {
                 messages.add(message);
+                latch.countDown();
               }
 
               @Override
               public void onOpen(final WebSocket websocket) {
-                System.out.println("on open");
                 websocket.sendMessage("hey!".getBytes());
+                latch.countDown();
               }
 
               @Override
               public void onClose(final WebSocket websocket) {
-                System.out.println("closing client");
                 latch.countDown();
               }
 

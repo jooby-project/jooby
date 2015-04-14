@@ -50,7 +50,7 @@ public class OnDirectByteBufferMessageFeature extends ServerFeature {
   public void sendBinaryMessageBufferDirect() throws Exception {
     LinkedList<Object> messages = new LinkedList<>();
 
-    CountDownLatch latch = new CountDownLatch(1);
+    CountDownLatch latch = new CountDownLatch(3);
 
     client.prepareGet(ws("onBinaryMessage", "buffer", "direct").toString())
         .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(
@@ -63,11 +63,13 @@ public class OnDirectByteBufferMessageFeature extends ServerFeature {
               @Override
               public void onMessage(final byte[] message) {
                 messages.add(message);
+                latch.countDown();
               }
 
               @Override
               public void onOpen(final WebSocket websocket) {
                 websocket.sendMessage("hey!".getBytes());
+                latch.countDown();
               }
 
               @Override

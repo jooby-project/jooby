@@ -125,7 +125,7 @@ public class NettyWebSocket implements NativeWebSocket {
   @Override
   public void send(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
     ByteBuf buffer = Unpooled.copiedBuffer(data);
-    ctx.channel().write(new BinaryWebSocketFrame(buffer)).addListener(future -> {
+    ctx.channel().writeAndFlush(new BinaryWebSocketFrame(buffer)).addListener(future -> {
       if (future.isSuccess()) {
         success.invoke();
       } else {
@@ -136,7 +136,7 @@ public class NettyWebSocket implements NativeWebSocket {
 
   @Override
   public void send(final String data, final SuccessCallback success, final ErrCallback err) {
-    ctx.channel().write(new TextWebSocketFrame(data)).addListener(future -> {
+    ctx.channel().writeAndFlush(new TextWebSocketFrame(data)).addListener(future -> {
       if (future.isSuccess()) {
         success.invoke();
       } else {
