@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import javax.servlet.http.Part;
 
@@ -57,11 +56,6 @@ public class ServletUpload implements NativeUpload {
   @Override
   public String name() {
     return upload.getSubmittedFileName();
-  }
-
-  @Override
-  public Optional<String> header(final String name) {
-    return Optional.ofNullable(upload.getHeader(name));
   }
 
   @Override

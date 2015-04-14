@@ -55,8 +55,7 @@ public class NettyUpload implements NativeUpload {
     return data.getFilename();
   }
 
-  @Override
-  public Optional<String> header(final String name) {
+  private Optional<String> header(final String name) {
     switch (name.toLowerCase()) {
       case "content-transfer-encoding":
         return Optional.of(data.getContentTransferEncoding());

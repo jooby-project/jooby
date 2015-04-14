@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import org.jooby.spi.NativeUpload;
 
@@ -46,11 +45,6 @@ public class UndertowUpload implements NativeUpload {
   @Override
   public String name() {
     return value.getFileName();
-  }
-
-  @Override
-  public Optional<String> header(final String name) {
-    return Optional.ofNullable(value.getHeaders().getFirst(name));
   }
 
   @Override

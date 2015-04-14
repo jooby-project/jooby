@@ -22,7 +22,6 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * File upload from multipart/form-data post.
@@ -36,14 +35,6 @@ public interface NativeUpload extends Closeable {
    * @return File name.
    */
   String name();
-
-  /**
-   * File header, like <code>Content-Type</code>, <code>Content-Transfer-Encoding</code>, etc.
-   *
-   * @param name Header's name.
-   * @return A header value or empty optional.
-   */
-  Optional<String> header(String name);
 
   /**
    * Get all the file headers for the given name.
