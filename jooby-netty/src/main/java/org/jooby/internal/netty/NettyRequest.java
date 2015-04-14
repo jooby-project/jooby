@@ -195,13 +195,6 @@ public class NettyRequest implements NativeRequest {
     Optional.ofNullable(c.getComment()).ifPresent(cookie::comment);
     Optional.ofNullable(c.getDomain()).ifPresent(cookie::domain);
     Optional.ofNullable(c.getPath()).ifPresent(cookie::path);
-    Optional.ofNullable(c.getMaxAge()).ifPresent(maxAge -> {
-      if (maxAge >= 0) {
-        cookie.maxAge(0);
-      }
-    });
-    cookie.httpOnly(c.isHttpOnly());
-    cookie.secure(c.isSecure());
 
     return cookie.toCookie();
   }

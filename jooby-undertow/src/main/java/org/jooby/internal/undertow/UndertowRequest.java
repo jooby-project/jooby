@@ -221,9 +221,6 @@ public class UndertowRequest implements NativeRequest {
     Optional.ofNullable(c.getComment()).ifPresent(cookie::comment);
     Optional.ofNullable(c.getDomain()).ifPresent(cookie::domain);
     Optional.ofNullable(c.getPath()).ifPresent(cookie::path);
-    Optional.ofNullable(c.getMaxAge()).ifPresent(cookie::maxAge);
-    cookie.httpOnly(c.isHttpOnly());
-    cookie.secure(c.isSecure());
 
     return cookie.toCookie();
   }

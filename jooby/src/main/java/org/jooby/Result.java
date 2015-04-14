@@ -234,6 +234,21 @@ public class Result {
    * @param values Header's values.
    * @return This content.
    */
+  public Result header(final String name, final Object... values) {
+    requireNonNull(name, "Header's name is required.");
+    requireNonNull(values, "Header's values are required.");
+
+    return header(name, ImmutableList.copyOf(values));
+  }
+
+  /**
+   * Sets a response header with the given name and value. If the header had already been set,
+   * the new value overwrites the previous one.
+   *
+   * @param name Header's name.
+   * @param values Header's values.
+   * @return This content.
+   */
   public Result header(final String name, final Iterable<Object> values) {
     requireNonNull(name, "Header's name is required.");
     requireNonNull(values, "Header's values are required.");

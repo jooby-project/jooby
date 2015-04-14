@@ -96,13 +96,11 @@ public class ServletServletRequest implements NativeRequest {
 
   @Override
   public List<String> params(final String name) throws Exception {
-    ImmutableList.Builder<String> builder = ImmutableList.builder();
     String[] values = req.getParameterValues(name);
-    if (values != null) {
-      builder.add(values);
+    if (values == null) {
+      return Collections.emptyList();
     }
-    return values == null || values.length == 0
-        ? Collections.emptyList() : ImmutableList.copyOf(values);
+    return ImmutableList.copyOf(values);
   }
 
   @Override
@@ -132,9 +130,6 @@ public class ServletServletRequest implements NativeRequest {
           Optional.ofNullable(c.getComment()).ifPresent(cookie::comment);
           Optional.ofNullable(c.getDomain()).ifPresent(cookie::domain);
           Optional.ofNullable(c.getPath()).ifPresent(cookie::path);
-          cookie.httpOnly(c.isHttpOnly());
-          cookie.maxAge(c.getMaxAge());
-          cookie.secure(c.getSecure());
 
           return cookie.toCookie();
         })
@@ -152,7 +147,7 @@ public class ServletServletRequest implements NativeRequest {
       }
       return Collections.emptyList();
     } catch (ServletException ex) {
-      throw new IOException("No file found for " + name, ex);
+      throw new IOException("File not found: " + name, ex);
     }
   }
 

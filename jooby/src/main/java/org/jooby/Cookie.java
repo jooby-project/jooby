@@ -20,8 +20,6 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -147,18 +145,7 @@ public interface Cookie {
 
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder();
-      buf.append(name).append("=");
-      value().ifPresent(buf::append);
-      path().ifPresent(p -> buf.append("; path=").append(p));
-      httpOnly().ifPresent(httpOnly -> {if (httpOnly) {
-        buf.append("; HttpOnly");
-      }});
-      secure().ifPresent(secure -> {if (secure) {
-        buf.append("; secure");
-      }});
-      maxAge().ifPresent(maxAge -> buf.append("; MaxAge=").append(maxAge));
-      return buf.toString();
+      return toCookie().encode();
     }
 
     /**
@@ -348,7 +335,7 @@ public interface Cookie {
    * @author edgar
    * @since 0.1.0
    */
-  class Signature {
+  public class Signature {
 
     /** Remove trailing '='. */
     private static final Pattern EQ = Pattern.compile("=+$");
@@ -381,16 +368,9 @@ public interface Cookie {
         mac.init(new SecretKeySpec(secret.getBytes(), HMAC_SHA256));
         byte[] bytes = mac.doFinal(value.getBytes());
         return value + SEP + EQ.matcher(BaseEncoding.base64().encode(bytes)).replaceAll("");
-      } catch (NoSuchAlgorithmException | InvalidKeyException ex) {
-        throw asRuntimeException(ex);
+      } catch (Exception ex) {
+        throw new IllegalArgumentException("Can't sing value", ex);
       }
-    }
-
-    private static RuntimeException asRuntimeException(final Exception ex) {
-      IllegalStateException rex = new IllegalStateException(ex.getClass().getSimpleName() + ": "
-          + ex.getMessage());
-      rex.setStackTrace(ex.getStackTrace());
-      return rex;
     }
 
     /**

@@ -435,10 +435,12 @@ public class RequestForwardingTest {
           Request req = unit.get(Request.class);
           expect(req.set(TypeLiteral.get(String.class), "value")).andReturn(req);
         })
-        .run(unit -> {
-          assertNotEquals(unit.get(Request.class),
-              new Request.Forwarding(unit.get(Request.class)).set(TypeLiteral.get(String.class), "value"));
-        });
+        .run(
+            unit -> {
+              assertNotEquals(unit.get(Request.class),
+                  new Request.Forwarding(unit.get(Request.class)).set(
+                      TypeLiteral.get(String.class), "value"));
+            });
   }
 
   @Test
@@ -449,18 +451,32 @@ public class RequestForwardingTest {
           expect(req.unset("name")).andReturn(Optional.empty());
         })
         .run(unit -> {
-              assertEquals(Optional.empty(),
-                  new Request.Forwarding(unit.get(Request.class)).unset("name"));
-            });
+          assertEquals(Optional.empty(),
+              new Request.Forwarding(unit.get(Request.class)).unset("name"));
+        });
   }
 
   @Test
   public void toStringFwd() throws Exception {
     new MockUnit(Request.class, Map.class)
         .run(unit -> {
-              assertEquals(unit.get(Request.class).toString(),
-                  new Request.Forwarding(unit.get(Request.class)).toString());
-            });
+          assertEquals(unit.get(Request.class).toString(),
+              new Request.Forwarding(unit.get(Request.class)).toString());
+        });
+  }
+
+  @Test
+  public void form() throws Exception {
+    RequestForwardingTest params = new RequestForwardingTest();
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.params(RequestForwardingTest.class)).andReturn(params);
+        })
+        .run(unit -> {
+          assertEquals(params,
+              new Request.Forwarding(unit.get(Request.class)).params(RequestForwardingTest.class));
+        });
   }
 
 }

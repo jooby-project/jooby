@@ -1,12 +1,13 @@
 package org.jooby;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.util.Date;
 import java.util.Optional;
 
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 public class ResultTest {
 
@@ -97,6 +98,7 @@ public class ResultTest {
 
   @Test
   public void header() {
+    Date date = new Date();
     Result result = Results.ok().header("char", 'c')
         .header("byte", (byte) 3)
         .header("short", (short) 4)
@@ -104,7 +106,8 @@ public class ResultTest {
         .header("long", 6l)
         .header("float", 7f)
         .header("double", 8d)
-        .header("date", new Date());
+        .header("date", date)
+        .header("list", 1, 2, 3);
 
     assertEquals('c', result.headers().get("char"));
     assertEquals((byte) 3, result.headers().get("byte"));
@@ -113,7 +116,8 @@ public class ResultTest {
     assertEquals((long) 6, result.headers().get("long"));
     assertEquals(7.0f, result.headers().get("float"));
     assertEquals(8.0d, result.headers().get("double"));
-    assertNotNull(result.headers().get("date"));
+    assertEquals(date, result.headers().get("date"));
+    assertEquals(Lists.newArrayList(1, 2, 3), result.headers().get("list"));
   }
 
   @Test

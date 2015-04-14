@@ -441,14 +441,6 @@ public enum Status {
     return reason() + " (" + value + ")";
   }
 
-  public boolean in(final int min, final int max) {
-    return value >= min && value < max;
-  }
-
-  public boolean redirect() {
-    return in(300, 400);
-  }
-
   /**
    * Return the enum constant of this type with the specified numeric value.
    *

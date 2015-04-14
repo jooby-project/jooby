@@ -20,7 +20,7 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 public class OnConnectFeature extends ServerFeature {
 
   {
-    ws("/connect", (ws) -> {
+    ws("/connect", ws -> {
       ws.send("connected!", () -> {
         ws.close();
       });
@@ -45,7 +45,7 @@ public class OnConnectFeature extends ServerFeature {
 
     LinkedList<String> messages = new LinkedList<>();
 
-    CountDownLatch latch = new CountDownLatch(1);
+    CountDownLatch latch = new CountDownLatch(2);
 
     client.prepareGet(ws("connect").toString())
         .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(
@@ -58,6 +58,7 @@ public class OnConnectFeature extends ServerFeature {
               @Override
               public void onMessage(final String message) {
                 messages.add(message);
+                latch.countDown();
               }
 
               @Override

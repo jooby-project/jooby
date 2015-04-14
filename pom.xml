@@ -96,6 +96,12 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
+        <artifactId>jooby-jdbi</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
         <artifactId>jooby-hbs</artifactId>
         <version>${jooby.version}</version>
       </dependency>
