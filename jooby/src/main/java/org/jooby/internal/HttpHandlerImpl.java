@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -369,12 +370,24 @@ public class HttpHandlerImpl implements HttpHandler {
     if (ex instanceof Err) {
       return Status.valueOf(((Err) ex).statusCode());
     }
+    /**
+     * usually a class name, except for inner classes where '$' is replaced it by '.'
+     */
+    Function<Class<?>, String> name = type ->
+        Optional.ofNullable(type.getDeclaringClass())
+            .map(dc -> new StringBuilder(dc.getName())
+                .append('.')
+                .append(type.getSimpleName())
+                .toString()
+            ).orElse(type.getName());
+
     Config err = config.getConfig("err");
     int status = -1;
     Class<?> type = ex.getClass();
     while (type != Throwable.class && status == -1) {
-      if (err.hasPath(type.getName())) {
-        status = err.getInt(type.getName());
+      String classname = name.apply(type);
+      if (err.hasPath(classname)) {
+        status = err.getInt(classname);
       } else {
         type = type.getSuperclass();
       }
