@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-undertow</artifactId>
-  <version>0.5.0</version>
+  <version>0.5.1</version>
 </dependency>
 ```
 

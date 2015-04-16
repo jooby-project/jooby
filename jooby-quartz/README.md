@@ -8,7 +8,7 @@ A job scheduler from [Quartz](http://quartz-scheduler.org/).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>0.5.0</version>
+  <version>0.5.1</version>
 </dependency>
 ```
 ## usage
