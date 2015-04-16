@@ -19,7 +19,7 @@ It is pretty straightforward:
 {
   use(new Ftl());
 
-  get("/", req {@literal ->} Results.html("index").put("model", new MyModel());
+  get("/", req -> Results.html("index").put("model", new MyModel());
 }
 ```
 
@@ -99,29 +99,6 @@ freemarker.cache = "expireAfterWrite=1h"
 See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/CacheBuilderSpec.html) for more detailed expressions.
 
 That's all folks! Enjoy it!!!
-
-# appendix: freemarker.conf
-```properties
-#freemarker defaults
-
-freemarker.locale = ${application.lang}
-
-freemarker.number_format = ${application.numberFormat}
-
-freemarker.date_format = ${application.dateFormat}
-
-freemarker.time_zone = ${application.tz}
-
-freemarker.object_wrapper = default
-
-freemarker.template_exception_handler = default
-
-freemarker.defaultEncoding = ${application.charset}
-
-# cache for env != dev
-freemarker.cache = "maximumSize=100"
-
-```
 
 
 

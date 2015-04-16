@@ -53,7 +53,7 @@ In case you need two or more Redis connection, just do:
   use(new Redis()); // default is "db"
   use(new Redis("db1"));
 
-  get("/:key/:value", req {@literal ->} {
+  get("/:key/:value", req -> {
     try (Jedis jedis = req.require("db1", Jedis.class)) {
       jedis.set(req.param("key").value(), req.param("value").value());
       return jedis.get(req.param("key").value());
@@ -93,7 +93,7 @@ For more information about [Jedis](https://github.com/xetorthio/jedis) checkout 
 
   session(RedisSessionStore.class);
 
-  get("/", req {@literal ->} {
+  get("/", req -> {
    req.session().set("name", "jooby");
   });
 }

@@ -12,8 +12,8 @@
 * [freemarker](https://github.com/jooby-project/jooby/tree/master/jooby-ftl): render templates with FreeMarker.
 
 ## session stores
-* [redis](/doc/jooby-jedis/#redis-session-store)
-* [mongodb](/doc/jooby-mongodb/#mongodb-session-store)
+* [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis/#redis-session-store)
+* [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb/#mongodb-session-store)
 
 ## sql
 

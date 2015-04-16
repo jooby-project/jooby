@@ -19,7 +19,7 @@ It is pretty straightforward:
 {
   use(new Ftl());
 
-  get("/", req {@literal ->} Results.html("index").put("model", new MyModel());
+  get("/", req -> Results.html("index").put("model", new MyModel());
 }
 ```
 

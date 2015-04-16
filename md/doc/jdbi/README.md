@@ -28,12 +28,12 @@ It is pretty straightforward:
 {
   use(new Jdbi());
 
-  get("/", req {@literal ->} {
+  get("/", req -> {
     DBI dbi = req.require(DBI.class);
     // ... work with dbi
   });
 
-  get("/handle", req {@literal ->} {
+  get("/handle", req -> {
     try (Handle handle = req.require(Handle.class)) {
       // ... work with dbi handle
     }
@@ -62,7 +62,7 @@ public interface MyRepository extends Closeable {
 {
   use(new Jdbi());
 
-  get("/handle", req {@literal ->} {
+  get("/handle", req -> {
     try (MyRepository h = req.require(MyRepository.class)) {
       h.createSomethingTable();
 

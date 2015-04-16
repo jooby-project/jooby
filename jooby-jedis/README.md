@@ -53,7 +53,7 @@ In case you need two or more Redis connection, just do:
   use(new Redis()); // default is "db"
   use(new Redis("db1"));
 
-  get("/:key/:value", req {@literal ->} {
+  get("/:key/:value", req -> {
     try (Jedis jedis = req.require("db1", Jedis.class)) {
       jedis.set(req.param("key").value(), req.param("value").value());
       return jedis.get(req.param("key").value());
@@ -93,7 +93,7 @@ For more information about [Jedis](https://github.com/xetorthio/jedis) checkout 
 
   session(RedisSessionStore.class);
 
-  get("/", req {@literal ->} {
+  get("/", req -> {
    req.session().set("name", "jooby");
   });
 }
@@ -131,36 +131,5 @@ It's possible to change the default key setting the ```jedis.sesssion.prefix``` 
 That's all folks! Enjoy it!
 
 TBD: Object mapping? https://github.com/xetorthio/johm?
-
-# appendix: jedis.conf
-```properties
-# jedis default config
-
-# jedis
-jedis.timeout = 2s
-
-# pool config
-jedis.pool.maxTotal = 128
-jedis.pool.maxIdle = 10
-jedis.pool.minIdle = 10
-jedis.pool.lifo = true
-jedis.pool.maxWait = -1
-jedis.pool.minEvictableIdle = 30m
-jedis.pool.softMinEvictableIdle = 30m
-jedis.pool.numTestsPerEvictionRun = 3
-jedis.pool.evictionPolicyClassName = org.apache.commons.pool2.impl.DefaultEvictionPolicy
-jedis.pool.testOnBorrow = false
-jedis.pool.testOnReturn = false
-jedis.pool.testWhileIdle = false
-jedis.pool.timeBetweenEvictionRuns = -1
-jedis.pool.blockWhenExhausted = true
-jedis.pool.jmxEnabled = false
-jedis.pool.jmxNamePrefix = redis-pool
-
-# session store, key prefix and timeout in seconds 
-jedis.session.prefix = sessions
-jedis.session.timeout = ${session.timeout}
-
-```
 
 

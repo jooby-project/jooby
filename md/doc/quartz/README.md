@@ -179,7 +179,7 @@ Example 1: build the trigger and use default job naming
 ```java
 {
   use(new Quartz()
-    .with(MyJob.class, trigger {@literal ->} {
+    .with(MyJob.class, trigger -> {
       trigger
         .withSchedule(withIntervalInDays(3))
         .startAt(futureDate(10, MINUTES));
@@ -194,7 +194,7 @@ Example 2: build the job, the trigger and use default job naming
 ```java
 {
   use(new Quartz()
-    .with(MyJob.class, (job, trigger) {@literal ->} {
+    .with(MyJob.class, (job, trigger) -> {
       job.withDescription("etc...");
  
       trigger

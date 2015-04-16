@@ -317,7 +317,8 @@ ls(mdoutdir, function (file) {
   // dump file
   var fout = new File(ghpagesdir, file.absolutePath.substring(mdoutdir.absolutePath.length()));
   fout.parentFile.mkdirs();
-  writeString(fout, data);
+  // replace absolute links
+  writeString(fout, data.replaceAll('https://github.com/jooby-project/jooby/tree/master/jooby-', '/doc/'));
   console.log('  done: ' + fout);
 });
 
@@ -336,7 +337,7 @@ ls(ghpagesdir, function (file) {
     path = path.subpath(1, path.nameCount);
   }
 
-  var fout = path.toFile();
+  var fout = path.nameCount > 1 ? new File('jooby-' + path) : path.toFile();
   copy(file, fout);
   file['delete']();
   console.log('  done: ' + fout);

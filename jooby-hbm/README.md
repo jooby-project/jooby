@@ -102,18 +102,4 @@ hibernate.hbm2ddl.auto = update
 ```
 
 
-# appendix: hbm.conf
-```properties
-hibernate {
-  id.new_generator_mappings = true
-  archive.autodetection = class
-  hbm2ddl.auto = validate
-  current_session_context_class = managed
-}
-
-javax.persistence {
-}
-
-```
-
 

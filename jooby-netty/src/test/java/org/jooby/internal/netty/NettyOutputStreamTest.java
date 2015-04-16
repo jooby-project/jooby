@@ -286,6 +286,7 @@ public class NettyOutputStreamTest {
           });
   }
 
+  @SuppressWarnings("resource")
   @Test
   public void reset() throws Exception {
     boolean keepAlive = true;
@@ -323,6 +324,7 @@ public class NettyOutputStreamTest {
         });
   }
 
+  @SuppressWarnings("resource")
   @Test
   public void committed() throws Exception {
     boolean keepAlive = true;

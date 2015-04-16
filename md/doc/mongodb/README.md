@@ -47,7 +47,7 @@ mydb = "mongodb://localhost/mydb"
 {
   use(new Mongodb("mydb"));
 
-  get("/", req {@literal ->} {
+  get("/", req -> {
     DB mydb = req.require(DB.class);
     // work with mydb
   });
