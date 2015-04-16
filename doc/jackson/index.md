@@ -1,7 +1,7 @@
 ---
 layout: index
 title: jackson
-version: 0.5.0
+version: 0.5.1
 ---
 
 # jooby-jackson
@@ -18,7 +18,7 @@ Exposes [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2.5.2
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>0.5.0</version>
+  <version>0.5.1</version>
 </dependency>
 ```
 ## usage

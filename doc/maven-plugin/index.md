@@ -1,7 +1,7 @@
 ---
 layout: index
 title: maven-plugin
-version: 0.5.0
+version: 0.5.1
 ---
 
 # mvn jooby:run
@@ -47,7 +47,7 @@ For the time being, you need to use a tool that compiles your source code, usual
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.5.0</version>
+  <version>0.5.1</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -81,7 +81,7 @@ List of commands to execute before starting the ```application```. Useful for [n
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.5.0</version>
+  <version>0.5.1</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -102,7 +102,7 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.5.0</version>
+  <version>0.5.1</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <vmArgs>

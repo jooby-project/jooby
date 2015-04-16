@@ -1,7 +1,7 @@
 ---
 layout: index
 title: help and support
-version: 0.5.0
+version: 0.5.1
 ---
 
 help and support
