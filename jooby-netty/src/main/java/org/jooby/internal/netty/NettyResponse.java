@@ -44,7 +44,7 @@ public class NettyResponse implements NativeResponse {
 
   private boolean keepAlive;
 
-  HttpResponseStatus status = HttpResponseStatus.OK;
+  private HttpResponseStatus status = HttpResponseStatus.OK;
 
   HttpHeaders headers;
 
@@ -95,6 +95,10 @@ public class NettyResponse implements NativeResponse {
   @Override
   public void statusCode(final int code) {
     this.status = HttpResponseStatus.valueOf(code);
+  }
+
+  HttpResponseStatus status() {
+    return status;
   }
 
   @Override

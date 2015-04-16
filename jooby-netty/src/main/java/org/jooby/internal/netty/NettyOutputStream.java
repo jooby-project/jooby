@@ -61,7 +61,7 @@ public class NettyOutputStream extends OutputStream {
 
   private final ChannelHandlerContext ctx;
 
-  private int chunkState;
+  protected int chunkState;
 
   private boolean keepAlive;
 
@@ -80,7 +80,10 @@ public class NettyOutputStream extends OutputStream {
 
   @Override
   public void write(final int b) throws IOException {
-    write(new byte[b], 0, 1);
+    if (buffer.maxWritableBytes() < 1) {
+      flush();
+    }
+    buffer.writeByte(b);
   }
 
   @Override
@@ -148,7 +151,7 @@ public class NettyOutputStream extends OutputStream {
       /**
        * Mambo jambo around, content-length, transfer-encoding and keep alive.
        */
-      DefaultHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, this.rsp.status,
+      DefaultHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, this.rsp.status(),
           buffer);
       String len = headers.get(HttpHeaders.Names.CONTENT_LENGTH);
       /**
@@ -186,7 +189,7 @@ public class NettyOutputStream extends OutputStream {
       /**
        * Set headers, if Content-Length wasn't set force/set Transfer-Encoding
        */
-      DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, this.rsp.status);
+      DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, this.rsp.status());
       String len = headers.get(HttpHeaders.Names.CONTENT_LENGTH);
       if (len == null) {
         headers.set(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
