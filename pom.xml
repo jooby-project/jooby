@@ -1097,7 +1097,7 @@
     <handlebars.version>1.3.2</handlebars.version>
     <h2.version>1.4.182</h2.version>
     <mysql-connector-java.version>5.1.33</mysql-connector-java.version>
-    <hikariCP.version>2.2.4</hikariCP.version>
+    <hikariCP.version>2.3.6</hikariCP.version>
     <hibernate.version>4.3.6.Final</hibernate.version>
     <jsr305.version>3.0.0</jsr305.version>
     <http-client.version>4.4-beta1</http-client.version>
