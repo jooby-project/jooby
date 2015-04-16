@@ -23,24 +23,6 @@
     });
   };
 
-
-  /** Find links and rewrite them to local version of doc (not github path). */
-  var links = function () {
-    $('a').each(function () {
-      var $a = $(this),
-          href = $a.attr('href'),
-          prefix = 'https://github.com/jooby-project/jooby/tree/master/',
-          idx = href.indexOf(prefix);
-
-      if (idx === 0) {
-        var project = href.substring(prefix.length);
-        if (project !== 'coverage-report') {
-          $a.attr('href', '/doc/' + project);
-        }
-      }
-    });
-  };
-
   var page = function () {
     var page = window.location.pathname.replace(/\//g, '');
     $(document.body).addClass(page);
@@ -52,8 +34,6 @@
   $(function () {
     // page
     page();
-    // sync links
-    links();
     // clipboard
     if (window.ZeroClipboard) {
       copyToClipboard();

@@ -1,55 +1,55 @@
 ---
 layout: index
 title: modules
-version: 0.5.0
+version: 0.5.1
 ---
 
 ## mvn jooby:run
 
-* [jooby:run](https://github.com/jooby-project/jooby/tree/master/jooby-maven-plugin): maven plugin with hot reload of classes.
+* [jooby:run](/doc/maven-plugin): maven plugin with hot reload of classes.
 
 ## body parser & formatter
 
-* [jackson json](https://github.com/jooby-project/jooby/tree/master/jooby-jackson): read and write JSON.
+* [jackson json](/doc/jackson): read and write JSON.
 
 ## template engines
 
-* [handlebars/mustache](https://github.com/jooby-project/jooby/tree/master/jooby-hbs): logic less and semantic Mustache templates.
-* [freemarker](https://github.com/jooby-project/jooby/tree/master/jooby-ftl): render templates with FreeMarker.
+* [handlebars/mustache](/doc/hbs): logic less and semantic Mustache templates.
+* [freemarker](/doc/ftl): render templates with FreeMarker.
 
 ## session stores
-* [redis](/doc/jooby-jedis/#redis-session-store)
-* [mongodb](/doc/jooby-mongodb/#mongodb-session-store)
+* [redis](/doc/jedis/#redis-session-store)
+* [mongodb](/doc/mongodb/#mongodb-session-store)
 
 ## sql
 
-* [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc): high performance connection pool for jdbc.
-* [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi): fluent API for JDBC.
-* [hibernate](https://github.com/jooby-project/jooby/tree/master/jooby-hbm): ORM for Java.
+* [jdbc](/doc/jdbc): high performance connection pool for jdbc.
+* [jdbi](/doc/jdbi): fluent API for JDBC.
+* [hibernate](/doc/hbm): ORM for Java.
 
 ## mongodb
-* [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb): Mongodb driver.
-* [morphia](https://github.com/jooby-project/jooby/tree/master/jooby-morphia): Object/Document mapper via [Morphia](https://github.com/mongodb/morphia).
+* [mongodb](/doc/mongodb): Mongodb driver.
+* [morphia](/doc/morphia): Object/Document mapper via [Morphia](https://github.com/mongodb/morphia).
 
 ## redis
-* [jedis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis): Advanced cache and key/value store for Java.
+* [jedis](/doc/jedis): Advanced cache and key/value store for Java.
 
 ## scheduling
 
-* [quartz](https://github.com/jooby-project/jooby/tree/master/jooby-quartz): advanced job scheduling.
+* [quartz](/doc/quartz): advanced job scheduling.
 
 ## enterprise integration patterns (EIP)
 
-* [camel](https://github.com/jooby-project/jooby/tree/master/jooby-camel): enterprise service bus for Jooby.
+* [camel](/doc/camel): enterprise service bus for Jooby.
 
 ## servers
 
-* [netty](https://github.com/jooby-project/jooby/tree/master/jooby-netty)
-* [jetty](https://github.com/jooby-project/jooby/tree/master/jooby-jetty)
-* [undertow](https://github.com/jooby-project/jooby/tree/master/jooby-undertow)
+* [netty](/doc/netty)
+* [jetty](/doc/jetty)
+* [undertow](/doc/undertow)
 
 ## servlet
 
-* [servlet](https://github.com/jooby-project/jooby/tree/master/jooby-servlet): supports war deployments.
+* [servlet](/doc/servlet): supports war deployments.
 
 
