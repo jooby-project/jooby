@@ -27,6 +27,7 @@ public class OnDirectByteBufferMessageFeature extends ServerFeature {
         ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.getBytes().length);
         buffer.put(bytes.getBytes());
         ws.send(buffer, () -> {
+          Thread.sleep(300L);
           ws.close();
         });
       });

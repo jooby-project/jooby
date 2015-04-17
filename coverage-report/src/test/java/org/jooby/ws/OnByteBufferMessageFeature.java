@@ -25,6 +25,7 @@ public class OnByteBufferMessageFeature extends ServerFeature {
       ws.onMessage(message -> {
         String bytes = "=" + new String(message.to(byte[].class));
         ws.send(ByteBuffer.wrap(bytes.getBytes()), () -> {
+          Thread.sleep(300L);
           ws.close();
         });
       });

@@ -22,6 +22,7 @@ public class OnConnectFeature extends ServerFeature {
   {
     ws("/connect", ws -> {
       ws.send("connected!", () -> {
+        Thread.sleep(300L);
         ws.close();
       });
     });
