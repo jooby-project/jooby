@@ -24,7 +24,6 @@ public class OnTextMessageFeature extends ServerFeature {
 
       ws.onMessage(message -> {
         ws.send("=" + message.value(), () -> {
-          Thread.sleep(300L);
           ws.close();
         });
       });

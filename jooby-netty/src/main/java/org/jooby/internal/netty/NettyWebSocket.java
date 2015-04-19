@@ -18,9 +18,11 @@
  */
 package org.jooby.internal.netty;
 
+import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
 import static java.util.Objects.requireNonNull;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -32,6 +34,7 @@ import io.netty.util.AttributeKey;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -39,11 +42,16 @@ import org.jooby.WebSocket;
 import org.jooby.WebSocket.ErrCallback;
 import org.jooby.WebSocket.SuccessCallback;
 import org.jooby.spi.NativeWebSocket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NettyWebSocket implements NativeWebSocket {
 
   public static final AttributeKey<NettyWebSocket> KEY =
       AttributeKey.newInstance(NettyWebSocket.class.getName());
+
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private ChannelHandlerContext ctx;
 
@@ -61,6 +69,8 @@ public class NettyWebSocket implements NativeWebSocket {
 
   private Consumer<Throwable> onErrorCallback;
 
+  private final CountDownLatch ready = new CountDownLatch(1);
+
   public NettyWebSocket(final ChannelHandlerContext ctx,
       final WebSocketServerHandshaker handshaker, final Consumer<NettyWebSocket> handshake) {
     this.ctx = ctx;
@@ -70,7 +80,8 @@ public class NettyWebSocket implements NativeWebSocket {
 
   @Override
   public void close(final int status, final String reason) {
-    handshaker.close(ctx.channel(), new CloseWebSocketFrame(status, reason));
+    handshaker.close(ctx.channel(), new CloseWebSocketFrame(status, reason))
+        .addListener(FIRE_EXCEPTION_ON_FAILURE);
     Attribute<NettyWebSocket> ws = ctx.attr(KEY);
     if (ws != null) {
       ws.remove();
@@ -79,8 +90,9 @@ public class NettyWebSocket implements NativeWebSocket {
 
   @Override
   public void resume() {
-    if (!ctx.channel().config().isAutoRead()) {
-      ctx.channel().config().setAutoRead(true);
+    ChannelConfig config = ctx.channel().config();
+    if (!config.isAutoRead()) {
+      config.setAutoRead(true);
     }
   }
 
@@ -111,27 +123,29 @@ public class NettyWebSocket implements NativeWebSocket {
 
   @Override
   public void pause() {
-    if (ctx.channel().config().isAutoRead()) {
-      ctx.channel().config().setAutoRead(false);
+    ChannelConfig config = ctx.channel().config();
+    if (config.isAutoRead()) {
+      config.setAutoRead(false);
     }
   }
 
   @Override
   public void terminate() throws IOException {
     this.onCloseCallback.accept(1006, Optional.of("Harsh disconnect"));
-    ctx.disconnect();
+    ctx.disconnect().addListener(FIRE_EXCEPTION_ON_FAILURE);
   }
 
   @Override
   public void send(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
-    ByteBuf buffer = Unpooled.copiedBuffer(data);
-    ctx.channel().writeAndFlush(new BinaryWebSocketFrame(buffer)).addListener(future -> {
-      if (future.isSuccess()) {
-        success.invoke();
-      } else {
-        err.invoke(future.cause());
-      }
-    });
+    ByteBuf buffer = Unpooled.wrappedBuffer(data);
+    ctx.channel().writeAndFlush(new BinaryWebSocketFrame(buffer))
+        .addListener(f -> {
+          if (f.isSuccess()) {
+            success.invoke();
+          } else {
+            err.invoke(f.cause());
+          }
+        });
   }
 
   @Override
@@ -152,6 +166,7 @@ public class NettyWebSocket implements NativeWebSocket {
 
   public void connect() {
     onConnectCallback.run();
+    ready.countDown();
   }
 
   public void hankshake() {
@@ -159,6 +174,7 @@ public class NettyWebSocket implements NativeWebSocket {
   }
 
   public void handle(final Object msg) {
+    ready();
     if (msg instanceof TextWebSocketFrame) {
       onTextCallback.accept(((TextWebSocketFrame) msg).text());
     } else if (msg instanceof BinaryWebSocketFrame) {
@@ -168,9 +184,21 @@ public class NettyWebSocket implements NativeWebSocket {
       int statusCode = closeFrame.statusCode();
       onCloseCallback.accept(statusCode == -1 ? WebSocket.NORMAL.code() : statusCode,
           Optional.ofNullable(closeFrame.reasonText()));
-      handshaker.close(ctx.channel(), closeFrame);
+      handshaker.close(ctx.channel(), closeFrame).addListener(FIRE_EXCEPTION_ON_FAILURE);
     } else if (msg instanceof Throwable) {
       onErrorCallback.accept((Throwable) msg);
+    }
+  }
+
+  /**
+   * Make sure hankshake/connect is set.
+   */
+  private void ready() {
+    try {
+      ready.await();
+    } catch (InterruptedException ex) {
+      log.error("Connect call was inturrupted", ex);
+      Thread.currentThread().interrupt();
     }
   }
 

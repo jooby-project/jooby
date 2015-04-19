@@ -44,6 +44,7 @@ import io.undertow.websockets.core.WebSockets;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -82,6 +83,8 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
 
   private long idleTimeout;
 
+  private final CountDownLatch ready = new CountDownLatch(1);
+
   public UndertowWebSocket(final Config config) {
     idleTimeout = config.getDuration("undertow.ws.IdleTimeout", TimeUnit.MILLISECONDS);
     maxBinaryBufferSize = config.getBytes("undertow.ws.MaxBinaryBufferSize");
@@ -96,6 +99,8 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
     this.channel.resumeReceives();
 
     this.onConnectCallback.run();
+
+    ready.countDown();
   }
 
   @Override
@@ -111,12 +116,6 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
   @Override
   public void onConnect(final Runnable callback) {
     this.onConnectCallback = requireNonNull(callback, "A callback is required.");
-  }
-
-  @Override
-  protected void onFullTextMessage(final WebSocketChannel channel, final BufferedTextMessage message)
-      throws IOException {
-    onTextCallback.accept(message.getData());
   }
 
   @Override
@@ -140,9 +139,16 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
   }
 
   @Override
+  protected void onFullTextMessage(final WebSocketChannel channel,
+      final BufferedTextMessage message) throws IOException {
+    ready();
+    onTextCallback.accept(message.getData());
+  }
+
+  @Override
   protected void onFullBinaryMessage(final WebSocketChannel channel,
-      final BufferedBinaryMessage message)
-      throws IOException {
+      final BufferedBinaryMessage message) throws IOException {
+    ready();
     Pooled<ByteBuffer[]> data = message.getData();
     try {
       this.onBinaryCallback.accept(WebSockets.mergeBuffers(data.getResource()));
@@ -153,20 +159,14 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
 
   @Override
   protected void onCloseMessage(final CloseMessage cm, final WebSocketChannel channel) {
+    ready();
     onCloseCallback.accept(cm.getCode(), Optional.ofNullable(cm.getReason()));
   }
 
   @Override
-  protected void onFullCloseMessage(final WebSocketChannel channel, final BufferedBinaryMessage message)
-      throws IOException {
-    // TODO Auto-generated method stub
-    super.onFullCloseMessage(channel, message);
-  }
-
-  @Override
   protected void onError(final WebSocketChannel channel, final Throwable cause) {
+    ready();
     onErrorCallback.accept(cause);
-    super.onError(channel, cause);
   }
 
   @Override
@@ -185,7 +185,6 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
         IoUtils.safeClose(channel);
       }
     });
-
   }
 
   @Override
@@ -212,7 +211,6 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
   @Override
   public void send(final String data, final SuccessCallback success, final ErrCallback err) {
     WebSockets.sendText(data, channel, callback(log, success, err));
-
   }
 
   private static WebSocketCallback<Void> callback(final Logger log, final SuccessCallback success,
@@ -238,4 +236,17 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
   public boolean isOpen() {
     return channel.isOpen();
   }
+
+  /**
+   * Make sure hankshake/connect is set.
+   */
+  private void ready() {
+    try {
+      ready.await();
+    } catch (InterruptedException ex) {
+      log.error("Connect callback was interrupted", ex);
+      Thread.currentThread().interrupt();
+    }
+  }
+
 }
