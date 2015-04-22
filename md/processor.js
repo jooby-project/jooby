@@ -282,6 +282,10 @@ vars.push({
   data: 'https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia'
 });
 
+vars.push({
+  name: 'jboss-modules',
+  data: '[JBoss Modules](https://github.com/jboss-modules/jboss-modules)'
+});
 
 /**
  * replace expressions like: {{var}}

@@ -16,15 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby;
+package org.jooby.hotreload;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -35,55 +33,41 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.jboss.modules.Module;
+import org.jboss.modules.ModuleClassLoader;
+import org.jboss.modules.ModuleIdentifier;
 
-public class Hotswap {
+public class AppModule {
 
-  private URLClassLoader loader;
-
-  private volatile Object app;
-
-  private File[] cp;
-
-  private String mainClass;
-
-  private Watcher scanner;
-
-  private ExecutorService executor;
-
+  private AppModuleLoader loader;
+  private File[] dirs;
   private Path[] paths;
-
+  private ExecutorService executor;
+  private Watcher scanner;
   private PathMatcher includes;
-
   private PathMatcher excludes;
+  private volatile Object app;
+  private ModuleIdentifier mId;
+  private String mainClass;
+  private volatile Module module;
 
-  // OFF private boolean dcevm;
-
-  private List<File> dirs;
-
-  public Hotswap(final String mainClass, final File[] cp) throws IOException {
+  public AppModule(final String mId, final String mainClass, final String repo, final File[] dirs)
+      throws IOException {
     this.mainClass = mainClass;
-    this.cp = cp;
-    this.dirs = new ArrayList<File>();
-    for (File file : cp) {
-      if (file.isDirectory()) {
-        dirs.add(file);
-      }
-    }
-    this.paths = toPath(dirs.toArray(new File[dirs.size()]));
+    loader = new AppModuleLoader(new File(repo));
+    this.mId = ModuleIdentifier.create(mId);
+    this.dirs = dirs;
+    this.paths = toPath(dirs);
     this.executor = Executors.newSingleThreadExecutor();
     this.scanner = new Watcher(this::onChange, paths);
-    // OFF dcevm = System.getProperty("java.vm.version").toLowerCase().contains("dcevm");
-  }
-
-  public static void premain(final String args, final Instrumentation inst) throws Exception {
-   // TODO:
   }
 
   public static void main(final String[] args) throws Exception {
+    setPkgs();
     List<File> cp = new ArrayList<File>();
     String includes = "**/*.class,**/*.conf,**/*.properties";
     String excludes = "";
-    for (int i = 1; i < args.length; i++) {
+    for (int i = 3; i < args.length; i++) {
       File dir = new File(args[i]);
       if (dir.exists()) {
         // cp option
@@ -115,27 +99,28 @@ public class Hotswap {
         }
       }
     }
-    Hotswap launcher = new Hotswap(args[0], cp.toArray(new File[cp.size()]))
+    AppModule launcher = new AppModule(args[0], args[1], args[2], cp.toArray(new File[cp.size()]))
         .includes(includes)
         .excludes(excludes);
     launcher.run();
   }
 
-  private Hotswap includes(final String includes) {
-    this.includes = pathMatcher(includes);
-    return this;
-  }
-
-  private Hotswap excludes(final String excludes) {
-    this.excludes = pathMatcher(excludes);
-    return this;
+  private static void setPkgs() throws IOException {
+    BufferedReader stream =
+        new BufferedReader(new InputStreamReader(AppModule.class.getResourceAsStream("pkgs")));
+    StringBuilder pkgs = new StringBuilder();
+    String line = stream.readLine();
+    while (line != null) {
+      pkgs.append(line).append(',');
+      line = stream.readLine();
+    }
+    stream.close();
+    pkgs.setLength(pkgs.length() - 1);
+    System.setProperty("jboss.modules.system.pkgs", pkgs.toString());
   }
 
   public void run() {
-    System.out.printf("Hotswap available on: %s\n", dirs);
-    // System.out.printf("  unlimited runtime class redefinition: %s\n", dcevm
-    // ? "yes"
-    // : "no (see https://github.com/dcevm/dcevm)");
+    System.out.printf("Hotswap available on: %s\n", Arrays.toString(dirs));
     System.out.printf("  includes: %s\n", includes);
     System.out.printf("  excludes: %s\n", excludes);
 
@@ -148,11 +133,17 @@ public class Hotswap {
       stopApp(app);
     }
     executor.execute(() -> {
-      URLClassLoader old = loader;
+      ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
       try {
-        this.loader = newClassLoader(cp);
-        this.app = loader.loadClass(mainClass).getDeclaredConstructors()[0].newInstance();
+        module = loader.loadModule(mId);
+        ModuleClassLoader mcloader = module.getClassLoader();
+
+        Thread.currentThread().setContextClassLoader(mcloader);
+
+        this.app = mcloader.loadClass(mainClass)
+            .getDeclaredConstructors()[0].newInstance();
         app.getClass().getMethod("start").invoke(app);
+
       } catch (InvocationTargetException ex) {
         System.err.println("Error found while starting: " + mainClass);
         ex.printStackTrace();
@@ -160,27 +151,31 @@ public class Hotswap {
         System.err.println("Error found while starting: " + mainClass);
         ex.printStackTrace();
       } finally {
-        if (old != null) {
-          try {
-            old.close();
-          } catch (Exception ex) {
-            System.err.println("Can't close classloader");
-            ex.printStackTrace();
-          }
-          // not sure it how useful is it, but...
-        System.gc();
+        Thread.currentThread().setContextClassLoader(ctxLoader);
       }
-    }
-  });
+    });
   }
 
-  private static URLClassLoader newClassLoader(final File[] cp) throws MalformedURLException {
-    return new URLClassLoader(toURLs(cp), Hotswap.class.getClassLoader()) {
-      @Override
-      public String toString() {
-        return "Hotswap@" + Arrays.toString(cp);
-      }
-    };
+  private void stopApp(final Object app) {
+    try {
+      app.getClass().getMethod("stop").invoke(app);
+      loader.unload(module);
+    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+        | NoSuchMethodException | SecurityException ex) {
+      System.err.println("couldn't stop app");
+      ex.printStackTrace();
+    }
+
+  }
+
+  private AppModule includes(final String includes) {
+    this.includes = pathMatcher(includes);
+    return this;
+  }
+
+  private AppModule excludes(final String excludes) {
+    this.excludes = pathMatcher(excludes);
+    return this;
   }
 
   private void onChange(final Kind<?> kind, final Path path) {
@@ -215,25 +210,6 @@ public class Hotswap {
     return null;
   }
 
-  private void stopApp(final Object app) {
-    try {
-      app.getClass().getMethod("stop").invoke(app);
-    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-        | NoSuchMethodException | SecurityException ex) {
-      System.err.println("couldn't stop app");
-      ex.printStackTrace();
-    }
-
-  }
-
-  static URL[] toURLs(final File[] cp) throws MalformedURLException {
-    URL[] urls = new URL[cp.length];
-    for (int i = 0; i < urls.length; i++) {
-      urls[i] = cp[i].toURI().toURL();
-    }
-    return urls;
-  }
-
   private static Path[] toPath(final File[] cp) {
     Path[] paths = new Path[cp.length];
     for (int i = 0; i < paths.length; i++) {
@@ -265,5 +241,4 @@ public class Hotswap {
       }
     };
   }
-
 }

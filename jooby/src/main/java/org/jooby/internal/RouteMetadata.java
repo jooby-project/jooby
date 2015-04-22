@@ -19,6 +19,7 @@
 package org.jooby.internal;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
@@ -37,6 +38,7 @@ import org.objectweb.asm.Type;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.io.Closeables;
 
 public class RouteMetadata {
 
@@ -70,14 +72,30 @@ public class RouteMetadata {
   }
 
   private static Map<String, Object> extractMetadata(final Class<?> owner) {
+    InputStream stream = null;
     try {
       Map<String, Object> md = new HashMap<>();
-      new ClassReader(owner.getName()).accept(visitor(md), 0);
+      stream = owner.getResourceAsStream(classfile(owner));
+      new ClassReader(stream).accept(visitor(md), 0);
       return md;
     } catch (IOException ex) {
       // won't happen, but...
       throw new IllegalStateException("Can't read class: " + owner.getName(), ex);
+    } finally {
+      Closeables.closeQuietly(stream);
     }
+  }
+
+  private static String classfile(final Class<?> owner) {
+    StringBuilder sb = new StringBuilder();
+    Class<?> dc = owner.getDeclaringClass();
+    while (dc != null) {
+      sb.insert(0, dc.getSimpleName()).append("$");
+      dc = dc.getDeclaringClass();
+    }
+    sb.append(owner.getSimpleName());
+    sb.append(".class");
+    return sb.toString();
   }
 
   private static ClassVisitor visitor(final Map<String, Object> md) {

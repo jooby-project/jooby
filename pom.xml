@@ -431,6 +431,13 @@
         <version>${hibernate.version}</version>
       </dependency>
 
+      <!-- jboss-modules -->
+      <dependency>
+        <groupId>org.jboss.modules</groupId>
+        <artifactId>jboss-modules</artifactId>
+        <version>${jboss-modules.version}</version>
+      </dependency>
+
       <!-- Maven -->
       <dependency>
         <groupId>org.codehaus.mojo</groupId>
@@ -1112,6 +1119,7 @@
     <jedis.version>2.6.2</jedis.version>
     <mongo-java-driver.version>2.13.0</mongo-java-driver.version>
     <morphia.version>0.111</morphia.version>
+    <jboss-modules.version>1.4.2.Final</jboss-modules.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

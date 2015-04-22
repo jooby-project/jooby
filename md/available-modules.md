@@ -1,6 +1,6 @@
 ## mvn jooby:run
 
-* [jooby:run](https://github.com/jooby-project/jooby/tree/master/jooby-maven-plugin): maven plugin with hot reload of classes.
+* [jooby:run](https://github.com/jooby-project/jooby/tree/master/jooby-maven-plugin): maven plugin with hot reload of classes, powered by {{jboss-modules}}.
 
 ## body parser & formatter
 

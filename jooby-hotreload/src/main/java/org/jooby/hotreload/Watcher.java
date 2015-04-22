@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby;
+package org.jooby.hotreload;
 
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
@@ -105,7 +105,7 @@ public class Watcher {
       while (!stopped && process) {
         process = processEvents();
       }
-    }, getClass().getSimpleName());
+    }, "Hotswap");
 
     scanner.setDaemon(true);
   }

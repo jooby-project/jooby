@@ -8,7 +8,7 @@ A {{maven}} plugin for executing {{jooby}} applications.
 mvn jooby:run
 ```
 
-You should see something similar to this at the end of the output:
+You should see something similar:
 
 ```bash
 Picked up JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF8
@@ -26,7 +26,7 @@ listening on:
 
 ## hot reload
 
-The plugin bounces the application every time a change was found on:
+The plugin bounces the application every time a change is detected on:
 
 - classes (*.class)
 - config files (*.conf and *.properties)
@@ -34,6 +34,8 @@ The plugin bounces the application every time a change was found on:
 Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled/cached it while running on ```application.env = dev```.
 
 For the time being, you need to use a tool that compiles your source code, usually an IDE. Otherwise, no changes will be found.
+
+Is it worth to mention that dynamic reload of classes at runtime is done via {{jboss-modules}}.
 
 ## options
 

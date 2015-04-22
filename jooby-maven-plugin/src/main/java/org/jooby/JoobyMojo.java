@@ -19,6 +19,9 @@
 package org.jooby;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,6 +42,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+
+import com.google.common.io.Files;
 
 @Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
 @Execute(phase = LifecyclePhase.TEST_COMPILE)
@@ -74,6 +79,9 @@ public class JoobyMojo extends AbstractMojo {
   @SuppressWarnings("unchecked")
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
+
+    Path jmodules = Paths.get(mavenProject.getBuild().getDirectory()).resolve("jboss-modules");
+
     Set<String> appcp = new LinkedHashSet<String>();
 
     // public / config, etc..
@@ -85,17 +93,15 @@ public class JoobyMojo extends AbstractMojo {
     // *.jar
     Set<Artifact> artifacts = new LinkedHashSet<Artifact>(mavenProject.getArtifacts());
 
+    doFlatMainModule(mavenProject, jmodules, appcp, artifacts);
+
     Set<String> classpath = new LinkedHashSet<String>();
 
-    String hotreload = hotreload(pluginArtifacts).get().getFile().getAbsolutePath();
+    String hotreload = extra(pluginArtifacts, "jooby-hotreload").get().getFile().getAbsolutePath();
+    String jbossModules = extra(pluginArtifacts, "jboss-modules").get().getFile().getAbsolutePath();
     classpath.add(hotreload);
+    classpath.add(jbossModules);
 
-    for (Artifact artifact : artifacts) {
-      String scope = artifact.getScope();
-      if ("runtime".equals(scope) || "compile".equals(scope)) {
-        appcp.add(artifact.getFile().getAbsolutePath());
-      }
-    }
     String cp = classpath.stream().collect(Collectors.joining(File.pathSeparator));
 
     // prepare commands
@@ -107,8 +113,10 @@ public class JoobyMojo extends AbstractMojo {
     args.addAll(vmArgs(hotreload, vmArgs));
     args.add("-cp");
     args.add(cp);
-    args.add("org.jooby.Hotswap");
+    args.add("org.jooby.hotreload.AppModule");
+    args.add(mavenProject.getGroupId() + "." + mavenProject.getArtifactId());
     args.add(mainClass);
+    args.add(jmodules.toString());
     args.addAll(appcp);
     if (includes != null && includes.size() > 0) {
       args.add("includes=" + join(includes));
@@ -142,6 +150,68 @@ public class JoobyMojo extends AbstractMojo {
 
   }
 
+  /**
+   * Creates a module.
+   *
+   * @param project
+   * @param jmodules
+   * @param resources
+   * @param artifacts
+   * @throws MojoFailureException
+   */
+  private void doFlatMainModule(final MavenProject project, final Path jmodules,
+      final Set<String> resources, final Set<Artifact> artifacts) throws MojoFailureException {
+    try {
+      Path moddir = jmodules;
+      for (String p : project.getGroupId().split("\\.")) {
+        moddir = moddir.resolve(p);
+      }
+      for (String p : project.getArtifactId().split("\\.")) {
+        moddir = moddir.resolve(p);
+      }
+      moddir = moddir.resolve("main");
+
+      // resources
+      StringBuilder rsb = new StringBuilder();
+      for (String resource : resources) {
+        Path resourceRoot = new File(resource).toPath();
+        rsb.append("    <resource-root path=\"").append(moddir.relativize(resourceRoot))
+            .append("\" />\n");
+      }
+      // maven dependencies
+      for (Artifact artifact : artifacts) {
+        rsb.append("    <artifact name=\"").append(artifact.getGroupId()).append(":")
+            .append(artifact.getArtifactId()).append(":").append(artifact.getVersion())
+            .append("\" />\n");
+      }
+      String content = jbossModule(project.getGroupId(), project.getArtifactId(), rsb, null);
+      moddir.toFile().mkdirs();
+      Files.write(content, moddir.resolve("module.xml").toFile(), StandardCharsets.UTF_8);
+    } catch (Exception ex) {
+      throw new MojoFailureException("Can't create repository", ex);
+    }
+  }
+
+  private String jbossModule(final String groupId, final String artifactId,
+      final StringBuilder resources, final StringBuilder deps) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    sb.append("<module xmlns=\"urn:jboss:module:1.3\" name=\"").append(groupId).append(".")
+        .append(artifactId).append("\">\n");
+    if (resources != null) {
+      sb.append("  <resources>\n");
+      sb.append(resources);
+      sb.append("  </resources>\n");
+    }
+    if (deps != null) {
+      sb.append("  <dependencies>\n");
+      sb.append(deps);
+      sb.append("  </dependencies>\n");
+    }
+    sb.append("</module>\n");
+    return sb.toString();
+  }
+
   private String join(final List<String> includes) {
     StringBuilder buff = new StringBuilder();
     for (String include : includes) {
@@ -155,7 +225,6 @@ public class JoobyMojo extends AbstractMojo {
     if (vmArgs != null) {
       results.addAll(vmArgs);
     }
-    results.add("-javaagent:" + agentpath);
     if (!"false".equals(debug)) {
       // true, number, debug line
       if ("true".equals(debug)) {
@@ -190,7 +259,7 @@ public class JoobyMojo extends AbstractMojo {
     // }
     // }
     // if (altjvm == null) {
-    // getLog().warn("dcevm not found, we recommend to install it: https://github.com/dcevm/dcevm");
+    // getLog().error("dcevm not found, please install it: https://github.com/dcevm/dcevm");
     // } else {
     // results.add("-XXaltjvm=" + altjvm);
     // }
@@ -232,10 +301,10 @@ public class JoobyMojo extends AbstractMojo {
     };
   }
 
-  private Optional<Artifact> hotreload(final List<Artifact> artifacts) {
+  private Optional<Artifact> extra(final List<Artifact> artifacts, final String name) {
     for (Artifact artifact : artifacts) {
       for (String tail : artifact.getDependencyTrail()) {
-        if (tail.contains("jooby-hotreload")) {
+        if (tail.contains(name)) {
           return Optional.of(artifact);
         }
       }
