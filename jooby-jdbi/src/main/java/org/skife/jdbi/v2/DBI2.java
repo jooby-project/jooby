@@ -18,41 +18,27 @@
  */
 package org.skife.jdbi.v2;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.skife.jdbi.v2.ContainerBuilder;
-import org.skife.jdbi.v2.tweak.ContainerFactory;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
+import org.skife.jdbi.v2.tweak.ConnectionFactory;
 
-public class OptionalContainerFactory implements ContainerFactory<Optional<?>> {
+public class DBI2 extends DBI {
 
-  @Override
-  public boolean accepts(final Class<?> type) {
-    return Optional.class.isAssignableFrom(type);
+  public static final String ARG_FACTORIES = "__argumentFactories_";
+
+  private List<ArgumentFactory<?>> factories = new ArrayList<ArgumentFactory<?>>();
+
+  public DBI2(final ConnectionFactory connectionFactory) {
+    super(connectionFactory);
+    define(ARG_FACTORIES, factories);
   }
 
   @Override
-  public ContainerBuilder<Optional<?>> newContainerBuilderFor(final Class<?> type) {
-    return optional();
+  public void registerArgumentFactory(final ArgumentFactory<?> argumentFactory) {
+    factories.add(argumentFactory);
+    super.registerArgumentFactory(argumentFactory);
   }
-
-  private static ContainerBuilder<Optional<?>> optional() {
-    return new ContainerBuilder<Optional<?>>() {
-
-      private Optional<?> value = Optional.empty();
-
-      @Override
-      public Optional<?> build() {
-        return value;
-      }
-
-      @Override
-      public ContainerBuilder<Optional<?>> add(final Object it) {
-        value = Optional.ofNullable(it);
-        return this;
-      }
-    };
-  }
-
-
 
 }

@@ -28,7 +28,12 @@ import javax.inject.Provider;
 import org.jooby.Env;
 import org.jooby.jdbc.Jdbc;
 import org.skife.jdbi.v2.DBI;
+import org.skife.jdbi.v2.DBI2;
+import org.skife.jdbi.v2.ExpandedStmtRewriter;
 import org.skife.jdbi.v2.Handle;
+import org.skife.jdbi.v2.IterableArgumentFactory;
+import org.skife.jdbi.v2.OptionalArgumentFactory;
+import org.skife.jdbi.v2.OptionalContainerFactory;
 import org.skife.jdbi.v2.logging.SLF4JLog;
 
 import com.google.common.collect.Lists;
@@ -154,10 +159,12 @@ public class Jdbi extends Jdbc {
   public void configure(final Env env, final Config config, final Binder binder) {
     super.configure(env, config, binder);
 
-    DBI dbi = new DBI(() -> dataSource().get().getConnection());
+    DBI dbi = new DBI2(() -> dataSource().get().getConnection());
     dbi.setSQLLog(new SLF4JLog());
     dbi.registerArgumentFactory(new OptionalArgumentFactory());
+    dbi.registerArgumentFactory(new IterableArgumentFactory());
     dbi.registerContainerFactory(new OptionalContainerFactory());
+    dbi.setStatementRewriter(new ExpandedStmtRewriter());
 
     keys(DBI.class, key -> binder.bind(key).toInstance(dbi));
 

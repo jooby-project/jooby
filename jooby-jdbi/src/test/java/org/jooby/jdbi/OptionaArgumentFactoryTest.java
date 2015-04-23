@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.jooby.MockUnit;
 import org.junit.Test;
+import org.skife.jdbi.v2.OptionalArgumentFactory;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.Argument;
 

@@ -1,12 +1,9 @@
 # jooby-jdbi
 
-Exposes [DBI](http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/DBI.html), [Handles](http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/Handle.html) and SQL Objects (a.k.a DAO). This module extends the 
-[jdbc](/doc/jdbc) module so all the services
-provided by the [jdbc](/doc/jdbc) 
-module are inherited.
+Exposes [DBI](http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/DBI.html), [Handles](http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/Handle.html) and SQL Objects (a.k.a DAO).
+This module extends the [jdbc](/doc/jdbc) module so all the services provided by the [jdbc](/doc/jdbc) module are inherited.
 
-Before start, make sure you already setup a database connection as described in the 
-[jdbc](/doc/jdbc) module.
+Before start, make sure you already setup a database connection as described in the [jdbc](/doc/jdbc) module.
 
 See [JDBI](http://www.jdbi.org/) for a detailed usage.
 
@@ -76,6 +73,32 @@ public interface MyRepository extends Closeable {
 }
 ```
 
+## auto-magic in-clause expansion
+
+This modules support expansion of in-clauses and/or expansion of multi-value arguments (iterables and arrays).
+
+```java
+List<Integer> ids = Lists.newArrayList(1, 2, 3);
+h.createQuery("select * from something where id in (:ids)")
+  .bind("ids", ids)
+  .list();
+```
+
+The SQL expression:
+
+```sql
+select * from something where id in (:ids)
+```
+
+Will be expanded/translated to:
+
+```sql
+select * from something where id in (?, ?, ?)
+```
+
+Where the number of ```?``` is the size of the ```ids``` list.
+
+
 ## configuration
 
 If you need to configure and/or customize a [DBI](http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/DBI.html) instance, just do:
@@ -89,6 +112,3 @@ If you need to configure and/or customize a [DBI](http://jdbi.org/maven_site/api
 ```
 
 That's all folks! Enjoy it!!!
-
-
-

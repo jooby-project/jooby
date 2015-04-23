@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.jdbi;
+package org.skife.jdbi.v2;
 
 import java.sql.Types;
 import java.util.Optional;
@@ -25,10 +25,11 @@ import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
 
-class OptionalArgumentFactory implements ArgumentFactory<Optional<?>> {
+public class OptionalArgumentFactory implements ArgumentFactory<Optional<?>> {
 
   @Override
-  public boolean accepts(final Class<?> expectedType, final Object value, final StatementContext ctx) {
+  public boolean accepts(final Class<?> expectedType, final Object value,
+      final StatementContext ctx) {
     return value instanceof Optional;
   }
 

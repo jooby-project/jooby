@@ -18,41 +18,24 @@
  */
 package org.skife.jdbi.v2;
 
-import java.util.Optional;
+import org.skife.jdbi.v2.tweak.Argument;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
 
-import org.skife.jdbi.v2.ContainerBuilder;
-import org.skife.jdbi.v2.tweak.ContainerFactory;
-
-public class OptionalContainerFactory implements ContainerFactory<Optional<?>> {
+public class IterableArgumentFactory implements ArgumentFactory<Object> {
 
   @Override
-  public boolean accepts(final Class<?> type) {
-    return Optional.class.isAssignableFrom(type);
+  public boolean accepts(final Class<?> expectedType, final Object value,
+      final StatementContext ctx) {
+    if (value instanceof Iterable) {
+      return true;
+    }
+    return value.getClass().isArray();
   }
 
   @Override
-  public ContainerBuilder<Optional<?>> newContainerBuilderFor(final Class<?> type) {
-    return optional();
+  public Argument build(final Class<?> expectedType, final Object value,
+      final StatementContext sctx) {
+    return new IterableArgument(value, sctx);
   }
-
-  private static ContainerBuilder<Optional<?>> optional() {
-    return new ContainerBuilder<Optional<?>>() {
-
-      private Optional<?> value = Optional.empty();
-
-      @Override
-      public Optional<?> build() {
-        return value;
-      }
-
-      @Override
-      public ContainerBuilder<Optional<?>> add(final Object it) {
-        value = Optional.ofNullable(it);
-        return this;
-      }
-    };
-  }
-
-
 
 }

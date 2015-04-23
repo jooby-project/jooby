@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import org.junit.Test;
 import org.skife.jdbi.v2.ContainerBuilder;
+import org.skife.jdbi.v2.OptionalContainerFactory;
 
 public class OptionalContainerFactoryTest {
 

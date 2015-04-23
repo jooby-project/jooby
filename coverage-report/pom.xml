@@ -103,6 +103,11 @@
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
             <version>${jacoco-maven-plugin.version}</version>
+            <configuration>
+              <excludes>
+                <exclude>**/ExpandedStmtRewriter*</exclude>
+              </excludes>
+            </configuration>
             <executions>
               <execution>
                 <id>instrument</id>
@@ -212,6 +217,13 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- mySQL -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+    </dependency>
+
+    <!-- Hbs -->
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-hbs</artifactId>
