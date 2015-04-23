@@ -1,7 +1,7 @@
 ---
 layout: index
 title: quickstart
-version: 0.5.1
+version: 0.5.2
 ---
 
 quickstart
@@ -10,7 +10,7 @@ quickstart
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.5.1
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.5.2
 ```
 
 You might want to edit/change:
@@ -25,7 +25,7 @@ You might want to edit/change:
 Let's try it!:
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.5.1
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.5.2
 cd my-app
 mvn jooby:run
 ```
@@ -127,4 +127,3 @@ The maven plugin will compile the code (if necessary) and startup the applicatio
 
 Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.
 Then all you have to do is run the: ```App.java``` class. After all, this is plain Java application with a ```main``` method.
-

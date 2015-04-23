@@ -1,7 +1,7 @@
 ---
 layout: index
 title: maven-plugin
-version: 0.5.1
+version: 0.5.2
 ---
 
 # mvn jooby:run
@@ -14,7 +14,7 @@ A [Maven](http://maven.apache.org/) plugin for executing [Jooby](http://jooby.or
 mvn jooby:run
 ```
 
-You should see something similar to this at the end of the output:
+You should see something similar:
 
 ```bash
 Picked up JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF8
@@ -32,7 +32,7 @@ listening on:
 
 ## hot reload
 
-The plugin bounces the application every time a change was found on:
+The plugin bounces the application every time a change is detected on:
 
 - classes (*.class)
 - config files (*.conf and *.properties)
@@ -41,13 +41,15 @@ Changes on templates and/or static files (*.html, *.js, *.css) wont restart the 
 
 For the time being, you need to use a tool that compiles your source code, usually an IDE. Otherwise, no changes will be found.
 
+Is it worth to mention that dynamic reload of classes at runtime is done via [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
+
 ## options
 
 ```xml
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -81,7 +83,7 @@ List of commands to execute before starting the ```application```. Useful for [n
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -102,7 +104,7 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <vmArgs>
@@ -116,4 +118,3 @@ Set one or more ```JVM args```:
 ### includes / excludes
 
 List of file patterns to change for file changes.
-

@@ -1,7 +1,7 @@
 ---
 layout: index
 title: faq
-version: 0.5.1
+version: 0.5.2
 ---
 
 # faq and facts
@@ -29,4 +29,3 @@ Create a ```mime.properties``` file inside the ```config``` directory. Then, add
 ## can I deploy my application inside a Servlet Container?
 
 Yes, it is possible with [some limitations](/doc/jooby-servlet/).
-

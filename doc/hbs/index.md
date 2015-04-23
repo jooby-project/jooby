@@ -1,7 +1,7 @@
 ---
 layout: index
 title: hbs
-version: 0.5.1
+version: 0.5.2
 ---
 
 # jooby-hbs
@@ -14,7 +14,7 @@ Mustache/Handlebars templates for [Jooby](/). Exposes a [Handlebars](https://git
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbs</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
 </dependency>
 ```
 
@@ -106,6 +106,3 @@ hbs.cache = "expireAfterWrite=1h"
 See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/CacheBuilderSpec.html) for more detailed expressions.
 
 That's all folks! Enjoy it!!!
-
-
-
