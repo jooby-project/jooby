@@ -1,12 +1,12 @@
 ---
 layout: index
 title: modules
-version: 0.5.1
+version: 0.5.2
 ---
 
 ## mvn jooby:run
 
-* [jooby:run](/doc/maven-plugin): maven plugin with hot reload of classes.
+* [jooby:run](/doc/maven-plugin): maven plugin with hot reload of classes, powered by [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
 
 ## body parser & formatter
 
@@ -51,5 +51,3 @@ version: 0.5.1
 ## servlet
 
 * [servlet](/doc/servlet): supports war deployments.
-
-

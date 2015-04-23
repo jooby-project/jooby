@@ -1,7 +1,7 @@
 ---
 layout: index
 title: ftl
-version: 0.5.1
+version: 0.5.2
 ---
 
 # jooby-ftl
@@ -14,7 +14,7 @@ version: 0.5.1
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
 </dependency>
 ```
 
@@ -106,5 +106,26 @@ See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/co
 
 That's all folks! Enjoy it!!!
 
+# appendix: freemarker.conf
 
+```properties
+#freemarker defaults
 
+freemarker.locale = ${application.lang}
+
+freemarker.number_format = ${application.numberFormat}
+
+freemarker.date_format = ${application.dateFormat}
+
+freemarker.time_zone = ${application.tz}
+
+freemarker.object_wrapper = default
+
+freemarker.template_exception_handler = default
+
+freemarker.defaultEncoding = ${application.charset}
+
+# cache for env != dev
+freemarker.cache = "maximumSize=100"
+
+```

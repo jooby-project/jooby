@@ -1,7 +1,7 @@
 ---
 layout: index
 title: jdbi
-version: 0.5.1
+version: 0.5.2
 ---
 
 # jooby-jdbi
@@ -22,7 +22,7 @@ See [JDBI](http://www.jdbi.org/) for a detailed usage.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbi</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
 </dependency>
 ```
 
@@ -95,6 +95,3 @@ If you need to configure and/or customize a [DBI](http://jdbi.org/maven_site/api
 ```
 
 That's all folks! Enjoy it!!!
-
-
-

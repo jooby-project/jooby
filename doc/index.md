@@ -1,7 +1,7 @@
 ---
 layout: index
 title: doc
-version: 0.5.1
+version: 0.5.2
 ---
 
 documentation
@@ -1536,6 +1536,7 @@ There is no much to say about views & engines, any other detail or documentation
 
 
 # appendix: jooby.conf
+
 ```properties
 ###################################################################################################
 # application
@@ -1659,6 +1660,7 @@ err.java.io.FileNotFoundException = 404
 ```
 
 # appendix: mime.properties
+
 ```properties
 mime.ai=application/postscript
 mime.aif=audio/x-aiff
@@ -1855,5 +1857,3 @@ mime.woff2=application/font-woff2
 mime.map=text/plain
 
 ```
-
-

@@ -1,7 +1,7 @@
 ---
 layout: index
 title: jackson
-version: 0.5.1
+version: 0.5.2
 ---
 
 # jooby-jackson
@@ -18,7 +18,7 @@ Exposes [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2.5.2
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
 </dependency>
 ```
 ## usage
@@ -101,6 +101,3 @@ It is possible to wire Jackson modules too:
 This is useful when your *MyJacksonModuleWiredByGuice* module require some dependencies.
 
 That's all folks! Enjoy it!!!
-
-
-

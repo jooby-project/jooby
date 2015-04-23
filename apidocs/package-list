@@ -3,6 +3,7 @@ org.jooby.camel
 org.jooby.ftl
 org.jooby.hbm
 org.jooby.hbs
+org.jooby.hotreload
 org.jooby.jackson
 org.jooby.jdbc
 org.jooby.jdbi
@@ -17,3 +18,4 @@ org.jooby.servlet
 org.jooby.spi
 org.jooby.undertow
 org.jooby.util
+org.skife.jdbi.v2
