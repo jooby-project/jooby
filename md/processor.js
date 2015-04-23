@@ -127,7 +127,7 @@ var freplace = function (source, token, value) {
 }
 
 var readConf = function (file) {
-  var name = file.parentFile.name === 'doc' ? 'jooby' : file.parentFile.name,
+  var name = file.parentFile.name === 'doc' ? 'jooby' : 'jooby-' + file.parentFile.name,
       dir = paths.get(basedir, name, "src", "main", "resources");
 
   var data = '';
@@ -135,7 +135,7 @@ var readConf = function (file) {
     return file.name.endsWith('.conf') || file.name.endsWith('.properties');
   }).forEach(function (file) {
     console.log("properties found: " + file);
-    data += '# appendix: ' + file.name + '\n```properties\n' + readString(file) + '\n```\n\n';
+    data += '# appendix: ' + file.name + '\n\n```properties\n' + readString(file) + '\n```\n\n';
   });
   return data;
 }
@@ -316,13 +316,14 @@ ls(mdoutdir, function (file) {
 
   // toc
   console.log('   applying {{toc.md}}');
-  data = freplace(data, '{{toc.md}}', toc(data));
+  data = freplace(data, '{{toc.md}}', toc(data)).trim() + '\n';
+  data = freplace(data, 'https://github.com/jooby-project/jooby/tree/master/jooby-', '/doc/');
 
   // dump file
   var fout = new File(ghpagesdir, file.absolutePath.substring(mdoutdir.absolutePath.length()));
   fout.parentFile.mkdirs();
   // replace absolute links
-  writeString(fout, data.replaceAll('https://github.com/jooby-project/jooby/tree/master/jooby-', '/doc/'));
+  writeString(fout, data);
   console.log('  done: ' + fout);
 });
 

@@ -10,7 +10,7 @@ Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-mongodb</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
 </dependency>
 ```
 
@@ -151,5 +151,30 @@ It's possible to change the default key setting the ```mongodb.sesssion.collecti
 That's all folks! Enjoy it!!
 
 
+# appendix: mongodb.conf
 
+```properties
+###################################################################################################
+# mongodb
+###################################################################################################
+mongodb.connectionsPerHost = 100
+mongodb.threadsAllowedToBlockForConnectionMultiplier = 5
+mongodb.maxWaitTime = 120s
+mongodb.connectTimeout = 10s
+mongodb.socketTimeout = 0
+mongodb.socketKeepAlive = false
+mongodb.cursorFinalizerEnabled = true
+mongodb.alwaysUseMBeans = false
+mongodb.heartbeatFrequency = 5000
+mongodb.minHeartbeatFrequency = 500
+mongodb.heartbeatConnectTimeout = 20s
+mongodb.heartbeatSocketTimeout = 20s
 
+###################################################################################################
+# session datastore
+#  collection: sessions
+#  timeout: 30m
+###################################################################################################
+mongodb.session.collection = sessions
+
+```

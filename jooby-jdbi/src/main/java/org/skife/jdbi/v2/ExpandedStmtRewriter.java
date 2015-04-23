@@ -43,8 +43,9 @@ import org.skife.jdbi.v2.tweak.StatementRewriter;
 import com.google.common.base.Strings;
 
 /**
+ * <p>
  * Statement rewriter which replaces named parameter tokens of the form :tokenName
- * <p/>
+ * </p>
  * This is the default statement rewriter.
  *
  * This is a copy of the {@link ColonPrefixNamedParamStatementRewriter} with sql expansion for

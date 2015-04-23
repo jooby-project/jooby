@@ -16,7 +16,7 @@ Add the ```jooby-servlet``` dependency to your ```pom.xml```:
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -150,5 +150,3 @@ When the generated file isn't enough, follow these steps:
 3. run: ```mvn clean package```
 
 That's all folks! Enjoy it!!!
-
-
