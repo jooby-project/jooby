@@ -76,6 +76,29 @@ public interface MyRepository extends Closeable {
 }
 ```
 
+## auto-magic in-clause expansion
+
+This modules support expansion of in-clauses and/or expansion of multi-value arguments (iterables and arrays).
+
+```java
+List<Integer> ids = Lists.newArrayList(1, 2, 3);
+h.createQuery("select * from something where id in (:ids)")
+  .bind("ids", ids)
+  .list();
+```
+
+The SQL expression:
+
+```sql
+select * from something where id in (:ids)
+```
+
+Will be expanded/translated to:
+
+```sql
+select * from something where id in (?, ?, ?)
+```
+
 ## configuration
 
 If you need to configure and/or customize a [DBI](http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/DBI.html) instance, just do:
