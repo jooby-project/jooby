@@ -18,7 +18,6 @@
  */
 package org.jooby.internal;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -35,10 +34,13 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.io.Closeables;
+import com.google.common.io.Resources;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
 public class RouteMetadata {
 
@@ -67,18 +69,21 @@ public class RouteMetadata {
   }
 
   private Map<String, Object> md(final Executable exec) {
-    Class<?> owner = exec.getDeclaringClass();
-    return cache.getUnchecked(owner);
+    try {
+      return cache.getUnchecked(exec.getDeclaringClass());
+    } catch (UncheckedExecutionException ex) {
+      throw Throwables.propagate(ex.getCause());
+    }
   }
 
   private static Map<String, Object> extractMetadata(final Class<?> owner) {
     InputStream stream = null;
     try {
       Map<String, Object> md = new HashMap<>();
-      stream = owner.getResourceAsStream(classfile(owner));
+      stream = Resources.getResource(owner, classfile(owner)).openStream();
       new ClassReader(stream).accept(visitor(md), 0);
       return md;
-    } catch (IOException ex) {
+    } catch (Exception ex) {
       // won't happen, but...
       throw new IllegalStateException("Can't read class: " + owner.getName(), ex);
     } finally {

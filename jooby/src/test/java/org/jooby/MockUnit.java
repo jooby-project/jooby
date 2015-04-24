@@ -93,10 +93,12 @@ public class MockUnit {
     if (Modifier.isFinal(type.getModifiers())) {
       T mock = PowerMock.createMock(type);
       partialMocks.add(mock);
+      return mock;
+    } else {
+      T mock = strict ? createStrictMock(type) : createMock(type);
+      mocks.add(mock);
+      return mock;
     }
-    T mock = strict ? createStrictMock(type) : createMock(type);
-    mocks.add(mock);
-    return mock;
   }
 
   public <T> T registerMock(final Class<T> type) {

@@ -24,12 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import org.jooby.Asset;
 import org.jooby.MediaType;
-
-import com.google.common.io.Closeables;
 
 class URLAsset implements Asset {
 
@@ -44,9 +42,9 @@ class URLAsset implements Asset {
   public URLAsset(final URL url, final MediaType mediaType) throws IOException {
     this.url = requireNonNull(url, "An url is required.");
     this.mediaType = requireNonNull(mediaType, "A mediaType is required.");
-    Optional.ofNullable(lastModified(url)).ifPresent(md -> {
-      this.length = md[0];
-      this.lastModified = md[1];
+    headers(url, (len, lstMod) -> {
+      this.length = len;
+      this.lastModified = lstMod;
     });
   }
 
@@ -82,18 +80,22 @@ class URLAsset implements Asset {
     return name() + "(" + type() + ")";
   }
 
-  private static long[] lastModified(final URL resource) throws IOException {
+  private static void headers(final URL resource, final BiConsumer<Long, Long> callback)
+      throws IOException {
     URLConnection uc = null;
     try {
       uc = resource.openConnection();
-      return new long[]{uc.getContentLengthLong(), uc.getLastModified() };
-    } catch (IOException ex) {
-      return null;
+      long len = uc.getContentLengthLong();
+      long lastModified = uc.getLastModified();
+      callback.accept(len > 0 ? len : -1, lastModified > 0 ? lastModified : -1);
     } finally {
       if (uc != null) {
-        // http://stackoverflow.com/questions/2057351/how-do-i-get-the-last-modification-time-of
-        // -a-java-resource
-        Closeables.close(uc.getInputStream(), true);
+        // http://stackoverflow.com/questions/2057351/how-do-i-get-the-last-modification-time-of-a-java-resource
+        try {
+          InputStream stream = uc.getInputStream();
+          stream.close();
+        } catch (IOException ignored) {
+        }
       }
     }
   }
