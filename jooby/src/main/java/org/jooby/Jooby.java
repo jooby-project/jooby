@@ -63,11 +63,15 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -466,6 +470,11 @@ public class Jooby {
   private final Set<Jooby.Module> modules = new LinkedHashSet<>();
 
   /**
+   * Env callback.
+   */
+  private final Map<String, List<Runnable>> envcallbacks = new LinkedHashMap<>();
+
+  /**
    * The override config. Optional.
    */
   private Config source;
@@ -522,6 +531,80 @@ public class Jooby {
    */
   public Jooby env(final Env.Builder env) {
     this.env = requireNonNull(env, "Env builder is required.");
+    return this;
+  }
+
+  /**
+   * Run the given callback if and only if, app runs in the given enviroment.
+   *
+   * <pre>
+   * {
+   *   on("dev", () {@literal ->} {
+   *     use(new DevModule());
+   *   });
+   * }
+   * </pre>
+   *
+   * @param env Environment where we want to run the callback.
+   * @param callback An env callback.
+   * @return This jooby instance.
+   */
+  public Jooby on(final String env, final Runnable callback) {
+    requireNonNull(env, "Env is required.");
+    requireNonNull(callback, "Callback is required.");
+    List<Runnable> callbacks = envcallbacks.get(env);
+    if (callbacks == null) {
+      callbacks = new ArrayList<>();
+      envcallbacks.put(env, callbacks);
+    }
+    callbacks.add(callback);
+    return this;
+  }
+
+  /**
+   * Run the given callback if and only if, app runs in the given enviroment.
+   *
+   * <pre>
+   * {
+   *   on("dev", "test", () {@literal ->} {
+   *     use(new DevModule());
+   *   });
+   * }
+   * </pre>
+   *
+   * @param env1 Environment where we want to run the callback.
+   * @param env2 Environment where we want to run the callback.
+   * @param callback An env callback.
+   * @return This jooby instance.
+   */
+  public Jooby on(final String env1, final String env2, final Runnable callback) {
+    on(env1, callback);
+    on(env2, callback);
+    return this;
+  }
+
+  /**
+   * Run the given callback if and only if, app runs in the given enviroment.
+   *
+   * <pre>
+   * {
+   *   on("dev", "test", "mock", () {@literal ->} {
+   *     use(new DevModule());
+   *   });
+   * }
+   * </pre>
+   *
+   * @param env1 Environment where we want to run the callback.
+   * @param env2 Environment where we want to run the callback.
+   * @param env3 Environment where we want to run the callback.
+   * @param callback An env callback.
+   * @return This jooby instance.
+   */
+  public Jooby on(final String env1, final String env2, final String env3,
+      final Runnable callback) {
+    on(env1, callback);
+    on(env2, callback);
+    on(env3, callback);
     return this;
   }
 
@@ -2692,6 +2775,7 @@ public class Jooby {
             )
         );
     Env env = this.env.build(config);
+    String envname = env.name();
 
     final Charset charset = Charset.forName(config.getString("application.charset"));
 
@@ -2706,7 +2790,10 @@ public class Jooby {
     DecimalFormat numberFormat = new DecimalFormat(config.getString("application.numberFormat"));
 
     // Guice Stage
-    Stage stage = "dev".equals(env.name()) ? Stage.DEVELOPMENT : Stage.PRODUCTION;
+    Stage stage = "dev".equals(envname) ? Stage.DEVELOPMENT : Stage.PRODUCTION;
+
+    // run env callbacks
+    envcallbacks.getOrDefault(envname, Collections.emptyList()).forEach(Runnable::run);
 
     // dependency injection
     @SuppressWarnings("unchecked")
