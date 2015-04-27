@@ -8,7 +8,7 @@ A job scheduler from [Quartz](http://quartz-scheduler.org/).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>0.5.2</version>
+  <version>0.5.3</version>
 </dependency>
 ```
 ## usage
@@ -44,46 +44,35 @@ The next section will you show how to add a trigger to a job and some examples t
 
 ## triggers
 
-Trigger are defined by the ```Scheduled``` annotation. The annotation defines a single and required attributes, which is basically a trigger expression or a reference to it.
+Trigger are defined by the ```Scheduled``` annotation. The annotation defines a single and required attributes, which is basically a trigger expression or a reference to one.
 
-Example 1: run every 10s
+Examples:
 
-```java
-public class MyJob implements Job {
-  @Scheduled("10s")
-  public void execute(JobExecutionContext ctx) throws JobExecutionException {
-    ...
-  }
-}
-```
+Run every 5 minutes, start immediately and repeat for ever:
 
-Example 2: run every 10s (no ```Job```)
+    @Scheduled("5m")
+    @Scheduled("5m; delay=0")
+    @Scheduled("5m; delay=0; repeat=*")
 
-```java
-public class MyJob {
-  @Scheduled("10s")
-  public void doWork() {
-    ...
-  }
-}
-```
+Previous, expressions are identical.
 
-The ```Scheduled``` define a ```Quartz Trigger```. There you can put expressions
-like: ```5s```, ```15minutes```, ```2hours```, etc... or a CRON expression: ```0/3 * * * * ?```.
+Run every 1 hour with an initial delay of 15 minutes for 10 times:
+
+    @Scheduled("1h; delay=15m; repeat=10")
+
+Fire at 12pm (noon) every day:
+
+    0 0 12* ?
+
+
+Fire at 10:15am every day:
+
+    0 15 10 ?*
 
 It is also possible to put the name of property:
 
-```java
-public class MyJob {
-  @Scheduled("job.expr")
-  public void doWork() {
-    ...
-  }
-}
-```
+    @Scheduled("job.expr")
 
-And again the property: ```job.expr``` must be one of the previously described expressions.
- 
 
 ## grouping jobs together
 
