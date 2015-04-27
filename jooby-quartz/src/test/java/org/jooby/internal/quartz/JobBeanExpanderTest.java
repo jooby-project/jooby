@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 
 import org.jooby.MockUnit;
 import org.jooby.quartz.Scheduled;
@@ -137,7 +136,7 @@ public class JobBeanExpanderTest {
     new MockUnit(Config.class)
         .expect(unit -> {
           Config config = unit.get(Config.class);
-          expect(config.hasPath("5s")).andReturn(false);
+          expect(config.getString("5s")).andThrow(new ConfigException.BadPath("5s", "5s"));
         })
         .run(unit -> {
           Entry<JobDetail, Trigger> entry = JobExpander
@@ -162,7 +161,7 @@ public class JobBeanExpanderTest {
         .expect(
             unit -> {
               Config config = unit.get(Config.class);
-              expect(config.hasPath("0/3 * * * * ?")).andThrow(
+              expect(config.getString("0/3 * * * * ?")).andThrow(
                   new ConfigException.BadPath("0/3 * * * * ?", "0/3 * * * * ?"));
             })
         .run(unit -> {
@@ -188,8 +187,7 @@ public class JobBeanExpanderTest {
         .expect(
             unit -> {
               Config config = unit.get(Config.class);
-              expect(config.hasPath("job.scheduled")).andReturn(true);
-              expect(config.getDuration("job.scheduled", TimeUnit.MILLISECONDS)).andReturn(3000L);
+              expect(config.getString("job.scheduled")).andReturn("3000");
             })
         .run(
             unit -> {
@@ -220,9 +218,6 @@ public class JobBeanExpanderTest {
         .expect(
             unit -> {
               Config config = unit.get(Config.class);
-              expect(config.hasPath("job.scheduled")).andReturn(true);
-              expect(config.getDuration("job.scheduled", TimeUnit.MILLISECONDS)).andThrow(
-                  new ConfigException.BadValue("/path", "bad"));
               expect(config.getString("job.scheduled")).andReturn("0/3 * * * * ?");
             })
         .run(

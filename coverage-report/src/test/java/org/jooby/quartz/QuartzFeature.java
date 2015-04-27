@@ -17,7 +17,7 @@ public class QuartzFeature extends ServerFeature {
   @DisallowConcurrentExecution
   public static class QJob {
 
-    @Scheduled("3s")
+    @Scheduled("3s;delay=0")
     public void run() {
       latch.countDown();
     }

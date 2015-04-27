@@ -23,11 +23,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import org.jooby.quartz.Scheduled;
 import org.quartz.CronScheduleBuilder;
@@ -133,23 +134,9 @@ public class JobExpander {
 
   private static Trigger newTrigger(final Config config, final Scheduled scheduled,
       final JobKey key) {
-    Function<String, Boolean> hasPath = p -> {
-      try {
-        return config.hasPath(p);
-      } catch (ConfigException.BadPath ex) {
-        return false;
-      }
-    };
-
     String expr = scheduled.value();
     // hack
-    final Object value;
-    if (hasPath.apply(expr)) {
-      value = intervalOrCron(config, expr);
-    } else {
-      value = intervalOrCron(
-          ConfigFactory.empty().withValue("expr", ConfigValueFactory.fromAnyRef(expr)), "expr");
-    }
+    Object value = eval(key, config, expr);
     // almost there
     if (value instanceof String) {
       // cron
@@ -161,25 +148,64 @@ public class JobExpander {
           .withIdentity(TriggerKey.triggerKey(key.getName(), key.getGroup()))
           .build();
     } else {
+      Long[] interval = (Long[]) value;
+
+      SimpleScheduleBuilder sb = SimpleScheduleBuilder
+          .simpleSchedule()
+          .withIntervalInMilliseconds(interval[0]);
+      if (interval[2] > 0) {
+        sb = sb.withRepeatCount(interval[2].intValue());
+      } else {
+        sb = sb.repeatForever();
+      }
+
       return TriggerBuilder.newTrigger()
-          .withSchedule(
-              SimpleScheduleBuilder
-                  .simpleSchedule()
-                  .withIntervalInMilliseconds((long) value)
-                  .repeatForever()
-          )
+          .withSchedule(sb)
           .withIdentity(TriggerKey.triggerKey(key.getName(), key.getGroup()))
-          .startNow()
+          .startAt(new Date(System.currentTimeMillis() + interval[1]))
           .build();
     }
   }
 
-  private static Object intervalOrCron(final Config config, final String name) {
-    try {
-      return config.getDuration(name, TimeUnit.MILLISECONDS);
-    } catch (ConfigException.WrongType | ConfigException.BadValue ex) {
-      return config.getString(name);
-    }
+  private static Object eval(final JobKey key, final Config config, final String expr) {
+    // full expression with possible delay and repeat values
+    return eval(config, expr, (values, resolved) -> {
+      if (resolved instanceof Long) {
+        // interval with delay and repeat
+        Long[] inverval = new Long[]{(Long) resolved, 0L, 0L };
+        for (int i = 1; i < values.length; i++) {
+          String[] attr = values[i].split("=");
+          if ("delay".equals(attr[0].trim())) {
+            inverval[1] = (Long) eval(config, attr[1], (v, r) -> r);
+          } else if ("repeat".equals(attr[0].trim())) {
+            if (!"*".equals(attr[1].trim())) {
+              inverval[2] = (Long) eval(config, attr[1], (v, r) -> r);
+            }
+          } else {
+            throw new IllegalArgumentException("Unknown attribute: " + attr[0] + " at " + key);
+          }
+        }
+        return inverval;
+      }
+      return resolved;
+    });
   }
 
+  private static Object eval(final Config config, final String expr,
+      final BiFunction<String[], Object, Object> mapper) {
+    String value = expr.trim();
+    try {
+      value = config.getString(value);
+    } catch (ConfigException.BadPath | ConfigException.Missing ex) {
+      // shh
+    }
+    String[] values = value.split(";");
+    Config eval = ConfigFactory.empty()
+        .withValue("expr", ConfigValueFactory.fromAnyRef(values[0]));
+    try {
+      return mapper.apply(values, eval.getDuration("expr", TimeUnit.MILLISECONDS));
+    } catch (ConfigException.WrongType | ConfigException.BadValue ex) {
+      return mapper.apply(values, value);
+    }
+  }
 }

@@ -24,35 +24,58 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.quartz.CronTrigger;
-import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 
 /**
  * <p>
- * Define a {@link Trigger Quartz Trigger}. There you can put expressions
- * like: <code>5s</code>, <code>15minutes</code>, <code>2hours</code>, etc... or a CRON expression:
- * <code>0/3 * * * * ?</code>.
+ * Define a {@link Trigger Quartz Trigger}. Using one of three expressions:
  * </p>
+ * <ul>
+ * <li>interval: like<code>5s;delay=60s;repeat=*</code>, <code>delay</code> and <code>repeat</code>
+ * are optional
+ * <li>cron: like <code>0/3 * * * * ?</code></li>
+ * <li>property name: a property defined in <code>.conf</code> file which has one of two previous
+ * formats</li>
+ * </ul>
+ *
+ * Examples:
  * <p>
- * It is also possible to put the name of property:
+ * Run every 5 minutes, start immediately and repeat for ever:
  * </p>
  *
  * <pre>
- *  public class MyJob {
- *    &#64;Scheduled("job.expr")
- *    public void doWork() {
- *      ...
- *    }
- *  }
+ * &#64;Scheduled("5m")
+ *
+ * &#64;Scheduled("5m; delay=0")
+ *
+ * &#64;Scheduled("5m; delay=0; repeat=*")
  * </pre>
+ *
+ * Previous, expressions are identical.
+ *
  * <p>
- * And again the property: <code>job.expr</code> must be one of the previously described
- * expressions.
+ * Run every 1 hour with an initial delay of 15 minutes for 10 times
  * </p>
  *
- * Keep in mind the annotation represent a {@link SimpleTrigger} that repeat for ever or
- * {@link CronTrigger}.
+ * <pre>
+ * &#64;Scheduled("1h; delay=15m; repeat=10")
+ * </pre>
+ *
+ * <p>
+ * Fire at 12pm (noon) every day
+ * </p>
+ *
+ * <pre>
+ * 0 0 12 * * ?
+ * </pre>
+ *
+ * <p>
+ * Fire at 10:15am every day
+ * </p>
+ *
+ * <pre>
+ * 0 15 10 ? * *
+ * </pre>
  *
  * @author edgar
  * @since 0.5.0

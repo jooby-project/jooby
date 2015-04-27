@@ -92,56 +92,47 @@ import com.typesafe.config.ConfigFactory;
  * <h1>triggers</h1>
  * <p>
  * Trigger are defined by the {@link Scheduled} annotation. The annotation defines a single and
- * required attributes, which is basically a trigger expression or a reference to it.
+ * required attribute, which is basically a trigger expression or a reference to one.
  * </p>
  *
+ * Examples:
  * <p>
- * Example 1: run every 10s
+ * Run every 5 minutes, start immediately and repeat for ever:
  * </p>
  *
  * <pre>
- *  public class MyJob implements Job {
- *    &#64;Scheduled("10s")
- *    public void execute(JobExecutionContext ctx) throws JobExecutionException {
- *      ...
- *    }
- *  }
+ * &#64;Scheduled("5m")
+ *
+ * &#64;Scheduled("5m; delay=0")
+ *
+ * &#64;Scheduled("5m; delay=0; repeat=*")
  * </pre>
  *
+ * Previous, expressions are identical.
+ *
  * <p>
- * Example 2: run every 10s (no {@link Job})
+ * Run every 1 hour with an initial delay of 15 minutes for 10 times
  * </p>
  *
  * <pre>
- *  public class MyJob {
- *    &#64;Scheduled("10s")
- *    public void doWork() {
- *      ...
- *    }
- *  }
+ * &#64;Scheduled("1h; delay=15m; repeat=10")
  * </pre>
  *
  * <p>
- * The {@link Scheduled} define a {@link Trigger Quartz Trigger}. There you can put expressions
- * like: <code>5s</code>, <code>15minutes</code>, <code>2hours</code>, etc... or a CRON expression:
- * <code>0/3 * * * * ?</code>.
- * </p>
- * <p>
- * It is also possible to put the name of property:
+ * Fire at 12pm (noon) every day
  * </p>
  *
  * <pre>
- *  public class MyJob {
- *    &#64;Scheduled("job.expr")
- *    public void doWork() {
- *      ...
- *    }
- *  }
+ * 0 0 12 * * ?
  * </pre>
+ *
  * <p>
- * And again the property: <code>job.expr</code> must be one of the previously described
- * expressions.
+ * Fire at 10:15am every day
  * </p>
+ *
+ * <pre>
+ * 0 15 10 ? * *
+ * </pre>
  *
  * <h1>grouping jobs together</h1>
  * <p>
