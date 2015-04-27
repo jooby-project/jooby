@@ -1,7 +1,7 @@
 ---
 layout: index
 title: modules
-version: 0.5.2
+version: 0.5.3
 ---
 
 ## mvn jooby:run
