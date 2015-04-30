@@ -46,12 +46,6 @@
       <artifactId>camel-core</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-guice</artifactId>
-      <version>${camel.version}</version>
-    </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.jooby</groupId>
