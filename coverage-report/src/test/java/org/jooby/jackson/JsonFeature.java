@@ -27,7 +27,7 @@ public class JsonFeature extends ServerFeature {
   }
 
   {
-    use(new Json());
+    use(new Jackson());
 
     get("/members", req ->
         Lists.newArrayList(ImmutableMap.<String, Object> of("id", 1, "name", "pablo")));

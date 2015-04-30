@@ -12,7 +12,7 @@ import com.google.inject.name.Names;
 public class JsonAccessFeature extends ServerFeature {
 
   {
-    use(new Json());
+    use(new Jackson());
 
     get("/formatter", req -> req.require(Key.get(BodyFormatter.class, Names.named("json"))));
 

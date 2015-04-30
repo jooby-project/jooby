@@ -14,7 +14,7 @@ public class JsonDoWithFeature extends ServerFeature {
 
   {
 
-    use(new Json().doWith(mapper ->
+    use(new Jackson().doWith(mapper ->
         mapper.enable(SerializationFeature.INDENT_OUTPUT)
         ));
 

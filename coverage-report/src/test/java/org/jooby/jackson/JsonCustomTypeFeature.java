@@ -17,7 +17,7 @@ public class JsonCustomTypeFeature extends ServerFeature {
 
   {
 
-    use(new Json().types(MediaType.valueOf("application/vnd.github.v3+json")));
+    use(new Jackson().types(MediaType.valueOf("application/vnd.github.v3+json")));
 
     get("/members",
         req -> Lists.newArrayList(ImmutableMap.<String, Object> of("id", 1, "name", "pablo")));

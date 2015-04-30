@@ -18,7 +18,7 @@ public class JsonCustomMapperFeature extends ServerFeature {
   {
 
     ObjectMapper mapper = new ObjectMapper();
-    use(new Json(mapper).doWith(m -> {
+    use(new Jackson(mapper).doWith(m -> {
       assertSame(mapper, m);
       mapper.enable(SerializationFeature.INDENT_OUTPUT);
     }));

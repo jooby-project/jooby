@@ -49,7 +49,76 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 
-public class Json implements Jooby.Module {
+/**
+ * JSON support from the excellent <a href="https://github.com/FasterXML/jackson">Jackson</a>
+ * library.
+ *
+ * This module provides a JSON {@link BodyParser} and {@link BodyFormatter}, but also an
+ * {@link ObjectMapper}.
+ *
+ * <h1>usage</h1>
+ *
+ * <pre>
+ * {
+ *   use(new Jackson());
+ *
+ *   // sending
+ *   get("/my-api", req {@literal ->} new MyObject());
+ *
+ *   // receiving a json body
+ *   post("/my-api", req {@literal ->} {
+ *     MyObject obj = req.body(MyObject.class);
+ *     return obj;
+ *   });
+ *
+ *   // receiving a json param from a multipart or form url encoded
+ *   post("/my-api", req {@literal ->} {
+ *     MyObject obj = req.param("my-object").to(MyObject.class);
+ *     return obj;
+ *   });
+ * }
+ * </pre>
+ *
+ * <h1>advanced configuration</h1> If you need a special setting or configuration for your
+ * {@link ObjectMapper}:
+ *
+ * <pre>
+ * {
+ *   use(new Jackson().configure(mapper {@literal ->} {
+ *     // setup your custom object mapper
+ *   });
+ * }
+ * </pre>
+ *
+ * or provide an {@link ObjectMapper} instance:
+ *
+ * <pre>
+ * {
+ *   ObjectMapper mapper = ....;
+ *   use(new Jackson(mapper));
+ * }
+ * </pre>
+ *
+ * It is possible to wire Jackson modules too:
+ *
+ * <pre>
+ * {
+ *
+ *   use(new Jackson());
+ *
+ *   use((mode, config, binder) {@literal ->} {
+ *     Multibinder.newSetBinder(binder, Module.class).addBinding()
+ *       .to(MyJacksonModuleWiredByGuice.class);
+ *   });
+ * }
+ * </pre>
+ *
+ * This is useful when your jackson module require some dependencies.
+ *
+ * @author edgar
+ * @since 0.6.0
+ */
+public class Jackson implements Jooby.Module {
 
   private static class PostConfigurer {
 
@@ -108,31 +177,31 @@ public class Json implements Jooby.Module {
 
   private List<MediaType> types = ImmutableList.of(MediaType.json);
 
-  public Json(final ObjectMapper mapper) {
+  public Jackson(final ObjectMapper mapper) {
     this.mapper = checkNotNull(mapper, "An object mapper is required.");
     this.modules.add(new Jdk8Module());
     // Java 8 dates
     this.modules.add(new JSR310Module());
   }
 
-  public Json() {
+  public Jackson() {
     this(new ObjectMapper());
   }
 
-  public Json types(final MediaType... types) {
+  public Jackson types(final MediaType... types) {
     return types(ImmutableList.copyOf(types));
   }
 
-  public Json types(final List<MediaType> types) {
+  public Jackson types(final List<MediaType> types) {
     this.types = ImmutableList.copyOf(types);
     return this;
   }
 
-  public Json types(final String... types) {
+  public Jackson types(final String... types) {
     return types(MediaType.valueOf(types));
   }
 
-  public Json doWith(final Consumer<ObjectMapper> block) {
+  public Jackson doWith(final Consumer<ObjectMapper> block) {
     requireNonNull(block, "A json block is required.").accept(mapper);
     return this;
   }
