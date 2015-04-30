@@ -180,9 +180,12 @@ public class JoobyMojo extends AbstractMojo {
       }
       // maven dependencies
       for (Artifact artifact : artifacts) {
-        rsb.append("    <artifact name=\"").append(artifact.getGroupId()).append(":")
-            .append(artifact.getArtifactId()).append(":").append(artifact.getVersion())
-            .append("\" />\n");
+        // not pom
+        if (!"pom".equals(artifact.getType())) {
+          rsb.append("    <artifact name=\"").append(artifact.getGroupId()).append(":")
+              .append(artifact.getArtifactId()).append(":").append(artifact.getVersion())
+              .append("\" />\n");
+        }
       }
       String content = jbossModule(project.getGroupId(), project.getArtifactId(), rsb, null);
       moddir.toFile().mkdirs();
