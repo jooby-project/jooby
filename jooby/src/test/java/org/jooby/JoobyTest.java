@@ -37,6 +37,7 @@ import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
+import org.jooby.internal.reqparam.BeanParamConverter;
 import org.jooby.internal.reqparam.CollectionParamConverter;
 import org.jooby.internal.reqparam.CommonTypesParamConverter;
 import org.jooby.internal.reqparam.DateParamConverter;
@@ -51,6 +52,7 @@ import org.jooby.internal.reqparam.UploadParamConverter;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
+import org.jooby.reflect.ParameterNameProvider;
 import org.jooby.scope.RequestScoped;
 import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
@@ -165,10 +167,10 @@ public class JoobyTest {
   private MockUnit.Block classInfo = unit -> {
     Binder binder = unit.get(Binder.class);
 
-    AnnotatedBindingBuilder<RouteMetadata> binding = unit.mock(AnnotatedBindingBuilder.class);
+    AnnotatedBindingBuilder<ParameterNameProvider> binding = unit.mock(AnnotatedBindingBuilder.class);
     binding.toInstance(isA(RouteMetadata.class));
 
-    expect(binder.bind(RouteMetadata.class)).andReturn(binding);
+    expect(binder.bind(ParameterNameProvider.class)).andReturn(binding);
   };
 
   private MockUnit.Block charset = unit -> {
@@ -415,6 +417,7 @@ public class JoobyTest {
         DateParamConverter.class,
         LocalDateParamConverter.class,
         LocaleParamConverter.class,
+        BeanParamConverter.class,
         StaticMethodParamConverter.class,
         StaticMethodParamConverter.class,
         StaticMethodParamConverter.class,

@@ -93,6 +93,7 @@ import org.jooby.internal.ServerLookup;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.mvc.MvcRoutes;
+import org.jooby.internal.reqparam.BeanParamConverter;
 import org.jooby.internal.reqparam.CollectionParamConverter;
 import org.jooby.internal.reqparam.CommonTypesParamConverter;
 import org.jooby.internal.reqparam.DateParamConverter;
@@ -107,6 +108,7 @@ import org.jooby.internal.reqparam.UploadParamConverter;
 import org.jooby.internal.routes.HeadHandler;
 import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
+import org.jooby.reflect.ParameterNameProvider;
 import org.jooby.scope.RequestScoped;
 import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
@@ -2848,7 +2850,7 @@ public class Jooby {
             .toInstance(tmpdir);
 
         RouteMetadata classInfo = new RouteMetadata(env);
-        binder.bind(RouteMetadata.class).toInstance(classInfo);
+        binder.bind(ParameterNameProvider.class).toInstance(classInfo);
 
         converters.add(new CommonTypesParamConverter());
         converters.add(new CollectionParamConverter());
@@ -2858,6 +2860,7 @@ public class Jooby {
         converters.add(new DateParamConverter(dateFormat));
         converters.add(new LocalDateParamConverter(dateTimeFormatter));
         converters.add(new LocaleParamConverter());
+        converters.add(new BeanParamConverter());
         converters.add(new StaticMethodParamConverter("valueOf"));
         converters.add(new StaticMethodParamConverter("fromString"));
         converters.add(new StaticMethodParamConverter("forName"));

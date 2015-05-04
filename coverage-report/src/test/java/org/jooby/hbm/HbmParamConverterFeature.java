@@ -20,13 +20,13 @@ public class HbmParamConverterFeature extends ServerFeature {
 
     use(new Hbm(Member.class));
 
-    param((type, vals, ctx) -> {
-      if (type.getRawType() == Member.class) {
+    param((type, values, ctx) -> {
+      if (type.getRawType() == Member.class && values.length > 0) {
         EntityManager em = ctx.require(EntityManager.class);
-        Member member = em.find(Member.class, Integer.parseInt(vals[0].toString()));
+        Member member = em.find(Member.class, Integer.parseInt(values[0].toString()));
         return member;
       }
-      return ctx.convert(type, vals);
+      return ctx.convert(type, values);
     });
 
     get("/members/:member", req -> req.param("member").to(Member.class));

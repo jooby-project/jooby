@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jooby.Env;
+import org.jooby.reflect.ParameterNameProvider;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
@@ -42,7 +43,7 @@ import com.google.common.io.Closeables;
 import com.google.common.io.Resources;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
-public class RouteMetadata {
+public class RouteMetadata implements ParameterNameProvider {
 
   private static final String[] NO_ARG = new String[0];
 
@@ -57,7 +58,8 @@ public class RouteMetadata {
         : CacheBuilder.newBuilder().build(loader);
   }
 
-  public String[] params(final Executable exec) {
+  @Override
+  public String[] names(final Executable exec) {
     Map<String, Object> md = md(exec);
     String key = paramsKey(exec);
     return (String[]) md.get(key);

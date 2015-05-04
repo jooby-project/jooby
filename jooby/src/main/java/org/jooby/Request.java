@@ -107,6 +107,11 @@ public interface Request {
     }
 
     @Override
+    public <T> T params(final TypeLiteral<T> beanType) throws Exception {
+      return req.params(beanType);
+    }
+
+    @Override
     public Mutant param(final String name) throws Exception {
       return req.param(name);
     }
@@ -422,13 +427,15 @@ public interface Request {
   Map<String, Mutant> params() throws Exception;
 
   /**
-   * Inject headers, path and query params into the given type. The type can be interface or class.
+   * Inject headers, path and query params into the given type. The type can be an interface or
+   * class.
    * Classes must have one and only one constructor, injection is done on constructor params and/or
    * direct/declared fields.
    *
    * <ul>
    * <li>Path parameter, like: <code>/path/:name</code> or <code>/path/{name}</code></li>
    * <li>Query parameter, like: <code>?name=jooby</code></li>
+   * <li>Form parameter, from multipart or formurl encoded</li>
    * </ul>
    *
    * @param beanType Type of the target bean.
@@ -436,7 +443,28 @@ public interface Request {
    * @return A bean with request params and/or headers.
    * @throws Exception On param retrieval failures.
    */
-  <T> T params(Class<T> beanType) throws Exception;
+  default <T> T params(final Class<T> beanType) throws Exception {
+    return params(TypeLiteral.get(beanType));
+  }
+
+  /**
+   * Inject headers, path and query params into the given type. The type can be an interface or
+   * class.
+   * Classes must have one and only one constructor, injection is done on constructor params and/or
+   * direct/declared fields.
+   *
+   * <ul>
+   * <li>Path parameter, like: <code>/path/:name</code> or <code>/path/{name}</code></li>
+   * <li>Query parameter, like: <code>?name=jooby</code></li>
+   * <li>Form parameter, from multipart or formurl encoded</li>
+   * </ul>
+   *
+   * @param beanType Type of the target bean.
+   * @param <T> Target type.
+   * @return A bean with request params and/or headers.
+   * @throws Exception On param retrieval failures.
+   */
+  <T> T params(TypeLiteral<T> beanType) throws Exception;
 
   /**
    * Get a HTTP request parameter under the given name. A HTTP parameter can be provided in any of

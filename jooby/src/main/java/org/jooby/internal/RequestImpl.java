@@ -42,7 +42,6 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.Status;
-import org.jooby.internal.reqparam.BeanParamInjector;
 import org.jooby.internal.reqparam.ParamResolver;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
@@ -143,7 +142,7 @@ public class RequestImpl implements Request {
   public Map<String, Mutant> params() throws Exception {
     Map<String, Mutant> params = new LinkedHashMap<>();
     Set<String> names = new LinkedHashSet<>();
-    for(Object name: route.vars().keySet()) {
+    for (Object name : route.vars().keySet()) {
       if (name instanceof String) {
         names.add((String) name);
       }
@@ -155,11 +154,9 @@ public class RequestImpl implements Request {
     return params;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public <T> T params(final Class<T> beanType) throws Exception {
-    // TODO: review me!
-    return (T) BeanParamInjector.createAndInject(this, beanType);
+  public <T> T params(final TypeLiteral<T> beanType) throws Exception {
+    return new MutantImpl(require(ParamResolver.class)).to(beanType);
   }
 
   @Override
@@ -210,18 +207,15 @@ public class RequestImpl implements Request {
     return req.cookies();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T> T body(final TypeLiteral<T> type) throws Exception {
-    // TODO: review len
     if (length() > 0) {
       Optional<BodyParser> parser = selector.parser(type, ImmutableList.of(type()));
       if (parser.isPresent()) {
         return parser.get().parse(type, new BodyParserContext(charset(), () -> req.in()));
       }
-      // TODO: review form and multipart post, we might not need them any more since we got .param
       if (MediaType.form.matches(type()) || MediaType.multipart.matches(type())) {
-        return (T) BeanParamInjector.createAndInject(this, type.getRawType());
+        return params(type);
       }
       throw new Err(Status.UNSUPPORTED_MEDIA_TYPE);
     }

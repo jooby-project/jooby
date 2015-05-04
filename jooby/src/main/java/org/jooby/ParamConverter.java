@@ -157,7 +157,7 @@ public interface ParamConverter {
    *
    *
    * @param type Requested type.
-   * @param values Raw values. Types is one of two: <code>String</code> or <code>Upload</code>.
+   * @param values Raw values. Type is one of two: <code>String</code> or <code>Upload</code>.
    * @param ctx Execution context.
    * @return A converted value.
    * @throws Exception If conversion fails.

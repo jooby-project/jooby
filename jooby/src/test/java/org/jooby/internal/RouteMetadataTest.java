@@ -66,7 +66,7 @@ public class RouteMetadataTest {
         .run(unit -> {
           Constructor<?> constructor = Mvc.class.getDeclaredConstructor();
           RouteMetadata ci = new RouteMetadata(Env.DEFAULT.build(unit.get(Config.class)));
-          assertArrayEquals(new String[0], ci.params(constructor));
+          assertArrayEquals(new String[0], ci.names(constructor));
           assertEquals(35, ci.startAt(constructor));
         });
   }
@@ -82,7 +82,7 @@ public class RouteMetadataTest {
         .run(unit -> {
           Constructor<?> constructor = Mvc.class.getDeclaredConstructor(String.class);
           RouteMetadata ci = new RouteMetadata(Env.DEFAULT.build(unit.get(Config.class)));
-          assertArrayEquals(new String[]{"s" }, ci.params(constructor));
+          assertArrayEquals(new String[]{"s" }, ci.names(constructor));
           assertEquals(38, ci.startAt(constructor));
         });
   }
@@ -98,7 +98,7 @@ public class RouteMetadataTest {
         .run(unit -> {
           Method m = Mvc.class.getDeclaredMethod("noarg");
           RouteMetadata ci = new RouteMetadata(Env.DEFAULT.build(unit.get(Config.class)));
-          assertArrayEquals(new String[0], ci.params(m));
+          assertArrayEquals(new String[0], ci.names(m));
           assertEquals(43, ci.startAt(m));
         });
   }
@@ -114,7 +114,7 @@ public class RouteMetadataTest {
         .run(unit -> {
           Method m = Mvc.class.getDeclaredMethod("arg", double.class);
           RouteMetadata ci = new RouteMetadata(Env.DEFAULT.build(unit.get(Config.class)));
-          assertArrayEquals(new String[]{"v" }, ci.params(m));
+          assertArrayEquals(new String[]{"v" }, ci.names(m));
           assertEquals(47, ci.startAt(m));
         });
   }
@@ -130,7 +130,7 @@ public class RouteMetadataTest {
         .run(unit -> {
           Method m = Mvc.class.getDeclaredMethod("arg", String.class);
           RouteMetadata ci = new RouteMetadata(Env.DEFAULT.build(unit.get(Config.class)));
-          assertArrayEquals(new String[]{"x" }, ci.params(m));
+          assertArrayEquals(new String[]{"x" }, ci.names(m));
           assertEquals(51, ci.startAt(m));
         });
   }
@@ -146,7 +146,7 @@ public class RouteMetadataTest {
         .run(unit -> {
           Method m = Mvc.class.getDeclaredMethod("arg", double.class, int.class);
           RouteMetadata ci = new RouteMetadata(Env.DEFAULT.build(unit.get(Config.class)));
-          assertArrayEquals(new String[]{"v", "u" }, ci.params(m));
+          assertArrayEquals(new String[]{"v", "u" }, ci.names(m));
           assertEquals(55, ci.startAt(m));
         });
   }
@@ -162,8 +162,8 @@ public class RouteMetadataTest {
         .run(unit -> {
           Method m = Mvc.class.getDeclaredMethod("arg", String.class);
           RouteMetadata ci = new RouteMetadata(Env.DEFAULT.build(unit.get(Config.class)));
-          String[] params1 = ci.params(m);
-          String[] params2 = ci.params(m);
+          String[] params1 = ci.names(m);
+          String[] params2 = ci.names(m);
           assertNotSame(params1, params2);
         });
   }
@@ -187,7 +187,7 @@ public class RouteMetadataTest {
         .run(unit -> {
           Method method = Mvc.class.getDeclaredMethod("arg", String.class);
           RouteMetadata ci = new RouteMetadata(Env.DEFAULT.build(unit.get(Config.class)));
-          String[] params = ci.params(method);
+          String[] params = ci.names(method);
           assertEquals("x", params[0]);
         });
   }
@@ -218,7 +218,7 @@ public class RouteMetadataTest {
         .run(unit -> {
           Method method = Mvc.class.getDeclaredMethod("arg", String.class);
           RouteMetadata ci = new RouteMetadata(Env.DEFAULT.build(unit.get(Config.class)));
-          String[] params = ci.params(method);
+          String[] params = ci.names(method);
           assertEquals("x", params[0]);
         });
   }
@@ -234,8 +234,8 @@ public class RouteMetadataTest {
         .run(unit -> {
           Method m = Mvc.class.getDeclaredMethod("arg", String.class);
           RouteMetadata ci = new RouteMetadata(Env.DEFAULT.build(unit.get(Config.class)));
-          String[] params1 = ci.params(m);
-          String[] params2 = ci.params(m);
+          String[] params1 = ci.names(m);
+          String[] params2 = ci.names(m);
           assertSame(params1, params2);
         });
   }

@@ -34,6 +34,9 @@ public class StringConstructorParamConverter implements ParamConverter {
   @Override
   public Object convert(final TypeLiteral<?> toType, final Object[] values, final Context ctx)
       throws Exception {
+    if (values.length == 0) {
+      return ctx.convert(toType, values);
+    }
     Constructor<?> constructor = constructor(toType.getRawType());
     if (constructor == null) {
       return ctx.convert(toType, values);

@@ -115,6 +115,24 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void beanParam() throws Exception {
+    Object bean = new Object();
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.params(Object.class)).andReturn(bean);
+          expect(req.params(TypeLiteral.get(Object.class))).andReturn(bean);
+        })
+        .run(unit -> {
+          assertEquals(bean,
+              new Request.Forwarding(unit.get(Request.class)).params(Object.class));
+
+          assertEquals(bean,
+              new Request.Forwarding(unit.get(Request.class)).params(TypeLiteral.get(Object.class)));
+        });
+  }
+
+  @Test
   public void param() throws Exception {
     new MockUnit(Request.class, Mutant.class)
         .expect(unit -> {

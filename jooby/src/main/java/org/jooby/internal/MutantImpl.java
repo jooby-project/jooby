@@ -37,6 +37,8 @@ import com.google.inject.TypeLiteral;
  */
 public class MutantImpl implements Mutant {
 
+  private static final Object[] NO_ARGS = new Object[0];
+
   private final Map<Object, Object> results = new HashMap<>(1);
 
   private final ParamResolver converter;
@@ -46,6 +48,10 @@ public class MutantImpl implements Mutant {
   public MutantImpl(final ParamResolver converter, final Object[] values) {
     this.converter = converter;
     this.values = values;
+  }
+
+  public MutantImpl(final ParamResolver converter) {
+    this(converter, NO_ARGS);
   }
 
   public MutantImpl(final ParamResolver converter,

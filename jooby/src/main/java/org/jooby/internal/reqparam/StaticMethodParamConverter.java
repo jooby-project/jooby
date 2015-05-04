@@ -42,6 +42,9 @@ public class StaticMethodParamConverter implements ParamConverter {
   @Override
   public Object convert(final TypeLiteral<?> toType, final Object[] values, final Context ctx)
       throws Exception {
+    if (values.length == 0) {
+      return ctx.convert(toType, values);
+    }
     Method method = method(toType.getRawType());
     if (method == null) {
       return ctx.convert(toType, values);

@@ -22,14 +22,14 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.util.stream.IntStream;
 
-import org.jooby.internal.RouteMetadata;
+import org.jooby.reflect.ParameterNameProvider;
 
 public class RequestParamNameProvider {
 
-  private RouteMetadata classInfo;
+  private ParameterNameProvider nameProvider;
 
-  public RequestParamNameProvider(final RouteMetadata classInfo) {
-    this.classInfo = classInfo;
+  public RequestParamNameProvider(final ParameterNameProvider nameProvider) {
+    this.nameProvider = nameProvider;
   }
 
   public String name(final Parameter parameter) {
@@ -44,7 +44,7 @@ public class RequestParamNameProvider {
         .filter(i -> params[i].equals(parameter))
         .findFirst()
         .getAsInt();
-    String[] names = classInfo.params(exec);
+    String[] names = nameProvider.names(exec);
     return names[idx];
   }
 
