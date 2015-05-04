@@ -203,7 +203,7 @@ public class HttpHandlerImpl implements HttpHandler {
         next.handle(req, rsp, err);
       }
     } catch (Exception ex) {
-      log.error("execution of err handler resulted in exceptiion", ex);
+      log.error("execution of err handler resulted in exception", ex);
     }
   }
 

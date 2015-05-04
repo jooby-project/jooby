@@ -1,6 +1,6 @@
 # jooby-ftl
 
-[Freemarker](http://freemarker.org) templates for [Jooby](/). Exposes a Configuration and [body formatter](/apidocs/org/jooby/BodyFormatter.html).
+[Freemarker](http://freemarker.org) templates for [Jooby](/). Exposes a Configuration and [renderer](/apidocs/org/jooby/Renderer.html).
 
 ## dependency
 
@@ -34,7 +34,7 @@ file extension.
 
 ## req locals
 
-A template engine has access to ```request locals```. Here is an example:
+A template engine has access to ```request locals``` (a.k.a attributes). Here is an example:
 
 ```java
 {

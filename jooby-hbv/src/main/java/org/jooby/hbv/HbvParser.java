@@ -16,39 +16,47 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.json;
+package org.jooby.hbv;
 
-import org.jooby.MediaType;
-import org.jooby.MediaType.Matcher;
+import static java.util.Objects.requireNonNull;
+
+import java.util.Set;
+import java.util.function.Predicate;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
+
 import org.jooby.Parser;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.TypeLiteral;
 
-class JacksonParser implements Parser {
+class HbvParser implements Parser {
 
-  private ObjectMapper mapper;
+  private Predicate<TypeLiteral<?>> predicate;
 
-  private Matcher matcher;
-
-  public JacksonParser(final ObjectMapper mapper, final MediaType type) {
-    this.mapper = mapper;
-    this.matcher = MediaType.matcher(type);
+  public HbvParser(final Predicate<TypeLiteral<?>> predicate) {
+    this.predicate = requireNonNull(predicate, "Predicate is required.");
   }
 
   @Override
   public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
-    JavaType javaType = mapper.constructType(type.getType());
-    if (matcher.matches(ctx.type()) && mapper.canDeserialize(javaType)) {
-      return ctx.body(body -> mapper.readValue(body.bytes(), javaType));
+    Object value = ctx.next();
+
+    if (predicate.test(type)) {
+      Validator validator = ctx.require(Validator.class);
+
+      Set<ConstraintViolation<Object>> violations = validator.validate(value);
+      if (violations.size() > 0) {
+        throw new ConstraintViolationException(violations);
+      }
     }
-    return ctx.next();
+
+    return value;
   }
 
   @Override
   public String toString() {
-    return "json";
+    return "hbv";
   }
-
 }

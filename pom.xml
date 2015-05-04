@@ -34,6 +34,7 @@
     <module>jooby-morphia</module>
     <module>jooby-camel</module>
     <module>jooby-elasticsearch</module>
+    <module>jooby-hbv</module>
     <module>jooby-archetype</module>
     <module>jooby-maven-plugin</module>
     <module>coverage-report</module>
@@ -86,6 +87,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-hbm</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-hbv</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -449,6 +456,25 @@
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-entitymanager</artifactId>
         <version>${hibernate.version}</version>
+      </dependency>
+
+      <!-- Hibernate Validator -->
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>${hibernate-validator.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.el</groupId>
+        <artifactId>javax.el-api</artifactId>
+        <version>${javax.el-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.web</groupId>
+        <artifactId>javax.el</artifactId>
+        <version>${javax.el-ref.version}</version>
       </dependency>
 
       <!-- jboss-modules -->
@@ -1141,6 +1167,9 @@
     <morphia.version>0.111</morphia.version>
     <jboss-modules.version>1.4.2.Final</jboss-modules.version>
     <elasticsearch>1.5.2</elasticsearch>
+    <hibernate-validator.version>5.1.3.Final</hibernate-validator.version>
+    <javax.el-api.version>2.2.5</javax.el-api.version>
+    <javax.el-ref.version>2.2.6</javax.el-ref.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
