@@ -2737,10 +2737,9 @@ public class Jooby {
     server.start();
     long end = System.currentTimeMillis();
 
-    log.info("[{}@{}]: {} server started in {}ms\n\n{}\n",
+    log.info("[{}@{}]: Server started in {}ms\n\n{}\n",
         config.getString("application.env"),
         serverName,
-        getClass().getSimpleName(),
         end - start,
         injector.getInstance(AppPrinter.class));
 
@@ -2896,6 +2895,7 @@ public class Jooby {
         formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
 
         parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
+        parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseBytes);
 
         binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
 
@@ -2947,8 +2947,9 @@ public class Jooby {
 
       try {
         Server server = injector.getInstance(Server.class);
+        String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
         server.stop();
-        log.info("Server stopped");
+        log.info("[{}] Server stopped", serverName);
       } catch (Exception ex) {
         log.error("Web server didn't stop normally", ex);
       }

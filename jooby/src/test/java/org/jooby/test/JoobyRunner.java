@@ -49,12 +49,12 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
 
   public JoobyRunner(final Class<?> klass) throws InitializationError {
     super(klass);
-    start(klass, null);
+    prepare(klass, null);
   }
 
   public JoobyRunner(final Class<?> klass, final Class<?> server) throws InitializationError {
     super(klass);
-    start(klass, server);
+    prepare(klass, server);
   }
 
   @Override
@@ -73,7 +73,7 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
     return super.testName(method);
   }
 
-  private void start(final Class<?> klass, final Class<?> server) throws InitializationError {
+  private void prepare(final Class<?> klass, final Class<?> server) throws InitializationError {
     try {
       this.server = server;
       Class<?> appClass = klass;
@@ -112,10 +112,23 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
           return testConfig;
         }
       });
-      app.start();
     } catch (Exception ex) {
       throw new InitializationError(Arrays.asList(ex));
     }
+  }
+
+  @Override
+  protected Statement withBeforeClasses(final Statement statement) {
+    Statement next = super.withBeforeClasses(statement);
+    return new Statement() {
+
+      @Override
+      public void evaluate() throws Throwable {
+        app.start();
+
+        next.evaluate();
+      }
+    };
   }
 
   @Override

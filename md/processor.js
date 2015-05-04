@@ -287,6 +287,12 @@ vars.push({
   data: '[JBoss Modules](https://github.com/jboss-modules/jboss-modules)'
 });
 
+vars.push({
+  name: 'elasticsearch',
+  data: '[Elastic Search](https://github.com/elastic/elasticsearch)'
+});
+
+
 /**
  * replace expressions like: {{var}}
  */

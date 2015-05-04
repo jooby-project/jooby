@@ -189,4 +189,29 @@ public class BuiltinBodyConverter {
     }
   };
 
+  public static BodyParser parseBytes = new BodyParser() {
+
+    @Override
+    public List<MediaType> types() {
+      return MediaType.ALL;
+    }
+
+    @Override
+    public boolean canParse(final TypeLiteral<?> type) {
+      Class<?> rt = type.getRawType();
+      return rt.isArray() && rt.getComponentType() == byte.class;
+    }
+
+    @Override
+    public <T> T parse(final TypeLiteral<T> type, final BodyParser.Context reader)
+        throws Exception {
+      return reader.bytes(in -> ByteStreams.toByteArray(in));
+    }
+
+    @Override
+    public String toString() {
+      return "Parser for: byte[]" ;
+    }
+  };
+
 }

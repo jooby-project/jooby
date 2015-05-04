@@ -33,6 +33,7 @@
     <module>jooby-mongodb</module>
     <module>jooby-morphia</module>
     <module>jooby-camel</module>
+    <module>jooby-elasticsearch</module>
     <module>jooby-archetype</module>
     <module>jooby-maven-plugin</module>
     <module>coverage-report</module>
@@ -181,6 +182,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-hotreload</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-elasticsearch</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -422,6 +429,13 @@
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
         <version>${mysql-connector-java.version}</version>
+      </dependency>
+
+      <!-- Elastic Search -->
+      <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch</artifactId>
+        <version>${elasticsearch}</version>
       </dependency>
 
       <!-- Hibernate -->
@@ -1120,6 +1134,7 @@
     <mongo-java-driver.version>2.13.0</mongo-java-driver.version>
     <morphia.version>0.111</morphia.version>
     <jboss-modules.version>1.4.2.Final</jboss-modules.version>
+    <elasticsearch>1.5.2</elasticsearch>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

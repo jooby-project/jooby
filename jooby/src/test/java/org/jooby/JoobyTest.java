@@ -246,6 +246,11 @@ public class JoobyTest {
     parseString.toInstance(BuiltinBodyConverter.parseString);
 
     expect(multibinder.addBinding()).andReturn(parseString);
+
+    LinkedBindingBuilder<BodyParser> parseBytes = unit.mock(LinkedBindingBuilder.class);
+    parseBytes.toInstance(BuiltinBodyConverter.parseBytes);
+
+    expect(multibinder.addBinding()).andReturn(parseBytes);
   };
 
   private MockUnit.Block bodyFormatter = unit -> {
@@ -2229,11 +2234,15 @@ public class JoobyTest {
           LinkedBindingBuilder<BodyParser> parseString = unit.mock(LinkedBindingBuilder.class);
           parseString.toInstance(BuiltinBodyConverter.parseString);
 
+          LinkedBindingBuilder<BodyParser> parseBytes = unit.mock(LinkedBindingBuilder.class);
+          parseBytes.toInstance(BuiltinBodyConverter.parseBytes);
+
           LinkedBindingBuilder<BodyParser> customParser = unit.mock(LinkedBindingBuilder.class);
           customParser.toInstance(unit.get(BodyParser.class));
 
           expect(multibinder.addBinding()).andReturn(customParser);
           expect(multibinder.addBinding()).andReturn(parseString);
+          expect(multibinder.addBinding()).andReturn(parseBytes);
         })
         .expect(bodyFormatter)
         .expect(session)
