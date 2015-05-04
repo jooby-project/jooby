@@ -32,7 +32,7 @@ public class Issue27 extends ServerFeature {
   public void shouldRenderConfigProperty() throws Exception {
     request()
         .get("/config")
-        .expect("Issue27");
+        .expect("issues");
   }
 
   @Test

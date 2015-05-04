@@ -2975,7 +2975,7 @@ public class Jooby {
   private Config buildConfig(final Config source) {
     // normalize tmpdir
     Config system = ConfigFactory.systemProperties();
-    Config tmpdir = source.hasPath("java.io.tmpdir") ? source: system;
+    Config tmpdir = source.hasPath("java.io.tmpdir") ? source : system;
 
     // system properties
     system = system
@@ -3067,8 +3067,9 @@ public class Jooby {
    * @return default properties.
    */
   private Config defaultConfig(final Config config) {
-    String appname = getClass().getSimpleName();
     String ns = getClass().getPackage().getName();
+    String[] parts = ns.split("\\.");
+    String appname = parts[parts.length - 1];
 
     // locale
     final Locale locale;
