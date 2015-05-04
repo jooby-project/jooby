@@ -4,6 +4,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
+import org.jooby.json.Jackson;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;

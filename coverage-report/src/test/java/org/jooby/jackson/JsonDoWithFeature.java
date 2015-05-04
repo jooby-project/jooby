@@ -2,6 +2,7 @@ package org.jooby.jackson;
 
 import java.net.URISyntaxException;
 
+import org.jooby.json.Jackson;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 

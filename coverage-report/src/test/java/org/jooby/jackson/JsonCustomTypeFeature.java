@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jooby.MediaType;
+import org.jooby.json.Jackson;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
