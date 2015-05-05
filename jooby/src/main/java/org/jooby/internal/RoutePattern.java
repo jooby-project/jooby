@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 public class RoutePattern {
 
   private static final Pattern GLOB = Pattern
-      .compile("\\?|\\*\\*|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
+      .compile("\\?|/\\*\\*|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
 
   private static final Pattern SLASH = Pattern.compile("//+");
 
@@ -69,7 +69,7 @@ public class RoutePattern {
       } else if ("*".equals(match)) {
         patternBuilder.append("([^/]*)");
         regex = true;
-      } else if (match.equals("**")) {
+      } else if (match.equals("/**")) {
         patternBuilder.append("(.*)");
         regex = true;
       } else if (match.startsWith(":")) {

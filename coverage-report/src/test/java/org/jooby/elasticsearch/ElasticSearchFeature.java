@@ -24,6 +24,10 @@ public class ElasticSearchFeature extends ServerFeature {
         .expect(200);
 
     request()
+        .get("/es/customer")
+        .expect(200);
+
+    request()
         .put("/es/customer/external/1")
         .body("{\"name\": \"John Doe\"}", "application/json")
         .expect(201);

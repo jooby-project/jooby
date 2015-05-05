@@ -55,6 +55,9 @@ public class RegexRouteMatcher implements RouteMatcher {
       int groupCount = matcher.groupCount();
       for (int idx = 0; idx < groupCount; idx++) {
         String var = matcher.group(idx + 1);
+        if (var.startsWith("/")) {
+          var = var.substring(1);
+        }
         // idx indices
         vars.put(idx, var);
         // named vars
