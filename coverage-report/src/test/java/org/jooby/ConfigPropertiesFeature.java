@@ -7,7 +7,6 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jooby.Env;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
@@ -16,6 +15,20 @@ import org.junit.Test;
 import com.typesafe.config.ConfigFactory;
 
 public class ConfigPropertiesFeature extends ServerFeature {
+
+  public static class StrConstructor {
+
+    private String value;
+
+    public StrConstructor(final String value) {
+      this.value = value;
+    }
+
+    @Override
+    public String toString() {
+      return value;
+    }
+  }
 
   public static class ValueOf {
 
@@ -63,6 +76,7 @@ public class ConfigPropertiesFeature extends ServerFeature {
     private Letter letter;
     private UUID uuid;
     private ValueOf valueOf;
+    private StrConstructor strConstructor;
 
     @Inject
     public Resource(final Charset charset, final Env mode,
@@ -71,7 +85,8 @@ public class ConfigPropertiesFeature extends ServerFeature {
         @Named("list") final List<String> list,
         @Named("letter") final Letter letter,
         @Named("uuid") final UUID uuid,
-        @Named("valueOf") final ValueOf valueOf) {
+        @Named("valueOf") final ValueOf valueOf,
+        @Named("strconst") final StrConstructor strConstructor) {
       this.charset = charset;
       this.mode = mode;
       this.intprop = intprop;
@@ -80,12 +95,14 @@ public class ConfigPropertiesFeature extends ServerFeature {
       this.letter = letter;
       this.uuid = uuid;
       this.valueOf = valueOf;
+      this.strConstructor = strConstructor;
     }
 
     @GET
     @Path("/properties")
     public Object properties() {
-      return charset + " " + intprop + " " + stringprop + " " + uuid + " " + valueOf;
+      return charset + " " + intprop + " " + stringprop + " " + uuid + " " + valueOf + " "
+          + strConstructor;
     }
 
     @GET
@@ -116,7 +133,7 @@ public class ConfigPropertiesFeature extends ServerFeature {
   public void properties() throws Exception {
     request()
         .get("/r/properties")
-        .expect("UTF-8 14 The man who sold the world a8843f4a-2c71-42ef-82aa-83fa8246c0d4 valueOf");
+        .expect("UTF-8 14 The man who sold the world a8843f4a-2c71-42ef-82aa-83fa8246c0d4 valueOf strconst");
   }
 
   @Test

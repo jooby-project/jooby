@@ -35,13 +35,16 @@ package org.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.jooby.Mutant;
 import org.jooby.Session;
-import org.jooby.internal.reqparam.ParamResolver;
+import org.jooby.internal.reqparam.ParserExecutor;
+
+import com.google.common.collect.ImmutableList;
 
 public class SessionImpl implements Session {
 
@@ -49,7 +52,7 @@ public class SessionImpl implements Session {
 
     private SessionImpl session;
 
-    public Builder(final ParamResolver resolver, final boolean isNew, final String sessionId,
+    public Builder(final ParserExecutor resolver, final boolean isNew, final String sessionId,
         final long timeout) {
       this.session = new SessionImpl(resolver, isNew, sessionId, timeout);
     }
@@ -113,9 +116,9 @@ public class SessionImpl implements Session {
 
   private volatile long savedAt;
 
-  private ParamResolver resolver;
+  private ParserExecutor resolver;
 
-  public SessionImpl(final ParamResolver resolver, final boolean isNew, final String sessionId,
+  public SessionImpl(final ParserExecutor resolver, final boolean isNew, final String sessionId,
       final long timeout) {
     this.resolver = resolver;
     this.isNew = isNew;
@@ -153,8 +156,13 @@ public class SessionImpl implements Session {
   @Override
   public Mutant get(final String name) {
     String value = attributes.get(name);
-    Object[] values = value == null ? null : new Object[]{value };
+    List<String> values = value == null ? Collections.emptyList() : ImmutableList.of(value);
     return new MutantImpl(resolver, values);
+  }
+
+  @Override
+  public boolean isSet(final String name) {
+    return attributes.containsKey(name);
   }
 
   @Override
@@ -174,9 +182,9 @@ public class SessionImpl implements Session {
   @Override
   public Mutant unset(final String name) {
     String value = attributes.remove(name);
-    Object[] values = null;
+    List<String> values = Collections.emptyList();
     if (value != null) {
-      values = new Object[]{value };
+      values = ImmutableList.of(value);
       dirty = true;
     }
     return new MutantImpl(resolver, values);

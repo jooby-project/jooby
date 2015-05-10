@@ -1,17 +1,20 @@
 package org.jooby;
 
-import org.jooby.MediaType;
+import java.util.List;
+
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
 public class AcceptHeaderFeature extends ServerFeature {
 
   {
-    get("/", (req, rsp) -> rsp.send(req.accept()));
+    get("/", req -> req.accept());
 
-    get("/accept",
-        (req, rsp) -> rsp.send(req.accepts(req.param("type").toList(MediaType.class))
-            .map(MediaType::toString).orElse("nope")));
+    get("/accept", req -> {
+      List<MediaType> types = req.param("type").toList(MediaType.class);
+      return req.accepts(types)
+          .map(MediaType::toString).orElse("nope");
+    });
   }
 
   @Test

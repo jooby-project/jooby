@@ -30,12 +30,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.jooby.Err;
 import org.jooby.BodyFormatter;
+import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.WebSocket;
-import org.jooby.internal.reqparam.ParamResolver;
+import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeWebSocket;
 import org.jooby.util.ExSupplier;
 import org.slf4j.Logger;
@@ -160,7 +160,7 @@ public class WebSocketImpl implements WebSocket {
     ws.onTextMessage(message -> {
       try {
         messageCallback.invoke(
-            new MutantImpl(injector.getInstance(ParamResolver.class), new Object[]{message })
+            new MutantImpl(injector.getInstance(ParserExecutor.class), ImmutableList.of(message))
             );
       } catch (Throwable ex) {
         handleErr(ex);

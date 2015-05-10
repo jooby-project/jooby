@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class ShouldHaveSavedSessionFeature extends ServerFeature {
 
-  private static final CountDownLatch latch = new CountDownLatch(1);
+  private static CountDownLatch latch;
 
   {
     session(new Session.Mem() {
@@ -29,6 +29,8 @@ public class ShouldHaveSavedSessionFeature extends ServerFeature {
 
   @Test
   public void shouldHaveSavedSession() throws Exception {
+    latch = new CountDownLatch(1);
+
     request()
         .get("/shouldHaveSavedSession")
         .expect("v1")

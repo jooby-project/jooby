@@ -1,113 +1,112 @@
-# body parser, formatter and view engine
+# parsers, formatter and view engine
 
-## body parser
+## parser
 
-A [BodyParser]({{defdocs}}/BodyParser.html) is responsible for parsing the HTTP body to something else.
+A [Parser]({{defdocs}}/Parser.html) is responsible for parsing the HTTP params and/or body to something else.
 
-A [BodyParser]({{defdocs}}/BodyParser.html) has three(3) methods:
+Automatic type conversion is provided when a type:
 
-* **types**: list of [media types]({{defdocs}}/MediaType.html) supported by the body parser.
-* **canParse**(*type)*: test if the Java type is supported by the body parser.
-* **parse***(type, reader)*: do the actual parsing using the type and reader.
+* Is a primitive, primitive wrapper or String
+* Is an enum
+* Is an [Upload]({{apidocs}}/org/jooby/Upload.html)
+* Has a public **constructor** that accepts a single **String** argument
+* Has a static method **valueOf** that accepts a single **String** argument
+* Has a static method **fromString** that accepts a single **String** argument. Like ```java.util.UUID```
+* Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
+* It is an Optional<T>, List<T>, Set<T> or SortedSet<T> where T satisfies one of previous rules
 
-In the next example we will try to read the HTTP Body as **MyObject**.
+
+### custom parser
+
+Suppose we want to write a custom parser to convert a value into an ```integer``. In practice we don't need such parser bc it is provided, but of course you can override the default parser and provide your own.
+
+Let's see how to create our custom HTTP param parser:
 
 ```java
-post("/", (req, rsp) -> {
-   MyObject obj = req.body(MyObject.class);
+
+parser((type, ctx) -> {
+  // 1
+  if (type.getRawType() == int.class) {
+    // 2
+    return ctx.param(values -> Integer.parseInt(values.get(0));
+  }
+  // 3
+  return ctx.next();
+});
+
+get("/", req -> {
+   int intValue = req.param("v").intValue();
+   ...
+});
+
+```
+
+Let's have a closer look:
+
+1. Check if current type is what we can parse to
+2. We add a param callback
+3. We can't deal with current type, so we ask next parser to resolve it
+
+Now, if we ask for HTTP body
+
+```java
+get("/", req -> {
+   int intValue = req.body().intValue();
+   ...
+});
+
+```
+
+Our custom parser won't be able to parse the HTTP body, because it works on HTTP parameter. In order to extend our custom parser and use it for HTTP Body we must do:
+
+```java
+
+parser((type, ctx) -> {
+  // 1
+  if (type.getRawType() == int.class) {
+    // 2
+    return ctx.param(values -> Integer.parseInt(values.get(0))
+       .body(body -> Integer.parseInt(body.text()));
+  }
+  // 3
+  return ctx.next();
+});
+
+```
+
+And now we can ask for a HTTP param and/or body.
+
+```java
+get("/", req -> {
+   int intValue = req.param("v").intValue();
+   ...
+});
+
+post("/", req -> {
+   int intValue = req.body().intValue();
    ...
 });
 ```
 
-A call like:
+[Parser]({{defdocs}}/Parser.html) API is very powerful. It let you apply a parser to a HTTP param, set of param (like a form post), file uploads and/or body. But not just that, you are free to choose if your parser applies for a Java Type and/or a Media Type, like the ```Content-Type``` header.
 
-```bash
-curl -X POST -H 'Content-Type: application/json' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
-```
-
-Results in ```415 - Unsupported Media Type```. That is because Jooby has no idea how to parse ```application/json```. For that, we need a **json** parser.
-
-Let's said we need to implement a JSON body parser (in real life you wont ever implement a json parser, this is just to demonstrate how it works):
+For example a generic JSON parser looks like:
 
 ```java
-public class Json implements BodyParser {
 
-  public List<MediaType> types() {
-    return ImmutableList.of(MediaType.json);
+parser((type, ctx) -> {
+  if (ctx.type().name().equals("application/json")) {
+    return ctx.body(body -> fromJSON(body.text()));
   }
-
-  public boolean canParse(TypeLiteral<?> type) {
-    return true; 
-  }
-
-  public <T> T parse(TypeLiteral<?> type, Context ctx) throws Exception {
-    ... parse it!
-  }
-}
+  return ctx.next();
+});
 ```
 
-Using it:
+Parsers are executed in the order they are defined. Application provided parser has precedence over built-in parsers, so it it possible to override a built-in parser too!
 
-```java
-{
-  use(new Json()); // now Jooby has a json parser
+If a param parser isn't able to resolve a param an exception will be thrown with a ```400``` status code.
 
-  post("/", req -> {
-    MyObject obj = req.body(MyObject.class);
-    return obj;
-  });
-}
-```
-
-**How it works**?
-
-A route by default consumes ```*/*``` (any media type). Jooby will find/choose the **parser** which best matches the ```Content-Type``` header.
-
-The ```Content-Type``` header is compared against the [parser.types()]({{defdocs}}/BodyParser.html#types--) method.
-
-Once an acceptable media type is found it call the **canParse** method of the [parser]({{defdocs}}/BodyParser.html).
-
-### consumes
-
-The **consumes** method control what a route can consume or parse explicitly.
-
-```java
-{
-  post("/", req -> {
-    MyObject obj = req.body(MyObject.class);
-  })
-   .consumes("application/json");
-}
-```
-
-**200** response:
-
-```bash
-curl -X POST -H 'Content-Type: application/json' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
-```
-
-**415** response bc **application/xml** isn't supported:
-
-```bash
-curl -X POST -H 'Content-Type: application/xml' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
-```
-
-In general, you hardly will use **consumes** in your routes. It has been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depend on your app requirements. For example if you need more than **json** for your routes (xml, yaml, etc..).
-
-Another small advantage of using **consumes** is that the ```415``` response can be detected early (at the time a route is resolved) and not later or lazy (at the time you ask for type conversion).
-
-Keep in mind, you still need a **parser** for your media types. For example:
-
-```java
-{
-  post("/", req -> {
-    MyObject obj = req.body(MyObject.class);
-  })
-   .consumes("application/json", "application/xml");
-}
-```
-
-Require two parsers one for **json** and one for **xml**.
+If a body parser isn't able to resolve a param an exception will be thrown with a ```415``` status code.
 
 ## body formatter
 

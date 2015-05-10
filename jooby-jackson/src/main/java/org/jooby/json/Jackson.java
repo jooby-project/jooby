@@ -32,11 +32,12 @@ import java.util.function.Consumer;
 import javax.inject.Inject;
 
 import org.jooby.BodyFormatter;
-import org.jooby.BodyParser;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
+import org.jooby.Parser;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -53,7 +54,7 @@ import com.typesafe.config.Config;
  * JSON support from the excellent <a href="https://github.com/FasterXML/jackson">Jackson</a>
  * library.
  *
- * This module provides a JSON {@link BodyParser} and {@link BodyFormatter}, but also an
+ * This module provides a JSON {@link Parser} and {@link BodyFormatter}, but also an
  * {@link ObjectMapper}.
  *
  * <h1>usage</h1>
@@ -129,14 +130,16 @@ public class Jackson implements Jooby.Module {
 
   }
 
-  private static class BodyHandler implements BodyFormatter, BodyParser {
+  private static class BodyHandler implements BodyFormatter, Parser {
 
     private ObjectMapper mapper;
     private List<MediaType> types;
+    private MediaType.Matcher matcher;
 
     public BodyHandler(final ObjectMapper mapper, final List<MediaType> types) {
       this.mapper = mapper;
       this.types = types;
+      this.matcher = MediaType.matcher(types);
     }
 
     @Override
@@ -145,18 +148,17 @@ public class Jackson implements Jooby.Module {
     }
 
     @Override
-    public boolean canParse(final TypeLiteral<?> type) {
-      return mapper.canDeserialize(mapper.constructType(type.getType()));
-    }
-
-    @Override
     public boolean canFormat(final Class<?> type) {
       return mapper.canSerialize(type);
     }
 
     @Override
-    public <T> T parse(final TypeLiteral<T> type, final BodyParser.Context ctx) throws Exception {
-      return ctx.text(in -> mapper.readValue(in, mapper.constructType(type.getType())));
+    public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+      if (matcher.matches(ctx.type())) {
+        JavaType javaType = mapper.constructType(type.getType());
+        return ctx.body(body -> mapper.readValue(body.bytes(), javaType));
+      }
+      return ctx.next();
     }
 
     @Override
@@ -230,13 +232,13 @@ public class Jackson implements Jooby.Module {
         .addBinding()
         .toInstance(json);
 
-    Multibinder.newSetBinder(binder, BodyParser.class)
+    Multibinder.newSetBinder(binder, Parser.class)
         .addBinding()
         .toInstance(json);
 
     // direct access?
     binder.bind(Key.get(BodyFormatter.class, Names.named(json.toString()))).toInstance(json);
-    binder.bind(Key.get(BodyParser.class, Names.named(json.toString()))).toInstance(json);
+    binder.bind(Key.get(Parser.class, Names.named(json.toString()))).toInstance(json);
 
   }
 

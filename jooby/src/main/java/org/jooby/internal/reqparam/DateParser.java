@@ -18,32 +18,39 @@
  */
 package org.jooby.internal.reqparam;
 
-import java.lang.reflect.ParameterizedType;
-import java.util.Optional;
+import static java.util.Objects.requireNonNull;
 
-import org.jooby.ParamConverter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.jooby.Parser;
 
 import com.google.inject.TypeLiteral;
 
-public class OptionalParamConverter implements ParamConverter {
+public class DateParser implements Parser {
 
-  private boolean matches(final TypeLiteral<?> toType) {
-    return Optional.class == toType.getRawType() && toType.getType() instanceof ParameterizedType;
+  private String dateFormat;
+
+  public DateParser(final String dateFormat) {
+    this.dateFormat = requireNonNull(dateFormat, "A dateFormat is required.");
   }
 
   @Override
-  public Object convert(final TypeLiteral<?> toType, final Object[] values, final Context ctx)
-      throws Exception {
-    if (matches(toType)) {
-      if (values == null) {
-        return Optional.empty();
-      }
-      TypeLiteral<?> paramType = TypeLiteral.get(((ParameterizedType) toType.getType())
-          .getActualTypeArguments()[0]);
-      return Optional.of(ctx.convert(paramType, values));
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+    if (type.getRawType() == Date.class) {
+      return ctx
+          .param(values -> parse(dateFormat, values.get(0)))
+          .body(body -> parse(dateFormat, body.text()));
     } else {
-      return ctx.convert(toType, values);
+      return ctx.next();
     }
   }
 
+  private static Date parse(final String dateFormat, final String value) throws Exception {
+    try {
+      return new Date(Long.parseLong(value));
+    } catch (NumberFormatException ex) {
+      return new SimpleDateFormat(dateFormat).parse(value);
+    }
+  }
 }

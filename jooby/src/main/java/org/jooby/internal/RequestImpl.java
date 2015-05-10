@@ -20,6 +20,7 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,25 +33,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jooby.BodyParser;
 import org.jooby.Cookie;
-import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
+import org.jooby.Parser;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.Status;
-import org.jooby.internal.reqparam.ParamResolver;
+import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.util.Collectors;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 
 public class RequestImpl implements Request {
 
@@ -70,13 +68,13 @@ public class RequestImpl implements Request {
 
   private final Map<String, Object> locals;
 
-  private final BodyConverterSelector selector;
-
   private Route route;
 
   private Session reqSession;
 
   private Charset charset;
+
+  private List<File> files;
 
   public RequestImpl(final Injector injector,
       final NativeRequest req,
@@ -88,7 +86,6 @@ public class RequestImpl implements Request {
     this.route = requireNonNull(route, "A route is required.");
     this.scope = requireNonNull(scope, "Scope is required.");
     this.locals = requireNonNull(locals, "Request locals are required.");
-    this.selector = injector.getInstance(BodyConverterSelector.class);
 
     this.accept = findAccept(req);
 
@@ -101,6 +98,8 @@ public class RequestImpl implements Request {
     this.charset = Optional.ofNullable(type.params().get("charset"))
         .map(Charset::forName)
         .orElse(injector.getInstance(Charset.class));
+
+    this.files = new ArrayList<>();
   }
 
   @SuppressWarnings("unchecked")
@@ -139,7 +138,7 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public Map<String, Mutant> params() throws Exception {
+  public Mutant params() throws Exception {
     Map<String, Mutant> params = new LinkedHashMap<>();
     Set<String> names = new LinkedHashSet<>();
     for (Object name : route.vars().keySet()) {
@@ -151,12 +150,7 @@ public class RequestImpl implements Request {
     for (String name : names) {
       params.put(name, param(name));
     }
-    return params;
-  }
-
-  @Override
-  public <T> T params(final TypeLiteral<T> beanType) throws Exception {
-    return new MutantImpl(require(ParamResolver.class)).to(beanType);
+    return new MutantImpl(require(ParserExecutor.class), type(), params);
   }
 
   @Override
@@ -164,10 +158,11 @@ public class RequestImpl implements Request {
     Mutant param = this.params.get(name);
     if (param == null) {
       List<NativeUpload> files = req.files(name);
+      final Object data;
       if (files.size() > 0) {
-        param = new MutantImpl(require(ParamResolver.class), req.files(name).stream()
+        data = files.stream()
             .map(upload -> new UploadImpl(injector, upload))
-            .collect(Collectors.toList()));
+            .collect(Collectors.toList());
       } else {
         List<String> values = new ArrayList<>();
         String pathvar = route.vars().get(name);
@@ -175,8 +170,9 @@ public class RequestImpl implements Request {
           values.add(pathvar);
         }
         values.addAll(req.params(name));
-        param = new MutantImpl(require(ParamResolver.class), values);
+        data = values;
       }
+      param = new MutantImpl(require(ParserExecutor.class), type(), data);
       this.params.put(name, param);
     }
     return param;
@@ -185,7 +181,7 @@ public class RequestImpl implements Request {
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "Header's name is missing.");
-    return new MutantImpl(require(ParamResolver.class), req.headers(name));
+    return new MutantImpl(require(ParserExecutor.class), type(), req.headers(name));
   }
 
   @Override
@@ -208,18 +204,22 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public <T> T body(final TypeLiteral<T> type) throws Exception {
-    if (length() > 0) {
-      Optional<BodyParser> parser = selector.parser(type, ImmutableList.of(type()));
-      if (parser.isPresent()) {
-        return parser.get().parse(type, new BodyParserContext(charset(), () -> req.in()));
-      }
+  public Mutant body() throws Exception {
+    long length = length();
+    if (length > 0) {
       if (MediaType.form.matches(type()) || MediaType.multipart.matches(type())) {
-        return params(type);
+        return params();
       }
-      throw new Err(Status.UNSUPPORTED_MEDIA_TYPE);
+      File fbody = new File(
+          require("application.tmpdir", File.class),
+          Integer.toHexString(System.identityHashCode(this))
+          );
+      files.add(fbody);
+      Parser.BodyReference body = new BodyReferenceImpl(length, charset(), fbody, req.in());
+      return new MutantImpl(require(ParserExecutor.class), type(), body,
+          Status.UNSUPPORTED_MEDIA_TYPE);
     }
-    throw new Err(Status.BAD_REQUEST, "no body");
+    return new MutantImpl(require(ParserExecutor.class), type(), new BodyReferenceImpl());
   }
 
   @Override
@@ -328,5 +328,13 @@ public class RequestImpl implements Request {
 
   void route(final Route route) {
     this.route = route;
+  }
+
+  public void done() {
+    ifSession()
+        .ifPresent(session -> require(SessionManager.class).requestDone(session));
+    for (File file : files) {
+      file.delete();
+    }
   }
 }

@@ -152,6 +152,20 @@ public class RequestParamFeature extends ServerFeature {
       return "/rsp";
     }
 
+    @GET
+    @Path("/session")
+    public Object session(final org.jooby.Session session) {
+      assertNotNull(session);
+      return "/session";
+    }
+
+    @GET
+    @Path("/session/opt")
+    public Object session(final Optional<org.jooby.Session> session) {
+      assertNotNull(session);
+      return "/session/opt";
+    }
+
   }
 
   {
@@ -329,4 +343,17 @@ public class RequestParamFeature extends ServerFeature {
         .expect("Optional.empty");
   }
 
+  @Test
+  public void sessionOptional() throws Exception {
+    request()
+        .get("/session/opt")
+        .expect("/session/opt");
+  }
+
+  @Test
+  public void session() throws Exception {
+    request()
+        .get("/session")
+        .expect("/session");
+  }
 }

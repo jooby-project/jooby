@@ -4,41 +4,45 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.jooby.Mutant;
-import org.jooby.ParamConverter;
+import org.jooby.Parser;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.reflect.ParameterNameProvider;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.primitives.Primitives;
 import com.google.common.reflect.Reflection;
 import com.google.inject.TypeLiteral;
 
-public class BeanParamConverter implements ParamConverter {
+public class BeanParser implements Parser {
 
   @Override
-  public Object convert(final TypeLiteral<?> type, final Object[] values, final Context ctx)
-      throws Exception {
-    if (values.length == 0) {
-      Class<?> beanType = type.getRawType();
+  public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
+    Class<?> beanType = type.getRawType();
+    if (Primitives.isWrapperType(Primitives.wrap(beanType))
+        || CharSequence.class.isAssignableFrom(beanType)) {
+      return ctx.next();
+    }
+    return ctx.params(map -> {
       final Object bean;
       if (beanType.isInterface()) {
-        bean = newBeanInterface(ctx, beanType);
+        bean = newBeanInterface(ctx.require(Request.class), beanType);
       } else {
-        bean = newBean(ctx, beanType);
+        bean = newBean(ctx.require(Request.class), ctx.require(Response.class), map, beanType);
       }
 
-      return bean == null ? ctx.convert(type, values) : bean;
-    }
-    return ctx.convert(type, values);
+      return bean == null ? ctx.next() : bean;
+    });
   }
 
-  private static Object newBean(final Context ctx, final Class<?> beanType) throws Exception {
-    Request req = ctx.require(Request.class);
-    Response rsp = ctx.require(Response.class);
-    ParameterNameProvider classInfo = ctx.require(ParameterNameProvider.class);
+  private static Object newBean(final Request req, final Response rsp,
+      final Map<String, Mutant> params, final Class<?> beanType)
+      throws Exception {
+    ParameterNameProvider classInfo = req.require(ParameterNameProvider.class);
     Constructor<?>[] constructors = beanType.getDeclaredConstructors();
     if (constructors.length > 1) {
       return null;
@@ -56,7 +60,7 @@ public class BeanParamConverter implements ParamConverter {
     bean = constructor.newInstance(args);
 
     // inject fields
-    for (Entry<String, Mutant> param : req.params().entrySet()) {
+    for (Entry<String, Mutant> param : params.entrySet()) {
       String name = param.getKey();
       try {
         Field field = beanType.getDeclaredField(name);
@@ -78,8 +82,7 @@ public class BeanParamConverter implements ParamConverter {
     return bean;
   }
 
-  private static Object newBeanInterface(final Context ctx, final Class<?> beanType) {
-    Request req = ctx.require(Request.class);
+  private static Object newBeanInterface(final Request req, final Class<?> beanType) {
 
     return Reflection.newProxy(beanType, (proxy, method, args) -> {
       StringBuilder name = new StringBuilder(method.getName()

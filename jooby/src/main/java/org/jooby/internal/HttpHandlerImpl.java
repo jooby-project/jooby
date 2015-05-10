@@ -195,19 +195,14 @@ public class HttpHandlerImpl implements HttpHandler {
       requestScope.exit();
 
       // mark request/response as done.
+      req.done();
       rsp.end();
 
       long end = System.currentTimeMillis();
       log.debug("  status -> {} in {}ms", response.statusCode(), end - start);
-
-      saveSession(req);
     }
   }
 
-  private void saveSession(final Request req) {
-    req.ifSession()
-        .ifPresent(session -> req.require(SessionManager.class).requestDone(session));
-  }
 
   private static String normalizeURI(final String uri) {
     return uri.endsWith("/") && uri.length() > 1 ? uri.substring(0, uri.length() - 1) : uri;

@@ -103,6 +103,11 @@ public class RequestScopedSession implements Session {
   }
 
   @Override
+  public boolean isSet(final String name) {
+    return session.isSet(name);
+  }
+
+  @Override
   public Mutant unset(final String name) {
     return session.unset(name);
   }

@@ -18,13 +18,13 @@
  */
 package org.jooby.internal;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import org.jooby.MediaType;
 import org.jooby.Mutant;
-import org.jooby.internal.reqparam.ParamResolver;
+import org.jooby.Status;
+import org.jooby.internal.reqparam.ParserExecutor;
 
 import com.google.inject.TypeLiteral;
 
@@ -37,28 +37,30 @@ import com.google.inject.TypeLiteral;
  */
 public class MutantImpl implements Mutant {
 
-  private static final Object[] NO_ARGS = new Object[0];
-
   private final Map<Object, Object> results = new HashMap<>(1);
 
-  private final ParamResolver converter;
+  private final ParserExecutor parser;
 
-  private final Object[] values;
+  private MediaType contentType;
 
-  public MutantImpl(final ParamResolver converter, final Object[] values) {
-    this.converter = converter;
-    this.values = values;
+  private Object data;
+
+  private Status errStatus;
+
+  public MutantImpl(final ParserExecutor parser, final MediaType contentType, final Object data,
+      final Status errStatus) {
+    this.parser = parser;
+    this.contentType = contentType;
+    this.data = data;
+    this.errStatus = errStatus;
   }
 
-  public MutantImpl(final ParamResolver converter) {
-    this(converter, NO_ARGS);
+  public MutantImpl(final ParserExecutor parser, final MediaType contentType, final Object data) {
+    this(parser, contentType, data, Status.BAD_REQUEST);
   }
 
-  public MutantImpl(final ParamResolver converter,
-      final List<? extends Object> values) {
-    this(converter, values == null || values.size() == 0
-        ? null
-        : values.toArray(new Object[values.size()]));
+  public MutantImpl(final ParserExecutor parser, final Object data) {
+    this(parser, MediaType.plain, data);
   }
 
   @SuppressWarnings("unchecked")
@@ -66,26 +68,15 @@ public class MutantImpl implements Mutant {
   public <T> T to(final TypeLiteral<T> type) {
     T result = (T) results.get(type);
     if (result == null) {
-      result = converter.convert(type, values);
+      result = parser.convert(type, contentType, data, errStatus);
       results.put(type, result);
     }
     return result;
   }
 
   @Override
-  public boolean isPresent() {
-    return values != null && values.length > 0;
-  }
-
-  @Override
   public String toString() {
-    if (values == null || values.length == 0) {
-      return "";
-    }
-    if (values.length == 1) {
-      return values[0].toString();
-    }
-    return Arrays.toString(values);
+    return data.toString();
   }
 
 }

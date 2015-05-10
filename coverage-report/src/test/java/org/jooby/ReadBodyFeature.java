@@ -1,6 +1,6 @@
 package org.jooby;
 
-import org.jooby.MediaType;
+import org.jooby.mvc.Body;
 import org.jooby.mvc.Consumes;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.POST;
@@ -15,20 +15,20 @@ public class ReadBodyFeature extends ServerFeature {
 
     @Path("/text")
     @POST
-    public String text(final String body) {
+    public String text(final @Body String body) {
       return body;
     }
 
     @Path("/text")
     @GET
-    public String emptyBody(final String body) {
+    public String emptyBody(final @Body String body) {
       return body;
     }
 
     @Path("/json")
     @POST
     @Consumes("application/json")
-    public String json(final String body) {
+    public String json(final @Body String body) {
       return body;
     }
   }
@@ -36,13 +36,14 @@ public class ReadBodyFeature extends ServerFeature {
   {
 
     use(BodyConverters.toJson);
-    use(BodyConverters.fromJson);
 
-    post("/text", (req, resp) -> resp.send(req.body(String.class)));
+    parser(BodyConverters.fromJson);
 
-    get("/text", (req, resp) -> resp.send(req.body(String.class)));
+    post("/text", (req, resp) -> resp.send(req.body().to(String.class)));
 
-    post("/json", (req, resp) -> resp.send(req.body(String.class)))
+    get("/text", (req, resp) -> resp.send(req.body().to(String.class)));
+
+    post("/json", (req, resp) -> resp.send(req.body().to(String.class)))
         .consumes(MediaType.json);
 
     post("/len", (req, resp) -> resp.send(req.length()));
@@ -54,12 +55,12 @@ public class ReadBodyFeature extends ServerFeature {
   public void textBody() throws Exception {
     request()
         .post("/text")
-        .body("..", "*/*")
+        .body("..", "text/plain")
         .expect("{\"body\": \"..\"}");
 
     request()
         .post("/r/text")
-        .body("..x", "*/*")
+        .body("..x", "text/plain")
         .expect("{\"body\": \"..x\"}");
   }
 
@@ -67,7 +68,7 @@ public class ReadBodyFeature extends ServerFeature {
   public void len() throws Exception {
     request()
         .post("/len")
-        .body("..", "*/*")
+        .body("..", "text/plain")
         .expect("{\"body\": \"2\"}");
   }
 

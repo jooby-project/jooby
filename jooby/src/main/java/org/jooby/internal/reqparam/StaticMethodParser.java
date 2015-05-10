@@ -23,15 +23,15 @@ import static java.util.Objects.requireNonNull;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import org.jooby.ParamConverter;
+import org.jooby.Parser;
 
 import com.google.inject.TypeLiteral;
 
-public class StaticMethodParamConverter implements ParamConverter {
+public class StaticMethodParser implements Parser {
 
-  private String methodName;
+  private final String methodName;
 
-  public StaticMethodParamConverter(final String methodName) {
+  public StaticMethodParser(final String methodName) {
     this.methodName = requireNonNull(methodName, "A method's name is required.");
   }
 
@@ -40,16 +40,18 @@ public class StaticMethodParamConverter implements ParamConverter {
   }
 
   @Override
-  public Object convert(final TypeLiteral<?> toType, final Object[] values, final Context ctx)
-      throws Exception {
-    if (values.length == 0) {
-      return ctx.convert(toType, values);
-    }
-    Method method = method(toType.getRawType());
-    if (method == null) {
-      return ctx.convert(toType, values);
-    }
-    return method(toType.getRawType()).invoke(null, values[0]);
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+    return ctx.param(params -> {
+      Method method = method(type.getRawType());
+      if (method == null) {
+        return ctx.next();
+      }
+      return method.invoke(null, params.get(0));
+    });
+  }
+
+  public Object parse(final TypeLiteral<?> type, final Object value) throws Exception {
+    return method(type.getRawType()).invoke(null, value);
   }
 
   private Method method(final Class<?> rawType) {
@@ -66,4 +68,5 @@ public class StaticMethodParamConverter implements ParamConverter {
   public String toString() {
     return methodName + "(" + String.class.getName() + ")";
   }
+
 }

@@ -21,30 +21,32 @@ package org.jooby.internal.reqparam;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
-import org.jooby.ParamConverter;
+import org.jooby.Parser;
 
 import com.google.inject.TypeLiteral;
 
-public class StringConstructorParamConverter implements ParamConverter {
+public class StringConstructorParser implements Parser {
 
   public boolean matches(final TypeLiteral<?> toType) {
     return constructor(toType.getRawType()) != null;
   }
 
   @Override
-  public Object convert(final TypeLiteral<?> toType, final Object[] values, final Context ctx)
-      throws Exception {
-    if (values.length == 0) {
-      return ctx.convert(toType, values);
-    }
-    Constructor<?> constructor = constructor(toType.getRawType());
-    if (constructor == null) {
-      return ctx.convert(toType, values);
-    }
-    return constructor(toType.getRawType()).newInstance(values[0]);
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+    return ctx.param(params -> {
+      Constructor<?> constructor = constructor(type.getRawType());
+      if (constructor == null) {
+        return ctx.next();
+      }
+      return constructor.newInstance(params.get(0));
+    });
   }
 
-  private Constructor<?> constructor(final Class<?> rawType) {
+  public static Object parse(final TypeLiteral<?> type, final Object data) throws Exception {
+    return constructor(type.getRawType()).newInstance(data);
+  }
+
+  private static Constructor<?> constructor(final Class<?> rawType) {
     try {
       Constructor<?> constructor = rawType.getDeclaredConstructor(String.class);
       return Modifier.isPublic(constructor.getModifiers()) ? constructor : null;

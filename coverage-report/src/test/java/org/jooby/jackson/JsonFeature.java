@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jooby.json.Jackson;
+import org.jooby.mvc.Body;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
@@ -22,7 +23,7 @@ public class JsonFeature extends ServerFeature {
 
     @Path("/members")
     @POST
-    public Object post(final List<Map<String, Object>> body) {
+    public Object post(final @Body List<Map<String, Object>> body) {
       return body;
     }
   }
@@ -34,8 +35,9 @@ public class JsonFeature extends ServerFeature {
         Lists.newArrayList(ImmutableMap.<String, Object> of("id", 1, "name", "pablo")));
 
     post("/members", req -> {
-      List<Map<String, Object>> members = req.body(new TypeLiteral<List<Map<String, Object>>>() {
-      });
+      List<Map<String, Object>> members = req.body().to(
+          new TypeLiteral<List<Map<String, Object>>>() {
+          });
       return members;
     });
 

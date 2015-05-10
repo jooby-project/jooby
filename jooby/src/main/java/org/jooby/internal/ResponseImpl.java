@@ -43,7 +43,7 @@ import org.jooby.Result;
 import org.jooby.Results;
 import org.jooby.Route;
 import org.jooby.Status;
-import org.jooby.internal.reqparam.ParamResolver;
+import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeResponse;
 import org.jooby.util.Collectors;
 import org.jooby.util.ExSupplier;
@@ -123,7 +123,7 @@ public class ResponseImpl implements Response {
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "A header's name is required.");
-    return new MutantImpl(injector.getInstance(ParamResolver.class), rsp.headers(name));
+    return new MutantImpl(injector.getInstance(ParserExecutor.class), rsp.headers(name));
   }
 
   @Override

@@ -123,7 +123,7 @@ File uploads (again) work in the same way, just use *org.jooby.Upload*
    }
 ```
 
-As you might already noticed, Jooby uses the method param name and binded it to the request param. If you want explicit mapping and/or the req param isn't a valid Java identifier:
+As you might already noticed, Jooby uses the method param name and bind it to the request param. If you want explicit mapping and/or the req param isn't a valid Java identifier:
 
 ```java
    @GET
@@ -138,10 +138,12 @@ Injecting a req body work in the same way:
 
 ```java
   @POST
-  public View search(MyObject object) {
-  ... do something with the uploaded file
+  public View search(@Body MyObject object) {
+  ... do something with my object
   }
 ```
+
+All you have to do is add the ```@Body``` annotation.
 
 ### binding req headers
 

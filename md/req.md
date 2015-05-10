@@ -6,7 +6,7 @@ The request object contains methods for reading params, headers and body (betwee
 
 Retrieval of param is done via: [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) method.
 
-The [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant]({{apidocs}}/org/jooby/Mutant.html) instance. A mutant had several utility method for doing type conversion and check for presence and/or absence.
+The [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant]({{apidocs}}/org/jooby/Mutant.html) instance. A mutant had several utility method for doing type conversion.
 
 Some examples:
 
@@ -91,13 +91,17 @@ Custom type conversion is also possible:
 
 ```java
 
-param((type, values, next) -> {
+parser((type, ctx) -> {
   if (type.getRawType() == MyType.class) {
     // convert the type here
-    return ...;
+    return ctx.param(values -> new MyType(values.get(0)));
   }
   // no luck! move to next converter
-  return next.convert(type, values);
+  return next.next();
+});
+
+get("/", req -> {
+  MyType myType = req.param("value").to(MyType.class);
 });
 ```
 
@@ -133,21 +137,21 @@ get("/", req -> {
 
 ## request body
 
-Retrieval of request body is done via [request.body(type)]({{apidocs}}/org/jooby/Request.html#body-com.google.inject.TypeLiteral-).
+Retrieval of request body is done via [request.body()]({{apidocs}}/org/jooby/Request.html#body).
 
-A [body parser]({{apidocs}}/org/jooby/BodyParser.html) is responsible for parse or convert the HTTP request body to something else.
+A [parser]({{apidocs}}/org/jooby/Parser.html) is responsible for parse or convert the HTTP request body to something else.
 
 There are a few built-in parsers for reading body as String or Reader objects. Once the body is read it, it can't be read it again.
 
-A detailed explanation for body parser is covered later. For now, all you need to know is that they can read/parse the HTTP body.
+A detailed explanation for parser is covered later. For now, all you need to know is that they can read/parse the HTTP body.
 
 A body parser is registered in one of two ways:
 
-* with [use]({{apidocs}}/org/jooby/Jooby.html#use-org.jooby.BodyParser-)
+* with [parser]({{apidocs}}/org/jooby/Jooby.html#parser-org.jooby.Parser-)
 
 ```java
 {
-   use(new Json());
+   parser(new MyParser());
 }
 ```
 
@@ -155,7 +159,7 @@ A body parser is registered in one of two ways:
 
 ```java
 public void configure(Mode mode, Config config, Binder binder) {
-  Multibinder.newSetBinder(binder, BodyParser.class)
+  Multibinder.newSetBinder(binder, Parser.class)
         .addBinding()
         .toInstance(new MyParser());
 }

@@ -18,22 +18,26 @@
  */
 package org.jooby.internal.reqparam;
 
-import org.jooby.ParamConverter;
+import org.jooby.Parser;
 
 import com.google.inject.TypeLiteral;
 
-public class EnumParamConverter implements ParamConverter {
+public class EnumParser implements Parser {
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
-  public Object convert(final TypeLiteral<?> toType, final Object[] values, final Context ctx)
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx)
       throws Exception {
-    Class rawType = toType.getRawType();
+    Class rawType = type.getRawType();
     if (Enum.class.isAssignableFrom(rawType)) {
-      return Enum.valueOf(rawType, (String) values[0]);
+      return ctx
+          .param(values ->
+              Enum.valueOf(rawType, values.get(0))
+          ).body(body ->
+              Enum.valueOf(rawType, body.text())
+          );
     } else {
-      return ctx.convert(toType, values);
+      return ctx.next();
     }
   }
-
 }

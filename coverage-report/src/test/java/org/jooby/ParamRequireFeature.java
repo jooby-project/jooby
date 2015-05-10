@@ -25,18 +25,18 @@ public class ParamRequireFeature extends ServerFeature {
 
   {
 
-    param((type, values, ctx) -> {
+    parser((type, ctx) -> {
       if (type.getRawType() == ParamBean.class) {
         Dependency dep1 = ctx.require(Dependency.class);
         assertEquals(dep1, ctx.require(Key.get(Dependency.class)));
         assertEquals(dep1, ctx.require(TypeLiteral.get(Dependency.class)));
         return new ParamBean();
       }
-      return ctx.convert(type, values);
+      return ctx.next();
     });
 
     get("/require", req -> {
-      return req.require(ParamBean.class);
+      return req.params().to(ParamBean.class);
     });
 
   }

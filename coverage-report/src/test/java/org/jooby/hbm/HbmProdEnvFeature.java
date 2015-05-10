@@ -30,7 +30,7 @@ public class HbmProdEnvFeature extends ServerFeature {
     });
 
     post("/members", (req, rsp, chain) -> {
-      Member member = req.params(Member.class);
+      Member member = req.params().to(Member.class);
       EntityManager em = req.require(EntityManager.class);
       em.persist(member);
       if (req.param("err").toOptional(Boolean.class).orElse(false)) {

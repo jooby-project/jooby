@@ -84,6 +84,7 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
       int maxThreads = Math.max(4, Runtime.getRuntime().availableProcessors() / 2) + 2;
       Config config = ConfigFactory.empty("test-config")
           .withValue("server.join", ConfigValueFactory.fromAnyRef(false))
+          .withValue("server.http.IdleTimeout", ConfigValueFactory.fromAnyRef("5m"))
           .withValue("server.threads.Min", ConfigValueFactory.fromAnyRef(1))
           .withValue("server.threads.Max", ConfigValueFactory.fromAnyRef(maxThreads))
           .withValue("application.port", ConfigValueFactory.fromAnyRef(port))

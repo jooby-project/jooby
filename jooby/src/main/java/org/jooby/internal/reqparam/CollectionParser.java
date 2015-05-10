@@ -25,17 +25,17 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.function.Supplier;
 
-import org.jooby.ParamConverter;
+import org.jooby.Parser;
+import org.jooby.Upload;
 
 import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableCollection.Builder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.inject.TypeLiteral;
 
-public class CollectionParamConverter implements ParamConverter {
+public class CollectionParser implements Parser {
 
   private final Map<Class<?>, Supplier<ImmutableCollection.Builder<?>>> parsers =
       ImmutableMap.<Class<?>, Supplier<ImmutableCollection.Builder<?>>> builder()
@@ -51,20 +51,26 @@ public class CollectionParamConverter implements ParamConverter {
 
   @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
-  public Object convert(final TypeLiteral<?> toType, final Object[] values, final Context ctx)
-      throws Exception {
-    if (matches(toType)) {
-      Builder builder = parsers.get(toType.getRawType()).get();
-      if (values != null) {
-        TypeLiteral<?> paramType = TypeLiteral.get(((ParameterizedType) toType.getType())
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+    if (matches(type)) {
+      return ctx.param(values -> {
+        ImmutableCollection.Builder builder = parsers.get(type.getRawType()).get();
+        TypeLiteral<?> paramType = TypeLiteral.get(((ParameterizedType) type.getType())
             .getActualTypeArguments()[0]);
         for (Object value : values) {
-          builder.add(ctx.convert(paramType, new Object[]{value }));
+          builder.add(ctx.next(paramType, value));
         }
-      }
-      return builder.build();
+        return builder.build();
+      }).upload(uploads -> {
+        ImmutableCollection.Builder builder = parsers.get(type.getRawType()).get();
+        TypeLiteral<Upload> paramType = TypeLiteral.get(Upload.class);
+        for (Upload upload : uploads) {
+          builder.add(ctx.next(paramType, upload));
+        }
+        return builder.build();
+      });
     } else {
-      return ctx.convert(toType, values);
+      return ctx.next();
     }
   }
 

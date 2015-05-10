@@ -37,18 +37,18 @@ import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
-import org.jooby.internal.reqparam.BeanParamConverter;
-import org.jooby.internal.reqparam.CollectionParamConverter;
-import org.jooby.internal.reqparam.CommonTypesParamConverter;
-import org.jooby.internal.reqparam.DateParamConverter;
-import org.jooby.internal.reqparam.EnumParamConverter;
-import org.jooby.internal.reqparam.LocalDateParamConverter;
-import org.jooby.internal.reqparam.LocaleParamConverter;
-import org.jooby.internal.reqparam.OptionalParamConverter;
-import org.jooby.internal.reqparam.ParamResolver;
-import org.jooby.internal.reqparam.StaticMethodParamConverter;
-import org.jooby.internal.reqparam.StringConstructorParamConverter;
-import org.jooby.internal.reqparam.UploadParamConverter;
+import org.jooby.internal.reqparam.BeanParser;
+import org.jooby.internal.reqparam.CollectionParser;
+import org.jooby.internal.reqparam.CommonTypesParser;
+import org.jooby.internal.reqparam.DateParser;
+import org.jooby.internal.reqparam.EnumParser;
+import org.jooby.internal.reqparam.LocalDateParser;
+import org.jooby.internal.reqparam.LocaleParser;
+import org.jooby.internal.reqparam.OptionalParser;
+import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.reqparam.StaticMethodParser;
+import org.jooby.internal.reqparam.StringConstructorParser;
+import org.jooby.internal.reqparam.UploadParser;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
@@ -236,29 +236,11 @@ public class JoobyTest {
     expect(binder.bind(DecimalFormat.class)).andReturn(binding);
   };
 
-  private MockUnit.Block bodyParser = unit -> {
-    Multibinder<BodyParser> multibinder = unit.mock(Multibinder.class);
-
-    Binder binder = unit.get(Binder.class);
-    unit.mockStatic(Multibinder.class);
-
-    expect(Multibinder.newSetBinder(binder, BodyParser.class)).andReturn(multibinder);
-
-    LinkedBindingBuilder<BodyParser> parseString = unit.mock(LinkedBindingBuilder.class);
-    parseString.toInstance(BuiltinBodyConverter.parseString);
-
-    expect(multibinder.addBinding()).andReturn(parseString);
-
-    LinkedBindingBuilder<BodyParser> parseBytes = unit.mock(LinkedBindingBuilder.class);
-    parseBytes.toInstance(BuiltinBodyConverter.parseBytes);
-
-    expect(multibinder.addBinding()).andReturn(parseBytes);
-  };
-
   private MockUnit.Block bodyFormatter = unit -> {
     Multibinder<BodyFormatter> multibinder = unit.mock(Multibinder.class);
 
     Binder binder = unit.get(Binder.class);
+    unit.mockStatic(Multibinder.class);
 
     expect(Multibinder.newSetBinder(binder, BodyFormatter.class)).andReturn(multibinder);
 
@@ -401,36 +383,41 @@ public class JoobyTest {
   private MockUnit.Block params = unit -> {
     Binder binder = unit.get(Binder.class);
 
-    AnnotatedBindingBuilder<ParamResolver> parambinding = unit
+    AnnotatedBindingBuilder<ParserExecutor> parambinding = unit
         .mock(AnnotatedBindingBuilder.class);
 
-    expect(binder.bind(ParamResolver.class)).andReturn(parambinding);
+    expect(binder.bind(ParserExecutor.class)).andReturn(parambinding);
 
-    Multibinder<ParamConverter> multibinder = unit.mock(Multibinder.class, true);
+    Multibinder<Parser> multibinder = unit.mock(Multibinder.class, true);
 
     @SuppressWarnings("rawtypes")
-    Class[] converters = {CommonTypesParamConverter.class,
-        CollectionParamConverter.class,
-        OptionalParamConverter.class,
-        UploadParamConverter.class,
-        EnumParamConverter.class,
-        DateParamConverter.class,
-        LocalDateParamConverter.class,
-        LocaleParamConverter.class,
-        BeanParamConverter.class,
-        StaticMethodParamConverter.class,
-        StaticMethodParamConverter.class,
-        StaticMethodParamConverter.class,
-        StringConstructorParamConverter.class
+    Class[] converters = {CommonTypesParser.class,
+        CollectionParser.class,
+        OptionalParser.class,
+        UploadParser.class,
+        EnumParser.class,
+        DateParser.class,
+        LocalDateParser.class,
+        LocaleParser.class,
+        BeanParser.class,
+        StaticMethodParser.class,
+        StaticMethodParser.class,
+        StaticMethodParser.class,
+        StringConstructorParser.class
     };
 
-    for (Class<? extends ParamConverter> converter : converters) {
-      LinkedBindingBuilder<ParamConverter> converterBinding = unit.mock(LinkedBindingBuilder.class);
+    for (Class<? extends Parser> converter : converters) {
+      LinkedBindingBuilder<Parser> converterBinding = unit.mock(LinkedBindingBuilder.class);
       converterBinding.toInstance(isA(converter));
       expect(multibinder.addBinding()).andReturn(converterBinding);
     }
 
-    expect(Multibinder.newSetBinder(binder, ParamConverter.class)).andReturn(multibinder);
+    LinkedBindingBuilder<Parser> parseBytes = unit.mock(LinkedBindingBuilder.class);
+    parseBytes.toInstance(BuiltinBodyConverter.parseBytes);
+
+    expect(multibinder.addBinding()).andReturn(parseBytes);
+
+    expect(Multibinder.newSetBinder(binder, Parser.class)).andReturn(multibinder);
 
   };
 
@@ -559,7 +546,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
@@ -599,7 +585,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
@@ -647,7 +632,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
@@ -706,7 +690,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
@@ -759,7 +742,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
@@ -848,7 +830,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
@@ -885,7 +866,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
@@ -959,7 +939,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
@@ -1034,7 +1013,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
@@ -1130,7 +1108,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
@@ -1226,7 +1203,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
@@ -1322,7 +1298,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
@@ -1418,7 +1393,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
@@ -1514,7 +1488,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
@@ -1610,7 +1583,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
@@ -1706,7 +1678,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
@@ -1802,12 +1773,12 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(unit -> {
           Multibinder<BodyFormatter> multibinder = unit.mock(Multibinder.class);
 
           Binder binder = unit.get(Binder.class);
 
+          unit.mockStatic(Multibinder.class);
           expect(Multibinder.newSetBinder(binder, BodyFormatter.class)).andReturn(multibinder);
 
           LinkedBindingBuilder<BodyFormatter> formatReader = unit.mock(LinkedBindingBuilder.class);
@@ -1915,7 +1886,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
@@ -2042,7 +2012,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
@@ -2100,7 +2069,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(unit -> {
           Binder binder = unit.get(Binder.class);
@@ -2160,12 +2128,12 @@ public class JoobyTest {
         .expect(numberFormat)
         .expect(decimalFormat)
         .expect(session)
-        .expect(bodyParser)
         .expect(unit -> {
           Multibinder<BodyFormatter> multibinder = unit.mock(Multibinder.class);
 
           Binder binder = unit.get(Binder.class);
 
+          unit.mockStatic(Multibinder.class);
           expect(Multibinder.newSetBinder(binder, BodyFormatter.class)).andReturn(multibinder);
 
           LinkedBindingBuilder<BodyFormatter> formatReader = unit.mock(LinkedBindingBuilder.class);
@@ -2211,9 +2179,10 @@ public class JoobyTest {
   }
 
   @Test
+  @SuppressWarnings("rawtypes")
   public void useParser() throws Exception {
 
-    new MockUnit(BodyParser.class, Binder.class)
+    new MockUnit(Parser.class, Binder.class)
         .expect(guice)
         .expect(shutdown)
         .expect(config)
@@ -2226,32 +2195,53 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
+        .expect(bodyFormatter)
         .expect(unit -> {
-          Multibinder<BodyParser> multibinder = unit.mock(Multibinder.class);
-
           Binder binder = unit.get(Binder.class);
-          unit.mockStatic(Multibinder.class);
 
-          expect(Multibinder.newSetBinder(binder, BodyParser.class)).andReturn(multibinder);
+          AnnotatedBindingBuilder<ParserExecutor> parambinding = unit
+              .mock(AnnotatedBindingBuilder.class);
 
-          LinkedBindingBuilder<BodyParser> parseString = unit.mock(LinkedBindingBuilder.class);
-          parseString.toInstance(BuiltinBodyConverter.parseString);
+          expect(binder.bind(ParserExecutor.class)).andReturn(parambinding);
 
-          LinkedBindingBuilder<BodyParser> parseBytes = unit.mock(LinkedBindingBuilder.class);
-          parseBytes.toInstance(BuiltinBodyConverter.parseBytes);
+          Multibinder<Parser> multibinder = unit.mock(Multibinder.class, true);
 
-          LinkedBindingBuilder<BodyParser> customParser = unit.mock(LinkedBindingBuilder.class);
-          customParser.toInstance(unit.get(BodyParser.class));
+          LinkedBindingBuilder<Parser> customParser = unit.mock(LinkedBindingBuilder.class);
+          customParser.toInstance(unit.get(Parser.class));
 
           expect(multibinder.addBinding()).andReturn(customParser);
-          expect(multibinder.addBinding()).andReturn(parseString);
+
+          Class[] converters = {CommonTypesParser.class,
+              CollectionParser.class,
+              OptionalParser.class,
+              UploadParser.class,
+              EnumParser.class,
+              DateParser.class,
+              LocalDateParser.class,
+              LocaleParser.class,
+              BeanParser.class,
+              StaticMethodParser.class,
+              StaticMethodParser.class,
+              StaticMethodParser.class,
+              StringConstructorParser.class
+          };
+
+          for (Class<? extends Parser> converter : converters) {
+            LinkedBindingBuilder<Parser> converterBinding = unit.mock(LinkedBindingBuilder.class);
+            converterBinding.toInstance(isA(converter));
+            expect(multibinder.addBinding()).andReturn(converterBinding);
+          }
+
+          LinkedBindingBuilder<Parser> parseBytes = unit.mock(LinkedBindingBuilder.class);
+          parseBytes.toInstance(BuiltinBodyConverter.parseBytes);
+
           expect(multibinder.addBinding()).andReturn(parseBytes);
+
+          expect(Multibinder.newSetBinder(binder, Parser.class)).andReturn(multibinder);
         })
-        .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
-        .expect(params)
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
@@ -2260,7 +2250,7 @@ public class JoobyTest {
 
           Jooby jooby = new Jooby();
 
-          jooby.use(unit.get(BodyParser.class));
+          jooby.parser(unit.get(Parser.class));
 
           jooby.start();
 
@@ -2283,7 +2273,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
@@ -2334,7 +2323,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
@@ -2383,7 +2371,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
@@ -2431,7 +2418,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)
@@ -2468,7 +2454,6 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyParser)
         .expect(bodyFormatter)
         .expect(session)
         .expect(routes)

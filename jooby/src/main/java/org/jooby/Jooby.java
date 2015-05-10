@@ -93,18 +93,18 @@ import org.jooby.internal.ServerLookup;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.mvc.MvcRoutes;
-import org.jooby.internal.reqparam.BeanParamConverter;
-import org.jooby.internal.reqparam.CollectionParamConverter;
-import org.jooby.internal.reqparam.CommonTypesParamConverter;
-import org.jooby.internal.reqparam.DateParamConverter;
-import org.jooby.internal.reqparam.EnumParamConverter;
-import org.jooby.internal.reqparam.LocalDateParamConverter;
-import org.jooby.internal.reqparam.LocaleParamConverter;
-import org.jooby.internal.reqparam.OptionalParamConverter;
-import org.jooby.internal.reqparam.ParamResolver;
-import org.jooby.internal.reqparam.StaticMethodParamConverter;
-import org.jooby.internal.reqparam.StringConstructorParamConverter;
-import org.jooby.internal.reqparam.UploadParamConverter;
+import org.jooby.internal.reqparam.BeanParser;
+import org.jooby.internal.reqparam.CollectionParser;
+import org.jooby.internal.reqparam.CommonTypesParser;
+import org.jooby.internal.reqparam.DateParser;
+import org.jooby.internal.reqparam.EnumParser;
+import org.jooby.internal.reqparam.LocalDateParser;
+import org.jooby.internal.reqparam.LocaleParser;
+import org.jooby.internal.reqparam.OptionalParser;
+import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.reqparam.StaticMethodParser;
+import org.jooby.internal.reqparam.StringConstructorParser;
+import org.jooby.internal.reqparam.UploadParser;
 import org.jooby.internal.routes.HeadHandler;
 import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
@@ -490,9 +490,6 @@ public class Jooby {
   /** Body formatters. */
   private List<BodyFormatter> formatters = new LinkedList<>();
 
-  /** Body parsers. */
-  private List<BodyParser> parsers = new LinkedList<>();
-
   /** Session store. */
   private Session.Definition session = new Session.Definition(Session.Mem.class);
 
@@ -502,7 +499,7 @@ public class Jooby {
   /** Env builder. */
   private Env.Builder env = Env.DEFAULT;
 
-  private LinkedList<ParamConverter> converters = new LinkedList<>();
+  private LinkedList<Parser> parsers = new LinkedList<>();
 
   /**
    * Import ALL the direct routes from the given app. PLEASE NOTE: that ONLY routes are imported.
@@ -649,11 +646,11 @@ public class Jooby {
   /**
    * Register a new param converter. See {@link ParamConverter} for more details.
    *
-   * @param converter A param converter.
+   * @param parser A parser.
    * @return This jooby instance.
    */
-  public Jooby param(final ParamConverter converter) {
-    converters.add(requireNonNull(converter, "A param converter is required."));
+  public Jooby parser(final Parser parser) {
+    parsers.add(requireNonNull(parser, "A parser is required."));
     return this;
   }
 
@@ -665,17 +662,6 @@ public class Jooby {
    */
   public Jooby use(final BodyFormatter formatter) {
     this.formatters.add(requireNonNull(formatter, "A body formatter is required."));
-    return this;
-  }
-
-  /**
-   * Append a body parser for write HTTP messages.
-   *
-   * @param parser A body parser.
-   * @return This jooby instance.
-   */
-  public Jooby use(final BodyParser parser) {
-    this.parsers.add(requireNonNull(parser, "A body parser is required."));
     return this;
   }
 
@@ -2829,12 +2815,6 @@ public class Jooby {
         // bind managed
         binder.bindListener(Matchers.any(), new LifecycleProcessor());
 
-        // bind formatter & parser
-        Multibinder<BodyParser> parserBinder = Multibinder
-            .newSetBinder(binder, BodyParser.class);
-        Multibinder<BodyFormatter> formatterBinder = Multibinder
-            .newSetBinder(binder, BodyFormatter.class);
-
         // Routes
         Multibinder<Route.Definition> definitions = Multibinder
             .newSetBinder(binder, Route.Definition.class);
@@ -2849,28 +2829,30 @@ public class Jooby {
         binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
             .toInstance(tmpdir);
 
+        // parsers
         RouteMetadata classInfo = new RouteMetadata(env);
         binder.bind(ParameterNameProvider.class).toInstance(classInfo);
 
-        converters.add(new CommonTypesParamConverter());
-        converters.add(new CollectionParamConverter());
-        converters.add(new OptionalParamConverter());
-        converters.add(new UploadParamConverter());
-        converters.add(new EnumParamConverter());
-        converters.add(new DateParamConverter(dateFormat));
-        converters.add(new LocalDateParamConverter(dateTimeFormatter));
-        converters.add(new LocaleParamConverter());
-        converters.add(new BeanParamConverter());
-        converters.add(new StaticMethodParamConverter("valueOf"));
-        converters.add(new StaticMethodParamConverter("fromString"));
-        converters.add(new StaticMethodParamConverter("forName"));
-        converters.add(new StringConstructorParamConverter());
+        parsers.add(new CommonTypesParser());
+        parsers.add(new CollectionParser());
+        parsers.add(new OptionalParser());
+        parsers.add(new UploadParser());
+        parsers.add(new EnumParser());
+        parsers.add(new DateParser(dateFormat));
+        parsers.add(new LocalDateParser(dateTimeFormatter));
+        parsers.add(new LocaleParser());
+        parsers.add(new BeanParser());
+        parsers.add(new StaticMethodParser("valueOf"));
+        parsers.add(new StaticMethodParser("fromString"));
+        parsers.add(new StaticMethodParser("forName"));
+        parsers.add(new StringConstructorParser());
+        parsers.add(BuiltinBodyConverter.parseBytes);
 
-        binder.bind(ParamResolver.class);
+        binder.bind(ParserExecutor.class);
 
-        Multibinder<ParamConverter> converterBinder = Multibinder
-            .newSetBinder(binder, ParamConverter.class);
-        converters.forEach(it -> converterBinder.addBinding().toInstance(it));
+        Multibinder<Parser> converterBinder = Multibinder
+            .newSetBinder(binder, Parser.class);
+        parsers.forEach(it -> converterBinder.addBinding().toInstance(it));
 
         // modules, routes and websockets
         bag.forEach(candidate -> {
@@ -2887,8 +2869,10 @@ public class Jooby {
           }
         });
 
-        // parser & formatter
-        parsers.forEach(it -> parserBinder.addBinding().toInstance(it));
+        // formatter
+        Multibinder<BodyFormatter> formatterBinder = Multibinder
+            .newSetBinder(binder, BodyFormatter.class);
+
         formatters.forEach(it -> formatterBinder.addBinding().toInstance(it));
 
         formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
@@ -2896,9 +2880,6 @@ public class Jooby {
         formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatByteArray);
         formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatByteBuffer);
         formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
-
-        parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseString);
-        parserBinder.addBinding().toInstance(BuiltinBodyConverter.parseBytes);
 
         binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
 

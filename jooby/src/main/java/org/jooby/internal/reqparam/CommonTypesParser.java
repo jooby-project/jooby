@@ -27,13 +27,13 @@ import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.jooby.ParamConverter;
+import org.jooby.Parser;
 import org.jooby.internal.Headers;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.TypeLiteral;
 
-public class CommonTypesParamConverter implements ParamConverter {
+public class CommonTypesParser implements Parser {
 
   private final Map<Class<?>, Function<String, Object>> parsers =
       ImmutableMap.<Class<?>, Function<String, Object>> builder()
@@ -47,25 +47,29 @@ public class CommonTypesParamConverter implements ParamConverter {
           .put(float.class, Float::valueOf)
           .put(Integer.class, Integer::valueOf)
           .put(int.class, Integer::valueOf)
-          .put(Long.class, CommonTypesParamConverter::toLong)
-          .put(long.class, CommonTypesParamConverter::toLong)
+          .put(Long.class, CommonTypesParser::toLong)
+          .put(long.class, CommonTypesParser::toLong)
           .put(Short.class, Short::valueOf)
           .put(short.class, Short::valueOf)
-          .put(Boolean.class, CommonTypesParamConverter::toBoolean)
-          .put(boolean.class, CommonTypesParamConverter::toBoolean)
-          .put(Character.class, CommonTypesParamConverter::toCharacter)
-          .put(char.class, CommonTypesParamConverter::toCharacter)
-          .put(String.class, CommonTypesParamConverter::toString)
+          .put(Boolean.class, CommonTypesParser::toBoolean)
+          .put(boolean.class, CommonTypesParser::toBoolean)
+          .put(Character.class, CommonTypesParser::toCharacter)
+          .put(char.class, CommonTypesParser::toCharacter)
+          .put(String.class, CommonTypesParser::toString)
           .build();
 
   @Override
-  public Object convert(final TypeLiteral<?> toType, final Object[] values, final Context ctx)
-      throws Exception {
-    Function<String, Object> parser = parsers.get(toType.getRawType());
-    if (parser == null) {
-      return ctx.convert(toType, values);
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+    Function<String, Object> parser = parsers.get(type.getRawType());
+    if (parser != null) {
+      return ctx
+          .param(values ->
+              parser.apply(values.get(0))
+          ).body(body ->
+              parser.apply(body.text())
+          );
     }
-    return parser.apply((String) values[0]);
+    return ctx.next();
   }
 
   private static String toString(final String value) {

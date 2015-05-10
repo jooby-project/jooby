@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Optional;
 
+import org.jooby.mvc.Body;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -71,7 +72,7 @@ public class ParamBeanFeature extends ServerFeature {
 
     @org.jooby.mvc.POST
     @Path("/ibean")
-    public String postibean(final org.jooby.Request req, final IBean bean) throws Exception {
+    public String postibean(final org.jooby.Request req, final @Body IBean bean) throws Exception {
       assertEquals(req.param("name").value(), bean.name());
       assertEquals(req.param("valid").booleanValue(), bean.isValid());
       assertEquals(req.param("age").intValue(), bean.getAge());
@@ -122,7 +123,7 @@ public class ParamBeanFeature extends ServerFeature {
 
   {
     get("/ibean", req -> {
-      IBean bean = req.params(IBean.class);
+      IBean bean = req.params().to(IBean.class);
       assertEquals(req.param("name").value(), bean.name());
       assertEquals(req.param("valid").booleanValue(), bean.isValid());
       assertEquals(req.param("age").intValue(), bean.getAge());
@@ -130,7 +131,7 @@ public class ParamBeanFeature extends ServerFeature {
     });
 
     post("/ibean", req -> {
-      IBean bean = req.body(IBean.class);
+      IBean bean = req.body().to(IBean.class);
       assertEquals(req.param("name").value(), bean.name());
       assertEquals(req.param("valid").booleanValue(), bean.isValid());
       assertEquals(req.param("age").intValue(), bean.getAge());
@@ -138,33 +139,33 @@ public class ParamBeanFeature extends ServerFeature {
     });
 
     get("/beanwithargs", req -> {
-      BeanWithArgs bean = req.params(BeanWithArgs.class);
+      BeanWithArgs bean = req.params().to(BeanWithArgs.class);
       assertEquals(req.param("name").value(), bean.name);
       assertEquals(req.param("age").intValue(), (int) bean.age.get());
       return "OK";
     });
 
     get("/invalidbean", req -> {
-      req.params(InvalidBean.class);
+      req.params().to(InvalidBean.class);
       return "OK";
     });
 
     post("/beanwithargs", req -> {
-      BeanWithArgs bean = req.body(BeanWithArgs.class);
+      BeanWithArgs bean = req.body().to(BeanWithArgs.class);
       assertEquals(req.param("name").value(), bean.name);
       assertEquals(req.param("age").intValue(), (int) bean.age.get());
       return "OK";
     });
 
     get("/beannoarg", req -> {
-      BeanNoArg bean = req.params(BeanNoArg.class);
+      BeanNoArg bean = req.params().to(BeanNoArg.class);
       assertEquals(req.param("name").value(), bean.getName());
       assertEquals(req.param("age").intValue(), (int) bean.getAge().get());
       return "OK";
     });
 
     post("/beannoarg", req -> {
-      BeanNoArg bean = req.body(BeanNoArg.class);
+      BeanNoArg bean = req.body().to(BeanNoArg.class);
       assertEquals(req.param("name").value(), bean.getName());
       assertEquals(req.param("age").intValue(), (int) bean.getAge().get());
       return "OK";

@@ -3,29 +3,10 @@ package org.jooby;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.CharStreams;
-import com.google.inject.TypeLiteral;
 
 public class BodyConverters {
 
-  public static final BodyParser fromJson = new BodyParser() {
-
-    @Override
-    public boolean canParse(final TypeLiteral<?> type) {
-      return true;
-    }
-
-    @Override
-    public <T> T parse(final TypeLiteral<T> type, final BodyParser.Context ctx) throws Exception {
-      return ctx.text(r -> CharStreams.toString(r));
-    }
-
-    @Override
-    public List<MediaType> types() {
-      return ImmutableList.of(MediaType.json);
-    }
-
-  };
+  public static final Parser fromJson = (type, ctx) -> ctx.body(body -> body.text());
 
   public static final BodyFormatter toJson = new BodyFormatter() {
 

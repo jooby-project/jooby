@@ -28,14 +28,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.jooby.BodyFormatter;
-import org.jooby.BodyParser;
 import org.jooby.MediaType;
 import org.jooby.View;
 
-import com.google.inject.TypeLiteral;
-
 /**
- * Choose or select a {@link BodyParser} or {@link BodyFormatter} using {@link MediaType media
+ * Choose or select or {@link BodyFormatter} using {@link MediaType media
  * types.}. Examples:
  *
  * <pre>
@@ -63,8 +60,6 @@ public class BodyConverterSelector {
    */
   private final Set<BodyFormatter> formatters;
 
-  private final Set<BodyParser> parsers;
-
   /**
    * Creates a new {@link BodyConverterSelector}.
    *
@@ -72,33 +67,32 @@ public class BodyConverterSelector {
    * @param formatters The available body formatters in the system.
    */
   @Inject
-  public BodyConverterSelector(final Set<BodyParser> parsers,
+  public BodyConverterSelector(
       final Set<BodyFormatter> formatters) {
-    this.parsers = requireNonNull(parsers, "The parsers is required.");
     this.formatters = requireNonNull(formatters, "The formatters is required.");
   }
 
-  public Optional<BodyParser> parser(final TypeLiteral<?> type,
-      final Iterable<MediaType> types) {
-    requireNonNull(type, "Type literal is required.");
-    requireNonNull(types, "Types are required.");
-
-    for (BodyParser parser : parsers) {
-      if (parser.canParse(type)) {
-        for (MediaType mtype : types) {
-          Optional<MediaType> found = parser.types()
-              .stream()
-              .filter(it -> mtype.matches(it))
-              .findFirst();
-          if (found.isPresent()) {
-            return Optional.of(parser);
-          }
-        }
-      }
-    }
-
-    return Optional.empty();
-  }
+//  public Optional<BodyParser> parser(final TypeLiteral<?> type,
+//      final Iterable<MediaType> types) {
+//    requireNonNull(type, "Type literal is required.");
+//    requireNonNull(types, "Types are required.");
+//
+//    for (BodyParser parser : parsers) {
+//      if (parser.canParse(type)) {
+//        for (MediaType mtype : types) {
+//          Optional<MediaType> found = parser.types()
+//              .stream()
+//              .filter(it -> mtype.matches(it))
+//              .findFirst();
+//          if (found.isPresent()) {
+//            return Optional.of(parser);
+//          }
+//        }
+//      }
+//    }
+//
+//    return Optional.empty();
+//  }
 
   public Optional<BodyFormatter> formatter(final Object message,
       final Iterable<MediaType> types) {

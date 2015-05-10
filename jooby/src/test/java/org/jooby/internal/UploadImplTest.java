@@ -11,7 +11,7 @@ import java.util.Optional;
 import org.jooby.MediaType;
 import org.jooby.MockUnit;
 import org.jooby.Mutant;
-import org.jooby.internal.reqparam.ParamResolver;
+import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeUpload;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,24 +74,25 @@ public class UploadImplTest {
 
   @Test
   public void type() throws Exception {
-    new MockUnit(Injector.class, NativeUpload.class, ParamResolver.class)
+    new MockUnit(Injector.class, NativeUpload.class, ParserExecutor.class)
         .expect(unit -> {
-          expect(unit.get(Injector.class).getInstance(ParamResolver.class)).andReturn(
-              unit.get(ParamResolver.class));
+          expect(unit.get(Injector.class).getInstance(ParserExecutor.class)).andReturn(
+              unit.get(ParserExecutor.class));
         })
-        .expect(unit -> {
-          NativeUpload upload = unit.get(NativeUpload.class);
+        .expect(
+            unit -> {
+              NativeUpload upload = unit.get(NativeUpload.class);
 
-          List<String> headers = Arrays.asList("application/json");
-          expect(upload.headers("Content-Type")).andReturn(headers);
+              List<String> headers = Arrays.asList("application/json");
+              expect(upload.headers("Content-Type")).andReturn(headers);
 
-          Mutant mutant = unit.mockConstructor(MutantImpl.class,
-              new Class[]{ParamResolver.class, List.class },
-              unit.get(ParamResolver.class), headers);
+              Mutant mutant = unit.mockConstructor(MutantImpl.class,
+                  new Class[]{ParserExecutor.class, Object.class },
+                  unit.get(ParserExecutor.class), headers);
 
-          expect(mutant.toOptional(MediaType.class))
-              .andReturn(Optional.ofNullable(MediaType.json));
-        })
+              expect(mutant.toOptional(MediaType.class))
+                  .andReturn(Optional.ofNullable(MediaType.json));
+            })
         .run(unit -> {
           assertEquals(MediaType.json,
               new UploadImpl(unit.get(Injector.class), unit.get(NativeUpload.class)).type());
@@ -100,10 +101,10 @@ public class UploadImplTest {
 
   @Test
   public void deftype() throws Exception {
-    new MockUnit(Injector.class, NativeUpload.class, ParamResolver.class)
+    new MockUnit(Injector.class, NativeUpload.class, ParserExecutor.class)
         .expect(unit -> {
-          expect(unit.get(Injector.class).getInstance(ParamResolver.class)).andReturn(
-              unit.get(ParamResolver.class));
+          expect(unit.get(Injector.class).getInstance(ParserExecutor.class)).andReturn(
+              unit.get(ParserExecutor.class));
         })
         .expect(unit -> {
           expect(unit.get(NativeUpload.class).name()).andReturn("x");
@@ -115,8 +116,8 @@ public class UploadImplTest {
           expect(upload.headers("Content-Type")).andReturn(headers);
 
           Mutant mutant = unit.mockConstructor(MutantImpl.class,
-              new Class[]{ParamResolver.class, List.class },
-              unit.get(ParamResolver.class), headers);
+              new Class[]{ParserExecutor.class, Object.class },
+              unit.get(ParserExecutor.class), headers);
 
           expect(mutant.toOptional(MediaType.class))
               .andReturn(Optional.ofNullable(null));
@@ -129,10 +130,10 @@ public class UploadImplTest {
 
   @Test
   public void typeFromName() throws Exception {
-    new MockUnit(Injector.class, NativeUpload.class, ParamResolver.class)
+    new MockUnit(Injector.class, NativeUpload.class, ParserExecutor.class)
         .expect(unit -> {
-          expect(unit.get(Injector.class).getInstance(ParamResolver.class)).andReturn(
-              unit.get(ParamResolver.class));
+          expect(unit.get(Injector.class).getInstance(ParserExecutor.class)).andReturn(
+              unit.get(ParserExecutor.class));
         })
         .expect(unit -> {
           expect(unit.get(NativeUpload.class).name()).andReturn("x.js");
@@ -144,8 +145,8 @@ public class UploadImplTest {
           expect(upload.headers("Content-Type")).andReturn(headers);
 
           Mutant mutant = unit.mockConstructor(MutantImpl.class,
-              new Class[]{ParamResolver.class, List.class },
-              unit.get(ParamResolver.class), headers);
+              new Class[]{ParserExecutor.class, Object.class },
+              unit.get(ParserExecutor.class), headers);
 
           expect(mutant.toOptional(MediaType.class))
               .andReturn(Optional.ofNullable(null));

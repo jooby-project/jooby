@@ -32,10 +32,12 @@ import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Session;
+import org.jooby.mvc.Body;
 import org.jooby.mvc.Header;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Types;
 
@@ -50,35 +52,46 @@ public class RequestParam {
 
   private static final TypeLiteral<Header> headerType = TypeLiteral.get(Header.class);
 
-  private static final Map<Object, GetValue> injector = ImmutableMap.<Object, GetValue> builder()
-      /**
-       * Request
-       */
-      .put(TypeLiteral.get(Request.class), (req, rsp, param) -> req)
-      /**
-       * Response
-       */
-      .put(TypeLiteral.get(Response.class), (req, rsp, param) -> rsp)
-      /**
-       * Session
-       */
-      .put(TypeLiteral.get(Session.class), (req, rsp, param) -> req.session())
-      .put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Session.class)),
-          (req, rsp, param) -> req.ifSession()
-      )
-      /**
-       * Cookie
-       */
-      .put(TypeLiteral.get(Cookie.class), (req, rsp, param) -> req.cookie(param.name).get())
-      .put(TypeLiteral.get(Types.listOf(Cookie.class)), (req, rsp, param) -> req.cookies())
-      .put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Cookie.class)),
-          (req, rsp, param) -> req.cookie(param.name)
-      )
-      /**
-       * Header
-       */
-      .put(headerType, (req, rsp, param) -> req.header(param.name).to(param.type))
-      .build();
+  private static final TypeLiteral<Body> bodyType = TypeLiteral.get(Body.class);
+
+  private static final Map<Object, GetValue> injector;
+
+  static {
+    Builder<Object, GetValue> builder = ImmutableMap.<Object, GetValue> builder();
+    /**
+     * Body
+     */
+    builder.put(bodyType, (req, rsp, param) -> req.body().to(param.type));
+    /**
+     * Request
+     */
+    builder.put(TypeLiteral.get(Request.class), (req, rsp, param) -> req);
+    /**
+     * Response
+     */
+    builder.put(TypeLiteral.get(Response.class), (req, rsp, param) -> rsp);
+    /**
+     * Session
+     */
+    builder.put(TypeLiteral.get(Session.class), (req, rsp, param) -> req.session());
+    builder.put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Session.class)),
+        (req, rsp, param) -> req.ifSession()
+        );
+    /**
+     * Cookie
+     */
+    builder.put(TypeLiteral.get(Cookie.class), (req, rsp, param) -> req.cookie(param.name).get());
+    builder.put(TypeLiteral.get(Types.listOf(Cookie.class)), (req, rsp, param) -> req.cookies());
+    builder.put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Cookie.class)),
+        (req, rsp, param) -> req.cookie(param.name)
+        );
+    /**
+     * Header
+     */
+    builder.put(headerType, (req, rsp, param) -> req.header(param.name).to(param.type));
+
+    injector = builder.build();
+  }
 
   public final String name;
 
@@ -86,7 +99,7 @@ public class RequestParam {
 
   private final GetValue strategy;
 
-  private final boolean optional;
+  private boolean optional;
 
   public RequestParam(final Field field) {
     this(field, field.getName(), field.getGenericType());
@@ -100,9 +113,15 @@ public class RequestParam {
     this.name = name;
     this.type = TypeLiteral.get(type);
     this.optional = this.type.getRawType() == Optional.class;
-    this.strategy = injector.getOrDefault(Optional.ofNullable(elem.getAnnotation(Header.class))
-        .map(header -> headerType)
-        .orElse(this.type), param());
+    final TypeLiteral strategyType;
+    if (elem.getAnnotation(Header.class) != null) {
+      strategyType = headerType;
+    } else if (elem.getAnnotation(Body.class) != null) {
+      strategyType = bodyType;
+    } else {
+      strategyType = this.type;
+    }
+    this.strategy = injector.getOrDefault(strategyType, param());
   }
 
   public Object value(final Request req, final Response rsp) throws Exception {
@@ -133,17 +152,12 @@ public class RequestParam {
 
   private static final GetValue param() {
     return (req, rsp, param) -> {
-      Mutant value = req.param(param.name);
-      if (value.isPresent() || param.optional) {
-        return value.to(param.type);
-      } else {
-        String method = req.method();
-        if (method.equals("POST") || method.equals("PUT")) {
-          return req.body(param.type);
-        } else {
-          return req.params(param.type.getRawType());
-        }
+      Mutant mutant = req.param(param.name);
+      Optional optional = mutant.toOptional(param.type.getRawType());
+      if (optional.isPresent() || param.optional) {
+        return mutant.to(param.type);
       }
+      return req.params().to(param.type);
     };
   }
 

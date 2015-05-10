@@ -16,7 +16,7 @@ public class ParamsFeature extends ServerFeature {
         .form()
         .add("p1", "2")
         .add("p2", "2")
-        .expect("{p1=[1, 2], p2=2}");
+        .expect("{p1=[1, 2], p2=[2]}");
 
   }
 

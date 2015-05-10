@@ -1,15 +1,13 @@
 package org.jooby.internal;
 
-import static org.easymock.EasyMock.aryEq;
-import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Locale;
 
 import org.jooby.MockUnit;
-import org.jooby.internal.reqparam.LocaleParamConverter;
-import org.jooby.internal.reqparam.StringConstructorParamConverter;
+import org.jooby.internal.reqparam.LocaleParser;
+import org.jooby.internal.reqparam.StringConstructorParser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -18,36 +16,17 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.google.inject.TypeLiteral;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({StringConstructTypeConverter.class, LocaleParamConverter.class,
-  StringConstructorParamConverter.class })
+@PrepareForTest({StringConstructTypeConverter.class, LocaleParser.class,
+    StringConstructorParser.class })
 public class StringConstructorTypeConverterTest {
 
   @Test
   public void toLocale() throws Exception {
     TypeLiteral<Locale> type = TypeLiteral.get(Locale.class);
     new MockUnit()
-        .expect(unit -> {
-          LocaleParamConverter lconverter = unit.mockConstructor(LocaleParamConverter.class,
-              new Class[0]);
-          expect(lconverter.convert(eq(type), aryEq(new Object[]{"y" }), eq(null))).andReturn("x");
-        })
         .run(unit -> {
-          assertEquals("x", new StringConstructTypeConverter<Object>().convert("y", type));
-        });
-  }
-
-  @Test
-  public void toAnythingElse() throws Exception {
-    TypeLiteral<Object> type = TypeLiteral.get(Object.class);
-    new MockUnit()
-        .expect(unit -> {
-          StringConstructorParamConverter converter = unit
-              .mockConstructor(StringConstructorParamConverter.class, new Class[0]);
-          expect(converter.convert(eq(type), aryEq(new Object[]{"y" }), eq(null))).andReturn(
-              "x");
-        })
-        .run(unit -> {
-          assertEquals("x", new StringConstructTypeConverter<Object>().convert("y", type));
+          assertEquals(LocaleUtils.toLocale("x"),
+              new StringConstructTypeConverter<Object>().convert("x", type));
         });
   }
 
@@ -56,10 +35,9 @@ public class StringConstructorTypeConverterTest {
     TypeLiteral<Object> type = TypeLiteral.get(Object.class);
     new MockUnit()
         .expect(unit -> {
-          StringConstructorParamConverter converter = unit
-              .mockConstructor(StringConstructorParamConverter.class, new Class[0]);
-          expect(converter.convert(eq(type), aryEq(new Object[]{"y" }), eq(null)))
-              .andThrow(new IllegalArgumentException("intentional err"));
+          unit.mockStatic(StringConstructorParser.class);
+          expect(StringConstructorParser.parse(type, "y")).andThrow(
+              new IllegalArgumentException("intentional err"));
         })
         .run(unit -> {
           new StringConstructTypeConverter<Object>().convert("y", type);
@@ -84,6 +62,7 @@ public class StringConstructorTypeConverterTest {
 
   @Test
   public void describe() throws Exception {
-    assertEquals("TypeConverter init(java.lang.String)", new StringConstructTypeConverter<Package>().toString());
+    assertEquals("TypeConverter init(java.lang.String)",
+        new StringConstructTypeConverter<Package>().toString());
   }
 }

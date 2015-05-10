@@ -18,20 +18,22 @@
  */
 package org.jooby.internal.reqparam;
 
-import org.jooby.ParamConverter;
-import org.jooby.Upload;
+import java.util.Locale;
+
+import org.jooby.Parser;
+import org.jooby.internal.LocaleUtils;
 
 import com.google.inject.TypeLiteral;
 
-public class UploadParamConverter implements ParamConverter {
+public class LocaleParser implements Parser {
 
   @Override
-  public Object convert(final TypeLiteral<?> toType, final Object[] values, final Context ctx)
-      throws Exception {
-    if (Upload.class == toType.getRawType() && values[0] instanceof Upload) {
-      return values[0];
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+    if (Locale.class == type.getRawType()) {
+      return ctx.param(values -> LocaleUtils.toLocale(values.get(0)))
+          .body(body -> LocaleUtils.toLocale(body.text()));
     } else {
-      return ctx.convert(toType, values);
+      return ctx.next();
     }
   }
 

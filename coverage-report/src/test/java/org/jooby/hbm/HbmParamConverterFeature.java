@@ -20,13 +20,15 @@ public class HbmParamConverterFeature extends ServerFeature {
 
     use(new Hbm(Member.class));
 
-    param((type, values, ctx) -> {
-      if (type.getRawType() == Member.class && values.length > 0) {
-        EntityManager em = ctx.require(EntityManager.class);
-        Member member = em.find(Member.class, Integer.parseInt(values[0].toString()));
-        return member;
+    parser((type, ctx) -> {
+      if (type.getRawType() == Member.class) {
+        return ctx.param(values -> {
+          EntityManager em = ctx.require(EntityManager.class);
+          Member member = em.find(Member.class, Integer.parseInt(values.get(0)));
+          return member;
+        });
       }
-      return ctx.convert(type, values);
+      return ctx.next();
     });
 
     get("/members/:member", req -> req.param("member").to(Member.class));
@@ -34,7 +36,7 @@ public class HbmParamConverterFeature extends ServerFeature {
     get("/members", req -> req.param("member").to(Member.class));
 
     post("/members", req -> {
-      Member member = req.params(Member.class);
+      Member member = req.params().to(Member.class);
       EntityManager em = req.require(EntityManager.class);
       em.persist(member);
       return member;

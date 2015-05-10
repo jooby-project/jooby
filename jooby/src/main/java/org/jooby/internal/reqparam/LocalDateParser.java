@@ -29,35 +29,41 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.jooby.ParamConverter;
+import org.jooby.Parser;
 
 import com.google.inject.TypeLiteral;
 
-public class LocalDateParamConverter implements ParamConverter {
+public class LocalDateParser implements Parser {
 
   private DateTimeFormatter formatter;
 
   @Inject
-  public LocalDateParamConverter(final DateTimeFormatter formatter) {
+  public LocalDateParser(final DateTimeFormatter formatter) {
     this.formatter = requireNonNull(formatter, "A date time formatter is required.");
   }
 
   @Override
-  public Object convert(final TypeLiteral<?> toType, final Object[] values, final Context ctx)
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx)
       throws Exception {
-    if (toType.getRawType() == LocalDate.class) {
-      try {
-        Instant epoch = Instant.ofEpochMilli(Long.parseLong((String) values[0]));
-        ZonedDateTime zonedDate = epoch.atZone(
-            Optional.ofNullable(formatter.getZone())
-                .orElse(ZoneId.systemDefault())
-            );
-        return zonedDate.toLocalDate();
-      } catch (NumberFormatException ex) {
-        return LocalDate.parse((CharSequence) values[0], formatter);
-      }
+    if (type.getRawType() == LocalDate.class) {
+      return ctx
+          .param(values -> parse(formatter, values.get(0)))
+          .body(body -> parse(formatter, body.text()));
     } else {
-      return ctx.convert(toType, values);
+      return ctx.next();
+    }
+  }
+
+  private static LocalDate parse(final DateTimeFormatter formatter, final String value) {
+    try {
+      Instant epoch = Instant.ofEpochMilli(Long.parseLong(value));
+      ZonedDateTime zonedDate = epoch.atZone(
+          Optional.ofNullable(formatter.getZone())
+              .orElse(ZoneId.systemDefault())
+          );
+      return zonedDate.toLocalDate();
+    } catch (NumberFormatException ex) {
+      return LocalDate.parse(value, formatter);
     }
   }
 

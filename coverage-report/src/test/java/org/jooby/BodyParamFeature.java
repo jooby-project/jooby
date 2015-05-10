@@ -39,11 +39,11 @@ public class BodyParamFeature extends ServerFeature {
 
   {
 
-    param((type, values, ctx) -> {
-      if (values != null) {
-        return new Bean(values[0]);
+    parser((type, ctx) -> {
+      if (type.getRawType() == Bean.class) {
+        return ctx.param(values -> new Bean(values.get(0)));
       }
-      return ctx.convert(type, values);
+      return ctx.next();
     });
 
     use(new BodyFormatter() {

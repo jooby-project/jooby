@@ -202,8 +202,4 @@ public interface Mutant {
    */
   <T> T to(TypeLiteral<T> type);
 
-  /**
-   * @return True if the variant contains a value.
-   */
-  boolean isPresent();
 }

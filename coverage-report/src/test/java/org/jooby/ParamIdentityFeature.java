@@ -12,11 +12,11 @@ public class ParamIdentityFeature extends ServerFeature {
 
   {
 
-    param((type, values, ctx) -> {
+    parser((type, ctx) -> {
       if (type.getRawType() == ParamBean.class) {
         return new ParamBean();
       }
-      return ctx.convert(type, values);
+      return ctx.next();
     });
 
     get("/identity", req -> {

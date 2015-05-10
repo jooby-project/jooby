@@ -14,7 +14,7 @@ public class ShouldLoadSessionFromCookieIDFeature extends ServerFeature {
     AtomicInteger cookieIDCounter = new AtomicInteger(0);
     get("/shouldLoadSessionFromCookieID", req -> {
       Session session = req.session();
-      if (!session.get("count").isPresent()) {
+      if (!session.isSet("count")) {
         session.set("count", cookieIDCounter.incrementAndGet());
       }
       return session.get("count").value();

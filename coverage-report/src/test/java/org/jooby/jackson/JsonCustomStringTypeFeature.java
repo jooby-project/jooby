@@ -23,8 +23,10 @@ public class JsonCustomStringTypeFeature extends ServerFeature {
         req -> Lists.newArrayList(ImmutableMap.<String, Object> of("id", 1, "name", "pablo")));
 
     post("/members", req -> {
-      List<Map<String, Object>> members = req.body(new TypeLiteral<List<Map<String, Object>>>() {
-      });
+      List<Map<String, Object>> members = req.body().to(
+          new TypeLiteral<List<Map<String, Object>>>() {
+          }
+          );
       return members;
     });
   }

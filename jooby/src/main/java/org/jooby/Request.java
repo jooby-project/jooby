@@ -97,18 +97,8 @@ public interface Request {
     }
 
     @Override
-    public Map<String, Mutant> params() throws Exception {
+    public Mutant params() throws Exception {
       return req.params();
-    }
-
-    @Override
-    public <T> T params(final Class<T> beanType) throws Exception {
-      return req.params(beanType);
-    }
-
-    @Override
-    public <T> T params(final TypeLiteral<T> beanType) throws Exception {
-      return req.params(beanType);
     }
 
     @Override
@@ -137,13 +127,8 @@ public interface Request {
     }
 
     @Override
-    public <T> T body(final TypeLiteral<T> type) throws Exception {
-      return req.body(type);
-    }
-
-    @Override
-    public <T> T body(final Class<T> type) throws Exception {
-      return req.body(type);
+    public Mutant body() throws Exception {
+      return req.body();
     }
 
     @Override
@@ -424,47 +409,7 @@ public interface Request {
    * @return All the parameters.
    * @throws Exception On param retrieval failures.
    */
-  Map<String, Mutant> params() throws Exception;
-
-  /**
-   * Inject headers, path and query params into the given type. The type can be an interface or
-   * class.
-   * Classes must have one and only one constructor, injection is done on constructor params and/or
-   * direct/declared fields.
-   *
-   * <ul>
-   * <li>Path parameter, like: <code>/path/:name</code> or <code>/path/{name}</code></li>
-   * <li>Query parameter, like: <code>?name=jooby</code></li>
-   * <li>Form parameter, from multipart or formurl encoded</li>
-   * </ul>
-   *
-   * @param beanType Type of the target bean.
-   * @param <T> Target type.
-   * @return A bean with request params and/or headers.
-   * @throws Exception On param retrieval failures.
-   */
-  default <T> T params(final Class<T> beanType) throws Exception {
-    return params(TypeLiteral.get(beanType));
-  }
-
-  /**
-   * Inject headers, path and query params into the given type. The type can be an interface or
-   * class.
-   * Classes must have one and only one constructor, injection is done on constructor params and/or
-   * direct/declared fields.
-   *
-   * <ul>
-   * <li>Path parameter, like: <code>/path/:name</code> or <code>/path/{name}</code></li>
-   * <li>Query parameter, like: <code>?name=jooby</code></li>
-   * <li>Form parameter, from multipart or formurl encoded</li>
-   * </ul>
-   *
-   * @param beanType Type of the target bean.
-   * @param <T> Target type.
-   * @return A bean with request params and/or headers.
-   * @throws Exception On param retrieval failures.
-   */
-  <T> T params(TypeLiteral<T> beanType) throws Exception;
+  Mutant params() throws Exception;
 
   /**
    * Get a HTTP request parameter under the given name. A HTTP parameter can be provided in any of
@@ -523,27 +468,12 @@ public interface Request {
   List<Cookie> cookies();
 
   /**
-   * Convert the HTTP request body into the given type.
+   * HTTP body.
    *
-   * @param type A body type.
-   * @param <T> Body type.
-   * @return The HTTP body as an object.
+   * @return The HTTP body.
    * @throws Exception If body can't be converted or there is no HTTP body.
    */
-  default <T> T body(final Class<T> type) throws Exception {
-    requireNonNull(type, "A body type is required.");
-    return body(TypeLiteral.get(type));
-  }
-
-  /**
-   * Convert the HTTP request body into the given type.
-   *
-   * @param type A body type.
-   * @param <T> Body type.
-   * @return The HTTP body as an object.
-   * @throws Exception If body can't be converted or there is no HTTP body.
-   */
-  <T> T body(TypeLiteral<T> type) throws Exception;
+  Mutant body() throws Exception;
 
   /**
    * Ask Guice for the given type.

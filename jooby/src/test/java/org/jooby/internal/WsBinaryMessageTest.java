@@ -151,9 +151,4 @@ public class WsBinaryMessageTest {
     new WsBinaryMessage(ByteBuffer.wrap("bytes".getBytes())).toOptional(String.class);
   }
 
-  @Test
-  public void isPresent() throws Exception {
-    assertEquals(true, new WsBinaryMessage(ByteBuffer.wrap("bytes".getBytes())).isPresent());
-  }
-
 }

@@ -25,10 +25,12 @@ public class EmbeddedHttpRequestTest {
   private byte[] bytes = "{}".getBytes();
 
   private MockUnit.Block newInstance = unit -> {
+    Mutant body = unit.mock(Mutant.class);
+    expect(body.to(byte[].class)).andReturn(bytes);
     Request request = unit.get(Request.class);
     expect(request.path()).andReturn("/search/customer?pretty");
     expect(request.length()).andReturn((long) bytes.length);
-    expect(request.body(byte[].class)).andReturn(bytes);
+    expect(request.body()).andReturn(body);
   };
 
   @Test
@@ -48,9 +50,12 @@ public class EmbeddedHttpRequestTest {
     new MockUnit(Request.class)
         .expect(unit -> {
           Request request = unit.get(Request.class);
+          Mutant body = unit.mock(Mutant.class);
+          expect(body.to(byte[].class)).andReturn(bytes);
+
           expect(request.path()).andReturn("/search/customer");
           expect(request.length()).andReturn((long) bytes.length);
-          expect(request.body(byte[].class)).andReturn(bytes);
+          expect(request.body()).andReturn(body);
         })
         .run(unit -> {
           EmbeddedHttpRequest req = new EmbeddedHttpRequest("/search", unit.get(Request.class));

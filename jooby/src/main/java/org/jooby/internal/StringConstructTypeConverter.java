@@ -20,8 +20,7 @@ package org.jooby.internal;
 
 import java.util.Locale;
 
-import org.jooby.internal.reqparam.LocaleParamConverter;
-import org.jooby.internal.reqparam.StringConstructorParamConverter;
+import org.jooby.internal.reqparam.StringConstructorParser;
 
 import com.google.common.primitives.Primitives;
 import com.google.inject.TypeLiteral;
@@ -36,9 +35,9 @@ class StringConstructTypeConverter<T> extends AbstractMatcher<TypeLiteral<T>>
     Class<?> rawType = type.getRawType();
     try {
       if (rawType == Locale.class) {
-        return new LocaleParamConverter().convert(type, new Object[]{value }, null);
+        return LocaleUtils.toLocale(value);
       }
-      return new StringConstructorParamConverter().convert(type, new Object[]{value }, null);
+      return StringConstructorParser.parse(type, value);
     } catch (Exception ex) {
       throw new IllegalStateException("Can't convert: " + value + " to " + type, ex);
     }
@@ -50,7 +49,7 @@ class StringConstructTypeConverter<T> extends AbstractMatcher<TypeLiteral<T>>
     if (Primitives.isWrapperType(rawType)) {
       return false;
     }
-    return new StringConstructorParamConverter().matches(type);
+    return new StringConstructorParser().matches(type);
   }
 
   @Override

@@ -26,7 +26,7 @@ import java.io.IOException;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Upload;
-import org.jooby.internal.reqparam.ParamResolver;
+import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeUpload;
 
 import com.google.inject.Injector;
@@ -60,7 +60,7 @@ public class UploadImpl implements Upload {
 
   @Override
   public Mutant header(final String name) {
-    return new MutantImpl(injector.getInstance(ParamResolver.class), upload.headers(name));
+    return new MutantImpl(injector.getInstance(ParserExecutor.class), upload.headers(name));
   }
 
   @Override

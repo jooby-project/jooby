@@ -44,11 +44,6 @@ public class WsBinaryMessage implements Mutant {
   }
 
   @Override
-  public boolean isPresent() {
-    return true;
-  }
-
-  @Override
   public boolean booleanValue() {
     throw typeError(boolean.class);
   }

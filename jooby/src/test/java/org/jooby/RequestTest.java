@@ -35,17 +35,7 @@ public class RequestTest {
     }
 
     @Override
-    public Map<String, Mutant> params() throws Exception {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <T> T params(final Class<T> beanType) throws Exception {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <T> T params(final TypeLiteral<T> beanType) throws Exception {
+    public Mutant params() throws Exception {
       throw new UnsupportedOperationException();
     }
 
@@ -75,7 +65,7 @@ public class RequestTest {
     }
 
     @Override
-    public <T> T body(final TypeLiteral<T> type) throws Exception {
+    public Mutant body() throws Exception {
       throw new UnsupportedOperationException();
     }
 
@@ -200,19 +190,6 @@ public class RequestTest {
       }
     }.accepts("json");
     assertEquals(Arrays.asList(MediaType.json), dataList);
-  }
-
-  @Test
-  public void body() throws Exception {
-    LinkedList<Object> dataList = new LinkedList<>();
-    new RequestMock() {
-      @Override
-      public <T> T body(final TypeLiteral<T> type) throws Exception {
-        dataList.add(type.getRawType());
-        return null;
-      }
-    }.body(Object.class);
-    assertEquals(Arrays.asList(Object.class), dataList);
   }
 
   @Test

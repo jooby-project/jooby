@@ -1,6 +1,5 @@
 package org.jooby.internal;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -20,8 +19,8 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 
 import org.jooby.BodyFormatter;
-import org.jooby.BodyParser;
 import org.jooby.MediaType;
+import org.jooby.Parser;
 import org.junit.Test;
 
 import com.google.common.base.Charsets;
@@ -177,37 +176,10 @@ public class BuiltinBodyConverterTest {
   }
 
   @Test
-  public void parseString() throws Exception {
-    BodyParser parser = BuiltinBodyConverter.parseString;
-
-    assertEquals(ImmutableList.of(MediaType.plain), parser.types());
-
-    assertTrue(parser.canParse(CharSequence.class));
-    assertTrue(parser.canParse(String.class));
-    assertFalse(parser.canParse(InputStream.class));
-
-    InputStream stream = new ByteArrayInputStream("string".getBytes());
-    assertEquals("string",
-        parser.parse(String.class, new BodyParserContext(Charsets.UTF_8, () -> stream)));
-
-    assertEquals("Parser for: java.lang.CharSequence", parser.toString());
-  }
-
-  @Test
   public void parseBytes() throws Exception {
-    BodyParser parser = BuiltinBodyConverter.parseBytes;
-
-    assertEquals(MediaType.ALL, parser.types());
-
-    assertTrue(parser.canParse(byte[].class));
-    assertFalse(parser.canParse(String.class));
-    assertFalse(parser.canParse(InputStream.class));
-
-    InputStream stream = new ByteArrayInputStream("string".getBytes());
-    assertArrayEquals("string".getBytes(),
-        parser.parse(byte[].class, new BodyParserContext(Charsets.UTF_8, () -> stream)));
-
+    Parser parser = BuiltinBodyConverter.parseBytes;
     assertEquals("Parser for: byte[]", parser.toString());
+
   }
 
 }

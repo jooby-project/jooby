@@ -18,7 +18,7 @@
  */
 package org.jooby.internal;
 
-import org.jooby.internal.reqparam.StaticMethodParamConverter;
+import org.jooby.internal.reqparam.StaticMethodParser;
 
 import com.google.common.primitives.Primitives;
 import com.google.inject.TypeLiteral;
@@ -28,16 +28,16 @@ import com.google.inject.spi.TypeConverter;
 class StaticMethodTypeConverter<T> extends AbstractMatcher<TypeLiteral<T>>
     implements TypeConverter {
 
-  private StaticMethodParamConverter converter;
+  private StaticMethodParser converter;
 
   public StaticMethodTypeConverter(final String name) {
-    converter = new StaticMethodParamConverter(name);
+    converter = new StaticMethodParser(name);
   }
 
   @Override
   public Object convert(final String value, final TypeLiteral<?> type) {
     try {
-      return converter.convert(type, new Object[]{value }, null);
+      return converter.parse(type, value);
     } catch (Exception ex) {
       throw new IllegalStateException("Can't convert: " + value + " to " + type, ex);
     }

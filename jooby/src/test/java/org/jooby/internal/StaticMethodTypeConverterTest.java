@@ -1,13 +1,12 @@
 package org.jooby.internal;
 
-import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
 import org.jooby.MockUnit;
-import org.jooby.internal.reqparam.LocaleParamConverter;
-import org.jooby.internal.reqparam.StaticMethodParamConverter;
+import org.jooby.internal.reqparam.LocaleParser;
+import org.jooby.internal.reqparam.StaticMethodParser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -16,8 +15,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.google.inject.TypeLiteral;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({StaticMethodTypeConverter.class, LocaleParamConverter.class,
-    StaticMethodParamConverter.class })
+@PrepareForTest({StaticMethodTypeConverter.class, LocaleParser.class,
+    StaticMethodParser.class })
 public class StaticMethodTypeConverterTest {
 
   @Test
@@ -25,11 +24,10 @@ public class StaticMethodTypeConverterTest {
     TypeLiteral<Object> type = TypeLiteral.get(Object.class);
     new MockUnit()
         .expect(unit -> {
-          StaticMethodParamConverter converter = unit
-              .mockConstructor(StaticMethodParamConverter.class, new Class[]{String.class },
+          StaticMethodParser converter = unit
+              .mockConstructor(StaticMethodParser.class, new Class[]{String.class },
                   "valueOf");
-          expect(converter.convert(eq(type), aryEq(new Object[]{"y" }), eq(null))).andReturn(
-              "x");
+          expect(converter.parse(eq(type), eq("y"))).andReturn("x");
         })
         .run(unit -> {
           assertEquals("x", new StaticMethodTypeConverter<Object>("valueOf").convert("y", type));
@@ -41,10 +39,10 @@ public class StaticMethodTypeConverterTest {
     TypeLiteral<Object> type = TypeLiteral.get(Object.class);
     new MockUnit()
         .expect(unit -> {
-          StaticMethodParamConverter converter = unit
-              .mockConstructor(StaticMethodParamConverter.class, new Class[]{String.class },
+          StaticMethodParser converter = unit
+              .mockConstructor(StaticMethodParser.class, new Class[]{String.class },
                   "valueOf");
-          expect(converter.convert(eq(type), aryEq(new Object[]{"y" }), eq(null)))
+          expect(converter.parse(eq(type), eq("y")))
               .andThrow(new IllegalArgumentException("intentional err"));
         })
         .run(unit -> {

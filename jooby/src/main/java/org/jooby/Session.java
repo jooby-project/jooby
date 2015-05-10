@@ -370,9 +370,7 @@ public interface Session {
    * @param name A local var's name.
    * @return True, for existing locals.
    */
-  default boolean isSet(final String name) {
-    return get(name).isPresent();
-  }
+  boolean isSet(final String name);
 
   /**
    * Set a session local using a the given name. If a local already exists, it will be replaced

@@ -25,8 +25,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.jooby.BodyFormatter;
-import org.jooby.BodyParser;
 import org.jooby.MediaType;
+import org.jooby.Parser;
 import org.jooby.View;
 
 import com.google.common.collect.ImmutableList;
@@ -166,51 +166,20 @@ public class BuiltinBodyConverter {
     }
   };
 
-  public static BodyParser parseString = new BodyParser() {
+  public static Parser parseBytes = new Parser() {
 
     @Override
-    public List<MediaType> types() {
-      return ImmutableList.of(MediaType.plain);
-    }
-
-    @Override
-    public boolean canParse(final TypeLiteral<?> type) {
-      return CharSequence.class.isAssignableFrom(type.getRawType());
-    }
-
-    @Override
-    public <T> T parse(final TypeLiteral<T> type, final BodyParser.Context reader) throws Exception {
-      return reader.text(r -> CharStreams.toString(r));
-    }
-
-    @Override
-    public String toString() {
-      return "Parser for: " + CharSequence.class.getName();
-    }
-  };
-
-  public static BodyParser parseBytes = new BodyParser() {
-
-    @Override
-    public List<MediaType> types() {
-      return MediaType.ALL;
-    }
-
-    @Override
-    public boolean canParse(final TypeLiteral<?> type) {
-      Class<?> rt = type.getRawType();
-      return rt.isArray() && rt.getComponentType() == byte.class;
-    }
-
-    @Override
-    public <T> T parse(final TypeLiteral<T> type, final BodyParser.Context reader)
+    public Object parse(final TypeLiteral<?> type, final Context ctx)
         throws Exception {
-      return reader.bytes(in -> ByteStreams.toByteArray(in));
+      if (type.getRawType() == byte[].class) {
+        return ctx.body(body -> body.bytes());
+      }
+      return ctx.next();
     }
 
     @Override
     public String toString() {
-      return "Parser for: byte[]" ;
+      return "Parser for: byte[]";
     }
   };
 

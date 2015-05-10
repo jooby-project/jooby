@@ -52,7 +52,7 @@ public class EmbeddedHttpRequest extends RestRequest {
       RestUtils.decodeQueryString(path.substring(idx + 1), 0, params);
     }
     if (req.length() > 0) {
-      content = req.body(byte[].class);
+      content = req.body().to(byte[].class);
     } else {
       content = new byte[0];
     }

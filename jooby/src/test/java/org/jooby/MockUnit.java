@@ -95,6 +95,7 @@ public class MockUnit {
       partialMocks.add(mock);
       return mock;
     } else {
+
       T mock = strict ? createStrictMock(type) : createMock(type);
       mocks.add(mock);
       return mock;

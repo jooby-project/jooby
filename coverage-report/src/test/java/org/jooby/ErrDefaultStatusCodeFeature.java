@@ -2,8 +2,6 @@ package org.jooby;
 
 import java.util.NoSuchElementException;
 
-import org.jooby.Err;
-import org.jooby.Status;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -31,7 +29,7 @@ public class ErrDefaultStatusCodeFeature extends ServerFeature {
     }).produces("json");
 
     post("/UnsupportedMediaType", (req, rsp) -> {
-      rsp.send(req.body(String.class));
+      rsp.send(req.body().to(String.class));
     }).consumes("json");
 
   }

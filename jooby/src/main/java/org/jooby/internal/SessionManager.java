@@ -42,7 +42,7 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Session;
 import org.jooby.Session.Definition;
-import org.jooby.internal.reqparam.ParamResolver;
+import org.jooby.internal.reqparam.ParserExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,13 +62,13 @@ public class SessionManager {
 
   private final long saveInterval;
 
-  private final ParamResolver resolver;
+  private final ParserExecutor resolver;
 
   private final long timeout;
 
   @Inject
   public SessionManager(final Config config, final Definition def, final Session.Store store,
-      final ParamResolver resolver) {
+      final ParserExecutor resolver) {
     this.store = store;
     this.resolver = resolver;
     this.secret = config.hasPath("application.secret")
@@ -145,7 +145,11 @@ public class SessionManager {
   }
 
   public void requestDone(final Session session) {
-    createOrUpdate((SessionImpl) ((RequestScopedSession) session).session());
+    try {
+      createOrUpdate((SessionImpl) ((RequestScopedSession) session).session());
+    } catch (Exception ex) {
+      log.error("Unable to create/update HTTP session", ex);
+    }
   }
 
   public Cookie.Definition cookie() {

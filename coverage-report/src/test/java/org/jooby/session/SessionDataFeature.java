@@ -20,13 +20,13 @@ public class SessionDataFeature extends ServerFeature {
 
     get("/s2", (req, rsp) -> {
       Session session = req.session();
-      rsp.send(session.get("v1"));
+      rsp.send(session.get("v1").toOptional().orElse(""));
       session.unset("v1");
     });
 
     get("/unset-all", (req, rsp) -> {
       Session session = req.session();
-      rsp.send(session.get("v1"));
+      rsp.send(session.get("v1").value());
       session.unset();
     });
   }

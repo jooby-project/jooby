@@ -2,9 +2,9 @@ package org.jooby.elasticsearch;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.elasticsearch.client.Client;
-import org.jooby.elasticsearch.ElasticSearch;
 import org.jooby.json.Jackson;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -45,19 +45,22 @@ public class ElasticSearchClientAPIFeature extends ServerFeature {
 
   @Test
   public void es() throws Exception {
+    UUID id = UUID.randomUUID();
     request()
-        .post("/1")
+        .post("/" + id)
         .expect(
-            "{\"context\":{\"empty\":true},\"headers\":[],\"index\":\"twitter\",\"id\":\"1\",\"type\":\"tweet\",\"version\":1,\"created\":true,\"contextEmpty\":true}");
+            "{\"context\":{\"empty\":true},\"headers\":[],\"index\":\"twitter\",\"id\":\"" + id
+                + "\",\"type\":\"tweet\",\"version\":1,\"created\":true,\"contextEmpty\":true}");
 
     request()
-        .get("/1")
+        .get("/" + id)
         .expect("{\"message\":\"trying out Elasticsearch\",\"user\":\"kimchy\"}");
 
     request()
-        .delete("/1")
+        .delete("/" + id)
         .expect(
-            "{\"context\":{\"empty\":true},\"headers\":[],\"index\":\"twitter\",\"id\":\"1\",\"type\":\"tweet\",\"version\":2,\"found\":true,\"contextEmpty\":true}");
+            "{\"context\":{\"empty\":true},\"headers\":[],\"index\":\"twitter\",\"id\":\"" + id
+                + "\",\"type\":\"tweet\",\"version\":2,\"found\":true,\"contextEmpty\":true}");
   }
 
 }

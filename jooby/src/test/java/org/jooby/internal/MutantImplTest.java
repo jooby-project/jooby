@@ -11,17 +11,18 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.jooby.Err;
+import org.jooby.MediaType;
 import org.jooby.Mutant;
-import org.jooby.internal.reqparam.CollectionParamConverter;
-import org.jooby.internal.reqparam.CommonTypesParamConverter;
-import org.jooby.internal.reqparam.DateParamConverter;
-import org.jooby.internal.reqparam.EnumParamConverter;
-import org.jooby.internal.reqparam.LocalDateParamConverter;
-import org.jooby.internal.reqparam.LocaleParamConverter;
-import org.jooby.internal.reqparam.OptionalParamConverter;
-import org.jooby.internal.reqparam.ParamResolver;
-import org.jooby.internal.reqparam.StaticMethodParamConverter;
-import org.jooby.internal.reqparam.StringConstructorParamConverter;
+import org.jooby.internal.reqparam.CollectionParser;
+import org.jooby.internal.reqparam.CommonTypesParser;
+import org.jooby.internal.reqparam.DateParser;
+import org.jooby.internal.reqparam.EnumParser;
+import org.jooby.internal.reqparam.LocalDateParser;
+import org.jooby.internal.reqparam.LocaleParser;
+import org.jooby.internal.reqparam.OptionalParser;
+import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.reqparam.StaticMethodParser;
+import org.jooby.internal.reqparam.StringConstructorParser;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -272,6 +273,12 @@ public class MutantImplTest {
   }
 
   @Test
+  public void asMediaTypeList() throws Exception {
+    assertEquals(ImmutableList.of(MediaType.valueOf("application/json")),
+        newMutant("application/json").toList(MediaType.class));
+  }
+
+  @Test
   public void asLongSet() throws Exception {
     assertEquals(ImmutableSet.of(1l, 2l, 3l),
         newMutant("1", "2", "3").toSet(long.class));
@@ -434,7 +441,7 @@ public class MutantImplTest {
 
     assertEquals("xx", newMutant("xx").to(String.class));
 
-    assertEquals("xx", newMutant("xx").toString());
+    assertEquals("[xx]", newMutant("xx").toString());
   }
 
   @Test
@@ -471,41 +478,40 @@ public class MutantImplTest {
   @Test
   public void emptyList() throws Exception {
     assertEquals(Collections.emptyList(), newMutant(new String[0]).toList(String.class));
-    assertEquals(false, newMutant(new String[0]).isPresent());
-    assertEquals("", newMutant(new String[0]).toString());
+    assertEquals("[]", newMutant(new String[0]).toString());
   }
 
   @Test
   public void nullList() throws Exception {
     assertEquals(Collections.emptyList(), newMutant((String) null).toList(String.class));
-    assertEquals(false, newMutant((String) null).isPresent());
-    assertEquals("", newMutant((String) null).toString());
+    assertEquals("[]", newMutant((String) null).toString());
   }
 
   private Mutant newMutant(final String... values) {
-    return new MutantImpl(newConverter(), values);
+    return new MutantImpl(newConverter(), Arrays.asList(values));
   }
 
   private Mutant newMutant(final String value) {
-    return new MutantImpl(newConverter(), value == null ? null
-        : new String[]{value });
+    return new MutantImpl(newConverter(), value == null
+        ? Collections.emptyList()
+        : ImmutableList.of(value));
   }
 
-  private ParamResolver newConverter() {
-    return new ParamResolver(createMock(Injector.class),
+  private ParserExecutor newConverter() {
+    return new ParserExecutor(createMock(Injector.class),
         Sets.newLinkedHashSet(
             Arrays.asList(
-                new CommonTypesParamConverter(),
-                new CollectionParamConverter(),
-                new OptionalParamConverter(),
-                new EnumParamConverter(),
-                new DateParamConverter("dd/MM/yyyy"),
-                new LocalDateParamConverter(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                new LocaleParamConverter(),
-                new StaticMethodParamConverter("valueOf"),
-                new StringConstructorParamConverter(),
-                new StaticMethodParamConverter("fromString"),
-                new StaticMethodParamConverter("forName")
+                new CommonTypesParser(),
+                new CollectionParser(),
+                new OptionalParser(),
+                new EnumParser(),
+                new DateParser("dd/MM/yyyy"),
+                new LocalDateParser(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                new LocaleParser(),
+                new StaticMethodParser("valueOf"),
+                new StringConstructorParser(),
+                new StaticMethodParser("fromString"),
+                new StaticMethodParser("forName")
                 )));
   }
 }
