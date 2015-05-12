@@ -150,7 +150,7 @@ public class Err extends RuntimeException {
    * @param message A error message. Required.
    * @param cause The cause of the problem.
    */
-  public Err(final Status status, final String message, final Exception cause) {
+  public Err(final Status status, final String message, final Throwable cause) {
     super(message(status, message), cause);
     this.status = status.value();
   }
@@ -162,7 +162,7 @@ public class Err extends RuntimeException {
    * @param message A error message. Required.
    * @param cause The cause of the problem.
    */
-  public Err(final int status, final String message, final Exception cause) {
+  public Err(final int status, final String message, final Throwable cause) {
     this(Status.valueOf(status), message, cause);
   }
 
@@ -193,7 +193,7 @@ public class Err extends RuntimeException {
    * @param status A HTTP status. Required.
    * @param cause The cause of the problem.
    */
-  public Err(final Status status, final Exception cause) {
+  public Err(final Status status, final Throwable cause) {
     super(message(status, null), cause);
     this.status = status.value();
   }
@@ -204,7 +204,7 @@ public class Err extends RuntimeException {
    * @param status A HTTP status. Required.
    * @param cause The cause of the problem.
    */
-  public Err(final int status, final Exception cause) {
+  public Err(final int status, final Throwable cause) {
     this(Status.valueOf(status), cause);
   }
 

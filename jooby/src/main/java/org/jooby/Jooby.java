@@ -83,10 +83,12 @@ import org.jooby.Session.Store;
 import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetHandler;
-import org.jooby.internal.BuiltinBodyConverter;
+import org.jooby.internal.BuiltinParser;
+import org.jooby.internal.BuiltinRenderer;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.LifecycleProcessor;
 import org.jooby.internal.LocaleUtils;
+import org.jooby.internal.RendererExecutor;
 import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.ServerLookup;
@@ -488,7 +490,7 @@ public class Jooby {
   private Err.Handler err;
 
   /** Body formatters. */
-  private List<BodyFormatter> formatters = new LinkedList<>();
+  private List<Renderer> formatters = new LinkedList<>();
 
   /** Session store. */
   private Session.Definition session = new Session.Definition(Session.Mem.class);
@@ -512,7 +514,7 @@ public class Jooby {
     requireNonNull(app, "App is required.");
     if (!assetFormatter && app.assetFormatter) {
       this.assetFormatter = true;
-      use(new AssetFormatter());
+      renderer(new AssetFormatter());
     }
     app.bag.forEach(c -> {
       if (!(c instanceof Jooby.Module)) {
@@ -655,13 +657,13 @@ public class Jooby {
   }
 
   /**
-   * Append a body formatter for write HTTP messages.
+   * Append a response renderer for write HTTP messages.
    *
-   * @param formatter A body formatter.
+   * @param renderer A renderer renderer.
    * @return This jooby instance.
    */
-  public Jooby use(final BodyFormatter formatter) {
-    this.formatters.add(requireNonNull(formatter, "A body formatter is required."));
+  public Jooby renderer(final Renderer renderer) {
+    this.formatters.add(requireNonNull(renderer, "A renderer is required."));
     return this;
   }
 
@@ -2846,7 +2848,7 @@ public class Jooby {
         parsers.add(new StaticMethodParser("fromString"));
         parsers.add(new StaticMethodParser("forName"));
         parsers.add(new StringConstructorParser());
-        parsers.add(BuiltinBodyConverter.parseBytes);
+        parsers.add(BuiltinParser.Bytes);
 
         binder.bind(ParserExecutor.class);
 
@@ -2869,19 +2871,20 @@ public class Jooby {
           }
         });
 
-        // formatter
-        Multibinder<BodyFormatter> formatterBinder = Multibinder
-            .newSetBinder(binder, BodyFormatter.class);
+        // renderer
+        Multibinder<Renderer> rendererBinder = Multibinder
+            .newSetBinder(binder, Renderer.class);
 
-        formatters.forEach(it -> formatterBinder.addBinding().toInstance(it));
+        formatters.forEach(it -> rendererBinder.addBinding().toInstance(it));
 
-        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatReader);
-        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatStream);
-        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatByteArray);
-        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatByteBuffer);
-        formatterBinder.addBinding().toInstance(BuiltinBodyConverter.formatAny);
+        rendererBinder.addBinding().toInstance(BuiltinRenderer.Readable);
+        rendererBinder.addBinding().toInstance(BuiltinRenderer.InputStream);
+        rendererBinder.addBinding().toInstance(BuiltinRenderer.Bytes);
+        rendererBinder.addBinding().toInstance(BuiltinRenderer.ByteBuffer);
+        rendererBinder.addBinding().toInstance(BuiltinRenderer.ToString);
 
         binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
+        binder.bind(RendererExecutor.class).in(Singleton.class);
 
         RequestScope requestScope = new RequestScope();
         binder.bind(RequestScope.class).toInstance(requestScope);

@@ -2,7 +2,7 @@ package org.jooby.jackson;
 
 import java.net.URISyntaxException;
 
-import org.jooby.BodyFormatter;
+import org.jooby.Renderer;
 import org.jooby.json.Jackson;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -15,9 +15,9 @@ public class JsonAccessFeature extends ServerFeature {
   {
     use(new Jackson());
 
-    get("/formatter", req -> req.require(Key.get(BodyFormatter.class, Names.named("json"))));
+    get("/formatter", req -> req.require(Key.get(Renderer.class, Names.named("json"))));
 
-    get("/parser", req -> req.require(Key.get(BodyFormatter.class, Names.named("json"))));
+    get("/parser", req -> req.require(Key.get(Renderer.class, Names.named("json"))));
   }
 
   @Test

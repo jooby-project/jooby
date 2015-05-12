@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jooby.BodyFormatter;
+import org.jooby.Renderer;
 import org.jooby.View;
 
 import freemarker.template.Configuration;
@@ -31,7 +31,7 @@ import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateModel;
 
-public class Engine implements View.Engine {
+public class Engine implements View.Engine  {
 
   private Configuration freemarker;
 
@@ -46,23 +46,22 @@ public class Engine implements View.Engine {
   }
 
   @Override
-  public void render(final View viewable, final BodyFormatter.Context writer) throws Exception {
-    // template
-    String name = prefix + viewable.name() + suffix;
+  public void render(final View view, final Renderer.Context ctx) throws Exception {
+    String name = prefix + view.name() + suffix;
 
-    Template template = freemarker.getTemplate(name, writer.charset().name());
+    Template template = freemarker.getTemplate(name, ctx.charset().name());
 
     Map<String, Object> hash = new HashMap<>();
 
     // locals
-    hash.putAll(writer.locals());
+    hash.putAll(ctx.locals());
 
     // model
-    hash.putAll(viewable.model());
+    hash.putAll(view.model());
     TemplateModel model = new SimpleHash(hash, new FtlWrapper(freemarker.getObjectWrapper()));
 
     // output
-    writer.text(w -> template.process(model, w));
+    ctx.text(w -> template.process(model, w));
   }
 
   @Override

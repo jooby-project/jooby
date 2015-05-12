@@ -24,8 +24,8 @@ import java.util.Properties;
 import java.util.function.BiConsumer;
 
 import org.jooby.Env;
-import org.jooby.BodyFormatter;
 import org.jooby.Jooby;
+import org.jooby.Renderer;
 import org.jooby.View;
 import org.jooby.internal.ftl.Engine;
 import org.jooby.internal.ftl.GuavaCacheStorage;
@@ -199,7 +199,7 @@ public class Ftl implements Jooby.Module {
 
       Engine engine = new Engine(freemarker, prefix, suffix);
 
-      Multibinder.newSetBinder(binder, BodyFormatter.class)
+      Multibinder.newSetBinder(binder, Renderer.class)
           .addBinding().toInstance(engine);
 
       // direct access

@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -283,7 +282,10 @@ public abstract class ServerFeature extends Jooby {
       }
 
       public void startsWith(final String value) throws IOException {
-        assertTrue(EntityUtils.toString(this.rsp.getEntity()).startsWith(value));
+        String rsp = EntityUtils.toString(this.rsp.getEntity());
+        if(!rsp.startsWith(value)) {
+          assertEquals(value, rsp);
+        }
       }
 
     }

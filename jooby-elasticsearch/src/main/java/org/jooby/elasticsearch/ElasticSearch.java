@@ -28,9 +28,9 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.ImmutableSettings.Builder;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
-import org.jooby.BodyFormatter;
 import org.jooby.Env;
 import org.jooby.Jooby;
+import org.jooby.Renderer;
 import org.jooby.Route;
 import org.jooby.internal.elasticsearch.BytesReferenceFormatter;
 import org.jooby.internal.elasticsearch.EmbeddedHandler;
@@ -264,7 +264,7 @@ public class ElasticSearch implements Jooby.Module {
     binder.bind(Node.class).toProvider(node).asEagerSingleton();
     binder.bind(Client.class).toProvider(new ManagedClient(node)).asEagerSingleton();
 
-    Multibinder.newSetBinder(binder, BodyFormatter.class).addBinding()
+    Multibinder.newSetBinder(binder, Renderer.class).addBinding()
         .toInstance(new BytesReferenceFormatter());
 
     EmbeddedHandler handler = new EmbeddedHandler(path, node, detailedErrors);

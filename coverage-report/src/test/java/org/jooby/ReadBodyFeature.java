@@ -35,7 +35,7 @@ public class ReadBodyFeature extends ServerFeature {
 
   {
 
-    use(BodyConverters.toJson);
+    renderer(BodyConverters.toJson);
 
     parser(BodyConverters.fromJson);
 

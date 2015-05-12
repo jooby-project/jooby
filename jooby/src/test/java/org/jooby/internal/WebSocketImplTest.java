@@ -21,11 +21,13 @@ import org.jooby.WebSocket.Callback;
 import org.jooby.WebSocket.CloseStatus;
 import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeWebSocket;
+import org.jooby.util.ExSupplier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.google.common.base.Charsets;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 
@@ -47,7 +49,7 @@ public class WebSocketImplTest {
     nws.onCloseMessage(isA(BiConsumer.class));
   };
 
-  @SuppressWarnings({"resource" })
+  @SuppressWarnings({"resource", "unchecked" })
   @Test
   public void sendString() throws Exception {
     Object data = "String";
@@ -62,18 +64,13 @@ public class WebSocketImplTest {
         .expect(connect)
         .expect(callbacks)
         .expect(unit -> {
-          NativeWebSocket ws = unit.get(NativeWebSocket.class);
-          WebSocket.SuccessCallback success = unit.get(WebSocket.SuccessCallback.class);
-          WebSocket.ErrCallback err = unit.get(WebSocket.ErrCallback.class);
-
-          ws.send(eq(data.toString()), eq(success), eq(err));
-        })
-        .expect(unit -> {
-          BodyConverterSelector selector = unit.mock(BodyConverterSelector.class);
-          expect(selector.formatter(data, Arrays.asList(produces))).andReturn(Optional.empty());
+          RendererExecutor renderer = unit.mock(RendererExecutor.class);
+          renderer.render(eq("WS /"), eq(data), isA(ExSupplier.class), isA(ExSupplier.class),
+              isA(Consumer.class), isA(Consumer.class), isA(Map.class),
+              eq(Arrays.asList(produces)), eq(Charsets.UTF_8));
 
           Injector injector = unit.get(Injector.class);
-          expect(injector.getInstance(BodyConverterSelector.class)).andReturn(selector);
+          expect(injector.getInstance(RendererExecutor.class)).andReturn(renderer);
         })
         .run(unit -> {
           WebSocketImpl ws = new WebSocketImpl(

@@ -26,16 +26,14 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.StreamSupport;
 
-import org.jooby.BodyFormatter;
 import org.jooby.Cookie;
-import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Response;
@@ -48,7 +46,6 @@ import org.jooby.spi.NativeResponse;
 import org.jooby.util.Collectors;
 import org.jooby.util.ExSupplier;
 
-import com.google.common.base.Joiner;
 import com.google.inject.Injector;
 
 public class ResponseImpl implements Response {
@@ -65,7 +62,7 @@ public class ResponseImpl implements Response {
 
   private final Optional<String> referer;
 
-  private BodyConverterSelector selector;
+  private RendererExecutor renderer;
 
   private Status status;
 
@@ -82,7 +79,7 @@ public class ResponseImpl implements Response {
     this.route = requireNonNull(route, "A route is required.");
     this.locals = requireNonNull(locals, "Request locals are required.");
 
-    this.selector = injector.getInstance(BodyConverterSelector.class);
+    this.renderer = injector.getInstance(RendererExecutor.class);
     this.charset = requireNonNull(charset, "A charset is required.");
     this.referer = requireNonNull(referer, "A referer header is required.");
   }
@@ -92,7 +89,7 @@ public class ResponseImpl implements Response {
     requireNonNull(filename, "A file's name is required.");
     requireNonNull(stream, "A stream is required.");
 
-    download(filename, stream, BuiltinBodyConverter.formatStream);
+    prepareDownload(filename, stream);
   }
 
   @Override
@@ -100,7 +97,7 @@ public class ResponseImpl implements Response {
     requireNonNull(filename, "A file's name is required.");
     requireNonNull(reader, "A reader is required.");
 
-    download(filename, reader, BuiltinBodyConverter.formatReader);
+    prepareDownload(filename, reader);
   }
 
   @Override
@@ -230,15 +227,14 @@ public class ResponseImpl implements Response {
     rsp.end();
   }
 
-  private void download(final String filename, final Object in,
-      final BodyFormatter formatter) throws Exception {
+  private void prepareDownload(final String filename, final Object in) throws Exception {
 
     contentDisposition(filename);
 
     Result result = Results.with(in);
     result.type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.octetstream)));
 
-    send(result, formatter);
+    send(result);
   }
 
   @Override
@@ -246,27 +242,8 @@ public class ResponseImpl implements Response {
     requireNonNull(result, "A result is required.");
     List<MediaType> produces = route.produces();
     Optional<Object> entity = result.get(produces);
-    BodyFormatter converter = entity.isPresent()
-        ? selector.formatter(entity.get(), produces)
-            .orElseThrow(() -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces)))
-        : null;
-    send(result, entity, converter);
-  }
 
-  public void send(final Result result, final BodyFormatter formatter) throws Exception {
-    requireNonNull(result, "A response message is required.");
-    requireNonNull(formatter, "A converter is required.");
-
-    List<MediaType> produces = route.produces();
-    Optional<Object> entity = result.get(produces);
-    send(result, entity, formatter);
-  }
-
-  private void send(final Result result, final Optional<Object> entity,
-      final BodyFormatter fmt) throws Exception {
-
-    type(result.type().orElseGet(() -> type()
-        .orElseGet(() -> fmt == null ? MediaType.html : fmt.types().get(0))));
+    result.type().ifPresent(type -> type(type));
 
     status(result.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
 
@@ -284,12 +261,13 @@ public class ResponseImpl implements Response {
     /**
      * Do we need to figure it out Content-Length?
      */
-    long len = rsp.header("Content-Length").map(Long::parseLong).orElse((long) Integer.MAX_VALUE);
-    int bufferSize = Math.min(maxBufferSize, (int) len);
+    AtomicLong length = new AtomicLong(header("Content-Length")
+        .toOptional(Long.class).orElse(Long.MAX_VALUE)
+        );
 
     // byte version of http body
     ExSupplier<OutputStream> stream = () -> {
-      return rsp.out(bufferSize);
+      return rsp.out(maxBufferSize);
     };
 
     // text version of http body
@@ -305,8 +283,14 @@ public class ResponseImpl implements Response {
         status((Status) message);
       }
 
-      fmt.format(message, new BodyFormatterContext(charset(), Collections.unmodifiableMap(locals),
-          stream, writer));
+      renderer.render(route.method() + " " + route.path(), message, stream, writer, len -> {
+        if (length.get() == Long.MAX_VALUE) {
+          // set local len so we ask for stream with content length set
+          length.set(len);
+          // set content length header
+          length(len);
+        }
+      }, type -> type(type().orElse(type)), locals, route.produces(), charset());
     }
     // end response
     end();

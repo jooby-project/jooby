@@ -8,6 +8,16 @@ import com.google.common.collect.ImmutableMap;
 
 public class ViewTest {
 
+  static class ViewTestEngine implements View.Engine {
+
+    @Override
+    public void render(final View viewable, final Context ctx) throws Exception {
+      // TODO Auto-generated method stub
+
+    }
+
+  }
+
   @Test
   public void viewOnly() {
     View view = Results.html("v");
@@ -52,6 +62,12 @@ public class ViewTest {
     assertEquals("v", view.name());
     assertEquals(1, view.model().size());
     assertEquals("v", view.model().get("k"));
+  }
+
+
+  @Test
+  public void defViewEngineName() {
+    assertEquals("viewtest$viewtestengine", new ViewTestEngine().name());
   }
 
 }

@@ -1,6 +1,5 @@
 package org.jooby;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.jooby.mvc.Consumes;
@@ -13,8 +12,6 @@ import org.jooby.mvc.Path;
 import org.jooby.mvc.Produces;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
-
-import com.google.common.collect.ImmutableList;
 
 public class HandlersFeature extends ServerFeature {
 
@@ -43,22 +40,9 @@ public class HandlersFeature extends ServerFeature {
 
   {
 
-    use(new BodyFormatter() {
-
-      @Override
-      public List<MediaType> types() {
-        return ImmutableList.of(MediaType.text);
-      }
-
-      @Override
-      public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
-        writer.text(w -> w.write(body.toString()));
-
-      }
-
-      @Override
-      public boolean canFormat(final Class<?> type) {
-        return true;
+    renderer((object, ctx) -> {
+      if (ctx.accepts("text/plain")) {
+        ctx.text(w -> w.write(object.toString()));
       }
     });
     get("/id", "/id/:id", req ->

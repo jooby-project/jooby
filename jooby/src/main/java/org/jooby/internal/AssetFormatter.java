@@ -21,53 +21,44 @@ package org.jooby.internal;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.List;
 
 import org.jooby.Asset;
-import org.jooby.BodyFormatter;
 import org.jooby.MediaType;
+import org.jooby.Renderer;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Closeables;
 
-public class AssetFormatter implements BodyFormatter {
+public class AssetFormatter implements Renderer {
 
   @Override
-  public boolean canFormat(final Class<?> type) {
-    return Asset.class.isAssignableFrom(type);
-  }
+  public void render(final Object object, final Renderer.Context ctx) throws Exception {
+    if (object instanceof Asset) {
+      Asset asset = (Asset) object;
+      MediaType type = asset.type();
 
-  @Override
-  public List<MediaType> types() {
-    return MediaType.ALL;
-  }
-
-  @Override
-  public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
-    Asset asset = (Asset) body;
-    MediaType type = asset.type();
-
-    if (type.isText()) {
-      writer.text(to -> {
-        Reader from = null;
-        try {
-          from = new InputStreamReader(asset.stream(), writer.charset());
-          CharStreams.copy(from, to);
-        } finally {
-          Closeables.closeQuietly(from);
-        }
-      });
-    } else {
-      writer.bytes(to -> {
-        InputStream from = null;
-        try {
-          from = asset.stream();
-          ByteStreams.copy(from, to);
-        } finally {
-          Closeables.closeQuietly(from);
-        }
-      });
+      if (type.isText()) {
+        ctx.text(to -> {
+          Reader from = null;
+          try {
+            from = new InputStreamReader(asset.stream(), ctx.charset());
+            CharStreams.copy(from, to);
+          } finally {
+            Closeables.closeQuietly(from);
+          }
+        });
+      } else {
+        ctx.bytes(to -> {
+          InputStream from = null;
+          try {
+            from = asset.stream();
+            ByteStreams.copy(from, to);
+          } finally {
+            Closeables.closeQuietly(from);
+          }
+        });
+      }
     }
   }
 }

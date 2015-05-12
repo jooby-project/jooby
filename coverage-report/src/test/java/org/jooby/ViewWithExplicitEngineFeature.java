@@ -7,7 +7,7 @@ public class ViewWithExplicitEngineFeature extends ServerFeature {
 
   {
 
-    use(new View.Engine() {
+    renderer(new View.Engine() {
 
       @Override
       public String name() {
@@ -15,12 +15,12 @@ public class ViewWithExplicitEngineFeature extends ServerFeature {
       }
 
       @Override
-      public void render(final View viewable, final BodyFormatter.Context writer) throws Exception {
-        writer.text(w -> w.write(name()));
+      public void render(final View viewable, final Renderer.Context ctx) throws Exception {
+        ctx.text(w -> w.write(name()));
       }
     });
 
-    use(new View.Engine() {
+    renderer(new View.Engine() {
 
       @Override
       public String name() {
@@ -28,8 +28,8 @@ public class ViewWithExplicitEngineFeature extends ServerFeature {
       }
 
       @Override
-      public void render(final View viewable, final Context writer) throws Exception {
-        writer.text(w -> w.write(name()));
+      public void render(final View viewable, final Renderer.Context ctx) throws Exception {
+        ctx.text(w -> w.write(name()));
       }
     });
 

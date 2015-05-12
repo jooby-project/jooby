@@ -1,14 +1,12 @@
 package org.jooby;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSink;
 
 public class BodyParamFeature extends ServerFeature {
@@ -46,28 +44,15 @@ public class BodyParamFeature extends ServerFeature {
       return ctx.next();
     });
 
-    use(new BodyFormatter() {
-
-      @Override
-      public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
-        writer.text(out -> new CharSink() {
+    renderer((object, ctx) -> {
+      if (ctx.accepts("json") && object instanceof Bean) {
+        ctx.text(out -> new CharSink() {
           @Override
           public java.io.Writer openStream() throws IOException {
             return out;
           }
-        }.write(body.toString()));
+        }.write(object.toString()));
       }
-
-      @Override
-      public List<MediaType> types() {
-        return ImmutableList.of(MediaType.json);
-      }
-
-      @Override
-      public boolean canFormat(final Class<?> type) {
-        return type == Bean.class;
-      }
-
     });
 
     post("/body", (req, resp) -> {

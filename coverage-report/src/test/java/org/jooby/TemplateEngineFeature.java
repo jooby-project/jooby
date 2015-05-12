@@ -7,8 +7,6 @@ import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.google.inject.multibindings.Multibinder;
-
 public class TemplateEngineFeature extends ServerFeature {
 
   @Path("/r")
@@ -23,11 +21,7 @@ public class TemplateEngineFeature extends ServerFeature {
   }
 
   {
-    use((mode, config, binder) -> {
-      Multibinder<BodyFormatter> converters = Multibinder.newSetBinder(binder,
-          BodyFormatter.class);
-      converters.addBinding().toInstance(BodyConverters.toHtml);
-    });
+    renderer(BodyConverters.toHtml);
 
     get("/view", (req, resp) -> {
       resp.send(Results.html("test").put("this", "model"));

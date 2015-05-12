@@ -1,6 +1,5 @@
 package org.jooby;
 
-import org.jooby.Env;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
@@ -26,8 +25,8 @@ public class ExceptionHandlingFeature extends ServerFeature {
   {
 
     use((final Env mode, final Config config, final Binder binder) -> {
-      Multibinder<BodyFormatter> converters = Multibinder.newSetBinder(binder,
-          BodyFormatter.class);
+      Multibinder<Renderer> converters = Multibinder.newSetBinder(binder,
+          Renderer.class);
       converters.addBinding().toInstance(BodyConverters.toHtml);
       converters.addBinding().toInstance(BodyConverters.toJson);
     });

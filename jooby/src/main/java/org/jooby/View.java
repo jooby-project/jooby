@@ -40,39 +40,34 @@ public class View extends Result {
    * @author edgar
    * @since 0.1.0
    */
-  public interface Engine extends BodyFormatter {
+  public interface Engine extends Renderer {
 
     List<MediaType> HTML = ImmutableList.of(MediaType.html);
 
     default String name() {
       String name = getClass().getName();
-      return name.substring(Math.max(-1, name.lastIndexOf('.')) + 1) .toLowerCase();
+      return name.substring(Math.max(-1, name.lastIndexOf('.')) + 1).toLowerCase();
     }
 
     @Override
-    default List<MediaType> types() {
-      return HTML;
-    }
-
-    @Override
-    default boolean canFormat(final Class<?> type) {
-      return View.class.isAssignableFrom(type);
-    }
-
-    @Override
-    default void format(final Object body, final BodyFormatter.Context writer) throws Exception {
-      final View viewable = (View) body;
-      render(viewable, writer);
+    default void render(final Object object, final Renderer.Context ctx) throws Exception {
+      if (object instanceof View) {
+        View view = (View) object;
+        if (view.engine.length() == 0 || view.engine.equals(name())) {
+          ctx.type(MediaType.html);
+          render((View) object, ctx);
+        }
+      }
     }
 
     /**
      * Render a view.
      *
      * @param viewable View to render.
-     * @param writer A body writer.
+     * @param ctx A rendering context.
      * @throws Exception If view rendering fails.
      */
-    void render(final View viewable, final BodyFormatter.Context writer) throws Exception;
+    void render(final View viewable, final Renderer.Context ctx) throws Exception;
 
   }
 
@@ -123,7 +118,6 @@ public class View extends Result {
    * @return This view.
    */
   public View put(final Map<String, ?> values) {
-    requireNonNull(name, "Model name is required.");
     values.forEach((k, v) -> model.put(k, v));
     return this;
   }

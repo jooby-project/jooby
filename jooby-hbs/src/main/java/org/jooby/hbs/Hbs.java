@@ -26,9 +26,9 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import org.jooby.BodyFormatter;
 import org.jooby.Env;
 import org.jooby.Jooby;
+import org.jooby.Renderer;
 import org.jooby.View;
 import org.jooby.internal.hbs.ConfigValueResolver;
 import org.jooby.internal.hbs.HbsEngine;
@@ -228,7 +228,7 @@ public class Hbs implements Jooby.Module {
 
     HbsEngine engine = new HbsEngine(hbs, resolvers.toArray(new ValueResolver[resolvers.size()]));
 
-    Multibinder.newSetBinder(binder, BodyFormatter.class).addBinding()
+    Multibinder.newSetBinder(binder, Renderer.class).addBinding()
         .toInstance(engine);
 
     // direct access

@@ -358,7 +358,7 @@ public class HttpHandlerImpl implements HttpHandler {
         .append("</html>\n");
 
     rsp.header("Cache-Control", NO_CACHE);
-    rsp.send(Results.with(html), BuiltinBodyConverter.formatAny);
+    rsp.send(Results.with(html));
   }
 
   private Status statusCode(final Exception ex) {

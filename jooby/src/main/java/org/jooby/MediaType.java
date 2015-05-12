@@ -164,7 +164,7 @@ public class MediaType implements Comparable<MediaType> {
      */
     public List<MediaType> filter(final List<MediaType> types) {
       checkArgument(types != null && types.size() > 0, "Media types are required");
-      List<MediaType> result = new ArrayList<>();
+      ImmutableList.Builder<MediaType> result = ImmutableList.builder();
       final List<MediaType> sortedTypes;
       if (types.size() == 1) {
         sortedTypes = ImmutableList.of(types.get(0));
@@ -179,7 +179,7 @@ public class MediaType implements Comparable<MediaType> {
           }
         }
       }
-      return result;
+      return result.build();
     }
 
     /**

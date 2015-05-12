@@ -66,6 +66,7 @@ public class ErrDefaultStatusCodeFeature extends ServerFeature {
   public void NotAcceptable() throws Exception {
     request()
         .get("/NotAcceptable")
+        .header("Accept", "text/html")
         .expect(406);
   }
 

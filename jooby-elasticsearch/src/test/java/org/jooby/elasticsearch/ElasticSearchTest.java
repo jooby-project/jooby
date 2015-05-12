@@ -14,9 +14,9 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
-import org.jooby.BodyFormatter;
 import org.jooby.Env;
 import org.jooby.MockUnit;
+import org.jooby.Renderer;
 import org.jooby.Route;
 import org.jooby.internal.elasticsearch.BytesReferenceFormatter;
 import org.jooby.internal.elasticsearch.EmbeddedHandler;
@@ -103,10 +103,10 @@ public class ElasticSearchTest {
 
     BytesReferenceFormatter bytesRefFormatter = unit.mockConstructor(BytesReferenceFormatter.class);
 
-    LinkedBindingBuilder<BodyFormatter> lbbbf = unit.mock(LinkedBindingBuilder.class);
+    LinkedBindingBuilder<Renderer> lbbbf = unit.mock(LinkedBindingBuilder.class);
     lbbbf.toInstance(bytesRefFormatter);
 
-    Multibinder<BodyFormatter> formatters = unit.mock(Multibinder.class);
+    Multibinder<Renderer> formatters = unit.mock(Multibinder.class);
     expect(formatters.addBinding()).andReturn(lbbbf);
 
     EmbeddedHandler handler = unit.mockConstructor(EmbeddedHandler.class, new Class[]{String.class,
@@ -123,7 +123,7 @@ public class ElasticSearchTest {
     expect(routes.addBinding()).andReturn(lbbr);
 
     unit.mockStatic(Multibinder.class);
-    expect(Multibinder.newSetBinder(binder, BodyFormatter.class)).andReturn(formatters);
+    expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(formatters);
     expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(routes);
 
   };

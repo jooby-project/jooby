@@ -31,11 +31,11 @@ import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
-import org.jooby.BodyFormatter;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
 import org.jooby.Parser;
+import org.jooby.Renderer;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.Module;
@@ -130,7 +130,7 @@ public class Jackson implements Jooby.Module {
 
   }
 
-  private static class BodyHandler implements BodyFormatter, Parser {
+  private static class BodyHandler implements Parser, Renderer {
 
     private ObjectMapper mapper;
     private List<MediaType> types;
@@ -143,16 +143,6 @@ public class Jackson implements Jooby.Module {
     }
 
     @Override
-    public List<MediaType> types() {
-      return types;
-    }
-
-    @Override
-    public boolean canFormat(final Class<?> type) {
-      return mapper.canSerialize(type);
-    }
-
-    @Override
     public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
       if (matcher.matches(ctx.type())) {
         JavaType javaType = mapper.constructType(type.getType());
@@ -162,8 +152,11 @@ public class Jackson implements Jooby.Module {
     }
 
     @Override
-    public void format(final Object body, final BodyFormatter.Context writer) throws Exception {
-      writer.text(out -> mapper.writeValue(out, body));
+    public void render(final Object object, final Renderer.Context ctx) throws Exception {
+      if (ctx.accepts(types) && mapper.canSerialize(object.getClass())) {
+        ctx.type(types.get(0));
+        ctx.text(out -> mapper.writeValue(out, object));
+      }
     }
 
     @Override
@@ -228,7 +221,7 @@ public class Jackson implements Jooby.Module {
     // json body parser & formatter
     BodyHandler json = new BodyHandler(mapper, types);
 
-    Multibinder.newSetBinder(binder, BodyFormatter.class)
+    Multibinder.newSetBinder(binder, Renderer.class)
         .addBinding()
         .toInstance(json);
 
@@ -237,7 +230,7 @@ public class Jackson implements Jooby.Module {
         .toInstance(json);
 
     // direct access?
-    binder.bind(Key.get(BodyFormatter.class, Names.named(json.toString()))).toInstance(json);
+    binder.bind(Key.get(Renderer.class, Names.named(json.toString()))).toInstance(json);
     binder.bind(Key.get(Parser.class, Names.named(json.toString()))).toInstance(json);
 
   }

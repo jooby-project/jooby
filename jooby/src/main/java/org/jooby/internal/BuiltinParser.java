@@ -16,17 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.elasticsearch;
+package org.jooby.internal;
 
-import org.elasticsearch.common.bytes.BytesReference;
-import org.jooby.Renderer;
+import org.jooby.Parser;
 
-public class BytesReferenceFormatter implements Renderer {
+import com.google.inject.TypeLiteral;
 
-  @Override
-  public void render(final Object object, final Renderer.Context ctx) throws Exception {
-    if (object instanceof BytesReference) {
-      ctx.bytes(out -> ((BytesReference) object).writeTo(out));
+public enum BuiltinParser implements Parser {
+
+  Bytes {
+    @Override
+    public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+      if (type.getRawType() == byte[].class) {
+        return ctx.body(body -> body.bytes());
+      }
+      return ctx.next();
     }
   }
 

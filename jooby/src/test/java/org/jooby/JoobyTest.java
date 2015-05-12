@@ -29,9 +29,11 @@ import org.jooby.Session.Definition;
 import org.jooby.Session.Store;
 import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetFormatter;
-import org.jooby.internal.BuiltinBodyConverter;
+import org.jooby.internal.BuiltinParser;
+import org.jooby.internal.BuiltinRenderer;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.LifecycleProcessor;
+import org.jooby.internal.RendererExecutor;
 import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
@@ -237,27 +239,27 @@ public class JoobyTest {
   };
 
   private MockUnit.Block bodyFormatter = unit -> {
-    Multibinder<BodyFormatter> multibinder = unit.mock(Multibinder.class);
+    Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
 
     Binder binder = unit.get(Binder.class);
     unit.mockStatic(Multibinder.class);
 
-    expect(Multibinder.newSetBinder(binder, BodyFormatter.class)).andReturn(multibinder);
+    expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
 
-    LinkedBindingBuilder<BodyFormatter> formatReader = unit.mock(LinkedBindingBuilder.class);
-    formatReader.toInstance(BuiltinBodyConverter.formatReader);
+    LinkedBindingBuilder<Renderer> formatReader = unit.mock(LinkedBindingBuilder.class);
+    formatReader.toInstance(BuiltinRenderer.Readable);
 
-    LinkedBindingBuilder<BodyFormatter> formatStream = unit.mock(LinkedBindingBuilder.class);
-    formatStream.toInstance(BuiltinBodyConverter.formatStream);
+    LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
+    formatStream.toInstance(BuiltinRenderer.InputStream);
 
-    LinkedBindingBuilder<BodyFormatter> formatByteArray = unit.mock(LinkedBindingBuilder.class);
-    formatByteArray.toInstance(BuiltinBodyConverter.formatByteArray);
+    LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
+    formatByteArray.toInstance(BuiltinRenderer.Bytes);
 
-    LinkedBindingBuilder<BodyFormatter> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
-    formatByteBuffer.toInstance(BuiltinBodyConverter.formatByteBuffer);
+    LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
+    formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
 
-    LinkedBindingBuilder<BodyFormatter> formatAny = unit.mock(LinkedBindingBuilder.class);
-    formatAny.toInstance(BuiltinBodyConverter.formatAny);
+    LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
+    formatAny.toInstance(BuiltinRenderer.ToString);
 
     expect(multibinder.addBinding()).andReturn(formatReader);
     expect(multibinder.addBinding()).andReturn(formatStream);
@@ -265,6 +267,11 @@ public class JoobyTest {
     expect(multibinder.addBinding()).andReturn(formatByteBuffer);
 
     expect(multibinder.addBinding()).andReturn(formatAny);
+
+    AnnotatedBindingBuilder<RendererExecutor> abbre = unit.mock(AnnotatedBindingBuilder.class);
+    abbre.in(Singleton.class);
+
+    expect(binder.bind(RendererExecutor.class)).andReturn(abbre);
 
   };
 
@@ -413,7 +420,7 @@ public class JoobyTest {
     }
 
     LinkedBindingBuilder<Parser> parseBytes = unit.mock(LinkedBindingBuilder.class);
-    parseBytes.toInstance(BuiltinBodyConverter.parseBytes);
+    parseBytes.toInstance(BuiltinParser.Bytes);
 
     expect(multibinder.addBinding()).andReturn(parseBytes);
 
@@ -1774,30 +1781,30 @@ public class JoobyTest {
         .expect(numberFormat)
         .expect(decimalFormat)
         .expect(unit -> {
-          Multibinder<BodyFormatter> multibinder = unit.mock(Multibinder.class);
+          Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
 
           Binder binder = unit.get(Binder.class);
 
           unit.mockStatic(Multibinder.class);
-          expect(Multibinder.newSetBinder(binder, BodyFormatter.class)).andReturn(multibinder);
+          expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
 
-          LinkedBindingBuilder<BodyFormatter> formatReader = unit.mock(LinkedBindingBuilder.class);
-          formatReader.toInstance(BuiltinBodyConverter.formatReader);
+          LinkedBindingBuilder<Renderer> formatReader = unit.mock(LinkedBindingBuilder.class);
+          formatReader.toInstance(BuiltinRenderer.Readable);
 
-          LinkedBindingBuilder<BodyFormatter> formatStream = unit.mock(LinkedBindingBuilder.class);
-          formatStream.toInstance(BuiltinBodyConverter.formatStream);
+          LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
+          formatStream.toInstance(BuiltinRenderer.InputStream);
 
-          LinkedBindingBuilder<BodyFormatter> formatString = unit.mock(LinkedBindingBuilder.class);
-          formatString.toInstance(BuiltinBodyConverter.formatAny);
+          LinkedBindingBuilder<Renderer> formatString = unit.mock(LinkedBindingBuilder.class);
+          formatString.toInstance(BuiltinRenderer.ToString);
 
-          LinkedBindingBuilder<BodyFormatter> assetFormatter = unit.mock(LinkedBindingBuilder.class);
+          LinkedBindingBuilder<Renderer> assetFormatter = unit.mock(LinkedBindingBuilder.class);
           assetFormatter.toInstance(isA(AssetFormatter.class));
 
-          LinkedBindingBuilder<BodyFormatter> formatByteArray = unit.mock(LinkedBindingBuilder.class);
-          formatByteArray.toInstance(BuiltinBodyConverter.formatByteArray);
+          LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
+          formatByteArray.toInstance(BuiltinRenderer.Bytes);
 
-          LinkedBindingBuilder<BodyFormatter> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
-          formatByteBuffer.toInstance(BuiltinBodyConverter.formatByteBuffer);
+          LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
+          formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
 
           expect(multibinder.addBinding()).andReturn(assetFormatter);
           expect(multibinder.addBinding()).andReturn(formatReader);
@@ -1805,6 +1812,11 @@ public class JoobyTest {
           expect(multibinder.addBinding()).andReturn(formatByteArray);
           expect(multibinder.addBinding()).andReturn(formatByteBuffer);
           expect(multibinder.addBinding()).andReturn(formatString);
+
+          AnnotatedBindingBuilder<RendererExecutor> abbre = unit.mock(AnnotatedBindingBuilder.class);
+          abbre.in(Singleton.class);
+
+          expect(binder.bind(RendererExecutor.class)).andReturn(abbre);
         })
         .expect(session)
         .expect(unit -> {
@@ -2114,7 +2126,7 @@ public class JoobyTest {
   @Test
   public void useFormatter() throws Exception {
 
-    new MockUnit(BodyFormatter.class, Binder.class)
+    new MockUnit(Renderer.class, Binder.class)
         .expect(guice)
         .expect(shutdown)
         .expect(config)
@@ -2129,30 +2141,30 @@ public class JoobyTest {
         .expect(decimalFormat)
         .expect(session)
         .expect(unit -> {
-          Multibinder<BodyFormatter> multibinder = unit.mock(Multibinder.class);
+          Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
 
           Binder binder = unit.get(Binder.class);
 
           unit.mockStatic(Multibinder.class);
-          expect(Multibinder.newSetBinder(binder, BodyFormatter.class)).andReturn(multibinder);
+          expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
 
-          LinkedBindingBuilder<BodyFormatter> formatReader = unit.mock(LinkedBindingBuilder.class);
-          formatReader.toInstance(BuiltinBodyConverter.formatReader);
+          LinkedBindingBuilder<Renderer> formatReader = unit.mock(LinkedBindingBuilder.class);
+          formatReader.toInstance(BuiltinRenderer.Readable);
 
-          LinkedBindingBuilder<BodyFormatter> formatStream = unit.mock(LinkedBindingBuilder.class);
-          formatStream.toInstance(BuiltinBodyConverter.formatStream);
+          LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
+          formatStream.toInstance(BuiltinRenderer.InputStream);
 
-          LinkedBindingBuilder<BodyFormatter> formatString = unit.mock(LinkedBindingBuilder.class);
-          formatString.toInstance(BuiltinBodyConverter.formatAny);
+          LinkedBindingBuilder<Renderer> formatString = unit.mock(LinkedBindingBuilder.class);
+          formatString.toInstance(BuiltinRenderer.ToString);
 
-          LinkedBindingBuilder<BodyFormatter> customFormatter = unit.mock(LinkedBindingBuilder.class);
-          customFormatter.toInstance(unit.get(BodyFormatter.class));
+          LinkedBindingBuilder<Renderer> customFormatter = unit.mock(LinkedBindingBuilder.class);
+          customFormatter.toInstance(unit.get(Renderer.class));
 
-          LinkedBindingBuilder<BodyFormatter> formatByteArray = unit.mock(LinkedBindingBuilder.class);
-          formatByteArray.toInstance(BuiltinBodyConverter.formatByteArray);
+          LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
+          formatByteArray.toInstance(BuiltinRenderer.Bytes);
 
-          LinkedBindingBuilder<BodyFormatter> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
-          formatByteBuffer.toInstance(BuiltinBodyConverter.formatByteBuffer);
+          LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
+          formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
 
           expect(multibinder.addBinding()).andReturn(customFormatter);
           expect(multibinder.addBinding()).andReturn(formatReader);
@@ -2160,6 +2172,11 @@ public class JoobyTest {
           expect(multibinder.addBinding()).andReturn(formatByteArray);
           expect(multibinder.addBinding()).andReturn(formatByteBuffer);
           expect(multibinder.addBinding()).andReturn(formatString);
+
+          AnnotatedBindingBuilder<RendererExecutor> abbre = unit.mock(AnnotatedBindingBuilder.class);
+          abbre.in(Singleton.class);
+
+          expect(binder.bind(RendererExecutor.class)).andReturn(abbre);
         })
         .expect(routes)
         .expect(routeHandler)
@@ -2171,7 +2188,7 @@ public class JoobyTest {
         .run(unit -> {
 
           Jooby jooby = new Jooby();
-          jooby.use(unit.get(BodyFormatter.class));
+          jooby.renderer(unit.get(Renderer.class));
 
           jooby.start();
 
@@ -2233,7 +2250,7 @@ public class JoobyTest {
           }
 
           LinkedBindingBuilder<Parser> parseBytes = unit.mock(LinkedBindingBuilder.class);
-          parseBytes.toInstance(BuiltinBodyConverter.parseBytes);
+          parseBytes.toInstance(BuiltinParser.Bytes);
 
           expect(multibinder.addBinding()).andReturn(parseBytes);
 
@@ -2454,7 +2471,42 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(unit -> {
+          Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
+
+          Binder binder = unit.get(Binder.class);
+          unit.mockStatic(Multibinder.class);
+
+          expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
+
+          LinkedBindingBuilder<Renderer> formatReader = unit.mock(LinkedBindingBuilder.class);
+          formatReader.toInstance(BuiltinRenderer.Readable);
+
+          LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
+          formatStream.toInstance(BuiltinRenderer.InputStream);
+
+          LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
+          formatByteArray.toInstance(BuiltinRenderer.Bytes);
+
+          LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
+          formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
+
+          LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
+          formatAny.toInstance(BuiltinRenderer.ToString);
+
+          expect(multibinder.addBinding()).andReturn(formatReader);
+          expect(multibinder.addBinding()).andReturn(formatStream);
+          expect(multibinder.addBinding()).andReturn(formatByteArray);
+          expect(multibinder.addBinding()).andReturn(formatByteBuffer);
+
+          expect(multibinder.addBinding()).andReturn(formatAny);
+
+          AnnotatedBindingBuilder<RendererExecutor> abbre = unit.mock(AnnotatedBindingBuilder.class);
+          abbre.in(Singleton.class);
+
+          expect(binder.bind(RendererExecutor.class)).andReturn(abbre);
+
+        })
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
