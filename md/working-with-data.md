@@ -1,4 +1,4 @@
-# parsers, formatter and view engine
+# parser, renderer and view engine
 
 ## parser
 
@@ -108,126 +108,57 @@ If a param parser isn't able to resolve a param an exception will be thrown with
 
 If a body parser isn't able to resolve a param an exception will be thrown with a ```415``` status code.
 
-## body formatter
+## renderer
 
-A [BodyFormatter]({{defdocs}}/BodyFormatter.html) is responsible for format a Java Object to a series of bytes in order to send them as HTTP response.
+A [Renderer]({{defdocs}}/Renderer.html) is responsible for rendering a Java Object to a series of bytes in order to send them as HTTP response.
 
-A [BodyFormatter]({{defdocs}}/BodyFormatter.html) has three(3) methods:
+There are a few built-in renderers:
 
-* **types**: list of [media types]({{defdocs}}/MediaType.html) supported by the body formatter.
-* **canFormat**(*type)*: test if the Java type is supported by the body formatter.
-* **formatter***(data, writer)*: do the actual formatting using the data and writer.
+* InputStream: copy an inputstream to the HTTP response and set a default type of: ```application/octet-stream```
+* byte[]: copy bytes to the HTTP response and set a default type of: ```application/octet-stream```
+* ByteBuffer: copy bytes to the HTTP response and set a default type of: ```application/octet-stream```
+* Readble: copy a readable object to the HTTP response and a default type of: ```text/html```
+* ToString: copy the toString() result to the HTTP response and set a default type of: ```text/html```
 
-In the next example we will try to send **MyObject** as HTTP response.
+### custom renderer
+
+Suppose we want to apply a custom rendering for ```MyObject```. Renderer is as simple as:
 
 ```java
+
+render((value, ctx) -> {
+  if (value instanceOf MyObject) {
+     ctx.text(value.toString());
+  }
+});
+
 get("/", req -> {
-   MyObject obj = ...
-   return obj;
+   return new MyObject();
 });
 ```
 
-A call like:
+Easy right?
 
-```bash
-curl http://localhost:8080/
-```
-
-Give us a ```text/html``` and body content is ```obj.toString()```
-
-```bash
-curl -H 'Accept: application/json' http://localhost:8080/
-```
-
-Results in ```406 - Not Acceptable```. That is because Jooby has no idea how to format ```application/json```. For that, we need a **json** formatter.
-
-Let's said we need to implement a JSON body formatter (in real life you wont ever implement a json formatter, this is just to demonstrate how they work):
+A generic JSON renderer will looks like:
 
 ```java
-public class Json implements BodyFormatter {
 
-  public List<MediaType> types() {
-    return ImmutableList.of(MediaType.json);
+render((value, ctx) -> {
+  if (ctx.accepts("json")) {
+     ctx.text(toJson(value));
   }
+});
 
-  public boolean canFormat(TypeLiteral<?> type) {
-    return true; 
-  }
-
-  public void format(Object data, Context ctx) throws Exception {
-    ... format and write it!
-  }
-}
+get("/", req -> {
+   return new MyObject();
+});
 ```
 
-Using it:
-
-```java
-{
-  use(new Json()); // now Jooby has a json formatter
-
-  post("/", (req, rsp) -> {
-     MyObject obj = ...
-     rsp.send(obj);
-  });
-}
-```
-
-**How it works**?
-
-A route by default produces ```*/*``` (any media type). Jooby will find/choose the **formatter** who best matches the ```Accept``` header.
-
-The ```Accept``` header is compared against the [formatter.types()]({{defdocs}}/BodyFormatter.html#types--) method.
-
-Once an acceptable media type is found it call the **canFormat** method of the [formatter]({{defdocs}}/BodyFormatter.html).
-
-### produces
-
-The **produces** method control what a route can accept or format explicitly.
-
-```java
-{
-  post("/", req -> {
-    MyObject obj = ...
-    return obj;
-  })
-   .produces("application/json");
-}
-```
-
-**200** response:
-
-```bash
-curl -H 'Accept: application/json' http://localhost:8080/
-```
-
-**406** response bc **application/xml** isn't supported:
-
-```bash
-curl 'Accept: application/xml' http://localhost:8080/
-```
-
-In general, you hardly will use **produces** in your routes. It has been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depend on your app requirements.
-
-Another small advantage of using **produces** is that the ```406``` response can be detected early (at the time a route is resolved) and not lazily (at the time you ask for type conversion).
-
-Keep in mind, you still need a **formatter** for your media types. For example:
-
-```java
-{
-  post("/", req -> {
-    MyObject obj = ...
-    return obj;
-  })
-   .produces("application/json", "application/xml");
-}
-```
-
-Require two formatters one for **json** and one for **xml**.
+Renderer API is simple and powerful. Renderers are executed in sequentially in the order they were defined. Application specific rendering might override built-in renderers. The renderer who write the response first wins!
 
 ## view engine
 
-A [view engine]({{defdocs}}/View.Engine.html) is a specialized [body formatter]({{defdocs}}/BodyFormatter.html) that ONLY accept instances of a [view]({{defdocs}}/View.html).
+A [view engine]({{defdocs}}/View.Engine.html) is a specialized [renderer]({{defdocs}}/Renderer.html) that ONLY accept instances of a [view]({{defdocs}}/View.html).
 
 ```java
 {

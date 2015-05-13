@@ -54,7 +54,7 @@ import com.typesafe.config.Config;
  * JSON support from the excellent <a href="https://github.com/FasterXML/jackson">Jackson</a>
  * library.
  *
- * This module provides a JSON {@link Parser} and {@link BodyFormatter}, but also an
+ * This module provides a JSON {@link Parser} and {@link Renderer}, but also an
  * {@link ObjectMapper}.
  *
  * <h1>usage</h1>
@@ -144,8 +144,8 @@ public class Jackson implements Jooby.Module {
 
     @Override
     public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
-      if (matcher.matches(ctx.type())) {
-        JavaType javaType = mapper.constructType(type.getType());
+      JavaType javaType = mapper.constructType(type.getType());
+      if (matcher.matches(ctx.type()) && mapper.canDeserialize(javaType)) {
         return ctx.body(body -> mapper.readValue(body.bytes(), javaType));
       }
       return ctx.next();

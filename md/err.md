@@ -48,7 +48,7 @@ HTTP status code will be set too.
 ### no html
 
 If a request to ```/``` has an ```Accept: application/json``` header. Then, the default err handler will
-ask to a [Formatter]({{defdocs}}/BodyFormatter.html) to render the ```err``` model.
+ask to a [renderer]({{defdocs}}/Renderer.html) to render the ```err``` model.
 
 ```json
 {

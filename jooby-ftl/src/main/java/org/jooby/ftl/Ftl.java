@@ -47,7 +47,7 @@ import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 
 /**
- * Exposes a {@link Configuration} and a {@link BodyFormatter}.
+ * Exposes a {@link Configuration} and a {@link Renderer}.
  *
  * <h1>usage</h1>
  * <p>

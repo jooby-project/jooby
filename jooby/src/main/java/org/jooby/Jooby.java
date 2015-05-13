@@ -133,7 +133,7 @@ import com.typesafe.config.ConfigValueFactory;
 /**
  * <h1>Getting Started:</h1>
  * <p>
- * A new application must extends Jooby, register one ore more {@link BodyFormatter} and some
+ * A new application must extends Jooby, register one ore more {@link Renderer} and some
  * {@link Route routes}. It sounds like a lot of work to do, but it isn't.
  * </p>
  *
@@ -141,7 +141,7 @@ import com.typesafe.config.ConfigValueFactory;
  * public class MyApp extends Jooby {
  *
  *   {
- *      use(new Json()); // 1. JSON serializer.
+ *      renderer(new Json()); // 1. JSON serializer.
  *
  *      // 2. Define a route
  *      get("/", (req, rsp) {@literal ->} {
@@ -382,8 +382,8 @@ import com.typesafe.config.ConfigValueFactory;
 public class Jooby {
 
   /**
-   * A module can publish or produces: {@link Route.Definition routes}, {@link BodyParser},
-   * {@link BodyFormatter}, and any other application specific service or contract of your choice.
+   * A module can publish or produces: {@link Route.Definition routes}, {@link Parser},
+   * {@link Renderer}, and any other application specific service or contract of your choice.
    * <p>
    * It is similar to {@link com.google.inject.Module} except for the callback method receives a
    * {@link Env}, {@link Config} and {@link Binder}.
@@ -494,7 +494,7 @@ public class Jooby {
 
   /**
    * Import ALL the direct routes from the given app. PLEASE NOTE: that ONLY routes are imported.
-   * {@link Jooby.Module modules}, {@link BodyFormatter formatters}, etc... won't be import it.
+   * {@link Jooby.Module modules}, {@link Renderer renderers}, etc... won't be import it.
    *
    * @param app Routes provider.
    * @return This jooby instance.
@@ -635,7 +635,7 @@ public class Jooby {
   }
 
   /**
-   * Register a new param converter. See {@link ParamConverter} for more details.
+   * Register a new param converter. See {@link Parser} for more details.
    *
    * @param parser A parser.
    * @return This jooby instance.
@@ -646,7 +646,7 @@ public class Jooby {
   }
 
   /**
-   * Append a response renderer for write HTTP messages.
+   * Append a response {@link Renderer} for write HTTP messages.
    *
    * @param renderer A renderer renderer.
    * @return This jooby instance.

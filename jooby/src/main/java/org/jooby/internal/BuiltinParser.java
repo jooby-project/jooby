@@ -43,6 +43,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.inject.TypeLiteral;
 
+@SuppressWarnings({"unchecked", "rawtypes" })
 public enum BuiltinParser implements Parser {
 
   Basic {
@@ -130,7 +131,6 @@ public enum BuiltinParser implements Parser {
           && toType.getType() instanceof ParameterizedType;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked" })
     @Override
     public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
       if (matches(type)) {
@@ -187,7 +187,6 @@ public enum BuiltinParser implements Parser {
     }
   },
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
   Enum {
     @Override
     public Object parse(final TypeLiteral<?> type, final Parser.Context ctx)

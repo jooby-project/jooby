@@ -4,9 +4,9 @@ The response object contains methods for reading and setting headers, status cod
 
 ## sending data
 
-The [rsp.send]({{defdocs}}/Response.html#send-org.jooby.Body-) method is responsible for sending and writing data into the HTTP Response.
+The [rsp.send]({{defdocs}}/Response.html#send-org.jooby.Result-) method is responsible for sending and writing data into the HTTP Response.
 
-A [body formatter]({{defdocs}}/BodyFormatter) is responsible for converting a Java Object into something else (json, html, etc..).
+A [renderer]({{defdocs}}/Renderer.html) is responsible for converting a Java Object into something else (json, html, etc..).
 
 Let's see a simple example:
 
@@ -16,9 +16,9 @@ get("/", (req, rsp) -> rsp.send("hey jooby"));
 get("/", req -> "hey jooby"); // or just return a value and Jooby will call send for you.
 ```
 
-The **send** method select the best [body formatter]({{defdocs}}/BodyFormatter) to use based on the ```Accept``` header and if the current data type is supported.
+The **send** method will ask the [Renderer API]({{defdocs}}/Renderer.html) to format an object and write a response.
 
-The resulting ```Content-Type``` when is not set is the first returned by the  [formatter.types()]({{defdocs}}/BodyFormatter#types) method.
+The resulting ```Content-Type``` when is not set is ```text/html```.
 
 The resulting ```Status Code``` when is not set is ```200```.
 
@@ -55,7 +55,7 @@ get("/", req -> {
 
 ## content negotiation
 
-A route can produces different results base on the ```Accept``` header: 
+A route can produces different results based on the ```Accept``` header: 
 
 ```java
 get("/", () ->

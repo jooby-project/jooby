@@ -1,6 +1,6 @@
 # jooby-hbs
 
-Mustache/Handlebars templates for [Jooby]({{site}}). Exposes a [Handlebars](https://github.com/jknack/handlebars.java) and [body formatter]({{defdocs}}/BodyFormatter.html).
+Mustache/Handlebars templates for [Jooby]({{site}}). Exposes a [Handlebars](https://github.com/jknack/handlebars.java) and [renderer]({{defdocs}}/Renderer.html).
 
 ## dependency
 

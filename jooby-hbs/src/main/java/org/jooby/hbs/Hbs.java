@@ -56,7 +56,7 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
 /**
- * Exposes a {@link Handlebars} and a {@link BodyFormatter}.
+ * Exposes a {@link Handlebars} and a {@link Renderer}.
  *
  * <h1>usage</h1>
  * <p>

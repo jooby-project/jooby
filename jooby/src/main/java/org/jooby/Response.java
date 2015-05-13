@@ -462,8 +462,7 @@ public interface Response {
   }
 
   /**
-   * Responsible of writing the given body into the HTTP response. The {@link BodyFormatter} that
-   * best matches the <code>Accept</code> header will be selected for writing the response.
+   * Responsible of writing the given body into the HTTP response.
    *
    * @param result The HTTP body.
    * @throws Exception If the response write fails.
@@ -482,8 +481,7 @@ public interface Response {
   }
 
   /**
-   * Responsible of writing the given body into the HTTP response. The {@link BodyFormatter} that
-   * best matches the <code>Accept</code> header will be selected for writing the response.
+   * Responsible of writing the given body into the HTTP response.
    *
    * @param result A HTTP response.
    * @throws Exception If the response write fails.

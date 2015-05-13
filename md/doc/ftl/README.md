@@ -1,6 +1,6 @@
 # jooby-ftl
 
-[Freemarker](http://freemarker.org) templates for [Jooby]({{site}}). Exposes a Configuration and [body formatter]({{defdocs}}/BodyFormatter.html).
+[Freemarker](http://freemarker.org) templates for [Jooby]({{site}}). Exposes a Configuration and [renderer]({{defdocs}}/Renderer.html).
 
 ## dependency
 
