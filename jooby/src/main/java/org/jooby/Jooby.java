@@ -96,17 +96,12 @@ import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.mvc.MvcRoutes;
 import org.jooby.internal.reqparam.BeanParser;
-import org.jooby.internal.reqparam.CollectionParser;
-import org.jooby.internal.reqparam.CommonTypesParser;
 import org.jooby.internal.reqparam.DateParser;
-import org.jooby.internal.reqparam.EnumParser;
 import org.jooby.internal.reqparam.LocalDateParser;
 import org.jooby.internal.reqparam.LocaleParser;
-import org.jooby.internal.reqparam.OptionalParser;
 import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.internal.reqparam.StaticMethodParser;
 import org.jooby.internal.reqparam.StringConstructorParser;
-import org.jooby.internal.reqparam.UploadParser;
 import org.jooby.internal.routes.HeadHandler;
 import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
@@ -501,8 +496,6 @@ public class Jooby {
   /** Env builder. */
   private Env.Builder env = Env.DEFAULT;
 
-  private LinkedList<Parser> parsers = new LinkedList<>();
-
   /**
    * Import ALL the direct routes from the given app. PLEASE NOTE: that ONLY routes are imported.
    * {@link Jooby.Module modules}, {@link BodyFormatter formatters}, etc... won't be import it.
@@ -652,7 +645,7 @@ public class Jooby {
    * @return This jooby instance.
    */
   public Jooby parser(final Parser parser) {
-    parsers.add(requireNonNull(parser, "A parser is required."));
+    bag.add(requireNonNull(parser, "A parser is required."));
     return this;
   }
 
@@ -2831,32 +2824,14 @@ public class Jooby {
         binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
             .toInstance(tmpdir);
 
-        // parsers
         RouteMetadata classInfo = new RouteMetadata(env);
         binder.bind(ParameterNameProvider.class).toInstance(classInfo);
 
-        parsers.add(new CommonTypesParser());
-        parsers.add(new CollectionParser());
-        parsers.add(new OptionalParser());
-        parsers.add(new UploadParser());
-        parsers.add(new EnumParser());
-        parsers.add(new DateParser(dateFormat));
-        parsers.add(new LocalDateParser(dateTimeFormatter));
-        parsers.add(new LocaleParser());
-        parsers.add(new BeanParser());
-        parsers.add(new StaticMethodParser("valueOf"));
-        parsers.add(new StaticMethodParser("fromString"));
-        parsers.add(new StaticMethodParser("forName"));
-        parsers.add(new StringConstructorParser());
-        parsers.add(BuiltinParser.Bytes);
-
-        binder.bind(ParserExecutor.class);
-
-        Multibinder<Parser> converterBinder = Multibinder
+        // parsers
+        Multibinder<Parser> parsers = Multibinder
             .newSetBinder(binder, Parser.class);
-        parsers.forEach(it -> converterBinder.addBinding().toInstance(it));
 
-        // modules, routes and websockets
+        // modules, routes, parsers, renderers and websockets
         bag.forEach(candidate -> {
           if (candidate instanceof Jooby.Module) {
             install((Jooby.Module) candidate, env, config, binder);
@@ -2864,12 +2839,32 @@ public class Jooby {
             definitions.addBinding().toInstance((Route.Definition) candidate);
           } else if (candidate instanceof WebSocket.Definition) {
             sockets.addBinding().toInstance((WebSocket.Definition) candidate);
+          } else if (candidate instanceof Parser) {
+            parsers.addBinding().toInstance((Parser) candidate);
           } else {
             binder.bind((Class<?>) candidate);
             MvcRoutes.routes(env, classInfo, (Class<?>) candidate)
                 .forEach(route -> definitions.addBinding().toInstance(route));
           }
         });
+
+        parsers.addBinding().toInstance(BuiltinParser.Basic);
+        parsers.addBinding().toInstance(BuiltinParser.Collection);
+        parsers.addBinding().toInstance(BuiltinParser.Optional);
+        parsers.addBinding().toInstance(BuiltinParser.Enum);
+        parsers.addBinding().toInstance(BuiltinParser.Upload);
+        parsers.addBinding().toInstance(BuiltinParser.Bytes);
+        parsers.addBinding().toInstance(new DateParser(dateFormat));
+        parsers.addBinding().toInstance(new LocalDateParser(dateTimeFormatter));
+        parsers.addBinding().toInstance(new LocaleParser());
+        parsers.addBinding().toInstance(new BeanParser());
+        parsers.addBinding().toInstance(new StaticMethodParser("valueOf"));
+        parsers.addBinding().toInstance(new StaticMethodParser("fromString"));
+        parsers.addBinding().toInstance(new StaticMethodParser("forName"));
+        parsers.addBinding().toInstance(new StringConstructorParser());
+
+        binder.bind(ParserExecutor.class).in(Singleton.class);
+        ;
 
         // renderer
         Multibinder<Renderer> rendererBinder = Multibinder

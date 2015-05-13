@@ -8,7 +8,7 @@ public class BuiltinParserTest {
 
   @Test
   public void values() {
-    assertEquals(1, BuiltinParser.values().length);
+    assertEquals(6, BuiltinParser.values().length);
   }
 
   @Test

@@ -44,14 +44,14 @@ public class ParserExecutor {
 
   private static final Object NOT_FOUND = new Object();
 
-  private List<Parser> converters;
+  private List<Parser> parsers;
 
   private Injector injector;
 
   @Inject
-  public ParserExecutor(final Injector injector, final Set<Parser> converters) {
+  public ParserExecutor(final Injector injector, final Set<Parser> parsers) {
     this.injector = requireNonNull(injector, "An injector is required.");
-    this.converters = ImmutableList.copyOf(converters);
+    this.parsers = ImmutableList.copyOf(parsers);
   }
 
   public <T> T convert(final TypeLiteral<?> type, final Object data) {
@@ -63,7 +63,7 @@ public class ParserExecutor {
       final Status status) {
     try {
       requireNonNull(type, "A type is required.");
-      Object result = ctx(injector, contentType, type, converters, data).next(type, data);
+      Object result = ctx(injector, contentType, type, parsers, data).next(type, data);
       if (result == NOT_FOUND) {
         throw new Err(status, "No converter for " + type);
       }
@@ -75,8 +75,9 @@ public class ParserExecutor {
     }
   }
 
-  private static Parser.Context ctx(final Injector injector, final MediaType contentType,
-      final TypeLiteral<?> seedType, final List<Parser> parsers, final Object seed) {
+  private static Parser.Context ctx(final Injector injector,
+      final MediaType contentType, final TypeLiteral<?> seedType, final List<Parser> parsers,
+      final Object seed) {
     return new Parser.Context() {
       int cursor = 0;
 
@@ -168,6 +169,11 @@ public class ParserExecutor {
         return injector.getInstance(Key.get(type));
       }
 
+      @Override
+      public String toString() {
+        return parsers.toString();
+      }
     };
   }
+
 }

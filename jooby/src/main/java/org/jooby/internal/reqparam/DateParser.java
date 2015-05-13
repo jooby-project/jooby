@@ -46,6 +46,11 @@ public class DateParser implements Parser {
     }
   }
 
+  @Override
+  public String toString() {
+    return "Date";
+  }
+
   private static Date parse(final String dateFormat, final String value) throws Exception {
     try {
       return new Date(Long.parseLong(value));

@@ -42,6 +42,11 @@ public class StringConstructorParser implements Parser {
     });
   }
 
+  @Override
+  public String toString() {
+    return "init(String)";
+  }
+
   public static Object parse(final TypeLiteral<?> type, final Object data) throws Exception {
     return constructor(type.getRawType()).newInstance(data);
   }

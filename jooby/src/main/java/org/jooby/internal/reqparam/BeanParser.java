@@ -39,6 +39,11 @@ public class BeanParser implements Parser {
     });
   }
 
+  @Override
+  public String toString() {
+    return "bean";
+  }
+
   private static Object newBean(final Request req, final Response rsp,
       final Map<String, Mutant> params, final Class<?> beanType)
       throws Exception {

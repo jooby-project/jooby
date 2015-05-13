@@ -13,13 +13,9 @@ import java.util.Set;
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
-import org.jooby.internal.reqparam.CollectionParser;
-import org.jooby.internal.reqparam.CommonTypesParser;
 import org.jooby.internal.reqparam.DateParser;
-import org.jooby.internal.reqparam.EnumParser;
 import org.jooby.internal.reqparam.LocalDateParser;
 import org.jooby.internal.reqparam.LocaleParser;
-import org.jooby.internal.reqparam.OptionalParser;
 import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.internal.reqparam.StaticMethodParser;
 import org.jooby.internal.reqparam.StringConstructorParser;
@@ -501,10 +497,10 @@ public class MutantImplTest {
     return new ParserExecutor(createMock(Injector.class),
         Sets.newLinkedHashSet(
             Arrays.asList(
-                new CommonTypesParser(),
-                new CollectionParser(),
-                new OptionalParser(),
-                new EnumParser(),
+                BuiltinParser.Basic,
+                BuiltinParser.Collection,
+                BuiltinParser.Optional,
+                BuiltinParser.Enum,
                 new DateParser("dd/MM/yyyy"),
                 new LocalDateParser(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
                 new LocaleParser(),

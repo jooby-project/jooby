@@ -40,17 +40,12 @@ import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.reqparam.BeanParser;
-import org.jooby.internal.reqparam.CollectionParser;
-import org.jooby.internal.reqparam.CommonTypesParser;
 import org.jooby.internal.reqparam.DateParser;
-import org.jooby.internal.reqparam.EnumParser;
 import org.jooby.internal.reqparam.LocalDateParser;
 import org.jooby.internal.reqparam.LocaleParser;
-import org.jooby.internal.reqparam.OptionalParser;
 import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.internal.reqparam.StaticMethodParser;
 import org.jooby.internal.reqparam.StringConstructorParser;
-import org.jooby.internal.reqparam.UploadParser;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
@@ -392,17 +387,20 @@ public class JoobyTest {
 
     AnnotatedBindingBuilder<ParserExecutor> parambinding = unit
         .mock(AnnotatedBindingBuilder.class);
+    parambinding.in(Singleton.class);
 
     expect(binder.bind(ParserExecutor.class)).andReturn(parambinding);
 
     Multibinder<Parser> multibinder = unit.mock(Multibinder.class, true);
 
+    for (Parser parser : BuiltinParser.values()) {
+      LinkedBindingBuilder<Parser> converterBinding = unit.mock(LinkedBindingBuilder.class);
+      converterBinding.toInstance(parser);
+      expect(multibinder.addBinding()).andReturn(converterBinding);
+    }
+
     @SuppressWarnings("rawtypes")
-    Class[] converters = {CommonTypesParser.class,
-        CollectionParser.class,
-        OptionalParser.class,
-        UploadParser.class,
-        EnumParser.class,
+    Class[] parserClasses = {
         DateParser.class,
         LocalDateParser.class,
         LocaleParser.class,
@@ -413,16 +411,11 @@ public class JoobyTest {
         StringConstructorParser.class
     };
 
-    for (Class<? extends Parser> converter : converters) {
+    for (Class<? extends Parser> converter : parserClasses) {
       LinkedBindingBuilder<Parser> converterBinding = unit.mock(LinkedBindingBuilder.class);
       converterBinding.toInstance(isA(converter));
       expect(multibinder.addBinding()).andReturn(converterBinding);
     }
-
-    LinkedBindingBuilder<Parser> parseBytes = unit.mock(LinkedBindingBuilder.class);
-    parseBytes.toInstance(BuiltinParser.Bytes);
-
-    expect(multibinder.addBinding()).andReturn(parseBytes);
 
     expect(Multibinder.newSetBinder(binder, Parser.class)).andReturn(multibinder);
 
@@ -2218,6 +2211,7 @@ public class JoobyTest {
 
           AnnotatedBindingBuilder<ParserExecutor> parambinding = unit
               .mock(AnnotatedBindingBuilder.class);
+          parambinding.in(Singleton.class);
 
           expect(binder.bind(ParserExecutor.class)).andReturn(parambinding);
 
@@ -2228,11 +2222,13 @@ public class JoobyTest {
 
           expect(multibinder.addBinding()).andReturn(customParser);
 
-          Class[] converters = {CommonTypesParser.class,
-              CollectionParser.class,
-              OptionalParser.class,
-              UploadParser.class,
-              EnumParser.class,
+          for (Parser parser : BuiltinParser.values()) {
+            LinkedBindingBuilder<Parser> converterBinding = unit.mock(LinkedBindingBuilder.class);
+            converterBinding.toInstance(parser);
+            expect(multibinder.addBinding()).andReturn(converterBinding);
+          }
+
+          Class[] parserClasses = {
               DateParser.class,
               LocalDateParser.class,
               LocaleParser.class,
@@ -2243,16 +2239,11 @@ public class JoobyTest {
               StringConstructorParser.class
           };
 
-          for (Class<? extends Parser> converter : converters) {
+          for (Class<? extends Parser> converter : parserClasses) {
             LinkedBindingBuilder<Parser> converterBinding = unit.mock(LinkedBindingBuilder.class);
             converterBinding.toInstance(isA(converter));
             expect(multibinder.addBinding()).andReturn(converterBinding);
           }
-
-          LinkedBindingBuilder<Parser> parseBytes = unit.mock(LinkedBindingBuilder.class);
-          parseBytes.toInstance(BuiltinParser.Bytes);
-
-          expect(multibinder.addBinding()).andReturn(parseBytes);
 
           expect(Multibinder.newSetBinder(binder, Parser.class)).andReturn(multibinder);
         })

@@ -37,4 +37,9 @@ public class LocaleParser implements Parser {
     }
   }
 
+  @Override
+  public String toString() {
+    return "Locale";
+  }
+
 }

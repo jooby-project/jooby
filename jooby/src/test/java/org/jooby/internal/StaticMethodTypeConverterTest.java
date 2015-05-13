@@ -68,6 +68,6 @@ public class StaticMethodTypeConverterTest {
 
   @Test
   public void describe() throws Exception {
-    assertEquals("forName(java.lang.String)", new StaticMethodTypeConverter<Package>("forName").toString());
+    assertEquals("forName(String)", new StaticMethodTypeConverter<Package>("forName").toString());
   }
 }

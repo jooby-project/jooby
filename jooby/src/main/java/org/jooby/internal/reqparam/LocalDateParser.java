@@ -54,6 +54,11 @@ public class LocalDateParser implements Parser {
     }
   }
 
+  @Override
+  public String toString() {
+    return "LocalDate";
+  }
+
   private static LocalDate parse(final DateTimeFormatter formatter, final String value) {
     try {
       Instant epoch = Instant.ofEpochMilli(Long.parseLong(value));

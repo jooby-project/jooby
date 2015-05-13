@@ -66,7 +66,7 @@ public class StaticMethodParser implements Parser {
 
   @Override
   public String toString() {
-    return methodName + "(" + String.class.getName() + ")";
+    return methodName + "(String)";
   }
 
 }
