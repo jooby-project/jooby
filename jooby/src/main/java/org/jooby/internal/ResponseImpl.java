@@ -283,7 +283,7 @@ public class ResponseImpl implements Response {
         status((Status) message);
       }
 
-      renderer.render(route.method() + " " + route.path(), message, stream, writer, len -> {
+      renderer.render(message, stream, writer, len -> {
         if (length.get() == Long.MAX_VALUE) {
           // set local len so we ask for stream with content length set
           length.set(len);

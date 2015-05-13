@@ -65,7 +65,7 @@ public class WebSocketImplTest {
         .expect(callbacks)
         .expect(unit -> {
           RendererExecutor renderer = unit.mock(RendererExecutor.class);
-          renderer.render(eq("WS /"), eq(data), isA(ExSupplier.class), isA(ExSupplier.class),
+          renderer.render(eq(data), isA(ExSupplier.class), isA(ExSupplier.class),
               isA(Consumer.class), isA(Consumer.class), isA(Map.class),
               eq(Arrays.asList(produces)), eq(Charsets.UTF_8));
 

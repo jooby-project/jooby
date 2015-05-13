@@ -46,7 +46,6 @@ import com.google.inject.TypeLiteral;
 public enum BuiltinParser implements Parser {
 
   Basic {
-
     private final Map<Class<?>, Function<String, Object>> parsers =
         ImmutableMap.<Class<?>, Function<String, Object>> builder()
             .put(BigDecimal.class, BigDecimal::new)
@@ -188,9 +187,9 @@ public enum BuiltinParser implements Parser {
     }
   },
 
+  @SuppressWarnings({"unchecked", "rawtypes" })
   Enum {
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes" })
     public Object parse(final TypeLiteral<?> type, final Parser.Context ctx)
         throws Exception {
       Class rawType = type.getRawType();
@@ -208,7 +207,6 @@ public enum BuiltinParser implements Parser {
   },
 
   Upload {
-
     @Override
     public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
       if (Upload.class == type.getRawType()) {

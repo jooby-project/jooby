@@ -129,7 +129,7 @@ public class WebSocketImpl implements WebSocket {
     ExSupplier<Writer> writer = () -> new OutputStreamWriter(stream(ws, success, err, true),
         Charsets.UTF_8);
 
-    renderer.render("WS " + path(), data, stream, writer, len -> {
+    renderer.render(data, stream, writer, len -> {
     }, type -> {
     }, Collections.emptyMap(),
         ImmutableList.of(produces), Charsets.UTF_8);

@@ -28,7 +28,7 @@ public class RendererExecutor {
     this.renderers = renderers;
   }
 
-  public void render(final String path, final Object value,
+  public void render(final Object value,
       final ExSupplier<OutputStream> stream,
       final ExSupplier<Writer> writer,
       final Consumer<Long> length,
@@ -37,7 +37,7 @@ public class RendererExecutor {
       final List<MediaType> produces,
       final Charset charset) throws Exception {
 
-    RenderContextImpl ctx = new RenderContextImpl(path + " " + renderers, stream, writer, length,
+    RenderContextImpl ctx = new RenderContextImpl(renderers.toString(), stream, writer, length,
         type, locals, produces, charset);
     Iterator<Renderer> it = renderers.iterator();
     while (!ctx.done()) {

@@ -68,7 +68,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -484,9 +483,6 @@ public class Jooby {
   /** Error handler. */
   private Err.Handler err;
 
-  /** Body formatters. */
-  private List<Renderer> formatters = new LinkedList<>();
-
   /** Session store. */
   private Session.Definition session = new Session.Definition(Session.Mem.class);
 
@@ -656,7 +652,7 @@ public class Jooby {
    * @return This jooby instance.
    */
   public Jooby renderer(final Renderer renderer) {
-    this.formatters.add(requireNonNull(renderer, "A renderer is required."));
+    this.bag.add(requireNonNull(renderer, "A renderer is required."));
     return this;
   }
 
@@ -2533,7 +2529,7 @@ public class Jooby {
    */
   public Route.Definition assets(final String path, final String location) {
     if (!assetFormatter) {
-      formatters.add(new AssetFormatter());
+      bag.add(new AssetFormatter());
       assetFormatter = true;
     }
     return get(path, new AssetHandler(location, getClass()));
@@ -2827,9 +2823,12 @@ public class Jooby {
         RouteMetadata classInfo = new RouteMetadata(env);
         binder.bind(ParameterNameProvider.class).toInstance(classInfo);
 
-        // parsers
+        // parsers & renderers
         Multibinder<Parser> parsers = Multibinder
             .newSetBinder(binder, Parser.class);
+
+        Multibinder<Renderer> renderers = Multibinder
+            .newSetBinder(binder, Renderer.class);
 
         // modules, routes, parsers, renderers and websockets
         bag.forEach(candidate -> {
@@ -2841,6 +2840,8 @@ public class Jooby {
             sockets.addBinding().toInstance((WebSocket.Definition) candidate);
           } else if (candidate instanceof Parser) {
             parsers.addBinding().toInstance((Parser) candidate);
+          } else if (candidate instanceof Renderer) {
+            renderers.addBinding().toInstance((Renderer) candidate);
           } else {
             binder.bind((Class<?>) candidate);
             MvcRoutes.routes(env, classInfo, (Class<?>) candidate)
@@ -2864,19 +2865,13 @@ public class Jooby {
         parsers.addBinding().toInstance(new StringConstructorParser());
 
         binder.bind(ParserExecutor.class).in(Singleton.class);
-        ;
 
         // renderer
-        Multibinder<Renderer> rendererBinder = Multibinder
-            .newSetBinder(binder, Renderer.class);
-
-        formatters.forEach(it -> rendererBinder.addBinding().toInstance(it));
-
-        rendererBinder.addBinding().toInstance(BuiltinRenderer.Readable);
-        rendererBinder.addBinding().toInstance(BuiltinRenderer.InputStream);
-        rendererBinder.addBinding().toInstance(BuiltinRenderer.Bytes);
-        rendererBinder.addBinding().toInstance(BuiltinRenderer.ByteBuffer);
-        rendererBinder.addBinding().toInstance(BuiltinRenderer.ToString);
+        renderers.addBinding().toInstance(BuiltinRenderer.Readable);
+        renderers.addBinding().toInstance(BuiltinRenderer.InputStream);
+        renderers.addBinding().toInstance(BuiltinRenderer.Bytes);
+        renderers.addBinding().toInstance(BuiltinRenderer.ByteBuffer);
+        renderers.addBinding().toInstance(BuiltinRenderer.ToString);
 
         binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
         binder.bind(RendererExecutor.class).in(Singleton.class);
