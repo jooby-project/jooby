@@ -18,7 +18,9 @@
  */
 package org.jooby;
 
-import java.io.OutputStream;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -85,44 +87,6 @@ import com.google.common.collect.ImmutableList;
 public interface Renderer {
 
   /**
-   * Write bytes to the HTTP Body.
-   *
-   * @author edgar
-   * @since 0.1.0
-   */
-  interface Bytes {
-
-    /**
-     * Write bytes into the given {@link OutputStream}. The {@link OutputStream} will be close it
-     * automatically after this call. Clients shouldn't worry about closing
-     * the {@link OutputStream}.
-     *
-     * @param out The HTTP response body.
-     * @throws Exception When the operation fails.
-     */
-    void write(OutputStream out) throws Exception;
-  }
-
-  /**
-   * Write text to the HTTP Body and apply application/request charset.
-   *
-   * @author edgar
-   * @since 0.1.0
-   */
-  interface Text {
-
-    /**
-     * Write text into the given {@link java.io.Writer}. The {@link java.io.Writer} will be
-     * close it automatically after this call. Clients shouldn't worry about closing the
-     * {@link Context}. The writer is configured with the application/request charset.
-     *
-     * @param writer The HTTP response body.
-     * @throws Exception When the operation fails.
-     */
-    void write(java.io.Writer writer) throws Exception;
-  }
-
-  /**
    * Contains a few utility methods for doing the actual rendering and writing.
    *
    * @author edgar
@@ -181,21 +145,44 @@ public interface Renderer {
     Charset charset();
 
     /**
-     * Write text into the HTTP response body using the {@link #charset()} and close the resources.
-     * It applies the application/request charset.
+     * Write bytes into the HTTP response body and close the resources.
      *
-     * @param text A text strategy.
+     * @param bytes A bytes to write.
      * @throws Exception When the operation fails.
      */
-    void text(Text text) throws Exception;
+    void send(byte[] bytes) throws Exception;
 
     /**
      * Write bytes into the HTTP response body and close the resources.
      *
-     * @param bytes A bytes strategy.
+     * @param bytes A bytes to write.
      * @throws Exception When the operation fails.
      */
-    void bytes(Bytes bytes) throws Exception;
+    void send(ByteBuffer buffer) throws Exception;
+
+    /**
+     * Write test into the HTTP response body.
+     *
+     * @param data A text to write.
+     * @throws Exception When the operation fails.
+     */
+    void send(String text) throws Exception;
+
+    /**
+     * Write test into the HTTP response body.
+     *
+     * @param text A text to write.
+     * @throws Exception When the operation fails.
+     */
+    void send(InputStream stream) throws Exception;
+
+    /**
+     * Write test into the HTTP response body.
+     *
+     * @param text A text to write.
+     * @throws Exception When the operation fails.
+     */
+    void send(FileChannel file) throws Exception;
 
   }
 

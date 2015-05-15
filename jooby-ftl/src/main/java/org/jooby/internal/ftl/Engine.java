@@ -20,9 +20,11 @@ package org.jooby.internal.ftl;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jooby.MediaType;
 import org.jooby.Renderer;
 import org.jooby.View;
 
@@ -31,7 +33,7 @@ import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateModel;
 
-public class Engine implements View.Engine  {
+public class Engine implements View.Engine {
 
   private Configuration freemarker;
 
@@ -60,8 +62,13 @@ public class Engine implements View.Engine  {
     hash.putAll(view.model());
     TemplateModel model = new SimpleHash(hash, new FtlWrapper(freemarker.getObjectWrapper()));
 
+    // TODO: remove string writer
+    StringWriter writer = new StringWriter();
+
     // output
-    ctx.text(w -> template.process(model, w));
+    template.process(model, writer);
+    ctx.type(MediaType.html)
+        .send(writer.toString());
   }
 
   @Override

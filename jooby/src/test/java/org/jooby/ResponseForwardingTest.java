@@ -8,8 +8,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.Date;
 import java.util.Optional;
 
@@ -137,7 +135,6 @@ public class ResponseForwardingTest {
 
           rsp.download(eq("file.pdf"), isA(InputStream.class));
 
-          rsp.download(eq("file.pdf"), isA(Reader.class));
         })
         .run(unit -> {
           Response rsp = new Response.Forwarding(unit.get(Response.class));
@@ -152,7 +149,6 @@ public class ResponseForwardingTest {
 
           rsp.download("file.pdf", new ByteArrayInputStream(new byte[0]));
 
-          rsp.download("file.pdf", new StringReader(""));
         });
   }
 

@@ -18,7 +18,6 @@
  */
 package org.jooby;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -48,9 +47,9 @@ public interface Asset {
 
   /**
    * @return The content of this asset.
-   * @throws IOException If content can't be read it.
+   * @throws Exception If content can't be read it.
    */
-  InputStream stream() throws IOException;
+  InputStream stream() throws Exception;
 
   /**
    * @return Asset media type.

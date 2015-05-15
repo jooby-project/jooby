@@ -18,18 +18,26 @@
  */
 package org.jooby.internal.netty;
 
+import static io.netty.channel.ChannelFutureListener.CLOSE;
+import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.stream.ChunkedStream;
 import io.netty.util.Attribute;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -48,10 +56,14 @@ public class NettyResponse implements NativeResponse {
 
   HttpHeaders headers;
 
-  private NettyOutputStream out;
+  private boolean committed;
 
-  public NettyResponse(final ChannelHandlerContext ctx, final boolean keepAlive) {
+  private int bufferSize;
+
+  public NettyResponse(final ChannelHandlerContext ctx, final int bufferSize,
+      final boolean keepAlive) {
     this.ctx = ctx;
+    this.bufferSize = bufferSize;
     this.keepAlive = keepAlive;
     this.headers = new DefaultHttpHeaders();
   }
@@ -80,11 +92,88 @@ public class NettyResponse implements NativeResponse {
   }
 
   @Override
-  public OutputStream out(final int bufferSize) throws IOException {
-    if (out == null) {
-      out = new NettyOutputStream(this, ctx, Unpooled.buffer(0, bufferSize), keepAlive, headers);
+  public void send(final byte[] bytes) throws Exception {
+    send(Unpooled.wrappedBuffer(bytes));
+  }
+
+  @Override
+  public void send(final ByteBuffer buffer) throws Exception {
+    send(Unpooled.wrappedBuffer(buffer));
+  }
+
+  @Override
+  public void send(final InputStream stream) throws Exception {
+    byte[] chunk = new byte[bufferSize];
+    int count = stream.read(chunk);
+    if (count <= 0) {
+      return;
     }
-    return out;
+    ByteBuf buffer = Unpooled.wrappedBuffer(chunk, 0, count);
+    if (count < bufferSize) {
+      send(buffer);
+    } else {
+      DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
+      String len = headers.get(HttpHeaders.Names.CONTENT_LENGTH);
+      if (len == null) {
+        headers.set(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
+      }
+
+      // dump headers
+      rsp.headers().set(headers);
+      // send headers
+      ctx.write(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
+      ctx.write(buffer).addListener(FIRE_EXCEPTION_ON_FAILURE);
+      ctx.write(new ChunkedStream(stream, bufferSize));
+      keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
+    }
+
+    committed = true;
+  }
+
+  @Override
+  public void send(final FileChannel channel) throws Exception {
+    DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
+    String len = headers.get(HttpHeaders.Names.CONTENT_LENGTH);
+    if (len == null) {
+      headers.set(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
+    }
+
+    // dump headers
+    rsp.headers().set(headers);
+    // send headers
+    ctx.write(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
+    ctx.write(new DefaultFileRegion(channel, 0, channel.size()));
+    keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
+
+    committed = true;
+  }
+
+  private void send(final ByteBuf buffer) throws Exception {
+    DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, buffer);
+
+    String len = headers.get(HttpHeaders.Names.CONTENT_LENGTH);
+    if (len == null) {
+      headers.remove(HttpHeaders.Names.TRANSFER_ENCODING);
+      headers.set(HttpHeaders.Names.CONTENT_LENGTH, buffer.readableBytes());
+    }
+
+    // dump headers
+    rsp.headers().set(headers);
+    keepAlive(ctx.writeAndFlush(rsp));
+
+    committed = true;
+  }
+
+  private void keepAlive(final ChannelFuture future) {
+    future.addListener(FIRE_EXCEPTION_ON_FAILURE);
+    if (headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
+      if (!keepAlive) {
+        future.addListener(CLOSE);
+      }
+    } else {
+      // content len is not set, just close the connection regardless keep alive or not.
+      future.addListener(CLOSE);
+    }
   }
 
   @Override
@@ -103,13 +192,7 @@ public class NettyResponse implements NativeResponse {
 
   @Override
   public boolean committed() {
-    if (ctx == null) {
-      return true;
-    }
-    if (out != null) {
-      return out.committed();
-    }
-    return false;
+    return committed;
   }
 
   @Override
@@ -120,21 +203,16 @@ public class NettyResponse implements NativeResponse {
         status = HttpResponseStatus.SWITCHING_PROTOCOLS;
         ws.get().hankshake();
         ctx = null;
+        committed = true;
         return;
       }
-      if (out == null) {
-        DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status);
+      if (!committed) {
+        DefaultHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status);
+        // dump headers
         rsp.headers().set(headers);
-        if (headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
-          if (keepAlive) {
-            ctx.write(rsp);
-          } else {
-            ctx.write(rsp).addListener(ChannelFutureListener.CLOSE);
-          }
-        } else {
-          ctx.write(rsp).addListener(ChannelFutureListener.CLOSE);
-        }
+        keepAlive(ctx.writeAndFlush(rsp));
       }
+      committed = true;
       ctx = null;
     }
   }
@@ -143,9 +221,6 @@ public class NettyResponse implements NativeResponse {
   public void reset() {
     headers.clear();
     status = HttpResponseStatus.OK;
-    if (out != null) {
-      out.reset();
-    }
   }
 
 }

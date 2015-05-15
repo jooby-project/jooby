@@ -23,10 +23,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Optional;
 
@@ -65,11 +62,6 @@ public interface Response {
     @Override
     public void download(final String filename, final InputStream stream) throws Exception {
       rsp.download(filename, stream);
-    }
-
-    @Override
-    public void download(final String filename, final Reader reader) throws Exception {
-      rsp.download(filename, reader);
     }
 
     @Override
@@ -255,17 +247,6 @@ public interface Response {
   /**
    * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
    * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
-   * appear in the browser dialog) is set to filename.
-   *
-   * @param filename A file name to use.
-   * @param reader A reader to attach.
-   * @throws Exception If something goes wrong.
-   */
-  void download(String filename, Reader reader) throws Exception;
-
-  /**
-   * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
-   * download. The <code>Content-Disposition</code> "filename=" parameter (i.e. the one that will
    * appear in the browser dialog) is set to filename by default.
    *
    * @param location Classpath location of the file.
@@ -295,11 +276,7 @@ public interface Response {
         .orElse(MediaType.octetstream));
     type(type().orElseGet(() -> type));
 
-    if (type.isText()) {
-      download(filename, new InputStreamReader(stream, charset()));
-    } else {
-      download(filename, stream);
-    }
+    download(filename, stream);
   }
 
   /**
@@ -311,13 +288,8 @@ public interface Response {
    * @throws Exception If something goes wrong.
    */
   default void download(final File file) throws Exception {
-    MediaType type = MediaType.byFile(file).orElse(MediaType.octetstream);
     header("Content-Length", file.length());
-    if (type.isText()) {
-      download(file.getName(), new FileReader(file));
-    } else {
-      download(file.getName(), new FileInputStream(file));
-    }
+    download(file.getName(), new FileInputStream(file));
   }
 
   /**
@@ -650,6 +622,7 @@ public interface Response {
    * method per each request/response cycle.
    *
    * It's recommended for quickly ending the response without any data:
+   *
    * <pre>
    *   rsp.status(304).end();
    * </pre>

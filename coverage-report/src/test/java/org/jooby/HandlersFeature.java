@@ -42,7 +42,7 @@ public class HandlersFeature extends ServerFeature {
 
     renderer((object, ctx) -> {
       if (ctx.accepts("text/plain")) {
-        ctx.text(w -> w.write(object.toString()));
+        ctx.send(object.toString());
       }
     });
     get("/id", "/id/:id", req ->

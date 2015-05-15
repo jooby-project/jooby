@@ -82,8 +82,6 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private Set<Definition> socketDefs;
 
-  private int maxBufferSize;
-
   private Config config;
 
   @Inject
@@ -100,7 +98,6 @@ public class HttpHandlerImpl implements HttpHandler {
     this.applicationPath = normalizeURI(requireNonNull(path, "An application.path is required."));
     this.err = requireNonNull(err, "An err handler is required.");
     this.config = injector.getInstance(Config.class);
-    this.maxBufferSize = config.getBytes("server.http.ResponseBufferSize").intValue();
   }
 
   @Override
@@ -136,7 +133,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
     RequestImpl req = new RequestImpl(injector, request, notFound, scope, locals);
 
-    ResponseImpl rsp = new ResponseImpl(injector, response, maxBufferSize, notFound, locals,
+    ResponseImpl rsp = new ResponseImpl(injector, response, notFound, locals,
         req.charset(), request.header("Referer"));
 
     MediaType type = req.type();

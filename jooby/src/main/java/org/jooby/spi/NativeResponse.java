@@ -18,8 +18,9 @@
  */
 package org.jooby.spi;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,21 +65,13 @@ public interface NativeResponse {
    */
   void header(String name, String value);
 
-  /**
-   * Get an output stream and prepare to send a response. You need to make sure status and headers
-   * are set before calling this method. Attempt to set status and headers after calling output
-   * stream if undefined and might result in error or just ignored.
-   *
-   * @param bufferSize The preferred buffer size for sending a response. Default buffer size is:
-   *        <code>16k</code>. Default buffer size by setting the:
-   *        <code>server.http.ResponseBufferSize</code> property in your <code>*.conf</code>
-   *        property file.
-   *        If the <code>Content-Length</code> header was set and it is less than buffer size, the
-   *        the <code>Content-Length</code> will be used it as buffer size.
-   * @return An output stream.
-   * @throws IOException If output stream can be acquire it.
-   */
-  OutputStream out(int bufferSize) throws IOException;
+  void send(byte[] bytes) throws Exception;
+
+  void send(ByteBuffer buffer) throws Exception;
+
+  void send(InputStream stream) throws Exception;
+
+  void send(FileChannel channel) throws Exception;
 
   /**
    * @return HTTP response status.

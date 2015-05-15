@@ -15,6 +15,7 @@ public class AssetFeature extends ServerFeature {
         .get("/assets/file.js")
         .expect(200)
         .header("Content-Type", "application/javascript;charset=UTF-8")
+        .header("Content-Length", 15)
         .header("Last-Modified", lastModified -> {
           request()
               .get("/assets/file.js")
@@ -30,9 +31,10 @@ public class AssetFeature extends ServerFeature {
         .get("/assets/file.css")
         .expect(200)
         .header("Content-Type", "text/css;charset=UTF-8")
+        .header("Content-Length", 22)
         .header("Last-Modified", lastModified -> {
           request()
-              .get("/assets/file.js")
+              .get("/assets/file.css")
               .header("If-Modified-Since", lastModified)
               .expect(304)
               .empty();
@@ -45,9 +47,26 @@ public class AssetFeature extends ServerFeature {
         .get("/assets/favicon.ico")
         .expect(200)
         .header("Content-Type", "image/x-icon")
+        .header("Content-Length", 2238)
         .header("Last-Modified", lastModified -> {
           request()
               .get("/assets/favicon.ico")
+              .header("If-Modified-Since", lastModified)
+              .expect(304)
+              .empty();
+        });
+  }
+
+  @Test
+  public void emptyFile() throws Exception {
+    request()
+        .get("/assets/empty.css")
+        .expect(200)
+        .header("Content-Type", "text/css;charset=UTF-8")
+        .header("Content-Length", 0)
+        .header("Last-Modified", lastModified -> {
+          request()
+              .get("/assets/empty.css")
               .header("If-Modified-Since", lastModified)
               .expect(304)
               .empty();

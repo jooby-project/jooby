@@ -1,10 +1,8 @@
 package org.jooby.internal;
 
-import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.expectLastCall;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,15 +12,7 @@ import org.jooby.MockUnit;
 import org.jooby.MockUnit.Block;
 import org.jooby.Renderer;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({BuiltinRenderer.class, ByteStreams.class, Closeables.class })
 public class BytesRendererTest {
 
   private Block defaultType = unit -> {
@@ -30,31 +20,18 @@ public class BytesRendererTest {
     expect(ctx.type(MediaType.octetstream)).andReturn(ctx);
   };
 
-  private Block closeStream = unit -> {
-    InputStream in = unit.get(InputStream.class);
-    unit.mockStatic(Closeables.class);
-    Closeables.closeQuietly(in);
-  };
-
   @Test
   public void render() throws Exception {
     byte[] bytes = "bytes".getBytes();
-    new MockUnit(Renderer.Context.class, OutputStream.class)
+    new MockUnit(Renderer.Context.class)
         .expect(defaultType)
         .expect(unit -> {
           Renderer.Context ctx = unit.get(Renderer.Context.class);
-          ctx.bytes(unit.capture(Renderer.Bytes.class));
-
-          unit.mockStatic(ByteStreams.class);
-          expect(ByteStreams.copy(isA(ByteArrayInputStream.class),
-              eq(unit.get(OutputStream.class)))).andReturn(0L);
+          ctx.send(bytes);
         })
         .run(unit -> {
           BuiltinRenderer.Bytes
               .render(bytes, unit.get(Renderer.Context.class));
-        }, unit -> {
-          unit.captured(Renderer.Bytes.class).iterator().next()
-              .write(unit.get(OutputStream.class));
         });
   }
 
@@ -84,21 +61,13 @@ public class BytesRendererTest {
         .expect(defaultType)
         .expect(unit -> {
           Renderer.Context ctx = unit.get(Renderer.Context.class);
-          ctx.bytes(unit.capture(Renderer.Bytes.class));
+          ctx.send(bytes);
+          expectLastCall().andThrow(new IOException("intentational err"));
 
-          unit.mockStatic(ByteStreams.class);
-
-          unit.mockStatic(ByteStreams.class);
-          expect(ByteStreams.copy(isA(ByteArrayInputStream.class),
-              eq(unit.get(OutputStream.class)))).andThrow(new IOException("intentational err"));
         })
-        .expect(closeStream)
         .run(unit -> {
           BuiltinRenderer.Bytes
               .render(bytes, unit.get(Renderer.Context.class));
-        }, unit -> {
-          unit.captured(Renderer.Bytes.class).iterator().next()
-              .write(unit.get(OutputStream.class));
         });
   }
 

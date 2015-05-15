@@ -7,8 +7,6 @@ import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.google.common.io.CharSink;
-
 public class BodyParamFeature extends ServerFeature {
 
   private static class Bean {
@@ -46,12 +44,7 @@ public class BodyParamFeature extends ServerFeature {
 
     renderer((object, ctx) -> {
       if (ctx.accepts("json") && object instanceof Bean) {
-        ctx.text(out -> new CharSink() {
-          @Override
-          public java.io.Writer openStream() throws IOException {
-            return out;
-          }
-        }.write(object.toString()));
+        ctx.send(object.toString());
       }
     });
 

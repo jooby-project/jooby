@@ -75,7 +75,7 @@ public class AssetHandler implements Route.Filter {
       rsp.length(length);
     }
     rsp.type(resource.type());
-    rsp.send(resource);
+    rsp.send(resource.stream());
   }
 
   private Asset resolve(final Request req, final String path) throws Exception {

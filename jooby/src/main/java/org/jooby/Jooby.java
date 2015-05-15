@@ -80,14 +80,12 @@ import javax.inject.Singleton;
 
 import org.jooby.Session.Store;
 import org.jooby.internal.AppPrinter;
-import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.LifecycleProcessor;
 import org.jooby.internal.LocaleUtils;
-import org.jooby.internal.RendererExecutor;
 import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.ServerLookup;
@@ -486,9 +484,6 @@ public class Jooby {
   /** Session store. */
   private Session.Definition session = new Session.Definition(Session.Mem.class);
 
-  /** Flag to control the addition of the asset formatter. */
-  private boolean assetFormatter = false;
-
   /** Env builder. */
   private Env.Builder env = Env.DEFAULT;
 
@@ -501,10 +496,7 @@ public class Jooby {
    */
   public Jooby use(final Jooby app) {
     requireNonNull(app, "App is required.");
-    if (!assetFormatter && app.assetFormatter) {
-      this.assetFormatter = true;
-      renderer(new AssetFormatter());
-    }
+
     app.bag.forEach(c -> {
       if (!(c instanceof Jooby.Module)) {
         this.bag.add(c);
@@ -2528,10 +2520,6 @@ public class Jooby {
    * @return A new route definition.
    */
   public Route.Definition assets(final String path, final String location) {
-    if (!assetFormatter) {
-      bag.add(new AssetFormatter());
-      assetFormatter = true;
-    }
     return get(path, new AssetHandler(location, getClass()));
   }
 
@@ -2867,14 +2855,13 @@ public class Jooby {
         binder.bind(ParserExecutor.class).in(Singleton.class);
 
         // renderer
-        renderers.addBinding().toInstance(BuiltinRenderer.Readable);
         renderers.addBinding().toInstance(BuiltinRenderer.InputStream);
         renderers.addBinding().toInstance(BuiltinRenderer.Bytes);
         renderers.addBinding().toInstance(BuiltinRenderer.ByteBuffer);
+        renderers.addBinding().toInstance(BuiltinRenderer.File);
         renderers.addBinding().toInstance(BuiltinRenderer.ToString);
 
         binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
-        binder.bind(RendererExecutor.class).in(Singleton.class);
 
         RequestScope requestScope = new RequestScope();
         binder.bind(RequestScope.class).toInstance(requestScope);

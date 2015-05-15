@@ -37,7 +37,6 @@ import org.jooby.MediaType;
 import org.jooby.Parser;
 import org.jooby.Renderer;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -45,7 +44,6 @@ import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
@@ -130,42 +128,6 @@ public class Jackson implements Jooby.Module {
 
   }
 
-  private static class BodyHandler implements Parser, Renderer {
-
-    private ObjectMapper mapper;
-    private List<MediaType> types;
-    private MediaType.Matcher matcher;
-
-    public BodyHandler(final ObjectMapper mapper, final List<MediaType> types) {
-      this.mapper = mapper;
-      this.types = types;
-      this.matcher = MediaType.matcher(types);
-    }
-
-    @Override
-    public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
-      JavaType javaType = mapper.constructType(type.getType());
-      if (matcher.matches(ctx.type()) && mapper.canDeserialize(javaType)) {
-        return ctx.body(body -> mapper.readValue(body.bytes(), javaType));
-      }
-      return ctx.next();
-    }
-
-    @Override
-    public void render(final Object object, final Renderer.Context ctx) throws Exception {
-      if (ctx.accepts(types) && mapper.canSerialize(object.getClass())) {
-        ctx.type(types.get(0));
-        ctx.text(out -> mapper.writeValue(out, object));
-      }
-    }
-
-    @Override
-    public String toString() {
-      return "json";
-    }
-
-  }
-
   private final ObjectMapper mapper;
 
   private final Set<Module> modules = new LinkedHashSet<>();
@@ -218,20 +180,21 @@ public class Jackson implements Jooby.Module {
     // Jackson Configurer (like a post construct)
     binder.bind(PostConfigurer.class).asEagerSingleton();
 
-    // json body parser & formatter
-    BodyHandler json = new BodyHandler(mapper, types);
+    // json parser & renderer
+    JacksonParser parser = new JacksonParser(mapper, types);
+    JacksonRenderer renderer = new JacksonRenderer(mapper, types);
 
     Multibinder.newSetBinder(binder, Renderer.class)
         .addBinding()
-        .toInstance(json);
+        .toInstance(renderer);
 
     Multibinder.newSetBinder(binder, Parser.class)
         .addBinding()
-        .toInstance(json);
+        .toInstance(parser);
 
     // direct access?
-    binder.bind(Key.get(Renderer.class, Names.named(json.toString()))).toInstance(json);
-    binder.bind(Key.get(Parser.class, Names.named(json.toString()))).toInstance(json);
+    binder.bind(Key.get(Renderer.class, Names.named(renderer.toString()))).toInstance(renderer);
+    binder.bind(Key.get(Parser.class, Names.named(parser.toString()))).toInstance(parser);
 
   }
 

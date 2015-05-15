@@ -1,6 +1,7 @@
 package org.jooby.internal;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,14 +12,7 @@ import org.jooby.MockUnit;
 import org.jooby.MockUnit.Block;
 import org.jooby.Renderer;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.io.ByteStreams;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({BuiltinRenderer.class, ByteStreams.class})
 public class InputStreamRendererTest {
 
   private Block defaultType = unit -> {
@@ -26,30 +20,17 @@ public class InputStreamRendererTest {
     expect(ctx.type(MediaType.octetstream)).andReturn(ctx);
   };
 
-  private Block closeStream = unit -> {
-    InputStream in = unit.get(InputStream.class);
-    in.close();;
-  };
-
   @Test
   public void render() throws Exception {
-    new MockUnit(Renderer.Context.class, InputStream.class, OutputStream.class)
+    new MockUnit(Renderer.Context.class, InputStream.class)
         .expect(defaultType)
         .expect(unit -> {
           Renderer.Context ctx = unit.get(Renderer.Context.class);
-          ctx.bytes(unit.capture(Renderer.Bytes.class));
-
-          unit.mockStatic(ByteStreams.class);
-          expect(ByteStreams.copy(unit.get(InputStream.class), unit.get(OutputStream.class)))
-              .andReturn(0L);
+          ctx.send(unit.get(InputStream.class));
         })
-        .expect(closeStream)
         .run(unit -> {
           BuiltinRenderer.InputStream
               .render(unit.get(InputStream.class), unit.get(Renderer.Context.class));
-        }, unit -> {
-          unit.captured(Renderer.Bytes.class).iterator().next()
-              .write(unit.get(OutputStream.class));
         });
   }
 
@@ -68,19 +49,12 @@ public class InputStreamRendererTest {
         .expect(defaultType)
         .expect(unit -> {
           Renderer.Context ctx = unit.get(Renderer.Context.class);
-          ctx.bytes(unit.capture(Renderer.Bytes.class));
-
-          unit.mockStatic(ByteStreams.class);
-          expect(ByteStreams.copy(unit.get(InputStream.class), unit.get(OutputStream.class)))
-              .andThrow(new IOException("intentational err"));
+          ctx.send(unit.get(InputStream.class));
+          expectLastCall().andThrow(new IOException("intentational err"));
         })
-        .expect(closeStream)
         .run(unit -> {
           BuiltinRenderer.InputStream
               .render(unit.get(InputStream.class), unit.get(Renderer.Context.class));
-        }, unit -> {
-          unit.captured(Renderer.Bytes.class).iterator().next()
-              .write(unit.get(OutputStream.class));
         });
   }
 

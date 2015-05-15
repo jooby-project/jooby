@@ -30,7 +30,6 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
 import org.jooby.MediaType;
 import org.jooby.servlet.ServletServletRequest;
-import org.jooby.servlet.ServletServletResponse;
 import org.jooby.servlet.ServletUpgrade;
 import org.jooby.spi.HttpHandler;
 import org.jooby.spi.NativeWebSocket;
@@ -95,7 +94,7 @@ public class JettyHandler extends AbstractHandler {
                   throw new UnsupportedOperationException("Not Supported: " + type);
                 }
               }),
-          new ServletServletResponse(response)
+          new JettyResponse(response)
           );
     } catch (IOException | ServletException | RuntimeException ex) {
       baseRequest.setHandled(false);

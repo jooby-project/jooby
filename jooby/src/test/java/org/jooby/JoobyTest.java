@@ -9,6 +9,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -28,12 +29,10 @@ import javax.inject.Singleton;
 import org.jooby.Session.Definition;
 import org.jooby.Session.Store;
 import org.jooby.internal.AppPrinter;
-import org.jooby.internal.AssetFormatter;
 import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.LifecycleProcessor;
-import org.jooby.internal.RendererExecutor;
 import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
@@ -159,12 +158,14 @@ public class JoobyTest {
     binding.toInstance(isA(Env.class));
 
     expect(binder.bind(Env.class)).andReturn(binding);
+
   };
 
   private MockUnit.Block classInfo = unit -> {
     Binder binder = unit.get(Binder.class);
 
-    AnnotatedBindingBuilder<ParameterNameProvider> binding = unit.mock(AnnotatedBindingBuilder.class);
+    AnnotatedBindingBuilder<ParameterNameProvider> binding = unit
+        .mock(AnnotatedBindingBuilder.class);
     binding.toInstance(isA(RouteMetadata.class));
 
     expect(binder.bind(ParameterNameProvider.class)).andReturn(binding);
@@ -241,9 +242,6 @@ public class JoobyTest {
 
     expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
 
-    LinkedBindingBuilder<Renderer> formatReader = unit.mock(LinkedBindingBuilder.class);
-    formatReader.toInstance(BuiltinRenderer.Readable);
-
     LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
     formatStream.toInstance(BuiltinRenderer.InputStream);
 
@@ -253,20 +251,18 @@ public class JoobyTest {
     LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
     formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
 
+    LinkedBindingBuilder<Renderer> file = unit.mock(LinkedBindingBuilder.class);
+    file.toInstance(BuiltinRenderer.File);
+
     LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
     formatAny.toInstance(BuiltinRenderer.ToString);
 
-    expect(multibinder.addBinding()).andReturn(formatReader);
     expect(multibinder.addBinding()).andReturn(formatStream);
     expect(multibinder.addBinding()).andReturn(formatByteArray);
     expect(multibinder.addBinding()).andReturn(formatByteBuffer);
+    expect(multibinder.addBinding()).andReturn(file);
 
     expect(multibinder.addBinding()).andReturn(formatAny);
-
-    AnnotatedBindingBuilder<RendererExecutor> abbre = unit.mock(AnnotatedBindingBuilder.class);
-    abbre.in(Singleton.class);
-
-    expect(binder.bind(RendererExecutor.class)).andReturn(abbre);
 
   };
 
@@ -327,7 +323,7 @@ public class JoobyTest {
     ScopedBindingBuilder ssSBB = unit.mock(ScopedBindingBuilder.class);
     ssSBB.asEagerSingleton();
 
-    AnnotatedBindingBuilder<Store> ssABB= unit.mock(AnnotatedBindingBuilder.class);
+    AnnotatedBindingBuilder<Store> ssABB = unit.mock(AnnotatedBindingBuilder.class);
     expect(ssABB.to(Session.Mem.class)).andReturn(ssSBB);
 
     expect(binder.bind(SessionManager.class)).andReturn(smABB);
@@ -481,60 +477,65 @@ public class JoobyTest {
     expect(injector.getAllBindings()).andReturn(bindings);
 
     binder.bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
+
   };
 
   @Test
   public void applicationSecret() throws Exception {
 
     new MockUnit(Binder.class)
-        .expect(unit -> {
-          Server server = unit.mock(Server.class);
-          server.start();
-          server.join();
-          server.stop();
+        .expect(
+            unit -> {
+              Server server = unit.mock(Server.class);
+              server.start();
+              server.join();
+              server.stop();
 
-          ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
-          serverScope.in(Singleton.class);
-          expectLastCall().times(0, 1);
+              ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
+              serverScope.in(Singleton.class);
+              expectLastCall().times(0, 1);
 
-          AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
-          expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
+              AnnotatedBindingBuilder<Server> serverBinding = unit
+                  .mock(AnnotatedBindingBuilder.class);
+              expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
 
-          Binder binder = unit.get(Binder.class);
-          expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
+              Binder binder = unit.get(Binder.class);
+              expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
-          AppPrinter printer = unit.mock(AppPrinter.class);
+              AppPrinter printer = unit.mock(AppPrinter.class);
 
-          ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
-          expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+              ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
+              expect(configOrigin.description()).andReturn("test.conf, mock.conf");
 
-          Config config = unit.mock(Config.class);
-          expect(config.getString("application.env")).andReturn("dev");
-          expect(config.hasPath("server.join")).andReturn(true);
-          expect(config.getBoolean("server.join")).andReturn(true);
-          expect(config.origin()).andReturn(configOrigin);
+              Config config = unit.mock(Config.class);
+              expect(config.getString("application.env")).andReturn("dev");
+              expect(config.hasPath("server.join")).andReturn(true);
+              expect(config.getBoolean("server.join")).andReturn(true);
+              expect(config.origin()).andReturn(configOrigin);
 
-          Injector injector = unit.mock(Injector.class);
-          expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
-          expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
-          expect(injector.getInstance(Config.class)).andReturn(config);
+              Injector injector = unit.mock(Injector.class);
+              expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
+              expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
+              expect(injector.getInstance(Config.class)).andReturn(config);
 
-          unit.mockStatic(Guice.class);
-          expect(Guice.createInjector(eq(Stage.PRODUCTION), unit.capture(Module.class))).andReturn(
-              injector);
+              unit.mockStatic(Guice.class);
+              expect(Guice.createInjector(eq(Stage.PRODUCTION), unit.capture(Module.class)))
+                  .andReturn(
+                      injector);
 
-          unit.mockStatic(OptionalBinder.class);
+              unit.mockStatic(OptionalBinder.class);
 
-          TypeConverters tc = unit.mockConstructor(TypeConverters.class);
-          tc.configure(binder);
+              TypeConverters tc = unit.mockConstructor(TypeConverters.class);
+              tc.configure(binder);
 
-          Map<Key<?>, Binding<?>> bindings = unit.mock(Map.class);
-          expect(bindings.values()).andReturn(Collections.emptyList());
+              Map<Key<?>, Binding<?>> bindings = unit.mock(Map.class);
+              expect(bindings.values()).andReturn(Collections.emptyList());
 
-          expect(injector.getAllBindings()).andReturn(bindings);
+              expect(injector.getAllBindings()).andReturn(bindings);
 
-          binder.bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
-        })
+              binder.bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
+
+            })
         .expect(shutdown)
         .expect(config)
         .expect(env)
@@ -656,17 +657,20 @@ public class JoobyTest {
   public void noInjector() throws Exception {
 
     new MockUnit(Binder.class, Jooby.Module.class)
-        .expect(unit -> {
-          ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
-          serverScope.in(Singleton.class);
-          expectLastCall().times(0, 1);
+        .expect(
+            unit -> {
+              ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
+              serverScope.in(Singleton.class);
+              expectLastCall().times(0, 1);
 
-          AnnotatedBindingBuilder<Server> serverBinding = unit.mock(AnnotatedBindingBuilder.class);
-          expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
+              AnnotatedBindingBuilder<Server> serverBinding = unit
+                  .mock(AnnotatedBindingBuilder.class);
+              expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
 
-          Binder binder = unit.get(Binder.class);
-          expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
-        })
+              Binder binder = unit.get(Binder.class);
+              expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
+
+            })
         .expect(unit -> {
           unit.mockStatic(Guice.class);
           expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
@@ -678,6 +682,7 @@ public class JoobyTest {
           tc.configure(unit.get(Binder.class));
 
           unit.get(Binder.class).bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
+
         })
         .expect(shutdown)
         .expect(config)
@@ -767,58 +772,58 @@ public class JoobyTest {
   public void stopOnServerFailure() throws Exception {
 
     new MockUnit(Binder.class)
-        .expect(
-            unit -> {
-              Server server = unit.mock(Server.class);
-              server.start();
-              server.join();
-              server.stop();
-              expectLastCall().andThrow(new Exception());
+        .expect(unit -> {
+          Server server = unit.mock(Server.class);
+          server.start();
+          server.join();
+          server.stop();
+          expectLastCall().andThrow(new Exception());
 
-              ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
-              serverScope.in(Singleton.class);
-              expectLastCall().times(0, 1);
+          ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
+          serverScope.in(Singleton.class);
+          expectLastCall().times(0, 1);
 
-              AnnotatedBindingBuilder<Server> serverBinding = unit
-                  .mock(AnnotatedBindingBuilder.class);
-              expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
+          AnnotatedBindingBuilder<Server> serverBinding = unit
+              .mock(AnnotatedBindingBuilder.class);
+          expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
 
-              Binder binder = unit.get(Binder.class);
-              expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
+          Binder binder = unit.get(Binder.class);
+          expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
-              AppPrinter printer = unit.mock(AppPrinter.class);
+          AppPrinter printer = unit.mock(AppPrinter.class);
 
-              ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
-              expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+          ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
+          expect(configOrigin.description()).andReturn("test.conf, mock.conf");
 
-              Config config = unit.mock(Config.class);
-              expect(config.getString("application.env")).andReturn("dev");
-              expect(config.hasPath("server.join")).andReturn(true);
-              expect(config.getBoolean("server.join")).andReturn(true);
-              expect(config.origin()).andReturn(configOrigin);
+          Config config = unit.mock(Config.class);
+          expect(config.getString("application.env")).andReturn("dev");
+          expect(config.hasPath("server.join")).andReturn(true);
+          expect(config.getBoolean("server.join")).andReturn(true);
+          expect(config.origin()).andReturn(configOrigin);
 
-              Injector injector = unit.mock(Injector.class);
-              expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
-              expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
-              expect(injector.getInstance(Config.class)).andReturn(config);
+          Injector injector = unit.mock(Injector.class);
+          expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
+          expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
+          expect(injector.getInstance(Config.class)).andReturn(config);
 
-              unit.mockStatic(Guice.class);
-              expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
-                  .andReturn(
-                      injector);
+          unit.mockStatic(Guice.class);
+          expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
+              .andReturn(
+                  injector);
 
-              unit.mockStatic(OptionalBinder.class);
+          unit.mockStatic(OptionalBinder.class);
 
-              TypeConverters tc = unit.mockConstructor(TypeConverters.class);
-              tc.configure(binder);
+          TypeConverters tc = unit.mockConstructor(TypeConverters.class);
+          tc.configure(binder);
 
-              Map<Key<?>, Binding<?>> bindings = unit.mock(Map.class);
-              expect(bindings.values()).andReturn(Collections.emptyList());
+          Map<Key<?>, Binding<?>> bindings = unit.mock(Map.class);
+          expect(bindings.values()).andReturn(Collections.emptyList());
 
-              expect(injector.getAllBindings()).andReturn(bindings);
+          expect(injector.getAllBindings()).andReturn(bindings);
 
-              binder.bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
-            })
+          binder.bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
+
+        })
         .expect(shutdown)
         .expect(config)
         .expect(env)
@@ -1773,44 +1778,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(unit -> {
-          Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
-
-          Binder binder = unit.get(Binder.class);
-
-          unit.mockStatic(Multibinder.class);
-          expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
-
-          LinkedBindingBuilder<Renderer> formatReader = unit.mock(LinkedBindingBuilder.class);
-          formatReader.toInstance(BuiltinRenderer.Readable);
-
-          LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
-          formatStream.toInstance(BuiltinRenderer.InputStream);
-
-          LinkedBindingBuilder<Renderer> formatString = unit.mock(LinkedBindingBuilder.class);
-          formatString.toInstance(BuiltinRenderer.ToString);
-
-          LinkedBindingBuilder<Renderer> assetFormatter = unit.mock(LinkedBindingBuilder.class);
-          assetFormatter.toInstance(isA(AssetFormatter.class));
-
-          LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
-          formatByteArray.toInstance(BuiltinRenderer.Bytes);
-
-          LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
-          formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
-
-          expect(multibinder.addBinding()).andReturn(assetFormatter);
-          expect(multibinder.addBinding()).andReturn(formatReader);
-          expect(multibinder.addBinding()).andReturn(formatStream);
-          expect(multibinder.addBinding()).andReturn(formatByteArray);
-          expect(multibinder.addBinding()).andReturn(formatByteBuffer);
-          expect(multibinder.addBinding()).andReturn(formatString);
-
-          AnnotatedBindingBuilder<RendererExecutor> abbre = unit.mock(AnnotatedBindingBuilder.class);
-          abbre.in(Singleton.class);
-
-          expect(binder.bind(RendererExecutor.class)).andReturn(abbre);
-        })
+        .expect(bodyFormatter)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1845,7 +1813,7 @@ public class JoobyTest {
                   .andReturn(rsp);
               expect(rsp.type(MediaType.js)).andReturn(rsp);
               expect(rsp.length(20)).andReturn(rsp);
-              rsp.send(unit.capture(Asset.class));
+              rsp.send(isA(InputStream.class));
             })
         .run(unit -> {
           Jooby jooby = new Jooby();
@@ -1867,9 +1835,6 @@ public class JoobyTest {
               unit.get(Route.Chain.class));
 
         }, boot, unit -> {
-          Asset asset = unit.captured(Asset.class).iterator().next();
-          assertTrue(asset.name().equals(("JoobyTest.js")));
-        }, unit -> {
           List<Route.Definition> found = unit.captured(Route.Definition.class);
           assertEquals(expected, found);
         });
@@ -2075,26 +2040,29 @@ public class JoobyTest {
         .expect(numberFormat)
         .expect(decimalFormat)
         .expect(bodyFormatter)
-        .expect(unit -> {
-          Binder binder = unit.get(Binder.class);
+        .expect(
+            unit -> {
+              Binder binder = unit.get(Binder.class);
 
-          AnnotatedBindingBuilder<SessionManager> smABB = unit.mock(AnnotatedBindingBuilder.class);
-          smABB.asEagerSingleton();
+              AnnotatedBindingBuilder<SessionManager> smABB = unit
+                  .mock(AnnotatedBindingBuilder.class);
+              smABB.asEagerSingleton();
 
-          ScopedBindingBuilder ssSBB = unit.mock(ScopedBindingBuilder.class);
-          ssSBB.asEagerSingleton();
+              ScopedBindingBuilder ssSBB = unit.mock(ScopedBindingBuilder.class);
+              ssSBB.asEagerSingleton();
 
-          AnnotatedBindingBuilder<Store> ssABB= unit.mock(AnnotatedBindingBuilder.class);
-          expect(ssABB.to(unit.get(Session.Store.class).getClass())).andReturn(ssSBB);
+              AnnotatedBindingBuilder<Store> ssABB = unit.mock(AnnotatedBindingBuilder.class);
+              expect(ssABB.to(unit.get(Session.Store.class).getClass())).andReturn(ssSBB);
 
-          expect(binder.bind(SessionManager.class)).andReturn(smABB);
-          expect(binder.bind(Session.Store.class)).andReturn(ssABB);
+              expect(binder.bind(SessionManager.class)).andReturn(smABB);
+              expect(binder.bind(Session.Store.class)).andReturn(ssABB);
 
-          AnnotatedBindingBuilder<Session.Definition> sdABB = unit.mock(AnnotatedBindingBuilder.class);
-          sdABB.toInstance(unit.capture(Session.Definition.class));
+              AnnotatedBindingBuilder<Session.Definition> sdABB = unit
+                  .mock(AnnotatedBindingBuilder.class);
+              sdABB.toInstance(unit.capture(Session.Definition.class));
 
-          expect(binder.bind(Session.Definition.class)).andReturn(sdABB);
-        })
+              expect(binder.bind(Session.Definition.class)).andReturn(sdABB);
+            })
         .expect(routes)
         .expect(routeHandler)
         .expect(params)
@@ -2133,44 +2101,44 @@ public class JoobyTest {
         .expect(numberFormat)
         .expect(decimalFormat)
         .expect(session)
-        .expect(unit -> {
-          Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
+        .expect(
+            unit -> {
+              Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
 
-          Binder binder = unit.get(Binder.class);
+              Binder binder = unit.get(Binder.class);
 
-          unit.mockStatic(Multibinder.class);
-          expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
+              unit.mockStatic(Multibinder.class);
+              expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
 
-          LinkedBindingBuilder<Renderer> formatReader = unit.mock(LinkedBindingBuilder.class);
-          formatReader.toInstance(BuiltinRenderer.Readable);
+              LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
+              formatStream.toInstance(BuiltinRenderer.InputStream);
 
-          LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
-          formatStream.toInstance(BuiltinRenderer.InputStream);
+              LinkedBindingBuilder<Renderer> formatString = unit.mock(LinkedBindingBuilder.class);
+              formatString.toInstance(BuiltinRenderer.ToString);
 
-          LinkedBindingBuilder<Renderer> formatString = unit.mock(LinkedBindingBuilder.class);
-          formatString.toInstance(BuiltinRenderer.ToString);
+              LinkedBindingBuilder<Renderer> customFormatter = unit
+                  .mock(LinkedBindingBuilder.class);
+              customFormatter.toInstance(unit.get(Renderer.class));
 
-          LinkedBindingBuilder<Renderer> customFormatter = unit.mock(LinkedBindingBuilder.class);
-          customFormatter.toInstance(unit.get(Renderer.class));
+              LinkedBindingBuilder<Renderer> formatByteArray = unit
+                  .mock(LinkedBindingBuilder.class);
+              formatByteArray.toInstance(BuiltinRenderer.Bytes);
 
-          LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
-          formatByteArray.toInstance(BuiltinRenderer.Bytes);
+              LinkedBindingBuilder<Renderer> formatByteBuffer = unit
+                  .mock(LinkedBindingBuilder.class);
+              formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
 
-          LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
-          formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
+              LinkedBindingBuilder<Renderer> file = unit.mock(LinkedBindingBuilder.class);
+              file.toInstance(BuiltinRenderer.File);
 
-          expect(multibinder.addBinding()).andReturn(customFormatter);
-          expect(multibinder.addBinding()).andReturn(formatReader);
-          expect(multibinder.addBinding()).andReturn(formatStream);
-          expect(multibinder.addBinding()).andReturn(formatByteArray);
-          expect(multibinder.addBinding()).andReturn(formatByteBuffer);
-          expect(multibinder.addBinding()).andReturn(formatString);
+              expect(multibinder.addBinding()).andReturn(customFormatter);
+              expect(multibinder.addBinding()).andReturn(formatStream);
+              expect(multibinder.addBinding()).andReturn(formatByteArray);
+              expect(multibinder.addBinding()).andReturn(formatByteBuffer);
+              expect(multibinder.addBinding()).andReturn(file);
+              expect(multibinder.addBinding()).andReturn(formatString);
 
-          AnnotatedBindingBuilder<RendererExecutor> abbre = unit.mock(AnnotatedBindingBuilder.class);
-          abbre.in(Singleton.class);
-
-          expect(binder.bind(RendererExecutor.class)).andReturn(abbre);
-        })
+            })
         .expect(routes)
         .expect(routeHandler)
         .expect(params)
@@ -2462,42 +2430,39 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(unit -> {
-          Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
+        .expect(
+            unit -> {
+              Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
 
-          Binder binder = unit.get(Binder.class);
-          unit.mockStatic(Multibinder.class);
+              Binder binder = unit.get(Binder.class);
+              unit.mockStatic(Multibinder.class);
 
-          expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
+              expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
 
-          LinkedBindingBuilder<Renderer> formatReader = unit.mock(LinkedBindingBuilder.class);
-          formatReader.toInstance(BuiltinRenderer.Readable);
+              LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
+              formatStream.toInstance(BuiltinRenderer.InputStream);
 
-          LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
-          formatStream.toInstance(BuiltinRenderer.InputStream);
+              LinkedBindingBuilder<Renderer> formatByteArray = unit
+                  .mock(LinkedBindingBuilder.class);
+              formatByteArray.toInstance(BuiltinRenderer.Bytes);
 
-          LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
-          formatByteArray.toInstance(BuiltinRenderer.Bytes);
+              LinkedBindingBuilder<Renderer> formatByteBuffer = unit
+                  .mock(LinkedBindingBuilder.class);
+              formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
 
-          LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
-          formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
+              LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
+              formatAny.toInstance(BuiltinRenderer.ToString);
 
-          LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
-          formatAny.toInstance(BuiltinRenderer.ToString);
+              LinkedBindingBuilder<Renderer> file = unit.mock(LinkedBindingBuilder.class);
+              file.toInstance(BuiltinRenderer.File);
 
-          expect(multibinder.addBinding()).andReturn(formatReader);
-          expect(multibinder.addBinding()).andReturn(formatStream);
-          expect(multibinder.addBinding()).andReturn(formatByteArray);
-          expect(multibinder.addBinding()).andReturn(formatByteBuffer);
+              expect(multibinder.addBinding()).andReturn(formatStream);
+              expect(multibinder.addBinding()).andReturn(formatByteArray);
+              expect(multibinder.addBinding()).andReturn(formatByteBuffer);
+              expect(multibinder.addBinding()).andReturn(file);
+              expect(multibinder.addBinding()).andReturn(formatAny);
 
-          expect(multibinder.addBinding()).andReturn(formatAny);
-
-          AnnotatedBindingBuilder<RendererExecutor> abbre = unit.mock(AnnotatedBindingBuilder.class);
-          abbre.in(Singleton.class);
-
-          expect(binder.bind(RendererExecutor.class)).andReturn(abbre);
-
-        })
+            })
         .expect(session)
         .expect(routes)
         .expect(routeHandler)

@@ -20,30 +20,25 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.ByteBuffer;
-import java.util.Collections;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
+import org.jooby.Renderer;
 import org.jooby.WebSocket;
 import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeWebSocket;
-import org.jooby.util.ExSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 public class WebSocketImpl implements WebSocket {
 
@@ -124,15 +119,16 @@ public class WebSocketImpl implements WebSocket {
     requireNonNull(success, "A success callback is required.");
     requireNonNull(err, "An error callback is required.");
 
-    RendererExecutor renderer = injector.getInstance(RendererExecutor.class);
-    ExSupplier<OutputStream> stream = () -> stream(ws, success, err, false);
-    ExSupplier<Writer> writer = () -> new OutputStreamWriter(stream(ws, success, err, true),
-        Charsets.UTF_8);
+    Set<Renderer> renderers = injector.getInstance(Key.get(new TypeLiteral<Set<Renderer>>() {
+    }));
 
-    renderer.render(data, stream, writer, len -> {
-    }, type -> {
-    }, Collections.emptyMap(),
-        ImmutableList.of(produces), Charsets.UTF_8);
+    new WebSocketRendererContext(
+        renderers,
+        ws,
+        ImmutableList.of(produces),
+        StandardCharsets.UTF_8,
+        success,
+        err).renderer(data);
   }
 
   @Override
@@ -268,21 +264,6 @@ public class WebSocketImpl implements WebSocket {
       }
       lws.close(closeStatus.code(), closeStatus.reason());
     }
-  }
-
-  private static OutputStream stream(final NativeWebSocket ws, final SuccessCallback success,
-      final ErrCallback err, final boolean text) {
-    return new ByteArrayOutputStream(1024) {
-      @Override
-      public void close() throws IOException {
-        // TODO: auto handle partial content?
-        if (text) {
-          ws.send(new String(buf, 0, count, Charsets.UTF_8), success, err);
-        } else {
-          ws.send(ByteBuffer.wrap(buf, 0, count), success, err);
-        }
-      }
-    };
   }
 
 }

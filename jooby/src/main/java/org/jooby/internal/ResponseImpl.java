@@ -21,21 +21,19 @@ package org.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
 import org.jooby.Cookie;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
+import org.jooby.Renderer;
 import org.jooby.Response;
 import org.jooby.Result;
 import org.jooby.Results;
@@ -44,9 +42,10 @@ import org.jooby.Status;
 import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeResponse;
 import org.jooby.util.Collectors;
-import org.jooby.util.ExSupplier;
 
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 public class ResponseImpl implements Response {
 
@@ -62,24 +61,22 @@ public class ResponseImpl implements Response {
 
   private final Optional<String> referer;
 
-  private RendererExecutor renderer;
-
   private Status status;
 
   private Map<String, Cookie> cookies = new HashMap<>();
 
-  private int maxBufferSize;
+  private Set<Renderer> renderers;
 
   public ResponseImpl(final Injector injector,
-      final NativeResponse rsp, final int maxBufferSize, final Route route,
+      final NativeResponse rsp, final Route route,
       final Map<String, Object> locals, final Charset charset, final Optional<String> referer) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.rsp = requireNonNull(rsp, "A raw response is required.");
-    this.maxBufferSize = maxBufferSize;
     this.route = requireNonNull(route, "A route is required.");
     this.locals = requireNonNull(locals, "Request locals are required.");
 
-    this.renderer = injector.getInstance(RendererExecutor.class);
+    this.renderers = injector.getInstance(Key.get(new TypeLiteral<Set<Renderer>>() {
+    }));
     this.charset = requireNonNull(charset, "A charset is required.");
     this.referer = requireNonNull(referer, "A referer header is required.");
   }
@@ -90,14 +87,6 @@ public class ResponseImpl implements Response {
     requireNonNull(stream, "A stream is required.");
 
     prepareDownload(filename, stream);
-  }
-
-  @Override
-  public void download(final String filename, final Reader reader) throws Exception {
-    requireNonNull(filename, "A file's name is required.");
-    requireNonNull(reader, "A reader is required.");
-
-    prepareDownload(filename, reader);
   }
 
   @Override
@@ -261,20 +250,7 @@ public class ResponseImpl implements Response {
     /**
      * Do we need to figure it out Content-Length?
      */
-    AtomicLong length = new AtomicLong(header("Content-Length")
-        .toOptional(Long.class).orElse(Long.MAX_VALUE)
-        );
-
-    // byte version of http body
-    ExSupplier<OutputStream> stream = () -> {
-      return rsp.out(maxBufferSize);
-    };
-
-    // text version of http body
-    ExSupplier<Writer> writer = () -> {
-      charset(charset());
-      return new OutputStreamWriter(stream.get(), charset());
-    };
+    Optional<Long> length = header("Content-Length").toOptional(Long.class);
 
     if (entity.isPresent()) {
       Object message = entity.get();
@@ -283,14 +259,18 @@ public class ResponseImpl implements Response {
         status((Status) message);
       }
 
-      renderer.render(message, stream, writer, len -> {
-        if (length.get() == Long.MAX_VALUE) {
-          // set local len so we ask for stream with content length set
-          length.set(len);
-          // set content length header
-          length(len);
-        }
-      }, type -> type(type().orElse(type)), locals, route.produces(), charset());
+      Consumer<Long> setLen = len -> length(length.orElse(len));
+
+      Consumer<MediaType> setType = type -> type(type().orElse(type));
+
+      new HttpRendererContext(
+          renderers,
+          rsp,
+          setLen,
+          setType,
+          locals,
+          produces,
+          charset).renderer(message);
     }
     // end response
     end();

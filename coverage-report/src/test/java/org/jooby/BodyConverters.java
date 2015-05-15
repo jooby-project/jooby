@@ -6,15 +6,15 @@ public class BodyConverters {
 
   public static final Renderer toJson = (body, ctx) -> {
     if (ctx.accepts("json")) {
-      ctx.type(MediaType.json);
-      ctx.text(w -> w.write("{\"body\": \"" + body + "\"}"));
+      ctx.type(MediaType.json)
+          .send("{\"body\": \"" + body + "\"}");
     }
   };
 
   public static final Renderer toHtml = (viewable, ctx) -> {
     if (ctx.accepts("html")) {
-      ctx.type(MediaType.html);
-      ctx.text(w -> w.write("<html><body>" + viewable + "</body></html>"));
+      ctx.type(MediaType.html)
+          .send("<html><body>" + viewable + "</body></html>");
     }
   };
 }

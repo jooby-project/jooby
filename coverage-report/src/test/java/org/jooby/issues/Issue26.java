@@ -2,14 +2,12 @@ package org.jooby.issues;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.StringReader;
 import java.util.concurrent.CountDownLatch;
 
 import org.jooby.MediaType;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-import com.google.common.io.CharStreams;
 import com.typesafe.config.Config;
 
 public class Issue26 extends ServerFeature {
@@ -21,7 +19,7 @@ public class Issue26 extends ServerFeature {
       if (ctx.accepts(MediaType.html)) {
         Config config = (Config) ctx.locals().get("config");
         assertNotNull(config);
-        ctx.text(out -> CharStreams.copy(new StringReader(object.toString()), out));
+        ctx.send(object.toString());
         latch.countDown();
       }
     });

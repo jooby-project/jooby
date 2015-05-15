@@ -37,6 +37,7 @@ public class NettyHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
           expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
 
@@ -82,6 +83,7 @@ public class NettyHandlerTest {
               expect(config.getString("application.tmpdir")).andReturn("target");
               expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
               expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+              expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
               ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
 
@@ -91,8 +93,8 @@ public class NettyHandlerTest {
                   ctx, unit.get(FullHttpRequest.class), "target", 3000);
 
               NettyResponse rsp = unit.mockConstructor(NettyResponse.class,
-                  new Class[]{ChannelHandlerContext.class, boolean.class },
-                  ctx, false);
+                  new Class[]{ChannelHandlerContext.class, int.class, boolean.class },
+                  ctx, 8192, false);
 
               HttpHandler dispatcher = unit.get(HttpHandler.class);
               dispatcher.handle(req, rsp);
@@ -137,6 +139,7 @@ public class NettyHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
           expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
 
@@ -145,7 +148,7 @@ public class NettyHandlerTest {
                   int.class },
               ctx, unit.get(FullHttpRequest.class), "target", 3000);
           NettyResponse rsp = unit.mockConstructor(NettyResponse.class,
-              new Class[]{ChannelHandlerContext.class, boolean.class }, ctx, true);
+              new Class[]{ChannelHandlerContext.class, int.class, boolean.class }, ctx, 8192, true);
 
           HttpHandler dispatcher = unit.get(HttpHandler.class);
           dispatcher.handle(req, rsp);
@@ -166,6 +169,7 @@ public class NettyHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
           expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
           NettyWebSocket ws = unit.mock(NettyWebSocket.class);
           ws.handle(unit.get(WebSocketFrame.class));
@@ -216,6 +220,7 @@ public class NettyHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
           expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
 
@@ -224,7 +229,7 @@ public class NettyHandlerTest {
                   int.class },
               ctx, unit.get(FullHttpRequest.class), "target", 3000);
           NettyResponse rsp = unit.mockConstructor(NettyResponse.class,
-              new Class[]{ChannelHandlerContext.class, boolean.class }, ctx, true);
+              new Class[]{ChannelHandlerContext.class, int.class, boolean.class }, ctx, 8192, true);
 
           HttpHandler dispatcher = unit.get(HttpHandler.class);
           dispatcher.handle(req, rsp);
@@ -254,6 +259,7 @@ public class NettyHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
           expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
           NettyWebSocket ws = unit.mock(NettyWebSocket.class);
           ws.handle(cause);
@@ -286,6 +292,7 @@ public class NettyHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
           expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
           Attribute<NettyWebSocket> attr = unit.mock(Attribute.class);
           expect(attr.get()).andReturn(null);
@@ -320,6 +327,7 @@ public class NettyHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
           expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.attr(NettyWebSocket.KEY)).andReturn(null);
@@ -349,6 +357,7 @@ public class NettyHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
           expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
         })
         .expect(unit -> {
           ChannelFuture future = unit.mock(ChannelFuture.class);
@@ -372,6 +381,7 @@ public class NettyHandlerTest {
           expect(config.getString("application.tmpdir")).andReturn("target");
           expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
         })
         .expect(unit -> {
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);

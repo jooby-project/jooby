@@ -1,9 +1,9 @@
 package org.jooby;
 
+import java.io.ByteArrayInputStream;
 import java.util.Optional;
 
 import org.jooby.test.ServerFeature;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.base.Charsets;
@@ -22,28 +22,15 @@ public class BufferSizeFeature extends ServerFeature {
       String value = req.param("data").value();
       Optional<Long> len = req.param("len").toOptional(Long.class);
       Optional<Boolean> chunked = req.param("chunked").toOptional(Boolean.class);
-      Result rsp = Results.ok(value);
+      Result result = Results.ok(value);
+      if (!req.param("short").toOptional().isPresent()) {
+        result = Results.ok(new ByteArrayInputStream(value.getBytes(req.charset())));
+      }
+      Result rsp = result;
       len.ifPresent(l -> rsp.header("Content-Length", l));
       chunked.ifPresent(c -> rsp.header("Transfer-Encoding", "Chunked"));
       return rsp;
     });
-  }
-
-  @Before
-  public void debug() {
-    java.util.logging.Logger.getLogger("httpclient.wire.header").setLevel(
-        java.util.logging.Level.FINEST);
-
-    java.util.logging.Logger.getLogger("httpclient.wire.content").setLevel(
-        java.util.logging.Level.FINEST);
-
-    System.setProperty("org.apache.commons.logging.Log",
-        "org.apache.commons.logging.impl.SimpleLog");
-    System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
-    System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", "debug");
-    System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http", "debug");
-    System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.headers",
-        "debug");
   }
 
   @Test
@@ -82,7 +69,7 @@ public class BufferSizeFeature extends ServerFeature {
   @Test
   public void shortResponseShouldGuessContentLength() throws Exception {
     request()
-        .get("/?data=hello")
+        .get("/?data=hello&short=yes")
         .expect("hello")
         .header("Content-Length", "5")
         .header("Connection", Optional.of("keep-alive"));
@@ -101,7 +88,7 @@ public class BufferSizeFeature extends ServerFeature {
   public void shortResponseShouldPreferContentLengthEvenIfTransferEncodingChunkWasSet()
       throws Exception {
     request()
-        .get("/?data=hello&chunked=true")
+        .get("/?data=hello&chunked=true&short=yes")
         .expect("hello")
         .header("Content-Length", "5")
         .header("Connection", Optional.of("keep-alive"));
@@ -123,4 +110,3 @@ public class BufferSizeFeature extends ServerFeature {
     return data.getBytes(Charsets.UTF_8).length;
   }
 }
-

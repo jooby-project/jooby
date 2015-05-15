@@ -22,6 +22,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.EventExecutorGroup;
 
@@ -68,6 +69,7 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
         .addLast(new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
         .addLast(new HttpObjectAggregator(maxContentLength))
         .addLast(new IdleStateHandler(0, 0, idleTimeOut, TimeUnit.MILLISECONDS))
+        .addLast(new ChunkedWriteHandler())
         .addLast(executor, new NettyHandler(handler, config));
   }
 

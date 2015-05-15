@@ -20,6 +20,7 @@ package org.jooby.internal.hbs;
 
 import static java.util.Objects.requireNonNull;
 
+import org.jooby.MediaType;
 import org.jooby.Renderer;
 import org.jooby.View;
 
@@ -55,7 +56,8 @@ public class HbsEngine implements View.Engine {
         .build();
 
     // rendering it
-    ctx.text(out -> template.apply(context, out));
+    ctx.type(MediaType.html)
+        .send(template.apply(context));
   }
 
   @Override

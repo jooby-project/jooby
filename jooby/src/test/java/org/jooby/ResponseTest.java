@@ -4,27 +4,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.InputStream;
-import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.Optional;
 
 import org.junit.Test;
 
-import com.google.common.base.Charsets;
-
 public class ResponseTest {
   public static class ResponseMock implements Response {
 
     @Override
     public void download(final String filename, final InputStream stream) throws Exception {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void download(final String filename, final Reader reader) throws Exception {
       throw new UnsupportedOperationException();
     }
 
@@ -201,106 +192,6 @@ public class ResponseTest {
       }
     }.status(200);
     assertEquals(Status.OK, dataList.getFirst());
-  }
-
-  @Test
-  public void downloadWithRelativeCpLocation() throws Exception {
-    LinkedList<Object> dataList = new LinkedList<>();
-    String resource = "org/jooby/ResponseTest.js";
-    new ResponseMock() {
-      @Override
-      public void download(final String filename, final Reader stream) throws Exception {
-        assertNotNull(stream);
-        stream.close();
-        dataList.add(filename);
-      }
-
-      @Override
-      public Charset charset() {
-        return Charsets.UTF_8;
-      }
-
-      @Override
-      public Optional<MediaType> type() {
-        return Optional.empty();
-      }
-
-      @Override
-      public Response type(final MediaType type) {
-        assertEquals(MediaType.js, type);
-        return this;
-      }
-
-    }.download(resource);
-    assertEquals(resource, dataList.getFirst());
-  }
-
-  @Test
-  public void downloadWithAbsoluteCpLocation() throws Exception {
-    LinkedList<Object> dataList = new LinkedList<>();
-    String resource = "/org/jooby/ResponseTest.js";
-    new ResponseMock() {
-      @Override
-      public void download(final String filename, final Reader stream) throws Exception {
-        assertNotNull(stream);
-        stream.close();
-        dataList.add(filename);
-      }
-
-      @Override
-      public Charset charset() {
-        return Charsets.UTF_8;
-      }
-
-      @Override
-      public Optional<MediaType> type() {
-        return Optional.empty();
-      }
-
-      @Override
-      public Response type(final MediaType type) {
-        assertEquals(MediaType.js, type);
-        return this;
-      }
-    }.download(resource);
-    assertEquals(resource, dataList.getFirst());
-  }
-
-  @Test
-  public void downloadFile() throws Exception {
-    LinkedList<Object> dataList = new LinkedList<>();
-    File resource = file("src/test/resources/org/jooby/ResponseTest.js");
-    new ResponseMock() {
-      @Override
-      public Response header(final String name, final Object value) {
-        dataList.add(name);
-        dataList.add(value);
-        return this;
-      }
-
-      @Override
-      public void download(final String filename, final Reader stream) throws Exception {
-        assertNotNull(stream);
-        stream.close();
-        dataList.add(filename);
-      }
-    }.download(resource);
-    assertEquals("[Content-Length, 20, ResponseTest.js]", dataList.toString());
-  }
-
-  @Test
-  public void downloadReader() throws Exception {
-    LinkedList<Object> dataList = new LinkedList<>();
-    FileReader resource = new FileReader(file("src/test/resources/org/jooby/ResponseTest.js"));
-    new ResponseMock() {
-      @Override
-      public void download(final String filename, final Reader reader) throws Exception {
-        assertNotNull(reader);
-        reader.close();
-        dataList.add(filename);
-      }
-    }.download("alias", resource);
-    assertEquals("alias", dataList.getFirst());
   }
 
   @Test

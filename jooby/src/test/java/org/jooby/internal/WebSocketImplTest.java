@@ -1,14 +1,17 @@
 package org.jooby.internal;
 
-import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -16,23 +19,24 @@ import org.jooby.MediaType;
 import org.jooby.MockUnit;
 import org.jooby.MockUnit.Block;
 import org.jooby.Mutant;
+import org.jooby.Renderer;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.Callback;
 import org.jooby.WebSocket.CloseStatus;
 import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeWebSocket;
-import org.jooby.util.ExSupplier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({WebSocketImpl.class })
+@PrepareForTest({WebSocketImpl.class, WebSocketRendererContext.class })
 public class WebSocketImplTest {
 
   private Block connect = unit -> {
@@ -49,7 +53,7 @@ public class WebSocketImplTest {
     nws.onCloseMessage(isA(BiConsumer.class));
   };
 
-  @SuppressWarnings({"resource", "unchecked" })
+  @SuppressWarnings({"resource" })
   @Test
   public void sendString() throws Exception {
     Object data = "String";
@@ -58,19 +62,24 @@ public class WebSocketImplTest {
     Map<Object, String> vars = new HashMap<>();
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
-
     new MockUnit(WebSocket.Handler.class, WebSocket.SuccessCallback.class,
         WebSocket.ErrCallback.class, Injector.class, NativeWebSocket.class)
         .expect(connect)
         .expect(callbacks)
         .expect(unit -> {
-          RendererExecutor renderer = unit.mock(RendererExecutor.class);
-          renderer.render(eq(data), isA(ExSupplier.class), isA(ExSupplier.class),
-              isA(Consumer.class), isA(Consumer.class), isA(Map.class),
-              eq(Arrays.asList(produces)), eq(Charsets.UTF_8));
-
+          Set<Renderer> renderers = Collections.emptySet();
+          WebSocketRendererContext ctx = unit.mockConstructor(WebSocketRendererContext.class,
+              new Class[]{Set.class, NativeWebSocket.class, List.class, Charset.class,
+                  WebSocket.SuccessCallback.class,
+                  WebSocket.ErrCallback.class }, renderers, unit.get(NativeWebSocket.class),
+              ImmutableList.of(produces), StandardCharsets.UTF_8,
+              unit.get(WebSocket.SuccessCallback.class),
+              unit.get(WebSocket.ErrCallback.class));
+          ctx.renderer(data);
           Injector injector = unit.get(Injector.class);
-          expect(injector.getInstance(RendererExecutor.class)).andReturn(renderer);
+
+          expect(injector.getInstance(Key.get(new TypeLiteral<Set<Renderer>>() {
+          }))).andReturn(renderers);
         })
         .run(unit -> {
           WebSocketImpl ws = new WebSocketImpl(

@@ -51,9 +51,12 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
 
   private int wsMaxMessageSize;
 
+  private int bufferSize;
+
   public NettyHandler(final HttpHandler handler, final Config config) {
     this.handler = requireNonNull(handler, "Application handler is required.");
     this.tmpdir = config.getString("application.tmpdir");
+    this.bufferSize = config.getBytes("server.http.ResponseBufferSize").intValue();
     this.wsMaxMessageSize = Math
         .max(
             config.getBytes("server.ws.MaxTextMessageSize").intValue(),
@@ -81,7 +84,7 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
       try {
         handler.handle(
             new NettyRequest(ctx, req, tmpdir, wsMaxMessageSize),
-            new NettyResponse(ctx, keepAlive)
+            new NettyResponse(ctx, bufferSize, keepAlive)
             );
       } catch (Throwable ex) {
         exceptionCaught(ctx, ex);

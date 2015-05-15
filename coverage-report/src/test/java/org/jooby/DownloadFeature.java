@@ -1,8 +1,6 @@
 package org.jooby;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -11,13 +9,13 @@ public class DownloadFeature extends ServerFeature {
 
   {
     get("/download-reader", (req, rsp) -> rsp.download("name.js",
-        new FileReader(new File("src/test/resources/"
-            + DownloadFeature.class.getName().replace('.', '/') + ".js"))));
+        new File("src/test/resources/"
+            + DownloadFeature.class.getName().replace('.', '/') + ".js")));
 
     get("/customtype", (req, rsp) -> {
       rsp.type(req.param("type").value()).download("/name.json",
-          new FileReader(new File("src/test/resources/"
-              + DownloadFeature.class.getName().replace('.', '/') + ".json")));
+          new File("src/test/resources/"
+              + DownloadFeature.class.getName().replace('.', '/') + ".json"));
     });
 
     get("/location", (req, rsp) -> rsp.download("name", req.param("file").value()));
@@ -25,8 +23,8 @@ public class DownloadFeature extends ServerFeature {
     get("/fs", (req, rsp) -> rsp.download(new File(req.param("file").value())));
 
     get("/favicon.ico", (req, rsp) -> rsp.download("favicon.ico",
-        new FileInputStream(new File("src/test/resources/"
-            + DownloadFeature.class.getName().replace('.', '/') + ".ico"))));
+        new File("src/test/resources/"
+            + DownloadFeature.class.getName().replace('.', '/') + ".ico")));
   }
 
   @Test

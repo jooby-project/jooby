@@ -20,22 +20,28 @@ package org.jooby.servlet;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jooby.spi.NativeResponse;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteStreams;
 
 public class ServletServletResponse implements NativeResponse {
 
-  private HttpServletResponse rsp;
+  protected final HttpServletResponse rsp;
 
   private boolean committed;
 
@@ -71,9 +77,32 @@ public class ServletServletResponse implements NativeResponse {
   }
 
   @Override
-  public OutputStream out(final int bufferSize) throws IOException {
-    rsp.setBufferSize(bufferSize);
-    return rsp.getOutputStream();
+  public void send(final byte[] bytes) throws Exception {
+    ServletOutputStream output = rsp.getOutputStream();
+    ByteStreams.copy(new ByteArrayInputStream(bytes), output);
+    output.close();
+  }
+
+  @Override
+  public void send(final ByteBuffer buffer) throws Exception {
+    WritableByteChannel channel = Channels.newChannel(rsp.getOutputStream());
+    channel.write(buffer);
+    channel.close();
+  }
+
+  @Override
+  public void send(final FileChannel file) throws Exception {
+    WritableByteChannel channel = Channels.newChannel(rsp.getOutputStream());
+    ByteStreams.copy(file, channel);
+    file.close();
+    channel.close();
+  }
+
+  @Override
+  public void send(final InputStream stream) throws Exception {
+    ServletOutputStream output = rsp.getOutputStream();
+    ByteStreams.copy(stream, output);
+    output.close();
   }
 
   @Override

@@ -26,7 +26,7 @@ public class BytesReferenceFormatter implements Renderer {
   @Override
   public void render(final Object object, final Renderer.Context ctx) throws Exception {
     if (object instanceof BytesReference) {
-      ctx.bytes(out -> ((BytesReference) object).writeTo(out));
+      ctx.send(((BytesReference) object).streamInput());
     }
   }
 

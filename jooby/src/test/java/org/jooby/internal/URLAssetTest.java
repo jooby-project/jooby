@@ -25,14 +25,14 @@ import com.google.common.io.ByteStreams;
 public class URLAssetTest {
 
   @Test
-  public void name() throws IOException {
+  public void name() throws Exception {
     assertEquals("pom.xml",
         new URLAsset(file("pom.xml").toURI().toURL(), MediaType.js)
             .name());
   }
 
   @Test
-  public void toStr() throws IOException {
+  public void toStr() throws Exception {
     assertEquals("URLAssetTest.js(application/javascript)",
         new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI().toURL(),
             MediaType.js)
@@ -40,7 +40,7 @@ public class URLAssetTest {
   }
 
   @Test
-  public void lastModified() throws IOException {
+  public void lastModified() throws Exception {
     assertTrue(new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI()
         .toURL(),
         MediaType.js)
@@ -48,19 +48,19 @@ public class URLAssetTest {
   }
 
   @Test
-  public void lastModifiedFileNotFound() throws IOException {
+  public void lastModifiedFileNotFound() throws Exception {
     assertTrue(new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.missing")
         .toURI().toURL(),
         MediaType.js)
         .lastModified() == -1);
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = Exception.class)
   public void headerFailNoConnection() throws Exception {
     new MockUnit(URL.class)
         .expect(unit -> {
           URL url = unit.get(URL.class);
-          expect(url.openConnection()).andThrow(new IOException("intentional err"));
+          expect(url.openConnection()).andThrow(new Exception("intentional err"));
         })
         .run(unit -> {
           new URLAsset(unit.get(URL.class), MediaType.js);
@@ -79,6 +79,7 @@ public class URLAssetTest {
           expect(conn.getInputStream()).andReturn(stream);
 
           URL url = unit.get(URL.class);
+          expect(url.getProtocol()).andReturn("http");
           expect(url.openConnection()).andReturn(conn);
         })
         .run(unit -> {
@@ -99,6 +100,7 @@ public class URLAssetTest {
           expect(conn.getInputStream()).andReturn(stream);
 
           URL url = unit.get(URL.class);
+          expect(url.getProtocol()).andReturn("http");
           expect(url.openConnection()).andReturn(conn);
         })
         .run(unit -> {
@@ -107,14 +109,14 @@ public class URLAssetTest {
   }
 
   @Test
-  public void length() throws IOException {
+  public void length() throws Exception {
     assertEquals(15, new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js")
         .toURI().toURL(),
         MediaType.js).length());
   }
 
   @Test
-  public void type() throws IOException {
+  public void type() throws Exception {
     assertEquals(MediaType.js,
         new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI().toURL(),
             MediaType.js)
@@ -122,7 +124,7 @@ public class URLAssetTest {
   }
 
   @Test
-  public void stream() throws IOException {
+  public void stream() throws Exception {
     InputStream stream = new URLAsset(
         file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI().toURL(), MediaType.js)
         .stream();
@@ -131,12 +133,12 @@ public class URLAssetTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void nullFile() throws IOException {
+  public void nullFile() throws Exception {
     new URLAsset(null, MediaType.js);
   }
 
   @Test(expected = NullPointerException.class)
-  public void nullType() throws IOException {
+  public void nullType() throws Exception {
     new URLAsset(file("src/test/resources/org/jooby/internal/URLAssetTest.js").toURI().toURL(),
         null);
   }

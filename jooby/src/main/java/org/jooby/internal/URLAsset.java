@@ -20,6 +20,8 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -39,13 +41,24 @@ class URLAsset implements Asset {
 
   private long length = -1;
 
-  public URLAsset(final URL url, final MediaType mediaType) throws IOException {
+  private File file;
+
+  public URLAsset(final URL url, final MediaType mediaType) throws Exception {
     this.url = requireNonNull(url, "An url is required.");
     this.mediaType = requireNonNull(mediaType, "A mediaType is required.");
-    headers(url, (len, lstMod) -> {
-      this.length = len;
-      this.lastModified = lstMod;
-    });
+    if ("file".equals(url.getProtocol())) {
+      File file = new File(url.toURI());
+      if (file.exists()) {
+        this.file = file;
+        this.length = file.length();
+        this.lastModified = file.lastModified();
+      }
+    } else {
+      headers(url, (len, lstMod) -> {
+        this.length = len;
+        this.lastModified = lstMod;
+      });
+    }
   }
 
   @Override
@@ -61,7 +74,11 @@ class URLAsset implements Asset {
   }
 
   @Override
-  public InputStream stream() throws IOException {
+  public InputStream stream() throws Exception {
+    if (file != null) {
+      // use OS zero-copy
+      return new FileInputStream(file);
+    }
     return url.openStream();
   }
 

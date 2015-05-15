@@ -18,18 +18,14 @@
  */
 package org.jooby.internal;
 
-import java.io.ByteArrayInputStream;
-import java.io.Closeable;
-import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import org.jooby.MediaType;
 import org.jooby.Renderer;
 import org.jooby.View;
-
-import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
 
 public enum BuiltinRenderer implements Renderer {
 
@@ -38,12 +34,8 @@ public enum BuiltinRenderer implements Renderer {
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       if (object instanceof InputStream) {
         InputStream in = (InputStream) object;
-        try {
-          ctx.type(MediaType.octetstream)
-              .bytes(out -> ByteStreams.copy(in, out));
-        } finally {
-          close(in);
-        }
+        ctx.type(MediaType.octetstream)
+            .send(in);
       }
     }
   },
@@ -53,8 +45,8 @@ public enum BuiltinRenderer implements Renderer {
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       Class<?> type = object.getClass();
       if (type.isArray() && type.getComponentType() == byte.class) {
-        ctx.type(MediaType.octetstream);
-        ctx.bytes(out -> ByteStreams.copy(new ByteArrayInputStream((byte[]) object), out));
+        ctx.type(MediaType.octetstream)
+            .send((byte[]) object);
       }
     }
 
@@ -69,26 +61,17 @@ public enum BuiltinRenderer implements Renderer {
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       if (object instanceof ByteBuffer) {
         ByteBuffer buffer = (ByteBuffer) object;
-        if (buffer.hasArray()) {
-          Bytes.render(buffer.array(), ctx);
-        } else {
-          InputStream.render(new ByteByfferInputStream(buffer), ctx);
-        }
+        ctx.type(MediaType.octetstream)
+            .send(buffer);
       }
     }
   },
 
-  Readable {
+  File {
     @Override
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
-      if (object instanceof Readable) {
-        try {
-          Readable in = (Readable) object;
-          ctx.type(MediaType.html);
-          ctx.text(out -> CharStreams.copy(in, out));
-        } finally {
-          close(object);
-        }
+      if (object instanceof File) {
+        ctx.send(new FileInputStream((File) object));
       }
     }
   },
@@ -98,7 +81,7 @@ public enum BuiltinRenderer implements Renderer {
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       if (!(object instanceof View)) {
         ctx.type(MediaType.html);
-        ctx.text(out -> out.write(object.toString()));
+        ctx.send(object.toString());
       }
     }
 
@@ -108,9 +91,4 @@ public enum BuiltinRenderer implements Renderer {
     }
   };
 
-  static void close(final Object toClose) throws IOException {
-    if (toClose instanceof Closeable) {
-      ((Closeable) toClose).close();
-    }
-  }
 }

@@ -1,7 +1,6 @@
 package org.jooby;
 
 import java.io.ByteArrayInputStream;
-import java.io.StringReader;
 import java.nio.ByteBuffer;
 
 import org.jooby.test.ServerFeature;
@@ -17,10 +16,9 @@ public class BuiltinParserFormatterFeature extends ServerFeature {
     get("/direct-buffer", () -> {
       ByteBuffer buffer = ByteBuffer.allocateDirect("direct-buffer".length());
       buffer.put("direct-buffer".getBytes());
+      buffer.flip();
       return buffer;
     });
-
-    get("/reader", () -> new StringReader("reader"));
   }
 
   @Test
@@ -51,17 +49,6 @@ public class BuiltinParserFormatterFeature extends ServerFeature {
         .expect("direct-buffer")
         .header("Content-Length", "13")
         .header("Content-Type", "application/octet-stream");
-  }
-
-  @Test
-  public void reader() throws Exception {
-    request()
-        .get("/reader")
-        .expect(200)
-        .expect("reader")
-        .header("Content-Length", "6")
-        .header("Content-Type", "text/html;charset=UTF-8");
-
   }
 
 }

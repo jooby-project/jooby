@@ -1,10 +1,7 @@
 package org.jooby.internal;
 
-import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
 
-import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
@@ -13,15 +10,7 @@ import org.jooby.MockUnit;
 import org.jooby.MockUnit.Block;
 import org.jooby.Renderer;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
-
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({BuiltinRenderer.class, ByteStreams.class, Closeables.class })
 public class ByteBufferRendererTest {
 
   private Block defaultType = unit -> {
@@ -36,18 +25,11 @@ public class ByteBufferRendererTest {
         .expect(defaultType)
         .expect(unit -> {
           Renderer.Context ctx = unit.get(Renderer.Context.class);
-          ctx.bytes(unit.capture(Renderer.Bytes.class));
-
-          unit.mockStatic(ByteStreams.class);
-          expect(ByteStreams.copy(isA(ByteArrayInputStream.class),
-              eq(unit.get(OutputStream.class)))).andReturn(0L);
+          ctx.send(bytes);
         })
         .run(unit -> {
           BuiltinRenderer.ByteBuffer
               .render(bytes, unit.get(Renderer.Context.class));
-        }, unit -> {
-          unit.captured(Renderer.Bytes.class).iterator().next()
-              .write(unit.get(OutputStream.class));
         });
   }
 
@@ -58,18 +40,11 @@ public class ByteBufferRendererTest {
         .expect(defaultType)
         .expect(unit -> {
           Renderer.Context ctx = unit.get(Renderer.Context.class);
-          ctx.bytes(unit.capture(Renderer.Bytes.class));
-
-          unit.mockStatic(ByteStreams.class);
-          expect(ByteStreams.copy(isA(ByteByfferInputStream.class),
-              eq(unit.get(OutputStream.class)))).andReturn(0L);
+          ctx.send(bytes);
         })
         .run(unit -> {
           BuiltinRenderer.ByteBuffer
               .render(bytes, unit.get(Renderer.Context.class));
-        }, unit -> {
-          unit.captured(Renderer.Bytes.class).iterator().next()
-              .write(unit.get(OutputStream.class));
         });
   }
 

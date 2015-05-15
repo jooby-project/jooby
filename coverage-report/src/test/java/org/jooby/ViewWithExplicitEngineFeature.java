@@ -16,7 +16,7 @@ public class ViewWithExplicitEngineFeature extends ServerFeature {
 
       @Override
       public void render(final View viewable, final Renderer.Context ctx) throws Exception {
-        ctx.text(w -> w.write(name()));
+        ctx.send(name());
       }
     });
 
@@ -29,7 +29,7 @@ public class ViewWithExplicitEngineFeature extends ServerFeature {
 
       @Override
       public void render(final View viewable, final Renderer.Context ctx) throws Exception {
-        ctx.text(w -> w.write(name()));
+        ctx.send(name());
       }
     });
 
