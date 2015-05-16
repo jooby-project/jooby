@@ -20,7 +20,7 @@ package org.jooby.internal.undertow;
 
 import static java.util.Objects.requireNonNull;
 import io.undertow.Handlers;
-import io.undertow.io.UndertowOutputStream;
+import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
@@ -29,6 +29,7 @@ import io.undertow.util.HttpString;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.ByteStreams;
 
 public class UndertowResponse implements NativeResponse {
 
@@ -48,8 +48,6 @@ public class UndertowResponse implements NativeResponse {
   private final Logger log = LoggerFactory.getLogger(NativeResponse.class);
 
   private HttpServerExchange exchange;
-
-  private UndertowOutputStream stream;
 
   public UndertowResponse(final HttpServerExchange exchange)
       throws IOException {
@@ -80,39 +78,24 @@ public class UndertowResponse implements NativeResponse {
     headers.putAll(new HttpString(name), ImmutableList.copyOf(values));
   }
 
-  private UndertowOutputStream output() {
-    if (stream == null) {
-      stream = (UndertowOutputStream) exchange.getOutputStream();
-    }
-    return stream;
-  }
-
   @Override
   public void send(final byte[] bytes) throws Exception {
-    UndertowOutputStream output = output();
-    output.write(bytes);
-    output.close();
+    send(ByteBuffer.wrap(bytes));
   }
 
   @Override
   public void send(final ByteBuffer buffer) throws Exception {
-    UndertowOutputStream output = output();
-    output.write(buffer);
-    output.close();
+    exchange.getResponseSender().send(buffer);
   }
 
   @Override
   public void send(final InputStream stream) throws Exception {
-    UndertowOutputStream output = output();
-    ByteStreams.copy(stream, output);
-    output.close();
+    new ChunkedStream().send(Channels.newChannel(stream), exchange, IoCallback.END_EXCHANGE);
   }
 
   @Override
   public void send(final FileChannel channel) throws Exception {
-    UndertowOutputStream output = output();
-    output.transferFrom(channel);
-    output.close();
+    exchange.getResponseSender().transferFrom(channel, IoCallback.END_EXCHANGE);
   }
 
   @Override
@@ -132,9 +115,6 @@ public class UndertowResponse implements NativeResponse {
 
   @Override
   public void reset() {
-    if (stream != null) {
-      stream.resetBuffer();
-    }
     exchange.getResponseHeaders().clear();
   }
 

@@ -20,6 +20,10 @@ public class ResponseTest {
     }
 
     @Override
+    public void download(final String filename, final String location) throws Exception {
+    }
+
+    @Override
     public Response cookie(final Cookie cookie) {
       throw new UnsupportedOperationException();
     }

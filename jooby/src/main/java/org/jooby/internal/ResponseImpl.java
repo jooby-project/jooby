@@ -20,7 +20,9 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +88,30 @@ public class ResponseImpl implements Response {
     requireNonNull(filename, "A file's name is required.");
     requireNonNull(stream, "A stream is required.");
 
-    prepareDownload(filename, stream);
+    // handle type
+    MediaType type = MediaType.byPath(filename).orElse(MediaType.octetstream);
+    type(type().orElseGet(() -> type));
+
+    contentDisposition(filename);
+    send(Results.with(stream));
+  }
+
+  @Override
+  public void download(final String filename, final String location) throws Exception {
+    URL url = getClass().getResource(location.startsWith("/") ? location : "/" + location);
+    if (url == null) {
+      throw new FileNotFoundException(location);
+    }
+    // handle type
+    MediaType type = MediaType.byPath(filename).orElse(MediaType.byPath(location)
+        .orElse(MediaType.octetstream));
+    type(type().orElseGet(() -> type));
+
+    URLAsset asset = new URLAsset(url, type().get());
+    length(asset.length());
+
+    contentDisposition(filename);
+    send(Results.with(asset.stream()));
   }
 
   @Override
@@ -214,16 +239,6 @@ public class ResponseImpl implements Response {
       }
     }
     rsp.end();
-  }
-
-  private void prepareDownload(final String filename, final Object in) throws Exception {
-
-    contentDisposition(filename);
-
-    Result result = Results.with(in);
-    result.type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.octetstream)));
-
-    send(result);
   }
 
   @Override

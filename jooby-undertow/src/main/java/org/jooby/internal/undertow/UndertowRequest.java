@@ -19,6 +19,7 @@
 package org.jooby.internal.undertow;
 
 import static java.util.Objects.requireNonNull;
+import io.undertow.server.BlockingHttpExchange;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.server.handlers.form.FormData.FormValue;
@@ -46,6 +47,8 @@ import org.jooby.spi.NativeUpload;
 import org.jooby.spi.NativeWebSocket;
 import org.jooby.util.Collectors;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.typesafe.config.Config;
@@ -63,8 +66,11 @@ public class UndertowRequest implements NativeRequest {
 
   private String path;
 
+  private Supplier<BlockingHttpExchange> blocking;
+
   public UndertowRequest(final HttpServerExchange exchange, final Config config) throws IOException {
     this.exchange = requireNonNull(exchange, "An undertow exchange is required.");
+    this.blocking = Suppliers.memoize(() -> this.exchange.startBlocking());
     this.config = requireNonNull(config, "A config is required.");
     this.form = parseForm(exchange, config.getString("application.tmpdir"),
         config.getString("application.charset"));
@@ -150,6 +156,7 @@ public class UndertowRequest implements NativeRequest {
 
   @Override
   public InputStream in() {
+    blocking.get();
     return exchange.getInputStream();
   }
 
@@ -200,11 +207,13 @@ public class UndertowRequest implements NativeRequest {
     if (value != null) {
       MediaType type = MediaType.valueOf(value);
       if (MediaType.form.name().equals(type.name())) {
+        blocking.get();
         return new FormEncodedDataDefinition()
             .setDefaultEncoding(charset)
             .create(exchange)
             .parseBlocking();
       } else if (MediaType.multipart.name().equals(type.name())) {
+        blocking.get();
         return new MultiPartParserDefinition()
             .setTempFileLocation(new File(tmpdir))
             .setDefaultEncoding(charset)

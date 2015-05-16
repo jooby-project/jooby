@@ -50,7 +50,6 @@ public class UndertowHandler implements HttpHandler {
 
   @Override
   public void handleRequest(final HttpServerExchange exchange) throws Exception {
-    exchange.startBlocking();
 
     if (exchange.isInIoThread()) {
       exchange.dispatch(this);

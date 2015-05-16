@@ -22,7 +22,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Optional;
@@ -265,19 +264,7 @@ public interface Response {
    * @param location classpath location of the file.
    * @throws Exception If something goes wrong.
    */
-  default void download(final String filename, final String location) throws Exception {
-    InputStream stream = getClass()
-        .getResourceAsStream(location.startsWith("/") ? location : "/" + location);
-    if (stream == null) {
-      throw new FileNotFoundException(location);
-    }
-    // handle type
-    MediaType type = MediaType.byPath(filename).orElse(MediaType.byPath(location)
-        .orElse(MediaType.octetstream));
-    type(type().orElseGet(() -> type));
-
-    download(filename, stream);
-  }
+  void download(final String filename, final String location) throws Exception;
 
   /**
    * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
