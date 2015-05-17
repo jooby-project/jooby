@@ -1,17 +1,24 @@
 package org.jooby;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-public class BuiltinParserFormatterFeature extends ServerFeature {
+public class BuiltinRendererFeature extends ServerFeature {
 
   {
     get("/stream", () -> new ByteArrayInputStream("stream".getBytes()));
 
     get("/bytes", () -> "bytes".getBytes());
+
+    get("/reader",
+        () -> new InputStreamReader(getClass().getResourceAsStream("BuiltinRendererFeature.txt")));
+
+    get("/ereader",
+        () -> new InputStreamReader(getClass().getResourceAsStream("BuiltinRendererFeature.empty")));
 
     get("/direct-buffer", () -> {
       ByteBuffer buffer = ByteBuffer.allocateDirect("direct-buffer".length());
@@ -29,6 +36,23 @@ public class BuiltinParserFormatterFeature extends ServerFeature {
         .expect("stream")
         .header("Content-Length", "6")
         .header("Content-Type", "application/octet-stream");
+  }
+
+  @Test
+  public void reader() throws Exception {
+    request()
+        .get("/reader")
+        .expect(200)
+        .expect("reader")
+        .header("Content-Length", "6")
+        .header("Content-Type", "text/html;charset=utf-8");
+
+    request()
+        .get("/ereader")
+        .expect(200)
+        .expect("")
+        .header("Content-Length", 0)
+        .header("Content-Type", "text/html;charset=utf-8");
   }
 
   @Test

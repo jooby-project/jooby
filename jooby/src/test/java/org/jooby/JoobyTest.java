@@ -234,16 +234,13 @@ public class JoobyTest {
     expect(binder.bind(DecimalFormat.class)).andReturn(binding);
   };
 
-  private MockUnit.Block bodyFormatter = unit -> {
+  private MockUnit.Block renderers = unit -> {
     Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
 
     Binder binder = unit.get(Binder.class);
     unit.mockStatic(Multibinder.class);
 
     expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
-
-    LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
-    formatStream.toInstance(BuiltinRenderer.InputStream);
 
     LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
     formatByteArray.toInstance(BuiltinRenderer.Bytes);
@@ -254,14 +251,24 @@ public class JoobyTest {
     LinkedBindingBuilder<Renderer> file = unit.mock(LinkedBindingBuilder.class);
     file.toInstance(BuiltinRenderer.File);
 
+    LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
+    formatStream.toInstance(BuiltinRenderer.InputStream);
+
+    LinkedBindingBuilder<Renderer> reader = unit.mock(LinkedBindingBuilder.class);
+    reader.toInstance(BuiltinRenderer.Reader);
+
+    LinkedBindingBuilder<Renderer> charBuffer = unit.mock(LinkedBindingBuilder.class);
+    charBuffer.toInstance(BuiltinRenderer.CharBuffer);
+
     LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
     formatAny.toInstance(BuiltinRenderer.ToString);
 
-    expect(multibinder.addBinding()).andReturn(formatStream);
     expect(multibinder.addBinding()).andReturn(formatByteArray);
     expect(multibinder.addBinding()).andReturn(formatByteBuffer);
     expect(multibinder.addBinding()).andReturn(file);
-
+    expect(multibinder.addBinding()).andReturn(charBuffer);
+    expect(multibinder.addBinding()).andReturn(formatStream);
+    expect(multibinder.addBinding()).andReturn(reader);
     expect(multibinder.addBinding()).andReturn(formatAny);
 
   };
@@ -547,7 +554,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
@@ -586,7 +593,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
@@ -633,7 +640,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
@@ -695,7 +702,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
@@ -747,7 +754,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
@@ -835,7 +842,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
@@ -871,7 +878,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -944,7 +951,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1018,7 +1025,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1113,7 +1120,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1208,7 +1215,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1303,7 +1310,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1398,7 +1405,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1493,7 +1500,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1588,7 +1595,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1683,7 +1690,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1778,7 +1785,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1856,7 +1863,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(unit -> {
           Multibinder<Route.Definition> multibinder = unit.mock(Multibinder.class);
@@ -1982,7 +1989,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
@@ -2039,7 +2046,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(
             unit -> {
               Binder binder = unit.get(Binder.class);
@@ -2101,44 +2108,49 @@ public class JoobyTest {
         .expect(numberFormat)
         .expect(decimalFormat)
         .expect(session)
-        .expect(
-            unit -> {
-              Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
+        .expect(unit -> {
+          Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
 
-              Binder binder = unit.get(Binder.class);
+          Binder binder = unit.get(Binder.class);
 
-              unit.mockStatic(Multibinder.class);
-              expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
+          unit.mockStatic(Multibinder.class);
+          expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
 
-              LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
-              formatStream.toInstance(BuiltinRenderer.InputStream);
+                   LinkedBindingBuilder<Renderer> customFormatter = unit
+              .mock(LinkedBindingBuilder.class);
+          customFormatter.toInstance(unit.get(Renderer.class));
 
-              LinkedBindingBuilder<Renderer> formatString = unit.mock(LinkedBindingBuilder.class);
-              formatString.toInstance(BuiltinRenderer.ToString);
+          LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
+          formatByteArray.toInstance(BuiltinRenderer.Bytes);
 
-              LinkedBindingBuilder<Renderer> customFormatter = unit
-                  .mock(LinkedBindingBuilder.class);
-              customFormatter.toInstance(unit.get(Renderer.class));
+          LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
+          formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
 
-              LinkedBindingBuilder<Renderer> formatByteArray = unit
-                  .mock(LinkedBindingBuilder.class);
-              formatByteArray.toInstance(BuiltinRenderer.Bytes);
+          LinkedBindingBuilder<Renderer> file = unit.mock(LinkedBindingBuilder.class);
+          file.toInstance(BuiltinRenderer.File);
 
-              LinkedBindingBuilder<Renderer> formatByteBuffer = unit
-                  .mock(LinkedBindingBuilder.class);
-              formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
+          LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
+          formatStream.toInstance(BuiltinRenderer.InputStream);
 
-              LinkedBindingBuilder<Renderer> file = unit.mock(LinkedBindingBuilder.class);
-              file.toInstance(BuiltinRenderer.File);
+          LinkedBindingBuilder<Renderer> reader = unit.mock(LinkedBindingBuilder.class);
+          reader.toInstance(BuiltinRenderer.Reader);
 
-              expect(multibinder.addBinding()).andReturn(customFormatter);
-              expect(multibinder.addBinding()).andReturn(formatStream);
-              expect(multibinder.addBinding()).andReturn(formatByteArray);
-              expect(multibinder.addBinding()).andReturn(formatByteBuffer);
-              expect(multibinder.addBinding()).andReturn(file);
-              expect(multibinder.addBinding()).andReturn(formatString);
+          LinkedBindingBuilder<Renderer> charBuffer = unit.mock(LinkedBindingBuilder.class);
+          charBuffer.toInstance(BuiltinRenderer.CharBuffer);
 
-            })
+
+          LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
+          formatAny.toInstance(BuiltinRenderer.ToString);
+
+          expect(multibinder.addBinding()).andReturn(customFormatter);
+          expect(multibinder.addBinding()).andReturn(formatByteArray);
+          expect(multibinder.addBinding()).andReturn(formatByteBuffer);
+          expect(multibinder.addBinding()).andReturn(file);
+          expect(multibinder.addBinding()).andReturn(charBuffer);
+          expect(multibinder.addBinding()).andReturn(formatStream);
+          expect(multibinder.addBinding()).andReturn(reader);
+          expect(multibinder.addBinding()).andReturn(formatAny);
+        })
         .expect(routes)
         .expect(routeHandler)
         .expect(params)
@@ -2173,7 +2185,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(unit -> {
           Binder binder = unit.get(Binder.class);
 
@@ -2249,7 +2261,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
@@ -2299,7 +2311,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(params)
@@ -2347,7 +2359,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
@@ -2394,7 +2406,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(bodyFormatter)
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)
@@ -2430,39 +2442,7 @@ public class JoobyTest {
         .expect(dateTimeFormatter)
         .expect(numberFormat)
         .expect(decimalFormat)
-        .expect(
-            unit -> {
-              Multibinder<Renderer> multibinder = unit.mock(Multibinder.class);
-
-              Binder binder = unit.get(Binder.class);
-              unit.mockStatic(Multibinder.class);
-
-              expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
-
-              LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
-              formatStream.toInstance(BuiltinRenderer.InputStream);
-
-              LinkedBindingBuilder<Renderer> formatByteArray = unit
-                  .mock(LinkedBindingBuilder.class);
-              formatByteArray.toInstance(BuiltinRenderer.Bytes);
-
-              LinkedBindingBuilder<Renderer> formatByteBuffer = unit
-                  .mock(LinkedBindingBuilder.class);
-              formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
-
-              LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
-              formatAny.toInstance(BuiltinRenderer.ToString);
-
-              LinkedBindingBuilder<Renderer> file = unit.mock(LinkedBindingBuilder.class);
-              file.toInstance(BuiltinRenderer.File);
-
-              expect(multibinder.addBinding()).andReturn(formatStream);
-              expect(multibinder.addBinding()).andReturn(formatByteArray);
-              expect(multibinder.addBinding()).andReturn(formatByteBuffer);
-              expect(multibinder.addBinding()).andReturn(file);
-              expect(multibinder.addBinding()).andReturn(formatAny);
-
-            })
+        .expect(renderers)
         .expect(session)
         .expect(routes)
         .expect(routeHandler)

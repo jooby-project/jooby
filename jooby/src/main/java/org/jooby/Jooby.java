@@ -2855,10 +2855,12 @@ public class Jooby {
         binder.bind(ParserExecutor.class).in(Singleton.class);
 
         // renderer
-        renderers.addBinding().toInstance(BuiltinRenderer.InputStream);
         renderers.addBinding().toInstance(BuiltinRenderer.Bytes);
         renderers.addBinding().toInstance(BuiltinRenderer.ByteBuffer);
         renderers.addBinding().toInstance(BuiltinRenderer.File);
+        renderers.addBinding().toInstance(BuiltinRenderer.CharBuffer);
+        renderers.addBinding().toInstance(BuiltinRenderer.InputStream);
+        renderers.addBinding().toInstance(BuiltinRenderer.Reader);
         renderers.addBinding().toInstance(BuiltinRenderer.ToString);
 
         binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);

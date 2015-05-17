@@ -1,7 +1,9 @@
 package org.jooby.internal;
 
 import java.io.InputStream;
+import java.io.Reader;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Iterator;
@@ -78,6 +80,16 @@ public abstract class AbstractRendererContext implements Renderer.Context {
   @Override
   public Charset charset() {
     return charset;
+  }
+
+  @Override
+  public void send(final CharBuffer buffer) throws Exception {
+    send(charset.encode(buffer));
+  }
+
+  @Override
+  public void send(final Reader reader) throws Exception {
+    send(new ReaderInputStream(reader, charset));
   }
 
   @Override

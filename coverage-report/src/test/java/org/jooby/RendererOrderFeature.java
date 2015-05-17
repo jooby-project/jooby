@@ -22,7 +22,7 @@ public class RendererOrderFeature extends ServerFeature {
 
       @Override
       public void render(final Object object, final Context ctx) throws Exception {
-        assertEquals("[r1, r2, r3, InputStream, byte[], ByteBuffer, File, toString()]",
+        assertEquals("[r1, r2, r3, byte[], ByteBuffer, File, CharBuffer, InputStream, Reader, toString()]",
             ctx.toString());
       }
 
@@ -67,6 +67,6 @@ public class RendererOrderFeature extends ServerFeature {
   public void order() throws Exception {
     request()
         .get("/renderer/order")
-        .expect("[r1, r2, r3, InputStream, byte[], ByteBuffer, File, toString()]");
+        .expect("[r1, r2, r3, byte[], ByteBuffer, File, CharBuffer, InputStream, Reader, toString()]");
   }
 }

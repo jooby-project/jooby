@@ -19,7 +19,9 @@
 package org.jooby;
 
 import java.io.InputStream;
+import java.io.Reader;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -175,6 +177,22 @@ public interface Renderer {
      * @throws Exception When the operation fails.
      */
     void send(InputStream stream) throws Exception;
+
+    /**
+     * Write test into the HTTP response body.
+     *
+     * @param text A text to write.
+     * @throws Exception When the operation fails.
+     */
+    void send(CharBuffer buffer) throws Exception;
+
+    /**
+     * Write test into the HTTP response body.
+     *
+     * @param text A text to write.
+     * @throws Exception When the operation fails.
+     */
+    void send(Reader reader) throws Exception;
 
     /**
      * Write test into the HTTP response body.
