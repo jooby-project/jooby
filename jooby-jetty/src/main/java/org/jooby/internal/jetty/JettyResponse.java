@@ -2,15 +2,22 @@ package org.jooby.internal.jetty;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.util.Callback;
 import org.jooby.servlet.ServletServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class JettyResponse extends ServletServletResponse {
+public class JettyResponse extends ServletServletResponse implements Callback {
+
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(Response.class);
 
   public JettyResponse(final HttpServletResponse rsp) {
     super(rsp);
@@ -18,35 +25,37 @@ public class JettyResponse extends ServletServletResponse {
 
   @Override
   public void send(final byte[] bytes) throws Exception {
-    HttpOutput output = output();
-    output.sendContent(ByteBuffer.wrap(bytes));
-    output.close();
+    sender().sendContent(ByteBuffer.wrap(bytes), this);
   }
 
   @Override
   public void send(final ByteBuffer buffer) throws Exception {
-    HttpOutput output = output();
-    output.sendContent(buffer);
-    output.close();
+    sender().sendContent(buffer, this);
   }
 
   @Override
   public void send(final InputStream stream) throws Exception {
-    HttpOutput output = output();
-    output.sendContent(stream);
-    stream.close();
-    output.close();
+    sender().sendContent(Channels.newChannel(stream), this);
   }
 
   @Override
   public void send(final FileChannel channel) throws Exception {
-    HttpOutput output = output();
-    output.sendContent(channel);
-    output.close();
+    sender().sendContent(channel, this);
   }
 
-  private HttpOutput output() {
+  private HttpOutput sender() {
     return ((Response) rsp).getHttpOutput();
+  }
+
+  @Override
+  public void succeeded() {
+    // NOOP
+  }
+
+  @Override
+  public void failed(final Throwable cause) {
+    // TODO: will be nice to log the path of the current request
+    log.error(rsp.toString(), cause);
   }
 
 }
