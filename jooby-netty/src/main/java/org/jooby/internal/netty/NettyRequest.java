@@ -22,14 +22,14 @@ import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.CookieDecoder;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -125,7 +125,7 @@ public class NettyRequest implements NativeRequest {
     if (this.cookies == null) {
       String cookieString = req.headers().get(HttpHeaders.Names.COOKIE);
       if (cookieString != null) {
-        this.cookies = CookieDecoder.decode(cookieString).stream()
+        this.cookies = ServerCookieDecoder.STRICT.decode(cookieString).stream()
             .map(this::cookie)
             .collect(Collectors.toList());
 
@@ -194,10 +194,9 @@ public class NettyRequest implements NativeRequest {
   }
 
   private org.jooby.Cookie cookie(final Cookie c) {
-    org.jooby.Cookie.Definition cookie = new org.jooby.Cookie.Definition(c.getName(), c.getValue());
-    Optional.ofNullable(c.getComment()).ifPresent(cookie::comment);
-    Optional.ofNullable(c.getDomain()).ifPresent(cookie::domain);
-    Optional.ofNullable(c.getPath()).ifPresent(cookie::path);
+    org.jooby.Cookie.Definition cookie = new org.jooby.Cookie.Definition(c.name(), c.value());
+    Optional.ofNullable(c.domain()).ifPresent(cookie::domain);
+    Optional.ofNullable(c.path()).ifPresent(cookie::path);
 
     return cookie.toCookie();
   }
