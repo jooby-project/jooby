@@ -125,7 +125,7 @@ public class WebSocketImpl implements WebSocket {
     new WebSocketRendererContext(
         renderers,
         ws,
-        ImmutableList.of(produces),
+        produces,
         StandardCharsets.UTF_8,
         success,
         err).renderer(data);

@@ -102,7 +102,16 @@ public interface NativeWebSocket {
    * @param success Success callback.
    * @param err Error callback.
    */
-  void send(ByteBuffer data, WebSocket.SuccessCallback success, WebSocket.ErrCallback err);
+  void sendBytes(ByteBuffer data, WebSocket.SuccessCallback success, WebSocket.ErrCallback err);
+
+  /**
+   * Send a binary message to the client.
+   *
+   * @param data Message to send.
+   * @param success Success callback.
+   * @param err Error callback.
+   */
+  void sendBytes(byte[] data, WebSocket.SuccessCallback success, WebSocket.ErrCallback err);
 
   /**
    * Send a text message to the client.
@@ -111,7 +120,25 @@ public interface NativeWebSocket {
    * @param success Success callback.
    * @param err Error callback.
    */
-  void send(String data, WebSocket.SuccessCallback success, WebSocket.ErrCallback err);
+  void sendText(String data, WebSocket.SuccessCallback success, WebSocket.ErrCallback err);
+
+  /**
+   * Send a text message to the client.
+   *
+   * @param data Message to send.
+   * @param success Success callback.
+   * @param err Error callback.
+   */
+  void sendText(ByteBuffer data, WebSocket.SuccessCallback success, WebSocket.ErrCallback err);
+
+  /**
+   * Send a text message to the client.
+   *
+   * @param data Message to send.
+   * @param success Success callback.
+   * @param err Error callback.
+   */
+  void sendText(byte[] data, WebSocket.SuccessCallback success, WebSocket.ErrCallback err);
 
   /**
    * @return True if the websocket connection is open.

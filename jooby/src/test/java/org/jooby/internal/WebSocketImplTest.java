@@ -8,7 +8,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -30,7 +29,6 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -69,10 +67,10 @@ public class WebSocketImplTest {
         .expect(unit -> {
           Set<Renderer> renderers = Collections.emptySet();
           WebSocketRendererContext ctx = unit.mockConstructor(WebSocketRendererContext.class,
-              new Class[]{Set.class, NativeWebSocket.class, List.class, Charset.class,
+              new Class[]{Set.class, NativeWebSocket.class, MediaType.class, Charset.class,
                   WebSocket.SuccessCallback.class,
                   WebSocket.ErrCallback.class }, renderers, unit.get(NativeWebSocket.class),
-              ImmutableList.of(produces), StandardCharsets.UTF_8,
+              produces, StandardCharsets.UTF_8,
               unit.get(WebSocket.SuccessCallback.class),
               unit.get(WebSocket.ErrCallback.class));
           ctx.renderer(data);

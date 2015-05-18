@@ -52,9 +52,9 @@ public class NettyResponse implements NativeResponse {
 
   private boolean keepAlive;
 
-  private HttpResponseStatus status = HttpResponseStatus.OK;
+  private HttpResponseStatus status;
 
-  HttpHeaders headers;
+  private HttpHeaders headers;
 
   private boolean committed;
 
@@ -66,6 +66,7 @@ public class NettyResponse implements NativeResponse {
     this.bufferSize = bufferSize;
     this.keepAlive = keepAlive;
     this.headers = new DefaultHttpHeaders();
+    this.status = HttpResponseStatus.OK;
   }
 
   @Override
@@ -76,8 +77,7 @@ public class NettyResponse implements NativeResponse {
 
   @Override
   public Optional<String> header(final String name) {
-    String value = this.headers.get(name);
-    return Optional.ofNullable(value);
+    return Optional.ofNullable(this.headers.get(name));
   }
 
   @Override
@@ -87,8 +87,8 @@ public class NettyResponse implements NativeResponse {
 
   @Override
   public void header(final String name, final Iterable<String> values) {
-    headers.remove(name);
-    headers.add(name, values);
+    headers.remove(name)
+        .add(name, values);
   }
 
   @Override
@@ -113,8 +113,8 @@ public class NettyResponse implements NativeResponse {
       send(buffer);
     } else {
       DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
-      String len = headers.get(HttpHeaders.Names.CONTENT_LENGTH);
-      if (len == null) {
+
+      if (!headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
         headers.set(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
       }
 
@@ -122,8 +122,10 @@ public class NettyResponse implements NativeResponse {
       rsp.headers().set(headers);
       // send headers
       ctx.write(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
+      // send head chunk
       ctx.write(buffer).addListener(FIRE_EXCEPTION_ON_FAILURE);
-      ctx.write(new ChunkedStream(stream, bufferSize));
+      // send tail
+      ctx.write(new ChunkedStream(stream, bufferSize)).addListener(FIRE_EXCEPTION_ON_FAILURE);
       keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
     }
 
@@ -133,16 +135,18 @@ public class NettyResponse implements NativeResponse {
   @Override
   public void send(final FileChannel channel) throws Exception {
     DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
-    String len = headers.get(HttpHeaders.Names.CONTENT_LENGTH);
-    if (len == null) {
-      headers.set(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
+
+    if (!headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
+      headers.remove(HttpHeaders.Names.TRANSFER_ENCODING);
+      headers.set(HttpHeaders.Names.CONTENT_LENGTH, channel.size());
     }
 
     // dump headers
     rsp.headers().set(headers);
     // send headers
     ctx.write(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
-    ctx.write(new DefaultFileRegion(channel, 0, channel.size()));
+    ctx.write(new DefaultFileRegion(channel, 0, channel.size()))
+        .addListener(FIRE_EXCEPTION_ON_FAILURE);
     keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
 
     committed = true;
@@ -151,10 +155,9 @@ public class NettyResponse implements NativeResponse {
   private void send(final ByteBuf buffer) throws Exception {
     DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, buffer);
 
-    String len = headers.get(HttpHeaders.Names.CONTENT_LENGTH);
-    if (len == null) {
-      headers.remove(HttpHeaders.Names.TRANSFER_ENCODING);
-      headers.set(HttpHeaders.Names.CONTENT_LENGTH, buffer.readableBytes());
+    if (!headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
+      headers.remove(HttpHeaders.Names.TRANSFER_ENCODING)
+          .set(HttpHeaders.Names.CONTENT_LENGTH, buffer.readableBytes());
     }
 
     // dump headers
@@ -184,10 +187,6 @@ public class NettyResponse implements NativeResponse {
   @Override
   public void statusCode(final int code) {
     this.status = HttpResponseStatus.valueOf(code);
-  }
-
-  HttpResponseStatus status() {
-    return status;
   }
 
   @Override

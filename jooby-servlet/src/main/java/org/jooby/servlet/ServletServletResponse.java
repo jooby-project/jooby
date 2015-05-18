@@ -20,7 +20,6 @@ package org.jooby.servlet;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -52,7 +51,7 @@ public class ServletServletResponse implements NativeResponse {
   @Override
   public List<String> headers(final String name) {
     Collection<String> headers = rsp.getHeaders(name);
-    if (headers == null) {
+    if (headers == null || headers.size() == 0) {
       return Collections.emptyList();
     }
     return ImmutableList.copyOf(headers);
@@ -79,7 +78,7 @@ public class ServletServletResponse implements NativeResponse {
   @Override
   public void send(final byte[] bytes) throws Exception {
     ServletOutputStream output = rsp.getOutputStream();
-    ByteStreams.copy(new ByteArrayInputStream(bytes), output);
+    output.write(bytes);
     output.close();
   }
 
@@ -103,6 +102,7 @@ public class ServletServletResponse implements NativeResponse {
     ServletOutputStream output = rsp.getOutputStream();
     ByteStreams.copy(stream, output);
     output.close();
+    stream.close();
   }
 
   @Override

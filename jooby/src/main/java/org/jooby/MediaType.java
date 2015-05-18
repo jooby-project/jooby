@@ -370,6 +370,10 @@ public class MediaType implements Comparable<MediaType> {
    * @return True, if this type is a well-known text type.
    */
   public boolean isText() {
+    if (this.wildcardType) {
+      return false;
+    }
+
     if (text.matches(this)) {
       return true;
     }

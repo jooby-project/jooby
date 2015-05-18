@@ -3,6 +3,7 @@ package org.jooby.internal.undertow;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.server.ServerConnection;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
 
@@ -35,8 +36,9 @@ public class ChunkedStream implements IoCallback, Runnable {
     this.exchange = exchange;
     this.callback = callback;
     this.sender = exchange.getResponseSender();
-    this.pooled = exchange.getConnection().getBufferPool().allocate();
-    this.bufferSize = exchange.getConnection().getBufferSize();
+    ServerConnection connection = exchange.getConnection();
+    this.pooled = connection.getBufferPool().allocate();
+    this.bufferSize = connection.getBufferSize();
 
     onComplete(exchange, sender);
   }
@@ -52,11 +54,19 @@ public class ChunkedStream implements IoCallback, Runnable {
         done();
         callback.onComplete(exchange, sender);
       } else {
-        if (chunk == 1 && count < bufferSize) {
-          HeaderMap headers = exchange.getResponseHeaders();
-          if (!headers.contains(Headers.CONTENT_LENGTH)) {
-            headers.put(Headers.CONTENT_LENGTH, count);
-            headers.remove(Headers.TRANSFER_ENCODING);
+        if (chunk == 1) {
+          if (count < bufferSize) {
+            HeaderMap headers = exchange.getResponseHeaders();
+            if (!headers.contains(Headers.CONTENT_LENGTH)) {
+              headers.put(Headers.CONTENT_LENGTH, count);
+              headers.remove(Headers.TRANSFER_ENCODING);
+            }
+          } else {
+            HeaderMap headers = exchange.getResponseHeaders();
+            // just check if
+            if (!headers.contains(Headers.CONTENT_LENGTH)) {
+              headers.put(Headers.TRANSFER_ENCODING, "chunked");
+            }
           }
         }
         buffer.flip();

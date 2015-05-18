@@ -22,6 +22,8 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -108,19 +110,43 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
   }
 
   @Override
-  public void send(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
-    requireNonNull(data, "A data message is required.");
+  public void sendBytes(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
+    requireNonNull(data, "No data to send.");
 
     RemoteEndpoint remote = session.getRemote();
     remote.sendBytes(data, callback(log, success, err));
   }
 
   @Override
-  public void send(final String data, final SuccessCallback success, final ErrCallback err) {
-    requireNonNull(data, "A data message is required.");
+  public void sendBytes(final byte[] data, final SuccessCallback success, final ErrCallback err) {
+    requireNonNull(data, "No data to send.");
+    sendBytes(ByteBuffer.wrap(data), success, err);
+  }
+
+  @Override
+  public void sendText(final String data, final SuccessCallback success, final ErrCallback err) {
+    requireNonNull(data, "No data to send.");
 
     RemoteEndpoint remote = session.getRemote();
     remote.sendString(data, callback(log, success, err));
+  }
+
+  @Override
+  public void sendText(final byte[] data, final SuccessCallback success, final ErrCallback err) {
+    requireNonNull(data, "No data to send.");
+
+    RemoteEndpoint remote = session.getRemote();
+    remote.sendString(new String(data, StandardCharsets.UTF_8), callback(log, success, err));
+  }
+
+  @Override
+  public void sendText(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
+    requireNonNull(data, "No data to send.");
+
+    RemoteEndpoint remote = session.getRemote();
+    CharBuffer buffer = StandardCharsets.UTF_8.decode(data);
+    // we need a TextFrame with ByteBuffer :(
+    remote.sendString(buffer.toString(), callback(log, success, err));
   }
 
   @Override

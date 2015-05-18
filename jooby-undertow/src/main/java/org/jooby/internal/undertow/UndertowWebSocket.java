@@ -204,13 +204,28 @@ public class UndertowWebSocket extends AbstractReceiveListener implements Native
   }
 
   @Override
-  public void send(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
+  public void sendBytes(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
     WebSockets.sendBinary(data, channel, callback(log, success, err));
   }
 
   @Override
-  public void send(final String data, final SuccessCallback success, final ErrCallback err) {
+  public void sendBytes(final byte[] data, final SuccessCallback success, final ErrCallback err) {
+    WebSockets.sendBinary(ByteBuffer.wrap(data), channel, callback(log, success, err));
+  }
+
+  @Override
+  public void sendText(final String data, final SuccessCallback success, final ErrCallback err) {
     WebSockets.sendText(data, channel, callback(log, success, err));
+  }
+
+  @Override
+  public void sendText(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
+    WebSockets.sendText(data, channel, callback(log, success, err));
+  }
+
+  @Override
+  public void sendText(final byte[] data, final SuccessCallback success, final ErrCallback err) {
+    WebSockets.sendText(ByteBuffer.wrap(data), channel, callback(log, success, err));
   }
 
   private static WebSocketCallback<Void> callback(final Logger log, final SuccessCallback success,

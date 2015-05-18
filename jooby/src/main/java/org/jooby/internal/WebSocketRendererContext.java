@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import org.jooby.MediaType;
@@ -13,6 +12,8 @@ import org.jooby.Renderer;
 import org.jooby.WebSocket.ErrCallback;
 import org.jooby.WebSocket.SuccessCallback;
 import org.jooby.spi.NativeWebSocket;
+
+import com.google.common.collect.ImmutableList;
 
 public class WebSocketRendererContext extends AbstractRendererContext {
 
@@ -22,28 +23,39 @@ public class WebSocketRendererContext extends AbstractRendererContext {
 
   private ErrCallback err;
 
+  private MediaType type;
+
   public WebSocketRendererContext(final Set<Renderer> renderers, final NativeWebSocket ws,
-      final List<MediaType> produces, final Charset charset, final SuccessCallback success,
+      final MediaType type, final Charset charset, final SuccessCallback success,
       final ErrCallback err) {
-    super(renderers, produces, charset, Collections.emptyMap());
+    super(renderers, ImmutableList.of(type), charset, Collections.emptyMap());
     this.ws = ws;
+    this.type = type;
     this.success = success;
     this.err = err;
   }
 
   @Override
   protected void _send(final String text) throws Exception {
-    ws.send(text, success, err);
+    ws.sendText(text, success, err);
   }
 
   @Override
   protected void _send(final byte[] bytes) throws Exception {
-    ws.send(ByteBuffer.wrap(bytes), success, err);
+    if (type.isText()) {
+      ws.sendText(bytes, success, err);
+    } else {
+      ws.sendBytes(bytes, success, err);
+    }
   }
 
   @Override
   protected void _send(final ByteBuffer buffer) throws Exception {
-    ws.send(buffer, success, err);
+    if (type.isText()) {
+      ws.sendText(buffer, success, err);
+    } else {
+      ws.sendBytes(buffer, success, err);
+    }
   }
 
   @Override

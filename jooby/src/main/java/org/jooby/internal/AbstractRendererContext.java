@@ -1,5 +1,6 @@
 package org.jooby.internal;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.ByteBuffer;
@@ -93,35 +94,39 @@ public abstract class AbstractRendererContext implements Renderer.Context {
   }
 
   @Override
-  public final void send(final String text) throws Exception {
+  public void send(final String text) throws Exception {
     _send(text);
     committed = true;
   }
 
   @Override
-  public final void send(final byte[] bytes) throws Exception {
+  public void send(final byte[] bytes) throws Exception {
     length(bytes.length);
     _send(bytes);
     committed = true;
   }
 
   @Override
-  public final void send(final ByteBuffer buffer) throws Exception {
+  public void send(final ByteBuffer buffer) throws Exception {
     length(buffer.remaining());
     _send(buffer);
     committed = true;
   }
 
   @Override
-  public final void send(final FileChannel file) throws Exception {
+  public void send(final FileChannel file) throws Exception {
     length(file.size());
     _send(file);
     committed = true;
   }
 
   @Override
-  public final void send(final InputStream stream) throws Exception {
-    _send(stream);
+  public void send(final InputStream stream) throws Exception {
+    if (stream instanceof FileInputStream) {
+      _send(((FileInputStream) stream).getChannel());
+    } else {
+      _send(stream);
+    }
     committed = true;
   }
 

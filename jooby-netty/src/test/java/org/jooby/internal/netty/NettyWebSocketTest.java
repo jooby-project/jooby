@@ -252,7 +252,7 @@ public class NettyWebSocketTest {
                   unit.get(WebSocketServerHandshaker.class),
                   unit.get(Consumer.class)
                   );
-              ws.send(buffer, unit.get(WebSocket.SuccessCallback.class),
+              ws.sendBytes(buffer, unit.get(WebSocket.SuccessCallback.class),
                   unit.get(WebSocket.ErrCallback.class));
             },
             unit -> {
@@ -294,7 +294,7 @@ public class NettyWebSocketTest {
                   unit.get(WebSocketServerHandshaker.class),
                   unit.get(Consumer.class)
                   );
-              ws.send(data, unit.get(WebSocket.SuccessCallback.class),
+              ws.sendText(data, unit.get(WebSocket.SuccessCallback.class),
                   unit.get(WebSocket.ErrCallback.class));
             },
             unit -> {
@@ -342,7 +342,7 @@ public class NettyWebSocketTest {
                   unit.get(WebSocketServerHandshaker.class),
                   unit.get(Consumer.class)
                   );
-              ws.send(buffer, unit.get(WebSocket.SuccessCallback.class),
+              ws.sendBytes(buffer, unit.get(WebSocket.SuccessCallback.class),
                   unit.get(WebSocket.ErrCallback.class));
             },
             unit -> {
@@ -386,7 +386,7 @@ public class NettyWebSocketTest {
                   unit.get(WebSocketServerHandshaker.class),
                   unit.get(Consumer.class)
                   );
-              ws.send(data, unit.get(WebSocket.SuccessCallback.class),
+              ws.sendText(data, unit.get(WebSocket.SuccessCallback.class),
                   unit.get(WebSocket.ErrCallback.class));
             },
             unit -> {

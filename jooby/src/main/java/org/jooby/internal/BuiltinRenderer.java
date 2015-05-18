@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.channels.FileChannel;
 
 import org.jooby.MediaType;
 import org.jooby.Renderer;
@@ -83,7 +84,9 @@ public enum BuiltinRenderer implements Renderer {
     @Override
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       if (object instanceof File) {
-        ctx.send(new FileInputStream((File) object));
+        File file = (java.io.File) object;
+        ctx.type(MediaType.byFile(file).orElse(MediaType.octetstream));
+        ctx.send(new FileInputStream(file));
       }
     }
   },
@@ -95,6 +98,16 @@ public enum BuiltinRenderer implements Renderer {
         CharBuffer buffer = (CharBuffer) object;
         ctx.type(MediaType.html)
             .send(buffer);
+      }
+    }
+  },
+
+  FileChannel {
+    @Override
+    public void render(final Object object, final Renderer.Context ctx) throws Exception {
+      if (object instanceof FileChannel) {
+        ctx.type(MediaType.octetstream);
+        ctx.send((FileChannel) object);
       }
     }
   },

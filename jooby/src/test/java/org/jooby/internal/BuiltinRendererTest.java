@@ -8,7 +8,7 @@ public class BuiltinRendererTest {
 
   @Test
   public void values() {
-    assertEquals(7, BuiltinRenderer.values().length);
+    assertEquals(8, BuiltinRenderer.values().length);
   }
 
   @Test

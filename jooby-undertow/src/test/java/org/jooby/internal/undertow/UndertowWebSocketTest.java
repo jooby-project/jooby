@@ -467,7 +467,7 @@ public class UndertowWebSocketTest {
           UndertowWebSocket ws = new UndertowWebSocket(unit.get(Config.class));
           ws.onConnect(unit.get(Runnable.class));
           ws.connect(unit.get(WebSocketChannel.class));
-          ws.send("data", unit.get(WebSocket.SuccessCallback.class),
+          ws.sendText("data", unit.get(WebSocket.SuccessCallback.class),
               unit.get(WebSocket.ErrCallback.class));
         }, unit -> {
           WebSocketCallback<Void> callback = unit.captured(WebSocketCallback.class).iterator()
@@ -496,7 +496,7 @@ public class UndertowWebSocketTest {
           UndertowWebSocket ws = new UndertowWebSocket(unit.get(Config.class));
           ws.onConnect(unit.get(Runnable.class));
           ws.connect(unit.get(WebSocketChannel.class));
-          ws.send("data", unit.get(WebSocket.SuccessCallback.class),
+          ws.sendText("data", unit.get(WebSocket.SuccessCallback.class),
               unit.get(WebSocket.ErrCallback.class));
         }, unit -> {
           WebSocketCallback<Void> callback = unit.captured(WebSocketCallback.class).iterator()
@@ -525,7 +525,7 @@ public class UndertowWebSocketTest {
           UndertowWebSocket ws = new UndertowWebSocket(unit.get(Config.class));
           ws.onConnect(unit.get(Runnable.class));
           ws.connect(unit.get(WebSocketChannel.class));
-          ws.send(data, unit.get(WebSocket.SuccessCallback.class),
+          ws.sendBytes(data, unit.get(WebSocket.SuccessCallback.class),
               unit.get(WebSocket.ErrCallback.class));
         }, unit -> {
           WebSocketCallback<Void> callback = unit.captured(WebSocketCallback.class).iterator()
@@ -554,7 +554,7 @@ public class UndertowWebSocketTest {
           UndertowWebSocket ws = new UndertowWebSocket(unit.get(Config.class));
           ws.onConnect(unit.get(Runnable.class));
           ws.connect(unit.get(WebSocketChannel.class));
-          ws.send("data", unit.get(WebSocket.SuccessCallback.class),
+          ws.sendText("data", unit.get(WebSocket.SuccessCallback.class),
               unit.get(WebSocket.ErrCallback.class));
         }, unit -> {
           WebSocketCallback<Void> callback = unit.captured(WebSocketCallback.class).iterator()

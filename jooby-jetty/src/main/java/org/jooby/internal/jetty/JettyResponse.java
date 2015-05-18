@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class JettyResponse extends ServletServletResponse implements Callback {
 
   /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(Response.class);
+  private final Logger log = LoggerFactory.getLogger(org.jooby.Response.class);
 
   public JettyResponse(final HttpServletResponse rsp) {
     super(rsp);

@@ -260,6 +260,9 @@ public class JoobyTest {
     LinkedBindingBuilder<Renderer> charBuffer = unit.mock(LinkedBindingBuilder.class);
     charBuffer.toInstance(BuiltinRenderer.CharBuffer);
 
+    LinkedBindingBuilder<Renderer> fchannel = unit.mock(LinkedBindingBuilder.class);
+    fchannel.toInstance(BuiltinRenderer.FileChannel);
+
     LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
     formatAny.toInstance(BuiltinRenderer.ToString);
 
@@ -269,6 +272,7 @@ public class JoobyTest {
     expect(multibinder.addBinding()).andReturn(charBuffer);
     expect(multibinder.addBinding()).andReturn(formatStream);
     expect(multibinder.addBinding()).andReturn(reader);
+    expect(multibinder.addBinding()).andReturn(fchannel);
     expect(multibinder.addBinding()).andReturn(formatAny);
 
   };
@@ -2092,7 +2096,7 @@ public class JoobyTest {
   }
 
   @Test
-  public void useFormatter() throws Exception {
+  public void renderer() throws Exception {
 
     new MockUnit(Renderer.class, Binder.class)
         .expect(guice)
@@ -2138,6 +2142,8 @@ public class JoobyTest {
           LinkedBindingBuilder<Renderer> charBuffer = unit.mock(LinkedBindingBuilder.class);
           charBuffer.toInstance(BuiltinRenderer.CharBuffer);
 
+          LinkedBindingBuilder<Renderer> fchannel = unit.mock(LinkedBindingBuilder.class);
+          fchannel.toInstance(BuiltinRenderer.FileChannel);
 
           LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
           formatAny.toInstance(BuiltinRenderer.ToString);
@@ -2149,6 +2155,7 @@ public class JoobyTest {
           expect(multibinder.addBinding()).andReturn(charBuffer);
           expect(multibinder.addBinding()).andReturn(formatStream);
           expect(multibinder.addBinding()).andReturn(reader);
+          expect(multibinder.addBinding()).andReturn(fchannel);
           expect(multibinder.addBinding()).andReturn(formatAny);
         })
         .expect(routes)

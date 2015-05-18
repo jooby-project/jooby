@@ -2861,6 +2861,7 @@ public class Jooby {
         renderers.addBinding().toInstance(BuiltinRenderer.CharBuffer);
         renderers.addBinding().toInstance(BuiltinRenderer.InputStream);
         renderers.addBinding().toInstance(BuiltinRenderer.Reader);
+        renderers.addBinding().toInstance(BuiltinRenderer.FileChannel);
         renderers.addBinding().toInstance(BuiltinRenderer.ToString);
 
         binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);

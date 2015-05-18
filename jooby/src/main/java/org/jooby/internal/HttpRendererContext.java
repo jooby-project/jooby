@@ -20,7 +20,6 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -84,11 +83,7 @@ public class HttpRendererContext extends AbstractRendererContext {
 
   @Override
   protected void _send(final InputStream stream) throws Exception {
-    if (stream instanceof FileInputStream) {
-      _send(((FileInputStream) stream).getChannel());
-    } else {
-      rsp.send(stream);
-    }
+    rsp.send(stream);
   }
 
 }
