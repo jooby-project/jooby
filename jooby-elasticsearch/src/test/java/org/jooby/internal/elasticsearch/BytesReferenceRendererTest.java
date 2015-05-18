@@ -8,10 +8,10 @@ import org.jooby.MockUnit;
 import org.jooby.Renderer;
 import org.junit.Test;
 
-public class BytesReferenceFormatterTest {
+public class BytesReferenceRendererTest {
 
   @Test
-  public void format() throws Exception {
+  public void render() throws Exception {
     new MockUnit(BytesReference.class, Renderer.Context.class, StreamInput.class)
         .expect(unit -> {
           Renderer.Context ctx = unit.get(Renderer.Context.class);
@@ -22,7 +22,16 @@ public class BytesReferenceFormatterTest {
           expect(bytes.streamInput()).andReturn(unit.get(StreamInput.class));
         })
         .run(unit -> {
-          new BytesReferenceFormatter().render(unit.get(BytesReference.class),
+          new BytesReferenceRenderer().render(unit.get(BytesReference.class),
+              unit.get(Renderer.Context.class));
+        });
+  }
+
+  @Test
+  public void renderIgnored() throws Exception {
+    new MockUnit(Renderer.Context.class)
+        .run(unit -> {
+          new BytesReferenceRenderer().render(new Object(),
               unit.get(Renderer.Context.class));
         });
   }

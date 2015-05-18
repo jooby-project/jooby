@@ -18,7 +18,7 @@ import org.jooby.Env;
 import org.jooby.MockUnit;
 import org.jooby.Renderer;
 import org.jooby.Route;
-import org.jooby.internal.elasticsearch.BytesReferenceFormatter;
+import org.jooby.internal.elasticsearch.BytesReferenceRenderer;
 import org.jooby.internal.elasticsearch.EmbeddedHandler;
 import org.jooby.internal.elasticsearch.ManagedClient;
 import org.jooby.internal.elasticsearch.ManagedNode;
@@ -101,7 +101,7 @@ public class ElasticSearchTest {
     expect(binder.bind(Node.class)).andReturn(abbnode);
     expect(binder.bind(Client.class)).andReturn(abbclient);
 
-    BytesReferenceFormatter bytesRefFormatter = unit.mockConstructor(BytesReferenceFormatter.class);
+    BytesReferenceRenderer bytesRefFormatter = unit.mockConstructor(BytesReferenceRenderer.class);
 
     LinkedBindingBuilder<Renderer> lbbbf = unit.mock(LinkedBindingBuilder.class);
     lbbbf.toInstance(bytesRefFormatter);

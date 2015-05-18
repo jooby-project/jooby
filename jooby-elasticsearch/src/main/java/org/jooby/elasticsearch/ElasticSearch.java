@@ -32,7 +32,7 @@ import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Renderer;
 import org.jooby.Route;
-import org.jooby.internal.elasticsearch.BytesReferenceFormatter;
+import org.jooby.internal.elasticsearch.BytesReferenceRenderer;
 import org.jooby.internal.elasticsearch.EmbeddedHandler;
 import org.jooby.internal.elasticsearch.ManagedClient;
 import org.jooby.internal.elasticsearch.ManagedNode;
@@ -265,7 +265,7 @@ public class ElasticSearch implements Jooby.Module {
     binder.bind(Client.class).toProvider(new ManagedClient(node)).asEagerSingleton();
 
     Multibinder.newSetBinder(binder, Renderer.class).addBinding()
-        .toInstance(new BytesReferenceFormatter());
+        .toInstance(new BytesReferenceRenderer());
 
     EmbeddedHandler handler = new EmbeddedHandler(path, node, detailedErrors);
     Multibinder<Route.Definition> route = Multibinder.newSetBinder(binder, Route.Definition.class);

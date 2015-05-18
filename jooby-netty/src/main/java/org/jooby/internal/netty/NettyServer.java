@@ -32,7 +32,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 import javax.inject.Inject;
@@ -44,7 +43,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigException;
 
 public class NettyServer implements Server {
 
@@ -124,13 +122,6 @@ public class NettyServer implements Server {
         Class<?> optionType = result.getValue();
         Object value = config.getAnyRef(optionName);
         if (Number.class.isAssignableFrom(optionType)) {
-          if (value instanceof String) {
-            try {
-              value = config.getBytes(optionName);
-            } catch (ConfigException.BadValue ex) {
-              value = config.getDuration(optionName, TimeUnit.MILLISECONDS);
-            }
-          }
           if (optionType == Integer.class) {
             value = ((Number) value).intValue();
           }

@@ -21,7 +21,7 @@ package org.jooby.internal.elasticsearch;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.jooby.Renderer;
 
-public class BytesReferenceFormatter implements Renderer {
+public class BytesReferenceRenderer implements Renderer {
 
   @Override
   public void render(final Object object, final Renderer.Context ctx) throws Exception {
