@@ -19,11 +19,11 @@ class JacksonRenderer implements Renderer {
   }
 
   @Override
-  public void render(final Object object, final Context ctx) throws Exception {
-    if (ctx.accepts(types) && mapper.canSerialize(object.getClass())) {
+  public void render(final Object value, final Context ctx) throws Exception {
+    if (ctx.accepts(types) && mapper.canSerialize(value.getClass())) {
       ctx.type(types.get(0));
       // use UTF-8 and get byte version
-      byte[] bytes = mapper.writer().writeValueAsBytes(object);
+      byte[] bytes = mapper.writer().writeValueAsBytes(value);
       ctx.length(bytes.length)
           .send(bytes);
     }

@@ -3,7 +3,6 @@ package org.jooby;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.jooby.Status;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -15,7 +14,7 @@ public class ErrHandlerFeature extends ServerFeature {
     });
 
     err((req, rsp, ex) -> {
-      assertTrue(ex instanceof IllegalArgumentException);
+      assertTrue(ex.getCause() instanceof IllegalArgumentException);
       assertEquals(Status.BAD_REQUEST, rsp.status().get());
       rsp.send("err...");
     });

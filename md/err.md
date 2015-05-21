@@ -1,11 +1,10 @@
 # err
 
-Error handler is represented by [Err.Handler]({{defdocs}}/Err.Handler.html) class and allows you to log and/or display custom error pages.
+Error handler is represented by the [Err.Handler]({{defdocs}}/Err.Handler.html) class and allows you to log and/or render exceptions.
 
 ## default err handler
 
-The [default error handler]({{defdocs}}/Err.Default.html) does content negotiation and attempt to
-display friendly err pages using naming convention.
+The [default error handler]({{defdocs}}/Err.DefHandler.html) does content negotiation and optionallydisplay friendly err pages using naming convention.
 
 ```java
 {
@@ -31,7 +30,6 @@ The default model has these attributes:
 * stacktrace: exception stack-trace as an array of string
 * status: status code, like ```400```
 * reason: status code reason, like ```BAD REQUEST```
-* referer: referer header (if present)
 
 Here is a simply ```public/err.html``` error page:
 
@@ -59,6 +57,8 @@ ask to a [renderer]({{defdocs}}/Renderer.html) to render the ```err``` model.
 }
 ```
 
+In both cases, the error model is the result of ```err.toMap()``` which creates a lightweight version of the exception.
+
 HTTP status code will be set too.
 
 ## custom err handler
@@ -67,14 +67,16 @@ If the default view resolution and/or err model isn't enough, you can create you
 
 ```java
 {
-  err((req, rsp, cause) -> {
-    log.err("err found: ", cause);
+  err((req, rsp, err) -> {
+    log.err("err found: ", err);
     // do what ever you want here
+    rsp.send(...);
   });
 }
 ```
 
-A good practice is to always log the err and then build a custom page or any other response you want.
+Err handler are executed in the order they were provided (like routes, parser and renderers).
+The first err handler that send an output wins!
 
 ## status code
 
@@ -103,8 +105,3 @@ err.com.security.Forbidden = 403
 ```java
 throw new Forbidden();
 ```
-
-## fallback err handler
-
-If the err handler failed by any reason, the fallback err handler will be executed. This err handler
-just display a generic HTML err page.

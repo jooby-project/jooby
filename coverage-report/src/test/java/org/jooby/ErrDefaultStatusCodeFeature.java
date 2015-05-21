@@ -9,19 +9,19 @@ public class ErrDefaultStatusCodeFeature extends ServerFeature {
 
   {
     get("/IllegalArgumentException", (req, rsp) -> {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("intentional err");
     });
 
     get("/NoSuchElementException", (req, rsp) -> {
-      throw new NoSuchElementException();
+      throw new NoSuchElementException("intentional err");
     });
 
     get("/Err", (req, rsp) -> {
-      throw new Err(Status.BAD_REQUEST);
+      throw new Err(Status.BAD_REQUEST, "intentional err");
     });
 
     get("/NullPointerException", (req, rsp) -> {
-      throw new NullPointerException();
+      throw new NullPointerException("intentional err");
     });
 
     get("/NotAcceptable", (req, rsp) -> {

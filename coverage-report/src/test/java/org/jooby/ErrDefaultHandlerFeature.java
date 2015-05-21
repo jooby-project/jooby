@@ -18,7 +18,7 @@ public class ErrDefaultHandlerFeature extends ServerFeature {
         .get("/")
         .expect(400)
         .startsWith(
-            "<!doctype html><html>\n" +
+            "<!doctype html>\n<html>\n" +
                 "<head>\n" +
                 "<meta charset=\"UTF-8\">\n" +
                 "<style>\n" +

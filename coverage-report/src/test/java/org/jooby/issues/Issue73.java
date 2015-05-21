@@ -11,8 +11,8 @@ public class Issue73 extends ServerFeature {
 
     get("/issue73", req -> req.require(Config.class).getString("missing"));
 
-    err((req, rsp, cause) -> {
-      rsp.send(cause.getClass().getName());
+    err((req, rsp, err) -> {
+      rsp.send(err.getCause().getClass().getName());
     });
   }
 

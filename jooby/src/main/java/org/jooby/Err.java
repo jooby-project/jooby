@@ -22,6 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,37 +42,40 @@ import com.google.common.base.Throwables;
 public class Err extends RuntimeException {
 
   /**
-   * Default err handler with content negotation. If an error is found when accept header is
-   * <code>text/html</code> this err handler will delegate err rendering to a template processor.
+   * Default err handler it does content negotation. On
+   * <code>text/html<code> requests the err handler
+   * creates an <code>err</code> view and set as model the {@link Err#toMap()}.
    *
    * @author edgar
    * @since 0.1.0
    */
-  public static class Default implements Err.Handler {
+  public static class DefHandler implements Err.Handler {
+
+    /** Default err view. */
+    public static final String VIEW = "err";
 
     /** logger, logs!. */
     private final Logger log = LoggerFactory.getLogger(Err.class);
 
     @Override
-    public void handle(final Request req, final Response rsp, final Exception ex)
+    public void handle(final Request req, final Response rsp, final Err ex)
         throws Exception {
       log.error("execution of: " + req.method() + " " + req.path() + " resulted in exception", ex);
 
-      Map<String, Object> err = err(req, rsp, ex);
-
       rsp.send(
           Results
-              .when(MediaType.html, () -> Results.html(errPage(req, rsp, ex)).put("err", err))
-              .when(MediaType.all, () -> err)
+              .when(MediaType.html, () -> Results.html(VIEW).put("err", ex.toMap()))
+              .when(MediaType.all, () -> ex.toMap())
           );
     }
 
   }
 
   /**
-   * Route error handler, it creates a default err model and default view name.
+   * Handle and render exceptions. Error handlers are executed in the order they were provided, the
+   * first err handler that send an output wins!
    *
-   * The default err handler does content negotation on error, see {@link Default}.
+   * The default err handler does content negotation on error, see {@link DefHandler}.
    *
    * @author edgar
    * @since 0.1.0
@@ -79,63 +83,15 @@ public class Err extends RuntimeException {
   public interface Handler {
 
     /**
-     * Build a err model from exception. The model it's map with the following attributes:
-     *
-     * <pre>
-     *   message: String
-     *   stacktrace: String[]
-     *   status: int
-     *   reason: String
-     *   referer: String
-     * </pre>
-     *
-     * <p>
-     * NOTE: {@link Response#status()} it was set by default to status code {@code >} 400. This is
-     * the default behavior you can use the generated status code and/or override it.
-     * </p>
-     *
-     * @param req A HTTP Request.
-     * @param rsp A HTTP Response with a default err status code ({@code >} 400).
-     * @param ex Current exception object.
-     * @return A err model.
-     */
-    default Map<String, Object> err(final Request req, final Response rsp, final Exception ex) {
-      Map<String, Object> error = new LinkedHashMap<>();
-      Status status = rsp.status().get();
-      String message = ex.getMessage();
-      message = message == null ? status.reason() : message;
-      error.put("message", message);
-      String[] stacktrace = Throwables.getStackTraceAsString(ex).replace("\r", "").split("\\n");
-      error.put("stacktrace", stacktrace);
-      error.put("status", status.value());
-      error.put("reason", status.reason());
-      error.put("referer", req.header("referer").toOptional(String.class).orElse(null));
-
-      return error;
-    }
-
-    /**
-     * Convert current err to a view location, defaults is: <code>/err</code>.
-     *
-     * @param req HTTP request.
-     * @param rsp HTTP Response.
-     * @param ex Error found.
-     * @return An err page to be render by a template processor.
-     */
-    default String errPage(final Request req, final Response rsp, final Exception ex) {
-      return "/err";
-    }
-
-    /**
      * Handle a route exception by probably logging the error and sending a err response to the
      * client.
      *
      * @param req HTTP request.
      * @param rsp HTTP response.
-     * @param ex Error found.
+     * @param ex Error found and status code.
      * @throws Exception If something goes wrong.
      */
-    void handle(Request req, Response rsp, Exception ex) throws Exception;
+    void handle(Request req, Response rsp, Err ex) throws Exception;
   }
 
   /**
@@ -232,6 +188,34 @@ public class Err extends RuntimeException {
    */
   public int statusCode() {
     return status;
+  }
+
+  /**
+   * Produces a friendly view of the err, resulting map has these attributes:
+   *
+   * <pre>
+   *  message: exception message (if present)
+   *  stacktrace: array with the stacktrace
+   *  status: status code
+   *  reason: a status code reason
+   * </pre>
+   *
+   * @return A lightweight view of the err.
+   */
+  public Map<String, Object> toMap() {
+    Status status = Status.valueOf(this.status);
+    Throwable cause = Optional.ofNullable(getCause()).orElse(this);
+    String message = Optional.ofNullable(cause.getMessage()).orElse(status.reason());
+
+    String[] stacktrace = Throwables.getStackTraceAsString(cause).replace("\r", "").split("\\n");
+
+    Map<String, Object> err = new LinkedHashMap<>();
+    err.put("message", message);
+    err.put("stacktrace", stacktrace);
+    err.put("status", status.value());
+    err.put("reason", status.reason());
+
+    return err;
   }
 
   /**

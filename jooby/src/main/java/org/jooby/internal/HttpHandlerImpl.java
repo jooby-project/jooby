@@ -21,13 +21,12 @@ package org.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -39,10 +38,10 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.jooby.Err;
+import org.jooby.Err.Handler;
 import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
-import org.jooby.Results;
 import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.Status;
@@ -74,7 +73,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private Injector injector;
 
-  private Err.Handler err;
+  private Set<Err.Handler> err;
 
   private String applicationPath;
 
@@ -90,7 +89,7 @@ public class HttpHandlerImpl implements HttpHandler {
       final Set<Route.Definition> routes,
       final Set<WebSocket.Definition> sockets,
       final @Named("application.path") String path,
-      final Err.Handler err) {
+      final Set<Err.Handler> err) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.requestScope = requireNonNull(requestScope, "A request scope is required.");
     this.routeDefs = requireNonNull(routes, "Routes are required.");
@@ -176,18 +175,13 @@ public class HttpHandlerImpl implements HttpHandler {
 
       rsp.reset();
 
-      // execution failed, so find status code
+      // execution failed, find status code
       Status status = statusCode(ex);
 
       rsp.header("Cache-Control", NO_CACHE);
       rsp.status(status);
 
-      try {
-        err.handle(req, rsp, ex);
-      } catch (Exception ignored) {
-        log.trace("execution of err handler resulted in exceptiion", ignored);
-        defaultErrorPage(req, rsp, err.err(req, rsp, ex));
-      }
+      handleErr(req, rsp,  ex instanceof Err ? (Err) ex : new Err(status, ex));
     } finally {
       requestScope.exit();
 
@@ -200,6 +194,18 @@ public class HttpHandlerImpl implements HttpHandler {
     }
   }
 
+  private void handleErr(final RequestImpl req, final ResponseImpl rsp, final Err err) {
+    try {
+      Iterator<Handler> it = this.err.iterator();
+      while (!rsp.committed() && it.hasNext()) {
+        Err.Handler next = it.next();
+        log.debug("handling err with: {}", next);
+        next.handle(req, rsp, err);
+      }
+    } catch (Exception ex) {
+      log.error("execution of err handler resulted in exceptiion", ex);
+    }
+  }
 
   private static String normalizeURI(final String uri) {
     return uri.endsWith("/") && uri.length() > 1 ? uri.substring(0, uri.length() - 1) : uri;
@@ -294,68 +300,6 @@ public class HttpHandlerImpl implements HttpHandler {
       }
     }
     return Optional.empty();
-  }
-
-  private void defaultErrorPage(final RequestImpl request, final ResponseImpl rsp,
-      final Map<String, Object> model) throws Exception {
-    Status status = rsp.status().get();
-    StringBuilder html = new StringBuilder("<!doctype html>")
-        .append("<html>\n")
-        .append("<head>\n")
-        .append("<meta charset=\"").append(request.charset().name()).append("\">\n")
-        .append("<style>\n")
-        .append("body {font-family: \"open sans\",sans-serif; margin-left: 20px;}\n")
-        .append("h1 {font-weight: 300; line-height: 44px; margin: 25px 0 0 0;}\n")
-        .append("h2 {font-size: 16px;font-weight: 300; line-height: 44px; margin: 0;}\n")
-        .append("footer {font-weight: 300; line-height: 44px; margin-top: 10px;}\n")
-        .append("hr {background-color: #f7f7f9;}\n")
-        .append("div.trace {border:1px solid #e1e1e8; background-color: #f7f7f9;}\n")
-        .append("p {padding-left: 20px;}\n")
-        .append("p.tab {padding-left: 40px;}\n")
-        .append("</style>\n")
-        .append("<title>\n")
-        .append(status.value()).append(" ").append(status.reason())
-        .append("\n</title>\n")
-        .append("<body>\n")
-        .append("<h1>").append(status.reason()).append("</h1>\n")
-        .append("<hr>");
-
-    model.remove("reason");
-
-    String[] stacktrace = (String[]) model.remove("stacktrace");
-
-    for (Entry<String, Object> entry : model.entrySet()) {
-      Object value = entry.getValue();
-      if (value != null) {
-        html.append("<h2>").append(entry.getKey()).append(": ").append(entry.getValue())
-            .append("</h2>\n");
-      }
-    }
-
-    if (stacktrace != null) {
-      html.append("<h2>stack:</h2>\n")
-          .append("<div class=\"trace\">\n");
-
-      Arrays.stream(stacktrace).forEach(line -> {
-        html.append("<p class=\"line");
-        if (line.startsWith("\t")) {
-          html.append(" tab");
-        }
-        html.append("\">")
-            .append("<code>")
-            .append(line.replace("\t", "  "))
-            .append("</code>")
-            .append("</p>\n");
-      });
-      html.append("</div>\n");
-    }
-
-    html.append("<footer>powered by Jooby</footer>\n")
-        .append("</body>\n")
-        .append("</html>\n");
-
-    rsp.header("Cache-Control", NO_CACHE);
-    rsp.send(Results.with(html));
   }
 
   private Status statusCode(final Exception ex) {

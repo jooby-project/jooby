@@ -31,6 +31,7 @@ import org.jooby.Session.Store;
 import org.jooby.internal.AppPrinter;
 import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
+import org.jooby.internal.DefaulErrRenderer;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.LifecycleProcessor;
 import org.jooby.internal.RequestScope;
@@ -263,6 +264,9 @@ public class JoobyTest {
     LinkedBindingBuilder<Renderer> fchannel = unit.mock(LinkedBindingBuilder.class);
     fchannel.toInstance(BuiltinRenderer.FileChannel);
 
+    LinkedBindingBuilder<Renderer> err = unit.mock(LinkedBindingBuilder.class);
+    err.toInstance(isA(DefaulErrRenderer.class));
+
     LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
     formatAny.toInstance(BuiltinRenderer.ToString);
 
@@ -273,6 +277,7 @@ public class JoobyTest {
     expect(multibinder.addBinding()).andReturn(formatStream);
     expect(multibinder.addBinding()).andReturn(reader);
     expect(multibinder.addBinding()).andReturn(fchannel);
+    expect(multibinder.addBinding()).andReturn(err);
     expect(multibinder.addBinding()).andReturn(formatAny);
 
   };
@@ -319,10 +324,13 @@ public class JoobyTest {
   private MockUnit.Block err = unit -> {
     Binder binder = unit.get(Binder.class);
 
-    AnnotatedBindingBuilder<Err.Handler> binding = unit.mock(AnnotatedBindingBuilder.class);
-    binding.toInstance(isA(Err.Default.class));
+    LinkedBindingBuilder<Err.Handler> ehlbb = unit.mock(LinkedBindingBuilder.class);
+    ehlbb.toInstance(isA(Err.DefHandler.class));
 
-    expect(binder.bind(Err.Handler.class)).andReturn(binding);
+    Multibinder<Err.Handler> multibinder = unit.mock(Multibinder.class);
+    expect(Multibinder.newSetBinder(binder, Err.Handler.class)).andReturn(multibinder);
+
+    expect(multibinder.addBinding()).andReturn(ehlbb);
   };
 
   private MockUnit.Block session = unit -> {
@@ -2145,6 +2153,9 @@ public class JoobyTest {
           LinkedBindingBuilder<Renderer> fchannel = unit.mock(LinkedBindingBuilder.class);
           fchannel.toInstance(BuiltinRenderer.FileChannel);
 
+          LinkedBindingBuilder<Renderer> err = unit.mock(LinkedBindingBuilder.class);
+          err.toInstance(isA(DefaulErrRenderer.class));
+
           LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
           formatAny.toInstance(BuiltinRenderer.ToString);
 
@@ -2156,6 +2167,7 @@ public class JoobyTest {
           expect(multibinder.addBinding()).andReturn(formatStream);
           expect(multibinder.addBinding()).andReturn(reader);
           expect(multibinder.addBinding()).andReturn(fchannel);
+          expect(multibinder.addBinding()).andReturn(err);
           expect(multibinder.addBinding()).andReturn(formatAny);
         })
         .expect(routes)
@@ -2460,10 +2472,17 @@ public class JoobyTest {
         .expect(unit -> {
           Binder binder = unit.get(Binder.class);
 
-          AnnotatedBindingBuilder<Err.Handler> binding = unit.mock(AnnotatedBindingBuilder.class);
-          binding.toInstance(unit.get(Err.Handler.class));
+          LinkedBindingBuilder<Err.Handler> ehlbb = unit.mock(LinkedBindingBuilder.class);
+          ehlbb.toInstance(unit.get(Err.Handler.class));
 
-          expect(binder.bind(Err.Handler.class)).andReturn(binding);
+          LinkedBindingBuilder<Err.Handler> dehlbb = unit.mock(LinkedBindingBuilder.class);
+          dehlbb.toInstance(isA(Err.DefHandler.class));
+
+          Multibinder<Err.Handler> multibinder = unit.mock(Multibinder.class);
+          expect(Multibinder.newSetBinder(binder, Err.Handler.class)).andReturn(multibinder);
+
+          expect(multibinder.addBinding()).andReturn(ehlbb);
+          expect(multibinder.addBinding()).andReturn(dehlbb);
         })
         .run(unit -> {
 

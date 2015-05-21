@@ -7,7 +7,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,107 +18,98 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Err.Default.class, LoggerFactory.class })
+@PrepareForTest({Err.DefHandler.class, LoggerFactory.class })
 public class DefaultErrHandlerTest {
 
   @SuppressWarnings({"unchecked" })
   @Test
   public void handleNoErrMessage() throws Exception {
-    Exception ex = new Exception();
+    Err ex = new Err(500);
 
     StringWriter writer = new StringWriter();
     ex.printStackTrace(new PrintWriter(writer));
     String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
 
     new MockUnit(Request.class, Response.class)
-        .expect(
-            unit -> {
-              Logger log = unit.mock(Logger.class);
-              log.error("execution of: GET /path resulted in exception", ex);
+        .expect(unit -> {
+          Logger log = unit.mock(Logger.class);
+          log.error("execution of: GET /path resulted in exception", ex);
 
-              unit.mockStatic(LoggerFactory.class);
-              expect(LoggerFactory.getLogger(Err.class)).andReturn(log);
+          unit.mockStatic(LoggerFactory.class);
+          expect(LoggerFactory.getLogger(Err.class)).andReturn(log);
 
-              Mutant referer = unit.mock(Mutant.class);
-              expect(referer.toOptional(String.class)).andReturn(Optional.of("referer"));
+          Request req = unit.get(Request.class);
 
-              Request req = unit.get(Request.class);
+          expect(req.path()).andReturn("/path");
+          expect(req.method()).andReturn("GET");
 
-              expect(req.path()).andReturn("/path");
-              expect(req.method()).andReturn("GET");
-              expect(req.header("referer")).andReturn(referer);
+          Response rsp = unit.get(Response.class);
 
-              Response rsp = unit.get(Response.class);
-
-              rsp.send(unit.capture(Result.class));
-              expect(rsp.status()).andReturn(Optional.of(Status.SERVER_ERROR));
-            })
+          rsp.send(unit.capture(Result.class));
+        })
         .run(unit -> {
 
           Request req = unit.get(Request.class);
           Response rsp = unit.get(Response.class);
 
-          new Err.Default().handle(req, rsp, ex);
+          new Err.DefHandler().handle(req, rsp, ex);
         }, unit -> {
           Result result = unit.captured(Result.class).iterator().next();
           View view = (View) result.get(ImmutableList.of(MediaType.html)).get();
           assertEquals("/err", view.name());
-          checkErr(stacktrace, "Server Error", (Map<String, Object>) view.model()
+          checkErr(stacktrace, "Server Error(500)", (Map<String, Object>) view.model()
               .get("err"));
 
           Object hash = result.get(MediaType.ALL).get();
-          assertEquals(0, ((Map<String, Object>) hash).size());
+          assertEquals(4, ((Map<String, Object>) hash).size());
         });
   }
 
   @SuppressWarnings({"unchecked" })
   @Test
   public void handleWithErrMessage() throws Exception {
-    Exception ex = new Exception("Something something dark");
+    Err ex = new Err(500, "Something something dark");
 
     StringWriter writer = new StringWriter();
     ex.printStackTrace(new PrintWriter(writer));
     String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
 
     new MockUnit(Request.class, Response.class)
-        .expect(
-            unit -> {
-              Logger log = unit.mock(Logger.class);
-              log.error("execution of: GET /path resulted in exception", ex);
+        .expect(unit -> {
+          Logger log = unit.mock(Logger.class);
+          log.error("execution of: GET /path resulted in exception", ex);
 
-              unit.mockStatic(LoggerFactory.class);
-              expect(LoggerFactory.getLogger(Err.class)).andReturn(log);
-
-              Mutant referer = unit.mock(Mutant.class);
-              expect(referer.toOptional(String.class)).andReturn(Optional.of("referer"));
-
-              Request req = unit.get(Request.class);
-
-              expect(req.path()).andReturn("/path");
-              expect(req.method()).andReturn("GET");
-              expect(req.header("referer")).andReturn(referer);
-
-              Response rsp = unit.get(Response.class);
-
-              rsp.send(unit.capture(Result.class));
-              expect(rsp.status()).andReturn(Optional.of(Status.SERVER_ERROR));
-            })
-        .run(unit -> {
+          unit.mockStatic(LoggerFactory.class);
+          expect(LoggerFactory.getLogger(Err.class)).andReturn(log);
 
           Request req = unit.get(Request.class);
+
+          expect(req.path()).andReturn("/path");
+          expect(req.method()).andReturn("GET");
+
           Response rsp = unit.get(Response.class);
 
-          new Err.Default().handle(req, rsp, ex);
-        }, unit -> {
-          Result result = unit.captured(Result.class).iterator().next();
-          View view = (View) result.get(ImmutableList.of(MediaType.html)).get();
-          assertEquals("/err", view.name());
-          checkErr(stacktrace, "Something something dark", (Map<String, Object>) view.model()
-              .get("err"));
+          rsp.send(unit.capture(Result.class));
+        })
+        .run(
+            unit -> {
 
-          Object hash = result.get(MediaType.ALL).get();
-          assertEquals(0, ((Map<String, Object>) hash).size());
-        });
+              Request req = unit.get(Request.class);
+              Response rsp = unit.get(Response.class);
+
+              new Err.DefHandler().handle(req, rsp, ex);
+            },
+            unit -> {
+              Result result = unit.captured(Result.class).iterator().next();
+              View view = (View) result.get(ImmutableList.of(MediaType.html)).get();
+              assertEquals("/err", view.name());
+              checkErr(stacktrace, "Server Error(500): Something something dark",
+                  (Map<String, Object>) view.model()
+                      .get("err"));
+
+              Object hash = result.get(MediaType.ALL).get();
+              assertEquals(4, ((Map<String, Object>) hash).size());
+            });
   }
 
   private void checkErr(final String[] stacktrace, final String message,
@@ -128,7 +118,6 @@ public class DefaultErrHandlerTest {
     assertEquals("Server Error", err.remove("reason"));
     assertEquals(500, err.remove("status"));
     assertArrayEquals(stacktrace, (String[]) err.remove("stacktrace"));
-    assertEquals("referer", err.remove("referer"));
     assertEquals(err.toString(), 0, err.size());
   }
 

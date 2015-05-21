@@ -83,6 +83,7 @@ import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
+import org.jooby.internal.DefaulErrRenderer;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.LifecycleProcessor;
 import org.jooby.internal.LocaleUtils;
@@ -477,9 +478,6 @@ public class Jooby {
 
   /** Keep the global injector instance. */
   private Injector injector;
-
-  /** Error handler. */
-  private Err.Handler err;
 
   /** Session store. */
   private Session.Definition session = new Session.Definition(Session.Mem.class);
@@ -2600,14 +2598,14 @@ public class Jooby {
   }
 
   /**
-   * Setup a route error handler. Default error handler {@link Err.Default} does content
+   * Setup a route error handler. Default error handler {@link Err.DefHandler} does content
    * negotation and this method allow to override/complement default handler.
    *
    * @param err A route error handler.
    * @return This jooby instance.
    */
   public Jooby err(final Err.Handler err) {
-    this.err = requireNonNull(err, "An err handler is required.");
+    this.bag.add(requireNonNull(err, "An err handler is required."));
     return this;
   }
 
@@ -2811,6 +2809,10 @@ public class Jooby {
         RouteMetadata classInfo = new RouteMetadata(env);
         binder.bind(ParameterNameProvider.class).toInstance(classInfo);
 
+        // err handler
+        Multibinder<Err.Handler> ehandlers = Multibinder
+            .newSetBinder(binder, Err.Handler.class);
+
         // parsers & renderers
         Multibinder<Parser> parsers = Multibinder
             .newSetBinder(binder, Parser.class);
@@ -2830,6 +2832,8 @@ public class Jooby {
             parsers.addBinding().toInstance((Parser) candidate);
           } else if (candidate instanceof Renderer) {
             renderers.addBinding().toInstance((Renderer) candidate);
+          } else if (candidate instanceof Err.Handler) {
+            ehandlers.addBinding().toInstance((Err.Handler) candidate);
           } else {
             binder.bind((Class<?>) candidate);
             MvcRoutes.routes(env, classInfo, (Class<?>) candidate)
@@ -2862,6 +2866,7 @@ public class Jooby {
         renderers.addBinding().toInstance(BuiltinRenderer.InputStream);
         renderers.addBinding().toInstance(BuiltinRenderer.Reader);
         renderers.addBinding().toInstance(BuiltinRenderer.FileChannel);
+        renderers.addBinding().toInstance(new DefaulErrRenderer());
         renderers.addBinding().toInstance(BuiltinRenderer.ToString);
 
         binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
@@ -2894,12 +2899,8 @@ public class Jooby {
           throw new OutOfScopeException(Session.class.getName());
         }).in(RequestScoped.class);
 
-        // err
-        if (err == null) {
-          binder.bind(Err.Handler.class).toInstance(new Err.Default());
-        } else {
-          binder.bind(Err.Handler.class).toInstance(err);
-        }
+        // def err
+        ehandlers.addBinding().toInstance(new Err.DefHandler());
       });
 
     return injector;
