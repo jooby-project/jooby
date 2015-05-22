@@ -1,7 +1,5 @@
 package org.jooby.json;
 
-import java.util.List;
-
 import org.jooby.MediaType;
 import org.jooby.Renderer;
 
@@ -11,17 +9,17 @@ class JacksonRenderer implements Renderer {
 
   private ObjectMapper mapper;
 
-  private List<MediaType> types;
+  private MediaType type;
 
-  public JacksonRenderer(final ObjectMapper mapper, final List<MediaType> types) {
+  public JacksonRenderer(final ObjectMapper mapper, final MediaType type) {
     this.mapper = mapper;
-    this.types = types;
+    this.type = type;
   }
 
   @Override
   public void render(final Object value, final Context ctx) throws Exception {
-    if (ctx.accepts(types) && mapper.canSerialize(value.getClass())) {
-      ctx.type(types.get(0));
+    if (ctx.accepts(type) && mapper.canSerialize(value.getClass())) {
+      ctx.type(type);
       // use UTF-8 and get byte version
       byte[] bytes = mapper.writer().writeValueAsBytes(value);
       ctx.length(bytes.length)

@@ -23,7 +23,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
@@ -41,7 +40,6 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
@@ -132,7 +130,7 @@ public class Jackson implements Jooby.Module {
 
   private final Set<Module> modules = new LinkedHashSet<>();
 
-  private List<MediaType> types = ImmutableList.of(MediaType.json);
+  private MediaType type = MediaType.json;
 
   public Jackson(final ObjectMapper mapper) {
     this.mapper = checkNotNull(mapper, "An object mapper is required.");
@@ -145,17 +143,13 @@ public class Jackson implements Jooby.Module {
     this(new ObjectMapper());
   }
 
-  public Jackson types(final MediaType... types) {
-    return types(ImmutableList.copyOf(types));
-  }
-
-  public Jackson types(final List<MediaType> types) {
-    this.types = ImmutableList.copyOf(types);
+  public Jackson type(final MediaType type) {
+    this.type = type;
     return this;
   }
 
-  public Jackson types(final String... types) {
-    return types(MediaType.valueOf(types));
+  public Jackson types(final String type) {
+    return type(MediaType.valueOf(type));
   }
 
   public Jackson doWith(final Consumer<ObjectMapper> block) {
@@ -181,8 +175,8 @@ public class Jackson implements Jooby.Module {
     binder.bind(PostConfigurer.class).asEagerSingleton();
 
     // json parser & renderer
-    JacksonParser parser = new JacksonParser(mapper, types);
-    JacksonRenderer renderer = new JacksonRenderer(mapper, types);
+    JacksonParser parser = new JacksonParser(mapper, type);
+    JacksonRenderer renderer = new JacksonRenderer(mapper, type);
 
     Multibinder.newSetBinder(binder, Renderer.class)
         .addBinding()

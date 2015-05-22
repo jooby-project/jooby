@@ -1,7 +1,5 @@
 package org.jooby.json;
 
-import java.util.List;
-
 import org.jooby.MediaType;
 import org.jooby.MediaType.Matcher;
 import org.jooby.Parser;
@@ -16,9 +14,9 @@ class JacksonParser implements Parser {
 
   private Matcher matcher;
 
-  public JacksonParser(final ObjectMapper mapper, final List<MediaType> types) {
+  public JacksonParser(final ObjectMapper mapper, final MediaType type) {
     this.mapper = mapper;
-    this.matcher = MediaType.matcher(types);
+    this.matcher = MediaType.matcher(type);
   }
 
   @Override

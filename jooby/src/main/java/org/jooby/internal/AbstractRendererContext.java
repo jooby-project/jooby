@@ -18,7 +18,6 @@ import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.MediaType.Matcher;
 import org.jooby.Renderer;
-import org.jooby.Renderer.Context;
 import org.jooby.Status;
 import org.jooby.View;
 
@@ -78,18 +77,18 @@ public abstract class AbstractRendererContext implements Renderer.Context {
   }
 
   @Override
-  public boolean accepts(final List<MediaType> types) {
-    return matcher.matches(types);
+  public boolean accepts(final MediaType type) {
+    return matcher.matches(type);
   }
 
   @Override
-  public Context type(final MediaType type) {
+  public Renderer.Context type(final MediaType type) {
     // NOOP
     return this;
   }
 
   @Override
-  public Context length(final long length) {
+  public Renderer.Context length(final long length) {
     // NOOP
     return this;
   }
@@ -101,22 +100,26 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
   @Override
   public void send(final CharBuffer buffer) throws Exception {
+    type(MediaType.html);
     send(charset.encode(buffer));
   }
 
   @Override
   public void send(final Reader reader) throws Exception {
+    type(MediaType.html);
     send(new ReaderInputStream(reader, charset));
   }
 
   @Override
   public void send(final String text) throws Exception {
+    type(MediaType.html);
     _send(text);
     committed = true;
   }
 
   @Override
   public void send(final byte[] bytes) throws Exception {
+    type(MediaType.octetstream);
     length(bytes.length);
     _send(bytes);
     committed = true;
@@ -124,6 +127,7 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
   @Override
   public void send(final ByteBuffer buffer) throws Exception {
+    type(MediaType.octetstream);
     length(buffer.remaining());
     _send(buffer);
     committed = true;
@@ -131,6 +135,7 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
   @Override
   public void send(final FileChannel file) throws Exception {
+    type(MediaType.octetstream);
     length(file.size());
     _send(file);
     committed = true;
@@ -138,8 +143,9 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
   @Override
   public void send(final InputStream stream) throws Exception {
+    type(MediaType.octetstream);
     if (stream instanceof FileInputStream) {
-      _send(((FileInputStream) stream).getChannel());
+      send(((FileInputStream) stream).getChannel());
     } else {
       _send(stream);
     }
