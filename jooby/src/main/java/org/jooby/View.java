@@ -20,9 +20,12 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 
@@ -44,18 +47,15 @@ public class View extends Result {
 
     List<MediaType> HTML = ImmutableList.of(MediaType.html);
 
-    default String name() {
-      String name = getClass().getName();
-      return name.substring(Math.max(-1, name.lastIndexOf('.')) + 1).toLowerCase();
-    }
-
     @Override
-    default void render(final Object object, final Renderer.Context ctx) throws Exception {
-      if (object instanceof View) {
-        View view = (View) object;
-        if (view.engine.length() == 0 || view.engine.equals(name())) {
+    default void render(final Object value, final Renderer.Context ctx) throws Exception {
+      if (value instanceof View) {
+        View view = (View) value;
+        try {
           ctx.type(MediaType.html);
-          render((View) object, ctx);
+          render(view, ctx);
+        } catch (FileNotFoundException ex) {
+          LoggerFactory.getLogger(getClass()).debug("Template not found: " + view.name(), ex);
         }
       }
     }
@@ -73,9 +73,6 @@ public class View extends Result {
 
   /** View's name. */
   private final String name;
-
-  /** View's engine. */
-  private String engine = "";
 
   /** View's model. */
   private final Map<String, Object> model = new HashMap<>();
@@ -129,27 +126,9 @@ public class View extends Result {
     return model;
   }
 
-  /**
-   * @return The name of the view engine or empty string for default view engine.
-   */
-  public String engine() {
-    return engine;
-  }
-
   @Override
   public Result set(final Object content) {
     throw new UnsupportedOperationException("Not allowed in views, use one of the put methods.");
-  }
-
-  /**
-   * Set the view engine to use.
-   *
-   * @param engine Set the view engine to use.
-   * @return This view.
-   */
-  public View engine(final String engine) {
-    this.engine = requireNonNull(engine, "A view engine is required.");
-    return this;
   }
 
   @Override

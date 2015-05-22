@@ -26,7 +26,6 @@ import java.util.function.BiConsumer;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Renderer;
-import org.jooby.View;
 import org.jooby.internal.ftl.Engine;
 import org.jooby.internal.ftl.GuavaCacheStorage;
 import org.slf4j.Logger;
@@ -35,9 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheBuilderSpec;
 import com.google.inject.Binder;
-import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
-import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -197,13 +194,11 @@ public class Ftl implements Jooby.Module {
 
       binder.bind(Configuration.class).toInstance(freemarker);
 
-      Engine engine = new Engine(freemarker, prefix, suffix);
+      Engine engine = new Engine(freemarker, suffix);
 
       Multibinder.newSetBinder(binder, Renderer.class)
           .addBinding().toInstance(engine);
 
-      // direct access
-      binder.bind(Key.get(View.Engine.class, Names.named(engine.name()))).toInstance(engine);
     } catch (TemplateException ex) {
       throw new IllegalStateException("Freemarker configuration results in error", ex);
     }

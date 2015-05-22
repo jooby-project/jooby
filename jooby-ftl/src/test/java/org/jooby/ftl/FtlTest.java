@@ -11,7 +11,6 @@ import java.util.function.BiConsumer;
 import org.jooby.Env;
 import org.jooby.MockUnit;
 import org.jooby.Renderer;
-import org.jooby.View;
 import org.jooby.internal.ftl.Engine;
 import org.jooby.internal.ftl.GuavaCacheStorage;
 import org.junit.Test;
@@ -20,11 +19,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.inject.Binder;
-import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.multibindings.Multibinder;
-import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -75,9 +72,8 @@ public class FtlTest {
           expect(binder.bind(Configuration.class)).andReturn(configBB);
 
           Engine engine = unit.mockConstructor(
-              Engine.class, new Class[]{Configuration.class, String.class, String.class },
-              config, prefix, suffix);
-          expect(engine.name()).andReturn("ftl");
+              Engine.class, new Class[]{Configuration.class, String.class },
+              config, suffix);
 
           LinkedBindingBuilder<Renderer> ffLBB = unit.mock(LinkedBindingBuilder.class);
           ffLBB.toInstance(engine);
@@ -87,11 +83,6 @@ public class FtlTest {
 
           unit.mockStatic(Multibinder.class);
           expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(formatter);
-
-          LinkedBindingBuilder<View.Engine> eLBB = unit.mock(LinkedBindingBuilder.class);
-          eLBB.toInstance(engine);
-
-          expect(binder.bind(Key.get(View.Engine.class, Names.named("ftl")))).andReturn(eLBB);
 
         })
         .expect(unit -> {
@@ -142,9 +133,8 @@ public class FtlTest {
           expect(binder.bind(Configuration.class)).andReturn(configBB);
 
           Engine engine = unit.mockConstructor(
-              Engine.class, new Class[]{Configuration.class, String.class, String.class },
-              config, prefix, suffix);
-          expect(engine.name()).andReturn("ftl");
+              Engine.class, new Class[]{Configuration.class, String.class },
+              config, suffix);
 
           LinkedBindingBuilder<Renderer> ffLBB = unit.mock(LinkedBindingBuilder.class);
           ffLBB.toInstance(engine);
@@ -154,11 +144,6 @@ public class FtlTest {
 
           unit.mockStatic(Multibinder.class);
           expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(formatter);
-
-          LinkedBindingBuilder<View.Engine> eLBB = unit.mock(LinkedBindingBuilder.class);
-          eLBB.toInstance(engine);
-
-          expect(binder.bind(Key.get(View.Engine.class, Names.named("ftl")))).andReturn(eLBB);
 
         })
         .expect(unit -> {
@@ -239,9 +224,8 @@ public class FtlTest {
           expect(binder.bind(Configuration.class)).andReturn(configBB);
 
           Engine engine = unit.mockConstructor(
-              Engine.class, new Class[]{Configuration.class, String.class, String.class },
-              config, prefix, suffix);
-          expect(engine.name()).andReturn("ftl");
+              Engine.class, new Class[]{Configuration.class, String.class },
+              config, suffix);
 
           LinkedBindingBuilder<Renderer> ffLBB = unit.mock(LinkedBindingBuilder.class);
           ffLBB.toInstance(engine);
@@ -251,11 +235,6 @@ public class FtlTest {
 
           unit.mockStatic(Multibinder.class);
           expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(formatter);
-
-          LinkedBindingBuilder<View.Engine> eLBB = unit.mock(LinkedBindingBuilder.class);
-          eLBB.toInstance(engine);
-
-          expect(binder.bind(Key.get(View.Engine.class, Names.named("ftl")))).andReturn(eLBB);
 
         })
         .expect(unit -> {
@@ -304,9 +283,8 @@ public class FtlTest {
           expect(binder.bind(Configuration.class)).andReturn(configBB);
 
           Engine engine = unit.mockConstructor(
-              Engine.class, new Class[]{Configuration.class, String.class, String.class },
-              config, prefix, suffix);
-          expect(engine.name()).andReturn("ftl");
+              Engine.class, new Class[]{Configuration.class, String.class },
+              config, suffix);
 
           LinkedBindingBuilder<Renderer> ffLBB = unit.mock(LinkedBindingBuilder.class);
           ffLBB.toInstance(engine);
@@ -316,11 +294,6 @@ public class FtlTest {
 
           unit.mockStatic(Multibinder.class);
           expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(formatter);
-
-          LinkedBindingBuilder<View.Engine> eLBB = unit.mock(LinkedBindingBuilder.class);
-          eLBB.toInstance(engine);
-
-          expect(binder.bind(Key.get(View.Engine.class, Names.named("ftl")))).andReturn(eLBB);
 
         })
         .expect(unit -> {
@@ -371,9 +344,8 @@ public class FtlTest {
           expect(binder.bind(Configuration.class)).andReturn(configBB);
 
           Engine engine = unit.mockConstructor(
-              Engine.class, new Class[]{Configuration.class, String.class, String.class },
-              config, prefix, suffix);
-          expect(engine.name()).andReturn("ftl");
+              Engine.class, new Class[]{Configuration.class, String.class },
+              config, suffix);
 
           LinkedBindingBuilder<Renderer> ffLBB = unit.mock(LinkedBindingBuilder.class);
           ffLBB.toInstance(engine);
@@ -383,12 +355,6 @@ public class FtlTest {
 
           unit.mockStatic(Multibinder.class);
           expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(formatter);
-
-          LinkedBindingBuilder<View.Engine> eLBB = unit.mock(LinkedBindingBuilder.class);
-          eLBB.toInstance(engine);
-
-          expect(binder.bind(Key.get(View.Engine.class, Names.named("ftl")))).andReturn(eLBB);
-
         })
         .expect(unit -> {
           Env env = unit.get(Env.class);

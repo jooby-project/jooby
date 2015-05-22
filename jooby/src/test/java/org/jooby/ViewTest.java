@@ -22,7 +22,6 @@ public class ViewTest {
   public void viewOnly() {
     View view = Results.html("v");
     assertEquals("v", view.name());
-    assertEquals("", view.engine());
     assertEquals(0, view.model().size());
   }
 
@@ -64,10 +63,5 @@ public class ViewTest {
     assertEquals("v", view.model().get("k"));
   }
 
-
-  @Test
-  public void defViewEngineName() {
-    assertEquals("viewtest$viewtestengine", new ViewTestEngine().name());
-  }
 
 }

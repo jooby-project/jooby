@@ -6,8 +6,6 @@ import static org.easymock.EasyMock.isA;
 import org.jooby.Env;
 import org.jooby.MockUnit;
 import org.jooby.Renderer;
-import org.jooby.View;
-import org.jooby.View.Engine;
 import org.jooby.internal.hbs.HbsEngine;
 import org.jooby.internal.hbs.HbsHelpers;
 import org.junit.Test;
@@ -17,7 +15,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.google.inject.Binder;
-import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.multibindings.Multibinder;
@@ -59,11 +56,6 @@ public class HbsTest {
           expect(mfbinder.addBinding()).andReturn(fLBB);
           expect(Multibinder.newSetBinder(binder, Renderer.class))
               .andReturn(mfbinder);
-
-          LinkedBindingBuilder<Engine> neLBB = unit.mock(LinkedBindingBuilder.class);
-          neLBB.toInstance(isA(HbsEngine.class));
-
-          expect(binder.bind(Key.get(View.Engine.class, Names.named("hbs")))).andReturn(neLBB);
 
           AnnotatedBindingBuilder<HbsHelpers> hhABB = unit.mock(AnnotatedBindingBuilder.class);
           hhABB.asEagerSingleton();
