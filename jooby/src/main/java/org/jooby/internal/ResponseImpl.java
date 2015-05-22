@@ -285,7 +285,7 @@ public class ResponseImpl implements Response {
           setType,
           locals,
           produces,
-          charset).renderer(message);
+          charset).render(message);
     }
     // end response
     end();

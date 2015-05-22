@@ -40,11 +40,6 @@ public class HbsEngine implements View.Engine {
   }
 
   @Override
-  public String name() {
-    return "hbs";
-  }
-
-  @Override
   public void render(final View view, final Renderer.Context ctx) throws Exception {
     Template template = handlebars.compile(view.name());
 
@@ -62,7 +57,7 @@ public class HbsEngine implements View.Engine {
 
   @Override
   public String toString() {
-    return name();
+    return "hbs";
   }
 
 }

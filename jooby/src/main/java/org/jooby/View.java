@@ -22,12 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  * Special result that hold view name and model. It will be processed by a {@link View.Engine}.
@@ -40,34 +35,36 @@ public class View extends Result {
   /**
    * Special body serializer for dealing with {@link View}.
    *
+   * Multiples view engine are supported too.
+   *
+   * In order to support multiples view engine, a view engine is allowed to throw a
+   * {@link FileNotFoundException} when a template can't be resolved it.
+   * This gives the chance to the next view resolver to load the template.
+   *
    * @author edgar
    * @since 0.1.0
    */
   public interface Engine extends Renderer {
 
-    List<MediaType> HTML = ImmutableList.of(MediaType.html);
-
     @Override
     default void render(final Object value, final Renderer.Context ctx) throws Exception {
       if (value instanceof View) {
         View view = (View) value;
-        try {
-          ctx.type(MediaType.html);
-          render(view, ctx);
-        } catch (FileNotFoundException ex) {
-          LoggerFactory.getLogger(getClass()).debug("Template not found: " + view.name(), ex);
-        }
+        ctx.type(MediaType.html);
+        render(view, ctx);
       }
     }
 
     /**
-     * Render a view.
+     * Render a view or throw a {@link FileNotFoundException} when template can't be resolved it..
      *
      * @param viewable View to render.
      * @param ctx A rendering context.
+     * @throws FileNotFoundException If template can't be resolved.
      * @throws Exception If view rendering fails.
      */
-    void render(final View viewable, final Renderer.Context ctx) throws Exception;
+    void render(final View viewable, final Renderer.Context ctx) throws FileNotFoundException,
+        Exception;
 
   }
 

@@ -56,7 +56,7 @@ public class DefaultErrHandlerTest {
         }, unit -> {
           Result result = unit.captured(Result.class).iterator().next();
           View view = (View) result.get(ImmutableList.of(MediaType.html)).get();
-          assertEquals("/err", view.name());
+          assertEquals("err", view.name());
           checkErr(stacktrace, "Server Error(500)", (Map<String, Object>) view.model()
               .get("err"));
 
@@ -102,7 +102,7 @@ public class DefaultErrHandlerTest {
             unit -> {
               Result result = unit.captured(Result.class).iterator().next();
               View view = (View) result.get(ImmutableList.of(MediaType.html)).get();
-              assertEquals("/err", view.name());
+              assertEquals("err", view.name());
               checkErr(stacktrace, "Server Error(500): Something something dark",
                   (Map<String, Object>) view.model()
                       .get("err"));

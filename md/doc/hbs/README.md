@@ -33,7 +33,7 @@ Templates are loaded from root of classpath: ```/``` and must end with: ```.html
 
 ## req locals
 
-A template engine has access to ```request locals```. Here is an example:
+A template engine has access to ```request locals``` (a.k.a attributes). Here is an example:
 
 ```java
 {

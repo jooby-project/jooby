@@ -1,6 +1,7 @@
 package org.jooby.internal;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.ByteBuffer;
@@ -8,6 +9,7 @@ import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +20,7 @@ import org.jooby.MediaType.Matcher;
 import org.jooby.Renderer;
 import org.jooby.Renderer.Context;
 import org.jooby.Status;
+import org.jooby.View;
 
 import com.google.common.base.Joiner;
 
@@ -44,15 +47,28 @@ public abstract class AbstractRendererContext implements Renderer.Context {
     this.locals = locals;
   }
 
-  public void renderer(final Object value) throws Exception {
+  public void render(final Object value) throws Exception {
     Iterator<Renderer> it = renderers.iterator();
-    while (!committed) {
-      if (it.hasNext()) {
-        Renderer next = it.next();
+    List<String> notFound = new LinkedList<>();
+    while (!committed && it.hasNext()) {
+      Renderer next = it.next();
+      try {
         next.render(value, this);
-      } else {
-        throw new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces));
+      } catch (FileNotFoundException ex) {
+        // view engine should recover from a template not found
+        if (next instanceof View.Engine) {
+          notFound.add(next.toString());
+        } else {
+          throw ex;
+        }
       }
+    }
+    if (!committed) {
+      if (notFound.size() > 0) {
+        throw new FileNotFoundException("Template not found: " + ((View) value).name() + " in "
+            + notFound);
+      }
+      throw new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(produces));
     }
   }
 

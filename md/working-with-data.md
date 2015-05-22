@@ -169,4 +169,6 @@ A [view engine]({{defdocs}}/View.Engine.html) is a specialized [renderer]({{defd
 }
 ```
 
+In order to support multiples view engine, a view engine is allowed to throw a ```java.io.FileNotFoundException``` when a template can't be resolved it. This gives the chance to the next view resolver to load the template.
+
 There is no much to say about views & engines, any other detail or documentation should be provided in the specific module (mustache, handlebars, freemarker, etc.).

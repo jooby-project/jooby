@@ -1,41 +1,20 @@
 package org.jooby;
 
+import org.jooby.ftl.Ftl;
+import org.jooby.hbs.Hbs;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-public class ViewWithExplicitEngineFeature extends ServerFeature {
+public class TwoViewEngineFeature extends ServerFeature {
 
   {
 
-    renderer(new View.Engine() {
+    use(new Ftl("/org/jooby/views", ".ftl"));
+    use(new Hbs("/org/jooby/views", ".hbs"));
 
-      @Override
-      public String name() {
-        return "hbs";
-      }
-
-      @Override
-      public void render(final View viewable, final Renderer.Context ctx) throws Exception {
-        ctx.send(name());
-      }
-    });
-
-    renderer(new View.Engine() {
-
-      @Override
-      public String name() {
-        return "freemarker";
-      }
-
-      @Override
-      public void render(final View viewable, final Renderer.Context ctx) throws Exception {
-        ctx.send(name());
-      }
-    });
-
-    get("/:engine", (req, rsp) -> {
-      String engine = req.param("engine").value();
-      rsp.send(Results.html("view").put("this", new Object()).engine(engine));
+    get("/:view", (req, rsp) -> {
+      String view = req.param("view").value();
+      rsp.send(Results.html(view).put("view", view));
     });
 
   }
@@ -50,8 +29,15 @@ public class ViewWithExplicitEngineFeature extends ServerFeature {
   @Test
   public void freemarker() throws Exception {
     request()
-        .get("/freemarker")
-        .expect("freemarker");
+        .get("/ftl")
+        .expect("ftl");
+  }
+
+  @Test
+  public void notFound() throws Exception {
+    request()
+        .get("/notfound")
+        .expect(404);
   }
 
 }

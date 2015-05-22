@@ -20,7 +20,9 @@ package org.jooby.internal.ftl;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.FileNotFoundException;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,26 +34,24 @@ import freemarker.template.Configuration;
 import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateModel;
+import freemarker.template.TemplateNotFoundException;
 
 public class Engine implements View.Engine {
 
   private Configuration freemarker;
 
-  private String prefix;
-
   private String suffix;
 
-  public Engine(final Configuration freemarker, final String prefix, final String suffix) {
+  public Engine(final Configuration freemarker, final String suffix) {
     this.freemarker = requireNonNull(freemarker, "Freemarker config is required.");
-    this.prefix = prefix;
     this.suffix = suffix;
   }
 
   @Override
   public void render(final View view, final Renderer.Context ctx) throws Exception {
-    String name = prefix + view.name() + suffix;
+    String name = view.name() + suffix;
 
-    Template template = freemarker.getTemplate(name, ctx.charset().name());
+    Template template = template(name, ctx.charset());
 
     Map<String, Object> hash = new HashMap<>();
 
@@ -69,16 +69,20 @@ public class Engine implements View.Engine {
     template.process(model, writer);
     ctx.type(MediaType.html)
         .send(writer.toString());
+
   }
 
-  @Override
-  public String name() {
-    return "ftl";
+  private Template template(final String name, final Charset charset) throws Exception {
+    try {
+      return freemarker.getTemplate(name, charset.name());
+    } catch (TemplateNotFoundException ex) {
+      throw new FileNotFoundException(ex.getTemplateName());
+    }
   }
 
   @Override
   public String toString() {
-    return name();
+    return "freemarker";
   }
 
 }

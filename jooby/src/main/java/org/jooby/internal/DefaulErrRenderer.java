@@ -3,6 +3,7 @@ package org.jooby.internal;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Renderer;
 import org.jooby.View;
@@ -15,7 +16,7 @@ public class DefaulErrRenderer implements Renderer {
     if (object instanceof View) {
       View view = (View) object;
       // assume it is the default error handler
-      if ("/err".equals(view.name())) {
+      if (Err.DefHandler.VIEW.equals(view.name())) {
         Map<String, Object> model = (Map<String, Object>) view.model().get("err");
         Object status = model.get("status");
         Object reason = model.get("reason");

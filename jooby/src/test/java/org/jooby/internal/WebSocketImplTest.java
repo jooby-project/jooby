@@ -73,7 +73,7 @@ public class WebSocketImplTest {
               produces, StandardCharsets.UTF_8,
               unit.get(WebSocket.SuccessCallback.class),
               unit.get(WebSocket.ErrCallback.class));
-          ctx.renderer(data);
+          ctx.render(data);
           Injector injector = unit.get(Injector.class);
 
           expect(injector.getInstance(Key.get(new TypeLiteral<Set<Renderer>>() {

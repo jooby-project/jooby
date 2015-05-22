@@ -128,7 +128,7 @@ public class WebSocketImpl implements WebSocket {
         produces,
         StandardCharsets.UTF_8,
         success,
-        err).renderer(data);
+        err).render(data);
   }
 
   @Override

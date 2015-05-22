@@ -29,7 +29,6 @@ import java.util.function.BiConsumer;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Renderer;
-import org.jooby.View;
 import org.jooby.internal.hbs.ConfigValueResolver;
 import org.jooby.internal.hbs.HbsEngine;
 import org.jooby.internal.hbs.HbsHelpers;
@@ -48,7 +47,6 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheBuilderSpec;
 import com.google.inject.Binder;
-import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
@@ -230,9 +228,6 @@ public class Hbs implements Jooby.Module {
 
     Multibinder.newSetBinder(binder, Renderer.class).addBinding()
         .toInstance(engine);
-
-    // direct access
-    binder.bind(Key.get(View.Engine.class, Names.named(engine.name()))).toInstance(engine);
 
     // helper bootstrap
     binder.bind(HbsHelpers.class).asEagerSingleton();
