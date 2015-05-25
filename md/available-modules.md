@@ -1,8 +1,9 @@
 ## mvn jooby:run
 * [jooby:run](https://github.com/jooby-project/jooby/tree/master/jooby-maven-plugin): maven plugin with hot reload of classes, powered by {{jboss-modules}}.
 
-## body parser & formatter
-* [jackson json](https://github.com/jooby-project/jooby/tree/master/jooby-jackson): read and write JSON.
+## parser & formatter
+* [jackson](https://github.com/jooby-project/jooby/tree/master/jooby-jackson): JSON supports via Jackson.
+* [gson](https://github.com/jooby-project/jooby/tree/master/jooby-gson): JSON supports via Gson.
 
 ## template engines
 * [handlebars/mustache](https://github.com/jooby-project/jooby/tree/master/jooby-hbs): logic less and semantic Mustache templates.

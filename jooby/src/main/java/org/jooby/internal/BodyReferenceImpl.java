@@ -68,6 +68,7 @@ public class BodyReferenceImpl implements Parser.BodyReference {
     return new String(bytes(), charset);
   }
 
+  @Override
   public void writeTo(final OutputStream output) throws IOException {
     Files.copy(file.toPath(), output);
   }

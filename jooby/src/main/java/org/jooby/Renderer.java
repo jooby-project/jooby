@@ -241,9 +241,9 @@ public interface Renderer {
    * Render the given value and write the response (if possible). If no response is written, the
    * next renderer in the chain will be invoked.
    *
-   * @param object Object to render.
+   * @param value Object to render.
    * @param ctx Rendering context.
    * @throws Exception If rendering fails.
    */
-  void render(Object object, Context ctx) throws Exception;
+  void render(Object value, Context ctx) throws Exception;
 }

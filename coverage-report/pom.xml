@@ -51,6 +51,7 @@
                     <source>${project.parent.basedir}/jooby-morphia/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-elasticsearch/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-hbv/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-gson/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -80,6 +81,7 @@
                     <source>${project.parent.basedir}/jooby-morphia/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-elasticsearch/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-hbv/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-gson/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -255,6 +257,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-jackson</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-gson</artifactId>
       <version>${project.version}</version>
     </dependency>
 
