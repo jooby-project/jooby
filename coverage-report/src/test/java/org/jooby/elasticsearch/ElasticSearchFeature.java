@@ -1,11 +1,21 @@
 package org.jooby.elasticsearch;
 
+import java.util.UUID;
+
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
+
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 
 public class ElasticSearchFeature extends ServerFeature {
 
   {
+
+    use(ConfigFactory.empty()
+        .withValue("elasticsearch.path.data",
+            ConfigValueFactory.fromAnyRef("${java.io.tmpdir}/es/"
+                + UUID.randomUUID().toString())));
 
     use(new ElasticSearch("/es"));
 
@@ -13,11 +23,10 @@ public class ElasticSearchFeature extends ServerFeature {
 
   @Test
   public void es() throws Exception {
-    // either 200 or 400
+
     request()
-        .delete("/es/customer")
-        .expect(rsp -> {
-        });
+        .get("/es")
+        .expect(200);
 
     request()
         .put("/es/customer")
