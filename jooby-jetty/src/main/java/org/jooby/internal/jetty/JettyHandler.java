@@ -94,7 +94,7 @@ public class JettyHandler extends AbstractHandler {
                   throw new UnsupportedOperationException("Not Supported: " + type);
                 }
               }),
-          new JettyResponse(response)
+          new JettyResponse(baseRequest, response)
           );
     } catch (IOException | ServletException | RuntimeException ex) {
       baseRequest.setHandled(false);

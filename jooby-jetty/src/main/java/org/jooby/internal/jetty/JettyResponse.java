@@ -23,9 +23,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.HttpOutput;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 import org.jooby.servlet.ServletServletResponse;
@@ -37,8 +39,13 @@ public class JettyResponse extends ServletServletResponse implements Callback {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(org.jooby.Response.class);
 
-  public JettyResponse(final HttpServletResponse rsp) {
+  private Request req;
+
+  private AsyncContext async;
+
+  public JettyResponse(final Request req, final HttpServletResponse rsp) {
     super(rsp);
+    this.req = req;
   }
 
   @Override
@@ -53,11 +60,13 @@ public class JettyResponse extends ServletServletResponse implements Callback {
 
   @Override
   public void send(final InputStream stream) throws Exception {
+    this.async = req.startAsync();
     sender().sendContent(Channels.newChannel(stream), this);
   }
 
   @Override
   public void send(final FileChannel channel) throws Exception {
+    this.async = req.startAsync();
     sender().sendContent(channel, this);
   }
 
@@ -67,13 +76,37 @@ public class JettyResponse extends ServletServletResponse implements Callback {
 
   @Override
   public void succeeded() {
-    // NOOP
+    complete();
   }
 
   @Override
   public void failed(final Throwable cause) {
+    complete();
     // TODO: will be nice to log the path of the current request
     log.error(rsp.toString(), cause);
   }
 
+  @Override
+  public void end() {
+    if (async == null) {
+      close();
+    }
+    super.end();
+  }
+
+  private void complete() {
+    if (async != null) {
+      async.complete();
+      async = null;
+    } else {
+      close();
+    }
+  }
+
+  private void close() {
+    HttpOutput output = sender();
+    if (!output.isClosed()) {
+      output.close();
+    }
+  }
 }
