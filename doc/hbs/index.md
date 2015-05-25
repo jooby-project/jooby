@@ -6,7 +6,7 @@ version: 0.5.3
 
 # jooby-hbs
 
-Mustache/Handlebars templates for [Jooby](/). Exposes a [Handlebars](https://github.com/jknack/handlebars.java) and [body formatter](/apidocs/org/jooby/BodyFormatter.html).
+Mustache/Handlebars templates for [Jooby](/). Exposes a [Handlebars](https://github.com/jknack/handlebars.java) and [renderer](/apidocs/org/jooby/Renderer.html).
 
 ## dependency
 
@@ -39,7 +39,7 @@ Templates are loaded from root of classpath: ```/``` and must end with: ```.html
 
 ## req locals
 
-A template engine has access to ```request locals```. Here is an example:
+A template engine has access to ```request locals``` (a.k.a attributes). Here is an example:
 
 ```java
 {

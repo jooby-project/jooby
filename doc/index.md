@@ -44,10 +44,9 @@ documentation
   - [default err handler](#default-err-handler)
   - [custom err handler](#custom-err-handler)
   - [status code](#status-code)
-  - [fallback err handler](#fallback-err-handler)
-- [body parser, formatter and view engine](#body-parser,-formatter-and-view-engine)
-  - [body parser](#body-parser)
-  - [body formatter](#body-formatter)
+- [parser, renderer and view engine](#parser,-renderer-and-view-engine)
+  - [parser](#parser)
+  - [renderer](#renderer)
   - [view engine](#view-engine)
 - [appendix: jooby.conf](#appendix:-jooby.conf)
 - [appendix: mime.properties](#appendix:-mime.properties)
@@ -707,7 +706,7 @@ File uploads (again) work in the same way, just use *org.jooby.Upload*
    }
 ```
 
-As you might already noticed, Jooby uses the method param name and binded it to the request param. If you want explicit mapping and/or the req param isn't a valid Java identifier:
+As you might already noticed, Jooby uses the method param name and bind it to the request param. If you want explicit mapping and/or the req param isn't a valid Java identifier:
 
 ```java
    @GET
@@ -722,10 +721,12 @@ Injecting a req body work in the same way:
 
 ```java
   @POST
-  public View search(MyObject object) {
-  ... do something with the uploaded file
+  public View search(@Body MyObject object) {
+  ... do something with my object
   }
 ```
+
+All you have to do is add the ```@Body``` annotation.
 
 ### binding req headers
 
@@ -867,7 +868,7 @@ The request object contains methods for reading params, headers and body (betwee
 
 Retrieval of param is done via: [req.param("name")](/apidocs/org/jooby/Request.html#param-java.lang.String-) method.
 
-The [req.param("name")](/apidocs/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant](/apidocs/org/jooby/Mutant.html) instance. A mutant had several utility method for doing type conversion and check for presence and/or absence.
+The [req.param("name")](/apidocs/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant](/apidocs/org/jooby/Mutant.html) instance. A mutant had several utility method for doing type conversion.
 
 Some examples:
 
@@ -952,13 +953,17 @@ Custom type conversion is also possible:
 
 ```java
 
-param((type, values, next) -> {
+parser((type, ctx) -> {
   if (type.getRawType() == MyType.class) {
     // convert the type here
-    return ...;
+    return ctx.param(values -> new MyType(values.get(0)));
   }
   // no luck! move to next converter
-  return next.convert(type, values);
+  return next.next();
+});
+
+get("/", req -> {
+  MyType myType = req.param("value").to(MyType.class);
 });
 ```
 
@@ -994,21 +999,21 @@ get("/", req -> {
 
 ## request body
 
-Retrieval of request body is done via [request.body(type)](/apidocs/org/jooby/Request.html#body-com.google.inject.TypeLiteral-).
+Retrieval of request body is done via [request.body()](/apidocs/org/jooby/Request.html#body).
 
-A [body parser](/apidocs/org/jooby/BodyParser.html) is responsible for parse or convert the HTTP request body to something else.
+A [parser](/apidocs/org/jooby/Parser.html) is responsible for parse or convert the HTTP request body to something else.
 
 There are a few built-in parsers for reading body as String or Reader objects. Once the body is read it, it can't be read it again.
 
-A detailed explanation for body parser is covered later. For now, all you need to know is that they can read/parse the HTTP body.
+A detailed explanation for parser is covered later. For now, all you need to know is that they can read/parse the HTTP body.
 
 A body parser is registered in one of two ways:
 
-* with [use](/apidocs/org/jooby/Jooby.html#use-org.jooby.BodyParser-)
+* with [parser](/apidocs/org/jooby/Jooby.html#parser-org.jooby.Parser-)
 
 ```java
 {
-   use(new Json());
+   parser(new MyParser());
 }
 ```
 
@@ -1016,7 +1021,7 @@ A body parser is registered in one of two ways:
 
 ```java
 public void configure(Mode mode, Config config, Binder binder) {
-  Multibinder.newSetBinder(binder, BodyParser.class)
+  Multibinder.newSetBinder(binder, Parser.class)
         .addBinding()
         .toInstance(new MyParser());
 }
@@ -1049,9 +1054,9 @@ The response object contains methods for reading and setting headers, status cod
 
 ## sending data
 
-The [rsp.send](/apidocs/org/jooby/Response.html#send-org.jooby.Body-) method is responsible for sending and writing data into the HTTP Response.
+The [rsp.send](/apidocs/org/jooby/Response.html#send-org.jooby.Result-) method is responsible for sending and writing data into the HTTP Response.
 
-A [body formatter](/apidocs/org/jooby/BodyFormatter) is responsible for converting a Java Object into something else (json, html, etc..).
+A [renderer](/apidocs/org/jooby/Renderer.html) is responsible for converting a Java Object into something else (json, html, etc..).
 
 Let's see a simple example:
 
@@ -1061,9 +1066,9 @@ get("/", (req, rsp) -> rsp.send("hey jooby"));
 get("/", req -> "hey jooby"); // or just return a value and Jooby will call send for you.
 ```
 
-The **send** method select the best [body formatter](/apidocs/org/jooby/BodyFormatter) to use based on the ```Accept``` header and if the current data type is supported.
+The **send** method will ask the [Renderer API](/apidocs/org/jooby/Renderer.html) to format an object and write a response.
 
-The resulting ```Content-Type``` when is not set is the first returned by the  [formatter.types()](/apidocs/org/jooby/BodyFormatter#types) method.
+The resulting ```Content-Type``` when is not set is ```text/html```.
 
 The resulting ```Status Code``` when is not set is ```200```.
 
@@ -1100,7 +1105,7 @@ get("/", req -> {
 
 ## content negotiation
 
-A route can produces different results base on the ```Accept``` header: 
+A route can produces different results based on the ```Accept``` header: 
 
 ```java
 get("/", () ->
@@ -1181,12 +1186,11 @@ by defaults: <code>jooby.sid</code>. Cookie's name can be explicitly set with
 
 # err
 
-Error handler is represented by [Err.Handler](/apidocs/org/jooby/Err.Handler.html) class and allows you to log and/or display custom error pages.
+Error handler is represented by the [Err.Handler](/apidocs/org/jooby/Err.Handler.html) class and allows you to log and/or render exceptions.
 
 ## default err handler
 
-The [default error handler](/apidocs/org/jooby/Err.Default.html) does content negotiation and attempt to
-display friendly err pages using naming convention.
+The [default error handler](/apidocs/org/jooby/Err.DefHandler.html) does content negotiation and optionallydisplay friendly err pages using naming convention.
 
 ```java
 {
@@ -1212,7 +1216,6 @@ The default model has these attributes:
 * stacktrace: exception stack-trace as an array of string
 * status: status code, like ```400```
 * reason: status code reason, like ```BAD REQUEST```
-* referer: referer header (if present)
 
 Here is a simply ```public/err.html``` error page:
 
@@ -1229,7 +1232,7 @@ HTTP status code will be set too.
 ### no html
 
 If a request to ```/``` has an ```Accept: application/json``` header. Then, the default err handler will
-ask to a [Formatter](/apidocs/org/jooby/BodyFormatter.html) to render the ```err``` model.
+ask to a [renderer](/apidocs/org/jooby/Renderer.html) to render the ```err``` model.
 
 ```json
 {
@@ -1240,6 +1243,8 @@ ask to a [Formatter](/apidocs/org/jooby/BodyFormatter.html) to render the ```err
 }
 ```
 
+In both cases, the error model is the result of ```err.toMap()``` which creates a lightweight version of the exception.
+
 HTTP status code will be set too.
 
 ## custom err handler
@@ -1248,14 +1253,16 @@ If the default view resolution and/or err model isn't enough, you can create you
 
 ```java
 {
-  err((req, rsp, cause) -> {
-    log.err("err found: ", cause);
+  err((req, rsp, err) -> {
+    log.err("err found: ", err);
     // do what ever you want here
+    rsp.send(...);
   });
 }
 ```
 
-A good practice is to always log the err and then build a custom page or any other response you want.
+Err handler are executed in the order they were provided (like routes, parser and renderers).
+The first err handler that send an output wins!
 
 ## status code
 
@@ -1285,243 +1292,168 @@ err.com.security.Forbidden = 403
 throw new Forbidden();
 ```
 
-## fallback err handler
 
-If the err handler failed by any reason, the fallback err handler will be executed. This err handler
-just display a generic HTML err page.
+# parser, renderer and view engine
+
+## parser
+
+A [Parser](/apidocs/org/jooby/Parser.html) is responsible for parsing the HTTP params and/or body to something else.
+
+Automatic type conversion is provided when a type:
+
+* Is a primitive, primitive wrapper or String
+* Is an enum
+* Is an [Upload](/apidocs/org/jooby/Upload.html)
+* Has a public **constructor** that accepts a single **String** argument
+* Has a static method **valueOf** that accepts a single **String** argument
+* Has a static method **fromString** that accepts a single **String** argument. Like ```java.util.UUID```
+* Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
+* It is an Optional<T>, List<T>, Set<T> or SortedSet<T> where T satisfies one of previous rules
 
 
-# body parser, formatter and view engine
+### custom parser
 
-## body parser
+Suppose we want to write a custom parser to convert a value into an ```integer``. In practice we don't need such parser bc it is provided, but of course you can override the default parser and provide your own.
 
-A [BodyParser](/apidocs/org/jooby/BodyParser.html) is responsible for parsing the HTTP body to something else.
-
-A [BodyParser](/apidocs/org/jooby/BodyParser.html) has three(3) methods:
-
-* **types**: list of [media types](/apidocs/org/jooby/MediaType.html) supported by the body parser.
-* **canParse**(*type)*: test if the Java type is supported by the body parser.
-* **parse***(type, reader)*: do the actual parsing using the type and reader.
-
-In the next example we will try to read the HTTP Body as **MyObject**.
+Let's see how to create our custom HTTP param parser:
 
 ```java
-post("/", (req, rsp) -> {
-   MyObject obj = req.body(MyObject.class);
+
+parser((type, ctx) -> {
+  // 1
+  if (type.getRawType() == int.class) {
+    // 2
+    return ctx.param(values -> Integer.parseInt(values.get(0));
+  }
+  // 3
+  return ctx.next();
+});
+
+get("/", req -> {
+   int intValue = req.param("v").intValue();
+   ...
+});
+
+```
+
+Let's have a closer look:
+
+1. Check if current type is what we can parse to
+2. We add a param callback
+3. We can't deal with current type, so we ask next parser to resolve it
+
+Now, if we ask for HTTP body
+
+```java
+get("/", req -> {
+   int intValue = req.body().intValue();
+   ...
+});
+
+```
+
+Our custom parser won't be able to parse the HTTP body, because it works on HTTP parameter. In order to extend our custom parser and use it for HTTP Body we must do:
+
+```java
+
+parser((type, ctx) -> {
+  // 1
+  if (type.getRawType() == int.class) {
+    // 2
+    return ctx.param(values -> Integer.parseInt(values.get(0))
+       .body(body -> Integer.parseInt(body.text()));
+  }
+  // 3
+  return ctx.next();
+});
+
+```
+
+And now we can ask for a HTTP param and/or body.
+
+```java
+get("/", req -> {
+   int intValue = req.param("v").intValue();
+   ...
+});
+
+post("/", req -> {
+   int intValue = req.body().intValue();
    ...
 });
 ```
 
-A call like:
+[Parser](/apidocs/org/jooby/Parser.html) API is very powerful. It let you apply a parser to a HTTP param, set of param (like a form post), file uploads and/or body. But not just that, you are free to choose if your parser applies for a Java Type and/or a Media Type, like the ```Content-Type``` header.
 
-```bash
-curl -X POST -H 'Content-Type: application/json' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
-```
-
-Results in ```415 - Unsupported Media Type```. That is because Jooby has no idea how to parse ```application/json```. For that, we need a **json** parser.
-
-Let's said we need to implement a JSON body parser (in real life you wont ever implement a json parser, this is just to demonstrate how it works):
+For example a generic JSON parser looks like:
 
 ```java
-public class Json implements BodyParser {
 
-  public List<MediaType> types() {
-    return ImmutableList.of(MediaType.json);
+parser((type, ctx) -> {
+  if (ctx.type().name().equals("application/json")) {
+    return ctx.body(body -> fromJSON(body.text()));
   }
-
-  public boolean canParse(TypeLiteral<?> type) {
-    return true; 
-  }
-
-  public <T> T parse(TypeLiteral<?> type, Context ctx) throws Exception {
-    ... parse it!
-  }
-}
-```
-
-Using it:
-
-```java
-{
-  use(new Json()); // now Jooby has a json parser
-
-  post("/", req -> {
-    MyObject obj = req.body(MyObject.class);
-    return obj;
-  });
-}
-```
-
-**How it works**?
-
-A route by default consumes ```*/*``` (any media type). Jooby will find/choose the **parser** which best matches the ```Content-Type``` header.
-
-The ```Content-Type``` header is compared against the [parser.types()](/apidocs/org/jooby/BodyParser.html#types--) method.
-
-Once an acceptable media type is found it call the **canParse** method of the [parser](/apidocs/org/jooby/BodyParser.html).
-
-### consumes
-
-The **consumes** method control what a route can consume or parse explicitly.
-
-```java
-{
-  post("/", req -> {
-    MyObject obj = req.body(MyObject.class);
-  })
-   .consumes("application/json");
-}
-```
-
-**200** response:
-
-```bash
-curl -X POST -H 'Content-Type: application/json' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
-```
-
-**415** response bc **application/xml** isn't supported:
-
-```bash
-curl -X POST -H 'Content-Type: application/xml' -d '{"firstName":"Pato", "lastName":"Sol"}' http://localhost:8080/
-```
-
-In general, you hardly will use **consumes** in your routes. It has been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depend on your app requirements. For example if you need more than **json** for your routes (xml, yaml, etc..).
-
-Another small advantage of using **consumes** is that the ```415``` response can be detected early (at the time a route is resolved) and not later or lazy (at the time you ask for type conversion).
-
-Keep in mind, you still need a **parser** for your media types. For example:
-
-```java
-{
-  post("/", req -> {
-    MyObject obj = req.body(MyObject.class);
-  })
-   .consumes("application/json", "application/xml");
-}
-```
-
-Require two parsers one for **json** and one for **xml**.
-
-## body formatter
-
-A [BodyFormatter](/apidocs/org/jooby/BodyFormatter.html) is responsible for format a Java Object to a series of bytes in order to send them as HTTP response.
-
-A [BodyFormatter](/apidocs/org/jooby/BodyFormatter.html) has three(3) methods:
-
-* **types**: list of [media types](/apidocs/org/jooby/MediaType.html) supported by the body formatter.
-* **canFormat**(*type)*: test if the Java type is supported by the body formatter.
-* **formatter***(data, writer)*: do the actual formatting using the data and writer.
-
-In the next example we will try to send **MyObject** as HTTP response.
-
-```java
-get("/", req -> {
-   MyObject obj = ...
-   return obj;
+  return ctx.next();
 });
 ```
 
-A call like:
+Parsers are executed in the order they are defined. Application provided parser has precedence over built-in parsers, so it it possible to override a built-in parser too!
 
-```bash
-curl http://localhost:8080/
-```
+If a param parser isn't able to resolve a param an exception will be thrown with a ```400``` status code.
 
-Give us a ```text/html``` and body content is ```obj.toString()```
+If a body parser isn't able to resolve a param an exception will be thrown with a ```415``` status code.
 
-```bash
-curl -H 'Accept: application/json' http://localhost:8080/
-```
+## renderer
 
-Results in ```406 - Not Acceptable```. That is because Jooby has no idea how to format ```application/json```. For that, we need a **json** formatter.
+A [Renderer](/apidocs/org/jooby/Renderer.html) is responsible for rendering a Java Object to a series of bytes in order to send them as HTTP response.
 
-Let's said we need to implement a JSON body formatter (in real life you wont ever implement a json formatter, this is just to demonstrate how they work):
+There are a few built-in renderers:
+
+* InputStream: copy an inputstream to the HTTP response and set a default type of: ```application/octet-stream```
+* byte[]: copy bytes to the HTTP response and set a default type of: ```application/octet-stream```
+* ByteBuffer: copy bytes to the HTTP response and set a default type of: ```application/octet-stream```
+* Readble: copy a readable object to the HTTP response and a default type of: ```text/html```
+* ToString: copy the toString() result to the HTTP response and set a default type of: ```text/html```
+
+### custom renderer
+
+Suppose we want to apply a custom rendering for ```MyObject```. Renderer is as simple as:
 
 ```java
-public class Json implements BodyFormatter {
 
-  public List<MediaType> types() {
-    return ImmutableList.of(MediaType.json);
+render((value, ctx) -> {
+  if (value instanceOf MyObject) {
+     ctx.text(value.toString());
   }
+});
 
-  public boolean canFormat(TypeLiteral<?> type) {
-    return true; 
+get("/", req -> {
+   return new MyObject();
+});
+```
+
+Easy right?
+
+A generic JSON renderer will looks like:
+
+```java
+
+render((value, ctx) -> {
+  if (ctx.accepts("json")) {
+     ctx.text(toJson(value));
   }
+});
 
-  public void format(Object data, Context ctx) throws Exception {
-    ... format and write it!
-  }
-}
+get("/", req -> {
+   return new MyObject();
+});
 ```
 
-Using it:
-
-```java
-{
-  use(new Json()); // now Jooby has a json formatter
-
-  post("/", (req, rsp) -> {
-     MyObject obj = ...
-     rsp.send(obj);
-  });
-}
-```
-
-**How it works**?
-
-A route by default produces ```*/*``` (any media type). Jooby will find/choose the **formatter** who best matches the ```Accept``` header.
-
-The ```Accept``` header is compared against the [formatter.types()](/apidocs/org/jooby/BodyFormatter.html#types--) method.
-
-Once an acceptable media type is found it call the **canFormat** method of the [formatter](/apidocs/org/jooby/BodyFormatter.html).
-
-### produces
-
-The **produces** method control what a route can accept or format explicitly.
-
-```java
-{
-  post("/", req -> {
-    MyObject obj = ...
-    return obj;
-  })
-   .produces("application/json");
-}
-```
-
-**200** response:
-
-```bash
-curl -H 'Accept: application/json' http://localhost:8080/
-```
-
-**406** response bc **application/xml** isn't supported:
-
-```bash
-curl 'Accept: application/xml' http://localhost:8080/
-```
-
-In general, you hardly will use **produces** in your routes. It has been created to give you more control on your routes and (more or less) explicitly document what is acceptable for your route. In real life, you won't use it too much but it will depend on your app requirements.
-
-Another small advantage of using **produces** is that the ```406``` response can be detected early (at the time a route is resolved) and not lazily (at the time you ask for type conversion).
-
-Keep in mind, you still need a **formatter** for your media types. For example:
-
-```java
-{
-  post("/", req -> {
-    MyObject obj = ...
-    return obj;
-  })
-   .produces("application/json", "application/xml");
-}
-```
-
-Require two formatters one for **json** and one for **xml**.
+Renderer API is simple and powerful. Renderers are executed in sequentially in the order they were defined. Application specific rendering might override built-in renderers. The renderer who write the response first wins!
 
 ## view engine
 
-A [view engine](/apidocs/org/jooby/View.Engine.html) is a specialized [body formatter](/apidocs/org/jooby/BodyFormatter.html) that ONLY accept instances of a [view](/apidocs/org/jooby/View.html).
+A [view engine](/apidocs/org/jooby/View.Engine.html) is a specialized [renderer](/apidocs/org/jooby/Renderer.html) that ONLY accept instances of a [view](/apidocs/org/jooby/View.html).
 
 ```java
 {
@@ -1531,6 +1463,8 @@ A [view engine](/apidocs/org/jooby/View.Engine.html) is a specialized [body form
 
 }
 ```
+
+In order to support multiples view engine, a view engine is allowed to throw a ```java.io.FileNotFoundException``` when a template can't be resolved it. This gives the chance to the next view resolver to load the template.
 
 There is no much to say about views & engines, any other detail or documentation should be provided in the specific module (mustache, handlebars, freemarker, etc.).
 
