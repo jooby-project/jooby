@@ -189,20 +189,20 @@ footer ul.social-media li a:hover {
 }
 
 /* twitter */
-footer ul.social-media li a.twitter {
+footer ul.social-media li a.gh {
   background-position: -32px 0;
 }
 
-footer ul.social-media li a:hover.twitter {
+footer ul.social-media li a:hover.gh {
   background-position: -32px -32px;
 }
 
 /* github */
-footer ul.social-media li a.gh {
+footer ul.social-media li a.twitter {
   background-position: 0 0;
 }
 
-footer ul.social-media li a:hover.gh {
+footer ul.social-media li a:hover.twitter {
   background-position: 0 -32px;
 }
 
