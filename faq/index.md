@@ -12,7 +12,7 @@ version: 0.5.3
 
 Code coverage is composed by unit and integration tests. Integration tests can be found [here](https://github.com/jooby-project/jooby/tree/master/coverage-report)
 
-Integration tests run again each of the available servers: [Netty](http://netty.io), [Jetty](http://www.eclipse.org/jetty/) and [Undertow](http://undertow.io)
+Integration tests run again each of the available servers: {{netty}}, {{jetty}} and {{undertow}}
 
 ## where are the default properties?
 

@@ -8,7 +8,7 @@ version: 0.5.3
 
 JSON support from the excellent [Jackson](https://github.com/FasterXML/jackson) library.
 
-This module provides a JSON body [parser](/apidocs/Body.Parser.html) and [formatter](/apidocs/Body.Formatter.html)
+This module provides a JSON body [parser](/apidocs/Parser.html) and [formatter](/apidocs/Renderer.html)
 but also an [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2.5.2/com/fasterxml/jackson/databind/ObjectMapper.html).
 
 ## dependency
@@ -23,7 +23,7 @@ but also an [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2
 ## usage
 
 ```java
-import org.jooby.jackson.Json;
+import org.jooby.json.Jackson;
 
 {
   use(new Jackson());
@@ -37,11 +37,6 @@ import org.jooby.jackson.Json;
     return obj;
   });
 
-  // receiving a json param from a multipart or form url encoded
-  post("/my-api", req -> {
-    MyObject obj = req.param("my-object").to(MyObject.class);
-    return obj;
-  });
 }
 ```
 
@@ -51,7 +46,7 @@ If you need a special setting or configuration for your [ObjectMapper](http://fa
 
 ```java
 {
-  use(new Jackson().configure(mapper -> {
+  use(new Jackson().doWith(mapper -> {
     // setup your custom object mapper
   });
 }

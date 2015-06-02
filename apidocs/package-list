@@ -1,5 +1,6 @@
 org.jooby
 org.jooby.camel
+org.jooby.ehcache
 org.jooby.elasticsearch
 org.jooby.ftl
 org.jooby.hbm

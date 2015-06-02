@@ -5,18 +5,20 @@ version: 0.5.3
 ---
 
 ## mvn jooby:run
-* [jooby:run](/doc/maven-plugin): maven plugin with hot reload of classes, powered by [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
+* [jooby:run](/doc/maven-plugin): maven plugin with hot reload of classes, powered by {{jboss-modules}}.
 
-## body parser & formatter
-* [jackson json](/doc/jackson): read and write JSON.
+## parser & formatter
+* [jackson](/doc/jackson): JSON supports via Jackson.
+* [gson](/doc/gson): JSON supports via Gson.
 
 ## template engines
 * [handlebars/mustache](/doc/hbs): logic less and semantic Mustache templates.
 * [freemarker](/doc/ftl): render templates with FreeMarker.
 
 ## session stores
-* [redis](/doc/jedis/#redis-session-store)
-* [mongodb](/doc/mongodb/#mongodb-session-store)
+* [redis](/doc/jedis/#redis-session-store): HTTP session on {{redis}}.
+* [mongodb](/doc/mongodb/#mongodb-session-store): HTTP session on {{mongodb}}.
+* [ehcache](/doc/ehcache/#ehcache-session-store): HTTP session on {{ehcache}}.
 
 ## sql
 * [jdbc](/doc/jdbc): high performance connection pool for jdbc.
@@ -28,13 +30,14 @@ version: 0.5.3
 
 ## mongodb
 * [mongodb](/doc/mongodb): Mongodb driver.
-* [morphia](/doc/morphia): Object/Document mapper via [Morphia](https://github.com/mongodb/morphia).
+* [morphia](/doc/morphia): Object/Document mapper via [Morphia]({{morphia}}).
 
-## redis
+## caches
 * [jedis](/doc/jedis): Advanced cache and key/value store for Java.
+* [ehcache](/doc/ehcache): Java's most widely-used cache.
 
 ## full text search
-* [elastic search](/doc/elasticsearch): enterprise full text search via [Elastic Search](https://github.com/elastic/elasticsearch).
+* [elastic search](/doc/elasticsearch): enterprise full text search via {{elasticsearch}}.
 
 ## scheduling
 * [quartz](/doc/quartz): advanced job scheduling.
