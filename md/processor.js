@@ -39,6 +39,126 @@ var version = function () {
 };
 
 /**
+ * Append latest version var.
+ */
+var links = [];
+
+links.push({
+  name: 'version',
+  data: version()
+});
+
+links.push({
+  name: 'ehcache',
+  data: '[Ehcache](http://ehcache.org)'
+});
+
+links.push({
+  name: 'site',
+  data: '/'
+});
+
+links.push({
+  name: 'apidocs',
+  data: '/apidocs'
+});
+
+links.push({
+  name: 'defdocs',
+  data: '/apidocs/org/jooby'
+});
+
+links.push({
+  name: 'appendix'
+});
+
+links.push({
+  name: 'maven',
+  data: '[Maven](http://maven.apache.org/)'
+});
+
+links.push({
+  name: 'guice',
+  data: '[Guice](https://github.com/google/guice)'
+});
+
+links.push({
+  name: 'jooby',
+  data: '[Jooby](http://jooby.org)'
+});
+
+links.push({
+  name: 'netty',
+  data: '[Netty](http://netty.io)'
+});
+
+links.push({
+  name: 'jetty',
+  data: '[Jetty](http://www.eclipse.org/jetty/)'
+});
+
+links.push({
+  name: 'undertow',
+  data: '[Undertow](http://undertow.io)'
+});
+
+links.push({
+  name: 'npm',
+  data: '[npm](https://www.npmjs.com)'
+});
+
+links.push({
+  name: 'grunt',
+  data: '[npm](http://gruntjs.com)'
+});
+
+links.push({
+  name: 'redis',
+  data: '[Redis](http://redis.io)'
+});
+
+links.push({
+  name: 'jedis',
+  data: '[Jedis](https://github.com/xetorthio/jedis)'
+});
+
+links.push({
+  name: 'mongodb',
+  data: '[MongoDB](http://mongodb.github.io/mongo-java-driver/)'
+});
+
+links.push({
+  name: 'mongodbapi',
+  data: 'http://api.mongodb.org/java/2.13/com/mongodb'
+});
+
+links.push({
+  name: 'gh',
+  data: 'https://github.com/jooby-project/jooby/tree/master'
+});
+
+links.push({
+  name: 'morphia',
+  data: 'https://github.com/mongodb/morphia'
+});
+
+links.push({
+  name: 'morphiaapi',
+  data: 'https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia'
+});
+
+links.push({
+  name: 'jboss-modules',
+  data: '[JBoss Modules](https://github.com/jboss-modules/jboss-modules)'
+});
+
+links.push({
+  name: 'elasticsearch',
+  data: '[Elastic Search](https://github.com/elastic/elasticsearch)'
+});
+
+
+/**
  * copy a file to another.
  */
 var copy = function (fin, fout) {
@@ -161,7 +281,7 @@ var vars = ls(mdindir).reduce(function (vars, file) {
   vars.push(file);
 
   return vars;
-}, []);
+}, links);
 
 /**
  * clone README.md
@@ -179,119 +299,6 @@ ls(mdoutdir, function (file) {
     writeString(index, page);
   }
 });
-
-/**
- * Append latest version var.
- */
-vars.push({
-  name: 'version',
-  data: version()
-});
-
-vars.push({
-  name: 'site',
-  data: '/'
-});
-
-vars.push({
-  name: 'apidocs',
-  data: '/apidocs'
-});
-
-vars.push({
-  name: 'defdocs',
-  data: '/apidocs/org/jooby'
-});
-
-vars.push({
-  name: 'appendix'
-});
-
-vars.push({
-  name: 'maven',
-  data: '[Maven](http://maven.apache.org/)'
-});
-
-vars.push({
-  name: 'guice',
-  data: '[Guice](https://github.com/google/guice)'
-});
-
-vars.push({
-  name: 'jooby',
-  data: '[Jooby](http://jooby.org)'
-});
-
-vars.push({
-  name: 'netty',
-  data: '[Netty](http://netty.io)'
-});
-
-vars.push({
-  name: 'jetty',
-  data: '[Jetty](http://www.eclipse.org/jetty/)'
-});
-
-vars.push({
-  name: 'undertow',
-  data: '[Undertow](http://undertow.io)'
-});
-
-vars.push({
-  name: 'npm',
-  data: '[npm](https://www.npmjs.com)'
-});
-
-vars.push({
-  name: 'grunt',
-  data: '[npm](http://gruntjs.com)'
-});
-
-vars.push({
-  name: 'redis',
-  data: '[Redis](http://redis.io)'
-});
-
-vars.push({
-  name: 'jedis',
-  data: '[Jedis](https://github.com/xetorthio/jedis)'
-});
-
-vars.push({
-  name: 'mongodb',
-  data: '[MongoDB](http://mongodb.github.io/mongo-java-driver/)'
-});
-
-vars.push({
-  name: 'mongodbapi',
-  data: 'http://api.mongodb.org/java/2.13/com/mongodb'
-});
-
-vars.push({
-  name: 'gh',
-  data: 'https://github.com/jooby-project/jooby/tree/master'
-});
-
-vars.push({
-  name: 'morphia',
-  data: 'https://github.com/mongodb/morphia'
-});
-
-vars.push({
-  name: 'morphiaapi',
-  data: 'https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia'
-});
-
-vars.push({
-  name: 'jboss-modules',
-  data: '[JBoss Modules](https://github.com/jboss-modules/jboss-modules)'
-});
-
-vars.push({
-  name: 'elasticsearch',
-  data: '[Elastic Search](https://github.com/elastic/elasticsearch)'
-});
-
 
 /**
  * replace expressions like: {{var}}
@@ -315,7 +322,6 @@ ls(mdoutdir, function (file) {
       }
     }
 
-    
     console.log('   applying placeholder ' + name);
     data = freplace(data, name, value);
   });

@@ -38,6 +38,7 @@
     <module>jooby-hbv</module>
     <module>jooby-archetype</module>
     <module>jooby-maven-plugin</module>
+    <module>jooby-ehcache</module>
     <module>coverage-report</module>
   </modules>
 
@@ -196,6 +197,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-elasticsearch</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-ehcache</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -539,6 +546,13 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>${maven-antrun-plugin.version}</version>
+      </dependency>
+
+      <!-- Ehcache -->
+      <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache</artifactId>
+        <version>${ehcache.version}</version>
       </dependency>
 
       <!-- Test dependencies -->
@@ -1179,12 +1193,13 @@
     <javax.el-api.version>2.2.5</javax.el-api.version>
     <javax.el-ref.version>2.2.6</javax.el-ref.version>
     <gson.version>2.3.1</gson.version>
+    <ehcache.version>2.10.0</ehcache.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
     <easymock.version>3.2</easymock.version>
     <powermock.version>1.5.6</powermock.version>
-    <jacoco.version>0.7.2.201409121644</jacoco.version>
+    <jacoco.version>0.7.5.201505241946</jacoco.version>
 
     <!-- Maven properties -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

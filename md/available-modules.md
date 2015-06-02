@@ -10,8 +10,9 @@
 * [freemarker](https://github.com/jooby-project/jooby/tree/master/jooby-ftl): render templates with FreeMarker.
 
 ## session stores
-* [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis/#redis-session-store)
-* [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb/#mongodb-session-store)
+* [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis/#redis-session-store): HTTP session on {{redis}}.
+* [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb/#mongodb-session-store): HTTP session on {{mongodb}}.
+* [ehcache](https://github.com/jooby-project/jooby/tree/master/jooby-ehcache/#ehcache-session-store): HTTP session on {{ehcache}}.
 
 ## sql
 * [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc): high performance connection pool for jdbc.
@@ -25,8 +26,9 @@
 * [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb): Mongodb driver.
 * [morphia](https://github.com/jooby-project/jooby/tree/master/jooby-morphia): Object/Document mapper via [Morphia]({{morphia}}).
 
-## redis
+## caches
 * [jedis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis): Advanced cache and key/value store for Java.
+* [ehcache](https://github.com/jooby-project/jooby/tree/master/jooby-ehcache): Java's most widely-used cache.
 
 ## full text search
 * [elastic search](https://github.com/jooby-project/jooby/tree/master/jooby-elasticsearch): enterprise full text search via {{elasticsearch}}.
