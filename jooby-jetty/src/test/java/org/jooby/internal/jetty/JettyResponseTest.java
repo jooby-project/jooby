@@ -46,7 +46,7 @@ public class JettyResponseTest {
     new MockUnit(Request.class, Response.class, HttpOutput.class)
         .expect(unit -> {
           HttpOutput output = unit.get(HttpOutput.class);
-          output.sendContent(unit.capture(ByteBuffer.class), isA(JettyResponse.class));
+          output.sendContent(unit.capture(ByteBuffer.class));
 
           Response rsp = unit.get(Response.class);
           expect(rsp.getHttpOutput()).andReturn(output);
@@ -66,7 +66,7 @@ public class JettyResponseTest {
     new MockUnit(Request.class, Response.class, HttpOutput.class)
         .expect(unit -> {
           HttpOutput output = unit.get(HttpOutput.class);
-          output.sendContent(eq(buffer), isA(JettyResponse.class));
+          output.sendContent(eq(buffer));
 
           Response rsp = unit.get(Response.class);
           expect(rsp.getHttpOutput()).andReturn(output);
@@ -103,14 +103,33 @@ public class JettyResponseTest {
   }
 
   @Test
-  public void sendFileChannel() throws Exception {
-    FileChannel channel = newFileChannel();
+  public void sendSmallFileChannel() throws Exception {
+    FileChannel channel = newFileChannel(1);
+    new MockUnit(Request.class, Response.class, HttpOutput.class, AsyncContext.class)
+        .expect(unit -> {
+          HttpOutput output = unit.get(HttpOutput.class);
+          output.sendContent(eq(channel));
+
+          Response rsp = unit.get(Response.class);
+          expect(rsp.getBufferSize()).andReturn(2);
+          expect(rsp.getHttpOutput()).andReturn(output);
+        })
+        .run(unit -> {
+          new JettyResponse(unit.get(Request.class), unit.get(Response.class))
+              .send(channel);
+        });
+  }
+
+  @Test
+  public void sendLargeFileChannel() throws Exception {
+    FileChannel channel = newFileChannel(10);
     new MockUnit(Request.class, Response.class, HttpOutput.class, AsyncContext.class)
         .expect(unit -> {
           HttpOutput output = unit.get(HttpOutput.class);
           output.sendContent(eq(channel), isA(JettyResponse.class));
 
           Response rsp = unit.get(Response.class);
+          expect(rsp.getBufferSize()).andReturn(5);
           expect(rsp.getHttpOutput()).andReturn(output);
         })
         .expect(unit -> {
@@ -129,7 +148,7 @@ public class JettyResponseTest {
     new MockUnit(Request.class, Response.class, HttpOutput.class, AsyncContext.class)
         .expect(unit -> {
           HttpOutput output = unit.get(HttpOutput.class);
-          output.sendContent(unit.capture(ByteBuffer.class), isA(JettyResponse.class));
+          output.sendContent(unit.capture(ByteBuffer.class));
           expect(output.isClosed()).andReturn(false);
           output.close();
 
@@ -149,7 +168,7 @@ public class JettyResponseTest {
     new MockUnit(Request.class, Response.class, HttpOutput.class, AsyncContext.class)
         .expect(unit -> {
           HttpOutput output = unit.get(HttpOutput.class);
-          output.sendContent(unit.capture(ByteBuffer.class), isA(JettyResponse.class));
+          output.sendContent(unit.capture(ByteBuffer.class));
           expect(output.isClosed()).andReturn(true);
 
           Response rsp = unit.get(Response.class);
@@ -164,13 +183,14 @@ public class JettyResponseTest {
 
   @Test
   public void succeededAsync() throws Exception {
-    FileChannel channel = newFileChannel();
+    FileChannel channel = newFileChannel(10);
     new MockUnit(Request.class, Response.class, HttpOutput.class, AsyncContext.class)
         .expect(unit -> {
           HttpOutput output = unit.get(HttpOutput.class);
           output.sendContent(eq(channel), isA(JettyResponse.class));
 
           Response rsp = unit.get(Response.class);
+          expect(rsp.getBufferSize()).andReturn(5);
           expect(rsp.getHttpOutput()).andReturn(output);
         })
         .expect(unit -> {
@@ -229,7 +249,7 @@ public class JettyResponseTest {
         });
   }
 
-  private FileChannel newFileChannel() {
+  private FileChannel newFileChannel(final int size) {
     return new FileChannel() {
       @Override
       public int read(final ByteBuffer dst) throws IOException {
@@ -265,7 +285,7 @@ public class JettyResponseTest {
 
       @Override
       public long size() throws IOException {
-        return 0;
+        return size;
       }
 
       @Override

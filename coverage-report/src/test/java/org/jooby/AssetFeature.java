@@ -73,4 +73,20 @@ public class AssetFeature extends ServerFeature {
         });
   }
 
+  @Test
+  public void largeFile() throws Exception {
+    request()
+        .get("/assets/jquery-2.1.4.js")
+        .expect(200)
+        .header("Content-Type", "application/javascript;charset=UTF-8")
+        .header("Content-Length", 247597)
+        .header("Last-Modified", lastModified -> {
+          request()
+              .get("/assets/file.js")
+              .header("If-Modified-Since", lastModified)
+              .expect(304)
+              .empty();
+        });
+  }
+
 }

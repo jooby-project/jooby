@@ -50,12 +50,12 @@ public class JettyResponse extends ServletServletResponse implements Callback {
 
   @Override
   public void send(final byte[] bytes) throws Exception {
-    sender().sendContent(ByteBuffer.wrap(bytes), this);
+    sender().sendContent(ByteBuffer.wrap(bytes));
   }
 
   @Override
   public void send(final ByteBuffer buffer) throws Exception {
-    sender().sendContent(buffer, this);
+    sender().sendContent(buffer);
   }
 
   @Override
@@ -66,8 +66,14 @@ public class JettyResponse extends ServletServletResponse implements Callback {
 
   @Override
   public void send(final FileChannel channel) throws Exception {
-    this.async = req.startAsync();
-    sender().sendContent(channel, this);
+    int bufferSize = rsp.getBufferSize();
+    if (channel.size() < bufferSize) {
+      // sync version, file size is smaller than bufferSize
+      sender().sendContent(channel);
+    } else {
+      this.async = req.startAsync();
+      sender().sendContent(channel, this);
+    }
   }
 
   private HttpOutput sender() {
