@@ -20,7 +20,7 @@ package org.jooby;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 
 import com.google.inject.Key;
@@ -89,6 +89,47 @@ public interface Parser {
      * @throws Exception If something goes wrong.
      */
     Object invoke(T data) throws Exception;
+
+  }
+
+  /**
+   * Expose HTTP params from path, query, form url encoded or multipart request as a raw string.
+   *
+   * @author edgar
+   * @since 0.6.0
+   */
+  interface ParamReference<T> extends Iterable<T> {
+
+    /**
+     * @return Parameter name.
+     */
+    String name();
+
+    /**
+     * @return Return the first param or throw {@link Err} with a bad request code when missing.
+     */
+    T first();
+
+    /**
+     * @return Return the last param or throw {@link Err} with a bad request code when missing.
+     */
+    T last();
+
+    /**
+     * Get the param at the given index or throw {@link Err} with a bad request code when missing.
+     *
+     * @param index Param index.
+     * @return Param at the given index or throw {@link Err} with a bad request code when missing.
+     */
+    T get(int index);
+
+    @Override
+    Iterator<T> iterator();
+
+    /**
+     * @return Number of values for this parameter.
+     */
+    int size();
 
   }
 
@@ -187,7 +228,7 @@ public interface Parser {
      * @param callback A param parser callback.
      * @return This builder.
      */
-    Builder param(Callback<List<String>> callback);
+    Builder param(Callback<ParamReference<String>> callback);
 
     /**
      * Add a HTTP params callback. The Callback will be executed when current context is bound to a
@@ -209,7 +250,7 @@ public interface Parser {
      * @param callback A upload parser callback.
      * @return This builder.
      */
-    Builder upload(Callback<List<Upload>> callback);
+    Builder upload(Callback<ParamReference<Upload>> callback);
   }
 
   /**

@@ -20,7 +20,7 @@ get("/", req -> {
   MyObject object = req.param("object").to(MyObject.class);
 
   // file upload
-  Upload upload = req.param("file").to(Upload.class);
+  Upload upload = req.param("file").toUpload();
 
   // multi value params
   List<String> strList = req.param("strList").toList(String.class);
@@ -40,11 +40,11 @@ get("/", req -> {
 
 A request param can be present at:
 
-1) path: */user:id*
+1) path: GET */user/:id*
 
-2) query: */user?id=...* 
+2) query: GET */user?id=...* 
 
-3) body: */user* and params are *formurlenconded* or *multipart*
+3) body: POST to */user* as *formurlenconded* or *multipart*
 
 (first listed are higher precedence)
 

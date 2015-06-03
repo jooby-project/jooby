@@ -40,6 +40,13 @@ public class MediaTypeTest {
     assertEquals("javascript", MediaType.js.subtype());
   }
 
+  @Test
+  public void any() {
+    assertEquals(true, MediaType.all.isAny());
+    assertEquals(false, MediaType.js.isAny());
+    assertEquals(false, MediaType.valueOf("application/*+json").isAny());
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void nullFilter() {
     MediaType.matcher(MediaType.js).filter(null);

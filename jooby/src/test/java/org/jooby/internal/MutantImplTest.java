@@ -484,13 +484,14 @@ public class MutantImplTest {
   }
 
   private Mutant newMutant(final String... values) {
-    return new MutantImpl(newConverter(), Arrays.asList(values));
+    return new MutantImpl(newConverter(), new StrParamReferenceImpl("test", Arrays.asList(values)));
   }
 
   private Mutant newMutant(final String value) {
-    return new MutantImpl(newConverter(), value == null
+    StrParamReferenceImpl reference = new StrParamReferenceImpl("test", value == null
         ? Collections.emptyList()
         : ImmutableList.of(value));
+    return new MutantImpl(newConverter(), reference);
   }
 
   private ParserExecutor newConverter() {

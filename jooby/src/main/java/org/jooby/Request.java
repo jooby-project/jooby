@@ -97,12 +97,12 @@ public interface Request {
     }
 
     @Override
-    public Mutant params() throws Exception {
+    public Mutant params() {
       return req.params();
     }
 
     @Override
-    public Mutant param(final String name) throws Exception {
+    public Mutant param(final String name) {
       return req.param(name);
     }
 
@@ -407,9 +407,8 @@ public interface Request {
    * </ul>
    *
    * @return All the parameters.
-   * @throws Exception On param retrieval failures.
    */
-  Mutant params() throws Exception;
+  Mutant params();
 
   /**
    * Get a HTTP request parameter under the given name. A HTTP parameter can be provided in any of
@@ -437,9 +436,8 @@ public interface Request {
    *
    * @param name A parameter's name.
    * @return A HTTP request parameter.
-   * @throws Exception On param retrieval failures.
    */
-  Mutant param(String name) throws Exception;
+  Mutant param(String name);
 
   /**
    * Get a HTTP header.
@@ -641,7 +639,7 @@ public interface Request {
    * @return Current request.
    */
   default Request set(final Class<?> type, final Object value) {
-    return set(Key.get(type), value);
+    return set(TypeLiteral.get(type), value);
   }
 
   /**

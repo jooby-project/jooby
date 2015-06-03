@@ -128,7 +128,7 @@ public class ParamConverterTest {
   }
 
   private Object data(final String... value) {
-    return ImmutableList.copyOf(value);
+    return new StrParamReferenceImpl("test", ImmutableList.copyOf(value));
   }
 
   @Test

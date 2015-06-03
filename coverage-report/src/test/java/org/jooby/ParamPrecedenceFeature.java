@@ -13,10 +13,10 @@ public class ParamPrecedenceFeature extends ServerFeature {
       // path param
       assertEquals("a", req.param("name").value());
       // query param
-      assertEquals("b", req.param("name").toList(String.class).get(1));
+      assertEquals("b", req.param("name").toList().get(1));
       // body param
-      assertEquals("c", req.param("name").toList(String.class).get(2));
-      resp.send(req.param("name").toList(String.class));
+      assertEquals("c", req.param("name").toList().get(2));
+      resp.send(req.param("name").toList());
     });
 
   }

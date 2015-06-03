@@ -19,6 +19,8 @@
 package org.jooby;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -95,6 +98,9 @@ public class JoobyMojo extends AbstractMojo {
 
     doFlatMainModule(mavenProject, jmodules, appcp, artifacts);
 
+    // allow to access command line system properties
+    dumpSysProps(jmodules.resolve("sys.properties"));
+
     Set<String> classpath = new LinkedHashSet<String>();
 
     String hotreload = extra(pluginArtifacts, "jooby-hotreload").get().getFile().getAbsolutePath();
@@ -150,6 +156,16 @@ public class JoobyMojo extends AbstractMojo {
 
   }
 
+  private void dumpSysProps(final Path path) throws MojoFailureException {
+    try {
+      FileOutputStream output = new FileOutputStream(path.toFile());
+      Properties properties = System.getProperties();
+      properties.store(output, "system properties");
+    } catch (IOException ex) {
+      throw new MojoFailureException("Can't dump system properties to: " + path, ex);
+    }
+  }
+
   /**
    * Creates a module.
    *
@@ -187,6 +203,7 @@ public class JoobyMojo extends AbstractMojo {
               .append("\" />\n");
         }
       }
+
       String content = jbossModule(project.getGroupId(), project.getArtifactId(), rsb, null);
       moddir.toFile().mkdirs();
       Files.write(content, moddir.resolve("module.xml").toFile(), StandardCharsets.UTF_8);

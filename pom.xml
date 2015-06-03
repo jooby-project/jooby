@@ -39,6 +39,7 @@
     <module>jooby-archetype</module>
     <module>jooby-maven-plugin</module>
     <module>jooby-ehcache</module>
+    <module>jooby-pac4j</module>
     <module>coverage-report</module>
   </modules>
 
@@ -203,6 +204,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-ehcache</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-pac4j</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -497,6 +504,13 @@
         <groupId>org.jboss.modules</groupId>
         <artifactId>jboss-modules</artifactId>
         <version>${jboss-modules.version}</version>
+      </dependency>
+
+      <!-- Pac4j -->
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-core</artifactId>
+        <version>${pac4j.version}</version>
       </dependency>
 
       <!-- Maven -->
@@ -1194,6 +1208,7 @@
     <javax.el-ref.version>2.2.6</javax.el-ref.version>
     <gson.version>2.3.1</gson.version>
     <ehcache.version>2.10.0</ehcache.version>
+    <pac4j.version>1.7.0</pac4j.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

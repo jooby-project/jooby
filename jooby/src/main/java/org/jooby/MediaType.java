@@ -453,6 +453,13 @@ public class MediaType implements Comparable<MediaType> {
     return false;
   }
 
+  /**
+   * @return True for <code>* / *</code>.
+   */
+  public boolean isAny() {
+    return this.wildcardType && this.wildcardSubtype;
+  }
+
   @Override
   public boolean equals(final Object obj) {
     if (obj == this) {

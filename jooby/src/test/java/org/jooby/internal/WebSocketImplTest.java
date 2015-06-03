@@ -210,7 +210,6 @@ public class WebSocketImplTest {
               );
           assertEquals(pattern, ws.pattern());
           assertEquals(path, ws.path());
-          assertEquals(vars, ws.vars());
           assertEquals(consumes, ws.consumes());
           assertEquals(produces, ws.produces());
         });

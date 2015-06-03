@@ -19,6 +19,7 @@
 package org.jooby;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -143,6 +144,15 @@ public interface Mutant {
 
   /**
    * @param type The element type.
+   * @param <T> List type.
+   * @return Get list of values when possible.
+   */
+  default List<String> toList() {
+    return toList(String.class);
+  }
+
+  /**
+   * @param type The element type.
    * @param <T> Set type.
    * @return Get set of values when possible.
    */
@@ -183,6 +193,15 @@ public interface Mutant {
   }
 
   /**
+   * Convert a form field to file {@link Upload}.
+   *
+   * @return A file {@link Upload}.
+   */
+  default Upload toUpload() {
+    return to(Upload.class);
+  }
+
+  /**
    * Convert a raw value to the given type.
    *
    * @param type The type to convert to.
@@ -202,4 +221,69 @@ public interface Mutant {
    */
   <T> T to(TypeLiteral<T> type);
 
+  /**
+   * Convert a raw value to the given type. This method will temporary set {@link MediaType} before
+   * parsing a value, useful if a form field from a HTTP POST was send as json (or any other data).
+   *
+   * @param type The type to convert to.
+   * @param mtype A media type to hint a parser.
+   * @param <T> Target type.
+   * @return Get a value when possible.
+   */
+  default <T> T to(final Class<T> type, final String mtype) {
+    return to(type, MediaType.valueOf(mtype));
+  }
+
+  /**
+   * Convert a raw value to the given type. This method will temporary set {@link MediaType} before
+   * parsing a value, useful if a form field from a HTTP POST was send as json (or any other data).
+   *
+   * @param type The type to convert to.
+   * @param mtype A media type to hint a parser.
+   * @param <T> Target type.
+   * @return Get a value when possible.
+   */
+  default <T> T to(final Class<T> type, final MediaType mtype) {
+    return to(TypeLiteral.get(type), mtype);
+  }
+
+  /**
+   * Convert a raw value to the given type. This method will temporary set {@link MediaType} before
+   * parsing a value, useful if a form field from a HTTP POST was send as json (or any other data).
+   *
+   * @param type The type to convert to.
+   * @param mtype A media type to hint a parser.
+   * @param <T> Target type.
+   * @return Get a value when possible.
+   */
+  default <T> T to(final TypeLiteral<T> type, final String mtype) {
+    return to(type, MediaType.valueOf(mtype));
+  }
+
+  /**
+   * Convert a raw value to the given type. This method will temporary set {@link MediaType} before
+   * parsing a value, useful if a form field from a HTTP POST was send as json (or any other data).
+   *
+   * @param type The type to convert to.
+   * @param mtype A media type to hint a parser.
+   * @param <T> Target type.
+   * @return Get a value when possible.
+   */
+  <T> T to(TypeLiteral<T> type, MediaType mtype);
+
+  /**
+   * A map view of this mutant.
+   *
+   * If this mutant is the result of {@link Request#params()} the resulting map will have all the
+   * available parameter names.
+   *
+   * If the mutant is the result of {@link Request#param(String)} the resulting map will have just
+   * one entry, with the name as key.
+   *
+   * If the mutant is the result of {@link Request#body()} the resulting map will have just
+   * one entry, with a key of <code>body</code>.
+   *
+   * @return A map view of this mutant.
+   */
+  Map<String, Mutant> toMap();
 }

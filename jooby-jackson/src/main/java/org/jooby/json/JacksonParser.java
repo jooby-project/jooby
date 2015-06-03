@@ -39,9 +39,16 @@ class JacksonParser implements Parser {
 
   @Override
   public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
+    MediaType ctype = ctx.type();
+    if (ctype.isAny()) {
+      // */*
+      return ctx.next();
+    }
+
     JavaType javaType = mapper.constructType(type.getType());
-    if (matcher.matches(ctx.type()) && mapper.canDeserialize(javaType)) {
-      return ctx.body(body -> mapper.readValue(body.bytes(), javaType));
+    if (matcher.matches(ctype) && mapper.canDeserialize(javaType)) {
+      return ctx.body(body -> mapper.readValue(body.bytes(), javaType))
+          .param(values -> mapper.readValue(values.iterator().next(), javaType));
     }
     return ctx.next();
   }

@@ -16,45 +16,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.json;
+package org.jooby.internal;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Iterator;
+import java.util.List;
 
-import org.jooby.MediaType;
+import org.jooby.Err;
 import org.jooby.Parser;
+import org.jooby.Status;
 
-import com.google.gson.Gson;
-import com.google.inject.TypeLiteral;
+public class ParamReferenceImpl<T> implements Parser.ParamReference<T> {
 
-class GsonParser implements Parser {
+  private String name;
 
-  private MediaType type;
+  private List<T> values;
 
-  private Gson gson;
-
-  public GsonParser(final MediaType type, final Gson gson) {
-    this.type = requireNonNull(type, "Media type is required.");
-    this.gson = requireNonNull(gson, "Gson is required.");
+  public ParamReferenceImpl(final String name, final List<T> values) {
+    this.name = name;
+    this.values = values;
   }
 
   @Override
-  public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
-    MediaType ctype = ctx.type();
-    if (ctype.isAny()) {
-      // */*
-      return ctx.next();
-    }
+  public String name() {
+    return name;
+  }
 
-    if (ctype.matches(this.type)) {
-      return ctx
-          .body(body -> gson.fromJson(body.text(), type.getType()))
-          .param(values -> gson.fromJson(values.first(), type.getType()));
+  @Override
+  public T first() {
+    return get(0);
+  }
+
+  @Override
+  public T last() {
+    return get(values.size() - 1);
+  }
+
+  @Override
+  public T get(final int index) {
+    if (index >= 0 && index < values.size()) {
+      return values.get(index);
     }
-    return ctx.next();
+    throw new Err(Status.BAD_REQUEST, "Not found: " + name);
+  }
+
+  @Override
+  public Iterator<T> iterator() {
+    return values.iterator();
+  }
+
+  @Override
+  public int size() {
+    return values.size();
   }
 
   @Override
   public String toString() {
-    return "gson";
+    return values.toString();
   }
+
 }

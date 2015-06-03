@@ -134,7 +134,8 @@ public class ResponseImpl implements Response {
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "A header's name is required.");
-    return new MutantImpl(injector.getInstance(ParserExecutor.class), rsp.headers(name));
+    return new MutantImpl(injector.getInstance(ParserExecutor.class),
+        new StrParamReferenceImpl(name, rsp.headers(name)));
   }
 
   @Override

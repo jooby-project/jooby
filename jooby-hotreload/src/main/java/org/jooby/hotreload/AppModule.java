@@ -20,7 +20,9 @@ package org.jooby.hotreload;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.FileSystems;
@@ -30,6 +32,8 @@ import java.nio.file.WatchEvent.Kind;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -64,6 +68,7 @@ public class AppModule {
 
   public static void main(final String[] args) throws Exception {
     setPkgs();
+    setSystemProperties(args[2]);
     List<File> cp = new ArrayList<File>();
     String includes = "**/*.class,**/*.conf,**/*.properties";
     String excludes = "";
@@ -103,6 +108,22 @@ public class AppModule {
         .includes(includes)
         .excludes(excludes);
     launcher.run();
+  }
+
+  private static void setSystemProperties(final String repo) throws IOException {
+    try (InputStream in = new FileInputStream(new File(repo, "sys.properties"))) {
+      Properties properties = new Properties();
+      properties.load(in);
+      for (Entry<Object, Object> prop : properties.entrySet()) {
+        String name = prop.getKey().toString();
+        String value = prop.getValue().toString();
+        String existing = System.getProperty(name);
+        if (!value.equals(existing)) {
+          // set property
+          System.setProperty(name, value);
+        }
+      }
+    }
   }
 
   private static void setPkgs() throws IOException {

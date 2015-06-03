@@ -35,12 +35,12 @@ public class RequestTest {
     }
 
     @Override
-    public Mutant params() throws Exception {
+    public Mutant params() {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public Mutant param(final String name) throws Exception {
+    public Mutant param(final String name) {
       throw new UnsupportedOperationException();
     }
 

@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.jooby.Cookie;
+import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Parser;
@@ -42,11 +43,13 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.Status;
+import org.jooby.Upload;
 import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.util.Collectors;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 
@@ -138,41 +141,43 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public Mutant params() throws Exception {
-    Map<String, Mutant> params = new LinkedHashMap<>();
+  public Mutant params() {
+    ImmutableMap.Builder<String, Mutant> params = ImmutableMap.<String, Mutant> builder();
     Set<String> names = new LinkedHashSet<>();
     for (Object name : route.vars().keySet()) {
       if (name instanceof String) {
         names.add((String) name);
       }
     }
-    names.addAll(req.paramNames());
+    names.addAll(paramNames());
     for (String name : names) {
       params.put(name, param(name));
     }
-    return new MutantImpl(require(ParserExecutor.class), type(), params);
+    return new MutantImpl(require(ParserExecutor.class), type(), params.build());
   }
 
   @Override
-  public Mutant param(final String name) throws Exception {
+  public Mutant param(final String name) {
     Mutant param = this.params.get(name);
     if (param == null) {
-      List<NativeUpload> files = req.files(name);
-      final Object data;
+      List<NativeUpload> files = files(name);
       if (files.size() > 0) {
-        data = files.stream()
+        List<Upload> uploads = files.stream()
             .map(upload -> new UploadImpl(injector, upload))
             .collect(Collectors.toList());
+        param = new MutantImpl(require(ParserExecutor.class), type(),
+            new UploadParamReferenceImpl(name, uploads));
       } else {
         List<String> values = new ArrayList<>();
         String pathvar = route.vars().get(name);
         if (pathvar != null) {
           values.add(pathvar);
         }
-        values.addAll(req.params(name));
-        data = values;
+        values.addAll(params(name));
+        param = new MutantImpl(require(ParserExecutor.class), type(),
+            new StrParamReferenceImpl(name, values));
       }
-      param = new MutantImpl(require(ParserExecutor.class), type(), data);
+
       this.params.put(name, param);
     }
     return param;
@@ -181,7 +186,8 @@ public class RequestImpl implements Request {
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "Header's name is missing.");
-    return new MutantImpl(require(ParserExecutor.class), type(), req.headers(name));
+    return new MutantImpl(require(ParserExecutor.class), type(),
+        new StrParamReferenceImpl(name, req.headers(name)));
   }
 
   @Override
@@ -324,6 +330,30 @@ public class RequestImpl implements Request {
     return req.header("Accept-Language")
         .map(l -> LocaleUtils.toLocale(l))
         .orElse(def);
+  }
+
+  private List<NativeUpload> files(final String name) {
+    try {
+      return req.files(name);
+    } catch (Exception ex) {
+      throw new Err(Status.BAD_REQUEST, "Upload " + name + " resulted in error", ex);
+    }
+  }
+
+  private List<String> paramNames() {
+    try {
+      return req.paramNames();
+    } catch (Exception ex) {
+      throw new Err(Status.BAD_REQUEST, "Unable to get parameter names", ex);
+    }
+  }
+
+  private List<String> params(final String name) {
+    try {
+      return req.params(name);
+    } catch (Exception ex) {
+      throw new Err(Status.BAD_REQUEST, "Param " + name + " resulted in error", ex);
+    }
   }
 
   void route(final Route route) {

@@ -18,18 +18,20 @@
  */
 package org.jooby.internal.reqparam;
 
-import java.util.List;
 import java.util.Map;
 
 import org.jooby.Mutant;
 import org.jooby.Parser;
 import org.jooby.Parser.Builder;
 import org.jooby.Parser.Callback;
+import org.jooby.Parser.ParamReference;
 import org.jooby.Upload;
+import org.jooby.internal.BodyReferenceImpl;
+import org.jooby.internal.StrParamReferenceImpl;
+import org.jooby.internal.UploadParamReferenceImpl;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.TypeLiteral;
-import com.google.inject.util.Types;
 
 @SuppressWarnings("rawtypes")
 public class ParserBuilder implements Parser.Builder {
@@ -53,43 +55,33 @@ public class ParserBuilder implements Parser.Builder {
   }
 
   private TypeLiteral<?> typeOf(final Object value) {
-    if (value instanceof List) {
-      List values = (List) value;
-      if (values.size() > 0) {
-        if (values.iterator().next() instanceof Upload) {
-          return TypeLiteral.get(Types.listOf(Upload.class));
-        }
-      }
-      return TypeLiteral.get(Types.listOf(String.class));
-    } else if (value instanceof Map) {
-      return TypeLiteral.get(Types.mapOf(String.class, Mutant.class));
-    } else if (value instanceof Parser.BodyReference) {
-      return TypeLiteral.get(Parser.BodyReference.class);
+    if (value instanceof Map) {
+      return TypeLiteral.get(Map.class);
     }
     return TypeLiteral.get(value.getClass());
   }
 
   @Override
   public Builder body(final Callback<Parser.BodyReference> callback) {
-    strategies.put(TypeLiteral.get(Parser.BodyReference.class), callback);
+    strategies.put(TypeLiteral.get(BodyReferenceImpl.class), callback);
     return this;
   }
 
   @Override
-  public Builder param(final Callback<List<String>> callback) {
-    strategies.put(TypeLiteral.get(Types.listOf(String.class)), callback);
+  public Builder param(final Callback<ParamReference<String>> callback) {
+    strategies.put(TypeLiteral.get(StrParamReferenceImpl.class), callback);
     return this;
   }
 
   @Override
   public Builder params(final Callback<Map<String, Mutant>> callback) {
-    strategies.put(TypeLiteral.get(Types.mapOf(String.class, Mutant.class)), callback);
+    strategies.put(TypeLiteral.get(Map.class), callback);
     return this;
   }
 
   @Override
-  public Builder upload(final Callback<List<Upload>> callback) {
-    strategies.put(TypeLiteral.get(Types.listOf(Upload.class)), callback);
+  public Builder upload(final Callback<Parser.ParamReference<Upload>> callback) {
+    strategies.put(TypeLiteral.get(UploadParamReferenceImpl.class), callback);
     return this;
   }
 

@@ -86,9 +86,12 @@ public class UploadImplTest {
               List<String> headers = Arrays.asList("application/json");
               expect(upload.headers("Content-Type")).andReturn(headers);
 
+              StrParamReferenceImpl pref = unit.mockConstructor(StrParamReferenceImpl.class, new Class[]{
+                  String.class, List.class }, "Content-Type", headers);
+
               Mutant mutant = unit.mockConstructor(MutantImpl.class,
                   new Class[]{ParserExecutor.class, Object.class },
-                  unit.get(ParserExecutor.class), headers);
+                  unit.get(ParserExecutor.class), pref);
 
               expect(mutant.toOptional(MediaType.class))
                   .andReturn(Optional.ofNullable(MediaType.json));
@@ -115,9 +118,12 @@ public class UploadImplTest {
           List<String> headers = Arrays.asList();
           expect(upload.headers("Content-Type")).andReturn(headers);
 
+          StrParamReferenceImpl pref = unit.mockConstructor(StrParamReferenceImpl.class, new Class[]{
+              String.class, List.class }, "Content-Type", headers);
+
           Mutant mutant = unit.mockConstructor(MutantImpl.class,
               new Class[]{ParserExecutor.class, Object.class },
-              unit.get(ParserExecutor.class), headers);
+              unit.get(ParserExecutor.class), pref);
 
           expect(mutant.toOptional(MediaType.class))
               .andReturn(Optional.ofNullable(null));
@@ -144,9 +150,12 @@ public class UploadImplTest {
           List<String> headers = Arrays.asList();
           expect(upload.headers("Content-Type")).andReturn(headers);
 
+          StrParamReferenceImpl pref = unit.mockConstructor(StrParamReferenceImpl.class, new Class[]{
+              String.class, List.class }, "Content-Type", headers);
+
           Mutant mutant = unit.mockConstructor(MutantImpl.class,
               new Class[]{ParserExecutor.class, Object.class },
-              unit.get(ParserExecutor.class), headers);
+              unit.get(ParserExecutor.class), pref);
 
           expect(mutant.toOptional(MediaType.class))
               .andReturn(Optional.ofNullable(null));

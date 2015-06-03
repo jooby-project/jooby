@@ -23,9 +23,12 @@ import java.util.Map;
 
 import org.jooby.MediaType;
 import org.jooby.Mutant;
+import org.jooby.Parser;
+import org.jooby.Parser.ParamReference;
 import org.jooby.Status;
 import org.jooby.internal.reqparam.ParserExecutor;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -41,16 +44,16 @@ public class MutantImpl implements Mutant {
 
   private final ParserExecutor parser;
 
-  private MediaType contentType;
-
   private Object data;
 
   private Status errStatus;
 
-  public MutantImpl(final ParserExecutor parser, final MediaType contentType, final Object data,
+  private MediaType type;
+
+  public MutantImpl(final ParserExecutor parser, final MediaType type, final Object data,
       final Status errStatus) {
     this.parser = parser;
-    this.contentType = contentType;
+    this.type = type;
     this.data = data;
     this.errStatus = errStatus;
   }
@@ -63,15 +66,33 @@ public class MutantImpl implements Mutant {
     this(parser, MediaType.plain, data);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T> T to(final TypeLiteral<T> type) {
+    return to(type, this.type);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T to(final TypeLiteral<T> type, final MediaType mtype) {
     T result = (T) results.get(type);
     if (result == null) {
-      result = parser.convert(type, contentType, data, errStatus);
+      result = parser.convert(type, mtype, data, errStatus);
       results.put(type, result);
     }
     return result;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Map<String, Mutant> toMap() {
+    if (data instanceof Map) {
+      return (Map<String, Mutant>) data;
+    }
+    if (data instanceof Parser.ParamReference) {
+      Parser.ParamReference<?> param = (ParamReference<?>) data;
+      return ImmutableMap.of(param.name(), this);
+    }
+    return ImmutableMap.of("body", this);
   }
 
   @Override

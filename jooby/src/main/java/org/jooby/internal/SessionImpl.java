@@ -157,7 +157,7 @@ public class SessionImpl implements Session {
   public Mutant get(final String name) {
     String value = attributes.get(name);
     List<String> values = value == null ? Collections.emptyList() : ImmutableList.of(value);
-    return new MutantImpl(resolver, values);
+    return new MutantImpl(resolver, new StrParamReferenceImpl(name, values));
   }
 
   @Override
@@ -187,7 +187,7 @@ public class SessionImpl implements Session {
       values = ImmutableList.of(value);
       dirty = true;
     }
-    return new MutantImpl(resolver, values);
+    return new MutantImpl(resolver, new StrParamReferenceImpl(name, values));
   }
 
   @Override

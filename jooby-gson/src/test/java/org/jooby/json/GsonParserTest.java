@@ -21,7 +21,7 @@ public class GsonParserTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void parse() throws Exception {
+  public void parseBody() throws Exception {
     TypeLiteral<GsonParserTest> type = TypeLiteral.get(GsonParserTest.class);
     Object value = new Object();
     new MockUnit(Gson.class, Parser.Context.class, Parser.BodyReference.class)
@@ -32,6 +32,7 @@ public class GsonParserTest {
           Parser.Builder builder = unit.mock(Parser.Builder.class);
 
           expect(ctx.body(unit.capture(Parser.Callback.class))).andReturn(builder);
+          expect(builder.param(unit.capture(Parser.Callback.class))).andReturn(builder);
         })
         .expect(unit -> {
           Parser.BodyReference ref = unit.get(Parser.BodyReference.class);
@@ -50,6 +51,38 @@ public class GsonParserTest {
         });
   }
 
+  @SuppressWarnings("unchecked")
+  @Test
+  public void parseParam() throws Exception {
+    TypeLiteral<GsonParserTest> type = TypeLiteral.get(GsonParserTest.class);
+    Object value = new Object();
+    new MockUnit(Gson.class, Parser.Context.class, Parser.ParamReference.class)
+        .expect(unit -> {
+          Context ctx = unit.get(Parser.Context.class);
+          expect(ctx.type()).andReturn(MediaType.json);
+
+          Parser.Builder builder = unit.mock(Parser.Builder.class);
+
+          expect(ctx.body(unit.capture(Parser.Callback.class))).andReturn(builder);
+          expect(builder.param(unit.capture(Parser.Callback.class))).andReturn(builder);
+        })
+        .expect(unit -> {
+          Parser.ParamReference ref = unit.get(Parser.ParamReference.class);
+          expect(ref.first()).andReturn("{}");
+        })
+        .expect(unit -> {
+          Gson gson = unit.get(Gson.class);
+          expect(gson.fromJson("{}", type.getType())).andReturn(value);
+        })
+        .run(unit -> {
+          new GsonParser(MediaType.json, unit.get(Gson.class))
+              .parse(type, unit.get(Parser.Context.class));
+        }, unit -> {
+          unit.captured(Parser.Callback.class).get(1)
+              .invoke(unit.get(Parser.ParamReference.class));
+        });
+  }
+
   @Test
   public void next() throws Exception {
     TypeLiteral<GsonParserTest> type = TypeLiteral.get(GsonParserTest.class);
@@ -57,6 +90,21 @@ public class GsonParserTest {
         .expect(unit -> {
           Context ctx = unit.get(Parser.Context.class);
           expect(ctx.type()).andReturn(MediaType.html);
+          expect(ctx.next()).andReturn(null);
+        })
+        .run(unit -> {
+          new GsonParser(MediaType.json, unit.get(Gson.class))
+              .parse(type, unit.get(Parser.Context.class));
+        });
+  }
+
+  @Test
+  public void nextAny() throws Exception {
+    TypeLiteral<GsonParserTest> type = TypeLiteral.get(GsonParserTest.class);
+    new MockUnit(Gson.class, Parser.Context.class, Parser.BodyReference.class)
+        .expect(unit -> {
+          Context ctx = unit.get(Parser.Context.class);
+          expect(ctx.type()).andReturn(MediaType.all);
           expect(ctx.next()).andReturn(null);
         })
         .run(unit -> {

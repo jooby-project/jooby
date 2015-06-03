@@ -32,8 +32,11 @@ import org.jooby.Mutant;
 import org.jooby.Parser;
 import org.jooby.Parser.Builder;
 import org.jooby.Parser.Callback;
+import org.jooby.Parser.ParamReference;
 import org.jooby.Status;
 import org.jooby.Upload;
+import org.jooby.internal.StrParamReferenceImpl;
+import org.jooby.internal.UploadParamReferenceImpl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
@@ -96,12 +99,12 @@ public class ParserExecutor {
       }
 
       @Override
-      public Builder upload(final Callback<List<Upload>> callback) {
+      public Builder upload(final Callback<Parser.ParamReference<Upload>> callback) {
         return builder.upload(callback);
       }
 
       @Override
-      public Builder param(final Callback<List<String>> callback) {
+      public Builder param(final Callback<ParamReference<String>> callback) {
         return builder.param(callback);
       }
 
@@ -134,7 +137,7 @@ public class ParserExecutor {
         Parser next = parsers.get(cursor);
         cursor += 1;
         ParserBuilder current = builder;
-        builder = new ParserBuilder(this, nexttype, wrap(nextval));
+        builder = new ParserBuilder(this, nexttype, wrap(nextval, builder.value));
         Object result = next.parse(nexttype, this);
         if (result instanceof ParserBuilder) {
           // call a parse
@@ -145,11 +148,14 @@ public class ParserExecutor {
         return result;
       }
 
-      private Object wrap(final Object nextval) {
+      @SuppressWarnings("rawtypes")
+      private Object wrap(final Object nextval, final Object value) {
         if (nextval instanceof String) {
-          return ImmutableList.of(nextval);
+          ParamReference<?> pref = (ParamReference) value;
+          return new StrParamReferenceImpl(pref.name(), ImmutableList.of((String) nextval));
         } else if (nextval instanceof Upload) {
-          return ImmutableList.of(nextval);
+          ParamReference<?> pref = (ParamReference) value;
+          return new UploadParamReferenceImpl(pref.name(), ImmutableList.of((Upload) nextval));
         }
         return nextval;
       }

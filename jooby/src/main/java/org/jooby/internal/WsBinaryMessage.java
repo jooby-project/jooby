@@ -24,15 +24,18 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 
 import org.jooby.Err;
+import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Status;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.TypeLiteral;
 
 public class WsBinaryMessage implements Mutant {
@@ -108,9 +111,14 @@ public class WsBinaryMessage implements Mutant {
     throw typeError(type);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T> T to(final TypeLiteral<T> type) {
+    return to(type, MediaType.octetstream);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T to(final TypeLiteral<T> type, final MediaType mtype) {
     Class<? super T> rawType = type.getRawType();
     if (rawType == byte[].class) {
       if (buffer.hasArray()) {
@@ -130,6 +138,11 @@ public class WsBinaryMessage implements Mutant {
       return (T) new InputStreamReader(new ByteArrayInputStream(buffer.array()), Charsets.UTF_8);
     }
     throw typeError(rawType);
+  }
+
+  @Override
+  public Map<String, Mutant> toMap() {
+    return ImmutableMap.of("message", this);
   }
 
   private Err typeError(final Class<?> type) {

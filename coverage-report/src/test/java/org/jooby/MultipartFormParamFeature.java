@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.jooby.Upload;
 import org.jooby.mvc.POST;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
@@ -63,7 +62,7 @@ public class MultipartFormParamFeature extends ServerFeature {
     post("/form", (req, resp) -> {
       String name = req.param("name").value();
       int age = req.param("age").intValue();
-      Upload upload = req.param("myfile").to(Upload.class);
+      Upload upload = req.param("myfile").toUpload();
       resp.send(name + " " + age + " " + upload.name() + " " + upload.type());
     });
 
@@ -79,7 +78,7 @@ public class MultipartFormParamFeature extends ServerFeature {
     });
 
     post("/form/use/file", (req, rsp) -> {
-      Upload upload = req.param("myfile").to(Upload.class);
+      Upload upload = req.param("myfile").toUpload();
       File file = upload.file();
       try (Upload u = upload) {
         assertEquals("p=1", Files.readAllLines(file.toPath()).stream()
