@@ -95,7 +95,8 @@ public class UndertowResponse implements NativeResponse {
 
   @Override
   public void send(final FileChannel channel) throws Exception {
-    exchange.getResponseSender().transferFrom(channel, IoCallback.END_EXCHANGE);
+    exchange.getResponseSender()
+        .transferFrom(channel, new CloseableCallback(channel, IoCallback.END_EXCHANGE));
   }
 
   @Override
