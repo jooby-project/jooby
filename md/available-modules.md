@@ -9,7 +9,7 @@
 * [handlebars/mustache](https://github.com/jooby-project/jooby/tree/master/jooby-hbs): logic less and semantic Mustache templates.
 * [freemarker](https://github.com/jooby-project/jooby/tree/master/jooby-ftl): render templates with FreeMarker.
 
-## session stores
+## session
 * [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis/#redis-session-store): HTTP session on {{redis}}.
 * [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb/#mongodb-session-store): HTTP session on {{mongodb}}.
 * [ehcache](https://github.com/jooby-project/jooby/tree/master/jooby-ehcache/#ehcache-session-store): HTTP session on {{ehcache}}.
@@ -32,6 +32,9 @@
 
 ## full text search
 * [elastic search](https://github.com/jooby-project/jooby/tree/master/jooby-elasticsearch): enterprise full text search via {{elasticsearch}}.
+
+## auth & security
+* [pac4j](https://github.com/jooby-project/jooby/tree/master/jooby-pac4j): authentication module via: {{pac4j}}.
 
 ## scheduling
 * [quartz](https://github.com/jooby-project/jooby/tree/master/jooby-quartz): advanced job scheduling.

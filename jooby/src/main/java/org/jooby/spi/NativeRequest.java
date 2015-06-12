@@ -111,15 +111,6 @@ public interface NativeRequest {
   String ip();
 
   /**
-   * The fully qualified name of the client or the last proxy that sent the request.
-   * If the engine cannot or chooses not to resolve the hostname (to improve performance),
-   * this method returns the dotted-string form of the IP address
-   *
-   * @return The fully qualified name of the client or the last proxy that sent the request.
-   */
-  String hostname();
-
-  /**
    * @return The name and version of the protocol the request uses in the form
    *         <i>protocol/majorVersion.minorVersion</i>, for example, HTTP/1.1
    */

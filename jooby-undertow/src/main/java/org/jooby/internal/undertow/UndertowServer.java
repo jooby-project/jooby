@@ -59,9 +59,14 @@ public class UndertowServer implements org.jooby.spi.Server {
 
     shutdown = new GracefulShutdownHandler(doHandler(dispatcher, config));
     this.server = configure(config, io.undertow.Undertow.builder())
-        .addHttpListener(config.getInt("application.port"), config.getString("application.host"))
+        .addHttpListener(config.getInt("application.port"),
+            host(config.getString("application.host")))
         .setHandler(shutdown)
         .build();
+  }
+
+  private String host(final String host) {
+    return "localhost".equals(host) ? "0.0.0.0" : host;
   }
 
   @SuppressWarnings("unchecked")

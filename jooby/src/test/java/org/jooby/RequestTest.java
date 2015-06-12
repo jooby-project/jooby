@@ -164,6 +164,11 @@ public class RequestTest {
       throw new UnsupportedOperationException();
     }
 
+    @Override
+    public int port() {
+      throw new UnsupportedOperationException();
+    }
+
   }
 
   @Test

@@ -67,7 +67,7 @@ public class GsonParserTest {
           expect(builder.param(unit.capture(Parser.Callback.class))).andReturn(builder);
         })
         .expect(unit -> {
-          Parser.ParamReference ref = unit.get(Parser.ParamReference.class);
+          Parser.ParamReference<String> ref = unit.get(Parser.ParamReference.class);
           expect(ref.first()).andReturn("{}");
         })
         .expect(unit -> {

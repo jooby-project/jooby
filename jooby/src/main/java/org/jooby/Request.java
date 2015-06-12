@@ -167,6 +167,11 @@ public interface Request {
     }
 
     @Override
+    public int port() {
+      return req.port();
+    }
+
+    @Override
     public Route route() {
       return req.route();
     }
@@ -542,6 +547,12 @@ public interface Request {
    * @return The IP address of the client or last proxy that sent the request.
    */
   String ip();
+
+  /**
+   * @return Server port, from <code>host</code> header or the server port where the client
+   *         connection was accepted on.
+   */
+  int port();
 
   /**
    * @return The currently matched {@link Route}.

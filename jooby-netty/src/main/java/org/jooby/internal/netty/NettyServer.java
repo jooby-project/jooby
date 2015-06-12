@@ -94,8 +94,12 @@ public class NettyServer implements Server {
         bootstrap.childOption(option, value));
 
     this.ch = bootstrap
-        .bind(config.getString("application.host"), config.getInt("application.port")).sync()
+        .bind(host(config.getString("application.host")), config.getInt("application.port")).sync()
         .channel();
+  }
+
+  private String host(final String host) {
+    return "localhost".equals(host) ? "0.0.0.0" : host;
   }
 
   @Override

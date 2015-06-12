@@ -79,9 +79,11 @@ public class RequestImpl implements Request {
 
   private List<File> files;
 
+  private int port;
+
   public RequestImpl(final Injector injector,
       final NativeRequest req,
-      final Route route,
+      final int port, final Route route,
       final Map<Object, Object> scope,
       final Map<String, Object> locals) {
     this.injector = requireNonNull(injector, "An injector is required.");
@@ -93,6 +95,8 @@ public class RequestImpl implements Request {
     this.accept = findAccept(req);
 
     this.locale = findLocale(req, injector.getInstance(Locale.class));
+
+    this.port = port;
 
     this.type = req.header("Content-Type")
         .map(MediaType::valueOf)
@@ -262,7 +266,12 @@ public class RequestImpl implements Request {
 
   @Override
   public String hostname() {
-    return req.hostname();
+    return req.header("host").map(host -> host.split(":")[0]).orElse(ip());
+  }
+
+  @Override
+  public int port() {
+    return req.header("host").map(host -> Integer.parseInt(host.split(":")[1])).orElse(port);
   }
 
   @Override

@@ -171,16 +171,6 @@ public class UndertowRequest implements NativeRequest {
   }
 
   @Override
-  public String hostname() {
-    InetSocketAddress sourceAddress = exchange.getSourceAddress();
-    if (sourceAddress == null) {
-      return "";
-    }
-    InetAddress address = sourceAddress.getAddress();
-    return address == null ? ip() : address.getHostName();
-  }
-
-  @Override
   public String protocol() {
     return exchange.getProtocol().toString();
   }

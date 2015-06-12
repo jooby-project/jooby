@@ -159,12 +159,6 @@ public class NettyRequest implements NativeRequest {
   }
 
   @Override
-  public String hostname() {
-    InetSocketAddress remoteAddress = (InetSocketAddress) ctx.channel().remoteAddress();
-    return remoteAddress.getAddress().getHostName();
-  }
-
-  @Override
   public String protocol() {
     return req.getProtocolVersion().text();
   }

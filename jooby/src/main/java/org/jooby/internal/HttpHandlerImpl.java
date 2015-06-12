@@ -83,6 +83,8 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private Config config;
 
+  private int port;
+
   @Inject
   public HttpHandlerImpl(final Injector injector,
       final RequestScope requestScope,
@@ -97,6 +99,7 @@ public class HttpHandlerImpl implements HttpHandler {
     this.applicationPath = normalizeURI(requireNonNull(path, "An application.path is required."));
     this.err = requireNonNull(err, "An err handler is required.");
     this.config = injector.getInstance(Config.class);
+    this.port = config.getInt("application.port");
   }
 
   @Override
@@ -130,7 +133,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
     Route notFound = RouteImpl.notFound(verb, path, MediaType.ALL);
 
-    RequestImpl req = new RequestImpl(injector, request, notFound, scope, locals);
+    RequestImpl req = new RequestImpl(injector, request, port, notFound, scope, locals);
 
     ResponseImpl rsp = new ResponseImpl(injector, response, notFound, locals,
         req.charset(), request.header("Referer"));

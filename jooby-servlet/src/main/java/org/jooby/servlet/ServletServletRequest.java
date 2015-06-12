@@ -162,11 +162,6 @@ public class ServletServletRequest implements NativeRequest {
   }
 
   @Override
-  public String hostname() {
-    return req.getRemoteHost();
-  }
-
-  @Override
   public String protocol() {
     return req.getProtocol();
   }

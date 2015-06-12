@@ -451,13 +451,13 @@ public class MutantImplTest {
   @Test
   public void asStringSet() throws Exception {
     assertEquals(ImmutableSet.of("aa", "bb"),
-        newMutant("aa", "bb", "bb").toSet(String.class));
+        newMutant("aa", "bb", "bb").toSet());
   }
 
   @Test
   public void asStringSortedSet() throws Exception {
     assertEquals(ImmutableSortedSet.of("aa", "bb"),
-        newMutant("aa", "bb", "bb").toSortedSet(String.class));
+        newMutant("aa", "bb", "bb").toSortedSet());
   }
 
   @Test

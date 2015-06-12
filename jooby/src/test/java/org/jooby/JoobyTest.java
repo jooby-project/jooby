@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.jooby.Session.Definition;
@@ -376,14 +377,14 @@ public class JoobyTest {
     reqscope.in(RequestScoped.class);
 
     AnnotatedBindingBuilder<Request> reqbinding = unit.mock(AnnotatedBindingBuilder.class);
-    expect(reqbinding.toProvider(isA(com.google.inject.Provider.class))).andReturn(reqscope);
+    expect(reqbinding.toProvider(isA(Provider.class))).andReturn(reqscope);
 
     expect(binder.bind(Request.class)).andReturn(reqbinding);
 
     ScopedBindingBuilder rspscope = unit.mock(ScopedBindingBuilder.class);
     rspscope.in(RequestScoped.class);
     AnnotatedBindingBuilder<Response> rspbinding = unit.mock(AnnotatedBindingBuilder.class);
-    expect(rspbinding.toProvider(isA(com.google.inject.Provider.class))).andReturn(rspscope);
+    expect(rspbinding.toProvider(isA(Provider.class))).andReturn(rspscope);
 
     expect(binder.bind(Response.class)).andReturn(rspbinding);
 
@@ -391,7 +392,7 @@ public class JoobyTest {
     sessionscope.in(RequestScoped.class);
 
     AnnotatedBindingBuilder<Session> sessionbinding = unit.mock(AnnotatedBindingBuilder.class);
-    expect(sessionbinding.toProvider(isA(com.google.inject.Provider.class)))
+    expect(sessionbinding.toProvider(isA(Provider.class)))
         .andReturn(sessionscope);
 
     expect(binder.bind(Session.class)).andReturn(sessionbinding);

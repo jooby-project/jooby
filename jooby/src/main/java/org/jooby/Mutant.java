@@ -143,12 +143,17 @@ public interface Mutant {
   }
 
   /**
-   * @param type The element type.
-   * @param <T> List type.
    * @return Get list of values when possible.
    */
   default List<String> toList() {
     return toList(String.class);
+  }
+
+  /**
+   * @return Get set of values when possible.
+   */
+  default Set<String> toSet() {
+    return toSet(String.class);
   }
 
   /**
@@ -159,6 +164,13 @@ public interface Mutant {
   @SuppressWarnings("unchecked")
   default <T> Set<T> toSet(final Class<T> type) {
     return (Set<T>) to(TypeLiteral.get(Types.setOf(Primitives.wrap(type))));
+  }
+
+  /**
+   * @return Get sorted set of values when possible.
+   */
+  default SortedSet<String> toSortedSet() {
+    return toSortedSet(String.class);
   }
 
   /**

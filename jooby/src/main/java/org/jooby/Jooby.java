@@ -107,6 +107,7 @@ import org.jooby.reflect.ParameterNameProvider;
 import org.jooby.scope.RequestScoped;
 import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
+import org.jooby.util.Providers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,7 +117,6 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.OutOfScopeException;
 import com.google.inject.Stage;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
@@ -2887,17 +2887,14 @@ public class Jooby {
           ;
         }
 
-        binder.bind(Request.class).toProvider(() -> {
-          throw new OutOfScopeException(Request.class.getName());
-        }).in(RequestScoped.class);
+        binder.bind(Request.class).toProvider(Providers.outOfScope(Request.class))
+            .in(RequestScoped.class);
 
-        binder.bind(Response.class).toProvider(() -> {
-          throw new OutOfScopeException(Response.class.getName());
-        }).in(RequestScoped.class);
+        binder.bind(Response.class).toProvider(Providers.outOfScope(Response.class))
+            .in(RequestScoped.class);
 
-        binder.bind(Session.class).toProvider(() -> {
-          throw new OutOfScopeException(Session.class.getName());
-        }).in(RequestScoped.class);
+        binder.bind(Session.class).toProvider(Providers.outOfScope(Session.class))
+            .in(RequestScoped.class);
 
         // def err
         ehandlers.addBinding().toInstance(new Err.DefHandler());

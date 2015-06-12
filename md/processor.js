@@ -44,6 +44,11 @@ var version = function () {
 var links = [];
 
 links.push({
+  name: 'pac4j',
+  data: '[Pac4j](https://github.com/pac4j/pac4j)'
+});
+
+links.push({
   name: 'version',
   data: version()
 });

@@ -42,12 +42,12 @@ public class RequestScope implements Scope {
     scope.remove();
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public <T> Provider<T> scope(final Key<T> key, final Provider<T> unscoped) {
     return () -> {
       Map<Object, Object> scopedObjects = getScopedObjectMap(key);
 
-      @SuppressWarnings("unchecked")
       T current = (T) scopedObjects.get(key);
       if (current == null && !scopedObjects.containsKey(key)) {
         current = unscoped.get();
@@ -58,6 +58,11 @@ public class RequestScope implements Scope {
         }
 
         scopedObjects.put(key, current);
+      }
+      if (current instanceof javax.inject.Provider) {
+        if (!javax.inject.Provider.class.isAssignableFrom(key.getTypeLiteral().getRawType())) {
+          return (T) ((javax.inject.Provider) current).get();
+        }
       }
       return current;
     };

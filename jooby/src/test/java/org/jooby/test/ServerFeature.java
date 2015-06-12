@@ -19,6 +19,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolException;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -302,6 +304,8 @@ public abstract class ServerFeature extends Jooby {
 
     private HttpClientBuilder builder;
 
+    private UsernamePasswordCredentials creds;
+
     public Server(final String host) {
       this.host = host;
 
@@ -364,6 +368,9 @@ public abstract class ServerFeature extends Jooby {
       if (executor == null) {
         client = builder.build();
         executor = Executor.newInstance(client);
+        if (creds != null) {
+          executor.auth(creds);
+        }
       }
       return executor;
     }
@@ -399,6 +406,11 @@ public abstract class ServerFeature extends Jooby {
       if (client != null) {
         client.close();
       }
+    }
+
+    public Server basic(final String username, final String password) {
+      creds = new UsernamePasswordCredentials(username, password);
+      return this;
     }
 
   }
@@ -442,6 +454,11 @@ public abstract class ServerFeature extends Jooby {
   }
 
   public Server request() {
+    checkState(server != null, "Server wasn't started");
+    return server;
+  }
+
+  public Server request(final CredentialsProvider creds) {
     checkState(server != null, "Server wasn't started");
     return server;
   }

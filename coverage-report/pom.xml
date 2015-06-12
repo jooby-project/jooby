@@ -53,6 +53,7 @@
                     <source>${project.parent.basedir}/jooby-hbv/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-gson/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-ehcache/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-pac4j/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -84,6 +85,7 @@
                     <source>${project.parent.basedir}/jooby-hbv/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-gson/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-ehcache/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-pac4j/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -229,7 +231,7 @@
       <artifactId>jooby-elasticsearch</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-ehcache</artifactId>
@@ -290,6 +292,27 @@
       <groupId>org.jooby</groupId>
       <artifactId>jooby-camel</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-pac4j</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-http</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-oauth</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-saml</artifactId>
     </dependency>
 
     <dependency>
@@ -386,6 +409,13 @@
     <dependency>
       <groupId>com.ning</groupId>
       <artifactId>async-http-client</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.8.2</version>
       <scope>test</scope>
     </dependency>
 
