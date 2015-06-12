@@ -1,11 +1,11 @@
 ---
 layout: index
 title: modules
-version: 0.5.3
+version: 0.6.0
 ---
 
 ## mvn jooby:run
-* [jooby:run](/doc/maven-plugin): maven plugin with hot reload of classes, powered by {{jboss-modules}}.
+* [jooby:run](/doc/maven-plugin): maven plugin with hot reload of classes, powered by [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
 
 ## parser & formatter
 * [jackson](/doc/jackson): JSON supports via Jackson.
@@ -15,13 +15,13 @@ version: 0.5.3
 * [handlebars/mustache](/doc/hbs): logic less and semantic Mustache templates.
 * [freemarker](/doc/ftl): render templates with FreeMarker.
 
-## session stores
-* [redis](/doc/jedis/#redis-session-store): HTTP session on {{redis}}.
-* [mongodb](/doc/mongodb/#mongodb-session-store): HTTP session on {{mongodb}}.
-* [ehcache](/doc/ehcache/#ehcache-session-store): HTTP session on {{ehcache}}.
+## session
+* [redis](/doc/jedis/#redis-session-store): HTTP session on [Redis](http://redis.io).
+* [mongodb](/doc/mongodb/#mongodb-session-store): HTTP session on [MongoDB](http://mongodb.github.io/mongo-java-driver/).
+* [ehcache](/doc/ehcache/#session-store): HTTP session on [Ehcache](http://ehcache.org).
 
 ## sql
-* [jdbc](/doc/jdbc): high performance connection pool for jdbc.
+* [jdbc](/doc/jdbc): high performance connection pool for jdbc via [Hikari](https://github.com/brettwooldridge/HikariCP).
 * [jdbi](/doc/jdbi): fluent API for JDBC.
 
 ## hibernate
@@ -30,14 +30,17 @@ version: 0.5.3
 
 ## mongodb
 * [mongodb](/doc/mongodb): Mongodb driver.
-* [morphia](/doc/morphia): Object/Document mapper via [Morphia]({{morphia}}).
+* [morphia](/doc/morphia): Object/Document mapper via [Morphia](https://github.com/mongodb/morphia).
 
 ## caches
 * [jedis](/doc/jedis): Advanced cache and key/value store for Java.
 * [ehcache](/doc/ehcache): Java's most widely-used cache.
 
 ## full text search
-* [elastic search](/doc/elasticsearch): enterprise full text search via {{elasticsearch}}.
+* [elastic search](/doc/elasticsearch): enterprise full text search via [Elastic Search](https://github.com/elastic/elasticsearch).
+
+## auth & security
+* [pac4j](/doc/pac4j): authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 
 ## scheduling
 * [quartz](/doc/quartz): advanced job scheduling.

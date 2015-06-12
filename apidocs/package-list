@@ -15,6 +15,7 @@ org.jooby.json
 org.jooby.mongodb
 org.jooby.mvc
 org.jooby.netty
+org.jooby.pac4j
 org.jooby.quartz
 org.jooby.reflect
 org.jooby.scope
