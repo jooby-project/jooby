@@ -128,6 +128,31 @@ links.push({
 });
 
 links.push({
+  name: 'expressjs',
+  data: '[express.js](http://expressjs.com)'
+});
+
+links.push({
+  name: 'sinatra',
+  data: '[Sinatra](http://www.sinatrarb.com)'
+});
+
+links.push({
+  name: 'spring',
+  data: '[Spring](http://spring.io)'
+});
+
+links.push({
+  name: 'jersey',
+  data: '[Jersey](https://jersey.java.net)'
+});
+
+links.push({
+  name: 'hikari',
+  data: '[Hikari](https://github.com/brettwooldridge/HikariCP)'
+});
+
+links.push({
   name: 'mongodb',
   data: '[MongoDB](http://mongodb.github.io/mongo-java-driver/)'
 });
@@ -274,43 +299,9 @@ ls(mdoutdir).forEach(function (file) {
 });
 
 /**
- * copy files to working dir and extract file variables, to used them later.
+ * apply {{vars}}
  */
-var vars = ls(mdindir).reduce(function (vars, file) {
-  var fout = new File(mdoutdir, file.absolutePath.substring(mdindir.absolutePath.length()));
-  fout.parentFile.mkdirs();
-  console.log('writing file: ' + fout);
-
-  copy(file, fout);
-
-  vars.push(file);
-
-  return vars;
-}, links);
-
-/**
- * clone README.md
- */
-ls(mdoutdir, function (file) {
-  return file.name.equals('README.md');
-}).forEach(function (file) {
-  var index = new File(file.parentFile, 'index.md');
-  if (!index.exists()) {
-    console.log('clonning file: ' + file);
-    var page = '---\nlayout: index\ntitle: ' + file.parentFile.name + '\n'
-        + 'version: {{version}}\n---\n\n'
-        + readString(file);
-
-    writeString(index, page);
-  }
-});
-
-/**
- * replace expressions like: {{var}}
- */
-ls(mdoutdir, function (file) {
-  return file.name.equals('index.md') || file.name.equals('README.md');
-}).forEach(function (file) {
+var templateFile = function (file) {
   var data = readString(file);
 
   console.log('processing: ' + file);
@@ -335,6 +326,60 @@ ls(mdoutdir, function (file) {
   console.log('   applying {{toc.md}}');
   data = freplace(data, '{{toc.md}}', toc(data)).trim() + '\n';
   data = freplace(data, 'https://github.com/jooby-project/jooby/tree/master/jooby-', '/doc/');
+
+  return data;
+};
+
+/**
+ * copy files to working dir and extract file variables, to used them later.
+ */
+var vars = ls(mdindir).reduce(function (vars, file) {
+  var fout = new File(mdoutdir, file.absolutePath.substring(mdindir.absolutePath.length()));
+  fout.parentFile.mkdirs();
+  console.log('writing file: ' + fout);
+
+  copy(file, fout);
+
+  vars.push(file);
+
+  return vars;
+}, links);
+
+/**
+ * pre-process {{vars}}
+ */
+ls(mdoutdir, function (file) {
+  return file.name.endsWith('.md');
+}).forEach(function (file) {
+  writeString(file, templateFile(file));
+});
+
+/**
+ * clone README.md
+ */
+ls(mdoutdir, function (file) {
+  return file.name.equals('README.md');
+}).forEach(function (file) {
+  var index = new File(file.parentFile, 'index.md');
+  if (!index.exists()) {
+    console.log('clonning file: ' + file);
+    var page = '---\nlayout: index\ntitle: ' + file.parentFile.name + '\n'
+        + 'version: {{version}}\n---\n\n'
+        + readString(file);
+
+    writeString(index, page);
+  }
+});
+
+/**
+ * final process of: {{var}}
+ */
+ls(mdoutdir, function (file) {
+  return file.name.endsWith('.md');
+}).forEach(function (file) {
+  var data = templateFile(file);
+
+  console.log('processing: ' + file);
 
   // dump file
   var fout = new File(ghpagesdir, file.absolutePath.substring(mdoutdir.absolutePath.length()));

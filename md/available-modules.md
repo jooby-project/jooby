@@ -12,10 +12,10 @@
 ## session
 * [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis/#redis-session-store): HTTP session on {{redis}}.
 * [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb/#mongodb-session-store): HTTP session on {{mongodb}}.
-* [ehcache](https://github.com/jooby-project/jooby/tree/master/jooby-ehcache/#ehcache-session-store): HTTP session on {{ehcache}}.
+* [ehcache](https://github.com/jooby-project/jooby/tree/master/jooby-ehcache/#session-store): HTTP session on {{ehcache}}.
 
 ## sql
-* [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc): high performance connection pool for jdbc.
+* [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc): high performance connection pool for jdbc via {{hikari}}.
 * [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi): fluent API for JDBC.
 
 ## hibernate

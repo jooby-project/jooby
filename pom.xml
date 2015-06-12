@@ -5,12 +5,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>0.5.4-SNAPSHOT</version>
+  <version>0.6.0</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
 
-  <description>An express inspired micro-web framework</description>
+  <description>A minimalist web framework</description>
 
   <url>https://github.com/jooby-project/jooby</url>
 

@@ -14,5 +14,7 @@ public class Issue67 extends ServerFeature {
         .get("/")
         .header("Connection", "close")
         .expect("Hello World!");
+
+    Thread.sleep(500000L);
   }
 }

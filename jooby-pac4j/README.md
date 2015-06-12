@@ -1,13 +1,13 @@
 # jooby-pac4j
 
-Authentication module via: {{pac4j}}.
+Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 
 ## exposes
 
 * ```Clients```
-* ```WebContext``` as [RequestScoped]({{defdocs}}/RequestedScoped.html)
-* [auth filter]({{defdocs}}/Route.Filter.html) per ```Client```
-* [auth callback]({{defdocs}}/Route.Filter.html)
+* ```WebContext``` as [RequestScoped](/apidocs/org/jooby/RequestedScoped.html)
+* [auth filter](/apidocs/org/jooby/Route.Filter.html) per ```Client```
+* [auth callback](/apidocs/org/jooby/Route.Filter.html)
 
 ## dependency
 
@@ -15,7 +15,7 @@ Authentication module via: {{pac4j}}.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>{{version}}</version>
+  <version>0.6.0</version>
 </dependency>
 ```
 
@@ -37,7 +37,7 @@ access to ```/private``` or any route defined below the auth module.
 
 
 ## clients
-{{pac4j}} is a powerful library that supports multiple clients and/or authentication protocols. In
+[Pac4j](https://github.com/pac4j/pac4j) is a powerful library that supports multiple clients and/or authentication protocols. In
 the next example, we will see how to configure the most basic of them, but also some complex protocols.
 
 ### basic auth
@@ -83,7 +83,7 @@ Like basic auth, form auth depends ```UsernamePasswordAuthenticator``` and a ```
 
 A login form will be ready under the path: ```/login```. Again, it is a very basic login
 form useful for development. If you need a custom login page, just add a route before the
-[Auth]({{defdocs}}/pack4j/Auth.html) module, like:
+[Auth](/apidocs/org/jooby/pack4j/Auth.html) module, like:
 </p>
 
 ```java
@@ -134,7 +134,7 @@ under ```/private```.
 
 ## user profile
 
-{{jooby}} relies on [AuthStore]({{defdocs}}/pac4j/AuthStore.html) for saving and retrieving an ```UserProfile```. By default,
+[Jooby](http://jooby.org) relies on [AuthStore](/apidocs/org/jooby/pac4j/AuthStore.html) for saving and retrieving an ```UserProfile```. By default,
 the ```UserProfile``` is stored in the [Session]({{defcods}}/Session.html) via [auth session store]({{defcods}}/pack4j/AuthSessionStore.html)
 
 After a successful authentication the ```UserProfile``` is accessible as a request scoped attribute:
@@ -157,7 +157,7 @@ facebook (or any oauth, openid, etc...)
 }
 ```
 
-Custom [AuthStore]({{defdocs}}/pac4j/AuthStore.html) is provided via [Auth#store]({{defdocs}}/pac4j/Auth.html) method:
+Custom [AuthStore](/apidocs/org/jooby/pac4j/AuthStore.html) is provided via [Auth#store](/apidocs/org/jooby/pac4j/Auth.html) method:
 
 ```java
 {
@@ -170,7 +170,7 @@ Custom [AuthStore]({{defdocs}}/pac4j/AuthStore.html) is provided via [Auth#store
 ## logout
 
 A default ```/logout``` handler is provided it too. The handler will remove the profile
-from [AuthStore]({{defdocs}}/pac4j/AuthStore.html) by calling the [AuthStore#unset]({{defdocs}}/pac4j/AuthStore.html) method. The default login
+from [AuthStore](/apidocs/org/jooby/pac4j/AuthStore.html) by calling the [AuthStore#unset](/apidocs/org/jooby/pac4j/AuthStore.html) method. The default login
 will redirect to ```/```.
 
 A custom logout and redirect urls can be set via ```.conf``` file or programmatically:
@@ -183,4 +183,22 @@ A custom logout and redirect urls can be set via ```.conf``` file or programmati
 
 That's all folks! Enjoy it!!!
 
-{{appendix}}
+# appendix: auth.conf
+
+```properties
+auth {
+
+  # default callback, like http://localhost:8080/auth
+  callback = "http://"${application.host}":"${application.port}${application.path}"auth"
+
+  # logout options
+  logout {
+    url = /logout
+    redirectTo = /
+  }
+
+  # form auth
+  form.loginUrl = /login
+}
+
+```
