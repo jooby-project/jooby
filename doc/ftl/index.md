@@ -1,12 +1,12 @@
 ---
 layout: index
 title: ftl
-version: 0.5.3
+version: 0.6.0
 ---
 
 # jooby-ftl
 
-[Freemarker](http://freemarker.org) templates for [Jooby](/). Exposes a Configuration and [body formatter](/apidocs/org/jooby/BodyFormatter.html).
+[Freemarker](http://freemarker.org) templates for [Jooby](/). Exposes a Configuration and [renderer](/apidocs/org/jooby/Renderer.html).
 
 ## dependency
 
@@ -14,7 +14,7 @@ version: 0.5.3
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>0.5.3</version>
+  <version>0.6.0</version>
 </dependency>
 ```
 
@@ -40,7 +40,7 @@ file extension.
 
 ## req locals
 
-A template engine has access to ```request locals```. Here is an example:
+A template engine has access to ```request locals``` (a.k.a attributes). Here is an example:
 
 ```java
 {
