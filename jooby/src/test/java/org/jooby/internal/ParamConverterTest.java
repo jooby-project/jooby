@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -118,8 +119,12 @@ public class ParamConverterTest {
     Date date = resolver.convert(TypeLiteral.get(Date.class), data("22/02/2014"));
     assertNotNull(date);
 
-    // local vs travis (date time zone)
-    assertTrue(1393038000000L == date.getTime() || 1393027200000L == date.getTime());
+    Calendar calendar = Calendar.getInstance();
+    calendar.setTime(date);
+
+    assertEquals(22, calendar.get(Calendar.DAY_OF_MONTH));
+    assertEquals(2, calendar.get(Calendar.MONTH) + 1);
+    assertEquals(2014, calendar.get(Calendar.YEAR));
   }
 
   private Object data(final String... value) {
