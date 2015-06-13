@@ -2,7 +2,7 @@
 
 {{mongodb}} driver for Jooby.
 
-Exposes a [MongoClient]({{mongodbapi}}/MongoClient.html), a [DB]({{mongodbapi}}/DB.html) and a [Session Store]({{defdocs}}/mongodb/MongoSessionStore.html)
+Exposes a [MongoClient]({{mongodbapi}}/MongoClient.html), a [MongoDatabase]({{mongodbapi}}/DB.html) and a [Session Store]({{defdocs}}/mongodb/MongoSessionStore.html)
 
 ## dependency
 
@@ -29,7 +29,7 @@ db = "mongodb://localhost/mydb"
   get("/", req -> {
     MongoClient client = req.require(MongoClient.class);
     // work with client
-    DB = req.require(DB.class);
+    MongoDatabase = req.require(MongoDatabase.class);
     // work with mydb
   });
 }
@@ -48,7 +48,7 @@ mydb = "mongodb://localhost/mydb"
   use(new Mongodb("mydb"));
 
   get("/", req -> {
-    DB mydb = req.require(DB.class);
+    MongoDatabase mydb = req.require(MongoDatabase.class);
     // work with mydb
   });
 }
