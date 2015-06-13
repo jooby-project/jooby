@@ -162,8 +162,11 @@ public class WebSocketImpl implements WebSocket {
     });
     ws.onCloseMessage((code, reason) -> {
       try {
-        closeCallback.invoke(reason.map(r -> WebSocket.CloseStatus.of(code, r)).orElse(
-            WebSocket.CloseStatus.of(code)));
+        if (closeCallback != null) {
+          closeCallback.invoke(reason.map(r -> WebSocket.CloseStatus.of(code, r)).orElse(
+              WebSocket.CloseStatus.of(code)));
+          closeCallback = null;
+        }
       } catch (Throwable ex) {
         handleErr(ex);
       }

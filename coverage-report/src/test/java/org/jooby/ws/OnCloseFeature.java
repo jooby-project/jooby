@@ -1,8 +1,6 @@
 package org.jooby.ws;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,9 +25,6 @@ public class OnCloseFeature extends ServerFeature {
 
       ws.onClose(status -> {
         assertNotNull(status);
-        // undertow vs jetty
-        assertTrue(status.code() == 1000 || status.code() == 1005);
-        assertNull(status.reason());
         closeLatch.countDown();
       });
     });
