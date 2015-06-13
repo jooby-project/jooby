@@ -38,6 +38,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoClientOptions.Builder;
 import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoDatabase;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -196,8 +197,8 @@ public class Mongodb implements Jooby.Module {
         .toProvider(mongodb)
         .asEagerSingleton();
 
-    Provider<DB> dbprovider = () -> mongodb.get().getDB(database);
-    binder.bind(key(DB.class, database))
+    Provider<MongoDatabase> dbprovider = () -> mongodb.get().getDatabase(database);
+    binder.bind(key(MongoDatabase.class, database))
         .toProvider(dbprovider)
         .asEagerSingleton();
 

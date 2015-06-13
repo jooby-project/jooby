@@ -1,6 +1,7 @@
 package org.jooby.mongodb;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -18,9 +19,9 @@ import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.name.Names;
-import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoDatabase;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -42,13 +43,13 @@ public class MongodbTest {
     ScopedBindingBuilder dbSBB = unit.mock(ScopedBindingBuilder.class);
     dbSBB.asEagerSingleton();
 
-    AnnotatedBindingBuilder<DB> dbABB = unit.mock(AnnotatedBindingBuilder.class);
+    AnnotatedBindingBuilder<MongoDatabase> dbABB = unit.mock(AnnotatedBindingBuilder.class);
     expect(dbABB.toProvider(unit.capture(Provider.class))).andReturn(dbSBB);
 
     Binder binder = unit.get(Binder.class);
     expect(binder.bind(Key.get(MongoClient.class))).andReturn(mcABB);
 
-    expect(binder.bind(Key.get(DB.class))).andReturn(dbABB);
+    expect(binder.bind(Key.get(MongoDatabase.class))).andReturn(dbABB);
   };
 
   @SuppressWarnings("unchecked")
@@ -62,13 +63,13 @@ public class MongodbTest {
     ScopedBindingBuilder dbSBB = unit.mock(ScopedBindingBuilder.class);
     dbSBB.asEagerSingleton();
 
-    AnnotatedBindingBuilder<DB> dbABB = unit.mock(AnnotatedBindingBuilder.class);
+    AnnotatedBindingBuilder<MongoDatabase> dbABB = unit.mock(AnnotatedBindingBuilder.class);
     expect(dbABB.toProvider(unit.capture(Provider.class))).andReturn(dbSBB);
 
     Binder binder = unit.get(Binder.class);
     expect(binder.bind(Key.get(MongoClient.class, Names.named("mydb")))).andReturn(mcABB);
 
-    expect(binder.bind(Key.get(DB.class, Names.named("mydb")))).andReturn(dbABB);
+    expect(binder.bind(Key.get(MongoDatabase.class, Names.named("mydb")))).andReturn(dbABB);
   };
 
   @Test
@@ -82,13 +83,11 @@ public class MongodbTest {
         })
         .expect(mongodb)
         .expect(unit -> {
-          MongoClientURI uri = new MongoClientURI("mongodb://127.0.0.1/mydb");
-
           MongoClient client = unit.mockConstructor(MongoClient.class,
-              new Class[]{MongoClientURI.class }, uri);
+              new Class[]{MongoClientURI.class }, isA(MongoClientURI.class));
 
-          DB db = unit.mock(DB.class);
-          expect(client.getDB("mydb")).andReturn(db);
+          MongoDatabase db = unit.mock(MongoDatabase.class);
+          expect(client.getDatabase("mydb")).andReturn(db);
         })
         .run(unit -> {
           Mongodb mongodb = new Mongodb();
