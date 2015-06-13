@@ -251,7 +251,7 @@ public class WebSocketImpl implements WebSocket {
     this.exceptionCallback = null;
     this.messageCallback = null;
 
-    if (lws.isOpen()) {
+    if (lws != null && lws.isOpen()) {
       WebSocket.CloseStatus closeStatus = WebSocket.SERVER_ERROR;
       if (cause instanceof IllegalArgumentException) {
         closeStatus = WebSocket.BAD_DATA;
