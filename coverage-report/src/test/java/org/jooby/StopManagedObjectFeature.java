@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.matcher.Matchers;
 
 public class StopManagedObjectFeature {
 
@@ -50,31 +52,18 @@ public class StopManagedObjectFeature {
 
   }
 
-
-  @Test
-  public void noStopForProto() throws Exception {
-    counter = new AtomicInteger(0);
-
-    Injector injector = Guice.createInjector();
-
-    injector.getInstance(ManagedObject.class);
-    injector.getInstance(ManagedObject.class);
-    injector.getInstance(ManagedObject.class);
-
-    LifecycleProcessor.onPreDestroy(injector, log);
-
-    assertEquals(counter.get(), 0);
-  }
-
   @Test
   public void stopShouldWorkOnSingletonObjects() throws Exception {
     counter = new AtomicInteger(0);
 
-    Injector injector = Guice.createInjector();
+    LifecycleProcessor processor = new LifecycleProcessor();
+    Injector injector = Guice.createInjector((Module) binder -> {
+      binder.bindListener(Matchers.any(), processor);
+    });
 
     injector.getInstance(SingletonObject.class);
 
-    LifecycleProcessor.onPreDestroy(injector, log);
+    processor.destroy();
 
     assertEquals(counter.get(), 1);
   }
@@ -83,14 +72,17 @@ public class StopManagedObjectFeature {
   public void stopShouldBeExecutedOnlyOnce() throws Exception {
     counter = new AtomicInteger(0);
 
-    Injector injector = Guice.createInjector();
+    LifecycleProcessor processor = new LifecycleProcessor();
+    Injector injector = Guice.createInjector((Module) binder -> {
+      binder.bindListener(Matchers.any(), processor);
+    });
 
     injector.getInstance(SingletonObject.class);
     injector.getInstance(SingletonObject.class);
     injector.getInstance(SingletonObject.class);
     injector.getInstance(SingletonObject.class);
 
-    LifecycleProcessor.onPreDestroy(injector, log);
+    processor.destroy();
 
     assertEquals(counter.get(), 1);
   }

@@ -2790,7 +2790,9 @@ public class Jooby {
         binder.bind(DecimalFormat.class).toInstance(numberFormat);
 
         // bind managed
-        binder.bindListener(Matchers.any(), new LifecycleProcessor());
+        LifecycleProcessor lifecycleProcessor = new LifecycleProcessor();
+        binder.bind(LifecycleProcessor.class).toInstance(lifecycleProcessor);
+        binder.bindListener(Matchers.any(), lifecycleProcessor);
 
         // Routes
         Multibinder<Route.Definition> definitions = Multibinder
@@ -2924,7 +2926,7 @@ public class Jooby {
 
   private void stopManaged() {
     // stop modules
-    LifecycleProcessor.onPreDestroy(injector, log);
+    injector.getInstance(LifecycleProcessor.class).destroy();
     modules.clear();
   }
 

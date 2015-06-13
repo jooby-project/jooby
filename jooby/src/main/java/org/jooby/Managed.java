@@ -24,17 +24,14 @@ import javax.annotation.PreDestroy;
 /**
  * Instances of {@link Managed} are started and/or stopped by Jooby.
  *
- * Start callback is executed on every single Guice provided object, regardless of the scope.
+ * Please note, that every single object can implement this interface but for none singleton
+ * objects, the object will be keep on memory waiting for application shutdown. That's why it is
+ * strongly recommend to ONLY use this on singleton objects.
  *
- * Stop callback are ONLY supported for singleton objects.
- *
- * Beside the start callback will be invoked for every Guice object, it makes sense to only use
- * these calls on Singleton object who are expensive to create.
- *
- * This interface can be implemented by Provider too (not just final object).
- *
- * If you prefer, annotations just mark the start callback with {@link PostConstruct} and the stop
- * callback with {@link PreDestroy}.
+ * {@link PostConstruct} and {@link PreDestroy} annotation are supported too. {@link PostConstruct}
+ * works for singletons and none singletons (no restriction). {@link PreDestroy} works for
+ * singletons and none singletons. But again, it is strongly recommended to use it on singleton
+ * objects.
  *
  * @author edgar
  * @since 0.5.0

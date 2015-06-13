@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
@@ -15,6 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.matcher.Matchers;
+import com.google.inject.name.Names;
 
 public class PreDestroyFeature {
 
@@ -71,30 +76,63 @@ public class PreDestroyFeature {
 
   }
 
+  @Singleton
+  public static class SingletonInjectedProvider implements Provider<String>, Managed {
+
+    private String value;
+
+    @Inject
+    public SingletonInjectedProvider(@Named("x") final String value) {
+      this.value = value;
+    }
+
+    @Override
+    public void start() throws Exception {
+    }
+
+    @Override
+    public void stop() throws Exception {
+      log.info("stopping: {}", getClass().getName());
+      counter.incrementAndGet();
+    }
+
+    @Override
+    public String get() {
+      return value;
+    }
+
+  }
+
   @Test
-  public void noStopForProto() throws Exception {
+  public void stopShouldWorkOnInjectedProviderOfSingleton() throws Exception {
     counter = new AtomicInteger(0);
 
-    Injector injector = Guice.createInjector();
+    LifecycleProcessor processor = new LifecycleProcessor();
+    Injector injector = Guice.createInjector((Module) binder -> {
+      binder.bindListener(Matchers.any(), processor);
+      binder.bind(String.class).annotatedWith(Names.named("x")).toInstance("X");
+      binder.bind(String.class).toProvider(SingletonInjectedProvider.class).asEagerSingleton();
+    });
 
-    injector.getInstance(ManagedObject.class);
-    injector.getInstance(ManagedObject.class);
-    injector.getInstance(ManagedObject.class);
+    injector.getInstance(SingletonInjectedProvider.class);
 
-    LifecycleProcessor.onPreDestroy(injector, log);
+    processor.destroy();
 
-    assertEquals(0, counter.get());
+    assertEquals(1, counter.get());
   }
 
   @Test
   public void stopShouldWorkOnSingletonObjects() throws Exception {
     counter = new AtomicInteger(0);
 
-    Injector injector = Guice.createInjector();
+    LifecycleProcessor processor = new LifecycleProcessor();
+    Injector injector = Guice.createInjector((Module) binder -> {
+      binder.bindListener(Matchers.any(), processor);
+    });
 
     injector.getInstance(SingletonObject.class);
 
-    LifecycleProcessor.onPreDestroy(injector, log);
+    processor.destroy();
 
     assertEquals(1, counter.get());
   }
@@ -103,13 +141,15 @@ public class PreDestroyFeature {
   public void stopShouldWorkOnProviderOfSingleton() throws Exception {
     counter = new AtomicInteger(0);
 
-    Injector injector = Guice.createInjector(binder -> {
+    LifecycleProcessor processor = new LifecycleProcessor();
+    Injector injector = Guice.createInjector((Module) binder -> {
+      binder.bindListener(Matchers.any(), processor);
       binder.bind(Object.class).toProvider(new SingletonProvider<>(new Object())).in(Singleton.class);
     });
 
     injector.getInstance(Object.class);
 
-    LifecycleProcessor.onPreDestroy(injector, log);
+    processor.destroy();
 
     assertEquals(1, counter.get());
   }
@@ -118,14 +158,17 @@ public class PreDestroyFeature {
   public void stopShouldBeExecutedOnlyOnce() throws Exception {
     counter = new AtomicInteger(0);
 
-    Injector injector = Guice.createInjector();
+    LifecycleProcessor processor = new LifecycleProcessor();
+    Injector injector = Guice.createInjector((Module) binder -> {
+      binder.bindListener(Matchers.any(), processor);
+    });
 
     injector.getInstance(SingletonObject.class);
     injector.getInstance(SingletonObject.class);
     injector.getInstance(SingletonObject.class);
     injector.getInstance(SingletonObject.class);
 
-    LifecycleProcessor.onPreDestroy(injector, log);
+    processor.destroy();
 
     assertEquals(1, counter.get());
   }

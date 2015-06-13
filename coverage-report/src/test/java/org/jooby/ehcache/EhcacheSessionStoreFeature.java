@@ -41,6 +41,8 @@ public class EhcacheSessionStoreFeature extends ServerFeature {
     request().get("/eh/create/session")
         .expect("v1");
 
+    Thread.sleep(300L);
+
     request().get("/eh/get/session")
         .expect("Optional[v1]");
 
