@@ -14,7 +14,7 @@ public class EnvCallbackWithTwoEnvsFeature extends ServerFeature {
     use(ConfigFactory.empty().withValue("application.env", ConfigValueFactory.fromAnyRef("stage")));
 
     Key<String> key = Key.get(String.class, Names.named(("envcallback")));
-    on("dev", "stage", () -> {
+    on(env -> env.equals("dev") || env.equals("stage"), () -> {
       use((env, conf, binder) -> {
         binder.bind(key).toInstance(env.name());
       });

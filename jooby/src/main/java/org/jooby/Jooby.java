@@ -63,9 +63,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -75,6 +73,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Predicate;
 
 import javax.inject.Singleton;
 
@@ -469,7 +468,7 @@ public class Jooby {
   /**
    * Env callback.
    */
-  private final Map<String, List<Runnable>> envcallbacks = new LinkedHashMap<>();
+  private final Map<Predicate<String>, Runnable> envcallbacks = new LinkedHashMap<>();
 
   /**
    * The override config. Optional.
@@ -531,14 +530,7 @@ public class Jooby {
    */
   public Jooby on(final String env, final Runnable callback) {
     requireNonNull(env, "Env is required.");
-    requireNonNull(callback, "Callback is required.");
-    List<Runnable> callbacks = envcallbacks.get(env);
-    if (callbacks == null) {
-      callbacks = new ArrayList<>();
-      envcallbacks.put(env, callbacks);
-    }
-    callbacks.add(callback);
-    return this;
+    return on(env::equals, callback);
   }
 
   /**
@@ -552,14 +544,15 @@ public class Jooby {
    * }
    * </pre>
    *
-   * @param env1 Environment where we want to run the callback.
-   * @param env2 Environment where we want to run the callback.
+   * @param predicate Predicate to check the environment.
    * @param callback An env callback.
    * @return This jooby instance.
    */
-  public Jooby on(final String env1, final String env2, final Runnable callback) {
-    on(env1, callback);
-    on(env2, callback);
+  public Jooby on(final Predicate<String> predicate, final Runnable callback) {
+    requireNonNull(predicate, "Predicate is required.");
+    requireNonNull(callback, "Callback is required.");
+    envcallbacks.put(predicate, callback);
+
     return this;
   }
 
@@ -2757,7 +2750,11 @@ public class Jooby {
     Stage stage = "dev".equals(envname) ? Stage.DEVELOPMENT : Stage.PRODUCTION;
 
     // run env callbacks
-    envcallbacks.getOrDefault(envname, Collections.emptyList()).forEach(Runnable::run);
+    for (Entry<Predicate<String>, Runnable> callback : envcallbacks.entrySet()) {
+      if (callback.getKey().test(envname)) {
+        callback.getValue().run();
+      }
+    }
 
     // dependency injection
     @SuppressWarnings("unchecked")
