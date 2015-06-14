@@ -68,7 +68,10 @@ public class ParserExecutor {
       requireNonNull(type, "A type is required.");
       Object result = ctx(injector, contentType, type, parsers, data).next(type, data);
       if (result == NOT_FOUND) {
-        throw new Err(status, "No converter for " + type);
+        if (status == Status.BAD_REQUEST) {
+          throw new Err(status, "No parser for " + type);
+        }
+        throw new Err(status, contentType.toString());
       }
       return (T) result;
     } catch (Err err) {
