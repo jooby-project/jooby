@@ -17,8 +17,7 @@ public class HbmScanFeature extends ServerFeature {
 
   {
     use(ConfigFactory.empty()
-        .withValue("db", ConfigValueFactory.fromAnyRef("mem"))
-        .withValue("hibernate.hbm2ddl.auto", ConfigValueFactory.fromAnyRef("update")));
+        .withValue("db", ConfigValueFactory.fromAnyRef("mem")));
 
     use(new Hbm().scan());
 

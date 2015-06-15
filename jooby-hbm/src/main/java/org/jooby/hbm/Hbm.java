@@ -38,10 +38,10 @@ import org.jooby.internal.hbm.HbmProvider;
 import org.jooby.internal.hbm.HbmUnitDescriptor;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.scope.RequestScoped;
+import org.jooby.util.Providers;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
-import com.google.inject.OutOfScopeException;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -192,22 +192,19 @@ public class Hbm extends Jdbc {
   }
 
   @Override
-  public void configure(final Env mode, final Config config, final Binder binder) {
-    super.configure(mode, config, binder);
+  public void configure(final Env env, final Config config, final Binder binder) {
+    super.configure(env, config, binder);
 
     HbmUnitDescriptor descriptor = new HbmUnitDescriptor(getClass().getClassLoader(), dataSource(),
         config, scan);
 
-    emf = new HbmProvider(descriptor, config(config, classes));
+    emf = new HbmProvider(descriptor, config(env, config, classes));
     keys(EntityManagerFactory.class, key -> binder.bind(key).toProvider(emf).asEagerSingleton());
 
     List<Key<EntityManager>> emkeys = new ArrayList<>();
 
     keys(EntityManager.class, key -> {
-      Provider<EntityManager> em = () -> {
-        throw new OutOfScopeException("Cannot access " + key + " outside of a scoping block");
-      };
-      binder.bind(key).toProvider(em).in(RequestScoped.class);
+      binder.bind(key).toProvider(Providers.outOfScope(key)).in(RequestScoped.class);
       emkeys.add(key);
     });
 
@@ -217,7 +214,8 @@ public class Hbm extends Jdbc {
         );
   }
 
-  private static Map<Object, Object> config(final Config config, final List<Class<?>> classes) {
+  private static Map<Object, Object> config(final Env env, final Config config,
+      final List<Class<?>> classes) {
     Map<Object, Object> $ = new HashMap<>();
     config.getConfig("hibernate")
         .entrySet()
@@ -227,7 +225,11 @@ public class Hbm extends Jdbc {
       $.put(AvailableSettings.LOADED_CLASSES, classes);
     }
 
+    if (!config.hasPath("hibernate.hbm2ddl.auto")) {
+      String hbm2ddl = env.name().equals("dev") ? "update" : "validate";
+      $.put("hibernate.hbm2ddl.auto", hbm2ddl);
+    }
+
     return $;
   }
-
 }

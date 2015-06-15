@@ -19,8 +19,7 @@ public class HbmCustomFeature extends ServerFeature {
 
   {
     use(ConfigFactory.empty()
-        .withValue("db.audit", ConfigValueFactory.fromAnyRef("mem"))
-        .withValue("hibernate.hbm2ddl.auto", ConfigValueFactory.fromAnyRef("update")));
+        .withValue("db.audit", ConfigValueFactory.fromAnyRef("mem")));
 
     use(new Hbm("db.audit", Member.class));
 

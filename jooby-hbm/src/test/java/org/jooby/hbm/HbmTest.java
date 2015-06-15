@@ -52,6 +52,10 @@ public class HbmTest {
   public void defaults() throws Exception {
     new MockUnit(Env.class, Binder.class)
         .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.name()).andReturn("dev");
+        })
+        .expect(unit -> {
           ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
           scope.asEagerSingleton();
           scope.asEagerSingleton();
@@ -76,7 +80,7 @@ public class HbmTest {
           hpSBB.asEagerSingleton();
 
           unit.mockConstructor(HbmUnitDescriptor.class,
-              new Class[] {ClassLoader.class, Provider.class, Config.class, boolean.class},
+              new Class[]{ClassLoader.class, Provider.class, Config.class, boolean.class },
               eq(Hbm.class.getClassLoader()), isA(Provider.class), eq(config), eq(false));
 
           LinkedBindingBuilder<EntityManagerFactory> emfLBB = unit
@@ -120,6 +124,10 @@ public class HbmTest {
   @Test(expected = OutOfScopeException.class)
   public void outOfScope() throws Exception {
     new MockUnit(Env.class, Binder.class)
+        .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.name()).andReturn("dev");
+        })
         .expect(unit -> {
           ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
           scope.asEagerSingleton();
@@ -195,6 +203,10 @@ public class HbmTest {
   public void defaultsScan() throws Exception {
     new MockUnit(Env.class, Binder.class)
         .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.name()).andReturn("dev");
+        })
+        .expect(unit -> {
           ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
           scope.asEagerSingleton();
           scope.asEagerSingleton();
@@ -219,7 +231,7 @@ public class HbmTest {
           hpSBB.asEagerSingleton();
 
           unit.mockConstructor(HbmUnitDescriptor.class,
-              new Class[] {ClassLoader.class, Provider.class, Config.class, boolean.class},
+              new Class[]{ClassLoader.class, Provider.class, Config.class, boolean.class },
               eq(Hbm.class.getClassLoader()), isA(Provider.class), eq(config), eq(true));
 
           LinkedBindingBuilder<EntityManagerFactory> emfLBB = unit

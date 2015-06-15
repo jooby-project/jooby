@@ -20,13 +20,19 @@ package org.jooby.util;
 
 import javax.inject.Provider;
 
+import com.google.inject.Key;
 import com.google.inject.OutOfScopeException;
 
 public class Providers {
 
   public static <T> Provider<T> outOfScope(final Class<T> type) {
+    return outOfScope(Key.get(type));
+  }
+
+  public static <T> Provider<T> outOfScope(final Key<T> key) {
     return () -> {
-      throw new OutOfScopeException(type.getName());
+      throw new OutOfScopeException(key.toString());
     };
   }
+
 }
