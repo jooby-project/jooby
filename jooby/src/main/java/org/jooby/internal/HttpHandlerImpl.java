@@ -85,6 +85,8 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private int port;
 
+  private String _method;
+
   @Inject
   public HttpHandlerImpl(final Injector injector,
       final RequestScope requestScope,
@@ -99,6 +101,7 @@ public class HttpHandlerImpl implements HttpHandler {
     this.applicationPath = normalizeURI(requireNonNull(path, "An application.path is required."));
     this.err = requireNonNull(err, "An err handler is required.");
     this.config = injector.getInstance(Config.class);
+    _method = this.config.getString("server.http.Method");
     this.port = config.getInt("application.port");
   }
 
@@ -112,7 +115,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
     requestScope.enter(scope);
 
-    String verb = request.method().toUpperCase();
+    String verb = method(_method, request).toUpperCase();
     String requestPath = normalizeURI(request.path());
     boolean resolveAs404 = false;
     if (applicationPath.equals(requestPath)) {
@@ -184,7 +187,7 @@ public class HttpHandlerImpl implements HttpHandler {
       rsp.header("Cache-Control", NO_CACHE);
       rsp.status(status);
 
-      handleErr(req, rsp,  ex instanceof Err ? (Err) ex : new Err(status, ex));
+      handleErr(req, rsp, ex instanceof Err ? (Err) ex : new Err(status, ex));
     } finally {
       requestScope.exit();
 
@@ -375,6 +378,16 @@ public class HttpHandlerImpl implements HttpHandler {
       }
     }
     return null;
+  }
+
+  private static String method(final String methodParam, final NativeRequest request)
+      throws Exception {
+    Optional<String> header = request.header(methodParam);
+    if (header.isPresent()) {
+      return header.get();
+    }
+    List<String> param = request.params(methodParam);
+    return param.size() == 0 ? request.method() : param.get(0);
   }
 
 }
