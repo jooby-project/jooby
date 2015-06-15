@@ -21,6 +21,7 @@ package org.jooby;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -211,6 +212,367 @@ import com.google.common.collect.Lists;
  * @since 0.1.0
  */
 public interface Route {
+
+  class Namespace {
+
+    /** List of definitions. */
+    private List<Route.Definition> routes = new ArrayList<>();
+
+    private String rootPattern;
+
+    public Namespace(final String pattern) {
+      requireNonNull(pattern, "Pattern is required.");
+      this.rootPattern = pattern;
+    }
+
+    public List<Route.Definition> routes() {
+      return routes;
+    }
+
+    // ********************************************************************************************
+    // ALL
+    // ********************************************************************************************
+    public Namespace all(final String pattern, final Route.Filter filter) {
+      newRoute("*", pattern, filter);
+      return this;
+    }
+
+    public Namespace all(final String pattern, final Route.Handler handler) {
+      newRoute("*", pattern, handler);
+      return this;
+    }
+
+    public Namespace all(final String pattern, final Route.OneArgHandler handler) {
+      newRoute("*", pattern, handler);
+      return this;
+    }
+
+    public Namespace all(final String pattern, final Route.ZeroArgHandler handler) {
+      newRoute("*", pattern, handler);
+      return this;
+    }
+
+    public Namespace all(final Route.Filter filter) {
+      newRoute("*", "", filter);
+      return this;
+    }
+
+    public Namespace all(final Route.Handler handler) {
+      newRoute("*", "", handler);
+      return this;
+    }
+
+    public Namespace all(final Route.OneArgHandler handler) {
+      newRoute("*", "", handler);
+      return this;
+    }
+
+    public Namespace all(final Route.ZeroArgHandler handler) {
+      newRoute("*", "", handler);
+      return this;
+    }
+
+    // ********************************************************************************************
+    // GET
+    // ********************************************************************************************
+    public Namespace get(final String pattern, final Route.Filter filter) {
+      newRoute("GET", pattern, filter);
+      return this;
+    }
+
+    public Namespace get(final String pattern, final Route.Handler handler) {
+      newRoute("GET", pattern, handler);
+      return this;
+    }
+
+    public Namespace get(final String pattern, final Route.OneArgHandler handler) {
+      newRoute("GET", pattern, handler);
+      return this;
+    }
+
+    public Namespace get(final String pattern, final Route.ZeroArgHandler handler) {
+      newRoute("GET", pattern, handler);
+      return this;
+    }
+
+    public Namespace get(final Route.Filter filter) {
+      newRoute("GET", "", filter);
+      return this;
+    }
+
+    public Namespace get(final Route.Handler handler) {
+      newRoute("GET", "", handler);
+      return this;
+    }
+
+    public Namespace get(final Route.OneArgHandler handler) {
+      newRoute("GET", "", handler);
+      return this;
+    }
+
+    public Namespace get(final Route.ZeroArgHandler handler) {
+      newRoute("GET", "", handler);
+      return this;
+    }
+
+    // ********************************************************************************************
+    // POST
+    // ********************************************************************************************
+    public Namespace post(final String pattern, final Route.Filter filter) {
+      newRoute("POST", pattern, filter);
+      return this;
+    }
+
+    public Namespace post(final String pattern, final Route.Handler handler) {
+      newRoute("POST", pattern, handler);
+      return this;
+    }
+
+    public Namespace post(final String pattern, final Route.OneArgHandler handler) {
+      newRoute("POST", pattern, handler);
+      return this;
+    }
+
+    public Namespace post(final String pattern, final Route.ZeroArgHandler handler) {
+      newRoute("POST", pattern, handler);
+      return this;
+    }
+
+    public Namespace post(final Route.Filter filter) {
+      newRoute("POST", "", filter);
+      return this;
+    }
+
+    public Namespace post(final Route.Handler handler) {
+      newRoute("POST", "", handler);
+      return this;
+    }
+
+    public Namespace post(final Route.OneArgHandler handler) {
+      newRoute("POST", "", handler);
+      return this;
+    }
+
+    public Namespace post(final Route.ZeroArgHandler handler) {
+      newRoute("POST", "", handler);
+      return this;
+    }
+
+    // ********************************************************************************************
+    // PUT
+    // ********************************************************************************************
+    public Namespace put(final String pattern, final Route.Filter filter) {
+      newRoute("PUT", pattern, filter);
+      return this;
+    }
+
+    public Namespace put(final String pattern, final Route.Handler handler) {
+      newRoute("PUT", pattern, handler);
+      return this;
+    }
+
+    public Namespace put(final String pattern, final Route.OneArgHandler handler) {
+      newRoute("PUT", pattern, handler);
+      return this;
+    }
+
+    public Namespace put(final String pattern, final Route.ZeroArgHandler handler) {
+      newRoute("PUT", pattern, handler);
+      return this;
+    }
+
+    public Namespace put(final Route.Filter filter) {
+      newRoute("PUT", "", filter);
+      return this;
+    }
+
+    public Namespace put(final Route.Handler handler) {
+      newRoute("PUT", "", handler);
+      return this;
+    }
+
+    public Namespace put(final Route.OneArgHandler handler) {
+      newRoute("PUT", "", handler);
+      return this;
+    }
+
+    public Namespace put(final Route.ZeroArgHandler handler) {
+      newRoute("PUT", "", handler);
+      return this;
+    }
+
+    // ********************************************************************************************
+    // DELETE
+    // ********************************************************************************************
+    public Namespace delete(final String pattern, final Route.Filter filter) {
+      newRoute("DELETE", pattern, filter);
+      return this;
+    }
+
+    public Namespace delete(final String pattern, final Route.Handler handler) {
+      newRoute("DELETE", pattern, handler);
+      return this;
+    }
+
+    public Namespace delete(final String pattern, final Route.OneArgHandler handler) {
+      newRoute("DELETE", pattern, handler);
+      return this;
+    }
+
+    public Namespace delete(final String pattern, final Route.ZeroArgHandler handler) {
+      newRoute("DELETE", pattern, handler);
+      return this;
+    }
+
+    public Namespace delete(final Route.Filter filter) {
+      newRoute("DELETE", "", filter);
+      return this;
+    }
+
+    public Namespace delete(final Route.Handler handler) {
+      newRoute("DELETE", "", handler);
+      return this;
+    }
+
+    public Namespace delete(final Route.OneArgHandler handler) {
+      newRoute("DELETE", "", handler);
+      return this;
+    }
+
+    public Namespace delete(final Route.ZeroArgHandler handler) {
+      newRoute("DELETE", "", handler);
+      return this;
+    }
+
+    // ********************************************************************************************
+    // PATCH
+    // ********************************************************************************************
+    public Namespace patch(final String pattern, final Route.Filter filter) {
+      newRoute("PATCH", pattern, filter);
+      return this;
+    }
+
+    public Namespace patch(final String pattern, final Route.Handler handler) {
+      newRoute("PATCH", pattern, handler);
+      return this;
+    }
+
+    public Namespace patch(final String pattern, final Route.OneArgHandler handler) {
+      newRoute("PATCH", pattern, handler);
+      return this;
+    }
+
+    public Namespace patch(final String pattern, final Route.ZeroArgHandler handler) {
+      newRoute("PATCH", pattern, handler);
+      return this;
+    }
+
+    public Namespace patch(final Route.Filter filter) {
+      newRoute("PATCH", "", filter);
+      return this;
+    }
+
+    public Namespace patch(final Route.Handler handler) {
+      newRoute("PATCH", "", handler);
+      return this;
+    }
+
+    public Namespace patch(final Route.OneArgHandler handler) {
+      newRoute("PATCH", "", handler);
+      return this;
+    }
+
+    public Namespace patch(final Route.ZeroArgHandler handler) {
+      newRoute("PATCH", "", handler);
+      return this;
+    }
+
+    /**
+     * Set the route name to the whole collection.
+     *
+     * @param name Name to use/set.
+     * @return This instance.
+     */
+    public Namespace name(final String name) {
+      for (Definition definition : routes) {
+        definition.name(name);
+      }
+      return this;
+    }
+
+    /**
+     * Set what a route can consumes.
+     *
+     * @param types Media types.
+     * @return This instance.
+     */
+    public Namespace consumes(final MediaType... types) {
+      for (Definition definition : routes) {
+        definition.consumes(types);
+      }
+      return this;
+    }
+
+    /**
+     * Set what a route can consumes.
+     *
+     * @param types Media types.
+     * @return This instance.
+     */
+    public Namespace consumes(final String... types) {
+      for (Definition definition : routes) {
+        definition.consumes(types);
+      }
+      return this;
+    }
+
+    /**
+     * Set what a route can produces.
+     *
+     * @param types Media types.
+     * @return This instance.
+     */
+    public Namespace produces(final MediaType... types) {
+      for (Definition definition : routes) {
+        definition.produces(types);
+      }
+      return this;
+    }
+
+    /**
+     * Set what a route can produces.
+     *
+     * @param types Media types.
+     * @return This instance.
+     */
+    public Namespace produces(final String... types) {
+      for (Definition definition : routes) {
+        definition.produces(types);
+      }
+      return this;
+    }
+
+    private void newRoute(final String method, final String pattern,
+        final Route.Filter filter) {
+      routes.add(new Route.Definition(method, this.rootPattern + pattern, filter));
+    }
+
+    private void newRoute(final String method, final String pattern,
+        final Route.Handler filter) {
+      routes.add(new Route.Definition(method, this.rootPattern + pattern, filter));
+    }
+
+    private void newRoute(final String method, final String pattern,
+        final Route.OneArgHandler filter) {
+      routes.add(new Route.Definition(method, this.rootPattern + pattern, filter));
+    }
+
+    private void newRoute(final String method, final String pattern,
+        final Route.ZeroArgHandler filter) {
+      routes.add(new Route.Definition(method, this.rootPattern + pattern, filter));
+    }
+
+  };
 
   /**
    * Collection of {@link Route.Definition} useful for registering/setting route options at once.

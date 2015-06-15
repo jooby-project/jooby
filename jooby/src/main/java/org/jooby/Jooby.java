@@ -503,6 +503,26 @@ public class Jooby {
   }
 
   /**
+   * Define one or more routes under the same namespace:
+   *
+   * <pre>
+   * {
+   *   use("/pets")
+   *     .get("/{id}", req {@literal ->} db.get(req.param("id").value()))
+   *     .get(() {@literal ->} db.values());
+   * }
+   * </pre>
+   *
+   * @param pattern Global pattern to use.
+   * @return A route namespace.
+   */
+  public Route.Namespace use(final String pattern) {
+    Route.Namespace ns = new Route.Namespace(pattern);
+    this.bag.add(ns);
+    return ns;
+  }
+
+  /**
    * Set a custom {@link Env.Builder} to use.
    *
    * @param env A custom env builder.
@@ -2825,6 +2845,9 @@ public class Jooby {
             install((Jooby.Module) candidate, env, config, binder);
           } else if (candidate instanceof Route.Definition) {
             definitions.addBinding().toInstance((Route.Definition) candidate);
+          } else if (candidate instanceof Route.Namespace) {
+            ((Route.Namespace) candidate).routes()
+                .forEach(r -> definitions.addBinding().toInstance(r));
           } else if (candidate instanceof WebSocket.Definition) {
             sockets.addBinding().toInstance((WebSocket.Definition) candidate);
           } else if (candidate instanceof Parser) {
