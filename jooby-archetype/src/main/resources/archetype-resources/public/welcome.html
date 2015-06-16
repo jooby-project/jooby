@@ -8,7 +8,7 @@
   <div class="content">
     <h1>j<msup class="infinite">&infin;</msup>by</h1>
     <hr />
-    <p>A minimalist web framework for Java 8, inspired by <a href="http://express.js">express.js</a> and others ;)</p>
+    <p>A minimalist web framework for Java 8 or higher</p>
 
     <pre>
       <span class="kw">import</span> <span class="nn">org.jooby.Jooby</span>;
@@ -17,11 +17,7 @@
         class="kw">extends</span> <span class="nn">Jooby</span> <span class="kw">{</span>
 
         <span class="kw">{</span>
-          get<span class="kw">(</span><span class="s">"/"</span>, <span class="kw">(</span>req, res<span
-        class="kw">)</span> <span class="kw">-></span>
-            res.<span class="na">send</span><span class="kw">(</span><span class="s">"Hey Jooby!"</span><span
-        class="kw">)</span>
-          );
+          get<span class="kw">(</span><span class="s">"/"</span>, req <span class="kw">-></span> <span class="s">"Hey Jooby!"</span><span class="kw">)</span>;
         <span class="kw">}</span>
 
         <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span
@@ -41,6 +37,7 @@
     <hr />
     <ul>
       <li><a href="http://jooby.org">jooby.org</a></li>
+      <li><a href="http://jooby.org/modules">available modules</a></li>
       <li><a href="https://github.com/jooby-project/jooby">source code</a></li>
       <li><a href="https://groups.google.com/forum/#!forum/jooby-project">google group</a></li>
       <li><a href="https://github.com/jooby-project/jooby/issues">issues</a></li>

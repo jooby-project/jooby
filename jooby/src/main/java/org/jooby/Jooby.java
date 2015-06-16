@@ -484,6 +484,8 @@ public class Jooby {
   /** Env builder. */
   private Env.Builder env = Env.DEFAULT;
 
+  private boolean assetRenderer;
+
   /**
    * Import ALL the direct routes from the given app. PLEASE NOTE: that ONLY routes are imported.
    * {@link Jooby.Module modules}, {@link Renderer renderers}, etc... won't be import it.
@@ -493,6 +495,11 @@ public class Jooby {
    */
   public Jooby use(final Jooby app) {
     requireNonNull(app, "App is required.");
+
+    if (!assetRenderer && app.assetRenderer) {
+      this.assetRenderer = true;
+      renderer(BuiltinRenderer.Asset);
+    }
 
     app.bag.forEach(c -> {
       if (!(c instanceof Jooby.Module)) {
@@ -2531,6 +2538,10 @@ public class Jooby {
    * @return A new route definition.
    */
   public Route.Definition assets(final String path, final String location) {
+    if (!assetRenderer) {
+      renderer(BuiltinRenderer.Asset);
+      assetRenderer = true;
+    }
     return get(path, new AssetHandler(location, getClass()));
   }
 

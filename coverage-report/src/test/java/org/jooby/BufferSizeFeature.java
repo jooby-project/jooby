@@ -39,8 +39,7 @@ public class BufferSizeFeature extends ServerFeature {
     request()
         .get("/?data=" + data)
         .expect(data)
-        .header("Transfer-Encoding", "chunked")
-        .header("Connection", (String) null);
+        .header("Transfer-Encoding", "chunked");
   }
 
   @Test
@@ -50,8 +49,7 @@ public class BufferSizeFeature extends ServerFeature {
     request()
         .get("/?data=" + data + "&len=" + len)
         .expect(data)
-        .header("Content-Length", len)
-        .header("Connection", Optional.of("keep-alive"));
+        .header("Content-Length", len);
 
   }
 
@@ -61,8 +59,7 @@ public class BufferSizeFeature extends ServerFeature {
     request()
         .get("/?data=" + data + "&chunked=true")
         .expect(data)
-        .header("Transfer-Encoding", "chunked")
-        .header("Connection", (String) null);
+        .header("Transfer-Encoding", "chunked");
 
   }
 
@@ -71,8 +68,7 @@ public class BufferSizeFeature extends ServerFeature {
     request()
         .get("/?data=hello&short=yes")
         .expect("hello")
-        .header("Content-Length", "5")
-        .header("Connection", Optional.of("keep-alive"));
+        .header("Content-Length", "5");
   }
 
   @Test
@@ -80,8 +76,7 @@ public class BufferSizeFeature extends ServerFeature {
     request()
         .get("/?data=hello&len=5")
         .expect("hello")
-        .header("Content-Length", "5")
-        .header("Connection", Optional.of("keep-alive"));
+        .header("Content-Length", "5");
   }
 
   @Test
@@ -90,8 +85,7 @@ public class BufferSizeFeature extends ServerFeature {
     request()
         .get("/?data=hello&chunked=true&short=yes")
         .expect("hello")
-        .header("Content-Length", "5")
-        .header("Connection", Optional.of("keep-alive"));
+        .header("Content-Length", "5");
   }
 
   public String rnd(final int len) {

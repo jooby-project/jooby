@@ -32,6 +32,7 @@ public class Netty implements Jooby.Module {
 
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
+    System.setProperty("io.netty.tmpdir", config.getString("application.tmpdir"));
     binder.bind(Server.class).to(NettyServer.class).in(Singleton.class);
   }
 

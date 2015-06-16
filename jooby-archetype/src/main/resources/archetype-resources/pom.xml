@@ -37,13 +37,6 @@
       <artifactId>jooby-netty</artifactId>
     </dependency>
 
-    <!-- WAR -->
-    <dependency>
-      <groupId>org.jooby</groupId>
-      <artifactId>jooby-servlet</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>

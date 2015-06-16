@@ -41,7 +41,6 @@ public class PreDestroyFeature {
   @Singleton
   public static class SingletonObject {
 
-
     @PreDestroy
     public void stop() throws Exception {
       log.info("stopping: {}", getClass().getName());
@@ -50,6 +49,16 @@ public class PreDestroyFeature {
 
   }
 
+  @Singleton
+  public static class FailSilently {
+
+    @PreDestroy
+    public void stop() throws Exception {
+      counter.incrementAndGet();
+      throw new NullPointerException();
+    }
+
+  }
 
   public static class SingletonProvider<T> implements Provider<T>, Managed {
 
@@ -144,7 +153,8 @@ public class PreDestroyFeature {
     LifecycleProcessor processor = new LifecycleProcessor();
     Injector injector = Guice.createInjector((Module) binder -> {
       binder.bindListener(Matchers.any(), processor);
-      binder.bind(Object.class).toProvider(new SingletonProvider<>(new Object())).in(Singleton.class);
+      binder.bind(Object.class).toProvider(new SingletonProvider<>(new Object()))
+          .in(Singleton.class);
     });
 
     injector.getInstance(Object.class);
@@ -167,6 +177,22 @@ public class PreDestroyFeature {
     injector.getInstance(SingletonObject.class);
     injector.getInstance(SingletonObject.class);
     injector.getInstance(SingletonObject.class);
+
+    processor.destroy();
+
+    assertEquals(1, counter.get());
+  }
+
+  @Test
+  public void stopShouldCatchException() throws Exception {
+    counter = new AtomicInteger(0);
+
+    LifecycleProcessor processor = new LifecycleProcessor();
+    Injector injector = Guice.createInjector((Module) binder -> {
+      binder.bindListener(Matchers.any(), processor);
+    });
+
+    injector.getInstance(FailSilently.class);
 
     processor.destroy();
 

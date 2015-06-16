@@ -26,11 +26,23 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 
+import org.jooby.Asset;
 import org.jooby.MediaType;
 import org.jooby.Renderer;
 import org.jooby.View;
 
 public enum BuiltinRenderer implements Renderer {
+
+  Asset {
+    @Override
+    public void render(final Object value, final Context ctx) throws Exception {
+      if (value instanceof Asset) {
+        Asset resource = ((Asset) value);
+        ctx.type(resource.type());
+        ctx.send(resource.stream());
+      }
+    }
+  },
 
   InputStream {
     @Override

@@ -83,7 +83,7 @@ public class LifecycleProcessor implements TypeListener {
       Method preDestroy = findMethod(rawType, PreDestroy.class);
       if (preDestroy != null) {
         encounter.register((InjectionListener<I>) injectee ->
-            objects.add(new PreDestroyManaged(injectee, preDestroy)));
+            objects.add(new PreDestroyImpl(injectee, preDestroy)));
       }
     }
   }

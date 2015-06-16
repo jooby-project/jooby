@@ -116,6 +116,10 @@ public class NettyResponse implements NativeResponse {
 
       if (!headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
         headers.set(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
+      } else {
+        if (keepAlive) {
+          headers.set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+        }
       }
 
       // dump headers
@@ -141,6 +145,10 @@ public class NettyResponse implements NativeResponse {
       headers.set(HttpHeaders.Names.CONTENT_LENGTH, channel.size());
     }
 
+    if (keepAlive) {
+      headers.set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+    }
+
     // dump headers
     rsp.headers().set(headers);
     // send headers
@@ -158,6 +166,10 @@ public class NettyResponse implements NativeResponse {
     if (!headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
       headers.remove(HttpHeaders.Names.TRANSFER_ENCODING)
           .set(HttpHeaders.Names.CONTENT_LENGTH, buffer.readableBytes());
+    }
+
+    if (keepAlive) {
+      headers.set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
     }
 
     // dump headers

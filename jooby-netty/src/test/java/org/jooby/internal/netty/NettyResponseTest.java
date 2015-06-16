@@ -83,6 +83,12 @@ public class NettyResponseTest {
     expect(headers.set(HttpHeaders.Names.CONTENT_LENGTH, bytes.length)).andReturn(headers);
   };
 
+  private Block connkeep = unit -> {
+    DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
+
+    expect(headers.set(HttpHeaders.Names.CONNECTION, "keep-alive")).andReturn(headers);
+  };
+
   private Block len = unit -> {
     DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
 
@@ -258,6 +264,7 @@ public class NettyResponseTest {
         .expect(wrapBytes)
         .expect(headers)
         .expect(deflen)
+        .expect(connkeep)
         .expect(fullResponse)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
@@ -279,6 +286,7 @@ public class NettyResponseTest {
         .expect(wrapBuffer)
         .expect(headers)
         .expect(deflen)
+        .expect(connkeep)
         .expect(fullResponse)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
@@ -300,6 +308,7 @@ public class NettyResponseTest {
         .expect(wrapBytes)
         .expect(headers)
         .expect(len)
+        .expect(connkeep)
         .expect(fullResponse)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
