@@ -45,6 +45,7 @@ import java.util.Optional;
 import org.jooby.spi.NativeResponse;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteStreams;
 
 public class NettyResponse implements NativeResponse {
 
@@ -104,7 +105,7 @@ public class NettyResponse implements NativeResponse {
   @Override
   public void send(final InputStream stream) throws Exception {
     byte[] chunk = new byte[bufferSize];
-    int count = stream.read(chunk);
+    int count = ByteStreams.read(stream, chunk, 0, bufferSize);
     if (count <= 0) {
       return;
     }

@@ -371,7 +371,7 @@ public class NettyResponseTest {
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class, InputStream.class)
         .expect(unit -> {
           InputStream stream = unit.get(InputStream.class);
-          expect(stream.read(unit.capture(byte[].class))).andReturn(0);
+          expect(stream.read(unit.capture(byte[].class), eq(0), eq(bufferSize))).andReturn(-1);
         })
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
@@ -385,10 +385,13 @@ public class NettyResponseTest {
   public void sendHeadChunk() throws Exception {
     boolean keepAlive = false;
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class, InputStream.class)
-        .expect(unit -> {
-          InputStream stream = unit.get(InputStream.class);
-          expect(stream.read(unit.capture(byte[].class))).andReturn(bytes.length / 2);
-        })
+        .expect(
+            unit -> {
+              InputStream stream = unit.get(InputStream.class);
+              expect(stream.read(unit.capture(byte[].class), eq(0), eq(bytes.length))).andReturn(
+                  bytes.length / 2);
+              expect(stream.read(unit.capture(byte[].class), eq(2), eq(3))).andReturn(-1);
+            })
         .expect(unit -> {
           ByteBuf buffer = unit.get(ByteBuf.class);
 
@@ -419,7 +422,8 @@ public class NettyResponseTest {
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class, InputStream.class)
         .expect(unit -> {
           InputStream stream = unit.get(InputStream.class);
-          expect(stream.read(unit.capture(byte[].class))).andReturn(bufferSize);
+          expect(stream.read(unit.capture(byte[].class), eq(0), eq(bufferSize))).andReturn(
+              bufferSize);
         })
         .expect(unit -> {
           ByteBuf buffer = unit.get(ByteBuf.class);
