@@ -55,6 +55,7 @@ public class JettyHandler extends AbstractHandler {
     this.webSocketServerFactory = webSocketServerFactory;
     this.tmpdir = tmpdir;
     this.multiPartConfig = new MultipartConfigElement(tmpdir);
+    this.addManaged(webSocketServerFactory);
   }
 
   @Override

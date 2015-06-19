@@ -1256,7 +1256,7 @@
     <jackson.version>2.5.4</jackson.version>
     <undertow.version>1.2.7.Final</undertow.version>
     <servlet.version>3.1.0</servlet.version>
-    <jetty.version>9.2.11.v20150529</jetty.version>
+    <jetty.version>9.3.0.v20150612</jetty.version>
     <netty.version>4.0.28.Final</netty.version>
     <javassist.version>3.19.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
