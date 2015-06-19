@@ -37,7 +37,7 @@ public class RequestParamNameProviderTest {
         })
         .run(unit -> {
           assertEquals("dummyparam",
-              new RequestParamNameProvider(new RouteMetadata(unit.get(Env.class))).name(param));
+              new RequestParamNameProviderImpl(new RouteMetadata(unit.get(Env.class))).name(param));
         });
 
   }

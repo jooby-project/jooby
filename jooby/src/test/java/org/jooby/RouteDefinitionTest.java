@@ -17,17 +17,11 @@ public class RouteDefinitionTest {
   public void newHandler() throws Exception {
     new MockUnit(Request.class, Response.class, Route.Chain.class)
         .expect(unit -> {
-          Request req = unit.get(Request.class);
-
           Response rsp = unit.get(Response.class);
           rsp.send("x");
-
-          Route.Chain chain = unit.get(Route.Chain.class);
-
-          chain.next(req, rsp);
         })
         .run(unit -> {
-          Definition def = new Route.Definition("GET", "/", (req, rsp) -> {
+          Definition def = new Route.Definition("GET", "/", (req, rsp, chain) -> {
             rsp.send("x");
           });
 

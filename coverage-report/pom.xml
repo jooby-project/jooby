@@ -301,6 +301,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-swagger</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-http</artifactId>
     </dependency>

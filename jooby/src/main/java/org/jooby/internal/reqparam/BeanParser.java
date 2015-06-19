@@ -73,7 +73,7 @@ public class BeanParser implements Parser {
     final Object bean;
     Constructor<?> constructor = constructors[0];
     RequestParamProvider provider =
-        new RequestParamProviderImpl(new RequestParamNameProvider(classInfo));
+        new RequestParamProviderImpl(new RequestParamNameProviderImpl(classInfo));
     List<RequestParam> parameters = provider.parameters(constructor);
     Object[] args = new Object[parameters.size()];
     for (int i = 0; i < args.length; i++) {

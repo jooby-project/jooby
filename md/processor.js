@@ -44,6 +44,11 @@ var version = function () {
 var links = [];
 
 links.push({
+  name: 'swagger',
+  data: '[Swagger](http://swagger.io)'
+});
+
+links.push({
   name: 'pac4j',
   data: '[Pac4j](https://github.com/pac4j/pac4j)'
 });

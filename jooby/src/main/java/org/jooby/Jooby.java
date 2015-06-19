@@ -487,8 +487,7 @@ public class Jooby {
   private boolean assetRenderer;
 
   /**
-   * Import ALL the direct routes from the given app. PLEASE NOTE: that ONLY routes are imported.
-   * {@link Jooby.Module modules}, {@link Renderer renderers}, etc... won't be import it.
+   * Import ALL the direct routes from the given app.
    *
    * @param app Routes provider.
    * @return This jooby instance.
@@ -501,9 +500,11 @@ public class Jooby {
       renderer(BuiltinRenderer.Asset);
     }
 
-    app.bag.forEach(c -> {
-      if (!(c instanceof Jooby.Module)) {
-        this.bag.add(c);
+    app.bag.forEach(s -> {
+      if (s instanceof Module) {
+        use((Module) s);
+      } else {
+        this.bag.add(s);
       }
     });
     return this;
@@ -3143,7 +3144,9 @@ public class Jooby {
       Object value = entry.getValue().unwrapped();
       if (value instanceof List) {
         List<Object> values = (List<Object>) value;
-        Type listType = Types.listOf(values.iterator().next().getClass());
+        Type listType = values.size() == 0
+            ? String.class
+            : Types.listOf(values.iterator().next().getClass());
         Key<Object> key = (Key<Object>) Key.get(listType, Names.named(name));
         binder.bind(key).toInstance(values);
       } else {

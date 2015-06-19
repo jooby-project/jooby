@@ -36,7 +36,7 @@ import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.reqparam.RequestParam;
-import org.jooby.internal.reqparam.RequestParamNameProvider;
+import org.jooby.internal.reqparam.RequestParamNameProviderImpl;
 import org.jooby.internal.reqparam.RequestParamProvider;
 import org.jooby.internal.reqparam.RequestParamProviderImpl;
 import org.jooby.mvc.CONNECT;
@@ -68,7 +68,7 @@ public class MvcRoutes {
       final Class<?> routeClass) {
 
     RequestParamProvider provider =
-        new RequestParamProviderImpl(new RequestParamNameProvider(classInfo));
+        new RequestParamProviderImpl(new RequestParamNameProviderImpl(classInfo));
 
     String[] rootPaths = path(routeClass);
 

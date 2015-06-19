@@ -16,38 +16,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.reqparam;
-
-import static java.util.Objects.requireNonNull;
+package org.jooby.reflect;
 
 import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
-import java.util.Collections;
-import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
+import javax.inject.Inject;
+import javax.inject.Named;
 
-public class RequestParamProviderImpl implements RequestParamProvider {
+import org.jooby.internal.reqparam.RequestParamNameProviderImpl;
 
-  private RequestParamNameProviderImpl provider;
+/**
+ * Like {@link ParameterNameProvider} but it check for {@link Named} presence first. Useful to
+ * extract parameter names from a MVC Route.
+ *
+ * @author edgar
+ * @since 0.6.2
+ */
+public class ReqParameterNameProvider implements ParameterNameProvider {
 
-  public RequestParamProviderImpl(final RequestParamNameProviderImpl provider) {
-    this.provider = requireNonNull(provider, "Parameter name provider is required.");
+  private RequestParamNameProviderImpl paramerterNameProvider;
+
+  @Inject
+  public ReqParameterNameProvider(final ParameterNameProvider paramerterNameProvider) {
+    this.paramerterNameProvider = new RequestParamNameProviderImpl(paramerterNameProvider);
   }
 
   @Override
-  public List<RequestParam> parameters(final Executable exec) {
+  public String[] names(final Executable exec) {
     Parameter[] parameters = exec.getParameters();
-    if (parameters.length == 0) {
-      return Collections.emptyList();
+    String[] names = new String[parameters.length];
+    for (int i = 0; i < names.length; i++) {
+      names[i] = paramerterNameProvider.name(parameters[i]);
     }
-
-    Builder<RequestParam> builder = ImmutableList.builder();
-    for (Parameter parameter : parameters) {
-      builder.add(new RequestParam(parameter, provider.name(parameter)));
-    }
-    return builder.build();
+    return names;
   }
 
 }

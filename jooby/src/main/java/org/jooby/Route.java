@@ -21,6 +21,7 @@ package org.jooby;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -766,10 +767,7 @@ public interface Route {
      */
     public Definition(final String verb, final String pattern,
         final Route.Handler handler) {
-      this(verb, pattern, (req, rsp, chain) -> {
-        handler.handle(req, rsp);
-        chain.next(req, rsp);
-      });
+      this(verb, pattern, (Route.Filter) handler);
     }
 
     /**
@@ -781,11 +779,7 @@ public interface Route {
      */
     public Definition(final String verb, final String pattern,
         final Route.OneArgHandler handler) {
-      this(verb, pattern, (req, rsp, chain) -> {
-        Object result = handler.handle(req);
-        rsp.send(result);
-        chain.next(req, rsp);
-      });
+      this(verb, pattern, (Route.Filter) handler);
     }
 
     /**
@@ -797,11 +791,7 @@ public interface Route {
      */
     public Definition(final String verb, final String pattern,
         final Route.ZeroArgHandler handler) {
-      this(verb, pattern, (req, rsp, chain) -> {
-        Object result = handler.handle();
-        rsp.send(result);
-        chain.next(req, rsp);
-      });
+      this(verb, pattern, (Route.Filter) handler);
     }
 
     /**
@@ -862,6 +852,13 @@ public interface Route {
     }
 
     /**
+     * @return List of path variables (if any).
+     */
+    public List<String> vars() {
+      return compiledPattern.vars();
+    }
+
+    /**
      * Test if the route matches the given verb, path, content type and accept header.
      *
      * @param verb A HTTP verb.
@@ -891,6 +888,10 @@ public interface Route {
      */
     public String method() {
       return method;
+    }
+
+    public Route.Filter filter() {
+      return filter;
     }
 
     /**
@@ -1234,7 +1235,14 @@ public interface Route {
    * @author edgar
    * @since 0.1.0
    */
-  interface Handler {
+  interface Handler extends Filter {
+
+    @Override
+    default void handle(final Request req, final Response rsp, final Route.Chain chain)
+        throws Exception {
+      handle(req, rsp);
+      chain.next(req, rsp);
+    }
 
     /**
      * Callback method for a HTTP request.
@@ -1245,6 +1253,17 @@ public interface Route {
      */
     void handle(Request req, Response rsp) throws Exception;
 
+  }
+
+  /**
+   * A handler from a MVC route, it extends {@link Handler} by adding a reference to the method
+   * behind this route.
+   *
+   * @author edgar
+   * @since 0.6.2
+   */
+  interface MethodHandler extends Handler {
+    Method method();
   }
 
   /**
@@ -1262,7 +1281,15 @@ public interface Route {
    * @author edgar
    * @since 0.1.1
    */
-  interface OneArgHandler {
+  interface OneArgHandler extends Filter {
+
+    @Override
+    default void handle(final Request req, final Response rsp, final Route.Chain chain)
+        throws Exception {
+      Object result = handle(req);
+      rsp.send(result);
+      chain.next(req, rsp);
+    }
 
     /**
      * Callback method for a HTTP request.
@@ -1289,7 +1316,15 @@ public interface Route {
    * @author edgar
    * @since 0.1.1
    */
-  interface ZeroArgHandler {
+  interface ZeroArgHandler extends Filter {
+
+    @Override
+    default void handle(final Request req, final Response rsp, final Route.Chain chain)
+        throws Exception {
+      Object result = handle();
+      rsp.send(result);
+      chain.next(req, rsp);
+    }
 
     /**
      * Callback method for a HTTP request.

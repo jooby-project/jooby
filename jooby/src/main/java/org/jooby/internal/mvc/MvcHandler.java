@@ -32,7 +32,7 @@ import org.jooby.internal.reqparam.RequestParamProvider;
 
 import com.google.common.base.Throwables;
 
-class MvcHandler implements Route.Handler {
+class MvcHandler implements Route.MethodHandler {
 
   private Method handler;
 
@@ -41,6 +41,11 @@ class MvcHandler implements Route.Handler {
   public MvcHandler(final Method handler, final RequestParamProvider provider) {
     this.handler = requireNonNull(handler, "Handler method is required.");
     this.provider = requireNonNull(provider, "Param prodiver is required.");
+  }
+
+  @Override
+  public Method method() {
+    return handler;
   }
 
   @Override

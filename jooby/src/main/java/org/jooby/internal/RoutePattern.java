@@ -22,6 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,11 +38,18 @@ public class RoutePattern {
 
   private String pattern;
 
+  private List<String> vars;
+
   public RoutePattern(final String verb, final String pattern) {
     requireNonNull(verb, "A HTTP verb is required.");
     requireNonNull(pattern, "A path pattern is required.");
     this.pattern = normalize(pattern);
-    this.matcher = rewrite(this, verb.toUpperCase() + this.pattern.replace("/**/", "/**"));
+    this.matcher = rewrite(this, verb.toUpperCase() + this.pattern.replace("/**/", "/**"),
+        vars -> this.vars = vars);
+  }
+
+  public List<String> vars() {
+    return vars;
   }
 
   public String pattern() {
@@ -54,7 +62,7 @@ public class RoutePattern {
   }
 
   private static Function<String, RouteMatcher> rewrite(final RoutePattern owner,
-      final String pattern) {
+      final String pattern, final Consumer<List<String>> setVars) {
     List<String> vars = new LinkedList<>();
     StringBuilder patternBuilder = new StringBuilder();
     Matcher matcher = GLOB.matcher(pattern);
@@ -97,6 +105,7 @@ public class RoutePattern {
       end = matcher.end();
     }
     patternBuilder.append(quote(pattern, end, pattern.length()));
+    setVars.accept(vars);
     return fn(owner, regex, regex ? patternBuilder.toString() : pattern, vars);
   }
 

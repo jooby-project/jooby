@@ -24,11 +24,11 @@ import java.util.stream.IntStream;
 
 import org.jooby.reflect.ParameterNameProvider;
 
-public class RequestParamNameProvider {
+public class RequestParamNameProviderImpl {
 
   private ParameterNameProvider nameProvider;
 
-  public RequestParamNameProvider(final ParameterNameProvider nameProvider) {
+  public RequestParamNameProviderImpl(final ParameterNameProvider nameProvider) {
     this.nameProvider = nameProvider;
   }
 
