@@ -8,7 +8,7 @@ A job scheduler from [Quartz](http://quartz-scheduler.org/).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.2</version>
 </dependency>
 ```
 ## usage
@@ -222,5 +222,7 @@ org.quartz.scheduler.instanceId = local
 # thread pool
 org.quartz.threadPool.threadNamePrefix = quartz
 org.quartz.threadPool.threadCount = ${runtime.processors}
+
+org.quartz.scheduler.skipUpdateCheck = true
 
 ```

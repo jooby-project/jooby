@@ -33,6 +33,9 @@
 ## full text search
 * [elastic search](https://github.com/jooby-project/jooby/tree/master/jooby-elasticsearch): enterprise full text search via {{elasticsearch}}.
 
+## swagger
+* [swagger](https://github.com/jooby-project/jooby/tree/master/jooby-swagger): powerful representation of your RESTful API.
+
 ## auth & security
 * [pac4j](https://github.com/jooby-project/jooby/tree/master/jooby-pac4j): authentication module via: {{pac4j}}.
 

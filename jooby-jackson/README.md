@@ -11,7 +11,7 @@ but also an [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.2</version>
 </dependency>
 ```
 ## usage

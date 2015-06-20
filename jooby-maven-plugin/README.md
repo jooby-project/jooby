@@ -43,7 +43,7 @@ Is it worth to mention that dynamic reload of classes at runtime is done via [JB
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.2</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -77,7 +77,7 @@ List of commands to execute before starting the ```application```. Useful for [n
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.2</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -98,7 +98,7 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.2</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <vmArgs>
