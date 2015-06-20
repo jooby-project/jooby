@@ -21,6 +21,7 @@ org.jooby.reflect
 org.jooby.scope
 org.jooby.servlet
 org.jooby.spi
+org.jooby.swagger
 org.jooby.undertow
 org.jooby.util
 org.skife.jdbi.v2
