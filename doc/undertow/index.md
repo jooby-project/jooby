@@ -1,7 +1,7 @@
 ---
 layout: index
 title: undertow
-version: 0.6.0
+version: 0.6.2
 ---
 
 # jooby-undertow
@@ -14,7 +14,7 @@ version: 0.6.0
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-undertow</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.2</version>
 </dependency>
 ```
 
@@ -37,7 +37,7 @@ undertow {
   workerThreads = ${server.threads.Max}
 
   server {
-    ALWAYS_SET_KEEP_ALIVE = false
+    ALWAYS_SET_KEEP_ALIVE = true
 
     # The maximum size in bytes of a http request header.
     MAX_HEADER_SIZE = ${server.http.HeaderSize}

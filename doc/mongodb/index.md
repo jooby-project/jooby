@@ -1,14 +1,14 @@
 ---
 layout: index
 title: mongodb
-version: 0.6.0
+version: 0.6.2
 ---
 
 # jooby-mongodb
 
 [MongoDB](http://mongodb.github.io/mongo-java-driver/) driver for Jooby.
 
-Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient.html), a [DB](http://api.mongodb.org/java/2.13/com/mongodb/DB.html) and a [Session Store](/apidocs/org/jooby/mongodb/MongoSessionStore.html)
+Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient.html), a [MongoDatabase](http://api.mongodb.org/java/2.13/com/mongodb/DB.html) and a [Session Store](/apidocs/org/jooby/mongodb/MongoSessionStore.html)
 
 ## dependency
 
@@ -16,7 +16,7 @@ Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-mongodb</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.2</version>
 </dependency>
 ```
 
@@ -35,7 +35,7 @@ db = "mongodb://localhost/mydb"
   get("/", req -> {
     MongoClient client = req.require(MongoClient.class);
     // work with client
-    DB = req.require(DB.class);
+    MongoDatabase = req.require(MongoDatabase.class);
     // work with mydb
   });
 }
@@ -54,7 +54,7 @@ mydb = "mongodb://localhost/mydb"
   use(new Mongodb("mydb"));
 
   get("/", req -> {
-    DB mydb = req.require(DB.class);
+    MongoDatabase mydb = req.require(MongoDatabase.class);
     // work with mydb
   });
 }

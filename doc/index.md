@@ -1,7 +1,7 @@
 ---
 layout: index
 title: doc
-version: 0.6.0
+version: 0.6.2
 ---
 
 documentation
@@ -1554,6 +1554,8 @@ server {
     MaxRequestSize = 200k
 
     IdleTimeout = 30s
+
+    Method = _method
   }
 
   threads {
@@ -1653,6 +1655,7 @@ mime.jpeg=image/jpeg
 mime.jpg=image/jpeg
 mime.js=application/javascript
 mime.json=application/json
+mime.yaml=application/yaml
 mime.jsp=text/html
 mime.kar=audio/midi
 mime.latex=application/x-latex

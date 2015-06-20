@@ -33,6 +33,9 @@
 ## full text search
 * [elastic search](/doc/elasticsearch): enterprise full text search via [Elastic Search](https://github.com/elastic/elasticsearch).
 
+## swagger
+* [swagger](/doc/swagger): powerful representation of your RESTful API.
+
 ## auth & security
 * [pac4j](/doc/pac4j): authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 

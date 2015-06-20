@@ -1,7 +1,7 @@
 ---
 layout: index
 title: faq
-version: 0.6.0
+version: 0.6.2
 ---
 
 # faq and facts

@@ -1,7 +1,7 @@
 ---
 layout: index
 title: hbm
-version: 0.6.0
+version: 0.6.2
 ---
 
 # jooby-hbm
@@ -23,7 +23,7 @@ pattern, which basically keeps the ```Session``` opened until the view is render
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbm</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.2</version>
 </dependency>
 ```
 
@@ -114,7 +114,10 @@ hibernate.hbm2ddl.auto = update
 hibernate {
   id.new_generator_mappings = true
   archive.autodetection = class
-  hbm2ddl.auto = validate
+
+  # update for dev, validate for others
+  # hbm2ddl.auto = update
+
   current_session_context_class = managed
 }
 

@@ -1,7 +1,7 @@
 ---
 layout: index
 title: servlet
-version: 0.6.0
+version: 0.6.2
 ---
 
 # jooby-servlet
@@ -21,8 +21,8 @@ Add the ```jooby-servlet``` dependency to your ```pom.xml```:
 ```xml
 <dependency>
   <groupId>org.jooby</groupId>
-  <artifactId>jooby-ftl</artifactId>
-  <version>0.6.0</version>
+  <artifactId>jooby-servlet</artifactId>
+  <version>0.6.2</version>
   <scope>provided</scope>
 </dependency>
 ```
