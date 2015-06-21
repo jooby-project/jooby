@@ -88,8 +88,8 @@ import com.typesafe.config.ConfigFactory;
  * </pre>
  *
  * <p>
- * Previous example adds a very basic but ready to use form login auth every time you try to
- * access to <code>/private</code> or any route defined below the auth module.
+ * Previous example adds a very basic but ready to use form login auth every time you try to access
+ * to <code>/private</code> or any route defined below the auth module.
  * </p>
  *
  * <h2>clients</h2>
@@ -301,8 +301,7 @@ public class Auth implements Jooby.Module {
         binder.bind(UsernameProfileCreator.class).to(profileCreator);
       }
 
-      binder.bind(HttpProfile.class).toProvider(Providers.outOfScope(HttpProfile.class))
-          .in(RequestScoped.class);
+      bindProfile(binder, HttpProfile.class);
 
       Multibinder.newSetBinder(binder, Client.class)
           .addBinding().toProvider(FormAuth.class).asEagerSingleton();
@@ -373,8 +372,7 @@ public class Auth implements Jooby.Module {
         binder.bind(UsernameProfileCreator.class).to(profileCreator);
       }
 
-      binder.bind(HttpProfile.class).toProvider(Providers.outOfScope(HttpProfile.class))
-          .in(RequestScoped.class);
+      bindProfile(binder, HttpProfile.class);
 
       Multibinder.newSetBinder(binder, Client.class)
           .addBinding().toProvider(BasicAuth.class).asEagerSingleton();
@@ -572,8 +570,7 @@ public class Auth implements Jooby.Module {
     String name = client.getSimpleName().replace("Client", "");
 
     Class profileType = ClientType.typeOf(client);
-    binder.bind(profileType).toProvider(Providers.outOfScope(profileType))
-        .in(RequestScoped.class);
+    bindProfile(binder, profileType);
 
     filter(binder, pattern, name, () -> (req, rsp, chain) ->
         new AuthFilter(client, profileType, req.require(AuthStore.class))
@@ -586,6 +583,15 @@ public class Auth implements Jooby.Module {
     Multibinder.newSetBinder(binder, Route.Definition.class)
         .addBinding()
         .toInstance(new Route.Definition("*", pattern, filter.get()).name("auth(" + name + ")"));
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  private void bindProfile(final Binder binder, final Class root) {
+    Class profile = root;
+    while (profile != Object.class) {
+      binder.bind(profile).toProvider(Providers.outOfScope(profile)).in(RequestScoped.class);
+      profile = profile.getSuperclass();
+    }
   }
 
 }

@@ -65,7 +65,7 @@ public class AuthFilter implements Route.Filter {
 
     if (profile.isPresent()) {
       UserProfile userprofile = profile.get();
-      req.set(profileType, userprofile);
+      seed(req, profileType, userprofile);
       log.debug("profile found: {}", userprofile);
       chain.next(req, rsp);
     } else {
@@ -82,6 +82,14 @@ public class AuthFilter implements Route.Filter {
       } catch (RequiresHttpAction ex) {
         new AuthResponse(rsp).handle(client, ex);
       }
+    }
+  }
+
+  @SuppressWarnings("rawtypes")
+  private void seed(final Request req, Class type, final Object profile) {
+    while (type != Object.class) {
+      req.set(type, profile);
+      type = type.getSuperclass();
     }
   }
 
