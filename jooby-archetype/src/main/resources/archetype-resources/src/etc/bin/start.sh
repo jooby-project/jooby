@@ -11,11 +11,11 @@ APP_MAIN=${application.class}
 APP_NAME=${project.build.finalName}.jar
 
 ## logback file
-if [ -f "config/logback.${APP_ENV}.xml" ];
+if [ -f "conf/logback.${APP_ENV}.xml" ];
 then
-  LOGBACK_FILE="config/logback.${APP_ENV}.xml"
+  LOGBACK_FILE="conf/logback.${APP_ENV}.xml"
 else
-  LOGBACK_FILE="config/logback.xml"
+  LOGBACK_FILE="conf/logback.xml"
 fi
 
 ## secret
@@ -37,7 +37,7 @@ APP_OPTIONS="-Dapplication.secret=${APP_SECRET} -Dapplication.env=${APP_ENV} -Dl
 
 JAVA_OPTIONS="-Xms512m -Xmx1024m"
 
-CP="-cp public${PATH_SEPARATOR}config$PATH_SEPARATOR$APP_NAME"
+CP="-cp public${PATH_SEPARATOR}conf$PATH_SEPARATOR$APP_NAME"
 
 VM_ARGS="$JAVA_OPTIONS $APP_OPTIONS $CP $APP_MAIN"
 

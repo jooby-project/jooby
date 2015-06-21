@@ -1056,6 +1056,28 @@
       </build>
     </profile>
 
+    <profile>
+      <id>conf-directory</id>
+      <activation>
+        <file>
+          <exists>conf</exists>
+        </file>
+      </activation>
+      <properties>
+        <project.conf.directory>conf</project.conf.directory>
+      </properties>
+      <build>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+          </resource>
+          <resource>
+            <directory>${project.conf.directory}</directory>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+
     <!-- jooby run -->
     <profile>
       <activation>

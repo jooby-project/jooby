@@ -27,7 +27,7 @@ mvn jooby:run
 You should see something similar to this at the end of the output:
 
 ```bash
-INFO  [2015-03-19 21:34:00,365] Hotswap available on: [my-app/public, my-app/config, my-app/target/classes]
+INFO  [2015-03-19 21:34:00,365] Hotswap available on: [my-app/public, my-app/conf, my-app/target/classes]
 INFO  [2015-03-19 21:34:00,368]   includes: [**/*.class,**/*.conf,**/*.properties]
 INFO  [2015-03-19 21:34:00,369]   excludes: []
 INFO  [2015-03-19 21:34:00,937] [dev@netty]: App server started in 502ms
@@ -59,7 +59,7 @@ A new directory was created: ```my-app```. Now, let's see how it looks like:
 |   |   |   └── style.css
 |   |   └── images
 |   └── welcome.html
-├── config
+├── conf
 |   ├── application.conf
 |   └── logback.xml
 └── src
@@ -78,13 +78,13 @@ A new directory was created: ```my-app```. Now, let's see how it looks like:
 
 The **public** directory contains ```*.html```, ```*.js```, ```*.css```, ..., ```*.png``` files.
 
-The **config** directory contains ```*.conf```, ```*.properties```, ..., ```*.json``` files.
+The **conf** directory contains ```*.conf```, ```*.properties```, ..., ```*.json``` files.
 
 The **src/main/java** contains ```*.java``` (of course) files.
 
 The **src/test/java** contains integration or unit test files.
 
-**NOTE**: Directories: ```public``` and ```config``` are part of the classpath.
+**NOTE**: Directories: ```public``` and ```conf``` are part of the classpath.
 
 ### App.java
 

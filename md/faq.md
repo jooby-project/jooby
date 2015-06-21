@@ -18,7 +18,7 @@ Full list of mime types can be found [here](/doc/#appendix:-mime.properties)
 
 ## how do I add a new/override mime type?
 
-Create a ```mime.properties``` file inside the ```config``` directory. Then, add the new mime type there.
+Create a ```mime.properties``` file inside the ```conf``` directory. Then, add the new mime type there.
 
 ## can I deploy my application inside a Servlet Container?
 

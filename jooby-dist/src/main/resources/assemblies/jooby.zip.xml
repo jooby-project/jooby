@@ -34,9 +34,9 @@
 
     <fileSet>
       <directory>
-        ${project.basedir}${file.separator}config
+        ${project.basedir}${file.separator}conf
       </directory>
-      <outputDirectory>config</outputDirectory>
+      <outputDirectory>conf</outputDirectory>
       <includes>
         <include>**/*</include>
       </includes>

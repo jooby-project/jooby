@@ -261,8 +261,8 @@ public class JoobyMojo extends AbstractMojo {
       }
     }
     // logback
-    File[] logbackFiles = {localFile("config", "logback-test.xml"),
-        localFile("config", "logback.xml") };
+    File[] logbackFiles = {localFile("conf", "logback-test.xml"),
+        localFile("conf", "logback.xml") };
     for (File logback : logbackFiles) {
       if (logback.exists()) {
         results.add("-Dlogback.configurationFile=" + logback.getAbsolutePath());

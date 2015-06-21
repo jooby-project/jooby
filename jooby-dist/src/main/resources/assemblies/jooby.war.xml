@@ -93,10 +93,10 @@
       </includes>
     </fileSet>
 
-    <!-- config : WEB-INF/classes -->
+    <!-- conf : WEB-INF/classes -->
     <fileSet>
       <directory>
-        ${project.basedir}${file.separator}config
+        ${project.basedir}${file.separator}conf
       </directory>
       <filtered>true</filtered>
       <outputDirectory>WEB-INF${file.separator}classes</outputDirectory>

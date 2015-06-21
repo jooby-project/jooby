@@ -96,7 +96,7 @@ public class AppModule {
       }
     }
     if (cp.size() == 0) {
-      String[] defcp = {"public", "config", "target/classes" };
+      String[] defcp = {"public", "conf", "target/classes" };
       for (String candidate : defcp) {
         File dir = new File(candidate);
         if (dir.exists()) {

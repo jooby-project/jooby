@@ -12,7 +12,7 @@ You should see something similar:
 
 ```bash
 Picked up JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF8
-Hotswap available on: [myapp/public, myapp/config, myapp/target/classes]
+Hotswap available on: [myapp/public, myapp/conf, myapp/target/classes]
   includes: [**/*.class,**/*.conf,**/*.properties]
   excludes: []
 INFO  [2015-03-31 17:47:33,000] [dev@netty]: App server started in 401ms
