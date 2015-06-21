@@ -218,13 +218,16 @@ public class Redis implements Jooby.Module {
     if (named) {
       binder.bind(JedisPool.class)
           .annotatedWith(Names.named(name))
-          .toProvider(managed).asEagerSingleton();
+          .toProvider(managed)
+          .asEagerSingleton();
 
-      binder.bind(Jedis.class).annotatedWith(Names.named(name)).toProvider(jedis);
+      binder.bind(Jedis.class).annotatedWith(Names.named(name)).toProvider(jedis)
+          .asEagerSingleton();
     } else {
       binder.bind(JedisPool.class).toProvider(managed).asEagerSingleton();
 
-      binder.bind(Jedis.class).toProvider(jedis);
+      binder.bind(Jedis.class).toProvider(jedis)
+          .asEagerSingleton();
     }
   }
 

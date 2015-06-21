@@ -17,6 +17,11 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class JvmInfoTest {
 
   @Test
+  public void emptyConstructor() {
+    new JvmInfo();
+  }
+
+  @Test
   public void pid() {
     assertTrue(JvmInfo.pid() > 0);
   }
