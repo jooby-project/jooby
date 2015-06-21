@@ -84,6 +84,7 @@ import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
 import org.jooby.internal.DefaulErrRenderer;
 import org.jooby.internal.HttpHandlerImpl;
+import org.jooby.internal.JvmInfo;
 import org.jooby.internal.LifecycleProcessor;
 import org.jooby.internal.LocaleUtils;
 import org.jooby.internal.RequestScope;
@@ -440,6 +441,9 @@ public class Jooby {
   }
 
   static {
+    // set pid as system property
+    System.setProperty("pid", System.getProperty("pid", JvmInfo.pid() + ""));
+
     // Avoid warning message from logback when multiples files are present
     String logback = System.getProperty("logback.configurationFile");
     if (Strings.isNullOrEmpty(logback)) {
@@ -2763,6 +2767,7 @@ public class Jooby {
                 () -> ConfigFactory.parseResources("application.conf")
             )
         );
+
     Env env = this.env.build(config);
     String envname = env.name();
 
