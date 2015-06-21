@@ -7,11 +7,11 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
 
-import org.jooby.MockUnit;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.internal.reqparam.RequestParam;
 import org.jooby.internal.reqparam.RequestParamProvider;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

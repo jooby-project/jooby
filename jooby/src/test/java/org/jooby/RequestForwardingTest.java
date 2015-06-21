@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.common.base.Charsets;

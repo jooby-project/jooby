@@ -4,7 +4,7 @@ import static org.easymock.EasyMock.expect;
 
 import java.lang.reflect.Method;
 
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

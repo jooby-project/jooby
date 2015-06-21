@@ -6,8 +6,8 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.jooby.MediaType;
-import org.jooby.MockUnit;
-import org.jooby.MockUnit.Block;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.jooby.Renderer;
 import org.junit.Test;
 

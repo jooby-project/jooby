@@ -51,6 +51,7 @@ import org.jooby.reflect.ParameterNameProvider;
 import org.jooby.scope.RequestScoped;
 import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

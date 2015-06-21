@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.jooby.Err;
-import org.jooby.MockUnit;
-import org.jooby.MockUnit.Block;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;

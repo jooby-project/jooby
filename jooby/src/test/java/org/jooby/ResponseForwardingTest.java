@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.Optional;
 
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.common.base.Charsets;

@@ -9,8 +9,8 @@ import java.util.Map;
 import net.sf.ehcache.CacheManager;
 
 import org.jooby.Env;
-import org.jooby.MockUnit;
 import org.jooby.internal.ehcache.CacheManagerProvider;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

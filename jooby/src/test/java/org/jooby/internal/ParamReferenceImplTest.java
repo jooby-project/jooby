@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jooby.Err;
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;

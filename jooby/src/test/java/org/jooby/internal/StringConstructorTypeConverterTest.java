@@ -5,9 +5,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Locale;
 
-import org.jooby.MockUnit;
 import org.jooby.internal.reqparam.LocaleParser;
 import org.jooby.internal.reqparam.StringConstructorParser;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

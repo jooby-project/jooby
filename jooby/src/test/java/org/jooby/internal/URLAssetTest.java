@@ -12,7 +12,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.jooby.MediaType;
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

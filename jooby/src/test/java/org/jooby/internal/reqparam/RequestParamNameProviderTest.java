@@ -7,8 +7,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 import org.jooby.Env;
-import org.jooby.MockUnit;
 import org.jooby.internal.RouteMetadata;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

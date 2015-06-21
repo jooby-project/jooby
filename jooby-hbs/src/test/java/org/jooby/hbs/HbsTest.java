@@ -4,10 +4,10 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 
 import org.jooby.Env;
-import org.jooby.MockUnit;
 import org.jooby.Renderer;
 import org.jooby.internal.hbs.HbsEngine;
 import org.jooby.internal.hbs.HbsHelpers;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

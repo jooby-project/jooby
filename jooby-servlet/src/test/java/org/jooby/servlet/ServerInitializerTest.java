@@ -8,7 +8,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
 import org.jooby.Jooby;
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 public class ServerInitializerTest {

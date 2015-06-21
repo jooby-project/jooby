@@ -2,9 +2,9 @@ package org.jooby.internal.jetty;
 
 import java.util.Map;
 
-import org.jooby.MockUnit;
 import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;

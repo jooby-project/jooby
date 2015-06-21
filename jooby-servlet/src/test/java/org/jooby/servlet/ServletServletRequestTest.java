@@ -9,7 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jooby.MediaType;
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.common.collect.Iterators;

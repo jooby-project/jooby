@@ -6,16 +6,6 @@
     </encoder>
   </appender>
 
-  <logger name="org.jooby" level="info" />
-
-  <logger name="org.jooby.internal.HttpHandlerImpl" level="debug" />
-
-  <logger name="org.hibernate.engine.transaction.internal.jdbc.JdbcTransaction" level="debug" />
-
-  <logger name="org.jooby.internal.SessionManager" level="DEBUG" />
-  
-  <logger name="org.jooby.Session" level="DEBUG" />
-
   <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>

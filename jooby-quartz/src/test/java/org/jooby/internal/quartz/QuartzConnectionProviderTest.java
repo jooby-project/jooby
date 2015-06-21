@@ -6,7 +6,7 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.inject.Provider;

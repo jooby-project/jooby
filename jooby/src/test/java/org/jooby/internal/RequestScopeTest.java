@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collections;
 import java.util.Map;
 
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.inject.Key;

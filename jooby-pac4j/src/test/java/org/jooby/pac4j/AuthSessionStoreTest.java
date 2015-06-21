@@ -10,9 +10,9 @@ import java.util.Optional;
 
 import javax.inject.Provider;
 
-import org.jooby.MockUnit;
 import org.jooby.Mutant;
 import org.jooby.Session;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.UserProfile;

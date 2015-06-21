@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 public class ManagedClientTest {

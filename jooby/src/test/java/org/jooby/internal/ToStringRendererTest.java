@@ -3,8 +3,8 @@ package org.jooby.internal;
 import static org.easymock.EasyMock.expect;
 
 import org.jooby.MediaType;
-import org.jooby.MockUnit;
-import org.jooby.MockUnit.Block;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.jooby.Renderer;
 import org.jooby.Results;
 import org.junit.Test;

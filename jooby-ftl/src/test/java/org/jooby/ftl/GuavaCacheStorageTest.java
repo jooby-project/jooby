@@ -3,8 +3,8 @@ package org.jooby.ftl;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
-import org.jooby.MockUnit;
 import org.jooby.internal.ftl.GuavaCacheStorage;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.common.cache.Cache;

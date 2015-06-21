@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.MockUnit;
 import org.jooby.spi.Server;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

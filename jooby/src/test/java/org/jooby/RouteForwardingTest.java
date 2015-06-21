@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 public class RouteForwardingTest {

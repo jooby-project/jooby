@@ -3,10 +3,10 @@ package org.jooby.internal.mvc;
 import static org.easymock.EasyMock.expect;
 
 import org.jooby.Env;
-import org.jooby.MockUnit;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 public class MvcRoutesTest {

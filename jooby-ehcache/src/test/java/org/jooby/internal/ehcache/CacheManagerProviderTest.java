@@ -3,8 +3,8 @@ package org.jooby.internal.ehcache;
 import static org.junit.Assert.assertEquals;
 import net.sf.ehcache.CacheManager;
 
-import org.jooby.MockUnit;
 import org.jooby.internal.ehcache.CacheManagerProvider;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 public class CacheManagerProviderTest {

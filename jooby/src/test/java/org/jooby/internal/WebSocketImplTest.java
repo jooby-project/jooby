@@ -15,8 +15,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.jooby.MediaType;
-import org.jooby.MockUnit;
-import org.jooby.MockUnit.Block;
 import org.jooby.Mutant;
 import org.jooby.Renderer;
 import org.jooby.WebSocket;
@@ -24,6 +22,8 @@ import org.jooby.WebSocket.Callback;
 import org.jooby.WebSocket.CloseStatus;
 import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeWebSocket;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

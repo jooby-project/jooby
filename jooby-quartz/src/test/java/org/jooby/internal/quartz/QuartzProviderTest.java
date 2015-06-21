@@ -12,7 +12,7 @@ import java.util.Properties;
 import javax.inject.Provider;
 import javax.sql.DataSource;
 
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

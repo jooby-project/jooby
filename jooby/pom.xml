@@ -25,6 +25,11 @@
             <goals>
               <goal>test-jar</goal>
             </goals>
+            <configuration>
+              <includes>
+                <include>org/jooby/test/*</include>
+              </includes>
+            </configuration>
           </execution>
         </executions>
       </plugin>

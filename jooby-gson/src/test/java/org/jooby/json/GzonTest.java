@@ -7,8 +7,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.jooby.Env;
-import org.jooby.MockUnit;
-import org.jooby.MockUnit.Block;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.jooby.Parser;
 import org.jooby.Renderer;
 import org.junit.Test;

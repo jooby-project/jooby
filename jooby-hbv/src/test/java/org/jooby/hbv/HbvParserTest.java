@@ -9,9 +9,9 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 
-import org.jooby.MockUnit;
 import org.jooby.Parser;
 import org.jooby.Parser.Context;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;

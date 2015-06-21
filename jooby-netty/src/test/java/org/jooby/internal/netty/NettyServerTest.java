@@ -1,7 +1,7 @@
 package org.jooby.internal.netty;
 
-import org.jooby.MockUnit;
 import org.jooby.spi.HttpHandler;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.typesafe.config.Config;

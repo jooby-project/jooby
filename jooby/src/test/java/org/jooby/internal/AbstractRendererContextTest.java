@@ -11,10 +11,10 @@ import java.util.Set;
 
 import org.jooby.Err;
 import org.jooby.MediaType;
-import org.jooby.MockUnit;
 import org.jooby.Renderer;
 import org.jooby.Results;
 import org.jooby.View;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;

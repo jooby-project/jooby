@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jooby.Env;
-import org.jooby.MockUnit;
 import org.jooby.internal.quartz.JobExpander;
 import org.jooby.internal.quartz.QuartzProvider;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

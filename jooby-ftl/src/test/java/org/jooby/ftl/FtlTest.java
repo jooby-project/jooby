@@ -9,10 +9,10 @@ import java.util.Properties;
 import java.util.function.BiConsumer;
 
 import org.jooby.Env;
-import org.jooby.MockUnit;
 import org.jooby.Renderer;
 import org.jooby.internal.ftl.Engine;
 import org.jooby.internal.ftl.GuavaCacheStorage;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

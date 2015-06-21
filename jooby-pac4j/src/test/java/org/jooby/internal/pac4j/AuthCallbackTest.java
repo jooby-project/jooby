@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.jooby.MockUnit;
-import org.jooby.MockUnit.Block;
 import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
@@ -15,6 +13,8 @@ import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.pac4j.Auth;
 import org.jooby.pac4j.AuthStore;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pac4j.core.client.Client;

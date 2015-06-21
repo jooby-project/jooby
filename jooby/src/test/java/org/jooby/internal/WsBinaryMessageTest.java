@@ -12,7 +12,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import org.jooby.Err;
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

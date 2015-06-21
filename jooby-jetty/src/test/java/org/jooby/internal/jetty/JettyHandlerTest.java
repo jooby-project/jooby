@@ -13,12 +13,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
-import org.jooby.MockUnit;
-import org.jooby.MockUnit.Block;
 import org.jooby.servlet.ServletServletRequest;
 import org.jooby.servlet.ServletServletResponse;
 import org.jooby.spi.HttpHandler;
 import org.jooby.spi.NativeWebSocket;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 
 public class JettyHandlerTest {

@@ -11,7 +11,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.ObjectFactory;

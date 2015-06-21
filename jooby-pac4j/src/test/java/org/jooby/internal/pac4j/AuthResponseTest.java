@@ -3,8 +3,8 @@ package org.jooby.internal.pac4j;
 import static org.easymock.EasyMock.expect;
 
 import org.jooby.Err;
-import org.jooby.MockUnit;
 import org.jooby.Response;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.exception.RequiresHttpAction;

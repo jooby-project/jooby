@@ -10,8 +10,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jooby.MockUnit;
 import org.jooby.Request;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.github.jknack.handlebars.ValueResolver;

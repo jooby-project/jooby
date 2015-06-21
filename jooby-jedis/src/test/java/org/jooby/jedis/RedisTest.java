@@ -10,7 +10,7 @@ import javax.inject.Provider;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.jooby.Env;
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

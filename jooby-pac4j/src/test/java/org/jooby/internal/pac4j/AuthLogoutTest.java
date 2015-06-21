@@ -4,13 +4,13 @@ import static org.easymock.EasyMock.expect;
 
 import java.util.Optional;
 
-import org.jooby.MockUnit;
 import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Session;
 import org.jooby.pac4j.Auth;
 import org.jooby.pac4j.AuthStore;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.pac4j.core.profile.UserProfile;
 

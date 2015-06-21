@@ -1,4 +1,4 @@
-package org.jooby;
+package org.jooby.test;
 
 import static java.util.Objects.requireNonNull;
 import static org.easymock.EasyMock.createMock;

@@ -6,8 +6,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.Map.Entry;
 
-import org.jooby.MockUnit;
 import org.jooby.quartz.Scheduled;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;

@@ -63,11 +63,17 @@ A new directory was created: ```my-app```. Now, let's see how it looks like:
 |   ├── application.conf
 |   └── logback.xml
 └── src
-    └── main
+    ├── main
+    |   └── java
+    |       └── com
+    |           └── mycompany
+    |               └── App.java
+    └── test
         └── java
             └── com
                 └── mycompany
-                    └── App.java
+                    └── AppTest.java
+                    
 ```
 
 The **public** directory contains ```*.html```, ```*.js```, ```*.css```, ..., ```*.png``` files.
@@ -75,6 +81,8 @@ The **public** directory contains ```*.html```, ```*.js```, ```*.css```, ..., ``
 The **config** directory contains ```*.conf```, ```*.properties```, ..., ```*.json``` files.
 
 The **src/main/java** contains ```*.java``` (of course) files.
+
+The **src/test/java** contains integration or unit test files.
 
 **NOTE**: Directories: ```public``` and ```config``` are part of the classpath.
 

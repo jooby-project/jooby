@@ -3,7 +3,7 @@ package org.jooby.internal.camel;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.inject.Injector;

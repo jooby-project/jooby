@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.elasticsearch.rest.RestRequest.Method;
-import org.jooby.MockUnit;
 import org.jooby.Mutant;
 import org.jooby.Request;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;

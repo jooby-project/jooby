@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.Optional;
 
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.skife.jdbi.v2.OptionalArgumentFactory;
 import org.skife.jdbi.v2.StatementContext;

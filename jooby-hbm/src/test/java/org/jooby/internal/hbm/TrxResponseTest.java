@@ -9,10 +9,10 @@ import javax.persistence.EntityTransaction;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.jooby.MockUnit;
 import org.jooby.Response;
 import org.jooby.Result;
 import org.jooby.Results;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 public class TrxResponseTest {

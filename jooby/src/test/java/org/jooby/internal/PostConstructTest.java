@@ -8,7 +8,7 @@ import java.io.IOException;
 import javax.annotation.PostConstruct;
 
 import org.jooby.Managed;
-import org.jooby.MockUnit;
+import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.inject.TypeLiteral;
