@@ -1,7 +1,7 @@
 ---
 layout: index
 title: maven-plugin
-version: 0.6.2
+version: 0.6.3
 ---
 
 # mvn jooby:run
@@ -18,7 +18,7 @@ You should see something similar:
 
 ```bash
 Picked up JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF8
-Hotswap available on: [myapp/public, myapp/config, myapp/target/classes]
+Hotswap available on: [myapp/public, myapp/conf, myapp/target/classes]
   includes: [**/*.class,**/*.conf,**/*.properties]
   excludes: []
 INFO  [2015-03-31 17:47:33,000] [dev@netty]: App server started in 401ms
@@ -49,7 +49,7 @@ Is it worth to mention that dynamic reload of classes at runtime is done via [JB
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.6.2</version>
+  <version>0.6.3</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -83,7 +83,7 @@ List of commands to execute before starting the ```application```. Useful for [n
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.6.2</version>
+  <version>0.6.3</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -104,7 +104,7 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.6.2</version>
+  <version>0.6.3</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <vmArgs>

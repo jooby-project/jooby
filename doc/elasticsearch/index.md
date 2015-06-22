@@ -1,7 +1,7 @@
 ---
 layout: index
 title: elasticsearch
-version: 0.6.2
+version: 0.6.3
 ---
 
 # jooby-elasticsearch
@@ -16,7 +16,7 @@ Provides a client/local API but also a RESTFul API.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-elasticsearch</artifactId>
-  <version>0.6.2</version>
+  <version>0.6.3</version>
 </dependency>
 ```
 
