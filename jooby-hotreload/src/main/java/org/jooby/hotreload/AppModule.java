@@ -21,19 +21,24 @@ package org.jooby.hotreload;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.nio.file.WatchEvent.Kind;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -127,17 +132,41 @@ public class AppModule {
   }
 
   private static void setPkgs() throws IOException {
-    BufferedReader stream =
-        new BufferedReader(new InputStreamReader(AppModule.class.getResourceAsStream("pkgs")));
-    StringBuilder pkgs = new StringBuilder();
-    String line = stream.readLine();
-    while (line != null) {
-      pkgs.append(line).append(',');
-      line = stream.readLine();
+    Set<String> pkgs = pkgs(new InputStreamReader(AppModule.class.getResourceAsStream("pkgs")));
+
+    /**
+     * Hack to let users to configure system packages, javax.transaction cause issues with
+     * hibernate.
+     */
+    pkgs.addAll(pkgs(Paths.get("src", "etc", "jboss-modules", "pkgs.includes").toFile()));
+
+    pkgs.removeAll(pkgs(Paths.get("src", "etc", "jboss-modules", "pkgs.excludes").toFile()));
+
+    StringBuilder sb = new StringBuilder();
+    for (String pkg : pkgs) {
+      sb.append(pkg).append(',');
     }
-    stream.close();
-    pkgs.setLength(pkgs.length() - 1);
-    System.setProperty("jboss.modules.system.pkgs", pkgs.toString());
+    sb.setLength(sb.length() - 1);
+    System.setProperty("jboss.modules.system.pkgs", sb.toString());
+  }
+
+  private static Set<String> pkgs(final File file) throws IOException {
+    if (file.exists()) {
+      return pkgs(new FileReader(file));
+    }
+    return new LinkedHashSet<String>();
+  }
+
+  private static Set<String> pkgs(final Reader reader) throws IOException {
+    try (BufferedReader in = new BufferedReader(reader)) {
+      Set<String> pkgs = new LinkedHashSet<String>();
+      String line = in.readLine();
+      while (line != null) {
+        pkgs.add(line.trim());
+        line = in.readLine();
+      }
+      return pkgs;
+    }
   }
 
   public void run() {

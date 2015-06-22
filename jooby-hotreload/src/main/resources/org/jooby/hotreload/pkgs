@@ -24,7 +24,6 @@ com.sun.corba.se.spi.monitoring
 com.sun.org.apache.xerces.internal.dom
 javax.imageio.plugins.bmp
 sun.java2d.pisces
-javax.transaction.xa
 com.sun.jmx.mbeanserver
 com.sun.corba.se.impl.corba
 com.sun.xml.internal.ws.transport.http.server
@@ -532,7 +531,6 @@ sun.management.jdp
 com.sun.xml.internal.ws.model.soap
 com.sun.corba.se.impl.activation
 com.sun.org.apache.xalan.internal.utils
-javax.transaction
 com.sun.org.omg.SendingContext.CodeBasePackage
 com.sun.xml.internal.ws.api.config.management.policy
 com.sun.xml.internal.ws.api.policy
