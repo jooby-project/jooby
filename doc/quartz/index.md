@@ -1,7 +1,7 @@
 ---
 layout: index
 title: quartz
-version: 0.6.3
+version: 0.6.4
 ---
 
 # jooby-quartz
@@ -14,7 +14,7 @@ A job scheduler from [Quartz](http://quartz-scheduler.org/).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>0.6.3</version>
+  <version>0.6.4</version>
 </dependency>
 ```
 ## usage
