@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import net.spy.memcached.MemcachedClient;
+import net.spy.memcached.transcoders.Transcoder;
 
 import org.jooby.Session;
 import org.jooby.Session.Builder;
@@ -34,6 +35,64 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+/**
+ * A {@link Session.Store} powered by <a
+ * href="https://github.com/dustin/java-memcached-client">SpyMemcached</a>
+ *
+ * <h2>usage</h2>
+ *
+ * <pre>
+ * {
+ *   use(new SpyMemcached());
+ *
+ *   session(SpySessionStore.class);
+ *
+ *   get("/", req {@literal ->} {
+ *    req.session().set("name", "jooby");
+ *   });
+ * }
+ * </pre>
+ *
+ * The <code>name</code> attribute and value will be stored in a
+ * <a href="http://memcached.org//">Memcached</a> db.
+ *
+ * Session are persisted using the default {@link Transcoder}.
+ *
+ * <h2>options</h2>
+ *
+ * <h3>timeout</h3>
+ * <p>
+ * By default, a memcache session will expire after <code>30 minutes</code>. Changing the default
+ * timeout is as simple as:
+ * </p>
+ *
+ * <pre>
+ * # 8 hours
+ * session.timeout = 8h
+ *
+ * # 15 seconds
+ * session.timeout = 15
+ *
+ * # 120 minutes
+ * session.timeout = 120m
+ *
+ * # no timeout
+ * session.timeout = -1
+ * </pre>
+ *
+ * <h3>key prefix</h3>
+ * <p>
+ * Default memcached key prefix is <code>sessions:</code>. Sessions in memcached will look like:
+ * <code>sessions:ID</code>
+ *
+ * <p>
+ * It's possible to change the default key setting the <code>memcached.sesssion.prefix</code>
+ * property.
+ * </p>
+ *
+ * @author edgar
+ * @since 0.7.0
+ */
 public class SpySessionStore implements Session.Store {
 
   private MemcachedClient memcached;
@@ -103,7 +162,7 @@ public class SpySessionStore implements Session.Store {
   }
 
   private String key(final String id) {
-    return prefix + ":" + id;
+    return prefix + id;
   }
 
   private String key(final Session session) {
