@@ -64,15 +64,15 @@ import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import javax.inject.Singleton;
@@ -82,7 +82,9 @@ import org.jooby.internal.AppPrinter;
 import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
+import org.jooby.internal.CdnAssetHandler;
 import org.jooby.internal.DefaulErrRenderer;
+import org.jooby.internal.FwdFilter;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.JvmInfo;
 import org.jooby.internal.LifecycleProcessor;
@@ -112,7 +114,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -472,7 +476,8 @@ public class Jooby {
   /**
    * Env callback.
    */
-  private final Map<Predicate<String>, Runnable> envcallbacks = new LinkedHashMap<>();
+  private final Multimap<Predicate<String>, Consumer<Config>> envcallbacks =
+      ArrayListMultimap.create();
 
   /**
    * The override config. Optional.
@@ -511,6 +516,7 @@ public class Jooby {
         this.bag.add(s);
       }
     });
+    this.envcallbacks.putAll(app.envcallbacks);
     return this;
   }
 
@@ -562,7 +568,27 @@ public class Jooby {
    */
   public Jooby on(final String env, final Runnable callback) {
     requireNonNull(env, "Env is required.");
-    return on(env::equals, callback);
+    return on(envpredicate(env), callback);
+  }
+
+  /**
+   * Run the given callback if and only if, app runs in the given enviroment.
+   *
+   * <pre>
+   * {
+   *   on("dev", () {@literal ->} {
+   *     use(new DevModule());
+   *   });
+   * }
+   * </pre>
+   *
+   * @param env Environment where we want to run the callback.
+   * @param callback An env callback.
+   * @return This jooby instance.
+   */
+  public Jooby on(final String env, final Consumer<Config> callback) {
+    requireNonNull(env, "Env is required.");
+    return on(envpredicate(env), callback);
   }
 
   /**
@@ -581,6 +607,28 @@ public class Jooby {
    * @return This jooby instance.
    */
   public Jooby on(final Predicate<String> predicate, final Runnable callback) {
+    requireNonNull(predicate, "Predicate is required.");
+    requireNonNull(callback, "Callback is required.");
+
+    return on(predicate, conf -> callback.run());
+  }
+
+  /**
+   * Run the given callback if and only if, app runs in the given enviroment.
+   *
+   * <pre>
+   * {
+   *   on("dev", "test", () {@literal ->} {
+   *     use(new DevModule());
+   *   });
+   * }
+   * </pre>
+   *
+   * @param predicate Predicate to check the environment.
+   * @param callback An env callback.
+   * @return This jooby instance.
+   */
+  public Jooby on(final Predicate<String> predicate, final Consumer<Config> callback) {
     requireNonNull(predicate, "Predicate is required.");
     requireNonNull(callback, "Callback is required.");
     envcallbacks.put(predicate, callback);
@@ -2547,7 +2595,23 @@ public class Jooby {
       renderer(BuiltinRenderer.Asset);
       assetRenderer = true;
     }
-    return get(path, new AssetHandler(location, getClass()));
+
+    // kind of hacky, but this way we don't have to decide redirect at execution time. if a cdn is
+    // present we put a cdn handler that will always redirect to the cdn (no check)
+    FwdFilter router = new FwdFilter();
+    Route.Definition asset = new Route.Definition("GET", path, router);
+    on("*", conf -> {
+      String cdn = conf.getString("assets.cdn");
+      if (Strings.isNullOrEmpty(cdn)) {
+        // no cdn, server files locally
+        router.fwd(new AssetHandler(location, getClass()));
+      } else {
+        // cdn, serve files from cdn (redirect)
+        router.fwd(new CdnAssetHandler(location, getClass(), cdn));
+        asset.name(cdn);
+      }
+    });
+    return appendDefinition(asset);
   }
 
   /**
@@ -2787,12 +2851,12 @@ public class Jooby {
     Stage stage = "dev".equals(envname) ? Stage.DEVELOPMENT : Stage.PRODUCTION;
 
     // run env callbacks
-    for (Entry<Predicate<String>, Runnable> callback : envcallbacks.entrySet()) {
+    for (Entry<Predicate<String>, Collection<Consumer<Config>>> callback : envcallbacks.asMap()
+        .entrySet()) {
       if (callback.getKey().test(envname)) {
-        callback.getValue().run();
+        callback.getValue().forEach(it -> it.accept(config));
       }
     }
-
     // dependency injection
     @SuppressWarnings("unchecked")
     Injector injector = Guice.createInjector(stage, binder -> {
@@ -3172,6 +3236,10 @@ public class Jooby {
         traverse(binder, path + ".", child);
       }
     });
+  }
+
+  private static Predicate<String> envpredicate(final String candidate) {
+    return env -> env.equalsIgnoreCase(candidate) || candidate.equals("*");
   }
 
 }
