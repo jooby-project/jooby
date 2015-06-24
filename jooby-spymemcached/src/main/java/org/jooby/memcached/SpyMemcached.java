@@ -38,6 +38,7 @@ import net.spy.memcached.metrics.MetricType;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
+import org.jooby.Session;
 import org.jooby.internal.memcached.MemcachedClientProvider;
 
 import com.google.inject.Binder;
@@ -45,6 +46,61 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 /**
+ * <h1>memcached module</h1>
+ * <p>
+ * Provides memcached access via <a
+ * href="https://github.com/dustin/java-memcached-client">SpyMemcached</a>
+ * </p>
+ *
+ * <h2>exposes</h2>
+ * <ul>
+ * <li>A {@link MemcachedClient} service</li>
+ * </ul>
+ *
+ * <h2>usage</h2>
+ *
+ * <pre>
+ *  memcached.server = "localhost:11211"
+ * </pre>
+ *
+ * <pre>
+ * {
+ *   use(new SpyMemcached());
+ *
+ *   get("/", req {@literal ->} {
+ *     MemcachedClient client = req.require(MemcachedClient.class);
+ *     client.set("foo", 60, "bar");
+ *     return client.get("foo");
+ *   });
+ * }
+ * </pre>
+ *
+ * <h2>configuration</code>
+ * <p>
+ * It is done via <code>.conf</code> file:
+ * </p>
+ *
+ * <pre>
+ * memcached.protocol = binary
+ * </pre>
+ *
+ * <p>
+ * or programmatically:
+ * </p>
+ *
+ * <pre>
+ * {
+ *   use(new SpyMemcached()
+ *    .doWith(builder {@literal ->} {
+ *      builder.setProtocol(Protocol.BINARY);
+ *    })
+ *  );
+ * }
+ * </pre>
+ *
+ * <p>
+ * This module comes with a {@link Session.Store} too. See {@link SpySessionStore}.
+ * </p>
  *
  * @author edgar
  * @since 0.7.0
@@ -57,20 +113,18 @@ public class SpyMemcached implements Jooby.Module {
 
   private BiConsumer<ConnectionFactoryBuilder, Config> configurer;
 
-  private final String name;
-
-  public SpyMemcached(final String name) {
-    this.name = requireNonNull(name, "Name property is required.");
-  }
-
+  /**
+   * Creates a new {@link SpyMemcached} module.
+   *
+   * @param name
+   */
   public SpyMemcached() {
-    this("memcached");
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    Config $memcached = conf.getConfig(name)
+    Config $memcached = conf.getConfig("memcached")
         .withFallback(conf.getConfig("memcached"));
 
     ConnectionFactoryBuilder builder = newConnectionFactoryBuilder($memcached);
@@ -80,7 +134,7 @@ public class SpyMemcached implements Jooby.Module {
     }
 
     List<String> servers = new ArrayList<>();
-    Object $servers = conf.getAnyRef(name + ".server");
+    Object $servers = conf.getAnyRef("memcached.server");
     if ($servers instanceof List) {
       servers.addAll((Collection<? extends String>) $servers);
     } else {
@@ -99,11 +153,23 @@ public class SpyMemcached implements Jooby.Module {
         .asEagerSingleton();
   }
 
+  /**
+   * Configure a {@link ConnectionFactoryBuilder} programmatically.
+   *
+   * @param configurer A configure callback.
+   * @return This module.
+   */
   public SpyMemcached doWith(final BiConsumer<ConnectionFactoryBuilder, Config> configurer) {
     this.configurer = requireNonNull(configurer, "Configurer callback is required.");
     return this;
   }
 
+  /**
+   * Configure a {@link ConnectionFactoryBuilder} programmatically.
+   *
+   * @param configurer A configure callback.
+   * @return This module.
+   */
   public SpyMemcached doWith(final Consumer<ConnectionFactoryBuilder> configurer) {
     requireNonNull(configurer, "Configurer callback is required.");
     return doWith((b, c) -> configurer.accept(b));
@@ -126,8 +192,6 @@ public class SpyMemcached implements Jooby.Module {
         .setFailureMode(enumFor(conf.getString(path), FailureMode.values())));
     ifset(conf, "locator", path -> builder
         .setLocatorType(enumFor(conf.getString(path), Locator.values())));
-    ifset(conf, "maxReconnectDelay", path -> builder
-        .setMaxReconnectDelay(conf.getDuration(path, TimeUnit.SECONDS)));
     ifset(conf, "maxReconnectDelay", path -> builder
         .setMaxReconnectDelay(conf.getDuration(path, TimeUnit.SECONDS)));
     ifset(conf, "opQueueMaxBlockTime", path -> builder

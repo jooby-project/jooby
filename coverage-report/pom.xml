@@ -238,6 +238,12 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-spymemcached</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- H2 database -->
     <dependency>
       <groupId>com.h2database</groupId>

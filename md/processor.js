@@ -44,6 +44,16 @@ var version = function () {
 var links = [];
 
 links.push({
+  name: 'spymemcached',
+  data: '[SpyMemcached](https://github.com/dustin/java-memcached-client)'
+});
+
+links.push({
+  name: 'memcached',
+  data: '[Memcached](http://memcached.org)'
+});
+
+links.push({
   name: 'swagger',
   data: '[Swagger](http://swagger.io)'
 });
