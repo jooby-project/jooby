@@ -29,6 +29,7 @@ import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.Route.Chain;
 import org.jooby.Status;
 
 public class AssetHandler implements Route.Filter {
@@ -51,7 +52,7 @@ public class AssetHandler implements Route.Filter {
   public void handle(final Request req, final Response rsp, final Route.Chain chain)
       throws Exception {
     String path = req.path();
-    Asset resource = resolve(req, path);
+    URL resource = resolve(req, path);
 
     if (resource == null) {
       // ignore and move next;
@@ -59,7 +60,16 @@ public class AssetHandler implements Route.Filter {
       return;
     }
 
-    long lastModified = resource.lastModified();
+    doHandle(req, rsp, chain, resource);
+  }
+
+  protected void doHandle(final Request req, final Response rsp, final Chain chain,
+      final URL resource) throws Exception {
+
+    Asset asset = new URLAsset(resource,
+        MediaType.byPath(resource.getPath()).orElse(MediaType.octetstream));
+
+    long lastModified = asset.lastModified();
 
     // Handle if modified since
     if (lastModified > 0) {
@@ -70,21 +80,17 @@ public class AssetHandler implements Route.Filter {
       }
       rsp.header("Last-Modified", new Date(lastModified));
     }
-    long length = resource.length();
+    long length = asset.length();
     if (length >= 0) {
       rsp.length(length);
     }
-    rsp.send(resource);
+    rsp.send(asset);
+
   }
 
-  private Asset resolve(final Request req, final String path) throws Exception {
+  private URL resolve(final Request req, final String path) throws Exception {
     String target = fn.apply(req, path);
-    URL resource = loader.getResource(target);
-    if (resource == null) {
-      return null;
-    }
-
-    return new URLAsset(resource, MediaType.byPath(target).orElse(MediaType.octetstream));
+    return loader.getResource(target);
   }
 
   private static Object[] vars(final Request req) {
