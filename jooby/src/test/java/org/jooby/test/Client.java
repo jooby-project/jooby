@@ -5,6 +5,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -386,9 +389,29 @@ public class Client extends ExternalResource {
   }
 
   public Request patch(final String path) {
-    this.req = new Request(this, executor(), org.apache.http.client.fluent.Request.Patch(host
-        + path));
+    this.req = new Request(this, executor(), pathHack(host + path));
     return req;
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  private org.apache.http.client.fluent.Request pathHack(final String string) {
+    try {
+      // Patch is available since 4.4, but we are in 4.3 because of AWS-SDK
+      Class ireqclass = getClass().getClassLoader().loadClass(
+          "org.apache.http.client.fluent.InternalHttpRequest");
+      Constructor<org.apache.http.client.fluent.Request> constructor = org.apache.http.client.fluent.Request.class
+          .getDeclaredConstructor(ireqclass);
+      constructor.setAccessible(true);
+
+      Constructor ireqcons = ireqclass.getDeclaredConstructor(String.class, URI.class);
+      ireqcons.setAccessible(true);
+      Object ireq = ireqcons.newInstance("PATCH", URI.create(string));
+      return constructor.newInstance(ireq);
+    } catch (NoSuchMethodException | SecurityException | ClassNotFoundException
+        | InstantiationException | IllegalAccessException | IllegalArgumentException
+        | InvocationTargetException ex) {
+      throw new UnsupportedOperationException(ex);
+    }
   }
 
   public void stop() throws IOException {
