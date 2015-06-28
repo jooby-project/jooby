@@ -35,6 +35,9 @@
 ## full text search
 * [elastic search](https://github.com/jooby-project/jooby/tree/master/jooby-elasticsearch): enterprise full text search via {{elasticsearch}}.
 
+## amazon web services
+* [aws](https://github.com/jooby-project/jooby/tree/master/jooby-aws): Amazon web services ```s3, sns, sqs, ..., etc.```.
+
 ## swagger
 * [swagger](https://github.com/jooby-project/jooby/tree/master/jooby-swagger): powerful representation of your RESTful API.
 
