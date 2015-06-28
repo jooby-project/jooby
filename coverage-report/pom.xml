@@ -54,6 +54,7 @@
                     <source>${project.parent.basedir}/jooby-gson/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-ehcache/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-pac4j/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-aws/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -86,6 +87,7 @@
                     <source>${project.parent.basedir}/jooby-gson/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-ehcache/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-pac4j/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-aws/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -313,6 +315,30 @@
     </dependency>
 
     <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-aws</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-s3</artifactId>
+      <version>${aws-java-sdk.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-sqs</artifactId>
+      <version>${aws-java-sdk.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-ses</artifactId>
+      <version>${aws-java-sdk.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>pac4j-http</artifactId>
     </dependency>
@@ -404,7 +430,26 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- use commons-logging bridge -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Fluent HC -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>fluent-hc</artifactId>

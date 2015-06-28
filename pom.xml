@@ -42,6 +42,7 @@
     <module>jooby-pac4j</module>
     <module>jooby-swagger</module>
     <module>jooby-spymemcached</module>
+    <module>jooby-aws</module>
     <module>coverage-report</module>
   </modules>
 
@@ -227,10 +228,22 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-aws</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
       <!-- Logging System -->
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
+        <version>${slf4j-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
         <version>${slf4j-api.version}</version>
       </dependency>
 
@@ -414,6 +427,12 @@
       </dependency>
 
       <!-- Fluent HC -->
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${http-client.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>fluent-hc</artifactId>
@@ -600,6 +619,25 @@
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-oidc</artifactId>
         <version>${pac4j.version}</version>
+      </dependency>
+
+      <!-- AWS -->
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-core</artifactId>
+        <version>${aws-java-sdk.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-s3</artifactId>
+        <version>${aws-java-sdk.version}</version>
       </dependency>
 
       <!-- Maven -->
@@ -1306,7 +1344,7 @@
     <hikariCP.version>2.3.8</hikariCP.version>
     <hibernate.version>4.3.9.Final</hibernate.version>
     <jsr305.version>3.0.0</jsr305.version>
-    <http-client.version>4.4-beta1</http-client.version>
+    <http-client.version>4.3.6</http-client.version>
     <async-http-client.version>1.8.14</async-http-client.version>
     <cglib.version>3.1</cglib.version>
     <asm.version>5.0.3</asm.version>
@@ -1331,6 +1369,7 @@
     <commons-lang3.version>3.4</commons-lang3.version>
     <snakeyaml.version>1.15</snakeyaml.version>
     <spymemcached.version>2.12.0</spymemcached.version>
+    <aws-java-sdk.version>1.10.1</aws-java-sdk.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
