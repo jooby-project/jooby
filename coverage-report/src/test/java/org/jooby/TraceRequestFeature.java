@@ -1,7 +1,5 @@
 package org.jooby;
 
-import static org.junit.Assert.assertTrue;
-
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -23,9 +21,6 @@ public class TraceRequestFeature extends ServerFeature {
     request()
       .trace("/")
       .expect(200)
-      .header("Content-Length", len -> {
-        assertTrue(Integer.parseInt(len) >= 163);
-      })
       .startsWith("TRACE");
   }
 
