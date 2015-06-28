@@ -55,6 +55,7 @@
                     <source>${project.parent.basedir}/jooby-ehcache/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-pac4j/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-aws/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-spymemcached/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -88,6 +89,7 @@
                     <source>${project.parent.basedir}/jooby-ehcache/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-pac4j/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-aws/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-spymemcached/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
