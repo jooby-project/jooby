@@ -4,12 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.inject.Singleton;
+
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.pac4j.http.profile.HttpProfile;
 
 public class AuthWithStoreFeature extends ServerFeature {
 
+  @Singleton
   public static class InMemory implements AuthStore<HttpProfile> {
 
     private Map<String, HttpProfile> profiles = new HashMap<>();
