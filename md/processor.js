@@ -44,6 +44,11 @@ var version = function () {
 var links = [];
 
 links.push({
+  name: 'commons-email',
+  data: '[Apache Commons Email](https://commons.apache.org/proper/commons-email)'
+});
+
+links.push({
   name: 'spymemcached',
   data: '[SpyMemcached](https://github.com/dustin/java-memcached-client)'
 });
