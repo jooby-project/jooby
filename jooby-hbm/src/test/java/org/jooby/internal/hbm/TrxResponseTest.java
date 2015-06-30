@@ -32,6 +32,82 @@ public class TrxResponseTest {
           session.setFlushMode(FlushMode.MANUAL);
 
           EntityTransaction trx = unit.mock(EntityTransaction.class);
+          trx.begin();
+          expect(trx.isActive()).andReturn(true);
+          expect(trx.isActive()).andReturn(false);
+          trx.commit();
+
+          EntityTransaction rotrx = unit.mock(EntityTransaction.class);
+          rotrx.begin();
+          rotrx.commit();
+
+          EntityManager em = unit.get(EntityManager.class);
+          expect(em.getDelegate()).andReturn(session);
+          em.close();
+
+          expect(em.getTransaction()).andReturn(trx);
+          expect(em.getTransaction()).andReturn(rotrx);
+        })
+        .run(unit -> {
+          new TrxResponse(unit.get(Response.class), unit.get(EntityManager.class))
+              .begin()
+              .send(result);
+        });
+  }
+
+  @Test(expected = HibernateException.class)
+  public void doneRollback() throws Exception {
+    Result result = Results.ok();
+    new MockUnit(Response.class, EntityManager.class)
+        .expect(unit -> {
+          unit.get(Response.class).send((Object) result);
+        })
+        .expect(unit -> {
+          Session session = unit.mock(Session.class);
+          session.flush();
+          expectLastCall().andThrow(new HibernateException("flush"));
+
+          EntityTransaction trx = unit.mock(EntityTransaction.class);
+          trx.begin();
+          expect(trx.isActive()).andReturn(true);
+          trx.rollback();
+
+          EntityTransaction rotrx = unit.mock(EntityTransaction.class);
+          rotrx.begin();
+          rotrx.commit();
+
+          EntityManager em = unit.get(EntityManager.class);
+          expect(em.getDelegate()).andReturn(session);
+          em.close();
+
+          expect(em.getTransaction()).andReturn(trx);
+          expect(em.getTransaction()).andReturn(rotrx);
+        })
+        .run(unit -> {
+          new TrxResponse(unit.get(Response.class), unit.get(EntityManager.class))
+              .begin()
+              .send(result);
+        });
+  }
+
+  @Test
+  public void doneCommit() throws Exception {
+    Result result = Results.ok();
+    new MockUnit(Response.class, EntityManager.class)
+        .expect(unit -> {
+          unit.get(Response.class).send((Object) result);
+        })
+        .expect(unit -> {
+          Session session = unit.mock(Session.class);
+          session.flush();
+          session.setDefaultReadOnly(true);
+          session.setDefaultReadOnly(false);
+          session.setFlushMode(FlushMode.MANUAL);
+
+          EntityTransaction trx = unit.mock(EntityTransaction.class);
+          trx.begin();
+          expect(trx.isActive()).andReturn(true);
+          trx.commit();
           expect(trx.isActive()).andReturn(true);
           trx.commit();
 
@@ -41,12 +117,14 @@ public class TrxResponseTest {
 
           EntityManager em = unit.get(EntityManager.class);
           expect(em.getDelegate()).andReturn(session);
+          em.close();
 
           expect(em.getTransaction()).andReturn(trx);
           expect(em.getTransaction()).andReturn(rotrx);
         })
         .run(unit -> {
           new TrxResponse(unit.get(Response.class), unit.get(EntityManager.class))
+              .begin()
               .send(result);
         });
   }
@@ -67,17 +145,20 @@ public class TrxResponseTest {
           expectLastCall().andThrow(new HibernateException("intentional err"));
 
           EntityTransaction trx = unit.mock(EntityTransaction.class);
+          trx.begin();
           expect(trx.isActive()).andReturn(true);
           trx.commit();
           expect(trx.isActive()).andReturn(false);
 
           EntityManager em = unit.get(EntityManager.class);
           expect(em.getDelegate()).andReturn(session);
+          em.close();
 
           expect(em.getTransaction()).andReturn(trx);
         })
         .run(unit -> {
           new TrxResponse(unit.get(Response.class), unit.get(EntityManager.class))
+              .begin()
               .send(result);
         });
   }
@@ -97,6 +178,7 @@ public class TrxResponseTest {
           session.setFlushMode(FlushMode.MANUAL);
 
           EntityTransaction trx = unit.mock(EntityTransaction.class);
+          trx.begin();
           expect(trx.isActive()).andReturn(true);
           trx.commit();
           expect(trx.isActive()).andReturn(false);
@@ -110,12 +192,14 @@ public class TrxResponseTest {
 
           EntityManager em = unit.get(EntityManager.class);
           expect(em.getDelegate()).andReturn(session);
+          em.close();
 
           expect(em.getTransaction()).andReturn(trx);
           expect(em.getTransaction()).andReturn(rotrx);
         })
         .run(unit -> {
           new TrxResponse(unit.get(Response.class), unit.get(EntityManager.class))
+              .begin()
               .send(result);
         });
   }
@@ -135,6 +219,7 @@ public class TrxResponseTest {
           session.setFlushMode(FlushMode.MANUAL);
 
           EntityTransaction trx = unit.mock(EntityTransaction.class);
+          trx.begin();
           expect(trx.isActive()).andReturn(true);
           trx.commit();
           expect(trx.isActive()).andReturn(false);
@@ -147,12 +232,14 @@ public class TrxResponseTest {
 
           EntityManager em = unit.get(EntityManager.class);
           expect(em.getDelegate()).andReturn(session);
+          em.close();
 
           expect(em.getTransaction()).andReturn(trx);
           expect(em.getTransaction()).andReturn(rotrx);
         })
         .run(unit -> {
           new TrxResponse(unit.get(Response.class), unit.get(EntityManager.class))
+              .begin()
               .send(result);
         });
   }
@@ -172,6 +259,8 @@ public class TrxResponseTest {
           session.flush();
 
           EntityTransaction trx = unit.mock(EntityTransaction.class);
+          trx.begin();
+          expect(trx.isActive()).andReturn(false);
           expect(trx.isActive()).andReturn(false);
 
           EntityTransaction rotrx = unit.mock(EntityTransaction.class);
@@ -180,12 +269,14 @@ public class TrxResponseTest {
 
           EntityManager em = unit.get(EntityManager.class);
           expect(em.getDelegate()).andReturn(session);
+          em.close();
 
           expect(em.getTransaction()).andReturn(trx);
           expect(em.getTransaction()).andReturn(rotrx);
         })
         .run(unit -> {
           new TrxResponse(unit.get(Response.class), unit.get(EntityManager.class))
+              .begin()
               .send(result);
         });
   }
@@ -202,6 +293,7 @@ public class TrxResponseTest {
           session.flush();
 
           EntityTransaction trx = unit.mock(EntityTransaction.class);
+          trx.begin();
           expect(trx.isActive()).andThrow(new HibernateException("intentional err"));
           expect(trx.isActive()).andReturn(true);
           trx.rollback();
@@ -212,12 +304,14 @@ public class TrxResponseTest {
 
           EntityManager em = unit.get(EntityManager.class);
           expect(em.getDelegate()).andReturn(session);
+          em.close();
 
           expect(em.getTransaction()).andReturn(trx);
           expect(em.getTransaction()).andReturn(rotrx);
         })
         .run(unit -> {
           new TrxResponse(unit.get(Response.class), unit.get(EntityManager.class))
+              .begin()
               .send(result);
         });
   }

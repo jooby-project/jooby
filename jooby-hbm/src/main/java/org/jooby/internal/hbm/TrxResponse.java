@@ -38,16 +38,38 @@ public class TrxResponse extends Response.Forwarding {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(OpenSessionInView.class);
 
+  private Session session;
+
   private EntityManager em;
+
+  private String sessionId;
+
+  private EntityTransaction trx;
+
+  private boolean rollbackOnly;
 
   public TrxResponse(final Response response, final EntityManager em) {
     super(response);
     this.em = em;
+    this.session = (Session) em.getDelegate();
+    this.sessionId = Integer.toHexString(System.identityHashCode(session));
+  }
+
+  public TrxResponse begin() {
+    this.trx = em.getTransaction();
+
+    log.debug("  [{}] starting transation: {}", sessionId, trx);
+
+    trx.begin();
+
+    return this;
+  }
+
+  public void setRollbackOnly() {
+    rollbackOnly = true;
   }
 
   private void trxSend(final Object result) throws Exception {
-    Session session = (Session) em.getDelegate();
-    String sessionId = Integer.toHexString(System.identityHashCode(session));
 
     Consumer<Boolean> setReadOnly = (readOnly) -> {
       try {
@@ -59,7 +81,6 @@ public class TrxResponse extends Response.Forwarding {
       session.setDefaultReadOnly(readOnly);
     };
 
-    EntityTransaction trx = em.getTransaction();
     try {
       log.debug("  [{}] flushing", sessionId);
       session.flush();
@@ -95,11 +116,37 @@ public class TrxResponse extends Response.Forwarding {
         setReadOnly.accept(false);
       }
     } catch (Exception ex) {
-      if (trx.isActive()) {
-        log.debug("  [{}] rolling back transation: {}", sessionId, trx);
-        trx.rollback();
-      }
+      rollbackOnly = true;
       throw ex;
+    } finally {
+      done();
+    }
+  }
+
+  public void done() {
+    EntityManager em = this.em;
+    if (em == null) {
+      return;
+    }
+    EntityTransaction trx = this.trx;
+    this.em = null;
+    this.session = null;
+    this.trx = null;
+    try {
+      if (trx.isActive()) {
+        if (rollbackOnly) {
+          log.debug("  [{}] rolling back transation: {}", sessionId, trx);
+          trx.rollback();
+        } else {
+          log.debug("  [{}] commiting transaction: {}", sessionId, trx);
+          trx.commit();
+        }
+      }
+    } catch (Exception ex) {
+      log.error("  [" + sessionId + "] unable trying to commit/rollback trx resulted in error", ex);
+    } finally {
+      log.debug("  [{}] closing", sessionId);
+      em.close();
     }
   }
 
@@ -112,4 +159,5 @@ public class TrxResponse extends Response.Forwarding {
   public void send(final Result result) throws Exception {
     trxSend(result);
   }
+
 }
