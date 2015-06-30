@@ -1209,6 +1209,125 @@
       </build>
     </profile>
 
+    <!-- QueryDSL for JPA -->
+    <profile>
+      <id>querydsl-jpa</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}querydsl-jpa.md</exists>
+        </file>
+      </activation>
+      <properties>
+        <querydsl-jpa-apt-file>querydsl-jpa-${querydsl.version}-apt-one-jar.jar</querydsl-jpa-apt-file>
+        <querydsl-jpa-apt-dir>${settings.localRepository}/com/querydsl/querydsl-jpa/${querydsl.version}</querydsl-jpa-apt-dir>
+        <querydsl-jpa-apt-path>${querydsl-jpa-apt-dir}/${querydsl-jpa-apt-file}</querydsl-jpa-apt-path>
+        <querydsl-jpa-output-dir>target/generated-sources</querydsl-jpa-output-dir>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>${build-helper-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>add-source</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${querydsl-jpa-output-dir}</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <!-- download apt-one-jar and provides a better Eclipse integration -->
+              <dependency>
+                <groupId>com.querydsl</groupId>
+                <artifactId>querydsl-jpa</artifactId>
+                <classifier>apt-one-jar</classifier>
+                <version>${querydsl.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-eclipse-plugin</artifactId>
+            <configuration>
+              <additionalConfig>
+                <file>
+                  <name>.factorypath</name>
+                  <content><![CDATA[<factorypath>
+  <factorypathentry kind="EXTJAR" id="${querydsl-jpa-apt-path}" enabled="true" runInBatchMode="false" />
+</factorypath>
+  ]]>
+                  </content>
+                </file>
+                <file>
+                  <name>.settings/org.eclipse.jdt.apt.core.prefs</name>
+                  <content><![CDATA[
+  eclipse.preferences.version=1
+org.eclipse.jdt.apt.aptEnabled=true
+org.eclipse.jdt.apt.genSrcDir=${querydsl-jpa-output-dir}
+org.eclipse.jdt.apt.reconcileEnabled=true
+org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
+   ]]>
+                  </content>
+                </file>
+              </additionalConfig>
+            </configuration>
+          </plugin>
+
+          <!-- Query DSL -->
+          <plugin>
+            <groupId>com.mysema.maven</groupId>
+            <artifactId>apt-maven-plugin</artifactId>
+            <version>${apt-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>process</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${querydsl-jpa-output-dir}</outputDirectory>
+                  <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+                  <logOnlyOnError>true</logOnlyOnError>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>com.querydsl</groupId>
+                <artifactId>querydsl-apt</artifactId>
+                <version>${querydsl.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+      <dependencies>
+        <!-- Query DSL -->
+        <dependency>
+          <groupId>com.querydsl</groupId>
+          <artifactId>querydsl-jpa</artifactId>
+          <version>${querydsl.version}</version>
+          <exclusions>
+            <exclusion>
+              <groupId>cglib</groupId>
+              <artifactId>cglib</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>net.sourceforge.findbugs</groupId>
+              <artifactId>jsr305</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+      </dependencies>
+    </profile>
+
     <!-- Fat jar -->
     <profile>
       <id>fat-jar</id>
@@ -1422,6 +1541,7 @@
     <spymemcached.version>2.12.0</spymemcached.version>
     <aws-java-sdk.version>1.10.1</aws-java-sdk.version>
     <commons-email.version>1.4</commons-email.version>
+    <querydsl.version>4.0.1</querydsl.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
@@ -1466,6 +1586,8 @@
     <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
     <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
+    <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
+    <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>
   </properties>
