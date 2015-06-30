@@ -14,7 +14,7 @@ JSON support via [Gson](https://github.com/google/gson) library.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-gson</artifactId>
-  <version>0.6.4</version>
+  <version>0.7.0</version>
 </dependency>
 ```
 

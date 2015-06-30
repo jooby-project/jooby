@@ -50,6 +50,9 @@
 ## enterprise integration patterns (EIP)
 * [camel](https://github.com/jooby-project/jooby/tree/master/jooby-camel): enterprise service bus for Jooby.
 
+## emails
+* [commons-email](https://github.com/jooby-project/jooby/tree/master/jooby-commons-email): Email supports via {{commons-email}}.
+
 ## servers
 * [netty](https://github.com/jooby-project/jooby/tree/master/jooby-netty)
 * [jetty](https://github.com/jooby-project/jooby/tree/master/jooby-jetty)
