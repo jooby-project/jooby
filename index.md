@@ -1,7 +1,7 @@
 ---
 layout: index
 title: do more, more easily
-version: 0.6.4
+version: 0.7.0
 ---
 
 # &infin; do more, more easily

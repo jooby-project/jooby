@@ -1,7 +1,7 @@
 ---
 layout: index
 title: doc
-version: 0.6.4
+version: 0.7.0
 ---
 
 documentation
@@ -455,6 +455,27 @@ but also to any other application specific resource:
 GET /assets/js/index.js
 GET /assets/css/style.css
 ```
+
+### using a CDN
+
+The asset handler goes one step forward and add support for serving files from a ```CDN``` out of the box.
+All you have to do is to define a ```assets.cdn``` property:
+
+
+```properties
+# application.prod.properties
+assets.cdn = "http://http://d7471vfo50fqt.cloudfront.net"
+```
+
+```java
+{
+  assets("/assets/**");
+}
+```
+
+A ```GET``` to ```/assets/js/index.js``` will be redirected to: ```http://http://d7471vfo50fqt.cloudfront.net/assets/js/index.js```
+
+Of course, you usually set a ```cdn``` in your ```application.prod.conf``` file only.
 
 ## precedence and order
 
@@ -1575,6 +1596,13 @@ server {
     IdleTimeout = 5minutes
   }
 }
+
+###################################################################################################
+# assets
+###################################################################################################
+# If asset CDN is present, the asset router will do a redirect to CDN and wont serve the file locally
+# /assets/js/index.js -> redirectTo(cdn + assets/js/index.js)
+assets.cdn = ""
 
 ###################################################################################################
 # runtime
