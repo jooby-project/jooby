@@ -75,7 +75,7 @@ import com.typesafe.config.ConfigFactory;
  * }
  * </pre>
  *
- * <h2>configuration</code>
+ * <h2>configuration</h2>
  * <p>
  * It is done via <code>.conf</code> file:
  * </p>
@@ -115,8 +115,6 @@ public class SpyMemcached implements Jooby.Module {
 
   /**
    * Creates a new {@link SpyMemcached} module.
-   *
-   * @param name
    */
   public SpyMemcached() {
   }
