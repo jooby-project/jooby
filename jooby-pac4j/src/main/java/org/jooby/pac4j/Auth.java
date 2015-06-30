@@ -304,7 +304,7 @@ public class Auth implements Jooby.Module {
       bindProfile(binder, HttpProfile.class);
 
       Multibinder.newSetBinder(binder, Client.class)
-          .addBinding().toProvider(FormAuth.class).asEagerSingleton();
+          .addBinding().toProvider(FormAuth.class);
 
       filter(binder, pattern, "Form", () -> (req, rsp, chain) ->
           new FormFilter(req.require(AuthStore.class),
@@ -375,7 +375,7 @@ public class Auth implements Jooby.Module {
       bindProfile(binder, HttpProfile.class);
 
       Multibinder.newSetBinder(binder, Client.class)
-          .addBinding().toProvider(BasicAuth.class).asEagerSingleton();
+          .addBinding().toProvider(BasicAuth.class);
 
       filter(binder, pattern, "Basic", () -> (req, rsp, chain) ->
           new AuthFilter(BasicAuthClient.class, HttpProfile.class, req.require(AuthStore.class))
@@ -554,7 +554,7 @@ public class Auth implements Jooby.Module {
     }
     bindings.forEach(it -> it.accept(binder, config));
 
-    binder.bind(AuthStore.class).to(storeClass).asEagerSingleton();
+    binder.bind(AuthStore.class).to(storeClass);
 
     binder.bind(WebContext.class).to(AuthContext.class).in(RequestScoped.class);
   }
