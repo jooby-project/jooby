@@ -1,7 +1,7 @@
 ---
 layout: index
 title: modules
-version: 0.6.4
+version: 0.7.0
 ---
 
 ## mvn jooby:run
@@ -17,6 +17,7 @@ version: 0.6.4
 
 ## session
 * [redis](/doc/jedis/#redis-session-store): HTTP session on [Redis](http://redis.io).
+* [memcached](/doc/spymemcached/#session-store): HTTP session on [Memcached](http://memcached.org).
 * [mongodb](/doc/mongodb/#mongodb-session-store): HTTP session on [MongoDB](http://mongodb.github.io/mongo-java-driver/).
 * [ehcache](/doc/ehcache/#session-store): HTTP session on [Ehcache](http://ehcache.org).
 
@@ -33,11 +34,15 @@ version: 0.6.4
 * [morphia](/doc/morphia): Object/Document mapper via [Morphia](https://github.com/mongodb/morphia).
 
 ## caches
-* [jedis](/doc/jedis): Advanced cache and key/value store for Java.
+* [redis](/doc/jedis): Advanced cache and key/value store for Java.
+* [memcached](/doc/spymemcached): In-memory key-value store for small chunks of arbitrary data.
 * [ehcache](/doc/ehcache): Java's most widely-used cache.
 
 ## full text search
 * [elastic search](/doc/elasticsearch): enterprise full text search via [Elastic Search](https://github.com/elastic/elasticsearch).
+
+## amazon web services
+* [aws](/doc/aws): Amazon web services ```s3, sns, sqs, ..., etc.```.
 
 ## swagger
 * [swagger](/doc/swagger): powerful representation of your RESTful API.
@@ -50,6 +55,9 @@ version: 0.6.4
 
 ## enterprise integration patterns (EIP)
 * [camel](/doc/camel): enterprise service bus for Jooby.
+
+## emails
+* [commons-email](/doc/commons-email): Email supports via [Apache Commons Email](https://commons.apache.org/proper/commons-email).
 
 ## servers
 * [netty](/doc/netty)

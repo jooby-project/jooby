@@ -1,7 +1,7 @@
 ---
 layout: index
 title: pac4j
-version: 0.6.4
+version: 0.7.0
 ---
 
 # jooby-pac4j
@@ -21,7 +21,7 @@ Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>0.6.4</version>
+  <version>0.7.0</version>
 </dependency>
 ```
 

@@ -1,4 +1,5 @@
 org.jooby
+org.jooby.aws
 org.jooby.camel
 org.jooby.ehcache
 org.jooby.elasticsearch
@@ -12,6 +13,8 @@ org.jooby.jdbi
 org.jooby.jedis
 org.jooby.jetty
 org.jooby.json
+org.jooby.mail
+org.jooby.memcached
 org.jooby.mongodb
 org.jooby.mvc
 org.jooby.netty
