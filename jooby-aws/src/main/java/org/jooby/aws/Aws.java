@@ -81,8 +81,7 @@ import com.typesafe.config.Config;
  *
  * <p>
  * This module is small and simple. All it does is bind {@link AmazonWebServiceClient} instances in
- * Guice. It also helps to bind utility classes like
- * {@link com.amazonaws.services.s3.transfer.TransferManager}
+ * Guice. It also helps to bind utility classes like <code>TransferManager</code>.
  * </p>
  *
  * <pre>
@@ -196,6 +195,7 @@ public class Aws implements Jooby.Module {
    * It will bind a <code>TransferManager</code> as a Guice service.
    *
    * @param callback A creation callback.
+   * @param <T> Aws service type.
    * @return This module.
    */
   public <T extends AmazonWebServiceClient> Aws doWith(
@@ -220,6 +220,7 @@ public class Aws implements Jooby.Module {
    * It will bind a <code>TransferManager</code> as a Guice service.
    *
    * @param callback A creation callback.
+   * @param <T> Aws service type.
    * @return This module.
    */
   public <T extends AmazonWebServiceClient> Aws doWith(final Function<T, Object> callback) {
