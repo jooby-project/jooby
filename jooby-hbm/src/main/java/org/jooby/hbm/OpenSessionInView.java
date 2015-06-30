@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.inject.Provider;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
@@ -65,7 +64,7 @@ public class OpenSessionInView implements Route.Filter {
     keys.forEach(key -> req.set(key, em));
 
     log.debug("session opened: {}", sessionId);
-    EntityTransaction trx = em.getTransaction();
+    TrxResponse trxrsp = new TrxResponse(rsp, em);
     try {
       log.debug("  [{}] binding", sessionId);
       ManagedSessionContext.bind(session);
@@ -74,22 +73,15 @@ public class OpenSessionInView implements Route.Filter {
       log.debug("  [{}] flush mode: {}", sessionId, flushMode);
       session.setFlushMode(flushMode);
 
-      log.debug("  [{}] starting transation: {}", sessionId, trx);
-      trx.begin();
+      trxrsp.begin();
 
       // invoke next handler
-      chain.next(req, new TrxResponse(rsp, em));
+      chain.next(req, trxrsp);
+    } catch (Exception ex) {
+      trxrsp.setRollbackOnly();
+      throw ex;
     } finally {
-      closeUnbind(sf, em, sessionId);
-    }
-  }
-
-  private void closeUnbind(final SessionFactory sf, final EntityManager em,
-      final String sessionId) {
-    try {
-      log.debug("  [{}] closing", sessionId);
-      em.close();
-    } finally {
+      trxrsp.done();
       log.debug("  [{}] unbinding", sessionId);
       ManagedSessionContext.unbind(sf);
       log.debug("session released: [{}]", sessionId);

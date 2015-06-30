@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.inject.Provider;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
@@ -45,17 +44,11 @@ public class OpenSessionInViewTest {
 
           TrxResponse rsp = unit.mockConstructor(TrxResponse.class, new Class[]{Response.class,
               EntityManager.class }, unit.get(Response.class), unit.get(EntityManager.class));
+          expect(rsp.begin()).andReturn(rsp);
+          rsp.done();
 
           Route.Chain chain = unit.get(Route.Chain.class);
           chain.next(req, rsp);
-        })
-        .expect(unit -> {
-          EntityTransaction trx = unit.mock(EntityTransaction.class);
-          trx.begin();
-
-          EntityManager em = unit.get(EntityManager.class);
-          expect(em.getTransaction()).andReturn(trx);
-          em.close();
         })
         .expect(unit -> {
           SessionFactory sf = unit.mock(SessionFactory.class);
@@ -100,19 +93,13 @@ public class OpenSessionInViewTest {
           TrxResponse rsp = unit.mockConstructor(TrxResponse.class, new Class[]{Response.class,
               EntityManager.class }, unit.get(Response.class), unit.get(EntityManager.class));
 
+          expect(rsp.begin()).andReturn(rsp);
+          rsp.done();
+
+          expectLastCall().andThrow(new HibernateException("intentional err"));
+
           Route.Chain chain = unit.get(Route.Chain.class);
           chain.next(req, rsp);
-        })
-        .expect(unit -> {
-          EntityTransaction trx = unit.mock(EntityTransaction.class);
-          trx.begin();
-          expect(trx.isActive()).andReturn(true);
-          trx.rollback();
-
-          EntityManager em = unit.get(EntityManager.class);
-          expect(em.getTransaction()).andReturn(trx);
-          em.close();
-          expectLastCall().andThrow(new HibernateException("intentional err"));
         })
         .expect(unit -> {
           SessionFactory sf = unit.mock(SessionFactory.class);
@@ -157,18 +144,11 @@ public class OpenSessionInViewTest {
           TrxResponse rsp = unit.mockConstructor(TrxResponse.class, new Class[]{Response.class,
               EntityManager.class }, unit.get(Response.class), unit.get(EntityManager.class));
 
+          expect(rsp.begin()).andReturn(rsp);
+          rsp.done();
+
           Route.Chain chain = unit.get(Route.Chain.class);
           chain.next(req, rsp);
-        })
-        .expect(unit -> {
-          EntityTransaction trx = unit.mock(EntityTransaction.class);
-          trx.begin();
-          expect(trx.isActive()).andReturn(true);
-          trx.rollback();
-
-          EntityManager em = unit.get(EntityManager.class);
-          expect(em.getTransaction()).andReturn(trx);
-          em.close();
         })
         .expect(unit -> {
           SessionFactory sf = unit.mock(SessionFactory.class);
