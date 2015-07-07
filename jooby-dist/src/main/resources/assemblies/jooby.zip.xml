@@ -12,6 +12,22 @@
 
   <fileSets>
     <fileSet>
+      <directory>${project.basedir}</directory>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>*.js</include>
+      </includes>
+    </fileSet>
+
+    <fileSet>
+      <directory>${project.basedir}${file.separator}src</directory>
+      <outputDirectory>src</outputDirectory>
+      <includes>
+        <include>*.js</include>
+      </includes>
+    </fileSet>
+
+    <fileSet>
       <directory>${project.build.directory}</directory>
       <outputDirectory></outputDirectory>
       <excludes>

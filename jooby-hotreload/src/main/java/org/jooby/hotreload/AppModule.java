@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
@@ -75,7 +76,7 @@ public class AppModule {
     setPkgs();
     setSystemProperties(args[2]);
     List<File> cp = new ArrayList<File>();
-    String includes = "**/*.class,**/*.conf,**/*.properties";
+    String includes = "**/*.class,**/*.conf,**/*.properties,*.js, src/*.js";
     String excludes = "";
     for (int i = 3; i < args.length; i++) {
       File dir = new File(args[i]);
@@ -101,13 +102,7 @@ public class AppModule {
       }
     }
     if (cp.size() == 0) {
-      String[] defcp = {"public", "conf", "target/classes" };
-      for (String candidate : defcp) {
-        File dir = new File(candidate);
-        if (dir.exists()) {
-          cp.add(dir);
-        }
-      }
+      cp.add(new File(System.getProperty("user.dir")));
     }
     AppModule launcher = new AppModule(args[0], args[1], args[2], cp.toArray(new File[cp.size()]))
         .includes(includes)
@@ -180,19 +175,31 @@ public class AppModule {
 
   private void startApp() {
     if (app != null) {
+      // System.out.println("stopping ap");
       stopApp(app);
     }
+     // System.out.println("scheduling app");
     executor.execute(() -> {
       ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
       try {
+        // System.out.println("starting app");
         module = loader.loadModule(mId);
         ModuleClassLoader mcloader = module.getClassLoader();
 
         Thread.currentThread().setContextClassLoader(mcloader);
 
-        this.app = mcloader.loadClass(mainClass)
-            .getDeclaredConstructors()[0].newInstance();
+        if (mainClass.equals("org.jooby.Jooby")) {
+          // js version
+          Object js = mcloader.loadClass("org.jooby.internal.js.JsJooby")
+              .newInstance();
+          Method runjs = js.getClass().getDeclaredMethod("run", File.class);
+          this.app = runjs.invoke(js, new File("app.js"));
+        } else {
+          this.app = mcloader.loadClass(mainClass)
+              .getDeclaredConstructors()[0].newInstance();
+        }
         app.getClass().getMethod("start").invoke(app);
+        // System.out.println("new app " + app);
 
       } catch (InvocationTargetException ex) {
         System.err.println("Error found while starting: " + mainClass);
@@ -209,11 +216,11 @@ public class AppModule {
   private void stopApp(final Object app) {
     try {
       app.getClass().getMethod("stop").invoke(app);
-      loader.unload(module);
-    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-        | NoSuchMethodException | SecurityException ex) {
+    } catch (Exception ex) {
       System.err.println("couldn't stop app");
       ex.printStackTrace();
+    } finally {
+      loader.unload(module);
     }
 
   }
@@ -230,23 +237,24 @@ public class AppModule {
 
   private void onChange(final Kind<?> kind, final Path path) {
     try {
+      // System.out.println("found: " + path );
       Path candidate = relativePath(path);
       if (candidate == null) {
         // System.("Can't resolve path: {}... ignoring it", path);
         return;
       }
-      if (!includes.matches(path)) {
-        // log.debug("ignoring file {} -> ~{}", path, includes);
+      // System.out.println("resolved: " + path  + " ->" + candidate);
+      if (!includes.matches(candidate)) {
+        // System.out.printf("ignoring file %s -> ~%s\n", candidate, includes);
         return;
       }
-      if (excludes.matches(path)) {
-        // log.debug("ignoring file {} -> {}", path, excludes);
+      if (excludes.matches(candidate)) {
+        // System.out.printf("ignoring file %s -> %s\n", candidate, excludes);
         return;
       }
       // reload
       startApp();
     } catch (Exception ex) {
-      System.err.printf("Err found while processing: %s\n" + path);
       ex.printStackTrace();
     }
   }

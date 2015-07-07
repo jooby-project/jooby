@@ -56,7 +56,7 @@ public class JoobyMojo extends AbstractMojo {
   private MavenProject mavenProject;
 
   @Parameter(property = "main.class", defaultValue = "${application.class}")
-  private String mainClass;
+  protected String mainClass;
 
   @Parameter(defaultValue = "${project.build.outputDirectory}")
   private String buildOutputDirectory;
@@ -83,6 +83,10 @@ public class JoobyMojo extends AbstractMojo {
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
 
+    boolean js = new File("app.js").exists();
+    if (js) {
+      mainClass = "org.jooby.Jooby";
+    }
     Path jmodules = Paths.get(mavenProject.getBuild().getDirectory()).resolve("jboss-modules");
 
     Set<String> appcp = new LinkedHashSet<String>();
@@ -123,7 +127,7 @@ public class JoobyMojo extends AbstractMojo {
     args.add(mavenProject.getGroupId() + "." + mavenProject.getArtifactId());
     args.add(mainClass);
     args.add(jmodules.toString());
-    args.addAll(appcp);
+    args.add(mavenProject.getBasedir().getAbsolutePath());
     if (includes != null && includes.size() > 0) {
       args.add("includes=" + join(includes));
     }

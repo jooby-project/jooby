@@ -94,6 +94,7 @@ import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.ServerLookup;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
+import org.jooby.internal.js.JsJooby;
 import org.jooby.internal.mvc.MvcRoutes;
 import org.jooby.internal.reqparam.BeanParser;
 import org.jooby.internal.reqparam.DateParser;
@@ -2805,6 +2806,17 @@ public class Jooby {
     if (join) {
       server.join();
     }
+  }
+
+  /**
+   * Run app in javascript.
+   *
+   * @param args Arguments, first arg must be the name of the javascript file.
+   * @throws Exception If app fails to start.
+   */
+  public static void main(final String[] args) throws Exception {
+    String filename = args.length > 0 ? args[0] : "app.js";
+    new JsJooby().run(new File(filename)).start();
   }
 
   private String configTree(final String description) {
