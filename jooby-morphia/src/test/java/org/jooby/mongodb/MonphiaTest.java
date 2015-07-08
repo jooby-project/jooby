@@ -39,6 +39,9 @@ public class MonphiaTest {
     ScopedBindingBuilder mcSBB = unit.mock(ScopedBindingBuilder.class);
     mcSBB.asEagerSingleton();
 
+    AnnotatedBindingBuilder<MongoClientURI> mcuABB = unit.mock(AnnotatedBindingBuilder.class);
+    mcuABB.toInstance(isA(MongoClientURI.class));
+
     AnnotatedBindingBuilder<MongoClient> mcABB = unit.mock(AnnotatedBindingBuilder.class);
     expect(mcABB.toProvider(unit.capture(MongodbManaged.class))).andReturn(mcSBB);
 
@@ -49,6 +52,8 @@ public class MonphiaTest {
     expect(dbABB.toProvider(isA(Provider.class))).andReturn(dbSBB);
 
     Binder binder = unit.get(Binder.class);
+    expect(binder.bind(Key.get(MongoClientURI.class))).andReturn(mcuABB);
+
     expect(binder.bind(Key.get(MongoClient.class))).andReturn(mcABB);
 
     expect(binder.bind(Key.get(MongoDatabase.class))).andReturn(dbABB);
@@ -58,6 +63,9 @@ public class MonphiaTest {
   MockUnit.Block mongodbNamed = unit -> {
     ScopedBindingBuilder mcSBB = unit.mock(ScopedBindingBuilder.class);
     mcSBB.asEagerSingleton();
+
+    AnnotatedBindingBuilder<MongoClientURI> mcuABB = unit.mock(AnnotatedBindingBuilder.class);
+    mcuABB.toInstance(isA(MongoClientURI.class));
 
     AnnotatedBindingBuilder<MongoClient> mcABB = unit.mock(AnnotatedBindingBuilder.class);
     expect(mcABB.toProvider(isA(Provider.class))).andReturn(mcSBB);
@@ -69,6 +77,8 @@ public class MonphiaTest {
     expect(dbABB.toProvider(isA(Provider.class))).andReturn(dbSBB);
 
     Binder binder = unit.get(Binder.class);
+    expect(binder.bind(Key.get(MongoClientURI.class, Names.named("mydb")))).andReturn(mcuABB);
+
     expect(binder.bind(Key.get(MongoClient.class, Names.named("mydb")))).andReturn(mcABB);
 
     expect(binder.bind(Key.get(MongoDatabase.class, Names.named("mydb")))).andReturn(dbABB);

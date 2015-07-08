@@ -193,6 +193,9 @@ public class Mongodb implements Jooby.Module {
     String database = uri.getDatabase();
     checkArgument(database != null, "Database not found: " + uri);
 
+    binder.bind(key(MongoClientURI.class, database))
+      .toInstance(uri);
+
     binder.bind(key(MongoClient.class, database))
         .toProvider(mongodb)
         .asEagerSingleton();

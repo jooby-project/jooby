@@ -44,6 +44,11 @@ var version = function () {
 var links = [];
 
 links.push({
+  name: 'jongo'
+  data: '[Jongo](http://jongo.org)'
+});
+
+links.push({
   name: 'commons-email',
   data: '[Apache Commons Email](https://commons.apache.org/proper/commons-email)'
 });

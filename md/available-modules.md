@@ -26,6 +26,7 @@
 ## mongodb
 * [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb): Mongodb driver.
 * [morphia](https://github.com/jooby-project/jooby/tree/master/jooby-morphia): Object/Document mapper via [Morphia]({{morphia}}).
+* [jongo](https://github.com/jooby-project/jooby/tree/master/jooby-jongo): Query in Java as in Mongo Shell.
 
 ## caches
 * [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis): Advanced cache and key/value store for Java.

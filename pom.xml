@@ -44,6 +44,7 @@
     <module>jooby-spymemcached</module>
     <module>jooby-aws</module>
     <module>jooby-commons-email</module>
+    <module>jooby-jongo</module>
     <module>coverage-report</module>
   </modules>
 
@@ -239,6 +240,19 @@
         <groupId>org.jooby</groupId>
         <artifactId>jooby-commons-email</artifactId>
         <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-jongo</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <!-- bson4jackon -->
+      <dependency>
+        <groupId>de.undercouch</groupId>
+        <artifactId>bson4jackson</artifactId>
+        <version>${bson4jackson.version}</version>
       </dependency>
 
       <!-- Logging System -->
@@ -652,6 +666,13 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-email</artifactId>
         <version>${commons-email.version}</version>
+      </dependency>
+
+      <!-- jongo -->
+      <dependency>
+        <groupId>org.jongo</groupId>
+        <artifactId>jongo</artifactId>
+        <version>${jongo.version}</version>
       </dependency>
 
       <!-- Maven -->
@@ -1525,7 +1546,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <camel.version>2.15.2</camel.version>
     <jedis.version>2.7.2</jedis.version>
     <mongo-java-driver.version>3.0.2</mongo-java-driver.version>
-    <morphia.version>1.0.0</morphia.version>
+    <morphia.version>1.0.1</morphia.version>
     <jboss-modules.version>1.4.2.Final</jboss-modules.version>
     <elasticsearch>1.5.2</elasticsearch>
     <hibernate-validator.version>5.1.3.Final</hibernate-validator.version>
@@ -1542,6 +1563,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <aws-java-sdk.version>1.10.1</aws-java-sdk.version>
     <commons-email.version>1.4</commons-email.version>
     <querydsl.version>4.0.1</querydsl.version>
+    <jongo.version>1.2</jongo.version>
+    <bson4jackson.version>2.5.0</bson4jackson.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
