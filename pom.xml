@@ -872,28 +872,6 @@
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>com.mycila</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <version>${license-maven-plugin.version}</version>
-        <configuration>
-          <header>LICENSE</header>
-          <strictCheck>true</strictCheck>
-          <skipExistingHeaders>true</skipExistingHeaders>
-          <includes>
-            <include>src/main/java/**/*.java</include>
-          </includes>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>format</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- Deploy plugin -->
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
@@ -1349,19 +1327,71 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
       </dependencies>
     </profile>
 
-    <!-- Fat jar -->
+    <!-- license header -->
     <profile>
-      <id>fat-jar</id>
+      <id>license</id>
       <activation>
         <file>
-          <!-- Hacky way to execute this profile on none Jooby projects -->
-          <missing>src${file.separator}main${file.separator}java${file.separator}org${file.separator}jooby</missing>
+          <exists>${basedir}${file.separator}LICENSE</exists>
         </file>
       </activation>
-
       <build>
         <plugins>
+          <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>${license-maven-plugin.version}</version>
+            <configuration>
+              <header>LICENSE</header>
+              <strictCheck>true</strictCheck>
+              <skipExistingHeaders>true</skipExistingHeaders>
+              <includes>
+                <include>src/main/java/**/*.java</include>
+              </includes>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>format</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
 
+    <profile>
+      <id>license-multiproject</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}..${file.separator}LICENSE</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>${license-maven-plugin.version}</version>
+            <configuration>
+              <header>LICENSE</header>
+              <strictCheck>true</strictCheck>
+              <skipExistingHeaders>true</skipExistingHeaders>
+              <includes>
+                <include>src/main/java/**/*.java</include>
+              </includes>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>format</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>
