@@ -171,6 +171,8 @@ public class RequestImpl implements Request {
             .collect(Collectors.toList());
         param = new MutantImpl(require(ParserExecutor.class), type(),
             new UploadParamReferenceImpl(name, uploads));
+
+        this.params.put(name, param);
       } else {
         List<String> values = new ArrayList<>();
         String pathvar = route.vars().get(name);
@@ -180,9 +182,11 @@ public class RequestImpl implements Request {
         values.addAll(params(name));
         param = new MutantImpl(require(ParserExecutor.class), type(),
             new StrParamReferenceImpl(name, values));
-      }
 
-      this.params.put(name, param);
+        if (values.size() >0) {
+          this.params.put(name, param);
+        }
+      }
     }
     return param;
   }
