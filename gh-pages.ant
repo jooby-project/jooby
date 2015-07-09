@@ -16,7 +16,7 @@
     <exec executable="git" dir="${workdir}">
       <arg value="clone" />
       <arg value="-b" />
-      <arg value="site" />
+      <arg value="gh-pages" />
       <arg value="--single-branch" />
       <arg value="${gitrepo}" />
       <arg value="." />
@@ -28,27 +28,9 @@
 
     <mkdir dir="${workdir}/apidocs" />
 
-    <copy todir="${workdir}/apidocs" overwrite="true">
+    <copy todir="${workdir}/apidocs" overwrite="true" failonerror="false">
       <fileset dir="target/site/apidocs" />
     </copy>
-
-    <!--
-    <exec executable="git" dir="${workdir}">
-      <arg value="add" />
-      <arg value="-A" />
-    </exec>
-
-    <exec executable="git" dir="${workdir}">
-      <arg value="commit" />
-      <arg value="-m" />
-      <arg value="prepare web site" />
-    </exec>
-
-    <exec executable="git" dir="${workdir}">
-      <arg value="push" />
-      <arg value="origin" />
-      <arg value="site" />
-    </exec> -->
 
   </target>
 

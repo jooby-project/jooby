@@ -1,7 +1,9 @@
 # jooby on javascript
 
-Oh yea! Jooby and JavaScript are the best friends:
+{{jooby}} is available in JavaScript via [Nashorn](http://openjdk.java.net/projects/nashorn/).
 
+
+## hello world
 
 ```js
 
@@ -11,8 +13,6 @@ app.get('/', function () 'Hey Jooby!');
 
 ```
 
-The ```jooby``` function creates a new application then you can add route, modules or anything you need.
-
 ## jooby function
 
 The ```jooby``` function always returns a new application:
@@ -21,7 +21,7 @@ The ```jooby``` function always returns a new application:
 var app = jooby();
 ```
 
-Or you can pass a function:
+or pass a function to ```jooby```:
 
 ```js
 jooby(function () {
@@ -31,9 +31,7 @@ jooby(function () {
 })();
 ```
 
-This way you don't pollute the global namespace.
-
-Another minor, but useful feature is the: **import of classes** and **packages**
+Another minor but useful feature is the: **import of classes** and **packages**
 
 ```js
 jooby(function (Jackson) {
@@ -93,15 +91,9 @@ jooby(function () {
 })();
 ```
 
-
 ## running a javascript app
 
 * via maven: ```mvn jooby:run```
 * java: ```java org.jooby.Jooby```. The ```app.js``` file must be present in the app directory.
 
-## implementation details
-
-As you already guess, we use [Nashorn](http://openjdk.java.net/projects/nashorn/) to run JavaScript on the JVM.
-
-It is possible to write {{jooby}} apps in JavaScript, but don't forget this is [Java](https://java.com), not [nodejs](https://nodejs.org/).
-
+Happy coding!!!

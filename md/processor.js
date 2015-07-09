@@ -44,12 +44,12 @@ var version = function () {
 var links = [];
 
 links.push({
-  name: 'flyway'
+  name: 'flyway',
   data: '[Flyway](http://flywaydb.org/)'
 });
 
 links.push({
-  name: 'jongo'
+  name: 'jongo',
   data: '[Jongo](http://jongo.org)'
 });
 
@@ -435,8 +435,10 @@ ls(ghpagesdir, function (file) {
   }
 
   var fout = path.nameCount > 1 ? new File('jooby-' + path) : path.toFile();
-  copy(file, fout);
-  file['delete']();
-  console.log('  done: ' + fout);
+  if (fout.parentFile && fout.parentFile.exists()) {
+    copy(file, fout);
+    file['delete']();
+    console.log('  done: ' + fout);
+  }
 });
 
