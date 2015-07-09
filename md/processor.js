@@ -44,6 +44,11 @@ var version = function () {
 var links = [];
 
 links.push({
+  name: 'flyway'
+  data: '[Flyway](http://flywaydb.org/)'
+});
+
+links.push({
   name: 'jongo'
   data: '[Jongo](http://jongo.org)'
 });

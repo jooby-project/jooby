@@ -45,6 +45,7 @@
     <module>jooby-aws</module>
     <module>jooby-commons-email</module>
     <module>jooby-jongo</module>
+    <module>jooby-flyway</module>
     <module>coverage-report</module>
   </modules>
 
@@ -245,6 +246,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-jongo</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-flyway</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -673,6 +680,12 @@
         <groupId>org.jongo</groupId>
         <artifactId>jongo</artifactId>
         <version>${jongo.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+        <version>${flyway.version}</version>
       </dependency>
 
       <!-- Maven -->
@@ -1595,6 +1608,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <querydsl.version>4.0.1</querydsl.version>
     <jongo.version>1.2</jongo.version>
     <bson4jackson.version>2.5.0</bson4jackson.version>
+    <flyway.version>3.2.1</flyway.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
