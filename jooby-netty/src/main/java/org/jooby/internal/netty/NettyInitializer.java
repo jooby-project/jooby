@@ -68,8 +68,8 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
     ch.pipeline()
         .addLast(new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
         .addLast(new HttpObjectAggregator(maxContentLength))
-        .addLast(new IdleStateHandler(0, 0, idleTimeOut, TimeUnit.MILLISECONDS))
         .addLast(new ChunkedWriteHandler())
+        .addLast(new IdleStateHandler(0, 0, idleTimeOut, TimeUnit.MILLISECONDS))
         .addLast(executor, new NettyHandler(handler, config));
   }
 
