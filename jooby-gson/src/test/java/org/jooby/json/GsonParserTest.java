@@ -31,8 +31,8 @@ public class GsonParserTest {
 
           Parser.Builder builder = unit.mock(Parser.Builder.class);
 
-          expect(ctx.body(unit.capture(Parser.Callback.class))).andReturn(builder);
-          expect(builder.param(unit.capture(Parser.Callback.class))).andReturn(builder);
+          expect(ctx.ifbody(unit.capture(Parser.Callback.class))).andReturn(builder);
+          expect(builder.ifparam(unit.capture(Parser.Callback.class))).andReturn(builder);
         })
         .expect(unit -> {
           Parser.BodyReference ref = unit.get(Parser.BodyReference.class);
@@ -63,8 +63,8 @@ public class GsonParserTest {
 
           Parser.Builder builder = unit.mock(Parser.Builder.class);
 
-          expect(ctx.body(unit.capture(Parser.Callback.class))).andReturn(builder);
-          expect(builder.param(unit.capture(Parser.Callback.class))).andReturn(builder);
+          expect(ctx.ifbody(unit.capture(Parser.Callback.class))).andReturn(builder);
+          expect(builder.ifparam(unit.capture(Parser.Callback.class))).andReturn(builder);
         })
         .expect(unit -> {
           Parser.ParamReference<String> ref = unit.get(Parser.ParamReference.class);

@@ -47,8 +47,8 @@ class GsonParser implements Parser {
 
     if (ctype.matches(this.type)) {
       return ctx
-          .body(body -> gson.fromJson(body.text(), type.getType()))
-          .param(values -> gson.fromJson(values.first(), type.getType()));
+          .ifbody(body -> gson.fromJson(body.text(), type.getType()))
+          .ifparam(values -> gson.fromJson(values.first(), type.getType()));
     }
     return ctx.next();
   }

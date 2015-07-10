@@ -47,8 +47,9 @@ class JacksonParser implements Parser {
 
     JavaType javaType = mapper.constructType(type.getType());
     if (matcher.matches(ctype) && mapper.canDeserialize(javaType)) {
-      return ctx.body(body -> mapper.readValue(body.bytes(), javaType))
-          .param(values -> mapper.readValue(values.iterator().next(), javaType));
+      return ctx
+          .ifparam(values -> mapper.readValue(values.iterator().next(), javaType))
+          .ifbody(body -> mapper.readValue(body.bytes(), javaType));
     }
     return ctx.next();
   }

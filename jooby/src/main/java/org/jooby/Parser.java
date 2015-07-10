@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -220,6 +221,15 @@ public interface Parser {
     Builder body(Callback<BodyReference> callback);
 
     /**
+     * Like {@link #body(Callback)} but it skip the callback if the requested type is an
+     * {@link Optional}.
+     *
+     * @param callback A body parser callback.
+     * @return This builder.
+     */
+    Builder ifbody(Callback<BodyReference> callback);
+
+    /**
      * Add a HTTP param callback. The Callback will be executed when current context is bound to a
      * HTTP param via {@link Request#param(String)}.
      *
@@ -229,6 +239,15 @@ public interface Parser {
      * @return This builder.
      */
     Builder param(Callback<ParamReference<String>> callback);
+
+    /**
+     * Like {@link #param(Callback)} but it skip the callback if the requested type is an
+     * {@link Optional}.
+     *
+     * @param callback A param parser callback.
+     * @return This builder.
+     */
+    Builder ifparam(Callback<ParamReference<String>> callback);
 
     /**
      * Add a HTTP params callback. The Callback will be executed when current context is bound to a
@@ -242,6 +261,15 @@ public interface Parser {
     Builder params(Callback<Map<String, Mutant>> callback);
 
     /**
+     * Like {@link #params(Callback)} but it skip the callback if the requested type is an
+     * {@link Optional}.
+     *
+     * @param callback A params parser callback.
+     * @return This builder.
+     */
+    Builder ifparams(Callback<Map<String, Mutant>> callback);
+
+    /**
      * Add a HTTP upload callback. The Callback will be executed when current context is bound to a
      * HTTP upload via {@link Request#param(String)}.
      *
@@ -251,6 +279,15 @@ public interface Parser {
      * @return This builder.
      */
     Builder upload(Callback<ParamReference<Upload>> callback);
+
+    /**
+     * Like {@link #upload(Callback)} but it skip the callback if the requested type is an
+     * {@link Optional}.
+     *
+     * @param callback A upload parser callback.
+     * @return This builder.
+     */
+    Builder ifupload(Callback<ParamReference<Upload>> callback);
   }
 
   /**

@@ -45,7 +45,7 @@ public class BeanParser implements Parser {
         || CharSequence.class.isAssignableFrom(beanType)) {
       return ctx.next();
     }
-    return ctx.params(map -> {
+    return ctx.ifparams(map -> {
       final Object bean;
       if (beanType.isInterface()) {
         bean = newBeanInterface(ctx.require(Request.class), beanType);

@@ -30,6 +30,7 @@ import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Parser;
+import org.jooby.Parser.BodyReference;
 import org.jooby.Parser.Builder;
 import org.jooby.Parser.Callback;
 import org.jooby.Parser.ParamReference;
@@ -102,8 +103,18 @@ public class ParserExecutor {
       }
 
       @Override
+      public Builder ifbody(final Callback<BodyReference> callback) {
+        return builder.ifbody(callback);
+      }
+
+      @Override
       public Builder upload(final Callback<Parser.ParamReference<Upload>> callback) {
         return builder.upload(callback);
+      }
+
+      @Override
+      public Builder ifupload(final Callback<ParamReference<Upload>> callback) {
+        return builder.ifupload(callback);
       }
 
       @Override
@@ -112,8 +123,18 @@ public class ParserExecutor {
       }
 
       @Override
+      public Builder ifparam(final Callback<ParamReference<String>> callback) {
+        return builder.ifparam(callback);
+      }
+
+      @Override
       public Builder params(final Callback<Map<String, Mutant>> callback) {
         return builder.params(callback);
+      }
+
+      @Override
+      public Builder ifparams(final Callback<Map<String, Mutant>> callback) {
+        return builder.ifparams(callback);
       }
 
       @Override

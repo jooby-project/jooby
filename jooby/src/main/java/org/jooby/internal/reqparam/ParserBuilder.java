@@ -19,12 +19,12 @@
 package org.jooby.internal.reqparam;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.jooby.Mutant;
 import org.jooby.Parser;
 import org.jooby.Parser.Builder;
 import org.jooby.Parser.Callback;
-import org.jooby.Parser.ParamReference;
 import org.jooby.Upload;
 import org.jooby.internal.BodyReferenceImpl;
 import org.jooby.internal.StrParamReferenceImpl;
@@ -67,10 +67,18 @@ public class ParserBuilder implements Parser.Builder {
     return this;
   }
 
+  public Builder ifbody(final Callback<Parser.BodyReference> callback) {
+    return body(ifcallback(callback));
+  }
+
   @Override
-  public Builder param(final Callback<ParamReference<String>> callback) {
+  public Builder param(final Callback<Parser.ParamReference<String>> callback) {
     strategies.put(TypeLiteral.get(StrParamReferenceImpl.class), callback);
     return this;
+  }
+
+  public Builder ifparam(final Callback<Parser.ParamReference<String>> callback) {
+    return param(ifcallback(callback));
   }
 
   @Override
@@ -79,10 +87,18 @@ public class ParserBuilder implements Parser.Builder {
     return this;
   }
 
+  public Builder ifparams(final Callback<Map<String, Mutant>> callback) {
+    return params(ifcallback(callback));
+  }
+
   @Override
   public Builder upload(final Callback<Parser.ParamReference<Upload>> callback) {
     strategies.put(TypeLiteral.get(UploadParamReferenceImpl.class), callback);
     return this;
+  }
+
+  public Builder ifupload(final Callback<Parser.ParamReference<Upload>> callback) {
+    return upload(ifcallback(callback));
   }
 
   @SuppressWarnings("unchecked")
@@ -95,4 +111,12 @@ public class ParserBuilder implements Parser.Builder {
     return callback.invoke(value);
   }
 
+  private <T> Callback<T> ifcallback(final Callback<T> callback) {
+    return value -> {
+      if (toType.getRawType() == Optional.class) {
+        return ctx.next(toType, value);
+      }
+      return callback.invoke(value);
+    };
+  }
 }
