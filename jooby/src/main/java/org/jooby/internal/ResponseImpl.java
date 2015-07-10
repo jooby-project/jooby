@@ -107,7 +107,7 @@ public class ResponseImpl implements Response {
         .orElse(MediaType.octetstream));
     type(type().orElseGet(() -> type));
 
-    URLAsset asset = new URLAsset(url, type().get());
+    URLAsset asset = new URLAsset(url, location, type().get());
     length(asset.length());
 
     contentDisposition(filename);

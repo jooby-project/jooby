@@ -20,6 +20,9 @@ package org.jooby;
 
 import java.io.InputStream;
 
+import com.google.common.io.BaseEncoding;
+import com.google.common.primitives.Longs;
+
 /**
  * Usually a public file/resource like javascript, css, images files, etc...
  * An asset consist of content type, stream and last modified since, between others.
@@ -31,9 +34,45 @@ import java.io.InputStream;
 public interface Asset {
 
   /**
+   * Examples:
+   *
+   * <pre>
+   *  GET /assets/index.js {@literal ->} index.js
+   *  GET /assets/js/index.js {@literal ->} index.js
+   * </pre>
+   *
    * @return The asset name (without path).
    */
   String name();
+
+  /**
+   * Examples:
+   *
+   * <pre>
+   *  GET /assets/index.js {@literal ->} /assets/index.js
+   *  GET /assets/js/index.js {@literal ->} /assets/js/index.js
+   * </pre>
+   *
+   * @return The asset requested path, includes the name.
+   */
+  String path();
+
+  /**
+   * @return Generate a weak Etag using the {@link #path()}, {@link #lastModified()} and
+   *         {@link #length()}.
+   */
+  default String etag() {
+    StringBuilder b = new StringBuilder(32);
+    b.append("W/\"");
+
+    BaseEncoding b64 = BaseEncoding.base64();
+    int lhash = path().hashCode();
+
+    b.append(b64.encode(Longs.toByteArray(lastModified() ^ lhash)));
+    b.append(b64.encode(Longs.toByteArray(length() ^ lhash)));
+    b.append('"');
+    return b.toString();
+  }
 
   /**
    * @return Asset size (in bytes) or <code>-1</code> if undefined.

@@ -1892,13 +1892,18 @@ public class JoobyTest {
           Mutant ifModifiedSince = unit.mock(Mutant.class);
           expect(ifModifiedSince.toOptional(Long.class)).andReturn(Optional.empty());
 
+          Mutant ifnm = unit.mock(Mutant.class);
+          expect(ifnm.toOptional()).andReturn(Optional.empty());
+
           Request req = unit.get(Request.class);
-          expect(req.path()).andReturn(path);
+          expect(req.path()).andReturn(path).times(2);
           expect(req.header("If-Modified-Since")).andReturn(ifModifiedSince);
+          expect(req.header("If-None-Match")).andReturn(ifnm);
 
           Response rsp = unit.get(Response.class);
           expect(rsp.header(eq("Last-Modified"), unit.capture(java.util.Date.class)))
               .andReturn(rsp);
+          expect(rsp.header(eq("ETag"), isA(String.class))).andReturn(rsp);
           expect(rsp.length(20)).andReturn(rsp);
           rsp.send(isA(Asset.class));
         })

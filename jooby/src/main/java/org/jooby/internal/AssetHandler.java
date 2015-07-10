@@ -66,15 +66,27 @@ public class AssetHandler implements Route.Filter {
   protected void doHandle(final Request req, final Response rsp, final Chain chain,
       final URL resource) throws Exception {
 
-    Asset asset = new URLAsset(resource,
+    Asset asset = new URLAsset(resource, req.path(),
         MediaType.byPath(resource.getPath()).orElse(MediaType.octetstream));
 
+    String etag = asset.etag();
     long lastModified = asset.lastModified();
+
+    boolean ifnm = req.header("If-None-Match").toOptional()
+        .map(etag::equals)
+        .orElse(false);
+    // handle etag
+    if (ifnm) {
+      rsp.header("ETag", etag).status(Status.NOT_MODIFIED).end();
+      return;
+    }
 
     // Handle if modified since
     if (lastModified > 0) {
-      long ifModified = req.header("If-Modified-Since").toOptional(Long.class).orElse(-1l);
-      if (ifModified > 0 && lastModified / 1000 <= ifModified / 1000) {
+      boolean ifm = req.header("If-Modified-Since").toOptional(Long.class)
+          .map(ifModified -> lastModified / 1000 <= ifModified / 1000)
+          .orElse(false);
+      if (ifm) {
         rsp.status(Status.NOT_MODIFIED).end();
         return;
       }
@@ -84,7 +96,8 @@ public class AssetHandler implements Route.Filter {
     if (length >= 0) {
       rsp.length(length);
     }
-    rsp.send(asset);
+    rsp.header("ETag", etag)
+        .send(asset);
 
   }
 

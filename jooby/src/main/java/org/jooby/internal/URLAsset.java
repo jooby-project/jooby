@@ -43,8 +43,11 @@ class URLAsset implements Asset {
 
   private File file;
 
-  public URLAsset(final URL url, final MediaType mediaType) throws Exception {
+  private String path;
+
+  public URLAsset(final URL url, final String path, final MediaType mediaType) throws Exception {
     this.url = requireNonNull(url, "An url is required.");
+    this.path = requireNonNull(path, "Path is required.");
     this.mediaType = requireNonNull(mediaType, "A mediaType is required.");
     if ("file".equals(url.getProtocol())) {
       File file = new File(url.toURI());
@@ -59,6 +62,11 @@ class URLAsset implements Asset {
         this.lastModified = lstMod;
       });
     }
+  }
+
+  @Override
+  public String path() {
+    return path;
   }
 
   @Override
