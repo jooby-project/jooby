@@ -84,6 +84,17 @@ public class MutantImplTest {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(Boolean.class));
 
     assertEquals(Optional.of(true), newMutant("true").toOptional(Boolean.class));
+
+    assertEquals(true, newMutant((String) null).booleanValue(true));
+  }
+
+  @Test
+  public void asOptionalChar() throws Exception {
+    assertEquals(Optional.empty(), newMutant((String) null).toOptional(Character.class));
+
+    assertEquals(Optional.of('x'), newMutant("x").toOptional(Character.class));
+
+    assertEquals('x', newMutant((String) null).charValue('x'));
   }
 
   @Test(expected = Err.class)
@@ -139,6 +150,8 @@ public class MutantImplTest {
   public void asOptionalByte() throws Exception {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(Byte.class));
 
+    assertEquals(5, newMutant((String) null).byteValue(5));
+
     assertEquals(Optional.of((byte) 1), newMutant("1").toOptional(Byte.class));
   }
 
@@ -190,6 +203,8 @@ public class MutantImplTest {
   public void asOptionalShort() throws Exception {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(Short.class));
 
+    assertEquals(7, newMutant((String) null).shortValue(7));
+
     assertEquals(Optional.of((short) 1), newMutant("1").toOptional(short.class));
   }
 
@@ -236,6 +251,8 @@ public class MutantImplTest {
   @Test
   public void asOptionalInt() throws Exception {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(int.class));
+
+    assertEquals(13, newMutant((String) null).intValue(13));
 
     assertEquals(Optional.of(1), newMutant("1").toOptional(int.class));
   }
@@ -296,6 +313,8 @@ public class MutantImplTest {
   public void asOptionalLong() throws Exception {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(long.class));
 
+    assertEquals(87, newMutant((String) null).longValue(87));
+
     assertEquals(Optional.of(1l), newMutant("1").toOptional(long.class));
   }
 
@@ -343,6 +362,8 @@ public class MutantImplTest {
   public void asOptionalFloat() throws Exception {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(float.class));
 
+    assertEquals(4f, newMutant((String) null).floatValue(4f), 0);
+
     assertEquals(Optional.of(1f), newMutant("1").toOptional(float.class));
   }
 
@@ -389,6 +410,8 @@ public class MutantImplTest {
   public void asOptionalDouble() throws Exception {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(double.class));
 
+    assertEquals(3d, newMutant((String) null).doubleValue(3d), 0);
+
     assertEquals(Optional.of(1d), newMutant("1").toOptional(double.class));
   }
 
@@ -422,6 +445,10 @@ public class MutantImplTest {
   @Test
   public void asOptionalEnum() throws Exception {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(LETTER.class));
+
+    assertEquals(LETTER.A, newMutant((String) null).toEnum(LETTER.A));
+
+    assertEquals(LETTER.B, newMutant("B").toEnum(LETTER.A));
 
     assertEquals(Optional.of(LETTER.A), newMutant("A").toOptional(LETTER.class));
   }
@@ -465,6 +492,8 @@ public class MutantImplTest {
     assertEquals(Optional.empty(), newMutant((String) null).toOptional(String.class));
 
     assertEquals(Optional.empty(), newMutant((String) null).toOptional());
+
+    assertEquals("A", newMutant((String) null).value("A"));
 
     assertEquals(Optional.of("A"), newMutant("A").toOptional(String.class));
 

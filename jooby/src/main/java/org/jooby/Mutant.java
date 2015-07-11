@@ -68,10 +68,26 @@ public interface Mutant {
   }
 
   /**
+   * @param value Default value to use.
+   * @return Get a boolean.
+   */
+  default boolean booleanValue(final boolean value) {
+    return toOptional(Boolean.class).orElse(value);
+  }
+
+  /**
    * @return Get a byte when possible.
    */
   default byte byteValue() {
     return to(byte.class);
+  }
+
+  /**
+   * @param value Default value to use.
+   * @return Get a byte.
+   */
+  default byte byteValue(final int value) {
+    return toOptional(Byte.class).orElse((byte) value);
   }
 
   /**
@@ -82,10 +98,26 @@ public interface Mutant {
   }
 
   /**
+   * @param value Default value to use.
+   * @return Get a char.
+   */
+  default char charValue(final char value) {
+    return toOptional(Character.class).orElse(value);
+  }
+
+  /**
    * @return Get a short when possible.
    */
   default short shortValue() {
     return to(short.class);
+  }
+
+  /**
+   * @param value Default value to use.
+   * @return Get a short value.
+   */
+  default short shortValue(final int value) {
+    return toOptional(Short.class).orElse((short) value);
   }
 
   /**
@@ -96,10 +128,26 @@ public interface Mutant {
   }
 
   /**
+   * @param value Default value to use.
+   * @return Get an integer.
+   */
+  default int intValue(final int value) {
+    return toOptional(Integer.class).orElse(value);
+  }
+
+  /**
    * @return Get a long when possible.
    */
   default long longValue() {
     return to(long.class);
+  }
+
+  /**
+   * @param value Default value to use.
+   * @return Get a long.
+   */
+  default long longValue(final long value) {
+    return toOptional(Long.class).orElse(value);
   }
 
   /**
@@ -110,10 +158,26 @@ public interface Mutant {
   }
 
   /**
+   * @param value Default value to use.
+   * @return Get a string.
+   */
+  default String value(final String value) {
+    return toOptional().orElse(value);
+  }
+
+  /**
    * @return Get a float when possible.
    */
   default float floatValue() {
     return to(float.class);
+  }
+
+  /**
+   * @param value Default value to use.
+   * @return Get a float.
+   */
+  default float floatValue(final float value) {
+    return toOptional(Float.class).orElse(value);
   }
 
   /**
@@ -124,12 +188,30 @@ public interface Mutant {
   }
 
   /**
+   * @param value Default value to use.
+   * @return Get a double.
+   */
+  default double doubleValue(final double value) {
+    return toOptional(Double.class).orElse(value);
+  }
+
+  /**
    * @param type The enum type.
    * @param <T> Enum type.
    * @return Get an enum when possible.
    */
   default <T extends Enum<T>> T toEnum(final Class<T> type) {
     return to(type);
+  }
+
+  /**
+   * @param value Default value to use.
+   * @return Get an enum.
+   */
+  @SuppressWarnings("unchecked")
+  default <T extends Enum<T>> T toEnum(final T value) {
+    Optional<T> optional = (Optional<T>) toOptional(value.getClass());
+    return optional.orElse(value);
   }
 
   /**

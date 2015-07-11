@@ -103,6 +103,44 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void is() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+
+          expect(req.is(MediaType.ALL)).andReturn(true);
+
+          expect(req.is(MediaType.json, MediaType.js)).andReturn(true);
+
+          expect(req.is("json", "js")).andReturn(true);
+        })
+        .run(unit -> {
+          assertEquals(true,
+              new Request.Forwarding(unit.get(Request.class)).is(MediaType.ALL));
+
+          assertEquals(true,
+              new Request.Forwarding(unit.get(Request.class)).is(MediaType.json, MediaType.js));
+
+          assertEquals(true,
+              new Request.Forwarding(unit.get(Request.class)).is("json", "js"));
+        });
+  }
+
+  @Test
+  public void isSet() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+
+          expect(req.isSet("x")).andReturn(true);
+        })
+        .run(unit -> {
+          assertEquals(true,
+              new Request.Forwarding(unit.get(Request.class)).isSet("x"));
+        });
+  }
+
+  @Test
   public void params() throws Exception {
     new MockUnit(Request.class, Mutant.class)
         .expect(unit -> {
@@ -127,13 +165,16 @@ public class RequestForwardingTest {
 
           expect(req.params()).andReturn(params).times(2);
         })
-        .run(unit -> {
-          assertEquals(bean,
-              new Request.Forwarding(unit.get(Request.class)).params().to(Object.class));
+        .run(
+            unit -> {
+              assertEquals(bean,
+                  new Request.Forwarding(unit.get(Request.class)).params().to(Object.class));
 
-          assertEquals(bean,
-              new Request.Forwarding(unit.get(Request.class)).params().to(TypeLiteral.get(Object.class)));
-        });
+              assertEquals(
+                  bean,
+                  new Request.Forwarding(unit.get(Request.class)).params().to(
+                      TypeLiteral.get(Object.class)));
+            });
   }
 
   @Test
@@ -213,11 +254,14 @@ public class RequestForwardingTest {
 
           expect(req.body()).andReturn(body).times(2);
         })
-        .run(unit -> {
-          assertEquals(null, new Request.Forwarding(unit.get(Request.class)).body().to(typeLiteral));
+        .run(
+            unit -> {
+              assertEquals(null,
+                  new Request.Forwarding(unit.get(Request.class)).body().to(typeLiteral));
 
-          assertEquals(null, new Request.Forwarding(unit.get(Request.class)).body().to(Object.class));
-        });
+              assertEquals(null,
+                  new Request.Forwarding(unit.get(Request.class)).body().to(Object.class));
+            });
   }
 
   @Test
@@ -500,10 +544,13 @@ public class RequestForwardingTest {
 
           expect(req.params()).andReturn(params);
         })
-        .run(unit -> {
-          assertEquals(v,
-              new Request.Forwarding(unit.get(Request.class)).params().to(RequestForwardingTest.class));
-        });
+        .run(
+            unit -> {
+              assertEquals(
+                  v,
+                  new Request.Forwarding(unit.get(Request.class)).params().to(
+                      RequestForwardingTest.class));
+            });
   }
 
 }

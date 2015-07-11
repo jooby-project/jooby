@@ -97,6 +97,26 @@ public interface Request {
     }
 
     @Override
+    public boolean is(final List<MediaType> types) {
+      return req.is(types);
+    }
+
+    @Override
+    public boolean is(final MediaType... types) {
+      return req.is(types);
+    }
+
+    @Override
+    public boolean is(final String... types) {
+      return req.is(types);
+    }
+
+    @Override
+    public boolean isSet(final String name) {
+      return req.isSet(name);
+    };
+
+    @Override
     public Mutant params() {
       return req.params();
     }
@@ -330,6 +350,36 @@ public interface Request {
    */
   default Optional<MediaType> accepts(final String... types) {
     return accepts(MediaType.valueOf(types));
+  }
+
+  /**
+   * True, if request accept any of the given types.
+   *
+   * @param types Types to test
+   * @return True if any of the given type is accepted.
+   */
+  default boolean is(final String ... types) {
+    return accepts(types).isPresent();
+  }
+
+  /**
+   * True, if request accept any of the given types.
+   *
+   * @param types Types to test
+   * @return True if any of the given type is accepted.
+   */
+  default boolean is(final MediaType... types) {
+    return accepts(types).isPresent();
+  }
+
+  /**
+   * True, if request accept any of the given types.
+   *
+   * @param types Types to test
+   * @return True if any of the given type is accepted.
+   */
+  default boolean is(final List<MediaType> types) {
+    return accepts(types).isPresent();
   }
 
   /**
