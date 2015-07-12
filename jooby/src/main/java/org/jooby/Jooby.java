@@ -103,6 +103,7 @@ import org.jooby.internal.reqparam.LocaleParser;
 import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.internal.reqparam.StaticMethodParser;
 import org.jooby.internal.reqparam.StringConstructorParser;
+import org.jooby.internal.routes.CorsHandler;
 import org.jooby.internal.routes.HeadHandler;
 import org.jooby.internal.routes.OptionsHandler;
 import org.jooby.internal.routes.TraceHandler;
@@ -2650,6 +2651,37 @@ public class Jooby {
     requireNonNull(routeClass, "Route class is required.");
     bag.add(routeClass);
     return this;
+  }
+
+  /**
+   * Add a Cross-origin resource sharing filter. Cors options should be defined in
+   * <code>.conf</code> property file. Defaul properties are:
+   *
+   * <pre>
+   *  origin: "*"
+   *  credentials: true
+   *  allowedMethods: [GET, POST]
+   *  allowedHeaders: [X-Requested-With, Content-Type, Accept, Origin]
+   *  exposedHeaders: []
+   * </pre>
+   *
+   * @return A route defintion for cors.
+   */
+  public Route.Definition cors() {
+    return cors(Optional.empty());
+  }
+
+  /**
+   * Add a Cross-origin resource sharing filter and use the given {@link Cors} options.
+   *
+   * @return A route defintion for cors.
+   */
+  public Route.Definition cors(final Cors cors) {
+    return cors(Optional.of(cors));
+  }
+
+  private Route.Definition cors(final Optional<Cors> cors) {
+    return appendDefinition(new Route.Definition("*", "*", new CorsHandler(cors))).name("cors");
   }
 
   /**

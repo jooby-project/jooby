@@ -49,6 +49,7 @@ import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.util.Collectors;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -174,16 +175,16 @@ public class RequestImpl implements Request {
 
         this.params.put(name, param);
       } else {
-        List<String> values = new ArrayList<>();
+        ImmutableList.Builder<String> values = ImmutableList.builder();
         String pathvar = route.vars().get(name);
         if (pathvar != null) {
           values.add(pathvar);
         }
         values.addAll(params(name));
-        param = new MutantImpl(require(ParserExecutor.class), type(),
-            new StrParamReferenceImpl(name, values));
+        StrParamReferenceImpl paramref = new StrParamReferenceImpl(name, values.build());
+        param = new MutantImpl(require(ParserExecutor.class), type(), paramref);
 
-        if (values.size() >0) {
+        if (paramref.size() >0) {
           this.params.put(name, param);
         }
       }

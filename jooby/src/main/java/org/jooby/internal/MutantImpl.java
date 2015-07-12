@@ -95,6 +95,18 @@ public class MutantImpl implements Mutant {
     return ImmutableMap.of("body", this);
   }
 
+  @SuppressWarnings("rawtypes")
+  @Override
+  public boolean isSet() {
+    if (data instanceof ParamReferenceImpl) {
+      return ((ParamReferenceImpl) data).size() > 0;
+    }
+    if (data instanceof BodyReferenceImpl) {
+      return ((BodyReferenceImpl) data).length() > 0;
+    }
+    return ((Map) data).size() > 0;
+  }
+
   @Override
   public String toString() {
     return data.toString();

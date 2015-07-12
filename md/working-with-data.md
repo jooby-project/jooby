@@ -1,4 +1,4 @@
-# parser, renderer and view engine
+# parser/renderer and view engine
 
 ## parser
 

@@ -380,4 +380,9 @@ public interface Mutant {
    * @return A map view of this mutant.
    */
   Map<String, Mutant> toMap();
+
+  /**
+   * @return True if this mutant has a value (param, header, body, etc...).
+   */
+  boolean isSet();
 }

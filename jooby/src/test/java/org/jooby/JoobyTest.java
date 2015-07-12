@@ -146,8 +146,10 @@ public class JoobyTest {
     Binder binder = unit.get(Binder.class);
     expect(binder.bindConstant()).andReturn(strACBB).anyTimes();
     expect(binder.bind(Config.class)).andReturn(configAnnotatedBinding).anyTimes();
-    expect(binder.bind(Key.get(Types.listOf(String.class), Names.named("hotswap.reload.ext"))))
-        .andReturn((LinkedBindingBuilder) listOfString).anyTimes();
+    expect(binder.bind(Key.get(Types.listOf(String.class), Names.named("cors.allowedHeaders"))))
+        .andReturn((LinkedBindingBuilder) listOfString);
+    expect(binder.bind(Key.get(Types.listOf(String.class), Names.named("cors.allowedMethods"))))
+        .andReturn((LinkedBindingBuilder) listOfString);
   };
 
   private MockUnit.Block env = unit -> {

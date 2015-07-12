@@ -145,6 +145,11 @@ public class WsBinaryMessage implements Mutant {
     return ImmutableMap.of("message", this);
   }
 
+  @Override
+  public boolean isSet() {
+    return true;
+  }
+
   private Err typeError(final Class<?> type) {
     return new Err(Status.BAD_REQUEST, "Can't convert to "
         + ByteBuffer.class.getName() + " to " + type);
