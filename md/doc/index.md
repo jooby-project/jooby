@@ -32,4 +32,8 @@ documentation
 
 {{working-with-data.md}}
 
+{{cors.md}}
+
+{{javascript.md}}
+
 {{appendix}}

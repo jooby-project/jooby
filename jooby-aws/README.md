@@ -11,7 +11,8 @@ Small utility module that exposes ```AmazonWebServiceClient``` and give you acce
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-aws</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0
+</version>
 </dependency>
 ```
 
@@ -41,7 +42,8 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 Keep in mind, you will need the ```s3 (ses, sqs,sns, etc..)``` jar in your classpath.
 
 This module is small and simple. All it does is bind ```AmazonWebServiceClient``` instances in
-[Guice](https://github.com/google/guice). It also helps to bind utility classes like ```TransferManager```
+[Guice](https://github.com/google/guice)
+. It also helps to bind utility classes like ```TransferManager```
 
 ```java
 {

@@ -8,7 +8,8 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0
+</version>
 </dependency>
 ```
 ## usage

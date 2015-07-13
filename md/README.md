@@ -1,11 +1,15 @@
 [![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
 [![Coverage Status](https://img.shields.io/coveralls/jooby-project/jooby.svg)](https://coveralls.io/r/jooby-project/jooby?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby)
-[![ASF2](http://img.shields.io/badge/license--blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
+[![ASF2](http://img.shields.io/badge/license-ASF2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
 [![Twitter](https://img.shields.io/badge/twitter--blue.svg)](https://twitter.com/edgarespina)
 [![Google Group](https://img.shields.io/badge/group--blue.svg)](https://groups.google.com/forum/#!forum/jooby-project)
 
-{{jooby.md}}
+{{jooby-pre.md}}
+
+{{jooby-lang.md}}
+
+{{jooby-post.md}}
 
 {{quickstart.md}}
 

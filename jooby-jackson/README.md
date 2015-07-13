@@ -2,7 +2,9 @@
 
 JSON support from the excellent [Jackson](https://github.com/FasterXML/jackson) library.
 
-This module provides a JSON body [parser](/apidocs/Parser.html) and [formatter](/apidocs/Renderer.html)
+This module provides a JSON body [parser](/apidocs
+/Parser.html) and [formatter](/apidocs
+/Renderer.html)
 but also an [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2.5.2/com/fasterxml/jackson/databind/ObjectMapper.html).
 
 ## dependency
@@ -11,7 +13,8 @@ but also an [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0
+</version>
 </dependency>
 ```
 ## usage

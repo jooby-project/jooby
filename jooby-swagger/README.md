@@ -1,14 +1,18 @@
 # jooby-swagger
 
-[Swagger](http://swagger.io) is a simple yet powerful representation of your RESTful API.
+[Swagger](http://swagger.io)
+ is a simple yet powerful representation of your RESTful API.
 
-This module generate [Swagger](http://swagger.io) spec file: ```.json``` or ```.yml``` but also UI for MVC routes.
+This module generate [Swagger](http://swagger.io)
+ spec file: ```.json``` or ```.yml``` but also UI for MVC routes.
 
 ## exposes
 
 * A ```/swagger``` route that renders a Swagger UI
-* A ```/swagger.json``` route that renders a [Swagger](http://swagger.io) spec in ```json``` format
-* A ```/swagger.yml``` route that renders a [Swagger](http://swagger.io) spec in ```yaml``` format
+* A ```/swagger.json``` route that renders a [Swagger](http://swagger.io)
+ spec in ```json``` format
+* A ```/swagger.yml``` route that renders a [Swagger](http://swagger.io)
+ spec in ```yaml``` format
 
 ## dependency
 
@@ -16,7 +20,8 @@ This module generate [Swagger](http://swagger.io) spec file: ```.json``` or ```.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-swagger</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0
+</version>
 </dependency>
 ```
 
@@ -45,7 +50,8 @@ public class Pets {
 }
 ```
 
-By default, [Swagger](http://swagger.io) will be mounted at ```/swagger```, ```/swagger/swagger.json``` and ```/swagger/swagger.yml```. Go and try it!
+By default, [Swagger](http://swagger.io)
+ will be mounted at ```/swagger```, ```/swagger/swagger.json``` and ```/swagger/swagger.yml```. Go and try it!
 
 Or if you want to mount Swagger somewhere else...:
 
@@ -70,7 +76,9 @@ It is a small feature, but very useful if you have a medium-size API.
 
 ## swagger.conf
 
-[Jooby](http://jooby.org) creates a [Swagger](http://swagger.io) model dynamically from MVC routes. But also, defines some defaults inside the ```swagger.conf``` (see appendix).
+[Jooby](http://jooby.org)
+ creates a [Swagger](http://swagger.io)
+ model dynamically from MVC routes. But also, defines some defaults inside the ```swagger.conf``` (see appendix).
 
 For example, ```swagger.info.title``` is set to ```application.name```. If you want
 to provide a more friendly name, description or API version... you can do it via your ```application.conf``` file:
@@ -85,7 +93,8 @@ swagger.info.version = v0.1.0
 ## limitations (future implementation)
 
 * Sadly, ONLY MVC routes are supported. Inline/lambda routes has no supports for now.
-* It might be nice to generate API docs (via markdown or similar) at built time using [Maven](http://maven.apache.org/).
+* It might be nice to generate API docs (via markdown or similar) at built time using [Maven](http://maven.apache.org/)
+.
 
 # appendix: swagger.conf
 

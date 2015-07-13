@@ -242,12 +242,13 @@ var writeString = function (fout, data) {
 };
 
 var toc = function (data) {
-  var scanner = new Scanner(data).useDelimiter('\n'),
+  var scanner = new Scanner(data.replaceAll('```.*```', '')).useDelimiter('\n'),
       toc = new StringBuilder();
 
   var count = function (line) {
-    var start = line.indexOf('#');
-    if (start === 0) {
+    var start = line.indexOf('#'),
+        escape = line.indexOf('#!');
+    if (start === 0 && escape !== 0) {
       return line.substring(start, line.lastIndexOf('#') + 1).trim().length();
     }
     return 0;
@@ -265,17 +266,13 @@ var toc = function (data) {
   while (scanner.hasNext()) {
     var line = scanner.next(),
       c = count(line);
-    if (line.indexOf('```') === 0) {
-      insideblock = !insideblock;
-    }
-    if (!insideblock) {
+
       if (c > 0 && c < 3) {
         // clean up md links
         var item = line.replaceAll('#|\\[|\\]|\\(.+\\)', '').trim();
         toc.append(indent(c)).append('- [').append(item).append('](#')
             .append(item.replaceAll('\\s+', '-')).append(')\n');
       }
-    }
   }
 
   return toc.toString();
@@ -435,10 +432,8 @@ ls(ghpagesdir, function (file) {
   }
 
   var fout = path.nameCount > 1 ? new File('jooby-' + path) : path.toFile();
-  if (fout.parentFile && fout.parentFile.exists()) {
-    copy(file, fout);
-    file['delete']();
-    console.log('  done: ' + fout);
-  }
+  copy(file, fout);
+  file['delete']();
+  console.log('  done: ' + fout);
 });
 
