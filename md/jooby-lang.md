@@ -18,7 +18,7 @@ public class App extends Jooby {
 
 ```
 
-[JavaScript](doc/jooby-js):
+[JavaScript](/jooby-js):
 
 ```js
 
