@@ -156,6 +156,45 @@ section a:hover {
   text-decoration: underline;
 }
 
+ul.nav-lang li {
+  font-family: 'Ubuntu Mono', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  list-style: none;
+  cursor: pointer;
+  display: inline-block;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+ul.nav-lang li.active,
+ul.nav-lang li:hover {
+  border-bottom: 3px solid #da4939;
+}
+
+ul.lang, ul.nav-lang {
+  margin: 0;
+  padding: 0;
+}
+
+ul.lang li {
+  list-style: none;
+}
+
+ul.lang li .highlight {
+  display: none;
+  height: 238px;
+}
+
+ul.lang li.active .highlight {
+  display: inherit;
+}
+
+ul.lang li .highlight pre {
+  margin-top: 3px;
+  height: 228px;
+  min-height: 228px;
+}
+
 /**
  * Footer
  */
