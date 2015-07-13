@@ -90,7 +90,8 @@ get("/user/{id}", req -> "hey " + req.param("id").value());
 get("/user/{id:\\d+}", req -> "hey " + req.param("id").intValue());
 ```
 
-Reques params are covered later, for now all you need to know is that you can access to a path parameter using the [Request.param(String)](/apidocs/org/jooby/Request.param(java.lang.String)).
+Reques params are covered later, for now all you need to know is that you can access to a path parameter using the [Request.param(String)](/apidocs
+/org/jooby/Request.param(java.lang.String)).
 
 ### ant style patterns
 

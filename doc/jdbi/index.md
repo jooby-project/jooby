@@ -1,7 +1,8 @@
 ---
 layout: index
 title: jdbi
-version: 0.7.0
+version: 0.8.0
+
 ---
 
 # jooby-jdbi
@@ -22,7 +23,8 @@ See [JDBI](http://www.jdbi.org/) for a detailed usage.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbi</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0
+</version>
 </dependency>
 ```
 

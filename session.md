@@ -1,5 +1,6 @@
 # session
-Sessions are created on demand via: [req.session()](/apidocs/org/jooby/Request.html#session--).
+Sessions are created on demand via: [req.session()](/apidocs/org/jooby
+/Request.html#session--).
 
 Sessions have a lot of uses cases but most commons are: auth, store information about current
 user, etc.
@@ -15,8 +16,10 @@ the user close the browser (a.k.a session cookie).
 
 ## session store
 
-A [Session.Store](/apidocs/org/jooby/Session.Store.html) is responsible for saving session data. Sessions are kept in memory, by
-default using the [Session.Mem](/apidocs/org/jooby/Session.Mem.html) store, which is useful for development, but wont scale well
+A [Session.Store](/apidocs/org/jooby
+/Session.Store.html) is responsible for saving session data. Sessions are kept in memory, by
+default using the [Session.Mem](/apidocs/org/jooby
+/Session.Mem.html) store, which is useful for development, but wont scale well
 on production environments. An redis, memcached, ehcache store will be a better option.
 
 ### store life-cycle
@@ -49,5 +52,7 @@ signed it with it.
 
 The <code>session.cookie.name</code> indicates the name of the cookie that hold the session ID,
 by defaults: <code>jooby.sid</code>. Cookie's name can be explicitly set with
-[cookie.name("name")](/apidocs/org/jooby/Cookie.Definition.html#name-java.lang.String-) on
-[Session.Definition#cookie()](/apidocs/org/jooby/Session.Definition.html#cookie).
+[cookie.name("name")](/apidocs/org/jooby
+/Cookie.Definition.html#name-java.lang.String-) on
+[Session.Definition#cookie()](/apidocs/org/jooby
+/Session.Definition.html#cookie).

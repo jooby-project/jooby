@@ -1,12 +1,14 @@
 ---
 layout: index
 title: spymemcached
-version: 0.7.0
+version: 0.8.0
+
 ---
 
 # memcached module
 
 Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memcached-client)
+
 
 ## exposes
 * A ```MemcachedClient``` service
@@ -17,7 +19,8 @@ Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-spymemcached</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0
+</version>
 </dependency>
 ```
 
@@ -75,14 +78,16 @@ or programmatically:
 }
 ```
 
-The ```name``` attribute and value will be stored in [Memcached](http://memcached.org).
+The ```name``` attribute and value will be stored in [Memcached](http://memcached.org)
+.
 
 Session are persisted using the default ```Transcoder```.
 
 ### options
 
 #### timeout
-By default, a [Memcached](http://memcached.org) session will expire after ```30 minutes```. Changing the default timeout is as simple as:
+By default, a [Memcached](http://memcached.org)
+ session will expire after ```30 minutes```. Changing the default timeout is as simple as:
 
 ```properties
 # 8 hours
@@ -99,7 +104,9 @@ session.timeout = -1
 ```
 
 #### key prefix
-Default [Memcached](http://memcached.org) key prefix is ```sessions:```. Sessions in [Memcached](http://memcached.org) will looks like: ```sessions:ID```
+Default [Memcached](http://memcached.org)
+ key prefix is ```sessions:```. Sessions in [Memcached](http://memcached.org)
+ will looks like: ```sessions:ID```
 
 It's possible to change the default key setting the ```memcached.sesssion.prefix``` property.
 

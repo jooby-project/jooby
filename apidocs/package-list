@@ -3,6 +3,7 @@ org.jooby.aws
 org.jooby.camel
 org.jooby.ehcache
 org.jooby.elasticsearch
+org.jooby.flyway
 org.jooby.ftl
 org.jooby.hbm
 org.jooby.hbs

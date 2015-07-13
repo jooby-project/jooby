@@ -32,7 +32,8 @@ It is also possible to inject the root ```com.typesafe.config.Config``` object o
 
 Jooby internals and the module system rely on the ```application.env``` property. By defaults, this property is set to: ```dev```.
 
-This special property is represented at runtime with the [Env](/apidocs/org/jooby/Env.html) class.
+This special property is represented at runtime with the [Env](/apidocs
+/org/jooby/Env.html) class.
 
 For example, the [development stage](https://github.com/google/guice/wiki/Bootstrap) is set in [Guice](https://github.com/google/guice) when ```application.env == dev```.
 A module provider, might decided to create a connection pool, cache, etc when ```application.env != dev ```.

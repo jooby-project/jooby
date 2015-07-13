@@ -1,7 +1,8 @@
 ---
 layout: index
 title: undertow
-version: 0.7.0
+version: 0.8.0
+
 ---
 
 # jooby-undertow
@@ -14,14 +15,16 @@ version: 0.7.0
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-undertow</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0
+</version>
 </dependency>
 ```
 
 ## usage
 
 In order to use a web server all you have to do is add the dependency to your build system.
-[Jooby](/) will find the server and start it.
+[Jooby](/
+) will find the server and start it.
 
 
 # appendix: server.conf

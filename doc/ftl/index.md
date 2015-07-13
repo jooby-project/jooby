@@ -1,12 +1,15 @@
 ---
 layout: index
 title: ftl
-version: 0.7.0
+version: 0.8.0
+
 ---
 
 # jooby-ftl
 
-[Freemarker](http://freemarker.org) templates for [Jooby](/). Exposes a Configuration and [renderer](/apidocs/org/jooby/Renderer.html).
+[Freemarker](http://freemarker.org) templates for [Jooby](/
+). Exposes a Configuration and [renderer](/apidocs/org/jooby
+/Renderer.html).
 
 ## dependency
 
@@ -14,7 +17,8 @@ version: 0.7.0
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0
+</version>
 </dependency>
 ```
 

@@ -35,7 +35,9 @@ public class MyRoutes {
 }
 ```
 
-A method annotated with [GET](/apidocs/org/jooby/mvc/GET.html), [POST](/apidocs/org/jooby/mvc/POST.html),... (or any of the rest of the verbs) is considered a route handler (web method).
+A method annotated with [GET](/apidocs/org/jooby
+/mvc/GET.html), [POST](/apidocs/org/jooby
+/mvc/POST.html),... (or any of the rest of the verbs) is considered a route handler (web method).
 
 ### registering a mvc route
 
@@ -196,7 +198,8 @@ public Result home() {
 
 #### customizing the response
 
-If you need to deal with HTTP metadata like: status code, headers, etc... use a [org.jooby.Result](/apidocs/org/jooby/Result.html)
+If you need to deal with HTTP metadata like: status code, headers, etc... use a [org.jooby.Result](/apidocs/org/jooby
+/Result.html)
 
 ```java
 @GET

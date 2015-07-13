@@ -1,10 +1,12 @@
 # err
 
-Error handler is represented by the [Err.Handler](/apidocs/org/jooby/Err.Handler.html) class and allows you to log and/or render exceptions.
+Error handler is represented by the [Err.Handler](/apidocs/org/jooby
+/Err.Handler.html) class and allows you to log and/or render exceptions.
 
 ## default err handler
 
-The [default error handler](/apidocs/org/jooby/Err.DefHandler.html) does content negotiation and optionallydisplay friendly err pages using naming convention.
+The [default error handler](/apidocs/org/jooby
+/Err.DefHandler.html) does content negotiation and optionallydisplay friendly err pages using naming convention.
 
 ```java
 {
@@ -22,7 +24,8 @@ The [default error handler](/apidocs/org/jooby/Err.DefHandler.html) does content
 ### html
 
 If a request to ```/``` has an ```Accept: text/html``` header. Then, the default err handler will
-ask to a [View.Engine](/apidocs/org/jooby/View.Engine.html) to render the ```err``` view.
+ask to a [View.Engine](/apidocs/org/jooby
+/View.Engine.html) to render the ```err``` view.
 
 The default model has these attributes:
 
@@ -46,7 +49,8 @@ HTTP status code will be set too.
 ### no html
 
 If a request to ```/``` has an ```Accept: application/json``` header. Then, the default err handler will
-ask to a [renderer](/apidocs/org/jooby/Renderer.html) to render the ```err``` model.
+ask to a [renderer](/apidocs/org/jooby
+/Renderer.html) to render the ```err``` model.
 
 ```json
 {
@@ -90,7 +94,8 @@ Default status code is ```500```, except for:
 
 ### custom status code
 
-Just throw an [Err](/apidocs/org/jooby/Err.html):
+Just throw an [Err](/apidocs/org/jooby
+/Err.html):
 
 ```java
 throw new Err(403);

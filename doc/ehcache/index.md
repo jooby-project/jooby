@@ -1,12 +1,14 @@
 ---
 layout: index
 title: ehcache
-version: 0.7.0
+version: 0.8.0
+
 ---
 
 # jooby-ehcache
 
 Provides advanced cache features via [Ehcache](http://ehcache.org)
+
 
 ## exposes
 
@@ -19,7 +21,8 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0
+</version>
 </dependency>
 ```
 
@@ -39,12 +42,14 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
 }
 ```
 
-[Ehcache](http://ehcache.org) can be fully configured from your ```.conf``` file and/or programmatically, but for the
+[Ehcache](http://ehcache.org)
+ can be fully configured from your ```.conf``` file and/or programmatically, but for the
 time being there is no support for ```xml```.
  
 ## caches
 
-Caches are configured via ```.conf``` like almost everything in [Jooby](http://jooby.org).
+Caches are configured via ```.conf``` like almost everything in [Jooby](http://jooby.org)
+.
 
 ```properties
 ehcache.cache.mycache {
@@ -117,7 +122,9 @@ Please note the ```default``` cache works as a template and isn't a real/usable 
 
 ## session store
 
-This module provides an [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html). In order to use the [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html) all
+This module provides an [EhSessionStore](/apidocs/org/jooby
+/ehcache/EhSessionStore.html). In order to use the [EhSessionStore](/apidocs/org/jooby
+/ehcache/EhSessionStore.html) all
 you have to do is define a ```session``` cache:
 
 ```properties
@@ -127,7 +134,8 @@ ehcache.cache.session {
 }
 ```
 
-And then register the [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html):
+And then register the [EhSessionStore](/apidocs/org/jooby
+/ehcache/EhSessionStore.html):
 
 ```java
 {
