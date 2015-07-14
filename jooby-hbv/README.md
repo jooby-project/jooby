@@ -14,7 +14,7 @@ Bean validation via [Hibernate Validator](hibernate.org/validator).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbv</artifactId>
-  <version>0.8.0</version>
+  <version>0.8.1</version>
 </dependency>
 ```
 

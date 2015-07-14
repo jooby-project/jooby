@@ -10,7 +10,7 @@ Exposes a [Morphia](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mo
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-morphia</artifactId>
-  <version>0.8.0</version>
+  <version>0.8.1</version>
 </dependency>
 ```
 
