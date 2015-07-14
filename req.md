@@ -1,16 +1,12 @@
 # request
 
-The request object contains methods for reading params, headers and body (between others). In the next section we will mention the most important method of a request object, if you need more information please refer to the [javadoc](/apidocs
-/org/jooby/Request.html).
+The request object contains methods for reading params, headers and body (between others). In the next section we will mention the most important method of a request object, if you need more information please refer to the [javadoc](/apidocs/org/jooby/Request.html).
 
 ## request params
 
-Retrieval of param is done via: [req.param("name")](/apidocs
-/org/jooby/Request.html#param-java.lang.String-) method.
+Retrieval of param is done via: [req.param("name")](/apidocs/org/jooby/Request.html#param-java.lang.String-) method.
 
-The [req.param("name")](/apidocs
-/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant](/apidocs
-/org/jooby/Mutant.html) instance. A mutant had several utility method for doing type conversion.
+The [req.param("name")](/apidocs/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant](/apidocs/org/jooby/Mutant.html) instance. A mutant had several utility method for doing type conversion.
 
 Some examples:
 
@@ -84,8 +80,7 @@ Automatic type conversion is provided when a type:
 
 * Is a primitive, primitive wrapper or String
 * Is an enum
-* Is an [Upload](/apidocs
-/org/jooby/Upload.html)
+* Is an [Upload](/apidocs/org/jooby/Upload.html)
 * Has a public **constructor** that accepts a single **String** argument
 * Has a static method **valueOf** that accepts a single **String** argument
 * Has a static method **fromString** that accepts a single **String** argument. Like ```java.util.UUID```
@@ -142,11 +137,9 @@ get("/", req -> {
 
 ## request body
 
-Retrieval of request body is done via [request.body()](/apidocs
-/org/jooby/Request.html#body).
+Retrieval of request body is done via [request.body()](/apidocs/org/jooby/Request.html#body).
 
-A [parser](/apidocs
-/org/jooby/Parser.html) is responsible for parse or convert the HTTP request body to something else.
+A [parser](/apidocs/org/jooby/Parser.html) is responsible for parse or convert the HTTP request body to something else.
 
 There are a few built-in parsers for reading body as String or Reader objects. Once the body is read it, it can't be read it again.
 
@@ -154,8 +147,7 @@ A detailed explanation for parser is covered later. For now, all you need to kno
 
 A body parser is registered in one of two ways:
 
-* with [parser](/apidocs
-/org/jooby/Jooby.html#parser-org.jooby.Parser-)
+* with [parser](/apidocs/org/jooby/Jooby.html#parser-org.jooby.Parser-)
 
 ```java
 {
@@ -185,8 +177,7 @@ Local variables are bound to the current request. They are created every time a 
 
 In previous section we learnt you can bind/wire your objects with [Guice](https://github.com/google/guice).
 
-You can ask [Guice](https://github.com/google/guice) to wired an object from the [request.require(type)](/apidocs/org/jooby
-/Request.html#require-com.google.inject.Key-)
+You can ask [Guice](https://github.com/google/guice) to wired an object from the [request.require(type)](/apidocs/org/jooby/Request.html#require-com.google.inject.Key-)
 
 ```java
 get("/", req -> {

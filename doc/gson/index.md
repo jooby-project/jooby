@@ -2,7 +2,6 @@
 layout: index
 title: gson
 version: 0.8.0
-
 ---
 
 # jooby-gson
@@ -12,10 +11,8 @@ JSON support via [Gson](https://github.com/google/gson) library.
 ## exposes
 
 * A [Gson](https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/Gson.html)
-* A [Parser](/apidocs
-/Parser.html)
-* A [Renderer](/apidocs
-/Renderer.html)
+* A [Parser](/apidocs/Parser.html)
+* A [Renderer](/apidocs/Renderer.html)
 
 ## dependency
 
@@ -23,8 +20,7 @@ JSON support via [Gson](https://github.com/google/gson) library.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-gson</artifactId>
-  <version>0.8.0
-</version>
+  <version>0.8.0</version>
 </dependency>
 ```
 

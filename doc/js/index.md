@@ -2,13 +2,11 @@
 layout: index
 title: js
 version: 0.8.0
-
 ---
 
 # javascript
 
-[Jooby](http://jooby.org)
- is available in JavaScript via [Nashorn](http://openjdk.java.net/projects/nashorn/).
+[Jooby](http://jooby.org) is available in JavaScript via [Nashorn](http://openjdk.java.net/projects/nashorn/).
 
 ## hello world
 

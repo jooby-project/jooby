@@ -12,14 +12,11 @@ The use of web sockets is pretty easy too:
 }
 ```
 
-A [web socket](/apidocs/org/jooby
-/WebSocket.html) consist of a **path pattern** and a [handler](/apidocs/org/jooby
-/WebSocket.Handler.html).
+A [web socket](/apidocs/org/jooby/WebSocket.html) consist of a **path pattern** and a [handler](/apidocs/org/jooby/WebSocket.Handler.html).
 
 A **path pattern** can be as simple or complex as you need. All the path patterns supported by routes are supported here.
 
-A [handler](/apidocs/org/jooby
-/WebSocket.Handler.html) is executed on new connections, from there we can listen for message, errors and/or send data to the client.
+A [handler](/apidocs/org/jooby/WebSocket.Handler.html) is executed on new connections, from there we can listen for message, errors and/or send data to the client.
 
 Keep in mind that **web socket** are not like routes. There is no stack/pipe or chain.
 
@@ -27,8 +24,7 @@ You can mount a socket to a path used by a route, but you can't have two or more
 
 ## guice access
 
-You can ask [Guice](https://github.com/google/guice) to wired an object from the [ws.require(type)](/apidocs/org/jooby
-/WebSocket.html#require-com.google.inject.Key-)
+You can ask [Guice](https://github.com/google/guice) to wired an object from the [ws.require(type)](/apidocs/org/jooby/WebSocket.html#require-com.google.inject.Key-)
 
 ```java
 ws("/", (ws) -> {

@@ -2,14 +2,11 @@
 layout: index
 title: maven-plugin
 version: 0.8.0
-
 ---
 
 # mvn jooby:run
 
-A [Maven](http://maven.apache.org/)
- plugin for executing [Jooby](http://jooby.org)
- applications.
+A [Maven](http://maven.apache.org/) plugin for executing [Jooby](http://jooby.org) applications.
 
 ## usage
 
@@ -44,8 +41,7 @@ Changes on templates and/or static files (*.html, *.js, *.css) wont restart the 
 
 For the time being, you need to use a tool that compiles your source code, usually an IDE. Otherwise, no changes will be found.
 
-Is it worth to mention that dynamic reload of classes at runtime is done via [JBoss Modules](https://github.com/jboss-modules/jboss-modules)
-.
+Is it worth to mention that dynamic reload of classes at runtime is done via [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
 
 ## options
 
@@ -53,8 +49,7 @@ Is it worth to mention that dynamic reload of classes at runtime is done via [JB
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.8.0
-</version>
+  <version>0.8.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -74,8 +69,7 @@ Is it worth to mention that dynamic reload of classes at runtime is done via [JB
 
 ### ${application.class}
 
-A [Maven](http://maven.apache.org/)
- property that contains the fully qualified name of the ```main class```. Required.
+A [Maven](http://maven.apache.org/) property that contains the fully qualified name of the ```main class```. Required.
 
 ### debug
 
@@ -83,16 +77,13 @@ The JVM is started in debug mode by default. You can attach a remote debugger at
 
 ### commands
 
-List of commands to execute before starting the ```application```. Useful for [npm](https://www.npmjs.com)
-, [npm](http://gruntjs.com)
-, etc...
+List of commands to execute before starting the ```application```. Useful for [npm](https://www.npmjs.com), [npm](http://gruntjs.com), etc...
 
 ```xml
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.8.0
-</version>
+  <version>0.8.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -113,8 +104,7 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.8.0
-</version>
+  <version>0.8.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <vmArgs>

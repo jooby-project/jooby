@@ -16,8 +16,7 @@ This means a module should NOT create wrapper for a library. Instead, it should 
 
 This principle, keep module usually small, maintainable and flexible.
 
-A module is represented by the [Jooby.Module](/apidocs/org/jooby
-/Jooby.Module.html) class. The configure callback looks like:
+A module is represented by the [Jooby.Module](/apidocs/org/jooby/Jooby.Module.html) class. The configure callback looks like:
 
 ```java
 public class M1 implements Jooby.Module {
@@ -27,8 +26,7 @@ public class M1 implements Jooby.Module {
 }
 ```
 
-The configure callback is similar to a [Guice module](https://github.com/google/guice), except you can access to the [Env](/apidocs/org/jooby
-/Env.html) and [Type Safe Config](https://github.com/typesafehub/config) objects.
+The configure callback is similar to a [Guice module](https://github.com/google/guice), except you can access to the [Env](/apidocs/org/jooby/Env.html) and [Type Safe Config](https://github.com/typesafehub/config) objects.
 
 In addition to the **configure** callback, a module in Jooby has one additional method:  **config**. The ```config``` method allow a module to specify default properties.
 

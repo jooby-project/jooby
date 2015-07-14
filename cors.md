@@ -48,5 +48,4 @@ cors {
 }
 ```
 
-```CORS``` options are represented at runtime by [Cors](/apidocs/org/jooby
-/Cors.html).
+```CORS``` options are represented at runtime by [Cors](/apidocs/org/jooby/Cors.html).

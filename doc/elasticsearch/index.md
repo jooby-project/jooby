@@ -2,13 +2,11 @@
 layout: index
 title: elasticsearch
 version: 0.8.0
-
 ---
 
 # jooby-elasticsearch
 
-Enterprise full text search via [Elastic Search](https://github.com/elastic/elasticsearch)
-.
+Enterprise full text search via [Elastic Search](https://github.com/elastic/elasticsearch).
 
 Provides a client/local API but also a RESTFul API.
 
@@ -18,8 +16,7 @@ Provides a client/local API but also a RESTFul API.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-elasticsearch</artifactId>
-  <version>0.8.0
-</version>
+  <version>0.8.0</version>
 </dependency>
 ```
 
@@ -92,8 +89,7 @@ delete("/:id", req -> {
 ```
 
 ## configuration
-If it possible to setup or configure [Elastic Search](https://github.com/elastic/elasticsearch)
- via ```application.conf```, just make sure to prefix the property with ```elasticsearch```:
+If it possible to setup or configure [Elastic Search](https://github.com/elastic/elasticsearch) via ```application.conf```, just make sure to prefix the property with ```elasticsearch```:
 
 ```properties
  elasticsearch.http.jsonp.enable = true
@@ -110,10 +106,8 @@ or programmatically:
 ```
 
 ### http.enabled
-HTTP is disabled and isn't possible to change this value. What does it mean? [Jooby](http://jooby.org)
- setup a custom
-handler which makes it possible to use a [Jooby](http://jooby.org)
- server to serve Elastic Search requests and avoid
+HTTP is disabled and isn't possible to change this value. What does it mean? [Jooby](http://jooby.org) setup a custom
+handler which makes it possible to use a [Jooby](http://jooby.org) server to serve Elastic Search requests and avoid
 the need of starting up another server running in a different port.
 
 Most of the ```http.*``` properties has no sense in Jooby.

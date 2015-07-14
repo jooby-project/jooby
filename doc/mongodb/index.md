@@ -2,18 +2,13 @@
 layout: index
 title: mongodb
 version: 0.8.0
-
 ---
 
 # jooby-mongodb
 
-[MongoDB](http://mongodb.github.io/mongo-java-driver/)
- driver for Jooby.
+[MongoDB](http://mongodb.github.io/mongo-java-driver/) driver for Jooby.
 
-Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb
-/MongoClient.html), a [MongoDatabase](http://api.mongodb.org/java/2.13/com/mongodb
-/DB.html) and a [Session Store](/apidocs/org/jooby
-/mongodb/MongoSessionStore.html)
+Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient.html), a [MongoDatabase](http://api.mongodb.org/java/2.13/com/mongodb/DB.html) and a [Session Store](/apidocs/org/jooby/mongodb/MongoSessionStore.html)
 
 ## dependency
 
@@ -21,8 +16,7 @@ Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-mongodb</artifactId>
-  <version>0.8.0
-</version>
+  <version>0.8.0</version>
 </dependency>
 ```
 
@@ -93,13 +87,11 @@ Default connection URI is defined by the ```db``` property. Mongodb URI looks li
 db = mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database[.collection]][?options]]
 ```
 
-For more detailed information please check: [MongoClientURI](http://api.mongodb.org/java/2.13/com/mongodb
-/MongoClientURI.html).
+For more detailed information please check: [MongoClientURI](http://api.mongodb.org/java/2.13/com/mongodb/MongoClientURI.html).
 
 ## two or more connections
 
-Use [named](/apidocs/org/jooby
-/mongodb/Mongodb.html#-named) when you need two or more ```mongodb``` connections:
+Use [named](/apidocs/org/jooby/mongodb/Mongodb.html#-named) when you need two or more ```mongodb``` connections:
 
 ```java
 {
@@ -131,8 +123,7 @@ Use [named](/apidocs/org/jooby
 }
 ```
 
-The ```name``` attribute and value will be stored in a [MongoDB](http://mongodb.github.io/mongo-java-driver/)
-.
+The ```name``` attribute and value will be stored in a [MongoDB](http://mongodb.github.io/mongo-java-driver/).
 
 ## options
 
@@ -158,8 +149,7 @@ It uses [MongoDB's TTL](docs.mongodb.org/manual/core/index-ttl) collection featu
 
 ### session collection
 
-Default [MongoDB](http://mongodb.github.io/mongo-java-driver/)
- collection is ```sessions```.
+Default [MongoDB](http://mongodb.github.io/mongo-java-driver/) collection is ```sessions```.
 
 It's possible to change the default key setting the ```mongodb.sesssion.collection``` properties.
 

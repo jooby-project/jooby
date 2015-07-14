@@ -2,7 +2,6 @@
 layout: index
 title: camel
 version: 0.8.0
-
 ---
 
 # jooby-camel
@@ -20,8 +19,7 @@ depend on [camel-guice](http://camel.apache.org/guice.html), but it provides sim
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-camel</artifactId>
-  <version>0.8.0
-</version>
+  <version>0.8.0</version>
 </dependency>
 ```
 

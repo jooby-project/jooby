@@ -2,15 +2,13 @@
 
 ## parser
 
-A [Parser](/apidocs/org/jooby
-/Parser.html) is responsible for parsing the HTTP params and/or body to something else.
+A [Parser](/apidocs/org/jooby/Parser.html) is responsible for parsing the HTTP params and/or body to something else.
 
 Automatic type conversion is provided when a type:
 
 * Is a primitive, primitive wrapper or String
 * Is an enum
-* Is an [Upload](/apidocs
-/org/jooby/Upload.html)
+* Is an [Upload](/apidocs/org/jooby/Upload.html)
 * Has a public **constructor** that accepts a single **String** argument
 * Has a static method **valueOf** that accepts a single **String** argument
 * Has a static method **fromString** that accepts a single **String** argument. Like ```java.util.UUID```
@@ -90,8 +88,7 @@ post("/", req -> {
 });
 ```
 
-[Parser](/apidocs/org/jooby
-/Parser.html) API is very powerful. It let you apply a parser to a HTTP param, set of param (like a form post), file uploads and/or body. But not just that, you are free to choose if your parser applies for a Java Type and/or a Media Type, like the ```Content-Type``` header.
+[Parser](/apidocs/org/jooby/Parser.html) API is very powerful. It let you apply a parser to a HTTP param, set of param (like a form post), file uploads and/or body. But not just that, you are free to choose if your parser applies for a Java Type and/or a Media Type, like the ```Content-Type``` header.
 
 For example a generic JSON parser looks like:
 
@@ -113,8 +110,7 @@ If a body parser isn't able to resolve a param an exception will be thrown with 
 
 ## renderer
 
-A [Renderer](/apidocs/org/jooby
-/Renderer.html) is responsible for rendering a Java Object to a series of bytes in order to send them as HTTP response.
+A [Renderer](/apidocs/org/jooby/Renderer.html) is responsible for rendering a Java Object to a series of bytes in order to send them as HTTP response.
 
 There are a few built-in renderers:
 
@@ -162,10 +158,7 @@ Renderer API is simple and powerful. Renderers are executed in sequentially in t
 
 ## view engine
 
-A [view engine](/apidocs/org/jooby
-/View.Engine.html) is a specialized [renderer](/apidocs/org/jooby
-/Renderer.html) that ONLY accept instances of a [view](/apidocs/org/jooby
-/View.html).
+A [view engine](/apidocs/org/jooby/View.Engine.html) is a specialized [renderer](/apidocs/org/jooby/Renderer.html) that ONLY accept instances of a [view](/apidocs/org/jooby/View.html).
 
 ```java
 {

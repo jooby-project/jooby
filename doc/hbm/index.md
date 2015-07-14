@@ -2,7 +2,6 @@
 layout: index
 title: hbm
 version: 0.8.0
-
 ---
 
 # jooby-hbm
@@ -24,8 +23,7 @@ pattern, which basically keeps the ```Session``` opened until the view is render
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbm</artifactId>
-  <version>0.8.0
-</version>
+  <version>0.8.0</version>
 </dependency>
 ```
 
@@ -79,8 +77,7 @@ This is because the ```EntityManager``` is bound as [RequestScoped]({{defdocs/Re
 
 Still, we strongly recommend to leave your services in the default scope and avoid to use
 ```Singleton``` objects, except of course for really expensive resources. This is also
-recommend it by [Guice](https://github.com/google/guice)
-.
+recommend it by [Guice](https://github.com/google/guice).
 
 Services in the default scope won't have this problem and are free to inject the ```EntityManager``` directly.
 

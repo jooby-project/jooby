@@ -2,7 +2,6 @@
 layout: index
 title: hbv
 version: 0.8.0
-
 ---
 
 # jooby-hbv
@@ -21,8 +20,7 @@ Bean validation via [Hibernate Validator](hibernate.org/validator).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbv</artifactId>
-  <version>0.8.0
-</version>
+  <version>0.8.0</version>
 </dependency>
 ```
 
@@ -63,8 +61,7 @@ The previous example can be rewritten as:
 }
 ```
 
-Here a [Parser](/apidocs/org/jooby
-/Parser.html) will do the boilerplate part and throws a ```ConstraintViolationException```.
+Here a [Parser](/apidocs/org/jooby/Parser.html) will do the boilerplate part and throws a ```ConstraintViolationException```.
 
 ### rendering a ```ConstraintViolationException```
 
@@ -107,9 +104,7 @@ The call to ```rsp.send(errors);``` will be rendered by ```Jackson``` (or any ot
 
 ```ConstraintValidatorFactory``` is the extension point for customizing how constraint validators are instantiated and released.
 
-In [Jooby](http://jooby.org)
-, a ```ConstraintValidatorFactory``` is powered by [Guice](https://github.com/google/guice)
- and ```java.io.Closeable``` constraint will be release it. See [ConstraintValidatorFactory](http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-bootstrapping.html#d0e4456)
+In [Jooby](http://jooby.org), a ```ConstraintValidatorFactory``` is powered by [Guice](https://github.com/google/guice) and ```java.io.Closeable``` constraint will be release it. See [ConstraintValidatorFactory](http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-bootstrapping.html#d0e4456)
 
 ## configuration
 
