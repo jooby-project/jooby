@@ -158,7 +158,7 @@ public class RequestImpl implements Request {
     for (String name : names) {
       params.put(name, param(name));
     }
-    return new MutantImpl(require(ParserExecutor.class), type(), params.build());
+    return new MutantImpl(require(ParserExecutor.class), params.build());
   }
 
   @Override
@@ -182,7 +182,7 @@ public class RequestImpl implements Request {
         }
         values.addAll(params(name));
         StrParamReferenceImpl paramref = new StrParamReferenceImpl(name, values.build());
-        param = new MutantImpl(require(ParserExecutor.class), type(), paramref);
+        param = new MutantImpl(require(ParserExecutor.class), paramref);
 
         if (paramref.size() >0) {
           this.params.put(name, param);
@@ -195,7 +195,7 @@ public class RequestImpl implements Request {
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "Header's name is missing.");
-    return new MutantImpl(require(ParserExecutor.class), type(),
+    return new MutantImpl(require(ParserExecutor.class),
         new StrParamReferenceImpl(name, req.headers(name)));
   }
 

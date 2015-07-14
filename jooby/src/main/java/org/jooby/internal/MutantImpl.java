@@ -58,8 +58,8 @@ public class MutantImpl implements Mutant {
     this.errStatus = errStatus;
   }
 
-  public MutantImpl(final ParserExecutor parser, final MediaType contentType, final Object data) {
-    this(parser, contentType, data, Status.BAD_REQUEST);
+  public MutantImpl(final ParserExecutor parser, final MediaType type, final Object data) {
+    this(parser, type, data, Status.BAD_REQUEST);
   }
 
   public MutantImpl(final ParserExecutor parser, final Object data) {
