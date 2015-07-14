@@ -1,7 +1,7 @@
 ---
 layout: index
 title: spymemcached
-version: 0.8.0
+version: 0.8.1
 ---
 
 # memcached module
@@ -17,7 +17,7 @@ Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-spymemcached</artifactId>
-  <version>0.8.0</version>
+  <version>0.8.1</version>
 </dependency>
 ```
 

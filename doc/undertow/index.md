@@ -1,7 +1,7 @@
 ---
 layout: index
 title: undertow
-version: 0.8.0
+version: 0.8.1
 ---
 
 # jooby-undertow
@@ -14,7 +14,7 @@ version: 0.8.0
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-undertow</artifactId>
-  <version>0.8.0</version>
+  <version>0.8.1</version>
 </dependency>
 ```
 
