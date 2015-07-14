@@ -206,7 +206,7 @@ public class Cors {
    * Test if the given origin is allowed or not.
    *
    * @param origin The origin to test.
-   * @return
+   * @return True if the origin is allowed.
    */
   public boolean allowOrigin(final String origin) {
     return this.origin.test(origin);

@@ -206,6 +206,7 @@ public interface Mutant {
 
   /**
    * @param value Default value to use.
+   * @param <T> Enum type.
    * @return Get an enum.
    */
   @SuppressWarnings("unchecked")

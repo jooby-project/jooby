@@ -2674,6 +2674,7 @@ public class Jooby {
   /**
    * Add a Cross-origin resource sharing filter and use the given {@link Cors} options.
    *
+   * @param cors Cors options.
    * @return A route defintion for cors.
    */
   public Route.Definition cors(final Cors cors) {

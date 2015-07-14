@@ -32,7 +32,7 @@ public class JsRequest extends Request.Forwarding {
    * @param type Require to support calls from JS using a StaticClass.
    * @return Nothing.
    */
-  public <T> T require(final Object type) {
+  public Object require(final Object type) {
     throw new UnsupportedOperationException();
   }
 }

@@ -43,11 +43,11 @@ import com.google.common.collect.ImmutableSet;
  *
  * <p>
  * If the incoming request require a token verification, it will extract the token from:
+ * </p>
  * <ol>
  * <li>HTTP header</li>
  * <li>HTTP parameter</li>
  * </ol>
- * </p>
  *
  * <p>
  * If the extracted token doesn't match the existing token (from {@link Session}) a <code>403</code>
