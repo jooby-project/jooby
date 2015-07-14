@@ -1,8 +1,6 @@
 # jooby-commons-email
 
-Email supports via [Apache Commons Email](https://commons.apache.org/proper/commons-email)
-. Small but helpful module that provides access to ```Email``` instances via [Guice](https://github.com/google/guice)
- and {{config}}.
+Email supports via [Apache Commons Email](https://commons.apache.org/proper/commons-email). Small but helpful module that provides access to ```Email``` instances via [Guice](https://github.com/google/guice) and {{config}}.
 
 ## usage
 

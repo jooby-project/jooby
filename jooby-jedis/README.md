@@ -1,7 +1,6 @@
 # jooby-jedis
 
-[Redis](http://redis.io/) cache and key/value data store for Jooby. Exposes a [Jedis](https://github.com/xetorthio/jedis)
- service.
+[Redis](http://redis.io/) cache and key/value data store for Jooby. Exposes a [Jedis](https://github.com/xetorthio/jedis) service.
 
 ## dependency
 
@@ -9,8 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>0.8.0
-</version>
+  <version>0.8.0</version>
 </dependency>
 ```
 
@@ -101,15 +99,13 @@ For more information about [Jedis](https://github.com/xetorthio/jedis) checkout 
 }
 ```
 
-The ```name``` attribute and value will be stored in a [Redis](http://redis.io)
-. Sessions are persisted as [hashes](http://redis.io/topics/data-types#hashes).
+The ```name``` attribute and value will be stored in a [Redis](http://redis.io). Sessions are persisted as [hashes](http://redis.io/topics/data-types#hashes).
 
 ### options
 
 #### timeout
 
-By default, a [Redis](http://redis.io)
- session will expire after ```30 minutes```. Changing the default timeout is as simple as:
+By default, a [Redis](http://redis.io) session will expire after ```30 minutes```. Changing the default timeout is as simple as:
 
 ```properties
 # 8 hours

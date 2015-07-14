@@ -18,6 +18,7 @@
 ## sql
 * [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc): high performance connection pool for jdbc via {{hikari}}.
 * [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi): fluent API for JDBC.
+* [flyway](https://github.com/jooby-project/jooby/tree/master/jooby-flyway): database migrations via {{flyway}}.
 
 ## hibernate
 * [hibernate](https://github.com/jooby-project/jooby/tree/master/jooby-hbm): object/relational mapping.
@@ -53,6 +54,9 @@
 
 ## emails
 * [commons-email](https://github.com/jooby-project/jooby/tree/master/jooby-commons-email): Email supports via {{commons-email}}.
+
+## amazon web services
+* [aws](https://github.com/jooby-project/jooby/tree/master/jooby-aws): wire AWS services and expose them in Guice.
 
 ## servers
 * [netty](https://github.com/jooby-project/jooby/tree/master/jooby-netty)

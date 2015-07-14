@@ -20,7 +20,6 @@ Introducing [Jooby](http://jooby.org) a minimalist web framework for Java 8 or h
 * **Ready for modern web**. That requires a lot of JavaScript/HTML/CSS
 
 
-
 ## hello world!
 
 Java:
@@ -52,24 +51,15 @@ app.get('/', function () 'Hey Jooby!');
 ```
 
 
-
 ## killer features
 
 * **Multi-language**. Write your application in Java or [JavaScript](/doc/js)
-* **Scripting programming model**. Like [express.js](http://expressjs.com)
-, [Sinatra](http://www.sinatrarb.com)
-, etc.. but also
-* **MVC programming model**. Like [Spring](http://spring.io)
- controllers or [Jersey](https://jersey.java.net)
- resources
-* **Multi-server**. Including [Netty](http://netty.io)
-, [Jetty](http://www.eclipse.org/jetty/)
- and [Undertow](http://undertow.io)
-
+* **Scripting programming model**. Like [express.js](http://expressjs.com), [Sinatra](http://www.sinatrarb.com), etc.. but also
+* **MVC programming model**. Like [Spring](http://spring.io) controllers or [Jersey](https://jersey.java.net) resources
+* **Multi-server**. Including [Netty](http://netty.io), [Jetty](http://www.eclipse.org/jetty/) and [Undertow](http://undertow.io)
 * **Web-Socket**
 * **Dependency Injection**
 * **Hot reload** for development
-
 
 
 quickstart
@@ -79,7 +69,6 @@ Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/techne
 
 ```bash
 mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.8.0
-
 ```
 
 You might want to edit/change:
@@ -95,7 +84,6 @@ Let's try it!:
 
 ```bash
 mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.8.0
-
 cd my-app
 mvn jooby:run
 ```
@@ -205,7 +193,6 @@ The maven plugin will compile the code (if necessary) and startup the applicatio
 
 Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.
 Then all you have to do is run the: ```App.java``` class. After all, this is plain Java application with a ```main``` method.
-
 
 
 versioning

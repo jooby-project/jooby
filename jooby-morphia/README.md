@@ -1,12 +1,8 @@
 # jooby-morphia
 
-Extends the [mongodb](https://github.com/jooby-project/jooby/tree/master
-/jooby-mongodb) module with object-document mapping via [Morphia](https://github.com/mongodb/morphia
-).
+Extends the [mongodb](/doc/mongodb) module with object-document mapping via [Morphia](https://github.com/mongodb/morphia).
 
-Exposes a [Morphia](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia
-/Morphia.html) and [Datastore](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia
-/Datastore.html) services.
+Exposes a [Morphia](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Morphia.html) and [Datastore](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Datastore.html) services.
 
 ## dependency
 
@@ -14,16 +10,13 @@ Exposes a [Morphia](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mo
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-morphia</artifactId>
-  <version>0.8.0
-</version>
+  <version>0.8.0</version>
 </dependency>
 ```
 
 ## getting started
 
-Before you start make sure to read the doc from [mongodb](https://github.com/jooby-project/jooby/tree/master
-/jooby-mongodb) module. This module extends [mongodb](https://github.com/jooby-project/jooby/tree/master
-/jooby-mongodb) module.
+Before you start make sure to read the doc from [mongodb](/doc/mongodb) module. This module extends [mongodb](/doc/mongodb) module.
 
 ## usage
 
@@ -48,8 +41,7 @@ db = "mongo://localhost/mydb"
 
 ### morphia callback
 
-The [Morphia](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia
-/Morphia.html) callback let you map classes and/or set mapper options.
+The [Morphia](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Morphia.html) callback let you map classes and/or set mapper options.
 
 ```java
 {
@@ -62,13 +54,11 @@ The [Morphia](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/
 }
 ```
 
-For more detailed information, check [here](https://github.com/mongodb/morphia
-/wiki/MappingObjects)
+For more detailed information, check [here](https://github.com/mongodb/morphia/wiki/MappingObjects)
 
 ### datastore callback
 
-This [Datastore](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia
-/Datastore.html) callback is executed only once, it's perfect for checking indexes:
+This [Datastore](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Datastore.html) callback is executed only once, it's perfect for checking indexes:
 
 ```java
 {
@@ -82,13 +72,11 @@ This [Datastore](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongo
 }
 ```
 
-For more detailed information, check [here](https://github.com/mongodb/morphia
-/wiki/Datastore#ensure-indexes-and-caps)
+For more detailed information, check [here](https://github.com/mongodb/morphia/wiki/Datastore#ensure-indexes-and-caps)
 
 ## entity listeners
 
-[Guice](https://github.com/google/guice)
- will create and inject entity listeners (when need it).
+[Guice](https://github.com/google/guice) will create and inject entity listeners (when need it).
 
 
 ```java
