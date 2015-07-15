@@ -32,6 +32,8 @@ import org.jooby.Response;
 import org.jooby.reflect.ParameterNameProvider;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.Reflection;
 import com.google.inject.TypeLiteral;
@@ -62,7 +64,7 @@ public class BeanParser implements Parser {
     return "bean";
   }
 
-  private static Object newBean(final Request req, final Response rsp,
+  private Object newBean(final Request req, final Response rsp,
       final Map<String, Mutant> params, final Class<?> beanType)
       throws Exception {
     ParameterNameProvider classInfo = req.require(ParameterNameProvider.class);
@@ -84,28 +86,57 @@ public class BeanParser implements Parser {
 
     // inject fields
     for (Entry<String, Mutant> param : params.entrySet()) {
-      String name = param.getKey();
+      String pname = param.getKey();
       try {
-        Field field = beanType.getDeclaredField(name);
+        List<String> path = name(pname);
+        Object root = seek(bean, path);
+        String fname = path.get(path.size() - 1);
+
+        Field field = root.getClass().getDeclaredField(fname);
         int mods = field.getModifiers();
-        if (!Modifier.isFinal(mods) && !Modifier.isStatic(mods)) {
+        if (!Modifier.isFinal(mods) && !Modifier.isStatic(mods) && !Modifier.isTransient(mods)) {
           // get
           RequestParam fparam = new RequestParam(field);
           @SuppressWarnings("unchecked")
-          Object value = req.param(fparam.name).to(fparam.type);
+          Object value = req.param(pname).to(fparam.type);
 
           // set
           field.setAccessible(true);
-          field.set(bean, value);
+          field.set(root, value);
         }
       } catch (NoSuchFieldException ex) {
-        LoggerFactory.getLogger(Request.class).debug("No matching field: {}", name);
+        LoggerFactory.getLogger(Request.class).debug("No matching field for: {}", pname);
       }
     }
     return bean;
   }
 
-  private static Object newBeanInterface(final Request req, final Class<?> beanType) {
+  /**
+   * Given a path like: <code>profile[address][country][name]</code> this method will traverse the
+   * path and seek the object in [country].
+   *
+   * @param bean Root bean.
+   * @param path Path to traverse.
+   * @return The last object in the path.
+   * @throws Exception If something goes wrong.
+   */
+  private Object seek(final Object bean, final List<String> path) throws Exception {
+    Object it = bean;
+    for (int i = 0; i < path.size() - 1; i++) {
+      Field field = it.getClass().getDeclaredField(path.get(i));
+      field.setAccessible(true);
+
+      Object next = field.get(it);
+      if (next == null) {
+        next = field.getType().newInstance();
+        field.set(it, next);
+      }
+      it = next;
+    }
+    return it;
+  }
+
+  private Object newBeanInterface(final Request req, final Class<?> beanType) {
 
     return Reflection.newProxy(beanType, (proxy, method, args) -> {
       StringBuilder name = new StringBuilder(method.getName()
@@ -117,4 +148,12 @@ public class BeanParser implements Parser {
     });
   }
 
+  private static List<String> name(final String name) {
+    return Splitter.on(new CharMatcher() {
+      @Override
+      public boolean matches(final char c) {
+        return c == '[' || c == ']';
+      }
+    }).trimResults().omitEmptyStrings().splitToList(name);
+  }
 }

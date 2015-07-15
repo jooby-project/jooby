@@ -9,7 +9,7 @@ import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-public class ParamBeanFeature extends ServerFeature {
+public class BeanParserFeature extends ServerFeature {
 
   public interface IBean {
 
