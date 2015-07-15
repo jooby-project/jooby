@@ -1,7 +1,7 @@
 ---
 layout: index
 title: doc
-version: 0.8.1
+version: 0.8.2
 ---
 
 documentation
@@ -897,7 +897,7 @@ The request object contains methods for reading params, headers and body (betwee
 
 Retrieval of param is done via: [req.param("name")](/apidocs/org/jooby/Request.html#param-java.lang.String-) method.
 
-The [req.param("name")](/apidocs/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant](/apidocs/org/jooby/Mutant.html) instance. A mutant had several utility method for doing type conversion.
+The [req.param("name")](/apidocs/org/jooby/Request.html#param-java.lang.String-) **always** returns a [Mutant](/apidocs/org/jooby/Mutant.html) instance. A mutant had severals utility methods for doing type conversion.
 
 Some examples:
 
@@ -926,6 +926,43 @@ get("/", req -> {
   Optional<String> optStr = req.param("optional").toOptional(String.class);
 });
 ```
+
+Multiple params can be retrieved at once:
+
+```
+GET /search?name=John&age=99&address[country]=AR&address[city]=BA
+```
+
+```java
+public class Profile {
+  String name;
+
+  int age;
+
+  Address address;
+
+}
+
+public class Address {
+  String country;
+  String city;
+  ...
+}
+```
+
+```java
+{
+  get("/search", req -> {
+     Profile profile = req.params().to(Profile.class);
+     System.out.println(profile.getName()); // print John
+     System.out.println(profile.getAge()); // print 99
+     System.out.println(profile.getAddress()); // print 99
+  });
+}
+```
+
+Binding is done at ```field``` level (no need of getter/setters). Field should not be ```static```, ```transient``` or ```final```. Also root or embedded classes must have a ```default constructor```.
+
 
 ### param types and precedence
 

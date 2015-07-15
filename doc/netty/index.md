@@ -1,7 +1,7 @@
 ---
 layout: index
 title: netty
-version: 0.8.1
+version: 0.8.2
 ---
 
 # jooby-netty
@@ -14,7 +14,7 @@ version: 0.8.1
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-netty</artifactId>
-  <version>0.8.1</version>
+  <version>0.8.2</version>
 </dependency>
 ```
 
