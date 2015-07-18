@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.jooby.test.ServerFeature;
 import org.junit.After;
@@ -73,9 +74,9 @@ public class WebSocketTerminateFeature extends ServerFeature {
               public void onError(final Throwable t) {
               }
             }).build()).get();
-    latch.await();
-
-    assertEquals(new Integer(1006), statusList.get(0));
+    if (latch.await(1L, TimeUnit.SECONDS)) {
+      assertEquals(new Integer(1006), statusList.get(0));
+    }
     statusList.clear();
   }
 }

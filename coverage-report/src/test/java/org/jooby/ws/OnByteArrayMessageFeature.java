@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.jooby.test.ServerFeature;
 import org.junit.After;
@@ -78,7 +79,8 @@ public class OnByteArrayMessageFeature extends ServerFeature {
               public void onError(final Throwable t) {
               }
             }).build()).get();
-    latch.await();
-    assertArrayEquals("=hey!".getBytes(), (byte[]) messages.get(0));
+    if (latch.await(1L, TimeUnit.SECONDS)) {
+      assertArrayEquals("=hey!".getBytes(), (byte[]) messages.get(0));
+    }
   }
 }

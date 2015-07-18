@@ -2,6 +2,7 @@ package org.jooby.ws;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.jooby.test.ServerFeature;
 import org.junit.After;
@@ -58,7 +59,7 @@ public class OnNoSuchElementErrFeature extends ServerFeature {
               }
             }).build()).get();
 
-    latch.await();
+    latch.await(1L, TimeUnit.SECONDS);
   }
 
 }

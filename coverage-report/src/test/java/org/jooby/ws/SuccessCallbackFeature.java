@@ -1,6 +1,7 @@
 package org.jooby.ws;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.jooby.test.ServerFeature;
 import org.junit.After;
@@ -65,7 +66,7 @@ public class SuccessCallbackFeature extends ServerFeature {
               public void onError(final Throwable t) {
               }
             }).build()).get();
-    latch.await();
+    latch.await(1L, TimeUnit.SECONDS);
   }
 
 }

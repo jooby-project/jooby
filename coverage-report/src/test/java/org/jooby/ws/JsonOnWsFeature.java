@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.jooby.json.Jackson;
 import org.jooby.test.ServerFeature;
@@ -74,8 +75,9 @@ public class JsonOnWsFeature extends ServerFeature {
               public void onError(final Throwable t) {
               }
             }).build()).get();
-    latch.await();
-    assertEquals("{\"k\":\"v\"}", messages.get(0));
+    if (latch.await(1L, TimeUnit.SECONDS)) {
+      assertEquals("{\"k\":\"v\"}", messages.get(0));
+    }
   }
 
 }

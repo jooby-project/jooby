@@ -30,25 +30,25 @@ public class WebSocketPauseResumeFeature extends ServerFeature {
 
       ws.pause();
       // 2nd ignored
-      ws.pause();
+        ws.pause();
 
-      executor.schedule(() -> {
-        ws.resume();
-        // 2nd call ignored
-        ws.resume();
-        latch.countDown();
-      }, 1, TimeUnit.SECONDS);
+        executor.schedule(() -> {
+          ws.resume();
+          // 2nd call ignored
+            ws.resume();
+            latch.countDown();
+          }, 1, TimeUnit.SECONDS);
 
-      ws.onMessage(message -> {
+        ws.onMessage(message -> {
 
-        ws.send("=" + message.value(), () -> {
-          latch.await();
-          ws.close();
+          ws.send("=" + message.value(), () -> {
+            latch.await();
+            ws.close();
+          });
+
         });
 
       });
-
-    });
 
   }
 
@@ -98,7 +98,9 @@ public class WebSocketPauseResumeFeature extends ServerFeature {
               public void onError(final Throwable t) {
               }
             }).build()).get();
-    latch.await();
-    assertEquals(Sets.newHashSet("=hey!"), messages);
+
+    if (latch.await(1L, TimeUnit.SECONDS)) {
+      assertEquals(Sets.newHashSet("=hey!"), messages);
+    }
   }
 }

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.jooby.test.ServerFeature;
 import org.junit.After;
@@ -75,8 +76,10 @@ public class OnConnectFeature extends ServerFeature {
               public void onError(final Throwable t) {
               }
             }).build()).get();
-    latch.await();
-    assertEquals(Arrays.asList("connected!"), messages);
+
+    if (latch.await(1L, TimeUnit.SECONDS)) {
+      assertEquals(Arrays.asList("connected!"), messages);
+    }
   }
 
 }

@@ -3,6 +3,7 @@ package org.jooby.ws;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jooby.test.ServerFeature;
@@ -68,7 +69,7 @@ public class OnCloseFeature extends ServerFeature {
               }
             }).build()).get();
 
-    closeLatch.await();
+    closeLatch.await(1L, TimeUnit.SECONDS);
   }
 
 }
