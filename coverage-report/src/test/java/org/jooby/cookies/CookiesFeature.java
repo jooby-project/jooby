@@ -4,9 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.jooby.Cookie;
+import org.jooby.Mutant;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -33,8 +33,8 @@ public class CookiesFeature extends ServerFeature {
     get("/get", (req, rsp) -> {
       // no path for netty
         assertTrue(req.cookies().toString().startsWith("[X=x;Version=1"));
-        Optional<Cookie> cookie = req.cookie("X");
-        rsp.send(cookie.isPresent() ? "present" : "deleted");
+        Mutant cookie = req.cookie("X");
+        rsp.send(cookie.isSet() ? "present" : "deleted");
       });
 
     get("/nocookies", (req, rsp) -> {

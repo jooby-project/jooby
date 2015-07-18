@@ -123,9 +123,9 @@ public class SessionManager {
   }
 
   public Session get(final Request req, final Response rsp) {
-    return req.cookie(template.name().get())
+    return req.cookie(template.name().get()).toOptional()
         .map(cookie -> {
-          String sessionId = unsign(cookie.value().get());
+          String sessionId = unsign(cookie);
           log.debug("loading session: {}", sessionId);
           Session session = store.get(
               new SessionImpl.Builder(resolver, false, sessionId, timeout)

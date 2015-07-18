@@ -218,13 +218,13 @@ public class RequestForwardingTest {
 
   @Test
   public void cookie() throws Exception {
-    new MockUnit(Request.class, Cookie.class)
+    new MockUnit(Request.class, Mutant.class)
         .expect(unit -> {
           Request req = unit.get(Request.class);
-          expect(req.cookie("c")).andReturn(Optional.of(unit.get(Cookie.class)));
+          expect(req.cookie("c")).andReturn(unit.get(Mutant.class));
         })
         .run(unit -> {
-          assertEquals(Optional.of(unit.get(Cookie.class)),
+          assertEquals(unit.get(Mutant.class),
               new Request.Forwarding(unit.get(Request.class)).cookie("c"));
         });
   }

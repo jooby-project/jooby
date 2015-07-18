@@ -56,7 +56,7 @@ public class RequestTest {
     }
 
     @Override
-    public Optional<Cookie> cookie(final String name) {
+    public Mutant cookie(final String name) {
       throw new UnsupportedOperationException();
     }
 

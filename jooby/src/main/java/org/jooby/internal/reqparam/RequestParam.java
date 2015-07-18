@@ -80,10 +80,12 @@ public class RequestParam {
     /**
      * Cookie
      */
-    builder.put(TypeLiteral.get(Cookie.class), (req, rsp, param) -> req.cookie(param.name).get());
+    builder.put(TypeLiteral.get(Cookie.class), (req, rsp, param) -> req.cookies().stream()
+        .filter(c -> c.name().equalsIgnoreCase(param.name)).findFirst().get());
     builder.put(TypeLiteral.get(Types.listOf(Cookie.class)), (req, rsp, param) -> req.cookies());
     builder.put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Cookie.class)),
-        (req, rsp, param) -> req.cookie(param.name)
+        (req, rsp, param) -> req.cookies().stream()
+            .filter(c -> c.name().equalsIgnoreCase(param.name)).findFirst()
         );
     /**
      * Header

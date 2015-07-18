@@ -137,7 +137,7 @@ public interface Request {
     }
 
     @Override
-    public Optional<Cookie> cookie(final String name) {
+    public Mutant cookie(final String name) {
       return req.cookie(name);
     }
 
@@ -513,7 +513,7 @@ public interface Request {
    * @param name Cookie's name.
    * @return A cookie or an empty optional.
    */
-  Optional<Cookie> cookie(String name);
+  Mutant cookie(String name);
 
   /**
    * @return All the cookies.
