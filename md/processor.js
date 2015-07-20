@@ -44,8 +44,13 @@ var version = function () {
 var links = [];
 
 links.push({
+  name: 'hazelcast',
+  data: '[Hazelcast](http://hazelcast.org)'
+});
+
+links.push({
   name: 'flyway',
-  data: '[Flyway](http://flywaydb.org/)'
+  data: '[Flyway](http://flywaydb.org)'
 });
 
 links.push({

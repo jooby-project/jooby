@@ -439,10 +439,10 @@ public class Jooby {
      * application properties available from {@link Config}.
      *
      * @param env The current application's env. Not null.
-     * @param config The current config object. Not null.
+     * @param conf The current config object. Not null.
      * @param binder A guice binder. Not null.
      */
-    void configure(Env env, Config config, Binder binder);
+    void configure(Env env, Config conf, Binder binder);
 
   }
 
