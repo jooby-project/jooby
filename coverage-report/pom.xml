@@ -156,6 +156,7 @@
               <systemPropertyVariables>
                 <!-- JaCoCo runtime must know where to dump coverage: -->
                 <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
+                <logback.configurationFile>${project.parent.basedir}/logback-travis.xml</logback.configurationFile>
               </systemPropertyVariables>
             </configuration>
           </plugin>
