@@ -55,7 +55,9 @@ public class AwsGenericManaged implements Provider, Managed {
     }
     try {
       Optional<Method> shutdown = Arrays.stream(dep.getClass().getDeclaredMethods())
-          .filter(m -> m.getName().startsWith("shutdown") && Modifier.isPublic(m.getModifiers()))
+          .filter(m -> m.getName().startsWith("shutdown")
+              && m.getParameterCount() == 0
+              && Modifier.isPublic(m.getModifiers()))
           .findFirst();
       if (shutdown.isPresent()) {
         log.debug("stopping {}", dep);

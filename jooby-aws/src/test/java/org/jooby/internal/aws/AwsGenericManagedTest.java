@@ -9,7 +9,17 @@ import com.amazonaws.AmazonWebServiceClient;
 
 public class AwsGenericManagedTest {
 
-  public static class NoShutdown {}
+  public static class NoShutdown {
+  }
+
+  public static class ShutdownOverloaded {
+
+    public void shutdownNow() {
+    }
+
+    public void shutdownNow(final boolean now) {
+    }
+  }
 
   public static class ShutdownErr {
 
@@ -65,6 +75,18 @@ public class AwsGenericManagedTest {
         });
   }
 
+  @Test
+  public void shutdownOverloaded() throws Exception {
+    new MockUnit(ShutdownOverloaded.class)
+        .expect(unit -> {
+          unit.get(ShutdownOverloaded.class).shutdownNow();
+        })
+        .run(unit -> {
+          AwsGenericManaged aws = new AwsGenericManaged(unit.get(ShutdownOverloaded.class));
+          aws.stop();
+        });
+  }
+
   @Test(expected = UnsupportedOperationException.class)
   public void stopErr() throws Exception {
     new MockUnit()
@@ -73,6 +95,5 @@ public class AwsGenericManagedTest {
           aws.stop();
         });
   }
-
 
 }
