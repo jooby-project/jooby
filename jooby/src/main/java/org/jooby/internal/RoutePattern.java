@@ -44,7 +44,7 @@ public class RoutePattern {
     requireNonNull(verb, "A HTTP verb is required.");
     requireNonNull(pattern, "A path pattern is required.");
     this.pattern = normalize(pattern);
-    this.matcher = rewrite(this, verb.toUpperCase() + this.pattern.replace("/**/", "/**"),
+    this.matcher = rewrite(this, verb.toUpperCase(), this.pattern.replace("/**/", "/**"),
         vars -> this.vars = vars);
   }
 
@@ -62,12 +62,13 @@ public class RoutePattern {
   }
 
   private static Function<String, RouteMatcher> rewrite(final RoutePattern owner,
-      final String pattern, final Consumer<List<String>> setVars) {
+      final String verb, final String pattern, final Consumer<List<String>> setVars) {
     List<String> vars = new LinkedList<>();
-    StringBuilder patternBuilder = new StringBuilder();
+    String rwrverb = verbs(verb);
+    StringBuilder patternBuilder = new StringBuilder(rwrverb);
     Matcher matcher = GLOB.matcher(pattern);
     int end = 0;
-    boolean regex = false;
+    boolean regex = !rwrverb.equals(verb);
     while (matcher.find()) {
       patternBuilder.append(quote(pattern, end, matcher.start()));
       String match = matcher.group();
@@ -106,7 +107,15 @@ public class RoutePattern {
     }
     patternBuilder.append(quote(pattern, end, pattern.length()));
     setVars.accept(vars);
-    return fn(owner, regex, regex ? patternBuilder.toString() : pattern, vars);
+    return fn(owner, regex, regex ? patternBuilder.toString() : verb + pattern, vars);
+  }
+
+  private static String verbs(final String verb) {
+    String[] verbs = verb.split("\\|");
+    if (verbs.length == 1) {
+      return verb.equals("*") ? "(?:[^/]*)" : verb;
+    }
+    return "(?:" + verb + ")";
   }
 
   private static Function<String, RouteMatcher> fn(final RoutePattern owner, final boolean complex,
@@ -148,7 +157,7 @@ public class RoutePattern {
     }
     buffer.append(normalized);
     if (normalized.endsWith("/")) {
-      buffer.setLength(buffer.length() - 1);;
+      buffer.setLength(buffer.length() - 1);
     }
     return buffer.toString();
   }

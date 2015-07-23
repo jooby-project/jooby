@@ -56,11 +56,21 @@ public class RoutePatternTest {
   }
 
   @Test
+  public void multipleVerb() {
+    new RoutePathAssert("get|POST", "com/test.jsp")
+        .matches("GET/com/test.jsp")
+        .matches("POST/com/test.jsp")
+        .butNot("PUT/com/test.jsp")
+        .butNot("DELETE/com/test.jsp")
+        .butNot("GET/com/tsst.jsp");
+  }
+
+  @Test
   public void anyVerb() {
-    // new RoutePathAssert("*", "com/test.jsp")
-    // .matches("GET/com/test.jsp")
-    // .matches("POST/com/test.jsp")
-    // .butNot("GET/com/tsst.jsp");
+    new RoutePathAssert("*", "com/test.jsp")
+        .matches("GET/com/test.jsp")
+        .matches("POST/com/test.jsp")
+        .butNot("GET/com/tsst.jsp");
 
     new RoutePathAssert("*", "user/:id")
         .matches("GET/user/xid", (vars) -> {
