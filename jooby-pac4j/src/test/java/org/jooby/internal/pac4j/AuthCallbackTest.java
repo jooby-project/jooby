@@ -38,6 +38,11 @@ public class AuthCallbackTest {
     expect(req.require(WebContext.class)).andReturn(unit.get(WebContext.class));
   };
 
+  private Block localRedirect = unit -> {
+    Request req = unit.get(Request.class);
+    expect(req.get("pac4jRequestedUrl")).andReturn(Optional.empty());
+  };
+
   @SuppressWarnings({"unchecked", "rawtypes" })
   private Block auth = unit -> {
     WebContext ctx = unit.get(WebContext.class);
@@ -66,6 +71,25 @@ public class AuthCallbackTest {
     rsp.redirect("/");
   };
 
+  private Block setProfileId2 = unit -> {
+    UserProfile profile = unit.get(UserProfile.class);
+    String profileId = "profileId";
+    expect(profile.getId()).andReturn(profileId);
+
+    Mutant requestedURL = unit.mock(Mutant.class);
+    expect(requestedURL.toOptional()).andReturn(Optional.of("/"));
+
+    Session session = unit.mock(Session.class);
+    expect(session.set(Auth.ID, profileId)).andReturn(session);
+    expect(session.unset(Pac4jConstants.REQUESTED_URL)).andReturn(requestedURL);
+
+    Request req = unit.get(Request.class);
+    expect(req.session()).andReturn(session);
+
+    Response rsp = unit.get(Response.class);
+    rsp.redirect("/home");
+  };
+
   @SuppressWarnings("unchecked")
   private Block onSuccess = unit -> {
     UserProfile profile = unit.get(UserProfile.class);
@@ -88,7 +112,7 @@ public class AuthCallbackTest {
   public void defaults() throws Exception {
     new MockUnit(Clients.class, AuthStore.class)
         .run(unit -> {
-          new AuthCallback(unit.get(Clients.class), unit.get(AuthStore.class));
+          new AuthCallback(unit.get(Clients.class), unit.get(AuthStore.class), "/");
         });
   }
 
@@ -97,12 +121,30 @@ public class AuthCallbackTest {
     new MockUnit(Clients.class, Client.class, AuthStore.class, Request.class, Response.class,
         Route.Chain.class, WebContext.class, Credentials.class, UserProfile.class)
         .expect(ctx)
+        .expect(localRedirect)
         .expect(auth)
         .expect(setProfileId)
         .expect(onSuccess)
         .expect(oneClient)
         .run(unit -> {
-          new AuthCallback(unit.get(Clients.class), unit.get(AuthStore.class))
+          new AuthCallback(unit.get(Clients.class), unit.get(AuthStore.class), "/")
+              .handle(unit.get(Request.class), unit.get(Response.class),
+                  unit.get(Route.Chain.class));
+        });
+  }
+
+  @Test
+  public void handleWith2Client() throws Exception {
+    new MockUnit(Clients.class, Client.class, AuthStore.class, Request.class, Response.class,
+        Route.Chain.class, WebContext.class, Credentials.class, UserProfile.class)
+        .expect(ctx)
+        .expect(localRedirect)
+        .expect(auth)
+        .expect(setProfileId2)
+        .expect(onSuccess)
+        .expect(oneClient)
+        .run(unit -> {
+          new AuthCallback(unit.get(Clients.class), unit.get(AuthStore.class), "/home")
               .handle(unit.get(Request.class), unit.get(Response.class),
                   unit.get(Route.Chain.class));
         });
@@ -114,6 +156,7 @@ public class AuthCallbackTest {
     new MockUnit(Clients.class, Client.class, AuthStore.class, Request.class, Response.class,
         Route.Chain.class, WebContext.class, Credentials.class, UserProfile.class)
         .expect(ctx)
+        .expect(localRedirect)
         .expect(unit -> {
           WebContext ctx = unit.get(WebContext.class);
           Credentials creds = unit.get(Credentials.class);
@@ -136,7 +179,7 @@ public class AuthCallbackTest {
           rsp.redirect("/");
         })
         .run(unit -> {
-          new AuthCallback(unit.get(Clients.class), unit.get(AuthStore.class))
+          new AuthCallback(unit.get(Clients.class), unit.get(AuthStore.class), "/")
               .handle(unit.get(Request.class), unit.get(Response.class),
                   unit.get(Route.Chain.class));
         });
@@ -148,6 +191,7 @@ public class AuthCallbackTest {
     new MockUnit(Clients.class, Client.class, AuthStore.class, Request.class, Response.class,
         Route.Chain.class, WebContext.class, Credentials.class, UserProfile.class)
         .expect(ctx)
+        .expect(localRedirect)
         .expect(auth)
         .expect(setProfileId)
         .expect(onSuccess)
@@ -167,7 +211,7 @@ public class AuthCallbackTest {
           expect(clients.findClient(ctx)).andReturn(client);
         })
         .run(unit -> {
-          new AuthCallback(unit.get(Clients.class), unit.get(AuthStore.class))
+          new AuthCallback(unit.get(Clients.class), unit.get(AuthStore.class), "/")
               .handle(unit.get(Request.class), unit.get(Response.class),
                   unit.get(Route.Chain.class));
         });
@@ -192,7 +236,7 @@ public class AuthCallbackTest {
           expect(rsp.committed()).andReturn(true);
         })
         .run(unit -> {
-          new AuthCallback(unit.get(Clients.class), unit.get(AuthStore.class))
+          new AuthCallback(unit.get(Clients.class), unit.get(AuthStore.class), "/")
               .handle(unit.get(Request.class), unit.get(Response.class),
                   unit.get(Route.Chain.class));
         });

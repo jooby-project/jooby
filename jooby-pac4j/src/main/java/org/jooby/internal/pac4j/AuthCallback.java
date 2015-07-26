@@ -21,9 +21,9 @@ package org.jooby.internal.pac4j;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.jooby.Request;
 import org.jooby.Response;
@@ -52,10 +52,14 @@ public class AuthCallback implements Route.Filter {
 
   private Clients clients;
 
+  private String redirectTo;
+
   @Inject
-  public AuthCallback(final Clients clients, final AuthStore store) {
+  public AuthCallback(final Clients clients, final AuthStore store,
+      @Named("auth.login.redirectTo") final String redirectTo) {
     this.clients = requireNonNull(clients, "Clients are required.");
     this.store = requireNonNull(store, "Auth store is required.");
+    this.redirectTo = requireNonNull(redirectTo, "RedirectTo is required.");
   }
 
   @SuppressWarnings("unchecked")
@@ -84,9 +88,15 @@ public class AuthCallback implements Route.Filter {
         store.set(profile);
       }
 
-      // redirect to saved URL
-      Optional<String> requestedUrl = session.unset(Pac4jConstants.REQUESTED_URL).toOptional();
-      rsp.redirect(requestedUrl.orElse("/"));
+      // where to go? if there is a local var set, it use that. If there is a session var set, it
+      // use that. Otherwise, it use the global property: "auth.login.redirectTo".
+      String requestedUrl = req.<String> get(Pac4jConstants.REQUESTED_URL).orElseGet(() -> {
+        return session.unset(Pac4jConstants.REQUESTED_URL).toOptional()
+            .map(url -> url.equals("/") ? this.redirectTo : url)
+            .orElse(this.redirectTo);
+      });
+      log.info("redirecting to: {}", requestedUrl);
+      rsp.redirect(requestedUrl);
     } catch (final RequiresHttpAction ex) {
       new AuthResponse(rsp).handle(client, ex);
     }

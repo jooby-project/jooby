@@ -270,6 +270,7 @@ import com.typesafe.config.ConfigFactory;
  */
 public class Auth implements Jooby.Module {
 
+  /** Name of the local request variable that holds the username. */
   public static final String ID = Auth.class.getName() + ".id";
 
   private List<BiConsumer<Binder, Config>> bindings = new ArrayList<>();
@@ -589,6 +590,8 @@ public class Auth implements Jooby.Module {
       form();
     }
     bindings.forEach(it -> it.accept(binder, config));
+
+    binder.bind(AuthCallback.class);
 
     binder.bind(AuthStore.class).to(storeClass);
 
