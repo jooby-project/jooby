@@ -436,6 +436,20 @@ public class Auth implements Jooby.Module {
    * Add an auth client, like facebook, twitter, github, etc...Please note the require dependency
    * must be in the classpath.
    *
+   * @param client Client to add.
+   * @param <C> Credentials.
+   * @param <U> UserProfile.
+   * @return This module.
+   */
+  public <C extends Credentials, U extends UserProfile> Auth
+      client(final Class<? extends Client<C, U>> client) {
+    return client("*", client);
+  }
+
+  /**
+   * Add an auth client, like facebook, twitter, github, etc...Please note the require dependency
+   * must be in the classpath.
+   *
    * @param pattern URL pattern to protect.
    * @param client Client to add.
    * @param <C> Credentials.
@@ -481,6 +495,28 @@ public class Auth implements Jooby.Module {
           .addBinding().toInstance(provider.apply(config));
 
       filter(binder, pattern, true, (Class<? extends Client<?, ?>>) client.getClass());
+    });
+    return this;
+  }
+
+  /**
+   * Add an auth client, like facebook, twitter, github, etc...Please note the require dependency
+   * must be in the classpath.
+   *
+   * @param pattern URL pattern to protect.
+   * @param client Client to add.
+   * @param <C> Credentials.
+   * @param <U> UserProfile.
+   * @return This module.
+   */
+  public <C extends Credentials, U extends UserProfile> Auth client(final String pattern,
+      final Class<? extends Client<C, U>> client) {
+    bindings.add((binder, config) -> {
+
+      Multibinder.newSetBinder(binder, Client.class)
+          .addBinding().to(client);
+
+      filter(binder, pattern, true, client);
     });
     return this;
   }
