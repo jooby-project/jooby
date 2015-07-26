@@ -27,6 +27,7 @@ import java.util.List;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.Status;
 import org.jooby.internal.reqparam.RequestParam;
 import org.jooby.internal.reqparam.RequestParamProvider;
 
@@ -64,8 +65,10 @@ class MvcHandler implements Route.MethodHandler {
 
       Class<?> returnType = handler.getReturnType();
       if (returnType == void.class) {
+        rsp.status(Status.NO_CONTENT);
         return;
       }
+      rsp.status(Status.OK);
 
       rsp.send(result);
     } catch (InvocationTargetException ex) {

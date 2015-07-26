@@ -1,7 +1,6 @@
 package org.jooby;
 
 import org.apache.http.HttpResponse;
-import org.jooby.Response;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -20,14 +19,12 @@ public class StackFeature extends ServerFeature {
     /** The logging system. */
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Path("*")
     @org.jooby.mvc.GET
     public void xHeader(final Response resp) {
       log.info("X");
       resp.header("X", "x");
     }
 
-    @Path("*")
     @org.jooby.mvc.GET
     public void yHeader(final Response resp) {
       log.info("Y");

@@ -10,8 +10,7 @@ public class MvcNoContentFeature extends ServerFeature {
   public static class Resource {
     @GET
     @Path("/")
-    public Result noContent() {
-      return Results.noContent();
+    public void noContent() {
     }
   }
 

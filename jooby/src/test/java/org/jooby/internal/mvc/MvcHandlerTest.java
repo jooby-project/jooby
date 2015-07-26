@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.jooby.Request;
 import org.jooby.Response;
+import org.jooby.Status;
 import org.jooby.internal.reqparam.RequestParam;
 import org.jooby.internal.reqparam.RequestParamProvider;
 import org.jooby.test.MockUnit;
@@ -42,6 +43,7 @@ public class MvcHandlerTest {
         })
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
+          expect(rsp.status(Status.OK)).andReturn(rsp);
           rsp.send("strhandle");
         })
         .expect(unit -> {
