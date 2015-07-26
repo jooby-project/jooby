@@ -20,7 +20,7 @@ Jooby uses [semantic versioning](http://semver.org/) for releases.
 
 API is considered unstable while release version is: ```0.x.x``` and it might changes and/or broke without previous notification.
 
-This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it.
+This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it. Finally, API changes can be filtered and displayed it [at any time](https://github.com/jooby-project/jooby/labels/api-change)
 
 want to contribute?
 =====

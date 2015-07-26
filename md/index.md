@@ -25,4 +25,4 @@ version: {{version}}
 
 ## Want to learn more?
 
-Check out the [quickstart](/quickstart) guide.
+Check out the [quickstart](/quickstart) guide or our [template collection](https://github.com/jooby-starters).
