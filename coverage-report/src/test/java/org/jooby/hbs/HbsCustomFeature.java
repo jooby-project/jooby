@@ -20,7 +20,7 @@ public class HbsCustomFeature extends ServerFeature {
   public void hbs() throws Exception {
     request()
         .get("/?model=jooby")
-        .expect("<html><body>jooby</body></html>");
+        .expect("<html><title>/org/jooby/hbs/index.html:index</title><body>jooby</body></html>");
   }
 
 }

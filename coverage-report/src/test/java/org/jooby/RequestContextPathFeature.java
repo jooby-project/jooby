@@ -3,9 +3,13 @@ package org.jooby;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-public class RequestPathFeature extends ServerFeature {
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
+
+public class RequestContextPathFeature extends ServerFeature {
 
   {
+    use(ConfigFactory.empty().withValue("application.path", ConfigValueFactory.fromAnyRef("/x")));
 
     get("/hello", req -> req.contextPath() + req.path());
 
@@ -16,15 +20,15 @@ public class RequestPathFeature extends ServerFeature {
   @Test
   public void requestPath() throws Exception {
     request()
-        .get("/hello")
-        .expect("/hello");
+        .get("/x/hello")
+        .expect("/x/hello");
   }
 
   @Test
   public void varRequestPath() throws Exception {
     request()
-        .get("/u/p1")
-        .expect("/u/p1");
+        .get("/x/u/p1")
+        .expect("/x/u/p1");
   }
 
 }

@@ -50,6 +50,18 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void cpath() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.contextPath()).andReturn("");
+        })
+        .run(unit -> {
+          assertEquals("", new Request.Forwarding(unit.get(Request.class)).contextPath());
+        });
+  }
+
+  @Test
   public void verb() throws Exception {
     new MockUnit(Request.class)
         .expect(unit -> {

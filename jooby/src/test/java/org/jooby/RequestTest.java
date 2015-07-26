@@ -31,6 +31,11 @@ public class RequestTest {
     }
 
     @Override
+    public String contextPath() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Optional<MediaType> accepts(final List<MediaType> types) {
       throw new UnsupportedOperationException();
     }

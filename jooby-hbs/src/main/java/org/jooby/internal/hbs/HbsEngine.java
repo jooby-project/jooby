@@ -20,6 +20,8 @@ package org.jooby.internal.hbs;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Map;
+
 import org.jooby.MediaType;
 import org.jooby.Renderer;
 import org.jooby.View;
@@ -27,6 +29,7 @@ import org.jooby.View;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.ValueResolver;
+import com.github.jknack.handlebars.io.TemplateSource;
 
 public class HbsEngine implements View.Engine {
 
@@ -41,12 +44,18 @@ public class HbsEngine implements View.Engine {
 
   @Override
   public void render(final View view, final Renderer.Context ctx) throws Exception {
-    Template template = handlebars.compile(view.name());
+    String vname = view.name();
+    TemplateSource source = handlebars.getLoader().sourceAt(vname);
+    Template template = handlebars.compile(source);
+
+    Map<String, Object> locals = ctx.locals();
+    locals.putIfAbsent("_vname", vname);
+    locals.putIfAbsent("_vpath", source.filename());
 
     com.github.jknack.handlebars.Context context = com.github.jknack.handlebars.Context
         .newBuilder(view.model())
         // merge request locals (req+sessions locals)
-        .combine(ctx.locals())
+        .combine(locals)
         .resolver(resolvers)
         .build();
 

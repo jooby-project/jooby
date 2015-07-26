@@ -128,15 +128,17 @@ public class HttpHandlerImpl implements HttpHandler {
       resolveAs404 = true;
     }
 
+    String contextPath = "/".equals(applicationPath) ? "" : applicationPath;
     // default locals
-    locals.put("contextPath", "/".equals(applicationPath) ? "" : applicationPath);
+    locals.put("contextPath", contextPath);
     locals.put("path", requestPath);
 
     final String path = verb + requestPath;
 
     Route notFound = RouteImpl.notFound(verb, path, MediaType.ALL);
 
-    RequestImpl req = new RequestImpl(injector, request, port, notFound, scope, locals);
+    RequestImpl req = new RequestImpl(injector, request, contextPath, port, notFound, scope,
+        locals);
 
     ResponseImpl rsp = new ResponseImpl(injector, response, notFound, locals,
         req.charset(), request.header("Referer"));

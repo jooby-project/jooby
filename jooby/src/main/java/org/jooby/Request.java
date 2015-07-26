@@ -67,6 +67,11 @@ public interface Request {
     }
 
     @Override
+    public String contextPath() {
+      return req.contextPath();
+    }
+
+    @Override
     public String method() {
       return req.method();
     }
@@ -301,6 +306,14 @@ public interface Request {
   }
 
   /**
+   * Application path (a.k.a context path). It is the value defined by:
+   * <code>application.path</code>. Default is: <code>/</code>
+   *
+   * @return Application context path..
+   */
+  String contextPath();
+
+  /**
    * @return HTTP method.
    */
   default String method() {
@@ -358,7 +371,7 @@ public interface Request {
    * @param types Types to test
    * @return True if any of the given type is accepted.
    */
-  default boolean is(final String ... types) {
+  default boolean is(final String... types) {
     return accepts(types).isPresent();
   }
 
@@ -482,8 +495,8 @@ public interface Request {
    * <pre>
    *  assertEquals("jooby", req.param(name).value());
    *
-   *  assertEquals("jooby", req.param(name).toList(String.class).get(0));
-   *  assertEquals("rocks", req.param(name).toList(String.class).get(1));
+   *  assertEquals("jooby", req.param(name).toList().get(0));
+   *  assertEquals("rocks", req.param(name).toList().get(1));
    * </pre>
    *
    * Uploads can be retrieved too when <code>Content-Type</code> is <code>multipart/form-data</code>

@@ -55,6 +55,9 @@ public class Engine implements View.Engine {
 
     Map<String, Object> hash = new HashMap<>();
 
+    hash.put("_vname", view.name());
+    hash.put("_vpath", template.getName());
+
     // locals
     hash.putAll(ctx.locals());
 

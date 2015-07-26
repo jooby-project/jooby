@@ -82,8 +82,10 @@ public class RequestImpl implements Request {
 
   private int port;
 
+  private String contextPath;
+
   public RequestImpl(final Injector injector,
-      final NativeRequest req,
+      final NativeRequest req, final String contextPath,
       final int port, final Route route,
       final Map<Object, Object> scope,
       final Map<String, Object> locals) {
@@ -92,6 +94,8 @@ public class RequestImpl implements Request {
     this.route = requireNonNull(route, "A route is required.");
     this.scope = requireNonNull(scope, "Scope is required.");
     this.locals = requireNonNull(locals, "Request locals are required.");
+
+    this.contextPath = contextPath;
 
     this.accept = findAccept(req);
 
@@ -108,6 +112,11 @@ public class RequestImpl implements Request {
         .orElse(injector.getInstance(Charset.class));
 
     this.files = new ArrayList<>();
+  }
+
+  @Override
+  public String contextPath() {
+    return contextPath;
   }
 
   @SuppressWarnings("unchecked")

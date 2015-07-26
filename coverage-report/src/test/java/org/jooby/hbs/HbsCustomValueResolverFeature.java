@@ -40,7 +40,7 @@ public class HbsCustomValueResolverFeature extends ServerFeature {
   public void shouldInjectHelpers() throws Exception {
     request()
         .get("/")
-        .expect("<html><body>VR</body></html>");
+        .expect("<html><title>VR:VR</title><body>VR</body></html>");
   }
 
 }

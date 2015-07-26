@@ -16,7 +16,7 @@ public class FtlFeature extends ServerFeature {
   public void freemarker() throws Exception {
     request()
         .get("/?model=jooby")
-        .expect("<html><body>jooby</body></html>");
+        .expect("<html>org/jooby/ftl/index.html:org/jooby/ftl/index<body>jooby</body></html>");
   }
 
 }
