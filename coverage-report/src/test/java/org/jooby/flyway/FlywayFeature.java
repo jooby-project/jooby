@@ -9,7 +9,7 @@ import org.junit.Test;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
-public class FlywayAloneFeature extends ServerFeature {
+public class FlywayFeature extends ServerFeature {
 
   {
     use(ConfigFactory.empty()

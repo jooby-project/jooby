@@ -13,6 +13,12 @@ Run database migrations on startup and exposes a {{flyway}} instance.
 ```
 ## usage
 
+```properties
+flyway.url = ...
+flyway.user = ...
+flyway.password = ...
+```
+
 ```java
 {
   use(new Jdbc());
@@ -20,10 +26,6 @@ Run database migrations on startup and exposes a {{flyway}} instance.
   use(new Flywaydb());
 }
 ```
-
-Previous example will connect to the ```DataSource``` exposed by the [jdbc]({{gh}}/jooby-jdbc) module
-and run the ```migrate``` command on startup. This is the recommend way of using {{flyway}}, there
-is an alternative approach if you have to migrate two or more databases.
 
 If for any reason you need to maintain two or more databases:
 

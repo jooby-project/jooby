@@ -198,7 +198,8 @@ public class Hbm extends Jdbc {
     HbmUnitDescriptor descriptor = new HbmUnitDescriptor(getClass().getClassLoader(), dataSource(),
         config, scan);
 
-    emf = new HbmProvider(descriptor, config(env, config, classes));
+    Map<Object, Object> integration = config(env, config, classes);
+    emf = new HbmProvider(descriptor, integration);
     keys(EntityManagerFactory.class, key -> binder.bind(key).toProvider(emf).asEagerSingleton());
 
     List<Key<EntityManager>> emkeys = new ArrayList<>();

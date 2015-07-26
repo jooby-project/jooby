@@ -3,7 +3,6 @@ package org.jooby.flyway;
 import java.util.Arrays;
 
 import org.flywaydb.core.Flyway;
-import org.jooby.jdbc.Jdbc;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -15,14 +14,13 @@ public class FlywayCommandsFeature extends ServerFeature {
   {
     use(ConfigFactory
         .empty()
-        .withValue("db", ConfigValueFactory.fromAnyRef("mem"))
+        .withValue("flyway.url",
+            ConfigValueFactory.fromAnyRef("jdbc:h2:mem:143645810203;DB_CLOSE_DELAY=-1"))
         .withValue(
             "flyway.run",
             ConfigValueFactory.fromAnyRef(Arrays.asList("clean", "baseline", "migrate", "repair",
                 "validate", "info")))
         .withValue("flyway.locations", ConfigValueFactory.fromAnyRef("org/jooby/flyway")));
-
-    use(new Jdbc());
 
     use(new Flywaydb());
 
