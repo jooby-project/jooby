@@ -1,6 +1,6 @@
 # jooby-flyway
 
-Run database migrations on startup and exposes a [Flyway](http://flywaydb.org/) instance.
+Run database migrations on startup and exposes a [Flyway](http://flywaydb.org) instance.
 
 ## dependency
 
@@ -8,10 +8,16 @@ Run database migrations on startup and exposes a [Flyway](http://flywaydb.org/) 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-flywaydb</artifactId>
-  <version>0.8.2</version>
+  <version>0.9.0</version>
 </dependency>
 ```
 ## usage
+
+```properties
+flyway.url = ...
+flyway.user = ...
+flyway.password = ...
+```
 
 ```java
 {
@@ -20,10 +26,6 @@ Run database migrations on startup and exposes a [Flyway](http://flywaydb.org/) 
   use(new Flywaydb());
 }
 ```
-
-Previous example will connect to the ```DataSource``` exposed by the [jdbc](/doc/jdbc) module
-and run the ```migrate``` command on startup. This is the recommend way of using [Flyway](http://flywaydb.org/), there
-is an alternative approach if you have to migrate two or more databases.
 
 If for any reason you need to maintain two or more databases:
 
@@ -44,7 +46,7 @@ flyway.db2.locations = db2/migration
 
 ## migration scripts
 
-[Flyway](http://flywaydb.org/) looks for migration scripts at the ```db/migration``` classpath location.
+[Flyway](http://flywaydb.org) looks for migration scripts at the ```db/migration``` classpath location.
 We recommend to use [Semantic versioning](http://semver.org) for naming the migration scripts:
 
 ```
@@ -53,7 +55,7 @@ v0.1.1_My_small_change.sql
 ```
 
 ## commands
-It is possible to run [Flyway](http://flywaydb.org/) commands on startup, default command is: ```migrate```.
+It is possible to run [Flyway](http://flywaydb.org) commands on startup, default command is: ```migrate```.
 
 If you need to run multiple commands, set the ```flyway.run``` property:
 
@@ -67,7 +69,7 @@ Configuration is done via ```application.conf``` under the ```flyway.*``` path.
 There are some defaults setting that you can see in the appendix.
 
 
-For more information, please visit the [Flyway](http://flywaydb.org/) site.
+For more information, please visit the [Flyway](http://flywaydb.org) site.
 
 Happy coding!!!
 

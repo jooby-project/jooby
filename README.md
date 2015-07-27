@@ -68,7 +68,7 @@ quickstart
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.8.2
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.9.0
 ```
 
 You might want to edit/change:
@@ -83,7 +83,7 @@ You might want to edit/change:
 Let's try it!:
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.8.2
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.9.0
 cd my-app
 mvn jooby:run
 ```
@@ -202,7 +202,7 @@ Jooby uses [semantic versioning](http://semver.org/) for releases.
 
 API is considered unstable while release version is: ```0.x.x``` and it might changes and/or broke without previous notification.
 
-This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it.
+This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it. Finally, API changes can be filtered and displayed it [at any time](https://github.com/jooby-project/jooby/labels/api-change)
 
 want to contribute?
 =====
