@@ -1,7 +1,7 @@
 ---
 layout: index
 title: modules
-version: 0.8.2
+version: 0.9.0
 ---
 
 ## mvn jooby:run
@@ -24,7 +24,7 @@ version: 0.8.2
 ## sql
 * [jdbc](/doc/jdbc): high performance connection pool for jdbc via [Hikari](https://github.com/brettwooldridge/HikariCP).
 * [jdbi](/doc/jdbi): fluent API for JDBC.
-* [flyway](/doc/flyway): database migrations via [Flyway](http://flywaydb.org/).
+* [flyway](/doc/flyway): database migrations via [Flyway](http://flywaydb.org).
 
 ## hibernate
 * [hibernate](/doc/hbm): object/relational mapping.

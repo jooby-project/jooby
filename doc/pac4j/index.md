@@ -1,7 +1,7 @@
 ---
 layout: index
 title: pac4j
-version: 0.8.2
+version: 0.9.0
 ---
 
 # jooby-pac4j
@@ -21,7 +21,7 @@ Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>0.8.2</version>
+  <version>0.9.0</version>
 </dependency>
 ```
 
@@ -196,6 +196,12 @@ auth {
 
   # default callback, like http://localhost:8080/auth
   callback = "http://"${application.host}":"${application.port}${application.path}"auth"
+
+  # login options
+  login {
+    # Where to go after a successful login?
+    redirectTo = /
+  }
 
   # logout options
   logout {

@@ -1,7 +1,7 @@
 ---
 layout: index
 title: do more, more easily
-version: 0.8.2
+version: 0.9.0
 ---
 
 # &infin; do more, more easily
@@ -47,4 +47,4 @@ Introducing [Jooby](http://jooby.org) a minimalist web framework for Java 8 or h
 
 ## Want to learn more?
 
-Check out the [quickstart](/quickstart) guide.
+Check out the [quickstart](/quickstart) guide or our [template collection](https://github.com/jooby-starters).

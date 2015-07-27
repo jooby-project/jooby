@@ -18,7 +18,7 @@
 ## sql
 * [jdbc](/doc/jdbc): high performance connection pool for jdbc via [Hikari](https://github.com/brettwooldridge/HikariCP).
 * [jdbi](/doc/jdbi): fluent API for JDBC.
-* [flyway](/doc/flyway): database migrations via [Flyway](http://flywaydb.org/).
+* [flyway](/doc/flyway): database migrations via [Flyway](http://flywaydb.org).
 
 ## hibernate
 * [hibernate](/doc/hbm): object/relational mapping.

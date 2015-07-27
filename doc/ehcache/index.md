@@ -1,7 +1,7 @@
 ---
 layout: index
 title: ehcache
-version: 0.8.2
+version: 0.9.0
 ---
 
 # jooby-ehcache
@@ -19,7 +19,7 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>0.8.2</version>
+  <version>0.9.0</version>
 </dependency>
 ```
 

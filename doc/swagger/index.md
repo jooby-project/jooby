@@ -1,7 +1,7 @@
 ---
 layout: index
 title: swagger
-version: 0.8.2
+version: 0.9.0
 ---
 
 # jooby-swagger
@@ -22,7 +22,7 @@ This module generate [Swagger](http://swagger.io) spec file: ```.json``` or ```.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-swagger</artifactId>
-  <version>0.8.2</version>
+  <version>0.9.0</version>
 </dependency>
 ```
 

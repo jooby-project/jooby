@@ -1,7 +1,7 @@
 ---
 layout: index
 title: jedis
-version: 0.8.2
+version: 0.9.0
 ---
 
 # jooby-jedis
@@ -14,7 +14,7 @@ version: 0.8.2
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>0.8.2</version>
+  <version>0.9.0</version>
 </dependency>
 ```
 
@@ -164,7 +164,7 @@ jedis.pool.blockWhenExhausted = true
 jedis.pool.jmxEnabled = false
 jedis.pool.jmxNamePrefix = redis-pool
 
-# session store, key prefix and timeout in seconds 
+# session store, key prefix and timeout in seconds
 jedis.session.prefix = sessions
 jedis.session.timeout = ${session.timeout}
 
