@@ -13,6 +13,7 @@
 * [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis/#redis-session-store): HTTP session on {{redis}}.
 * [memcached](https://github.com/jooby-project/jooby/tree/master/jooby-spymemcached/#session-store): HTTP session on {{memcached}}.
 * [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb/#mongodb-session-store): HTTP session on {{mongodb}}.
+* [hazelcast](https://github.com/jooby-project/jooby/tree/master/jooby-hazelcast/#session-store): HTTP session on {{hazelcast}}.
 * [ehcache](https://github.com/jooby-project/jooby/tree/master/jooby-ehcache/#session-store): HTTP session on {{ehcache}}.
 
 ## sql
@@ -32,6 +33,7 @@
 ## caches
 * [redis](https://github.com/jooby-project/jooby/tree/master/jooby-jedis): Advanced cache and key/value store for Java.
 * [memcached](https://github.com/jooby-project/jooby/tree/master/jooby-spymemcached): In-memory key-value store for small chunks of arbitrary data.
+* [hazelcast](https://github.com/jooby-project/jooby/tree/master/jooby-hazelcast): {{hazelcast}} for {{jooby}}.
 * [ehcache](https://github.com/jooby-project/jooby/tree/master/jooby-ehcache): Java's most widely-used cache.
 
 ## full text search
