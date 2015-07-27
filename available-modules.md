@@ -13,6 +13,7 @@
 * [redis](/doc/jedis/#redis-session-store): HTTP session on [Redis](http://redis.io).
 * [memcached](/doc/spymemcached/#session-store): HTTP session on [Memcached](http://memcached.org).
 * [mongodb](/doc/mongodb/#mongodb-session-store): HTTP session on [MongoDB](http://mongodb.github.io/mongo-java-driver/).
+* [hazelcast](/doc/hazelcast/#session-store): HTTP session on [Hazelcast](http://hazelcast.org).
 * [ehcache](/doc/ehcache/#session-store): HTTP session on [Ehcache](http://ehcache.org).
 
 ## sql
@@ -32,6 +33,7 @@
 ## caches
 * [redis](/doc/jedis): Advanced cache and key/value store for Java.
 * [memcached](/doc/spymemcached): In-memory key-value store for small chunks of arbitrary data.
+* [hazelcast](/doc/hazelcast): [Hazelcast](http://hazelcast.org) for [Jooby](http://jooby.org).
 * [ehcache](/doc/ehcache): Java's most widely-used cache.
 
 ## full text search
