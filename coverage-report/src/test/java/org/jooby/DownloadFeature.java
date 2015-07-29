@@ -32,7 +32,7 @@ public class DownloadFeature extends ServerFeature {
     request()
         .get("/download-reader")
         .expect("(function () {})();\n")
-        .header("Content-Disposition", "attachment; filename=name.js")
+        .header("Content-Disposition", "attachment; filename=\"name.js\"; filename*=utf-8''name.js")
         .header("Content-Length", "20")
         .header("Content-Type", "application/javascript;charset=UTF-8");
   }
@@ -42,7 +42,7 @@ public class DownloadFeature extends ServerFeature {
     request()
         .get("/location?file=" + getClass().getName().replace('.', '/') + ".ico")
         .expect(200)
-        .header("Content-Disposition", "attachment; filename=name")
+        .header("Content-Disposition", "attachment; filename=\"name\"; filename*=utf-8''name")
         .header("Content-Length", "2238")
         .header("Content-Type", "image/x-icon");
   }
@@ -52,7 +52,7 @@ public class DownloadFeature extends ServerFeature {
     request()
         .get("/fs?file=src/test/resources/" + getClass().getName().replace('.', '/') + ".ico")
         .expect(200)
-        .header("Content-Disposition", "attachment; filename=DownloadFeature.ico")
+        .header("Content-Disposition", "attachment; filename=\"DownloadFeature.ico\"; filename*=utf-8''DownloadFeature.ico")
         .header("Content-Length", "2238")
         .header("Content-Type", "image/x-icon");
   }
@@ -63,7 +63,7 @@ public class DownloadFeature extends ServerFeature {
         .get("/location?file=" + getClass().getName().replace('.', '/') + ".js")
         .expect(200)
         .expect("(function () {})();\n")
-        .header("Content-Disposition", "attachment; filename=name")
+        .header("Content-Disposition", "attachment; filename=\"name\"; filename*=utf-8''name")
         .header("Content-Length", "20")
         .header("Content-Type", "application/javascript;charset=UTF-8");
   }
@@ -80,7 +80,7 @@ public class DownloadFeature extends ServerFeature {
     request()
         .get("/fs?file=src/test/resources/" + getClass().getName().replace('.', '/') + ".js")
         .expect("(function () {})();\n")
-        .header("Content-Disposition", "attachment; filename=DownloadFeature.js")
+        .header("Content-Disposition", "attachment; filename=\"DownloadFeature.js\"; filename*=utf-8''DownloadFeature.js")
         .header("Content-Length", "20")
         .header("Content-Type", "application/javascript;charset=UTF-8");
   }
@@ -90,7 +90,7 @@ public class DownloadFeature extends ServerFeature {
     request()
         .get("/customtype?type=json")
         .expect("{}\n")
-        .header("Content-Disposition", "attachment; filename=name.json")
+        .header("Content-Disposition", "attachment; filename=\"name.json\"; filename*=utf-8''name.json")
         .header("Content-Length", "3")
         .header("Content-Type", "application/json;charset=UTF-8");
   }
@@ -100,7 +100,7 @@ public class DownloadFeature extends ServerFeature {
     request()
         .get("/favicon.ico")
         .expect(200)
-        .header("Content-Disposition", "attachment; filename=favicon.ico")
+        .header("Content-Disposition", "attachment; filename=\"favicon.ico\"; filename*=utf-8''favicon.ico")
         .header("Content-Length", "2238")
         .header("Content-Type", "image/x-icon");
   }

@@ -275,8 +275,7 @@ public interface Response {
    * @throws Exception If something goes wrong.
    */
   default void download(final File file) throws Exception {
-    header("Content-Length", file.length());
-    download(file.getName(), new FileInputStream(file));
+    download(file.getName(), file);
   }
 
   /**
@@ -289,7 +288,7 @@ public interface Response {
    * @throws Exception If something goes wrong.
    */
   default void download(final String filename, final File file) throws Exception {
-    header("Content-Length", file.length());
+    length(file.length());
     download(filename, new FileInputStream(file));
   }
 

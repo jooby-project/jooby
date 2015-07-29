@@ -495,8 +495,6 @@ public class Jooby {
   /** Env builder. */
   private Env.Builder env = Env.DEFAULT;
 
-  private boolean assetRenderer;
-
   /**
    * Import ALL the direct routes from the given app.
    *
@@ -505,11 +503,6 @@ public class Jooby {
    */
   public Jooby use(final Jooby app) {
     requireNonNull(app, "App is required.");
-
-    if (!assetRenderer && app.assetRenderer) {
-      this.assetRenderer = true;
-      renderer(BuiltinRenderer.Asset);
-    }
 
     app.bag.forEach(s -> {
       if (s instanceof Module) {
@@ -2593,10 +2586,6 @@ public class Jooby {
    * @return A new route definition.
    */
   public Route.Definition assets(final String path, final String location) {
-    if (!assetRenderer) {
-      renderer(BuiltinRenderer.Asset);
-      assetRenderer = true;
-    }
 
     // kind of hacky, but this way we don't have to decide redirect at execution time. if a cdn is
     // present we put a cdn handler that will always redirect to the cdn (no check)
@@ -3007,6 +2996,7 @@ public class Jooby {
         binder.bind(ParserExecutor.class).in(Singleton.class);
 
         // renderer
+        renderers.addBinding().toInstance(BuiltinRenderer.Asset);
         renderers.addBinding().toInstance(BuiltinRenderer.Bytes);
         renderers.addBinding().toInstance(BuiltinRenderer.ByteBuffer);
         renderers.addBinding().toInstance(BuiltinRenderer.File);

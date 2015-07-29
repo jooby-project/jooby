@@ -243,6 +243,9 @@ public class JoobyTest {
 
     expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
 
+    LinkedBindingBuilder<Renderer> formatAsset = unit.mock(LinkedBindingBuilder.class);
+    formatAsset.toInstance(BuiltinRenderer.Asset);
+
     LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
     formatByteArray.toInstance(BuiltinRenderer.Bytes);
 
@@ -270,6 +273,7 @@ public class JoobyTest {
     LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
     formatAny.toInstance(BuiltinRenderer.ToString);
 
+    expect(multibinder.addBinding()).andReturn(formatAsset);
     expect(multibinder.addBinding()).andReturn(formatByteArray);
     expect(multibinder.addBinding()).andReturn(formatByteBuffer);
     expect(multibinder.addBinding()).andReturn(file);
@@ -2207,6 +2211,9 @@ public class JoobyTest {
               .mock(LinkedBindingBuilder.class);
           customFormatter.toInstance(unit.get(Renderer.class));
 
+          LinkedBindingBuilder<Renderer> formatAsset = unit.mock(LinkedBindingBuilder.class);
+          formatAsset.toInstance(BuiltinRenderer.Asset);
+
           LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
           formatByteArray.toInstance(BuiltinRenderer.Bytes);
 
@@ -2235,6 +2242,7 @@ public class JoobyTest {
           formatAny.toInstance(BuiltinRenderer.ToString);
 
           expect(multibinder.addBinding()).andReturn(customFormatter);
+          expect(multibinder.addBinding()).andReturn(formatAsset);
           expect(multibinder.addBinding()).andReturn(formatByteArray);
           expect(multibinder.addBinding()).andReturn(formatByteBuffer);
           expect(multibinder.addBinding()).andReturn(file);

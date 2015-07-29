@@ -30,6 +30,9 @@ import java.util.function.BiConsumer;
 
 import org.jooby.Asset;
 import org.jooby.MediaType;
+import org.jooby.util.ExSupplier;
+
+import com.google.common.io.Closeables;
 
 class URLAsset implements Asset {
 
@@ -41,7 +44,7 @@ class URLAsset implements Asset {
 
   private long length = -1;
 
-  private File file;
+  private ExSupplier<InputStream> stream;
 
   private String path;
 
@@ -52,7 +55,7 @@ class URLAsset implements Asset {
     if ("file".equals(url.getProtocol())) {
       File file = new File(url.toURI());
       if (file.exists()) {
-        this.file = file;
+        stream = () -> new FileInputStream(file);
         this.length = file.length();
         this.lastModified = file.lastModified();
       }
@@ -61,6 +64,9 @@ class URLAsset implements Asset {
         this.length = len;
         this.lastModified = lstMod;
       });
+    }
+    if (this.stream == null) {
+      this.stream = () -> this.url.openStream();
     }
   }
 
@@ -83,11 +89,7 @@ class URLAsset implements Asset {
 
   @Override
   public InputStream stream() throws Exception {
-    if (file != null) {
-      // use OS zero-copy
-      return new FileInputStream(file);
-    }
-    return url.openStream();
+    return stream.get();
   }
 
   @Override
@@ -110,17 +112,14 @@ class URLAsset implements Asset {
     URLConnection uc = null;
     try {
       uc = resource.openConnection();
+      uc.setUseCaches(false);
       long len = uc.getContentLengthLong();
       long lastModified = uc.getLastModified();
       callback.accept(len > 0 ? len : -1, lastModified > 0 ? lastModified : -1);
     } finally {
       if (uc != null) {
         // http://stackoverflow.com/questions/2057351/how-do-i-get-the-last-modification-time-of-a-java-resource
-        try {
-          InputStream stream = uc.getInputStream();
-          stream.close();
-        } catch (IOException ignored) {
-        }
+        Closeables.closeQuietly(uc.getInputStream());
       }
     }
   }

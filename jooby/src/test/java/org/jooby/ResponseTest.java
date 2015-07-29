@@ -204,19 +204,19 @@ public class ResponseTest {
     File resource = file("src/test/resources/org/jooby/ResponseTest.js");
     new ResponseMock() {
       @Override
-      public Response header(final String name, final Object value) {
-        dataList.add(name);
-        dataList.add(value);
-        return this;
-      }
-      @Override
       public void download(final String filename, final InputStream stream) throws Exception {
         assertNotNull(stream);
         stream.close();
         dataList.add(filename);
       }
+
+      @Override
+      public Response length(final long length) {
+        dataList.add(length);
+        return this;
+      }
     }.download("alias.js", resource);
-    assertEquals("[Content-Length, 20, alias.js]", dataList.toString());
+    assertEquals("[20, alias.js]", dataList.toString());
   }
 
   @Test

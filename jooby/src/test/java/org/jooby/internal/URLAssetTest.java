@@ -74,43 +74,67 @@ public class URLAssetTest {
   @Test(expected = IllegalStateException.class)
   public void headerFailWithConnection() throws Exception {
     new MockUnit(URL.class)
-        .expect(
-            unit -> {
-              InputStream stream = unit.mock(InputStream.class);
-              stream.close();
+        .expect(unit -> {
+          InputStream stream = unit.mock(InputStream.class);
+          stream.close();
 
-              URLConnection conn = unit.mock(URLConnection.class);
-              expect(conn.getContentLengthLong()).andThrow(
-                  new IllegalStateException("intentional err"));
-              expect(conn.getInputStream()).andReturn(stream);
+          URLConnection conn = unit.mock(URLConnection.class);
+          conn.setUseCaches(false);
+          expect(conn.getContentLengthLong()).andThrow(
+              new IllegalStateException("intentional err"));
+          expect(conn.getInputStream()).andReturn(stream);
 
-              URL url = unit.get(URL.class);
-              expect(url.getProtocol()).andReturn("http");
-              expect(url.openConnection()).andReturn(conn);
-            })
+          URL url = unit.get(URL.class);
+          expect(url.getProtocol()).andReturn("http");
+          expect(url.openConnection()).andReturn(conn);
+        })
         .run(unit -> {
           new URLAsset(unit.get(URL.class), "pa.ks", MediaType.js);
+        });
+  }
+
+  @Test
+  public void noLastModifiednoLen() throws Exception {
+    new MockUnit(URL.class)
+        .expect(unit -> {
+          InputStream stream = unit.mock(InputStream.class);
+          stream.close();
+
+          URLConnection conn = unit.mock(URLConnection.class);
+          conn.setUseCaches(false);
+          expect(conn.getContentLengthLong()).andReturn(0L);
+          expect(conn.getLastModified()).andReturn(0L);
+          expect(conn.getInputStream()).andReturn(stream);
+
+          URL url = unit.get(URL.class);
+          expect(url.getProtocol()).andReturn("http");
+          expect(url.openConnection()).andReturn(conn);
+        })
+        .run(unit -> {
+          URLAsset asset = new URLAsset(unit.get(URL.class), "pa.ks", MediaType.js);
+          assertEquals(-1, asset.length());
+          assertEquals(-1, asset.lastModified());
         });
   }
 
   @Test(expected = IllegalStateException.class)
   public void headersStreamCloseFails() throws Exception {
     new MockUnit(URL.class)
-        .expect(
-            unit -> {
-              InputStream stream = unit.mock(InputStream.class);
-              stream.close();
-              expectLastCall().andThrow(new IOException("ignored"));
+        .expect(unit -> {
+          InputStream stream = unit.mock(InputStream.class);
+          stream.close();
+          expectLastCall().andThrow(new IOException("ignored"));
 
-              URLConnection conn = unit.mock(URLConnection.class);
-              expect(conn.getContentLengthLong()).andThrow(
-                  new IllegalStateException("intentional err"));
-              expect(conn.getInputStream()).andReturn(stream);
+          URLConnection conn = unit.mock(URLConnection.class);
+          conn.setUseCaches(false);
+          expect(conn.getContentLengthLong()).andThrow(
+              new IllegalStateException("intentional err"));
+          expect(conn.getInputStream()).andReturn(stream);
 
-              URL url = unit.get(URL.class);
-              expect(url.getProtocol()).andReturn("http");
-              expect(url.openConnection()).andReturn(conn);
-            })
+          URL url = unit.get(URL.class);
+          expect(url.getProtocol()).andReturn("http");
+          expect(url.openConnection()).andReturn(conn);
+        })
         .run(unit -> {
           new URLAsset(unit.get(URL.class), "ala.la", MediaType.js);
         });
@@ -143,7 +167,7 @@ public class URLAssetTest {
 
   @Test(expected = NullPointerException.class)
   public void nullFile() throws Exception {
-    new URLAsset(null, "", MediaType.js);
+    new URLAsset((URL) null, "", MediaType.js);
   }
 
   @Test(expected = NullPointerException.class)

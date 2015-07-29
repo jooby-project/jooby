@@ -38,8 +38,9 @@ public enum BuiltinRenderer implements Renderer {
     public void render(final Object value, final Context ctx) throws Exception {
       if (value instanceof Asset) {
         Asset resource = ((Asset) value);
-        ctx.type(resource.type());
-        ctx.send(resource.stream());
+        ctx.type(resource.type())
+            .length(resource.length())
+            .send(resource.stream());
       }
     }
   },

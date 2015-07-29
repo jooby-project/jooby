@@ -21,8 +21,10 @@ package org.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +34,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
+import org.jooby.Asset;
 import org.jooby.Cookie;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
@@ -50,6 +53,10 @@ import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 public class ResponseImpl implements Response {
+
+  /** Char encoded content disposition. */
+  private static final String CONTENT_DISPOSITION =
+      "attachment; filename=\"%s\"; filename*=%s''%s";
 
   private final Injector injector;
 
@@ -92,8 +99,9 @@ public class ResponseImpl implements Response {
     MediaType type = MediaType.byPath(filename).orElse(MediaType.octetstream);
     type(type().orElseGet(() -> type));
 
+    Asset asset = new InputStreamAsset(stream, filename, type().get());
     contentDisposition(filename);
-    send(Results.with(stream));
+    send(Results.with(asset.stream()));
   }
 
   @Override
@@ -111,7 +119,7 @@ public class ResponseImpl implements Response {
     length(asset.length());
 
     contentDisposition(filename);
-    send(Results.with(asset.stream()));
+    send(Results.with(asset));
   }
 
   @Override
@@ -275,7 +283,11 @@ public class ResponseImpl implements Response {
         status((Status) message);
       }
 
-      Consumer<Long> setLen = len -> length(length.orElse(len));
+      Consumer<Long> setLen = len -> {
+        if (len >= 0) {
+          length(length.orElse(len));
+        }
+      };
 
       Consumer<MediaType> setType = type -> type(type().orElse(type));
 
@@ -310,13 +322,16 @@ public class ResponseImpl implements Response {
     this.route = route;
   }
 
-  private void contentDisposition(final String filename) {
+  private void contentDisposition(final String filename) throws IOException {
     String basename = filename;
     int last = filename.lastIndexOf('/');
     if (last >= 0) {
       basename = basename.substring(last + 1);
     }
-    header("Content-Disposition", "attachment; filename=" + basename);
+
+    String ebasename = URLEncoder.encode(basename, charset.name()).replaceAll("\\+", "%20");
+    header("Content-Disposition",
+        String.format(CONTENT_DISPOSITION, basename, charset.name(), ebasename));
   }
 
   @SuppressWarnings("unchecked")
