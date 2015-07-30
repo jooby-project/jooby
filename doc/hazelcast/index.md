@@ -1,7 +1,7 @@
 ---
 layout: index
 title: hazelcast
-version: 0.9.0
+version: 0.9.1
 ---
 
 # jooby-hazelcast
@@ -14,7 +14,7 @@ Exports a [Hazelcast](http://hazelcast.org) instances and optionally a [session 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
 </dependency>
 ```
 

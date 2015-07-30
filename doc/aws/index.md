@@ -1,7 +1,7 @@
 ---
 layout: index
 title: aws
-version: 0.9.0
+version: 0.9.1
 ---
 
 # aws module
@@ -17,7 +17,7 @@ Small utility module that exposes ```AmazonWebServiceClient``` and give you acce
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-aws</artifactId>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
 </dependency>
 ```
 

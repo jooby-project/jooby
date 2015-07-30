@@ -1,7 +1,7 @@
 ---
 layout: index
 title: jedis
-version: 0.9.0
+version: 0.9.1
 ---
 
 # jooby-jedis
@@ -14,7 +14,7 @@ version: 0.9.0
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
 </dependency>
 ```
 

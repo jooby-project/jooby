@@ -1,7 +1,7 @@
 ---
 layout: index
 title: gson
-version: 0.9.0
+version: 0.9.1
 ---
 
 # jooby-gson
@@ -20,7 +20,7 @@ JSON support via [Gson](https://github.com/google/gson) library.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-gson</artifactId>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
 </dependency>
 ```
 

@@ -1,7 +1,7 @@
 ---
 layout: index
 title: jdbc
-version: 0.9.0
+version: 0.9.1
 ---
 
 # jooby-jdbc
@@ -14,7 +14,7 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
 </dependency>
 ```
 ## usage
