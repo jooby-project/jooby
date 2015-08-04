@@ -2,13 +2,14 @@ package org.jooby;
 
 import java.util.Optional;
 
+import org.jooby.handlers.CorsHandler;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
 public class CorsFeature extends ServerFeature {
 
   {
-    cors();
+    use("*", new CorsHandler());
 
     get("/greeting", req -> "Hello " + req.param("name").value("World") + "!");
   }

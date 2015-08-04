@@ -78,13 +78,12 @@ import java.util.function.Predicate;
 import javax.inject.Singleton;
 
 import org.jooby.Session.Store;
+import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.AppPrinter;
-import org.jooby.internal.AssetHandler;
 import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
-import org.jooby.internal.CdnAssetHandler;
 import org.jooby.internal.DefaulErrRenderer;
-import org.jooby.internal.FwdFilter;
+import org.jooby.internal.AssetProxy;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.JvmInfo;
 import org.jooby.internal.LifecycleProcessor;
@@ -94,6 +93,9 @@ import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.ServerLookup;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
+import org.jooby.internal.handlers.HeadHandler;
+import org.jooby.internal.handlers.OptionsHandler;
+import org.jooby.internal.handlers.TraceHandler;
 import org.jooby.internal.js.JsJooby;
 import org.jooby.internal.mvc.MvcRoutes;
 import org.jooby.internal.reqparam.BeanParser;
@@ -103,10 +105,6 @@ import org.jooby.internal.reqparam.LocaleParser;
 import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.internal.reqparam.StaticMethodParser;
 import org.jooby.internal.reqparam.StringConstructorParser;
-import org.jooby.internal.routes.CorsHandler;
-import org.jooby.internal.routes.HeadHandler;
-import org.jooby.internal.routes.OptionsHandler;
-import org.jooby.internal.routes.TraceHandler;
 import org.jooby.reflect.ParameterNameProvider;
 import org.jooby.scope.RequestScoped;
 import org.jooby.spi.HttpHandler;
@@ -2586,21 +2584,60 @@ public class Jooby {
    * @return A new route definition.
    */
   public Route.Definition assets(final String path, final String location) {
+    return assets(path, new AssetHandler(location));
+  }
 
-    // kind of hacky, but this way we don't have to decide redirect at execution time. if a cdn is
-    // present we put a cdn handler that will always redirect to the cdn (no check)
-    FwdFilter router = new FwdFilter();
+  /**
+   * Send a static file.
+   *
+   * <p>
+   * Basic example
+   * </p>
+   *
+   * <pre>
+   *   assets("/js/**", "/");
+   * </pre>
+   *
+   * A request for: <code>/js/jquery.js</code> will be translated to: <code>/lib/jquery.js</code>.
+   *
+   * <p>
+   * Webjars example:
+   * </p>
+   *
+   * <pre>
+   *   assets("/js/**", "/resources/webjars/{0}");
+   * </pre>
+   *
+   * A request for: <code>/js/jquery/2.1.3/jquery.js</code> will be translated to:
+   * <code>/resources/webjars/jquery/2.1.3/jquery.js</code>.
+   * The <code>{0}</code> represent the <code>**</code> capturing group.
+   *
+   * <p>
+   * Another webjars example:
+   * </p>
+   *
+   * <pre>
+   *   assets("/js/*-*.js", "/resources/webjars/{0}/{1}/{0}.js");
+   * </pre>
+   *
+   * <p>
+   * A request for: <code>/js/jquery-2.1.3.js</code> will be translated to:
+   * <code>/resources/webjars/jquery/2.1.3/jquery.js</code>.
+   * </p>
+   *
+   * @param path The path to publish.
+   * @param location A resource location.
+   * @return A new route definition.
+   */
+  public Route.Definition assets(final String path, final AssetHandler handler) {
+
+    AssetProxy router = new AssetProxy();
     Route.Definition asset = new Route.Definition("GET", path, router);
     on("*", conf -> {
-      String cdn = conf.getString("assets.cdn");
-      if (Strings.isNullOrEmpty(cdn)) {
-        // no cdn, server files locally
-        router.fwd(new AssetHandler(location, getClass()));
-      } else {
-        // cdn, serve files from cdn (redirect)
-        router.fwd(new CdnAssetHandler(location, getClass(), cdn));
-        asset.name(cdn);
-      }
+      router.fwd(handler
+          .cdn(conf.getString("assets.cdn"))
+          .etag(conf.getBoolean("assets.etag"))
+          );
     });
     return appendDefinition(asset);
   }
@@ -2640,38 +2677,6 @@ public class Jooby {
     requireNonNull(routeClass, "Route class is required.");
     bag.add(routeClass);
     return this;
-  }
-
-  /**
-   * Add a Cross-origin resource sharing filter. Cors options should be defined in
-   * <code>.conf</code> property file. Defaul properties are:
-   *
-   * <pre>
-   *  origin: "*"
-   *  credentials: true
-   *  allowedMethods: [GET, POST]
-   *  allowedHeaders: [X-Requested-With, Content-Type, Accept, Origin]
-   *  exposedHeaders: []
-   * </pre>
-   *
-   * @return A route defintion for cors.
-   */
-  public Route.Definition cors() {
-    return cors(Optional.empty());
-  }
-
-  /**
-   * Add a Cross-origin resource sharing filter and use the given {@link Cors} options.
-   *
-   * @param cors Cors options.
-   * @return A route defintion for cors.
-   */
-  public Route.Definition cors(final Cors cors) {
-    return cors(Optional.of(cors));
-  }
-
-  private Route.Definition cors(final Optional<Cors> cors) {
-    return appendDefinition(new Route.Definition("*", "*", new CorsHandler(cors))).name("cors");
   }
 
   /**

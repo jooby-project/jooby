@@ -25,6 +25,20 @@ public class InputStreamAssetTest {
           assertEquals("stream.bin", asset.name());
           assertEquals("stream.bin", asset.path());
           assertEquals(unit.get(InputStream.class), asset.stream());
+          assertEquals(MediaType.octetstream, asset.type());
         });
   }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void noResource() throws Exception {
+    new MockUnit(InputStream.class)
+        .run(unit -> {
+          new InputStreamAsset(
+              unit.get(InputStream.class),
+              "stream.bin",
+              MediaType.octetstream
+          ).resource();
+        });
+  }
+
 }

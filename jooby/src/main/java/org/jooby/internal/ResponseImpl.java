@@ -48,6 +48,7 @@ import org.jooby.internal.reqparam.ParserExecutor;
 import org.jooby.spi.NativeResponse;
 import org.jooby.util.Collectors;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -71,6 +72,8 @@ public class ResponseImpl implements Response {
   private final Optional<String> referer;
 
   private Status status;
+
+  private MediaType type;
 
   private Map<String, Cookie> cookies = new HashMap<>();
 
@@ -182,11 +185,12 @@ public class ResponseImpl implements Response {
 
   @Override
   public Optional<MediaType> type() {
-    return rsp.header("Content-Type").map(MediaType::valueOf);
+    return Optional.ofNullable(type);
   }
 
   @Override
   public Response type(final MediaType type) {
+    this.type = requireNonNull(type, "MediaType is required.");
     if (type.isText()) {
       header("Content-Type", type.name() + ";charset=" + charset.name());
     } else {
@@ -253,18 +257,19 @@ public class ResponseImpl implements Response {
   @Override
   public void send(final Result result) throws Exception {
     requireNonNull(result, "A result is required.");
-    List<MediaType> produces = route.produces();
-    Optional<Object> entity = result.get(produces);
 
     result.type().ifPresent(type -> type(type));
 
-    status(result.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
+    List<MediaType> produces = type().
+        <List<MediaType>> map(ImmutableList::of).orElse(route.produces());
 
-    writeCookies();
+    status(result.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
 
     result.headers().forEach((name, value) -> {
       header(name, value);
     });
+
+    writeCookies();
 
     if (route.method().equals("HEAD")) {
       end();
@@ -276,8 +281,10 @@ public class ResponseImpl implements Response {
      */
     Optional<Long> length = header("Content-Length").toOptional(Long.class);
 
-    if (entity.isPresent()) {
-      Object message = entity.get();
+    Optional<Object> value = result.get(produces);
+
+    if (value.isPresent()) {
+      Object message = value.get();
       if (message instanceof Status) {
         // override status when message is a status
         status((Status) message);

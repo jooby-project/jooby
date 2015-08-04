@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby;
+package org.jooby.handlers;
 
 import static java.util.Objects.requireNonNull;
 
@@ -24,6 +24,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import org.jooby.Err;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.Session;
+import org.jooby.Status;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -54,7 +61,7 @@ import com.google.common.collect.ImmutableSet;
  *
  * <h2>Token verification</h2>
  * <p>
- * The {@link Csrf} handler will read an existing token from {@link Session} (or created a new one
+ * The {@link CsrfHandler} handler will read an existing token from {@link Session} (or created a new one
  * is necessary) and make available as a request local variable via:
  * {@link Request#set(String, Object)}.
  * </p>
@@ -75,7 +82,7 @@ import com.google.common.collect.ImmutableSet;
  * @author edgar
  * @since 0.8.1
  */
-public class Csrf implements Route.Filter {
+public class CsrfHandler implements Route.Filter {
 
   private final Set<String> REQUIRE_ON = ImmutableSet.of("POST", "PUT", "DELETE", "PATCH");
 
@@ -86,21 +93,21 @@ public class Csrf implements Route.Filter {
   private Predicate<Request> requireToken;
 
   /**
-   * Creates a new {@link Csrf} handler and use the given name to save the token in the
+   * Creates a new {@link CsrfHandler} handler and use the given name to save the token in the
    * {@link Session} and or extract the token from incoming requests.
    *
    * @param name Token's name.
    */
-  public Csrf(final String name) {
+  public CsrfHandler(final String name) {
     this.name = requireNonNull(name, "Name is required.");
     tokenGen(req -> UUID.randomUUID().toString());
     requireTokenOn(req -> REQUIRE_ON.contains(req.method()));
   }
 
   /**
-   * Creates a new {@link Csrf} and use <code>csrf</code> as token name.
+   * Creates a new {@link CsrfHandler} and use <code>csrf</code> as token name.
    */
-  public Csrf() {
+  public CsrfHandler() {
     this("csrf");
   }
 
@@ -110,7 +117,7 @@ public class Csrf implements Route.Filter {
    * @param generator A custom token generator.
    * @return This filter.
    */
-  public Csrf tokenGen(final Function<Request, String> generator) {
+  public CsrfHandler tokenGen(final Function<Request, String> generator) {
     this.generator = requireNonNull(generator, "Generator is required.");
     return this;
   }
@@ -123,7 +130,7 @@ public class Csrf implements Route.Filter {
    * @param requireToken Predicate to use.
    * @return This filter.
    */
-  public Csrf requireTokenOn(final Predicate<Request> requireToken) {
+  public CsrfHandler requireTokenOn(final Predicate<Request> requireToken) {
     this.requireToken = requireNonNull(requireToken, "RequireToken predicate is required.");
     return this;
   }

@@ -34,7 +34,7 @@ import org.jooby.util.ExSupplier;
 
 import com.google.common.io.Closeables;
 
-class URLAsset implements Asset {
+public class URLAsset implements Asset {
 
   private URL url;
 
@@ -56,13 +56,13 @@ class URLAsset implements Asset {
       File file = new File(url.toURI());
       if (file.exists()) {
         stream = () -> new FileInputStream(file);
-        this.length = file.length();
-        this.lastModified = file.lastModified();
+        this.length = safeValue(file.length());
+        this.lastModified = safeValue(file.lastModified());
       }
     } else {
       headers(url, (len, lstMod) -> {
-        this.length = len;
-        this.lastModified = lstMod;
+        this.length = safeValue(len);
+        this.lastModified = safeValue(lstMod);
       });
     }
     if (this.stream == null) {
@@ -80,6 +80,11 @@ class URLAsset implements Asset {
     String path = url.getPath();
     int slash = path.lastIndexOf('/');
     return path.substring(slash + 1);
+  }
+
+  @Override
+  public URL resource() {
+    return url;
   }
 
   @Override
@@ -115,13 +120,17 @@ class URLAsset implements Asset {
       uc.setUseCaches(false);
       long len = uc.getContentLengthLong();
       long lastModified = uc.getLastModified();
-      callback.accept(len > 0 ? len : -1, lastModified > 0 ? lastModified : -1);
+      callback.accept(len, lastModified);
     } finally {
       if (uc != null) {
         // http://stackoverflow.com/questions/2057351/how-do-i-get-the-last-modification-time-of-a-java-resource
         Closeables.closeQuietly(uc.getInputStream());
       }
     }
+  }
+
+  private static long safeValue(final long value) {
+    return value > 0 ? value : -1;
   }
 
 }

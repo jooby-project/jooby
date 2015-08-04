@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.routes;
+package org.jooby.internal.handlers;
 
 import static java.util.Objects.requireNonNull;
 

@@ -16,35 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.routes;
+package org.jooby.internal;
 
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
-import org.jooby.MediaType;
-import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.Route.Chain;
 
-public class TraceHandler implements Route.Handler {
+public class AssetProxy implements Route.Filter {
+
+  private Route.Filter delegate;
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
-    String CRLF = "\r\n";
-    StringBuilder buffer = new StringBuilder("TRACE ").append(req.path())
-        .append(" ").append(req.protocol());
+  public void handle(final Request req, final Response rsp, final Chain chain) throws Exception {
+    // NOOP
+  }
 
-    for (Entry<String, Mutant> entry : req.headers().entrySet()) {
-      buffer.append(CRLF).append(entry.getKey()).append(": ")
-          .append(entry.getValue().toList(String.class).stream().collect(Collectors.joining(", ")));
-    }
+  public AssetProxy fwd(final Route.Filter delegate) {
+    this.delegate = delegate;
+    return this;
+  }
 
-    buffer.append(CRLF);
-
-    rsp.type(MediaType.valueOf("message/http"));
-    rsp.length(buffer.length());
-    rsp.send(buffer.toString());
+  public Route.Filter delegate() {
+    return delegate;
   }
 
 }

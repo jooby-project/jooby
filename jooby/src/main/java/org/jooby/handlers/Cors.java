@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby;
+package org.jooby.handlers;
 
 import static java.util.Objects.requireNonNull;
 
@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.jooby.Jooby;
 import org.jooby.util.Collectors;
 
 import com.google.common.collect.ImmutableList;

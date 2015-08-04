@@ -2,13 +2,14 @@ package org.jooby;
 
 import static org.junit.Assert.assertEquals;
 
+import org.jooby.handlers.CsrfHandler;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
 public class CsrfFeature extends ServerFeature {
 
   {
-    use("*", new Csrf());
+    use("*", new CsrfHandler());
 
     get("/csrf", req -> req.get("csrf").get());
 

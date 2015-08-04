@@ -1910,7 +1910,6 @@ public class JoobyTest {
           expect(rsp.header(eq("Last-Modified"), unit.capture(java.util.Date.class)))
               .andReturn(rsp);
           expect(rsp.header(eq("ETag"), isA(String.class))).andReturn(rsp);
-          expect(rsp.length(20)).andReturn(rsp);
           rsp.send(isA(Asset.class));
         })
         .run(unit -> {

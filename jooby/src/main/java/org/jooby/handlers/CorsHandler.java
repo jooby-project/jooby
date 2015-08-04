@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.routes;
+package org.jooby.handlers;
 
 import static java.util.Objects.requireNonNull;
 
@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.jooby.Cors;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
@@ -36,6 +35,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
+/**
+ * Handle preflight and simple CORS requests. CORS options are set via: Cors.
+ *
+ * @author edgar
+ * @since 0.8.0
+ * @see Cors.
+ */
 public class CorsHandler implements Route.Filter {
 
   private static final String ORIGIN = "Origin";
@@ -61,10 +67,21 @@ public class CorsHandler implements Route.Filter {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(Cors.class);
 
-  private Optional<Cors> cors;
+  private Optional<Cors> cors = Optional.empty();
 
-  public CorsHandler(final Optional<Cors> cors) {
-    this.cors = requireNonNull(cors, "Cors is required.");
+  /**
+   * Creates a new {@link CorsHandler}.
+   *
+   * @param cors Cors options, or empty for using default options.
+   */
+  public CorsHandler(final Cors cors) {
+    this.cors = Optional.of(requireNonNull(cors, "Cors is required."));
+  }
+
+  /**
+   * Creates a new {@link CorsHandler}.
+   */
+  public CorsHandler() {
   }
 
   @Override

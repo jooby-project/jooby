@@ -8,7 +8,7 @@ Cross-origin resource sharing (CORS) is a mechanism that allows restricted resou
 ```java
 {
 
-  cors();
+  use("*", new CorsHandler());
 
 }
 ```
@@ -48,5 +48,5 @@ cors {
 }
 ```
 
-```CORS``` options are represented at runtime by [Cors]({{defdocs}}/Cors.html).
+```CORS``` options are represented at runtime by [Cors]({{defdocs}}/handlers/Cors.html).
 

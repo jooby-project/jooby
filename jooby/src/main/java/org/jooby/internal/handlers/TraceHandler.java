@@ -16,28 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal;
+package org.jooby.internal.handlers;
 
-import java.net.URL;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import org.jooby.MediaType;
+import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
-import org.jooby.Route.Chain;
+import org.jooby.Route;
 
-public class CdnAssetHandler extends AssetHandler {
-
-  private String cdn;
-
-  public CdnAssetHandler(final String path, final Class<?> loader, final String cdn) {
-    super(path, loader);
-    this.cdn = cdn;
-  }
+public class TraceHandler implements Route.Handler {
 
   @Override
-  protected void doHandle(final Request req, final Response rsp, final Chain chain,
-      final URL resource) throws Exception {
-    String absUrl = cdn + req.path();
-    rsp.redirect(absUrl);
+  public void handle(final Request req, final Response rsp) throws Exception {
+    String CRLF = "\r\n";
+    StringBuilder buffer = new StringBuilder("TRACE ").append(req.path())
+        .append(" ").append(req.protocol());
+
+    for (Entry<String, Mutant> entry : req.headers().entrySet()) {
+      buffer.append(CRLF).append(entry.getKey()).append(": ")
+          .append(entry.getValue().toList(String.class).stream().collect(Collectors.joining(", ")));
+    }
+
+    buffer.append(CRLF);
+
+    rsp.type(MediaType.valueOf("message/http"));
+    rsp.length(buffer.length());
+    rsp.send(buffer.toString());
   }
 
 }

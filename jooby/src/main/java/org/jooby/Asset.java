@@ -19,6 +19,7 @@
 package org.jooby;
 
 import java.io.InputStream;
+import java.net.URL;
 
 import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Longs;
@@ -58,6 +59,11 @@ public interface Asset {
   String path();
 
   /**
+   * @return URL representing the resource.
+   */
+  URL resource();
+
+  /**
    * @return Generate a weak Etag using the {@link #path()}, {@link #lastModified()} and
    *         {@link #length()}.
    */
@@ -66,7 +72,7 @@ public interface Asset {
     b.append("W/\"");
 
     BaseEncoding b64 = BaseEncoding.base64();
-    int lhash = path().hashCode();
+    int lhash = resource().hashCode();
 
     b.append(b64.encode(Longs.toByteArray(lastModified() ^ lhash)));
     b.append(b64.encode(Longs.toByteArray(length() ^ lhash)));

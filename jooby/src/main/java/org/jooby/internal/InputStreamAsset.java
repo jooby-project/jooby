@@ -21,6 +21,7 @@ package org.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.io.InputStream;
+import java.net.URL;
 
 import org.jooby.Asset;
 import org.jooby.MediaType;
@@ -42,6 +43,11 @@ public class InputStreamAsset implements Asset {
   @Override
   public String name() {
     return name;
+  }
+
+  @Override
+  public URL resource() {
+    throw new UnsupportedOperationException();
   }
 
   @Override

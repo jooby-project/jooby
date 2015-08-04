@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jooby.internal.AssetProxy;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
@@ -1065,6 +1066,10 @@ public interface Route {
      */
     private Route asRoute(final String method, final RouteMatcher matcher,
         final List<MediaType> produces) {
+      Route.Filter filter = this.filter;
+      if (filter instanceof AssetProxy) {
+        filter = ((AssetProxy) filter).delegate();
+      }
       return new RouteImpl(filter, method, matcher.path(), pattern, name, matcher.vars(), consumes,
           produces);
     }

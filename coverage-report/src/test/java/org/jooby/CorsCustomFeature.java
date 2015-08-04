@@ -2,17 +2,20 @@ package org.jooby;
 
 import java.util.Optional;
 
+import org.jooby.handlers.Cors;
+import org.jooby.handlers.CorsHandler;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
 public class CorsCustomFeature extends ServerFeature {
 
   {
-    cors(new Cors().withOrigin("http://foo.com")
+    use("*", new CorsHandler(new Cors()
+        .withOrigin("http://foo.com")
         .withHeaders("*")
         .withoutCreds()
         .withExposedHeaders("H1")
-        .withMaxAge(-1));
+        .withMaxAge(-1)));
 
     get("/greeting", req -> "Hello " + req.param("name").value("World") + "!");
   }
