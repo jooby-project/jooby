@@ -60,6 +60,9 @@
 ## amazon web services
 * [aws](https://github.com/jooby-project/jooby/tree/master/jooby-aws): wire AWS services and expose them in Guice.
 
+## css pre-processors
+* [sass](https://github.com/jooby-project/jooby/tree/master/jooby-sass): {{sass}} CSS pre-processor via {{sassjava}}.
+
 ## servers
 * [netty](https://github.com/jooby-project/jooby/tree/master/jooby-netty)
 * [jetty](https://github.com/jooby-project/jooby/tree/master/jooby-jetty)

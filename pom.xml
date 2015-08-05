@@ -47,6 +47,7 @@
     <module>jooby-jongo</module>
     <module>jooby-flyway</module>
     <module>jooby-hazelcast</module>
+    <module>jooby-sass</module>
     <module>coverage-report</module>
   </modules>
 
@@ -262,6 +263,12 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-sass</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
       <!-- bson4jackon -->
       <dependency>
         <groupId>de.undercouch</groupId>
@@ -279,6 +286,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>jcl-over-slf4j</artifactId>
+        <version>${slf4j-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
         <version>${slf4j-api.version}</version>
       </dependency>
 
@@ -701,6 +714,13 @@
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast</artifactId>
         <version>${hazelcast.version}</version>
+      </dependency>
+
+      <!-- Sass -->
+      <dependency>
+        <groupId>com.vaadin</groupId>
+        <artifactId>vaadin-sass-compiler</artifactId>
+        <version>${vaadin-sass-compiler.version}</version>
       </dependency>
 
       <!-- Maven -->
@@ -1625,6 +1645,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <bson4jackson.version>2.5.0</bson4jackson.version>
     <flyway.version>3.2.1</flyway.version>
     <hazelcast.version>3.5</hazelcast.version>
+    <vaadin-sass-compiler.version>0.9.12</vaadin-sass-compiler.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

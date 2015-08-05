@@ -59,6 +59,7 @@
                     <source>${project.parent.basedir}/jooby-commons-email/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-flyway/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-hazelcast/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-sass/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -96,6 +97,7 @@
                     <source>${project.parent.basedir}/jooby-commons-email/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-flyway/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-hazelcast/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-sass/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -270,6 +272,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-hazelcast</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-sass</artifactId>
       <version>${project.version}</version>
     </dependency>
 

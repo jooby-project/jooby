@@ -49,6 +49,16 @@ links.push({
 });
 
 links.push({
+  name: 'sass',
+  data: '[Sass](http://sass-lang.com)'
+});
+
+links.push({
+  name: 'sassjava',
+  data: '[Vaadin Sass Compiler](https://github.com/vaadin/sass-compiler)'
+});
+
+links.push({
   name: 'flyway',
   data: '[Flyway](http://flywaydb.org)'
 });

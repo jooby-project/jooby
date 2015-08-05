@@ -126,23 +126,23 @@ public class AssetHandler implements Route.Filter {
 
   /**
    * <p>
-   * Creates a new {@link AssetHandler}. The handler accepts a location pattern, that serve for
-   * locating the static resource.
+   * Creates a new {@link AssetHandler}. The location pattern can be one of.
    * </p>
    *
-   * Given <code>assets("/assets/**", "/")</code> with:
+   * Given <code>/</code> like in <code>assets("/assets/**", "/")</code> with:
    *
    * <pre>
    *   GET /assets/js/index.js it translates the path to: /assets/js/index.js
    * </pre>
    *
-   * Given <code>assets("/js/**", "/assets")</code> with:
+   * Given <code>/assets</code> like in <code>assets("/js/**", "/assets")</code> with:
    *
    * <pre>
    *   GET /js/index.js it translate the path to: /assets/js/index.js
    * </pre>
    *
-   * Given <codeassets("/webjars/**", "/META-INF/resources/webjars/{0}")</code> with:
+   * Given <code>/META-INF/resources/webjars/{0}</code> like in
+   * <code>assets("/webjars/**", "/META-INF/resources/webjars/{0}")</code> with:
    *
    * <pre>
    *   GET /webjars/jquery/2.1.3/jquery.js it translate the path to: /META-INF/resources/webjars/jquery/2.1.3/jquery.js
