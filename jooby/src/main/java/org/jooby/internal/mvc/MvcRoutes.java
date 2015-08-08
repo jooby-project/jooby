@@ -56,7 +56,7 @@ import com.google.common.collect.ImmutableSet;
 
 public class MvcRoutes {
 
-  private static final String[] NO_PATHS = new String[0];
+  private static final String[] EMPTY = new String[0];
 
   @SuppressWarnings("unchecked")
   private static final Set<Class<? extends Annotation>> VERBS = ImmutableSet.of(GET.class,
@@ -71,6 +71,7 @@ public class MvcRoutes {
         new RequestParamProviderImpl(new RequestParamNameProviderImpl(classInfo));
 
     String[] rootPaths = path(routeClass);
+    String[] rootExcludes = excludes(routeClass, EMPTY);
 
     Map<Method, List<Class<?>>> methods = new HashMap<>();
     for (Method method : routeClass.getDeclaredMethods()) {
@@ -117,10 +118,13 @@ public class MvcRoutes {
             for (Class<?> verb : verbs) {
               String name = routeClass.getSimpleName() + "." + method.getName();
 
+              String[] excludes = excludes(method, rootExcludes);
+
               Definition definition = new Route.Definition(
                   verb.getSimpleName(), path, new MvcHandler(method, paramProvider))
                   .produces(produces)
                   .consumes(consumes)
+                  .excludes(excludes)
                   .name(name);
 
               definitions.add(definition);
@@ -168,9 +172,29 @@ public class MvcRoutes {
   private static String[] path(final AnnotatedElement owner) {
     Path annotation = owner.getAnnotation(Path.class);
     if (annotation == null) {
-      return NO_PATHS;
+      return EMPTY;
     }
     return annotation.value();
+  }
+
+  private static String[] excludes(final AnnotatedElement owner, final String[] parent) {
+    Path annotation = owner.getAnnotation(Path.class);
+    if (annotation == null) {
+      return parent;
+    }
+    String[] excludes = annotation.excludes();
+    if (excludes.length == 0) {
+      return parent;
+    }
+    if (parent.length == 0) {
+      return excludes;
+    }
+    // join everything
+    int size = parent.length + excludes.length;
+    String[] result = new String[size];
+    System.arraycopy(parent, 0, result, 0, parent.length);
+    System.arraycopy(excludes, 0, result, parent.length, excludes.length);
+    return result;
   }
 
   private static String[] expandPaths(final String[] root, final Method m) {

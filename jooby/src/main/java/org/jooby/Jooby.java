@@ -763,6 +763,18 @@ public class Jooby {
   }
 
   /**
+   * Append a new route handler that matches any method under the given path.
+   *
+   * @param path A path pattern.
+   * @param handler A handler to execute.
+   * @return A new route definition.
+   */
+  public Route.Definition use(final String path,
+      final Route.OneArgHandler handler) {
+    return appendDefinition(new Route.Definition("*", path, handler));
+  }
+
+  /**
    * Append a route that supports HTTP GET method:
    *
    * <pre>

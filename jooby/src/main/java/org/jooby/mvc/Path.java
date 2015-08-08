@@ -78,4 +78,9 @@ public @interface Path {
    * @return Route path pattern.
    */
   String[] value();
+
+  /**
+   * @return Pattern to excludes/ignore. Useful for filters.
+   */
+  String[] excludes() default {};
 }

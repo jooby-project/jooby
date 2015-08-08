@@ -33,6 +33,7 @@ import org.jooby.internal.AssetProxy;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
+import org.jooby.util.Collectors;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -165,32 +166,19 @@ import com.google.common.collect.Lists;
  *   });
  * </pre>
  *
- * <h2>External route</h2>
- * <p>
- * An external route can be defined by using a {@link Class route class}, like:
- * </p>
- *
- * <pre>
- *   get("/", handler(ExternalRoute.class)); //or
- *
- *   ...
- *   // ExternalRoute.java
- *   public class ExternalRoute implements Route.Handler {
- *     public void handle(Request req, Response rsp) throws Exception {
- *       rsp.send("Hello Jooby");
- *     }
- *   }
- * </pre>
- *
  * <h2>Mvc Route</h2>
  * <p>
  * A Mvc Route use annotations to define routes:
  * </p>
  *
  * <pre>
- *   route(MyRoute.class);
- *   ...
- *   // MyRoute.java
+ * {
+ *   use(MyRoute.class);
+ * }
+ * </pre>
+ *
+ * MyRoute.java:
+ * <pre>
  *   {@literal @}Path("/")
  *   public class MyRoute {
  *
@@ -759,6 +747,8 @@ public interface Route {
      */
     private String pattern;
 
+    private List<RoutePattern> excludes = Collections.emptyList();
+
     /**
      * Creates a new route definition.
      *
@@ -871,7 +861,11 @@ public interface Route {
     public Optional<Route> matches(final String verb,
         final String path, final MediaType contentType,
         final List<MediaType> accept) {
-      RouteMatcher matcher = compiledPattern.matcher(verb.toUpperCase() + path);
+      String fpath = verb.toUpperCase() + path;
+      if (excludes(fpath)) {
+        return Optional.empty();
+      }
+      RouteMatcher matcher = compiledPattern.matcher(fpath);
       if (matcher.matches()) {
         List<MediaType> result = MediaType.matcher(accept).filter(this.produces);
         if (result.size() > 0 && canConsume(contentType)) {
@@ -1033,6 +1027,36 @@ public interface Route {
     }
 
     /**
+     * Excludes one or more path pattern from this route, useful for filter:
+     *
+     * <pre>
+     * {
+     *   use("*", req {@literal ->} {
+     *    ...
+     *   }).excludes("/logout");
+     * }
+     * </pre>
+     *
+     * @param excludes A path pattern.
+     * @return This route definition.
+     */
+    public Definition excludes(final String... excludes) {
+      this.excludes = Arrays.asList(excludes).stream()
+          .map(it -> new RoutePattern(method, it))
+          .collect(Collectors.toList());
+      return this;
+    }
+
+    private boolean excludes(final String path) {
+      for (RoutePattern pattern: excludes) {
+        if (pattern.matcher(path).matches()) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    /**
      * @return All the types this route can consumes.
      */
     public List<MediaType> consumes() {
@@ -1051,7 +1075,8 @@ public interface Route {
       StringBuilder buffer = new StringBuilder();
       buffer.append(method()).append(" ").append(pattern()).append("\n");
       buffer.append("  name: ").append(name()).append("\n");
-      buffer.append("  consume: ").append(consumes()).append("\n");
+      buffer.append("  excludes: ").append(excludes).append("\n");
+      buffer.append("  consumes: ").append(consumes()).append("\n");
       buffer.append("  produces: ").append(produces()).append("\n");
       return buffer.toString();
     }

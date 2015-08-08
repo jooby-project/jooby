@@ -114,11 +114,12 @@ public class RouteDefinitionTest {
         })
         .run(unit -> {
           Definition def = new Route.Definition("GET", "/", (req, rsp, chain) -> {
-          });
+          }).excludes("/**/logout");
 
           assertEquals("GET /\n" +
               "  name: anonymous\n" +
-              "  consume: [*/*]\n" +
+              "  excludes: [/**/logout]\n" +
+              "  consumes: [*/*]\n" +
               "  produces: [*/*]\n", def.toString());
         });
   }
@@ -159,7 +160,7 @@ public class RouteDefinitionTest {
         .isPresent());
     assertEquals(false,
         def.matches("GET", "/", MediaType.json, Arrays.asList(MediaType.html))
-        .isPresent());
+            .isPresent());
   }
 
   @Test(expected = IllegalArgumentException.class)
