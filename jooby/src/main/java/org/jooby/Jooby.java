@@ -80,10 +80,10 @@ import javax.inject.Singleton;
 import org.jooby.Session.Store;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.AppPrinter;
+import org.jooby.internal.AssetProxy;
 import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
 import org.jooby.internal.DefaulErrRenderer;
-import org.jooby.internal.AssetProxy;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.JvmInfo;
 import org.jooby.internal.LifecycleProcessor;
@@ -2896,152 +2896,155 @@ public class Jooby {
         callback.getValue().forEach(it -> it.accept(config));
       }
     }
-    // dependency injection
+    /** dependency injection */
     @SuppressWarnings("unchecked")
     Injector injector = Guice.createInjector(stage, binder -> {
 
-      // type converters
-        new TypeConverters().configure(binder);
+      /** type converters */
+      new TypeConverters().configure(binder);
 
-        // bind config
-        bindConfig(binder, config);
+      /** bind config */
+      bindConfig(binder, config);
 
-        // bind env
-        binder.bind(Env.class).toInstance(env);
+      /** bind env */
+      binder.bind(Env.class).toInstance(env);
 
-        // bind charset
-        binder.bind(Charset.class).toInstance(charset);
+      /** bind charset */
+      binder.bind(Charset.class).toInstance(charset);
 
-        // bind locale
-        binder.bind(Locale.class).toInstance(locale);
+      /** bind locale */
+      binder.bind(Locale.class).toInstance(locale);
 
-        // bind time zone
-        binder.bind(ZoneId.class).toInstance(zoneId);
-        binder.bind(TimeZone.class).toInstance(TimeZone.getTimeZone(zoneId));
+      /** bind time zone */
+      binder.bind(ZoneId.class).toInstance(zoneId);
+      binder.bind(TimeZone.class).toInstance(TimeZone.getTimeZone(zoneId));
 
-        // bind date format
-        binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormatter);
+      /** bind date format */
+      binder.bind(DateTimeFormatter.class).toInstance(dateTimeFormatter);
 
-        // bind number format
-        binder.bind(NumberFormat.class).toInstance(numberFormat);
-        binder.bind(DecimalFormat.class).toInstance(numberFormat);
+      /** bind number format */
+      binder.bind(NumberFormat.class).toInstance(numberFormat);
+      binder.bind(DecimalFormat.class).toInstance(numberFormat);
 
-        // bind managed
-        LifecycleProcessor lifecycleProcessor = new LifecycleProcessor();
-        binder.bind(LifecycleProcessor.class).toInstance(lifecycleProcessor);
-        binder.bindListener(Matchers.any(), lifecycleProcessor);
+      /** bind managed */
+      LifecycleProcessor lifecycleProcessor = new LifecycleProcessor();
+      binder.bind(LifecycleProcessor.class).toInstance(lifecycleProcessor);
+      binder.bindListener(Matchers.any(), lifecycleProcessor);
 
-        // Routes
-        Multibinder<Route.Definition> definitions = Multibinder
-            .newSetBinder(binder, Route.Definition.class);
+      /** routes */
+      Multibinder<Route.Definition> definitions = Multibinder
+          .newSetBinder(binder, Route.Definition.class);
 
-        // Web Sockets
-        Multibinder<WebSocket.Definition> sockets = Multibinder
-            .newSetBinder(binder, WebSocket.Definition.class);
+      /** web sockets */
+      Multibinder<WebSocket.Definition> sockets = Multibinder
+          .newSetBinder(binder, WebSocket.Definition.class);
 
-        // tmp dir
-        File tmpdir = new File(config.getString("application.tmpdir"));
-        tmpdir.mkdirs();
-        binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
-            .toInstance(tmpdir);
+      /** tmp dir */
+      File tmpdir = new File(config.getString("application.tmpdir"));
+      tmpdir.mkdirs();
+      binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
+          .toInstance(tmpdir);
 
-        RouteMetadata classInfo = new RouteMetadata(env);
-        binder.bind(ParameterNameProvider.class).toInstance(classInfo);
+      RouteMetadata classInfo = new RouteMetadata(env);
+      binder.bind(ParameterNameProvider.class).toInstance(classInfo);
 
-        // err handler
-        Multibinder<Err.Handler> ehandlers = Multibinder
-            .newSetBinder(binder, Err.Handler.class);
+      /** err handler */
+      Multibinder<Err.Handler> ehandlers = Multibinder
+          .newSetBinder(binder, Err.Handler.class);
 
-        // parsers & renderers
-        Multibinder<Parser> parsers = Multibinder
-            .newSetBinder(binder, Parser.class);
+      /** parsers & renderers */
+      Multibinder<Parser> parsers = Multibinder
+          .newSetBinder(binder, Parser.class);
 
-        Multibinder<Renderer> renderers = Multibinder
-            .newSetBinder(binder, Renderer.class);
+      Multibinder<Renderer> renderers = Multibinder
+          .newSetBinder(binder, Renderer.class);
 
-        // modules, routes, parsers, renderers and websockets
-        bag.forEach(candidate -> {
-          if (candidate instanceof Jooby.Module) {
-            install((Jooby.Module) candidate, env, config, binder);
-          } else if (candidate instanceof Route.Definition) {
-            definitions.addBinding().toInstance((Route.Definition) candidate);
-          } else if (candidate instanceof Route.Namespace) {
-            ((Route.Namespace) candidate).routes()
-                .forEach(r -> definitions.addBinding().toInstance(r));
-          } else if (candidate instanceof WebSocket.Definition) {
-            sockets.addBinding().toInstance((WebSocket.Definition) candidate);
-          } else if (candidate instanceof Parser) {
-            parsers.addBinding().toInstance((Parser) candidate);
-          } else if (candidate instanceof Renderer) {
-            renderers.addBinding().toInstance((Renderer) candidate);
-          } else if (candidate instanceof Err.Handler) {
-            ehandlers.addBinding().toInstance((Err.Handler) candidate);
-          } else {
-            binder.bind((Class<?>) candidate);
-            MvcRoutes.routes(env, classInfo, (Class<?>) candidate)
-                .forEach(route -> definitions.addBinding().toInstance(route));
-          }
-        });
+      /** basic parser */
+      parsers.addBinding().toInstance(BuiltinParser.Basic);
+      parsers.addBinding().toInstance(BuiltinParser.Collection);
+      parsers.addBinding().toInstance(BuiltinParser.Optional);
+      parsers.addBinding().toInstance(BuiltinParser.Enum);
+      parsers.addBinding().toInstance(BuiltinParser.Upload);
+      parsers.addBinding().toInstance(BuiltinParser.Bytes);
 
-        parsers.addBinding().toInstance(BuiltinParser.Basic);
-        parsers.addBinding().toInstance(BuiltinParser.Collection);
-        parsers.addBinding().toInstance(BuiltinParser.Optional);
-        parsers.addBinding().toInstance(BuiltinParser.Enum);
-        parsers.addBinding().toInstance(BuiltinParser.Upload);
-        parsers.addBinding().toInstance(BuiltinParser.Bytes);
-        parsers.addBinding().toInstance(new DateParser(dateFormat));
-        parsers.addBinding().toInstance(new LocalDateParser(dateTimeFormatter));
-        parsers.addBinding().toInstance(new LocaleParser());
-        parsers.addBinding().toInstance(new BeanParser());
-        parsers.addBinding().toInstance(new StaticMethodParser("valueOf"));
-        parsers.addBinding().toInstance(new StaticMethodParser("fromString"));
-        parsers.addBinding().toInstance(new StaticMethodParser("forName"));
-        parsers.addBinding().toInstance(new StringConstructorParser());
+      /** basic render */
+      renderers.addBinding().toInstance(BuiltinRenderer.Asset);
+      renderers.addBinding().toInstance(BuiltinRenderer.Bytes);
+      renderers.addBinding().toInstance(BuiltinRenderer.ByteBuffer);
+      renderers.addBinding().toInstance(BuiltinRenderer.File);
+      renderers.addBinding().toInstance(BuiltinRenderer.CharBuffer);
+      renderers.addBinding().toInstance(BuiltinRenderer.InputStream);
+      renderers.addBinding().toInstance(BuiltinRenderer.Reader);
+      renderers.addBinding().toInstance(BuiltinRenderer.FileChannel);
 
-        binder.bind(ParserExecutor.class).in(Singleton.class);
-
-        // renderer
-        renderers.addBinding().toInstance(BuiltinRenderer.Asset);
-        renderers.addBinding().toInstance(BuiltinRenderer.Bytes);
-        renderers.addBinding().toInstance(BuiltinRenderer.ByteBuffer);
-        renderers.addBinding().toInstance(BuiltinRenderer.File);
-        renderers.addBinding().toInstance(BuiltinRenderer.CharBuffer);
-        renderers.addBinding().toInstance(BuiltinRenderer.InputStream);
-        renderers.addBinding().toInstance(BuiltinRenderer.Reader);
-        renderers.addBinding().toInstance(BuiltinRenderer.FileChannel);
-        renderers.addBinding().toInstance(new DefaulErrRenderer());
-        renderers.addBinding().toInstance(BuiltinRenderer.ToString);
-
-        binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
-
-        RequestScope requestScope = new RequestScope();
-        binder.bind(RequestScope.class).toInstance(requestScope);
-        binder.bindScope(RequestScoped.class, requestScope);
-
-        // session manager
-        binder.bind(SessionManager.class).asEagerSingleton();
-        binder.bind(Session.Definition.class).toInstance(session);
-        Object sstore = session.store();
-        if (sstore instanceof Class) {
-          binder.bind(Session.Store.class).to((Class<? extends Store>) sstore)
-              .asEagerSingleton();
+      /** modules, routes, parsers, renderers and websockets */
+      bag.forEach(candidate -> {
+        if (candidate instanceof Jooby.Module) {
+          install((Jooby.Module) candidate, env, config, binder);
+        } else if (candidate instanceof Route.Definition) {
+          definitions.addBinding().toInstance((Route.Definition) candidate);
+        } else if (candidate instanceof Route.Namespace) {
+          ((Route.Namespace) candidate).routes()
+              .forEach(r -> definitions.addBinding().toInstance(r));
+        } else if (candidate instanceof WebSocket.Definition) {
+          sockets.addBinding().toInstance((WebSocket.Definition) candidate);
+        } else if (candidate instanceof Parser) {
+          parsers.addBinding().toInstance((Parser) candidate);
+        } else if (candidate instanceof Renderer) {
+          renderers.addBinding().toInstance((Renderer) candidate);
+        } else if (candidate instanceof Err.Handler) {
+          ehandlers.addBinding().toInstance((Err.Handler) candidate);
         } else {
-          binder.bind(Session.Store.class).toInstance((Store) sstore);
-          ;
+          binder.bind((Class<?>) candidate);
+          MvcRoutes.routes(env, classInfo, (Class<?>) candidate)
+              .forEach(route -> definitions.addBinding().toInstance(route));
         }
-
-        binder.bind(Request.class).toProvider(Providers.outOfScope(Request.class))
-            .in(RequestScoped.class);
-
-        binder.bind(Response.class).toProvider(Providers.outOfScope(Response.class))
-            .in(RequestScoped.class);
-
-        binder.bind(Session.class).toProvider(Providers.outOfScope(Session.class))
-            .in(RequestScoped.class);
-
-        // def err
-        ehandlers.addBinding().toInstance(new Err.DefHandler());
       });
+
+      parsers.addBinding().toInstance(new DateParser(dateFormat));
+      parsers.addBinding().toInstance(new LocalDateParser(dateTimeFormatter));
+      parsers.addBinding().toInstance(new LocaleParser());
+      parsers.addBinding().toInstance(new BeanParser());
+      parsers.addBinding().toInstance(new StaticMethodParser("valueOf"));
+      parsers.addBinding().toInstance(new StaticMethodParser("fromString"));
+      parsers.addBinding().toInstance(new StaticMethodParser("forName"));
+      parsers.addBinding().toInstance(new StringConstructorParser());
+
+      binder.bind(ParserExecutor.class).in(Singleton.class);
+
+      /** override(able) renderer */
+      renderers.addBinding().toInstance(new DefaulErrRenderer());
+      renderers.addBinding().toInstance(BuiltinRenderer.ToString);
+
+      binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
+
+      RequestScope requestScope = new RequestScope();
+      binder.bind(RequestScope.class).toInstance(requestScope);
+      binder.bindScope(RequestScoped.class, requestScope);
+
+      /** session manager */
+      binder.bind(SessionManager.class).asEagerSingleton();
+      binder.bind(Session.Definition.class).toInstance(session);
+      Object sstore = session.store();
+      if (sstore instanceof Class) {
+        binder.bind(Session.Store.class).to((Class<? extends Store>) sstore)
+            .asEagerSingleton();
+      } else {
+        binder.bind(Session.Store.class).toInstance((Store) sstore);
+      }
+
+      binder.bind(Request.class).toProvider(Providers.outOfScope(Request.class))
+          .in(RequestScoped.class);
+
+      binder.bind(Response.class).toProvider(Providers.outOfScope(Response.class))
+          .in(RequestScoped.class);
+
+      binder.bind(Session.class).toProvider(Providers.outOfScope(Session.class))
+          .in(RequestScoped.class);
+
+      /** def err */
+      ehandlers.addBinding().toInstance(new Err.DefHandler());
+    });
 
     return injector;
   }

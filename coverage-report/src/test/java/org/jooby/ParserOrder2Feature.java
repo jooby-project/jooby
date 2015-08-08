@@ -39,7 +39,7 @@ public class ParserOrder2Feature extends ServerFeature {
       @Override
       public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
         assertEquals(
-            "[p2, p1, p3, Basic, Collection, Optional, Enum, Upload, byte[], Date, LocalDate, Locale, bean, valueOf(String), fromString(String), forName(String), init(String)]",
+            "[Basic, Collection, Optional, Enum, Upload, byte[], p2, p1, p3, Date, LocalDate, Locale, bean, valueOf(String), fromString(String), forName(String), init(String)]",
             ctx.toString());
         return ctx.next();
       }
@@ -74,6 +74,6 @@ public class ParserOrder2Feature extends ServerFeature {
     request()
         .get("/parser/order")
         .expect(
-            "[p2, p1, p3, Basic, Collection, Optional, Enum, Upload, byte[], Date, LocalDate, Locale, bean, valueOf(String), fromString(String), forName(String), init(String)]");
+            "[Basic, Collection, Optional, Enum, Upload, byte[], p2, p1, p3, Date, LocalDate, Locale, bean, valueOf(String), fromString(String), forName(String), init(String)]");
   }
 }

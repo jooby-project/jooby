@@ -2240,7 +2240,6 @@ public class JoobyTest {
           LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
           formatAny.toInstance(BuiltinRenderer.ToString);
 
-          expect(multibinder.addBinding()).andReturn(customFormatter);
           expect(multibinder.addBinding()).andReturn(formatAsset);
           expect(multibinder.addBinding()).andReturn(formatByteArray);
           expect(multibinder.addBinding()).andReturn(formatByteBuffer);
@@ -2249,6 +2248,7 @@ public class JoobyTest {
           expect(multibinder.addBinding()).andReturn(formatStream);
           expect(multibinder.addBinding()).andReturn(reader);
           expect(multibinder.addBinding()).andReturn(fchannel);
+          expect(multibinder.addBinding()).andReturn(customFormatter);
           expect(multibinder.addBinding()).andReturn(err);
           expect(multibinder.addBinding()).andReturn(formatAny);
         })
@@ -2301,13 +2301,13 @@ public class JoobyTest {
           LinkedBindingBuilder<Parser> customParser = unit.mock(LinkedBindingBuilder.class);
           customParser.toInstance(unit.get(Parser.class));
 
-          expect(multibinder.addBinding()).andReturn(customParser);
-
           for (Parser parser : BuiltinParser.values()) {
             LinkedBindingBuilder<Parser> converterBinding = unit.mock(LinkedBindingBuilder.class);
             converterBinding.toInstance(parser);
             expect(multibinder.addBinding()).andReturn(converterBinding);
           }
+
+          expect(multibinder.addBinding()).andReturn(customParser);
 
           Class[] parserClasses = {
               DateParser.class,
