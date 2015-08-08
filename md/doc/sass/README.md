@@ -18,7 +18,7 @@
 import org.jooby.sass.Sass;
 
 {
-  assets("/css/**", new Sass());
+  use(new Sass("/css/**"));
 }
 ```
 

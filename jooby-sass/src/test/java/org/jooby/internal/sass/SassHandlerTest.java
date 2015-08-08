@@ -1,4 +1,4 @@
-package org.jooby.sass;
+package org.jooby.internal.sass;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
@@ -12,6 +12,7 @@ import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Result;
+import org.jooby.internal.sass.SassHandler;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,12 +20,12 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Sass.class, URL.class })
-public class SassTest {
+@PrepareForTest({SassHandler.class, URL.class })
+public class SassHandlerTest {
 
   @Test
   public void resolve() throws Exception {
-    assertNotNull(new Sass().resolve("/sass/sass.scss"));
+    assertNotNull(new SassHandler().resolve("/sass/sass.scss"));
   }
 
   @Test
@@ -44,7 +45,7 @@ public class SassTest {
           rsp.send(unit.capture(Result.class));
         })
         .run(unit -> {
-          new Sass().send(unit.get(Request.class), unit.get(Response.class),
+          new SassHandler().send(unit.get(Request.class), unit.get(Response.class),
               unit.get(Asset.class));
         }, unit -> {
           Result result = unit.captured(Result.class).iterator().next();
@@ -74,7 +75,7 @@ public class SassTest {
           rsp.send(unit.capture(Result.class));
         })
         .run(unit -> {
-          new Sass().send(unit.get(Request.class), unit.get(Response.class),
+          new SassHandler().send(unit.get(Request.class), unit.get(Response.class),
               unit.get(Asset.class));
         }, unit -> {
           Result result = unit.captured(Result.class).iterator().next();
