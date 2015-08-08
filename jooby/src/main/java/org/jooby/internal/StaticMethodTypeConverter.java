@@ -18,7 +18,7 @@
  */
 package org.jooby.internal;
 
-import org.jooby.internal.reqparam.StaticMethodParser;
+import org.jooby.internal.parser.StaticMethodParser;
 
 import com.google.common.primitives.Primitives;
 import com.google.inject.TypeLiteral;

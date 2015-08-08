@@ -24,7 +24,7 @@ import java.lang.reflect.Parameter;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jooby.internal.reqparam.RequestParamNameProviderImpl;
+import org.jooby.internal.mvc.RequestParamNameProviderImpl;
 
 /**
  * Like {@link ParameterNameProvider} but it check for {@link Named} presence first. Useful to

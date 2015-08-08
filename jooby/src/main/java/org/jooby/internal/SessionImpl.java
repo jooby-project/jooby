@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.jooby.Mutant;
 import org.jooby.Session;
-import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.parser.ParserExecutor;
 
 import com.google.common.collect.ImmutableList;
 

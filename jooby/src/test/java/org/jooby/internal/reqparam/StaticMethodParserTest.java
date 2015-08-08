@@ -2,6 +2,7 @@ package org.jooby.internal.reqparam;
 
 import static org.junit.Assert.assertEquals;
 
+import org.jooby.internal.parser.StaticMethodParser;
 import org.junit.Test;
 
 import com.google.inject.TypeLiteral;

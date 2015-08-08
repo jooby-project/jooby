@@ -20,7 +20,7 @@ import org.jooby.Renderer;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.Callback;
 import org.jooby.WebSocket.CloseStatus;
-import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeWebSocket;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;

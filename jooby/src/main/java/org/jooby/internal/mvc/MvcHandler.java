@@ -28,8 +28,6 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
-import org.jooby.internal.reqparam.RequestParam;
-import org.jooby.internal.reqparam.RequestParamProvider;
 
 import com.google.common.base.Throwables;
 

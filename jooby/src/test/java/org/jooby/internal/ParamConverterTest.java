@@ -23,12 +23,12 @@ import java.util.UUID;
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Parser;
-import org.jooby.internal.reqparam.DateParser;
-import org.jooby.internal.reqparam.LocalDateParser;
-import org.jooby.internal.reqparam.LocaleParser;
-import org.jooby.internal.reqparam.ParserExecutor;
-import org.jooby.internal.reqparam.StaticMethodParser;
-import org.jooby.internal.reqparam.StringConstructorParser;
+import org.jooby.internal.parser.DateParser;
+import org.jooby.internal.parser.LocalDateParser;
+import org.jooby.internal.parser.LocaleParser;
+import org.jooby.internal.parser.ParserExecutor;
+import org.jooby.internal.parser.StaticMethodParser;
+import org.jooby.internal.parser.StringConstructorParser;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;

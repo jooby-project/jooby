@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.reqparam;
+package org.jooby.internal.parser;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -29,6 +29,10 @@ import org.jooby.Mutant;
 import org.jooby.Parser;
 import org.jooby.Request;
 import org.jooby.Response;
+import org.jooby.internal.mvc.RequestParam;
+import org.jooby.internal.mvc.RequestParamNameProviderImpl;
+import org.jooby.internal.mvc.RequestParamProvider;
+import org.jooby.internal.mvc.RequestParamProviderImpl;
 import org.jooby.reflect.ParameterNameProvider;
 import org.slf4j.LoggerFactory;
 

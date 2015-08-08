@@ -1,4 +1,4 @@
-package org.jooby.internal.reqparam;
+package org.jooby.internal.mvc;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;

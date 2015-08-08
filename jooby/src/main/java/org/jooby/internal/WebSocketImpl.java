@@ -30,7 +30,7 @@ import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Renderer;
 import org.jooby.WebSocket;
-import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

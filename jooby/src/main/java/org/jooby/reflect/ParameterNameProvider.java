@@ -21,7 +21,7 @@ package org.jooby.reflect;
 import java.lang.reflect.Executable;
 
 /**
- * Extract parameter names from a executable: method or constructor.
+ * Extract parameter names from an executable: method or constructor.
  *
  * @author edgar
  * @since 0.6.0

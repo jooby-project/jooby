@@ -20,7 +20,7 @@ package org.jooby.internal;
 
 import java.util.Locale;
 
-import org.jooby.internal.reqparam.StringConstructorParser;
+import org.jooby.internal.parser.StringConstructorParser;
 
 import com.google.common.primitives.Primitives;
 import com.google.inject.TypeLiteral;

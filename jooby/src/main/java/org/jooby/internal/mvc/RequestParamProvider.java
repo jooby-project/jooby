@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.reqparam;
+package org.jooby.internal.mvc;
 
 import java.lang.reflect.Executable;
 import java.util.List;

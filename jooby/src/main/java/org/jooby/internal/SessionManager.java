@@ -42,7 +42,7 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Session;
 import org.jooby.Session.Definition;
-import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.parser.ParserExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

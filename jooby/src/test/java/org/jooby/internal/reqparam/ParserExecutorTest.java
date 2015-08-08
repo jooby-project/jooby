@@ -9,6 +9,7 @@ import java.util.Set;
 import org.jooby.Parser;
 import org.jooby.Upload;
 import org.jooby.internal.UploadParamReferenceImpl;
+import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 

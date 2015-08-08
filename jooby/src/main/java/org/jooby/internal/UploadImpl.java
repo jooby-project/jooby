@@ -26,7 +26,7 @@ import java.io.IOException;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Upload;
-import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeUpload;
 
 import com.google.inject.Injector;

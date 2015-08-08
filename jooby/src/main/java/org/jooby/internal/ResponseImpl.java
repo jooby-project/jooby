@@ -44,7 +44,7 @@ import org.jooby.Result;
 import org.jooby.Results;
 import org.jooby.Route;
 import org.jooby.Status;
-import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeResponse;
 import org.jooby.util.Collectors;
 

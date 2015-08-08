@@ -4,8 +4,8 @@ import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
-import org.jooby.internal.reqparam.LocaleParser;
-import org.jooby.internal.reqparam.StaticMethodParser;
+import org.jooby.internal.parser.LocaleParser;
+import org.jooby.internal.parser.StaticMethodParser;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;

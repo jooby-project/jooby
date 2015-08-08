@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import org.jooby.MediaType;
 import org.jooby.Mutant;
-import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeUpload;
 import org.jooby.test.MockUnit;
 import org.junit.Test;

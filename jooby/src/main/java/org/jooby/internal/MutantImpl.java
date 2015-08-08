@@ -26,7 +26,7 @@ import org.jooby.Mutant;
 import org.jooby.Parser;
 import org.jooby.Parser.ParamReference;
 import org.jooby.Status;
-import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.parser.ParserExecutor;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.TypeLiteral;

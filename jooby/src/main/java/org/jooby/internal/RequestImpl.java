@@ -44,7 +44,7 @@ import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.Status;
 import org.jooby.Upload;
-import org.jooby.internal.reqparam.ParserExecutor;
+import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.util.Collectors;

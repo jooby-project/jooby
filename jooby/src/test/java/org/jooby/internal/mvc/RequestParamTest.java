@@ -1,4 +1,4 @@
-package org.jooby.internal.reqparam;
+package org.jooby.internal.mvc;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
