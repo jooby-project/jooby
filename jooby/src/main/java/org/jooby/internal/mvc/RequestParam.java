@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.internal.reqparam;
+package org.jooby.internal.mvc;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
@@ -28,10 +28,12 @@ import java.util.Optional;
 import javax.inject.Named;
 
 import org.jooby.Cookie;
+import org.jooby.Err;
 import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Session;
+import org.jooby.Status;
 import org.jooby.mvc.Body;
 import org.jooby.mvc.Header;
 
@@ -155,11 +157,14 @@ public class RequestParam {
   private static final GetValue param() {
     return (req, rsp, param) -> {
       Mutant mutant = req.param(param.name);
-      Optional optional = mutant.toOptional(param.type.getRawType());
-      if (optional.isPresent() || param.optional) {
+      if (mutant.isSet() || param.optional) {
         return mutant.to(param.type);
       }
-      return req.params().to(param.type);
+      try {
+        return req.params().to(param.type);
+      } catch (Err ex) {
+        throw new Err(Status.BAD_REQUEST, "Not found: " + param.name);
+      }
     };
   }
 
