@@ -19,6 +19,36 @@ import org.powermock.api.easymock.PowerMock;
 @SuppressWarnings({"rawtypes", "unchecked" })
 public class MockUnit {
 
+  public class ConstructorBuilder<T> {
+
+    private Class[] types;
+
+    private Class<T> type;
+
+    public ConstructorBuilder(final Class<T> type) {
+      this.type = type;
+    }
+
+    public T build(final Object... args) throws Exception {
+      mockClasses.add(type);
+      if (types == null) {
+        types = new Class[args.length];
+        for (int i = 0; i < types.length; i++) {
+          types[i] = args[i].getClass();
+        }
+      }
+      T mock = PowerMock.createMockAndExpectNew(type, types, args);
+      partialMocks.add(mock);
+      return mock;
+    }
+
+    public ConstructorBuilder<T> args(final Class... types) {
+      this.types = types;
+      return this;
+    }
+
+  }
+
   public interface Block {
 
     public void run(MockUnit unit) throws Exception;
@@ -151,8 +181,16 @@ public class MockUnit {
     return mock;
   }
 
-  public <T> T mockConstructor(final Class<T> type) throws Exception {
-    return mockConstructor(type, new Class[0]);
+  public <T> T mockConstructor(final Class<T> type, final Object... args) throws Exception {
+    Class[] types = new Class[args.length];
+    for (int i = 0; i < types.length; i++) {
+      types[i] = args[i].getClass();
+    }
+    return mockConstructor(type, types, args);
+  }
+
+  public <T> ConstructorBuilder<T> constructor(final Class<T> type) {
+    return new ConstructorBuilder<T>(type);
   }
 
 }

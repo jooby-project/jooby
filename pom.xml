@@ -48,6 +48,7 @@
     <module>jooby-flyway</module>
     <module>jooby-hazelcast</module>
     <module>jooby-sass</module>
+    <module>jooby-less</module>
     <module>coverage-report</module>
   </modules>
 
@@ -266,6 +267,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-sass</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-less</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -721,6 +728,13 @@
         <groupId>com.vaadin</groupId>
         <artifactId>vaadin-sass-compiler</artifactId>
         <version>${vaadin-sass-compiler.version}</version>
+      </dependency>
+
+      <!-- Less -->
+      <dependency>
+        <groupId>com.github.sommeri</groupId>
+        <artifactId>less4j</artifactId>
+        <version>${less4j.version}</version>
       </dependency>
 
       <!-- Maven -->
@@ -1646,6 +1660,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <flyway.version>3.2.1</flyway.version>
     <hazelcast.version>3.5</hazelcast.version>
     <vaadin-sass-compiler.version>0.9.12</vaadin-sass-compiler.version>
+    <less4j.version>1.13.0</less4j.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

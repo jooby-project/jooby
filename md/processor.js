@@ -49,6 +49,16 @@ links.push({
 });
 
 links.push({
+  name: 'less',
+  data: '[Less](http://lesscss.org)'
+});
+
+links.push({
+  name: 'less4j',
+  data: '[Less4j](https://github.com/SomMeri/less4j)'
+});
+
+links.push({
   name: 'sass',
   data: '[Sass](http://sass-lang.com)'
 });
