@@ -79,7 +79,7 @@ public class RoutePattern {
         patternBuilder.append("([^/]*)");
         regex = true;
       } else if (match.equals("/**")) {
-        patternBuilder.append("(.*)");
+        patternBuilder.append("($|/.*)");
         regex = true;
       } else if (match.startsWith(":")) {
         regex = true;

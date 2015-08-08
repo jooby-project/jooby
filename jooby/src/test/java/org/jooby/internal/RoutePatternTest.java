@@ -331,4 +331,14 @@ public class RoutePatternTest {
         });
   }
 
+  @Test
+  public void cornerCase() {
+    new RoutePathAssert("GET", "/search/**")
+        .matches("GET/search");
+
+    new RoutePathAssert("GET", "/m/**")
+        .butNot("GET/merge/login");
+
+  }
+
 }
