@@ -40,7 +40,7 @@ import com.google.common.base.Splitter;
  *
  * @author edgar
  * @since 0.8.0
- * @see Cors.
+ * @see Cors
  */
 public class CorsHandler implements Route.Filter {
 

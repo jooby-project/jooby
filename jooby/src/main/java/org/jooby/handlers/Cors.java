@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.jooby.Jooby;
 import org.jooby.util.Collectors;
 
 import com.google.common.collect.ImmutableList;
@@ -52,12 +51,12 @@ import com.typesafe.config.Config;
  *
  * <pre>
  * {
- *   cors();
+ *   use("*", new CorsHandler(new Cors()));
  * }
  * </pre>
  *
  * <p>
- * Previous example, adds a cors filter using the default cors options. See {@link Jooby#cors()}.
+ * Previous example, adds a cors filter using the default cors options.
  * </p>
  *
  * @author edgar

@@ -2638,7 +2638,7 @@ public class Jooby {
    * </p>
    *
    * @param path The path to publish.
-   * @param location A resource location.
+   * @param handler Asset handler.
    * @return A new route definition.
    */
   public Route.Definition assets(final String path, final AssetHandler handler) {

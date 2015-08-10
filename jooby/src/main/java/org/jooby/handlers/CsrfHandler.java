@@ -39,7 +39,7 @@ import com.google.common.collect.ImmutableSet;
  *
  * <pre>
  * {
- *   use("*", new Csrf());
+ *   use("*", new CsrfHandler());
  * }
  * </pre>
  *
@@ -56,7 +56,7 @@ import com.google.common.collect.ImmutableSet;
  *
  * <p>
  * Default token name is: <code>csrf</code>. If you want to use a different name, just pass the name
- * to the {@link #Csrf(String)} constructor.
+ * to the {@link #CsrfHandler(String)} constructor.
  * </p>
  *
  * <h2>Token verification</h2>

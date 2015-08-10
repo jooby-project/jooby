@@ -103,7 +103,7 @@ public class AssetHandler implements Route.Filter {
    *   GET /js/index.js it translate the path to: /assets/js/index.js
    * </pre>
    *
-   * Given <codeassets("/webjars/**", "/META-INF/resources/webjars/{0}")</code> with:
+   * Given <code>assets("/webjars/**", "/META-INF/resources/webjars/{0}")</code> with:
    *
    * <pre>
    *   GET /webjars/jquery/2.1.3/jquery.js it translate the path to: /META-INF/resources/webjars/jquery/2.1.3/jquery.js
@@ -150,8 +150,8 @@ public class AssetHandler implements Route.Filter {
    *
    * @param pattern Pattern to locate static resources.
    */
-  public AssetHandler(final String path) {
-    init(RoutePattern.normalize(path), getClass());
+  public AssetHandler(final String pattern) {
+    init(RoutePattern.normalize(pattern), getClass());
   }
 
   /**
