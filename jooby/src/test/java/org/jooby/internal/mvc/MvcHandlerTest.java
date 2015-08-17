@@ -32,12 +32,12 @@ public class MvcHandlerTest {
   @Test
   public void handle() throws Exception {
     Class handlerClass = MvcHandlerTest.class;
-    Object handler = new MvcHandlerTest();
+    MvcHandlerTest handler = new MvcHandlerTest();
     Method method = handlerClass.getDeclaredMethod("strhandle");
     new MockUnit(RequestParamProvider.class, Request.class, Response.class)
         .expect(unit -> {
           Request req = unit.get(Request.class);
-          expect(req.require(handlerClass)).andReturn(handler);
+          expect(req.require(MvcHandlerTest.class)).andReturn(handler);
         })
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
@@ -59,12 +59,12 @@ public class MvcHandlerTest {
   @Test(expected = IOException.class)
   public void handleException() throws Exception {
     Class handlerClass = MvcHandlerTest.class;
-    Object handler = new MvcHandlerTest();
+    MvcHandlerTest handler = new MvcHandlerTest();
     Method method = handlerClass.getDeclaredMethod("errhandle");
     new MockUnit(RequestParamProvider.class, Request.class, Response.class)
         .expect(unit -> {
           Request req = unit.get(Request.class);
-          expect(req.require(handlerClass)).andReturn(handler);
+          expect(req.require(MvcHandlerTest.class)).andReturn(handler);
         })
         .expect(unit -> {
           List<RequestParam> params = Collections.emptyList();
@@ -81,12 +81,12 @@ public class MvcHandlerTest {
   @Test(expected = RuntimeException.class)
   public void throwableException() throws Exception {
     Class handlerClass = MvcHandlerTest.class;
-    Object handler = new MvcHandlerTest();
+    MvcHandlerTest handler = new MvcHandlerTest();
     Method method = handlerClass.getDeclaredMethod("throwablehandle");
     new MockUnit(RequestParamProvider.class, Request.class, Response.class)
         .expect(unit -> {
           Request req = unit.get(Request.class);
-          expect(req.require(handlerClass)).andReturn(handler);
+          expect(req.require(MvcHandlerTest.class)).andReturn(handler);
         })
         .expect(unit -> {
           List<RequestParam> params = Collections.emptyList();

@@ -10,7 +10,7 @@
 
   <name>jooby-project</name>
 
-  <description>A minimalist web framework</description>
+  <description>A micro web framework</description>
 
   <url>https://github.com/jooby-project/jooby</url>
 
@@ -1661,6 +1661,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <hazelcast.version>3.5</hazelcast.version>
     <vaadin-sass-compiler.version>0.9.12</vaadin-sass-compiler.version>
     <less4j.version>1.13.0</less4j.version>
+    <jdeferred.version>1.2.4</jdeferred.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

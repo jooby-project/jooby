@@ -109,7 +109,7 @@ public class QuartzProviderTest {
           expect(bundle.getJobDetail()).andReturn(jobDetail);
 
           Injector injector = unit.get(Injector.class);
-          expect(injector.getInstance(jobClass)).andReturn(job);
+          expect(injector.getInstance(Job.class)).andReturn(job);
         })
         .expect(unit -> {
           Scheduler scheduler = unit.get(Scheduler.class);
