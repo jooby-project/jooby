@@ -27,6 +27,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.mail.Email;
+import org.apache.commons.mail.HtmlEmail;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
@@ -56,7 +57,13 @@ public class EmailFactory {
       ifset("debug", p -> email.setDebug(mail.getBoolean(p)));
       ifset("from", p -> email.setFrom(mail.getString(p)));
       ifset("hostName", p -> email.setHostName(mail.getString(p)));
-      ifset("msg", p -> email.setHtmlMsg(mail.getString(p)));
+      ifset("msg", p -> {
+        if (email instanceof HtmlEmail) {
+          ((HtmlEmail) email).setHtmlMsg(mail.getString(p));
+        } else {
+          email.setMsg(mail.getString(p));
+        }
+      });
       ifset("replyTo", p -> email.setReplyTo(address(mail.getStringList(p))));
       ifset("sendPartial", p -> email.setSendPartial(mail.getBoolean(p)));
       ifset("smtpPort", p -> email.setSmtpPort(mail.getInt(p)));

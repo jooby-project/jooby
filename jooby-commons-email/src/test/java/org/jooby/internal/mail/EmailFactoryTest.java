@@ -9,6 +9,7 @@ import java.util.Collection;
 import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
 import org.apache.commons.mail.SimpleEmail;
 import org.jooby.mail.CommonsEmail;
 import org.jooby.test.MockUnit;
@@ -61,6 +62,34 @@ public class EmailFactoryTest {
     expect(email.setTo(Arrays.asList(new InternetAddress("To <to@to.com>")))).andReturn(email);
   };
 
+  private Block htmlfullprops = unit -> {
+    HtmlEmail email = unit.get(HtmlEmail.class);
+    email.setCharset("UTF-8");
+    email.setDebug(false);
+    expect(email.setSendPartial(false)).andReturn(email);
+    email.setSmtpPort(25);
+    email.setSocketConnectionTimeout(60000);
+    email.setSocketTimeout(60000);
+    expect(email.setSSLOnConnect(false)).andReturn(email);
+    email.setSslSmtpPort("465");
+
+    email.setAuthentication("uname", "pwd");
+    expect(email.setBcc(Arrays.asList(new InternetAddress("Bcc Name <bcc@bcc.com>")))).andReturn(
+        email);
+    expect(email.setBounceAddress("bounceAddress@mail.com")).andReturn(email);
+    expect(email.setCc(Arrays.asList(new InternetAddress("Cc Name <cc@cc.com>")))).andReturn(email);
+    expect(email.setFrom("from@mail.com")).andReturn(email);
+    email.setHostName("hostname.com");
+    expect(email.setHtmlMsg("msg")).andReturn(email);
+    expect(email.setReplyTo(Arrays.asList(new InternetAddress("Reply To <reply@to.com>"))))
+        .andReturn(email);
+    expect(email.setSSLCheckServerIdentity(false)).andReturn(email);
+    expect(email.setStartTLSEnabled(false)).andReturn(email);
+    expect(email.setStartTLSRequired(false)).andReturn(email);
+    expect(email.setSubject("subject")).andReturn(email);
+    expect(email.setTo(Arrays.asList(new InternetAddress("To <to@to.com>")))).andReturn(email);
+  };
+
   @SuppressWarnings("unchecked")
   private Block badprops = unit -> {
     SimpleEmail email = unit.get(SimpleEmail.class);
@@ -101,6 +130,16 @@ public class EmailFactoryTest {
         .run(unit -> {
           new EmailFactory(fconfig())
               .newEmail(unit.get(SimpleEmail.class));
+        });
+  }
+
+  @Test
+  public void sethtmlfull() throws Exception {
+    new MockUnit(HtmlEmail.class)
+        .expect(htmlfullprops)
+        .run(unit -> {
+          new EmailFactory(fconfig())
+              .newEmail(unit.get(HtmlEmail.class));
         });
   }
 
