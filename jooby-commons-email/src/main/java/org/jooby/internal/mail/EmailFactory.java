@@ -56,7 +56,7 @@ public class EmailFactory {
       ifset("debug", p -> email.setDebug(mail.getBoolean(p)));
       ifset("from", p -> email.setFrom(mail.getString(p)));
       ifset("hostName", p -> email.setHostName(mail.getString(p)));
-      ifset("msg", p -> email.setMsg(mail.getString(p)));
+      ifset("msg", p -> email.setHtmlMsg(mail.getString(p)));
       ifset("replyTo", p -> email.setReplyTo(address(mail.getStringList(p))));
       ifset("sendPartial", p -> email.setSendPartial(mail.getBoolean(p)));
       ifset("smtpPort", p -> email.setSmtpPort(mail.getInt(p)));
