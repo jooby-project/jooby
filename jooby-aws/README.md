@@ -11,7 +11,7 @@ Small utility module that exposes ```AmazonWebServiceClient``` and give you acce
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-aws</artifactId>
-  <version>0.9.1</version>
+  <version>0.9.2</version>
 </dependency>
 ```
 
