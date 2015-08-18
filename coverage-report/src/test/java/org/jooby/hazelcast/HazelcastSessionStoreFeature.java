@@ -12,7 +12,7 @@ public class HazelcastSessionStoreFeature extends ServerFeature {
   {
 
     use(ConfigFactory.empty()
-        .withValue("hazelcast.session.timeout", ConfigValueFactory.fromAnyRef("2s")));
+        .withValue("hazelcast.session.timeout", ConfigValueFactory.fromAnyRef("1s")));
 
     use(new Hcast());
 
@@ -49,7 +49,7 @@ public class HazelcastSessionStoreFeature extends ServerFeature {
     request().get("/hcast/get/session")
         .expect("Optional[v1]");
 
-    Thread.sleep(2500L);
+    Thread.sleep(1500L);
 
     // timeIdle will expire
     request().get("/hcast/get/session")

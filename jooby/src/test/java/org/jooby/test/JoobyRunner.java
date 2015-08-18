@@ -19,7 +19,6 @@
 package org.jooby.test;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -170,8 +169,9 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
   }
 
   private int freePort() throws IOException {
-    try (ServerSocket socket = new ServerSocket(0)) {
-      return socket.getLocalPort();
-    }
+    // try (ServerSocket socket = new ServerSocket(0)) {
+    // return socket.getLocalPort();
+    // }
+    return 9999;
   }
 }
