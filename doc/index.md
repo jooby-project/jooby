@@ -1,7 +1,7 @@
 ---
 layout: index
 title: doc
-version: 0.9.1
+version: 0.9.2
 ---
 
 documentation
@@ -1379,7 +1379,7 @@ Automatic type conversion is provided when a type:
 
 ### custom parser
 
-Suppose we want to write a custom parser to convert a value into an ```integer``. In practice we don't need such parser bc it is provided, but of course you can override the default parser and provide your own.
+Suppose we want to write a custom parser to convert a value into an ```integer``. In practice we don't need such parser bc it is provided, this is an example.
 
 Let's see how to create our custom HTTP param parser:
 
@@ -1463,7 +1463,7 @@ parser((type, ctx) -> {
 });
 ```
 
-Parsers are executed in the order they are defined. Application provided parser has precedence over built-in parsers, so it it possible to override a built-in parser too!
+Parsers are executed in the order they are defined.
 
 If a param parser isn't able to resolve a param an exception will be thrown with a ```400``` status code.
 
@@ -1515,7 +1515,7 @@ get("/", req -> {
 });
 ```
 
-Renderer API is simple and powerful. Renderers are executed in sequentially in the order they were defined. Application specific rendering might override built-in renderers. The renderer who write the response first wins!
+Renderer API is simple and powerful. Renderers are executed in the order they were defined. The renderer who write the response first wins!
 
 ## view engine
 
@@ -1545,7 +1545,7 @@ Cross-origin resource sharing (CORS) is a mechanism that allows restricted resou
 ```java
 {
 
-  cors();
+  use("*", new CorsHandler());
 
 }
 ```
@@ -1585,7 +1585,7 @@ cors {
 }
 ```
 
-```CORS``` options are represented at runtime by [Cors](/apidocs/org/jooby/Cors.html).
+```CORS``` options are represented at runtime by [Cors](/apidocs/org/jooby/handlers/Cors.html).
 
 
 
@@ -1800,6 +1800,7 @@ server {
 #! If asset CDN is present, the asset router will do a redirect to CDN and wont serve the file locally
 #! /assets/js/index.js -> redirectTo(cdn + assets/js/index.js)
 assets.cdn = ""
+assets.etag = true
 
 ###################################################################################################
 #! Cross origin resource sharing
@@ -1876,6 +1877,7 @@ mime.cpt=application/mac-compactpro
 mime.crt=application/x-x509-ca-cert
 mime.csh=application/x-csh
 mime.css=text/css
+mime.scss=text/css
 mime.csv=text/comma-separated-values
 mime.dcr=application/x-director
 mime.dir=application/x-director

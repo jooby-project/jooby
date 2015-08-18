@@ -1,7 +1,7 @@
 ---
 layout: index
 title: morphia
-version: 0.9.1
+version: 0.9.2
 ---
 
 # jooby-morphia
@@ -16,7 +16,7 @@ Exposes a [Morphia](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mo
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-morphia</artifactId>
-  <version>0.9.1</version>
+  <version>0.9.2</version>
 </dependency>
 ```
 

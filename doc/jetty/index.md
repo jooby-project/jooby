@@ -1,7 +1,7 @@
 ---
 layout: index
 title: jetty
-version: 0.9.1
+version: 0.9.2
 ---
 
 # jooby-jetty
@@ -14,7 +14,7 @@ version: 0.9.1
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jetty</artifactId>
-  <version>0.9.1</version>
+  <version>0.9.2</version>
 </dependency>
 ```
 

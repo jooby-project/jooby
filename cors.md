@@ -8,7 +8,7 @@ Cross-origin resource sharing (CORS) is a mechanism that allows restricted resou
 ```java
 {
 
-  cors();
+  use("*", new CorsHandler());
 
 }
 ```
@@ -48,4 +48,4 @@ cors {
 }
 ```
 
-```CORS``` options are represented at runtime by [Cors](/apidocs/org/jooby/Cors.html).
+```CORS``` options are represented at runtime by [Cors](/apidocs/org/jooby/handlers/Cors.html).

@@ -60,6 +60,9 @@
 ## amazon web services
 * [aws](/doc/aws): wire AWS services and expose them in Guice.
 
+## css pre-processors
+* [sass](/doc/sass): [Sass](http://sass-lang.com) CSS pre-processor via [Vaadin Sass Compiler](https://github.com/vaadin/sass-compiler).
+
 ## servers
 * [netty](/doc/netty)
 * [jetty](/doc/jetty)

@@ -5,6 +5,7 @@ org.jooby.ehcache
 org.jooby.elasticsearch
 org.jooby.flyway
 org.jooby.ftl
+org.jooby.handlers
 org.jooby.hazelcast
 org.jooby.hbm
 org.jooby.hbs
@@ -15,6 +16,7 @@ org.jooby.jdbi
 org.jooby.jedis
 org.jooby.jetty
 org.jooby.json
+org.jooby.less
 org.jooby.mail
 org.jooby.memcached
 org.jooby.mongodb
@@ -23,6 +25,7 @@ org.jooby.netty
 org.jooby.pac4j
 org.jooby.quartz
 org.jooby.reflect
+org.jooby.sass
 org.jooby.scope
 org.jooby.servlet
 org.jooby.spi
