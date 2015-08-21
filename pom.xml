@@ -49,6 +49,7 @@
     <module>jooby-hazelcast</module>
     <module>jooby-sass</module>
     <module>jooby-less</module>
+    <module>jooby-ebean</module>
     <module>coverage-report</module>
   </modules>
 
@@ -276,6 +277,12 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-ebean</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
       <!-- bson4jackon -->
       <dependency>
         <groupId>de.undercouch</groupId>
@@ -402,6 +409,12 @@
       </dependency>
 
       <!-- Jackson 2.x -->
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
@@ -737,6 +750,25 @@
         <version>${less4j.version}</version>
       </dependency>
 
+      <!-- Ebean -->
+      <dependency>
+        <groupId>org.avaje.ebeanorm</groupId>
+        <artifactId>avaje-ebeanorm</artifactId>
+        <version>${ebean.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.avaje</groupId>
+        <artifactId>avaje-agentloader</artifactId>
+        <version>${avaje-agentloader.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.avaje.ebeanorm</groupId>
+        <artifactId>avaje-ebeanorm-agent</artifactId>
+        <version>${avaje-ebeanorm-agent.version}</version>
+      </dependency>
+
       <!-- Maven -->
       <dependency>
         <groupId>org.codehaus.mojo</groupId>
@@ -956,6 +988,27 @@
 
     <pluginManagement>
       <plugins>
+        <!-- avaje-enchancer -->
+        <plugin>
+          <groupId>org.avaje.ebeanorm</groupId>
+          <artifactId>avaje-ebeanorm-mavenenhancer</artifactId>
+          <version>${avaje-ebeanorm-agent.version}</version>
+          <executions>
+            <execution>
+              <phase>process-classes</phase>
+              <configuration>
+                <classSource>${project.build.outputDirectory}</classSource>
+                <classDestination>${project.build.outputDirectory}</classDestination>
+                <packages>${ebean.agent.packages}</packages>
+                <transformArgs>${ebean.agent.args}</transformArgs>
+              </configuration>
+              <goals>
+                <goal>enhance</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
         <!-- shade -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1265,6 +1318,25 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Ebean activator -->
+    <profile>
+      <id>ebean-activator</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}mvn${file.separator}ebean.activator</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <!-- ebean-enchancer -->
+          <plugin>
+            <groupId>org.avaje.ebeanorm</groupId>
+            <artifactId>avaje-ebeanorm-mavenenhancer</artifactId>
           </plugin>
         </plugins>
       </build>
@@ -1661,7 +1733,11 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <hazelcast.version>3.5</hazelcast.version>
     <vaadin-sass-compiler.version>0.9.12</vaadin-sass-compiler.version>
     <less4j.version>1.13.0</less4j.version>
-    <jdeferred.version>1.2.4</jdeferred.version>
+    <ebean.version>6.3.1</ebean.version>
+    <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
+    <avaje-ebeanorm-agent.version>4.5.4</avaje-ebeanorm-agent.version>
+    <ebean.agent.packages>**</ebean.agent.packages>
+    <ebean.agent.args>debug=0</ebean.agent.args>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

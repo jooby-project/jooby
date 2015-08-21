@@ -44,6 +44,11 @@ var version = function () {
 var links = [];
 
 links.push({
+  name: 'ebean',
+  data: '[Ebean ORM](http://ebean-orm.github.io)'
+});
+
+links.push({
   name: 'hazelcast',
   data: '[Hazelcast](http://hazelcast.org)'
 });

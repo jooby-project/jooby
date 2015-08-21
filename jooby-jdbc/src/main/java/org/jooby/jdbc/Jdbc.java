@@ -187,7 +187,7 @@ public class Jdbc implements Jooby.Module {
 
   private static final String DEFAULT_DB = "db";
 
-  private final String dbName;
+  protected final String dbName;
 
   private HikariDataSourceProvider ds;
 

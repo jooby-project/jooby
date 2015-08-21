@@ -61,6 +61,7 @@
                     <source>${project.parent.basedir}/jooby-hazelcast/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-sass/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-less/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-ebean/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -100,6 +101,7 @@
                     <source>${project.parent.basedir}/jooby-hazelcast/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-sass/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-less/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-ebean/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -361,6 +363,22 @@
       <groupId>org.jooby</groupId>
       <artifactId>jooby-aws</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-ebean</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.avaje.ebeanorm</groupId>
+      <artifactId>avaje-ebeanorm-agent</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.avaje</groupId>
+      <artifactId>avaje-agentloader</artifactId>
     </dependency>
 
     <dependency>
