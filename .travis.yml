@@ -1,11 +1,9 @@
 language: java
 sudo: false
-cache:
-  directories:
-  - $HOME/.m2
+branches:
+  only:
+    - master
 jdk:
   - oraclejdk8
-install:
-  - mvn package -Dlogback.configurationFile=logback-travis.xml -DskipTests=true -B -V
 script:
   - mvn -Dlogback.configurationFile=logback-travis.xml clean package coveralls:report -P coverage

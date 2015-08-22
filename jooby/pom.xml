@@ -13,7 +13,7 @@
 
   <name>jooby</name>
 
-  <description>A minimalist web framework</description>
+  <description>A micro web framework</description>
 
   <build>
     <plugins>
