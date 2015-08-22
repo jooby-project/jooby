@@ -17,35 +17,37 @@
 
   <build>
     <plugins>
-      <!-- Shade the ASM dependency. -->
+      <!-- JarJar the ASM dependency. -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>jarjar-maven-plugin</artifactId>
+        <version>1.9</version>
         <executions>
           <execution>
-            <phase>package</phase>
             <goals>
-              <goal>shade</goal>
+              <goal>jarjar</goal>
             </goals>
-            <configuration>
-              <shadedArtifactAttached>false</shadedArtifactAttached>
-              <createDependencyReducedPom>true</createDependencyReducedPom>
-              <createSourcesJar>true</createSourcesJar>
-              <shadeSourcesContent>true</shadeSourcesContent>
-              <relocations>
-                <relocation>
-                  <pattern>org.objectweb.asm</pattern>
-                  <shadedPattern>org.jooby.internal.asm</shadedPattern>
-                </relocation>
-              </relocations>
-              <artifactSet>
-                <includes>
-                  <include>org.ow2.asm:asm</include>
-                </includes>
-              </artifactSet>
-            </configuration>
           </execution>
         </executions>
+        <configuration>
+          <overwrite>true</overwrite>
+          <includes>
+            <include>org.ow2.asm:asm</include>
+          </includes>
+          <rules>
+            <rule>
+              <pattern>org.objectweb.asm.*</pattern>
+              <result>org.jooby.internal.asm.$@1</result>
+            </rule>
+            <rule>
+              <pattern>org.objectweb.asm.**.*</pattern>
+              <result>org.jooby.internal.asm.@1.$@2</result>
+            </rule>
+            <keep>
+              <pattern>org.jooby.**</pattern>
+            </keep>
+          </rules>
+        </configuration>
       </plugin>
 
       <plugin>
@@ -103,6 +105,7 @@
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <!-- Guava -->
