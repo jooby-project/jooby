@@ -6,6 +6,6 @@ cache:
 jdk:
   - oraclejdk8
 install:
-  - mvn install -Dlogback.configurationFile=logback-travis.xml -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+  - mvn package -Dlogback.configurationFile=logback-travis.xml -DskipTests=true -B -V
 script:
   - mvn -Dlogback.configurationFile=logback-travis.xml clean package coveralls:report -P coverage

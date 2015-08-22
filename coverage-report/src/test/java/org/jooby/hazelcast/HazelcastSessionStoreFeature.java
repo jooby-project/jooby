@@ -49,7 +49,7 @@ public class HazelcastSessionStoreFeature extends ServerFeature {
     request().get("/hcast/get/session")
         .expect("Optional[v1]");
 
-    Thread.sleep(1500L);
+    Thread.sleep(1200L);
 
     // timeIdle will expire
     request().get("/hcast/get/session")

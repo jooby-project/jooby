@@ -153,6 +153,24 @@
             </executions>
           </plugin>
 
+          <!-- sure-fire -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/*Test.java</include>
+                <include>**/*Feature.java</include>
+                <include>**/*Issue*.java</include>
+              </includes>
+              <systemPropertyVariables>
+                <!-- JaCoCo runtime must know where to dump coverage: -->
+                <jacoco-agent.destfile>target${file.separator}jacoco.exec</jacoco-agent.destfile>
+                <logback.configurationFile>src${file.separator}test${file.separator}resources${file.separator}logback-travis.xml</logback.configurationFile>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+
         </plugins>
       </build>
     </profile>
@@ -192,11 +210,6 @@
             <include>**/*Feature.java</include>
             <include>**/*Issue*.java</include>
           </includes>
-          <systemPropertyVariables>
-            <!-- JaCoCo runtime must know where to dump coverage: -->
-            <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
-            <logback.configurationFile>${project.parent.basedir}/logback-travis.xml</logback.configurationFile>
-          </systemPropertyVariables>
         </configuration>
       </plugin>
 
