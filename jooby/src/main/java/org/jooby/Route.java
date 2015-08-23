@@ -203,14 +203,14 @@ import com.google.common.collect.Lists;
  */
 public interface Route {
 
-  class Namespace {
+  class Group {
 
     /** List of definitions. */
     private List<Route.Definition> routes = new ArrayList<>();
 
     private String rootPattern;
 
-    public Namespace(final String pattern) {
+    public Group(final String pattern) {
       requireNonNull(pattern, "Pattern is required.");
       this.rootPattern = pattern;
     }
@@ -222,42 +222,42 @@ public interface Route {
     // ********************************************************************************************
     // ALL
     // ********************************************************************************************
-    public Namespace all(final String pattern, final Route.Filter filter) {
+    public Group all(final String pattern, final Route.Filter filter) {
       newRoute("*", pattern, filter);
       return this;
     }
 
-    public Namespace all(final String pattern, final Route.Handler handler) {
+    public Group all(final String pattern, final Route.Handler handler) {
       newRoute("*", pattern, handler);
       return this;
     }
 
-    public Namespace all(final String pattern, final Route.OneArgHandler handler) {
+    public Group all(final String pattern, final Route.OneArgHandler handler) {
       newRoute("*", pattern, handler);
       return this;
     }
 
-    public Namespace all(final String pattern, final Route.ZeroArgHandler handler) {
+    public Group all(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute("*", pattern, handler);
       return this;
     }
 
-    public Namespace all(final Route.Filter filter) {
+    public Group all(final Route.Filter filter) {
       newRoute("*", "", filter);
       return this;
     }
 
-    public Namespace all(final Route.Handler handler) {
+    public Group all(final Route.Handler handler) {
       newRoute("*", "", handler);
       return this;
     }
 
-    public Namespace all(final Route.OneArgHandler handler) {
+    public Group all(final Route.OneArgHandler handler) {
       newRoute("*", "", handler);
       return this;
     }
 
-    public Namespace all(final Route.ZeroArgHandler handler) {
+    public Group all(final Route.ZeroArgHandler handler) {
       newRoute("*", "", handler);
       return this;
     }
@@ -265,42 +265,42 @@ public interface Route {
     // ********************************************************************************************
     // GET
     // ********************************************************************************************
-    public Namespace get(final String pattern, final Route.Filter filter) {
+    public Group get(final String pattern, final Route.Filter filter) {
       newRoute("GET", pattern, filter);
       return this;
     }
 
-    public Namespace get(final String pattern, final Route.Handler handler) {
+    public Group get(final String pattern, final Route.Handler handler) {
       newRoute("GET", pattern, handler);
       return this;
     }
 
-    public Namespace get(final String pattern, final Route.OneArgHandler handler) {
+    public Group get(final String pattern, final Route.OneArgHandler handler) {
       newRoute("GET", pattern, handler);
       return this;
     }
 
-    public Namespace get(final String pattern, final Route.ZeroArgHandler handler) {
+    public Group get(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute("GET", pattern, handler);
       return this;
     }
 
-    public Namespace get(final Route.Filter filter) {
+    public Group get(final Route.Filter filter) {
       newRoute("GET", "", filter);
       return this;
     }
 
-    public Namespace get(final Route.Handler handler) {
+    public Group get(final Route.Handler handler) {
       newRoute("GET", "", handler);
       return this;
     }
 
-    public Namespace get(final Route.OneArgHandler handler) {
+    public Group get(final Route.OneArgHandler handler) {
       newRoute("GET", "", handler);
       return this;
     }
 
-    public Namespace get(final Route.ZeroArgHandler handler) {
+    public Group get(final Route.ZeroArgHandler handler) {
       newRoute("GET", "", handler);
       return this;
     }
@@ -308,42 +308,42 @@ public interface Route {
     // ********************************************************************************************
     // POST
     // ********************************************************************************************
-    public Namespace post(final String pattern, final Route.Filter filter) {
+    public Group post(final String pattern, final Route.Filter filter) {
       newRoute("POST", pattern, filter);
       return this;
     }
 
-    public Namespace post(final String pattern, final Route.Handler handler) {
+    public Group post(final String pattern, final Route.Handler handler) {
       newRoute("POST", pattern, handler);
       return this;
     }
 
-    public Namespace post(final String pattern, final Route.OneArgHandler handler) {
+    public Group post(final String pattern, final Route.OneArgHandler handler) {
       newRoute("POST", pattern, handler);
       return this;
     }
 
-    public Namespace post(final String pattern, final Route.ZeroArgHandler handler) {
+    public Group post(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute("POST", pattern, handler);
       return this;
     }
 
-    public Namespace post(final Route.Filter filter) {
+    public Group post(final Route.Filter filter) {
       newRoute("POST", "", filter);
       return this;
     }
 
-    public Namespace post(final Route.Handler handler) {
+    public Group post(final Route.Handler handler) {
       newRoute("POST", "", handler);
       return this;
     }
 
-    public Namespace post(final Route.OneArgHandler handler) {
+    public Group post(final Route.OneArgHandler handler) {
       newRoute("POST", "", handler);
       return this;
     }
 
-    public Namespace post(final Route.ZeroArgHandler handler) {
+    public Group post(final Route.ZeroArgHandler handler) {
       newRoute("POST", "", handler);
       return this;
     }
@@ -351,42 +351,42 @@ public interface Route {
     // ********************************************************************************************
     // PUT
     // ********************************************************************************************
-    public Namespace put(final String pattern, final Route.Filter filter) {
+    public Group put(final String pattern, final Route.Filter filter) {
       newRoute("PUT", pattern, filter);
       return this;
     }
 
-    public Namespace put(final String pattern, final Route.Handler handler) {
+    public Group put(final String pattern, final Route.Handler handler) {
       newRoute("PUT", pattern, handler);
       return this;
     }
 
-    public Namespace put(final String pattern, final Route.OneArgHandler handler) {
+    public Group put(final String pattern, final Route.OneArgHandler handler) {
       newRoute("PUT", pattern, handler);
       return this;
     }
 
-    public Namespace put(final String pattern, final Route.ZeroArgHandler handler) {
+    public Group put(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute("PUT", pattern, handler);
       return this;
     }
 
-    public Namespace put(final Route.Filter filter) {
+    public Group put(final Route.Filter filter) {
       newRoute("PUT", "", filter);
       return this;
     }
 
-    public Namespace put(final Route.Handler handler) {
+    public Group put(final Route.Handler handler) {
       newRoute("PUT", "", handler);
       return this;
     }
 
-    public Namespace put(final Route.OneArgHandler handler) {
+    public Group put(final Route.OneArgHandler handler) {
       newRoute("PUT", "", handler);
       return this;
     }
 
-    public Namespace put(final Route.ZeroArgHandler handler) {
+    public Group put(final Route.ZeroArgHandler handler) {
       newRoute("PUT", "", handler);
       return this;
     }
@@ -394,42 +394,42 @@ public interface Route {
     // ********************************************************************************************
     // DELETE
     // ********************************************************************************************
-    public Namespace delete(final String pattern, final Route.Filter filter) {
+    public Group delete(final String pattern, final Route.Filter filter) {
       newRoute("DELETE", pattern, filter);
       return this;
     }
 
-    public Namespace delete(final String pattern, final Route.Handler handler) {
+    public Group delete(final String pattern, final Route.Handler handler) {
       newRoute("DELETE", pattern, handler);
       return this;
     }
 
-    public Namespace delete(final String pattern, final Route.OneArgHandler handler) {
+    public Group delete(final String pattern, final Route.OneArgHandler handler) {
       newRoute("DELETE", pattern, handler);
       return this;
     }
 
-    public Namespace delete(final String pattern, final Route.ZeroArgHandler handler) {
+    public Group delete(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute("DELETE", pattern, handler);
       return this;
     }
 
-    public Namespace delete(final Route.Filter filter) {
+    public Group delete(final Route.Filter filter) {
       newRoute("DELETE", "", filter);
       return this;
     }
 
-    public Namespace delete(final Route.Handler handler) {
+    public Group delete(final Route.Handler handler) {
       newRoute("DELETE", "", handler);
       return this;
     }
 
-    public Namespace delete(final Route.OneArgHandler handler) {
+    public Group delete(final Route.OneArgHandler handler) {
       newRoute("DELETE", "", handler);
       return this;
     }
 
-    public Namespace delete(final Route.ZeroArgHandler handler) {
+    public Group delete(final Route.ZeroArgHandler handler) {
       newRoute("DELETE", "", handler);
       return this;
     }
@@ -437,42 +437,42 @@ public interface Route {
     // ********************************************************************************************
     // PATCH
     // ********************************************************************************************
-    public Namespace patch(final String pattern, final Route.Filter filter) {
+    public Group patch(final String pattern, final Route.Filter filter) {
       newRoute("PATCH", pattern, filter);
       return this;
     }
 
-    public Namespace patch(final String pattern, final Route.Handler handler) {
+    public Group patch(final String pattern, final Route.Handler handler) {
       newRoute("PATCH", pattern, handler);
       return this;
     }
 
-    public Namespace patch(final String pattern, final Route.OneArgHandler handler) {
+    public Group patch(final String pattern, final Route.OneArgHandler handler) {
       newRoute("PATCH", pattern, handler);
       return this;
     }
 
-    public Namespace patch(final String pattern, final Route.ZeroArgHandler handler) {
+    public Group patch(final String pattern, final Route.ZeroArgHandler handler) {
       newRoute("PATCH", pattern, handler);
       return this;
     }
 
-    public Namespace patch(final Route.Filter filter) {
+    public Group patch(final Route.Filter filter) {
       newRoute("PATCH", "", filter);
       return this;
     }
 
-    public Namespace patch(final Route.Handler handler) {
+    public Group patch(final Route.Handler handler) {
       newRoute("PATCH", "", handler);
       return this;
     }
 
-    public Namespace patch(final Route.OneArgHandler handler) {
+    public Group patch(final Route.OneArgHandler handler) {
       newRoute("PATCH", "", handler);
       return this;
     }
 
-    public Namespace patch(final Route.ZeroArgHandler handler) {
+    public Group patch(final Route.ZeroArgHandler handler) {
       newRoute("PATCH", "", handler);
       return this;
     }
@@ -483,7 +483,7 @@ public interface Route {
      * @param name Name to use/set.
      * @return This instance.
      */
-    public Namespace name(final String name) {
+    public Group name(final String name) {
       for (Definition definition : routes) {
         definition.name(name);
       }
@@ -496,7 +496,7 @@ public interface Route {
      * @param types Media types.
      * @return This instance.
      */
-    public Namespace consumes(final MediaType... types) {
+    public Group consumes(final MediaType... types) {
       for (Definition definition : routes) {
         definition.consumes(types);
       }
@@ -509,7 +509,7 @@ public interface Route {
      * @param types Media types.
      * @return This instance.
      */
-    public Namespace consumes(final String... types) {
+    public Group consumes(final String... types) {
       for (Definition definition : routes) {
         definition.consumes(types);
       }
@@ -522,7 +522,7 @@ public interface Route {
      * @param types Media types.
      * @return This instance.
      */
-    public Namespace produces(final MediaType... types) {
+    public Group produces(final MediaType... types) {
       for (Definition definition : routes) {
         definition.produces(types);
       }
@@ -535,7 +535,7 @@ public interface Route {
      * @param types Media types.
      * @return This instance.
      */
-    public Namespace produces(final String... types) {
+    public Group produces(final String... types) {
       for (Definition definition : routes) {
         definition.produces(types);
       }
@@ -570,7 +570,7 @@ public interface Route {
    * @author edgar
    * @since 0.5.0
    */
-  class Definitions {
+  class Collection {
 
     /** List of definitions. */
     private Route.Definition[] definitions;
@@ -580,7 +580,7 @@ public interface Route {
      *
      * @param definitions Collection of route definitions.
      */
-    public Definitions(final Route.Definition[] definitions) {
+    public Collection(final Route.Definition[] definitions) {
       this.definitions = requireNonNull(definitions, "Route definitions are required.");
     }
 
@@ -590,7 +590,7 @@ public interface Route {
      * @param name Name to use/set.
      * @return This instance.
      */
-    public Definitions name(final String name) {
+    public Collection name(final String name) {
       for (Definition definition : definitions) {
         definition.name(name);
       }
@@ -603,7 +603,7 @@ public interface Route {
      * @param types Media types.
      * @return This instance.
      */
-    public Definitions consumes(final MediaType... types) {
+    public Collection consumes(final MediaType... types) {
       for (Definition definition : definitions) {
         definition.consumes(types);
       }
@@ -616,7 +616,7 @@ public interface Route {
      * @param types Media types.
      * @return This instance.
      */
-    public Definitions consumes(final String... types) {
+    public Collection consumes(final String... types) {
       for (Definition definition : definitions) {
         definition.consumes(types);
       }
@@ -629,7 +629,7 @@ public interface Route {
      * @param types Media types.
      * @return This instance.
      */
-    public Definitions produces(final MediaType... types) {
+    public Collection produces(final MediaType... types) {
       for (Definition definition : definitions) {
         definition.produces(types);
       }
@@ -642,7 +642,7 @@ public interface Route {
      * @param types Media types.
      * @return This instance.
      */
-    public Definitions produces(final String... types) {
+    public Collection produces(final String... types) {
       for (Definition definition : definitions) {
         definition.produces(types);
       }

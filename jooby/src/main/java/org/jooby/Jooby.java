@@ -527,8 +527,8 @@ public class Jooby {
    * @param pattern Global pattern to use.
    * @return A route namespace.
    */
-  public Route.Namespace use(final String pattern) {
-    Route.Namespace ns = new Route.Namespace(pattern);
+  public Route.Group use(final String pattern) {
+    Route.Group ns = new Route.Group(pattern);
     this.bag.add(ns);
     return ns;
   }
@@ -810,9 +810,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions get(final String path1, final String path2,
+  public Route.Collection get(final String path1, final String path2,
       final Route.Handler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{get(path1, handler), get(path2, handler) });
   }
 
@@ -833,9 +833,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions get(final String path1, final String path2, final String path3,
+  public Route.Collection get(final String path1, final String path2, final String path3,
       final Route.Handler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler) });
   }
 
@@ -875,9 +875,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions get(final String path1, final String path2,
+  public Route.Collection get(final String path1, final String path2,
       final Route.OneArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{get(path1, handler), get(path2, handler) });
   }
 
@@ -898,9 +898,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions get(final String path1, final String path2,
+  public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler) });
   }
 
@@ -940,9 +940,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions get(final String path1, final String path2,
+  public Route.Collection get(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{get(path1, handler), get(path2, handler) });
   }
 
@@ -963,9 +963,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions get(final String path1, final String path2,
+  public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler) });
   }
 
@@ -1005,9 +1005,9 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public Route.Definitions get(final String path1, final String path2,
+  public Route.Collection get(final String path1, final String path2,
       final Route.Filter filter) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{get(path1, filter), get(path2, filter) });
   }
 
@@ -1028,9 +1028,9 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public Route.Definitions get(final String path1, final String path2,
+  public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{get(path1, filter), get(path2, filter), get(path3, filter) });
   }
 
@@ -1070,9 +1070,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions post(final String path1, final String path2,
+  public Route.Collection post(final String path1, final String path2,
       final Route.Handler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{post(path1, handler), post(path2, handler) });
   }
 
@@ -1093,9 +1093,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions post(final String path1, final String path2,
+  public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.Handler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler) });
   }
 
@@ -1135,9 +1135,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions post(final String path1, final String path2,
+  public Route.Collection post(final String path1, final String path2,
       final Route.OneArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{post(path1, handler), post(path2, handler) });
   }
 
@@ -1158,9 +1158,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions post(final String path1, final String path2,
+  public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler) });
   }
 
@@ -1200,9 +1200,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions post(final String path1, final String path2,
+  public Route.Collection post(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{post(path1, handler), post(path2, handler) });
   }
 
@@ -1223,9 +1223,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions post(final String path1, final String path2,
+  public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler) });
   }
 
@@ -1265,9 +1265,9 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public Route.Definitions post(final String path1, final String path2,
+  public Route.Collection post(final String path1, final String path2,
       final Route.Filter filter) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{post(path1, filter), post(path2, filter) });
   }
 
@@ -1288,9 +1288,9 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public Route.Definitions post(final String path1, final String path2,
+  public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{post(path1, filter), post(path2, filter), post(path3, filter) });
   }
 
@@ -1528,9 +1528,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions put(final String path1, final String path2,
+  public Route.Collection put(final String path1, final String path2,
       final Route.Handler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{put(path1, handler), put(path2, handler) });
   }
 
@@ -1551,9 +1551,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions put(final String path1, final String path2,
+  public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.Handler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler) });
   }
 
@@ -1593,9 +1593,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions put(final String path1, final String path2,
+  public Route.Collection put(final String path1, final String path2,
       final Route.OneArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{put(path1, handler), put(path2, handler) });
   }
 
@@ -1616,9 +1616,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions put(final String path1, final String path2,
+  public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler) });
   }
 
@@ -1658,9 +1658,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions put(final String path1, final String path2,
+  public Route.Collection put(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{put(path1, handler), put(path2, handler) });
   }
 
@@ -1681,9 +1681,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions put(final String path1, final String path2,
+  public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler) });
   }
 
@@ -1723,9 +1723,9 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public Route.Definitions put(final String path1, final String path2,
+  public Route.Collection put(final String path1, final String path2,
       final Route.Filter filter) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{put(path1, filter), put(path2, filter) });
   }
 
@@ -1746,9 +1746,9 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public Route.Definitions put(final String path1, final String path2,
+  public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{put(path1, filter), put(path2, filter), put(path3, filter) });
   }
 
@@ -1788,9 +1788,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions patch(final String path1, final String path2,
+  public Route.Collection patch(final String path1, final String path2,
       final Route.Handler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{patch(path1, handler), patch(path2, handler) });
   }
 
@@ -1811,9 +1811,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions patch(final String path1, final String path2,
+  public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.Handler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{patch(path1, handler), patch(path2, handler),
             patch(path3, handler) });
   }
@@ -1854,9 +1854,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions patch(final String path1, final String path2,
+  public Route.Collection patch(final String path1, final String path2,
       final Route.OneArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{patch(path1, handler), patch(path2, handler) });
   }
 
@@ -1877,9 +1877,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions patch(final String path1, final String path2,
+  public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{patch(path1, handler), patch(path2, handler),
             patch(path3, handler) });
   }
@@ -1920,9 +1920,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions patch(final String path1, final String path2,
+  public Route.Collection patch(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{patch(path1, handler), patch(path2, handler) });
   }
 
@@ -1943,9 +1943,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions patch(final String path1, final String path2,
+  public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{patch(path1, handler), patch(path2, handler),
             patch(path3, handler) });
   }
@@ -1986,9 +1986,9 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public Route.Definitions patch(final String path1, final String path2,
+  public Route.Collection patch(final String path1, final String path2,
       final Route.Filter filter) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{patch(path1, filter), patch(path2, filter) });
   }
 
@@ -2009,9 +2009,9 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public Route.Definitions patch(final String path1, final String path2,
+  public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{patch(path1, filter), patch(path2, filter),
             patch(path3, filter) });
   }
@@ -2052,10 +2052,10 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions delete(final String path1,
+  public Route.Collection delete(final String path1,
       final String path2,
       final Route.Handler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler) });
   }
 
@@ -2076,10 +2076,10 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions delete(final String path1,
+  public Route.Collection delete(final String path1,
       final String path2,
       final String path3, final Route.Handler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler),
             delete(path3, handler) });
   }
@@ -2120,9 +2120,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions delete(final String path1,
+  public Route.Collection delete(final String path1,
       final String path2, final Route.OneArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler) });
   }
 
@@ -2143,10 +2143,10 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions delete(final String path1,
+  public Route.Collection delete(final String path1,
       final String path2, final String path3,
       final Route.OneArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler),
             delete(path3, handler) });
   }
@@ -2187,9 +2187,9 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions delete(final String path1,
+  public Route.Collection delete(final String path1,
       final String path2, final Route.ZeroArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler) });
   }
 
@@ -2210,10 +2210,10 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  public Route.Definitions delete(final String path1,
+  public Route.Collection delete(final String path1,
       final String path2, final String path3,
       final Route.ZeroArgHandler handler) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler),
             delete(path3, handler) });
   }
@@ -2255,9 +2255,9 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public Route.Definitions delete(final String path1,
+  public Route.Collection delete(final String path1,
       final String path2, final Route.Filter filter) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{delete(path1, filter), delete(path2, filter) });
   }
 
@@ -2278,10 +2278,10 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  public Route.Definitions delete(final String path1,
+  public Route.Collection delete(final String path1,
       final String path2, final String path3,
       final Route.Filter filter) {
-    return new Route.Definitions(
+    return new Route.Collection(
         new Route.Definition[]{delete(path1, filter), delete(path2, filter),
             delete(path3, filter) });
   }
@@ -2995,8 +2995,8 @@ public class Jooby {
           install((Jooby.Module) candidate, env, config, binder);
         } else if (candidate instanceof Route.Definition) {
           definitions.addBinding().toInstance((Route.Definition) candidate);
-        } else if (candidate instanceof Route.Namespace) {
-          ((Route.Namespace) candidate).routes()
+        } else if (candidate instanceof Route.Group) {
+          ((Route.Group) candidate).routes()
               .forEach(r -> definitions.addBinding().toInstance(r));
         } else if (candidate instanceof WebSocket.Definition) {
           sockets.addBinding().toInstance((WebSocket.Definition) candidate);

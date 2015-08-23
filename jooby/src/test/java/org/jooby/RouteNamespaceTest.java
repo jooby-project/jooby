@@ -6,14 +6,14 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.jooby.Route.Namespace;
+import org.jooby.Route.Group;
 import org.junit.Test;
 
 public class RouteNamespaceTest {
 
   @Test
   public void all() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.all((req, rsp, chain) -> {
     });
     ns.all((req, rsp) -> {
@@ -28,7 +28,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void allWithPath() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.all("/s", (req, rsp, chain) -> {
     });
     ns.all("/s", (req, rsp) -> {
@@ -43,7 +43,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void get() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.get((req, rsp, chain) -> {
     });
     ns.get((req, rsp) -> {
@@ -58,7 +58,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void getWithPath() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.get("/s", (req, rsp, chain) -> {
     });
     ns.get("/s", (req, rsp) -> {
@@ -73,7 +73,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void post() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.post((req, rsp, chain) -> {
     });
     ns.post((req, rsp) -> {
@@ -88,7 +88,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void postWithPath() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.post("/x", (req, rsp, chain) -> {
     });
     ns.post("/x", (req, rsp) -> {
@@ -103,7 +103,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void put() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.put((req, rsp, chain) -> {
     });
     ns.put((req, rsp) -> {
@@ -118,7 +118,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void putWithPath() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.put("/p", (req, rsp, chain) -> {
     });
     ns.put("/p", (req, rsp) -> {
@@ -133,7 +133,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void delete() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.delete((req, rsp, chain) -> {
     });
     ns.delete((req, rsp) -> {
@@ -148,7 +148,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void deleteWithPath() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.delete("/d", (req, rsp, chain) -> {
     });
     ns.delete("/d", (req, rsp) -> {
@@ -163,7 +163,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void patch() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.patch((req, rsp, chain) -> {
     });
     ns.patch((req, rsp) -> {
@@ -178,7 +178,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void patchWithPath() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.patch("/p", (req, rsp, chain) -> {
     });
     ns.patch("/p", (req, rsp) -> {
@@ -193,7 +193,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void name() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.patch("/p", (req, rsp, chain) -> {
     }).name("x");
 
@@ -202,7 +202,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void consumes() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.patch("/p", (req, rsp, chain) -> {
     }).consumes("json");
 
@@ -212,7 +212,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void consumesType() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.patch("/p", (req, rsp, chain) -> {
     }).consumes(MediaType.json);
 
@@ -221,7 +221,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void produces() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.patch("/p", (req, rsp, chain) -> {
     }).produces("json");
 
@@ -231,7 +231,7 @@ public class RouteNamespaceTest {
 
   @Test
   public void producesType() {
-    Namespace ns = new Route.Namespace("/ns");
+    Group ns = new Route.Group("/ns");
     ns.patch("/p", (req, rsp, chain) -> {
     }).produces(MediaType.json);
 
