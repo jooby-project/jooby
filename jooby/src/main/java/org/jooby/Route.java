@@ -885,6 +885,9 @@ public interface Route {
       return method;
     }
 
+    /**
+     * @return Handler behind this route.
+     */
     public Route.Filter filter() {
       return filter;
     }
@@ -1041,10 +1044,35 @@ public interface Route {
      * @return This route definition.
      */
     public Definition excludes(final String... excludes) {
-      this.excludes = Arrays.asList(excludes).stream()
+      return excludes(Arrays.asList(excludes));
+    }
+
+    /**
+     * Excludes one or more path pattern from this route, useful for filter:
+     *
+     * <pre>
+     * {
+     *   use("*", req {@literal ->} {
+     *    ...
+     *   }).excludes("/logout");
+     * }
+     * </pre>
+     *
+     * @param excludes A path pattern.
+     * @return This route definition.
+     */
+    public Definition excludes(final List<String> excludes) {
+      this.excludes = excludes.stream()
           .map(it -> new RoutePattern(method, it))
           .collect(Collectors.toList());
       return this;
+    }
+
+    /**
+     * @return List of exclusion filters (if any).
+     */
+    public List<String> excludes() {
+      return excludes.stream().map(r -> r.pattern()).collect(Collectors.toList());
     }
 
     private boolean excludes(final String path) {

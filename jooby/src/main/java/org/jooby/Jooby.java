@@ -73,10 +73,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.inject.Singleton;
 
+import org.jooby.Route.Definition;
 import org.jooby.Session.Store;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.AppPrinter;
@@ -444,16 +446,25 @@ public class Jooby {
 
   }
 
+  private static class RouteClass {
+    Class<?> routeClass;
+
+    String path;
+
+    public RouteClass(final Class<?> routeClass, final String path) {
+      this.routeClass = routeClass;
+      this.path = path;
+    }
+  }
+
   static {
     // set pid as system property
-    System.setProperty("pid", System.getProperty("pid", JvmInfo.pid() + ""));
+    String pid = System.getProperty("pid", JvmInfo.pid() + "");
+    System.setProperty("pid", pid);
 
     // Avoid warning message from logback when multiples files are present
-    String logback = System.getProperty("logback.configurationFile");
-    if (Strings.isNullOrEmpty(logback)) {
-      // set it, when missing
-      System.setProperty("logback.configurationFile", "logback.xml");
-    }
+    String logback = System.getProperty("logback.configurationFile", "logback.xml");
+    System.setProperty("logback.configurationFile", logback);
   }
 
   public Jooby() {
@@ -476,8 +487,8 @@ public class Jooby {
   /**
    * Env callback.
    */
-  private final Multimap<Predicate<String>, Consumer<Config>> envcallbacks =
-      ArrayListMultimap.create();
+  private final Multimap<Predicate<String>, Consumer<Config>> envcallbacks = ArrayListMultimap
+      .create();
 
   /**
    * The override config. Optional.
@@ -496,17 +507,63 @@ public class Jooby {
   /**
    * Import ALL the direct routes from the given app.
    *
+   * <p>
+   * PLEASE NOTE: that ONLY routes are imported.
+   * </p>
+   *
    * @param app Routes provider.
    * @return This jooby instance.
    */
   public Jooby use(final Jooby app) {
+    return use(Optional.empty(), app);
+  }
+
+  /**
+   * Import ALL the direct routes from the given app, under the given path.
+   *
+   * <p>
+   * PLEASE NOTE: that ONLY routes are imported.
+   * </p>
+   *
+   * @param path Path to mount the given app.
+   * @param app Routes provider.
+   * @return This jooby instance.
+   */
+  public Jooby use(final String path, final Jooby app) {
+    return use(Optional.of(path), app);
+  }
+
+  /**
+   * Import ALL the direct routes from the given app.
+   *
+   * <p>
+   * PLEASE NOTE: that ONLY routes are imported.
+   * </p>
+   *
+   * @param app Routes provider.
+   * @return This jooby instance.
+   */
+  private Jooby use(final Optional<String> path, final Jooby app) {
     requireNonNull(app, "App is required.");
 
-    app.bag.forEach(s -> {
-      if (s instanceof Module) {
-        use((Module) s);
-      } else {
-        this.bag.add(s);
+    Function<Route.Definition, Route.Definition> rewrite = r -> {
+      return path.map(p -> {
+        Route.Definition result = new Route.Definition(r.method(), p + r.pattern(), r.filter());
+        result.consumes(r.consumes());
+        result.produces(r.produces());
+        result.excludes(r.excludes());
+        return result;
+      }).orElse(r);
+    };
+
+    app.bag.forEach(it -> {
+      if (it instanceof Route.Definition) {
+        this.bag.add(rewrite.apply((Definition) it));
+      } else if (it instanceof Route.Group) {
+        ((Route.Group) it).routes().forEach(r -> this.bag.add(rewrite.apply(r)));
+      } else if (it instanceof Class) {
+        Object routes = path.<Object> map(p -> new RouteClass((Class<?>) it, p)).orElse(it);
+        this.bag.add(routes);
       }
     });
     this.envcallbacks.putAll(app.envcallbacks);
@@ -2648,8 +2705,7 @@ public class Jooby {
     on("*", conf -> {
       router.fwd(handler
           .cdn(conf.getString("assets.cdn"))
-          .etag(conf.getBoolean("assets.etag"))
-          );
+          .etag(conf.getBoolean("assets.etag")));
     });
     return appendDefinition(asset);
   }
@@ -2879,9 +2935,7 @@ public class Jooby {
     Config config = buildConfig(
         Optional.ofNullable(this.source)
             .orElseGet(
-                () -> ConfigFactory.parseResources("application.conf")
-            )
-        );
+                () -> ConfigFactory.parseResources("application.conf")));
 
     Env env = this.env.build(config);
     String envname = env.name();
@@ -3007,8 +3061,17 @@ public class Jooby {
         } else if (candidate instanceof Err.Handler) {
           ehandlers.addBinding().toInstance((Err.Handler) candidate);
         } else {
-          binder.bind((Class<?>) candidate);
-          MvcRoutes.routes(env, classInfo, (Class<?>) candidate)
+          // either a route class or route class wrapper
+          Class<?> routeClass;
+          String path = "";
+          if (candidate instanceof RouteClass) {
+            routeClass = ((RouteClass) candidate).routeClass;
+            path = ((RouteClass) candidate).path;
+          } else {
+            routeClass = (Class<?>) candidate;
+          }
+          binder.bind(routeClass);
+          MvcRoutes.routes(env, classInfo, path, routeClass)
               .forEach(route -> definitions.addBinding().toInstance(route));
         }
       });

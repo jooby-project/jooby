@@ -39,7 +39,7 @@ public class MvcRoutesTest {
         })
         .run(unit -> {
           Env env = unit.get(Env.class);
-          MvcRoutes.routes(env, new RouteMetadata(env), NoPublicMethod.class);
+          MvcRoutes.routes(env, new RouteMetadata(env), "", NoPublicMethod.class);
         });
   }
 
@@ -52,7 +52,7 @@ public class MvcRoutesTest {
         })
         .run(unit -> {
           Env env = unit.get(Env.class);
-          MvcRoutes.routes(env, new RouteMetadata(env), NoPath.class);
+          MvcRoutes.routes(env, new RouteMetadata(env), "", NoPath.class);
         });
   }
 }

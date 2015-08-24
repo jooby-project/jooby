@@ -61,10 +61,10 @@ public class MvcRoutes {
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   public static List<Route.Definition> routes(final Env env, final RouteMetadata classInfo,
-      final Class<?> routeClass) {
+      final String rpath, final Class<?> routeClass) {
 
-    RequestParamProvider provider =
-        new RequestParamProviderImpl(new RequestParamNameProviderImpl(classInfo));
+    RequestParamProvider provider = new RequestParamProviderImpl(
+        new RequestParamNameProviderImpl(classInfo));
 
     String[] rootPaths = path(routeClass);
     String[] rootExcludes = excludes(routeClass, EMPTY);
@@ -117,11 +117,11 @@ public class MvcRoutes {
               String[] excludes = excludes(method, rootExcludes);
 
               Definition definition = new Route.Definition(
-                  verb.getSimpleName(), path, new MvcHandler(method, paramProvider))
-                  .produces(produces)
-                  .consumes(consumes)
-                  .excludes(excludes)
-                  .name(name);
+                  verb.getSimpleName(), rpath + "/" + path, new MvcHandler(method, paramProvider))
+                      .produces(produces)
+                      .consumes(consumes)
+                      .excludes(excludes)
+                      .name(name);
 
               definitions.add(definition);
             }
