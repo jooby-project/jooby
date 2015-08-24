@@ -38,7 +38,7 @@ public class Pets {
 
 ```java
 {
-  use(new SwaggerUI());
+  SwaggerUI.install(this);
 
   // Swagger will generate a swagger spec for the Pets MVC routes.
   use(Pets.class);
@@ -51,7 +51,7 @@ Or if you want to mount Swagger somewhere else...:
 
 ```java
 {
-  use(new SwaggerUI("/api/docs"));
+  SwaggerUI.install("/api/docs", this);
 }
 ```
 

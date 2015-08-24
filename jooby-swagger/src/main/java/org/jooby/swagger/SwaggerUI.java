@@ -18,10 +18,6 @@
  */
 package org.jooby.swagger;
 
-import io.swagger.models.Swagger;
-import io.swagger.util.Json;
-import io.swagger.util.Yaml;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -38,6 +34,10 @@ import org.jooby.internal.swagger.SwaggerYml;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+
+import io.swagger.models.Swagger;
+import io.swagger.util.Json;
+import io.swagger.util.Yaml;
 
 /**
  * <h1>swagger module</h1>
@@ -68,7 +68,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * }
  *
  * {
- *   use(new SwaggerUI());
+ *   SwaggerUI.install(this);
  *
  *   // Swagger will generate a swagger spec for the Pets MVC routes.
  *   use(Pets.class);
@@ -86,7 +86,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  *
  * <pre>
  * {
- *   use(new SwaggerUI("/api/docs"));
+ *   SwaggerUI.install("/api/docs", this));
  * }
  * </pre>
  *
@@ -133,16 +133,20 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * @author edgar
  * @since 0.6.2
  */
-public class SwaggerUI extends Jooby {
+public class SwaggerUI {
 
-  public SwaggerUI(final String path) {
+  public static void install(final Jooby app) {
+    install("/swagger", app);
+  }
+
+  public static void install(final String path, final Jooby app) {
 
     ObjectMapper mapper = Json.create();
     ObjectWriter yaml = Yaml.pretty();
 
-    use(new SwaggerModule(mapper));
+    app.use(new SwaggerModule(mapper));
 
-    renderer((value, ctx) -> {
+    app.renderer((value, ctx) -> {
       if (value instanceof SwaggerYml) {
         ctx.type("application/yaml")
             .send(yaml.writeValueAsBytes(value));
@@ -152,27 +156,28 @@ public class SwaggerUI extends Jooby {
       }
     });
 
-    assets(path + "/ui/**", "/META-INF/resources/webjars/swagger-ui/" + wjversion() + "/{0}");
+    app.assets(path + "/ui/**",
+        "/META-INF/resources/webjars/swagger-ui/" + wjversion(app.getClass()) + "/{0}");
 
-    get(path + "/swagger.json",
+    app.get(path + "/swagger.json",
         path + "/:tag/swagger.json",
         req -> req.require(SwaggerBuilder.class)
             .build(filter(req.param("tag").toOptional()), Swagger.class))
         .name("swagger(json)");
 
-    get(path + "/swagger.yml", path + "/:tag/swagger.yml",
+    app.get(path + "/swagger.yml", path + "/:tag/swagger.yml",
         req -> req.require(SwaggerBuilder.class)
             .build(filter(req.param("tag").toOptional()), SwaggerYml.class))
         .name("swagger(yml)");
 
-    get(path, path + "/:tag", new SwaggerHandler(path))
+    app.get(path, path + "/:tag", new SwaggerHandler(path))
         .name("swagger(html)")
         .produces(MediaType.html);
 
   }
 
-  private String wjversion() {
-    try (InputStream in = getClass().getResourceAsStream(
+  private static String wjversion(final Class<?> loader) {
+    try (InputStream in = loader.getResourceAsStream(
         "/META-INF/maven/org.webjars/swagger-ui/pom.properties")) {
       Properties properties = new Properties();
       properties.load(in);
@@ -182,20 +187,16 @@ public class SwaggerUI extends Jooby {
     }
   }
 
-  private Predicate<String> filter(final Optional<String> tag) {
-    return tag.map(this::matches).orElseGet(this::any);
+  private static Predicate<String> filter(final Optional<String> tag) {
+    return tag.map(SwaggerUI::matches).orElseGet(SwaggerUI::any);
   }
 
-  private Predicate<String> matches(final String tag) {
+  private static Predicate<String> matches(final String tag) {
     return it -> tag.equals(it);
   }
 
-  private Predicate<String> any() {
+  private static Predicate<String> any() {
     return it -> true;
-  }
-
-  public SwaggerUI() {
-    this("/swagger");
   }
 
 }

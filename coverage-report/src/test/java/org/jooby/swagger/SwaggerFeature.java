@@ -6,7 +6,7 @@ import org.junit.Test;
 public class SwaggerFeature extends ServerFeature {
 
   {
-    use(new SwaggerUI());
+    SwaggerUI.install(this);
 
     use(Pets.class);
   }
