@@ -21,8 +21,11 @@
 * [jdbi](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi): fluent API for JDBC.
 * [flyway](https://github.com/jooby-project/jooby/tree/master/jooby-flyway): database migrations via {{flyway}}.
 
-## hibernate
-* [hibernate](https://github.com/jooby-project/jooby/tree/master/jooby-hbm): object/relational mapping.
+## object relational mapping - ORM
+* [hibernate](https://github.com/jooby-project/jooby/tree/master/jooby-hbm): object/relational mapping via {{hibernate}}.
+* [ebean](https://github.com/jooby-project/jooby/tree/master/jooby-ebean): object/relational mapping via {{ebean}}.
+
+## validation
 * [hibernate validator](https://github.com/jooby-project/jooby/tree/master/jooby-hbv): bean validation.
 
 ## mongodb
@@ -62,6 +65,7 @@
 
 ## css pre-processors
 * [sass](https://github.com/jooby-project/jooby/tree/master/jooby-sass): {{sass}} CSS pre-processor via {{sassjava}}.
+* [less](https://github.com/jooby-project/jooby/tree/master/jooby-less): {{less}} CSS pre-processor via {{less4j}}.
 
 ## servers
 * [netty](https://github.com/jooby-project/jooby/tree/master/jooby-netty)
