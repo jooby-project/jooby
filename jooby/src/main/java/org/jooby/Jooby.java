@@ -724,6 +724,140 @@ public class Jooby {
   }
 
   /**
+   * Produces a deferred response, useful for async request processing.
+   *
+   * <h2>usage</h2>
+   *
+   * <pre>
+   * {
+   *    ExecutorService executor = ...;
+   *
+   *    get("/async", promise(deferred {@literal ->} {
+   *      executor.execute(() {@literal ->} {
+   *        try {
+   *          deferred.resolve(...); // success value
+   *        } catch (Exception ex) {
+   *          deferred.reject(ex); // error value
+   *        }
+   *      });
+   *    }));
+   *  }
+   * </pre>
+   *
+   * <p>
+   * Or with automatic error handler:
+   * </p>
+   *
+   * <pre>
+   * {
+   *    ExecutorService executor = ...;
+   *
+   *    get("/async", promise(deferred {@literal ->} {
+   *      executor.execute(() {@literal ->} {
+   *        deferred.resolve(() {@literal ->} {
+   *          Object value = ...
+   *          return value;
+   *        }); // success value
+   *      });
+   *    }));
+   *  }
+   * </pre>
+   *
+   * <p>
+   * Or as {@link Runnable} with automatic error handler:
+   * </p>
+   *
+   * <pre>
+   * {
+   *    ExecutorService executor = ...;
+   *
+   *    get("/async", promise(deferred {@literal ->} {
+   *      executor.execute(deferred.run(() {@literal ->} {
+   *        Object value = ...
+   *        return value;
+   *      }); // success value
+   *    }));
+   *  }
+   * </pre>
+   *
+   * @param initializer Deferred initializer.
+   * @return A new deferred handler.
+   * @see Deferred
+   */
+  public Route.OneArgHandler promise(final Deferred.Initializer initializer) {
+    return req -> {
+      return new Deferred(req, initializer);
+    };
+  }
+
+  /**
+   * Produces a deferred response, useful for async request processing.
+   *
+   * <h2>usage</h2>
+   *
+   * <pre>
+   * {
+   *    ExecutorService executor = ...;
+   *
+   *    get("/async", promise(deferred {@literal ->} {
+   *      executor.execute(() {@literal ->} {
+   *        try {
+   *          deferred.resolve(...); // success value
+   *        } catch (Exception ex) {
+   *          deferred.reject(ex); // error value
+   *        }
+   *      });
+   *    }));
+   *  }
+   * </pre>
+   *
+   * <p>
+   * Or with automatic error handler:
+   * </p>
+   *
+   * <pre>
+   * {
+   *    ExecutorService executor = ...;
+   *
+   *    get("/async", promise(deferred {@literal ->} {
+   *      executor.execute(() {@literal ->} {
+   *        deferred.resolve(() {@literal ->} {
+   *          Object value = ...
+   *          return value;
+   *        }); // success value
+   *      });
+   *    }));
+   *  }
+   * </pre>
+   *
+   * <p>
+   * Or as {@link Runnable} with automatic error handler:
+   * </p>
+   *
+   * <pre>
+   * {
+   *    ExecutorService executor = ...;
+   *
+   *    get("/async", promise(deferred {@literal ->} {
+   *      executor.execute(deferred.run(() {@literal ->} {
+   *        Object value = ...
+   *        return value;
+   *      }); // success value
+   *    }));
+   *  }
+   * </pre>
+   *
+   * @param initializer Deferred initializer.
+   * @return A new deferred handler.
+   * @see Deferred
+   */
+  public Route.OneArgHandler promise(final Deferred.Initializer0 initializer) {
+    return req -> {
+      return new Deferred(initializer);
+    };
+  }
+
+  /**
    * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns.
    * Sessions are not persisted by defaults.
    *

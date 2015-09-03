@@ -61,7 +61,7 @@ public class JettyHandler extends AbstractHandler {
   @Override
   public void handle(final String target, final Request baseRequest,
       final HttpServletRequest request, final HttpServletResponse response) throws IOException,
-      ServletException {
+          ServletException {
     try {
 
       baseRequest.setHandled(true);
@@ -73,30 +73,28 @@ public class JettyHandler extends AbstractHandler {
         multipart = true;
       }
 
-      dispatcher.handle(
-          new ServletServletRequest(request, tmpdir, multipart)
-              .with(new ServletUpgrade() {
+      ServletServletRequest nreq = new ServletServletRequest(request, tmpdir, multipart)
+          .with(new ServletUpgrade() {
 
-                @SuppressWarnings("unchecked")
-                @Override
-                public <T> T upgrade(final Class<T> type) throws Exception {
-                  if (type == NativeWebSocket.class) {
-                    if (webSocketServerFactory.isUpgradeRequest(request, response)) {
-                      if (webSocketServerFactory.acceptWebSocket(request, response)) {
-                        String key = JettyWebSocket.class.getName();
-                        NativeWebSocket ws = (NativeWebSocket) request.getAttribute(key);
-                        if (ws != null) {
-                          request.removeAttribute(key);
-                          return (T) ws;
-                        }
-                      }
+            @SuppressWarnings("unchecked")
+            @Override
+            public <T> T upgrade(final Class<T> type) throws Exception {
+              if (type == NativeWebSocket.class) {
+                if (webSocketServerFactory.isUpgradeRequest(request, response)) {
+                  if (webSocketServerFactory.acceptWebSocket(request, response)) {
+                    String key = JettyWebSocket.class.getName();
+                    NativeWebSocket ws = (NativeWebSocket) request.getAttribute(key);
+                    if (ws != null) {
+                      request.removeAttribute(key);
+                      return (T) ws;
                     }
                   }
-                  throw new UnsupportedOperationException("Not Supported: " + type);
                 }
-              }),
-          new JettyResponse(baseRequest, response)
-          );
+              }
+              throw new UnsupportedOperationException("Not Supported: " + type);
+            }
+          });
+      dispatcher.handle(nreq, new JettyResponse(nreq, response));
     } catch (IOException | ServletException | RuntimeException ex) {
       baseRequest.setHandled(false);
       log.error("execution of: " + target + " resulted in error", ex);

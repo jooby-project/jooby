@@ -18,6 +18,8 @@ documentation
 
 {{routes.md}}
 
+{{async.md}}
+
 {{mvc-routes.md}}
 
 {{web-sockets.md}}

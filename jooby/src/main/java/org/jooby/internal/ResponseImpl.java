@@ -36,6 +36,7 @@ import java.util.stream.StreamSupport;
 
 import org.jooby.Asset;
 import org.jooby.Cookie;
+import org.jooby.Deferred;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Renderer;
@@ -257,6 +258,10 @@ public class ResponseImpl implements Response {
   @Override
   public void send(final Result result) throws Exception {
     requireNonNull(result, "A result is required.");
+
+    if (result instanceof Deferred) {
+      throw new DeferredExecution((Deferred) result);
+    }
 
     result.type().ifPresent(type -> type(type));
 

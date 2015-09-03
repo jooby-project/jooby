@@ -30,7 +30,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jooby.spi.NativeResponse;
@@ -40,11 +42,14 @@ import com.google.common.io.ByteStreams;
 
 public class ServletServletResponse implements NativeResponse {
 
-  protected final HttpServletResponse rsp;
+  protected HttpServletRequest req;
+
+  protected HttpServletResponse rsp;
 
   private boolean committed;
 
-  public ServletServletResponse(final HttpServletResponse rsp) {
+  public ServletServletResponse(final HttpServletRequest req, final HttpServletResponse rsp) {
+    this.req = requireNonNull(req, "A request is required.");
     this.rsp = requireNonNull(rsp, "A response is required.");
   }
 
@@ -125,8 +130,20 @@ public class ServletServletResponse implements NativeResponse {
 
   @Override
   public void end() {
-    // NOOP
-    committed = true;
+    if (!committed) {
+      if (req.isAsyncStarted()) {
+        AsyncContext ctx = req.getAsyncContext();
+        ctx.complete();
+      } else {
+        close();
+      }
+      committed = true;
+    }
+    req = null;
+    rsp = null;
+  }
+
+  protected void close() {
   }
 
   @Override

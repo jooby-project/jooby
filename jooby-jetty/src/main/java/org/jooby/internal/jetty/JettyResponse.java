@@ -23,13 +23,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 
-import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.HttpOutput;
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
+import org.jooby.servlet.ServletServletRequest;
 import org.jooby.servlet.ServletServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,13 +38,11 @@ public class JettyResponse extends ServletServletResponse implements Callback {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(org.jooby.Response.class);
 
-  private Request req;
+  private ServletServletRequest nreq;
 
-  private AsyncContext async;
-
-  public JettyResponse(final Request req, final HttpServletResponse rsp) {
-    super(rsp);
-    this.req = req;
+  public JettyResponse(final ServletServletRequest nreq, final HttpServletResponse rsp) {
+    super(nreq.servletRequest(), rsp);
+    this.nreq = nreq;
   }
 
   @Override
@@ -60,7 +57,7 @@ public class JettyResponse extends ServletServletResponse implements Callback {
 
   @Override
   public void send(final InputStream stream) throws Exception {
-    this.async = req.startAsync();
+    nreq.startAsync();
     sender().sendContent(Channels.newChannel(stream), this);
   }
 
@@ -71,7 +68,7 @@ public class JettyResponse extends ServletServletResponse implements Callback {
       // sync version, file size is smaller than bufferSize
       sender().sendContent(channel);
     } else {
-      this.async = req.startAsync();
+      nreq.startAsync();
       sender().sendContent(channel, this);
     }
   }
@@ -82,37 +79,23 @@ public class JettyResponse extends ServletServletResponse implements Callback {
 
   @Override
   public void succeeded() {
-    complete();
+    end();
   }
 
   @Override
   public void failed(final Throwable cause) {
-    complete();
-    // TODO: will be nice to log the path of the current request
-    log.error(rsp.toString(), cause);
+    log.error("execution of " + nreq.path() + " resulted in exception", cause);
+    end();
   }
 
   @Override
   public void end() {
-    if (async == null) {
-      close();
-    }
     super.end();
+    nreq = null;
   }
 
-  private void complete() {
-    if (async != null) {
-      async.complete();
-      async = null;
-    } else {
-      close();
-    }
-  }
-
-  private void close() {
-    HttpOutput output = sender();
-    if (!output.isClosed()) {
-      output.close();
-    }
+  @Override
+  protected void close() {
+    sender().close();
   }
 }

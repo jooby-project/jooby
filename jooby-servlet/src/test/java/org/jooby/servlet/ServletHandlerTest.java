@@ -65,8 +65,8 @@ public class ServletHandlerTest {
                   new Class[]{HttpServletRequest.class, String.class },
                   unit.get(HttpServletRequest.class), "target");
               ServletServletResponse rsp = unit.mockConstructor(ServletServletResponse.class,
-                  new Class[]{HttpServletResponse.class },
-                  unit.get(HttpServletResponse.class));
+                  new Class[]{HttpServletRequest.class, HttpServletResponse.class },
+                  unit.get(HttpServletRequest.class), unit.get(HttpServletResponse.class));
 
               dispatcher.handle(req, rsp);
             })
@@ -105,8 +105,8 @@ public class ServletHandlerTest {
               new Class[]{HttpServletRequest.class, String.class },
               unit.get(HttpServletRequest.class), "target");
           unit.mockConstructor(ServletServletResponse.class,
-              new Class[]{HttpServletResponse.class },
-              unit.get(HttpServletResponse.class));
+              new Class[]{HttpServletRequest.class, HttpServletResponse.class },
+              unit.get(HttpServletRequest.class), unit.get(HttpServletResponse.class));
         })
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
@@ -147,8 +147,8 @@ public class ServletHandlerTest {
               new Class[]{HttpServletRequest.class, String.class },
               unit.get(HttpServletRequest.class), "target");
           unit.mockConstructor(ServletServletResponse.class,
-              new Class[]{HttpServletResponse.class },
-              unit.get(HttpServletResponse.class));
+              new Class[]{HttpServletRequest.class, HttpServletResponse.class },
+              unit.get(HttpServletRequest.class), unit.get(HttpServletResponse.class));
         })
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
@@ -189,8 +189,8 @@ public class ServletHandlerTest {
               new Class[]{HttpServletRequest.class, String.class },
               unit.get(HttpServletRequest.class), "target");
           unit.mockConstructor(ServletServletResponse.class,
-              new Class[]{HttpServletResponse.class },
-              unit.get(HttpServletResponse.class));
+              new Class[]{HttpServletRequest.class, HttpServletResponse.class },
+              unit.get(HttpServletRequest.class), unit.get(HttpServletResponse.class));
         })
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);

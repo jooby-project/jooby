@@ -20,6 +20,7 @@ import javax.servlet.AsyncContext;
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
+import org.jooby.servlet.ServletServletRequest;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,18 +33,41 @@ import org.slf4j.LoggerFactory;
 @PrepareForTest({JettyResponse.class, Channels.class, LoggerFactory.class })
 public class JettyResponseTest {
 
+  private MockUnit.Block servletRequest = unit -> {
+    Request req = unit.get(Request.class);
+    ServletServletRequest request = unit.get(ServletServletRequest.class);
+    expect(request.servletRequest()).andReturn(req);
+  };
+
+  private MockUnit.Block startAsync = unit -> {
+    ServletServletRequest request = unit.get(ServletServletRequest.class);
+    request.startAsync();
+  };
+
+  private MockUnit.Block asyncStarted = unit -> {
+    Request request = unit.get(Request.class);
+    expect(request.isAsyncStarted()).andReturn(true);
+  };
+
+  private MockUnit.Block noAsyncStarted = unit -> {
+    Request request = unit.get(Request.class);
+    expect(request.isAsyncStarted()).andReturn(false);
+  };
+
   @Test
   public void defaults() throws Exception {
-    new MockUnit(Request.class, Response.class)
+    new MockUnit(ServletServletRequest.class, Request.class, Response.class)
+        .expect(servletRequest)
         .run(unit -> {
-          new JettyResponse(unit.get(Request.class), unit.get(Response.class));
+          new JettyResponse(unit.get(ServletServletRequest.class), unit.get(Response.class));
         });
   }
 
   @Test
   public void sendBytes() throws Exception {
     byte[] bytes = "bytes".getBytes();
-    new MockUnit(Request.class, Response.class, HttpOutput.class)
+    new MockUnit(ServletServletRequest.class, Request.class, Response.class, HttpOutput.class)
+        .expect(servletRequest)
         .expect(unit -> {
           HttpOutput output = unit.get(HttpOutput.class);
           output.sendContent(unit.capture(ByteBuffer.class));
@@ -52,9 +76,9 @@ public class JettyResponseTest {
           expect(rsp.getHttpOutput()).andReturn(output);
         })
         .run(unit -> {
-          new JettyResponse(unit.get(Request.class), unit.get(Response.class))
+          new JettyResponse(unit.get(ServletServletRequest.class), unit.get(Response.class))
               .send(bytes);
-        }, unit -> {
+        } , unit -> {
           assertArrayEquals(bytes, unit.captured(ByteBuffer.class).iterator().next().array());
         });
   }
@@ -63,7 +87,8 @@ public class JettyResponseTest {
   public void sendBuffer() throws Exception {
     byte[] bytes = "bytes".getBytes();
     ByteBuffer buffer = ByteBuffer.wrap(bytes);
-    new MockUnit(Request.class, Response.class, HttpOutput.class)
+    new MockUnit(ServletServletRequest.class, Request.class, Response.class, HttpOutput.class)
+        .expect(servletRequest)
         .expect(unit -> {
           HttpOutput output = unit.get(HttpOutput.class);
           output.sendContent(eq(buffer));
@@ -72,154 +97,144 @@ public class JettyResponseTest {
           expect(rsp.getHttpOutput()).andReturn(output);
         })
         .run(unit -> {
-          new JettyResponse(unit.get(Request.class), unit.get(Response.class))
+          new JettyResponse(unit.get(ServletServletRequest.class), unit.get(Response.class))
               .send(buffer);
         });
   }
 
   @Test
   public void sendInputStream() throws Exception {
-    new MockUnit(Request.class, Response.class, HttpOutput.class, InputStream.class,
-        AsyncContext.class)
-        .expect(unit -> {
-          unit.mockStatic(Channels.class);
-          ReadableByteChannel channel = unit.mock(ReadableByteChannel.class);
-          expect(Channels.newChannel(unit.get(InputStream.class))).andReturn(channel);
+    new MockUnit(ServletServletRequest.class, Request.class, Response.class, HttpOutput.class,
+        InputStream.class, AsyncContext.class)
+            .expect(servletRequest)
+            .expect(unit -> {
+              unit.mockStatic(Channels.class);
+              ReadableByteChannel channel = unit.mock(ReadableByteChannel.class);
+              expect(Channels.newChannel(unit.get(InputStream.class))).andReturn(channel);
 
-          HttpOutput output = unit.get(HttpOutput.class);
-          output.sendContent(eq(channel), isA(JettyResponse.class));
+              HttpOutput output = unit.get(HttpOutput.class);
+              output.sendContent(eq(channel), isA(JettyResponse.class));
 
-          Response rsp = unit.get(Response.class);
-          expect(rsp.getHttpOutput()).andReturn(output);
-        })
-        .expect(unit -> {
-          Request req = unit.get(Request.class);
-          expect(req.startAsync()).andReturn(unit.get(AsyncContext.class));
-        })
-        .run(unit -> {
-          new JettyResponse(unit.get(Request.class), unit.get(Response.class))
-              .send(unit.get(InputStream.class));
-        });
+              Response rsp = unit.get(Response.class);
+              expect(rsp.getHttpOutput()).andReturn(output);
+            })
+            .expect(startAsync)
+            .run(unit -> {
+              new JettyResponse(unit.get(ServletServletRequest.class), unit.get(Response.class))
+                  .send(unit.get(InputStream.class));
+            });
   }
 
   @Test
   public void sendSmallFileChannel() throws Exception {
     FileChannel channel = newFileChannel(1);
-    new MockUnit(Request.class, Response.class, HttpOutput.class, AsyncContext.class)
-        .expect(unit -> {
-          HttpOutput output = unit.get(HttpOutput.class);
-          output.sendContent(eq(channel));
+    new MockUnit(ServletServletRequest.class, Request.class, Response.class, HttpOutput.class,
+        AsyncContext.class)
+            .expect(servletRequest)
+            .expect(unit -> {
+              HttpOutput output = unit.get(HttpOutput.class);
+              output.sendContent(eq(channel));
 
-          Response rsp = unit.get(Response.class);
-          expect(rsp.getBufferSize()).andReturn(2);
-          expect(rsp.getHttpOutput()).andReturn(output);
-        })
-        .run(unit -> {
-          new JettyResponse(unit.get(Request.class), unit.get(Response.class))
-              .send(channel);
-        });
+              Response rsp = unit.get(Response.class);
+              expect(rsp.getBufferSize()).andReturn(2);
+              expect(rsp.getHttpOutput()).andReturn(output);
+            })
+            .run(unit -> {
+              new JettyResponse(unit.get(ServletServletRequest.class), unit.get(Response.class))
+                  .send(channel);
+            });
   }
 
   @Test
   public void sendLargeFileChannel() throws Exception {
     FileChannel channel = newFileChannel(10);
-    new MockUnit(Request.class, Response.class, HttpOutput.class, AsyncContext.class)
-        .expect(unit -> {
-          HttpOutput output = unit.get(HttpOutput.class);
-          output.sendContent(eq(channel), isA(JettyResponse.class));
+    new MockUnit(ServletServletRequest.class, Request.class, Response.class, HttpOutput.class,
+        AsyncContext.class)
+            .expect(servletRequest)
+            .expect(unit -> {
+              HttpOutput output = unit.get(HttpOutput.class);
+              output.sendContent(eq(channel), isA(JettyResponse.class));
 
-          Response rsp = unit.get(Response.class);
-          expect(rsp.getBufferSize()).andReturn(5);
-          expect(rsp.getHttpOutput()).andReturn(output);
-        })
-        .expect(unit -> {
-          Request req = unit.get(Request.class);
-          expect(req.startAsync()).andReturn(unit.get(AsyncContext.class));
-        })
-        .run(unit -> {
-          new JettyResponse(unit.get(Request.class), unit.get(Response.class))
-              .send(channel);
-        });
+              Response rsp = unit.get(Response.class);
+              expect(rsp.getBufferSize()).andReturn(5);
+              expect(rsp.getHttpOutput()).andReturn(output);
+            })
+            .expect(startAsync)
+            .run(unit -> {
+              new JettyResponse(unit.get(ServletServletRequest.class), unit.get(Response.class))
+                  .send(channel);
+            });
   }
 
   @Test
   public void succeeded() throws Exception {
     byte[] bytes = "bytes".getBytes();
-    new MockUnit(Request.class, Response.class, HttpOutput.class, AsyncContext.class)
-        .expect(unit -> {
-          HttpOutput output = unit.get(HttpOutput.class);
-          output.sendContent(unit.capture(ByteBuffer.class));
-          expect(output.isClosed()).andReturn(false);
-          output.close();
+    new MockUnit(ServletServletRequest.class, Request.class, Response.class, HttpOutput.class,
+        AsyncContext.class)
+            .expect(servletRequest)
+            .expect(unit -> {
+              HttpOutput output = unit.get(HttpOutput.class);
+              output.sendContent(unit.capture(ByteBuffer.class));
+              output.close();
 
-          Response rsp = unit.get(Response.class);
-          expect(rsp.getHttpOutput()).andReturn(output).times(2);
-        })
-        .run(unit -> {
-          JettyResponse rsp = new JettyResponse(unit.get(Request.class), unit.get(Response.class));
-          rsp.send(bytes);
-          rsp.succeeded();
-        });
-  }
-
-  @Test
-  public void succeededNoClose() throws Exception {
-    byte[] bytes = "bytes".getBytes();
-    new MockUnit(Request.class, Response.class, HttpOutput.class, AsyncContext.class)
-        .expect(unit -> {
-          HttpOutput output = unit.get(HttpOutput.class);
-          output.sendContent(unit.capture(ByteBuffer.class));
-          expect(output.isClosed()).andReturn(true);
-
-          Response rsp = unit.get(Response.class);
-          expect(rsp.getHttpOutput()).andReturn(output).times(2);
-        })
-        .run(unit -> {
-          JettyResponse rsp = new JettyResponse(unit.get(Request.class), unit.get(Response.class));
-          rsp.send(bytes);
-          rsp.succeeded();
-        });
+              Response rsp = unit.get(Response.class);
+              expect(rsp.getHttpOutput()).andReturn(output).times(2);
+            })
+            .expect(noAsyncStarted)
+            .run(unit -> {
+              JettyResponse rsp = new JettyResponse(unit.get(ServletServletRequest.class),
+                  unit.get(Response.class));
+              rsp.send(bytes);
+              rsp.succeeded();
+            });
   }
 
   @Test
   public void succeededAsync() throws Exception {
     FileChannel channel = newFileChannel(10);
-    new MockUnit(Request.class, Response.class, HttpOutput.class, AsyncContext.class)
-        .expect(unit -> {
-          HttpOutput output = unit.get(HttpOutput.class);
-          output.sendContent(eq(channel), isA(JettyResponse.class));
+    new MockUnit(ServletServletRequest.class, Request.class, Response.class, HttpOutput.class,
+        AsyncContext.class)
+            .expect(servletRequest)
+            .expect(unit -> {
+              HttpOutput output = unit.get(HttpOutput.class);
+              output.sendContent(eq(channel), isA(JettyResponse.class));
 
-          Response rsp = unit.get(Response.class);
-          expect(rsp.getBufferSize()).andReturn(5);
-          expect(rsp.getHttpOutput()).andReturn(output);
-        })
-        .expect(unit -> {
-          AsyncContext async = unit.get(AsyncContext.class);
-          async.complete();
+              Response rsp = unit.get(Response.class);
+              expect(rsp.getBufferSize()).andReturn(5);
+              expect(rsp.getHttpOutput()).andReturn(output);
+            })
+            .expect(startAsync)
+            .expect(asyncStarted)
+            .expect(unit -> {
+              Request req = unit.get(Request.class);
 
-          Request req = unit.get(Request.class);
-          expect(req.startAsync()).andReturn(async);
-        })
-        .run(unit -> {
-          JettyResponse rsp = new JettyResponse(unit.get(Request.class), unit.get(Response.class));
-          rsp.send(channel);
-          rsp.succeeded();
-        });
+              AsyncContext ctx = unit.get(AsyncContext.class);
+              ctx.complete();
+
+              expect(req.getAsyncContext()).andReturn(ctx);
+            })
+            .run(unit -> {
+              JettyResponse rsp = new JettyResponse(unit.get(ServletServletRequest.class),
+                  unit.get(Response.class));
+              rsp.send(channel);
+              rsp.succeeded();
+            });
   }
 
   @Test
   public void end() throws Exception {
-    new MockUnit(Request.class, Response.class, HttpOutput.class)
+    new MockUnit(ServletServletRequest.class, Request.class, Response.class, HttpOutput.class)
+        .expect(servletRequest)
         .expect(unit -> {
           HttpOutput output = unit.get(HttpOutput.class);
-          expect(output.isClosed()).andReturn(false);
           output.close();
 
           Response rsp = unit.get(Response.class);
           expect(rsp.getHttpOutput()).andReturn(output);
         })
+        .expect(noAsyncStarted)
         .run(unit -> {
-          new JettyResponse(unit.get(Request.class), unit.get(Response.class))
+          new JettyResponse(unit.get(ServletServletRequest.class), unit.get(Response.class))
               .end();
         });
   }
@@ -227,24 +242,29 @@ public class JettyResponseTest {
   @Test
   public void failed() throws Exception {
     IOException cause = new IOException();
-    new MockUnit(Request.class, Response.class, HttpOutput.class)
+    new MockUnit(ServletServletRequest.class, Request.class, Response.class, HttpOutput.class)
+        .expect(servletRequest)
         .expect(unit -> {
           Logger log = unit.mock(Logger.class);
-          log.error(unit.get(Response.class).toString(), cause);
+          log.error("execution of /path resulted in exception", cause);
 
           unit.mockStatic(LoggerFactory.class);
           expect(LoggerFactory.getLogger(org.jooby.Response.class)).andReturn(log);
         })
         .expect(unit -> {
           HttpOutput output = unit.get(HttpOutput.class);
-          expect(output.isClosed()).andReturn(false);
           output.close();
 
           Response rsp = unit.get(Response.class);
           expect(rsp.getHttpOutput()).andReturn(output);
         })
+        .expect(noAsyncStarted)
+        .expect(unit -> {
+          ServletServletRequest req = unit.get(ServletServletRequest.class);
+          expect(req.path()).andReturn("/path");
+        })
         .run(unit -> {
-          new JettyResponse(unit.get(Request.class), unit.get(Response.class))
+          new JettyResponse(unit.get(ServletServletRequest.class), unit.get(Response.class))
               .failed(cause);
         });
   }
@@ -298,8 +318,9 @@ public class JettyResponseTest {
       }
 
       @Override
-      public long transferTo(final long position, final long count, final WritableByteChannel target)
-          throws IOException {
+      public long transferTo(final long position, final long count,
+          final WritableByteChannel target)
+              throws IOException {
         return 0;
       }
 

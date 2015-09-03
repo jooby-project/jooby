@@ -37,6 +37,7 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.jooby.Deferred;
 import org.jooby.Err;
 import org.jooby.Err.Handler;
 import org.jooby.MediaType;
@@ -157,6 +158,7 @@ public class HttpHandlerImpl implements HttpHandler {
     Provider<Session> session = () -> req.session();
     req.set(Session.class, session);
 
+    boolean deferred = false;
     try {
       // not found?
       if (resolveAs404) {
@@ -178,8 +180,56 @@ public class HttpHandlerImpl implements HttpHandler {
 
       chain(routes).next(req, rsp);
 
+    } catch (DeferredExecution ex) {
+      deferred = true;
+      onDeferred(scope, request, req, rsp, ex.deferred, start);
     } catch (Exception ex) {
-      log.debug("execution of: " + path + " resulted in exception", ex);
+      handleErr(req, rsp, ex);
+    } finally {
+      requestScope.exit();
+      if (!deferred) {
+        done(req, rsp, start);
+      }
+    }
+  }
+
+  private void done(final RequestImpl req, final ResponseImpl rsp, final long start) {
+    // mark request/response as done.
+    req.done();
+    rsp.end();
+
+    long end = System.currentTimeMillis();
+    log.debug("  status -> {} in {}ms", rsp.status().orElse(Status.OK), end - start);
+  }
+
+  private void onDeferred(final Map<Object, Object> scope, final NativeRequest request,
+      final RequestImpl req, final ResponseImpl rsp, final Deferred deferred, final long start) {
+    try {
+      request.startAsync();
+
+      deferred.handler((result, ex) -> {
+        try {
+          requestScope.enter(scope);
+          if (result != null) {
+            rsp.send(result);
+          } else {
+            handleErr(req, rsp, ex);
+          }
+        } catch (Exception exerr) {
+          handleErr(req, rsp, exerr);
+        } finally {
+          requestScope.exit();
+          done(req, rsp, start);
+        }
+      });
+    } catch (Exception ex) {
+      handleErr(req, rsp, ex);
+    }
+  }
+
+  private void handleErr(final RequestImpl req, final ResponseImpl rsp, final Exception ex) {
+    try {
+      log.debug("execution of: " + req.method() + req.path() + " resulted in exception", ex);
 
       rsp.reset();
 
@@ -189,29 +239,16 @@ public class HttpHandlerImpl implements HttpHandler {
       rsp.header("Cache-Control", NO_CACHE);
       rsp.status(status);
 
-      handleErr(req, rsp, ex instanceof Err ? (Err) ex : new Err(status, ex));
-    } finally {
-      requestScope.exit();
+      Err err = ex instanceof Err ? (Err) ex : new Err(status, ex);
 
-      // mark request/response as done.
-      req.done();
-      rsp.end();
-
-      long end = System.currentTimeMillis();
-      log.debug("  status -> {} in {}ms", response.statusCode(), end - start);
-    }
-  }
-
-  private void handleErr(final RequestImpl req, final ResponseImpl rsp, final Err err) {
-    try {
       Iterator<Handler> it = this.err.iterator();
       while (!rsp.committed() && it.hasNext()) {
         Err.Handler next = it.next();
         log.debug("handling err with: {}", next);
         next.handle(req, rsp, err);
       }
-    } catch (Exception ex) {
-      log.error("execution of err handler resulted in exception", ex);
+    } catch (Exception errex) {
+      log.error("execution of err handler resulted in exception", errex);
     }
   }
 
@@ -267,7 +304,7 @@ public class HttpHandlerImpl implements HttpHandler {
         }
       }
       chain.next(req, rsp);
-    }, method, path, Status.NOT_ACCEPTABLE, accept));
+    } , method, path, Status.NOT_ACCEPTABLE, accept));
 
     // 405
     routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
@@ -278,7 +315,7 @@ public class HttpHandlerImpl implements HttpHandler {
         }
       }
       chain.next(req, rsp);
-    }, method, path, Status.METHOD_NOT_ALLOWED, accept));
+    } , method, path, Status.METHOD_NOT_ALLOWED, accept));
 
     // 404
     routes.add(RouteImpl.notFound(method, path, accept));
@@ -317,13 +354,12 @@ public class HttpHandlerImpl implements HttpHandler {
     /**
      * usually a class name, except for inner classes where '$' is replaced it by '.'
      */
-    Function<Class<?>, String> name = type ->
-        Optional.ofNullable(type.getDeclaringClass())
-            .map(dc -> new StringBuilder(dc.getName())
-                .append('.')
-                .append(type.getSimpleName())
-                .toString()
-            ).orElse(type.getName());
+    Function<Class<?>, String> name = type -> Optional.ofNullable(type.getDeclaringClass())
+        .map(dc -> new StringBuilder(dc.getName())
+            .append('.')
+            .append(type.getSimpleName())
+            .toString())
+        .orElse(type.getName());
 
     Config err = config.getConfig("err");
     int status = -1;

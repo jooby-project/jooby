@@ -32,10 +32,10 @@
  */
 package org.jooby.internal.undertow;
 
+import com.typesafe.config.Config;
+
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-
-import com.typesafe.config.Config;
 
 public class UndertowHandler implements HttpHandler {
 

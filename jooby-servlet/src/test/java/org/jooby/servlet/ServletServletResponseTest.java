@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jooby.test.MockUnit;
@@ -34,94 +35,110 @@ public class ServletServletResponseTest {
 
   @Test
   public void defaults() throws Exception {
-    new MockUnit(HttpServletResponse.class)
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class)
         .run(unit -> {
-          new ServletServletResponse(unit.get(HttpServletResponse.class));
+          new ServletServletResponse(unit.get(HttpServletRequest.class),
+              unit.get(HttpServletResponse.class));
+        });
+  }
+
+  @Test
+  public void close() throws Exception {
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class)
+        .run(unit -> {
+          new ServletServletResponse(unit.get(HttpServletRequest.class),
+              unit.get(HttpServletResponse.class)).close();
         });
   }
 
   @Test
   public void headers() throws Exception {
-    new MockUnit(HttpServletResponse.class)
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class)
         .expect(unit -> {
           HttpServletResponse rsp = unit.get(HttpServletResponse.class);
           expect(rsp.getHeaders("h")).andReturn(Arrays.asList("v"));
         })
         .run(unit -> {
           assertEquals(Arrays.asList("v"),
-              new ServletServletResponse(unit.get(HttpServletResponse.class)).headers("h"));
+              new ServletServletResponse(unit.get(HttpServletRequest.class),
+                  unit.get(HttpServletResponse.class)).headers("h"));
         });
   }
 
   @Test
   public void emptyHeaders() throws Exception {
-    new MockUnit(HttpServletResponse.class)
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class)
         .expect(unit -> {
           HttpServletResponse rsp = unit.get(HttpServletResponse.class);
           expect(rsp.getHeaders("h")).andReturn(Collections.emptyList());
         })
         .run(unit -> {
           assertEquals(Collections.emptyList(),
-              new ServletServletResponse(unit.get(HttpServletResponse.class)).headers("h"));
+              new ServletServletResponse(unit.get(HttpServletRequest.class),
+                  unit.get(HttpServletResponse.class)).headers("h"));
         });
   }
 
   @Test
   public void noHeaders() throws Exception {
-    new MockUnit(HttpServletResponse.class)
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class)
         .expect(unit -> {
           HttpServletResponse rsp = unit.get(HttpServletResponse.class);
           expect(rsp.getHeaders("h")).andReturn(null);
         })
         .run(unit -> {
           assertEquals(Collections.emptyList(),
-              new ServletServletResponse(unit.get(HttpServletResponse.class)).headers("h"));
+              new ServletServletResponse(unit.get(HttpServletRequest.class),
+                  unit.get(HttpServletResponse.class)).headers("h"));
         });
   }
 
   @Test
   public void header() throws Exception {
-    new MockUnit(HttpServletResponse.class)
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class)
         .expect(unit -> {
           HttpServletResponse rsp = unit.get(HttpServletResponse.class);
           expect(rsp.getHeader("h")).andReturn("v");
         })
         .run(unit -> {
           assertEquals(Optional.of("v"),
-              new ServletServletResponse(unit.get(HttpServletResponse.class)).header("h"));
+              new ServletServletResponse(unit.get(HttpServletRequest.class),
+                  unit.get(HttpServletResponse.class)).header("h"));
         });
   }
 
   @Test
   public void emptyHeader() throws Exception {
-    new MockUnit(HttpServletResponse.class)
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class)
         .expect(unit -> {
           HttpServletResponse rsp = unit.get(HttpServletResponse.class);
           expect(rsp.getHeader("h")).andReturn("");
         })
         .run(unit -> {
           assertEquals(Optional.empty(),
-              new ServletServletResponse(unit.get(HttpServletResponse.class)).header("h"));
+              new ServletServletResponse(unit.get(HttpServletRequest.class),
+                  unit.get(HttpServletResponse.class)).header("h"));
         });
   }
 
   @Test
   public void noHeader() throws Exception {
-    new MockUnit(HttpServletResponse.class)
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class)
         .expect(unit -> {
           HttpServletResponse rsp = unit.get(HttpServletResponse.class);
           expect(rsp.getHeader("h")).andReturn(null);
         })
         .run(unit -> {
           assertEquals(Optional.empty(),
-              new ServletServletResponse(unit.get(HttpServletResponse.class)).header("h"));
+              new ServletServletResponse(unit.get(HttpServletRequest.class),
+                  unit.get(HttpServletResponse.class)).header("h"));
         });
   }
 
   @Test
   public void sendBytes() throws Exception {
     byte[] bytes = "bytes".getBytes();
-    new MockUnit(HttpServletResponse.class, ServletOutputStream.class)
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class, ServletOutputStream.class)
         .expect(unit -> {
           ServletOutputStream output = unit.get(ServletOutputStream.class);
           output.write(bytes);
@@ -131,7 +148,8 @@ public class ServletServletResponseTest {
           expect(rsp.getOutputStream()).andReturn(output);
         })
         .run(unit -> {
-          new ServletServletResponse(unit.get(HttpServletResponse.class)).send(bytes);
+          new ServletServletResponse(unit.get(HttpServletRequest.class),
+              unit.get(HttpServletResponse.class)).send(bytes);
         });
   }
 
@@ -139,7 +157,7 @@ public class ServletServletResponseTest {
   public void sendByteBuffer() throws Exception {
     byte[] bytes = "bytes".getBytes();
     ByteBuffer buffer = ByteBuffer.wrap(bytes);
-    new MockUnit(HttpServletResponse.class, ServletOutputStream.class)
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class, ServletOutputStream.class)
         .expect(unit -> {
           ServletOutputStream output = unit.get(ServletOutputStream.class);
 
@@ -154,7 +172,8 @@ public class ServletServletResponseTest {
           expect(rsp.getOutputStream()).andReturn(output);
         })
         .run(unit -> {
-          new ServletServletResponse(unit.get(HttpServletResponse.class)).send(buffer);
+          new ServletServletResponse(unit.get(HttpServletRequest.class),
+              unit.get(HttpServletResponse.class)).send(buffer);
         });
   }
 
@@ -162,7 +181,7 @@ public class ServletServletResponseTest {
   public void sendFileChannel() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
     FileChannel fchannel = newFileChannel(latch);
-    new MockUnit(HttpServletResponse.class, ServletOutputStream.class)
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class, ServletOutputStream.class)
         .expect(unit -> {
           ServletOutputStream output = unit.get(ServletOutputStream.class);
 
@@ -181,30 +200,33 @@ public class ServletServletResponseTest {
           expect(rsp.getOutputStream()).andReturn(output);
         })
         .run(unit -> {
-          new ServletServletResponse(unit.get(HttpServletResponse.class)).send(fchannel);
+          new ServletServletResponse(unit.get(HttpServletRequest.class),
+              unit.get(HttpServletResponse.class)).send(fchannel);
         });
     latch.await();
   }
 
   @Test
   public void sendInputStream() throws Exception {
-    new MockUnit(HttpServletResponse.class, InputStream.class, ServletOutputStream.class)
-        .expect(unit -> {
-          InputStream in = unit.get(InputStream.class);
-          ServletOutputStream output = unit.get(ServletOutputStream.class);
+    new MockUnit(HttpServletRequest.class, HttpServletResponse.class, InputStream.class,
+        ServletOutputStream.class)
+            .expect(unit -> {
+              InputStream in = unit.get(InputStream.class);
+              ServletOutputStream output = unit.get(ServletOutputStream.class);
 
-          unit.mockStatic(ByteStreams.class);
-          expect(ByteStreams.copy(in, output)).andReturn(0L);
+              unit.mockStatic(ByteStreams.class);
+              expect(ByteStreams.copy(in, output)).andReturn(0L);
 
-          output.close();
-          in.close();
+              output.close();
+              in.close();
 
-          HttpServletResponse rsp = unit.get(HttpServletResponse.class);
-          expect(rsp.getOutputStream()).andReturn(output);
-        })
-        .run(unit -> {
-          new ServletServletResponse(unit.get(HttpServletResponse.class)).send(unit.get(InputStream.class));
-        });
+              HttpServletResponse rsp = unit.get(HttpServletResponse.class);
+              expect(rsp.getOutputStream()).andReturn(output);
+            })
+            .run(unit -> {
+              new ServletServletResponse(unit.get(HttpServletRequest.class),
+                  unit.get(HttpServletResponse.class)).send(unit.get(InputStream.class));
+            });
   }
 
   private FileChannel newFileChannel(final CountDownLatch latch) {
@@ -256,8 +278,9 @@ public class ServletServletResponseTest {
       }
 
       @Override
-      public long transferTo(final long position, final long count, final WritableByteChannel target)
-          throws IOException {
+      public long transferTo(final long position, final long count,
+          final WritableByteChannel target)
+              throws IOException {
         return 0;
       }
 

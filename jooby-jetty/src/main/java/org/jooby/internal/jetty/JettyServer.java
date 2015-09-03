@@ -40,6 +40,7 @@ import org.jooby.spi.HttpHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Throwables;
 import com.google.common.primitives.Primitives;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
@@ -63,21 +64,20 @@ public class JettyServer implements org.jooby.spi.Server {
     System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize",
         config.getBytes("server.http.MaxRequestSize").toString());
 
-    QueuedThreadPool pool = configure(new QueuedThreadPool(), config.getConfig("jetty.threads"),
+    QueuedThreadPool pool = conf(new QueuedThreadPool(), config.getConfig("jetty.threads"),
         "jetty.threads");
-    pool.setName("jetty");
 
     Server server = new Server(pool);
     server.setStopAtShutdown(false);
 
     // HTTP connector
-    ServerConnector http = http(server, config.getConfig("jetty.http"), "jetty.http");
+    ServerConnector http = connector(server, config.getConfig("jetty.http"), "jetty.http");
     http.setPort(config.getInt("application.port"));
     http.setHost(config.getString("application.host"));
 
     server.addConnector(http);
 
-    WebSocketPolicy wsConfig = configure(new WebSocketPolicy(WebSocketBehavior.SERVER),
+    WebSocketPolicy wsConfig = conf(new WebSocketPolicy(WebSocketBehavior.SERVER),
         config.getConfig("jetty.ws"), "jetty.ws");
     WebSocketServerFactory webSocketServerFactory = new WebSocketServerFactory(wsConfig);
     webSocketServerFactory.setCreator((req, rsp) -> {
@@ -92,11 +92,15 @@ public class JettyServer implements org.jooby.spi.Server {
     return server;
   }
 
-  private ServerConnector http(final Server server, final Config config, final String path) {
-    HttpConfiguration httpConfig = configure(new HttpConfiguration(),
-        config.withoutPath("connector"), path);
-    return configure(new ServerConnector(server, new HttpConnectionFactory(httpConfig)),
-        config.getConfig("connector"), path + ".connector");
+  private ServerConnector connector(final Server server, final Config conf, final String path) {
+    HttpConfiguration httpConfig = conf(new HttpConfiguration(), conf.withoutPath("connector"),
+        path);
+
+    HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfig);
+
+    ServerConnector connector = new ServerConnector(server, httpFactory);
+
+    return conf(connector, conf.getConfig("connector"), path + ".connector");
   }
 
   @Override
@@ -115,32 +119,37 @@ public class JettyServer implements org.jooby.spi.Server {
   }
 
   private void tryOption(final Object source, final Config config, final Method option) {
-    String optionName = option.getName().replace("set", "");
-    Object optionValue = config.getAnyRef(optionName);
-    Class<?> optionType = Primitives.wrap(option.getParameterTypes()[0]);
-    if (Number.class.isAssignableFrom(optionType)) {
-      if (optionValue instanceof String) {
-        // either a byte or time unit
-        try {
-          optionValue = config.getBytes(optionName);
-        } catch (ConfigException.BadValue ex) {
-          optionValue = config.getDuration(optionName, TimeUnit.MILLISECONDS);
-        }
-        if (optionType == Integer.class) {
-          // to int
-          optionValue = ((Number) optionValue).intValue();
+    try {
+      String optionName = option.getName().replace("set", "");
+      Object optionValue = config.getAnyRef(optionName);
+      Class<?> optionType = Primitives.wrap(option.getParameterTypes()[0]);
+      if (Number.class.isAssignableFrom(optionType)) {
+        if (optionValue instanceof String) {
+          // either a byte or time unit
+          try {
+            optionValue = config.getBytes(optionName);
+          } catch (ConfigException.BadValue ex) {
+            optionValue = config.getDuration(optionName, TimeUnit.MILLISECONDS);
+          }
+          if (optionType == Integer.class) {
+            // to int
+            optionValue = ((Number) optionValue).intValue();
+          }
         }
       }
-    }
-    try {
       log.debug("{}.{}({})", source.getClass().getSimpleName(), option.getName(), optionValue);
       option.invoke(source, optionValue);
-    } catch (IllegalAccessException | InvocationTargetException ex) {
-      throw new IllegalStateException("Unknown/bad option: " + optionName, ex);
+    } catch (Exception ex) {
+      Throwable cause = ex;
+      if (ex instanceof InvocationTargetException) {
+        cause = ((InvocationTargetException) ex).getTargetException();
+      }
+      log.error("invocation of " + option + " resulted in exception", cause);
+      throw Throwables.propagate(cause);
     }
   }
 
-  private <T> T configure(final T source, final Config config, final String path) {
+  private <T> T conf(final T source, final Config config, final String path) {
     Map<String, Method> methods = Arrays.stream(source.getClass().getMethods())
         .filter(m -> m.getName().startsWith("set") && m.getParameterCount() == 1)
         .collect(Collectors.toMap(Method::getName, Function.<Method> identity()));

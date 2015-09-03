@@ -19,15 +19,6 @@
 package org.jooby.internal.undertow;
 
 import static java.util.Objects.requireNonNull;
-import io.undertow.server.BlockingHttpExchange;
-import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.form.FormData;
-import io.undertow.server.handlers.form.FormData.FormValue;
-import io.undertow.server.handlers.form.FormEncodedDataDefinition;
-import io.undertow.server.handlers.form.MultiPartParserDefinition;
-import io.undertow.util.AttachmentKey;
-import io.undertow.util.HeaderValues;
-import io.undertow.util.HttpString;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +43,16 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.typesafe.config.Config;
+
+import io.undertow.server.BlockingHttpExchange;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.server.handlers.form.FormData;
+import io.undertow.server.handlers.form.FormData.FormValue;
+import io.undertow.server.handlers.form.FormEncodedDataDefinition;
+import io.undertow.server.handlers.form.MultiPartParserDefinition;
+import io.undertow.util.AttachmentKey;
+import io.undertow.util.HeaderValues;
+import io.undertow.util.HttpString;
 
 public class UndertowRequest implements NativeRequest {
 
@@ -189,6 +190,11 @@ public class UndertowRequest implements NativeRequest {
       return (T) ws;
     }
     throw new UnsupportedOperationException("Not Supported: " + type);
+  }
+
+  @Override
+  public void startAsync() {
+    exchange.dispatch();
   }
 
   private FormData parseForm(final HttpServerExchange exchange, final String tmpdir,

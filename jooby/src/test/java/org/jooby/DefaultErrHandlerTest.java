@@ -34,7 +34,7 @@ public class DefaultErrHandlerTest {
     new MockUnit(Request.class, Response.class)
         .expect(unit -> {
           Logger log = unit.mock(Logger.class);
-          log.error("execution of: GET /path resulted in exception", ex);
+          log.error("execution of: GET/path resulted in exception", ex);
 
           unit.mockStatic(LoggerFactory.class);
           expect(LoggerFactory.getLogger(Err.class)).andReturn(log);
@@ -78,7 +78,7 @@ public class DefaultErrHandlerTest {
     new MockUnit(Request.class, Response.class)
         .expect(unit -> {
           Logger log = unit.mock(Logger.class);
-          log.error("execution of: GET /path resulted in exception", ex);
+          log.error("execution of: GET/path resulted in exception", ex);
 
           unit.mockStatic(LoggerFactory.class);
           expect(LoggerFactory.getLogger(Err.class)).andReturn(log);

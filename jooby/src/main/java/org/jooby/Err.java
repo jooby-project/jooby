@@ -59,7 +59,7 @@ public class Err extends RuntimeException {
     @Override
     public void handle(final Request req, final Response rsp, final Err ex)
         throws Exception {
-      log.error("execution of: " + req.method() + " " + req.path() + " resulted in exception", ex);
+      log.error("execution of: " + req.method() + req.path() + " resulted in exception", ex);
 
       rsp.send(
           Results

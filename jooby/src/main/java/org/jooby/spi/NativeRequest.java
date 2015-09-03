@@ -132,4 +132,9 @@ public interface NativeRequest {
    */
   <T> T upgrade(Class<T> type) throws Exception;
 
+  /**
+   * Put the request in async mode.
+   */
+  void startAsync();
+
 }

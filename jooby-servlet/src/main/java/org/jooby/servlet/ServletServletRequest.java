@@ -29,6 +29,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,6 +39,7 @@ import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.util.Collectors;
 
+import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
@@ -53,12 +55,19 @@ public class ServletServletRequest implements NativeRequest {
 
   private ServletUpgrade upgrade = noupgrade();
 
+  private final Supplier<AsyncContext> async;
+
   public ServletServletRequest(final HttpServletRequest req, final String tmpdir,
       final boolean multipart) throws IOException {
     this.req = requireNonNull(req, "HTTP req is required.");
     this.tmpdir = requireNonNull(tmpdir, "A tmpdir is required.");
     this.multipart = multipart;
     this.path = URLDecoder.decode(req.getRequestURI(), "UTF-8");
+    this.async = () -> req.startAsync();
+  }
+
+  public HttpServletRequest servletRequest() {
+    return req;
   }
 
   public ServletServletRequest(final HttpServletRequest req, final String tmpdir)
@@ -174,6 +183,11 @@ public class ServletServletRequest implements NativeRequest {
   @Override
   public <T> T upgrade(final Class<T> type) throws Exception {
     return upgrade.upgrade(type);
+  }
+
+  @Override
+  public void startAsync() {
+    async.get();
   }
 
   private static boolean multipart(final HttpServletRequest req) {

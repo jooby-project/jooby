@@ -44,6 +44,26 @@ var version = function () {
 var links = [];
 
 links.push({
+  name: 'netty_server',
+  data: '[Netty](/doc/netty)'
+});
+
+links.push({
+  name: 'undertow_server',
+  data: '[Undertow](/doc/undertow)'
+});
+
+links.push({
+  name: 'jetty_server',
+  data: '[Jetty](/doc/jetty)'
+});
+
+links.push({
+  name: 'rx',
+  data: '[RxJava](https://github.com/ReactiveX/RxJava)'
+});
+
+links.push({
   name: 'ebean',
   data: '[Ebean ORM](http://ebean-orm.github.io)'
 });

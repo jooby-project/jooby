@@ -130,7 +130,7 @@ public class Result {
    * @return This content.
    */
   public Result set(final Object content) {
-    requireNonNull(content, "Content is required.");
+    requireNonNull(content, "No content.");
     data.put(MediaType.all, () -> content);
     return this;
   }
@@ -255,6 +255,16 @@ public class Result {
 
     headers.put(name, values);
     return this;
+  }
+
+  @Override
+  protected Result clone() {
+    Result result = new Result();
+    result.headers.putAll(headers);
+    result.status = status;
+    result.type = type;
+    result.data.putAll(data);
+    return result;
   }
 
 }
