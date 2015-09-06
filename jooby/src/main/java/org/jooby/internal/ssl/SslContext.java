@@ -72,6 +72,8 @@ import javax.security.auth.x500.X500Principal;
  * p.addLast("ssl", {@link #newEngine(ByteBufAllocator, String, int) sslCtx.newEngine(channel.alloc(), host, port)});
  * ...
  * </pre>
+ *
+ * Kindly Borrowed from <a href="http://netty.io">Netty</a>
  */
 public abstract class SslContext {
   static final CertificateFactory X509_CERT_FACTORY;

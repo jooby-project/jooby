@@ -39,7 +39,7 @@ import org.jooby.Renderer;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.multibindings.Multibinder;
@@ -133,10 +133,10 @@ public class Jackson implements Jooby.Module {
   private MediaType type = MediaType.json;
 
   public Jackson(final ObjectMapper mapper) {
-    this.mapper = checkNotNull(mapper, "An object mapper is required.");
+    this.mapper = checkNotNull(mapper, "ObjectMapper is required.");
     this.modules.add(new Jdk8Module());
     // Java 8 dates
-    this.modules.add(new JSR310Module());
+    this.modules.add(new JavaTimeModule());
   }
 
   public Jackson() {
