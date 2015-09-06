@@ -3,11 +3,13 @@ package org.jooby.hazelcast;
 import java.util.Optional;
 
 import org.jooby.test.ServerFeature;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
+@Ignore
 public class HazelcastFeature extends ServerFeature {
 
   {

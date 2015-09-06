@@ -2,11 +2,13 @@ package org.jooby.hazelcast;
 
 import org.jooby.Session;
 import org.jooby.test.ServerFeature;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+@Ignore
 public class HazelcastSessionStoreNotimeoutFeature extends ServerFeature {
 
   {
