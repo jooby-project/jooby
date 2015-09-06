@@ -1681,10 +1681,10 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
   <properties>
     <!-- Dependencies -->
     <jackson.version>2.5.4</jackson.version>
-    <undertow.version>1.2.9.Final</undertow.version>
+    <undertow.version>1.2.12.Final</undertow.version>
     <servlet.version>3.1.0</servlet.version>
-    <jetty.version>9.3.2.v20150730</jetty.version>
-    <netty.version>4.0.30.Final</netty.version>
+    <jetty.version>9.3.3.v20150827</jetty.version>
+    <netty.version>4.0.31.Final</netty.version>
     <javassist.version>3.19.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
