@@ -22,6 +22,8 @@ public abstract class ServerFeature extends Jooby {
   @Inject
   protected int port;
 
+  private String protocol = "http";
+
   private Client server = null;
 
   @Before
@@ -45,11 +47,16 @@ public abstract class ServerFeature extends Jooby {
   @Rule
   public Client createServer() {
     checkState(server == null, "Server was created already");
-    server = new Client("http://localhost:" + port);
+    server = new Client(protocol + "://localhost:" + port);
     return server;
   }
 
   public Client request() {
+    return request("http");
+  }
+
+  public Client request(final String protocol) {
+    this.protocol = protocol;
     checkState(server != null, "Server wasn't started");
     return server;
   }

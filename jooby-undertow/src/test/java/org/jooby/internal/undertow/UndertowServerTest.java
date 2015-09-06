@@ -1,5 +1,7 @@
 package org.jooby.internal.undertow;
 
+import javax.inject.Provider;
+
 import org.jooby.spi.HttpHandler;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
@@ -10,6 +12,7 @@ import com.typesafe.config.ConfigValueFactory;
 
 public class UndertowServerTest {
 
+  @SuppressWarnings("unchecked")
   @Test
   public void server() throws Exception {
     Config config = ConfigFactory.empty()
@@ -26,9 +29,10 @@ public class UndertowServerTest {
         .withValue("application.port", ConfigValueFactory.fromAnyRef(6789))
         .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"));
 
-    new MockUnit(HttpHandler.class)
+    new MockUnit(HttpHandler.class, Provider.class)
         .run(unit -> {
-          UndertowServer server = new UndertowServer(unit.get(HttpHandler.class), config);
+          UndertowServer server = new UndertowServer(unit.get(HttpHandler.class), config,
+              unit.get(Provider.class));
           try {
             server.start();
           } finally {

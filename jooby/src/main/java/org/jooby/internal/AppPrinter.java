@@ -21,10 +21,11 @@ package org.jooby.internal;
 import java.util.Set;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.jooby.Route;
 import org.jooby.WebSocket;
+
+import com.typesafe.config.Config;
 
 public class AppPrinter {
 
@@ -32,17 +33,22 @@ public class AppPrinter {
 
   private Set<WebSocket.Definition> sockets;
 
-  private String url;
+  private String[] urls;
 
   @Inject
   public AppPrinter(final Set<Route.Definition> routes,
       final Set<WebSocket.Definition> sockets,
-      @Named("application.host") final String host,
-      @Named("application.port") final int port,
-      @Named("application.path") final String path) {
+      final Config conf) {
     this.routes = routes;
     this.sockets = sockets;
-    this.url = "http://" + host + ":" + port + path;
+    String host = conf.getString("application.host");
+    String port = conf.getString("application.port");
+    String path = conf.getString("application.path");
+    this.urls = new String[2];
+    this.urls[0] = "http://" + host + ":" + port + path;
+    if (conf.hasPath("application.securePort")) {
+      this.urls[1] = "https://" + host + ":" + conf.getString("application.securePort") + path;
+    }
   }
 
   @Override
@@ -51,8 +57,12 @@ public class AppPrinter {
 
     routes(buffer);
 
-    buffer.append("\nlistening on:\n  ").append(url);
-
+    buffer.append("\nlistening on:");
+    for (String url : urls) {
+      if (url != null) {
+        buffer.append("\n  ").append(url);
+      }
+    }
     return buffer.toString();
   }
 

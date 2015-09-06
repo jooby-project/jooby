@@ -5,6 +5,8 @@ import static org.easymock.EasyMock.isA;
 
 import java.util.Map;
 
+import javax.inject.Provider;
+
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -167,10 +169,11 @@ public class JettyServerTest {
     unit.registerMock(WebSocketServerFactory.class, factory);
   };
 
+  @SuppressWarnings("unchecked")
   @Test
   public void startStopServer() throws Exception {
 
-    new MockUnit(HttpHandler.class)
+    new MockUnit(HttpHandler.class, Provider.class)
         .expect(pool)
         .expect(server)
         .expect(httpConf)
@@ -179,7 +182,7 @@ public class JettyServerTest {
         .expect(wsPolicy)
         .expect(wsFactory)
         .run(unit -> {
-          JettyServer server = new JettyServer(unit.get(HttpHandler.class), config);
+          JettyServer server = new JettyServer(unit.get(HttpHandler.class), config, unit.get(Provider.class));
 
           server.start();
           server.join();
@@ -187,10 +190,11 @@ public class JettyServerTest {
         });
   }
 
+  @SuppressWarnings("unchecked")
   @Test(expected = IllegalArgumentException.class)
   public void badOption() throws Exception {
 
-    new MockUnit(HttpHandler.class)
+    new MockUnit(HttpHandler.class, Provider.class)
         .expect(unit -> {
           QueuedThreadPool pool = unit.mockConstructor(QueuedThreadPool.class);
           unit.registerMock(QueuedThreadPool.class, pool);
@@ -199,17 +203,19 @@ public class JettyServerTest {
           expectLastCall().andThrow(new IllegalArgumentException("10"));
         })
         .run(unit -> {
-          new JettyServer(unit.get(HttpHandler.class), config);
+          new JettyServer(unit.get(HttpHandler.class), config, unit.get(Provider.class));
         });
   }
 
+  @SuppressWarnings("unchecked")
   @Test(expected = ConfigException.BadValue.class)
   public void badConfOption() throws Exception {
 
-    new MockUnit(HttpHandler.class)
+    new MockUnit(HttpHandler.class, Provider.class)
         .run(unit -> {
           new JettyServer(unit.get(HttpHandler.class),
-              config.withValue("jetty.threads.MinThreads", ConfigValueFactory.fromAnyRef("x")));
+              config.withValue("jetty.threads.MinThreads", ConfigValueFactory.fromAnyRef("x")),
+              unit.get(Provider.class));
         });
   }
 

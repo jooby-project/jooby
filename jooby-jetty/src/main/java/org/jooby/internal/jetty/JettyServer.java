@@ -27,11 +27,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.net.ssl.SSLContext;
 
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
 import org.eclipse.jetty.websocket.api.WebSocketPolicy;
@@ -53,11 +58,13 @@ public class JettyServer implements org.jooby.spi.Server {
   private Server server;
 
   @Inject
-  public JettyServer(final HttpHandler handler, final Config config) {
-    this.server = server(handler, config);
+  public JettyServer(final HttpHandler handler, final Config config,
+      final Provider<SSLContext> sslCtx) {
+    this.server = server(handler, config, sslCtx);
   }
 
-  private Server server(final HttpHandler handler, final Config config) {
+  private Server server(final HttpHandler handler, final Config config,
+      final Provider<SSLContext> sslCtx) {
     System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset",
         config.getString("jetty.url.charset"));
 
@@ -71,9 +78,18 @@ public class JettyServer implements org.jooby.spi.Server {
     server.setStopAtShutdown(false);
 
     // HTTP connector
-    ServerConnector http = connector(server, config.getConfig("jetty.http"), "jetty.http");
+    ServerConnector http = http(server, config.getConfig("jetty.http"), "jetty.http");
     http.setPort(config.getInt("application.port"));
     http.setHost(config.getString("application.host"));
+
+    if (config.hasPath("application.securePort")) {
+
+      ServerConnector https = https(server, config.getConfig("jetty.http"), "jetty.http",
+          sslCtx.get());
+      https.setPort(config.getInt("application.securePort"));
+
+      server.addConnector(https);
+    }
 
     server.addConnector(http);
 
@@ -92,13 +108,32 @@ public class JettyServer implements org.jooby.spi.Server {
     return server;
   }
 
-  private ServerConnector connector(final Server server, final Config conf, final String path) {
+  private ServerConnector http(final Server server, final Config conf, final String path) {
     HttpConfiguration httpConfig = conf(new HttpConfiguration(), conf.withoutPath("connector"),
         path);
 
     HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfig);
 
     ServerConnector connector = new ServerConnector(server, httpFactory);
+
+    return conf(connector, conf.getConfig("connector"), path + ".connector");
+  }
+
+  private ServerConnector https(final Server server, final Config conf, final String path,
+      final SSLContext sslContext) {
+    HttpConfiguration httpConf = conf(new HttpConfiguration(), conf.withoutPath("connector"),
+        path);
+
+    SslContextFactory sslContextFactory = new SslContextFactory();
+    sslContextFactory.setSslContext(sslContext);
+
+    HttpConfiguration httpsConf = new HttpConfiguration(httpConf);
+    httpsConf.addCustomizer(new SecureRequestCustomizer());
+
+    HttpConnectionFactory httpsFactory = new HttpConnectionFactory(httpsConf);
+
+    ServerConnector connector = new ServerConnector(server,
+        new SslConnectionFactory(sslContextFactory, "HTTP/1.1"), httpsFactory);
 
     return conf(connector, conf.getConfig("connector"), path + ".connector");
   }

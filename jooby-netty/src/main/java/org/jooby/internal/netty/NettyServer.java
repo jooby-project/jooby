@@ -18,20 +18,19 @@
  */
 package org.jooby.internal.netty;
 
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.concurrent.DefaultEventExecutorGroup;
-import io.netty.util.concurrent.DefaultThreadFactory;
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.security.cert.CertificateException;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.BiConsumer;
 
 import javax.inject.Inject;
@@ -43,6 +42,19 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
+
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.concurrent.EventExecutorGroup;
 
 public class NettyServer implements Server {
 
@@ -76,25 +88,35 @@ public class NettyServer implements Server {
       childGroup = parentGroup;
     }
 
+    ThreadFactory threadFactory = new DefaultThreadFactory(config.getString("netty.threads.Name"));
+    DefaultEventExecutorGroup executor = new DefaultEventExecutorGroup(
+        config.getInt("netty.threads.Max"), threadFactory);
+
+    this.ch = bootstrap(executor, null, config.getInt("application.port"));
+
+    if (config.hasPath("application.securePort")) {
+      bootstrap(executor, sslCtx(config), config.getInt("application.securePort"));
+    }
+  }
+
+  private Channel bootstrap(final EventExecutorGroup executor, final SslContext sslCtx,
+      final int port) throws InterruptedException {
     ServerBootstrap bootstrap = new ServerBootstrap();
 
-    DefaultEventExecutorGroup executor =
-        new DefaultEventExecutorGroup(config.getInt("netty.threads.Max"),
-            new DefaultThreadFactory(config.getString("netty.threads.Name")));
-
-    bootstrap.group(parentGroup)
+    bootstrap.group(parentGroup, childGroup)
         .channel(NioServerSocketChannel.class)
         .handler(new LoggingHandler(Server.class, LogLevel.DEBUG))
-        .childHandler(new NettyInitializer(executor, dispatcher, config));
+        .childHandler(new NettyInitializer(executor, dispatcher, config, sslCtx));
 
-    configure(config.getConfig("netty.options"), "netty.options", (option, value) ->
-        bootstrap.option(option, value));
+    configure(config.getConfig("netty.options"), "netty.options",
+        (option, value) -> bootstrap.option(option, value));
 
-    configure(config.getConfig("netty.child.options"), "netty.child.options", (option, value) ->
-        bootstrap.childOption(option, value));
+    configure(config.getConfig("netty.child.options"), "netty.child.options",
+        (option, value) -> bootstrap.childOption(option, value));
 
-    this.ch = bootstrap
-        .bind(host(config.getString("application.host")), config.getInt("application.port")).sync()
+    return bootstrap
+        .bind(host(config.getString("application.host")), port)
+        .sync()
         .channel();
   }
 
@@ -158,4 +180,35 @@ public class NettyServer implements Server {
         new DefaultThreadFactory(name, Thread.MAX_PRIORITY));
     return group;
   }
+
+  private SslContext sslCtx(final Config config) throws IOException, CertificateException {
+    String tmpdir = config.getString("application.tmpdir");
+    File keyStoreCert = toFile(config.getString("ssl.keystore.cert"), tmpdir);
+    File keyStoreKey = toFile(config.getString("ssl.keystore.key"), tmpdir);
+    String keyStorePass = config.hasPath("ssl.keystore.password")
+        ? config.getString("ssl.keystore.password") : null;
+    SslContextBuilder scb = SslContextBuilder.forServer(keyStoreCert, keyStoreKey, keyStorePass);
+    if (config.hasPath("ssl.trust.cert")) {
+      scb.trustManager(toFile(config.getString("ssl.trust.cert"), tmpdir));
+    }
+    return scb.build();
+  }
+
+  static File toFile(final String path, final String tmpdir) throws IOException {
+    File file = new File(path);
+    if (file.exists()) {
+      return file;
+    }
+    file = new File(tmpdir, Paths.get(path).getFileName().toString());
+    // classpath resource?
+    try (InputStream in = NettyServer.class.getClassLoader().getResourceAsStream(path)) {
+      if (in == null) {
+        throw new FileNotFoundException(path);
+      }
+      Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+    file.deleteOnExit();
+    return file;
+  }
+
 }

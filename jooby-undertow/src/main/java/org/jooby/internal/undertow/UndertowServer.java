@@ -18,11 +18,6 @@
  */
 package org.jooby.internal.undertow;
 
-import io.undertow.Undertow.Builder;
-import io.undertow.UndertowOptions;
-import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.GracefulShutdownHandler;
-
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +25,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.net.ssl.SSLContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +37,12 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigValue;
 
+import io.undertow.Undertow;
+import io.undertow.Undertow.Builder;
+import io.undertow.UndertowOptions;
+import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.GracefulShutdownHandler;
+
 public class UndertowServer implements org.jooby.spi.Server {
 
   private interface SetOption {
@@ -49,19 +52,26 @@ public class UndertowServer implements org.jooby.spi.Server {
   /** The logging system. */
   private static final Logger log = LoggerFactory.getLogger(org.jooby.spi.Server.class);
 
-  private io.undertow.Undertow server;
+  private Undertow server;
 
   private final GracefulShutdownHandler shutdown;
 
   @Inject
-  public UndertowServer(final org.jooby.spi.HttpHandler dispatcher, final Config config)
-      throws Exception {
+  public UndertowServer(final org.jooby.spi.HttpHandler dispatcher, final Config config,
+      final Provider<SSLContext> sslContext)
+          throws Exception {
 
     shutdown = new GracefulShutdownHandler(doHandler(dispatcher, config));
-    this.server = configure(config, io.undertow.Undertow.builder())
+    Undertow.Builder ubuilder = configure(config, io.undertow.Undertow.builder())
         .addHttpListener(config.getInt("application.port"),
-            host(config.getString("application.host")))
-        .setHandler(shutdown)
+            host(config.getString("application.host")));
+
+    if (config.hasPath("application.securePort")) {
+      ubuilder.addHttpsListener(config.getInt("application.securePort"),
+          host(config.getString("application.host")), sslContext.get());
+    }
+
+    this.server = ubuilder.setHandler(shutdown)
         .build();
   }
 
@@ -104,16 +114,16 @@ public class UndertowServer implements org.jooby.spi.Server {
     });
 
     $undertow.getConfig("server").root().entrySet()
-        .forEach(setOption($undertow, "server", (option, value)
-            -> builder.setServerOption(option, value)));
+        .forEach(setOption($undertow, "server",
+            (option, value) -> builder.setServerOption(option, value)));
 
     $undertow.getConfig("worker").root().entrySet()
-        .forEach(setOption($undertow, "worker", (option, value)
-            -> builder.setWorkerOption(option, value)));
+        .forEach(setOption($undertow, "worker",
+            (option, value) -> builder.setWorkerOption(option, value)));
 
     $undertow.getConfig("socket").root().entrySet()
-        .forEach(setOption($undertow, "socket", (option, value)
-            -> builder.setSocketOption(option, value)));
+        .forEach(setOption($undertow, "socket",
+            (option, value) -> builder.setSocketOption(option, value)));
 
     return builder;
   }

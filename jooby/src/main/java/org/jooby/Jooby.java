@@ -77,6 +77,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import javax.inject.Singleton;
+import javax.net.ssl.SSLContext;
 
 import org.jooby.Route.Definition;
 import org.jooby.Session.Store;
@@ -107,6 +108,7 @@ import org.jooby.internal.parser.LocaleParser;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.internal.parser.StaticMethodParser;
 import org.jooby.internal.parser.StringConstructorParser;
+import org.jooby.internal.ssl.SslContextProvider;
 import org.jooby.reflect.ParameterNameProvider;
 import org.jooby.scope.RequestScoped;
 import org.jooby.spi.HttpHandler;
@@ -3125,6 +3127,9 @@ public class Jooby {
       /** bind number format */
       binder.bind(NumberFormat.class).toInstance(numberFormat);
       binder.bind(DecimalFormat.class).toInstance(numberFormat);
+
+      /** bind ssl provider. */
+      binder.bind(SSLContext.class).toProvider(SslContextProvider.class);
 
       /** bind managed */
       LifecycleProcessor lifecycleProcessor = new LifecycleProcessor();

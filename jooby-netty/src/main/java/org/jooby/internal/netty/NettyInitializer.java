@@ -18,19 +18,21 @@
  */
 package org.jooby.internal.netty;
 
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.stream.ChunkedWriteHandler;
-import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.concurrent.EventExecutorGroup;
-
 import java.util.concurrent.TimeUnit;
 
 import org.jooby.spi.HttpHandler;
 
 import com.typesafe.config.Config;
+
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.EventExecutorGroup;
 
 public class NettyInitializer extends ChannelInitializer<SocketChannel> {
 
@@ -50,8 +52,10 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
 
   private long idleTimeOut;
 
+  private SslContext sslCtx;
+
   public NettyInitializer(final EventExecutorGroup executor, final HttpHandler handler,
-      final Config config) {
+      final Config config, final SslContext sslCtx) {
     this.executor = executor;
     this.handler = handler;
     this.config = config;
@@ -61,12 +65,18 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
     maxChunkSize = config.getBytes("netty.http.MaxChunkSize").intValue();
     maxContentLength = config.getBytes("netty.http.MaxContentLength").intValue();
     idleTimeOut = config.getDuration("netty.http.IdleTimeout", TimeUnit.MILLISECONDS);
+    this.sslCtx = sslCtx;
   }
 
   @Override
   protected void initChannel(final SocketChannel ch) throws Exception {
-    ch.pipeline()
-        .addLast(new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
+    ChannelPipeline pipeline = ch.pipeline();
+
+    if (sslCtx != null) {
+      pipeline.addLast(sslCtx.newHandler(ch.alloc()));
+    }
+
+    pipeline.addLast(new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
         .addLast(new HttpObjectAggregator(maxContentLength))
         .addLast(new ChunkedWriteHandler())
         .addLast(new IdleStateHandler(0, 0, idleTimeOut, TimeUnit.MILLISECONDS))

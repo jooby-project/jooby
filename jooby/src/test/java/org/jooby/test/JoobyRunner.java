@@ -80,7 +80,9 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
       if (!Jooby.class.isAssignableFrom(appClass)) {
         throw new InitializationError("Invalid jooby app: " + appClass);
       }
-      int maxThreads = Math.max(4, Runtime.getRuntime().availableProcessors() / 2) + 2;
+      int processors = Math.max(1,Runtime.getRuntime().availableProcessors());
+      // required by Jetty (processors * 2, 1(http), 1(https), 1(request)
+      int maxThreads = processors * 2 + 3;
       Config config = ConfigFactory.empty("test-config")
           .withValue("server.join", ConfigValueFactory.fromAnyRef(false))
           .withValue("server.http.IdleTimeout", ConfigValueFactory.fromAnyRef("5m"))

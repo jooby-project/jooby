@@ -38,4 +38,6 @@ documentation
 
 {{javascript.md}}
 
+{{https.md}}
+
 {{appendix}}

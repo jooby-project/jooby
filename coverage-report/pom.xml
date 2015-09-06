@@ -132,6 +132,11 @@
             <configuration>
               <excludes>
                 <exclude>**/ExpandedStmtRewriter*</exclude>
+                <exclude>**/JdkSslContext*</exclude>
+                <exclude>**/JdkSslServerContext*</exclude>
+                <exclude>**/PemReader*</exclude>
+                <exclude>**/SslContext*</exclude>
+                <exclude>**/SslContextProvider*</exclude>
               </excludes>
             </configuration>
             <executions>
