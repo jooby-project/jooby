@@ -50,6 +50,7 @@
     <module>jooby-sass</module>
     <module>jooby-less</module>
     <module>jooby-ebean</module>
+    <module>jooby-akka</module>
     <module>coverage-report</module>
   </modules>
 
@@ -280,6 +281,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-ebean</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-akka</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -706,6 +713,19 @@
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-java-sdk-s3</artifactId>
         <version>${aws-java-sdk.version}</version>
+      </dependency>
+
+      <!-- Akka -->
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-actor_2.11</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-slf4j_2.11</artifactId>
+        <version>${akka.version}</version>
       </dependency>
 
       <!-- Apache Commons Emails -->
@@ -1705,7 +1725,6 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <quartz.version>2.2.1</quartz.version>
     <jdbi.version>2.62</jdbi.version>
     <freemarker.version>2.3.22</freemarker.version>
-    <war.maxRequestSize>204800</war.maxRequestSize>
     <camel.version>2.15.2</camel.version>
     <jedis.version>2.7.2</jedis.version>
     <mongo-java-driver.version>3.0.2</mongo-java-driver.version>
@@ -1735,6 +1754,10 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <ebean.version>6.3.1</ebean.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
     <avaje-ebeanorm-agent.version>4.5.4</avaje-ebeanorm-agent.version>
+    <akka.version>2.3.9</akka.version>
+
+    <!-- config -->
+    <war.maxRequestSize>204800</war.maxRequestSize>
     <ebean.agent.packages>**</ebean.agent.packages>
     <ebean.agent.args>debug=0</ebean.agent.args>
 
