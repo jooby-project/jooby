@@ -17,6 +17,13 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <excludePackageNames>org.jooby.internal.ssl</excludePackageNames>
+        </configuration>
+      </plugin>
       <!-- JarJar the ASM dependency. -->
       <plugin>
         <groupId>org.sonatype.plugins</groupId>

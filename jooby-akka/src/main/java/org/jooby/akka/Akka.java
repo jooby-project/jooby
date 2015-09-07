@@ -34,7 +34,7 @@ import akka.actor.ActorSystem;
 /**
  * <h1>akka</h1>
  * <p>
- * Concurrent & distributed applications via <a href="http://akka.io">Akka</a>.
+ * Concurrent and distributed applications via <a href="http://akka.io">Akka</a>.
  * </p>
  *
  * <h2>exposes</h2>

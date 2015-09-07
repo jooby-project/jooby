@@ -227,6 +227,7 @@ public class Deferred extends Result {
    * Please note, the given {@link Callable} runs in the caller thread.
    *
    * @param block Callable that produces a result.
+   * @param <T> Resulting type.
    * @return This deferred as {@link Runnable}.
    */
   public <T> Runnable run(final Callable<T> block) {
@@ -242,6 +243,7 @@ public class Deferred extends Result {
    * Please note, the given {@link Callable} runs in the caller thread.
    *
    * @param block Callable that produces a result.
+   * @param <T> Resulting type.
    */
   public <T> void resolve(final Callable<T> block) {
     try {
