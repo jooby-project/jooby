@@ -965,7 +965,7 @@ public class JoobyTest {
           assertNotNull(first);
           assertEquals("/filter", first.pattern());
           assertEquals("*", first.method());
-          assertEquals("anonymous", first.name());
+          assertEquals("/anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
 
@@ -975,7 +975,7 @@ public class JoobyTest {
           assertNotNull(second);
           assertEquals("/**", second.pattern());
           assertEquals("GET", second.method());
-          assertEquals("anonymous", second.name());
+          assertEquals("/anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
 
@@ -1039,7 +1039,7 @@ public class JoobyTest {
           assertNotNull(first);
           assertEquals("/first", first.pattern());
           assertEquals("*", first.method());
-          assertEquals("anonymous", first.name());
+          assertEquals("/anonymous", first.name());
           assertEquals(MediaType.ALL, first.consumes());
           assertEquals(MediaType.ALL, first.produces());
 
@@ -1049,7 +1049,7 @@ public class JoobyTest {
           assertNotNull(second);
           assertEquals("/**", second.pattern());
           assertEquals("GET", second.method());
-          assertEquals("anonymous", second.name());
+          assertEquals("/anonymous", second.name());
           assertEquals(MediaType.ALL, second.consumes());
           assertEquals(MediaType.ALL, second.produces());
 
@@ -1117,7 +1117,7 @@ public class JoobyTest {
               assertNotNull(first);
               assertEquals("/first", first.pattern());
               assertEquals("POST", first.method());
-              assertEquals("anonymous", first.name());
+              assertEquals("/anonymous", first.name());
               assertEquals(MediaType.ALL, first.consumes());
               assertEquals(MediaType.ALL, first.produces());
 
@@ -1127,7 +1127,7 @@ public class JoobyTest {
               assertNotNull(second);
               assertEquals("/second", second.pattern());
               assertEquals("POST", second.method());
-              assertEquals("anonymous", second.name());
+              assertEquals("/anonymous", second.name());
               assertEquals(MediaType.ALL, second.consumes());
               assertEquals(MediaType.ALL, second.produces());
 
@@ -1137,7 +1137,7 @@ public class JoobyTest {
               assertNotNull(third);
               assertEquals("/third", third.pattern());
               assertEquals("POST", third.method());
-              assertEquals("anonymous", third.name());
+              assertEquals("/anonymous", third.name());
               assertEquals(MediaType.ALL, third.consumes());
               assertEquals(MediaType.ALL, third.produces());
 
@@ -1147,7 +1147,7 @@ public class JoobyTest {
               assertNotNull(fourth);
               assertEquals("/fourth", fourth.pattern());
               assertEquals("POST", fourth.method());
-              assertEquals("anonymous", fourth.name());
+              assertEquals("/anonymous", fourth.name());
               assertEquals(MediaType.ALL, fourth.consumes());
               assertEquals(MediaType.ALL, fourth.produces());
 
@@ -1215,7 +1215,7 @@ public class JoobyTest {
               assertNotNull(first);
               assertEquals("/first", first.pattern());
               assertEquals("HEAD", first.method());
-              assertEquals("anonymous", first.name());
+              assertEquals("/anonymous", first.name());
               assertEquals(MediaType.ALL, first.consumes());
               assertEquals(MediaType.ALL, first.produces());
 
@@ -1225,7 +1225,7 @@ public class JoobyTest {
               assertNotNull(second);
               assertEquals("/second", second.pattern());
               assertEquals("HEAD", second.method());
-              assertEquals("anonymous", second.name());
+              assertEquals("/anonymous", second.name());
               assertEquals(MediaType.ALL, second.consumes());
               assertEquals(MediaType.ALL, second.produces());
 
@@ -1235,7 +1235,7 @@ public class JoobyTest {
               assertNotNull(third);
               assertEquals("/third", third.pattern());
               assertEquals("HEAD", third.method());
-              assertEquals("anonymous", third.name());
+              assertEquals("/anonymous", third.name());
               assertEquals(MediaType.ALL, third.consumes());
               assertEquals(MediaType.ALL, third.produces());
 
@@ -1245,7 +1245,7 @@ public class JoobyTest {
               assertNotNull(fourth);
               assertEquals("/fourth", fourth.pattern());
               assertEquals("HEAD", fourth.method());
-              assertEquals("anonymous", fourth.name());
+              assertEquals("/anonymous", fourth.name());
               assertEquals(MediaType.ALL, fourth.consumes());
               assertEquals(MediaType.ALL, fourth.produces());
 
@@ -1313,7 +1313,7 @@ public class JoobyTest {
               assertNotNull(first);
               assertEquals("/first", first.pattern());
               assertEquals("OPTIONS", first.method());
-              assertEquals("anonymous", first.name());
+              assertEquals("/anonymous", first.name());
               assertEquals(MediaType.ALL, first.consumes());
               assertEquals(MediaType.ALL, first.produces());
 
@@ -1324,7 +1324,7 @@ public class JoobyTest {
               assertNotNull(second);
               assertEquals("/second", second.pattern());
               assertEquals("OPTIONS", second.method());
-              assertEquals("anonymous", second.name());
+              assertEquals("/anonymous", second.name());
               assertEquals(MediaType.ALL, second.consumes());
               assertEquals(MediaType.ALL, second.produces());
 
@@ -1335,7 +1335,7 @@ public class JoobyTest {
               assertNotNull(third);
               assertEquals("/third", third.pattern());
               assertEquals("OPTIONS", third.method());
-              assertEquals("anonymous", third.name());
+              assertEquals("/anonymous", third.name());
               assertEquals(MediaType.ALL, third.consumes());
               assertEquals(MediaType.ALL, third.produces());
 
@@ -1345,7 +1345,7 @@ public class JoobyTest {
               assertNotNull(fourth);
               assertEquals("/fourth", fourth.pattern());
               assertEquals("OPTIONS", fourth.method());
-              assertEquals("anonymous", fourth.name());
+              assertEquals("/anonymous", fourth.name());
               assertEquals(MediaType.ALL, fourth.consumes());
               assertEquals(MediaType.ALL, fourth.produces());
 
@@ -1413,7 +1413,7 @@ public class JoobyTest {
               assertNotNull(first);
               assertEquals("/first", first.pattern());
               assertEquals("PUT", first.method());
-              assertEquals("anonymous", first.name());
+              assertEquals("/anonymous", first.name());
               assertEquals(MediaType.ALL, first.consumes());
               assertEquals(MediaType.ALL, first.produces());
 
@@ -1423,7 +1423,7 @@ public class JoobyTest {
               assertNotNull(second);
               assertEquals("/second", second.pattern());
               assertEquals("PUT", second.method());
-              assertEquals("anonymous", second.name());
+              assertEquals("/anonymous", second.name());
               assertEquals(MediaType.ALL, second.consumes());
               assertEquals(MediaType.ALL, second.produces());
 
@@ -1433,7 +1433,7 @@ public class JoobyTest {
               assertNotNull(third);
               assertEquals("/third", third.pattern());
               assertEquals("PUT", third.method());
-              assertEquals("anonymous", third.name());
+              assertEquals("/anonymous", third.name());
               assertEquals(MediaType.ALL, third.consumes());
               assertEquals(MediaType.ALL, third.produces());
 
@@ -1443,7 +1443,7 @@ public class JoobyTest {
               assertNotNull(fourth);
               assertEquals("/fourth", fourth.pattern());
               assertEquals("PUT", fourth.method());
-              assertEquals("anonymous", fourth.name());
+              assertEquals("/anonymous", fourth.name());
               assertEquals(MediaType.ALL, fourth.consumes());
               assertEquals(MediaType.ALL, fourth.produces());
 
@@ -1511,7 +1511,7 @@ public class JoobyTest {
               assertNotNull(first);
               assertEquals("/first", first.pattern());
               assertEquals("PATCH", first.method());
-              assertEquals("anonymous", first.name());
+              assertEquals("/anonymous", first.name());
               assertEquals(MediaType.ALL, first.consumes());
               assertEquals(MediaType.ALL, first.produces());
 
@@ -1521,7 +1521,7 @@ public class JoobyTest {
               assertNotNull(second);
               assertEquals("/second", second.pattern());
               assertEquals("PATCH", second.method());
-              assertEquals("anonymous", second.name());
+              assertEquals("/anonymous", second.name());
               assertEquals(MediaType.ALL, second.consumes());
               assertEquals(MediaType.ALL, second.produces());
 
@@ -1531,7 +1531,7 @@ public class JoobyTest {
               assertNotNull(third);
               assertEquals("/third", third.pattern());
               assertEquals("PATCH", third.method());
-              assertEquals("anonymous", third.name());
+              assertEquals("/anonymous", third.name());
               assertEquals(MediaType.ALL, third.consumes());
               assertEquals(MediaType.ALL, third.produces());
 
@@ -1541,7 +1541,7 @@ public class JoobyTest {
               assertNotNull(fourth);
               assertEquals("/fourth", fourth.pattern());
               assertEquals("PATCH", fourth.method());
-              assertEquals("anonymous", fourth.name());
+              assertEquals("/anonymous", fourth.name());
               assertEquals(MediaType.ALL, fourth.consumes());
               assertEquals(MediaType.ALL, fourth.produces());
 
@@ -1609,7 +1609,7 @@ public class JoobyTest {
               assertNotNull(first);
               assertEquals("/first", first.pattern());
               assertEquals("DELETE", first.method());
-              assertEquals("anonymous", first.name());
+              assertEquals("/anonymous", first.name());
               assertEquals(MediaType.ALL, first.consumes());
               assertEquals(MediaType.ALL, first.produces());
 
@@ -1620,7 +1620,7 @@ public class JoobyTest {
               assertNotNull(second);
               assertEquals("/second", second.pattern());
               assertEquals("DELETE", second.method());
-              assertEquals("anonymous", second.name());
+              assertEquals("/anonymous", second.name());
               assertEquals(MediaType.ALL, second.consumes());
               assertEquals(MediaType.ALL, second.produces());
 
@@ -1630,7 +1630,7 @@ public class JoobyTest {
               assertNotNull(third);
               assertEquals("/third", third.pattern());
               assertEquals("DELETE", third.method());
-              assertEquals("anonymous", third.name());
+              assertEquals("/anonymous", third.name());
               assertEquals(MediaType.ALL, third.consumes());
               assertEquals(MediaType.ALL, third.produces());
 
@@ -1640,7 +1640,7 @@ public class JoobyTest {
               assertNotNull(fourth);
               assertEquals("/fourth", fourth.pattern());
               assertEquals("DELETE", fourth.method());
-              assertEquals("anonymous", fourth.name());
+              assertEquals("/anonymous", fourth.name());
               assertEquals(MediaType.ALL, fourth.consumes());
               assertEquals(MediaType.ALL, fourth.produces());
 
@@ -1708,7 +1708,7 @@ public class JoobyTest {
               assertNotNull(first);
               assertEquals("/first", first.pattern());
               assertEquals("CONNECT", first.method());
-              assertEquals("anonymous", first.name());
+              assertEquals("/anonymous", first.name());
               assertEquals(MediaType.ALL, first.consumes());
               assertEquals(MediaType.ALL, first.produces());
 
@@ -1719,7 +1719,7 @@ public class JoobyTest {
               assertNotNull(second);
               assertEquals("/second", second.pattern());
               assertEquals("CONNECT", second.method());
-              assertEquals("anonymous", second.name());
+              assertEquals("/anonymous", second.name());
               assertEquals(MediaType.ALL, second.consumes());
               assertEquals(MediaType.ALL, second.produces());
 
@@ -1730,7 +1730,7 @@ public class JoobyTest {
               assertNotNull(third);
               assertEquals("/third", third.pattern());
               assertEquals("CONNECT", third.method());
-              assertEquals("anonymous", third.name());
+              assertEquals("/anonymous", third.name());
               assertEquals(MediaType.ALL, third.consumes());
               assertEquals(MediaType.ALL, third.produces());
 
@@ -1740,7 +1740,7 @@ public class JoobyTest {
               assertNotNull(fourth);
               assertEquals("/fourth", fourth.pattern());
               assertEquals("CONNECT", fourth.method());
-              assertEquals("anonymous", fourth.name());
+              assertEquals("/anonymous", fourth.name());
               assertEquals(MediaType.ALL, fourth.consumes());
               assertEquals(MediaType.ALL, fourth.produces());
 
@@ -1808,7 +1808,7 @@ public class JoobyTest {
               assertNotNull(first);
               assertEquals("/first", first.pattern());
               assertEquals("TRACE", first.method());
-              assertEquals("anonymous", first.name());
+              assertEquals("/anonymous", first.name());
               assertEquals(MediaType.ALL, first.consumes());
               assertEquals(MediaType.ALL, first.produces());
 
@@ -1818,7 +1818,7 @@ public class JoobyTest {
               assertNotNull(second);
               assertEquals("/second", second.pattern());
               assertEquals("TRACE", second.method());
-              assertEquals("anonymous", second.name());
+              assertEquals("/anonymous", second.name());
               assertEquals(MediaType.ALL, second.consumes());
               assertEquals(MediaType.ALL, second.produces());
 
@@ -1828,7 +1828,7 @@ public class JoobyTest {
               assertNotNull(third);
               assertEquals("/third", third.pattern());
               assertEquals("TRACE", third.method());
-              assertEquals("anonymous", third.name());
+              assertEquals("/anonymous", third.name());
               assertEquals(MediaType.ALL, third.consumes());
               assertEquals(MediaType.ALL, third.produces());
 
@@ -1838,7 +1838,7 @@ public class JoobyTest {
               assertNotNull(fourth);
               assertEquals("/fourth", fourth.pattern());
               assertEquals("TRACE", fourth.method());
-              assertEquals("anonymous", fourth.name());
+              assertEquals("/anonymous", fourth.name());
               assertEquals(MediaType.ALL, fourth.consumes());
               assertEquals(MediaType.ALL, fourth.produces());
 
@@ -2052,23 +2052,23 @@ public class JoobyTest {
 
               assertEquals("GET", defs.get(0).method());
               assertEquals("/singleton", defs.get(0).pattern());
-              assertEquals("SingletonTestRoute.m1", defs.get(0).name());
+              assertEquals("/SingletonTestRoute.m1", defs.get(0).name());
 
               assertEquals("POST", defs.get(1).method());
               assertEquals("/singleton", defs.get(1).pattern());
-              assertEquals("SingletonTestRoute.m1", defs.get(1).name());
+              assertEquals("/SingletonTestRoute.m1", defs.get(1).name());
 
               assertEquals("GET", defs.get(2).method());
               assertEquals("/singleton", defs.get(2).pattern());
-              assertEquals("GuiceSingletonTestRoute.m1", defs.get(2).name());
+              assertEquals("/GuiceSingletonTestRoute.m1", defs.get(2).name());
 
               assertEquals("POST", defs.get(3).method());
               assertEquals("/singleton", defs.get(3).pattern());
-              assertEquals("GuiceSingletonTestRoute.m1", defs.get(3).name());
+              assertEquals("/GuiceSingletonTestRoute.m1", defs.get(3).name());
 
               assertEquals("GET", defs.get(4).method());
               assertEquals("/proto", defs.get(4).pattern());
-              assertEquals("ProtoTestRoute.m1", defs.get(4).name());
+              assertEquals("/ProtoTestRoute.m1", defs.get(4).name());
             });
   }
 

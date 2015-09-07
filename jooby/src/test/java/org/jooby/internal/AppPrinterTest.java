@@ -21,8 +21,8 @@ public class AppPrinterTest {
         Sets.newLinkedHashSet(Arrays.asList(route("/"), route("/home"))),
         Sets.newLinkedHashSet(Arrays.asList(socket("/ws"))), config("/"))
             .toString();
-    assertEquals("  GET /        [*/*]     [*/*]    (anonymous)\n" +
-        "  GET /home    [*/*]     [*/*]    (anonymous)\n" +
+    assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
         "  WS  /ws      [*/*]     [*/*]\n" +
         "\n" +
         "listening on:\n" +
@@ -36,8 +36,8 @@ public class AppPrinterTest {
         Sets.newLinkedHashSet(Arrays.asList(socket("/ws"))),
         config("/").withValue("application.securePort", ConfigValueFactory.fromAnyRef(8443)))
             .toString();
-    assertEquals("  GET /        [*/*]     [*/*]    (anonymous)\n" +
-        "  GET /home    [*/*]     [*/*]    (anonymous)\n" +
+    assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
         "  WS  /ws      [*/*]     [*/*]\n" +
         "\n" +
         "listening on:" +
@@ -58,8 +58,8 @@ public class AppPrinterTest {
         Sets.newLinkedHashSet(Arrays.asList(route("/"), route("/home"))),
         Sets.newLinkedHashSet(Arrays.asList(socket("/ws"))), config("/app"))
             .toString();
-    assertEquals("  GET /        [*/*]     [*/*]    (anonymous)\n" +
-        "  GET /home    [*/*]     [*/*]    (anonymous)\n" +
+    assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
         "  WS  /ws      [*/*]     [*/*]\n" +
         "\n" +
         "listening on:\n" +
@@ -72,8 +72,8 @@ public class AppPrinterTest {
         Sets.newLinkedHashSet(Arrays.asList(route("/"), route("/home"))),
         Sets.newLinkedHashSet(), config("/app"))
             .toString();
-    assertEquals("  GET /        [*/*]     [*/*]    (anonymous)\n" +
-        "  GET /home    [*/*]     [*/*]    (anonymous)\n" +
+    assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
         "\n" +
         "listening on:\n" +
         "  http://localhost:8080/app", setup);

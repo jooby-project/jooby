@@ -197,7 +197,7 @@ public class RouteNamespaceTest {
     ns.patch("/p", (req, rsp, chain) -> {
     }).name("x");
 
-    assertEquals("x", ns.routes().iterator().next().name());
+    assertEquals("/x", ns.routes().iterator().next().name());
   }
 
   @Test

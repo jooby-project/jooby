@@ -117,7 +117,7 @@ public class RouteDefinitionTest {
           }).excludes("/**/logout");
 
           assertEquals("GET /\n" +
-              "  name: anonymous\n" +
+              "  name: /anonymous\n" +
               "  excludes: [/**/logout]\n" +
               "  consumes: [*/*]\n" +
               "  produces: [*/*]\n", def.toString());
@@ -253,7 +253,7 @@ public class RouteDefinitionTest {
         .consumes(MediaType.json)
         .produces(MediaType.json);
 
-    assertEquals("test", def.name());
+    assertEquals("/test", def.name());
     assertEquals("/test/path", def.pattern());
     assertEquals("PUT", def.method());
     assertEquals(MediaType.json, def.consumes().get(0));

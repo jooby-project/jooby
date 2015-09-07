@@ -162,7 +162,7 @@ public class HttpHandlerImpl implements HttpHandler {
     try {
       // not found?
       if (resolveAs404) {
-        chain(ImmutableList.of(notFound)).next(req, rsp);
+        new RouteChain(ImmutableList.of(notFound)).next(req, rsp);
       }
       // websocket?
       if (socketDefs.size() > 0
@@ -178,7 +178,7 @@ public class HttpHandlerImpl implements HttpHandler {
       // usual req/rsp
       List<Route> routes = routes(routeDefs, verb, requestPath, type, req.accept());
 
-      chain(routes).next(req, rsp);
+      new RouteChain(routes).next(req, rsp);
 
     } catch (DeferredExecution ex) {
       deferred = true;
@@ -254,41 +254,6 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private static String normalizeURI(final String uri) {
     return uri.endsWith("/") && uri.length() > 1 ? uri.substring(0, uri.length() - 1) : uri;
-  }
-
-  private static Route.Chain chain(final List<Route> routes) {
-    return new Route.Chain() {
-
-      private int it = 0;
-
-      @Override
-      public void next(final Request req, final Response rsp) throws Exception {
-        RouteImpl route = get(routes.get(it++));
-        if (rsp.committed()) {
-          return;
-        }
-
-        // set route
-        set(req, route);
-        set(rsp, route);
-
-        route.handle(req, rsp, this);
-      }
-
-      private RouteImpl get(final Route next) {
-        return (RouteImpl) Route.Forwarding.unwrap(next);
-      }
-
-      private void set(final Request req, final Route route) {
-        RequestImpl root = (RequestImpl) Request.Forwarding.unwrap(req);
-        root.route(route);
-      }
-
-      private void set(final Response rsp, final Route route) {
-        ResponseImpl root = (ResponseImpl) Response.Forwarding.unwrap(rsp);
-        root.route(route);
-      }
-    };
   }
 
   private static List<Route> routes(final Set<Route.Definition> routeDefs, final String method,

@@ -53,13 +53,18 @@ public class RouteImpl implements Route, Route.Filter {
       if (!rsp.status().isPresent()) {
         throw new Err(Status.NOT_FOUND, path);
       }
-    }, method, path, Status.NOT_FOUND, produces);
+    } , method, path, Status.NOT_FOUND, produces);
   }
 
   public static RouteImpl fromStatus(final Filter filter, final String method,
       final String path, final Status status, final List<MediaType> produces) {
     return new RouteImpl(filter, method, path, path, status.value() + "", Collections.emptyMap(),
-        MediaType.ALL, produces);
+        MediaType.ALL, produces) {
+      @Override
+      public boolean apply(final String filter) {
+        return true;
+      }
+    };
   }
 
   public RouteImpl(final Filter filter, final String method, final String path,

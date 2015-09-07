@@ -713,7 +713,7 @@ public interface Route {
     /**
      * Route's name.
      */
-    private String name = "anonymous";
+    private String name = "/anonymous";
 
     /**
      * A route pattern.
@@ -893,6 +893,9 @@ public interface Route {
     }
 
     /**
+     * Route's name, helpful for debugging but also to implement dynamic and advanced routing. See
+     * {@link Route.Chain#next(String, Request, Response)}
+     *
      * @return Route name. Default is: <code>anonymous</code>.
      */
     public String name() {
@@ -900,14 +903,16 @@ public interface Route {
     }
 
     /**
-     * Set the route name.
+     * Set the route name. Route's name, helpful for debugging but also to implement dynamic and
+     * advanced routing. See {@link Route.Chain#next(String, Request, Response)}
+     *
      *
      * @param name A route's name.
      * @return This definition.
      */
     public Definition name(final String name) {
       checkArgument(!Strings.isNullOrEmpty(name), "A route's name is required.");
-      this.name = name;
+      this.name = RoutePattern.normalize(name);
       return this;
     }
 
@@ -1076,7 +1081,7 @@ public interface Route {
     }
 
     private boolean excludes(final String path) {
-      for (RoutePattern pattern: excludes) {
+      for (RoutePattern pattern : excludes) {
         if (pattern.matcher(path).matches()) {
           return true;
         }
@@ -1401,13 +1406,25 @@ public interface Route {
    */
   interface Chain {
     /**
+     * Invokes the next route in the chain where {@link Route#name()} starts with the given prefix.
+     *
+     * @param prefix Iterates over the route chain and keep routes that start with the given prefix.
+     * @param req A HTTP request.
+     * @param rsp A HTTP response.
+     * @throws Exception If invocation goes wrong.
+     */
+    void next(String prefix, Request req, Response rsp) throws Exception;
+
+    /**
      * Invokes the next route in the chain.
      *
      * @param req A HTTP request.
      * @param rsp A HTTP response.
      * @throws Exception If invocation goes wrong.
      */
-    void next(Request req, Response rsp) throws Exception;
+    default void next(final Request req, final Response rsp) throws Exception {
+      next(null, req, rsp);
+    }
 
   }
 
@@ -1424,8 +1441,7 @@ public interface Route {
           "HEAD",
           "CONNECT",
           "OPTIONS",
-          "TRACE"
-      )
+          "TRACE")
       .build();
 
   /**
@@ -1444,6 +1460,9 @@ public interface Route {
   String pattern();
 
   /**
+   * Route's name, helpful for debugging but also to implement dynamic and advanced routing. See
+   * {@link Route.Chain#next(String, Request, Response)}
+   *
    * @return Route name, defaults to <code>"anonymous"</code>
    */
   String name();
@@ -1455,7 +1474,7 @@ public interface Route {
    *   /path/:var
    * </pre>
    *
-   * Variable <code>var</code> is accesible by name: <code>var</code> or index: <code>0</code>.
+   * Variable <code>var</code> is accessible by name: <code>var</code> or index: <code>0</code>.
    *
    * @return The currently matched path variables (if any).
    */
@@ -1471,4 +1490,14 @@ public interface Route {
    */
   List<MediaType> produces();
 
+  /**
+   * True, when route's name starts with the given prefix. Useful for dynamic routing. See
+   * {@link Route.Chain#next(String, Request, Response)}
+   *
+   * @param prefix Prefix to check for.
+   * @return True, when route's name starts with the given prefix.
+   */
+  default boolean apply(final String prefix) {
+    return name().startsWith(prefix);
+  }
 }

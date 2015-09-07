@@ -158,12 +158,12 @@ public class HandlersFeature extends ServerFeature {
     request()
         .get("/id")
         .header("Content-Type", "text/plain")
-        .expect("Optional.empty;consumes[text/plain];produces=[text/plain];name=xId");
+        .expect("Optional.empty;consumes[text/plain];produces=[text/plain];name=/xId");
 
     request()
         .get("/id/678")
         .header("Content-Type", "text/plain")
-        .expect("Optional[678];consumes[text/plain];produces=[text/plain];name=xId");
+        .expect("Optional[678];consumes[text/plain];produces=[text/plain];name=/xId");
 
     request()
         .get("/r/id")

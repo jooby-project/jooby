@@ -50,7 +50,7 @@ public class WebContextFeature extends ServerFeature {
             "  \"scheme\" : \"http\",\n" +
             "  \"serverName\" : \"localhost\",\n" +
             "  \"serverPort\" : " + port + ",\n" +
-            "  \"toString\" : \"GET /auth/ctx\\n  pattern: /auth/ctx\\n  name: anonymous\\n  vars: {}\\n  consumes: [*/*]\\n  produces: [*/*]\\n\"\n" +
+            "  \"toString\" : \"GET /auth/ctx\\n  pattern: /auth/ctx\\n  name: /anonymous\\n  vars: {}\\n  consumes: [*/*]\\n  produces: [*/*]\\n\"\n" +
             "}");
   }
 

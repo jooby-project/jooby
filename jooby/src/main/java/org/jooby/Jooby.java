@@ -469,10 +469,6 @@ public class Jooby {
     System.setProperty("logback.configurationFile", logback);
   }
 
-  public Jooby() {
-    use(new ServerLookup());
-  }
-
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -505,6 +501,24 @@ public class Jooby {
 
   /** Env builder. */
   private Env.Builder env = Env.DEFAULT;
+
+  /** Route's prefix. */
+  private String prefix;
+
+  public Jooby() {
+    this(null);
+  }
+
+  /**
+   * Creates a new application and prefix all the names of the routes with the given prefix. Useful,
+   * for dynamic/advanced routing. See {@link Route.Chain#next(String, Request, Response)}.
+   *
+   * @param prefix Route name prefix.
+   */
+  public Jooby(final String prefix) {
+    this.prefix = prefix;
+    use(new ServerLookup());
+  }
 
   /**
    * Import ALL the direct routes from the given app.
@@ -563,8 +577,9 @@ public class Jooby {
         this.bag.add(rewrite.apply((Definition) it));
       } else if (it instanceof Route.Group) {
         ((Route.Group) it).routes().forEach(r -> this.bag.add(rewrite.apply(r)));
-      } else if (it instanceof Class) {
-        Object routes = path.<Object> map(p -> new RouteClass((Class<?>) it, p)).orElse(it);
+      } else if (it instanceof RouteClass) {
+        Object routes = path.<Object> map(p -> new RouteClass(((RouteClass) it).routeClass, p))
+            .orElse(it);
         this.bag.add(routes);
       }
     });
@@ -587,9 +602,9 @@ public class Jooby {
    * @return A route namespace.
    */
   public Route.Group use(final String pattern) {
-    Route.Group ns = new Route.Group(pattern);
-    this.bag.add(ns);
-    return ns;
+    Route.Group group = new Route.Group(pattern);
+    this.bag.add(group);
+    return group;
   }
 
   /**
@@ -2879,7 +2894,7 @@ public class Jooby {
    */
   public Jooby use(final Class<?> routeClass) {
     requireNonNull(routeClass, "Route class is required.");
-    bag.add(routeClass);
+    bag.add(new RouteClass(routeClass, ""));
     return this;
   }
 
@@ -2890,6 +2905,9 @@ public class Jooby {
    * @return The same route definition.
    */
   private Route.Definition appendDefinition(final Route.Definition route) {
+    if (prefix != null) {
+      route.name(prefix + "/" + route.name());
+    }
     bag.add(route);
     return route;
   }
@@ -3200,18 +3218,15 @@ public class Jooby {
         } else if (candidate instanceof Err.Handler) {
           ehandlers.addBinding().toInstance((Err.Handler) candidate);
         } else {
-          // either a route class or route class wrapper
-          Class<?> routeClass;
-          String path = "";
-          if (candidate instanceof RouteClass) {
-            routeClass = ((RouteClass) candidate).routeClass;
-            path = ((RouteClass) candidate).path;
-          } else {
-            routeClass = (Class<?>) candidate;
-          }
+          Class<?> routeClass = ((RouteClass) candidate).routeClass;
+          String path = ((RouteClass) candidate).path;
           binder.bind(routeClass);
-          MvcRoutes.routes(env, classInfo, path, routeClass)
-              .forEach(route -> definitions.addBinding().toInstance(route));
+          MvcRoutes.routes(env, classInfo, path, routeClass).forEach(route -> {
+            if (prefix != null) {
+              route.name(prefix + "/" + route.name());
+            }
+            definitions.addBinding().toInstance(route);
+          });
         }
       });
 
