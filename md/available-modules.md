@@ -1,7 +1,7 @@
 ## mvn jooby:run
 * [jooby:run](https://github.com/jooby-project/jooby/tree/master/jooby-maven-plugin): maven plugin with hot reload of classes, powered by {{jboss-modules}}.
 
-## parser & formatter
+## parsers & renderers
 * [jackson](https://github.com/jooby-project/jooby/tree/master/jooby-jackson): JSON supports via Jackson.
 * [gson](https://github.com/jooby-project/jooby/tree/master/jooby-gson): JSON supports via Gson.
 
@@ -41,6 +41,9 @@
 
 ## full text search
 * [elastic search](https://github.com/jooby-project/jooby/tree/master/jooby-elasticsearch): enterprise full text search via {{elasticsearch}}.
+
+## async
+* [akka](https://github.com/jooby-project/jooby/tree/master/jooby-akka): build concurrent & distributed applications via [Akka](http://akka.io).
 
 ## amazon web services
 * [aws](https://github.com/jooby-project/jooby/tree/master/jooby-aws): Amazon web services ```s3, sns, sqs, ..., etc.```.

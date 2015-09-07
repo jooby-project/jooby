@@ -210,9 +210,16 @@ public interface Route {
 
     private String rootPattern;
 
-    public Group(final String pattern) {
+    private String prefix;
+
+    public Group(final String pattern, final String prefix) {
       requireNonNull(pattern, "Pattern is required.");
       this.rootPattern = pattern;
+      this.prefix = prefix;
+    }
+
+    public Group(final String pattern) {
+      this(pattern, null);
     }
 
     public List<Route.Definition> routes() {
@@ -485,7 +492,11 @@ public interface Route {
      */
     public Group name(final String name) {
       for (Definition definition : routes) {
-        definition.name(name);
+        if (prefix != null) {
+          definition.name(prefix + "/" + name);
+        } else {
+          definition.name(name);
+        }
       }
       return this;
     }
@@ -544,22 +555,29 @@ public interface Route {
 
     private void newRoute(final String method, final String pattern,
         final Route.Filter filter) {
-      routes.add(new Route.Definition(method, this.rootPattern + pattern, filter));
+      newRoute(new Route.Definition(method, this.rootPattern + pattern, filter));
     }
 
     private void newRoute(final String method, final String pattern,
         final Route.Handler filter) {
-      routes.add(new Route.Definition(method, this.rootPattern + pattern, filter));
+      newRoute(new Route.Definition(method, this.rootPattern + pattern, filter));
     }
 
     private void newRoute(final String method, final String pattern,
         final Route.OneArgHandler filter) {
-      routes.add(new Route.Definition(method, this.rootPattern + pattern, filter));
+      newRoute(new Route.Definition(method, this.rootPattern + pattern, filter));
     }
 
     private void newRoute(final String method, final String pattern,
         final Route.ZeroArgHandler filter) {
-      routes.add(new Route.Definition(method, this.rootPattern + pattern, filter));
+      newRoute(new Route.Definition(method, this.rootPattern + pattern, filter));
+    }
+
+    private void newRoute(final Route.Definition route) {
+      if (prefix != null) {
+        route.name(prefix);
+      }
+      routes.add(route);
     }
 
   };

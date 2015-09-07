@@ -602,7 +602,7 @@ public class Jooby {
    * @return A route namespace.
    */
   public Route.Group use(final String pattern) {
-    Route.Group group = new Route.Group(pattern);
+    Route.Group group = new Route.Group(pattern, prefix);
     this.bag.add(group);
     return group;
   }
