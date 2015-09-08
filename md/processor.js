@@ -336,7 +336,7 @@ var toc = function (data) {
         // clean up md links
         var item = line.replaceAll('#|\\[|\\]|\\(.+\\)', '').trim();
         toc.append(indent(c)).append('- [').append(item).append('](#')
-            .append(item.replaceAll('\\s+', '-')).append(')\n');
+            .append(item.replaceAll('\\s+|\\/', '-').replaceAll('-+', '-')).append(')\n');
       }
   }
 
@@ -501,4 +501,3 @@ ls(ghpagesdir, function (file) {
   file['delete']();
   console.log('  done: ' + fout);
 });
-
