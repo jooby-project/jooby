@@ -1,7 +1,7 @@
 ---
 layout: index
 title: ftl
-version: 0.9.2
+version: 0.10.0
 ---
 
 # jooby-ftl
@@ -14,7 +14,7 @@ version: 0.9.2
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>0.9.2</version>
+  <version>0.10.0</version>
 </dependency>
 ```
 

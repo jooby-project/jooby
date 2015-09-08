@@ -1,12 +1,12 @@
 ---
 layout: index
 title: do more, more easily
-version: 0.9.2
+version: 0.10.0
 ---
 
 # &infin; do more, more easily
 
-Introducing [Jooby](http://jooby.org) a minimalist web framework for Java 8 or higher.
+[Jooby](http://jooby.org) a micro web framework for Java 8 or higher.
 
 * **Solid**. Build on top of mature technologies.
 

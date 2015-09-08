@@ -1,7 +1,7 @@
 ---
 layout: index
 title: doc
-version: 0.9.2
+version: 0.10.0
 ---
 
 documentation
@@ -19,14 +19,11 @@ documentation
   - [route handler](#route-handler)
   - [path patterns](#path-patterns)
   - [static files](#static-files)
-- [application.prod.properties](#application.prod.properties)
   - [precedence and order](#precedence-and-order)
   - [request handling](#request-handling)
   - [mvc routes](#mvc-routes)
-- [web sockets](#web-sockets)
-  - [guice access](#guice-access)
-  - [consumes](#consumes)
-  - [produces](#produces)
+  - [dynamic / advanced routing](#dynamic-/-advanced-routing)
+  - [async routes](#async-routes)
 - [request](#request)
   - [request params](#request-params)
   - [request headers](#request-headers)
@@ -41,7 +38,7 @@ documentation
   - [options](#options)
   - [session store](#session-store)
   - [cookie](#cookie)
-- [err](#err)
+- [error handling](#error-handling)
   - [default err handler](#default-err-handler)
   - [custom err handler](#custom-err-handler)
   - [status code](#status-code)
@@ -49,6 +46,10 @@ documentation
   - [parser](#parser)
   - [renderer](#renderer)
   - [view engine](#view-engine)
+- [web sockets](#web-sockets)
+  - [guice access](#guice-access)
+  - [consumes](#consumes)
+  - [produces](#produces)
 - [cors](#cors)
   - [usage](#usage)
 - [javascript](#javascript)
@@ -56,6 +57,8 @@ documentation
   - [jooby function](#jooby-function)
   - [routes](#routes)
   - [running a javascript app](#running-a-javascript-app)
+- [https](#https)
+  - [certificates](#certificates)
 - [appendix: jooby.conf](#appendix:-jooby.conf)
 - [appendix: mime.properties](#appendix:-mime.properties)
 
@@ -610,6 +613,7 @@ get("/", (req, rsp, chain) -> {
 ```
 
 
+
 ## mvc routes
 
 Mvc routes are like **controllers** in [Spring](http://spring.io) and/or **resources** in [Jersey](https://jersey.java.net/) with some minor enhancements and/or simplifications.
@@ -819,74 +823,210 @@ public Result handler() {
 ```
 
 
-# web sockets
+## dynamic / advanced routing
 
-The use of web sockets is pretty easy too:
+Suppose you need to serve different content based on hostname. For example ```admin.foo.com``` serves on ```/``` something different than ```www.foo.com```. Even there is different logic how to use it.
 
 ```java
 {
-  ws("/", ws -> {
-    ws.onMessage(message -> System.out.println(message.value()));
+   use("*", (req, rsp, chain) -> {
+     if (...) {
+       chain.next("/admin", req, rsp);
+     } else {
+       chain.next("/normal", req, rsp);
+     }
+   });
 
-    ws.send("connected");
+   get("/", () -> "Hello admin").name("admin");
+
+   get("/", () -> "Hello user").name("normal");
+}
+```
+
+We start by adding a filter:
+
+```java
+   use("*", (req, rsp, chain) -> {
+     if (...) {
+       chain.next("/admin", req, rsp);
+     } else {
+       chain.next("/normal", req, rsp);
+     }
+   });
+```
+
+Here we make some decision and ask chain to move next by applying a filter: ```/admin``` or ```/normal```. The chain will filter and keep all the routes where name starts with the given prefix.
+
+It is possible to group routes by features and set the name globally:
+
+```java
+{
+  use("/")
+    .get(() -> "Hello admin")
+    ...
+    // apply name to all routes
+    .name("admin");
+
+  use("/")
+    .get(() -> "Hello user")
+    ...
+    // apply name to all routes
+    .name("normal");
+}
+```
+
+Or group routes by features in their own app and then merge them into the main app:
+
+```java
+public class Admin extends Jooby {
+
+  public Admin(String prefix) {
+    super(prefix);
+  }
+
+  {
+    get("/", () -> "Hello admin");
+    ...
+  }
+}
+
+public class Normal extends Jooby {
+
+  public Normal(String prefix) {
+    super(prefix);
+  }
+
+  {
+    get("/", () -> "Hello user");
+    ...
+  }
+}
+
+/** merge everything .*/
+public class App extends Jooby {
+  {
+     use("*", (req, rsp) -> {
+       if (...) {
+         chain.next("/admin", req, rsp);
+       } else {
+         chain.next("/normal", req, rsp);
+       }
+     });
+
+     use(new Admin("admin"));
+     use(new Normal("normal"));
+  }
+}
+```
+
+A call to ```Jooby(String)``` will prepend the given prefix to all the routes defined by the application.
+
+As you can see routes and routing in [Jooby](http://jooby.org) are very powerful!
+
+
+## async routes
+
+Async processing is achieved via: [Deferred API](/apidocs/org/jooby/Deferred.html). Application can produces a result from a thread of its choice.
+
+```java
+{
+  Executor executor = ...;
+  get("/async", () -> {
+    Deferred deferred = new Deferred();
+    executor.execute(() -> {
+      try {
+        deferred.resolve(...); // success
+      } catch (Exception ex) {
+        deferred.reject(ex); // errr
+      }
+    });
+    return deferred;
   });
 }
 ```
 
-A [web socket](/apidocs/org/jooby/WebSocket.html) consist of a **path pattern** and a [handler](/apidocs/org/jooby/WebSocket.Handler.html).
-
-A **path pattern** can be as simple or complex as you need. All the path patterns supported by routes are supported here.
-
-A [handler](/apidocs/org/jooby/WebSocket.Handler.html) is executed on new connections, from there we can listen for message, errors and/or send data to the client.
-
-Keep in mind that **web socket** are not like routes. There is no stack/pipe or chain.
-
-You can mount a socket to a path used by a route, but you can't have two or more web sockets under the same path.
-
-## guice access
-
-You can ask [Guice](https://github.com/google/guice) to wired an object from the [ws.require(type)](/apidocs/org/jooby/WebSocket.html#require-com.google.inject.Key-)
-
-```java
-ws("/", (ws) -> {
-  A a = ws.require(A.class);
-});
-```
-
-## consumes
-
-Web socket can define a type to consume:
+Too verbose? Let's rewrite it a bit with: ```Jooby.promise```
 
 ```java
 {
-  ws("/", ws -> {
-    ws.onMessage(message -> {
-      MyObject object = message.to(MyObject.class);
+  Executor executor = ...;
+  get("/async", promise(deferred -> {
+    executor.execute(() -> {
+      try {
+        deferred.resolve(...); // success
+      } catch (Exception ex) {
+        deferred.reject(ex); // errr
+      }
     });
-
-    ws.send("connected");
-  })
-  .consumes("json");
+  });
 }
 ```
 
-This is just an utility method for parsing socket message to Java Object. Consumes in web sockets has nothing to do with content negotiation. Content negotiation is route concept, it doesn't apply for web sockets.
-
-## produces
-
-Web socket can define a type to produce: 
+A bit better, let's try it again with automatic error handler:
 
 ```java
 {
-  ws("/", ws -> {
-   MyObject object = ..;
-     ws.send(object);
-  })
-  .produces("json");
+  Executor executor = ...;
+  get("/async", promise(deferred -> {
+    executor.execute(() -> {
+        deferred.resolve(() -> {
+           return ...;
+        });
+    });
+  });
 }
 ```
 
-This is just an utility method for formatting Java Objects as text message. Produces in web sockets has nothing to do with content negotiation. Content negotiation is route concept, it doesn't apply for web sockets.
+Better, hugh? but we can make it just a bit better:
+
+```java
+{
+  Executor executor = ...;
+  get("/async", promise(deferred -> {
+    executor.execute(deferred.run(() -> {
+      return ...;
+    });
+  });
+}
+```
+
+All the examples work in the same way, you can choose which programming model makes more sense to you.
+
+The last two examples, will ```resolve``` the deferred. But also, catch any error and call ```reject``` for you.
+
+[Deferred API](/apidocs/org/jooby/Deferred.html) is pretty simple and the main goal of is to detach the request, or put it in async mode then application can produces a result from a thread of its choice.
+
+Here is an example of deferred with [RxJava](https://github.com/ReactiveX/RxJava):
+
+```java
+get("/rx", promise(deferred -> {
+  Observable.<List<String>> create(s -> {
+    s.onNext(...);
+    s.onCompleted();
+  }).subscribeOn(Schedulers.computation())
+    .subscribe(deferred::resolve, deferred::reject);
+  }));
+```
+
+### threads
+
+{{Jooby}} is an async web framework. IO is performed in async & non blocking fashion across servers: [Netty](/doc/netty), [Jetty](/doc/jetty) and [Undertow](/doc/undertow).
+
+Application code will **never run in an IO thread**. Application code **always run in a worker thread** and a worker thread can block.
+
+Default pool size of the worker thread pool is 20/200. You can change this setup via ```.conf``` file:
+
+```properties
+server.threads.Min=20
+server.threads.Max=20
+```
+
+You can set them to the ```available processors```:
+
+```properties
+server.threads.Min = ${runtime.processors}
+server.threads.Max = ${runtime.processors}
+```
 
 
 # request
@@ -1250,7 +1390,7 @@ by defaults: <code>jooby.sid</code>. Cookie's name can be explicitly set with
 [Session.Definition#cookie()](/apidocs/org/jooby/Session.Definition.html#cookie).
 
 
-# err
+# error handling
 
 Error handler is represented by the [Err.Handler](/apidocs/org/jooby/Err.Handler.html) class and allows you to log and/or render exceptions.
 
@@ -1379,7 +1519,7 @@ Automatic type conversion is provided when a type:
 
 ### custom parser
 
-Suppose we want to write a custom parser to convert a value into an ```integer``. In practice we don't need such parser bc it is provided, this is an example.
+Suppose we want to write a custom parser to convert a value into an ```integer```. In practice we don't need such parser bc it is provided, this is an example.
 
 Let's see how to create our custom HTTP param parser:
 
@@ -1535,6 +1675,76 @@ In order to support multiples view engine, a view engine is allowed to throw a `
 There is no much to say about views & engines, any other detail or documentation should be provided in the specific module (mustache, handlebars, freemarker, etc.).
 
 
+# web sockets
+
+The use of web sockets is pretty easy too:
+
+```java
+{
+  ws("/", ws -> {
+    ws.onMessage(message -> System.out.println(message.value()));
+
+    ws.send("connected");
+  });
+}
+```
+
+A [web socket](/apidocs/org/jooby/WebSocket.html) consist of a **path pattern** and a [handler](/apidocs/org/jooby/WebSocket.Handler.html).
+
+A **path pattern** can be as simple or complex as you need. All the path patterns supported by routes are supported here.
+
+A [handler](/apidocs/org/jooby/WebSocket.Handler.html) is executed on new connections, from there we can listen for message, errors and/or send data to the client.
+
+Keep in mind that **web socket** are not like routes. There is no stack/pipe or chain.
+
+You can mount a socket to a path used by a route, but you can't have two or more web sockets under the same path.
+
+## guice access
+
+You can ask [Guice](https://github.com/google/guice) to wired an object from the [ws.require(type)](/apidocs/org/jooby/WebSocket.html#require-com.google.inject.Key-)
+
+```java
+ws("/", (ws) -> {
+  A a = ws.require(A.class);
+});
+```
+
+## consumes
+
+Web socket can define a type to consume:
+
+```java
+{
+  ws("/", ws -> {
+    ws.onMessage(message -> {
+      MyObject object = message.to(MyObject.class);
+    });
+
+    ws.send("connected");
+  })
+  .consumes("json");
+}
+```
+
+This is just an utility method for parsing socket message to Java Object. Consumes in web sockets has nothing to do with content negotiation. Content negotiation is route concept, it doesn't apply for web sockets.
+
+## produces
+
+Web socket can define a type to produce: 
+
+```java
+{
+  ws("/", ws -> {
+   MyObject object = ..;
+     ws.send(object);
+  })
+  .produces("json");
+}
+```
+
+This is just an utility method for formatting Java Objects as text message. Produces in web sockets has nothing to do with content negotiation. Content negotiation is route concept, it doesn't apply for web sockets.
+
+
 # cors
 
 Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources
@@ -1687,6 +1897,36 @@ jooby(function () {
 * java: ```java org.jooby.Jooby```. The ```app.js``` file must be present in the app directory
 
 
+# https
+
+[Jooby](http://jooby.org) supports ```HTTPS```. To enable this, you need to set:
+
+```properties
+application.securePort = 8443
+```
+
+That's all!
+
+## certificates
+
+[Jooby](http://jooby.org) comes with a self-signed certificate, useful for development and test. But of course, you
+should NEVER use it in the real world.
+
+In order to setup HTTPS with a secure certificate, you need to set these properties:
+
+* ```ssl.keystore.cert```: An X.509 certificate chain file in PEM format. It can be an absolute path or a classpath resource.
+* ```ssl.keystore.key```: A PKCS#8 private key file in PEM format. It can be an absolute path or a classpath resource.
+
+Optionally, you can set these too:
+
+* ```ssl.keystore.password```: Password of the keystore.key (if any). Default is: null/empty.
+* ```ssl.trust.cert```: Trusted certificates for verifying the remote endpoint's certificate. The file should contain an X.509 certificate chain in PEM format. Default uses the system default.
+* ```ssl.session.cacheSize```: Set the size of the cache used for storing SSL session objects. 0 to use the default value.
+* ```ssl.session.timeout```: Timeout for the cached SSL session objects, in seconds. 0 to use the default value.
+
+As you can see setup is very simple. All you need is your ```.crt``` and ```.key``` files.
+
+
 # appendix: jooby.conf
 
 ```properties
@@ -1713,8 +1953,11 @@ application {
   # localhost
   host = localhost
 
-  # default port is: 8080
+  # HTTP ports
   port = 8080
+
+  # uncomment to enabled HTTPS
+  # securePort = 8443
 
   # we do UTF-8
   charset = UTF-8
@@ -1730,6 +1973,29 @@ application {
 
   # timezone, system default. set it at runtime
   # tz = ZoneId.systemDefault().getId()
+}
+
+ssl {
+
+  # An X.509 certificate chain file in PEM format, provided certificate should NOT be used in prod.
+  keystore.cert = org/jooby/unsecure.crt 
+
+  # A PKCS#8 private key file in PEM format, provided key should NOT be used in prod.
+  keystore.key = org/jooby/unsecure.key
+
+  # password of the keystore.key (if any)
+  # keystore.password =
+
+  # Trusted certificates for verifying the remote endpoint's certificate. The file should
+  # contain an X.509 certificate chain in PEM format. Default uses the system default.
+  # trust.cert =
+
+  # Set the size of the cache used for storing SSL session objects. 0 to use the
+  # default value.
+  session.cacheSize = 0
+
+  # Timeout for the cached SSL session objects, in seconds. 0 to use the default value.
+  session.timeout = 0
 }
 
 ###################################################################################################

@@ -1,7 +1,7 @@
 ---
 layout: index
 title: mongodb
-version: 0.9.2
+version: 0.10.0
 ---
 
 # jooby-mongodb
@@ -16,7 +16,7 @@ Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-mongodb</artifactId>
-  <version>0.9.2</version>
+  <version>0.10.0</version>
 </dependency>
 ```
 

@@ -18,7 +18,7 @@ Automatic type conversion is provided when a type:
 
 ### custom parser
 
-Suppose we want to write a custom parser to convert a value into an ```integer``. In practice we don't need such parser bc it is provided, this is an example.
+Suppose we want to write a custom parser to convert a value into an ```integer```. In practice we don't need such parser bc it is provided, this is an example.
 
 Let's see how to create our custom HTTP param parser:
 

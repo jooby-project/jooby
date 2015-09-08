@@ -1,7 +1,7 @@
 ---
 layout: index
 title: hbs
-version: 0.9.2
+version: 0.10.0
 ---
 
 # jooby-hbs
@@ -14,7 +14,7 @@ Mustache/Handlebars templates for [Jooby](/). Exposes a [Handlebars](https://git
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbs</artifactId>
-  <version>0.9.2</version>
+  <version>0.10.0</version>
 </dependency>
 ```
 

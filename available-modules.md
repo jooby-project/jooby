@@ -1,7 +1,7 @@
 ## mvn jooby:run
 * [jooby:run](/doc/maven-plugin): maven plugin with hot reload of classes, powered by [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
 
-## parser & formatter
+## parsers & renderers
 * [jackson](/doc/jackson): JSON supports via Jackson.
 * [gson](/doc/gson): JSON supports via Gson.
 
@@ -21,8 +21,11 @@
 * [jdbi](/doc/jdbi): fluent API for JDBC.
 * [flyway](/doc/flyway): database migrations via [Flyway](http://flywaydb.org).
 
-## hibernate
-* [hibernate](/doc/hbm): object/relational mapping.
+## object relational mapping - ORM
+* [hibernate](/doc/hbm): object/relational mapping via {{hibernate}}.
+* [ebean](/doc/ebean): object/relational mapping via [Ebean ORM](http://ebean-orm.github.io).
+
+## validation
 * [hibernate validator](/doc/hbv): bean validation.
 
 ## mongodb
@@ -38,6 +41,9 @@
 
 ## full text search
 * [elastic search](/doc/elasticsearch): enterprise full text search via [Elastic Search](https://github.com/elastic/elasticsearch).
+
+## async
+* [akka](/doc/akka): build concurrent & distributed applications via [Akka](http://akka.io).
 
 ## amazon web services
 * [aws](/doc/aws): Amazon web services ```s3, sns, sqs, ..., etc.```.
@@ -62,6 +68,7 @@
 
 ## css pre-processors
 * [sass](/doc/sass): [Sass](http://sass-lang.com) CSS pre-processor via [Vaadin Sass Compiler](https://github.com/vaadin/sass-compiler).
+* [less](/doc/less): [Less](http://lesscss.org) CSS pre-processor via [Less4j](https://github.com/SomMeri/less4j).
 
 ## servers
 * [netty](/doc/netty)

@@ -1,7 +1,7 @@
 ---
 layout: index
 title: swagger
-version: 0.9.2
+version: 0.10.0
 ---
 
 # jooby-swagger
@@ -22,7 +22,7 @@ This module generate [Swagger](http://swagger.io) spec file: ```.json``` or ```.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-swagger</artifactId>
-  <version>0.9.2</version>
+  <version>0.10.0</version>
 </dependency>
 ```
 
@@ -44,7 +44,7 @@ public class Pets {
 
 ```java
 {
-  use(new SwaggerUI());
+  SwaggerUI.install(this);
 
   // Swagger will generate a swagger spec for the Pets MVC routes.
   use(Pets.class);
@@ -57,7 +57,7 @@ Or if you want to mount Swagger somewhere else...:
 
 ```java
 {
-  use(new SwaggerUI("/api/docs"));
+  SwaggerUI.install("/api/docs", this);
 }
 ```
 
