@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-netty</artifactId>
-  <version>0.9.2</version>
+  <version>0.10.0</version>
 </dependency>
 ```
 
@@ -45,7 +45,7 @@ netty {
 
     IdleTimeout = ${server.threads.IdleTimeout}
 
-    Name = netty
+    Name = netty task
 
     Parent = ${runtime.processors-x2}
   }

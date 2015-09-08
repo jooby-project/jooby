@@ -1,4 +1,4 @@
-# err
+# error handling
 
 Error handler is represented by the [Err.Handler]({{defdocs}}/Err.Handler.html) class and allows you to log and/or render exceptions.
 

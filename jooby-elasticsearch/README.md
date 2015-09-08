@@ -10,7 +10,7 @@ Provides a client/local API but also a RESTFul API.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-elasticsearch</artifactId>
-  <version>0.9.2</version>
+  <version>0.10.0</version>
 </dependency>
 ```
 

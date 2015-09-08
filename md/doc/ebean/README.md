@@ -1,4 +1,4 @@
-# jooby-ebeanby
+# jooby-ebean
 
 Object-Relational-Mapping via {{ebean}}. It configures and exposes ```EbeanServer``` instances.
 

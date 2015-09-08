@@ -19,7 +19,7 @@ Async processing is achieved via: [Deferred API]({{apidocs}}/org/jooby/Deferred.
 }
 ```
 
-Too verbose? Let's rewrite with a bit and use ```Jooby.promise```:
+Too verbose? Let's rewrite it a bit with: ```Jooby.promise```
 
 ```java
 {
@@ -68,7 +68,7 @@ All the examples work in the same way, you can choose which programming model ma
 
 The last two examples, will ```resolve``` the deferred. But also, catch any error and call ```reject``` for you.
 
-[Deferred API]({{apidocs}}/org/jooby/Deferred.html) is pretty simple and the main goal of is to detach the request, or put it in async mode. Application can produces a result from a thread of its choice.
+[Deferred API]({{apidocs}}/org/jooby/Deferred.html) is pretty simple and the main goal of is to detach the request, or put it in async mode then application can produces a result from a thread of its choice.
 
 Here is an example of deferred with {{rx}}:
 

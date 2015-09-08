@@ -7,7 +7,7 @@
 
 # &infin; do more, more easily
 
-Introducing [Jooby](http://jooby.org) a minimalist web framework for Java 8 or higher.
+[Jooby](http://jooby.org) a micro web framework for Java 8 or higher.
 
 * **Solid**. Build on top of mature technologies.
 
@@ -68,7 +68,7 @@ quickstart
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.9.2
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.10.0
 ```
 
 You might want to edit/change:
@@ -83,7 +83,7 @@ You might want to edit/change:
 Let's try it!:
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.9.2
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.10.0
 cd my-app
 mvn jooby:run
 ```

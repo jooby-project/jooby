@@ -13,7 +13,7 @@ Transform [Less](http://lesscss.org) files to ```css``` via [Less4j](https://git
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-less</artifactId>
-  <version>0.9.2</version>
+  <version>0.10.0</version>
 </dependency>
 ```
 

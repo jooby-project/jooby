@@ -2,7 +2,7 @@
 
 Object-Relational-Mapping via [Hibernate](http://hibernate.org/). Exposes an ```EntityManagerFactory``` and ```EntityManager``` services.
 
-This module extends [jdbc](/doc/jooby-dbc) module, before going forward, make sure you read the doc of the [jdbc](/doc/jooby-dbc) module first.
+This module extends [jdbc](/doc/jdbc) module, before going forward, make sure you read the doc of the [jdbc](/doc/jooby-dbc) module first.
 
 This module provides an advanced and recommended [Open Session in View](https://developer.jboss.org/wiki/OpenSessionInView#jive_content_id_Can_I_use_two_transactions_in_one_Session)
 pattern, which basically keeps the ```Session``` opened until the view is rendered. But it uses two database transactions:
@@ -17,7 +17,7 @@ pattern, which basically keeps the ```Session``` opened until the view is render
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbm</artifactId>
-  <version>0.9.2</version>
+  <version>0.10.0</version>
 </dependency>
 ```
 

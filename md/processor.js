@@ -291,8 +291,23 @@ var writeString = function (fout, data) {
    Files.write(paths.get(fout.absolutePath), new java.lang.String(data).getBytes());
 };
 
+var removeCodeblock = function (source) {
+  var token = "```";
+  var start = source.indexOf(token);
+  while(start >= 0) {
+    var end = source.indexOf(token, start + token.length()) + token.length();
+    if (end > start) {
+      source = source.substring(0, start) + source.substring(end);
+      start = source.indexOf(token);
+    } else {
+      start = -1;
+    }
+  }
+  return source;
+}
+
 var toc = function (data) {
-  var scanner = new Scanner(data.replaceAll('```.*```', '')).useDelimiter('\n'),
+  var scanner = new Scanner(removeCodeblock(data)).useDelimiter('\n'),
       toc = new StringBuilder();
 
   var count = function (line) {

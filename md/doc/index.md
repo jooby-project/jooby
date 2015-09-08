@@ -18,11 +18,11 @@ documentation
 
 {{routes.md}}
 
-{{async.md}}
-
 {{mvc-routes.md}}
 
-{{web-sockets.md}}
+{{dynamic-routing.md}}
+
+{{async.md}}
 
 {{req.md}}
 
@@ -33,6 +33,8 @@ documentation
 {{err.md}}
 
 {{working-with-data.md}}
+
+{{web-sockets.md}}
 
 {{cors.md}}
 
