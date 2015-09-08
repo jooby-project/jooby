@@ -22,7 +22,7 @@ documentation
   - [precedence and order](#precedence-and-order)
   - [request handling](#request-handling)
   - [mvc routes](#mvc-routes)
-  - [dynamic / advanced routing](#dynamic-/-advanced-routing)
+  - [dynamic / advanced routing](#dynamic-advanced-routing)
   - [async routes](#async-routes)
 - [request](#request)
   - [request params](#request-params)
