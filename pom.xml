@@ -286,12 +286,6 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
-        <artifactId>jooby-sass</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jooby</groupId>
         <artifactId>jooby-less</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -772,13 +766,6 @@
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast</artifactId>
         <version>${hazelcast.version}</version>
-      </dependency>
-
-      <!-- Sass -->
-      <dependency>
-        <groupId>com.vaadin</groupId>
-        <artifactId>vaadin-sass-compiler</artifactId>
-        <version>${vaadin-sass-compiler.version}</version>
       </dependency>
 
       <!-- jruby -->
@@ -1788,7 +1775,6 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <bson4jackson.version>2.5.0</bson4jackson.version>
     <flyway.version>3.2.1</flyway.version>
     <hazelcast.version>3.5</hazelcast.version>
-    <vaadin-sass-compiler.version>0.9.12</vaadin-sass-compiler.version>
     <less4j.version>1.13.0</less4j.version>
     <ebean.version>6.3.1</ebean.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
