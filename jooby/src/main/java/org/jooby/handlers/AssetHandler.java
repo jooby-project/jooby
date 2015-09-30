@@ -32,7 +32,6 @@ import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
-import org.jooby.Route.Chain;
 import org.jooby.Status;
 import org.jooby.internal.RoutePattern;
 import org.jooby.internal.URLAsset;
@@ -75,7 +74,7 @@ import com.google.common.base.Strings;
  * @author edgar
  * @since 0.1.0
  */
-public class AssetHandler implements Route.Filter {
+public class AssetHandler implements Route.Handler {
 
   private BiFunction<Request, String, String> fn;
 
@@ -84,6 +83,8 @@ public class AssetHandler implements Route.Filter {
   private String cdn;
 
   private boolean etag = true;
+
+  private long maxAge = -1;
 
   /**
    * <p>
@@ -114,14 +115,6 @@ public class AssetHandler implements Route.Filter {
    */
   public AssetHandler(final String pattern, final Class<?> loader) {
     init(RoutePattern.normalize(pattern), loader);
-  }
-
-  private void init(final String pattern, final Class<?> loader) {
-    requireNonNull(loader, "Resource loader is required.");
-    this.fn = pattern.equals("/")
-        ? (req, p) -> p
-        : (req, p) -> MessageFormat.format(pattern, vars(req));
-    this.loader = loader;
   }
 
   /**
@@ -172,29 +165,34 @@ public class AssetHandler implements Route.Filter {
     return this;
   }
 
+  /**
+   * @param maxAge Set the cache header max-age value in seconds.
+   * @return This handler.
+   */
+  public AssetHandler maxAge(final long maxAge) {
+    this.maxAge = maxAge;
+    return this;
+  }
+
   @Override
-  public void handle(final Request req, final Response rsp, final Route.Chain chain)
+  public void handle(final Request req, final Response rsp)
       throws Exception {
     String path = req.path();
     URL resource = resolve(req, path);
 
-    if (resource == null) {
-      // ignore and move next;
-      chain.next(req, rsp);
-      return;
-    }
-
-    // cdn?
-    if (cdn != null) {
-      String absUrl = cdn + req.path();
-      rsp.redirect(absUrl);
-      rsp.end();
-    } else {
-      doHandle(req, rsp, chain, resource);
+    if (resource != null) {
+      // cdn?
+      if (cdn != null) {
+        String absUrl = cdn + req.path();
+        rsp.redirect(absUrl);
+        rsp.end();
+      } else {
+        doHandle(req, rsp, resource);
+      }
     }
   }
 
-  private void doHandle(final Request req, final Response rsp, final Chain chain,
+  private void doHandle(final Request req, final Response rsp,
       final URL resource) throws Exception {
 
     Asset asset = new URLAsset(resource, req.path(),
@@ -225,6 +223,11 @@ public class AssetHandler implements Route.Filter {
         return;
       }
       rsp.header("Last-Modified", new Date(lastModified));
+    }
+
+    // cache max-age
+    if (maxAge > 0) {
+      rsp.header("Cache-Control", "max-age=" + maxAge);
     }
 
     send(req, rsp, asset);
@@ -259,8 +262,17 @@ public class AssetHandler implements Route.Filter {
     return loader.getResource(path);
   }
 
+  private void init(final String pattern, final Class<?> loader) {
+    requireNonNull(loader, "Resource loader is required.");
+    this.fn = pattern.equals("/")
+        ? (req, p) -> p
+        : (req, p) -> MessageFormat.format(pattern, vars(req));
+    this.loader = loader;
+  }
+
   private static Object[] vars(final Request req) {
     Map<Object, String> vars = req.route().vars();
     return vars.values().toArray(new Object[vars.size()]);
   }
+
 }

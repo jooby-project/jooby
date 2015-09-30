@@ -68,6 +68,17 @@
       </includes>
     </fileSet>
 
+    <!-- compiled assets -->
+    <fileSet>
+      <directory>
+        ${project.build.directory}${file.separator}__public_
+      </directory>
+      <outputDirectory>public</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
+
   </fileSets>
 
 </assembly>

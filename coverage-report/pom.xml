@@ -62,6 +62,7 @@
                     <source>${project.parent.basedir}/jooby-sass/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-less/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-ebean/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-assets/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -102,6 +103,7 @@
                     <source>${project.parent.basedir}/jooby-sass/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-less/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-ebean/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-assets/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -115,6 +117,9 @@
                   <resources>
                     <resource>
                       <directory>${project.parent.basedir}/jooby/src/test/resources</directory>
+                    </resource>
+                    <resource>
+                      <directory>${project.parent.basedir}/jooby-assets/src/test/resources</directory>
                     </resource>
                     <resource>
                       <directory>${project.parent.basedir}/jooby-hbs/src/test/resources</directory>
@@ -361,6 +366,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-pac4j</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-assets</artifactId>
       <version>${project.version}</version>
     </dependency>
 

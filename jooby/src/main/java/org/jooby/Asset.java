@@ -18,6 +18,8 @@
  */
 package org.jooby;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.InputStream;
 import java.net.URL;
 
@@ -34,6 +36,56 @@ import com.google.common.primitives.Longs;
  */
 public interface Asset {
 
+  public class Forwarding implements Asset {
+
+    private Asset asset;
+
+    public Forwarding(final Asset asset) {
+      this.asset = requireNonNull(asset, "Asset is required.");
+    }
+
+    @Override
+    public String etag() {
+      return asset.etag();
+    }
+
+    @Override
+    public String name() {
+      return asset.name();
+    }
+
+    @Override
+    public String path() {
+      return asset.path();
+    }
+
+    @Override
+    public URL resource() {
+      return asset.resource();
+    }
+
+    @Override
+    public long length() {
+      return asset.length();
+    }
+
+    @Override
+    public long lastModified() {
+      return asset.lastModified();
+    }
+
+    @Override
+    public InputStream stream() throws Exception {
+      return asset.stream();
+    }
+
+    @Override
+    public MediaType type() {
+      return asset.type();
+    }
+
+  }
+
   /**
    * Examples:
    *
@@ -44,7 +96,11 @@ public interface Asset {
    *
    * @return The asset name (without path).
    */
-  String name();
+  default String name() {
+    String path = path();
+    int slash = path.lastIndexOf('/');
+    return path.substring(slash + 1);
+  }
 
   /**
    * Examples:

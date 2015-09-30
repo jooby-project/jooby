@@ -128,6 +128,18 @@
         <include>**/*</include>
       </includes>
     </fileSet>
+    
+    <!-- compiled assets -->
+    <fileSet>
+      <directory>
+        ${project.build.directory}${file.separator}__public_
+      </directory>
+      <filtered>true</filtered>
+      <outputDirectory>WEB-INF${file.separator}classes</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
 
   </fileSets>
 

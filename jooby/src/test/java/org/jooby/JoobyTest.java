@@ -1960,6 +1960,9 @@ public class JoobyTest {
               .andReturn(rsp);
           expect(rsp.header(eq("ETag"), isA(String.class))).andReturn(rsp);
           rsp.send(isA(Asset.class));
+
+          Route.Chain chain = unit.get(Route.Chain.class);
+          chain.next(req, rsp);
         })
         .run(unit -> {
           Jooby jooby = new Jooby();
@@ -1976,6 +1979,7 @@ public class JoobyTest {
               MediaType.all, MediaType.ALL);
           assertNotNull(route);
           assertTrue(route.isPresent());
+
 
           ((RouteImpl) route.get()).handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));

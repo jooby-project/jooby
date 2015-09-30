@@ -190,6 +190,11 @@ A ```GET``` to ```/assets/js/index.js``` will be redirected to: ```http://http:/
 
 Of course, you usually set a ```cdn``` in your ```application.prod.conf``` file only.
 
+There is also a super awesome and powerful [assets](/doc/assets/) module. The [assets](/doc/assets/)
+is library to concatenate, minify or compress JavaScript and CSS assets. It also adds the ability
+to write these assets in other languages and process/compile them to another language. Finally,
+it help you to write high quality code by validate JavaScript and CSS too.
+
 ## precedence and order
 
 Routes are executed in the order they are defined. So the ordering of routes is crucial to the behavior of an application. Let's review this fact via some examples.

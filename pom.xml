@@ -47,10 +47,22 @@
     <module>jooby-jongo</module>
     <module>jooby-flyway</module>
     <module>jooby-hazelcast</module>
-    <module>jooby-sass</module>
-    <module>jooby-less</module>
     <module>jooby-ebean</module>
     <module>jooby-akka</module>
+    <module>jooby-assets</module>
+    <module>jooby-assets-j2v8</module>
+    <module>jooby-assets-jshint</module>
+    <module>jooby-assets-jscs</module>
+    <module>jooby-assets-less</module>
+    <module>jooby-assets-less4j</module>
+    <module>jooby-assets-csslint</module>
+    <module>jooby-assets-ng-annotate</module>
+    <module>jooby-assets-uglify</module>
+    <module>jooby-assets-clean-css</module>
+    <module>jooby-assets-yui-compressor</module>
+    <module>jooby-assets-closure-compiler</module>
+    <module>jooby-assets-sass</module>
+    <module>jooby-assets-requirejs</module>
     <module>coverage-report</module>
   </modules>
 
@@ -95,6 +107,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -763,6 +781,13 @@
         <version>${vaadin-sass-compiler.version}</version>
       </dependency>
 
+      <!-- jruby -->
+      <dependency>
+        <groupId>org.jruby</groupId>
+        <artifactId>jruby-complete</artifactId>
+        <version>${jruby.version}</version>
+      </dependency>
+
       <!-- Less -->
       <dependency>
         <groupId>com.github.sommeri</groupId>
@@ -787,6 +812,20 @@
         <groupId>org.avaje.ebeanorm</groupId>
         <artifactId>avaje-ebeanorm-agent</artifactId>
         <version>${avaje-ebeanorm-agent.version}</version>
+      </dependency>
+
+      <!-- YUI Compressor -->
+      <dependency>
+        <groupId>com.yahoo.platform.yui</groupId>
+        <artifactId>yuicompressor</artifactId>
+        <version>${yuicompressor.version}</version>
+      </dependency>
+
+      <!-- Closure Compiler -->
+      <dependency>
+        <groupId>com.google.javascript</groupId>
+        <artifactId>closure-compiler</artifactId>
+        <version>${closure-compiler.version}</version>
       </dependency>
 
       <!-- Maven -->
@@ -1755,6 +1794,9 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
     <avaje-ebeanorm-agent.version>4.5.4</avaje-ebeanorm-agent.version>
     <akka.version>2.3.9</akka.version>
+    <yuicompressor.version>2.4.8</yuicompressor.version>
+    <closure-compiler.version>v20150901</closure-compiler.version>
+    <jruby.version>9.0.1.0</jruby.version>
 
     <!-- config -->
     <war.maxRequestSize>204800</war.maxRequestSize>
@@ -1790,13 +1832,13 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
     <coveralls-maven-plugin.version>3.1.0</coveralls-maven-plugin.version>
     <exec-maven-plugin.version>1.3.2</exec-maven-plugin.version>
-    <maven-plugin-api.version>3.2.3</maven-plugin-api.version>
+    <maven-plugin-api.version>3.3.3</maven-plugin-api.version>
     <maven-project.version>2.2.1</maven-project.version>
-    <maven-core.version>3.2.3</maven-core.version>
-    <maven-plugin-annotations.version>3.3</maven-plugin-annotations.version>
+    <maven-core.version>3.3.3</maven-core.version>
+    <maven-plugin-annotations.version>3.4</maven-plugin-annotations.version>
     <plexus-utils.version>3.0.20</plexus-utils.version>
     <mojo-executor.version>2.2.0</mojo-executor.version>
-    <maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
+    <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
     <maven-site-plugin.version>3.4</maven-site-plugin.version>
     <license-maven-plugin.version>2.6</license-maven-plugin.version>
     <jacoco-maven-plugin.version>${jacoco.version}</jacoco-maven-plugin.version>

@@ -76,13 +76,6 @@ public class URLAsset implements Asset {
   }
 
   @Override
-  public String name() {
-    String path = url.getPath();
-    int slash = path.lastIndexOf('/');
-    return path.substring(slash + 1);
-  }
-
-  @Override
   public URL resource() {
     return url;
   }
@@ -109,7 +102,7 @@ public class URLAsset implements Asset {
 
   @Override
   public String toString() {
-    return name() + "(" + type() + ")";
+    return path() + "(" + type() + ")";
   }
 
   private static void headers(final URL resource, final BiConsumer<Long, Long> callback)
