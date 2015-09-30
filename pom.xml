@@ -286,12 +286,6 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
-        <artifactId>jooby-less</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jooby</groupId>
         <artifactId>jooby-ebean</artifactId>
         <version>${jooby.version}</version>
       </dependency>
