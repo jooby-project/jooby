@@ -499,6 +499,10 @@ public class MediaType implements Comparable<MediaType> {
       return aliastype;
     }
     String[] parts = type.trim().split(";");
+    if (parts[0].equals("*")) {
+      // odd and ugly media type
+      return MediaType.all;
+    }
     String[] typeAndSubtype = parts[0].split("/");
     checkArgument(typeAndSubtype.length == 2, "Bad media type: %s", type);
     String stype = typeAndSubtype[0].trim();
