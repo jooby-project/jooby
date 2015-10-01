@@ -114,8 +114,6 @@ public class HttpHandlerImpl implements HttpHandler {
 
     Map<Object, Object> scope = new HashMap<>();
 
-    requestScope.enter(scope);
-
     String verb = method(_method, request).toUpperCase();
     String requestPath = normalizeURI(request.path());
     boolean resolveAs404 = false;
@@ -160,6 +158,9 @@ public class HttpHandlerImpl implements HttpHandler {
 
     boolean deferred = false;
     try {
+
+      requestScope.enter(scope);
+
       // not found?
       if (resolveAs404) {
         new RouteChain(ImmutableList.of(notFound)).next(req, rsp);
