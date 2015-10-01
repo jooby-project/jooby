@@ -62,16 +62,7 @@ public class AssetHandlerFeature extends ServerFeature {
   public void emptyFile() throws Exception {
     request()
         .get("/assets/empty.css")
-        .expect(200)
-        .header("Content-Type", "text/css;charset=UTF-8")
-        .header("Content-Length", 0)
-        .header("Last-Modified", lastModified -> {
-          request()
-              .get("/assets/empty.css")
-              .header("If-Modified-Since", lastModified)
-              .expect(304)
-              .empty();
-        });
+        .expect(404);
   }
 
   @Test

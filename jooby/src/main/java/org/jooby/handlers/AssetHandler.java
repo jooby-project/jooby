@@ -195,8 +195,17 @@ public class AssetHandler implements Route.Handler {
   private void doHandle(final Request req, final Response rsp,
       final URL resource) throws Exception {
 
+    String path = resource.getPath();
+    if ("jar".equals(resource.getProtocol())) {
+      path = path.substring(path.indexOf("!/") + 2);
+    }
     Asset asset = new URLAsset(resource, req.path(),
-        MediaType.byPath(resource.getPath()).orElse(MediaType.octetstream));
+        MediaType.byPath(path).orElse(MediaType.octetstream));
+
+    if (asset.length() == 0) {
+      // move to next or 404
+      return;
+    }
 
     // handle etag
     if (this.etag) {

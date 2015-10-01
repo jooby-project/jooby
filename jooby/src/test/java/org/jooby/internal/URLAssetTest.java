@@ -97,14 +97,10 @@ public class URLAssetTest {
   public void noLastModifiednoLen() throws Exception {
     new MockUnit(URL.class)
         .expect(unit -> {
-          InputStream stream = unit.mock(InputStream.class);
-          stream.close();
-
           URLConnection conn = unit.mock(URLConnection.class);
           conn.setUseCaches(false);
           expect(conn.getContentLengthLong()).andReturn(0L);
           expect(conn.getLastModified()).andReturn(0L);
-          expect(conn.getInputStream()).andReturn(stream);
 
           URL url = unit.get(URL.class);
           expect(url.getProtocol()).andReturn("http");
@@ -112,7 +108,7 @@ public class URLAssetTest {
         })
         .run(unit -> {
           URLAsset asset = new URLAsset(unit.get(URL.class), "pa.ks", MediaType.js);
-          assertEquals(-1, asset.length());
+          assertEquals(0, asset.length());
           assertEquals(-1, asset.lastModified());
         });
   }

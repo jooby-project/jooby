@@ -56,13 +56,13 @@ public class URLAsset implements Asset {
       File file = new File(url.toURI());
       if (file.exists()) {
         stream = () -> new FileInputStream(file);
-        this.length = safeValue(file.length());
-        this.lastModified = safeValue(file.lastModified());
+        this.length = len(file.length());
+        this.lastModified = lmod(file.lastModified());
       }
     } else {
       headers(url, (len, lstMod) -> {
-        this.length = safeValue(len);
-        this.lastModified = safeValue(lstMod);
+        this.length = len(len);
+        this.lastModified = lmod(lstMod);
       });
     }
     if (this.stream == null) {
@@ -108,21 +108,27 @@ public class URLAsset implements Asset {
   private static void headers(final URL resource, final BiConsumer<Long, Long> callback)
       throws IOException {
     URLConnection uc = null;
+    long len = -1;
     try {
       uc = resource.openConnection();
       uc.setUseCaches(false);
-      long len = uc.getContentLengthLong();
+      // len == 0, is a jar directory
+      len = uc.getContentLengthLong();
       long lastModified = uc.getLastModified();
       callback.accept(len, lastModified);
     } finally {
-      if (uc != null) {
+      if (uc != null && len > 0) {
         // http://stackoverflow.com/questions/2057351/how-do-i-get-the-last-modification-time-of-a-java-resource
         Closeables.closeQuietly(uc.getInputStream());
       }
     }
   }
 
-  private static long safeValue(final long value) {
+  private static long len(final long value) {
+    return value >= 0 ? value : -1;
+  }
+
+  private static long lmod(final long value) {
     return value > 0 ? value : -1;
   }
 
