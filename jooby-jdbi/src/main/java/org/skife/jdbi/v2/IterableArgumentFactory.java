@@ -26,10 +26,13 @@ public class IterableArgumentFactory implements ArgumentFactory<Object> {
   @Override
   public boolean accepts(final Class<?> expectedType, final Object value,
       final StatementContext ctx) {
-    if (value instanceof Iterable) {
-      return true;
+    if (value != null) {
+      if (value instanceof Iterable) {
+        return true;
+      }
+      return value.getClass().isArray();
     }
-    return value.getClass().isArray();
+    return false;
   }
 
   @Override
