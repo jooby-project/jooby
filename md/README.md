@@ -13,6 +13,10 @@
 
 {{quickstart.md}}
 
+## Want to learn more?
+
+Check out our [template collection](https://github.com/jooby-starters).
+
 versioning
 =====
 
