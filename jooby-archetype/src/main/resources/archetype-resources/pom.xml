@@ -53,7 +53,6 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby</artifactId>
-      <version>${jooby.version}</version>
       <scope>test</scope>
       <classifier>tests</classifier>
     </dependency>

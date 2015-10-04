@@ -100,7 +100,6 @@
     </repository>
   </distributionManagement>
 
-
   <dependencyManagement>
     <dependencies>
       <!-- Jooby -->
@@ -108,6 +107,14 @@
         <groupId>org.jooby</groupId>
         <artifactId>jooby</artifactId>
         <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby</artifactId>
+        <scope>test</scope>
+        <version>${jooby.version}</version>
+        <classifier>tests</classifier>
       </dependency>
 
       <dependency>
@@ -1001,7 +1008,9 @@
   </dependencyManagement>
 
   <build>
+
     <plugins>
+
       <!-- Force maven-3.x and java-1.8 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1112,6 +1121,13 @@
 
     <pluginManagement>
       <plugins>
+        <!-- jooby:run & jooby:assets -->
+        <plugin>
+          <groupId>org.jooby</groupId>
+          <artifactId>jooby-maven-plugin</artifactId>
+          <version>${jooby.version}</version>
+        </plugin>
+
         <!-- avaje-enchancer -->
         <plugin>
           <groupId>org.avaje.ebeanorm</groupId>
@@ -1377,35 +1393,6 @@
             <directory>${project.conf.directory}</directory>
           </resource>
         </resources>
-      </build>
-    </profile>
-
-    <!-- jooby run -->
-    <profile>
-      <activation>
-        <file>
-          <exists>pom.xml</exists>
-        </file>
-      </activation>
-
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-maven-plugin</artifactId>
-            <version>${jooby.version}</version>
-            <configuration>
-              <mainClass>${application.class}</mainClass>
-            </configuration>
-            <dependencies>
-              <dependency>
-                <groupId>org.jooby</groupId>
-                <artifactId>jooby-hotreload</artifactId>
-                <version>${jooby.version}</version>
-              </dependency>
-            </dependencies>
-          </plugin>
-        </plugins>
       </build>
     </profile>
 
