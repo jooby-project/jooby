@@ -192,31 +192,30 @@ public class AssetHandler implements Route.Handler {
     URL resource = resolve(req, path);
 
     if (resource != null) {
-      // cdn?
-      if (cdn != null) {
-        String absUrl = cdn + req.path();
-        rsp.redirect(absUrl);
-        rsp.end();
-      } else {
-        doHandle(req, rsp, resource);
+      String localpath = resource.getPath();
+      int jarEntry = localpath.indexOf("!/");
+      if (jarEntry > 0) {
+        localpath = localpath.substring(jarEntry + 2);
+      }
+
+      URLAsset asset = new URLAsset(resource, req.path(),
+          MediaType.byPath(localpath).orElse(MediaType.octetstream));
+
+      if (asset.exists()) {
+        // cdn?
+        if (cdn != null) {
+          String absUrl = cdn + req.path();
+          rsp.redirect(absUrl);
+          rsp.end();
+        } else {
+          doHandle(req, rsp, asset);
+        }
       }
     }
   }
 
   private void doHandle(final Request req, final Response rsp,
-      final URL resource) throws Exception {
-
-    String path = resource.getPath();
-    if ("jar".equals(resource.getProtocol())) {
-      path = path.substring(path.indexOf("!/") + 2);
-    }
-    Asset asset = new URLAsset(resource, req.path(),
-        MediaType.byPath(path).orElse(MediaType.octetstream));
-
-    if (asset.length() == 0) {
-      // move next or 404
-      return;
-    }
+      final Asset asset) throws Exception {
 
     // handle etag
     if (this.etag) {

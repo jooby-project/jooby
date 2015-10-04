@@ -61,7 +61,8 @@ public class AssetFeature extends ServerFeature {
   public void emptyFile() throws Exception {
     request()
         .get("/assets/empty.css")
-        .expect(404);
+        .expect(200)
+        .expect("");
   }
 
   @Test
