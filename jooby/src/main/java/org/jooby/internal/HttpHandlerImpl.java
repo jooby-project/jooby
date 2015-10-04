@@ -20,6 +20,7 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -165,6 +166,14 @@ public class HttpHandlerImpl implements HttpHandler {
       if (resolveAs404) {
         new RouteChain(ImmutableList.of(notFound)).next(req, rsp);
       }
+
+      // force https?
+      String redirectHttps = config.getString("application.redirect_https").trim();
+      if (redirectHttps.length() > 0) {
+        rsp.redirect(MessageFormat.format(redirectHttps, requestPath.substring(1)));
+        return;
+      }
+
       // websocket?
       if (socketDefs.size() > 0
           && request.header("Upgrade").orElse("").equalsIgnoreCase("WebSocket")) {
