@@ -97,7 +97,7 @@ public class Sass extends AssetProcessor {
     Object value = rctx.get().callMethod(script.get(), "render", source, options(),
         filename, getClass(), isMap);
     if (value instanceof AssetProblem) {
-      throw new AssetException((AssetProblem) value);
+      throw new AssetException(name(), (AssetProblem) value);
     }
     return value.toString();
   }

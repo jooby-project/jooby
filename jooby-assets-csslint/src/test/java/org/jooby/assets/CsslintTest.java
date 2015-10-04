@@ -6,11 +6,11 @@ import org.junit.Test;
 
 import com.typesafe.config.ConfigFactory;
 
-public class CssLintTest {
+public class CsslintTest {
 
   @Test
   public void name() throws Exception {
-    assertEquals("css-lint", new CssLint().name());
+    assertEquals("csslint", new Csslint().name());
   }
 
   @Test
@@ -20,7 +20,7 @@ public class CssLintTest {
         "    padding: 5px;\n" +
         "    width: 100px;\n" +
         "}\n" +
-        "", new CssLint().process("/styles.css", ".mybox {\n" +
+        "", new Csslint().process("/styles.css", ".mybox {\n" +
         "    border: 1px solid black;\n" +
         "    padding: 5px;\n" +
         "    width: 100px;\n" +
@@ -34,7 +34,7 @@ public class CssLintTest {
         "    padding: 5px;\n" +
         "    width: 100px;\n" +
         "}\n" +
-        "", new CssLint().set("box-model", 2).process("/styles.css", ".mybox {\n" +
+        "", new Csslint().set("box-model", 2).process("/styles.css", ".mybox {\n" +
         "    border: 1px solid black;\n" +
         "    padding: 5px;\n" +
         "    width: 100px;\n" +

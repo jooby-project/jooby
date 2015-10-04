@@ -62,7 +62,8 @@ public class YuiCss extends AssetProcessor {
   }
 
   @Override
-  public String process(final String filename, final String source, final Config conf) throws Exception {
+  public String process(final String filename, final String source, final Config conf)
+      throws Exception {
     CssCompressor compressor = new CssCompressor(new StringReader(source));
     int linebreakpos = get("linebreakpos");
     StringWriter out = new StringWriter();

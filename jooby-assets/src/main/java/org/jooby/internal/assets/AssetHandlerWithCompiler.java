@@ -16,51 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.assets;
+package org.jooby.internal.assets;
 
-import org.jooby.MediaType;
+import static java.util.Objects.requireNonNull;
 
-import com.typesafe.config.Config;
-/**
- * <h1>csslint</h1>
- * <p>
- * <a href="http://csslint.net/">CSSLint</a> automated linting of Cascading Stylesheets.
- * </p>
- *
- * <h2>usage</h2>
- *
- * <pre>
- * assets {
- *   fileset {
- *     home: ...
- *   }
- *
- *   pipeline {
- *     dev: [csslint]
- *     ...
- *   }
- * }
- * </pre>
- *
- * @author edgar
- * @since 0.11.0
- */
-public class CssLint extends AssetProcessor {
+import org.jooby.Asset;
+import org.jooby.Request;
+import org.jooby.Response;
+import org.jooby.assets.AssetCompiler;
+import org.jooby.handlers.AssetHandler;
 
-  public CssLint() {
+public class AssetHandlerWithCompiler extends AssetHandler {
+
+  private AssetCompiler compiler;
+
+  public AssetHandlerWithCompiler(final String pattern, final AssetCompiler compiler) {
+    super(pattern);
+    this.compiler = requireNonNull(compiler, "Asset compiler is required.");
   }
 
   @Override
-  public boolean matches(final MediaType type) {
-    return MediaType.css.matches(type);
+  protected void send(final Request req, final Response rsp, final Asset asset) throws Exception {
+    super.send(req, rsp, compiler.build(asset));
   }
-
-  @Override
-  public String process(final String filename, final String source, final Config conf)
-      throws Exception {
-    return V8Context.run(v8 -> {
-      return v8.invoke("csslint.js", source, options(), filename);
-    });
-  }
-
 }

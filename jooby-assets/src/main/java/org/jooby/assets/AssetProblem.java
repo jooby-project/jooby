@@ -36,12 +36,15 @@ public class AssetProblem {
 
   private String message;
 
+  private String evidence;
+
   public AssetProblem(final String filename, final int line, final int column,
-      final String message) {
+      final String message, final String evidence) {
     this.filename = filename;
     this.line = line;
     this.column = column;
     this.message = message;
+    this.evidence = evidence;
   }
 
   /**
@@ -72,8 +75,12 @@ public class AssetProblem {
     return message;
   }
 
+  public String getEvidence() {
+    return evidence == null ? "" : evidence;
+  }
+
   @Override
   public String toString() {
-    return filename + ":" + line + ":" + column + ": " + message;
+    return (filename + ":" + line + ":" + column + ": " + message + "\n" + getEvidence()).trim();
   }
 }

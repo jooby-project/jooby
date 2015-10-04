@@ -2856,6 +2856,7 @@ public class Jooby {
     on("*", conf -> {
       router.fwd(handler
           .cdn(conf.getString("assets.cdn"))
+          .lastModified(conf.getBoolean("assets.lastModified"))
           .etag(conf.getBoolean("assets.etag")));
     });
     return appendDefinition(asset);

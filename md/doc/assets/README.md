@@ -4,6 +4,8 @@ The asset module is library to concatenate, minify or compress JavaScript and CS
 
 A variety of processors are available (jshint, csslint, jscs, uglify, closure-compiler, etc..), but also you might want to write your owns.
 
+<img width="553" alt="live compiler" src="http://jooby.org/images/compiler.png">
+
 ## dependency
 
 ```xml
@@ -138,5 +140,13 @@ Example above, defines a **pipeline** for development (dev) and one generic for 
 In ```dev``` the code will be checked it against js-hint, jscs and csslint! But also, we want to use sass for css!!
 
 The generic ```dist``` will be used it for any other environment and here we just want to optimize our javascript code with uglify, compile sass to css and then optimize the css using clean-css!!
+
+## live compiler and error report
+
+This module comes with a live compiler and fancy error reporter, which is enabled by default in ```dev```:
+
+<img width="553" alt="live compiler" src="http://jooby.org/images/compiler.png">
+
+If you want to turn it off, just set the ```assets.watch = false```.
 
 {{asset-processor.md}}

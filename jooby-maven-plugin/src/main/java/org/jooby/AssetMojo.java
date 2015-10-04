@@ -130,9 +130,10 @@ public class AssetMojo extends AbstractMojo {
           return "  " + e.getKey() + ": " + files;
         }).collect(Collectors.joining("\n")))
             .append("\n}\n");
-        min.append("assets.cache = ").append(maxAge).append("\n");
+        min.append("assets.cache.maxAge = ").append(maxAge).append("\n");
         min.append("assets.pipeline.dev = {}\n");
         min.append("assets.pipeline.").append(env).append(" = {}\n");
+        min.append("assets.watch = false\n");
         File minFile = new File(output, "assets." + env + ".conf");
         FileWriter writer = new FileWriter(minFile);
         writer.write(min.toString());

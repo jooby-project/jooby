@@ -9,7 +9,7 @@ public class NoPipelineFeature extends AssetsBase {
   {
 
     use(assets("dev", "basedir", "org/jooby/assets", "fileset",
-        map("home", list("js/index.js", "css/index.css"))));
+        map("home", list("js/index.js", "css/index.css")), "watch", false));
 
     use(new Hbs("/org/jooby/assets"));
     use(new Assets());

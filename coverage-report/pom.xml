@@ -138,6 +138,8 @@
                 <exclude>**/PemReader*</exclude>
                 <exclude>**/SslContext*</exclude>
                 <exclude>**/SslContextProvider*</exclude>
+                <exclude>**/Watcher*</exclude>
+                <exclude>**/LiveCompiler*</exclude>
               </excludes>
             </configuration>
             <executions>

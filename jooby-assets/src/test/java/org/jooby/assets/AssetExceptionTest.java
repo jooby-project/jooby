@@ -10,8 +10,9 @@ public class AssetExceptionTest {
 
   @Test
   public void defaults() {
-    AssetProblem problem = new AssetProblem("x.js", 5, 2, "message");
-    AssetException ex = new AssetException(problem);
-    assertEquals(Lists.newArrayList(problem), ex.problems());
+    AssetProblem problem = new AssetProblem("x.js", 5, 2, "message", null);
+    AssetException ex = new AssetException("x", problem);
+    assertEquals("x", ex.getId());
+    assertEquals(Lists.newArrayList(problem), ex.getProblems());
   }
 }

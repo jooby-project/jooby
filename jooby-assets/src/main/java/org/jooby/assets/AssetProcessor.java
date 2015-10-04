@@ -156,7 +156,7 @@ public abstract class AssetProcessor {
   }
 
   public Map<String, Object> options() {
-    return options.root().unwrapped();
+    return options.withoutPath("excludes").root().unwrapped();
   }
 
   @SuppressWarnings("unchecked")

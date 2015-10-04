@@ -21,7 +21,8 @@
           filename: filename,
           line: error.line,
           column: error.character,
-          message: error.reason
+          message: error.reason,
+          evidence: error.evidence
         });
       }
     });

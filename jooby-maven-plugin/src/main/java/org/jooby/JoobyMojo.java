@@ -170,6 +170,18 @@ public class JoobyMojo extends AbstractMojo {
     }
   }
 
+  private Path mpath(final String value) {
+    Path path = null;
+    for (String p : value.split("\\.")) {
+      if (path == null) {
+        path = Paths.get(p);
+      } else {
+        path = path.resolve(p);
+      }
+    }
+    return path;
+  }
+
   /**
    * Creates a module.
    *
@@ -182,14 +194,8 @@ public class JoobyMojo extends AbstractMojo {
   private void doFlatMainModule(final MavenProject project, final Path jmodules,
       final Set<String> resources, final Set<Artifact> artifacts) throws MojoFailureException {
     try {
-      Path moddir = jmodules;
-      for (String p : project.getGroupId().split("\\.")) {
-        moddir = moddir.resolve(p);
-      }
-      for (String p : project.getArtifactId().split("\\.")) {
-        moddir = moddir.resolve(p);
-      }
-      moddir = moddir.resolve("main");
+      Path moddir = jmodules.resolve(mpath(project.getGroupId()))
+          .resolve(mpath(project.getArtifactId())).resolve("main");
 
       // resources
       StringBuilder rsb = new StringBuilder();
@@ -198,17 +204,37 @@ public class JoobyMojo extends AbstractMojo {
         rsb.append("    <resource-root path=\"").append(moddir.relativize(resourceRoot))
             .append("\" />\n");
       }
+      StringBuilder dsb = new StringBuilder();
       // maven dependencies
       for (Artifact artifact : artifacts) {
         // not pom
         if (!"pom".equals(artifact.getType())) {
-          rsb.append("    <artifact name=\"").append(artifact.getGroupId()).append(":")
-              .append(artifact.getArtifactId()).append(":").append(artifact.getVersion())
-              .append("\" />\n");
+          if (artifact.getGroupId().equals("com.eclipsesource.j2v8")) {
+            dsb.append("    <module name=\"").append(artifact.getGroupId()).append(".")
+                .append(artifact.getArtifactId()).append("\" />\n");
+
+            StringBuilder arsb = new StringBuilder();
+
+            arsb.append("    <artifact name=\"").append(artifact.getGroupId()).append(":")
+                .append(artifact.getArtifactId()).append(":").append(artifact.getVersion())
+                .append("\" />\n");
+
+            String content = jbossModule(artifact.getGroupId(), artifact.getArtifactId(), arsb,
+                null);
+            Path artdir = jmodules.resolve(mpath(artifact.getGroupId()))
+                .resolve(mpath(artifact.getArtifactId())).resolve("main");
+            artdir.toFile().mkdirs();
+            Files.write(content, artdir.resolve("module.xml").toFile(), StandardCharsets.UTF_8);
+
+          } else {
+            rsb.append("    <artifact name=\"").append(artifact.getGroupId()).append(":")
+                .append(artifact.getArtifactId()).append(":").append(artifact.getVersion())
+                .append("\" />\n");
+          }
         }
       }
 
-      String content = jbossModule(project.getGroupId(), project.getArtifactId(), rsb, null);
+      String content = jbossModule(project.getGroupId(), project.getArtifactId(), rsb, dsb);
       moddir.toFile().mkdirs();
       Files.write(content, moddir.resolve("module.xml").toFile(), StandardCharsets.UTF_8);
     } catch (Exception ex) {

@@ -86,6 +86,8 @@ public class AssetHandler implements Route.Handler {
 
   private long maxAge = -1;
 
+  private boolean lastModified = true;
+
   /**
    * <p>
    * Creates a new {@link AssetHandler}. The handler accepts a location pattern, that serve for
@@ -157,6 +159,15 @@ public class AssetHandler implements Route.Handler {
   }
 
   /**
+   * @param enabled Turn on/off last modified support.
+   * @return This handler.
+   */
+  public AssetHandler lastModified(final boolean enabled) {
+    this.lastModified = enabled;
+    return this;
+  }
+
+  /**
    * @param cdn If set, every resolved asset will be serve from it.
    * @return This handler.
    */
@@ -203,7 +214,7 @@ public class AssetHandler implements Route.Handler {
         MediaType.byPath(path).orElse(MediaType.octetstream));
 
     if (asset.length() == 0) {
-      // move to next or 404
+      // move next or 404
       return;
     }
 
@@ -222,16 +233,18 @@ public class AssetHandler implements Route.Handler {
     }
 
     // Handle if modified since
-    long lastModified = asset.lastModified();
-    if (lastModified > 0) {
-      boolean ifm = req.header("If-Modified-Since").toOptional(Long.class)
-          .map(ifModified -> lastModified / 1000 <= ifModified / 1000)
-          .orElse(false);
-      if (ifm) {
-        rsp.status(Status.NOT_MODIFIED).end();
-        return;
+    if (this.lastModified) {
+      long lastModified = asset.lastModified();
+      if (lastModified > 0) {
+        boolean ifm = req.header("If-Modified-Since").toOptional(Long.class)
+            .map(ifModified -> lastModified / 1000 <= ifModified / 1000)
+            .orElse(false);
+        if (ifm) {
+          rsp.status(Status.NOT_MODIFIED).end();
+          return;
+        }
+        rsp.header("Last-Modified", new Date(lastModified));
       }
-      rsp.header("Last-Modified", new Date(lastModified));
     }
 
     // cache max-age

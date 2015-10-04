@@ -12,7 +12,7 @@
     var evidence = err.evidence.trim();
 
     return filename + ':' + err.type + ':' + err.line + ':' + err.col + ': '
-        + err.message + '\n    ' + evidence + '\n    ' + new Array(err.col + 1).join('^');
+        + err.message + '\n    ' + evidence + '\n    ' + new Array(err.col).join('-') + '^';
   };
 
   var results = CSSLint.verify(source, rules).messages,
@@ -28,7 +28,8 @@
         line: err.line,
         column: err.col,
         filename: filename,
-        message: err.message
+        message: err.message,
+        evidence: err.evidence
       });
    }
   });

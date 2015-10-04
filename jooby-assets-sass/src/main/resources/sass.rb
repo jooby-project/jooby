@@ -138,9 +138,9 @@ def source_map(filename, type)
 end
 
 def render(source, options, filename, loader, is_map)
+  importer = ClasspathImport.new(filename, loader)
   begin
     options = convert(options)
-    importer = ClasspathImport.new(filename, loader)
     options[:importer] = importer
     options[:filename] = filename
     options[:cache_location] = options[:cache_location].to_s if options[:cache_location]
@@ -177,7 +177,16 @@ def render(source, options, filename, loader, is_map)
     end
     return engine.render
   rescue Sass::SyntaxError => ex
-    problem = org::jooby::assets::AssetProblem.new(ex.sass_filename, ex.sass_line, -1, ex.message)
+    fname = ex.sass_filename
+    line = ex.sass_line
+
+    begin
+      evidence = importer._readFile(fname).split("\n")[line - 1]
+    rescue
+      evidence = ''
+    end
+
+    problem = org::jooby::assets::AssetProblem.new(fname, line, -1, ex.message, evidence)
     return problem
   end
 end

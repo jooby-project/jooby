@@ -82,13 +82,13 @@ public class YuiJs extends AssetProcessor {
 
   @Override
   public boolean matches(final MediaType type) {
-    return MediaType.css.matches(type);
+    return MediaType.js.matches(type);
   }
 
   @Override
   public String process(final String filename, final String source, final Config conf)
       throws Exception {
-    ErrorReporter reporter = reporter(log, filename);
+    ErrorReporter reporter = reporter(log, filename, name());
     JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(source), reporter);
     StringWriter out = new StringWriter();
     compressor.compress(out, get("linebreakpos"), get("munge"), get("verbose"),
@@ -96,7 +96,7 @@ public class YuiJs extends AssetProcessor {
     return out.toString();
   }
 
-  private static ErrorReporter reporter(final Logger log, final String filename) {
+  private static ErrorReporter reporter(final Logger log, final String filename, final String name) {
     return new ErrorReporter() {
 
       @Override
@@ -115,8 +115,8 @@ public class YuiJs extends AssetProcessor {
       @Override
       public void error(final String message, final String sourceName, final int line,
           final String lineSource, final int lineOffset) {
-        throw new AssetException(
-            ImmutableList.of(new AssetProblem(filename, line, lineOffset, message)));
+        throw new AssetException(name,
+            ImmutableList.of(new AssetProblem(filename, line, lineOffset, message, null)));
       }
     };
   }

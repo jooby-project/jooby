@@ -29,16 +29,26 @@ public class AssetException extends RuntimeException {
 
   private List<AssetProblem> problems;
 
-  public AssetException(final AssetProblem problem) {
-    this(ImmutableList.of(problem));
+  private String id;
+
+  public AssetException(final String id, final AssetProblem problem) {
+    this(id, ImmutableList.of(problem));
   }
 
-  public AssetException(final List<AssetProblem> problems) {
+  public AssetException(final String id, final List<AssetProblem> problems) {
     super(requireNonNull(problems, "The problems is required.").toString());
+    this.id = id;
     this.problems = problems;
   }
 
-  public List<AssetProblem> problems() {
+  /**
+   * @return processor ID.
+   */
+  public String getId() {
+    return id;
+  }
+
+  public List<AssetProblem> getProblems() {
     return problems;
   }
 

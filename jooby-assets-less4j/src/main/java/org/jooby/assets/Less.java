@@ -121,9 +121,9 @@ public class Less extends AssetProcessor {
       }
     } catch (Less4jException ex) {
       List<AssetProblem> problems = ex.getErrors().stream()
-          .map(it -> new AssetProblem(path, it.getLine(), it.getCharacter(), it.getMessage()))
+          .map(it -> new AssetProblem(path, it.getLine(), it.getCharacter(), it.getMessage(), null))
           .collect(Collectors.toList());
-      throw new AssetException(problems);
+      throw new AssetException(name(), problems);
     }
   }
 

@@ -53,11 +53,14 @@ public class V8Context {
 
   public final V8 v8;
 
-  private V8Context(final String global, final String logname) {
+  private String id;
+
+  private V8Context(final String global, final String id) {
     v8 = V8.createV8Runtime(global);
     V8Object console = hash();
+    this.id = id;
 
-    console(logname, console);
+    console(id, console);
 
     assets(v8);
   }
@@ -91,7 +94,7 @@ public class V8Context {
 
     List<AssetProblem> problems = problems(value);
     if (problems.size() > 0) {
-      throw new AssetException(problems);
+      throw new AssetException(id, problems);
     }
     return ((V8Object) value).getString("output");
   }
@@ -132,7 +135,11 @@ public class V8Context {
     if (js.contains("filename")) {
       filename = js.getString("filename");
     }
-    return new AssetProblem(filename, line, column, js.getString("message"));
+    String evidence = null;
+    if (js.contains("evidence")) {
+      evidence = js.getString("evidence");
+    }
+    return new AssetProblem(filename, line, column, js.getString("message"), evidence);
   }
 
   private URL resolve(final String path) {

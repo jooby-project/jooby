@@ -118,9 +118,9 @@ public class ClosureCompiler extends AssetProcessor {
     }
     List<AssetProblem> errors = Arrays.stream(result.errors)
         .map(error -> new AssetProblem(error.sourceName, error.lineNumber, error.getCharno(),
-            error.description))
+            error.description, null))
         .collect(Collectors.toList());
-    throw new AssetException(errors);
+    throw new AssetException(name(), errors);
   }
 
   private CompilationLevel level(final String level) {

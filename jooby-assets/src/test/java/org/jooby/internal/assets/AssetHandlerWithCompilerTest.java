@@ -1,10 +1,11 @@
-package org.jooby.assets;
+package org.jooby.internal.assets;
 
 import static org.easymock.EasyMock.expect;
 
 import org.jooby.Asset;
 import org.jooby.Request;
 import org.jooby.Response;
+import org.jooby.assets.AssetCompiler;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 

@@ -25,9 +25,12 @@ import java.util.stream.Collectors;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
+import org.jooby.Managed;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.handlers.AssetHandler;
+import org.jooby.internal.assets.AssetHandlerWithCompiler;
+import org.jooby.internal.assets.LiveCompiler;
 
 import com.google.common.base.Throwables;
 import com.google.inject.Binder;
@@ -44,7 +47,8 @@ import com.typesafe.config.ConfigFactory;
  * and CSS too.
  * </p>
  * <p>
- * A variety of processors are available (jshint, csslint, jscs, uglify, closure-compiler, etc..), but
+ * A variety of processors are available (jshint, csslint, jscs, uglify, closure-compiler, etc..),
+ * but
  * also you might want to write your owns.
  * </p>
  *
@@ -262,13 +266,26 @@ public class Assets implements Jooby.Module {
                   .collect(Collectors.joining()));
             });
           }).name("/assets/vars"));
+      // live compiler?
+      boolean watch = dev;
+      if (watch && conf.hasPath("assets.watch")) {
+        watch = conf.getBoolean("assets.watch");
+      }
+      if (watch) {
+        LiveCompiler liveCompiler = new LiveCompiler(conf, compiler);
+        binder.bind(Managed.class).toInstance(liveCompiler);
+        routes.addBinding()
+            .toInstance(new Route.Definition("*", "*", liveCompiler).name("/assets/compiler"));
+      }
 
       AssetHandler handler = dev
           ? new AssetHandlerWithCompiler("/", compiler)
               .etag(false)
+              .lastModified(false)
           : new AssetHandler("/")
               .etag(conf.getBoolean("assets.etag"))
               .cdn(conf.getString("assets.cdn"))
+              .lastModified(conf.getBoolean("assets.lastModified"))
               .maxAge(conf.getDuration("assets.cache.maxAge", TimeUnit.SECONDS));
 
       compiler.patterns().forEach(
