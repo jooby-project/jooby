@@ -1,6 +1,11 @@
 quickstart
 =====
 
+We provide two ways to getting started:
+
+* via [Maven Archetype](https://maven.apache.org/guides/introduction/introduction-to-archetypes.html)
+* or checkout and fork one of our [templates](https://github.com/jooby-starters)
+
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
 ```bash
