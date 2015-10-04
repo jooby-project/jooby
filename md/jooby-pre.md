@@ -10,4 +10,4 @@
 
 * **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
 
-* **Ready for modern web**, with the awesome and powerful [asset module](/jooby-assets)
+* **Ready for modern web**, with the awesome and powerful [asset module](https://github.com/jooby-project/jooby/tree/master/jooby-assets)

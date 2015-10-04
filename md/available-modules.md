@@ -1,6 +1,9 @@
 ## mvn jooby:run
 * [jooby:run](https://github.com/jooby-project/jooby/tree/master/jooby-maven-plugin): maven plugin with hot reload of classes, powered by {{jboss-modules}}.
 
+## asset pipeline
+* [asset module](https://github.com/jooby-project/jooby/tree/master/jooby-assets): CSS and JavaScript processing.
+
 ## parsers & renderers
 * [jackson](https://github.com/jooby-project/jooby/tree/master/jooby-jackson): JSON supports via Jackson.
 * [gson](https://github.com/jooby-project/jooby/tree/master/jooby-gson): JSON supports via Gson.

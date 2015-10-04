@@ -4,8 +4,6 @@ The asset module is library to concatenate, minify or compress JavaScript and CS
 
 A variety of processors are available (jshint, csslint, jscs, uglify, closure-compiler, etc..), but also you might want to write your owns.
 
-<img width="553" alt="live compiler" src="http://jooby.org/images/compiler.png">
-
 ## dependency
 
 ```xml
@@ -20,8 +18,9 @@ A variety of processors are available (jshint, csslint, jscs, uglify, closure-co
 
 The first thing you need to do is to define your assets. Definition is done in your ```.conf``` file or in a special file: ```assets.conf```.
 
-**assets.conf** 
-```properties
+**assets.conf**
+
+```text
 assets {
  fileset {
    home: [assets/home.js, assets/home.css]
@@ -29,7 +28,8 @@ assets {
 }
 ```
 
-**App.java** 
+**App.java**
+
 ```java
 {
   use(new Assets());
@@ -41,10 +41,10 @@ The assets module will publish 4 request local variables for ```home``` fileset:
 ```html
  <html>
  <head>
-   {{{home_styles}}}
+   {{ "{{ home_styles" }}}}
  <body>
    ...
-   {{{home_scripts}}
+   {{ "{{ home_scripts" }}}}
  </body>
  </head>
  </html>
@@ -54,7 +54,8 @@ The variables: ```_styles``` and ```_scripts``` produces one ore more ```link```
 
 Now, let's see how to configure the Maven plugin to process our assets at build-time:
 
-**pom.xml** 
+**pom.xml**
+
 ```html
  <plugin>
    <groupId>org.jooby</groupId>
@@ -87,7 +88,7 @@ That isn't all! the ```*_styles``` and ```*_scripts``` are updated with the fing
 
 A fileset is a group of assets within a name. The fileset name is expanded into 4 request local variables, for example:
 
-```properties
+```text
 assets {
  fileset {
    home: [assets/home.js, assets/home.css]
@@ -109,7 +110,7 @@ Another 4 variables will be available for the ```pageA``` fileset!
 
 Extension or re-use of filesets is possible via the: ```<``` operator:
 
-```properties
+```text
 assets {
  fileset {
    base: [js/lib/jquery.js, css/normalize.css]
@@ -123,7 +124,7 @@ assets {
 
 An [AssetProcessor]({{defdocs}}/assets/AssetProcessor.html) usually checks or modify an asset content in one way or another. They are defined in the ```assets.conf``` files using the ```pipeline``` construction:
 
-```properties
+```text
 assets {
  fileset {
    home: [js/home.js, css/home.css]
