@@ -17,6 +17,12 @@
   <dependencies>
     <dependency>
       <groupId>org.jooby</groupId>
+      <artifactId>jooby-assets</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
       <artifactId>jooby-hotreload</artifactId>
       <version>${project.version}</version>
     </dependency>

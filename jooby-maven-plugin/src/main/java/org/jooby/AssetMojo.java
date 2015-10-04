@@ -21,7 +21,6 @@ package org.jooby;
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -43,9 +42,12 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.jooby.assets.AssetCompiler;
 
 import com.google.common.base.Throwables;
 import com.google.common.io.Files;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 @Mojo(name = "assets", requiresDependencyResolution = ResolutionScope.TEST,
     defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
@@ -77,6 +79,7 @@ public class AssetMojo extends AbstractMojo {
   @SuppressWarnings("unchecked")
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
+    long start = System.currentTimeMillis();
     try {
       List<URL> cp = new ArrayList<>();
       cp.addAll(resources(mavenProject.getResources()));
@@ -90,39 +93,33 @@ public class AssetMojo extends AbstractMojo {
       try (URLClassLoader loader = new URLClassLoader(cp.toArray(new URL[cp.size()]),
           getClass().getClassLoader())) {
         Thread.currentThread().setContextClassLoader(loader);
-        Class<?> appClass = loader.loadClass(this.mainClass);
-        Method on = appClass.getSuperclass().getDeclaredMethod("on",
-            new Class[]{String.class, Consumer.class });
-        Object app = appClass.newInstance();
-        on.invoke(app, "*", compile(loader));
-        Method start = appClass.getSuperclass().getDeclaredMethod("start", new Class[0]);
-        start.invoke(app);
+        Jooby app = (Jooby) loader.loadClass(this.mainClass).newInstance();
+        app.on("*", compile(loader)).start();
       } finally {
         Thread.currentThread().setContextClassLoader(ctxloader);
       }
-    } catch (InvocationTargetException ex) {
-      Throwable cause = ex.getCause();
-      if (!(cause instanceof CompilationDone)) {
-        throw new MojoFailureException("Can't compile assets for " + mainClass, cause);
-      }
+    } catch (CompilationDone ex) {
+      long end = System.currentTimeMillis();
+      getLog().info("compilation took " + (end - start) + "ms");
     } catch (Exception ex) {
       throw new MojoFailureException("Can't compile assets for " + mainClass, ex);
     }
   }
 
-  private Consumer<Object> compile(final ClassLoader loader) {
+  private Consumer<Config> compile(final ClassLoader loader) {
     return conf -> {
       try {
         output.mkdirs();
-        Class<?> ac = loader.loadClass("org.jooby.assets.AssetCompiler");
-        Class<?> cclass = loader.loadClass("com.typesafe.config.Config");
-        Object compiler = ac.getDeclaredConstructor(ClassLoader.class, cclass)
-            .newInstance(loader, conf(loader, conf, cclass));
-        @SuppressWarnings("unchecked")
-        Map<String, List<File>> fileset = (Map<String, List<File>>) ac
-            .getDeclaredMethod("build", String.class, File.class).invoke(compiler, env, output);
-        StringBuilder min = new StringBuilder();
-        min.append("assets.fileset {\n").append(fileset.entrySet().stream().map(e -> {
+
+        Config assetConf = ConfigFactory.parseResources(loader, "assets.conf")
+            .withFallback(conf);
+
+        AssetCompiler compiler = new AssetCompiler(loader, assetConf);
+
+        Map<String, List<File>> fileset = compiler.build(env, output);
+
+        StringBuilder dist = new StringBuilder();
+        dist.append("assets.fileset {\n").append(fileset.entrySet().stream().map(e -> {
           String files = e.getValue().stream()
               .map(file -> output.toPath().relativize(file.toPath()))
               .map(path -> "/" + path.toString().replace("\\", "/"))
@@ -130,15 +127,15 @@ public class AssetMojo extends AbstractMojo {
           return "  " + e.getKey() + ": " + files;
         }).collect(Collectors.joining("\n")))
             .append("\n}\n");
-        min.append("assets.cache.maxAge = ").append(maxAge).append("\n");
-        min.append("assets.pipeline.dev = {}\n");
-        min.append("assets.pipeline.").append(env).append(" = {}\n");
-        min.append("assets.watch = false\n");
-        File minFile = new File(output, "assets." + env + ".conf");
-        FileWriter writer = new FileWriter(minFile);
-        writer.write(min.toString());
-        writer.close();
-        getLog().info("done: " + minFile.getPath());
+        dist.append("assets.cache.maxAge = ").append(maxAge).append("\n");
+        dist.append("assets.pipeline.dev = {}\n");
+        dist.append("assets.pipeline.").append(env).append(" = {}\n");
+        dist.append("assets.watch = false\n");
+        File distFile = new File(output, "assets." + env + ".conf");
+        try (FileWriter writer = new FileWriter(distFile)) {
+          writer.write(dist.toString());
+        }
+        getLog().info("done: " + distFile.getPath());
 
         // move output to fixed location required by zip/war dist
         List<File> files = fileset.values().stream()
@@ -160,26 +157,6 @@ public class AssetMojo extends AbstractMojo {
       // signal we are done
       throw new CompilationDone();
     };
-  }
-
-  private Object conf(final ClassLoader loader, final Object conf, final Class<?> cconfclass)
-      throws Exception {
-    /**
-     *
-     * ConfigFactory.parseResources(loader, "assets.conf")
-     * .withFallback(conf)
-     * .resolve();
-     */
-    Class<?> cfactory = loader.loadClass("com.typesafe.config.ConfigFactory");
-
-    Method parseResources = cfactory.getDeclaredMethod("parseResources", ClassLoader.class,
-        String.class);
-    Object result = parseResources.invoke(null, loader, "assets.conf");
-    Method withFallback = cconfclass.getDeclaredMethod("withFallback",
-        cconfclass.getInterfaces()[0]);
-    result = withFallback.invoke(result, conf);
-    Method resolve = cconfclass.getDeclaredMethod("resolve");
-    return resolve.invoke(result);
   }
 
   private List<URL> jars(final Iterable<Artifact> artifacts) throws MalformedURLException {
