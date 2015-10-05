@@ -16,7 +16,7 @@ See [JDBI](http://www.jdbi.org/) for a detailed usage.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbi</artifactId>
-  <version>0.10.0</version>
+  <version>0.11.0</version>
 </dependency>
 ```
 

@@ -8,7 +8,7 @@ Exports a [Hazelcast](http://hazelcast.org) instances and optionally a [session 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>0.10.0</version>
+  <version>0.11.0</version>
 </dependency>
 ```
 

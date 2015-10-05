@@ -17,7 +17,7 @@
 
 * **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
 
-* **Ready for modern web**. That requires a lot of JavaScript/HTML/CSS
+* **Ready for modern web**, with the awesome and powerful [asset module](/doc/assets)
 
 
 ## hello world!
@@ -65,10 +65,14 @@ app.get('/', function () 'Hey Jooby!');
 quickstart
 =====
 
+* fork one of our [templates](https://github.com/jooby-starters)
+
+* or via [Maven Archetype](https://maven.apache.org/guides/introduction/introduction-to-archetypes.html):
+
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.10.0
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.11.0
 ```
 
 You might want to edit/change:
@@ -83,7 +87,7 @@ You might want to edit/change:
 Let's try it!:
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.10.0
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.11.0
 cd my-app
 mvn jooby:run
 ```

@@ -496,8 +496,12 @@ ls(ghpagesdir, function (file) {
     path = path.subpath(1, path.nameCount);
   }
 
-  var fout = path.nameCount > 1 ? new File('jooby-' + path) : path.toFile();
-  copy(file, fout);
-  file['delete']();
-  console.log('  done: ' + fout);
+  try {
+    var fout = path.nameCount > 1 ? new File('jooby-' + path) : path.toFile();
+    copy(file, fout);
+    file['delete']();
+    console.log('  done: ' + fout);
+  } catch (ex) {
+    console.log('  err: ' + ex);
+  }
 });
