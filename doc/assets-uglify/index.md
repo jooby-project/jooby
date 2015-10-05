@@ -1,7 +1,7 @@
 ---
 layout: index
 title: assets-uglify
-version: 0.11.0
+version: 0.11.1
 ---
 
 # uglify
@@ -14,7 +14,7 @@ version: 0.11.0
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-uglify</artifactId>
-  <version>0.11.0</version>
+  <version>0.11.1</version>
   <scope>test</scope>
 </dependency>
 ```
