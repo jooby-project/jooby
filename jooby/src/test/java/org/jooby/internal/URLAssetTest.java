@@ -1,12 +1,15 @@
 package org.jooby.internal;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 
 import org.jooby.MediaType;
 import org.jooby.test.MockUnit;
@@ -65,6 +68,75 @@ public class URLAssetTest {
         })
         .run(unit -> {
           new URLAsset(unit.get(URL.class), "path.js", MediaType.js);
+        });
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void headerFailWithConnection() throws Exception {
+    new MockUnit(URL.class)
+        .expect(unit -> {
+          InputStream stream = unit.mock(InputStream.class);
+          stream.close();
+
+          URLConnection conn = unit.mock(URLConnection.class);
+          conn.setUseCaches(false);
+          expect(conn.getContentLengthLong()).andThrow(
+              new IllegalStateException("intentional err"));
+          expect(conn.getInputStream()).andReturn(stream);
+
+          URL url = unit.get(URL.class);
+          expect(url.getProtocol()).andReturn("http");
+          expect(url.openConnection()).andReturn(conn);
+        })
+        .run(unit -> {
+          new URLAsset(unit.get(URL.class), "pa.ks", MediaType.js);
+        });
+  }
+
+  @Test
+  public void noLastModifiednoLen() throws Exception {
+    new MockUnit(URL.class)
+        .expect(unit -> {
+          InputStream stream = unit.mock(InputStream.class);
+          stream.close();
+
+          URLConnection conn = unit.mock(URLConnection.class);
+          conn.setUseCaches(false);
+          expect(conn.getContentLengthLong()).andReturn(0L);
+          expect(conn.getLastModified()).andReturn(0L);
+          expect(conn.getInputStream()).andReturn(stream);
+
+          URL url = unit.get(URL.class);
+          expect(url.getProtocol()).andReturn("http");
+          expect(url.openConnection()).andReturn(conn);
+        })
+        .run(unit -> {
+          URLAsset asset = new URLAsset(unit.get(URL.class), "pa.ks", MediaType.js);
+          assertEquals(0, asset.length());
+          assertEquals(-1, asset.lastModified());
+        });
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void headersStreamCloseFails() throws Exception {
+    new MockUnit(URL.class)
+        .expect(unit -> {
+          InputStream stream = unit.mock(InputStream.class);
+          stream.close();
+          expectLastCall().andThrow(new IOException("ignored"));
+
+          URLConnection conn = unit.mock(URLConnection.class);
+          conn.setUseCaches(false);
+          expect(conn.getContentLengthLong()).andThrow(
+              new IllegalStateException("intentional err"));
+          expect(conn.getInputStream()).andReturn(stream);
+
+          URL url = unit.get(URL.class);
+          expect(url.getProtocol()).andReturn("http");
+          expect(url.openConnection()).andReturn(conn);
+        })
+        .run(unit -> {
+          new URLAsset(unit.get(URL.class), "ala.la", MediaType.js);
         });
   }
 

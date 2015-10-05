@@ -22,19 +22,15 @@ import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Map;
+import java.net.URLConnection;
 import java.util.function.BiConsumer;
 
 import org.jooby.Asset;
 import org.jooby.MediaType;
 import org.jooby.util.ExSupplier;
+
+import com.google.common.io.Closeables;
 
 public class URLAsset implements Asset {
 
@@ -99,7 +95,6 @@ public class URLAsset implements Asset {
   }
 
   private boolean attr(final URL resource, final BiConsumer<Long, Long> attrs) throws Exception {
-    Map<String, Object> env = Collections.emptyMap();
     if ("file".equals(resource.getProtocol())) {
       File file = new File(resource.toURI());
       if (file.exists()) {
@@ -107,14 +102,16 @@ public class URLAsset implements Asset {
       }
       return file.isFile();
     } else {
-      String[] parts = resource.toString().split("!");
-      try (FileSystem fs = FileSystems.newFileSystem(URI.create(parts[0]), env)) {
-        Path path = fs.getPath(parts[1]);
-        if (Files.exists(path)) {
-          attrs.accept(Files.size(path), Files.getLastModifiedTime(path).toMillis());
-        }
-        return !Files.isDirectory(path);
+      URLConnection cnn = resource.openConnection();
+      cnn.setUseCaches(false);
+      attrs.accept(cnn.getContentLengthLong(), cnn.getLastModified());
+      try {
+        Closeables.closeQuietly(cnn.getInputStream());
+      } catch (NullPointerException ex) {
+        // dir entries throw NPE :S
+        return false;
       }
+      return true;
     }
   }
 
