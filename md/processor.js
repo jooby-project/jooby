@@ -336,7 +336,7 @@ var toc = function (data) {
         // clean up md links
         var item = line.replaceAll('#|\\[|\\]|\\(.+\\)', '').trim();
         toc.append(indent(c)).append('- [').append(item).append('](#')
-            .append(item.replaceAll('\\s+|\\/', '-').replaceAll('-+', '-')).append(')\n');
+            .append(item.replaceAll('\\:|,', '').replaceAll('\\s+|\\/|\\.', '-').replaceAll('-+', '-')).append(')\n');
       }
   }
 
