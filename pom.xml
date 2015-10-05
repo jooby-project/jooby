@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>0.11.0</version>
+  <version>0.11.1</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
@@ -115,12 +115,6 @@
         <scope>test</scope>
         <version>${jooby.version}</version>
         <classifier>tests</classifier>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jooby</groupId>
-        <artifactId>jooby-assets</artifactId>
-        <version>${jooby.version}</version>
       </dependency>
 
       <dependency>

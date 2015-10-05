@@ -7,7 +7,7 @@ Please note, this module depends on: [mongodb](/doc/mongodb) module.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jongo</artifactId>
-  <version>0.11.0</version>
+  <version>0.11.1</version>
 </dependency>
 ```
 
