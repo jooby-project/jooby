@@ -147,6 +147,10 @@ section {
   padding: 0 5px 45px; /* Height of the footer */
 }
 
+section p {
+  line-height: 1.8em;
+}
+
 section a {
   color: #da4939;
   text-decoration: none;
