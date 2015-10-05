@@ -10,4 +10,4 @@
 
 * **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
 
-* **Ready for modern web**. That requires a lot of JavaScript/HTML/CSS
+* **Ready for modern web**, with the awesome and powerful [asset module](/doc/assets)

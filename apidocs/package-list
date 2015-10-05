@@ -1,5 +1,6 @@
 org.jooby
 org.jooby.akka
+org.jooby.assets
 org.jooby.aws
 org.jooby.camel
 org.jooby.ebean
@@ -18,7 +19,6 @@ org.jooby.jdbi
 org.jooby.jedis
 org.jooby.jetty
 org.jooby.json
-org.jooby.less
 org.jooby.mail
 org.jooby.memcached
 org.jooby.mongodb
@@ -27,7 +27,6 @@ org.jooby.netty
 org.jooby.pac4j
 org.jooby.quartz
 org.jooby.reflect
-org.jooby.sass
 org.jooby.scope
 org.jooby.servlet
 org.jooby.spi

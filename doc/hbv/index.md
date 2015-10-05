@@ -1,7 +1,7 @@
 ---
 layout: index
 title: hbv
-version: 0.10.0
+version: 0.11.0
 ---
 
 # jooby-hbv
@@ -20,7 +20,7 @@ Bean validation via [Hibernate Validator](hibernate.org/validator).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbv</artifactId>
-  <version>0.10.0</version>
+  <version>0.11.0</version>
 </dependency>
 ```
 

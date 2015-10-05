@@ -1,7 +1,7 @@
 ---
 layout: index
 title: less
-version: 0.10.0
+version: 0.11.0
 ---
 
 # jooby-less
@@ -19,7 +19,7 @@ Transform [Less](http://lesscss.org) files to ```css``` via [Less4j](https://git
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-less</artifactId>
-  <version>0.10.0</version>
+  <version>0.11.0</version>
 </dependency>
 ```
 
@@ -86,22 +86,3 @@ or
 ```
 
 Happy coding!!
-
-# appendix: less.conf
-
-```properties
-less {
-  # turn on/off compression. if no value was set, compression is 'off' for dev.
-  # compressing: true/false
-
-  sourceMap {
-    encodingCharset: ${application.charset}
-    includeSourcesContent: false
-    relativizePaths: true
-    inline: false
-    # If set to false, generated css does not contain link to source map file.
-    # when no value was set, this flag is 'on' for dev.
-    # linkSourceMap: true on dev, otherwise false
-  }
-}
-```

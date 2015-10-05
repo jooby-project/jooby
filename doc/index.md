@@ -1,7 +1,7 @@
 ---
 layout: index
 title: doc
-version: 0.10.0
+version: 0.11.0
 ---
 
 documentation
@@ -487,6 +487,11 @@ assets.cdn = "http://http://d7471vfo50fqt.cloudfront.net"
 A ```GET``` to ```/assets/js/index.js``` will be redirected to: ```http://http://d7471vfo50fqt.cloudfront.net/assets/js/index.js```
 
 Of course, you usually set a ```cdn``` in your ```application.prod.conf``` file only.
+
+There is also a super awesome and powerful [assets](/doc/assets/) module. The [assets](/doc/assets/)
+is library to concatenate, minify or compress JavaScript and CSS assets. It also adds the ability
+to write these assets in other languages and process/compile them to another language. Finally,
+it help you to write high quality code by validate JavaScript and CSS too.
 
 ## precedence and order
 
@@ -1973,6 +1978,10 @@ application {
 
   # timezone, system default. set it at runtime
   # tz = ZoneId.systemDefault().getId()
+
+  # redirect to/force https
+  # example: https://my.domain.com/{0}
+  redirect_https = ""
 }
 
 ssl {
@@ -2063,10 +2072,22 @@ server {
 ###################################################################################################
 #! assets
 ###################################################################################################
-#! If asset CDN is present, the asset router will do a redirect to CDN and wont serve the file locally
-#! /assets/js/index.js -> redirectTo(cdn + assets/js/index.js)
-assets.cdn = ""
-assets.etag = true
+assets {
+  #! If asset CDN is present, the asset router will do a redirect to CDN and wont serve the file locally
+  #! /assets/js/index.js -> redirectTo(cdn + assets/js/index.js)
+  cdn =  ""
+
+  etag = true
+
+  lastModified = true
+
+  env = ${application.env}
+
+  charset = ${application.charset}
+
+  cache.maxAge = -1
+
+}
 
 ###################################################################################################
 #! Cross origin resource sharing
@@ -2144,6 +2165,7 @@ mime.crt=application/x-x509-ca-cert
 mime.csh=application/x-csh
 mime.css=text/css
 mime.scss=text/css
+mime.less=text/css
 mime.csv=text/comma-separated-values
 mime.dcr=application/x-director
 mime.dir=application/x-director
@@ -2179,6 +2201,8 @@ mime.jpe=image/jpeg
 mime.jpeg=image/jpeg
 mime.jpg=image/jpeg
 mime.js=application/javascript
+mime.ts=application/javascript
+mime.coffee=application/javascript
 mime.json=application/json
 mime.yaml=application/yaml
 mime.jsp=text/html
