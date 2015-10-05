@@ -6,9 +6,9 @@ version: 0.11.0
 
 documentation
 =====
-- [philosophy: do more, more easily](#philosophy:-do-more,-more-easily)
-- [config, environment and logging](#config,-environment-and-logging)
-  - [application.conf](#application.conf)
+- [philosophy do more more easily](#philosophy-do-more-more-easily)
+- [config environment and logging](#config-environment-and-logging)
+  - [application.conf](#application-conf)
   - [injecting properties](#injecting-properties)
   - [special properties](#special-properties)
   - [config precedence](#config-precedence)
@@ -59,8 +59,8 @@ documentation
   - [running a javascript app](#running-a-javascript-app)
 - [https](#https)
   - [certificates](#certificates)
-- [appendix: jooby.conf](#appendix:-jooby.conf)
-- [appendix: mime.properties](#appendix:-mime.properties)
+- [appendix jooby.conf](#appendix-jooby-conf)
+- [appendix mime.properties](#appendix-mime-properties)
 
 
 # philosophy: do more, more easily
