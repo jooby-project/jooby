@@ -83,4 +83,4 @@ assets {
 ```
 # available processors
 
-{{available-js-procesors.md}}
+{{available-asset-procesors.md}}
