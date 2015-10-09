@@ -20,6 +20,15 @@ package org.jooby.internal.netty;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.util.Objects.requireNonNull;
+
+import java.io.IOException;
+
+import org.jooby.spi.HttpHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.typesafe.config.Config;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -31,19 +40,13 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 
-import org.jooby.spi.HttpHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.typesafe.config.Config;
-
 public class NettyHandler extends SimpleChannelInboundHandler<Object> {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  public static final AttributeKey<String> PATH =
-      AttributeKey.newInstance(NettyHandler.class.getName());
+  public static final AttributeKey<String> PATH = AttributeKey
+      .newInstance(NettyHandler.class.getName());
 
   private HttpHandler handler;
 
@@ -60,13 +63,7 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
     this.wsMaxMessageSize = Math
         .max(
             config.getBytes("server.ws.MaxTextMessageSize").intValue(),
-            config.getBytes("server.ws.MaxBinaryMessageSize").intValue()
-        );
-  }
-
-  @Override
-  public void channelReadComplete(final ChannelHandlerContext ctx) {
-    ctx.flush();
+            config.getBytes("server.ws.MaxBinaryMessageSize").intValue());
   }
 
   @Override
@@ -84,8 +81,7 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
       try {
         handler.handle(
             new NettyRequest(ctx, req, tmpdir, wsMaxMessageSize),
-            new NettyResponse(ctx, bufferSize, keepAlive)
-            );
+            new NettyResponse(ctx, bufferSize, keepAlive));
       } catch (Throwable ex) {
         exceptionCaught(ctx, ex);
       }
@@ -96,17 +92,32 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
   }
 
   @Override
+  public void channelReadComplete(final ChannelHandlerContext ctx) throws Exception {
+    ctx.flush();
+  }
+
+  @Override
   public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
     try {
-      Attribute<NettyWebSocket> ws = ctx.attr(NettyWebSocket.KEY);
-      if (ws != null && ws.get() != null) {
-        ws.get().handle(cause);
+      if (connectionResetByPeer(cause)) {
+        log.trace("execution of: " + ctx.attr(PATH).get() + " resulted in error", cause);
       } else {
-        log.error("execution of: " + ctx.attr(PATH).get() + " resulted in error", cause);
+        Attribute<NettyWebSocket> ws = ctx.attr(NettyWebSocket.KEY);
+        if (ws != null && ws.get() != null) {
+          ws.get().handle(cause);
+        } else {
+          log.error("execution of: " + ctx.attr(PATH).get() + " resulted in error", cause);
+        }
       }
     } finally {
       ctx.close();
     }
+
+  }
+
+  private boolean connectionResetByPeer(final Throwable cause) {
+    return cause instanceof IOException
+        && cause.getMessage().toLowerCase().contains("connection reset by peer");
   }
 
   @Override

@@ -2,6 +2,18 @@ package org.jooby.internal.netty;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+
+import java.io.IOException;
+
+import org.jooby.spi.HttpHandler;
+import org.jooby.test.MockUnit;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import com.typesafe.config.Config;
+
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -15,39 +27,10 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.Attribute;
 
-import org.jooby.spi.HttpHandler;
-import org.jooby.test.MockUnit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import com.typesafe.config.Config;
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NettyHandler.class, NettyRequest.class, NettyResponse.class,
     DefaultFullHttpResponse.class, HttpHeaders.class })
 public class NettyHandlerTest {
-
-  @Test
-  public void channelReadComplete() throws Exception {
-    new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
-        .expect(unit -> {
-          Config config = unit.get(Config.class);
-          expect(config.getString("application.tmpdir")).andReturn("target");
-          expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
-          expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
-          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
-
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-
-          expect(ctx.flush()).andReturn(ctx);
-        })
-        .run(unit -> {
-          new NettyHandler(unit.get(HttpHandler.class), unit.get(Config.class))
-              .channelReadComplete(unit.get(ChannelHandlerContext.class));
-        });
-  }
 
   @SuppressWarnings("unchecked")
   @Test
@@ -331,6 +314,101 @@ public class NettyHandlerTest {
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.attr(NettyWebSocket.KEY)).andReturn(null);
+
+          Attribute<String> attr = unit.mock(Attribute.class);
+          expect(attr.get()).andReturn("GET /");
+
+          expect(ctx.attr(NettyHandler.PATH)).andReturn(attr);
+        })
+        .expect(unit -> {
+          ChannelFuture future = unit.mock(ChannelFuture.class);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.close()).andReturn(future);
+        })
+        .run(unit -> {
+          new NettyHandler(unit.get(HttpHandler.class), unit.get(Config.class))
+              .exceptionCaught(unit.get(ChannelHandlerContext.class), cause);
+        });
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void exceptionCaughtConnectionResetByPeerNoIOEx() throws Exception {
+    Exception cause = new Exception("Connection reset by peer  (intentional error)");
+    new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(unit -> {
+          Config config = unit.get(Config.class);
+          expect(config.getString("application.tmpdir")).andReturn("target");
+          expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.attr(NettyWebSocket.KEY)).andReturn(null);
+
+          Attribute<String> attr = unit.mock(Attribute.class);
+          expect(attr.get()).andReturn("GET /");
+
+          expect(ctx.attr(NettyHandler.PATH)).andReturn(attr);
+        })
+        .expect(unit -> {
+          ChannelFuture future = unit.mock(ChannelFuture.class);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.close()).andReturn(future);
+        })
+        .run(unit -> {
+          new NettyHandler(unit.get(HttpHandler.class), unit.get(Config.class))
+              .exceptionCaught(unit.get(ChannelHandlerContext.class), cause);
+        });
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void exceptionCaughtIOEx() throws Exception {
+    Exception cause = new IOException("Connection reset by pexer");
+    new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(unit -> {
+          Config config = unit.get(Config.class);
+          expect(config.getString("application.tmpdir")).andReturn("target");
+          expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.attr(NettyWebSocket.KEY)).andReturn(null);
+
+          Attribute<String> attr = unit.mock(Attribute.class);
+          expect(attr.get()).andReturn("GET /");
+
+          expect(ctx.attr(NettyHandler.PATH)).andReturn(attr);
+        })
+        .expect(unit -> {
+          ChannelFuture future = unit.mock(ChannelFuture.class);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.close()).andReturn(future);
+        })
+        .run(unit -> {
+          new NettyHandler(unit.get(HttpHandler.class), unit.get(Config.class))
+              .exceptionCaught(unit.get(ChannelHandlerContext.class), cause);
+        });
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void exceptionCaughtConnectionResetByPeer() throws Exception {
+    Exception cause = new IOException("Connection reset by peer (intentional error)");
+    new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(unit -> {
+          Config config = unit.get(Config.class);
+          expect(config.getString("application.tmpdir")).andReturn("target");
+          expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+          expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
 
           Attribute<String> attr = unit.mock(Attribute.class);
           expect(attr.get()).andReturn("GET /");
