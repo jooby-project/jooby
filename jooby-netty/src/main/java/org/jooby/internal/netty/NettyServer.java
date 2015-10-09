@@ -46,6 +46,10 @@ import com.typesafe.config.Config;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
@@ -61,9 +65,9 @@ public class NettyServer implements Server {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(Server.class);
 
-  private NioEventLoopGroup parentGroup;
+  private EventLoopGroup bossLoop;
 
-  private NioEventLoopGroup childGroup;
+  private EventLoopGroup workerLoop;
 
   private Channel ch;
 
@@ -80,12 +84,12 @@ public class NettyServer implements Server {
   @Override
   public void start() throws Exception {
     int parentThreads = config.getInt("netty.threads.Parent");
-    parentGroup = eventLoop(parentThreads, "parent");
+    bossLoop = eventLoop(parentThreads, "parent");
     if (config.hasPath("netty.threads.Child")) {
       int childThreads = config.getInt("netty.threads.Child");
-      childGroup = eventLoop(childThreads, "child");
+      workerLoop = eventLoop(childThreads, "child");
     } else {
-      childGroup = parentGroup;
+      workerLoop = bossLoop;
     }
 
     ThreadFactory threadFactory = new DefaultThreadFactory(config.getString("netty.threads.Name"));
@@ -99,12 +103,15 @@ public class NettyServer implements Server {
     }
   }
 
-  private Channel bootstrap(final EventExecutorGroup executor, final SslContext sslCtx,
+  private Channel bootstrap(final EventExecutorGroup executor,
+      final SslContext sslCtx,
       final int port) throws InterruptedException {
     ServerBootstrap bootstrap = new ServerBootstrap();
 
-    bootstrap.group(parentGroup, childGroup)
-        .channel(NioServerSocketChannel.class)
+    bootstrap.group(bossLoop, workerLoop)
+        .channel(bossLoop instanceof EpollEventLoopGroup
+            ? EpollServerSocketChannel.class
+            : NioServerSocketChannel.class)
         .handler(new LoggingHandler(Server.class, LogLevel.DEBUG))
         .childHandler(new NettyInitializer(executor, dispatcher, config, sslCtx));
 
@@ -126,9 +133,9 @@ public class NettyServer implements Server {
 
   @Override
   public void stop() throws Exception {
-    parentGroup.shutdownGracefully();
-    if (!childGroup.isShutdown()) {
-      childGroup.shutdownGracefully();
+    bossLoop.shutdownGracefully();
+    if (!workerLoop.isShutdown()) {
+      workerLoop.shutdownGracefully();
     }
   }
 
@@ -174,11 +181,13 @@ public class NettyServer implements Server {
     }
   }
 
-  private NioEventLoopGroup eventLoop(final int threads, final String name) {
+  private EventLoopGroup eventLoop(final int threads, final String name) {
     log.debug("netty.threads.{}({})", name, threads);
-    NioEventLoopGroup group = new NioEventLoopGroup(threads,
-        new DefaultThreadFactory(name, Thread.MAX_PRIORITY));
-    return group;
+    DefaultThreadFactory threadFactory = new DefaultThreadFactory(name, Thread.MAX_PRIORITY);
+    if (Epoll.isAvailable()) {
+      return new EpollEventLoopGroup(threads, threadFactory);
+    }
+    return new NioEventLoopGroup(threads, threadFactory);
   }
 
   private SslContext sslCtx(final Config config) throws IOException, CertificateException {

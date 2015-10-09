@@ -27,6 +27,10 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.ServerChannel;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
@@ -40,7 +44,8 @@ import io.netty.util.concurrent.Future;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NettyServer.class, NioEventLoopGroup.class, DefaultThreadFactory.class,
-    DefaultEventExecutorGroup.class, ServerBootstrap.class, SslContextBuilder.class, File.class })
+    DefaultEventExecutorGroup.class, ServerBootstrap.class, SslContextBuilder.class, File.class,
+    Epoll.class, EpollEventLoopGroup.class })
 public class NettyServerTest {
 
   Config config = ConfigFactory.empty()
@@ -110,6 +115,41 @@ public class NettyServerTest {
         .expect(taskExecutor)
         .expect(channel)
         .expect(bootstrap(6789))
+        .run(unit -> {
+          NettyServer server = new NettyServer(unit.get(HttpHandler.class), config);
+          try {
+            server.start();
+            server.join();
+          } finally {
+            server.stop();
+          }
+        });
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  @Test
+  public void epollServer() throws Exception {
+    new MockUnit(HttpHandler.class)
+        .expect(parentThreadFactory)
+        .expect(unit -> {
+
+          unit.mockStatic(Epoll.class);
+          expect(Epoll.isAvailable()).andReturn(true);
+
+          EpollEventLoopGroup eventLoop = unit.constructor(EpollEventLoopGroup.class)
+              .args(int.class, ThreadFactory.class)
+              .build(1, unit.get(ThreadFactory.class));
+          unit.registerMock(EventLoopGroup.class, eventLoop);
+          unit.registerMock(EpollEventLoopGroup.class, eventLoop);
+
+          Future future = unit.mock(Future.class);
+          expect(eventLoop.shutdownGracefully()).andReturn(future);
+          expect(eventLoop.isShutdown()).andReturn(true);
+        })
+        .expect(taskThreadFactory)
+        .expect(taskExecutor)
+        .expect(channel)
+        .expect(bootstrap(6789, EpollEventLoopGroup.class, EpollServerSocketChannel.class))
         .run(unit -> {
           NettyServer server = new NettyServer(unit.get(HttpHandler.class), config);
           try {
@@ -321,18 +361,23 @@ public class NettyServerTest {
   }
 
   private Block bootstrap(final int port) {
+    return bootstrap(port, NioEventLoopGroup.class, NioServerSocketChannel.class);
+  }
+
+  private Block bootstrap(final int port, final Class<? extends EventLoopGroup> eventLoop,
+      final Class<? extends ServerChannel> channelClass) {
     return unit -> {
       ServerBootstrap bootstrap = unit.mockConstructor(ServerBootstrap.class);
 
       expect(bootstrap.group(
-          unit.get(EventLoopGroup.class), unit.get(NioEventLoopGroup.class)))
+          unit.get(EventLoopGroup.class), unit.get(eventLoop)))
               .andReturn(bootstrap);
 
       LoggingHandler handler = unit.constructor(LoggingHandler.class)
           .args(Class.class, LogLevel.class)
           .build(Server.class, LogLevel.DEBUG);
 
-      expect(bootstrap.channel(NioServerSocketChannel.class)).andReturn(bootstrap);
+      expect(bootstrap.channel(channelClass)).andReturn(bootstrap);
       expect(bootstrap.handler(handler)).andReturn(bootstrap);
       expect(bootstrap.childHandler(isA(NettyInitializer.class))).andReturn(bootstrap);
 
