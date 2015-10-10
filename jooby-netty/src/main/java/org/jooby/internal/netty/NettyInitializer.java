@@ -28,9 +28,9 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.HttpRequestDecoder;
+import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.EventExecutorGroup;
 
@@ -76,11 +76,13 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
       pipeline.addLast(sslCtx.newHandler(ch.alloc()));
     }
 
-    pipeline.addLast(new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
-        .addLast(new HttpObjectAggregator(maxContentLength))
-        .addLast(new ChunkedWriteHandler())
-        .addLast(new IdleStateHandler(0, 0, idleTimeOut, TimeUnit.MILLISECONDS))
-        .addLast(executor, new NettyHandler(handler, config));
+    pipeline
+        .addLast("decoder",
+            new HttpRequestDecoder(maxInitialLineLength, maxHeaderSize, maxChunkSize, false))
+        .addLast("encoder", new HttpResponseEncoder())
+        .addLast("timeout", new IdleStateHandler(0, 0, idleTimeOut, TimeUnit.MILLISECONDS))
+        .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
+        .addLast(executor, "handler", new NettyHandler(handler, config));
   }
 
 }

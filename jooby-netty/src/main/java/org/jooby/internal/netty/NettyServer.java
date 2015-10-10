@@ -56,11 +56,16 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutorGroup;
 
 public class NettyServer implements Server {
+
+  static {
+    ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+  }
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(Server.class);
@@ -103,8 +108,7 @@ public class NettyServer implements Server {
     }
   }
 
-  private Channel bootstrap(final EventExecutorGroup executor,
-      final SslContext sslCtx,
+  private Channel bootstrap(final EventExecutorGroup executor, final SslContext sslCtx,
       final int port) throws InterruptedException {
     ServerBootstrap bootstrap = new ServerBootstrap();
 

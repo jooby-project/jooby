@@ -19,21 +19,6 @@
 package org.jooby.internal.netty;
 
 import static io.netty.channel.ChannelFutureListener.CLOSE;
-import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.DefaultFileRegion;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.stream.ChunkedStream;
-import io.netty.util.Attribute;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -46,6 +31,23 @@ import org.jooby.spi.NativeResponse;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.DefaultFileRegion;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.stream.ChunkedStream;
+import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.util.Attribute;
 
 public class NettyResponse implements NativeResponse {
 
@@ -125,13 +127,25 @@ public class NettyResponse implements NativeResponse {
 
       // dump headers
       rsp.headers().set(headers);
-      // send headers
-      ctx.write(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
-      // send head chunk
-      ctx.write(buffer).addListener(FIRE_EXCEPTION_ON_FAILURE);
-      // send tail
-      ctx.write(new ChunkedStream(stream, bufferSize)).addListener(FIRE_EXCEPTION_ON_FAILURE);
-      keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
+      ChannelHandlerContext ctx = this.ctx;
+      ctx.attr(NettyRequest.NEED_FLUSH).set(false);
+
+      // add chunker
+      ChannelPipeline pipeline = ctx.pipeline();
+      if (pipeline.get("chunker") == null) {
+        pipeline.addAfter("encoder", "chunker", new ChunkedWriteHandler());
+      }
+
+      // group all write
+      ctx.channel().eventLoop().execute(() -> {
+        // send headers
+        ctx.write(rsp);
+        // send head chunk
+        ctx.write(buffer);
+        // send tail
+        ctx.write(new ChunkedStream(stream, bufferSize));
+        keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
+      });
     }
 
     committed = true;
@@ -139,11 +153,12 @@ public class NettyResponse implements NativeResponse {
 
   @Override
   public void send(final FileChannel channel) throws Exception {
-    DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
+    long len = channel.size();
 
+    DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
     if (!headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
       headers.remove(HttpHeaders.Names.TRANSFER_ENCODING);
-      headers.set(HttpHeaders.Names.CONTENT_LENGTH, channel.size());
+      headers.set(HttpHeaders.Names.CONTENT_LENGTH, len);
     }
 
     if (keepAlive) {
@@ -152,11 +167,14 @@ public class NettyResponse implements NativeResponse {
 
     // dump headers
     rsp.headers().set(headers);
-    // send headers
-    ctx.write(rsp).addListener(FIRE_EXCEPTION_ON_FAILURE);
-    ctx.write(new DefaultFileRegion(channel, 0, channel.size()))
-        .addListener(FIRE_EXCEPTION_ON_FAILURE);
-    keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
+    ChannelHandlerContext ctx = this.ctx;
+    ctx.attr(NettyRequest.NEED_FLUSH).set(false);
+    ctx.channel().eventLoop().execute(() -> {
+      // send headers
+      ctx.write(rsp);
+      ctx.write(new DefaultFileRegion(channel, 0, len));
+      keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
+    });
 
     committed = true;
   }
@@ -175,13 +193,20 @@ public class NettyResponse implements NativeResponse {
 
     // dump headers
     rsp.headers().set(headers);
-    keepAlive(ctx.writeAndFlush(rsp));
+
+    Attribute<Boolean> async = ctx.attr(NettyRequest.ASYNC);
+    boolean isAsync = async != null && async.get() == Boolean.TRUE;
+    if (isAsync) {
+      // we need flush, from async
+      keepAlive(ctx.writeAndFlush(rsp));
+    } else {
+      keepAlive(ctx.write(rsp));
+    }
 
     committed = true;
   }
 
   private void keepAlive(final ChannelFuture future) {
-    future.addListener(FIRE_EXCEPTION_ON_FAILURE);
     if (headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
       if (!keepAlive) {
         future.addListener(CLOSE);
@@ -222,7 +247,7 @@ public class NettyResponse implements NativeResponse {
         DefaultHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status);
         // dump headers
         rsp.headers().set(headers);
-        keepAlive(ctx.writeAndFlush(rsp));
+        keepAlive(ctx.write(rsp));
       }
       committed = true;
       ctx = null;

@@ -69,11 +69,14 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
   @Override
   public void channelRead0(final ChannelHandlerContext ctx, final Object msg) {
     if (msg instanceof FullHttpRequest) {
+      ctx.attr(NettyRequest.NEED_FLUSH).set(true);
+
       FullHttpRequest req = (FullHttpRequest) msg;
       ctx.attr(PATH).set(req.getMethod().name() + " " + req.getUri());
 
       if (HttpHeaders.is100ContinueExpected(req)) {
         ctx.write(new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.CONTINUE));
+        return;
       }
 
       boolean keepAlive = HttpHeaders.isKeepAlive(req);
@@ -93,7 +96,11 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
 
   @Override
   public void channelReadComplete(final ChannelHandlerContext ctx) throws Exception {
-    ctx.flush();
+    Attribute<Boolean> attr = ctx.attr(NettyRequest.NEED_FLUSH);
+    boolean needFlush = (attr == null || attr.get() == Boolean.TRUE);
+    if (needFlush) {
+      ctx.flush();
+    }
   }
 
   @Override

@@ -1,26 +1,11 @@
 package org.jooby.internal.netty;
 
 import static io.netty.channel.ChannelFutureListener.CLOSE;
-import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.DefaultFileRegion;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.DefaultHttpResponse;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.stream.ChunkedStream;
-import io.netty.util.Attribute;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +26,26 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.DefaultFileRegion;
+import io.netty.channel.EventLoop;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.stream.ChunkedStream;
+import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.util.Attribute;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NettyResponse.class, DefaultFullHttpResponse.class, Unpooled.class,
@@ -99,8 +104,7 @@ public class NettyResponseTest {
     DefaultFullHttpResponse rsp = unit.mockConstructor(
         DefaultFullHttpResponse.class,
         new Class[]{HttpVersion.class, HttpResponseStatus.class, ByteBuf.class },
-        HttpVersion.HTTP_1_1, HttpResponseStatus.OK, unit.get(ByteBuf.class)
-        );
+        HttpVersion.HTTP_1_1, HttpResponseStatus.OK, unit.get(ByteBuf.class));
 
     HttpHeaders headers = unit.mock(HttpHeaders.class);
     expect(headers.set(unit.get(DefaultHttpHeaders.class))).andReturn(headers);
@@ -114,16 +118,6 @@ public class NettyResponseTest {
     DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
 
     expect(headers.contains(HttpHeaders.Names.CONTENT_LENGTH)).andReturn(true);
-
-    ChannelFuture future = unit.get(ChannelFuture.class);
-
-    expect(future.addListener(FIRE_EXCEPTION_ON_FAILURE)).andReturn(future);
-  };
-
-  private Block fireExceptionOnFailure = unit -> {
-    ChannelFuture future = unit.get(ChannelFuture.class);
-
-    expect(future.addListener(FIRE_EXCEPTION_ON_FAILURE)).andReturn(future);
   };
 
   private Block noKeepAlive = unit -> {
@@ -133,7 +127,6 @@ public class NettyResponseTest {
 
     ChannelFuture future = unit.get(ChannelFuture.class);
 
-    expect(future.addListener(FIRE_EXCEPTION_ON_FAILURE)).andReturn(future);
     expect(future.addListener(CLOSE)).andReturn(future);
   };
 
@@ -144,8 +137,26 @@ public class NettyResponseTest {
 
     ChannelFuture future = unit.get(ChannelFuture.class);
 
-    expect(future.addListener(FIRE_EXCEPTION_ON_FAILURE)).andReturn(future);
     expect(future.addListener(CLOSE)).andReturn(future);
+  };
+
+  @SuppressWarnings("unchecked")
+  private Block async = unit -> {
+    ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+
+    Attribute<Boolean> async = unit.mock(Attribute.class);
+    expect(async.get()).andReturn(false);
+    expect(ctx.attr(NettyRequest.ASYNC)).andReturn(async);
+  };
+
+  @SuppressWarnings("unchecked")
+  private Block setNeedFlush = unit -> {
+    ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+
+    Attribute<Boolean> needFlush = unit.mock(Attribute.class);
+    needFlush.set(false);
+
+    expect(ctx.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
   };
 
   @Test
@@ -171,7 +182,7 @@ public class NettyResponseTest {
         .run(unit -> {
           assertEquals(v, new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize,
               keepAlive)
-              .headers("h"));
+                  .headers("h"));
         });
   }
 
@@ -188,7 +199,7 @@ public class NettyResponseTest {
         .run(unit -> {
           assertEquals(v, new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize,
               keepAlive)
-              .headers("h"));
+                  .headers("h"));
         });
   }
 
@@ -204,9 +215,8 @@ public class NettyResponseTest {
         .run(unit -> {
           assertEquals(Optional.of("v"),
               new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
-                  .header("h")
-            );
-          });
+                  .header("h"));
+        });
   }
 
   @Test
@@ -221,9 +231,8 @@ public class NettyResponseTest {
         .run(unit -> {
           assertEquals(Optional.empty(),
               new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
-                  .header("h")
-            );
-          });
+                  .header("h"));
+        });
   }
 
   @Test
@@ -266,11 +275,12 @@ public class NettyResponseTest {
         .expect(deflen)
         .expect(connkeep)
         .expect(fullResponse)
+        .expect(async)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.writeAndFlush(unit.get(HttpResponse.class))).andReturn(future);
+          expect(ctx.write(unit.get(HttpResponse.class))).andReturn(future);
         })
         .expect(keeAliveWithLen)
         .run(unit -> {
@@ -288,11 +298,12 @@ public class NettyResponseTest {
         .expect(deflen)
         .expect(connkeep)
         .expect(fullResponse)
+        .expect(async)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.writeAndFlush(unit.get(HttpResponse.class))).andReturn(future);
+          expect(ctx.write(unit.get(HttpResponse.class))).andReturn(future);
         })
         .expect(keeAliveWithLen)
         .run(unit -> {
@@ -310,11 +321,12 @@ public class NettyResponseTest {
         .expect(len)
         .expect(connkeep)
         .expect(fullResponse)
+        .expect(async)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.writeAndFlush(unit.get(HttpResponse.class))).andReturn(future);
+          expect(ctx.write(unit.get(HttpResponse.class))).andReturn(future);
         })
         .expect(keeAliveWithLen)
         .run(unit -> {
@@ -331,11 +343,12 @@ public class NettyResponseTest {
         .expect(headers)
         .expect(len)
         .expect(fullResponse)
+        .expect(async)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.writeAndFlush(unit.get(HttpResponse.class))).andReturn(future);
+          expect(ctx.write(unit.get(HttpResponse.class))).andReturn(future);
         })
         .expect(noKeepAlive)
         .run(unit -> {
@@ -352,11 +365,12 @@ public class NettyResponseTest {
         .expect(headers)
         .expect(len)
         .expect(fullResponse)
+        .expect(async)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.writeAndFlush(unit.get(HttpResponse.class))).andReturn(future);
+          expect(ctx.write(unit.get(HttpResponse.class))).andReturn(future);
         })
         .expect(noKeepAliveNoLen)
         .run(unit -> {
@@ -376,7 +390,7 @@ public class NettyResponseTest {
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
               .send(unit.get(InputStream.class));
-        }, unit -> {
+        } , unit -> {
           assertEquals(bufferSize, unit.captured(byte[].class).iterator().next().length);
         });
   }
@@ -402,11 +416,12 @@ public class NettyResponseTest {
         .expect(headers)
         .expect(len)
         .expect(fullResponse)
+        .expect(async)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.writeAndFlush(unit.get(HttpResponse.class))).andReturn(future);
+          expect(ctx.write(unit.get(HttpResponse.class))).andReturn(future);
         })
         .expect(noKeepAliveNoLen)
         .run(unit -> {
@@ -439,10 +454,12 @@ public class NettyResponseTest {
           expect(headers.set(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED))
               .andReturn(headers);
         })
+        .expect(setNeedFlush)
         .expect(unit -> {
           DefaultHttpResponse rsp = unit.mockConstructor(DefaultHttpResponse.class,
               new Class[]{HttpVersion.class,
-                  HttpResponseStatus.class }, HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+                  HttpResponseStatus.class },
+              HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
 
           HttpHeaders headers = unit.mock(HttpHeaders.class);
           expect(headers.set(unit.get(DefaultHttpHeaders.class))).andReturn(headers);
@@ -452,39 +469,56 @@ public class NettyResponseTest {
           unit.registerMock(HttpResponse.class, rsp);
         })
         .expect(unit -> {
+          EventLoop loop = unit.mock(EventLoop.class);
+          loop.execute(unit.capture(Runnable.class));
+
+          Channel channel = unit.mock(Channel.class);
+          expect(channel.eventLoop()).andReturn(loop);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.channel()).andReturn(channel);
+        })
+        .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.write(unit.get(HttpResponse.class))).andReturn(future);
         })
-        .expect(fireExceptionOnFailure)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.write(unit.get(ByteBuf.class))).andReturn(future);
         })
-        .expect(fireExceptionOnFailure)
-        .expect(
-            unit -> {
-              ChunkedStream chunkedStream = unit.mockConstructor(ChunkedStream.class, new Class[]{
-                  InputStream.class, int.class }, unit.get(InputStream.class), bufferSize);
-              ChannelFuture future = unit.get(ChannelFuture.class);
+        .expect(unit -> {
+          ChunkedStream chunkedStream = unit.mockConstructor(ChunkedStream.class, new Class[]{
+              InputStream.class, int.class }, unit.get(InputStream.class), bufferSize);
+          ChannelFuture future = unit.get(ChannelFuture.class);
 
-              ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-              expect(ctx.write(chunkedStream)).andReturn(future);
-            })
-        .expect(fireExceptionOnFailure)
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.write(chunkedStream)).andReturn(future);
+        })
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)).andReturn(future);
         })
+        .expect(unit -> {
+          ChannelPipeline pipeline = unit.mock(ChannelPipeline.class);
+          expect(pipeline.get("chunker")).andReturn(null);
+          expect(pipeline.addAfter(eq("encoder"), eq("chunker"), isA(ChunkedWriteHandler.class)))
+              .andReturn(pipeline);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.pipeline()).andReturn(pipeline);
+        })
         .expect(noKeepAliveNoLen)
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
               .send(unit.get(InputStream.class));
+        } , unit -> {
+          unit.captured(Runnable.class).iterator().next().run();
         });
   }
 
@@ -503,7 +537,8 @@ public class NettyResponseTest {
         .expect(unit -> {
           DefaultHttpResponse rsp = unit.mockConstructor(DefaultHttpResponse.class,
               new Class[]{HttpVersion.class,
-                  HttpResponseStatus.class }, HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+                  HttpResponseStatus.class },
+              HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
 
           HttpHeaders headers = unit.mock(HttpHeaders.class);
           expect(headers.set(unit.get(DefaultHttpHeaders.class))).andReturn(headers);
@@ -518,7 +553,6 @@ public class NettyResponseTest {
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.write(unit.get(HttpResponse.class))).andReturn(future);
         })
-        .expect(fireExceptionOnFailure)
         .expect(
             unit -> {
               DefaultFileRegion region = unit.mockConstructor(DefaultFileRegion.class,
@@ -533,17 +567,29 @@ public class NettyResponseTest {
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.write(unit.get(DefaultFileRegion.class))).andReturn(future);
         })
-        .expect(fireExceptionOnFailure)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)).andReturn(future);
         })
+        .expect(setNeedFlush)
+        .expect(unit -> {
+          EventLoop loop = unit.mock(EventLoop.class);
+          loop.execute(unit.capture(Runnable.class));
+
+          Channel chn = unit.mock(Channel.class);
+          expect(chn.eventLoop()).andReturn(loop);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.channel()).andReturn(chn);
+        })
         .expect(noKeepAliveNoLen)
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
               .send(channel);
+        }, unit -> {
+          unit.captured(Runnable.class).iterator().next().run();
         });
   }
 
@@ -560,7 +606,8 @@ public class NettyResponseTest {
         .expect(unit -> {
           DefaultHttpResponse rsp = unit.mockConstructor(DefaultHttpResponse.class,
               new Class[]{HttpVersion.class,
-                  HttpResponseStatus.class }, HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+                  HttpResponseStatus.class },
+              HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
 
           HttpHeaders headers = unit.mock(HttpHeaders.class);
           expect(headers.set(unit.get(DefaultHttpHeaders.class))).andReturn(headers);
@@ -575,7 +622,6 @@ public class NettyResponseTest {
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.write(unit.get(HttpResponse.class))).andReturn(future);
         })
-        .expect(fireExceptionOnFailure)
         .expect(
             unit -> {
               DefaultFileRegion region = unit.mockConstructor(DefaultFileRegion.class,
@@ -590,17 +636,29 @@ public class NettyResponseTest {
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.write(unit.get(DefaultFileRegion.class))).andReturn(future);
         })
-        .expect(fireExceptionOnFailure)
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
           expect(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)).andReturn(future);
         })
+        .expect(setNeedFlush)
         .expect(noKeepAliveNoLen)
+        .expect(unit -> {
+          EventLoop loop = unit.mock(EventLoop.class);
+          loop.execute(unit.capture(Runnable.class));
+
+          Channel chn = unit.mock(Channel.class);
+          expect(chn.eventLoop()).andReturn(loop);
+
+          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.channel()).andReturn(chn);
+        })
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
               .send(channel);
+        }, unit -> {
+          unit.captured(Runnable.class).iterator().next().run();
         });
   }
 
@@ -639,14 +697,14 @@ public class NettyResponseTest {
         })
         .expect(unit -> {
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.writeAndFlush(unit.get(HttpResponse.class))).andReturn(
+          expect(ctx.write(unit.get(HttpResponse.class))).andReturn(
               unit.get(ChannelFuture.class));
         })
         .expect(noKeepAliveNoLen)
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class),
               bufferSize, true)
-              .end();
+                  .end();
         });
   }
 
@@ -676,14 +734,14 @@ public class NettyResponseTest {
         })
         .expect(unit -> {
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.writeAndFlush(unit.get(HttpResponse.class))).andReturn(
+          expect(ctx.write(unit.get(HttpResponse.class))).andReturn(
               unit.get(ChannelFuture.class));
         })
         .expect(noKeepAliveNoLen)
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class),
               bufferSize, true)
-              .end();
+                  .end();
         });
   }
 
@@ -736,8 +794,9 @@ public class NettyResponseTest {
       }
 
       @Override
-      public long transferTo(final long position, final long count, final WritableByteChannel target)
-          throws IOException {
+      public long transferTo(final long position, final long count,
+          final WritableByteChannel target)
+              throws IOException {
         return 0;
       }
 

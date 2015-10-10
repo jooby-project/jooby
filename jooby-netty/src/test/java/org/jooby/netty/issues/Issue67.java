@@ -1,9 +1,17 @@
 package org.jooby.netty.issues;
 
 import static io.netty.channel.ChannelFutureListener.CLOSE;
-import static io.netty.channel.ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
+
+import org.jooby.internal.netty.NettyRequest;
+import org.jooby.internal.netty.NettyResponse;
+import org.jooby.test.MockUnit;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -13,19 +21,14 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-
-import org.jooby.internal.netty.NettyResponse;
-import org.jooby.test.MockUnit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import io.netty.util.Attribute;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NettyResponse.class, DefaultFullHttpResponse.class, Unpooled.class,
     DefaultHttpHeaders.class })
 public class Issue67 {
 
+  @SuppressWarnings("unchecked")
   @Test
   public void shouldCloseChannelIfHttpKeepAliveIsOff() throws Exception {
     byte[] bytes = "Hello World!".getBytes();
@@ -47,9 +50,11 @@ public class Issue67 {
 
           ChannelFuture rspfuture = unit.mock(ChannelFuture.class);
           expect(rspfuture.addListener(CLOSE)).andReturn(rspfuture);
-          expect(rspfuture.addListener(FIRE_EXCEPTION_ON_FAILURE)).andReturn(rspfuture);
 
+          Attribute<Boolean> async = unit.mock(Attribute.class);
+          expect(async.get()).andReturn(true);
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          expect(ctx.attr(NettyRequest.ASYNC)).andReturn(async);
           expect(ctx.writeAndFlush(rsp)).andReturn(rspfuture);
 
         })

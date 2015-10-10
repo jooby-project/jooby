@@ -54,8 +54,15 @@ import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.util.AttributeKey;
 
 public class NettyRequest implements NativeRequest {
+
+  public static final AttributeKey<Boolean> NEED_FLUSH = AttributeKey
+      .newInstance(NettyRequest.class.getName() + ".needFlush");
+
+  public static final AttributeKey<Boolean> ASYNC = AttributeKey
+      .newInstance(NettyRequest.class.getName() + ".async");
 
   private HttpRequest req;
 
@@ -83,6 +90,7 @@ public class NettyRequest implements NativeRequest {
     this.query = new QueryStringDecoder(req.getUri());
     this.path = URLDecoder.decode(query.path(), "UTF-8");
     this.wsMaxMessageSize = wsMaxMessageSize;
+    ctx.attr(ASYNC).set(false);
   }
 
   @Override
@@ -175,8 +183,8 @@ public class NettyRequest implements NativeRequest {
     String protocol = secure() ? "wss" : "ws";
     String webSocketURL = protocol + "://" + req.headers().get(HttpHeaders.Names.HOST) + path;
 
-    WebSocketServerHandshakerFactory wsFactory =
-        new WebSocketServerHandshakerFactory(webSocketURL, null, true, wsMaxMessageSize);
+    WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(webSocketURL,
+        null, true, wsMaxMessageSize);
     WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(req);
     NettyWebSocket result = new NettyWebSocket(ctx, handshaker, (ws) -> {
       handshaker.handshake(ctx.channel(), (FullHttpRequest) req)
@@ -190,7 +198,8 @@ public class NettyRequest implements NativeRequest {
 
   @Override
   public void startAsync() {
-    // NOOP
+    ctx.attr(NEED_FLUSH).set(false);
+    ctx.attr(ASYNC).set(true);
   }
 
   private org.jooby.Cookie cookie(final Cookie c) {
