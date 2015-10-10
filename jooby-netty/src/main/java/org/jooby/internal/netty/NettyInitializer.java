@@ -79,8 +79,13 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
     pipeline
         .addLast("decoder",
             new HttpRequestDecoder(maxInitialLineLength, maxHeaderSize, maxChunkSize, false))
-        .addLast("encoder", new HttpResponseEncoder())
-        .addLast("timeout", new IdleStateHandler(0, 0, idleTimeOut, TimeUnit.MILLISECONDS))
+        .addLast("encoder", new HttpResponseEncoder());
+
+    if (idleTimeOut > 0) {
+      pipeline.addLast("timeout", new IdleStateHandler(0, 0, idleTimeOut, TimeUnit.MILLISECONDS));
+    }
+
+    pipeline
         .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
         .addLast(executor, "handler", new NettyHandler(handler, config));
   }
