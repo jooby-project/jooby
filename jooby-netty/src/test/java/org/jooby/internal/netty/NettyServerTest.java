@@ -106,10 +106,16 @@ public class NettyServerTest {
     unit.registerMock(Channel.class, channel);
   };
 
+  private Block noepoll = unit -> {
+    unit.mockStatic(Epoll.class);
+    expect(Epoll.isAvailable()).andReturn(false).times(1, 2);
+  };
+
   @Test
   public void defaultServer() throws Exception {
     new MockUnit(HttpHandler.class)
         .expect(parentThreadFactory)
+        .expect(noepoll)
         .expect(parentEventLoop)
         .expect(taskThreadFactory)
         .expect(taskExecutor)
@@ -166,6 +172,7 @@ public class NettyServerTest {
     Config config = this.config.withValue("netty.options.x", ConfigValueFactory.fromAnyRef(1));
     new MockUnit(HttpHandler.class)
         .expect(parentThreadFactory)
+        .expect(noepoll)
         .expect(parentEventLoop)
         .expect(taskThreadFactory)
         .expect(taskExecutor)
@@ -188,6 +195,7 @@ public class NettyServerTest {
     Config config = this.config.withValue("netty.threads.Child", ConfigValueFactory.fromAnyRef(1));
     new MockUnit(HttpHandler.class)
         .expect(parentThreadFactory)
+        .expect(noepoll)
         .expect(unit -> {
           NioEventLoopGroup eventLoop = unit.constructor(NioEventLoopGroup.class)
               .args(int.class, ThreadFactory.class)
@@ -238,6 +246,7 @@ public class NettyServerTest {
 
     new MockUnit(HttpHandler.class)
         .expect(parentThreadFactory)
+        .expect(noepoll)
         .expect(parentEventLoop)
         .expect(taskThreadFactory)
         .expect(taskExecutor)
@@ -277,6 +286,7 @@ public class NettyServerTest {
 
     new MockUnit(HttpHandler.class)
         .expect(parentThreadFactory)
+        .expect(noepoll)
         .expect(parentEventLoop)
         .expect(taskThreadFactory)
         .expect(taskExecutor)
@@ -316,6 +326,7 @@ public class NettyServerTest {
 
     new MockUnit(HttpHandler.class)
         .expect(parentThreadFactory)
+        .expect(noepoll)
         .expect(parentEventLoop)
         .expect(taskThreadFactory)
         .expect(taskExecutor)
