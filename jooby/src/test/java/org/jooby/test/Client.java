@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
@@ -22,6 +24,8 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
@@ -32,6 +36,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.junit.rules.ExternalResource;
+
+import com.google.common.base.Throwables;
 
 public class Client extends ExternalResource {
 
@@ -250,7 +256,8 @@ public class Client extends ExternalResource {
       return this;
     }
 
-    public Response headers(final String headerName, final ArrayCallback callback) throws Exception {
+    public Response headers(final String headerName, final ArrayCallback callback)
+        throws Exception {
       Header[] headers = rsp.getHeaders(headerName);
       String[] values = new String[headers.length];
       for (int i = 0; i < values.length; i++) {
@@ -361,6 +368,18 @@ public class Client extends ExternalResource {
 
   private Executor executor() {
     if (executor == null) {
+      if (this.host.startsWith("https://")) {
+        try {
+          SSLContext sslContext = SSLContexts.custom()
+              .loadTrustMaterial(null, (chain, authType) -> true)
+              .useTLS()
+              .build();
+          builder.setSslcontext(sslContext);
+          builder.setHostnameVerifier(SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+        } catch (Exception ex) {
+          Throwables.propagate(ex);
+        }
+      }
       client = builder.build();
       executor = Executor.newInstance(client);
       if (creds != null) {
@@ -416,7 +435,10 @@ public class Client extends ExternalResource {
 
   public void stop() throws IOException {
     if (this.req != null) {
-      this.req.close();
+      try {
+        this.req.close();
+      } catch (NullPointerException ex) {
+      }
     }
     if (client != null) {
       client.close();

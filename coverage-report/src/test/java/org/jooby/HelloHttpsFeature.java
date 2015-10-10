@@ -1,6 +1,8 @@
 package org.jooby;
 
 import org.jooby.test.ServerFeature;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.typesafe.config.ConfigFactory;
@@ -10,20 +12,30 @@ public class HelloHttpsFeature extends ServerFeature {
 
   {
     use(ConfigFactory.empty().withValue("application.securePort",
-        ConfigValueFactory.fromAnyRef(8443)));
+        ConfigValueFactory.fromAnyRef(9943)));
 
-    get("/", req -> "Hello");
+    get("/", () -> "Hello");
 
-    get("/bye", req -> "bye!");
+    get("/bye", () -> "bye!");
+  }
+
+  @BeforeClass
+  public static void httpsOn() {
+    protocol = "https";
+  }
+
+  @AfterClass
+  public static void httpsOff() {
+    protocol = "http";
   }
 
   @Test
   public void hello() throws Exception {
-    request("https")
+    request()
         .get("/")
         .expect("Hello");
 
-    request("https")
+    request()
         .get("/bye")
         .expect("bye!");
   }

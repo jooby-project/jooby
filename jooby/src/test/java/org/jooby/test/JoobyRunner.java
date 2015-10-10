@@ -135,6 +135,7 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
     Object test = super.createTest();
     Guice.createInjector(binder -> {
       binder.bind(Integer.class).annotatedWith(Names.named("port")).toInstance(port);
+      binder.bind(Integer.class).annotatedWith(Names.named("securePort")).toInstance(9943);
     }).injectMembers(test);
 
     return test;

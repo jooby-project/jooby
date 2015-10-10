@@ -22,7 +22,11 @@ public abstract class ServerFeature extends Jooby {
   @Inject
   protected int port;
 
-  private String protocol = "http";
+  @Named("securePort")
+  @Inject
+  protected int securePort;
+
+  public static String protocol = "http";
 
   private Client server = null;
 
@@ -47,16 +51,12 @@ public abstract class ServerFeature extends Jooby {
   @Rule
   public Client createServer() {
     checkState(server == null, "Server was created already");
-    server = new Client(protocol + "://localhost:" + port);
+    server = new Client(
+        protocol + "://localhost:" + (protocol.equals("https") ? securePort : port));
     return server;
   }
 
   public Client request() {
-    return request("http");
-  }
-
-  public Client request(final String protocol) {
-    this.protocol = protocol;
     checkState(server != null, "Server wasn't started");
     return server;
   }
