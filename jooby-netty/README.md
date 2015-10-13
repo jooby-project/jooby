@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-netty</artifactId>
-  <version>0.11.1</version>
+  <version>0.11.2</version>
 </dependency>
 ```
 
@@ -39,11 +39,9 @@ netty {
   }
 
   threads {
-    Min = ${server.threads.Max}
+    Min = ${server.threads.Min}
 
     Max = ${server.threads.Max}
-
-    IdleTimeout = ${server.threads.IdleTimeout}
 
     Name = netty task
 
@@ -51,7 +49,6 @@ netty {
   }
 
   options {
-    SO_BACKLOG = 1024
     SO_REUSEADDR = true
   }
 
