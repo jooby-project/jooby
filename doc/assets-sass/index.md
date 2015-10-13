@@ -1,7 +1,7 @@
 ---
 layout: index
 title: assets-sass
-version: 0.11.1
+version: 0.11.2
 ---
 
 # sass
@@ -14,7 +14,7 @@ version: 0.11.1
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-sass</artifactId>
-  <version>0.11.1</version>
+  <version>0.11.2</version>
   <scope>test</scope>
 </dependency>
 ```

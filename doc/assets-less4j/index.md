@@ -1,7 +1,7 @@
 ---
 layout: index
 title: assets-less4j
-version: 0.11.1
+version: 0.11.2
 ---
 
 # less4j
@@ -14,7 +14,7 @@ version: 0.11.1
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-less4j</artifactId>
-  <version>0.11.1</version>
+  <version>0.11.2</version>
   <scope>test</scope>
 </dependency>
 ```

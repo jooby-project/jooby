@@ -1,7 +1,7 @@
 ---
 layout: index
 title: doc
-version: 0.11.1
+version: 0.11.2
 ---
 
 documentation
@@ -2046,7 +2046,7 @@ server {
 
     MaxRequestSize = 200k
 
-    IdleTimeout = 30s
+    IdleTimeout = 0
 
     Method = _method
   }

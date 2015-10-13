@@ -1,7 +1,7 @@
 ---
 layout: index
 title: jongo
-version: 0.11.1
+version: 0.11.2
 ---
 
 # jongo module
@@ -13,7 +13,7 @@ Please note, this module depends on: [mongodb](/doc/mongodb) module.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jongo</artifactId>
-  <version>0.11.1</version>
+  <version>0.11.2</version>
 </dependency>
 ```
 

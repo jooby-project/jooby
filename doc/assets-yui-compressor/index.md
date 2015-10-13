@@ -1,7 +1,7 @@
 ---
 layout: index
 title: assets-yui-compressor
-version: 0.11.1
+version: 0.11.2
 ---
 
 # yui-css
@@ -14,7 +14,7 @@ version: 0.11.1
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-yui-compressor</artifactId>
-  <version>0.11.1</version>
+  <version>0.11.2</version>
   <scope>test</scope>
 </dependency>
 ```

@@ -1,7 +1,7 @@
 ---
 layout: index
 title: assets
-version: 0.11.1
+version: 0.11.2
 ---
 
 # assets
@@ -16,7 +16,7 @@ A variety of processors are available (jshint, csslint, jscs, uglify, closure-co
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets</artifactId>
-  <version>0.11.1</version>
+  <version>0.11.2</version>
 </dependency>
 ```
 

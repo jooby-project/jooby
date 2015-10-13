@@ -1,7 +1,7 @@
 ---
 layout: index
 title: assets-jshint
-version: 0.11.1
+version: 0.11.2
 ---
 
 # jshint
@@ -14,7 +14,7 @@ version: 0.11.1
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-jshint</artifactId>
-  <version>0.11.1</version>
+  <version>0.11.2</version>
   <scope>test</scope>
 </dependency>
 ```

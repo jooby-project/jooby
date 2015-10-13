@@ -1,7 +1,7 @@
 ---
 layout: index
 title: commons-email
-version: 0.11.1
+version: 0.11.2
 ---
 
 # jooby-commons-email

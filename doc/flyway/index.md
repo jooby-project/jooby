@@ -1,7 +1,7 @@
 ---
 layout: index
 title: flyway
-version: 0.11.1
+version: 0.11.2
 ---
 
 # jooby-flyway
@@ -14,7 +14,7 @@ Run database migrations on startup and exposes a [Flyway](http://flywaydb.org) i
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-flywaydb</artifactId>
-  <version>0.11.1</version>
+  <version>0.11.2</version>
 </dependency>
 ```
 ## usage

@@ -1,7 +1,7 @@
 ---
 layout: index
 title: akka
-version: 0.11.1
+version: 0.11.2
 ---
 
 # akka module
@@ -17,7 +17,7 @@ Small module to build concurrent & distributed applications via [Akka](http://ak
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-akka</artifactId>
-  <version>0.11.1</version>
+  <version>0.11.2</version>
 </dependency>
 ```
 
