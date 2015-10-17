@@ -2,6 +2,17 @@
 
 <a href="http://babeljs.io/">Babel</a> is a JavaScript compiler. By default, Babel ships with a set of ES2015 syntax transformers. These allow you to use new syntax, right now without waiting for browser support.
 
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-assets-babel</artifactId>
+  <version>{{version}}</version>
+  <scope>test</scope>
+</dependency>
+```
+
 ## usage
 
 ```

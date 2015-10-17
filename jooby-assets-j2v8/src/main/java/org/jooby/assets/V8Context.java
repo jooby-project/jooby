@@ -22,6 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +42,7 @@ import com.eclipsesource.v8.V8Object;
 import com.eclipsesource.v8.utils.V8ObjectUtils;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 
 public class V8Context {
@@ -56,13 +58,18 @@ public class V8Context {
   private String id;
 
   private V8Context(final String global, final String id) {
-    v8 = V8.createV8Runtime(global);
-    V8Object console = hash();
+    this(V8.createV8Runtime(global), id);
+  }
+
+  private V8Context(final V8 v8, final String id) {
+    this.v8 = v8;
     this.id = id;
 
-    console(id, console);
+    console(id);
 
     assets(v8);
+
+    b64(v8);
   }
 
   public V8Object hash() {
@@ -197,7 +204,8 @@ public class V8Context {
     };
   }
 
-  private void console(final String logname, final V8Object console) {
+  private void console(final String logname) {
+    V8Object console = hash();
     Logger log = LoggerFactory.getLogger(logname);
     v8.add("console", console);
     console.registerJavaMethod(console(log::info), "log");
@@ -205,6 +213,17 @@ public class V8Context {
     console.registerJavaMethod(console(log::error), "error");
     console.registerJavaMethod(console(log::debug), "debug");
     console.registerJavaMethod(console(log::warn), "warn");
+  }
+
+  private void b64(final V8 v8) {
+    v8.registerJavaMethod((JavaCallback) (receiver, args) -> {
+      byte[] bytes = args.get(0).toString().getBytes(StandardCharsets.UTF_8);
+      return BaseEncoding.base64().encode(bytes);
+    } , "btoa");
+    v8.registerJavaMethod((JavaCallback) (receiver, args) -> {
+      byte[] atob = BaseEncoding.base64().decode(args.get(0).toString());
+      return new String(atob, StandardCharsets.UTF_8);
+    } , "atob");
   }
 
   private void assets(final V8 v8) {

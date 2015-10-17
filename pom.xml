@@ -64,6 +64,7 @@
     <module>jooby-assets-sass</module>
     <module>jooby-assets-requirejs</module>
     <module>jooby-assets-babel</module>
+    <module>jooby-assets-rollup</module>
     <module>coverage-report</module>
   </modules>
 
@@ -385,6 +386,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-assets-babel</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-rollup</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1828,7 +1835,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <javax.el-ref.version>2.2.6</javax.el-ref.version>
     <gson.version>2.3.1</gson.version>
     <ehcache.version>2.10.0</ehcache.version>
-    <pac4j.version>1.7.0</pac4j.version>
+    <pac4j.version>1.8.0</pac4j.version>
     <swagger.version>1.5.0</swagger.version>
     <swagger-ui.version>2.1.8-M1</swagger-ui.version>
     <commons-lang3.version>3.4</commons-lang3.version>
