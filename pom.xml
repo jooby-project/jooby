@@ -1,0 +1,1899 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-project</artifactId>
+  <version>0.11.3-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>jooby-project</name>
+
+  <description>A micro web framework</description>
+
+  <url>https://github.com/jooby-project/jooby</url>
+
+  <modules>
+    <module>jooby</module>
+    <module>jooby-jackson</module>
+    <module>jooby-gson</module>
+    <module>jooby-hbs</module>
+    <module>jooby-ftl</module>
+    <module>jooby-jdbc</module>
+    <module>jooby-hbm</module>
+    <module>jooby-dist</module>
+    <module>jooby-undertow</module>
+    <module>jooby-servlet</module>
+    <module>jooby-jetty</module>
+    <module>jooby-netty</module>
+    <module>jooby-quartz</module>
+    <module>jooby-jdbi</module>
+    <module>jooby-hotreload</module>
+    <module>jooby-jedis</module>
+    <module>jooby-mongodb</module>
+    <module>jooby-morphia</module>
+    <module>jooby-camel</module>
+    <module>jooby-elasticsearch</module>
+    <module>jooby-hbv</module>
+    <module>jooby-archetype</module>
+    <module>jooby-maven-plugin</module>
+    <module>jooby-ehcache</module>
+    <module>jooby-pac4j</module>
+    <module>jooby-swagger</module>
+    <module>jooby-spymemcached</module>
+    <module>jooby-aws</module>
+    <module>jooby-commons-email</module>
+    <module>jooby-jongo</module>
+    <module>jooby-flyway</module>
+    <module>jooby-hazelcast</module>
+    <module>jooby-ebean</module>
+    <module>jooby-akka</module>
+    <module>jooby-assets</module>
+    <module>jooby-assets-j2v8</module>
+    <module>jooby-assets-jshint</module>
+    <module>jooby-assets-jscs</module>
+    <module>jooby-assets-less</module>
+    <module>jooby-assets-less4j</module>
+    <module>jooby-assets-csslint</module>
+    <module>jooby-assets-ng-annotate</module>
+    <module>jooby-assets-uglify</module>
+    <module>jooby-assets-clean-css</module>
+    <module>jooby-assets-yui-compressor</module>
+    <module>jooby-assets-closure-compiler</module>
+    <module>jooby-assets-sass</module>
+    <module>jooby-assets-requirejs</module>
+    <module>coverage-report</module>
+  </modules>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>jknack</id>
+      <name>Edgar Espina</name>
+      <url>https://github.com/jknack</url>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git@github.com:jooby-project/jooby.git</connection>
+    <developerConnection>scm:git:git@github.com:jooby-project/jooby.git</developerConnection>
+    <url>scm:git:git@github.com:jooby-project/jooby.git</url>
+  </scm>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <name>Nexus Release Repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Jooby -->
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby</artifactId>
+        <scope>test</scope>
+        <version>${jooby.version}</version>
+        <classifier>tests</classifier>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-hbm</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-hbv</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-jdbc</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-jdbi</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-hbs</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-jackson</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-maven-plugin</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-undertow</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-jetty</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-netty</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-servlet</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-quartz</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-ftl</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-camel</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-jedis</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-mongodb</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-morphia</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-hotreload</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-elasticsearch</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-ehcache</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-pac4j</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-swagger</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-spymemcached</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-aws</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-commons-email</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-jongo</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-flyway</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-hazelcast</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-ebean</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-akka</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-clean-css</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-closure-compiler</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-csslint</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-j2v8</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-jscs</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-jshint</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-less</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-less4j</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-ng-annotate</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-requirejs</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-sass</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-uglify</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-yui-compressor</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <!-- bson4jackon -->
+      <dependency>
+        <groupId>de.undercouch</groupId>
+        <artifactId>bson4jackson</artifactId>
+        <version>${bson4jackson.version}</version>
+      </dependency>
+
+      <!-- Logging System -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>${slf4j-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
+        <version>${slf4j-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback-classic.version}</version>
+      </dependency>
+
+      <!-- ASM -->
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+
+      <!-- cglib -->
+      <dependency>
+        <groupId>cglib</groupId>
+        <artifactId>cglib-nodep</artifactId>
+        <version>${cglib.version}</version>
+      </dependency>
+
+      <!-- Config -->
+      <dependency>
+        <groupId>com.typesafe</groupId>
+        <artifactId>config</artifactId>
+        <version>${config.version}</version>
+      </dependency>
+
+      <!-- Guava -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+
+      <!-- Guice -->
+      <dependency>
+        <groupId>com.google.inject</groupId>
+        <artifactId>guice</artifactId>
+        <version>${guice.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.inject.extensions</groupId>
+        <artifactId>guice-multibindings</artifactId>
+        <version>${guice.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>${jsr305.version}</version>
+      </dependency>
+
+      <!-- Servlet -->
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${servlet.version}</version>
+      </dependency>
+
+      <!-- Undertow -->
+      <dependency>
+        <groupId>io.undertow</groupId>
+        <artifactId>undertow-core</artifactId>
+        <version>${undertow.version}</version>
+      </dependency>
+
+      <!-- Jetty -->
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.eclipse.jetty.websocket</groupId>
+        <artifactId>websocket-server</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
+
+      <!-- Netty -->
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-buffer</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-codec-http</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.javassist</groupId>
+        <artifactId>javassist</artifactId>
+        <version>${javassist.version}</version>
+      </dependency>
+
+      <!-- Jackson 2.x -->
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jdk8</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-guava</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-yaml</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <!-- commons-lang3 -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
+      </dependency>
+
+      <!-- snake yaml -->
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>${snakeyaml.version}</version>
+      </dependency>
+
+      <!-- Quartz -->
+      <dependency>
+        <groupId>org.quartz-scheduler</groupId>
+        <artifactId>quartz</artifactId>
+        <version>${quartz.version}</version>
+        <exclusions>
+          <exclusion>
+            <!-- we use hikari, not need for c3p0 -->
+            <groupId>c3p0</groupId>
+            <artifactId>c3p0</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <!-- Gson -->
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>${gson.version}</version>
+      </dependency>
+
+      <!-- JDBI -->
+      <dependency>
+        <groupId>org.jdbi</groupId>
+        <artifactId>jdbi</artifactId>
+        <version>${jdbi.version}</version>
+      </dependency>
+
+      <!-- Apache Camel -->
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-core</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+
+      <!-- Fluent HC -->
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>${http-client.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>fluent-hc</artifactId>
+        <version>${http-client.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpmime</artifactId>
+        <version>${http-client.version}</version>
+      </dependency>
+
+      <!-- Async Http Client -->
+      <dependency>
+        <groupId>com.ning</groupId>
+        <artifactId>async-http-client</artifactId>
+        <version>${async-http-client.version}</version>
+      </dependency>
+
+      <!-- Handlebars -->
+      <dependency>
+        <groupId>com.github.jknack</groupId>
+        <artifactId>handlebars</artifactId>
+        <version>${handlebars.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.jknack</groupId>
+        <artifactId>handlebars-guava-cache</artifactId>
+        <version>${handlebars.version}</version>
+      </dependency>
+
+      <!-- Freemarker -->
+      <dependency>
+        <groupId>org.freemarker</groupId>
+        <artifactId>freemarker</artifactId>
+        <version>${freemarker.version}</version>
+      </dependency>
+
+      <!-- Connection Pool -->
+      <dependency>
+        <groupId>com.zaxxer</groupId>
+        <artifactId>HikariCP</artifactId>
+        <version>${hikariCP.version}</version>
+      </dependency>
+
+      <!-- Jedis -->
+      <dependency>
+        <groupId>redis.clients</groupId>
+        <artifactId>jedis</artifactId>
+        <version>${jedis.version}</version>
+      </dependency>
+
+      <!-- Mongodb -->
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongo-java-driver</artifactId>
+        <version>${mongo-java-driver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb.morphia</groupId>
+        <artifactId>morphia</artifactId>
+        <version>${morphia.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb.morphia</groupId>
+        <artifactId>morphia-logging-slf4j</artifactId>
+        <version>${morphia.version}</version>
+      </dependency>
+
+      <!-- H2 database -->
+      <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>${h2.version}</version>
+      </dependency>
+
+      <!-- mySQL -->
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${mysql-connector-java.version}</version>
+      </dependency>
+
+      <!-- Elastic Search -->
+      <dependency>
+        <groupId>org.elasticsearch</groupId>
+        <artifactId>elasticsearch</artifactId>
+        <version>${elasticsearch}</version>
+      </dependency>
+
+      <!-- Hibernate -->
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-entitymanager</artifactId>
+        <version>${hibernate.version}</version>
+      </dependency>
+
+      <!-- Hibernate Validator -->
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>${hibernate-validator.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.el</groupId>
+        <artifactId>javax.el-api</artifactId>
+        <version>${javax.el-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.glassfish.web</groupId>
+        <artifactId>javax.el</artifactId>
+        <version>${javax.el-ref.version}</version>
+      </dependency>
+
+      <!-- jboss-modules -->
+      <dependency>
+        <groupId>org.jboss.modules</groupId>
+        <artifactId>jboss-modules</artifactId>
+        <version>${jboss-modules.version}</version>
+      </dependency>
+
+      <!-- swagger -->
+      <dependency>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-core</artifactId>
+        <version>${swagger.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>swagger-ui</artifactId>
+        <version>${swagger-ui.version}</version>
+      </dependency>
+
+      <!-- Pac4j -->
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-core</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-oauth</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-cas</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-http</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-openid</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-saml</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-gae</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-oidc</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <!-- AWS -->
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-core</artifactId>
+        <version>${aws-java-sdk.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk-s3</artifactId>
+        <version>${aws-java-sdk.version}</version>
+      </dependency>
+
+      <!-- Akka -->
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-actor_2.11</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.typesafe.akka</groupId>
+        <artifactId>akka-slf4j_2.11</artifactId>
+        <version>${akka.version}</version>
+      </dependency>
+
+      <!-- Apache Commons Emails -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-email</artifactId>
+        <version>${commons-email.version}</version>
+      </dependency>
+
+      <!-- jongo -->
+      <dependency>
+        <groupId>org.jongo</groupId>
+        <artifactId>jongo</artifactId>
+        <version>${jongo.version}</version>
+      </dependency>
+
+      <!-- Flyway -->
+      <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+        <version>${flyway.version}</version>
+      </dependency>
+
+      <!-- Hazelcast -->
+      <dependency>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast</artifactId>
+        <version>${hazelcast.version}</version>
+      </dependency>
+
+      <!-- jruby -->
+      <dependency>
+        <groupId>org.jruby</groupId>
+        <artifactId>jruby-complete</artifactId>
+        <version>${jruby.version}</version>
+      </dependency>
+
+      <!-- Less -->
+      <dependency>
+        <groupId>com.github.sommeri</groupId>
+        <artifactId>less4j</artifactId>
+        <version>${less4j.version}</version>
+      </dependency>
+
+      <!-- Ebean -->
+      <dependency>
+        <groupId>org.avaje.ebeanorm</groupId>
+        <artifactId>avaje-ebeanorm</artifactId>
+        <version>${ebean.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.avaje</groupId>
+        <artifactId>avaje-agentloader</artifactId>
+        <version>${avaje-agentloader.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.avaje.ebeanorm</groupId>
+        <artifactId>avaje-ebeanorm-agent</artifactId>
+        <version>${avaje-ebeanorm-agent.version}</version>
+      </dependency>
+
+      <!-- YUI Compressor -->
+      <dependency>
+        <groupId>com.yahoo.platform.yui</groupId>
+        <artifactId>yuicompressor</artifactId>
+        <version>${yuicompressor.version}</version>
+      </dependency>
+
+      <!-- Closure Compiler -->
+      <dependency>
+        <groupId>com.google.javascript</groupId>
+        <artifactId>closure-compiler</artifactId>
+        <version>${closure-compiler.version}</version>
+      </dependency>
+
+      <!-- Maven -->
+      <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec-maven-plugin.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-plugin-api</artifactId>
+        <version>${maven-plugin-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-project</artifactId>
+        <version>${maven-project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven</groupId>
+        <artifactId>maven-core</artifactId>
+        <version>${maven-core.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven.plugin-tools</groupId>
+        <artifactId>maven-plugin-annotations</artifactId>
+        <version>${maven-plugin-annotations.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-utils</artifactId>
+        <version>${plexus-utils.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.twdata.maven</groupId>
+        <artifactId>mojo-executor</artifactId>
+        <version>${mojo-executor.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>${maven-antrun-plugin.version}</version>
+      </dependency>
+
+      <!-- Ehcache -->
+      <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache</artifactId>
+        <version>${ehcache.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.spy</groupId>
+        <artifactId>spymemcached</artifactId>
+        <version>${spymemcached.version}</version>
+      </dependency>
+
+      <!-- Test dependencies -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <scope>test</scope>
+        <version>${junit.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.easymock</groupId>
+        <artifactId>easymock</artifactId>
+        <version>${easymock.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-api-easymock</artifactId>
+        <version>${powermock.version}</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.powermock</groupId>
+        <artifactId>powermock-module-junit4</artifactId>
+        <version>${powermock.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jacoco</groupId>
+        <artifactId>org.jacoco.agent</artifactId>
+        <classifier>runtime</classifier>
+        <version>${jacoco.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+
+    <plugins>
+
+      <!-- Force maven-3.x and java-1.8 -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>${maven-enforcer-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>enforce.versions</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>[3.0,)</version>
+                </requireMavenVersion>
+                <requireJavaVersion>
+                  <version>${java.source.version}</version>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <source>${java.source.version}</source>
+          <target>${java.source.version}</target>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <compilerArgs>
+            <arg>-parameters</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven-jar-plugin.version}</version>
+      </plugin>
+
+      <!-- version plugin -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>${versions-maven-plugin.version}</version>
+      </plugin>
+
+      <!-- sure-fire -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+      </plugin>
+
+      <!-- Eclipse setup -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>${maven-eclipse-plugin.version}</version>
+        <configuration>
+          <downloadSources>true</downloadSources>
+        </configuration>
+      </plugin>
+
+      <!-- Checkstyle -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>${maven-checkstyle-plugin.version}</version>
+        <configuration>
+          <consoleOutput>true</consoleOutput>
+          <configLocation>checkstyle.xml</configLocation>
+          <failsOnError>true</failsOnError>
+        </configuration>
+        <executions>
+          <execution>
+            <id>checkstyle</id>
+            <phase>off</phase>
+            <goals>
+              <goal>checkstyle</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Deploy plugin -->
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <version>${nexus-staging-maven-plugin.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <serverId>ossrh</serverId>
+          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+          <autoReleaseAfterClose>true</autoReleaseAfterClose>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${maven-deploy-plugin.version}</version>
+      </plugin>
+    </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <!-- jooby:run & jooby:assets -->
+        <plugin>
+          <groupId>org.jooby</groupId>
+          <artifactId>jooby-maven-plugin</artifactId>
+          <version>${jooby.version}</version>
+        </plugin>
+
+        <!-- avaje-enchancer -->
+        <plugin>
+          <groupId>org.avaje.ebeanorm</groupId>
+          <artifactId>avaje-ebeanorm-mavenenhancer</artifactId>
+          <version>${avaje-ebeanorm-agent.version}</version>
+          <executions>
+            <execution>
+              <phase>process-classes</phase>
+              <configuration>
+                <classSource>${project.build.outputDirectory}</classSource>
+                <classDestination>${project.build.outputDirectory}</classDestination>
+                <packages>${ebean.agent.packages}</packages>
+                <transformArgs>${ebean.agent.args}</transformArgs>
+              </configuration>
+              <goals>
+                <goal>enhance</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- shade -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${maven-shade-plugin.version}</version>
+          <configuration>
+            <createDependencyReducedPom>false</createDependencyReducedPom>
+            <filters>
+              <filter>
+                <artifact>*:*</artifact>
+                <excludes>
+                  <exclude>META-INF/*.SF</exclude>
+                  <exclude>META-INF/*.DSA</exclude>
+                  <exclude>META-INF/*.RSA</exclude>
+                  <exclude>LICENSE</exclude>
+                  <exclude>LICENSE.txt</exclude>
+                  <exclude>NOTICE</exclude>
+                  <exclude>about.html</exclude>
+                  <exclude>jetty-dir.css</exclude>
+                </excludes>
+              </filter>
+              <filter>
+                <artifact>org.jooby:jooby</artifact>
+                <excludes>
+                  <exclude>*.sh</exclude>
+                </excludes>
+              </filter>
+            </filters>
+          </configuration>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <transformers>
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                    <mainClass>${application.class}</mainClass>
+                  </transformer>
+                </transformers>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- ant plugin -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>${maven-antrun-plugin.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.ant</groupId>
+              <artifactId>ant</artifactId>
+              <version>1.9.4</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+
+        <!-- Zip -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${maven-assembly-plugin.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.jooby</groupId>
+              <artifactId>jooby-dist</artifactId>
+              <version>${jooby.version}</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <id>make-assembly</id>
+              <phase>package</phase>
+              <goals>
+                <goal>single</goal>
+              </goals>
+              <configuration>
+                <appendAssemblyId>false</appendAssemblyId>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+  </build>
+
+  <profiles>
+    <profile>
+      <!-- We enable all these plugins by default. -->
+      <id>development</id>
+      <activation>
+        <file>
+          <exists>pom.xml</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+
+          <!-- Force maven-3.x and java-1.8 -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <version>${maven-enforcer-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>enforce-versions</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <requireMavenVersion>
+                      <version>[3.0,)</version>
+                    </requireMavenVersion>
+                    <requireJavaVersion>
+                      <version>${java.source.version}</version>
+                    </requireJavaVersion>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- We're on 1.8 -->
+          <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>${maven-compiler-plugin.version}</version>
+            <configuration>
+              <source>${java.source.version}</source>
+              <target>${java.source.version}</target>
+              <encoding>${project.build.sourceEncoding}</encoding>
+              <compilerArgs>
+                <arg>-parameters</arg>
+              </compilerArgs>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>${maven-resources-plugin.version}</version>
+          </plugin>
+
+          <!-- Source code -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven-source-plugin.version}</version>
+          </plugin>
+
+          <!-- Surefire: unit test -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${maven-surefire-plugin.version}</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>coverage</id>
+      <build>
+        <plugins>
+          <!-- coveralls -->
+          <plugin>
+            <groupId>org.eluder.coveralls</groupId>
+            <artifactId>coveralls-maven-plugin</artifactId>
+            <version>${coveralls-maven-plugin.version}</version>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Public directory -->
+    <profile>
+      <id>public-directory</id>
+      <activation>
+        <file>
+          <exists>public</exists>
+        </file>
+      </activation>
+      <properties>
+        <project.public.directory>public</project.public.directory>
+      </properties>
+      <build>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+          </resource>
+          <resource>
+            <directory>${project.public.directory}</directory>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+
+    <!-- Config directory -->
+    <profile>
+      <id>config-directory</id>
+      <activation>
+        <file>
+          <exists>config</exists>
+        </file>
+      </activation>
+      <properties>
+        <project.config.directory>config</project.config.directory>
+      </properties>
+      <build>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+          </resource>
+          <resource>
+            <directory>${project.config.directory}</directory>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+
+    <profile>
+      <id>conf-directory</id>
+      <activation>
+        <file>
+          <exists>conf</exists>
+        </file>
+      </activation>
+      <properties>
+        <project.conf.directory>conf</project.conf.directory>
+      </properties>
+      <build>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+          </resource>
+          <resource>
+            <directory>${project.conf.directory}</directory>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+
+    <!-- checkstyle -->
+    <profile>
+      <id>checkstyle</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}checkstyle.xml</exists>
+        </file>
+      </activation>
+      <properties>
+        <checkstyle-file>${basedir}${file.separator}src${file.separator}etc${file.separator}checkstyle.xml</checkstyle-file>
+        <checkstyle.phase>package</checkstyle.phase>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>${maven-checkstyle-plugin.version}</version>
+            <configuration>
+              <consoleOutput>true</consoleOutput>
+              <configLocation>${checkstyle-file}</configLocation>
+              <failsOnError>true</failsOnError>
+            </configuration>
+            <executions>
+              <execution>
+                <id>checkstyle</id>
+                <phase>${checkstyle.phase}</phase>
+                <goals>
+                  <goal>checkstyle</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Ebean activator -->
+    <profile>
+      <id>ebean-activator</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}mvn${file.separator}ebean.activator</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <!-- ebean-enchancer -->
+          <plugin>
+            <groupId>org.avaje.ebeanorm</groupId>
+            <artifactId>avaje-ebeanorm-mavenenhancer</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- QueryDSL for JPA -->
+    <profile>
+      <id>querydsl-jpa</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}querydsl-jpa.md</exists>
+        </file>
+      </activation>
+      <properties>
+        <querydsl-jpa-apt-file>querydsl-jpa-${querydsl.version}-apt-one-jar.jar</querydsl-jpa-apt-file>
+        <querydsl-jpa-apt-dir>${settings.localRepository}/com/querydsl/querydsl-jpa/${querydsl.version}</querydsl-jpa-apt-dir>
+        <querydsl-jpa-apt-path>${querydsl-jpa-apt-dir}/${querydsl-jpa-apt-file}</querydsl-jpa-apt-path>
+        <querydsl-jpa-output-dir>target/generated-sources</querydsl-jpa-output-dir>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>${build-helper-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>add-source</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${querydsl-jpa-output-dir}</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <!-- download apt-one-jar and provides a better Eclipse integration -->
+              <dependency>
+                <groupId>com.querydsl</groupId>
+                <artifactId>querydsl-jpa</artifactId>
+                <classifier>apt-one-jar</classifier>
+                <version>${querydsl.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-eclipse-plugin</artifactId>
+            <configuration>
+              <additionalConfig>
+                <file>
+                  <name>.factorypath</name>
+                  <content><![CDATA[<factorypath>
+  <factorypathentry kind="EXTJAR" id="${querydsl-jpa-apt-path}" enabled="true" runInBatchMode="false" />
+</factorypath>
+  ]]>
+                  </content>
+                </file>
+                <file>
+                  <name>.settings/org.eclipse.jdt.apt.core.prefs</name>
+                  <content><![CDATA[
+  eclipse.preferences.version=1
+org.eclipse.jdt.apt.aptEnabled=true
+org.eclipse.jdt.apt.genSrcDir=${querydsl-jpa-output-dir}
+org.eclipse.jdt.apt.reconcileEnabled=true
+org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
+   ]]>
+                  </content>
+                </file>
+              </additionalConfig>
+            </configuration>
+          </plugin>
+
+          <!-- Query DSL -->
+          <plugin>
+            <groupId>com.mysema.maven</groupId>
+            <artifactId>apt-maven-plugin</artifactId>
+            <version>${apt-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>process</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${querydsl-jpa-output-dir}</outputDirectory>
+                  <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+                  <logOnlyOnError>true</logOnlyOnError>
+                </configuration>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>com.querydsl</groupId>
+                <artifactId>querydsl-apt</artifactId>
+                <version>${querydsl.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+      <dependencies>
+        <!-- Query DSL -->
+        <dependency>
+          <groupId>com.querydsl</groupId>
+          <artifactId>querydsl-jpa</artifactId>
+          <version>${querydsl.version}</version>
+          <exclusions>
+            <exclusion>
+              <groupId>cglib</groupId>
+              <artifactId>cglib</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>net.sourceforge.findbugs</groupId>
+              <artifactId>jsr305</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <!-- license header -->
+    <profile>
+      <id>license</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}LICENSE</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>${license-maven-plugin.version}</version>
+            <configuration>
+              <header>LICENSE</header>
+              <strictCheck>true</strictCheck>
+              <skipExistingHeaders>true</skipExistingHeaders>
+              <includes>
+                <include>src/main/java/**/*.java</include>
+              </includes>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>format</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>license-multiproject</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}..${file.separator}LICENSE</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>${license-maven-plugin.version}</version>
+            <configuration>
+              <header>LICENSE</header>
+              <strictCheck>true</strictCheck>
+              <skipExistingHeaders>true</skipExistingHeaders>
+              <includes>
+                <include>src/main/java/**/*.java</include>
+              </includes>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>format</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- Sonatype OSS release -->
+    <profile>
+      <id>sonatype-oss-release</id>
+      <build>
+        <plugins>
+          <!-- Source -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven-source-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- Javadoc -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- GPG -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven-gpg-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <!-- Release plugin -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>${maven-release-plugin.version}</version>
+            <configuration>
+              <mavenExecutorId>forked-path</mavenExecutorId>
+              <useReleaseProfile>false</useReleaseProfile>
+              <arguments>-Psonatype-oss-release</arguments>
+              <autoVersionSubmodules>true</autoVersionSubmodules>
+              <tagNameFormat>v@{project.version}</tagNameFormat>
+              <scmCommentPrefix>release</scmCommentPrefix>
+              <goals>deploy</goals>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>${nexus-staging-maven-plugin.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!-- gh-pages -->
+    <profile>
+      <id>gh-pages</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-site-plugin</artifactId>
+            <version>${maven-site-plugin.version}</version>
+            <configuration>
+              <generateProjectInfo>false</generateProjectInfo>
+              <generateReports>false</generateReports>
+              <generateSitemap>false</generateSitemap>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>javadoc</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <excludePackageNames>org.jooby.internal:org.jooby.test</excludePackageNames>
+              <aggregate>true</aggregate>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>${maven-antrun-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>default-cli</id>
+                <configuration>
+                  <tasks>
+                    <ant antfile="gh-pages.ant" target="gh-pages" />
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>1.9.4</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
+  <properties>
+    <!-- Dependencies -->
+    <jackson.version>2.6.2</jackson.version>
+    <undertow.version>1.2.12.Final</undertow.version>
+    <servlet.version>3.1.0</servlet.version>
+    <jetty.version>9.3.3.v20150827</jetty.version>
+    <netty.version>4.0.32.Final</netty.version>
+    <javassist.version>3.19.0-GA</javassist.version>
+    <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
+    <slf4j-api.version>1.7.7</slf4j-api.version>
+    <logback-classic.version>1.1.2</logback-classic.version>
+    <guava.version>18.0</guava.version>
+    <guice.version>4.0</guice.version>
+    <config.version>1.3.0</config.version>
+    <handlebars.version>2.3.0</handlebars.version>
+    <h2.version>1.4.182</h2.version>
+    <mysql-connector-java.version>5.1.33</mysql-connector-java.version>
+    <hikariCP.version>2.3.8</hikariCP.version>
+    <hibernate.version>4.3.9.Final</hibernate.version>
+    <jsr305.version>3.0.0</jsr305.version>
+    <http-client.version>4.3.6</http-client.version>
+    <async-http-client.version>1.8.14</async-http-client.version>
+    <cglib.version>3.1</cglib.version>
+    <asm.version>5.0.3</asm.version>
+    <quartz.version>2.2.1</quartz.version>
+    <jdbi.version>2.62</jdbi.version>
+    <freemarker.version>2.3.22</freemarker.version>
+    <camel.version>2.15.2</camel.version>
+    <jedis.version>2.7.2</jedis.version>
+    <mongo-java-driver.version>3.0.2</mongo-java-driver.version>
+    <morphia.version>1.0.1</morphia.version>
+    <jboss-modules.version>1.4.2.Final</jboss-modules.version>
+    <elasticsearch>1.5.2</elasticsearch>
+    <hibernate-validator.version>5.1.3.Final</hibernate-validator.version>
+    <javax.el-api.version>2.2.5</javax.el-api.version>
+    <javax.el-ref.version>2.2.6</javax.el-ref.version>
+    <gson.version>2.3.1</gson.version>
+    <ehcache.version>2.10.0</ehcache.version>
+    <pac4j.version>1.7.0</pac4j.version>
+    <swagger.version>1.5.0</swagger.version>
+    <swagger-ui.version>2.1.8-M1</swagger-ui.version>
+    <commons-lang3.version>3.4</commons-lang3.version>
+    <snakeyaml.version>1.15</snakeyaml.version>
+    <spymemcached.version>2.12.0</spymemcached.version>
+    <aws-java-sdk.version>1.10.1</aws-java-sdk.version>
+    <commons-email.version>1.4</commons-email.version>
+    <querydsl.version>4.0.1</querydsl.version>
+    <jongo.version>1.2</jongo.version>
+    <bson4jackson.version>2.5.0</bson4jackson.version>
+    <flyway.version>3.2.1</flyway.version>
+    <hazelcast.version>3.5</hazelcast.version>
+    <less4j.version>1.13.0</less4j.version>
+    <ebean.version>6.3.1</ebean.version>
+    <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
+    <avaje-ebeanorm-agent.version>4.5.4</avaje-ebeanorm-agent.version>
+    <akka.version>2.3.9</akka.version>
+    <yuicompressor.version>2.4.8</yuicompressor.version>
+    <closure-compiler.version>v20150901</closure-compiler.version>
+    <jruby.version>9.0.1.0</jruby.version>
+
+    <!-- config -->
+    <war.maxRequestSize>204800</war.maxRequestSize>
+    <ebean.agent.packages>**</ebean.agent.packages>
+    <ebean.agent.args>debug=0</ebean.agent.args>
+
+    <!-- Test dependencies -->
+    <junit.version>4.11</junit.version>
+    <easymock.version>3.2</easymock.version>
+    <powermock.version>1.5.6</powermock.version>
+    <jacoco.version>0.7.5.201505241946</jacoco.version>
+
+    <!-- Maven properties -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.source.version>1.8</java.source.version>
+    <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
+    <timestamp>${maven.build.timestamp}</timestamp>
+
+    <!-- Maven plugins -->
+    <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
+    <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
+    <maven-source-plugin.version>2.4</maven-source-plugin.version>
+    <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
+    <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
+    <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
+    <maven-enforcer-plugin.version>1.3.1</maven-enforcer-plugin.version>
+    <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
+    <maven-eclipse-plugin.version>2.9</maven-eclipse-plugin.version>
+    <maven-java-formatter-plugin.version>0.4</maven-java-formatter-plugin.version>
+    <nexus-staging-maven-plugin.version>1.6.5</nexus-staging-maven-plugin.version>
+    <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
+    <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
+    <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
+    <coveralls-maven-plugin.version>3.1.0</coveralls-maven-plugin.version>
+    <exec-maven-plugin.version>1.3.2</exec-maven-plugin.version>
+    <maven-plugin-api.version>3.3.3</maven-plugin-api.version>
+    <maven-project.version>2.2.1</maven-project.version>
+    <maven-core.version>3.3.3</maven-core.version>
+    <maven-plugin-annotations.version>3.4</maven-plugin-annotations.version>
+    <plexus-utils.version>3.0.20</plexus-utils.version>
+    <mojo-executor.version>2.2.0</mojo-executor.version>
+    <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+    <maven-site-plugin.version>3.4</maven-site-plugin.version>
+    <license-maven-plugin.version>2.6</license-maven-plugin.version>
+    <jacoco-maven-plugin.version>${jacoco.version}</jacoco-maven-plugin.version>
+    <maven-assembly-plugin.version>2.5.3</maven-assembly-plugin.version>
+    <versions-maven-plugin.version>2.1</versions-maven-plugin.version>
+    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+    <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
+    <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
+    <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
+
+    <jooby.version>${project.version}</jooby.version>
+  </properties>
+</project>

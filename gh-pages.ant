@@ -1,0 +1,41 @@
+<project default="gh-pages" xmlns="antlib:org.apache.tools.ant" xmlns:if="ant:if" xmlns:unless="ant:unless">
+
+  <!--
+    DON'T run this file in order to push gh-pages. Instead run:
+       mvn clean javadoc:javadoc -P gh-pages
+       mvn antrun:run -N -P gh-pages
+    Javadoc will be generated and sync for sure
+   -->
+  <target name="gh-pages">
+    <property name="gitrepo" value="git@github.com:jooby-project/jooby.git" />
+    <property name="workdir" value="target/gh-pages" />
+
+    <delete dir="${workdir}" failonerror="false" />
+    <mkdir dir="${workdir}" />
+
+    <exec executable="git" dir="${workdir}">
+      <arg value="clone" />
+      <arg value="-b" />
+      <arg value="gh-pages" />
+      <arg value="--single-branch" />
+      <arg value="${gitrepo}" />
+      <arg value="." />
+    </exec>
+
+    <antcall target="md.processor" />
+
+    <delete dir="${workdir}/apidocs" failonerror="false" />
+
+    <mkdir dir="${workdir}/apidocs" />
+
+    <copy todir="${workdir}/apidocs" overwrite="true" failonerror="false">
+      <fileset dir="target/site/apidocs" />
+    </copy>
+
+  </target>
+
+  <target name="md.processor">
+    <script language="javascript" src="md/processor.js">
+    </script>
+  </target>
+</project>
