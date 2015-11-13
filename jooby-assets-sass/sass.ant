@@ -1,0 +1,39 @@
+<project default="sass-lang">
+  <property name="sass.workdir" value="target${file.separator}sass-tmp" />
+
+  <property name="sass.cp" value="src${file.separator}main${file.separator}ruby" />
+
+  <property name="jruby.version" value="9.0.1.0" />
+
+  <property name="jruby.cp" value="${user.home}${file.separator}.m2${file.separator}repository${file.separator}org${file.separator}jruby${file.separator}jruby-complete${file.separator}${jruby.version}${file.separator}jruby-complete-${jruby.version}.jar" />
+
+  <target name="sass-lang">
+
+    <delete dir="${sass.cp}/gems" />
+    <delete dir="${sass.cp}/specifications" />
+
+    <echo>gem install sass</echo>
+    <java classname="org.jruby.Main" classpath="${jruby.cp}" fork="true">
+      <arg value="-S" />
+      <arg value="gem" />
+      <arg value="install" />
+      <arg value="-i" />
+      <arg value="${sass.workdir}" />
+      <arg value="sass" />
+    </java>
+
+    <mkdir dir="${sass.cp}/gems" />
+    <mkdir dir="${sass.cp}/specifications" />
+
+    <copy todir="${sass.cp}/gems">
+      <fileset dir="${sass.workdir}${file.separator}gems">
+        <include name="*/lib/**" />
+        <include name="*/VERSION*" />
+      </fileset>
+    </copy>
+
+    <copy todir="${sass.cp}/specifications">
+      <fileset dir="${sass.workdir}${file.separator}specifications" />
+    </copy>
+  </target>
+</project>

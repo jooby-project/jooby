@@ -1,0 +1,9 @@
+language: java
+sudo: false
+branches:
+  only:
+    - master
+jdk:
+  - oraclejdk8
+script:
+  - mvn -Dlogback.configurationFile=logback-travis.xml clean package coveralls:report -P coverage

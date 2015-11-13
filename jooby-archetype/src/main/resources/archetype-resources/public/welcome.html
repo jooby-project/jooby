@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>${artifactId}</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div class="content">
+    <h1>j<msup class="infinite">&infin;</msup>by</h1>
+    <hr />
+    <p>A micro web framework for Java 8 or higher</p>
+
+    <pre>
+      <span class="kw">import</span> <span class="nn">org.jooby.Jooby</span>;
+
+      <span class="kw">public</span> <span class="kw">class</span> <span class="nc">App</span> <span
+        class="kw">extends</span> <span class="nn">Jooby</span> <span class="kw">{</span>
+
+        <span class="kw">{</span>
+          get<span class="kw">(</span><span class="s">"/"</span>, req <span class="kw">-></span> <span class="s">"Hey Jooby!"</span><span class="kw">)</span>;
+        <span class="kw">}</span>
+
+        <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span
+        class="nf">main</span><span class="kw">(final</span> String<span class="kw">[]</span> args<span
+        class="kw">)</span> <span class="kw">throws</span> Exception <span class="kw">{</span>
+          <span class="kw">new</span> <span class="nf">App</span><span class="kw">()</span>.<span
+        class="na">start</span><span class="kw">()</span>;
+        <span class="kw">}</span>
+      <span class="kw">}</span>
+    </pre>
+
+    <h1>version</h1>
+    <hr />
+    <p>${jooby-version}</p>
+
+    <h1>need help?</h1>
+    <hr />
+    <ul>
+      <li><a href="http://jooby.org">jooby.org</a></li>
+      <li><a href="http://jooby.org/modules">available modules</a></li>
+      <li><a href="https://github.com/jooby-project/jooby">source code</a></li>
+      <li><a href="https://groups.google.com/forum/#!forum/jooby-project">google group</a></li>
+      <li><a href="https://github.com/jooby-project/jooby/issues">issues</a></li>
+    </ul>
+
+    <h1>license</h1>
+    <hr />
+    <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache v2.0</a>
+
+    <h1>author</h1>
+    <hr />
+    <a href="https://twitter.com/edgarespina">Edgar Espina</a>
+
+  </div>
+
+  <script type="text/javascript" src="assets/js/index.js"></script>
+</body>
+</html>
