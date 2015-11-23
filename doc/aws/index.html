@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>jooby: Scalable, Fast and Modular micro web framework for Java</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="#">
+    <link rel="publisher" href="#">
+    <meta name="robots" content="robots.txt">
+    <meta name="og:title" content="jooby">
+    <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java">
+    <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    -->
+    <meta name="og:type" content="website">
+    <meta name="og:url" content="http://jooby.org">
+    <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    -->
+    <meta name="og:image" content="/resources/images/apps/facebook.jpg">
+    <meta name="og:site_name" content="jooby">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="jooby">
+    <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    -->
+    <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg">
+    <meta name="twitter:site" content="https://twitter.com/joobyproject">
+    <meta name="twitter:creator" content="https://twitter.com/edgarespina">
+    <meta name="twitter:domain" content="http://jooby.org">
+    <meta name="twitter:url" content="https://twitter.com/joobyproject">
+    <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180">
+    <link href="/resources/images/apps/favicon.ico" rel="shortcut icon">
+    <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
+    <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
+    <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
+    <link rel="stylesheet" href="/resources/styles/application.css">
+    <link rel="stylesheet" href="/resources/styles/devices.css">
+    <link rel="stylesheet" href="/resources/styles/sprites.css">
+  </head>
+  <body class="page-section page-sidebar">
+    <header class="site-header">
+      <div class="row"><a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
+        <nav class="site-nav">
+          <ul>
+            <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li>
+            <li class=""><a href="/doc" title="Doc">DOC</a></li>
+            <li class="active"><a href="/modules" title="Modules">MODULES</a></li>
+            <li class=""><a href="/help" title="Help &amp; Support">HELP & SUPPORT</a></li>
+            <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li>
+            <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main role="main" class="site-content">
+      
+<div class="section-title"> 
+  <div class="row">
+    <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a>
+    <h1>aws</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
+    <div class="show-mobile menu-open">aws</div>
+    <ul>
+<li class="active">
+<a href="#aws">aws</a><ul>
+<li>
+<a href="#aws-exposes">exposes</a></li>
+<li>
+<a href="#aws-dependency">dependency</a></li>
+<li>
+<a href="#aws-usage">usage</a></li>
+<li>
+<a href="#aws-handling-access-and-secret-keys">handling access and secret keys</a></li></ul></li>
+</ul>
+  </div>
+  <div class="section-content">
+  <div class="datalist" id="aws">
+ <div class="datalist-title active"> 
+  <h2>aws</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>Small utility module that exposes <code class="highlighter-rouge">AmazonWebServiceClient</code> and give you access to aws credentials (access and secret keys).</p>
+  <h3 id="aws-exposes">exposes</h3>
+  <ul> 
+   <li>One ore more <code class="highlighter-rouge">AmazonWebServiceClient</code></li> 
+  </ul>
+  <h3 id="aws-dependency">dependency</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-aws<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.11.2<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <h3 id="aws-usage">usage</h3>
+  <p>application.conf:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="py">aws.accessKey</span> <span class="p">=</span> <span class="s">AKIAIOSFODNN7EXAMPLE</span>
+<span class="py">aws.secretKey</span> <span class="p">=</span>  <span class="s">wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</span>
+</code></pre> 
+  </div>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Aws</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">creds</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">AmazonS3Client</span><span class="o">(</span><span class="n">creds</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">creds</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">AmazonSimpleEmailServiceClient</span><span class="o">(</span><span class="n">creds</span><span class="o">))</span>
+  <span class="o">);</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">AmazonS3</span> <span class="n">s3</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">AmazonS3</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="c1">// work with s3</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>Keep in mind, you will need the <code class="highlighter-rouge">s3 (ses, sqs,sns, etc..)</code> jar in your classpath.</p>
+  <p>This module is small and simple. All it does is bind <code class="highlighter-rouge">AmazonWebServiceClient</code> instances in<br> <a href="https://github.com/google/guice">Guice</a>. It also helps to bind utility classes like <code class="highlighter-rouge">TransferManager</code></p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Aws</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">creds</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">AmazonS3Client</span><span class="o">(</span><span class="n">creds</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">doWith</span><span class="o">((</span><span class="n">AmazonS3Client</span> <span class="n">s3</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">TransferManager</span><span class="o">(</span><span class="n">s3</span><span class="o">))</span>
+  <span class="o">);</span>
+
+  <span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">TransferMananger</span> <span class="n">tm</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">TransferManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <h3 id="aws-handling-access-and-secret-keys">handling access and secret keys</h3>
+  <p>Keys are defined in <code class="highlighter-rouge">.conf</code> file. It is possible to use global or per service keys.</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code> <span class="py">aws.accessKey</span> <span class="p">=</span> <span class="s">AKIAIOSFODNN7EXAMPLE</span>
+ <span class="py">aws.secretKey</span> <span class="p">=</span>  <span class="s">wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</span>
+
+ <span class="py">aws.s3.accessKey</span> <span class="p">=</span> <span class="s">S3IOSFODNN7S3EXAMPLE</span>
+ <span class="py">aws.s3.secretKey</span> <span class="p">=</span> <span class="s">s3alrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</span>
+</code></pre> 
+  </div>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="err">use(new</span><span class="w"> </span><span class="err">Aws()</span><span class="w"> </span><span class="err">.with(creds</span><span class="w"> </span><span class="err">-&gt;</span><span class="w"> </span><span class="err">new</span><span class="w"> </span><span class="err">AmazonS3Client(creds))</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">aws.s3</span><span class="w"> </span><span class="err">keys</span><span class="w"> </span><span class="err">.with(creds</span><span class="w"> </span><span class="err">-&gt;</span><span class="w"> </span><span class="err">new</span><span class="w"> </span><span class="err">AmazonSimpleEmailServiceClient(creds))</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">global</span><span class="w"> </span><span class="err">keys</span><span class="w"> </span><span class="err">);</span><span class="w"> </span></code></pre> 
+  </div>
+  <p>It uses the <code class="highlighter-rouge">AmazonWebServiceClient#getServiceName()</code> method in order to find per service<br> keys.</p>
+  <p>That’s all folks!</p>
+  <p>Happy coding!!!</p>
+ </div> 
+</div>
+  </div>
+</div>
+
+    </main>
+    <footer class="site-footer">
+      <div class="row">
+        <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina">Edgar Espina</a></p>
+        <div class="altquimia">DG <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio</div>
+        <div class="follow-us pull-right">
+          <p>Follow us</p><a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
+        </div>
+      </div>
+    </footer>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
+    <script src="/resources/scripts/libs/swiper.min.js"></script>
+    <script src="/resources/scripts/application.js"></script>
+    <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
+  </body>
+</html>

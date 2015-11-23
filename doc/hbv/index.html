@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>jooby: Scalable, Fast and Modular micro web framework for Java</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="#">
+    <link rel="publisher" href="#">
+    <meta name="robots" content="robots.txt">
+    <meta name="og:title" content="jooby">
+    <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java">
+    <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    -->
+    <meta name="og:type" content="website">
+    <meta name="og:url" content="http://jooby.org">
+    <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    -->
+    <meta name="og:image" content="/resources/images/apps/facebook.jpg">
+    <meta name="og:site_name" content="jooby">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="jooby">
+    <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    -->
+    <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg">
+    <meta name="twitter:site" content="https://twitter.com/joobyproject">
+    <meta name="twitter:creator" content="https://twitter.com/edgarespina">
+    <meta name="twitter:domain" content="http://jooby.org">
+    <meta name="twitter:url" content="https://twitter.com/joobyproject">
+    <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180">
+    <link href="/resources/images/apps/favicon.ico" rel="shortcut icon">
+    <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
+    <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
+    <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
+    <link rel="stylesheet" href="/resources/styles/application.css">
+    <link rel="stylesheet" href="/resources/styles/devices.css">
+    <link rel="stylesheet" href="/resources/styles/sprites.css">
+  </head>
+  <body class="page-section page-sidebar">
+    <header class="site-header">
+      <div class="row"><a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
+        <nav class="site-nav">
+          <ul>
+            <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li>
+            <li class=""><a href="/doc" title="Doc">DOC</a></li>
+            <li class="active"><a href="/modules" title="Modules">MODULES</a></li>
+            <li class=""><a href="/help" title="Help &amp; Support">HELP & SUPPORT</a></li>
+            <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li>
+            <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main role="main" class="site-content">
+      
+<div class="section-title"> 
+  <div class="row">
+    <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a>
+    <h1>hibernate validator</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
+    <div class="show-mobile menu-open">hibernate validator</div>
+    <ul>
+<li class="active">
+<a href="#hibernate-validator">hibernate validator</a><ul>
+<li>
+<a href="#hibernate-validator-exposes">exposes</a></li>
+<li>
+<a href="#hibernate-validator-dependency">dependency</a></li>
+<li>
+<a href="#hibernate-validator-usage">usage</a></li>
+<li>
+<a href="#hibernate-validator-automatic-validations-of-HTTP-params-and-body">automatic validations of HTTP params and body</a></li>
+<li>
+<a href="#hibernate-validator-constraint-validator-factory">constraint validator factory</a></li>
+<li>
+<a href="#hibernate-validator-configuration">configuration</a></li></ul></li>
+</ul>
+  </div>
+  <div class="section-content">
+  <div class="datalist" id="hibernate-validator">
+ <div class="datalist-title active"> 
+  <h2>hibernate validator</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>Bean validation via <a href="hibernate.org/validator">Hibernate Validator</a>.</p>
+  <h3 id="hibernate-validator-exposes">exposes</h3>
+  <ul> 
+   <li>a <code class="highlighter-rouge">Validator</code>,</li> 
+   <li>a <code class="highlighter-rouge">HibernateValidatorConfiguration</code> and</li> 
+   <li>a <code class="highlighter-rouge">org.jooby.Parser</code></li> 
+  </ul>
+  <h3 id="hibernate-validator-dependency">dependency</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-hbv<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.11.2<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <h3 id="hibernate-validator-usage">usage</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbv</span><span class="o">());</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+   <span class="n">Validator</span> <span class="n">validator</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Validator</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+   <span class="n">Car</span> <span class="n">car</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">params</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">Car</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+   <span class="n">Set</span><span class="o">&lt;</span><span class="n">ConstraintViolation</span><span class="o">&gt;</span> <span class="n">violations</span> <span class="o">=</span> <span class="n">validator</span><span class="o">.</span><span class="na">validate</span><span class="o">(</span><span class="n">car</span><span class="o">);</span>
+   <span class="k">if</span> <span class="o">(</span><span class="n">violations</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+     <span class="c1">// handle errors</span>
+     <span class="o">...</span>
+   <span class="o">}</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <h3 id="hibernate-validator-automatic-validations-of-HTTP-params-and-body">automatic validations of HTTP params and body</h3>
+  <p>Previous example demonstrate how to manually validate a bean created via: <code class="highlighter-rouge">req.params()</code> or <code class="highlighter-rouge">req.body()</code>. The boilerplate code<br> can be avoided if you explicitly tell the validation module which classes require validation.</p>
+  <p>The previous example can be rewritten as:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbv</span><span class="o">(</span><span class="n">Car</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+   <span class="n">Car</span> <span class="n">car</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">params</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">Car</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+   <span class="c1">// a valid car is here</span>
+   <span class="o">...</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>Here a <a href="/apidocs/org/jooby/Parser.html">Parser</a> will do the boilerplate part and throws a <code class="highlighter-rouge">ConstraintViolationException</code>.</p>
+  <h4>rendering a ConstraintViolationException</h4>
+  <p>The default err handler will render the <code class="highlighter-rouge">ConstraintViolationException</code> without problem, but suppose we have a JavaScript client and want to display the errors in a friendly way.</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span> <span class="c1">// JSON renderer</span>
+
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbv</span><span class="o">(</span><span class="n">Car</span><span class="o">.</span><span class="na">class</span><span class="o">));</span> <span class="c1">// Validate Car objects</span>
+
+  <span class="n">err</span><span class="o">((</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">err</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Throwable</span> <span class="n">cause</span> <span class="o">=</span> <span class="n">err</span><span class="o">.</span><span class="na">getCause</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">cause</span> <span class="k">instanceof</span> <span class="n">ConstraintViolationException</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">Set</span><span class="o">&lt;</span><span class="n">ConstraintViolation</span><span class="o">&lt;?&gt;&gt;</span> <span class="n">constraints</span> <span class="o">=</span> <span class="o">((</span><span class="n">ConstraintViolationException</span><span class="o">)</span> <span class="n">cause</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">getConstraintViolations</span><span class="o">();</span>
+
+      <span class="n">Map</span><span class="o">&lt;</span><span class="n">Path</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">errors</span> <span class="o">=</span> <span class="n">constraints</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+          <span class="o">.</span><span class="na">collect</span><span class="o">(</span>
+              <span class="n">Collectors</span><span class="o">.</span><span class="na">toMap</span><span class="o">(</span>
+                  <span class="nl">ConstraintViolation:</span><span class="o">:</span><span class="n">getPropertyPath</span><span class="o">,</span>
+                  <span class="nl">ConstraintViolation:</span><span class="o">:</span><span class="n">getMessage</span>
+                  <span class="o">)</span>
+          <span class="o">);</span>
+      <span class="n">rsp</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">errors</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+   <span class="n">Car</span> <span class="n">car</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">params</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">Car</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+   <span class="c1">// a valid car is here</span>
+   <span class="o">...</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>The call to <code class="highlighter-rouge">rsp.send(errors);</code> will be rendered by <code class="highlighter-rouge">Jackson</code> (or any other that applies) and will produces a more friendly response, here it will be a JavaScript object with the errors.</p>
+  <h3 id="hibernate-validator-constraint-validator-factory">constraint validator factory</h3>
+  <p><code class="highlighter-rouge">ConstraintValidatorFactory</code> is the extension point for customizing how constraint validators are instantiated and released.</p>
+  <p>In <a href="http://jooby.org">Jooby</a>, a <code class="highlighter-rouge">ConstraintValidatorFactory</code> is powered by <a href="https://github.com/google/guice">Guice</a> and <code class="highlighter-rouge">java.io.Closeable</code> constraint will be release it. See <a href="http://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-bootstrapping.html#d0e4456">ConstraintValidatorFactory</a></p>
+  <h3 id="hibernate-validator-configuration">configuration</h3>
+  <p>Any property defined at <code class="highlighter-rouge">hibernate.validator</code> will be add it automatically:</p>
+  <p>application.conf</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code>hibernate.validator.fail_fast = true
+</code></pre> 
+  </div>
+  <p>Or programmatically:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbv</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">config</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">failFast</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+  <span class="o">}));</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+ </div> 
+</div>
+  </div>
+</div>
+
+    </main>
+    <footer class="site-footer">
+      <div class="row">
+        <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina">Edgar Espina</a></p>
+        <div class="altquimia">DG <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio</div>
+        <div class="follow-us pull-right">
+          <p>Follow us</p><a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
+        </div>
+      </div>
+    </footer>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
+    <script src="/resources/scripts/libs/swiper.min.js"></script>
+    <script src="/resources/scripts/application.js"></script>
+    <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
+  </body>
+</html>

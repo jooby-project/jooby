@@ -1,0 +1,43 @@
+.site-footer {
+  background-color: #f4f4f4;
+  padding: 18px 0 17px;
+  letter-spacing: 1.5px;
+}
+.site-footer p {
+  color: #21474c;
+  line-height: 35px;
+}
+.site-footer p a {
+  color: #21474c;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+.site-footer p a:hover {
+  color: #f9b334;
+}
+.site-footer .altquimia {
+  float: left;
+  margin-left: 180px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-top: 9px;
+}
+.site-footer .altquimia a {
+  color: #ffd800;
+  font-weight: bold;
+}
+.site-footer .altquimia a:hover {
+  text-decoration: underline;
+}
+.site-footer .follow-us p {
+  text-transform: uppercase;
+  float: left;
+  margin-right: 6px;
+}
+.site-footer .follow-us a {
+  float: left;
+  margin-left: 12px;
+}
+.site-footer .follow-us a:hover {
+  opacity: .7;
+}

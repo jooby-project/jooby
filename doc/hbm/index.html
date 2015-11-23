@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>jooby: Scalable, Fast and Modular micro web framework for Java</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="#">
+    <link rel="publisher" href="#">
+    <meta name="robots" content="robots.txt">
+    <meta name="og:title" content="jooby">
+    <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java">
+    <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    -->
+    <meta name="og:type" content="website">
+    <meta name="og:url" content="http://jooby.org">
+    <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    -->
+    <meta name="og:image" content="/resources/images/apps/facebook.jpg">
+    <meta name="og:site_name" content="jooby">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="jooby">
+    <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    -->
+    <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg">
+    <meta name="twitter:site" content="https://twitter.com/joobyproject">
+    <meta name="twitter:creator" content="https://twitter.com/edgarespina">
+    <meta name="twitter:domain" content="http://jooby.org">
+    <meta name="twitter:url" content="https://twitter.com/joobyproject">
+    <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180">
+    <link href="/resources/images/apps/favicon.ico" rel="shortcut icon">
+    <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
+    <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
+    <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
+    <link rel="stylesheet" href="/resources/styles/application.css">
+    <link rel="stylesheet" href="/resources/styles/devices.css">
+    <link rel="stylesheet" href="/resources/styles/sprites.css">
+  </head>
+  <body class="page-section page-sidebar">
+    <header class="site-header">
+      <div class="row"><a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
+        <nav class="site-nav">
+          <ul>
+            <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li>
+            <li class=""><a href="/doc" title="Doc">DOC</a></li>
+            <li class="active"><a href="/modules" title="Modules">MODULES</a></li>
+            <li class=""><a href="/help" title="Help &amp; Support">HELP & SUPPORT</a></li>
+            <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li>
+            <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main role="main" class="site-content">
+      
+<div class="section-title"> 
+  <div class="row">
+    <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a>
+    <h1>hibernate</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
+    <div class="show-mobile menu-open">hibernate</div>
+    <ul>
+<li class="active">
+<a href="#hibernate">hibernate</a><ul>
+<li>
+<a href="#hibernate-dependency">dependency</a></li>
+<li>
+<a href="#hibernate-usage">usage</a></li>
+<li>
+<a href="#hibernate-life-cycle">life-cycle</a></li>
+<li>
+<a href="#hibernate-persistent-classes">persistent classes</a></li>
+<li>
+<a href="#hibernate-options">options</a></li>
+<li>
+<a href="#hibernate-hbm-conf">hbm.conf</a></li></ul></li>
+</ul>
+  </div>
+  <div class="section-content">
+  <div class="datalist" id="hibernate">
+ <div class="datalist-title active"> 
+  <h2>hibernate</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>Object-Relational-Mapping via <a href="http://hibernate.org/">Hibernate</a>. Exposes an <code class="highlighter-rouge">EntityManagerFactory</code> and <code class="highlighter-rouge">EntityManager</code> services.</p>
+  <p>This module extends <a href="/doc/jdbc">jdbc</a> module, before going forward, make sure you read the doc of the <a href="/doc/jooby-dbc">jdbc</a> module first.</p>
+  <p>This module provides an advanced and recommended <a href="https://developer.jboss.org/wiki/OpenSessionInView#jive_content_id_Can_I_use_two_transactions_in_one_Session">Open Session in View</a><br> pattern, which basically keeps the <code class="highlighter-rouge">Session</code> opened until the view is rendered. But it uses two database transactions:</p>
+  <p>1) first transaction is committed before rendering the view and then</p>
+  <p>2) a read only transaction is opened for rendering the view.</p>
+  <h3 id="hibernate-dependency">dependency</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-hbm<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.11.2<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <h3 id="hibernate-usage">usage</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">(</span><span class="n">EntityA</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">EntityB</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+   <span class="n">EntityManager</span> <span class="n">em</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">EntityManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+   <span class="c1">// work with em...</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>At bootstrap time you will see something similar to this:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code>  <span class="k">*</span>    /<span class="k">**</span>      <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>    <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>  <span class="o">(</span>hbm<span class="o">)</span>
+</code></pre> 
+  </div>
+  <p>That is the filter with the <strong>Open Session in View</strong> pattern.</p>
+  <h3 id="hibernate-life-cycle">life-cycle</h3>
+  <p>You are free to inject an <code class="highlighter-rouge">EntityManagerFactory</code> create a new<br> <code class="highlighter-rouge">EntityManagerFactory#createEntityManager()</code>, start transactions and do everything you<br> need.</p>
+  <p>For the time being, this doesn’t work for an <code class="highlighter-rouge">EntityManager</code>. An <code class="highlighter-rouge">EntityManager</code> is<br> bound to the current request, which means you can’t freely access from every single thread (like<br> manually started thread, started by an executor service, quartz, etc…).</p>
+  <p>Another restriction, is the access from <code class="highlighter-rouge">Singleton</code> services. If you need access from a<br> singleton services, you need to inject a <code class="highlighter-rouge">Provider</code>.</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MySingleton</span> <span class="o">{</span>
+ 
+  <span class="nd">@Inject</span>
+  <span class="kd">public</span> <span class="n">MySingleton</span><span class="o">(</span><span class="n">Provider</span><span class="o">&amp;</span><span class="n">lt</span><span class="o">;</span><span class="n">EntityManager</span><span class="o">&amp;</span><span class="n">gt</span><span class="o">;</span> <span class="n">em</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">em</span> <span class="o">=</span> <span class="n">em</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>This is because the <code class="highlighter-rouge">EntityManager</code> is bound as <a href="{{defdocs/RequestScoped.html}}">RequestScoped</a>.</p>
+  <p>Still, we strongly recommend to leave your services in the default scope and avoid to use<br> <code class="highlighter-rouge">Singleton</code> objects, except of course for really expensive resources. This is also<br> recommend it by <a href="https://github.com/google/guice">Guice</a>.</p>
+  <p>Services in the default scope won’t have this problem and are free to inject the <code class="highlighter-rouge">EntityManager</code> directly.</p>
+  <h3 id="hibernate-persistent-classes">persistent classes</h3>
+  <p>Classpath scanning is OFF by default, so you need to explicitly tell <a href="http://hibernate.org/">Hibernate</a> which classes are<br> persistent. This intentional and helps to reduce bootstrap time and have explicit control over<br> persistent classes.</p>
+  <p>If you don’t care about bootstrap time and/or just like the auto-discover feature, just do:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">().</span><span class="na">scan</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>After calling <code class="highlighter-rouge">scan()</code>, <a href="http://hibernate.org/">Hibernate</a> will auto-discover all the entities application’s<br> namespace. The namespace is defined by the package of your application. Given:<br> <code class="highlighter-rouge">org.myproject.App</code> it will scan everything under <code class="highlighter-rouge">org.myproject</code>.</p>
+  <h3 id="hibernate-options">options</h3>
+  <p><a href="http://hibernate.org/">Hibernate</a> options can be set from your <code class="highlighter-rouge">application.conf</code> file, just make sure to prefix them with <code class="highlighter-rouge">hibernate.*</code></p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="py">hibernate.hbm2ddl.auto</span> <span class="p">=</span> <span class="s">update</span>
+</code></pre> 
+  </div>
+  <h3 id="hibernate-hbm-conf">hbm.conf</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="err">hibernate</span> <span class="err">{</span>
+
+  <span class="py">id.new_generator_mappings</span> <span class="p">=</span> <span class="s">true</span>
+
+  <span class="py">archive.autodetection</span> <span class="p">=</span> <span class="s">class</span>
+
+  <span class="c"># update for dev, validate for others </span>
+  <span class="c"># hbm2ddl.auto = update </span>
+  <span class="py">current_session_context_class</span> <span class="p">=</span> <span class="s">managed</span>
+
+<span class="err">}</span>
+
+<span class="err">javax.persistence</span> <span class="err">{</span>
+
+<span class="err">}</span>
+</code></pre> 
+  </div>
+ </div> 
+</div>
+  </div>
+</div>
+
+    </main>
+    <footer class="site-footer">
+      <div class="row">
+        <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina">Edgar Espina</a></p>
+        <div class="altquimia">DG <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio</div>
+        <div class="follow-us pull-right">
+          <p>Follow us</p><a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
+        </div>
+      </div>
+    </footer>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
+    <script src="/resources/scripts/libs/swiper.min.js"></script>
+    <script src="/resources/scripts/application.js"></script>
+    <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
+  </body>
+</html>

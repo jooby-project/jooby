@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>jooby: Scalable, Fast and Modular micro web framework for Java</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="#">
+    <link rel="publisher" href="#">
+    <meta name="robots" content="robots.txt">
+    <meta name="og:title" content="jooby">
+    <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java">
+    <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    -->
+    <meta name="og:type" content="website">
+    <meta name="og:url" content="http://jooby.org">
+    <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    -->
+    <meta name="og:image" content="/resources/images/apps/facebook.jpg">
+    <meta name="og:site_name" content="jooby">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="jooby">
+    <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    -->
+    <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg">
+    <meta name="twitter:site" content="https://twitter.com/joobyproject">
+    <meta name="twitter:creator" content="https://twitter.com/edgarespina">
+    <meta name="twitter:domain" content="http://jooby.org">
+    <meta name="twitter:url" content="https://twitter.com/joobyproject">
+    <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180">
+    <link href="/resources/images/apps/favicon.ico" rel="shortcut icon">
+    <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
+    <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
+    <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
+    <link rel="stylesheet" href="/resources/styles/application.css">
+    <link rel="stylesheet" href="/resources/styles/devices.css">
+    <link rel="stylesheet" href="/resources/styles/sprites.css">
+  </head>
+  <body class="page-section page-sidebar">
+    <header class="site-header">
+      <div class="row"><a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
+        <nav class="site-nav">
+          <ul>
+            <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li>
+            <li class=""><a href="/doc" title="Doc">DOC</a></li>
+            <li class="active"><a href="/modules" title="Modules">MODULES</a></li>
+            <li class=""><a href="/help" title="Help &amp; Support">HELP & SUPPORT</a></li>
+            <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li>
+            <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main role="main" class="site-content">
+      
+<div class="section-title"> 
+  <div class="row">
+    <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a>
+    <h1>jdbc</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
+    <div class="show-mobile menu-open">jdbc</div>
+    <ul>
+<li class="active">
+<a href="#jdbc">jdbc</a><ul>
+<li>
+<a href="#jdbc-dependency">dependency</a></li>
+<li>
+<a href="#jdbc-usage">usage</a></li>
+<li>
+<a href="#jdbc-configuration">configuration</a></li>
+<li>
+<a href="#jdbc-hikari-configuration">hikari configuration</a></li>
+<li>
+<a href="#jdbc-multiple-connections">multiple connections</a></li>
+<li>
+<a href="#jdbc-jdbc-conf">jdbc.conf</a></li></ul></li>
+</ul>
+  </div>
+  <div class="section-content">
+  <div class="datalist" id="jdbc">
+ <div class="datalist-title active"> 
+  <h2>jdbc</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>Production-ready jdbc data source, powered by the <a href="https://github.com/brettwooldridge/HikariCP">HikariCP</a> library.</p>
+  <h3 id="jdbc-dependency">dependency</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-jdbc<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.11.2<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <h3 id="jdbc-usage">usage</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code>
+<span class="kn">import</span> <span class="nn">org.jooby.jdbc.Jdbc</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.sql.DataSource</span><span class="o">;</span>
+
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">());</span>
+ 
+  <span class="c1">// accessing to the data source</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/my-api"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">DataSource</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="c1">// do something with datasource</span>
+  <span class="o">});</span> 
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>Or :</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Service</span> <span class="o">{</span>
+
+   <span class="nd">@Inject</span>
+   <span class="kd">public</span> <span class="n">Service</span><span class="o">(</span><span class="n">DataSource</span> <span class="n">ds</span><span class="o">)</span> <span class="o">{</span>
+     <span class="o">...</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <h3 id="jdbc-configuration">configuration</h3>
+  <p>Database configuration is controlled from your <code class="highlighter-rouge">application.conf</code> file using the <code class="highlighter-rouge">db</code> property and friends: <code class="highlighter-rouge">db.*</code>.</p>
+  <h4>mem db</h4>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="py">db</span> <span class="p">=</span> <span class="s">mem</span>
+</code></pre> 
+  </div>
+  <p>Mem db is implemented with <a href="http://www.h2database.com/">h2 database</a>, before using it make sure to add the h2 dependency to your <code class="highlighter-rouge">pom.xml</code>:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>com.h2database<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>h2<span class="nt">&lt;/artifactId&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <p>Mem db is useful for dev environment and/or transient data that can be regenerated.</p>
+  <h4>fs db</h4>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="py">db</span> <span class="p">=</span> <span class="s">fs</span>
+</code></pre> 
+  </div>
+  <p>File system db is implemented with <a href="http://www.h2database.com/">h2 database</a>, before using it make sure to add the h2 dependency to your <code class="highlighter-rouge">pom.xml</code>:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>com.h2database<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>h2<span class="nt">&lt;/artifactId&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <p>File system db is useful for dev environment and/or transient data that can be regenerated. Keep in mind this db is saved in a tmp directory and db will be deleted it on restarts.</p>
+  <h4>db.url</h4>
+  <p>Connect to a database using a jdbc url, some examples here:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="c"># mysql </span><span class="py">db.url</span> <span class="p">=</span> <span class="s">jdbc:mysql://localhost/mydb</span>
+<span class="py">db.user</span> <span class="p">=</span> <span class="s">myuser</span>
+<span class="py">db.password</span> <span class="p">=</span> <span class="s">password</span>
+</code></pre> 
+  </div>
+  <p>Previous example, show you how to connect to <strong>mysql</strong>, setting user and password. But of course you need the jdbc driver on your <code class="highlighter-rouge">pom.xml</code>:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>mysql<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>mysql-connector-java<span class="nt">&lt;/artifactId&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <h3 id="jdbc-hikari-configuration">hikari configuration</h3>
+  <p>If you need to configure or tweak the <a href="https://github.com/brettwooldridge/HikariCP">hikari pool</a> just add <code class="highlighter-rouge">hikari.*</code> entries to your <code class="highlighter-rouge">application.conf</code> file:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="py">db.url</span> <span class="p">=</span> <span class="s">jdbc:mysql://localhost/mydb</span>
+<span class="py">db.user</span> <span class="p">=</span> <span class="s">myuser</span>
+<span class="py">db.password</span> <span class="p">=</span> <span class="s">password</span>
+<span class="py">db.cachePrepStmts</span> <span class="p">=</span> <span class="s">true</span>
+
+<span class="c"># hikari </span><span class="py">hikari.autoCommit</span> <span class="p">=</span> <span class="s">true</span>
+<span class="py">hikari.maximumPoolSize</span> <span class="p">=</span> <span class="s">20</span>
+<span class="c"># etc... </span></code></pre> 
+  </div>
+  <p>Also, all the <code class="highlighter-rouge">db.*</code> properties are converted to <code class="highlighter-rouge">dataSource.*</code> to let <a href="https://github.com/brettwooldridge/HikariCP">hikari</a> configurer the target jdbc connection.</p>
+  <h3 id="jdbc-multiple-connections">multiple connections</h3>
+  <p>It is pretty simple to configure two or more db connections in <a href="http://jooby.org">jooby</a>.</p>
+  <p>Let’s suppose we have a main database and an audit database for tracking changes:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">(</span><span class="s">"db.main"</span><span class="o">));</span> <span class="c1">// main database</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">(</span><span class="s">"db.audit"</span><span class="o">));</span> <span class="c1">// audit database</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>application.conf</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="c"># main database </span><span class="py">db.main.url</span> <span class="p">=</span> <span class="s">...</span>
+<span class="py">db.main.user</span><span class="p">=</span><span class="s">...</span>
+<span class="py">db.main.password</span> <span class="p">=</span> <span class="s">...</span>
+
+<span class="c"># audit </span><span class="py">db.audit.url</span> <span class="p">=</span> <span class="s">....</span>
+<span class="py">db.audit.user</span> <span class="p">=</span> <span class="s">....</span>
+<span class="py">db.audit.password</span> <span class="p">=</span> <span class="s">....</span>
+</code></pre> 
+  </div>
+  <p>Same principle applies if you need to tweak <a href="https://github.com/brettwooldridge/HikariCP">hikari</a>:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="c"># max pool size for main db </span><span class="py">hikari.db.main.maximumPoolSize</span> <span class="p">=</span> <span class="s">100</span>
+
+<span class="c"># max pool size for audit db </span><span class="py">hikari.db.audit.maximumPoolSize</span> <span class="p">=</span> <span class="s">20</span>
+</code></pre> 
+  </div>
+  <p>Finally, if you need to inject the audit data source, all you have to do is to use the <em>Name</em> annotation, like <code class="highlighter-rouge">@Name("db.audit")</code></p>
+  <p>That’s all folks! Enjoy it!!!</p>
+  <h3 id="jdbc-jdbc-conf">jdbc.conf</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="c"># Jdbc defaults </span>
+<span class="err">databases</span> <span class="err">{</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># connection templates </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">mem</span> <span class="err">{</span>
+
+    <span class="py">url</span> <span class="p">=</span> <span class="s">"jdbc:h2:mem:{mem.seed};DB_CLOSE_DELAY=-1"</span>
+
+    <span class="py">user</span> <span class="p">=</span> <span class="s">sa</span>
+
+    <span class="py">password</span> <span class="p">=</span> <span class="s">""</span>
+
+  <span class="err">}</span>
+
+  <span class="err">fs</span> <span class="err">{</span>
+
+    <span class="py">url</span> <span class="p">=</span> <span class="s">"jdbc:h2:"${application.tmpdir}/${application.name}</span>
+
+    <span class="py">user</span> <span class="p">=</span> <span class="s">sa</span>
+
+    <span class="py">password</span> <span class="p">=</span> <span class="s">""</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># derby </span>
+  <span class="c"># url =&gt; jdbc:derby:${db};create=true </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">derby</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.apache.derby.jdbc.ClientDataSource</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># db2 </span>
+  <span class="c"># url =&gt; jdbc:db2://127.0.0.1:50000/SAMPLE </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">db2</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.ibm.db2.jcc.DB2SimpleDataSource</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># h2 </span>
+  <span class="c"># url =&gt; mem, fs or jdbc:h2:${db} </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">h2</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.h2.jdbcx.JdbcDataSource</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># hsqldb </span>
+  <span class="c"># url =&gt; jdbc:hsqldb:file:${db} </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">hsqldb</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.hsqldb.jdbc.JDBCDataSource</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># mariadb </span>
+  <span class="c"># url jdbc:mariadb://&lt;host&gt;:&lt;port&gt;/&lt;database&gt;?&lt;key1&gt;=&lt;value1&gt;&amp;&lt;key2&gt;=&lt;value2&gt;... </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">mariadb</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.mariadb.jdbc.MySQLDataSource</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># mysql </span>
+  <span class="c"># url jdbc:mysql://&lt;host&gt;:&lt;port&gt;/&lt;database&gt;?&lt;key1&gt;=&lt;value1&gt;&amp;&lt;key2&gt;=&lt;value2&gt;... </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">mysql</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.mysql.jdbc.jdbc2.optional.MysqlDataSource</span>
+
+    <span class="py">encoding</span> <span class="p">=</span> <span class="s">${application.charset}</span>
+
+    <span class="py">cachePrepStmts</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">prepStmtCacheSize</span> <span class="p">=</span> <span class="s">250</span>
+
+    <span class="py">prepStmtCacheSqlLimit</span> <span class="p">=</span> <span class="s">2048</span>
+
+    <span class="py">useServerPrepStmts</span> <span class="p">=</span> <span class="s">true</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># sqlserver </span>
+  <span class="c"># url =&gt; jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]] </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">sqlserver</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.microsoft.sqlserver.jdbc.SQLServerDataSource</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># oracle </span>
+  <span class="c"># url =&gt; jdbc:oracle:thin:@//&lt;host&gt;:&lt;port&gt;/&lt;service_name&gt; </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">oracle</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">oracle.jdbc.pool.OracleDataSource</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># pgjdbc-ng </span>
+  <span class="c"># url =&gt; jdbc:pgsql://&lt;server&gt;[:&lt;port&gt;]/&lt;database&gt; </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">pgsql</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.impossibl.postgres.jdbc.PGDataSource</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># postgresql </span>
+  <span class="c"># url =&gt; jdbc:postgresql://host:port/database </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">postgresql</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.postgresql.ds.PGSimpleDataSource</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># sybase </span>
+  <span class="c"># url =&gt; jdbc:jtds:sybase://&lt;host&gt;[:&lt;port&gt;][/&lt;database_name&gt;] </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">sybase</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">com.sybase.jdbcx.SybDataSource</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># firebird </span>
+  <span class="c"># jdbc:firebirdsql:host[/port]:&lt;database&gt; </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">firebirdsql</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.firebirdsql.pool.FBSimpleDataSource</span>
+
+  <span class="err">}</span>
+
+  <span class="c">############################################################################################### </span>
+  <span class="c"># sqlite </span>
+  <span class="c"># jdbc:sqlite:${db} </span>
+  <span class="c">############################################################################################### </span>
+  <span class="err">sqlite</span> <span class="err">{</span>
+
+    <span class="py">dataSourceClassName</span> <span class="p">=</span> <span class="s">org.sqlite.SQLiteDataSource</span>
+
+  <span class="err">}</span>
+
+<span class="err">}</span>
+</code></pre> 
+  </div>
+ </div> 
+</div>
+  </div>
+</div>
+
+    </main>
+    <footer class="site-footer">
+      <div class="row">
+        <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina">Edgar Espina</a></p>
+        <div class="altquimia">DG <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio</div>
+        <div class="follow-us pull-right">
+          <p>Follow us</p><a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
+        </div>
+      </div>
+    </footer>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
+    <script src="/resources/scripts/libs/swiper.min.js"></script>
+    <script src="/resources/scripts/application.js"></script>
+    <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
+  </body>
+</html>

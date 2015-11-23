@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>jooby: Scalable, Fast and Modular micro web framework for Java</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="#">
+    <link rel="publisher" href="#">
+    <meta name="robots" content="robots.txt">
+    <meta name="og:title" content="jooby">
+    <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java">
+    <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    -->
+    <meta name="og:type" content="website">
+    <meta name="og:url" content="http://jooby.org">
+    <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    -->
+    <meta name="og:image" content="/resources/images/apps/facebook.jpg">
+    <meta name="og:site_name" content="jooby">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="jooby">
+    <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    -->
+    <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg">
+    <meta name="twitter:site" content="https://twitter.com/joobyproject">
+    <meta name="twitter:creator" content="https://twitter.com/edgarespina">
+    <meta name="twitter:domain" content="http://jooby.org">
+    <meta name="twitter:url" content="https://twitter.com/joobyproject">
+    <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180">
+    <link href="/resources/images/apps/favicon.ico" rel="shortcut icon">
+    <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
+    <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
+    <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
+    <link rel="stylesheet" href="/resources/styles/application.css">
+    <link rel="stylesheet" href="/resources/styles/devices.css">
+    <link rel="stylesheet" href="/resources/styles/sprites.css">
+  </head>
+  <body class="page-section page-sidebar">
+    <header class="site-header">
+      <div class="row"><a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
+        <nav class="site-nav">
+          <ul>
+            <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li>
+            <li class=""><a href="/doc" title="Doc">DOC</a></li>
+            <li class="active"><a href="/modules" title="Modules">MODULES</a></li>
+            <li class=""><a href="/help" title="Help &amp; Support">HELP & SUPPORT</a></li>
+            <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li>
+            <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main role="main" class="site-content">
+      
+<div class="section-title"> 
+  <div class="row">
+    <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a>
+    <h1>jetty</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
+    <div class="show-mobile menu-open">jetty</div>
+    <ul>
+<li class="active">
+<a href="#jetty">jetty</a><ul>
+<li>
+<a href="#jetty-dependency">dependency</a></li>
+<li>
+<a href="#jetty-usage">usage</a></li>
+<li>
+<a href="#jetty-server-conf">server.conf</a></li></ul></li>
+</ul>
+  </div>
+  <div class="section-content">
+  <div class="datalist" id="jetty">
+ <div class="datalist-title active"> 
+  <h2>jetty</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p><a href="https://www.eclipse.org/jetty">Jetty</a> web server for Jooby.</p>
+  <h3 id="jetty-dependency">dependency</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-jetty<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.11.2<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <h3 id="jetty-usage">usage</h3>
+  <p>In order to use a web server all you have to do is add the dependency to your build system.<br> <a href="/">Jooby</a> will find the server and start it.</p>
+  <h3 id="jetty-server-conf">server.conf</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="c"># jetty defaults </span>
+<span class="py">server.module</span> <span class="p">=</span> <span class="s">org.jooby.jetty.Jetty</span>
+
+<span class="err">jetty</span> <span class="err">{</span>
+
+  <span class="err">threads</span> <span class="err">{</span>
+
+    <span class="py">MinThreads</span> <span class="p">=</span> <span class="s">${server.threads.Min}</span>
+
+    <span class="py">MaxThreads</span> <span class="p">=</span> <span class="s">${server.threads.Max}</span>
+
+    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">${server.threads.IdleTimeout}</span>
+
+    <span class="py">Name</span> <span class="p">=</span> <span class="s">jetty task</span>
+
+  <span class="err">}</span>
+
+  <span class="err">http</span> <span class="err">{</span>
+
+    <span class="py">HeaderCacheSize</span> <span class="p">=</span> <span class="s">${server.http.HeaderSize}</span>
+
+    <span class="py">RequestHeaderSize</span> <span class="p">=</span> <span class="s">${server.http.HeaderSize}</span>
+
+    <span class="py">ResponseHeaderSize</span> <span class="p">=</span> <span class="s">${server.http.HeaderSize}</span>
+
+    <span class="py">OutputBufferSize</span> <span class="p">=</span> <span class="s">${server.http.ResponseBufferSize}</span>
+
+    <span class="py">SendServerVersion</span> <span class="p">=</span> <span class="s">false</span>
+
+    <span class="py">SendXPoweredBy</span> <span class="p">=</span> <span class="s">false</span>
+
+    <span class="py">SendDateHeader</span> <span class="p">=</span> <span class="s">false</span>
+
+    <span class="err">connector</span> <span class="err">{</span>
+
+      <span class="c"># The accept queue size (also known as accept backlog) </span>
+      <span class="py">AcceptQueueSize</span> <span class="p">=</span> <span class="s">0</span>
+
+      <span class="c"># Use -1 to disable </span>
+      <span class="py">SoLingerTime</span> <span class="p">=</span> <span class="s">-1</span>
+
+      <span class="py">StopTimeout</span> <span class="p">=</span> <span class="s">30000</span>
+
+      <span class="c"># Sets the maximum Idle time for a connection, which roughly translates to the Socket#setSoTimeout(int) </span>
+      <span class="c"># call, although with NIO implementations other mechanisms may be used to implement the timeout. </span>
+      <span class="c"># The max idle time is applied: </span>
+      <span class="c"># When waiting for a new message to be received on a connection </span>
+      <span class="c"># When waiting for a new message to be sent on a connection </span>
+      <span class="c"># This value is interpreted as the maximum time between some progress being made on the connection. </span>
+      <span class="c"># So if a single byte is read or written, then the timeout is reset. </span>
+      <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">${server.http.IdleTimeout}</span>
+
+    <span class="err">}</span>
+
+  <span class="err">}</span>
+
+  <span class="err">ws</span> <span class="err">{</span>
+
+    <span class="c"># The maximum size of a text message during parsing/generating. </span>
+    <span class="c"># Text messages over this maximum will result in a close code 1009 {@link StatusCode#MESSAGE_TOO_LARGE} </span>
+    <span class="py">MaxTextMessageSize</span> <span class="p">=</span> <span class="s">${server.ws.MaxTextMessageSize}</span>
+
+    <span class="c"># The maximum size of a text message buffer. </span>
+    <span class="c"># Used ONLY for stream based message writing. </span>
+    <span class="py">MaxTextMessageBufferSize</span> <span class="p">=</span> <span class="s">32k</span>
+
+    <span class="c"># The maximum size of a binary message during parsing/generating. </span>
+    <span class="c"># Binary messages over this maximum will result in a close code 1009 {@link StatusCode#MESSAGE_TOO_LARGE} </span>
+    <span class="py">MaxBinaryMessageSize</span> <span class="p">=</span> <span class="s">${server.ws.MaxBinaryMessageSize}</span>
+
+    <span class="c"># The maximum size of a binary message buffer </span>
+    <span class="c"># Used ONLY for for stream based message writing </span>
+    <span class="py">MaxBinaryMessageBufferSize</span> <span class="p">=</span> <span class="s">32k</span>
+
+    <span class="c"># The timeout in ms (milliseconds) for async write operations. </span>
+    <span class="c"># Negative values indicate a disabled timeout. </span>
+    <span class="py">AsyncWriteTimeout</span> <span class="p">=</span> <span class="s">60000</span>
+
+    <span class="c"># The time in ms (milliseconds) that a websocket may be idle before closing. </span>
+    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">${server.ws.IdleTimeout}</span>
+
+    <span class="c"># The size of the input (read from network layer) buffer size. </span>
+    <span class="py">InputBufferSize</span> <span class="p">=</span> <span class="s">4k</span>
+
+  <span class="err">}</span>
+
+  <span class="py">url.charset</span> <span class="p">=</span> <span class="s">${application.charset}</span>
+
+<span class="err">}</span>
+</code></pre> 
+  </div>
+ </div> 
+</div>
+  </div>
+</div>
+
+    </main>
+    <footer class="site-footer">
+      <div class="row">
+        <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina">Edgar Espina</a></p>
+        <div class="altquimia">DG <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio</div>
+        <div class="follow-us pull-right">
+          <p>Follow us</p><a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
+        </div>
+      </div>
+    </footer>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
+    <script src="/resources/scripts/libs/swiper.min.js"></script>
+    <script src="/resources/scripts/application.js"></script>
+    <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
+  </body>
+</html>

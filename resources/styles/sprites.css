@@ -1,0 +1,144 @@
+[class*="icon-"]{
+	background-image: url(../sprites/sprite.png);
+	display: inline-block;
+	vertical-align: top;
+}
+.icon-arrowback-big-circle{
+	background-position: -375px -282px;
+	width: 28px;
+	height: 28px;
+}
+.icon-assets-yellow-big{
+	background-position: -166px -60px;
+	width: 92px;
+	height: 67px;
+}
+.icon-async-yellow-big{
+	background-position: -177px -285px;
+	width: 62px;
+	height: 55px;
+}
+.icon-auth-yellow-big{
+	background-position: -299px -80px;
+	width: 73px;
+	height: 67px;
+}
+.icon-author-yellow-big{
+	background-position: -375px -172px;
+	width: 58px;
+	height: 41px;
+}
+.icon-cache-yellow-big{
+	background-position: -117px -285px;
+	width: 60px;
+	height: 60px;
+}
+.icon-clipboard-big{
+	background-position: -403px -282px;
+	width: 27px;
+	height: 25px;
+}
+.icon-code-console-big{
+	background-position: 0px 0px;
+	width: 166px;
+	height: 132px;
+}
+.icon-database-yellow-big{
+	background-position: -375px -113px;
+	width: 53px;
+	height: 59px;
+}
+.icon-discuss-yellow-big{
+	background-position: -299px -210px;
+	width: 64px;
+	height: 62px;
+}
+.icon-github-medium-circle{
+	background-position: -375px -248px;
+	width: 35px;
+	height: 34px;
+}
+.icon-github-yellow-big{
+	background-position: -375px 0px;
+	width: 58px;
+	height: 57px;
+}
+.icon-icn-modern{
+	background-position: 0px -132px;
+	width: 106px;
+	height: 74px;
+}
+.icon-icn-modular{
+	background-position: 0px -285px;
+	width: 56px;
+	height: 79px;
+}
+.icon-icn-scalable{
+	background-position: -375px -57px;
+	width: 56px;
+	height: 56px;
+}
+.icon-icn-simple{
+	background-position: -299px 0px;
+	width: 76px;
+	height: 80px;
+}
+.icon-icn-solid{
+	background-position: 0px -206px;
+	width: 96px;
+	height: 79px;
+}
+.icon-issues-yellow-big{
+	background-position: -56px -285px;
+	width: 61px;
+	height: 63px;
+}
+.icon-licence-yellow-big{
+	background-position: -212px -132px;
+	width: 69px;
+	height: 52px;
+}
+.icon-logo-big{
+	background-position: -166px 0px;
+	width: 133px;
+	height: 60px;
+}
+.icon-misc-yellow-big{
+	background-position: -197px -206px;
+	width: 88px;
+	height: 39px;
+}
+.icon-parsers-yellow-big{
+	background-position: -106px -132px;
+	width: 106px;
+	height: 53px;
+}
+.icon-servers-yellow-big{
+	background-position: -96px -206px;
+	width: 101px;
+	height: 45px;
+}
+.icon-session-yellow-big{
+	background-position: -299px -147px;
+	width: 75px;
+	height: 63px;
+}
+.icon-shell-yellow-big{
+	background-position: -239px -285px;
+	width: 59px;
+	height: 49px;
+}
+.icon-twitter-medium-circle{
+	background-position: -375px -213px;
+	width: 35px;
+	height: 35px;
+}
+@media (-webkit-min-device-pixel-ratio: 2),
+       (min-resolution: 192dpi) {
+    [class*="icon-"]{
+		background-image: url(../sprites/sprite-2x.png);
+		background-size: 433px 364px;
+	}   
+}
+
+

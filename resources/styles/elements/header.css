@@ -1,0 +1,57 @@
+.site-header {
+  background-color: #21474c;
+  padding: 19px 0 18px;
+  height: 69px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 20;
+  box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+.site-header .site-nav {
+  float: right;
+  margin-top: 8px;
+}
+.site-header .site-nav li {
+  float: left;
+}
+.site-header .site-nav li + li {
+  margin-left: 26px;
+}
+.site-header .site-nav li.active a {
+  color: #f9b334;
+}
+.site-header .site-nav li.active a:after {
+  bottom: 0;
+}
+.site-header .site-nav a {
+  color: white;
+  display: block;
+  position: relative;
+  letter-spacing: 3px;
+  overflow: hidden;
+  padding-bottom: 7px;
+}
+.site-header .site-nav a:hover {
+  color: #f9b334;
+}
+.site-header .site-nav a:hover:after {
+  bottom: 0;
+}
+.site-header .site-nav a:after {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: #f9b334;
+  transition: all 0.3s;
+  -ms-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -webkit-transition: all 0.3s;
+}

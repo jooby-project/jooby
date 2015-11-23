@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>jooby: Scalable, Fast and Modular micro web framework for Java</title>
+    <meta name="description" content="">
+    <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="#">
+    <link rel="publisher" href="#">
+    <meta name="robots" content="robots.txt">
+    <meta name="og:title" content="jooby">
+    <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java">
+    <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    -->
+    <meta name="og:type" content="website">
+    <meta name="og:url" content="http://jooby.org">
+    <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    -->
+    <meta name="og:image" content="/resources/images/apps/facebook.jpg">
+    <meta name="og:site_name" content="jooby">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="jooby">
+    <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    -->
+    <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg">
+    <meta name="twitter:site" content="https://twitter.com/joobyproject">
+    <meta name="twitter:creator" content="https://twitter.com/edgarespina">
+    <meta name="twitter:domain" content="http://jooby.org">
+    <meta name="twitter:url" content="https://twitter.com/joobyproject">
+    <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180">
+    <link href="/resources/images/apps/favicon.ico" rel="shortcut icon">
+    <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
+    <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
+    <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
+    <link rel="stylesheet" href="/resources/styles/application.css">
+    <link rel="stylesheet" href="/resources/styles/devices.css">
+    <link rel="stylesheet" href="/resources/styles/sprites.css">
+  </head>
+  <body class="page-section page-sidebar">
+    <header class="site-header">
+      <div class="row"><a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
+        <nav class="site-nav">
+          <ul>
+            <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li>
+            <li class=""><a href="/doc" title="Doc">DOC</a></li>
+            <li class="active"><a href="/modules" title="Modules">MODULES</a></li>
+            <li class=""><a href="/help" title="Help &amp; Support">HELP & SUPPORT</a></li>
+            <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li>
+            <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main role="main" class="site-content">
+      
+<div class="section-title"> 
+  <div class="row">
+    <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a>
+    <h1>elasticsearch</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
+    <div class="show-mobile menu-open">elasticsearch</div>
+    <ul>
+<li class="active">
+<a href="#elasticsearch">elasticsearch</a><ul>
+<li>
+<a href="#elasticsearch-dependency">dependency</a></li>
+<li>
+<a href="#elasticsearch-usage">usage</a></li>
+<li>
+<a href="#elasticsearch-client-API">client API</a></li>
+<li>
+<a href="#elasticsearch-configuration">configuration</a></li>
+<li>
+<a href="#elasticsearch-es-conf">es.conf</a></li></ul></li>
+</ul>
+  </div>
+  <div class="section-content">
+  <div class="datalist" id="elasticsearch">
+ <div class="datalist-title active"> 
+  <h2>elasticsearch</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>Enterprise full text search via <a href="https://github.com/elastic/elasticsearch">Elastic Search</a>.</p>
+  <p>Provides a client/local API but also a RESTFul API.</p>
+  <h3 id="elasticsearch-dependency">dependency</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-elasticsearch<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.11.2<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <h3 id="elasticsearch-usage">usage</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ElasticSearch</span><span class="o">(</span><span class="s">"/search"</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>Elastic search will listen under the <code class="highlighter-rouge">/search</code> path. Here are some examples:</p>
+  <p>Creating a index:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code> curl -XPUT <span class="s1">'localhost:8080/search/customer?pretty'</span>
+</code></pre> 
+  </div>
+  <p>Indexing a doc:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code> curl -XPUT <span class="s1">'localhost:8080/search/customer/external/1?pretty'</span> -d <span class="s1">' { "name": "John Doe" }'</span>
+</code></pre> 
+  </div>
+  <p>Getting a doc:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code> curl <span class="s1">'localhost:8080/search/customer/external/1?pretty'</span>
+</code></pre> 
+  </div>
+  <h3 id="elasticsearch-client-API">client API</h3>
+  <p>The module exposes a <code class="highlighter-rouge">Client</code> and <code class="highlighter-rouge">Node</code> instances, so it is possible to manage the index inside programmatically.</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code>
+<span class="n">post</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="c1">// index a document</span>
+  <span class="n">Client</span> <span class="n">client</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Client</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;;</span> <span class="n">json</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+  <span class="n">json</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"user"</span><span class="o">,</span> <span class="s">"kimchy"</span><span class="o">);</span>
+  <span class="n">json</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"message"</span><span class="o">,</span> <span class="s">"trying out Elasticsearch"</span><span class="o">);</span>
+
+  <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="na">prepareIndex</span><span class="o">(</span><span class="s">"twitter"</span><span class="o">,</span> <span class="s">"tweet"</span><span class="o">,</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">value</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">setSource</span><span class="o">(</span><span class="n">json</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">execute</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">actionGet</span><span class="o">();</span>
+<span class="o">});</span>
+
+<span class="n">get</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="c1">// get a doc</span>
+  <span class="n">Client</span> <span class="n">client</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Client</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="na">prepareGet</span><span class="o">(</span><span class="s">"twitter"</span><span class="o">,</span> <span class="s">"tweet"</span><span class="o">,</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">value</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">execute</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">actionGet</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">getSource</span><span class="o">();</span>
+<span class="o">});</span>
+
+<span class="n">delete</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="c1">// delete a doc</span>
+  <span class="n">Client</span> <span class="n">client</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Client</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="na">prepareDelete</span><span class="o">(</span><span class="s">"twitter"</span><span class="o">,</span> <span class="s">"tweet"</span><span class="o">,</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">value</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">execute</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">actionGet</span><span class="o">();</span>
+<span class="o">});</span>
+</code></pre> 
+  </div>
+  <h3 id="elasticsearch-configuration">configuration</h3>
+  <p>If it possible to setup or configure <a href="https://github.com/elastic/elasticsearch">Elastic Search</a> via <code class="highlighter-rouge">application.conf</code>, just make sure to prefix the property with <code class="highlighter-rouge">elasticsearch</code>:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code> <span class="py">elasticsearch.http.jsonp.enable</span> <span class="p">=</span> <span class="s">true</span>
+</code></pre> 
+  </div>
+  <p>or programmatically:</p>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ElasticSearch</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">settings</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">settings</span><span class="o">.</span><span class="na">put</span><span class="o">(...,</span> <span class="o">...);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <h4>http.enabled</h4>
+  <p>HTTP is disabled and isn’t possible to change this value. What does it mean? <a href="http://jooby.org">Jooby</a> setup a custom<br> handler which makes it possible to use a <a href="http://jooby.org">Jooby</a> server to serve Elastic Search requests and avoid<br> the need of starting up another server running in a different port.</p>
+  <p>Most of the <code class="highlighter-rouge">http.*</code> properties has no sense in Jooby.</p>
+  <h4>path.data</h4>
+  <p>Path data is set to a temporary directory: <code class="highlighter-rouge">${application.tmpdir}/es/data</code>. It is<br> useful for development, but if you need want to make sure the index is persistent between server<br> restarts, please make sure to setup this path to something else.</p>
+  <h4>node.name</h4>
+  <p>Node name is set to: <code class="highlighter-rouge">application.name</code>.</p>
+  <h4>cluster.name</h4>
+  <p>Cluster name is set to: <code class="highlighter-rouge">${application.name}-cluster</code>.</p>
+  <p>That’s all folks! Enjoy it!!!</p>
+  <h3 id="elasticsearch-es-conf">es.conf</h3>
+  <div class="highlighter-rouge">
+   <div class="copy-bar"> 
+    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+   </div> 
+   <pre class="highlight"><code><span class="c">##################### Elasticsearch Configuration Example ##################### </span>
+<span class="c"># This file contains an overview of various configuration settings, </span>
+<span class="c"># targeted at operations staff. Application developers should </span>
+<span class="c"># consult the guide at &lt;http://elasticsearch.org/guide&gt;. </span>
+<span class="c"># </span>
+<span class="c"># The installation procedure is covered at </span>
+<span class="c"># &lt;http://elasticsearch.org/guide/en/elasticsearch/reference/current/setup.html&gt;. </span>
+<span class="c"># </span>
+<span class="c"># Elasticsearch comes with reasonable defaults for most settings, </span>
+<span class="c"># so you can try it out without bothering with configuration. </span>
+<span class="c"># </span>
+<span class="c"># Most of the time, these defaults are just fine for running a production </span>
+<span class="c"># cluster. If you're fine-tuning your cluster, or wondering about the </span>
+<span class="c"># effect of certain configuration option, please _do ask_ on the </span>
+<span class="c"># mailing list or IRC channel [http://elasticsearch.org/community]. </span>
+<span class="c"># Any element in the configuration can be replaced with environment variables </span>
+<span class="c"># by placing them in ${...} notation. For example: </span>
+<span class="c"># </span>
+<span class="c">#node.rack: ${RACK_ENV_VAR} </span>
+<span class="c"># For information on supported formats and syntax for the config file, see </span>
+<span class="c"># &lt;http://elasticsearch.org/guide/en/elasticsearch/reference/current/setup-configuration.html&gt; </span>
+<span class="err">elasticsearch</span> <span class="err">{</span>
+
+<span class="c">################################### Cluster ################################### </span>
+<span class="c"># Cluster name identifies your cluster for auto-discovery. If you're running </span>
+<span class="c"># multiple clusters on the same network, make sure you're using unique names. </span>
+<span class="c"># </span>
+<span class="py">cluster.name</span><span class="p">:</span> <span class="s">${application.name}-cluster</span>
+
+<span class="c">#################################### Node ##################################### </span>
+<span class="c"># Node names are generated dynamically on startup, so you're relieved </span>
+<span class="c"># from configuring them manually. You can tie this node to a specific name: </span>
+<span class="c"># </span>
+<span class="py">node.name</span><span class="p">:</span> <span class="s">${application.name}</span>
+
+<span class="c"># Every node can be configured to allow or deny being eligible as the master, </span>
+<span class="c"># and to allow or deny to store the data. </span>
+<span class="c"># </span>
+<span class="c"># Allow this node to be eligible as a master node (enabled by default): </span>
+<span class="c"># </span>
+<span class="c">#node.master: true </span>
+<span class="c"># </span>
+<span class="c"># Allow this node to store data (enabled by default): </span>
+<span class="c"># </span>
+<span class="c">#node.data: true </span>
+<span class="c"># Is the node a local node. A local node is a node that uses a local (JVM level) discovery and </span>
+<span class="c"># transport. Other (local) nodes started within the same JVM (actually, class-loader) will be </span>
+<span class="c"># discovered and communicated with. Nodes outside of the JVM will not be discovered. </span>
+<span class="py">node.local</span><span class="p">:</span> <span class="s">true</span>
+
+<span class="c"># You can exploit these settings to design advanced cluster topologies. </span>
+<span class="c"># </span>
+<span class="c"># 1. You want this node to never become a master node, only to hold data. </span>
+<span class="c"># This will be the "workhorse" of your cluster. </span>
+<span class="c"># </span>
+<span class="c">#node.master: false </span>
+<span class="c">#node.data: true </span>
+<span class="c"># </span>
+<span class="c"># 2. You want this node to only serve as a master: to not store any data and </span>
+<span class="c"># to have free resources. This will be the "coordinator" of your cluster. </span>
+<span class="c"># </span>
+<span class="c">#node.master: true </span>
+<span class="c">#node.data: false </span>
+<span class="c"># </span>
+<span class="c"># 3. You want this node to be neither master nor data node, but </span>
+<span class="c"># to act as a "search load balancer" (fetching data from nodes, </span>
+<span class="c"># aggregating results, etc.) </span>
+<span class="c"># </span>
+<span class="c">#node.master: false </span>
+<span class="c">#node.data: false </span>
+<span class="c"># Use the Cluster Health API [http://localhost:9200/_cluster/health], the </span>
+<span class="c"># Node Info API [http://localhost:9200/_nodes] or GUI tools </span>
+<span class="c"># such as &lt;http://www.elasticsearch.org/overview/marvel/&gt;, </span>
+<span class="c"># &lt;http://github.com/karmi/elasticsearch-paramedic&gt;, </span>
+<span class="c"># &lt;http://github.com/lukas-vlcek/bigdesk&gt; and </span>
+<span class="c"># &lt;http://mobz.github.com/elasticsearch-head&gt; to inspect the cluster state. </span>
+<span class="c"># A node can have generic attributes associated with it, which can later be used </span>
+<span class="c"># for customized shard allocation filtering, or allocation awareness. An attribute </span>
+<span class="c"># is a simple key value pair, similar to node.key: value, here is an example: </span>
+<span class="c"># </span>
+<span class="c">#node.rack: rack314 </span>
+<span class="c"># By default, multiple nodes are allowed to start from the same installation location </span>
+<span class="c"># to disable it, set the following: </span>
+<span class="c">#node.max_local_storage_nodes: 1 </span>
+<span class="c">#################################### Index #################################### </span>
+<span class="c"># You can set a number of options (such as shard/replica options, mapping </span>
+<span class="c"># or analyzer definitions, translog settings, ...) for indices globally, </span>
+<span class="c"># in this file. </span>
+<span class="c"># </span>
+<span class="c"># Note, that it makes more sense to configure index settings specifically for </span>
+<span class="c"># a certain index, either when creating it or by using the index templates API. </span>
+<span class="c"># </span>
+<span class="c"># See &lt;http://elasticsearch.org/guide/en/elasticsearch/reference/current/index-modules.html&gt; and </span>
+<span class="c"># &lt;http://elasticsearch.org/guide/en/elasticsearch/reference/current/indices-create-index.html&gt; </span>
+<span class="c"># for more information. </span>
+<span class="c"># Set the number of shards (splits) of an index (5 by default): </span>
+<span class="c"># </span>
+<span class="c">#index.number_of_shards: 5 </span>
+<span class="c"># Set the number of replicas (additional copies) of an index (1 by default): </span>
+<span class="c"># </span>
+<span class="c">#index.number_of_replicas: 1 </span>
+<span class="c"># Note, that for development on a local machine, with small indices, it usually </span>
+<span class="c"># makes sense to "disable" the distributed features: </span>
+<span class="c"># </span>
+<span class="c">#index.number_of_shards: 1 </span>
+<span class="c">#index.number_of_replicas: 0 </span>
+<span class="c"># These settings directly affect the performance of index and search operations </span>
+<span class="c"># in your cluster. Assuming you have enough machines to hold shards and </span>
+<span class="c"># replicas, the rule of thumb is: </span>
+<span class="c"># </span>
+<span class="c"># 1. Having more *shards* enhances the _indexing_ performance and allows to </span>
+<span class="c"># _distribute_ a big index across machines. </span>
+<span class="c"># 2. Having more *replicas* enhances the _search_ performance and improves the </span>
+<span class="c"># cluster _availability_. </span>
+<span class="c"># </span>
+<span class="c"># The "number_of_shards" is a one-time setting for an index. </span>
+<span class="c"># </span>
+<span class="c"># The "number_of_replicas" can be increased or decreased anytime, </span>
+<span class="c"># by using the Index Update Settings API. </span>
+<span class="c"># </span>
+<span class="c"># Elasticsearch takes care about load balancing, relocating, gathering the </span>
+<span class="c"># results from nodes, etc. Experiment with different settings to fine-tune </span>
+<span class="c"># your setup. </span>
+<span class="c"># Use the Index Status API (&lt;http://localhost:9200/A/_status&gt;) to inspect </span>
+<span class="c"># the index status. </span>
+<span class="c">#################################### Paths #################################### </span>
+<span class="c"># Path to directory containing configuration (this file and logging.yml): </span>
+<span class="c"># </span>
+<span class="c">#path.conf: /path/to/conf </span>
+<span class="c"># Path to directory where to store index data allocated for this node. </span>
+<span class="c"># </span>
+<span class="py">path.data</span><span class="p">:</span> <span class="s">${application.tmpdir}/es/data</span>
+
+<span class="c"># </span>
+<span class="c"># Can optionally include more than one location, causing data to be striped across </span>
+<span class="c"># the locations (a la RAID 0) on a file level, favouring locations with most free </span>
+<span class="c"># space on creation. For example: </span>
+<span class="c"># </span>
+<span class="c">#path.data: ${application.tmpdir}/data1,${application.tmpdir}/data2 </span>
+<span class="c"># Path to temporary files: </span>
+<span class="c"># </span>
+<span class="py">path.work</span><span class="p">:</span> <span class="s">${application.tmpdir}/es/work</span>
+
+<span class="c"># Path to log files: </span>
+<span class="c"># </span>
+<span class="c">#path.logs: /path/to/logs </span>
+<span class="c"># Path to where plugins are installed: </span>
+<span class="c"># </span>
+<span class="c">#path.plugins: /path/to/plugins </span>
+<span class="c">#################################### Plugin ################################### </span>
+<span class="c"># If a plugin listed here is not installed for current node, the node will not start. </span>
+<span class="c"># </span>
+<span class="c">#plugin.mandatory: mapper-attachments,lang-groovy </span>
+<span class="c">################################### Memory #################################### </span>
+<span class="c"># Elasticsearch performs poorly when JVM starts swapping: you should ensure that </span>
+<span class="c"># it _never_ swaps. </span>
+<span class="c"># </span>
+<span class="c"># Set this property to true to lock the memory: </span>
+<span class="c"># </span>
+<span class="c">#bootstrap.mlockall: true </span>
+<span class="c"># Make sure that the ES_MIN_MEM and ES_MAX_MEM environment variables are set </span>
+<span class="c"># to the same value, and that the machine has enough memory to allocate </span>
+<span class="c"># for Elasticsearch, leaving enough memory for the operating system itself. </span>
+<span class="c"># </span>
+<span class="c"># You should also make sure that the Elasticsearch process is allowed to lock </span>
+<span class="c"># the memory, eg. by using `ulimit -l unlimited`. </span>
+<span class="c">############################## Network And HTTP ############################### </span>
+<span class="c"># Elasticsearch, by default, binds itself to the 0.0.0.0 address, and listens </span>
+<span class="c"># on port [9200-9300] for HTTP traffic and on port [9300-9400] for node-to-node </span>
+<span class="c"># communication. (the range means that if the port is busy, it will automatically </span>
+<span class="c"># try the next port). </span>
+<span class="c"># Set the bind address specifically (IPv4 or IPv6): </span>
+<span class="c"># </span>
+<span class="c">#network.bind_host: 192.168.0.1 </span>
+<span class="c"># Set the address other nodes will use to communicate with this node. If not </span>
+<span class="c"># set, it is automatically derived. It must point to an actual IP address. </span>
+<span class="c"># </span>
+<span class="c">#network.publish_host: 192.168.0.1 </span>
+<span class="c"># Set both 'bind_host' and 'publish_host': </span>
+<span class="c"># </span>
+<span class="py">network.host</span><span class="p">:</span> <span class="s">${application.host}</span>
+
+<span class="c"># Set a custom port for the node to node communication (9300 by default): </span>
+<span class="c"># </span>
+<span class="c">#transport.tcp.port: 9300 </span>
+<span class="c"># Enable compression for all communication between nodes (disabled by default): </span>
+<span class="c"># </span>
+<span class="c">#transport.tcp.compress: true </span>
+<span class="c"># Set a custom port to listen for HTTP traffic: </span>
+<span class="c"># </span>
+<span class="c">#http.host: ${application.host} </span>
+<span class="c">#http.port: ${application.port} </span>
+<span class="c"># Set a custom allowed content length: </span>
+<span class="c"># </span>
+<span class="c">#http.max_content_length: 100mb </span>
+<span class="py">http.detailed_errors.enabled</span><span class="p">:</span> <span class="s">true</span>
+
+<span class="c">################################### Gateway ################################### </span>
+<span class="c"># The gateway allows for persisting the cluster state between full cluster </span>
+<span class="c"># restarts. Every change to the state (such as adding an index) will be stored </span>
+<span class="c"># in the gateway, and when the cluster starts up for the first time, </span>
+<span class="c"># it will read its state from the gateway. </span>
+<span class="c"># There are several types of gateway implementations. For more information, see </span>
+<span class="c"># &lt;http://elasticsearch.org/guide/en/elasticsearch/reference/current/modules-gateway.html&gt;. </span>
+<span class="c"># The default gateway type is the "local" gateway (recommended): </span>
+<span class="c"># </span>
+<span class="c">#gateway.type: local </span>
+<span class="c"># Settings below control how and when to start the initial recovery process on </span>
+<span class="c"># a full cluster restart (to reuse as much local data as possible when using shared </span>
+<span class="c"># gateway). </span>
+<span class="c"># Allow recovery process after N nodes in a cluster are up: </span>
+<span class="c"># </span>
+<span class="c">#gateway.recover_after_nodes: 1 </span>
+<span class="c"># Set the timeout to initiate the recovery process, once the N nodes </span>
+<span class="c"># from previous setting are up (accepts time value): </span>
+<span class="c"># </span>
+<span class="c">#gateway.recover_after_time: 5m </span>
+<span class="c"># Set how many nodes are expected in this cluster. Once these N nodes </span>
+<span class="c"># are up (and recover_after_nodes is met), begin recovery process immediately </span>
+<span class="c"># (without waiting for recover_after_time to expire): </span>
+<span class="c"># </span>
+<span class="c">#gateway.expected_nodes: 2 </span>
+<span class="c">############################# Recovery Throttling ############################# </span>
+<span class="c"># These settings allow to control the process of shards allocation between </span>
+<span class="c"># nodes during initial recovery, replica allocation, rebalancing, </span>
+<span class="c"># or when adding and removing nodes. </span>
+<span class="c"># Set the number of concurrent recoveries happening on a node: </span>
+<span class="c"># </span>
+<span class="c"># 1. During the initial recovery </span>
+<span class="c"># </span>
+<span class="c">#cluster.routing.allocation.node_initial_primaries_recoveries: 4 </span>
+<span class="c"># </span>
+<span class="c"># 2. During adding/removing nodes, rebalancing, etc </span>
+<span class="c"># </span>
+<span class="c">#cluster.routing.allocation.node_concurrent_recoveries: 2 </span>
+<span class="c"># Set to throttle throughput when recovering (eg. 100mb, by default 20mb): </span>
+<span class="c"># </span>
+<span class="c">#indices.recovery.max_bytes_per_sec: 20mb </span>
+<span class="c"># Set to limit the number of open concurrent streams when </span>
+<span class="c"># recovering a shard from a peer: </span>
+<span class="c"># </span>
+<span class="c">#indices.recovery.concurrent_streams: 5 </span>
+<span class="c">################################## Discovery ################################## </span>
+<span class="c"># Discovery infrastructure ensures nodes can be found within a cluster </span>
+<span class="c"># and master node is elected. Multicast discovery is the default. </span>
+<span class="c"># Set to ensure a node sees N other master eligible nodes to be considered </span>
+<span class="c"># operational within the cluster. This should be set to a quorum/majority of </span>
+<span class="c"># the master-eligible nodes in the cluster. </span>
+<span class="c"># </span>
+<span class="c">#discovery.zen.minimum_master_nodes: 1 </span>
+<span class="c"># Set the time to wait for ping responses from other nodes when discovering. </span>
+<span class="c"># Set this option to a higher value on a slow or congested network </span>
+<span class="c"># to minimize discovery failures: </span>
+<span class="c"># </span>
+<span class="c">#discovery.zen.ping.timeout: 3s </span>
+<span class="c"># For more information, see </span>
+<span class="c"># &lt;http://elasticsearch.org/guide/en/elasticsearch/reference/current/modules-discovery-zen.html&gt; </span>
+<span class="c"># Unicast discovery allows to explicitly control which nodes will be used </span>
+<span class="c"># to discover the cluster. It can be used when multicast is not present, </span>
+<span class="c"># or to restrict the cluster communication-wise. </span>
+<span class="c"># </span>
+<span class="c"># 1. Disable multicast discovery (enabled by default): </span>
+<span class="c"># </span>
+<span class="c">#discovery.zen.ping.multicast.enabled: false </span>
+<span class="c"># </span>
+<span class="c"># 2. Configure an initial list of master nodes in the cluster </span>
+<span class="c"># to perform discovery when new nodes (master or data) are started: </span>
+<span class="c"># </span>
+<span class="c">#discovery.zen.ping.unicast.hosts: ["host1", "host2:port"] </span>
+<span class="c"># EC2 discovery allows to use AWS EC2 API in order to perform discovery. </span>
+<span class="c"># </span>
+<span class="c"># You have to install the cloud-aws plugin for enabling the EC2 discovery. </span>
+<span class="c"># </span>
+<span class="c"># For more information, see </span>
+<span class="c"># &lt;http://elasticsearch.org/guide/en/elasticsearch/reference/current/modules-discovery-ec2.html&gt; </span>
+<span class="c"># </span>
+<span class="c"># See &lt;http://elasticsearch.org/tutorials/elasticsearch-on-ec2/&gt; </span>
+<span class="c"># for a step-by-step tutorial. </span>
+<span class="c"># GCE discovery allows to use Google Compute Engine API in order to perform discovery. </span>
+<span class="c"># </span>
+<span class="c"># You have to install the cloud-gce plugin for enabling the GCE discovery. </span>
+<span class="c"># </span>
+<span class="c"># For more information, see &lt;https://github.com/elasticsearch/elasticsearch-cloud-gce&gt;. </span>
+<span class="c"># Azure discovery allows to use Azure API in order to perform discovery. </span>
+<span class="c"># </span>
+<span class="c"># You have to install the cloud-azure plugin for enabling the Azure discovery. </span>
+<span class="c"># </span>
+<span class="c"># For more information, see &lt;https://github.com/elasticsearch/elasticsearch-cloud-azure&gt;. </span>
+<span class="c">################################## Slow Log ################################## </span>
+<span class="c"># Shard level query and fetch threshold logging. </span>
+<span class="c">#index.search.slowlog.threshold.query.warn: 10s </span>
+<span class="c">#index.search.slowlog.threshold.query.info: 5s </span>
+<span class="c">#index.search.slowlog.threshold.query.debug: 2s </span>
+<span class="c">#index.search.slowlog.threshold.query.trace: 500ms </span>
+<span class="c">#index.search.slowlog.threshold.fetch.warn: 1s </span>
+<span class="c">#index.search.slowlog.threshold.fetch.info: 800ms </span>
+<span class="c">#index.search.slowlog.threshold.fetch.debug: 500ms </span>
+<span class="c">#index.search.slowlog.threshold.fetch.trace: 200ms </span>
+<span class="c">#index.indexing.slowlog.threshold.index.warn: 10s </span>
+<span class="c">#index.indexing.slowlog.threshold.index.info: 5s </span>
+<span class="c">#index.indexing.slowlog.threshold.index.debug: 2s </span>
+<span class="c">#index.indexing.slowlog.threshold.index.trace: 500ms </span>
+<span class="c">################################## GC Logging ################################ </span>
+<span class="c">#monitor.jvm.gc.young.warn: 1000ms </span>
+<span class="c">#monitor.jvm.gc.young.info: 700ms </span>
+<span class="c">#monitor.jvm.gc.young.debug: 400ms </span>
+<span class="c">#monitor.jvm.gc.old.warn: 10s </span>
+<span class="c">#monitor.jvm.gc.old.info: 5s </span>
+<span class="c">#monitor.jvm.gc.old.debug: 2s </span>
+<span class="c">################################## Security ################################ </span>
+<span class="c"># Uncomment if you want to enable JSONP as a valid return transport on the </span>
+<span class="c"># http server. With this enabled, it may pose a security risk, so disabling </span>
+<span class="c"># it unless you need it is recommended (it is disabled by default). </span>
+<span class="c"># </span>
+<span class="c">#http.jsonp.enable: true </span>
+<span class="err">}</span>
+</code></pre> 
+  </div>
+ </div> 
+</div>
+  </div>
+</div>
+
+    </main>
+    <footer class="site-footer">
+      <div class="row">
+        <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina">Edgar Espina</a></p>
+        <div class="altquimia">DG <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio</div>
+        <div class="follow-us pull-right">
+          <p>Follow us</p><a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
+        </div>
+      </div>
+    </footer>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
+    <script src="/resources/scripts/libs/swiper.min.js"></script>
+    <script src="/resources/scripts/application.js"></script>
+    <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
+  </body>
+</html>

@@ -1,5 +1,0 @@
-markdown: redcarpet
-redcarpet:
-  extensions: ["with_toc_data", "tables"]
-title: jooby
-desc: do more, more easily

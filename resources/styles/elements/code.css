@@ -1,0 +1,104 @@
+.code-lang-box .nav-lang {
+  margin-bottom: 12px;
+}
+.code-lang-box .nav-lang li {
+  display: inline-block;
+  font-size: 24px;
+  line-height: 35px;
+  font-weight: 300;
+  height: 35px;
+  color: #656565;
+  padding: 0 25px;
+  border-radius: 10px;
+  border: 1px solid #c3c3c3;
+  cursor: pointer;
+  letter-spacing: 3px;
+  transition: all 0.3s;
+  -ms-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -webkit-transition: all 0.3s;
+}
+.code-lang-box .nav-lang li + li {
+  margin-left: 8px;
+}
+.code-lang-box .nav-lang li:hover {
+  background-color: #d9d8d8;
+}
+.code-lang-box .nav-lang li.active {
+  color: white;
+  background-color: #f9b334;
+  border-color: #f9b334;
+}
+.code-lang-box .lang li {
+  display: none;
+}
+.code-lang-box .lang li.active {
+  display: block;
+}
+.code-lang-box .lang .highlight {
+  padding: 15px 40px 28px 28px;
+}
+.code-lang-box .lang .highlight code {
+  font: 18px/20px "Arial" !important;
+  letter-spacing: 1px;
+}
+.code-lang-box pre {
+  padding: 0;
+}
+
+pre {
+  overflow: auto;
+  overflow-y: hidden;
+  margin: 0;
+  min-height: 18px;
+}
+
+code {
+  font: 16px/18px "Arial" !important;
+  letter-spacing: 1px;
+  color: #21474c;
+}
+p > code {
+  border: 1px solid #e3e3e3;
+  border-radius: 5px;
+  font-size: 14px !important;
+  padding: 2px 4px;
+}
+
+.highlight {
+  border: 1px solid #e3e3e3;
+  border-radius: 9px;
+  background-color: white;
+  overflow: hidden;
+  position: relative;
+}
+.highlight .copy-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  border-left: 1px solid #e3e3e3;
+  border-bottom: 1px solid #e3e3e3;
+  background-color: #939393;
+  cursor: pointer;
+}
+.highlight .copy-bar span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transition: all 0.3s;
+  -ms-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  -webkit-transition: all 0.3s;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+}
+.highlight .copy-bar:hover span {
+  opacity: .7;
+}
+.highlight pre {
+  padding: 10px 40px 12px 10px;
+}
