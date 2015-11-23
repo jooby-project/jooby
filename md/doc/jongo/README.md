@@ -1,4 +1,4 @@
-# jongo module
+# jongo
 Exposes {{jongo}} instances to a default database. Or [JongoFactory]({{defdocs}}/mongodb/JongoFactory.html) to use alternative databases.
 
 Please note, this module depends on: [mongodb]({{gh}}/jooby-mongodb) module.

@@ -1,4 +1,4 @@
-## CSS processors
+## css processors
 
 * [props](https://github.com/jooby-project/jooby/tree/master/jooby-assets-props): replace application properties in CSS files.
 
@@ -14,7 +14,7 @@
 
 * [yui-css](https://github.com/jooby-project/jooby/tree/master/jooby-assets-yui-compressor): YUI CSS optimizer.
 
-## JavaScript processors
+## js processors
 
 * [props](https://github.com/jooby-project/jooby/tree/master/jooby-assets-props): replace application properties in JavaScript files.
 

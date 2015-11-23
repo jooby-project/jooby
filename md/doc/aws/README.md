@@ -1,4 +1,4 @@
-# aws module
+# aws
 
 Small utility module that exposes ```AmazonWebServiceClient``` and give you access to aws credentials (access and secret keys).
 

@@ -1,4 +1,4 @@
-# jooby-swagger
+# swagger
 
 {{swagger}} is a simple yet powerful representation of your RESTful API.
 

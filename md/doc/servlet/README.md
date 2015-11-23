@@ -1,4 +1,4 @@
-# jooby-servlet
+# servlets
 
 This module exists for strict environments where the ONLY option is to deploy into a Servlet Container.
 If you are free to deploy a new server technology, we strongly recommend to avoid this and go

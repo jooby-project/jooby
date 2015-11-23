@@ -1,4 +1,4 @@
-# jooby-commons-email
+# commons-email
 
 Email supports via {{commons-email}}. Small but helpful module that provides access to ```Email``` instances via {{guice}} and {{config}}.
 

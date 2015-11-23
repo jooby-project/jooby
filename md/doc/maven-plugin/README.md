@@ -1,4 +1,4 @@
-# mvn jooby:run
+# jooby:run
 
 A {{maven}} plugin for executing {{jooby}} applications.
 

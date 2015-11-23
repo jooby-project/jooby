@@ -1,4 +1,4 @@
-# jooby-jdbc
+# jdbc
 
 Production-ready jdbc data source, powered by the [HikariCP](https://github.com/brettwooldridge/HikariCP) library.
 
@@ -11,6 +11,7 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
   <version>{{version}}</version>
 </dependency>
 ```
+
 ## usage
 
 ```java

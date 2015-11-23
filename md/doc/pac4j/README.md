@@ -1,4 +1,4 @@
-# jooby-pac4j
+# pac4j
 
 Authentication module via: {{pac4j}}.
 

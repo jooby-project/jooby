@@ -1,4 +1,4 @@
-# jooby-hbm
+# hibernate
 
 Object-Relational-Mapping via [Hibernate](http://hibernate.org/). Exposes an ```EntityManagerFactory``` and ```EntityManager``` services.
 

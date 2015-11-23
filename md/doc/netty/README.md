@@ -1,4 +1,4 @@
-# jooby-netty
+# netty
 
 [Netty](http://netty.io) web server for Jooby.
 

@@ -1,4 +1,4 @@
-# jooby-hbv
+# hibernate validator
 
 Bean validation via [Hibernate Validator](hibernate.org/validator).
 

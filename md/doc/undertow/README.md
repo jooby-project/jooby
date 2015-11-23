@@ -1,4 +1,4 @@
-# jooby-undertow
+# undertow
 
 [Undertow](http://undertow.io/) web server for Jooby.
 

@@ -1,4 +1,4 @@
-# jooby-ebean
+# ebean
 
 Object-Relational-Mapping via {{ebean}}. It configures and exposes ```EbeanServer``` instances.
 
@@ -6,7 +6,7 @@ This module extends [jdbc](/doc/jdbc) module, before going forward, make sure yo
  
 ## exposes
 
-* An ```EbeanServer``` instances
+* ```EbeanServer``` objects
 
 ## dependency
 

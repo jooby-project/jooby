@@ -1,4 +1,4 @@
-# jooby-camel
+# camel
 
 [Apache Camel](http://camel.apache.org) integration for Jooby.
 

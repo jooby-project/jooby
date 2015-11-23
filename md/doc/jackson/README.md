@@ -1,4 +1,4 @@
-# jooby-jackson
+# jackson
 
 JSON support from the excellent [Jackson](https://github.com/FasterXML/jackson) library.
 
@@ -14,6 +14,7 @@ but also an [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2
   <version>{{version}}</version>
 </dependency>
 ```
+
 ## usage
 
 ```java

@@ -1,4 +1,4 @@
-# jooby-morphia
+# morphia
 
 Extends the [mongodb]({{gh}}/jooby-mongodb) module with object-document mapping via [Morphia]({{morphia}}).
 

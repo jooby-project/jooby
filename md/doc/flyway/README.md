@@ -1,4 +1,4 @@
-# jooby-flyway
+# flyway
 
 Run database migrations on startup and exposes a {{flyway}} instance.
 

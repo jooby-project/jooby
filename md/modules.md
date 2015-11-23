@@ -4,7 +4,7 @@ Modules are a key concept for building reusable and configurable piece of softwa
 
 A module is usually a small piece of software that bootstrap and configure common code and/or an external library.
 
-### do less and be flexible
+## do less and be flexible
 
 A module should do as less as possible (key difference with other frameworks). A module for a library *X* should:
 

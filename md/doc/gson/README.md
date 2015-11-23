@@ -1,4 +1,4 @@
-# jooby-gson
+# gson
 
 JSON support via [Gson](https://github.com/google/gson) library.
 

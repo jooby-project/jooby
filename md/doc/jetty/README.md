@@ -1,4 +1,4 @@
-# jooby-jetty
+# jetty
 
 [Jetty](https://www.eclipse.org/jetty) web server for Jooby.
 

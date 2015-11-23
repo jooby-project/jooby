@@ -1,4 +1,4 @@
-# jooby-quartz
+# quartz
 
 A job scheduler from [Quartz](http://quartz-scheduler.org/).
 

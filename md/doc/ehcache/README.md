@@ -1,4 +1,4 @@
-# jooby-ehcache
+# ehcache
 
 Provides advanced cache features via {{ehcache}}
 
@@ -109,25 +109,7 @@ Here ```cache1``` and ```cache2``` will inherited their properties from the ```d
 
 Please note the ```default``` cache works as a template and isn't a real/usable cache.
 
-## session store
-
-This module provides an [EhSessionStore]({{defdocs}}/ehcache/EhSessionStore.html). In order to use the [EhSessionStore]({{defdocs}}/ehcache/EhSessionStore.html) all
-you have to do is define a ```session``` cache:
-
-```properties
-ehcache.cache.session {
-  # cache will expire after 30 minutes of inactivity
-  timeToIdle = 30m
-}
-```
-
-And then register the [EhSessionStore]({{defdocs}}/ehcache/EhSessionStore.html):
-
-```java
-{
-  session(EhSessionStore.class);
-}
-```
+{{doc/ehcache/ehcache-session.md}}
 
 ## configuration
 

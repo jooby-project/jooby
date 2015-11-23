@@ -1,4 +1,4 @@
-# jooby-elasticsearch
+# elasticsearch
 
 Enterprise full text search via {{elasticsearch}}.
 
