@@ -1,37 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>jooby: A micro web framework for Java</title>
-    <meta name="description" content="">
-    <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="canonical" href="#">
-    <link rel="publisher" href="#">
-    <meta name="robots" content="robots.txt">
-    <meta name="og:title" content="jooby">
-    <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java">
-    <!--
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: A micro web framework for Java</title> 
+  <meta name="description" content=""> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby"> 
+  <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java"> 
+  <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
     "website" por "article"
-    -->
-    <meta name="og:type" content="website">
-    <meta name="og:url" content="http://jooby.org">
-    <!--
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
     og:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
     CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
     ANCHO: 200
     ALTO: 200
     FORMATO: JPG
-    -->
-    <meta name="og:image" content="/resources/images/apps/facebook.jpg">
-    <meta name="og:site_name" content="jooby">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="jooby">
-    <!--
+    --> 
+  <meta name="og:image" content="/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby"> 
+  <meta name="twitter:card" content="summary_large_image"> 
+  <meta name="twitter:title" content="jooby"> 
+  <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
     CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
@@ -39,100 +39,102 @@
     ALTO: 150
     FORMATO: JPG
     TAMAÑO MAXIMO: 1MB
-    -->
-    <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg">
-    <meta name="twitter:site" content="https://twitter.com/joobyproject">
-    <meta name="twitter:creator" content="https://twitter.com/edgarespina">
-    <meta name="twitter:domain" content="http://jooby.org">
-    <meta name="twitter:url" content="https://twitter.com/joobyproject">
-    <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180">
-    <link href="/resources/images/apps/favicon.ico" rel="shortcut icon">
-    <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
-    <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
-    <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
-    <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
-    <link rel="stylesheet" href="/resources/styles/application.css">
-    <link rel="stylesheet" href="/resources/styles/devices.css">
-    <link rel="stylesheet" href="/resources/styles/sprites.css">
-  </head>
-  <body class="page-section page-sidebar">
-    <header class="site-header">
-      <div class="row"><a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
-        <nav class="site-nav">
-          <ul>
-            <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li>
-            <li class=""><a href="/doc" title="Doc">DOC</a></li>
-            <li class="active"><a href="/modules" title="Modules">MODULES</a></li>
-            <li class=""><a href="/help" title="Help &amp; Support">HELP & SUPPORT</a></li>
-            <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li>
-            <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li>
-          </ul>
-        </nav>
-      </div>
-    </header>
-    <main role="main" class="site-content">
-      
-<div class="section-title"> 
-  <div class="row">
-    <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a>
-    <h1>servlets</h1>
-  </div>
-</div>
-<div class="row">
-  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
-    <div class="show-mobile menu-open">servlets</div>
-    <ul>
-<li class="active">
-<a href="#servlets">servlets</a><ul>
-<li>
-<a href="#servlets-prepare">prepare</a></li>
-<li>
-<a href="#servlets-limitations">limitations</a></li>
-<li>
-<a href="#servlets-how-it-works-">how it works?</a></li></ul></li>
-</ul>
-  </div>
-  <div class="section-content">
-  <div class="datalist" id="servlets">
- <div class="datalist-title active"> 
-  <h2>servlets</h2> 
- </div> 
- <div class="datalist-content"> 
-  <p>This module exists for strict environments where the ONLY option is to deploy into a Servlet Container.<br> If you are free to deploy a new server technology, we strongly recommend to avoid this and go<br> directly with netty, jetty or undertow.</p>
-  <h3 id="servlets-prepare">prepare</h3>
-  <p>In order to deploy into a Servlet Container, we need to generate a <code class="highlighter-rouge">*.war</code> file. The next steps guide you how to do it:</p>
-  <h4>step 1</h4>
-  <p>Add the <code class="highlighter-rouge">jooby-servlet</code> dependency to your <code class="highlighter-rouge">pom.xml</code>:</p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+    --> 
+  <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg"> 
+  <meta name="twitter:site" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <!-- <link rel="stylesheet" href="/resources/styles/github.css"> --> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOC</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/help" title="Help &amp; Support">HELP &amp; SUPPORT</a></li> 
+      <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li> 
+      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
    </div> 
-   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>servlets</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open">
+      servlets
+     </div> 
+     <ul> 
+      <li class="active"> <a href="#servlets">servlets</a>
+       <ul> 
+        <li> <a href="#servlets-prepare">prepare</a></li> 
+        <li> <a href="#servlets-limitations">limitations</a></li> 
+        <li> <a href="#servlets-how-it-works-">how it works?</a></li>
+       </ul></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+     <div class="datalist" id="servlets"> 
+      <div class="datalist-title active"> 
+       <h2>servlets</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>This module exists for strict environments where the ONLY option is to deploy into a Servlet Container.<br> If you are free to deploy a new server technology, we strongly recommend to avoid this and go<br> directly with netty, jetty or undertow.</p> 
+       <h3 id="servlets-prepare">prepare</h3> 
+       <p>In order to deploy into a Servlet Container, we need to generate a <code class="highlighter-rouge codehilite">*.war</code> file. The next steps guide you how to do it:</p> 
+       <h4>step 1</h4> 
+       <p>Add the <code class="highlighter-rouge codehilite">jooby-servlet</code> dependency to your <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-servlet<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>0.11.2<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
-  </div>
-  <p>IMPORTANT: Scope must be <code class="highlighter-rouge">provided</code>.</p>
-  <h4>step 2</h4>
-  <p>Find out the <code class="highlighter-rouge">maven-assembly-plugin</code> section in your <code class="highlighter-rouge">pom.xml</code>, it looks like this:</p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code><span class="c">&lt;!-- Build jooby.zip | jooby.war --&gt;</span>
+       </div> 
+       <p>IMPORTANT: Scope must be <code class="highlighter-rouge codehilite">provided</code>.</p> 
+       <h4>step 2</h4> 
+       <p>Find out the <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> section in your <code class="highlighter-rouge codehilite">pom.xml</code>, it looks like this:</p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code><span class="c">&lt;!-- Build jooby.zip | jooby.war --&gt;</span>
 <span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>maven-assembly-plugin<span class="nt">&lt;/artifactId&gt;</span>
@@ -143,13 +145,13 @@
   <span class="nt">&lt;/configuration&gt;</span>
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre> 
-  </div>
-  <p>Add a new descriptorRef: <code class="highlighter-rouge">jooby.war</code></p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code><span class="c">&lt;!-- Build jooby.zip | jooby.war --&gt;</span>
+       </div> 
+       <p>Add a new descriptorRef: <code class="highlighter-rouge codehilite">jooby.war</code></p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code><span class="c">&lt;!-- Build jooby.zip | jooby.war --&gt;</span>
 <span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>maven-assembly-plugin<span class="nt">&lt;/artifactId&gt;</span>
@@ -161,43 +163,43 @@
   <span class="nt">&lt;/configuration&gt;</span>
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre> 
-  </div>
-  <h4>step 3</h4>
-  <p>Run: <code class="highlighter-rouge">mvn clean package</code> and find the <code class="highlighter-rouge">*.war</code> file in the <code class="highlighter-rouge">target</code> directory.</p>
-  <h3 id="servlets-limitations">limitations</h3>
-  <ul> 
-   <li>web-sockets are not supported</li> 
-   <li>some properties has no effect when deploying into a Servlet Container:</li> 
-   <li>application.path / contextPath</li> 
-   <li>appplication.port</li> 
-   <li>max upload file sizes</li> 
-   <li>any other server specific property: server.<em>, jetty.</em>, netty.<em>, undertow.</em></li> 
-  </ul>
-  <h4>special note on contextPath</h4>
-  <p>To avoid a headache… make sure to use the <code class="highlighter-rouge">contextPath</code> variable while loading static/dynamic<br> resources (.css, .js, etc..).</p>
-  <p>For example:</p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
+       </div> 
+       <h4>step 3</h4> 
+       <p>Run: <code class="highlighter-rouge codehilite">mvn clean package</code> and find the <code class="highlighter-rouge codehilite">*.war</code> file in the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
+       <h3 id="servlets-limitations">limitations</h3> 
+       <ul> 
+        <li>web-sockets are not supported</li> 
+        <li>some properties has no effect when deploying into a Servlet Container:</li> 
+        <li>application.path / contextPath</li> 
+        <li>appplication.port</li> 
+        <li>max upload file sizes</li> 
+        <li>any other server specific property: server.<em>, jetty.</em>, netty.<em>, undertow.</em></li> 
+       </ul> 
+       <h4>special note on contextPath</h4> 
+       <p>To avoid a headache… make sure to use the <code class="highlighter-rouge codehilite">contextPath</code> variable while loading static/dynamic<br> resources (.css, .js, etc..).</p> 
+       <p>For example:</p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
 <span class="nt">&lt;head&gt;</span>
   <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">text=</span><span class="s">"text/css"</span> <span class="na">href=</span><span class="s">"{{contextPath}}/css/styles.css"</span><span class="nt">&gt;</span>
   <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"{{contextPath}}/js/app.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
 <span class="nt">&lt;/head&gt;</span>
 <span class="nt">&lt;/html&gt;</span>
 </code></pre> 
-  </div>
-  <p>Here the expression: <code class="highlighter-rouge"><span class="p">{</span><span class="err">{</span><span class="w"> </span><span class="nt">"{{contextPath"</span><span class="w"> </span><span class="err">}}}}</span></code> correspond to the template engine (handlebars here) or <code class="highlighter-rouge">${contextPath}</code> for Freemarker.</p>
-  <h3 id="servlets-how-it-works-">how it works?</h3>
-  <p>The <code class="highlighter-rouge">maven-assembly-plugin</code> generates the *.war file. The assembly descriptor can be found<br> <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml">here</a></p>
-  <h4>web.xml</h4>
-  <p>A default <code class="highlighter-rouge">web.xml</code> file is generated by the assembly plugin. File looks like:</p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+       </div> 
+       <p>Here the expression: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">{</span><span class="w"> </span><span class="nt">"{{contextPath"</span><span class="w"> </span><span class="err">}}}}</span></code> correspond to the template engine (handlebars here) or <code class="highlighter-rouge codehilite">${contextPath}</code> for Freemarker.</p> 
+       <h3 id="servlets-how-it-works-">how it works?</h3> 
+       <p>The <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> generates the *.war file. The assembly descriptor can be found<br> <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml" target="_blank">here</a></p> 
+       <h4>web.xml</h4> 
+       <p>A default <code class="highlighter-rouge codehilite">web.xml</code> file is generated by the assembly plugin. File looks like:</p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
 <span class="nt">&lt;web-app</span> <span class="na">xmlns=</span><span class="s">"http://xmlns.jcp.org/xml/ns/javaee"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>
   <span class="na">xsi:schemaLocation=</span><span class="s">"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"</span>
   <span class="na">version=</span><span class="s">"3.1"</span><span class="nt">&gt;</span>
@@ -228,45 +230,49 @@
   <span class="nt">&lt;/servlet-mapping&gt;</span>
 <span class="nt">&lt;/web-app&gt;</span>
 </code></pre> 
-  </div>
-  <h5>upload size</h5>
-  <p>Default upload size is set to <code class="highlighter-rouge">204800b</code> (200kb). If you need to increase the upload size, add<br> the <code class="highlighter-rouge">war.maxRequestSize</code> property to <code class="highlighter-rouge">pom.xml</code>:</p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
+       </div> 
+       <h5>upload size</h5> 
+       <p>Default upload size is set to <code class="highlighter-rouge codehilite">204800b</code> (200kb). If you need to increase the upload size, add<br> the <code class="highlighter-rouge codehilite">war.maxRequestSize</code> property to <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
   <span class="nt">&lt;war.maxRequestSize&gt;</span>1048576<span class="nt">&lt;/war.maxRequestSize&gt;</span> <span class="c">&lt;!-- 1mb --&gt;</span>
 <span class="nt">&lt;/properties&gt;</span>
 </code></pre> 
-  </div>
-  <h5>custom web.xml</h5>
-  <p>When the generated file isn’t enough, follow these steps:</p>
-  <ol> 
-   <li>create a dir: <code class="highlighter-rouge">src/etc/war/WEB-INF</code></li> 
-   <li>save a <code class="highlighter-rouge">web.xml</code> file inside that dir</li> 
-   <li>run: <code class="highlighter-rouge">mvn clean package</code></li> 
-  </ol>
-  <p>That’s all folks! Enjoy it!!!</p>
- </div> 
-</div>
-  </div>
-</div>
-
-    </main>
-    <footer class="site-footer">
-      <div class="row">
-        <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina">Edgar Espina</a></p>
-        <div class="altquimia">DG <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio</div>
-        <div class="follow-us pull-right">
-          <p>Follow us</p><a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
-        </div>
-      </div>
-    </footer>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
-    <script src="/resources/scripts/libs/swiper.min.js"></script>
-    <script src="/resources/scripts/application.js"></script>
-    <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
-  </body>
+       </div> 
+       <h5>custom web.xml</h5> 
+       <p>When the generated file isn’t enough, follow these steps:</p> 
+       <ol> 
+        <li>create a dir: <code class="highlighter-rouge codehilite">src/etc/war/WEB-INF</code></li> 
+        <li>save a <code class="highlighter-rouge codehilite">web.xml</code> file inside that dir</li> 
+        <li>run: <code class="highlighter-rouge codehilite">mvn clean package</code></li> 
+       </ol> 
+       <p>That’s all folks! Enjoy it!!!</p> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
+    <div class="altquimia">
+     DG 
+     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
+    </div> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>  
+ </body>
 </html>

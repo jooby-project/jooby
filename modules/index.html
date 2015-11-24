@@ -1,37 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>jooby: A micro web framework for Java</title>
-    <meta name="description" content="">
-    <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="canonical" href="#">
-    <link rel="publisher" href="#">
-    <meta name="robots" content="robots.txt">
-    <meta name="og:title" content="jooby">
-    <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java">
-    <!--
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: A micro web framework for Java</title> 
+  <meta name="description" content=""> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby"> 
+  <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java"> 
+  <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
     "website" por "article"
-    -->
-    <meta name="og:type" content="website">
-    <meta name="og:url" content="http://jooby.org">
-    <!--
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
     og:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
     CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
     ANCHO: 200
     ALTO: 200
     FORMATO: JPG
-    -->
-    <meta name="og:image" content="/resources/images/apps/facebook.jpg">
-    <meta name="og:site_name" content="jooby">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="jooby">
-    <!--
+    --> 
+  <meta name="og:image" content="/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby"> 
+  <meta name="twitter:card" content="summary_large_image"> 
+  <meta name="twitter:title" content="jooby"> 
+  <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
     CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
@@ -39,121 +39,87 @@
     ALTO: 150
     FORMATO: JPG
     TAMAÑO MAXIMO: 1MB
-    -->
-    <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg">
-    <meta name="twitter:site" content="https://twitter.com/joobyproject">
-    <meta name="twitter:creator" content="https://twitter.com/edgarespina">
-    <meta name="twitter:domain" content="http://jooby.org">
-    <meta name="twitter:url" content="https://twitter.com/joobyproject">
-    <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180">
-    <link href="/resources/images/apps/favicon.ico" rel="shortcut icon">
-    <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
-    <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
-    <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
-    <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
-    <link rel="stylesheet" href="/resources/styles/application.css">
-    <link rel="stylesheet" href="/resources/styles/devices.css">
-    <link rel="stylesheet" href="/resources/styles/sprites.css">
-  </head>
-  <body class="page-section page-modules">
-    <header class="site-header">
-      <div class="row"><a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
-        <nav class="site-nav">
-          <ul>
-            <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li>
-            <li class=""><a href="/doc" title="Doc">DOC</a></li>
-            <li class="active"><a href="/modules" title="Modules">MODULES</a></li>
-            <li class=""><a href="/help" title="Help &amp; Support">HELP & SUPPORT</a></li>
-            <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li>
-            <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li>
-          </ul>
-        </nav>
-      </div>
-    </header>
-    <main role="main" class="site-content">
-      
-<div class="section-title">
-  <div class="row">
-    <h1>Modules</h1>
-  </div>
-</div>
-<div class="row">
-  <a href="/doc/maven-plugin" title="Run, debug and auto-reload Jooby applications!!" class="module-box">
-    <span class="icon-shell-yellow-big"></span>
-    <span class="module-title">jooby:run</span>
-    <span class="module-excerpt">Run, debug and auto-reload Jooby applications!!</span>
-  </a>
-  <a href="/doc/assets" title="A library to validate, concatenate, minify or compress JavaScript and CSS files!" class="module-box">
-    <span class="icon-assets-yellow-big"></span>
-    <span class="module-title">Assets</span>
-    <span class="module-excerpt">A library to validate, concatenate, minify or compress JavaScript and CSS files!</span>
-  </a>
-  <a href="/doc/parser-and-renderer" title="Parse and renderer HTTP data using the library of your choice!" class="module-box">
-    <span class="icon-parsers-yellow-big"></span>
-    <span class="module-title">Parser & Renderer</span>
-    <span class="module-excerpt">Parse and renderer HTTP data using the library of your choice!</span>
-  </a>
-  <a href="/doc/session" title="Do you need to track state? Checkout how to do it without affecting performance!" class="module-box">
-    <span class="icon-session-yellow-big"></span>
-    <span class="module-title">HTTP Session</span>
-    <span class="module-excerpt">Do you need to track state? Checkout how to do it without affecting performance!</span>
-  </a>
-  <a href="/doc/datastore" title="Access various data store including relational, documented oriented, key/value and much much more!" class="module-box">
-    <span class="icon-database-yellow-big"></span>
-    <span class="module-title">Data</span>
-    <span class="module-excerpt">Access various data store including relational, documented oriented, key/value and much much more!</span>
-  </a>
-  <a href="/doc/caches" title="Looking for speed? Increase your application performance with insanely fast data access?" class="module-box">
-    <span class="icon-cache-yellow-big"></span>
-    <span class="module-title">Caches</span>
-    <span class="module-excerpt">Looking for speed? Increase your application performance with insanely fast data access!</span>
-  </a>
-  <a href="/doc/async" title="Produces a result from a thread of its choice and choose your favorite async library!" class="module-box">
-    <span class="icon-async-yellow-big"></span>
-    <span class="module-title">Async</span>
-    <span class="module-excerpt">Produces a result from a thread of its choice and choose your favorite async library!</span>
-  </a>
-  <a href="/doc/pac4j" title="Protects your application and authenticate users via form or social network!" class="module-box">
-    <span class="icon-auth-yellow-big"></span>
-    <span class="module-title">Auth/Security</span>
-    <span class="module-excerpt">Protects your application and authenticate users via form or social network!</span>
-  </a>
-  <a href="/doc/servers" title="Run your application on top of your favorite Web Server!!!" class="module-box">
-    <span class="icon-servers-yellow-big"></span>
-    <span class="module-title">Servers</span>
-    <span class="module-excerpt">Run your application on top of your favorite Web Server!!!</span>
-  </a>
-  <a href="/doc/more" title="API tools, full text search, schedulers, AWS, mail support, enterprise service bus... and lot more!!" class="module-box">
-    <span class="icon-misc-yellow-big"></span>
-    <span class="module-title">Even More!</span>
-    <span class="module-excerpt">API tools, full text search, schedulers, AWS, mail support, enterprise service bus... and lot more!!</span>
-  </a>
-</div>
-
-    </main>
-    <footer class="site-footer">
-      <div class="row">
-        <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina">Edgar Espina</a></p>
-        <div class="altquimia">DG <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio</div>
-        <div class="follow-us pull-right">
-          <p>Follow us</p><a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
-        </div>
-      </div>
-    </footer>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
-    <script src="/resources/scripts/libs/swiper.min.js"></script>
-    <script src="/resources/scripts/application.js"></script>
-    <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
-  </body>
+    --> 
+  <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg"> 
+  <meta name="twitter:site" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <!-- <link rel="stylesheet" href="/resources/styles/github.css"> --> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-modules"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOC</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/help" title="Help &amp; Support">HELP &amp; SUPPORT</a></li> 
+      <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li> 
+      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
+   </div> 
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <h1>Modules</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <a href="/doc/maven-plugin" title="Run, debug and auto-reload Jooby applications!!" class="module-box"> <span class="icon-shell-yellow-big"></span> <span class="module-title">jooby:run</span> <span class="module-excerpt">Run, debug and auto-reload Jooby applications!!</span> </a> 
+    <a href="/doc/assets" title="A library to validate, concatenate, minify or compress JavaScript and CSS files!" class="module-box"> <span class="icon-assets-yellow-big"></span> <span class="module-title">Assets</span> <span class="module-excerpt">A library to validate, concatenate, minify or compress JavaScript and CSS files!</span> </a> 
+    <a href="/doc/parser-and-renderer" title="Parse and renderer HTTP data using the library of your choice!" class="module-box"> <span class="icon-parsers-yellow-big"></span> <span class="module-title">Parser &amp; Renderer</span> <span class="module-excerpt">Parse and renderer HTTP data using the library of your choice!</span> </a> 
+    <a href="/doc/session" title="Do you need to track state? Checkout how to do it without affecting performance!" class="module-box"> <span class="icon-session-yellow-big"></span> <span class="module-title">HTTP Session</span> <span class="module-excerpt">Do you need to track state? Checkout how to do it without affecting performance!</span> </a> 
+    <a href="/doc/datastore" title="Access various data store including relational, documented oriented, key/value and much much more!" class="module-box"> <span class="icon-database-yellow-big"></span> <span class="module-title">Data</span> <span class="module-excerpt">Access various data store including relational, documented oriented, key/value and much much more!</span> </a> 
+    <a href="/doc/caches" title="Looking for speed? Increase your application performance with insanely fast data access?" class="module-box"> <span class="icon-cache-yellow-big"></span> <span class="module-title">Caches</span> <span class="module-excerpt">Looking for speed? Increase your application performance with insanely fast data access!</span> </a> 
+    <a href="/doc/async" title="Produces a result from a thread of its choice and choose your favorite async library!" class="module-box"> <span class="icon-async-yellow-big"></span> <span class="module-title">Async</span> <span class="module-excerpt">Produces a result from a thread of its choice and choose your favorite async library!</span> </a> 
+    <a href="/doc/pac4j" title="Protects your application and authenticate users via form or social network!" class="module-box"> <span class="icon-auth-yellow-big"></span> <span class="module-title">Auth/Security</span> <span class="module-excerpt">Protects your application and authenticate users via form or social network!</span> </a> 
+    <a href="/doc/servers" title="Run your application on top of your favorite Web Server!!!" class="module-box"> <span class="icon-servers-yellow-big"></span> <span class="module-title">Servers</span> <span class="module-excerpt">Run your application on top of your favorite Web Server!!!</span> </a> 
+    <a href="/doc/more" title="API tools, full text search, schedulers, AWS, mail support, enterprise service bus... and lot more!!" class="module-box"> <span class="icon-misc-yellow-big"></span> <span class="module-title">Even More!</span> <span class="module-excerpt">API tools, full text search, schedulers, AWS, mail support, enterprise service bus... and lot more!!</span> </a> 
+   </div> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
+    <div class="altquimia">
+     DG 
+     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
+    </div> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>  
+ </body>
 </html>

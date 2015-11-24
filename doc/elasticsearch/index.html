@@ -1,37 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>jooby: A micro web framework for Java</title>
-    <meta name="description" content="">
-    <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="canonical" href="#">
-    <link rel="publisher" href="#">
-    <meta name="robots" content="robots.txt">
-    <meta name="og:title" content="jooby">
-    <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java">
-    <!--
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: A micro web framework for Java</title> 
+  <meta name="description" content=""> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby"> 
+  <meta name="og:description" content="Scalable, Fast and Modular micro web framework for Java"> 
+  <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
     "website" por "article"
-    -->
-    <meta name="og:type" content="website">
-    <meta name="og:url" content="http://jooby.org">
-    <!--
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
     og:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
     CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
     ANCHO: 200
     ALTO: 200
     FORMATO: JPG
-    -->
-    <meta name="og:image" content="/resources/images/apps/facebook.jpg">
-    <meta name="og:site_name" content="jooby">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="jooby">
-    <!--
+    --> 
+  <meta name="og:image" content="/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby"> 
+  <meta name="twitter:card" content="summary_large_image"> 
+  <meta name="twitter:title" content="jooby"> 
+  <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
     CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
@@ -39,135 +39,135 @@
     ALTO: 150
     FORMATO: JPG
     TAMAÑO MAXIMO: 1MB
-    -->
-    <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg">
-    <meta name="twitter:site" content="https://twitter.com/joobyproject">
-    <meta name="twitter:creator" content="https://twitter.com/edgarespina">
-    <meta name="twitter:domain" content="http://jooby.org">
-    <meta name="twitter:url" content="https://twitter.com/joobyproject">
-    <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152">
-    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180">
-    <link href="/resources/images/apps/favicon.ico" rel="shortcut icon">
-    <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
-    <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
-    <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
-    <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
-    <link rel="stylesheet" href="/resources/styles/application.css">
-    <link rel="stylesheet" href="/resources/styles/devices.css">
-    <link rel="stylesheet" href="/resources/styles/sprites.css">
-  </head>
-  <body class="page-section page-sidebar">
-    <header class="site-header">
-      <div class="row"><a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
-        <nav class="site-nav">
-          <ul>
-            <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li>
-            <li class=""><a href="/doc" title="Doc">DOC</a></li>
-            <li class="active"><a href="/modules" title="Modules">MODULES</a></li>
-            <li class=""><a href="/help" title="Help &amp; Support">HELP & SUPPORT</a></li>
-            <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li>
-            <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li>
-          </ul>
-        </nav>
-      </div>
-    </header>
-    <main role="main" class="site-content">
-      
-<div class="section-title"> 
-  <div class="row">
-    <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a>
-    <h1>elasticsearch</h1>
-  </div>
-</div>
-<div class="row">
-  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
-    <div class="show-mobile menu-open">elasticsearch</div>
-    <ul>
-<li class="active">
-<a href="#elasticsearch">elasticsearch</a><ul>
-<li>
-<a href="#elasticsearch-dependency">dependency</a></li>
-<li>
-<a href="#elasticsearch-usage">usage</a></li>
-<li>
-<a href="#elasticsearch-client-API">client API</a></li>
-<li>
-<a href="#elasticsearch-configuration">configuration</a></li>
-<li>
-<a href="#elasticsearch-es-conf">es.conf</a></li></ul></li>
-</ul>
-  </div>
-  <div class="section-content">
-  <div class="datalist" id="elasticsearch">
- <div class="datalist-title active"> 
-  <h2>elasticsearch</h2> 
- </div> 
- <div class="datalist-content"> 
-  <p>Enterprise full text search via <a href="https://github.com/elastic/elasticsearch">Elastic Search</a>.</p>
-  <p>Provides a client/local API but also a RESTFul API.</p>
-  <h3 id="elasticsearch-dependency">dependency</h3>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+    --> 
+  <meta name="twitter:image" content="/resources/images/apps/twitter_summary_card.jpg"> 
+  <meta name="twitter:site" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="jooby: Scalable, Fast and Modular micro web framework for Java"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <!-- <link rel="stylesheet" href="/resources/styles/github.css"> --> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOC</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/help" title="Help &amp; Support">HELP &amp; SUPPORT</a></li> 
+      <li class=""><a href="/faq" title="FAQ's">FAQ's</a></li> 
+      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
    </div> 
-   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>elasticsearch</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open">
+      elasticsearch
+     </div> 
+     <ul> 
+      <li class="active"> <a href="#elasticsearch">elasticsearch</a>
+       <ul> 
+        <li> <a href="#elasticsearch-dependency">dependency</a></li> 
+        <li> <a href="#elasticsearch-usage">usage</a></li> 
+        <li> <a href="#elasticsearch-client-API">client API</a></li> 
+        <li> <a href="#elasticsearch-configuration">configuration</a></li> 
+        <li> <a href="#elasticsearch-es-conf">es.conf</a></li>
+       </ul></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+     <div class="datalist" id="elasticsearch"> 
+      <div class="datalist-title active"> 
+       <h2>elasticsearch</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Enterprise full text search via <a href="https://github.com/elastic/elasticsearch" target="_blank">Elastic Search</a>.</p> 
+       <p>Provides a client/local API but also a RESTFul API.</p> 
+       <h3 id="elasticsearch-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-elasticsearch<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>0.11.2<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
-  </div>
-  <h3 id="elasticsearch-usage">usage</h3>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code><span class="o">{</span>
+       </div> 
+       <h3 id="elasticsearch-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ElasticSearch</span><span class="o">(</span><span class="s">"/search"</span><span class="o">));</span>
 <span class="o">}</span>
 </code></pre> 
-  </div>
-  <p>Elastic search will listen under the <code class="highlighter-rouge">/search</code> path. Here are some examples:</p>
-  <p>Creating a index:</p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code> curl -XPUT <span class="s1">'localhost:8080/search/customer?pretty'</span>
+       </div> 
+       <p>Elastic search will listen under the <code class="highlighter-rouge codehilite">/search</code> path. Here are some examples:</p> 
+       <p>Creating a index:</p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code> curl -XPUT <span class="s1">'localhost:8080/search/customer?pretty'</span>
 </code></pre> 
-  </div>
-  <p>Indexing a doc:</p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code> curl -XPUT <span class="s1">'localhost:8080/search/customer/external/1?pretty'</span> -d <span class="s1">' { "name": "John Doe" }'</span>
+       </div> 
+       <p>Indexing a doc:</p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code> curl -XPUT <span class="s1">'localhost:8080/search/customer/external/1?pretty'</span> -d <span class="s1">' { "name": "John Doe" }'</span>
 </code></pre> 
-  </div>
-  <p>Getting a doc:</p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code> curl <span class="s1">'localhost:8080/search/customer/external/1?pretty'</span>
+       </div> 
+       <p>Getting a doc:</p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code> curl <span class="s1">'localhost:8080/search/customer/external/1?pretty'</span>
 </code></pre> 
-  </div>
-  <h3 id="elasticsearch-client-API">client API</h3>
-  <p>The module exposes a <code class="highlighter-rouge">Client</code> and <code class="highlighter-rouge">Node</code> instances, so it is possible to manage the index inside programmatically.</p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code>
+       </div> 
+       <h3 id="elasticsearch-client-API">client API</h3> 
+       <p>The module exposes a <code class="highlighter-rouge codehilite">Client</code> and <code class="highlighter-rouge codehilite">Node</code> instances, so it is possible to manage the index inside programmatically.</p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code>
 <span class="n">post</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="c1">// index a document</span>
   <span class="n">Client</span> <span class="n">client</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Client</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
@@ -198,44 +198,44 @@
     <span class="o">.</span><span class="na">actionGet</span><span class="o">();</span>
 <span class="o">});</span>
 </code></pre> 
-  </div>
-  <h3 id="elasticsearch-configuration">configuration</h3>
-  <p>If it possible to setup or configure <a href="https://github.com/elastic/elasticsearch">Elastic Search</a> via <code class="highlighter-rouge">application.conf</code>, just make sure to prefix the property with <code class="highlighter-rouge">elasticsearch</code>:</p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code> <span class="py">elasticsearch.http.jsonp.enable</span> <span class="p">=</span> <span class="s">true</span>
+       </div> 
+       <h3 id="elasticsearch-configuration">configuration</h3> 
+       <p>If it possible to setup or configure <a href="https://github.com/elastic/elasticsearch" target="_blank">Elastic Search</a> via <code class="highlighter-rouge codehilite">application.conf</code>, just make sure to prefix the property with <code class="highlighter-rouge codehilite">elasticsearch</code>:</p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code> <span class="py">elasticsearch.http.jsonp.enable</span> <span class="p">=</span> <span class="s">true</span>
 </code></pre> 
-  </div>
-  <p>or programmatically:</p>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code><span class="o">{</span>
+       </div> 
+       <p>or programmatically:</p> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ElasticSearch</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">settings</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="n">settings</span><span class="o">.</span><span class="na">put</span><span class="o">(...,</span> <span class="o">...);</span>
   <span class="o">});</span>
 <span class="o">}</span>
 </code></pre> 
-  </div>
-  <h4>http.enabled</h4>
-  <p>HTTP is disabled and isn’t possible to change this value. What does it mean? <a href="http://jooby.org">Jooby</a> setup a custom<br> handler which makes it possible to use a <a href="http://jooby.org">Jooby</a> server to serve Elastic Search requests and avoid<br> the need of starting up another server running in a different port.</p>
-  <p>Most of the <code class="highlighter-rouge">http.*</code> properties has no sense in Jooby.</p>
-  <h4>path.data</h4>
-  <p>Path data is set to a temporary directory: <code class="highlighter-rouge">${application.tmpdir}/es/data</code>. It is<br> useful for development, but if you need want to make sure the index is persistent between server<br> restarts, please make sure to setup this path to something else.</p>
-  <h4>node.name</h4>
-  <p>Node name is set to: <code class="highlighter-rouge">application.name</code>.</p>
-  <h4>cluster.name</h4>
-  <p>Cluster name is set to: <code class="highlighter-rouge">${application.name}-cluster</code>.</p>
-  <p>That’s all folks! Enjoy it!!!</p>
-  <h3 id="elasticsearch-es-conf">es.conf</h3>
-  <div class="highlighter-rouge">
-   <div class="copy-bar"> 
-    <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-   </div> 
-   <pre class="highlight"><code><span class="c">##################### Elasticsearch Configuration Example ##################### </span>
+       </div> 
+       <h4>http.enabled</h4> 
+       <p>HTTP is disabled and isn’t possible to change this value. What does it mean? <a href="http://jooby.org">Jooby</a> setup a custom<br> handler which makes it possible to use a <a href="http://jooby.org">Jooby</a> server to serve Elastic Search requests and avoid<br> the need of starting up another server running in a different port.</p> 
+       <p>Most of the <code class="highlighter-rouge codehilite">http.*</code> properties has no sense in Jooby.</p> 
+       <h4>path.data</h4> 
+       <p>Path data is set to a temporary directory: <code class="highlighter-rouge codehilite">${application.tmpdir}/es/data</code>. It is<br> useful for development, but if you need want to make sure the index is persistent between server<br> restarts, please make sure to setup this path to something else.</p> 
+       <h4>node.name</h4> 
+       <p>Node name is set to: <code class="highlighter-rouge codehilite">application.name</code>.</p> 
+       <h4>cluster.name</h4> 
+       <p>Cluster name is set to: <code class="highlighter-rouge codehilite">${application.name}-cluster</code>.</p> 
+       <p>That’s all folks! Enjoy it!!!</p> 
+       <h3 id="elasticsearch-es-conf">es.conf</h3> 
+       <div class="highlighter-rouge codehilite"> 
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+        </div> 
+        <pre class="highlight"><code><span class="c">##################### Elasticsearch Configuration Example ##################### </span>
 <span class="c"># This file contains an overview of various configuration settings, </span>
 <span class="c"># targeted at operations staff. Application developers should </span>
 <span class="c"># consult the guide at &lt;http://elasticsearch.org/guide&gt;. </span>
@@ -552,26 +552,30 @@
 <span class="c">#http.jsonp.enable: true </span>
 <span class="err">}</span>
 </code></pre> 
-  </div>
- </div> 
-</div>
-  </div>
-</div>
-
-    </main>
-    <footer class="site-footer">
-      <div class="row">
-        <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina">Edgar Espina</a></p>
-        <div class="altquimia">DG <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio</div>
-        <div class="follow-us pull-right">
-          <p>Follow us</p><a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
-        </div>
-      </div>
-    </footer>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
-    <script src="/resources/scripts/libs/swiper.min.js"></script>
-    <script src="/resources/scripts/application.js"></script>
-    <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
-  </body>
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left"> <a href="/" title="Back to home">Jooby</a> was created and maintained by <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
+    <div class="altquimia">
+     DG 
+     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
+    </div> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>  
+ </body>
 </html>
