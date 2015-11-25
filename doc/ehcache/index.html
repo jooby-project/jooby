@@ -125,9 +125,9 @@
         <li>Direct access to <code class="highlighter-rouge codehilite">Ehcache</code> instances</li> 
        </ul> 
        <h3 id="ehcache-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -137,9 +137,9 @@
 </code></pre> 
        </div> 
        <h3 id="ehcache-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Eh</span><span class="o">());</span>
@@ -154,12 +154,12 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p><a href="http://ehcache.org" target="_blank">Ehcache</a> can be fully configured from your <code class="highlighter-rouge codehilite">.conf</code> file and/or programmatically, but for the<br> time being there is no support for <code class="highlighter-rouge codehilite">xml</code>.</p> 
+       <p><a href="http://ehcache.org" target="_blank">Ehcache</a> can be fully configured from your <code class="highlighter-rouge codehilite">.conf</code> file and/or programmatically, but for the time being there is no support for <code class="highlighter-rouge codehilite">xml</code>.</p> 
        <h3 id="ehcache-caches">caches</h3> 
        <p>Caches are configured via <code class="highlighter-rouge codehilite">.conf</code> like almost everything in <a href="http://jooby.org">Jooby</a>.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">ehcache.cache.mycache</span> <span class="err">{</span>
   <span class="py">eternal</span> <span class="p">=</span> <span class="s">true</span>
@@ -167,9 +167,9 @@
 </code></pre> 
        </div> 
        <p>Later, we can access to <code class="highlighter-rouge codehilite">mycache</code> with:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -180,9 +180,9 @@
        </div> 
        <h3 id="ehcache-multiple-caches">multiple caches</h3> 
        <p>Multiple caches are also possible:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">ehcache.cache.cache1</span> <span class="err">{</span>
   <span class="py">maxEntriesLocalHeap</span> <span class="p">=</span> <span class="s">100</span>
@@ -196,9 +196,9 @@
 </code></pre> 
        </div> 
        <p>Later, we can access to our caches with:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -211,10 +211,10 @@
 </code></pre> 
        </div> 
        <h4>cache inheritance</h4> 
-       <p>Previous examples, show how to configure two or more caches, but it is also possible to inherit<br> cache configuration using the <code class="highlighter-rouge codehilite">default</code> cache:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>Previous examples, show how to configure two or more caches, but it is also possible to inherit cache configuration using the <code class="highlighter-rouge codehilite">default</code> cache:</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">ehcache.cache.default</span> <span class="err">{</span>
   <span class="py">maxEntriesLocalHeap</span> <span class="p">=</span> <span class="s">100</span>
@@ -240,10 +240,10 @@
       </div> 
       <div class="datalist-content"> 
        <h3 id="ehcache-session-store-usage">usage</h3> 
-       <p>This module provides an <a href="/apidocs/org/jooby/ehcache/EhSessionStore.html">EhSessionStore</a>. In order to use the <a href="/apidocs/org/jooby/ehcache/EhSessionStore.html">EhSessionStore</a> all<br> you have to do is define a <code class="highlighter-rouge codehilite">session</code> cache:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>This module provides an <a href="/apidocs/org/jooby/ehcache/EhSessionStore.html">EhSessionStore</a>. In order to use the <a href="/apidocs/org/jooby/ehcache/EhSessionStore.html">EhSessionStore</a> all you have to do is define a <code class="highlighter-rouge codehilite">session</code> cache:</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">ehcache.cache.session</span> <span class="err">{</span>
   <span class="c"># cache will expire after 30 minutes of inactivity </span>  <span class="py">timeToIdle</span> <span class="p">=</span> <span class="s">30m</span>
@@ -251,9 +251,9 @@
 </code></pre> 
        </div> 
        <p>And then register the <a href="/apidocs/org/jooby/ehcache/EhSessionStore.html">EhSessionStore</a>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">session</span><span class="o">(</span><span class="n">EhSessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
@@ -263,9 +263,9 @@
        <h3 id="ehcache-session-store-configuration">configuration</h3> 
        <p>Configuration is done in one of two ways: 1) via <code class="highlighter-rouge codehilite">.conf</code>; or 2) <code class="highlighter-rouge codehilite">programmatically:</code>.</p> 
        <h4>via .conf file</h4> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">ehcache</span> <span class="err">{</span>
 
@@ -304,9 +304,9 @@
 </code></pre> 
        </div> 
        <h4>programmatically</h4> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Eh</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -317,9 +317,9 @@
 </code></pre> 
        </div> 
        <h3 id="ehcache-session-store-ehcache-conf">ehcache.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">ehcache</span> <span class="err">{</span>
 

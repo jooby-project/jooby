@@ -115,9 +115,9 @@
        <p>Enterprise full text search via <a href="https://github.com/elastic/elasticsearch" target="_blank">Elastic Search</a>.</p> 
        <p>Provides a client/local API but also a RESTFul API.</p> 
        <h3 id="elasticsearch-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -127,9 +127,9 @@
 </code></pre> 
        </div> 
        <h3 id="elasticsearch-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ElasticSearch</span><span class="o">(</span><span class="s">"/search"</span><span class="o">));</span>
@@ -138,34 +138,34 @@
        </div> 
        <p>Elastic search will listen under the <code class="highlighter-rouge codehilite">/search</code> path. Here are some examples:</p> 
        <p>Creating a index:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code> curl -XPUT <span class="s1">'localhost:8080/search/customer?pretty'</span>
 </code></pre> 
        </div> 
        <p>Indexing a doc:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code> curl -XPUT <span class="s1">'localhost:8080/search/customer/external/1?pretty'</span> -d <span class="s1">' { "name": "John Doe" }'</span>
 </code></pre> 
        </div> 
        <p>Getting a doc:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code> curl <span class="s1">'localhost:8080/search/customer/external/1?pretty'</span>
 </code></pre> 
        </div> 
        <h3 id="elasticsearch-client-API">client API</h3> 
        <p>The module exposes a <code class="highlighter-rouge codehilite">Client</code> and <code class="highlighter-rouge codehilite">Node</code> instances, so it is possible to manage the index inside programmatically.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
 <span class="n">post</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -201,17 +201,17 @@
        </div> 
        <h3 id="elasticsearch-configuration">configuration</h3> 
        <p>If it possible to setup or configure <a href="https://github.com/elastic/elasticsearch" target="_blank">Elastic Search</a> via <code class="highlighter-rouge codehilite">application.conf</code>, just make sure to prefix the property with <code class="highlighter-rouge codehilite">elasticsearch</code>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code> <span class="py">elasticsearch.http.jsonp.enable</span> <span class="p">=</span> <span class="s">true</span>
 </code></pre> 
        </div> 
        <p>or programmatically:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">ElasticSearch</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">settings</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -221,19 +221,19 @@
 </code></pre> 
        </div> 
        <h4>http.enabled</h4> 
-       <p>HTTP is disabled and isn’t possible to change this value. What does it mean? <a href="http://jooby.org">Jooby</a> setup a custom<br> handler which makes it possible to use a <a href="http://jooby.org">Jooby</a> server to serve Elastic Search requests and avoid<br> the need of starting up another server running in a different port.</p> 
+       <p>HTTP is disabled and isn’t possible to change this value. What does it mean? <a href="http://jooby.org">Jooby</a> setup a custom handler which makes it possible to use a <a href="http://jooby.org">Jooby</a> server to serve Elastic Search requests and avoid the need of starting up another server running in a different port.</p> 
        <p>Most of the <code class="highlighter-rouge codehilite">http.*</code> properties has no sense in Jooby.</p> 
        <h4>path.data</h4> 
-       <p>Path data is set to a temporary directory: <code class="highlighter-rouge codehilite">${application.tmpdir}/es/data</code>. It is<br> useful for development, but if you need want to make sure the index is persistent between server<br> restarts, please make sure to setup this path to something else.</p> 
+       <p>Path data is set to a temporary directory: <code class="highlighter-rouge codehilite">${application.tmpdir}/es/data</code>. It is useful for development, but if you need want to make sure the index is persistent between server restarts, please make sure to setup this path to something else.</p> 
        <h4>node.name</h4> 
        <p>Node name is set to: <code class="highlighter-rouge codehilite">application.name</code>.</p> 
        <h4>cluster.name</h4> 
        <p>Cluster name is set to: <code class="highlighter-rouge codehilite">${application.name}-cluster</code>.</p> 
        <p>That’s all folks! Enjoy it!!!</p> 
        <h3 id="elasticsearch-es-conf">es.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c">##################### Elasticsearch Configuration Example ##################### </span>
 <span class="c"># This file contains an overview of various configuration settings, </span>

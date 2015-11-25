@@ -110,11 +110,11 @@
       </div> 
       <div class="datalist-content"> 
        <p>JSON support from the excellent <a href="https://github.com/FasterXML/jackson" target="_blank">Jackson</a> library.</p> 
-       <p>This module provides a JSON body <a href="/apidocs/Parser.html">parser</a> and <a href="/apidocs/Renderer.html">formatter</a><br> but also an <a href="http://fasterxml.github.io/jackson-databind/javadoc/2.5.2/com/fasterxml/jackson/databind/ObjectMapper.html" target="_blank">ObjectMapper</a>.</p> 
+       <p>This module provides a JSON body <a href="/apidocs/Parser.html">parser</a> and <a href="/apidocs/Renderer.html">formatter</a> but also an <a href="http://fasterxml.github.io/jackson-databind/javadoc/2.5.2/com/fasterxml/jackson/databind/ObjectMapper.html" target="_blank">ObjectMapper</a>.</p> 
        <h3 id="jackson-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -124,9 +124,9 @@
 </code></pre> 
        </div> 
        <h3 id="jackson-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.json.Jackson</span><span class="o">;</span>
 
@@ -147,9 +147,9 @@
        </div> 
        <h4>advanced configuration</h4> 
        <p>If you need a special setting or configuration for your <a href="http://fasterxml.github.io/jackson-databind/javadoc/2.2.0/com/fasterxml/jackson/databind/ObjectMapper.html" target="_blank">ObjectMapper</a>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">mapper</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -159,9 +159,9 @@
 </code></pre> 
        </div> 
        <p>or provide an <a href="http://fasterxml.github.io/jackson-databind/javadoc/2.2.0/com/fasterxml/jackson/databind/ObjectMapper.html" target="_blank">ObjectMapper</a> instance:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
    <span class="n">ObjectMapper</span> <span class="n">mapper</span> <span class="o">=</span> <span class="o">....;</span>
@@ -170,9 +170,9 @@
 </code></pre> 
        </div> 
        <p>It is possible to wire Jackson modules too:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
 

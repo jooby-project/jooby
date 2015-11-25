@@ -127,9 +127,9 @@
        <p>The asset module is library to validate, concatenate, minify or compress JavaScript and CSS assets. It also adds the ability to write these assets in other languages and process/compile them to another language. Finally, it help you to write high quality code by validate JavaScript and CSS too.</p> 
        <p>A variety of processors are available: (<a href="/doc/assets-jshint">jshint</a>, <a href="/doc/assets-clean-css">clean-css</a>, <a href="/doc/assets-jshint">jshint</a>, <a href="/doc/assets-uglify">uglify</a>, <a href="/doc/assets-closure-compiler">closure-compiler</a>, etc..), but also you might want to write your owns.</p> 
        <h3 id="assets-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -141,9 +141,9 @@
        <h3 id="assets-getting-started">getting started</h3> 
        <p>The first thing you need to do is to define your assets. Definition is done in your <code class="highlighter-rouge codehilite">.conf</code> file or in a special file: <code class="highlighter-rouge codehilite">assets.conf</code>.</p> 
        <p><strong>assets.conf</strong></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>assets {
  fileset {
@@ -153,9 +153,9 @@
 </code></pre> 
        </div> 
        <p><strong>App.java</strong></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Assets</span><span class="o">());</span>
@@ -163,9 +163,9 @@
 </code></pre> 
        </div> 
        <p>The assets module will publish 4 request local variables for <code class="highlighter-rouge codehilite">home</code> fileset: <code class="highlighter-rouge codehilite">_css</code> and <code class="highlighter-rouge codehilite">_js</code> each of these variables is a list of string with the corresponding files. There are two more variables: <code class="highlighter-rouge codehilite">_styles</code> and <code class="highlighter-rouge codehilite">_scripts</code> :</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code> <span class="nt">&lt;html&gt;</span>
  <span class="nt">&lt;head&gt;</span>
@@ -181,9 +181,9 @@
        <p>The variables: <code class="highlighter-rouge codehilite">_styles</code> and <code class="highlighter-rouge codehilite">_scripts</code> produces one ore more <code class="highlighter-rouge codehilite">link</code> and <code class="highlighter-rouge codehilite">script</code> tags. The example above, shows you how to render these variables in the template engine of your choice (handlebars, here).</p> 
        <p>Now, let’s see how to configure the Maven plugin to process our assets at build-time:</p> 
        <p><strong>pom.xml</strong></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code> <span class="nt">&lt;plugin&gt;</span>
    <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -207,9 +207,9 @@
        <p>That isn’t all! the <code class="highlighter-rouge codehilite">*_styles</code> and <code class="highlighter-rouge codehilite">*_scripts</code> are updated with the fingerprint version of assets, so you don’t have to do or change anything in your views! It just works!!!</p> 
        <h3 id="assets-fileset">fileset</h3> 
        <p>A fileset is a group of assets within a name. The fileset name is expanded into 4 request local variables, for example:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>assets {
  fileset {
@@ -229,9 +229,9 @@
        <p>Another 4 variables will be available for the <code class="highlighter-rouge codehilite">pageA</code> fileset!</p> 
        <h4>extending filesets</h4> 
        <p>Extension or re-use of filesets is possible via the: <code class="highlighter-rouge codehilite">&lt;</code> operator:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>assets {
  fileset {
@@ -244,9 +244,9 @@
        </div> 
        <h3 id="assets-processors">processors</h3> 
        <p>An <a href="/apidocs/org/jooby/assets/AssetProcessor.html">AssetProcessor</a> usually checks or modify an asset content in one way or another. They are defined in the <code class="highlighter-rouge codehilite">assets.conf</code> files using the <code class="highlighter-rouge codehilite">pipeline</code> construction:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>assets {
  fileset {
@@ -276,9 +276,9 @@
        <p>Checks, validate and/or modify asset contents. An <a href="/apidocs/org/jooby/assets/AssetProcessor.html">AssetProcessor</a> is usually provided as a separated dependency.</p> 
        <h3 id="asset-processor-how-to-use-it-">how to use it?</h3> 
        <p>First thing to do is to add the dependency:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>  <span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -289,9 +289,9 @@
        </div> 
        <p>Did you see the <strong>test</strong> scope? We just need the processor for development, because assets are processed on the fly. For <code class="highlighter-rouge codehilite">prod</code>, assets are processed at built-time via Maven plugin, at runtime we don’t need this. This also, helps to keep our dependencies and the jar size to minimum.</p> 
        <p>Now we have the dependency all we have to do is to add it to our pipeline:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>assets {
   pipeline: {
@@ -302,9 +302,9 @@
        </div> 
        <h3 id="asset-processor-configuration">configuration</h3> 
        <p>It is possible to configure or set options too:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>assets {
   pipeline: {
@@ -318,9 +318,9 @@
 </code></pre> 
        </div> 
        <p>Previous example, set a <code class="highlighter-rouge codehilite">foo</code> property to <code class="highlighter-rouge codehilite">bar</code>! Options can be set per environment too:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>assets {
   pipeline: {
@@ -343,9 +343,9 @@
        <h3 id="asset-processor-binding">binding</h3> 
        <p>The <code class="highlighter-rouge codehilite">my-processor</code> will be resolved it to: <code class="highlighter-rouge codehilite">org.jooby.assets.MyProcessor</code> class. The processor name is converted to <code class="highlighter-rouge codehilite">MyProcessor</code>, it converts the hyphenated name to upper camel and by default processors are defined in the <code class="highlighter-rouge codehilite">org.jooby.assets</code> package.</p> 
        <p>A custom binding is provided via the <code class="highlighter-rouge codehilite">class</code> property:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>assets {
   pipeline: {

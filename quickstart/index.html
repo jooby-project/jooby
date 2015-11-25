@@ -97,7 +97,10 @@
       <li> <p>or via <a href="https://maven.apache.org/guides/introduction/introduction-to-archetypes.html" target="_blank">Maven Archetype</a>:</p> </li> 
      </ul> 
      <p>Just paste this into a terminal (make sure <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html" target="_blank">Java 8</a> and <a href="http://maven.apache.org/download.cgi" target="_blank">Maven 3.x</a> are installed):</p> 
-     <div class="highlighter-rouge codehilite"> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
       <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>0.11.2
 </code></pre> 
      </div> 
@@ -108,14 +111,20 @@
       <li> <p>-Dversion: A project’s version, like <code class="highlighter-rouge codehilite">1.0-SNAPSHOT</code> or <code class="highlighter-rouge codehilite">1.0.0-SNAPSHOT</code></p> </li> 
      </ul> 
      <p>Let’s try it!:</p> 
-     <div class="highlighter-rouge codehilite"> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
       <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>0.11.2
 <span class="nb">cd </span>my-app
 mvn jooby:run
 </code></pre> 
      </div> 
      <p>You should see something similar to this at the end of the output:</p> 
-     <div class="highlighter-rouge codehilite"> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
       <pre class="highlight"><code>INFO  <span class="o">[</span>2015-03-19 21:34:00,365] Hotswap available on: <span class="o">[</span>my-app/public, my-app/conf, my-app/target/classes]
 INFO  <span class="o">[</span>2015-03-19 21:34:00,368]   includes: <span class="o">[</span><span class="k">**</span>/<span class="k">*</span>.class,<span class="k">**</span>/<span class="k">*</span>.conf,<span class="k">**</span>/<span class="k">*</span>.properties]
 INFO  <span class="o">[</span>2015-03-19 21:34:00,369]   excludes: <span class="o">[]</span>
@@ -132,7 +141,10 @@ listening on:
      <h2>getting started</h2> 
      <h3>exploring the newly created project</h3> 
      <p>A new directory was created: <code class="highlighter-rouge codehilite">my-app</code>. Now, let’s see how it looks like:</p> 
-     <div class="highlighter-rouge codehilite"> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
       <pre class="highlight"><code>.
 ├── public
 |   ├── assets
@@ -165,7 +177,10 @@ listening on:
      <p>The <strong>src/test/java</strong> contains integration or unit test files.</p> 
      <p><strong>NOTE</strong>: Directories: <code class="highlighter-rouge codehilite">public</code> and <code class="highlighter-rouge codehilite">conf</code> are part of the classpath.</p> 
      <h4>App.java</h4> 
-     <div class="highlighter-rouge codehilite"> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
       <pre class="highlight"><code>
 <span class="kn">import</span> <span class="nn">org.jooby.Jooby</span><span class="o">;</span>
 
@@ -192,12 +207,15 @@ listening on:
      <p>3) call the <code class="highlighter-rouge codehilite">start</code> method</p> 
      <h3>running</h3> 
      <p>Just open a console and type:</p> 
-     <div class="highlighter-rouge codehilite"> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
       <pre class="highlight"><code>mvn jooby:run
 </code></pre> 
      </div> 
      <p>The maven plugin will compile the code (if necessary) and startup the application.</p> 
-     <p>Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.<br> Then all you have to do is run the: <code class="highlighter-rouge codehilite">App.java</code> class. After all, this is plain Java application with a <code class="highlighter-rouge codehilite">main</code> method.</p> 
+     <p>Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE. Then all you have to do is run the: <code class="highlighter-rouge codehilite">App.java</code> class. After all, this is plain Java application with a <code class="highlighter-rouge codehilite">main</code> method.</p> 
     </div> 
    </div> 
   </main> 

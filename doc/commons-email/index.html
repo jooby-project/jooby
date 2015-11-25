@@ -112,9 +112,9 @@
        <p>Email supports via <a href="https://commons.apache.org/proper/commons-email" target="_blank">Apache Commons Email</a>. Small but helpful module that provides access to <code class="highlighter-rouge codehilite">Email</code> instances via <a href="https://github.com/google/guice" target="_blank">Guice</a> and {{config}}.</p> 
        <h3 id="commons-email-usage">usage</h3> 
        <p>application.conf:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code> <span class="py">mail.hostName</span> <span class="p">=</span> <span class="s">smtp.googlemail.com</span>
  <span class="py">mail.ssl.onConnect</span> <span class="p">=</span> <span class="s">true</span>
@@ -124,9 +124,9 @@
  <span class="py">mail.subject</span> <span class="p">=</span> <span class="s">TestMail</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">CommonsEmail</span><span class="o">());</span>
@@ -143,9 +143,9 @@
        <p>That’s all it does! Every time you require an email, it creates one and setup properties from <code class="highlighter-rouge codehilite">mail.*</code>.</p> 
        <p>Happy coding!!!</p> 
        <h3 id="commons-email-commons-email-conf">commons-email.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">mail</span> <span class="err">{</span>
 

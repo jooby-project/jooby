@@ -122,9 +122,9 @@
         <li>A <code class="highlighter-rouge codehilite">/swagger.yml</code> route that renders a <a href="http://swagger.io" target="_blank">Swagger</a> spec in <code class="highlighter-rouge codehilite">yaml</code> format</li> 
        </ul> 
        <h3 id="swagger-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -134,9 +134,9 @@
 </code></pre> 
        </div> 
        <h3 id="swagger-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nd">@Path</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Pets</span> <span class="o">{</span>
@@ -150,9 +150,9 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">SwaggerUI</span><span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
@@ -164,9 +164,9 @@
        </div> 
        <p>By default, <a href="http://swagger.io" target="_blank">Swagger</a> will be mounted at <code class="highlighter-rouge codehilite">/swagger</code>, <code class="highlighter-rouge codehilite">/swagger/swagger.json</code> and <code class="highlighter-rouge codehilite">/swagger/swagger.yml</code>. Go and try it!</p> 
        <p>Or if you want to mount Swagger somewhere else…:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">SwaggerUI</span><span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="s">"/api/docs"</span><span class="o">,</span> <span class="k">this</span><span class="o">);</span>
@@ -174,10 +174,10 @@
 </code></pre> 
        </div> 
        <p>It is also possible to use Swagger (ui, .json or .yml) on specific resources.</p> 
-       <p>For example, suppose we have a <code class="highlighter-rouge codehilite">Pets.java</code> resource mounted at <code class="highlighter-rouge codehilite">/pets</code>. The following<br> URL will be available too:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>For example, suppose we have a <code class="highlighter-rouge codehilite">Pets.java</code> resource mounted at <code class="highlighter-rouge codehilite">/pets</code>. The following URL will be available too:</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>   /swagger/pets <span class="o">(</span>UI<span class="o">)</span>
    /swagger/pets/swagger.json <span class="o">(</span>JSON<span class="o">)</span>
@@ -187,10 +187,10 @@
        <p>It is a small feature, but very useful if you have a medium-size API.</p> 
        <h3 id="swagger-swagger-conf">swagger.conf</h3> 
        <p><a href="http://jooby.org">Jooby</a> creates a <a href="http://swagger.io" target="_blank">Swagger</a> model dynamically from MVC routes. But also, defines some defaults inside the <code class="highlighter-rouge codehilite">swagger.conf</code> (see appendix).</p> 
-       <p>For example, <code class="highlighter-rouge codehilite">swagger.info.title</code> is set to <code class="highlighter-rouge codehilite">application.name</code>. If you want<br> to provide a more friendly name, description or API version… you can do it via your <code class="highlighter-rouge codehilite">application.conf</code> file:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>For example, <code class="highlighter-rouge codehilite">swagger.info.title</code> is set to <code class="highlighter-rouge codehilite">application.name</code>. If you want to provide a more friendly name, description or API version… you can do it via your <code class="highlighter-rouge codehilite">application.conf</code> file:</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
 <span class="py">swagger.info.title</span> <span class="p">=</span> <span class="s">My Awesome API</span>
@@ -204,9 +204,9 @@
         <li>It might be nice to generate API docs (via markdown or similar) at built time using <a href="http://maven.apache.org/" target="_blank">Maven</a>.</li> 
        </ul> 
        <h3 id="swagger-swagger-conf">swagger.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">swagger</span> <span class="err">{</span>
 

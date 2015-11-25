@@ -114,11 +114,11 @@
       <div class="datalist-content"> 
        <p><a href="http://camel.apache.org" target="_blank">Apache Camel</a> integration for Jooby.</p> 
        <p>Exposes a [CamelContext], [ProducerTemplate] and [ConsumerTemplate].</p> 
-       <p>NOTE: This module was designed to provide a better integration with Jooby. This module doesn’t<br> depend on <a href="http://camel.apache.org/guice.html" target="_blank">camel-guice</a>, but it provides similar features.</p> 
+       <p>NOTE: This module was designed to provide a better integration with Jooby. This module doesn’t depend on <a href="http://camel.apache.org/guice.html" target="_blank">camel-guice</a>, but it provides similar features.</p> 
        <h3 id="camel-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -128,9 +128,9 @@
 </code></pre> 
        </div> 
        <h3 id="camel-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Camel</span><span class="o">()</span>
@@ -147,11 +147,11 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Previous example, add a direct route using the Java DSL. A route builder can be created and<br> injected by Guice, see next section.</p> 
+       <p>Previous example, add a direct route using the Java DSL. A route builder can be created and injected by Guice, see next section.</p> 
        <h3 id="camel-camel-routes">camel routes</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyRoutes</span> <span class="kd">extends</span> <span class="n">RouteBuilder</span> <span class="o">{</span>
 
@@ -172,9 +172,9 @@
 </code></pre> 
        </div> 
        <p>or without extending RouteBuilder:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyRoutes</span> <span class="o">{</span>
 
@@ -195,9 +195,9 @@
        <p>Custom configuration is achieved in two ways:</p> 
        <h4>application.conf</h4> 
        <p>A [CamelContext] can be configured from your <code class="highlighter-rouge codehilite">application.conf</code>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">camel.handleFault</span> <span class="p">=</span> <span class="s">false</span>
 <span class="py">camel.shutdownRoute</span> <span class="p">=</span> <span class="s">Default</span>
@@ -210,9 +210,9 @@
 </code></pre> 
        </div> 
        <p>Same for [ShutdownStrategy]:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">camel.shutdown.shutdownRoutesInReverseOrder</span> <span class="p">=</span> <span class="s">true</span>
 <span class="py">camel.shutdown.timeUnit</span> <span class="p">=</span> <span class="s">SECONDS</span>
@@ -220,9 +220,9 @@
 </code></pre> 
        </div> 
        <p>[ThreadPoolProfile]:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">camel.threads.poolSize</span> <span class="p">=</span> <span class="s">${runtime.processors-plus1}</span>
 <span class="py">camel.threads.maxPoolSize</span> <span class="p">=</span> <span class="s">${runtime.processors-x2}</span>
@@ -235,9 +235,9 @@
 </code></pre> 
        </div> 
        <p>and [StreamCachingStrategy]:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">camel.streamCaching.enabled</span> <span class="p">=</span> <span class="s">false</span>
 <span class="py">camel.streamCaching.spoolDirectory</span> <span class="p">=</span> <span class="s">${application.tmpdir}${file.separator}"camel"${file.separator}"#uuid#"</span>
@@ -245,9 +245,9 @@
        </div> 
        <h4>programmatically</h4> 
        <p>Using the <code class="highlighter-rouge codehilite">doWith(Configurer)</code> method:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Camel</span><span class="o">().</span><span class="na">doWith</span><span class="o">((</span><span class="n">ctx</span><span class="o">,</span> <span class="n">config</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -258,9 +258,9 @@
        </div> 
        <p>That’s all folks! Enjoy it!!!</p> 
        <h3 id="camel-camel-conf">camel.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c"># Camel defaults </span>
 <span class="py">camel.handleFault</span> <span class="p">=</span> <span class="s">false</span>

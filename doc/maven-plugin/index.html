@@ -112,17 +112,17 @@
       <div class="datalist-content"> 
        <p>A <a href="http://maven.apache.org/" target="_blank">Maven</a> plugin for executing <a href="http://jooby.org">Jooby</a> applications.</p> 
        <h3 id="jooby-run-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>mvn jooby:run
 </code></pre> 
        </div> 
        <p>You should see something similar:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>Picked up JAVA_TOOL_OPTIONS: -Dfile.encoding<span class="o">=</span>UTF8
 Hotswap available on: <span class="o">[</span>myapp/public, myapp/conf, myapp/target/classes]
@@ -147,9 +147,9 @@ listening on:
        <p>For the time being, you need to use a tool that compiles your source code, usually an IDE. Otherwise, no changes will be found.</p> 
        <p>Is it worth to mention that dynamic reload of classes at runtime is done via <a href="https://github.com/jboss-modules/jboss-modules" target="_blank">JBoss Modules</a>.</p> 
        <h3 id="jooby-run-options">options</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -178,9 +178,9 @@ listening on:
        <p>The JVM is started in debug mode by default. You can attach a remote debugger at the <code class="highlighter-rouge codehilite">8000</code> port.</p> 
        <h4>commands</h4> 
        <p>List of commands to execute before starting the <code class="highlighter-rouge codehilite">application</code>. Useful for <a href="https://www.npmjs.com" target="_blank">npm</a>, <a href="http://gruntjs.com" target="_blank">npm</a>, etc…</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -199,9 +199,9 @@ listening on:
        <p>Processes will be stopped it on <code class="highlighter-rouge codehilite">CTRL+C</code></p> 
        <h4>vmArgs</h4> 
        <p>Set one or more <code class="highlighter-rouge codehilite">JVM args</code>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>

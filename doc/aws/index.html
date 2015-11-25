@@ -117,9 +117,9 @@
         <li>One ore more <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code></li> 
        </ul> 
        <h3 id="aws-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -130,17 +130,17 @@
        </div> 
        <h3 id="aws-usage">usage</h3> 
        <p>application.conf:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">aws.accessKey</span> <span class="p">=</span> <span class="s">AKIAIOSFODNN7EXAMPLE</span>
 <span class="py">aws.secretKey</span> <span class="p">=</span>  <span class="s">wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Aws</span><span class="o">()</span>
@@ -156,10 +156,10 @@
 </code></pre> 
        </div> 
        <p>Keep in mind, you will need the <code class="highlighter-rouge codehilite">s3 (ses, sqs,sns, etc..)</code> jar in your classpath.</p> 
-       <p>This module is small and simple. All it does is bind <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code> instances in<br> <a href="https://github.com/google/guice" target="_blank">Guice</a>. It also helps to bind utility classes like <code class="highlighter-rouge codehilite">TransferManager</code></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>This module is small and simple. All it does is bind <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code> instances in <a href="https://github.com/google/guice" target="_blank">Guice</a>. It also helps to bind utility classes like <code class="highlighter-rouge codehilite">TransferManager</code></p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Aws</span><span class="o">()</span>
@@ -175,9 +175,9 @@
        </div> 
        <h3 id="aws-handling-access-and-secret-keys">handling access and secret keys</h3> 
        <p>Keys are defined in <code class="highlighter-rouge codehilite">.conf</code> file. It is possible to use global or per service keys.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code> <span class="py">aws.accessKey</span> <span class="p">=</span> <span class="s">AKIAIOSFODNN7EXAMPLE</span>
  <span class="py">aws.secretKey</span> <span class="p">=</span>  <span class="s">wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</span>
@@ -186,13 +186,13 @@
  <span class="py">aws.s3.secretKey</span> <span class="p">=</span> <span class="s">s3alrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="err">use(new</span><span class="w"> </span><span class="err">Aws()</span><span class="w"> </span><span class="err">.with(creds</span><span class="w"> </span><span class="err">-&gt;</span><span class="w"> </span><span class="err">new</span><span class="w"> </span><span class="err">AmazonS3Client(creds))</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">aws.s3</span><span class="w"> </span><span class="err">keys</span><span class="w"> </span><span class="err">.with(creds</span><span class="w"> </span><span class="err">-&gt;</span><span class="w"> </span><span class="err">new</span><span class="w"> </span><span class="err">AmazonSimpleEmailServiceClient(creds))</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">global</span><span class="w"> </span><span class="err">keys</span><span class="w"> </span><span class="err">);</span><span class="w"> </span></code></pre> 
        </div> 
-       <p>It uses the <code class="highlighter-rouge codehilite">AmazonWebServiceClient#getServiceName()</code> method in order to find per service<br> keys.</p> 
+       <p>It uses the <code class="highlighter-rouge codehilite">AmazonWebServiceClient#getServiceName()</code> method in order to find per service keys.</p> 
        <p>That’s all folks!</p> 
        <p>Happy coding!!!</p> 
       </div> 

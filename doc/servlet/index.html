@@ -110,14 +110,14 @@
        <h2>servlets</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>This module exists for strict environments where the ONLY option is to deploy into a Servlet Container.<br> If you are free to deploy a new server technology, we strongly recommend to avoid this and go<br> directly with netty, jetty or undertow.</p> 
+       <p>This module exists for strict environments where the ONLY option is to deploy into a Servlet Container. If you are free to deploy a new server technology, we strongly recommend to avoid this and go directly with netty, jetty or undertow.</p> 
        <h3 id="servlets-prepare">prepare</h3> 
        <p>In order to deploy into a Servlet Container, we need to generate a <code class="highlighter-rouge codehilite">*.war</code> file. The next steps guide you how to do it:</p> 
        <h4>step 1</h4> 
        <p>Add the <code class="highlighter-rouge codehilite">jooby-servlet</code> dependency to your <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -130,9 +130,9 @@
        <p>IMPORTANT: Scope must be <code class="highlighter-rouge codehilite">provided</code>.</p> 
        <h4>step 2</h4> 
        <p>Find out the <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> section in your <code class="highlighter-rouge codehilite">pom.xml</code>, it looks like this:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c">&lt;!-- Build jooby.zip | jooby.war --&gt;</span>
 <span class="nt">&lt;plugin&gt;</span>
@@ -147,9 +147,9 @@
 </code></pre> 
        </div> 
        <p>Add a new descriptorRef: <code class="highlighter-rouge codehilite">jooby.war</code></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c">&lt;!-- Build jooby.zip | jooby.war --&gt;</span>
 <span class="nt">&lt;plugin&gt;</span>
@@ -176,11 +176,11 @@
         <li>any other server specific property: server.<em>, jetty.</em>, netty.<em>, undertow.</em></li> 
        </ul> 
        <h4>special note on contextPath</h4> 
-       <p>To avoid a headache… make sure to use the <code class="highlighter-rouge codehilite">contextPath</code> variable while loading static/dynamic<br> resources (.css, .js, etc..).</p> 
+       <p>To avoid a headache… make sure to use the <code class="highlighter-rouge codehilite">contextPath</code> variable while loading static/dynamic resources (.css, .js, etc..).</p> 
        <p>For example:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
 <span class="nt">&lt;head&gt;</span>
@@ -192,12 +192,12 @@
        </div> 
        <p>Here the expression: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">{</span><span class="w"> </span><span class="nt">"{{contextPath"</span><span class="w"> </span><span class="err">}}}}</span></code> correspond to the template engine (handlebars here) or <code class="highlighter-rouge codehilite">${contextPath}</code> for Freemarker.</p> 
        <h3 id="servlets-how-it-works-">how it works?</h3> 
-       <p>The <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> generates the *.war file. The assembly descriptor can be found<br> <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml" target="_blank">here</a></p> 
+       <p>The <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> generates the *.war file. The assembly descriptor can be found <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml" target="_blank">here</a></p> 
        <h4>web.xml</h4> 
        <p>A default <code class="highlighter-rouge codehilite">web.xml</code> file is generated by the assembly plugin. File looks like:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
 <span class="nt">&lt;web-app</span> <span class="na">xmlns=</span><span class="s">"http://xmlns.jcp.org/xml/ns/javaee"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>
@@ -232,10 +232,10 @@
 </code></pre> 
        </div> 
        <h5>upload size</h5> 
-       <p>Default upload size is set to <code class="highlighter-rouge codehilite">204800b</code> (200kb). If you need to increase the upload size, add<br> the <code class="highlighter-rouge codehilite">war.maxRequestSize</code> property to <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>Default upload size is set to <code class="highlighter-rouge codehilite">204800b</code> (200kb). If you need to increase the upload size, add the <code class="highlighter-rouge codehilite">war.maxRequestSize</code> property to <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
   <span class="nt">&lt;war.maxRequestSize&gt;</span>1048576<span class="nt">&lt;/war.maxRequestSize&gt;</span> <span class="c">&lt;!-- 1mb --&gt;</span>

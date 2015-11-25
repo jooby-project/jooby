@@ -216,7 +216,7 @@
        <h4>application.env</h4> 
        <p>Jooby internals and the module system rely on the <code class="highlighter-rouge codehilite">application.env</code> property. By defaults, this property is set to: <code class="highlighter-rouge codehilite">dev</code>.</p> 
        <p>This special property is represented at runtime with the <a href="/apidocs/org/jooby/Env.html">Env</a> class.</p> 
-       <p>For example, the <a href="https://github.com/google/guice/wiki/Bootstrap" target="_blank">development stage</a> is set in <a href="https://github.com/google/guice" target="_blank">Guice</a> when <code class="highlighter-rouge codehilite">application.env == dev</code>.<br> A module provider, might decided to create a connection pool, cache, etc when <code class="highlighter-rouge codehilite">application.env != dev</code>.</p> 
+       <p>For example, the <a href="https://github.com/google/guice/wiki/Bootstrap" target="_blank">development stage</a> is set in <a href="https://github.com/google/guice" target="_blank">Guice</a> when <code class="highlighter-rouge codehilite">application.env == dev</code>. A module provider, might decided to create a connection pool, cache, etc when <code class="highlighter-rouge codehilite">application.env != dev</code>.</p> 
        <h4>application.secret</h4> 
        <p>If present, the session cookie will be signed with the <code class="highlighter-rouge codehilite">application.secret</code>.</p> 
        <h4>default properties</h4> 
@@ -239,12 +239,12 @@
         <li>([application].[conf])?</li> 
         <li>[modules in reverse].[conf]*</li> 
        </ul> 
-       <p>It looks kind of complex, right?<br> It does, but at the same time it is very intuitive and makes a lot of sense. Let’s review why.</p> 
+       <p>It looks kind of complex, right? It does, but at the same time it is very intuitive and makes a lot of sense. Let’s review why.</p> 
        <h4>system properties</h4> 
        <p>System properties can override any other property. A sys property is set at startup time, like:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>java -jar myapp.jar -Dapplication.secret=xyz
 </code></pre> 
@@ -260,17 +260,17 @@
        </ul> 
        <p>That’s all. The file system conf file will take precedence over the classpath config file, overriding any property.</p> 
        <p>A good practice is to start up your app with a <strong>env</strong>, like:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>java -jar myapp.jar -Dapplication.env=prod
 </code></pre> 
        </div> 
        <p>The process is the same, except this time you can name your file as:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>application.prod.conf
 </code></pre> 
@@ -278,9 +278,9 @@
        <h4>cp://[application].[mode].[conf]</h4> 
        <p>Again, the use of this conf file is optional and works like previous config option, except here the <strong>fat jar</strong> was bundled with all your config files (dev, stage, prod, etc.)</p> 
        <p>Example: you have two config files: <code class="highlighter-rouge codehilite">application.conf</code> and <code class="highlighter-rouge codehilite">application.prod.conf</code>`. Both files were bundled inside the <strong>fat jar</strong>, starting the app in <strong>prod</strong> env:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>java -jar myapp.jar -Dapplication.env=prod
 </code></pre> 
@@ -289,9 +289,9 @@
        <p>This is the recommended option from Jooby, because your app doesn’t have an external dependency. If you need to deploy the app in a new server all you need is your <strong>fat jar</strong></p> 
        <h4>[application].[conf]</h4> 
        <p>This is the default config files and it should be bundle inside the <strong>fat jar</strong>. As mentioned early, the default name is: <strong>application.conf</strong>, but if you don’t like it or need to change it:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
    <span class="n">use</span><span class="o">(</span><span class="n">ConfigFactory</span><span class="o">.</span><span class="na">parseResources</span><span class="o">(</span><span class="s">"myconfig.conf"</span><span class="o">));</span>
@@ -300,9 +300,9 @@
        </div> 
        <h4>[modules in reverse].[conf]</h4> 
        <p>As mentioned in the <a href="#modules">modules</a> section a module might define his own set of properties.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="err">use(new</span><span class="w"> </span><span class="err">M1());</span><span class="w"> </span><span class="err">use(new</span><span class="w"> </span><span class="err">M2());</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
        </div> 
@@ -313,9 +313,9 @@
        <p>It is useful that we can bundle logging configuration files inside our <em>fat</em> jar, it works very well for small/simple apps.</p> 
        <p>For medium/complex apps and/or if you need/want to debug errors the configuration files should/must be outside the jar, so you can turn on/off loggers, change log level etc..</p> 
        <p>On such cases all you have to do is start the application with the location of the logback configuration file:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>java -Dlogback.configurationFile=logback.xml -jar myapp.jar
 </code></pre> 
@@ -340,9 +340,9 @@
        <p>This means a module should NOT create wrapper for a library. Instead, it should provide a way to extend, configure and use the raw library.</p> 
        <p>This principle, keep module usually small, maintainable and flexible.</p> 
        <p>A module is represented by the <a href="/apidocs/org/jooby/Jooby.Module.html">Jooby.Module</a> class. The configure callback looks like:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">M1</span> <span class="kd">implements</span> <span class="n">Jooby</span><span class="o">.</span><span class="na">Module</span> <span class="o">{</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="n">configure</span><span class="o">(</span><span class="n">Env</span> <span class="n">env</span><span class="o">,</span> <span class="n">Config</span> <span class="n">config</span><span class="o">,</span> <span class="n">Binder</span> <span class="n">binder</span><span class="o">)</span> <span class="o">{</span>
@@ -353,9 +353,9 @@
        </div> 
        <p>The configure callback is similar to a <a href="https://github.com/google/guice" target="_blank">Guice module</a>, except you can access to the <a href="/apidocs/org/jooby/Env.html">Env</a> and <a href="https://github.com/typesafehub/config" target="_blank">Type Safe Config</a> objects.</p> 
        <p>In addition to the <strong>configure</strong> callback, a module in Jooby has one additional method: <strong>config</strong>. The <code class="highlighter-rouge codehilite">config</code> method allow a module to specify default properties.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">M1</span> <span class="kd">implements</span> <span class="n">Jooby</span><span class="o">.</span><span class="na">Module</span> <span class="o">{</span>
     <span class="kd">public</span> <span class="kt">void</span> <span class="n">configure</span><span class="o">(</span><span class="n">Env</span> <span class="n">env</span><span class="o">,</span> <span class="n">Config</span> <span class="n">config</span><span class="o">,</span> <span class="n">Binder</span> <span class="n">binder</span><span class="o">)</span> <span class="o">{</span>
@@ -370,9 +370,9 @@
        </div> 
        <p>This is useful for setting defaults values or similar.</p> 
        <p>A module is registered at startup time:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.Jooby</span><span class="o">;</span>
 
@@ -403,34 +403,34 @@
        <p>A route has an associated handler, which does some job and produces some kind of output (HTTP response).</p> 
        <h3 id="routes-creating-routes">creating routes</h3> 
        <p>A route definition looks like:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"hey jooby"</span><span class="o">);</span>
 </code></pre> 
        </div> 
        <p>We created a route to handle GET request at the root of our app. Any other HTTP method can be created in the same way.</p> 
        <p>If you need a POST all you have to do is:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"hey jooby"</span><span class="o">);</span>
 </code></pre> 
        </div> 
        <p>or need to listen to any HTTP method:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"hey jooby"</span><span class="o">);</span>
 </code></pre> 
        </div> 
        <p>It is possible to name a route explicitly:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"hey jooby"</span><span class="o">)</span>
    <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="s">"salute"</span><span class="o">);</span>
@@ -440,33 +440,33 @@
        <h3 id="routes-route-handler">route handler</h3> 
        <p>Jooby offers serveral flavors for creating routes:</p> 
        <h4>no arg handler: ()</h4> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"hey jooby"</span><span class="o">);</span>
 </code></pre> 
        </div> 
        <h4>one arg handler: req</h4> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="s">"hey jooby"</span><span class="o">);</span>
 </code></pre> 
        </div> 
        <h4>two args handler: (req, rsp)</h4> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">rsp</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="s">"hey jooby"</span><span class="o">));</span>
 </code></pre> 
        </div> 
        <h4>filter: (req, rsp, chain)</h4> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="c1">// do something</span>
@@ -476,9 +476,9 @@
        </div> 
        <h3 id="routes-path-patterns">path patterns</h3> 
        <h4>static patterns</h4> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"hey jooby"</span><span class="o">);</span>
 
@@ -488,9 +488,9 @@
 </code></pre> 
        </div> 
        <h4>var/regex patterns</h4> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/user/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="s">"hey "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">value</span><span class="o">());</span>
 
@@ -510,9 +510,9 @@
        <p><code class="highlighter-rouge codehilite">*</code> - matches any path at any level, shortcut for <code class="highlighter-rouge codehilite">**</code></p> 
        <h3 id="routes-static-files">static files</h3> 
        <p>Static files are located under the <code class="highlighter-rouge codehilite">public</code> directory.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>├── public
     ├── assets
@@ -526,9 +526,9 @@
 </code></pre> 
        </div> 
        <p>Now, let’s add an asset handler:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">assets</span><span class="o">(</span><span class="s">"/assets/**"</span><span class="o">);</span>
@@ -536,18 +536,18 @@
 </code></pre> 
        </div> 
        <p>The asset route handler resolves requests like:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>GET /assets/js/index.js
 GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>It is possible to map a single static file to a path:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">assets</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="s">"welcome.html"</span><span class="o">);</span>
@@ -556,9 +556,9 @@ GET /assets/css/style.css
        </div> 
        <p>A <code class="highlighter-rouge codehilite">GET /</code> will display the static file <code class="highlighter-rouge codehilite">welcome.html</code>.</p> 
        <p>Here is another example that uses <a href="http://www.webjars.org/" target="_blank">Webjars</a>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">assets</span><span class="o">(</span><span class="s">"/assets/**"</span><span class="o">,</span> <span class="s">"/META-INF/resources/webjars/{0}"</span><span class="o">);</span>
@@ -568,35 +568,35 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>and responds to the following requests:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>GET /assets/jquery/2.1.3/jquery.js
 GET /assets/bootstrap/3.3.4/css/bootstrap.css
 </code></pre> 
        </div> 
        <p>but also to any other application specific resource:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>GET /assets/js/index.js
 GET /assets/css/style.css
 </code></pre> 
        </div> 
        <h4>using a CDN</h4> 
-       <p>The asset handler goes one step forward and add support for serving files from a <code class="highlighter-rouge codehilite">CDN</code> out of the box.<br> All you have to do is to define a <code class="highlighter-rouge codehilite">assets.cdn</code> property:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>The asset handler goes one step forward and add support for serving files from a <code class="highlighter-rouge codehilite">CDN</code> out of the box. All you have to do is to define a <code class="highlighter-rouge codehilite">assets.cdn</code> property:</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c"># application.prod.properties </span><span class="py">assets.cdn</span> <span class="p">=</span> <span class="s">"http://http://d7471vfo50fqt.cloudfront.net"</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">assets</span><span class="o">(</span><span class="s">"/assets/**"</span><span class="o">);</span>
@@ -605,12 +605,12 @@ GET /assets/css/style.css
        </div> 
        <p>A <code class="highlighter-rouge codehilite">GET</code> to <code class="highlighter-rouge codehilite">/assets/js/index.js</code> will be redirected to: <code class="highlighter-rouge codehilite">http://http://d7471vfo50fqt.cloudfront.net/assets/js/index.js</code></p> 
        <p>Of course, you usually set a <code class="highlighter-rouge codehilite">cdn</code> in your <code class="highlighter-rouge codehilite">application.prod.conf</code> file only.</p> 
-       <p>There is also a super awesome and powerful <a href="/doc/assets/">assets</a> module. The <a href="/doc/assets/">assets</a><br> is library to concatenate, minify or compress JavaScript and CSS assets. It also adds the ability<br> to write these assets in other languages and process/compile them to another language. Finally,<br> it help you to write high quality code by validate JavaScript and CSS too.</p> 
+       <p>There is also a super awesome and powerful <a href="/doc/assets/">assets</a> module. The <a href="/doc/assets/">assets</a> is library to concatenate, minify or compress JavaScript and CSS assets. It also adds the ability to write these assets in other languages and process/compile them to another language. Finally, it help you to write high quality code by validate JavaScript and CSS too.</p> 
        <h3 id="routes-precedence-and-order">precedence and order</h3> 
        <p>Routes are executed in the order they are defined. So the ordering of routes is crucial to the behavior of an application. Let’s review this fact via some examples.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/abc"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="s">"first"</span><span class="o">);</span>
 
@@ -618,9 +618,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>A call to <code class="highlighter-rouge codehilite">/abc</code> produces a response of <code class="highlighter-rouge codehilite">first</code>. If we revert the order:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/abc"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="s">"second"</span><span class="o">);</span>
 
@@ -631,9 +631,9 @@ GET /assets/css/style.css
        <p>Now, why is it allowed to have two routes for the same exactly path?</p> 
        <p>Because we want <strong>filters</strong> for routes.</p> 
        <p>A route handler accept a third parameter, commonly named chain, which refers to the next route handler in line:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/abc"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"first"</span><span class="o">);</span>
@@ -651,9 +651,9 @@ GET /assets/css/style.css
        <p>Routes are like a plumbing pipe, requests start at the first route you define and work their way “down” the route stack processing for each path they match.</p> 
        <p>Each route handler has the capability to send a response or pass on the request to the next route handler in the current stack.</p> 
        <p>Route handlers, also have access to the chain object, which happens to be the next callback function in the pipe. To make the chain object available to the callback function, pass it along with the req and the rsp objects to it:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">function</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">{</span>
   <span class="n">chain</span><span class="o">.</span><span class="na">next</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">);</span>
@@ -662,9 +662,9 @@ GET /assets/css/style.css
        </div> 
        <p>If there is no matching callback function after the current callback function, next refers to the built-in 404 error handler, and it will be triggered when you call it.</p> 
        <p>Try to guess the output of:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">rsp</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="s">"first"</span><span class="o">));</span>
 
@@ -676,9 +676,9 @@ GET /assets/css/style.css
        <p>Will the server print all of them, or “first” or, “third”?</p> 
        <p>The server will print just “first”. The act of doing a <code class="highlighter-rouge codehilite">rsp.send()</code> terminates the flow of the request then and there; the request is not passed on to any other route handler.</p> 
        <p>So, how do we specify multiple handlers for a route, and use them all at the same time? Call the <strong>chain.next()</strong> function from the callback, without calling <strong>send</strong> because it terminates the request flow. Here is an example:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"first"</span><span class="o">);</span>
@@ -698,9 +698,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Alternative, if you <em>always</em> call <strong>chain.next</strong> you can just do:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"first"</span><span class="o">);</span>
@@ -719,9 +719,9 @@ GET /assets/css/style.css
        </div> 
        <p>The 3rd arg is required if you need to decide if the next route need to be executed or not. If you always call <strong>chain.next</strong> the 3rd arg isn’t required and does exactly what the 2arg handler does: <strong>always call chain.next</strong></p> 
        <p>A good example for a filter is to handle for example authentication:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="k">if</span> <span class="o">(</span><span class="n">condition</span><span class="o">)</span> <span class="o">{</span>
@@ -735,9 +735,9 @@ GET /assets/css/style.css
        </div> 
        <h3 id="routes-mvc-routes">mvc routes</h3> 
        <p>Mvc routes are like <strong>controllers</strong> in <a href="http://spring.io" target="_blank">Spring</a> and/or <strong>resources</strong> in <a href="https://jersey.java.net/" target="_blank">Jersey</a> with some minor enhancements and/or simplifications.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nd">@Path</span><span class="o">(</span><span class="s">"/routes"</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyRoutes</span> <span class="o">{</span>
@@ -752,9 +752,9 @@ GET /assets/css/style.css
        <p>Annotations are identical to <a href="https://jersey.java.net/" target="_blank">Jersey/JAX-RS</a> and they can be found under the package <strong>org.jooby.mvc</strong>.</p> 
        <p>Keep in mind, Jooby doesn’t implement the <strong>JAX-RS</strong> spec that is why it has his own version of the annotations.</p> 
        <p>A mvc route can be injected by Guice:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nd">@Path</span><span class="o">(</span><span class="s">"/routes"</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyRoutes</span> <span class="o">{</span>
@@ -777,9 +777,9 @@ GET /assets/css/style.css
        <p>We learnt that the order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly registered. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.</p> 
        <p>So, how do I register a mvc route?</p> 
        <p>In the same way everything else is registered in Jooby!! from your app class:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="kd">extends</span> <span class="n">Jooby</span> <span class="o">{</span>
   <span class="o">{</span>
@@ -789,9 +789,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Again, handlers are registered in the order they are declared, so:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nd">@Path</span><span class="o">(</span><span class="s">"/routes"</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyRoutes</span> <span class="o">{</span>
@@ -816,9 +816,9 @@ GET /assets/css/style.css
        <p>A call to <code class="highlighter-rouge codehilite">/routes</code> will print: <strong>first</strong>, <strong>second</strong> and produces a response of <strong>third</strong>.</p> 
        <h4>binding req params</h4> 
        <p>A mvc handler can be bound to current request parameters:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>   <span class="nd">@GET</span>
    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">search</span><span class="o">(</span><span class="n">String</span> <span class="n">q</span><span class="o">)</span> <span class="o">{</span>
@@ -828,9 +828,9 @@ GET /assets/css/style.css
        </div> 
        <p>Here <strong>q</strong> can be any of the available param types and it will resolved as described in the <a href="#param-types-and-precedence">param types and precedence</a> section.</p> 
        <p>Optional params work in the same way, all you have to do is to declare the param as <em>java.util.Optional</em>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>   <span class="nd">@GET</span>
    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">search</span><span class="o">(</span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">)</span> <span class="o">{</span>
@@ -839,9 +839,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Multi-value params work in the same way, all you have to do is to declare the param as <em>java.util.List</em>, <em>java.util.Set</em> or <em>java.util.SortedSet</em>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>   <span class="nd">@GET</span>
    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">search</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">q</span><span class="o">)</span> <span class="o">{</span>
@@ -851,9 +851,9 @@ GET /assets/css/style.css
        </div> 
        <p>Just remember the injected collection is immutable.</p> 
        <p>File uploads (again) work in the same way, just use <em>org.jooby.Upload</em></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>   <span class="nd">@POST</span>
    <span class="kd">public</span> <span class="n">View</span> <span class="n">search</span><span class="o">(</span><span class="n">Upload</span> <span class="n">file</span><span class="o">)</span> <span class="o">{</span>
@@ -862,9 +862,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>As you might already noticed, Jooby uses the method param name and bind it to the request param. If you want explicit mapping and/or the req param isn’t a valid Java identifier:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>   <span class="nd">@GET</span>
    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">search</span><span class="o">(</span><span class="nd">@Named</span><span class="o">(</span><span class="s">"req-param"</span><span class="o">)</span> <span class="n">String</span> <span class="n">reqParam</span><span class="o">)</span> <span class="o">{</span>
@@ -874,9 +874,9 @@ GET /assets/css/style.css
        </div> 
        <h4>binding req body</h4> 
        <p>Injecting a req body work in the same way:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>  <span class="nd">@POST</span>
   <span class="kd">public</span> <span class="n">View</span> <span class="n">search</span><span class="o">(</span><span class="nd">@Body</span> <span class="n">MyObject</span> <span class="n">object</span><span class="o">)</span> <span class="o">{</span>
@@ -887,9 +887,9 @@ GET /assets/css/style.css
        <p>All you have to do is add the <code class="highlighter-rouge codehilite">@Body</code> annotation.</p> 
        <h4>binding req headers</h4> 
        <p>Works just like <a href="#binding-req-params">req params</a> but you must annotated the param with <em>org.jooby.mvc.Header</em>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>   <span class="nd">@GET</span>
    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">search</span><span class="o">(</span><span class="nd">@Header</span> <span class="n">String</span> <span class="n">myHeader</span><span class="o">)</span> <span class="o">{</span>
@@ -898,9 +898,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Or, if the header name isn’t a valid Java identifier</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>   <span class="nd">@GET</span>
    <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">search</span><span class="o">(</span><span class="nd">@Header</span><span class="o">(</span><span class="s">"Last-Modified-Since"</span><span class="o">)</span> <span class="kt">long</span> <span class="n">lastModifedSince</span><span class="o">)</span> <span class="o">{</span>
@@ -910,9 +910,9 @@ GET /assets/css/style.css
        </div> 
        <h4>mvc response</h4> 
        <p>A web method might or might not send a response to the client. Some examples:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
 <span class="nd">@GET</span>
@@ -930,9 +930,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>If you need/want to render a view, just return a <em>org.jooby.View</em> instance:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nd">@GET</span>
 <span class="kd">public</span> <span class="n">Result</span> <span class="nf">home</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
@@ -942,9 +942,9 @@ GET /assets/css/style.css
        </div> 
        <h5>customizing the response</h5> 
        <p>If you need to deal with HTTP metadata like: status code, headers, etc… use a <a href="/apidocs/org/jooby/Result.html">org.jooby.Result</a></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nd">@GET</span>
 <span class="kd">public</span> <span class="n">Result</span> <span class="nf">handler</span><span class="p">(</span><span class="o">)</span> <span class="o">{</span>
@@ -955,9 +955,9 @@ GET /assets/css/style.css
        </div> 
        <h3 id="routes-dynamic-advanced-routing">dynamic / advanced routing</h3> 
        <p>Suppose you need to serve different content based on hostname. For example <code class="highlighter-rouge codehilite">admin.foo.com</code> serves on <code class="highlighter-rouge codehilite">/</code> something different than <code class="highlighter-rouge codehilite">www.foo.com</code>. Even there is different logic how to use it.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
    <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -975,9 +975,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>We start by adding a filter:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>   <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
      <span class="k">if</span> <span class="o">(...)</span> <span class="o">{</span>
@@ -990,9 +990,9 @@ GET /assets/css/style.css
        </div> 
        <p>Here we make some decision and ask chain to move next by applying a filter: <code class="highlighter-rouge codehilite">/admin</code> or <code class="highlighter-rouge codehilite">/normal</code>. The chain will filter and keep all the routes where name starts with the given prefix.</p> 
        <p>It is possible to group routes by features and set the name globally:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="s">"/"</span><span class="o">)</span>
@@ -1010,9 +1010,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Or group routes by features in their own app and then merge them into the main app:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Admin</span> <span class="kd">extends</span> <span class="n">Jooby</span> <span class="o">{</span>
 
@@ -1059,9 +1059,9 @@ GET /assets/css/style.css
        <p>As you can see routes and routing in <a href="http://jooby.org">Jooby</a> are very powerful!</p> 
        <h3 id="routes-async-routes">async routes</h3> 
        <p>Async processing is achieved via: <a href="/apidocs/org/jooby/Deferred.html">Deferred API</a>. Application can produces a result from a thread of its choice.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
@@ -1080,9 +1080,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Too verbose? Let’s rewrite it a bit with: <code class="highlighter-rouge codehilite">Jooby.promise</code></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
@@ -1099,9 +1099,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>A bit better, let’s try it again with automatic error handler:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
@@ -1116,9 +1116,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Better, hugh? but we can make it just a bit better:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
@@ -1134,9 +1134,9 @@ GET /assets/css/style.css
        <p>The last two examples, will <code class="highlighter-rouge codehilite">resolve</code> the deferred. But also, catch any error and call <code class="highlighter-rouge codehilite">reject</code> for you.</p> 
        <p><a href="/apidocs/org/jooby/Deferred.html">Deferred API</a> is pretty simple and the main goal of is to detach the request, or put it in async mode then application can produces a result from a thread of its choice.</p> 
        <p>Here is an example of deferred with <a href="https://github.com/ReactiveX/RxJava" target="_blank">RxJava</a>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/rx"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">Observable</span><span class="o">.&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1151,18 +1151,18 @@ GET /assets/css/style.css
        <p><a href="/">Jooby</a> is an async web framework. IO is performed in async &amp; non blocking fashion across servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>.</p> 
        <p>Application code will <strong>never run in an IO thread</strong>. Application code <strong>always run in a worker thread</strong> and a worker thread can block.</p> 
        <p>Default pool size of the worker thread pool is 20/200. You can change this setup via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">server.threads.Min</span><span class="p">=</span><span class="s">20</span>
 <span class="py">server.threads.Max</span><span class="p">=</span><span class="s">20</span>
 </code></pre> 
        </div> 
        <p>You can set them to the <code class="highlighter-rouge codehilite">available processors</code>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">server.threads.Min</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
 <span class="py">server.threads.Max</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
@@ -1180,9 +1180,9 @@ GET /assets/css/style.css
        <p>Retrieval of param is done via: <a href="/apidocs/org/jooby/Request.html#param-java.lang.String-">req.param(“name”)</a> method.</p> 
        <p>The <a href="/apidocs/org/jooby/Request.html#param-java.lang.String-">req.param(“name”)</a> <strong>always</strong> returns a <a href="/apidocs/org/jooby/Mutant.html">Mutant</a> instance. A mutant had severals utility methods for doing type conversion.</p> 
        <p>Some examples:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="kt">int</span> <span class="n">iparam</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"intparam"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
@@ -1210,16 +1210,16 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Multiple params can be retrieved at once:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>GET /search?name=John&amp;age=99&amp;address[country]=AR&amp;address[city]=BA
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Profile</span> <span class="o">{</span>
   <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
@@ -1237,9 +1237,9 @@ GET /assets/css/style.css
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/search"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1260,17 +1260,17 @@ GET /assets/css/style.css
        <p>(first listed are higher precedence)</p> 
        <p>Now, let’s suppose a very poor API where we have a route handler that accept an <strong>id</strong> param in the 3 forms:</p> 
        <p>A call like:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>curl -X POST -d <span class="s2">"id=third"</span> http://localhost:8080/user/first?id<span class="o">=</span>second
 </code></pre> 
        </div> 
        <p>Produces:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/user/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="c1">// path param at idx = 0</span>
@@ -1311,9 +1311,9 @@ GET /assets/css/style.css
          </t></li> 
        </ul> 
        <p>Custom type conversion is also possible:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
 <span class="n">parser</span><span class="o">((</span><span class="n">type</span><span class="o">,</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1332,9 +1332,9 @@ GET /assets/css/style.css
        </div> 
        <h3 id="request-request-headers">request headers</h3> 
        <p>Retrieval of request headers is done via: <a href="{{}}Request.html#header-java.lang.String-">request.header(“name”)</a>. All the explained before for <a href="#request params">request params</a> apply for headers too.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="kt">int</span> <span class="n">iparam</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">"intparam"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
@@ -1370,9 +1370,9 @@ GET /assets/css/style.css
        <ul> 
         <li>with <a href="/apidocs/org/jooby/Jooby.html#parser-org.jooby.Parser-">parser</a></li> 
        </ul> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
    <span class="n">parser</span><span class="o">(</span><span class="k">new</span> <span class="n">MyParser</span><span class="o">());</span>
@@ -1382,9 +1382,9 @@ GET /assets/css/style.css
        <ul> 
         <li>or from inside a module:</li> 
        </ul> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">configure</span><span class="p">(</span><span class="n">Mode</span> <span class="n">mode</span><span class="o">,</span> <span class="n">Config</span> <span class="n">config</span><span class="o">,</span> <span class="n">Binder</span> <span class="n">binder</span><span class="o">)</span> <span class="o">{</span>
   <span class="n">Multibinder</span><span class="o">.</span><span class="na">newSetBinder</span><span class="o">(</span><span class="n">binder</span><span class="o">,</span> <span class="n">Parser</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
@@ -1395,9 +1395,9 @@ GET /assets/css/style.css
        </div> 
        <h3 id="request-local-variables">local variables</h3> 
        <p>Local variables are bound to the current request. They are created every time a new request is processed and destroyed at the end of the request.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>  <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"var"</span><span class="o">,</span> <span class="n">var</span><span class="o">);</span>
   <span class="n">String</span> <span class="n">var</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"var"</span><span class="o">);</span>
@@ -1406,9 +1406,9 @@ GET /assets/css/style.css
        <h3 id="request-guice-access">guice access</h3> 
        <p>In previous section we learnt you can bind/wire your objects with <a href="https://github.com/google/guice" target="_blank">Guice</a>.</p> 
        <p>You can ask <a href="https://github.com/google/guice" target="_blank">Guice</a> to wired an object from the <a href="/apidocs/org/jooby/Request.html#require-com.google.inject.Key-">request.require(type)</a></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">A</span> <span class="n">a</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">A</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
@@ -1427,9 +1427,9 @@ GET /assets/css/style.css
        <p>The <a href="/apidocs/org/jooby/Response.html#send-org.jooby.Result-">rsp.send</a> method is responsible for sending and writing data into the HTTP Response.</p> 
        <p>A <a href="/apidocs/org/jooby/Renderer.html">renderer</a> is responsible for converting a Java Object into something else (json, html, etc..).</p> 
        <p>Let’s see a simple example:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">rsp</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="s">"hey jooby"</span><span class="o">));</span>
 
@@ -1440,9 +1440,9 @@ GET /assets/css/style.css
        <p>The resulting <code class="highlighter-rouge codehilite">Content-Type</code> when is not set is <code class="highlighter-rouge codehilite">text/html</code>.</p> 
        <p>The resulting <code class="highlighter-rouge codehilite">Status Code</code> when is not set is <code class="highlighter-rouge codehilite">200</code>.</p> 
        <p>Some examples:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
    <span class="c1">// text/html with 200</span>
@@ -1451,9 +1451,9 @@ GET /assets/css/style.css
 <span class="o">});</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
    <span class="c1">// text/plain with 200 explicitly </span>
@@ -1465,9 +1465,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Alternative:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
    <span class="c1">// text/plain with 200 explicitly </span>
@@ -1479,9 +1479,9 @@ GET /assets/css/style.css
        </div> 
        <h3 id="response-content-negotiation">content negotiation</h3> 
        <p>A route can produces different results based on the <code class="highlighter-rouge codehilite">Accept</code> header:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span>
   <span class="n">Results</span>
@@ -1495,9 +1495,9 @@ GET /assets/css/style.css
        <h3 id="response-response-headers">response headers</h3> 
        <p>Retrieval of response headers is done via <a href="/apidocs/org/jooby/Response.html#header-java.lang.String-">rsp.header(“name”)</a>. The method always returns a <a href="/apidocs/org/jooby/Mutant.html">Mutant</a> and from there you can convert to any of the supported types.</p> 
        <p>Setting a header is pretty straightforward too:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">rsp</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">"Header-Name"</span><span class="o">,</span> <span class="n">value</span><span class="o">).</span><span class="na">header</span><span class="o">(</span><span class="s">"Header2"</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
 </code></pre> 
@@ -1510,26 +1510,26 @@ GET /assets/css/style.css
       </div> 
       <div class="datalist-content"> 
        <p>Sessions are created on demand via: <a href="/apidocs/org/jooby/Request.html#session--">req.session()</a>.</p> 
-       <p>Sessions have a lot of uses cases but most commons are: auth, store information about current<br> user, etc.</p> 
-       <p>A session attribute must be {@link String} or a primitive. Session doesn’t allow to store<br> arbitrary objects. It is a simple mechanism to store basic data.</p> 
+       <p>Sessions have a lot of uses cases but most commons are: auth, store information about current user, etc.</p> 
+       <p>A session attribute must be {@link String} or a primitive. Session doesn’t allow to store arbitrary objects. It is a simple mechanism to store basic data.</p> 
        <h3 id="session-options">options</h3> 
        <h4>No timeout</h4> 
-       <p>There is no timeout for sessions from server perspective. By default, a session will expire when<br> the user close the browser (a.k.a session cookie).</p> 
+       <p>There is no timeout for sessions from server perspective. By default, a session will expire when the user close the browser (a.k.a session cookie).</p> 
        <h3 id="session-session-store">session store</h3> 
-       <p>A <a href="/apidocs/org/jooby/Session.Store.html">Session.Store</a> is responsible for saving session data. Sessions are kept in memory, by<br> default using the <a href="/apidocs/org/jooby/Session.Mem.html">Session.Mem</a> store, which is useful for development, but wont scale well<br> on production environments. An redis, memcached, ehcache store will be a better option.</p> 
+       <p>A <a href="/apidocs/org/jooby/Session.Store.html">Session.Store</a> is responsible for saving session data. Sessions are kept in memory, by default using the <a href="/apidocs/org/jooby/Session.Mem.html">Session.Mem</a> store, which is useful for development, but wont scale well on production environments. An redis, memcached, ehcache store will be a better option.</p> 
        <h4>store life-cycle</h4> 
-       <p>Sessions are persisted every time a request exit, if they are dirty. A session get dirty if an<br> attribute is added or removed from it.</p> 
-       <p>The <code>session.saveInterval</code> property indicates how frequently a session will be<br> persisted (in millis).</p> 
+       <p>Sessions are persisted every time a request exit, if they are dirty. A session get dirty if an attribute is added or removed from it.</p> 
+       <p>The <code>session.saveInterval</code> property indicates how frequently a session will be persisted (in millis).</p> 
        <p>In short, a session is persisted when: 1) it is dirty; or 2) save interval has expired it.</p> 
        <h3 id="session-cookie">cookie</h3> 
        <h4>max-age</h4> 
-       <p>The <code>session.cookie.maxAge</code> sets the maximum age in seconds. A positive value<br> indicates that the cookie will expire after that many seconds have passed. Note that the value is<br> the <i>maximum</i> age when the cookie will expire, not the cookie’s current age.</p> 
-       <p>A negative value means that the cookie is not stored persistently and will be deleted when the<br> Web browser exits.</p> 
+       <p>The <code>session.cookie.maxAge</code> sets the maximum age in seconds. A positive value indicates that the cookie will expire after that many seconds have passed. Note that the value is the <i>maximum</i> age when the cookie will expire, not the cookie’s current age.</p> 
+       <p>A negative value means that the cookie is not stored persistently and will be deleted when the Web browser exits.</p> 
        <p>Default maxAge is: <code>-1</code>.</p> 
        <h4>signed cookie</h4> 
-       <p>If the <code>application.secret</code> property has been set, then the session cookie will be<br> signed it with it.</p> 
+       <p>If the <code>application.secret</code> property has been set, then the session cookie will be signed it with it.</p> 
        <h4>cookie’s name</h4> 
-       <p>The <code>session.cookie.name</code> indicates the name of the cookie that hold the session ID,<br> by defaults: <code>jooby.sid</code>. Cookie’s name can be explicitly set with<br> <a href="/apidocs/org/jooby/Cookie.Definition.html#name-java.lang.String-">cookie.name(“name”)</a> on<br> <a href="/apidocs/org/jooby/Session.Definition.html#cookie">Session.Definition#cookie()</a>.</p> 
+       <p>The <code>session.cookie.name</code> indicates the name of the cookie that hold the session ID, by defaults: <code>jooby.sid</code>. Cookie’s name can be explicitly set with <a href="/apidocs/org/jooby/Cookie.Definition.html#name-java.lang.String-">cookie.name(“name”)</a> on <a href="/apidocs/org/jooby/Session.Definition.html#cookie">Session.Definition#cookie()</a>.</p> 
       </div> 
      </div> 
      <div class="datalist" id="error-handling"> 
@@ -1540,9 +1540,9 @@ GET /assets/css/style.css
        <p>Error handler is represented by the <a href="/apidocs/org/jooby/Err.Handler.html">Err.Handler</a> class and allows you to log and/or render exceptions.</p> 
        <h3 id="error-handling-default-err-handler">default err handler</h3> 
        <p>The <a href="/apidocs/org/jooby/Err.DefHandler.html">default error handler</a> does content negotiation and optionallydisplay friendly err pages using naming convention.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">TemplateEngine</span><span class="o">());</span> <span class="c1">// Hbs, Ftl, etc...</span>
@@ -1557,7 +1557,7 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <h4>html</h4> 
-       <p>If a request to <code class="highlighter-rouge codehilite">/</code> has an <code class="highlighter-rouge codehilite">Accept: text/html</code> header. Then, the default err handler will<br> ask to a <a href="/apidocs/org/jooby/View.Engine.html">View.Engine</a> to render the <code class="highlighter-rouge codehilite">err</code> view.</p> 
+       <p>If a request to <code class="highlighter-rouge codehilite">/</code> has an <code class="highlighter-rouge codehilite">Accept: text/html</code> header. Then, the default err handler will ask to a <a href="/apidocs/org/jooby/View.Engine.html">View.Engine</a> to render the <code class="highlighter-rouge codehilite">err</code> view.</p> 
        <p>The default model has these attributes:</p> 
        <ul> 
         <li>message: exception string</li> 
@@ -1566,9 +1566,9 @@ GET /assets/css/style.css
         <li>reason: status code reason, like <code class="highlighter-rouge codehilite">BAD REQUEST</code></li> 
        </ul> 
        <p>Here is a simply <code class="highlighter-rouge codehilite">public/err.html</code> error page:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
 <span class="nt">&lt;body&gt;</span>
@@ -1579,10 +1579,10 @@ GET /assets/css/style.css
        </div> 
        <p>HTTP status code will be set too.</p> 
        <h4>no html</h4> 
-       <p>If a request to <code class="highlighter-rouge codehilite">/</code> has an <code class="highlighter-rouge codehilite">Accept: application/json</code> header. Then, the default err handler will<br> ask to a <a href="/apidocs/org/jooby/Renderer.html">renderer</a> to render the <code class="highlighter-rouge codehilite">err</code> model.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>If a request to <code class="highlighter-rouge codehilite">/</code> has an <code class="highlighter-rouge codehilite">Accept: application/json</code> header. Then, the default err handler will ask to a <a href="/apidocs/org/jooby/Renderer.html">renderer</a> to render the <code class="highlighter-rouge codehilite">err</code> model.</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span><span class="w"> </span><span class="nt">"stacktrace"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span><span class="w"> </span><span class="nt">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
        </div> 
@@ -1590,9 +1590,9 @@ GET /assets/css/style.css
        <p>HTTP status code will be set too.</p> 
        <h3 id="error-handling-custom-err-handler">custom err handler</h3> 
        <p>If the default view resolution and/or err model isn’t enough, you can create your own err handler.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">err</span><span class="o">((</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">err</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1603,7 +1603,7 @@ GET /assets/css/style.css
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Err handler are executed in the order they were provided (like routes, parser and renderers).<br> The first err handler that send an output wins!</p> 
+       <p>Err handler are executed in the order they were provided (like routes, parser and renderers). The first err handler that send an output wins!</p> 
        <h3 id="error-handling-status-code">status code</h3> 
        <p>Default status code is <code class="highlighter-rouge codehilite">500</code>, except for:</p> 
        <table> 
@@ -1630,24 +1630,24 @@ GET /assets/css/style.css
        </table> 
        <h4>custom status code</h4> 
        <p>Just throw an <a href="/apidocs/org/jooby/Err.html">Err</a>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="k">throw</span> <span class="k">new</span> <span class="nf">Err</span><span class="p">(</span><span class="mi">403</span><span class="o">);</span>
 </code></pre> 
        </div> 
        <p>or add a new entry in the <code class="highlighter-rouge codehilite">application.conf</code> file:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">err.com.security.Forbidden</span> <span class="p">=</span> <span class="s">403</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="k">throw</span> <span class="k">new</span> <span class="nf">Forbidden</span><span class="p">(</span><span class="o">);</span>
 </code></pre> 
@@ -1687,9 +1687,9 @@ GET /assets/css/style.css
        <h4>custom parser</h4> 
        <p>Suppose we want to write a custom parser to convert a value into an <code class="highlighter-rouge codehilite">integer</code>. In practice we don’t need such parser bc it is provided, this is an example.</p> 
        <p>Let’s see how to create our custom HTTP param parser:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
 <span class="n">parser</span><span class="o">((</span><span class="n">type</span><span class="o">,</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1716,9 +1716,9 @@ GET /assets/css/style.css
         <li>We can’t deal with current type, so we ask next parser to resolve it</li> 
        </ol> 
        <p>Now, if we ask for HTTP body</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
    <span class="kt">int</span> <span class="n">intValue</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">().</span><span class="na">intValue</span><span class="o">();</span>
@@ -1728,9 +1728,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Our custom parser won’t be able to parse the HTTP body, because it works on HTTP parameter. In order to extend our custom parser and use it for HTTP Body we must do:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
 <span class="n">parser</span><span class="o">((</span><span class="n">type</span><span class="o">,</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1747,9 +1747,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>And now we can ask for a HTTP param and/or body.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
    <span class="kt">int</span> <span class="n">intValue</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"v"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
@@ -1764,9 +1764,9 @@ GET /assets/css/style.css
        </div> 
        <p><a href="/apidocs/org/jooby/Parser.html">Parser</a> API is very powerful. It let you apply a parser to a HTTP param, set of param (like a form post), file uploads and/or body. But not just that, you are free to choose if your parser applies for a Java Type and/or a Media Type, like the <code class="highlighter-rouge codehilite">Content-Type</code> header.</p> 
        <p>For example a generic JSON parser looks like:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
 <span class="n">parser</span><span class="o">((</span><span class="n">type</span><span class="o">,</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1792,9 +1792,9 @@ GET /assets/css/style.css
        </ul> 
        <h4>custom renderer</h4> 
        <p>Suppose we want to apply a custom rendering for <code class="highlighter-rouge codehilite">MyObject</code>. Renderer is as simple as:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
 <span class="n">render</span><span class="o">((</span><span class="n">value</span><span class="o">,</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1810,9 +1810,9 @@ GET /assets/css/style.css
        </div> 
        <p>Easy right?</p> 
        <p>A generic JSON renderer will looks like:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
 <span class="n">render</span><span class="o">((</span><span class="n">value</span><span class="o">,</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1829,9 +1829,9 @@ GET /assets/css/style.css
        <p>Renderer API is simple and powerful. Renderers are executed in the order they were defined. The renderer who write the response first wins!</p> 
        <h3 id="parser-and-renderer-view-engine">view engine</h3> 
        <p>A <a href="/apidocs/org/jooby/View.Engine.html">view engine</a> is a specialized <a href="/apidocs/org/jooby/Renderer.html">renderer</a> that ONLY accept instances of a <a href="/apidocs/org/jooby/View.html">view</a>.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">MyTemplateEngine</span><span class="o">());</span>
@@ -1851,9 +1851,9 @@ GET /assets/css/style.css
       </div> 
       <div class="datalist-content"> 
        <p>The use of web sockets is pretty easy too:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">ws</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">ws</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1871,9 +1871,9 @@ GET /assets/css/style.css
        <p>You can mount a socket to a path used by a route, but you can’t have two or more web sockets under the same path.</p> 
        <h3 id="web-sockets-guice-access">guice access</h3> 
        <p>You can ask <a href="https://github.com/google/guice" target="_blank">Guice</a> to wired an object from the <a href="/apidocs/org/jooby/WebSocket.html#require-com.google.inject.Key-">ws.require(type)</a></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">ws</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">ws</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">A</span> <span class="n">a</span> <span class="o">=</span> <span class="n">ws</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">A</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
@@ -1882,9 +1882,9 @@ GET /assets/css/style.css
        </div> 
        <h3 id="web-sockets-consumes">consumes</h3> 
        <p>Web socket can define a type to consume:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">ws</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">ws</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1901,9 +1901,9 @@ GET /assets/css/style.css
        <p>This is just an utility method for parsing socket message to Java Object. Consumes in web sockets has nothing to do with content negotiation. Content negotiation is route concept, it doesn’t apply for web sockets.</p> 
        <h3 id="web-sockets-produces">produces</h3> 
        <p>Web socket can define a type to produce:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">ws</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">ws</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1922,11 +1922,11 @@ GET /assets/css/style.css
        <h2>cors</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources<br> (e.g. fonts, JavaScript, etc.) on a web page to be requested from another domain outside the domain from which the resource originated.</p> 
+       <p>Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources (e.g. fonts, JavaScript, etc.) on a web page to be requested from another domain outside the domain from which the resource originated.</p> 
        <h3 id="cors-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
 
@@ -1937,9 +1937,9 @@ GET /assets/css/style.css
        </div> 
        <p>Previous example, will handle CORS request (simple or preflight).</p> 
        <p>Default options are defined via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">cors</span> <span class="err">{</span>
   <span class="c"># Configures the Access-Control-Allow-Origin CORS header. Possibly values: *, domain, regex or a list of previous values. </span>  <span class="c"># Example: </span>  <span class="c"># "*" </span>  <span class="c"># ["http://foo.com"] </span>  <span class="c"># ["http://*.com"] </span>  <span class="c"># ["http://foo.com", "http://bar.com"] </span>  <span class="py">origin</span><span class="p">:</span> <span class="s">"*"</span>
@@ -1965,9 +1965,9 @@ GET /assets/css/style.css
       <div class="datalist-content"> 
        <p><a href="http://jooby.org">Jooby</a> is available in JavaScript via <a href="http://openjdk.java.net/projects/nashorn/" target="_blank">Nashorn</a>.</p> 
        <h3 id="javascript-hello-world">hello world</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
 <span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">jooby</span><span class="p">();</span>
@@ -1978,17 +1978,17 @@ GET /assets/css/style.css
        </div> 
        <h3 id="javascript-jooby-function">jooby function</h3> 
        <p>The <code class="highlighter-rouge codehilite">jooby</code> function always returns a new application:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">jooby</span><span class="p">();</span>
 </code></pre> 
        </div> 
        <p>or pass a function to <code class="highlighter-rouge codehilite">jooby</code>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nx">jooby</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
 
@@ -1998,9 +1998,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Another minor but useful feature is the: <strong>import of classes</strong> and <strong>packages</strong> when you go with the functional version:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nx">jooby</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">Jackson</span><span class="p">)</span> <span class="p">{</span>
 
@@ -2012,9 +2012,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Or import an entire package:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nx">jooby</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">Jackson</span><span class="p">)</span> <span class="p">{</span>
 
@@ -2028,9 +2028,9 @@ GET /assets/css/style.css
        <p>Import of packages is done via: <code class="highlighter-rouge codehilite">importPackage</code> function from in <code class="highlighter-rouge codehilite">nashorn:mozilla_compat.js</code>.</p> 
        <h3 id="javascript-routes">routes</h3> 
        <p>Routes work as in Java, but it is worth to mention what are the available alternatives at the time you need to write a route in JavaScript:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nx">jooby</span><span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
 
@@ -2074,16 +2074,16 @@ GET /assets/css/style.css
       </div> 
       <div class="datalist-content"> 
        <p><a href="http://jooby.org">Jooby</a> supports <code class="highlighter-rouge codehilite">HTTPS</code>. To enable this, you need to set:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">application.securePort</span> <span class="p">=</span> <span class="s">8443</span>
 </code></pre> 
        </div> 
        <p>That’s all!</p> 
        <h3 id="https-certificates">certificates</h3> 
-       <p><a href="http://jooby.org">Jooby</a> comes with a self-signed certificate, useful for development and test. But of course, you<br> should NEVER use it in the real world.</p> 
+       <p><a href="http://jooby.org">Jooby</a> comes with a self-signed certificate, useful for development and test. But of course, you should NEVER use it in the real world.</p> 
        <p>In order to setup HTTPS with a secure certificate, you need to set these properties:</p> 
        <ul> 
         <li><code class="highlighter-rouge codehilite">ssl.keystore.cert</code>: An X.509 certificate chain file in PEM format. It can be an absolute path or a classpath resource.</li> 
@@ -2104,9 +2104,9 @@ GET /assets/css/style.css
        <h2>jooby.conf</h2> 
       </div> 
       <div class="datalist-content"> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c">################################################################################################### </span>
 <span class="c">#! application </span>
@@ -2328,9 +2328,9 @@ GET /assets/css/style.css
        <h2>mime.properties</h2> 
       </div> 
       <div class="datalist-content"> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">mime.ai</span><span class="p">=</span><span class="s">application/postscript</span>
 

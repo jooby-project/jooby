@@ -116,9 +116,9 @@
       <div class="datalist-content"> 
        <p><a href="http://freemarker.org" target="_blank">Freemarker</a> templates for <a href="/">Jooby</a>. Exposes a Configuration and <a href="/apidocs/org/jooby/Renderer.html">renderer</a>.</p> 
        <h3 id="freemarker-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -129,9 +129,9 @@
        </div> 
        <h3 id="freemarker-usage">usage</h3> 
        <p>It is pretty straightforward:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Ftl</span><span class="o">());</span>
@@ -141,19 +141,19 @@
 </code></pre> 
        </div> 
        <p>public/index.html:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">$</span><span class="o">{</span><span class="n">model</span><span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Templates are loaded from root of classpath: <code class="highlighter-rouge codehilite">/</code> and must end with: <code class="highlighter-rouge codehilite">.html</code><br> file extension.</p> 
+       <p>Templates are loaded from root of classpath: <code class="highlighter-rouge codehilite">/</code> and must end with: <code class="highlighter-rouge codehilite">.html</code> file extension.</p> 
        <h3 id="freemarker-req-locals">req locals</h3> 
        <p>A template engine has access to <code class="highlighter-rouge codehilite">request locals</code> (a.k.a attributes). Here is an example:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Ftl</span><span class="o">());</span>
@@ -170,17 +170,17 @@
        <p>There are two ways of changing a Freemarker configuration:</p> 
        <h4>application.conf</h4> 
        <p>Just add a <code class="highlighter-rouge codehilite">freemarker.*</code> option to your <code class="highlighter-rouge codehilite">application.conf</code> file:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">freemarker.default_encoding</span> <span class="p">=</span> <span class="s">UTF-8</span>
 </code></pre> 
        </div> 
        <h4>programmatically</h4> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Ftl</span><span class="o">().</span><span class="na">doWith</span><span class="o">((</span><span class="n">freemarker</span><span class="o">,</span> <span class="n">config</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -189,12 +189,12 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Keep in mind this is just an example and you don’t need to set the default encoding. Default<br> encoding is set to: <code class="highlighter-rouge codehilite">application.charset</code> which is <code class="highlighter-rouge codehilite">UTF-8</code> by default.</p> 
+       <p>Keep in mind this is just an example and you don’t need to set the default encoding. Default encoding is set to: <code class="highlighter-rouge codehilite">application.charset</code> which is <code class="highlighter-rouge codehilite">UTF-8</code> by default.</p> 
        <h3 id="freemarker-template-loader">template loader</h3> 
-       <p>Templates are loaded from the root of classpath and must end with <code class="highlighter-rouge codehilite">.html</code>. You can<br> change the default template location and extensions too:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>Templates are loaded from the root of classpath and must end with <code class="highlighter-rouge codehilite">.html</code>. You can change the default template location and extensions too:</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Ftl</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="s">".ftl"</span><span class="o">));</span>
@@ -204,10 +204,10 @@
        <h3 id="freemarker-cache">cache</h3> 
        <p>Cache is OFF when <code class="highlighter-rouge codehilite">env=dev</code> (useful for template reloading), otherwise is ON.</p> 
        <p>Cache is backed by <a href="https://github.com/google/guava" target="_blank">Guava</a> and default cache will expire after <code class="highlighter-rouge codehilite">100</code> entries.</p> 
-       <p>If <code class="highlighter-rouge codehilite">100</code> entries is not enough or you need a more advanced cache setting, just set the<br> <code class="highlighter-rouge codehilite">freemarker.cache</code> option:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>If <code class="highlighter-rouge codehilite">100</code> entries is not enough or you need a more advanced cache setting, just set the <code class="highlighter-rouge codehilite">freemarker.cache</code> option:</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">freemarker.cache</span> <span class="p">=</span> <span class="s">"expireAfterWrite=1h"</span>
 </code></pre> 
@@ -215,9 +215,9 @@
        <p>See <a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/CacheBuilderSpec.html" target="_blank">CacheBuilderSpec</a> for more detailed expressions.</p> 
        <p>That’s all folks! Enjoy it!!!</p> 
        <h3 id="freemarker-freemarker-conf">freemarker.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c">#freemarker defaults </span>
 <span class="py">freemarker.locale</span> <span class="p">=</span> <span class="s">${application.lang}</span>

@@ -114,9 +114,9 @@
       <div class="datalist-content"> 
        <p>Run database migrations on startup and exposes a <a href="http://flywaydb.org" target="_blank">Flyway</a> instance.</p> 
        <h3 id="flyway-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -126,18 +126,18 @@
 </code></pre> 
        </div> 
        <p>## usage</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">flyway.url</span> <span class="p">=</span> <span class="s">...</span>
 <span class="py">flyway.user</span> <span class="p">=</span> <span class="s">...</span>
 <span class="py">flyway.password</span> <span class="p">=</span> <span class="s">...</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">());</span>
@@ -147,9 +147,9 @@
 </code></pre> 
        </div> 
        <p>If for any reason you need to maintain two or more databases:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">flyway.db1.url</span> <span class="p">=</span> <span class="s">"..."</span>
 <span class="py">flyway.db1.locations</span> <span class="p">=</span> <span class="s">db1/migration</span>
@@ -158,9 +158,9 @@
 <span class="py">flyway.db2.locations</span> <span class="p">=</span> <span class="s">db2/migration</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Flywaydb</span><span class="o">(</span><span class="s">"flyway.db1"</span><span class="o">));</span>
@@ -169,10 +169,10 @@
 </code></pre> 
        </div> 
        <h3 id="flyway-migration-scripts">migration scripts</h3> 
-       <p><a href="http://flywaydb.org" target="_blank">Flyway</a> looks for migration scripts at the <code class="highlighter-rouge codehilite">db/migration</code> classpath location.<br> We recommend to use <a href="http://semver.org" target="_blank">Semantic versioning</a> for naming the migration scripts:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p><a href="http://flywaydb.org" target="_blank">Flyway</a> looks for migration scripts at the <code class="highlighter-rouge codehilite">db/migration</code> classpath location. We recommend to use <a href="http://semver.org" target="_blank">Semantic versioning</a> for naming the migration scripts:</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>v0.1.0_My_description.sql
 v0.1.1_My_small_change.sql
@@ -181,21 +181,21 @@ v0.1.1_My_small_change.sql
        <h3 id="flyway-commands">commands</h3> 
        <p>It is possible to run <a href="http://flywaydb.org" target="_blank">Flyway</a> commands on startup, default command is: <code class="highlighter-rouge codehilite">migrate</code>.</p> 
        <p>If you need to run multiple commands, set the <code class="highlighter-rouge codehilite">flyway.run</code> property:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">flyway.run</span> <span class="p">=</span> <span class="s">[clean, migrate, validate, info]</span>
 </code></pre> 
        </div> 
        <h3 id="flyway-configuration">configuration</h3> 
-       <p>Configuration is done via <code class="highlighter-rouge codehilite">application.conf</code> under the <code class="highlighter-rouge codehilite">flyway.*</code> path.<br> There are some defaults setting that you can see in the appendix.</p> 
+       <p>Configuration is done via <code class="highlighter-rouge codehilite">application.conf</code> under the <code class="highlighter-rouge codehilite">flyway.*</code> path. There are some defaults setting that you can see in the appendix.</p> 
        <p>For more information, please visit the <a href="http://flywaydb.org" target="_blank">Flyway</a> site.</p> 
        <p>Happy coding!!!</p> 
        <h3 id="flyway-flyway-conf">flyway.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c"># </span>
 <span class="c"># Copyright 2010-2015 Axel Fontaine </span>

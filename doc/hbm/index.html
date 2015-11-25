@@ -115,13 +115,13 @@
       <div class="datalist-content"> 
        <p>Object-Relational-Mapping via <a href="http://hibernate.org/" target="_blank">Hibernate</a>. Exposes an <code class="highlighter-rouge codehilite">EntityManagerFactory</code> and <code class="highlighter-rouge codehilite">EntityManager</code> services.</p> 
        <p>This module extends <a href="/doc/jdbc">jdbc</a> module, before going forward, make sure you read the doc of the <a href="/doc/jooby-dbc">jdbc</a> module first.</p> 
-       <p>This module provides an advanced and recommended <a href="https://developer.jboss.org/wiki/OpenSessionInView#jive_content_id_Can_I_use_two_transactions_in_one_Session" target="_blank">Open Session in View</a><br> pattern, which basically keeps the <code class="highlighter-rouge codehilite">Session</code> opened until the view is rendered. But it uses two database transactions:</p> 
+       <p>This module provides an advanced and recommended <a href="https://developer.jboss.org/wiki/OpenSessionInView#jive_content_id_Can_I_use_two_transactions_in_one_Session" target="_blank">Open Session in View</a> pattern, which basically keeps the <code class="highlighter-rouge codehilite">Session</code> opened until the view is rendered. But it uses two database transactions:</p> 
        <p>1) first transaction is committed before rendering the view and then</p> 
        <p>2) a read only transaction is opened for rendering the view.</p> 
        <h3 id="hibernate-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -131,9 +131,9 @@
 </code></pre> 
        </div> 
        <h3 id="hibernate-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">(</span><span class="n">EntityA</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">EntityB</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
@@ -146,21 +146,21 @@
 </code></pre> 
        </div> 
        <p>At bootstrap time you will see something similar to this:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>  <span class="k">*</span>    /<span class="k">**</span>      <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>    <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>  <span class="o">(</span>hbm<span class="o">)</span>
 </code></pre> 
        </div> 
        <p>That is the filter with the <strong>Open Session in View</strong> pattern.</p> 
        <h3 id="hibernate-life-cycle">life-cycle</h3> 
-       <p>You are free to inject an <code class="highlighter-rouge codehilite">EntityManagerFactory</code> create a new<br> <code class="highlighter-rouge codehilite">EntityManagerFactory#createEntityManager()</code>, start transactions and do everything you<br> need.</p> 
-       <p>For the time being, this doesn’t work for an <code class="highlighter-rouge codehilite">EntityManager</code>. An <code class="highlighter-rouge codehilite">EntityManager</code> is<br> bound to the current request, which means you can’t freely access from every single thread (like<br> manually started thread, started by an executor service, quartz, etc…).</p> 
-       <p>Another restriction, is the access from <code class="highlighter-rouge codehilite">Singleton</code> services. If you need access from a<br> singleton services, you need to inject a <code class="highlighter-rouge codehilite">Provider</code>.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>You are free to inject an <code class="highlighter-rouge codehilite">EntityManagerFactory</code> create a new <code class="highlighter-rouge codehilite">EntityManagerFactory#createEntityManager()</code>, start transactions and do everything you need.</p> 
+       <p>For the time being, this doesn’t work for an <code class="highlighter-rouge codehilite">EntityManager</code>. An <code class="highlighter-rouge codehilite">EntityManager</code> is bound to the current request, which means you can’t freely access from every single thread (like manually started thread, started by an executor service, quartz, etc…).</p> 
+       <p>Another restriction, is the access from <code class="highlighter-rouge codehilite">Singleton</code> services. If you need access from a singleton services, you need to inject a <code class="highlighter-rouge codehilite">Provider</code>.</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nd">@Singleton</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">MySingleton</span> <span class="o">{</span>
@@ -173,34 +173,34 @@
 </code></pre> 
        </div> 
        <p>This is because the <code class="highlighter-rouge codehilite">EntityManager</code> is bound as <a href="{{defdocs/RequestScoped.html}}">RequestScoped</a>.</p> 
-       <p>Still, we strongly recommend to leave your services in the default scope and avoid to use<br> <code class="highlighter-rouge codehilite">Singleton</code> objects, except of course for really expensive resources. This is also<br> recommend it by <a href="https://github.com/google/guice" target="_blank">Guice</a>.</p> 
+       <p>Still, we strongly recommend to leave your services in the default scope and avoid to use <code class="highlighter-rouge codehilite">Singleton</code> objects, except of course for really expensive resources. This is also recommend it by <a href="https://github.com/google/guice" target="_blank">Guice</a>.</p> 
        <p>Services in the default scope won’t have this problem and are free to inject the <code class="highlighter-rouge codehilite">EntityManager</code> directly.</p> 
        <h3 id="hibernate-persistent-classes">persistent classes</h3> 
-       <p>Classpath scanning is OFF by default, so you need to explicitly tell <a href="http://hibernate.org/" target="_blank">Hibernate</a> which classes are<br> persistent. This intentional and helps to reduce bootstrap time and have explicit control over<br> persistent classes.</p> 
+       <p>Classpath scanning is OFF by default, so you need to explicitly tell <a href="http://hibernate.org/" target="_blank">Hibernate</a> which classes are persistent. This intentional and helps to reduce bootstrap time and have explicit control over persistent classes.</p> 
        <p>If you don’t care about bootstrap time and/or just like the auto-discover feature, just do:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">().</span><span class="na">scan</span><span class="o">());</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>After calling <code class="highlighter-rouge codehilite">scan()</code>, <a href="http://hibernate.org/" target="_blank">Hibernate</a> will auto-discover all the entities application’s<br> namespace. The namespace is defined by the package of your application. Given:<br> <code class="highlighter-rouge codehilite">org.myproject.App</code> it will scan everything under <code class="highlighter-rouge codehilite">org.myproject</code>.</p> 
+       <p>After calling <code class="highlighter-rouge codehilite">scan()</code>, <a href="http://hibernate.org/" target="_blank">Hibernate</a> will auto-discover all the entities application’s namespace. The namespace is defined by the package of your application. Given: <code class="highlighter-rouge codehilite">org.myproject.App</code> it will scan everything under <code class="highlighter-rouge codehilite">org.myproject</code>.</p> 
        <h3 id="hibernate-options">options</h3> 
        <p><a href="http://hibernate.org/" target="_blank">Hibernate</a> options can be set from your <code class="highlighter-rouge codehilite">application.conf</code> file, just make sure to prefix them with <code class="highlighter-rouge codehilite">hibernate.*</code></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">hibernate.hbm2ddl.auto</span> <span class="p">=</span> <span class="s">update</span>
 </code></pre> 
        </div> 
        <h3 id="hibernate-hbm-conf">hbm.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">hibernate</span> <span class="err">{</span>
 

@@ -121,9 +121,9 @@
         <li>a <code class="highlighter-rouge codehilite">org.jooby.Parser</code></li> 
        </ul> 
        <h3 id="hibernate-validator-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -133,9 +133,9 @@
 </code></pre> 
        </div> 
        <h3 id="hibernate-validator-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbv</span><span class="o">());</span>
@@ -153,11 +153,11 @@
 </code></pre> 
        </div> 
        <h3 id="hibernate-validator-automatic-validations-of-HTTP-params-and-body">automatic validations of HTTP params and body</h3> 
-       <p>Previous example demonstrate how to manually validate a bean created via: <code class="highlighter-rouge codehilite">req.params()</code> or <code class="highlighter-rouge codehilite">req.body()</code>. The boilerplate code<br> can be avoided if you explicitly tell the validation module which classes require validation.</p> 
+       <p>Previous example demonstrate how to manually validate a bean created via: <code class="highlighter-rouge codehilite">req.params()</code> or <code class="highlighter-rouge codehilite">req.body()</code>. The boilerplate code can be avoided if you explicitly tell the validation module which classes require validation.</p> 
        <p>The previous example can be rewritten as:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbv</span><span class="o">(</span><span class="n">Car</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
@@ -173,9 +173,9 @@
        <p>Here a <a href="/apidocs/org/jooby/Parser.html">Parser</a> will do the boilerplate part and throws a <code class="highlighter-rouge codehilite">ConstraintViolationException</code>.</p> 
        <h4>rendering a ConstraintViolationException</h4> 
        <p>The default err handler will render the <code class="highlighter-rouge codehilite">ConstraintViolationException</code> without problem, but suppose we have a JavaScript client and want to display the errors in a friendly way.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span> <span class="c1">// JSON renderer</span>
@@ -214,17 +214,17 @@
        <h3 id="hibernate-validator-configuration">configuration</h3> 
        <p>Any property defined at <code class="highlighter-rouge codehilite">hibernate.validator</code> will be add it automatically:</p> 
        <p>application.conf</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>hibernate.validator.fail_fast = true
 </code></pre> 
        </div> 
        <p>Or programmatically:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbv</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">config</span> <span class="o">-&gt;</span> <span class="o">{</span>

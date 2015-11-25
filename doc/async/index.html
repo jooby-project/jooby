@@ -114,9 +114,9 @@
       <div class="datalist-content"> 
        <h3 id="intro-async-routes">async routes</h3> 
        <p>Async processing is achieved via: <a href="/apidocs/org/jooby/Deferred.html">Deferred API</a>. Application can produces a result from a thread of its choice.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
@@ -135,9 +135,9 @@
 </code></pre> 
        </div> 
        <p>Too verbose? Let’s rewrite it a bit with: <code class="highlighter-rouge codehilite">Jooby.promise</code></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
@@ -154,9 +154,9 @@
 </code></pre> 
        </div> 
        <p>A bit better, let’s try it again with automatic error handler:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
@@ -171,9 +171,9 @@
 </code></pre> 
        </div> 
        <p>Better, hugh? but we can make it just a bit better:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
@@ -189,9 +189,9 @@
        <p>The last two examples, will <code class="highlighter-rouge codehilite">resolve</code> the deferred. But also, catch any error and call <code class="highlighter-rouge codehilite">reject</code> for you.</p> 
        <p><a href="/apidocs/org/jooby/Deferred.html">Deferred API</a> is pretty simple and the main goal of is to detach the request, or put it in async mode then application can produces a result from a thread of its choice.</p> 
        <p>Here is an example of deferred with <a href="https://github.com/ReactiveX/RxJava" target="_blank">RxJava</a>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/rx"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">Observable</span><span class="o">.&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -206,18 +206,18 @@
        <p><a href="/">Jooby</a> is an async web framework. IO is performed in async &amp; non blocking fashion across servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>.</p> 
        <p>Application code will <strong>never run in an IO thread</strong>. Application code <strong>always run in a worker thread</strong> and a worker thread can block.</p> 
        <p>Default pool size of the worker thread pool is 20/200. You can change this setup via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">server.threads.Min</span><span class="p">=</span><span class="s">20</span>
 <span class="py">server.threads.Max</span><span class="p">=</span><span class="s">20</span>
 </code></pre> 
        </div> 
        <p>You can set them to the <code class="highlighter-rouge codehilite">available processors</code>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">server.threads.Min</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
 <span class="py">server.threads.Max</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>

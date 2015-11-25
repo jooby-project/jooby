@@ -116,9 +116,9 @@
        <p>Before start, make sure you already setup a database connection as described in the <a href="/doc/jdbc">jdbc</a> module.</p> 
        <p>See <a href="http://www.jdbi.org/" target="_blank">JDBI</a> for a detailed usage.</p> 
        <h3 id="jdbi-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -129,9 +129,9 @@
        </div> 
        <h3 id="jdbi-usage">usage</h3> 
        <p>It is pretty straightforward:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbi</span><span class="o">());</span>
@@ -151,9 +151,9 @@
        </div> 
        <h3 id="jdbi-sql-objects">sql objects</h3> 
        <p>It is pretty straightforward (too):</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
 <span class="kd">public</span> <span class="kd">interface</span> <span class="nc">MyRepository</span> <span class="kd">extends</span> <span class="n">Closeable</span> <span class="o">{</span>
@@ -187,9 +187,9 @@
        </div> 
        <h3 id="jdbi-auto-magic-in-clause-expansion">auto-magic in-clause expansion</h3> 
        <p>This modules support expansion of in-clauses and/or expansion of multi-value arguments (iterables and arrays).</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">);</span>
 <span class="n">h</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"select * from something where id in (:ids)"</span><span class="o">)</span>
@@ -198,26 +198,26 @@
 </code></pre> 
        </div> 
        <p>The SQL expression:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">something</span> <span class="k">where</span> <span class="n">id</span> <span class="k">in</span> <span class="p">(:</span><span class="n">ids</span><span class="p">)</span>
 </code></pre> 
        </div> 
        <p>Will be expanded/translated to:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">something</span> <span class="k">where</span> <span class="n">id</span> <span class="k">in</span> <span class="p">(</span><span class="o">?</span><span class="p">,</span> <span class="o">?</span><span class="p">,</span> <span class="o">?</span><span class="p">)</span>
 </code></pre> 
        </div> 
        <h3 id="jdbi-configuration">configuration</h3> 
        <p>If you need to configure and/or customize a <a href="http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/DBI.html" target="_blank">DBI</a> instance, just do:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbi</span><span class="o">().</span><span class="na">doWith</span><span class="o">((</span><span class="n">dbi</span><span class="o">,</span> <span class="n">config</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>

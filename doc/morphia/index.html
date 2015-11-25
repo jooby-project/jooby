@@ -115,9 +115,9 @@
        <p>Extends the <a href="https://github.com/jooby-project/jooby/tree/master/jooby-mongodb" target="_blank">mongodb</a> module with object-document mapping via <a href="https://github.com/mongodb/morphia" target="_blank">Morphia</a>.</p> 
        <p>Exposes a <a href="https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Morphia.html" target="_blank">Morphia</a> and <a href="https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Datastore.html" target="_blank">Datastore</a> services.</p> 
        <h3 id="morphia-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -130,16 +130,16 @@
        <p>Before you start make sure to read the doc from <a href="https://github.com/jooby-project/jooby/tree/master/jooby-mongodb" target="_blank">mongodb</a> module. This module extends <a href="https://github.com/jooby-project/jooby/tree/master/jooby-mongodb" target="_blank">mongodb</a> module.</p> 
        <h3 id="morphia-usage">usage</h3> 
        <p>application.conf:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">db</span> <span class="p">=</span> <span class="s">"mongo://localhost/mydb"</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Monphia</span><span class="o">());</span>
@@ -154,9 +154,9 @@
        <h3 id="morphia-options">options</h3> 
        <h4>morphia callback</h4> 
        <p>The <a href="https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Morphia.html" target="_blank">Morphia</a> callback let you map classes and/or set mapper options.</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Monphia</span><span class="o">()</span>
@@ -171,9 +171,9 @@
        <p>For more detailed information, check <a href="https://github.com/mongodb/morphia/wiki/MappingObjects" target="_blank">here</a></p> 
        <h4>datastore callback</h4> 
        <p>This <a href="https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Datastore.html" target="_blank">Datastore</a> callback is executed only once, it’s perfect for checking indexes:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Monphia</span><span class="o">()</span>
@@ -189,9 +189,9 @@
        <p>For more detailed information, check <a href="https://github.com/mongodb/morphia/wiki/Datastore#ensure-indexes-and-caps" target="_blank">here</a></p> 
        <h3 id="morphia-entity-listeners">entity listeners</h3> 
        <p><a href="https://github.com/google/guice" target="_blank">Guice</a> will create and inject entity listeners (when need it).</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyListener</span> <span class="o">{</span>
 

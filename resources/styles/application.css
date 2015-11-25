@@ -94,11 +94,13 @@ code {
   color: #21474c;
 }
 
-p > code.highlighter-rouge {
+p > code.highlighter-rouge,
+li > code.highlighter-rouge {
   border: 1px solid #e3e3e3;
   border-radius: 5px;
   font-size: 14px !important;
   padding: 2px 4px;
+  word-wrap: break-word;
 }
 
 .highlighter-rouge {
@@ -1314,6 +1316,7 @@ th {
   color: #656565;
   letter-spacing: 1px;
   margin-bottom: 24px;
+  line-height: 22px;
 }
 .section-content p a,
 .section-content li a {

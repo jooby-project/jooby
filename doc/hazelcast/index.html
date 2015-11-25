@@ -118,9 +118,9 @@
       <div class="datalist-content"> 
        <p>Exports a <a href="http://hazelcast.org" target="_blank">Hazelcast</a> instances and optionally a <a href="/apidocs/org/jooby/hazelcast/HcastSessionStore.html">session store</a> session store.</p> 
        <h3 id="hazelcast-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -130,9 +130,9 @@
 </code></pre> 
        </div> 
        <h3 id="hazelcast-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hcast</span><span class="o">());</span>
@@ -147,9 +147,9 @@
        <h3 id="hazelcast-configuration">configuration</h3> 
        <p>Any property under <code class="highlighter-rouge codehilite">hazelcast.*</code> will be automatically add it while bootstrapping a <code class="highlighter-rouge codehilite">HazelcastInstance</code>.</p> 
        <p>Configuration can be done programmatically via: <code class="highlighter-rouge codehilite">doWith(Consumer)</code></p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hcast</span><span class="o">()</span>
@@ -168,9 +168,9 @@
       </div> 
       <div class="datalist-content"> 
        <h3 id="hazelcast-session-store-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hcast</span><span class="o">());</span>
@@ -186,9 +186,9 @@
        <h3 id="hazelcast-session-store-options">options</h3> 
        <h4>timeout</h4> 
        <p>By default, a <a href="http://hazelcast.org" target="_blank">Hazelcast</a> session will expire after <code class="highlighter-rouge codehilite">30 minutes</code>. Changing the default timeout is as simple as:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
 
@@ -203,9 +203,9 @@
        <p>Default session’s name is <code class="highlighter-rouge codehilite">sessions</code>. It’s possible to change the default name by setting the property: <code class="highlighter-rouge codehilite">hazelcast.sesssion.name</code>.</p> 
        <p>Happy coding!!!</p> 
        <h3 id="hazelcast-session-store-hcast-conf">hcast.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c"># logging </span>
 <span class="py">hazelcast.logging.type</span> <span class="p">=</span> <span class="s">slf4j</span>

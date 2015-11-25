@@ -123,9 +123,9 @@
         <li>A <code class="highlighter-rouge codehilite">MemcachedClient</code> service</li> 
        </ul> 
        <h3 id="spymemcached-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -135,16 +135,16 @@
 </code></pre> 
        </div> 
        <h3 id="spymemcached-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code> <span class="py">memcached.server</span> <span class="p">=</span> <span class="s">"localhost:11211"</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">SpyMemcached</span><span class="o">());</span>
@@ -159,17 +159,17 @@
        </div> 
        <h3 id="spymemcached-configuration">configuration</h3> 
        <p>It is done via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">memcached.protocol</span> <span class="p">=</span> <span class="s">binary</span>
 </code></pre> 
        </div> 
        <p>or programmatically:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">SpyMemcached</span><span class="o">()</span>
@@ -188,9 +188,9 @@
       </div> 
       <div class="datalist-content"> 
        <h3 id="spymemcached-session-store-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">SpyMemcached</span><span class="o">());</span>
@@ -208,9 +208,9 @@
        <h3 id="spymemcached-session-store-options">options</h3> 
        <h4>timeout</h4> 
        <p>By default, a <a href="http://memcached.org" target="_blank">Memcached</a> session will expire after <code class="highlighter-rouge codehilite">30 minutes</code>. Changing the default timeout is as simple as:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
 
@@ -226,9 +226,9 @@
        <p>It’s possible to change the default key setting the <code class="highlighter-rouge codehilite">memcached.sesssion.prefix</code> property.</p> 
        <p>Happy coding!!</p> 
        <h3 id="spymemcached-session-store-memcached-conf">memcached.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">memcached</span> <span class="err">{</span>
 

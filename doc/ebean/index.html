@@ -120,9 +120,9 @@
         <li><code class="highlighter-rouge codehilite">EbeanServer</code> objects</li> 
        </ul> 
        <h3 id="ebean-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -132,9 +132,9 @@
 </code></pre> 
        </div> 
        <h3 id="ebean-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Ebeanby</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -158,10 +158,10 @@
        </ol> 
        <h4>recommended setup</h4> 
        <p>The recommended setup consist of setting up both: runtime and build time enhancement.</p> 
-       <p>The runtime enhancer increases developer productivity, it let you start your app from IDE<br> and/or <code class="highlighter-rouge codehilite">mvn jooby:run</code>. All you have to do is to add the agent dependencies to your<br> classpath:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>The runtime enhancer increases developer productivity, it let you start your app from IDE and/or <code class="highlighter-rouge codehilite">mvn jooby:run</code>. All you have to do is to add the agent dependencies to your classpath:</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.avaje.ebeanorm<span class="nt">&lt;/groupId&gt;</span>
@@ -177,14 +177,14 @@
 <span class="nt">&lt;/pre&gt;</span>
 </code></pre> 
        </div> 
-       <p>Did you see the <code class="highlighter-rouge codehilite">test scope</code>? We don’t want to use the runtime enhancer while<br> running in <code class="highlighter-rouge codehilite">prod</code>. Instead, we want to use the build time enhancer.</p> 
-       <p>All you have to do is to add <code class="highlighter-rouge codehilite">avaje-ebeanorm-mavenenhancer</code> to your <code class="highlighter-rouge codehilite">pom.xml</code> as described<br> in the <a href="http://ebean-orm.github.io/docs#enhance_maven" target="_blank">official doc</a>.</p> 
-       <p>Alternative, and because we want to keep our <code class="highlighter-rouge codehilite">pom.xml</code> small, you can drop a <code class="highlighter-rouge codehilite">ebean.activator</code><br> file inside the <code class="highlighter-rouge codehilite">src/etc/mvn</code> folder. The presence of the file <code class="highlighter-rouge codehilite">src/etc/mvn/ebean.activator</code><br> will trigger the <code class="highlighter-rouge codehilite">avaje-ebeanorm-mavenenhancer</code> plugin.</p> 
+       <p>Did you see the <code class="highlighter-rouge codehilite">test scope</code>? We don’t want to use the runtime enhancer while running in <code class="highlighter-rouge codehilite">prod</code>. Instead, we want to use the build time enhancer.</p> 
+       <p>All you have to do is to add <code class="highlighter-rouge codehilite">avaje-ebeanorm-mavenenhancer</code> to your <code class="highlighter-rouge codehilite">pom.xml</code> as described in the <a href="http://ebean-orm.github.io/docs#enhance_maven" target="_blank">official doc</a>.</p> 
+       <p>Alternative, and because we want to keep our <code class="highlighter-rouge codehilite">pom.xml</code> small, you can drop a <code class="highlighter-rouge codehilite">ebean.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc/mvn</code> folder. The presence of the file <code class="highlighter-rouge codehilite">src/etc/mvn/ebean.activator</code> will trigger the <code class="highlighter-rouge codehilite">avaje-ebeanorm-mavenenhancer</code> plugin.</p> 
        <h3 id="ebean-configuration">configuration</h3> 
        <p>Configuration is done via <code class="highlighter-rouge codehilite">.conf</code>, for example:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">ebean.ddl.generate</span><span class="p">=</span><span class="s">false</span>
 <span class="py">ebean.ddl.run</span><span class="p">=</span><span class="s">false</span>
@@ -196,9 +196,9 @@
 </code></pre> 
        </div> 
        <p>Or programmatically:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Ebeanby</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -209,9 +209,9 @@
        </div> 
        <p>Happy coding!!!</p> 
        <h3 id="ebean-ebean-conf">ebean.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">ebean.defaultServer</span> <span class="p">=</span> <span class="s">true</span>
 

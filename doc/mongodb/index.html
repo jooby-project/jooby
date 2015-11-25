@@ -115,9 +115,9 @@
        <p><a href="http://mongodb.github.io/mongo-java-driver/" target="_blank">MongoDB</a> driver for Jooby.</p> 
        <p>Exposes a <a href="http://api.mongodb.org/java/2.13/com/mongodb/MongoClient.html" target="_blank">MongoClient</a>, a <a href="http://api.mongodb.org/java/2.13/com/mongodb/DB.html" target="_blank">MongoDatabase</a> and a <a href="/apidocs/org/jooby/mongodb/MongoSessionStore.html">Session Store</a></p> 
        <h3 id="mongodb-driver-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -128,16 +128,16 @@
        </div> 
        <h3 id="mongodb-driver-usage">usage</h3> 
        <p>application.conf:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">db</span> <span class="p">=</span> <span class="s">"mongodb://localhost/mydb"</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Mongodb</span><span class="o">());</span>
@@ -153,16 +153,16 @@
        </div> 
        <p>Default URI connection property is <code class="highlighter-rouge codehilite">db</code> but of course you can use any other name:</p> 
        <p>application.conf:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">mydb</span> <span class="p">=</span> <span class="s">"mongodb://localhost/mydb"</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Mongodb</span><span class="o">(</span><span class="s">"mydb"</span><span class="o">));</span>
@@ -176,17 +176,17 @@
        </div> 
        <h3 id="mongodb-driver-options">options</h3> 
        <p>Options can be set via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">mongodb.connectionsPerHost</span>  <span class="p">=</span> <span class="s">100</span>
 </code></pre> 
        </div> 
        <p>or programmatically:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Mongodb</span><span class="o">()</span>
@@ -199,9 +199,9 @@
        </div> 
        <p>### connection URI</p> 
        <p>Default connection URI is defined by the <code class="highlighter-rouge codehilite">db</code> property. Mongodb URI looks like:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">db</span> <span class="p">=</span> <span class="s">mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database[.collection]][?options]]</span>
 </code></pre> 
@@ -209,9 +209,9 @@
        <p>For more detailed information please check: <a href="http://api.mongodb.org/java/2.13/com/mongodb/MongoClientURI.html" target="_blank">MongoClientURI</a>.</p> 
        <h3 id="mongodb-driver-two-or-more-connections">two or more connections</h3> 
        <p>Use <a href="/apidocs/org/jooby/mongodb/Mongodb.html#-named">named</a> when you need two or more <code class="highlighter-rouge codehilite">mongodb</code> connections:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Mongodb</span><span class="o">(</span><span class="s">"db1"</span><span class="o">).</span><span class="na">named</span><span class="o">());</span>
@@ -229,9 +229,9 @@
        <p>{{mongodb-session.md}}</p> 
        <p>That’s all folks! Enjoy it!!</p> 
        <h3 id="mongodb-driver-mongodb-conf">mongodb.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c">################################################################################################### </span>
 <span class="c"># mongodb </span>

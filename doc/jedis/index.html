@@ -118,9 +118,9 @@
       <div class="datalist-content"> 
        <p><a href="http://redis.io/" target="_blank">Redis</a> cache and key/value data store for Jooby. Exposes a <a href="https://github.com/xetorthio/jedis" target="_blank">Jedis</a> service.</p> 
        <h3 id="jedis-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
@@ -131,17 +131,17 @@
        </div> 
        <h3 id="jedis-usage">usage</h3> 
        <p>It is pretty straightforward:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c"># define a database URI </span>
 <span class="py">db</span> <span class="p">=</span> <span class="s">"redis://localhost:6379"</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Redis</span><span class="o">());</span>
@@ -158,9 +158,9 @@
        <h3 id="jedis-configuration">configuration</h3> 
        <p>This module creates a [JedisPool]. A default pool is created with a max of <code class="highlighter-rouge codehilite">128</code> instances.</p> 
        <p>The pool can be customized from your <code class="highlighter-rouge codehilite">application.conf</code>:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">db</span> <span class="p">=</span> <span class="s">"redis://localhost:6379"</span>
 
@@ -170,9 +170,9 @@
        </div> 
        <h4>two or more redis connections</h4> 
        <p>In case you need two or more Redis connection, just do:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Redis</span><span class="o">());</span> <span class="c1">// default is "db"</span>
@@ -188,19 +188,19 @@
 </code></pre> 
        </div> 
        <p>application.conf:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">db</span> <span class="p">=</span> <span class="s">"redis://localhost:6379/0"</span>
 
 <span class="py">db1</span> <span class="p">=</span> <span class="s">"redis://localhost:6379/1"</span>
 </code></pre> 
        </div> 
-       <p>Pool configuration for <code class="highlighter-rouge codehilite">db1</code> is inherited from <code class="highlighter-rouge codehilite">jedis.pool</code>. If you need<br> to tweak the pool configuration for <code class="highlighter-rouge codehilite">db1</code> just do:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <p>Pool configuration for <code class="highlighter-rouge codehilite">db1</code> is inherited from <code class="highlighter-rouge codehilite">jedis.pool</code>. If you need to tweak the pool configuration for <code class="highlighter-rouge codehilite">db1</code> just do:</p> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="py">db1</span> <span class="p">=</span> <span class="s">"redis://localhost:6379/1"</span>
 
@@ -217,9 +217,9 @@
       </div> 
       <div class="datalist-content"> 
        <h3 id="redis-session-store-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Redis</span><span class="o">());</span>
@@ -236,9 +236,9 @@
        <h3 id="redis-session-store-options">options</h3> 
        <h4>timeout</h4> 
        <p>By default, a <a href="http://redis.io" target="_blank">Redis</a> session will expire after <code class="highlighter-rouge codehilite">30 minutes</code>. Changing the default timeout is as simple as:</p> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
 
@@ -255,9 +255,9 @@
        <p>That’s all folks! Enjoy it!</p> 
        <p>TBD: Object mapping? https://github.com/xetorthio/johm?</p> 
        <h3 id="redis-session-store-jedis-conf">jedis.conf</h3> 
-       <div class="highlighter-rouge codehilite"> 
+       <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="c"># jedis default config </span>
 <span class="c"># jedis </span>
