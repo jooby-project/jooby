@@ -1,6 +1,6 @@
 .codehilite .hll { background-color: #ffffcc }
 .codehilite .c { color: #999988; font-style: italic } /* Comment */
-/* Error .codehilite .err { color: #a61717; background-color: #e3d2d2 }  */
+/* Error.codehilite .err { color: #a61717; background-color: #e3d2d2 }
 .codehilite .k { color: #000000; font-weight: bold } /* Keyword */
 .codehilite .o { color: #000000; font-weight: bold } /* Operator */
 .codehilite .cm { color: #999988; font-style: italic } /* Comment.Multiline */
@@ -35,7 +35,7 @@
 .codehilite .nf { color: #990000; font-weight: bold } /* Name.Function */
 .codehilite .nl { color: #990000; font-weight: bold } /* Name.Label */
 .codehilite .nn { color: #555555 } /* Name.Namespace */
-.codehilite .nt { color: #000080 } /* Name.Tag */
+.codehilite .nt { color: #63a35c } /* Name.Tag */
 .codehilite .nv { color: #008080 } /* Name.Variable */
 .codehilite .ow { color: #000000; font-weight: bold } /* Operator.Word */
 .codehilite .w { color: #bbbbbb } /* Text.Whitespace */
