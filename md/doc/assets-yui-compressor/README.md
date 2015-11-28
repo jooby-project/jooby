@@ -2,6 +2,8 @@
 
 <a href="http://yui.github.io/yuicompressor">Yui compressor</a>.
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml
@@ -55,3 +57,7 @@ assets {
    preserve-semi: true
  }
 }
+
+# see also
+
+{{available-asset-procesors.md}}

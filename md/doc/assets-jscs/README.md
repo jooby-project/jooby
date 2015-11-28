@@ -2,6 +2,8 @@
 
 <a href="http://jscs.info/">JavaScript Code Style checker</a>.
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml
@@ -12,6 +14,12 @@
   <scope>test</scope>
 </dependency>
 ```
+
+## screenshot
+
+Here is a screenshot of the [live compiler](/doc/assets/#assets-live-compiler-and-error-report) for <a href="http://jscs.info/">JavaScript Code Style checker</a>:
+
+<img alt="live compiler" width="75%" src="http://jooby.org/resources/images/jscs.png">
 
 ## usage
 
@@ -43,3 +51,7 @@ assets {
  }
 }
 ```
+
+# see also
+
+{{available-asset-procesors.md}}

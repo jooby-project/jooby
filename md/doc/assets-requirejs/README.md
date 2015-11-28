@@ -2,6 +2,8 @@
 
 <a href="http://requirejs.org/docs/optimization.html">require.js optimizer</a> resolve and optimize require.js files.
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml
@@ -40,3 +42,7 @@ assets {
  }
 }
 ```
+
+# see also
+
+{{available-asset-procesors.md}}

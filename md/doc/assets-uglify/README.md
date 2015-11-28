@@ -2,6 +2,8 @@
 
 <a href="https://github.com/mishoo/UglifyJS2">UglifyJs2</a> JavaScript parser / mangler / compressor / beautifier toolkit.
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml
@@ -40,3 +42,7 @@ assets {
  }
 }
 ```
+
+# see also
+
+{{available-asset-procesors.md}}

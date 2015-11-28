@@ -2,6 +2,8 @@
 
 A fast, efficient, and well tested CSS minifier, via: <a href="https://github.com/jakubpawlowicz/clean-css">clean-css</a>
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml
@@ -38,3 +40,7 @@ assets {
  }
 }
 ```
+
+# see also
+
+{{available-asset-procesors.md}}

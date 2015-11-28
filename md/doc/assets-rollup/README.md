@@ -2,6 +2,8 @@
 
 <a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler.
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml
@@ -47,3 +49,7 @@ assets {
 ```
 
 See: <a href="https://github.com/rollup/rollup/wiki/JavaScript-API">rollup.js options.</a>
+
+# see also
+
+{{available-asset-procesors.md}}

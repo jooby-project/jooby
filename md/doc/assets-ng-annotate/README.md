@@ -2,6 +2,8 @@
 
 <a href="https://github.com/olov/ng-annotate">ng-annotate</a> add, remove and rebuild AngularJS dependency injection annotations.
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml
@@ -38,3 +40,7 @@ assets {
  }
 }
 ```
+
+# see also
+
+{{available-asset-procesors.md}}

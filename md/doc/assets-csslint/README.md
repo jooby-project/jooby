@@ -2,6 +2,8 @@
 
 <a href="http://csslint.net/">CSSLint</a> automated linting of Cascading Stylesheets.
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml
@@ -26,3 +28,7 @@ assets {
  }
 }
 ```
+
+# see also
+
+{{available-asset-procesors.md}}

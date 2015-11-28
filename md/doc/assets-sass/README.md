@@ -2,6 +2,8 @@
 
 <a href="http://sass-lang.com/">sass-lang</a> implementation from <a href="https://github.com/sass/sass">Sass (ruby)</a> Sass is the most mature, stable, and powerful professional grade CSS extension language in the world.
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml
@@ -40,3 +42,7 @@ assets {
  }
 }
 ```
+
+# see also
+
+{{available-asset-procesors.md}}

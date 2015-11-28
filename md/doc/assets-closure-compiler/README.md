@@ -2,6 +2,8 @@
 
 <a href="https://developers.google.com/closure/compiler">Closure Compiler</a> is a tool for making JavaScript download and run faster.
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml
@@ -37,3 +39,7 @@ assets {
  }
 }
 ```
+
+# see also
+
+{{available-asset-procesors.md}}

@@ -2,7 +2,7 @@
 
 The asset module is library to validate, concatenate, minify or compress JavaScript and CSS assets. It also adds the ability to write these assets in other languages and process/compile them to another language. Finally, it help you to write high quality code by validate JavaScript and CSS too.
 
-A variety of processors are available: ([jshint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jshint), [clean-css](https://github.com/jooby-project/jooby/tree/master/jooby-assets-clean-css), [jshint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jshint), [uglify](https://github.com/jooby-project/jooby/tree/master/jooby-assets-uglify), [closure-compiler](https://github.com/jooby-project/jooby/tree/master/jooby-assets-closure-compiler), etc..), but also you might want to write your owns.
+A variety of processors are available: ([jshint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jshint), [clean-css](https://github.com/jooby-project/jooby/tree/master/jooby-assets-clean-css), [jscs](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jscs), [uglify](https://github.com/jooby-project/jooby/tree/master/jooby-assets-uglify), [closure-compiler](https://github.com/jooby-project/jooby/tree/master/jooby-assets-closure-compiler), etc..), but also you might want to write your owns.
 
 ## dependency
 
@@ -146,7 +146,7 @@ The generic ```dist``` will be used it for any other environment and here we jus
 
 This module comes with a live compiler and fancy error reporter, which is enabled by default in ```dev```:
 
-<img width="553" alt="live compiler" src="http://jooby.org/resources/images/asset-compiler.png">
+<img alt="live compiler" width="75%" src="http://jooby.org/resources/images/jshint.png">
 
 If you want to turn it off, just set the ```assets.watch = false```.
 

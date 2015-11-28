@@ -2,6 +2,8 @@
 
 Replace ```${expressions}``` with a value from ```application.conf```
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml
@@ -37,3 +39,7 @@ assets {
  }
 }
 ```
+
+# see also
+
+{{available-asset-procesors.md}}
