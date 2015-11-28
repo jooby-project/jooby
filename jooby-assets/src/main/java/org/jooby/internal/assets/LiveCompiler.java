@@ -97,24 +97,42 @@ public class LiveCompiler implements Route.Handler, Managed {
   private void reportErr(final Request req, final Response rsp, final AssetException ex)
       throws Exception {
     StringBuilder buff = new StringBuilder();
-    buff.append("<!doctype html>\n")
-        .append("<html>\n")
-        .append("<head>\n")
-        .append("<title>Asset compiler</title>\n")
-        .append("<style>\n")
-        .append(
-            "body {font-family: monospace; margin-left: 20px;background-color:#f8f8f8}\n")
-        .append("footer {font-weight: 300; line-height: 44px; margin-top: 10px;}\n")
-        .append("hr {background-color: #f7f7f9;}\n")
-        .append("ul {padding: 0;}\n")
-        .append("ul li {list-style: none; border-bottom: 1px solid #ccc;}\n")
-        .append("</style>\n")
-        .append("<link href=\"/org/jooby/assets/live/styles/github.css\" rel=\"stylesheet\">\n")
-        .append(
-            "<script type=\"text/javascript\" src=\"/org/jooby/assets/live/highlight.pack.js\"></script>\n")
-        .append("</head>\n")
-        .append("\n")
-        .append("<body>\n")
+    buff.append("<!doctype html>\n" +
+        "<html lang=\"en\">\n" +
+        " <head> \n" +
+        "  <meta charset=\"UTF-8\"> \n" +
+        "  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \n" +
+        "  <title>jooby: assets compiler</title>\n" +
+        "  <link href=\"/org/jooby/assets/live/images/apps/favicon.ico\" rel=\"shortcut icon\"> \n"
+        +
+        "  <link href=\"/org/jooby/assets/live/images/apps/favicon.png\" rel=\"icon\" sizes=\"16x16\" type=\"image/png\"> \n"
+        +
+        "  <link href=\"/org/jooby/assets/live/images/apps/favicon32.png\" rel=\"icon\" sizes=\"32x32\" type=\"image/png\"> \n"
+        +
+        "  <link href=\"/org/jooby/assets/live/images/apps/favicon96.png\" rel=\"icon\" sizes=\"96x96\" type=\"image/png\"> \n"
+        +
+        "  <link href=\"/org/jooby/assets/live/images/apps/android-chrome.png\" rel=\"icon\" sizes=\"192x192\" type=\"image/png\"> \n"
+        +
+        "  <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Raleway:400,300,500,700\"> \n"
+        +
+        "  <link rel=\"stylesheet\" href=\"/org/jooby/assets/live/styles/application.css\"> \n" +
+        "  <link rel=\"stylesheet\" href=\"/org/jooby/assets/live/styles/github.css\"> \n" +
+        " </head> \n" +
+        " <body class=\"page-section\"> \n" +
+        "  <header class=\"site-header\"> \n" +
+        "   <div class=\"row\">\n" +
+        "    <a href=\"/\" title=\"Home\" class=\"site-logo\"><img src=\"/org/jooby/assets/live/images/logo_jooby-2x.png\" alt=\"Logo Jooby\" width=\"76\" height=\"31\"></a>\n"
+        +
+        "   </div> \n" +
+        "  </header> \n" +
+        "  <main role=\"main\" class=\"site-content\"> \n" +
+        "   <div class=\"section-title\"> \n" +
+        "    <div class=\"row\"> \n" +
+        "     <h1>Asset compiler</h1> \n" +
+        "    </div> \n" +
+        "   </div> \n" +
+        "   <div class=\"row\"> \n" +
+        "   <div class=\"section-content\"> ")
         .append("<h2> ").append(ex.getId()).append(" found ").append(ex.getProblems().size())
         .append(" problem(s):</h2>\n")
         .append("<ul>\n");
@@ -131,16 +149,22 @@ public class LiveCompiler implements Route.Handler, Managed {
           .append("</code></pre>");
       String evidence = problem.getEvidence();
       if (evidence.length() > 0) {
-        buff.append("<pre><code>").append(evidence.trim()).append("</code></pre>\n");
+        buff.append("<div class=\"highlighter-rouge\">");
+        buff.append("<pre class=\"highlight\"><code>").append(evidence.trim())
+            .append("</code></pre></div>\n");
       }
       buff.append("</li>\n");
     });
 
     buff.append("</ul>\n")
+        .append(
+            "<script type=\"text/javascript\" src=\"/org/jooby/assets/live/highlight.pack.js\"></script>\n")
         .append("<script>hljs.initHighlightingOnLoad();</script>")
-        .append("</body>\n")
-        .append("\n")
-        .append("</html>");
+        .append("</div> \n" +
+            "</div> \n" +
+            "  </main> \n" +
+            " </body>\n" +
+            "</html>");
 
     rsp.send(Results.ok(buff.toString()).type(MediaType.html).status(200));
 
