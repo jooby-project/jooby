@@ -145,6 +145,10 @@ li > code.highlighter-rouge {
   background-color: #f4f4f4;
   padding: 18px 0 17px;
   letter-spacing: 1.5px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
 }
 .site-footer p {
   color: #21474c;
@@ -672,14 +676,6 @@ a.module-box:hover [class*="icon-"] {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
 }
-
-.module-box.min {
-  width: 190px;
-  height: 131px;
-  margin: 0 7px 15px;
-  padding: 57px 14px 0;
-}
-
 .module-box [class*="icon-"] {
   position: absolute;
   top: 57px;
@@ -730,6 +726,8 @@ html {
   -webkit-text-size-adjust: 100%;
   /* 2 */
   font: 14px/16px "Raleway";
+  position: relative;
+  min-height: 100%;
 }
 
 /**
@@ -738,6 +736,7 @@ html {
 body {
   margin: 0;
   padding-top: 69px;
+  padding-bottom: 70px;
 }
 
 /* HTML5 display definitions
@@ -1289,6 +1288,7 @@ th {
   position: relative;
   padding-left: 15px;
   margin-bottom: 14px;
+  line-height: 22px !important;
 }
 .section-content ul li:after {
   content: "";
@@ -1298,6 +1298,13 @@ th {
   width: 2px;
   height: 7px;
   background-color: #f9b334;
+}
+.section-content ul code {
+  border: 1px solid #e3e3e3;
+  border-radius: 5px;
+  font-size: 14px !important;
+  padding: 2px 4px;
+  word-wrap: break-word;
 }
 .section-content ul p {
   margin-bottom: 0;
