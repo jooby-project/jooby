@@ -22,7 +22,7 @@ import org.jooby.Err;
 import org.jooby.Response;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.exception.RequiresHttpAction;
-import org.pac4j.http.client.BasicAuthClient;
+import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
 
 public class AuthResponse {
 
@@ -37,7 +37,7 @@ public class AuthResponse {
       int statusCode = action.getCode();
       // on error, let jooby handle it
       if (statusCode >= 400) {
-        if (client instanceof BasicAuthClient) {
+        if (client instanceof IndirectBasicAuthClient) {
           rsp.status(statusCode).end();
         } else {
           throw new Err(statusCode, action);

@@ -84,6 +84,7 @@ public class AuthCallback implements Route.Filter {
 
       Session session = req.session();
       if (profile != null) {
+        // req.set(Auth.ID, profile.getId());
         session.set(Auth.ID, profile.getId());
         store.set(profile);
       }

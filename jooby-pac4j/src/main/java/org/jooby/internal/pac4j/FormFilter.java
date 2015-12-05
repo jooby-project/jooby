@@ -24,9 +24,7 @@ import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route.Chain;
-import org.jooby.pac4j.AuthStore;
-import org.pac4j.core.profile.UserProfile;
-import org.pac4j.http.client.FormClient;
+import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.http.profile.HttpProfile;
 
 public class FormFilter extends AuthFilter {
@@ -75,9 +73,8 @@ public class FormFilter extends AuthFilter {
 
   private String callback;
 
-  public FormFilter(final AuthStore<UserProfile> store,
-      final String loginUrl, final String callback) {
-    super(FormClient.class, HttpProfile.class, store);
+  public FormFilter(final String loginUrl, final String callback) {
+    super(FormClient.class, HttpProfile.class);
     this.loginUrl = loginUrl;
     this.callback = URI.create(callback).getPath();
   }

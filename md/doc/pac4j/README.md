@@ -51,7 +51,7 @@ If basic auth is all you need, then:
 }
 ```
 
-A ```BasicAuthClient``` depends on ```UsernamePasswordAuthenticator```, default is
+A ```IndirectBasicAuthClient``` depends on ```UsernamePasswordAuthenticator```, default is
 ```SimpleTestUsernamePasswordAuthenticator``` which is great for development, but nothing good
 for other environments. Next example setup a basic auth with a custom:
 ```UsernamePasswordAuthenticator```:
@@ -79,7 +79,7 @@ Form is the default authentication method so previous example is the same as:
 }
 ```
 
-Like basic auth, form auth depends ```UsernamePasswordAuthenticator``` and a ```UsernameProfileCreator```.
+Like basic auth, form auth depends on a ```UsernamePasswordAuthenticator```.
 
 A login form will be ready under the path: ```/login```. Again, it is a very basic login
 form useful for development. If you need a custom login page, just add a route before the

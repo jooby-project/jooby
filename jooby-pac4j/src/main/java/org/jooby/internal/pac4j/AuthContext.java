@@ -18,15 +18,21 @@
  */
 package org.jooby.internal.pac4j;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.jooby.Cookie.Definition;
 import org.jooby.Err;
 import org.jooby.Request;
 import org.jooby.Response;
+import org.jooby.Session;
 import org.jooby.Status;
+import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.WebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,16 +75,18 @@ public class AuthContext implements WebContext {
 
   @Override
   public void setSessionAttribute(final String name, final Object value) {
+    Session session = req.session();
     if (value == null) {
-      req.session().unset(name);
+      session.unset(name);
     } else {
-      req.session().set(name, value.toString());
+      session.set(name, value.toString());
     }
   }
 
   @Override
   public Object getSessionAttribute(final String name) {
-    return req.session().get(name).toOptional().orElse(null);
+    Session session = req.session();
+    return session.get(name).toOptional().orElse(null);
   }
 
   @Override
@@ -142,6 +150,63 @@ public class AuthContext implements WebContext {
   @Override
   public String toString() {
     return req.toString();
+  }
+
+  @Override
+  public Object getRequestAttribute(final String name) {
+    Optional<Object> attr = req.get(name);
+    return attr.orElse(null);
+  }
+
+  @Override
+  public void setRequestAttribute(final String name, final Object value) {
+    req.set(name, value);
+  }
+
+  @Override
+  public Object getSessionIdentifier() {
+    return req.session().id();
+  }
+
+  @Override
+  public String getRemoteAddr() {
+    return req.ip();
+  }
+
+  @Override
+  public void setResponseCharacterEncoding(final String encoding) {
+    // NOOP
+  }
+
+  @Override
+  public void setResponseContentType(final String content) {
+    rsp.type(content);
+  }
+
+  @Override
+  public Collection<Cookie> getRequestCookies() {
+    return req.cookies().stream()
+        .map(c -> {
+          Cookie cookie = new Cookie(c.name(), c.value().orElse(null));
+          c.domain().ifPresent(cookie::setDomain);
+          c.path().ifPresent(cookie::setPath);
+          cookie.setHttpOnly(c.httpOnly());
+          cookie.setSecure(c.secure());
+          return cookie;
+        })
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public void addResponseCookie(final Cookie cookie) {
+    Definition c = new Definition(cookie.getName(), cookie.getValue());
+    Optional.ofNullable(cookie.getDomain()).ifPresent(c::domain);
+    Optional.ofNullable(cookie.getPath()).ifPresent(c::path);
+    c.httpOnly(cookie.isHttpOnly());
+    c.maxAge(cookie.getMaxAge());
+    c.secure(cookie.isSecure());
+    rsp.cookie(c);
+
   }
 
 }

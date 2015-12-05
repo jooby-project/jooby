@@ -2,6 +2,7 @@ package org.jooby.internal.pac4j;
 
 import static org.easymock.EasyMock.expect;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
+import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
@@ -304,6 +306,42 @@ public class AuthCallbackTest {
       @Override
       public String getFullRequestURL() {
         return null;
+      }
+
+      @Override
+      public Object getRequestAttribute(final String name) {
+        return null;
+      }
+
+      @Override
+      public void setRequestAttribute(final String name, final Object value) {
+      }
+
+      @Override
+      public Object getSessionIdentifier() {
+        return null;
+      }
+
+      @Override
+      public String getRemoteAddr() {
+        return null;
+      }
+
+      @Override
+      public void setResponseCharacterEncoding(final String encoding) {
+      }
+
+      @Override
+      public void setResponseContentType(final String content) {
+      }
+
+      @Override
+      public Collection<Cookie> getRequestCookies() {
+        return null;
+      }
+
+      @Override
+      public void addResponseCookie(final Cookie cookie) {
       }
     };
   }

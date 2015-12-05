@@ -8,7 +8,7 @@ import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.exception.RequiresHttpAction;
-import org.pac4j.http.client.BasicAuthClient;
+import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
 
 public class AuthResponseTest {
 
@@ -66,7 +66,7 @@ public class AuthResponseTest {
   }
 
   public void statusCode() throws Exception {
-    new MockUnit(Response.class, BasicAuthClient.class, RequiresHttpAction.class)
+    new MockUnit(Response.class, IndirectBasicAuthClient.class, RequiresHttpAction.class)
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
           expect(rsp.committed()).andReturn(false);
@@ -78,7 +78,7 @@ public class AuthResponseTest {
         })
         .run(unit -> {
           new AuthResponse(unit.get(Response.class))
-              .handle(unit.get(BasicAuthClient.class), unit.get(RequiresHttpAction.class));
+              .handle(unit.get(IndirectBasicAuthClient.class), unit.get(RequiresHttpAction.class));
         });
   }
 

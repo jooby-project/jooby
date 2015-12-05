@@ -31,6 +31,8 @@ import org.jooby.Session;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.profile.UserProfile;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 
 /**
@@ -41,11 +43,18 @@ import com.google.common.collect.ImmutableSet;
  */
 public class AuthSessionStore implements AuthStore<UserProfile> {
 
+  private static final String SEP = "__;_;";
+
   private static final String CLASS = "class";
 
   private static final String REMEMBERED = "remembered";
 
-  private static final Set<String> SPECIAL_PROPERTIES = ImmutableSet.of(CLASS, REMEMBERED);
+  private static final String PERMISSIONS = "permissions";
+
+  private static final String ROLES = "roles";
+
+  private static final Set<String> SPECIAL_PROPERTIES = ImmutableSet.of(CLASS, REMEMBERED,
+      PERMISSIONS);
 
   private Provider<Session> session;
 
@@ -76,6 +85,10 @@ public class AuthSessionStore implements AuthStore<UserProfile> {
     });
     profile.setRemembered(session.get(key(prefix, REMEMBERED)).booleanValue());
     profile.setId(id);
+    profile.addPermissions(
+        Splitter.on(SEP).splitToList(session.get(key(prefix, PERMISSIONS)).value()));
+    profile.addRoles(
+        Splitter.on(SEP).splitToList(session.get(key(prefix, ROLES)).value()));
     return Optional.of(profile);
   }
 
@@ -87,6 +100,8 @@ public class AuthSessionStore implements AuthStore<UserProfile> {
     attributes.forEach((k, v) -> session.set(key(prefix, k), v.toString()));
     session.set(key(prefix, REMEMBERED), profile.isRemembered());
     session.set(key(prefix, CLASS), profile.getClass().getName());
+    session.set(key(prefix, PERMISSIONS), Joiner.on(SEP).join(profile.getPermissions()));
+    session.set(key(prefix, ROLES), Joiner.on(SEP).join(profile.getRoles()));
   }
 
   @Override

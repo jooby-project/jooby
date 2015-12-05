@@ -2,24 +2,28 @@ package org.jooby.internal.pac4j;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jooby.Cookie;
 import org.jooby.Err;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
 import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Session;
 import org.jooby.Status;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 public class AuthContextTest {
 
@@ -124,6 +128,145 @@ public class AuthContextTest {
         .run(unit -> {
           AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
           assertEquals("v", ctx.getSessionAttribute("s"));
+        });
+  }
+
+  @Test
+  public void getReqAttr() throws Exception {
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.get("r")).andReturn(Optional.of("v"));
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          assertEquals("v", ctx.getRequestAttribute("r"));
+        });
+
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.get("r")).andReturn(Optional.empty());
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          assertEquals(null, ctx.getRequestAttribute("r"));
+        });
+  }
+
+  @Test
+  public void setAttr() throws Exception {
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.set("r", "v")).andReturn(req);
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          ctx.setRequestAttribute("r", "v");
+        });
+
+  }
+
+  @Test
+  public void sessionID() throws Exception {
+    new MockUnit(Request.class, Response.class, Session.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Session session = unit.get(Session.class);
+          expect(session.id()).andReturn("sid");
+
+          Request req = unit.get(Request.class);
+          expect(req.session()).andReturn(session);
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          assertEquals("sid", ctx.getSessionIdentifier());
+        });
+  }
+
+  @Test
+  public void getRemmoteAddr() throws Exception {
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.ip()).andReturn("0.0.0.0");
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          assertEquals("0.0.0.0", ctx.getRemoteAddr());
+        });
+  }
+
+  @Test
+  public void setEncoding() throws Exception {
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          ctx.setResponseCharacterEncoding("UTF-8");
+        });
+  }
+
+  @Test
+  public void setContentType() throws Exception {
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Response rsp = unit.get(Response.class);
+          expect(rsp.type("text/html")).andReturn(rsp);
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          ctx.setResponseContentType("text/html");
+        });
+  }
+
+  @Test
+  public void getCookies() throws Exception {
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Cookie c = unit.mock(Cookie.class);
+          expect(c.name()).andReturn("c");
+          expect(c.value()).andReturn(Optional.of("v"));
+          expect(c.domain()).andReturn(Optional.of("jooby.org"));
+          expect(c.path()).andReturn(Optional.of("/"));
+          expect(c.httpOnly()).andReturn(true);
+          expect(c.secure()).andReturn(false);
+
+          Request req = unit.get(Request.class);
+          List<Cookie> cookies = Lists.newArrayList(c);
+          expect(req.cookies()).andReturn(cookies);
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          assertEquals(1, ctx.getRequestCookies().size());
+        });
+  }
+
+  @Test
+  public void addCookie() throws Exception {
+    org.pac4j.core.context.Cookie cookie = new org.pac4j.core.context.Cookie("c", "v");
+    cookie.setDomain("jooby.org");
+    cookie.setPath("/");
+    cookie.setHttpOnly(true);
+    cookie.setSecure(false);
+    cookie.setMaxAge(-1);
+
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Response rsp = unit.get(Response.class);
+          expect(rsp.cookie(isA(Cookie.Definition.class))).andReturn(rsp);
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          ctx.addResponseCookie(cookie);
         });
   }
 

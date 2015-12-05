@@ -22,8 +22,13 @@ import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -37,26 +42,34 @@ import org.jooby.internal.pac4j.AuthCallback;
 import org.jooby.internal.pac4j.AuthContext;
 import org.jooby.internal.pac4j.AuthFilter;
 import org.jooby.internal.pac4j.AuthLogout;
+import org.jooby.internal.pac4j.AuthorizerFilter;
 import org.jooby.internal.pac4j.BasicAuth;
 import org.jooby.internal.pac4j.ClientType;
 import org.jooby.internal.pac4j.ClientsProvider;
+import org.jooby.internal.pac4j.ConfigProvider;
 import org.jooby.internal.pac4j.FormAuth;
 import org.jooby.internal.pac4j.FormFilter;
 import org.jooby.scope.RequestScoped;
 import org.jooby.util.Providers;
+import org.pac4j.core.authorization.AuthorizationChecker;
+import org.pac4j.core.authorization.Authorizer;
+import org.pac4j.core.authorization.DefaultAuthorizationChecker;
 import org.pac4j.core.client.Client;
+import org.pac4j.core.client.ClientFinder;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
-import org.pac4j.http.client.BasicAuthClient;
-import org.pac4j.http.credentials.SimpleTestUsernamePasswordAuthenticator;
-import org.pac4j.http.credentials.UsernamePasswordAuthenticator;
+import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
+import org.pac4j.http.credentials.authenticator.UsernamePasswordAuthenticator;
+import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 import org.pac4j.http.profile.HttpProfile;
-import org.pac4j.http.profile.UsernameProfileCreator;
 
+import com.google.common.collect.Maps;
 import com.google.inject.Binder;
+import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.multibindings.OptionalBinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -111,7 +124,7 @@ import com.typesafe.config.ConfigFactory;
  * </pre>
  *
  * <p>
- * A {@link BasicAuthClient} depends on {@link UsernamePasswordAuthenticator}, default is
+ * A {@link IndirectBasicAuthClient} depends on {@link UsernamePasswordAuthenticator}, default is
  * {@link SimpleTestUsernamePasswordAuthenticator} which is great for development, but nothing good
  * for other environments. Next example setup a basic auth with a custom:
  * {@link UsernamePasswordAuthenticator}:
@@ -145,8 +158,7 @@ import com.typesafe.config.ConfigFactory;
  * </pre>
  *
  * <p>
- * Like basic auth, form auth depends {@link UsernamePasswordAuthenticator} and a
- * {@link UsernameProfileCreator}.
+ * Like basic auth, form auth depends on a {@link UsernamePasswordAuthenticator}.
  * </p>
  *
  * <p>
@@ -281,45 +293,96 @@ public class Auth implements Jooby.Module {
 
   private Optional<String> redirecTo = Optional.empty();
 
+  private Map<Map.Entry<String, String>, Object> authorizers = new LinkedHashMap<>();
+
+  private Set<Object> bindedProfiles = new HashSet<>();
+
   /**
-   * Add a form auth client.
+   * Protect one or more urls with an {@link Authorizer}. For example:
    *
-   * @param pattern URL pattern to protect.
-   * @param authenticator Authenticator to use.
-   * @param profileCreator Profile creator to use.
+   * <pre>
+   * {
+   *   use(new Auth()
+   *     .form("*")
+   *     .authorizer("admin", "/admin/**", new RequireAnyRoleAuthorizer("admin"))
+   *     );
+   * }
+   * </pre>
+   *
+   * <p>
+   * Previous example will protect any url with form authentication and require and admin role for
+   * <code>/admin/</code> or subpath of it.
+   * </p>
+   *
+   * @param name Authorizer name.
+   * @param pattern URL pattern to protected.
+   * @param authorizer Authorizer to apply.
    * @return This module.
    */
-  @SuppressWarnings("unchecked")
-  public Auth form(final String pattern,
-      final Class<? extends UsernamePasswordAuthenticator> authenticator,
-      final Class<? extends UsernameProfileCreator> profileCreator) {
-    bindings.add((binder, config) -> {
-      binder.bind(UsernamePasswordAuthenticator.class).to(authenticator);
-
-      if (profileCreator == UsernameProfileCreator.class) {
-        binder.bind(UsernameProfileCreator.class);
-      } else {
-        binder.bind(UsernameProfileCreator.class).to(profileCreator);
-      }
-
-      bindProfile(binder, HttpProfile.class);
-
-      Multibinder.newSetBinder(binder, Client.class)
-          .addBinding().toProvider(FormAuth.class);
-
-      filter(binder, pattern, "Form", () -> (req, rsp, chain) ->
-          new FormFilter(req.require(AuthStore.class),
-              config.getString("auth.form.loginUrl"),
-              config.getString("auth.callback")
-          ).handle(req, rsp, chain)
-        );
-      });
-
+  public Auth authorizer(final String name, final String pattern, final Authorizer<?> authorizer) {
+    authorizer(authorizer, name, pattern);
     return this;
   }
 
   /**
-   * Add a form auth client. It setup a {@link UsernameProfileCreator}.
+   * Protect one or more urls with an {@link Authorizer}. For example:
+   *
+   * <pre>
+   * {
+   *   use(new Auth()
+   *     .form("*")
+   *     .authorizer("admin", "/admin/**", MyAuthorizer.class)
+   *     );
+   * }
+   * </pre>
+   *
+   * <p>
+   * Previous example will protect any url with form authentication and require and admin role for
+   * <code>/admin/</code> or subpath of it.
+   * </p>
+   *
+   * @param name Authorizer name.
+   * @param pattern URL pattern to protected.
+   * @param authorizer Authorizer to apply.
+   * @return This module.
+   */
+  @SuppressWarnings("rawtypes")
+  public Auth authorizer(final String name, final String pattern,
+      final Class<? extends Authorizer> authorizer) {
+    authorizer(authorizer, name, pattern);
+    return this;
+  }
+
+  /**
+   * Protect one or more urls with an {@link Authorizer}. For example:
+   *
+   * <pre>
+   * {
+   *   use(new Auth()
+   *     .form("*")
+   *     .authorizer("admin", "/admin/**", MyAuthorizer.class)
+   *     );
+   * }
+   * </pre>
+   *
+   * <p>
+   * Previous example will protect any url with form authentication and require and admin role for
+   * <code>/admin/</code> or subpath of it.
+   * </p>
+   *
+   * @param name Authorizer name.
+   * @param pattern URL pattern to protected.
+   * @param authorizer Authorizer to apply.
+   */
+  private void authorizer(final Object authorizer, final String name, final String pattern) {
+    requireNonNull(name, "An authorizer's name is required.");
+    requireNonNull(pattern, "An authorizer's pattern is required.");
+    requireNonNull(authorizer, "An authorizer is required.");
+    authorizers.put(Maps.immutableEntry(name, pattern), authorizer);
+  }
+
+  /**
+   * Add a form auth client.
    *
    * @param pattern URL pattern to protect.
    * @param authenticator Authenticator to use.
@@ -327,12 +390,26 @@ public class Auth implements Jooby.Module {
    */
   public Auth form(final String pattern,
       final Class<? extends UsernamePasswordAuthenticator> authenticator) {
-    return form(pattern, authenticator, UsernameProfileCreator.class);
+    bindings.add((binder, config) -> {
+      binder.bind(UsernamePasswordAuthenticator.class).to(authenticator);
+
+      bindProfile(binder, HttpProfile.class);
+
+      Multibinder.newSetBinder(binder, Client.class)
+          .addBinding().toProvider(FormAuth.class);
+
+      filter(binder, pattern, "Form",
+          () -> (req, rsp, chain) -> new FormFilter(
+              config.getString("auth.form.loginUrl"),
+              config.getString("auth.callback")).handle(req, rsp, chain));
+    });
+
+    return this;
   }
 
   /**
-   * Add a form auth client. It setup a {@link SimpleTestUsernamePasswordAuthenticator} and a
-   * {@link UsernameProfileCreator}. Useful for development.
+   * Add a form auth client. It setup a {@link SimpleTestUsernamePasswordAuthenticator}.
+   * Useful for development.
    *
    * @param pattern URL pattern to protect.
    * @return This module.
@@ -343,8 +420,7 @@ public class Auth implements Jooby.Module {
 
   /**
    * Add a form auth client, protecting all the urls <code>*</code>. It setup a
-   * {@link SimpleTestUsernamePasswordAuthenticator} and a {@link UsernameProfileCreator}. Useful
-   * for development.
+   * {@link SimpleTestUsernamePasswordAuthenticator}. Useful for development.
    *
    * @return This module.
    */
@@ -357,50 +433,29 @@ public class Auth implements Jooby.Module {
    *
    * @param pattern URL pattern to protect.
    * @param authenticator Authenticator to use.
-   * @param profileCreator Profile creator to use.
    * @return This module.
    */
-  @SuppressWarnings("unchecked")
   public Auth basic(final String pattern,
-      final Class<? extends UsernamePasswordAuthenticator> authenticator,
-      final Class<? extends UsernameProfileCreator> profileCreator) {
+      final Class<? extends UsernamePasswordAuthenticator> authenticator) {
     bindings.add((binder, config) -> {
       binder.bind(UsernamePasswordAuthenticator.class).to(authenticator);
-
-      if (profileCreator == UsernameProfileCreator.class) {
-        binder.bind(UsernameProfileCreator.class);
-      } else {
-        binder.bind(UsernameProfileCreator.class).to(profileCreator);
-      }
 
       bindProfile(binder, HttpProfile.class);
 
       Multibinder.newSetBinder(binder, Client.class)
           .addBinding().toProvider(BasicAuth.class);
 
-      filter(binder, pattern, "Basic", () -> (req, rsp, chain) ->
-          new AuthFilter(BasicAuthClient.class, HttpProfile.class, req.require(AuthStore.class))
-              .handle(req, rsp, chain)
-        );
-      });
+      filter(binder, pattern, "Basic",
+          () -> (req, rsp, chain) -> new AuthFilter(IndirectBasicAuthClient.class,
+              HttpProfile.class)
+                  .handle(req, rsp, chain));
+    });
     return this;
   }
 
   /**
-   * Add a basic auth client. It setup a {@link UsernameProfileCreator}.
-   *
-   * @param pattern URL pattern to protect.
-   * @param authenticator Authenticator to use.
-   * @return This module.
-   */
-  public Auth basic(final String pattern,
-      final Class<? extends UsernamePasswordAuthenticator> authenticator) {
-    return basic(pattern, authenticator, UsernameProfileCreator.class);
-  }
-
-  /**
-   * Add a basic auth client. It setup a {@link SimpleTestUsernamePasswordAuthenticator} and a
-   * {@link UsernameProfileCreator}. Useful for development.
+   * Add a basic auth client. It setup a {@link SimpleTestUsernamePasswordAuthenticator}. Useful
+   * for development.
    *
    * @param pattern URL pattern to protect.
    * @return This module.
@@ -411,8 +466,7 @@ public class Auth implements Jooby.Module {
 
   /**
    * Add a basic auth client, protecting all the urls <code>*</code>. It setup a
-   * {@link SimpleTestUsernamePasswordAuthenticator} and a {@link UsernameProfileCreator}. Useful
-   * for development.
+   * {@link SimpleTestUsernamePasswordAuthenticator}. Useful for development.
    *
    * @return This module.
    */
@@ -442,8 +496,8 @@ public class Auth implements Jooby.Module {
    * @param <U> UserProfile.
    * @return This module.
    */
-  public <C extends Credentials, U extends UserProfile> Auth
-      client(final Class<? extends Client<C, U>> client) {
+  public <C extends Credentials, U extends UserProfile> Auth client(
+      final Class<? extends Client<C, U>> client) {
     return client("*", client);
   }
 
@@ -486,6 +540,7 @@ public class Auth implements Jooby.Module {
    * @param <U> UserProfile.
    * @return This module.
    */
+
   @SuppressWarnings("unchecked")
   public <C extends Credentials, U extends UserProfile> Auth client(final String pattern,
       final Function<Config, Client<C, U>> provider) {
@@ -495,7 +550,7 @@ public class Auth implements Jooby.Module {
       Multibinder.newSetBinder(binder, Client.class)
           .addBinding().toInstance(provider.apply(config));
 
-      filter(binder, pattern, true, (Class<? extends Client<?, ?>>) client.getClass());
+      filter(binder, pattern, (Class<? extends Client<?, ?>>) client.getClass());
     });
     return this;
   }
@@ -517,7 +572,7 @@ public class Auth implements Jooby.Module {
       Multibinder.newSetBinder(binder, Client.class)
           .addBinding().to(client);
 
-      filter(binder, pattern, true, client);
+      filter(binder, pattern, client);
     });
     return this;
   }
@@ -560,9 +615,18 @@ public class Auth implements Jooby.Module {
     return this;
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
     binder.bind(Clients.class).toProvider(ClientsProvider.class);
+
+    binder.bind(org.pac4j.core.config.Config.class).toProvider(ConfigProvider.class);
+
+    OptionalBinder.newOptionalBinder(binder, AuthorizationChecker.class)
+        .setDefault().toInstance(new DefaultAuthorizationChecker());
+
+    OptionalBinder.newOptionalBinder(binder, ClientFinder.class)
+        .setDefault().toInstance((clients, context, clientName) -> Collections.emptyList());
 
     String fullcallback = config.getString("auth.callback");
     String callback = URI.create(fullcallback).getPath();
@@ -570,20 +634,20 @@ public class Auth implements Jooby.Module {
     Multibinder<Definition> routes = Multibinder
         .newSetBinder(binder, Route.Definition.class);
 
+    MapBinder<String, Authorizer> authorizers = MapBinder
+        .newMapBinder(binder, String.class, Authorizer.class);
+
     routes.addBinding()
-        .toInstance(
-            new Route.Definition("*", callback, (req, rsp, chain) -> req
-                .require(AuthCallback.class)
-                .handle(req, rsp, chain)
-            ).name("auth(Callback)")
-        );
+        .toInstance(new Route.Definition("*", callback, (req, rsp, chain) -> req
+            .require(AuthCallback.class).handle(req, rsp, chain))
+                .excludes("/favicon.ico")
+                .name("auth(Callback)"));
 
     routes.addBinding()
         .toInstance(
             new Route.Definition("*", logoutUrl.orElse(config.getString("auth.logout.url")),
-                new AuthLogout(redirecTo.orElse(config.getString("auth.logout.redirectTo")))
-            ).name("auth(Logout)")
-        );
+                new AuthLogout(redirecTo.orElse(config.getString("auth.logout.redirectTo"))))
+                    .name("auth(Logout)"));
 
     if (bindings.size() == 0) {
       // no auth client, go dev friendly and add a form auth
@@ -596,6 +660,19 @@ public class Auth implements Jooby.Module {
     binder.bind(AuthStore.class).to(storeClass);
 
     binder.bind(WebContext.class).to(AuthContext.class).in(RequestScoped.class);
+
+    this.authorizers.forEach((m, authorizer) -> {
+      String name = m.getKey();
+      routes.addBinding()
+          .toInstance(
+              new Route.Definition("*", m.getValue(), new AuthorizerFilter(name))
+                  .name("auth(" + name + ")"));
+      if (authorizer instanceof Authorizer) {
+        authorizers.addBinding(name).toInstance((Authorizer) authorizer);
+      } else {
+        authorizers.addBinding(name).to((Class) authorizer);
+      }
+    });
   }
 
   @Override
@@ -604,15 +681,15 @@ public class Auth implements Jooby.Module {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  private void filter(final Binder binder, final String pattern, final boolean stateless,
+  private void filter(final Binder binder, final String pattern,
       final Class<? extends Client<?, ?>> client) {
     String name = client.getSimpleName().replace("Client", "");
 
     Class profileType = ClientType.typeOf(client);
     bindProfile(binder, profileType);
 
-    filter(binder, pattern, name, () -> (req, rsp, chain) ->
-        new AuthFilter(client, profileType, req.require(AuthStore.class))
+    filter(binder, pattern, name,
+        () -> (req, rsp, chain) -> new AuthFilter(client, profileType)
             .handle(req, rsp, chain));
   }
 
@@ -621,14 +698,17 @@ public class Auth implements Jooby.Module {
 
     Multibinder.newSetBinder(binder, Route.Definition.class)
         .addBinding()
-        .toInstance(new Route.Definition("*", pattern, filter.get()).name("auth(" + name + ")"));
+        .toInstance(new Route.Definition("*", pattern, filter.get()).name("auth(" + name + ")")
+            .excludes("/favicon.ico"));
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   private void bindProfile(final Binder binder, final Class root) {
     Class profile = root;
     while (profile != Object.class) {
-      binder.bind(profile).toProvider(Providers.outOfScope(profile)).in(RequestScoped.class);
+      if (bindedProfiles.add(profile)) {
+        binder.bind(profile).toProvider(Providers.outOfScope(profile)).in(RequestScoped.class);
+      }
       profile = profile.getSuperclass();
     }
   }

@@ -20,15 +20,14 @@ package org.jooby.internal.pac4j;
 
 import javax.inject.Inject;
 
-import org.pac4j.http.client.BasicAuthClient;
-import org.pac4j.http.credentials.UsernamePasswordAuthenticator;
-import org.pac4j.http.profile.UsernameProfileCreator;
+import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
+import org.pac4j.http.credentials.authenticator.UsernamePasswordAuthenticator;
 
-public class BasicAuth extends ClientProvider<BasicAuthClient> {
+public class BasicAuth extends ClientProvider<IndirectBasicAuthClient> {
 
   @Inject
-  public BasicAuth(final UsernamePasswordAuthenticator auth, final UsernameProfileCreator creator) {
-    super(new BasicAuthClient(auth, creator));
+  public BasicAuth(final UsernamePasswordAuthenticator auth) {
+    super(new IndirectBasicAuthClient(auth));
   }
 
 }

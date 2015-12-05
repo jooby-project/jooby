@@ -2,9 +2,11 @@ package org.jooby.pac4j;
 
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
-import org.pac4j.http.client.BasicAuthClient;
-import org.pac4j.http.credentials.SimpleTestUsernamePasswordAuthenticator;
-import org.pac4j.http.profile.UsernameProfileCreator;
+import org.pac4j.core.profile.UserProfile;
+import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
+import org.pac4j.http.credentials.HttpCredentials;
+import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
+import org.pac4j.http.profile.creator.AuthenticatorProfileCreator;
 
 public class BasicAuthAsClient2Feature extends ServerFeature {
 
@@ -12,9 +14,9 @@ public class BasicAuthAsClient2Feature extends ServerFeature {
 
     use(new Auth()
         .client(config ->
-        new BasicAuthClient(
+        new IndirectBasicAuthClient(
             new SimpleTestUsernamePasswordAuthenticator(),
-            new UsernameProfileCreator())
+            new AuthenticatorProfileCreator<HttpCredentials, UserProfile>())
         ));
 
     get("/auth/basic", req -> req.path());

@@ -18,18 +18,32 @@
  */
 package org.jooby.internal.pac4j;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.inject.Inject;
-import javax.inject.Named;
+import javax.inject.Provider;
 
-import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.http.credentials.authenticator.UsernamePasswordAuthenticator;
+import org.pac4j.core.authorization.Authorizer;
+import org.pac4j.core.client.Clients;
+import org.pac4j.core.config.Config;
 
-public class FormAuth extends ClientProvider<FormClient> {
+public class ConfigProvider implements Provider<Config> {
 
+  private Config config;
+
+  @SuppressWarnings("rawtypes")
   @Inject
-  public FormAuth(@Named("auth.form.loginUrl") final String login,
-      final UsernamePasswordAuthenticator auth) {
-    super(new FormClient(login, auth));
+  public ConfigProvider(final Clients clients, final Map<String, Authorizer> authorizers) {
+    config = new Config(clients);
+    for (Entry<String, Authorizer> entry : authorizers.entrySet()) {
+      config.addAuthorizer(entry.getKey(), entry.getValue());
+    }
+  }
+
+  @Override
+  public Config get() {
+    return config;
   }
 
 }

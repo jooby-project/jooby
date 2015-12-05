@@ -5,33 +5,34 @@ import javax.inject.Inject;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.pac4j.core.client.BaseClient;
-import org.pac4j.core.client.Mechanism;
-import org.pac4j.core.credentials.Authenticator;
+import org.pac4j.core.client.ClientType;
+import org.pac4j.core.client.RedirectAction;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.CredentialsException;
-import org.pac4j.http.client.AbstractHeaderClient;
+import org.pac4j.core.exception.RequiresHttpAction;
+import org.pac4j.http.client.indirect.IndirectHttpClient;
 import org.pac4j.http.credentials.TokenCredentials;
+import org.pac4j.http.credentials.authenticator.Authenticator;
+import org.pac4j.http.credentials.extractor.HeaderExtractor;
 import org.pac4j.http.profile.HttpProfile;
 
-public class CustomHeaderAuthFeature extends ServerFeature {
+public class IndirectHeaderClientAuthFeature extends ServerFeature {
 
   public static class HeaderAuthenticator implements Authenticator<TokenCredentials> {
 
     @Override
     public void validate(final TokenCredentials credentials) {
-      if (!credentials.getToken().equals("1234")) {
+      if (credentials == null || !credentials.getToken().equals("1234")) {
         throw new CredentialsException("Bad token");
       }
     }
 
   }
 
-  public static class HeaderClient extends AbstractHeaderClient<TokenCredentials> {
+  public static class HeaderClient extends IndirectHttpClient<TokenCredentials> {
 
     @Inject
     public HeaderClient(final HeaderAuthenticator auth) {
-      setRealmName("authentication required");
-      setHeaderName("X-Token");
-      setPrefixHeader("");
       setAuthenticator(auth);
       setProfileCreator(credentials -> {
         HttpProfile profile = new HttpProfile();
@@ -45,19 +46,38 @@ public class CustomHeaderAuthFeature extends ServerFeature {
     }
 
     @Override
-    protected TokenCredentials retrieveCredentialsFromHeader(final String header) {
-      return new TokenCredentials(header, "token");
-    }
-
-    @Override
     protected BaseClient<TokenCredentials, HttpProfile> newClient() {
       HeaderClient client = new HeaderClient((HeaderAuthenticator) getAuthenticator());
       return client;
     }
 
     @Override
-    public Mechanism getMechanism() {
-      return Mechanism.BASICAUTH_MECHANISM;
+    protected boolean isDirectRedirection() {
+      return true;
+    }
+
+    @Override
+    protected RedirectAction retrieveRedirectAction(final WebContext context) {
+      return RedirectAction.redirect(getContextualCallbackUrl(context));
+    }
+
+    @Override
+    protected TokenCredentials retrieveCredentials(final WebContext context)
+        throws RequiresHttpAction {
+      try {
+        TokenCredentials credentials = new HeaderExtractor("X-Token", "", "token").extract(context);
+        getAuthenticator().validate(credentials);
+        return credentials;
+      } catch (final CredentialsException e) {
+        logger.error("Credentials retrieval / validation failed", e);
+        throw RequiresHttpAction.unauthorized("Requires authentication", context,
+            this.getName());
+      }
+    }
+
+    @Override
+    public ClientType getClientType() {
+      return ClientType.HEADER_BASED;
     }
 
   }

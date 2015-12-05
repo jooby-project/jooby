@@ -42,6 +42,12 @@ public class AuthSessionStoreTest {
           Mutant remembered = unit.mock(Mutant.class);
           expect(remembered.booleanValue()).andReturn(false);
 
+          Mutant permissions = unit.mock(Mutant.class);
+          expect(permissions.value()).andReturn("p1");
+
+          Mutant roles = unit.mock(Mutant.class);
+          expect(roles.value()).andReturn("r1");
+
           Session session = unit.get(Session.class);
           Map<String, String> attributes = ImmutableMap.of(
               "pac4jUserProfile.1.class", CommonProfile.class.getName(),
@@ -51,6 +57,8 @@ public class AuthSessionStoreTest {
 
           expect(session.attributes()).andReturn(attributes);
           expect(session.get("pac4jUserProfile.1.remembered")).andReturn(remembered);
+          expect(session.get("pac4jUserProfile.1.permissions")).andReturn(permissions);
+          expect(session.get("pac4jUserProfile.1.roles")).andReturn(roles);
         })
         .run(unit -> {
           CommonProfile profile = (CommonProfile) new AuthSessionStore(unit.get(Provider.class))
@@ -59,6 +67,8 @@ public class AuthSessionStoreTest {
           assertEquals("1", profile.getId());
           assertEquals("test", profile.getUsername());
           assertEquals("test@fake.com", profile.getEmail());
+          assertEquals("[p1]", profile.getPermissions().toString());
+          assertEquals("[r1]", profile.getRoles().toString());
         });
   }
 
@@ -102,12 +112,17 @@ public class AuthSessionStoreTest {
           expect(session.set("pac4jUserProfile.1.class", CommonProfile.class.getName()))
               .andReturn(session);
           expect(session.set("pac4jUserProfile.1.remembered", false)).andReturn(session);
+          expect(session.set("pac4jUserProfile.1.permissions", "p1__;_;p2")).andReturn(session);
+          expect(session.set("pac4jUserProfile.1.roles", "r1")).andReturn(session);
         })
         .run(unit -> {
           CommonProfile profile = new CommonProfile();
           profile.setId("1");
           profile.addAttribute("username", "test");
           profile.addAttribute("email", "test@fake.com");
+          profile.addPermission("p1");
+          profile.addPermission("p2");
+          profile.addRole("r1");
 
           new AuthSessionStore(unit.get(Provider.class)).set(profile);
         });
@@ -125,6 +140,12 @@ public class AuthSessionStoreTest {
           Mutant remembered = unit.mock(Mutant.class);
           expect(remembered.booleanValue()).andReturn(true);
 
+          Mutant permissions = unit.mock(Mutant.class);
+          expect(permissions.value()).andReturn("p1");
+
+          Mutant roles = unit.mock(Mutant.class);
+          expect(roles.value()).andReturn("r1");
+
           Session session = unit.get(Session.class);
           Map<String, String> attributes = ImmutableMap.of(
               "pac4jUserProfile.1.class", CommonProfile.class.getName(),
@@ -136,6 +157,8 @@ public class AuthSessionStoreTest {
 
           expect(session.attributes()).andReturn(attributes).times(2);
           expect(session.get("pac4jUserProfile.1.remembered")).andReturn(remembered);
+          expect(session.get("pac4jUserProfile.1.permissions")).andReturn(permissions);
+          expect(session.get("pac4jUserProfile.1.roles")).andReturn(roles);
         })
         .expect(
             unit -> {
