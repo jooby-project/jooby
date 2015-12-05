@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+import org.jooby.MediaType;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.util.Collectors;
@@ -219,8 +220,12 @@ public class NettyRequest implements NativeRequest {
           .forEach((name, values) -> values.forEach(value -> params.put(name, value)));
 
       HttpMethod method = req.getMethod();
-      if (method.equals(HttpMethod.POST) || method.equals(HttpMethod.PUT)
-          || method.equals(HttpMethod.PATCH)) {
+      boolean hasBody = method.equals(HttpMethod.POST) || method.equals(HttpMethod.PUT)
+          || method.equals(HttpMethod.PATCH);
+      String contentType = req.headers().get("Content-Type");
+      boolean formLike = MediaType.form.name().equalsIgnoreCase(contentType)
+          || MediaType.multipart.name().equalsIgnoreCase(contentType);
+      if (hasBody && formLike) {
         HttpPostRequestDecoder form = new HttpPostRequestDecoder(req);
         Function<HttpPostRequestDecoder, Boolean> hasNext = it -> {
           try {
