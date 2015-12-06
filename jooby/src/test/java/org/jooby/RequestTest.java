@@ -26,6 +26,11 @@ public class RequestTest {
     }
 
     @Override
+    public boolean matches(final String pattern) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public List<MediaType> accept() {
       throw new UnsupportedOperationException();
     }

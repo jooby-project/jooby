@@ -67,6 +67,11 @@ public interface Request {
     }
 
     @Override
+    public boolean matches(final String pattern) {
+      return req.matches(pattern);
+    }
+
+    @Override
     public String contextPath() {
       return req.contextPath();
     }
@@ -364,6 +369,14 @@ public interface Request {
   default Optional<MediaType> accepts(final String... types) {
     return accepts(MediaType.valueOf(types));
   }
+
+  /**
+   * Test if the given request path matches the pattern.
+   *
+   * @param pattern A pattern to test for.
+   * @return True, if the request path matches the pattern.
+   */
+  boolean matches(String pattern);
 
   /**
    * True, if request accept any of the given types.

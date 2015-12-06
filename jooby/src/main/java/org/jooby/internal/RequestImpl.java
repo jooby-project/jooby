@@ -127,6 +127,12 @@ public class RequestImpl implements Request {
   }
 
   @Override
+  public boolean matches(final String pattern) {
+    RoutePattern p = new RoutePattern("*", pattern);
+    return p.matcher(route.path()).matches();
+  }
+
+  @Override
   public Map<String, Object> attributes() {
     return Collections.unmodifiableMap(locals);
   }
