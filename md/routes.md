@@ -245,7 +245,7 @@ Each route handler has the capability to send a response or pass on the request 
 Route handlers, also have access to the chain object, which happens to be the next callback function in the pipe. To make the chain object available to the callback function, pass it along with the req and the rsp objects to it:
 
 ```java
-get("/", function(req, rsp, chain) {
+get("/", (req, rsp, chain) -> {
   chain.next(req, rsp);
 });
 ```
