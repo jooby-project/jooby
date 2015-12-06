@@ -105,7 +105,7 @@ public class Watcher {
       while (!stopped && process) {
         process = processEvents();
       }
-    }, "Hotswap");
+    }, "HotswapScanner");
 
     scanner.setDaemon(true);
   }

@@ -68,7 +68,7 @@ public class AppModule {
     this.mId = ModuleIdentifier.create(mId);
     this.dirs = dirs;
     this.paths = toPath(dirs);
-    this.executor = Executors.newSingleThreadExecutor();
+    this.executor = Executors.newSingleThreadExecutor(task -> new Thread(task, "HotSwap"));
     this.scanner = new Watcher(this::onChange, paths);
   }
 
