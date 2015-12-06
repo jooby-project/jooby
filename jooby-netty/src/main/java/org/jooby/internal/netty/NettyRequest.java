@@ -222,9 +222,12 @@ public class NettyRequest implements NativeRequest {
       HttpMethod method = req.getMethod();
       boolean hasBody = method.equals(HttpMethod.POST) || method.equals(HttpMethod.PUT)
           || method.equals(HttpMethod.PATCH);
-      String contentType = req.headers().get("Content-Type");
-      boolean formLike = MediaType.form.name().equalsIgnoreCase(contentType)
-          || MediaType.multipart.name().equalsIgnoreCase(contentType);
+      boolean formLike = false;
+      if (req.headers().contains("Content-Type")) {
+        String contentType = req.headers().get("Content-Type").toLowerCase();
+        formLike = (contentType.startsWith(MediaType.multipart.name())
+            || contentType.startsWith(MediaType.form.name()));
+      }
       if (hasBody && formLike) {
         HttpPostRequestDecoder form = new HttpPostRequestDecoder(req);
         Function<HttpPostRequestDecoder, Boolean> hasNext = it -> {
