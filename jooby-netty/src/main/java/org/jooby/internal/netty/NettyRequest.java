@@ -55,6 +55,7 @@ import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.util.AttributeKey;
 
 public class NettyRequest implements NativeRequest {
@@ -64,6 +65,9 @@ public class NettyRequest implements NativeRequest {
 
   public static final AttributeKey<Boolean> ASYNC = AttributeKey
       .newInstance(NettyRequest.class.getName() + ".async");
+
+  public static final AttributeKey<Boolean> SECURE = AttributeKey
+      .newInstance(NettyRequest.class.getName() + ".secure");;
 
   private HttpRequest req;
 
@@ -175,7 +179,7 @@ public class NettyRequest implements NativeRequest {
 
   @Override
   public boolean secure() {
-    return protocol().toLowerCase().startsWith("https");
+    return ctx.pipeline().get(SslHandler.class) != null;
   }
 
   @SuppressWarnings("unchecked")

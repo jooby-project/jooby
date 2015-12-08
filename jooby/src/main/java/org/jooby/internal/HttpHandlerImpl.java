@@ -169,7 +169,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
       // force https?
       String redirectHttps = config.getString("application.redirect_https").trim();
-      if (redirectHttps.length() > 0) {
+      if (redirectHttps.length() > 0 && !req.secure()) {
         rsp.redirect(MessageFormat.format(redirectHttps, requestPath.substring(1)));
         return;
       }
