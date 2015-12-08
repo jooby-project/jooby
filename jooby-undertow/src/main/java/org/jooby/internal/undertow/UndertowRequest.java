@@ -211,7 +211,7 @@ public class UndertowRequest implements NativeRequest {
       } else if (MediaType.multipart.name().equals(type.name())) {
         blocking.get();
         return new MultiPartParserDefinition()
-            .setTempFileLocation(new File(tmpdir))
+            .setTempFileLocation(new File(tmpdir).toPath())
             .setDefaultEncoding(charset)
             .create(exchange)
             .parseBlocking();
