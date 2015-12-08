@@ -313,6 +313,9 @@ public class Auth implements Jooby.Module {
    * Previous example will protect any url with form authentication and require and admin role for
    * <code>/admin/</code> or subpath of it.
    * </p>
+   * <p>
+   * NOTE: make sure url is protected by one pac4j client.
+   * </p>
    *
    * @param name Authorizer name.
    * @param pattern URL pattern to protected.
@@ -339,6 +342,9 @@ public class Auth implements Jooby.Module {
    * <p>
    * Previous example will protect any url with form authentication and require and admin role for
    * <code>/admin/</code> or subpath of it.
+   * </p>
+   * <p>
+   * NOTE: make sure url is protected by one pac4j client.
    * </p>
    *
    * @param name Authorizer name.
@@ -644,10 +650,9 @@ public class Auth implements Jooby.Module {
                 .name("auth(Callback)"));
 
     routes.addBinding()
-        .toInstance(
-            new Route.Definition("*", logoutUrl.orElse(config.getString("auth.logout.url")),
-                new AuthLogout(redirecTo.orElse(config.getString("auth.logout.redirectTo"))))
-                    .name("auth(Logout)"));
+        .toInstance(new Route.Definition("*", logoutUrl.orElse(config.getString("auth.logout.url")),
+            new AuthLogout(redirecTo.orElse(config.getString("auth.logout.redirectTo"))))
+                .name("auth(Logout)"));
 
     if (bindings.size() == 0) {
       // no auth client, go dev friendly and add a form auth
@@ -664,9 +669,8 @@ public class Auth implements Jooby.Module {
     this.authorizers.forEach((m, authorizer) -> {
       String name = m.getKey();
       routes.addBinding()
-          .toInstance(
-              new Route.Definition("*", m.getValue(), new AuthorizerFilter(name))
-                  .name("auth(" + name + ")"));
+          .toInstance(new Route.Definition("*", m.getValue(), new AuthorizerFilter(name))
+              .name("auth(" + name + ")"));
       if (authorizer instanceof Authorizer) {
         authorizers.addBinding(name).toInstance((Authorizer) authorizer);
       } else {

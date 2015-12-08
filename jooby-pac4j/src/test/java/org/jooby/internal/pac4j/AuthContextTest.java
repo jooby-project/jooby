@@ -78,8 +78,8 @@ public class AuthContextTest {
         .expect(params1)
         .expect(unit -> {
           Mutant header = unit.get(Mutant.class);
-          expect(header.toOptional()).andReturn(Optional.of("v1"));
-          expect(header.toOptional()).andReturn(Optional.empty());
+          expect(header.value(null)).andReturn("v1");
+          expect(header.value(null)).andReturn(null);
 
           Request req = unit.get(Request.class);
           expect(req.header("h1")).andReturn(header);
@@ -109,6 +109,36 @@ public class AuthContextTest {
           ctx.setSessionAttribute("s", "v");
           ctx.setSessionAttribute("u", null);
         });
+
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Session session = unit.mock(Session.class);
+          expect(session.set("s", "7")).andReturn(session);
+
+          Request req = unit.get(Request.class);
+          expect(req.session()).andReturn(session);
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          ctx.setSessionAttribute("s", 7);
+        });
+
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Session session = unit.mock(Session.class);
+          expect(session.set("s",
+              "b64~rO0ABXNyABNqYXZhLnV0aWwuQXJyYXlMaXN0eIHSHZnHYZ0DAAFJAARzaXpleHAAAAADdwQAAAADc3IAEWphdmEubGFuZy5JbnRlZ2VyEuKgpPeBhzgCAAFJAAV2YWx1ZXhyABBqYXZhLmxhbmcuTnVtYmVyhqyVHQuU4IsCAAB4cAAAAAFzcQB+AAIAAAACc3EAfgACAAAAA3g="))
+                  .andReturn(session);
+          Request req = unit.get(Request.class);
+          expect(req.session()).andReturn(session);
+        })
+        .run(unit -> {
+          List<Integer> value = Lists.newArrayList(1, 2, 3);
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          ctx.setSessionAttribute("s", value);
+        });
   }
 
   @Test
@@ -117,7 +147,7 @@ public class AuthContextTest {
         .expect(params1)
         .expect(unit -> {
           Mutant attr = unit.mock(Mutant.class);
-          expect(attr.toOptional()).andReturn(Optional.of("v"));
+          expect(attr.value(null)).andReturn("v");
 
           Session session = unit.mock(Session.class);
           expect(session.get("s")).andReturn(attr);
@@ -128,6 +158,43 @@ public class AuthContextTest {
         .run(unit -> {
           AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
           assertEquals("v", ctx.getSessionAttribute("s"));
+        });
+
+    // null
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Mutant attr = unit.mock(Mutant.class);
+          expect(attr.value(null)).andReturn(null);
+
+          Session session = unit.mock(Session.class);
+          expect(session.get("s")).andReturn(attr);
+
+          Request req = unit.get(Request.class);
+          expect(req.session()).andReturn(session);
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          assertEquals(null, ctx.getSessionAttribute("s"));
+        });
+
+    // serializable
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Mutant attr = unit.mock(Mutant.class);
+          expect(attr.value(null)).andReturn(
+              "b64~rO0ABXNyABNqYXZhLnV0aWwuQXJyYXlMaXN0eIHSHZnHYZ0DAAFJAARzaXpleHAAAAADdwQAAAADc3IAEWphdmEubGFuZy5JbnRlZ2VyEuKgpPeBhzgCAAFJAAV2YWx1ZXhyABBqYXZhLmxhbmcuTnVtYmVyhqyVHQuU4IsCAAB4cAAAAAFzcQB+AAIAAAACc3EAfgACAAAAA3g=");
+
+          Session session = unit.mock(Session.class);
+          expect(session.get("s")).andReturn(attr);
+
+          Request req = unit.get(Request.class);
+          expect(req.session()).andReturn(session);
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          assertEquals(Lists.newArrayList(1, 2, 3), ctx.getSessionAttribute("s"));
         });
   }
 

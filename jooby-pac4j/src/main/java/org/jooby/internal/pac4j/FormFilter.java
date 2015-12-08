@@ -76,7 +76,7 @@ public class FormFilter extends AuthFilter {
   public FormFilter(final String loginUrl, final String callback) {
     super(FormClient.class, HttpProfile.class);
     this.loginUrl = loginUrl;
-    this.callback = URI.create(callback).getPath();
+    this.callback = URI.create(callback).getPath() + "?client_name=FormClient";
   }
 
   @Override

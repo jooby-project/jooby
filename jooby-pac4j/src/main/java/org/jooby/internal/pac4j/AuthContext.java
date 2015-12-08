@@ -18,6 +18,11 @@
  */
 package org.jooby.internal.pac4j;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +43,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.BaseEncoding;
+import com.google.common.primitives.Primitives;
 
 public class AuthContext implements WebContext {
+
+  private static final String PREFIX = "b64~";
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -70,7 +79,7 @@ public class AuthContext implements WebContext {
 
   @Override
   public String getRequestHeader(final String name) {
-    return req.header(name).toOptional().orElse(null);
+    return req.header(name).value(null);
   }
 
   @Override
@@ -79,14 +88,14 @@ public class AuthContext implements WebContext {
     if (value == null) {
       session.unset(name);
     } else {
-      session.set(name, value.toString());
+      session.set(name, objToStr(value));
     }
   }
 
   @Override
   public Object getSessionAttribute(final String name) {
     Session session = req.session();
-    return session.get(name).toOptional().orElse(null);
+    return strToObject(session.get(name).value(null));
   }
 
   @Override
@@ -185,16 +194,14 @@ public class AuthContext implements WebContext {
 
   @Override
   public Collection<Cookie> getRequestCookies() {
-    return req.cookies().stream()
-        .map(c -> {
-          Cookie cookie = new Cookie(c.name(), c.value().orElse(null));
-          c.domain().ifPresent(cookie::setDomain);
-          c.path().ifPresent(cookie::setPath);
-          cookie.setHttpOnly(c.httpOnly());
-          cookie.setSecure(c.secure());
-          return cookie;
-        })
-        .collect(Collectors.toList());
+    return req.cookies().stream().map(c -> {
+      Cookie cookie = new Cookie(c.name(), c.value().orElse(null));
+      c.domain().ifPresent(cookie::setDomain);
+      c.path().ifPresent(cookie::setPath);
+      cookie.setHttpOnly(c.httpOnly());
+      cookie.setSecure(c.secure());
+      return cookie;
+    }).collect(Collectors.toList());
   }
 
   @Override
@@ -206,7 +213,32 @@ public class AuthContext implements WebContext {
     c.maxAge(cookie.getMaxAge());
     c.secure(cookie.isSecure());
     rsp.cookie(c);
+  }
 
+  private Object strToObject(final String value) {
+    if (value == null || !value.startsWith(PREFIX)) {
+      return value;
+    }
+    byte[] bytes = BaseEncoding.base64().decode(value.substring(PREFIX.length()));
+    try (ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+      return stream.readObject();
+    } catch (Exception ex) {
+      throw new IllegalArgumentException("Can't de-serialize value " + value, ex);
+    }
+  }
+
+  private String objToStr(final Object value) {
+    if (value instanceof CharSequence || Primitives.isWrapperType(value.getClass())) {
+      return value.toString();
+    }
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    try (ObjectOutputStream stream = new ObjectOutputStream(bytes)) {
+      stream.writeObject(value);
+      stream.flush();
+      return PREFIX + BaseEncoding.base64().encode(bytes.toByteArray());
+    } catch (IOException ex) {
+      throw new IllegalArgumentException("Can't serialize value " + value, ex);
+    }
   }
 
 }

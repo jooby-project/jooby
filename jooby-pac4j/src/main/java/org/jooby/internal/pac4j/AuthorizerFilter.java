@@ -49,9 +49,9 @@ public class AuthorizerFilter implements Route.Handler {
   @SuppressWarnings("rawtypes")
   @Override
   public void handle(final Request req, final Response rsp) throws Exception {
+    UserProfile user = req.require(UserProfile.class);
     Config config = req.require(Config.class);
     WebContext ctx = req.require(WebContext.class);
-    UserProfile user = req.require(UserProfile.class);
     AuthorizationChecker authorizationChecker = req.require(AuthorizationChecker.class);
     Map<String, Authorizer> authorizers = config.getAuthorizers();
     log.debug("checking access for: {}", user);
