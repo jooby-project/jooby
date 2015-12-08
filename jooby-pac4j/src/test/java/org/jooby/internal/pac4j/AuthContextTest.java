@@ -5,7 +5,15 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,11 +28,16 @@ import org.jooby.Status;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({AuthContext.class, ObjectOutputStream.class })
 public class AuthContextTest {
 
   private Block params1 = unit -> {
@@ -139,6 +152,35 @@ public class AuthContextTest {
           AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
           ctx.setSessionAttribute("s", value);
         });
+
+    // error
+    Object value = new Object();
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Session session = unit.mock(Session.class);
+          Request req = unit.get(Request.class);
+          expect(req.session()).andReturn(session);
+        })
+        .expect(unit -> {
+          ByteArrayOutputStream bytes = unit.constructor(ByteArrayOutputStream.class)
+              .build();
+          ObjectOutputStream stream = unit.constructor(ObjectOutputStream.class)
+              .args(OutputStream.class)
+              .build(bytes);
+          stream.writeObject(value);
+          stream.flush();
+          expectLastCall().andThrow(new IOException());
+        })
+        .run(unit -> {
+          try {
+            AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+            ctx.setSessionAttribute("s", value);
+            fail("Serializer must fail");
+          } catch (IllegalArgumentException ex) {
+            // OK
+          }
+        });
   }
 
   @Test
@@ -195,6 +237,36 @@ public class AuthContextTest {
         .run(unit -> {
           AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
           assertEquals(Lists.newArrayList(1, 2, 3), ctx.getSessionAttribute("s"));
+        });
+
+    // error
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Mutant attr = unit.mock(Mutant.class);
+          expect(attr.value(null)).andReturn(
+              "b64~rO0ABXNyABNqYXZhLnV0aWwuQXJyYXlMaXN0eIHSHZnHYZ0DAAFJAARzaXpleHAAAAADdwQAAAADc3IAEWphdmEubGFuZy5JbnRlZ2VyEuKgpPeBhzgCAAFJAAV2YWx1ZXhyABBqYXZhLmxhbmcuTnVtYmVyhqyVHQuU4IsCAAB4cAAAAAFzcQB+AAIAAAACc3EAfgACAAAAA3g=");
+
+          Session session = unit.mock(Session.class);
+          expect(session.get("s")).andReturn(attr);
+
+          Request req = unit.get(Request.class);
+          expect(req.session()).andReturn(session);
+        })
+        .expect(unit -> {
+          ObjectInputStream stream = unit.constructor(ObjectInputStream.class)
+              .args(InputStream.class)
+              .build(isA(ByteArrayInputStream.class));
+          expect(stream.readObject()).andThrow(new IOException());
+        })
+        .run(unit -> {
+          try {
+            AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+            assertEquals(Lists.newArrayList(1, 2, 3), ctx.getSessionAttribute("s"));
+            fail("deserializer must fail");
+          } catch (IllegalArgumentException ex) {
+
+          }
         });
   }
 

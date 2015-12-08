@@ -20,7 +20,6 @@ package org.jooby.internal.pac4j;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collection;
@@ -236,7 +235,7 @@ public class AuthContext implements WebContext {
       stream.writeObject(value);
       stream.flush();
       return PREFIX + BaseEncoding.base64().encode(bytes.toByteArray());
-    } catch (IOException ex) {
+    } catch (Exception ex) {
       throw new IllegalArgumentException("Can't serialize value " + value, ex);
     }
   }
