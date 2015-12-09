@@ -37,6 +37,7 @@ public class AssetsTest {
   @Test
   public void configure() throws Exception {
     Config conf = ConfigFactory.empty()
+        .withValue("application.path", ConfigValueFactory.fromAnyRef("/path"))
         .withValue("assets.watch", ConfigValueFactory.fromAnyRef(false));
     new MockUnit(Env.class, Binder.class, Request.class, Response.class,
         Route.Chain.class).expect(unit -> {
@@ -73,11 +74,12 @@ public class AssetsTest {
 
           Request req = unit.get(Request.class);
           expect(req.set("home_css", Lists.newArrayList("/home.css"))).andReturn(req);
-          expect(req.set("home_styles", "<link href=\"/home.css\" rel=\"stylesheet\">\n"))
+          expect(req.set("home_styles", "<link href=\"/path/home.css\" rel=\"stylesheet\">\n"))
               .andReturn(req);
 
           expect(req.set("home_js", Lists.newArrayList("/home.js"))).andReturn(req);
-          expect(req.set("home_scripts", "<script src=\"/home.js\"></script>\n")).andReturn(req);
+          expect(req.set("home_scripts", "<script src=\"/path/home.js\"></script>\n"))
+              .andReturn(req);
 
           unit.get(Route.Chain.class).next(req, unit.get(Response.class));
         }).run(unit -> {
@@ -97,6 +99,7 @@ public class AssetsTest {
   @Test
   public void configureWithWatch() throws Exception {
     Config conf = ConfigFactory.empty()
+        .withValue("application.path", ConfigValueFactory.fromAnyRef("/"))
         .withValue("assets.watch", ConfigValueFactory.fromAnyRef(true));
     new MockUnit(Env.class, Binder.class, Request.class, Response.class,
         Route.Chain.class).expect(unit -> {
@@ -140,7 +143,7 @@ public class AssetsTest {
           Multibinder<Definition> mbr = unit.get(Multibinder.class);
           expect(mbr.addBinding()).andReturn(lbblc);
 
-          AnnotatedBindingBuilder<Managed> abbManaged= unit.mock(AnnotatedBindingBuilder.class);
+          AnnotatedBindingBuilder<Managed> abbManaged = unit.mock(AnnotatedBindingBuilder.class);
           abbManaged.toInstance(liveCompiler);
           expect(binder.bind(Managed.class)).andReturn(abbManaged);
 
@@ -178,6 +181,7 @@ public class AssetsTest {
     Config conf = ConfigFactory.empty()
         .withValue("application.env", ConfigValueFactory.fromAnyRef("prod"))
         .withValue("assets.etag", ConfigValueFactory.fromAnyRef(true))
+        .withValue("application.path", ConfigValueFactory.fromAnyRef("/"))
         .withValue("assets.cdn", ConfigValueFactory.fromAnyRef(""))
         .withValue("assets.cache.maxAge", ConfigValueFactory.fromAnyRef("365d"))
         .withValue("assets.lastModified", ConfigValueFactory.fromAnyRef(true))

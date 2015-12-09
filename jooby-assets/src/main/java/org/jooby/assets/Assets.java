@@ -18,10 +18,7 @@
  */
 package org.jooby.assets;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
@@ -30,6 +27,7 @@ import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.assets.AssetHandlerWithCompiler;
+import org.jooby.internal.assets.AssetVars;
 import org.jooby.internal.assets.LiveCompiler;
 
 import com.google.common.base.Throwables;
@@ -236,36 +234,19 @@ import com.typesafe.config.ConfigFactory;
  */
 public class Assets implements Jooby.Module {
 
-  private Function<String, String> scripts = path -> "<script src=\"" + path + "\"></script>\n";
-
-  private Function<String, String> styles = path -> "<link href=\"" + path
-      + "\" rel=\"stylesheet\">\n";
-
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
     try {
       boolean dev = "dev".equals(env.name());
       ClassLoader loader = getClass().getClassLoader();
       Config conf = conf(dev, loader, config);
+      String cpath = config.getString("application.path");
       AssetCompiler compiler = new AssetCompiler(loader, conf);
 
       Multibinder<Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
       routes.addBinding()
-          .toInstance(new Route.Definition("*", "*", (req, rsp) -> {
-            compiler.keySet().forEach(asset -> {
-              /** Styles */
-              List<String> styles = compiler.styles(asset);
-              req.set(asset + "_css", styles);
-              req.set(asset + "_styles", styles.stream().map(this.styles)
-                  .collect(Collectors.joining()));
-
-              /** Scripts */
-              List<String> scripts = compiler.scripts(asset);
-              req.set(asset + "_js", scripts);
-              req.set(asset + "_scripts", scripts.stream().map(this.scripts)
-                  .collect(Collectors.joining()));
-            });
-          }).name("/assets/vars"));
+          .toInstance(new Route.Definition("*", "*", new AssetVars(compiler, cpath))
+              .name("/assets/vars"));
       // live compiler?
       boolean watch = dev;
       if (watch && conf.hasPath("assets.watch")) {
@@ -299,21 +280,19 @@ public class Assets implements Jooby.Module {
 
   private Config conf(final boolean dev, final ClassLoader loader, final Config conf) {
     final Config[] confs;
-    if (dev) {
-      confs = new Config[]{ConfigFactory.parseResources(loader, "assets.conf") };
-    } else {
+    if (!dev) {
       confs = new Config[]{
           ConfigFactory.parseResources(loader,
               "assets." + conf.getString("application.env").toLowerCase() + ".conf"),
           ConfigFactory.parseResources(loader, "assets.dist.conf"),
           ConfigFactory.parseResources(loader, "assets.conf") };
+      for (Config it : confs) {
+        if (!it.isEmpty()) {
+          return it.withFallback(conf).resolve();
+        }
+      }
     }
-    Config result = confs[0];
-    for (int i = 1; i < confs.length; i++) {
-      result = result.withFallback(confs[i]);
-    }
-
-    return result.withFallback(conf).resolve();
+    return ConfigFactory.parseResources(loader, "assets.conf").withFallback(conf).resolve();
   }
 
 }
