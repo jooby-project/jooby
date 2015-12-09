@@ -1819,7 +1819,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jsr305.version>3.0.0</jsr305.version>
     <http-client.version>4.3.6</http-client.version>
     <async-http-client.version>1.8.14</async-http-client.version>
-    <cglib.version>3.1</cglib.version>
+    <cglib.version>3.2.0</cglib.version>
     <asm.version>5.0.3</asm.version>
     <quartz.version>2.2.1</quartz.version>
     <jdbi.version>2.62</jdbi.version>
