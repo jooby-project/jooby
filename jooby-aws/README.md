@@ -1,4 +1,4 @@
-# aws module
+# aws
 
 Small utility module that exposes ```AmazonWebServiceClient``` and give you access to aws credentials (access and secret keys).
 
@@ -11,7 +11,7 @@ Small utility module that exposes ```AmazonWebServiceClient``` and give you acce
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-aws</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 

@@ -1,4 +1,4 @@
-# jooby-jedis
+# jedis
 
 [Redis](http://redis.io/) cache and key/value data store for Jooby. Exposes a [Jedis](https://github.com/xetorthio/jedis) service.
 
@@ -8,15 +8,17 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
 ## usage
+
 It is pretty straightforward:
 
 ```properties
 # define a database URI
+
 db = "redis://localhost:6379"
 ```
 
@@ -34,6 +36,7 @@ db = "redis://localhost:6379"
 ```
 
 ## configuration
+
 This module creates a [JedisPool]. A default pool is created with a max of ```128``` instances.
 
 The pool can be customized from your ```application.conf```:
@@ -42,10 +45,12 @@ The pool can be customized from your ```application.conf```:
 db = "redis://localhost:6379"
 
 # increase pool size to 200
+
 jedis.pool.maxTotal = 200
 ```
 
 ### two or more redis connections
+
 In case you need two or more Redis connection, just do:
 
 ```java
@@ -77,15 +82,15 @@ to tweak the pool configuration for ```db1``` just do:
 db1 = "redis://localhost:6379/1"
 
 # ONLY 10 for db1
+
 jedis.db1.maxTotal = 10
 ```
 
-For more information about [Jedis](https://github.com/xetorthio/jedis) checkout the
-[wiki](https://github.com/xetorthio/jedis/wiki)
+For more information about [Jedis](https://github.com/xetorthio/jedis) checkout the [wiki](https://github.com/xetorthio/jedis/wiki)
 
-## redis session store
+# redis session store
 
-### usage
+## usage
 
 ```java
 {
@@ -101,9 +106,9 @@ For more information about [Jedis](https://github.com/xetorthio/jedis) checkout 
 
 The ```name``` attribute and value will be stored in a [Redis](http://redis.io). Sessions are persisted as [hashes](http://redis.io/topics/data-types#hashes).
 
-### options
+## options
 
-#### timeout
+### timeout
 
 By default, a [Redis](http://redis.io) session will expire after ```30 minutes```. Changing the default timeout is as simple as:
 
@@ -121,45 +126,62 @@ session.timeout = 120m
 session.timeout = -1
 ```
 
-#### key prefix
+### key prefix
 
 Default redis key prefix is ```sessions```. Sessions in [redis] will look like: ```sessions:ID```
 
 It's possible to change the default key setting the ```jedis.sesssion.prefix``` properties
 
-
 That's all folks! Enjoy it!
 
 TBD: Object mapping? https://github.com/xetorthio/johm?
 
-# appendix: jedis.conf
+## jedis.conf
 
 ```properties
 # jedis default config
 
 # jedis
+
 jedis.timeout = 2s
 
 # pool config
+
 jedis.pool.maxTotal = 128
+
 jedis.pool.maxIdle = 10
+
 jedis.pool.minIdle = 10
+
 jedis.pool.lifo = true
+
 jedis.pool.maxWait = -1
+
 jedis.pool.minEvictableIdle = 30m
+
 jedis.pool.softMinEvictableIdle = 30m
+
 jedis.pool.numTestsPerEvictionRun = 3
+
 jedis.pool.evictionPolicyClassName = org.apache.commons.pool2.impl.DefaultEvictionPolicy
+
 jedis.pool.testOnBorrow = false
+
 jedis.pool.testOnReturn = false
+
 jedis.pool.testWhileIdle = false
+
 jedis.pool.timeBetweenEvictionRuns = -1
+
 jedis.pool.blockWhenExhausted = true
+
 jedis.pool.jmxEnabled = false
+
 jedis.pool.jmxNamePrefix = redis-pool
 
 # session store, key prefix and timeout in seconds
-jedis.session.prefix = sessions
-jedis.session.timeout = ${session.timeout}
 
+jedis.session.prefix = sessions
+
+jedis.session.timeout = ${session.timeout}
 ```

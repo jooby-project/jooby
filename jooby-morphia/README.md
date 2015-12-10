@@ -1,6 +1,6 @@
-# jooby-morphia
+# morphia
 
-Extends the [mongodb](/doc/mongodb) module with object-document mapping via [Morphia](https://github.com/mongodb/morphia).
+Extends the [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb) module with object-document mapping via [Morphia](https://github.com/mongodb/morphia).
 
 Exposes a [Morphia](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Morphia.html) and [Datastore](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Datastore.html) services.
 
@@ -10,13 +10,13 @@ Exposes a [Morphia](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mo
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-morphia</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
 ## getting started
 
-Before you start make sure to read the doc from [mongodb](/doc/mongodb) module. This module extends [mongodb](/doc/mongodb) module.
+Before you start make sure to read the doc from [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb) module. This module extends [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb) module.
 
 ## usage
 

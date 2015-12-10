@@ -1,4 +1,4 @@
-# jooby-quartz
+# quartz
 
 A job scheduler from [Quartz](http://quartz-scheduler.org/).
 
@@ -8,7 +8,7 @@ A job scheduler from [Quartz](http://quartz-scheduler.org/).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 ## usage
@@ -213,16 +213,18 @@ Example 3: build and set everything from scratch
 
 That's all folks! Enjoy it!!
 
-# appendix: quartz.conf
+## quartz.conf
 
 ```properties
 org.quartz.scheduler.instanceName = quartz
+
 org.quartz.scheduler.instanceId = local
 
 # thread pool
+
 org.quartz.threadPool.threadNamePrefix = quartz
+
 org.quartz.threadPool.threadCount = ${runtime.processors}
 
 org.quartz.scheduler.skipUpdateCheck = true
-
 ```

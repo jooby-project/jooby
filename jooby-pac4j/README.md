@@ -1,4 +1,4 @@
-# jooby-pac4j
+# pac4j
 
 Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 
@@ -15,7 +15,7 @@ Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ If basic auth is all you need, then:
 }
 ```
 
-A ```BasicAuthClient``` depends on ```UsernamePasswordAuthenticator```, default is
+A ```IndirectBasicAuthClient``` depends on ```UsernamePasswordAuthenticator```, default is
 ```SimpleTestUsernamePasswordAuthenticator``` which is great for development, but nothing good
 for other environments. Next example setup a basic auth with a custom:
 ```UsernamePasswordAuthenticator```:
@@ -79,7 +79,7 @@ Form is the default authentication method so previous example is the same as:
 }
 ```
 
-Like basic auth, form auth depends ```UsernamePasswordAuthenticator``` and a ```UsernameProfileCreator```.
+Like basic auth, form auth depends on a ```UsernamePasswordAuthenticator```.
 
 A login form will be ready under the path: ```/login```. Again, it is a very basic login
 form useful for development. If you need a custom login page, just add a route before the
@@ -183,28 +183,38 @@ A custom logout and redirect urls can be set via ```.conf``` file or programmati
 
 That's all folks! Enjoy it!!!
 
-# appendix: auth.conf
+## auth.conf
 
 ```properties
 auth {
 
   # default callback, like http://localhost:8080/auth
+
   callback = "http://"${application.host}":"${application.port}${application.path}"auth"
 
   # login options
+
   login {
+
     # Where to go after a successful login?
+
     redirectTo = /
+
   }
 
   # logout options
+
   logout {
+
     url = /logout
+
     redirectTo = /
+
   }
 
   # form auth
-  form.loginUrl = /login
-}
 
+  form.loginUrl = /login
+
+}
 ```

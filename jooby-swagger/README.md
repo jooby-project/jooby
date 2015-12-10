@@ -1,4 +1,4 @@
-# jooby-swagger
+# swagger
 
 [Swagger](http://swagger.io) is a simple yet powerful representation of your RESTful API.
 
@@ -16,7 +16,7 @@ This module generate [Swagger](http://swagger.io) spec file: ```.json``` or ```.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-swagger</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
@@ -87,18 +87,26 @@ swagger.info.version = v0.1.0
 * Sadly, ONLY MVC routes are supported. Inline/lambda routes has no supports for now.
 * It might be nice to generate API docs (via markdown or similar) at built time using [Maven](http://maven.apache.org/).
 
-# appendix: swagger.conf
+## swagger.conf
 
 ```properties
 swagger {
-  swagger: "2.0"
-  info {
-    title: ${application.name}
-  }
-  basePath: ${application.path}
-  consumes: ["application/json"]
-  produces: ["application/json"]
-  schemes: ["http"]
-}
 
+  swagger: "2.0"
+
+  info {
+
+    title: ${application.name}
+
+  }
+
+  basePath: ${application.path}
+
+  consumes: ["application/json"]
+
+  produces: ["application/json"]
+
+  schemes: ["http"]
+
+}
 ```

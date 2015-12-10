@@ -1,4 +1,4 @@
-# akka module
+# akka
 
 Small module to build concurrent & distributed applications via [Akka](http://akka.io).
 
@@ -11,7 +11,7 @@ Small module to build concurrent & distributed applications via [Akka](http://ak
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-akka</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
@@ -34,13 +34,16 @@ That's all folks!
 
 Happy coding!!!
 
-# appendix: akka.conf
+## akka.conf
 
 ```properties
 akka {
-  loggers = ["akka.event.slf4j.Slf4jLogger"]
-  # Options: ERROR, WARNING, INFO, DEBUG
-  loglevel = "INFO"
-}
 
+  loggers = ["akka.event.slf4j.Slf4jLogger"]
+
+  # Options: ERROR, WARNING, INFO, DEBUG
+
+  loglevel = "INFO"
+
+}
 ```

@@ -1,4 +1,4 @@
-# jooby-ebean
+# ebean
 
 Object-Relational-Mapping via [Ebean ORM](http://ebean-orm.github.io). It configures and exposes ```EbeanServer``` instances.
 
@@ -6,7 +6,7 @@ This module extends [jdbc](/doc/jdbc) module, before going forward, make sure yo
  
 ## exposes
 
-* An ```EbeanServer``` instances
+* ```EbeanServer``` objects
 
 ## dependency
 
@@ -14,7 +14,7 @@ This module extends [jdbc](/doc/jdbc) module, before going forward, make sure yo
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ebean</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
@@ -101,42 +101,54 @@ Or programmatically:
 
 Happy coding!!!
 
-# appendix: ebean.conf
+## ebean.conf
 
 ```properties
 ebean.defaultServer = true
+
 ebean.register = true
 
 ebean.ddl.generate=false
+
 ebean.ddl.run=false
 
 ebean.debug.sql=true
+
 ebean.debug.lazyload=false
 
 ebean.disableClasspathSearch = true
+
 ebean.search.packages = ${application.ns}
 
 # -------------------------------------------------------------
+
 # Transaction Logging
+
 # -------------------------------------------------------------
 
 # Use java util logging to log transaction details
+
 ebean.loggingToJavaLogger=false
 
 # General logging level: (none, explicit, all)
+
 ebean.logging=all
 
 # Sharing log files: (none, explicit, all)
+
 ebean.logging.logfilesharing=all
 
 # location of transaction logs
+
 ebean.logging.directory=logs
 
 # Specific Log levels (none, summary, binding, sql)
+
 ebean.logging.iud=sql
+
 ebean.logging.query=sql
+
 ebean.logging.sqlquery=sql
 
 ebean.logging.txnCommit=none
-
 ```

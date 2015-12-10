@@ -1,4 +1,4 @@
-# jooby-hbm
+# hibernate
 
 Object-Relational-Mapping via [Hibernate](http://hibernate.org/). Exposes an ```EntityManagerFactory``` and ```EntityManager``` services.
 
@@ -17,7 +17,7 @@ pattern, which basically keeps the ```Session``` opened until the view is render
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbm</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
@@ -102,20 +102,24 @@ hibernate.hbm2ddl.auto = update
 ```
 
 
-# appendix: hbm.conf
+## hbm.conf
 
 ```properties
 hibernate {
+
   id.new_generator_mappings = true
+
   archive.autodetection = class
 
   # update for dev, validate for others
+
   # hbm2ddl.auto = update
 
   current_session_context_class = managed
+
 }
 
 javax.persistence {
-}
 
+}
 ```

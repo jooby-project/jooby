@@ -1,4 +1,4 @@
-# jooby-commons-email
+# commons-email
 
 Email supports via [Apache Commons Email](https://commons.apache.org/proper/commons-email). Small but helpful module that provides access to ```Email``` instances via [Guice](https://github.com/google/guice) and {{config}}.
 
@@ -32,24 +32,32 @@ That's all it does! Every time you require an email, it creates one and setup pr
 
 Happy coding!!!
 
-# appendix: commons-email.conf
+## commons-email.conf
 
 ```properties
 mail {
+
   charset: ${application.charset}
+
   debug: false
+
   sendPartial: false
+
   smtpPort: 25
 
   starttls: false
 
   # SSL
+
   ssl.smtpPort: 465
+
   ssl.onConnect: false
 
   # advanced
-  socketConnectionTimeout: 60s
-  socketTimeout: 60s
-}
 
+  socketConnectionTimeout: 60s
+
+  socketTimeout: 60s
+
+}
 ```

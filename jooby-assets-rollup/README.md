@@ -1,3 +1,57 @@
+# rollup.js
+
+<a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler.
+
+Make sure you already setup the [assets module](https://github.com/jooby-project/jooby/tree/master/jooby-assets) in your project!
+
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-assets-rollup</artifactId>
+  <version>0.12.0</version>
+  <scope>test</scope>
+</dependency>
+```
+
+## usage
+
+```
+assets {
+ fileset {
+   home: ...
+ }
+ pipeline {
+   ...
+   dist: [rollup]
+ }
+}
+```
+
+## options
+
+```
+assets {
+ fileset {
+   home: ...
+ }
+ pipeline {
+   ...
+   dist: [rollmap]
+ }
+ rollup {
+   output {
+     format: amd
+   }
+ }
+}
+```
+
+See: <a href="https://github.com/rollup/rollup/wiki/JavaScript-API">rollup.js options.</a>
+
+# see also
+
 ## css processors
 
 * [props](https://github.com/jooby-project/jooby/tree/master/jooby-assets-props): replace application properties in CSS files.

@@ -1,4 +1,4 @@
-# jooby-ehcache
+# ehcache
 
 Provides advanced cache features via [Ehcache](http://ehcache.org)
 
@@ -13,7 +13,7 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
@@ -109,7 +109,9 @@ Here ```cache1``` and ```cache2``` will inherited their properties from the ```d
 
 Please note the ```default``` cache works as a template and isn't a real/usable cache.
 
-## session store
+# ehcache session store
+
+## usage
 
 This module provides an [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html). In order to use the [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html) all
 you have to do is define a ```session``` cache:
@@ -186,15 +188,18 @@ ehcache {
 }
 ```
 
-# appendix: ehcache.conf
+## ehcache.conf
 
 ```properties
 ehcache {
+
   # default cache, caches defined in .conf will inherit these properties
+
   cache.default {
+
   }
 
   diskStore.path = ${application.tmpdir}${file.separator}ehcache
-}
 
+}
 ```

@@ -1,4 +1,4 @@
-# memcached module
+# spymemcached
 
 Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memcached-client)
 
@@ -11,7 +11,7 @@ Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-spymemcached</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
@@ -53,9 +53,9 @@ or programmatically:
 }
 ```
 
-## session store
+# spymemcached session store
 
-### usage
+## usage
 
 ```java
 {
@@ -73,9 +73,9 @@ The ```name``` attribute and value will be stored in [Memcached](http://memcache
 
 Session are persisted using the default ```Transcoder```.
 
-### options
+## options
 
-#### timeout
+### timeout
 By default, a [Memcached](http://memcached.org) session will expire after ```30 minutes```. Changing the default timeout is as simple as:
 
 ```properties
@@ -92,28 +92,37 @@ session.timeout = 120m
 session.timeout = -1
 ```
 
-#### key prefix
+### key prefix
 Default [Memcached](http://memcached.org) key prefix is ```sessions:```. Sessions in [Memcached](http://memcached.org) will looks like: ```sessions:ID```
 
 It's possible to change the default key setting the ```memcached.sesssion.prefix``` property.
 
 Happy coding!!
 
-# appendix: memcached.conf
+## memcached.conf
 
 ```properties
 memcached {
+
   authWaitTime = 1s
+
   daemon = false
+
   failureMode = redistribute
+
   locator = ARRAY_MOD
+
   maxReconnectDelay = 30s
+
   protocol = text
+
   shutdownTimeout = -1
+
 }
 
 #default HTTP session settings
-memcached.session.prefix = "sessions:"
-memcached.session.timeout = ${session.timeout}
 
+memcached.session.prefix = "sessions:"
+
+memcached.session.timeout = ${session.timeout}
 ```

@@ -15,7 +15,7 @@
 ## usage
 
 In order to use a web server all you have to do is add the dependency to your build system.
-[Jooby]({{site}}) will find the server and start it.
+{{Jooby}} will find the server and start it.
 
 
 {{appendix}}

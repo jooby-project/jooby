@@ -1,25 +1,24 @@
 [![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
 [![Coverage Status](https://img.shields.io/coveralls/jooby-project/jooby.svg)](https://coveralls.io/r/jooby-project/jooby?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby)
+[![Slack Channel](https://img.shields.io/badge/slack-join chat-orange.svg)](https://jooby.slack.com)
+[![Google Group](https://img.shields.io/badge/google-group-orange.svg)](https://groups.google.com/forum/#!forum/jooby-project)
 [![ASF2](http://img.shields.io/badge/license-ASF2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
 [![Twitter](https://img.shields.io/badge/twitter--blue.svg)](https://twitter.com/joobyproject)
-[![Google Group](https://img.shields.io/badge/google-group-orange.svg)](https://groups.google.com/forum/#!forum/jooby-project)
-[![Slack Channel](https://img.shields.io/badge/slack-join chat-orange.svg)](https://jooby.slack.com)
 
 # &infin; do more, more easily
 
-[Jooby](http://jooby.org) a micro web framework for Java 8 or higher.
-
-* **Solid**. Build on top of mature technologies.
+[Jooby](http://jooby.org) a scalable, fast and modular micro web framework for Java.
 
 * **Scalable**. Stateless application development.
 
-* **Fast, modular and extensible**. So extensible that even the web server is plugable.
+* **Fast!**. Thanks to the most popular [NIO web servers](http://jooby.org/doc/servers).
+
+* **Modular**. Make it a **full stack** with <a href="/modules" title="Modules">modules</a>
 
 * **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
 
-* **Ready for modern web**, with the awesome and powerful [asset module](/doc/assets)
-
+* **Ready for modern web**, with the awesome and powerful [asset module](https://github.com/jooby-project/jooby/tree/master/jooby-assets)
 
 ## hello world!
 
@@ -51,10 +50,9 @@ app.get('/', function () 'Hey Jooby!');
 
 ```
 
-
 ## killer features
 
-* **Multi-language**. Write your application in Java or [JavaScript](/doc/js)
+* **Multi-language**. Write your application in Java or [JavaScript](https://github.com/jooby-project/jooby/tree/master/jooby-js)
 * **Scripting programming model**. Like [express.js](http://expressjs.com), [Sinatra](http://www.sinatrarb.com), etc.. but also
 * **MVC programming model**. Like [Spring](http://spring.io) controllers or [Jersey](https://jersey.java.net) resources
 * **Multi-server**. Including [Netty](http://netty.io), [Jetty](http://www.eclipse.org/jetty/) and [Undertow](http://undertow.io)
@@ -62,6 +60,11 @@ app.get('/', function () 'Hey Jooby!');
 * **Dependency Injection**
 * **Hot reload** for development
 
+requirements
+=====
+
+* Install [Java 8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* Install [Maven 3+](https://maven.apache.org)
 
 quickstart
 =====
@@ -73,7 +76,7 @@ quickstart
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.11.2
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.12.0
 ```
 
 You might want to edit/change:
@@ -88,7 +91,7 @@ You might want to edit/change:
 Let's try it!:
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.11.2
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.12.0
 cd my-app
 mvn jooby:run
 ```
@@ -199,6 +202,11 @@ The maven plugin will compile the code (if necessary) and startup the applicatio
 Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.
 Then all you have to do is run the: ```App.java``` class. After all, this is plain Java application with a ```main``` method.
 
+where to go now?
+-----
+
+* read the [documentation](/doc)
+* checkout one of our [templates](https://github.com/jooby-starters)
 
 versioning
 =====
@@ -207,7 +215,9 @@ Jooby uses [semantic versioning](http://semver.org/) for releases.
 
 API is considered unstable while release version is: ```0.x.x``` and it might changes and/or broke without previous notification.
 
-This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it. Finally, API changes can be filtered and displayed it [at any time](https://github.com/jooby-project/jooby/labels/api-change)
+This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it.
+
+Finally, API changes can be filtered and displayed it [at any time](https://github.com/jooby-project/jooby/labels/api-change)
 
 want to contribute?
 =====
@@ -223,11 +233,13 @@ want to contribute?
 * Please suggest changes to javadoc/exception messages when you find something unclear.
 * If you have problems with documentation, find it non intuitive or hard to follow - let us know about it, we'll try to make it better according to your suggestions. Any constructive critique is greatly appreciated. Don't forget that this is an open source project developed and documented in spare time.
 
-help and support
+useful links
 =====
 
 * [jooby.org](http://jooby.org)
-* [google group](https://groups.google.com/forum/#!forum/jooby-project)
+* [twitter](https://twitter.com/joobyproject)
+* [slack](https://jooby.slack.com)
+* [group](https://groups.google.com/forum/#!forum/jooby-project)
 * [issues](https://github.com/jooby-project/jooby/issues)
 
 related projects

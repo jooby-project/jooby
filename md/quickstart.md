@@ -1,7 +1,7 @@
 requirements
 =====
 
-* Install [Java 8+](https://www.java.com/en/download)
+* Install [Java 8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 * Install [Maven 3+](https://maven.apache.org)
 
 quickstart

@@ -1,4 +1,4 @@
-# jooby-mongodb
+# mongodb driver
 
 [MongoDB](http://mongodb.github.io/mongo-java-driver/) driver for Jooby.
 
@@ -10,7 +10,7 @@ Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-mongodb</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
@@ -101,80 +101,53 @@ Use [named](/apidocs/org/jooby/mongodb/Mongodb.html#-named) when you need two or
 }
 ```
 
-# mongodb session store
-
-## usage
-
-```java
-{
-  use(new Mongodb());
-
-  session(MongoSessionStore.class);
-
-  get("/", req -> {
-   req.session().set("name", "jooby");
-  });
-}
-```
-
-The ```name``` attribute and value will be stored in a [MongoDB](http://mongodb.github.io/mongo-java-driver/).
-
-## options
-
-### timeout
-
-By default, a mongodb session will expire after ```30 minutes```. Changing the default timeout is as simple as:
-
-```properties
-# 8 hours
-session.timeout = 8h
-
-# 15 seconds
-session.timeout = 15
-
-# 120 minutes
-session.timeout = 120m
-
-# no timeout
-session.timeout = -1
-```
-
-It uses [MongoDB's TTL](docs.mongodb.org/manual/core/index-ttl) collection feature (2.2+) to have ```mongod``` automatically remove expired sessions.
-
-### session collection
-
-Default [MongoDB](http://mongodb.github.io/mongo-java-driver/) collection is ```sessions```.
-
-It's possible to change the default key setting the ```mongodb.sesssion.collection``` properties.
-
+{{mongodb-session.md}}
 
 That's all folks! Enjoy it!!
 
 
-# appendix: mongodb.conf
+## mongodb.conf
 
 ```properties
 ###################################################################################################
+
 # mongodb
+
 ###################################################################################################
+
 mongodb.connectionsPerHost = 100
+
 mongodb.threadsAllowedToBlockForConnectionMultiplier = 5
+
 mongodb.maxWaitTime = 120s
+
 mongodb.connectTimeout = 10s
+
 mongodb.socketTimeout = 0
+
 mongodb.socketKeepAlive = false
+
 mongodb.cursorFinalizerEnabled = true
+
 mongodb.alwaysUseMBeans = false
+
 mongodb.heartbeatFrequency = 5000
+
 mongodb.minHeartbeatFrequency = 500
+
 mongodb.heartbeatConnectTimeout = 20s
+
 mongodb.heartbeatSocketTimeout = 20s
 
 ###################################################################################################
-# session datastore
-#  collection: sessions
-#  timeout: 30m
-###################################################################################################
-mongodb.session.collection = sessions
 
+# session datastore
+
+#  collection: sessions
+
+#  timeout: 30m
+
+###################################################################################################
+
+mongodb.session.collection = sessions
 ```

@@ -1,4 +1,4 @@
-# jooby-ftl
+# freemarker
 
 [Freemarker](http://freemarker.org) templates for [Jooby](/). Exposes a Configuration and [renderer](/apidocs/org/jooby/Renderer.html).
 
@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
@@ -100,7 +100,7 @@ See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/co
 
 That's all folks! Enjoy it!!!
 
-# appendix: freemarker.conf
+## freemarker.conf
 
 ```properties
 #freemarker defaults
@@ -120,6 +120,6 @@ freemarker.template_exception_handler = default
 freemarker.defaultEncoding = ${application.charset}
 
 # cache for env != dev
-freemarker.cache = "maximumSize=100"
 
+freemarker.cache = "maximumSize=100"
 ```

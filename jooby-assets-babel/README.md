@@ -1,3 +1,67 @@
+# babel
+
+<a href="http://babeljs.io/">Babel</a> is a JavaScript compiler. By default, Babel ships with a set of ES2015 syntax transformers. These allow you to use new syntax, right now without waiting for browser support.
+
+Make sure you already setup the [assets module](https://github.com/jooby-project/jooby/tree/master/jooby-assets) in your project!
+
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-assets-babel</artifactId>
+  <version>0.12.0</version>
+  <scope>test</scope>
+</dependency>
+```
+
+## usage
+
+```
+assets {
+ fileset {
+   home: ...
+ }
+ pipeline {
+   dev: [babel]
+   dist: [babel]
+ }
+}
+```
+
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-assets-babel</artifactId>
+  <version>0.12.0</version>
+  <scope>test</scope>
+</dependency>
+```
+
+## options
+
+```
+assets {
+ fileset {
+   home: ...
+ }
+ pipeline {
+   dev: [babel]
+   dist: [babel]
+ }
+ babel {
+  dev {
+    sourceMaps: inline
+  }
+  blacklist: [react]
+ }
+}
+```
+
+# see also
+
 ## css processors
 
 * [props](https://github.com/jooby-project/jooby/tree/master/jooby-assets-props): replace application properties in CSS files.

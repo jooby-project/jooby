@@ -1,8 +1,8 @@
 # assets
 
-The asset module is library to concatenate, minify or compress JavaScript and CSS assets. It also adds the ability to write these assets in other languages and process/compile them to another language. Finally, it help you to write high quality code by validate JavaScript and CSS too.
+The asset module is library to validate, concatenate, minify or compress JavaScript and CSS assets. It also adds the ability to write these assets in other languages and process/compile them to another language. Finally, it help you to write high quality code by validate JavaScript and CSS too.
 
-A variety of processors are available (jshint, csslint, jscs, uglify, closure-compiler, etc..), but also you might want to write your owns.
+A variety of processors are available: ([jshint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jshint), [clean-css](https://github.com/jooby-project/jooby/tree/master/jooby-assets-clean-css), [jscs](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jscs), [uglify](https://github.com/jooby-project/jooby/tree/master/jooby-assets-uglify), [closure-compiler](https://github.com/jooby-project/jooby/tree/master/jooby-assets-closure-compiler), etc..), but also you might want to write your owns.
 
 ## dependency
 
@@ -10,7 +10,7 @@ A variety of processors are available (jshint, csslint, jscs, uglify, closure-co
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
 </dependency>
 ```
 
@@ -41,10 +41,10 @@ The assets module will publish 4 request local variables for ```home``` fileset:
 ```html
  <html>
  <head>
-   {{ "{{ home_styles" }}}}
+   {{& home_styles}}
  <body>
    ...
-   {{ "{{ home_scripts" }}}}
+   {{& home_scripts}}
  </body>
  </head>
  </html>
@@ -146,7 +146,7 @@ The generic ```dist``` will be used it for any other environment and here we jus
 
 This module comes with a live compiler and fancy error reporter, which is enabled by default in ```dev```:
 
-<img width="553" alt="live compiler" src="http://jooby.org/images/compiler.png">
+<img alt="live compiler" width="75%" src="http://jooby.org/resources/images/jshint.png">
 
 If you want to turn it off, just set the ```assets.watch = false```.
 
@@ -233,38 +233,43 @@ assets {
   }
 }
 ```
+
 # available processors
 
-## CSS processors
+## css processors
 
-* [props](/doc/assets-props): replace application properties in CSS files.
+* [props](https://github.com/jooby-project/jooby/tree/master/jooby-assets-props): replace application properties in CSS files.
 
-* [csslint](/doc/assets-csslint): check and validate css rules.
+* [csslint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-csslint): check and validate css rules.
 
-* [sass](/doc/assets-sass): Sass support from <a href="https://github.com/sass/sass">Sass (ruby)</a>.
+* [sass](https://github.com/jooby-project/jooby/tree/master/jooby-assets-sass): Sass support from <a href="https://github.com/sass/sass">Sass (ruby)</a>.
 
-* [less4j](/doc/assets-less4j): Less support from [less4j](https://github.com/SomMeri/less4j)
+* [less4j](https://github.com/jooby-project/jooby/tree/master/jooby-assets-less4j): Less support from [less4j](https://github.com/SomMeri/less4j)
 
-* [less](/doc/assets-less): Less support from [less.js](http://lesscss.org)
+* [less](https://github.com/jooby-project/jooby/tree/master/jooby-assets-less): Less support from [less.js](http://lesscss.org)
 
-* [clean-css](/doc/assets-clean-css): minify css.
+* [clean-css](https://github.com/jooby-project/jooby/tree/master/jooby-assets-clean-css): minify css.
 
-* [yui-css](/doc/assets-yui-compressor): YUI CSS optimizer.
+* [yui-css](https://github.com/jooby-project/jooby/tree/master/jooby-assets-yui-compressor): YUI CSS optimizer.
 
-## JavaScript processors
+## js processors
 
-* [props](/doc/assets-props): replace application properties in JavaScript files.
+* [props](https://github.com/jooby-project/jooby/tree/master/jooby-assets-props): replace application properties in JavaScript files.
 
-* [jscs](/doc/assets-jscs): JavaScript code style checker.
+* [jscs](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jscs): JavaScript code style checker.
 
-* [jshint](/doc/assets-jshint): JavaScript linter, helps to detect errors and potential problems in code..
+* [jshint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jshint): JavaScript linter, helps to detect errors and potential problems in code..
 
-* [ng-annotate](/doc/assets-ng-annotate): Add, remove and rebuild AngularJS dependency injection annotations.
+* [babel](https://github.com/jooby-project/jooby/tree/master/jooby-assets-babel): Ecma6 now via <a href="http://babeljs.io/">Babel</a>.
 
-* [closure-compiler](/doc/assets-closure-compiler): Google JavaScript optimizer and minifier.
+* [rollup](https://github.com/jooby-project/jooby/tree/master/jooby-assets-rollup): <a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler..
 
-* [uglify](/doc/assets-uglify): uglify.js optimizer.
+* [ng-annotate](https://github.com/jooby-project/jooby/tree/master/jooby-assets-ng-annotate): Add, remove and rebuild AngularJS dependency injection annotations.
 
-* [requirejs](/doc/assets-requirejs): r.js optimizer.
+* [closure-compiler](https://github.com/jooby-project/jooby/tree/master/jooby-assets-closure-compiler): Google JavaScript optimizer and minifier.
 
-* [yui-js](/doc/assets-yui-compressor): YUI JS optimizer.
+* [uglify](https://github.com/jooby-project/jooby/tree/master/jooby-assets-uglify): uglify.js optimizer.
+
+* [requirejs](https://github.com/jooby-project/jooby/tree/master/jooby-assets-requirejs): r.js optimizer.
+
+* [yui-js](https://github.com/jooby-project/jooby/tree/master/jooby-assets-yui-compressor): YUI JS optimizer.

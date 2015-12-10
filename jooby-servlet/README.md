@@ -1,4 +1,4 @@
-# jooby-servlet
+# servlets
 
 This module exists for strict environments where the ONLY option is to deploy into a Servlet Container.
 If you are free to deploy a new server technology, we strongly recommend to avoid this and go
@@ -16,7 +16,7 @@ Add the ```jooby-servlet``` dependency to your ```pom.xml```:
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-servlet</artifactId>
-  <version>0.11.2</version>
+  <version>0.12.0</version>
   <scope>provided</scope>
 </dependency>
 ```
