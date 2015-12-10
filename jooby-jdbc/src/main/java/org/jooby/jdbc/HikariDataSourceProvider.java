@@ -59,7 +59,7 @@ class HikariDataSourceProvider implements Provider<DataSource>, Managed {
   @Override
   public void stop() {
     if (dataSource != null) {
-      dataSource.shutdown();
+      dataSource.close();
       dataSource = null;
     }
   }
