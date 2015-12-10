@@ -184,14 +184,14 @@
       </div> 
       <div class="datalist-content"> 
        <ul> 
-        <li>Simple and effective programming model for building small and large scale web applications</li> 
-        <li>Build with developer productive in mind</li> 
-        <li>Plain Java DSL for routes (no xml, or similar)</li> 
-        <li>Reflection, annotations and dependency injection are keep to minimum and in some cases it is completely optional</li> 
-        <li>No classpath hell, default deployment model uses a normal JVM bootstrap</li> 
-        <li>Modules are easy to use and they do as less as possible</li> 
+        <li><strong>Simple</strong> and <strong>effective</strong> programming model for building small and large scale web applications</li> 
+        <li>Build with <strong>developer productive</strong> in mind</li> 
+        <li>Plain <strong>Java DSL</strong> for routes (no xml, or similar)</li> 
+        <li><strong>Reflection</strong>, <strong>annotations</strong> and <strong>dependency injection</strong> are keep to <strong>minimum</strong> and in some cases it is completely optional</li> 
+        <li><strong>No classpath hell</strong>, default deployment model uses a normal JVM bootstrap</li> 
+        <li>Modules are easy to use and do as less as possible</li> 
        </ul> 
-       <p>In one word? Jooby keeps it simple but yet powerful.</p> 
+       <p><a href="http://jooby.org">Jooby</a> keeps it <strong>simple</strong> but yet <strong>powerful</strong>.</p> 
       </div> 
      </div> 
      <div class="datalist" id="config-environment-and-logging"> 
@@ -655,7 +655,7 @@ GET /assets/css/style.css
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">function</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">{</span>
+        <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">chain</span><span class="o">.</span><span class="na">next</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">);</span>
 <span class="o">});</span>
 </code></pre> 
@@ -1148,7 +1148,7 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <h4>threads</h4> 
-       <p><a href="/">Jooby</a> is an async web framework. IO is performed in async &amp; non blocking fashion across servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>.</p> 
+       <p><a href="http://jooby.org">Jooby</a> is an async web framework. IO is performed in async &amp; non blocking fashion across servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>.</p> 
        <p>Application code will <strong>never run in an IO thread</strong>. Application code <strong>always run in a worker thread</strong> and a worker thread can block.</p> 
        <p>Default pool size of the worker thread pool is 20/200. You can change this setup via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
        <div class="highlighter-rouge codehilite">
@@ -1606,28 +1606,19 @@ GET /assets/css/style.css
        <p>Err handler are executed in the order they were provided (like routes, parser and renderers). The first err handler that send an output wins!</p> 
        <h3 id="error-handling-status-code">status code</h3> 
        <p>Default status code is <code class="highlighter-rouge codehilite">500</code>, except for:</p> 
-       <table> 
-        <thead> 
-         <tr> 
-          <th>Exception</th> 
-          <th>Status Code</th> 
-         </tr> 
-        </thead> 
-        <tbody> 
-         <tr> 
-          <td><code class="highlighter-rouge codehilite">java.lang.IllegalArgumentException</code></td> 
-          <td><code class="highlighter-rouge codehilite">400</code></td> 
-         </tr> 
-         <tr> 
-          <td><code class="highlighter-rouge codehilite">java.util.NoSuchElementException</code></td> 
-          <td><code class="highlighter-rouge codehilite">400</code></td> 
-         </tr> 
-         <tr> 
-          <td><code class="highlighter-rouge codehilite">java.io.FileNotFoundException</code></td> 
-          <td><code class="highlighter-rouge codehilite">404</code></td> 
-         </tr> 
-        </tbody> 
-       </table> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>| Exception                          | Status Code |
+| ---------------------------------- | ----------- |
+| java.lang.IllegalArgumentException |     400     |
+|                                    |             |
+| java.util.NoSuchElementException   |     400     |
+|                                    |             |
+| java.io.FileNotFoundException      |     404     |
+</code></pre> 
+       </div> 
        <h4>custom status code</h4> 
        <p>Just throw an <a href="/apidocs/org/jooby/Err.html">Err</a>:</p> 
        <div class="highlighter-rouge codehilite">

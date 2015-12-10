@@ -1289,6 +1289,7 @@ th {
   padding-left: 15px;
   margin-bottom: 14px;
   line-height: 22px !important;
+  word-wrap: break-word;
 }
 .section-content ul li:after {
   content: "";

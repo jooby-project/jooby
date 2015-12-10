@@ -131,7 +131,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-pac4j<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.11.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.12.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -164,7 +164,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>A <code class="highlighter-rouge codehilite">BasicAuthClient</code> depends on <code class="highlighter-rouge codehilite">UsernamePasswordAuthenticator</code>, default is <code class="highlighter-rouge codehilite">SimpleTestUsernamePasswordAuthenticator</code> which is great for development, but nothing good for other environments. Next example setup a basic auth with a custom: <code class="highlighter-rouge codehilite">UsernamePasswordAuthenticator</code>:</p> 
+       <p>A <code class="highlighter-rouge codehilite">IndirectBasicAuthClient</code> depends on <code class="highlighter-rouge codehilite">UsernamePasswordAuthenticator</code>, default is <code class="highlighter-rouge codehilite">SimpleTestUsernamePasswordAuthenticator</code> which is great for development, but nothing good for other environments. Next example setup a basic auth with a custom: <code class="highlighter-rouge codehilite">UsernamePasswordAuthenticator</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -195,7 +195,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Like basic auth, form auth depends <code class="highlighter-rouge codehilite">UsernamePasswordAuthenticator</code> and a <code class="highlighter-rouge codehilite">UsernameProfileCreator</code>.</p> 
+       <p>Like basic auth, form auth depends on a <code class="highlighter-rouge codehilite">UsernamePasswordAuthenticator</code>.</p> 
        <p>A login form will be ready under the path: <code class="highlighter-rouge codehilite">/login</code>. Again, it is a very basic login form useful for development. If you need a custom login page, just add a route before the <a href="/apidocs/org/jooby/pack4j/Auth.html">Auth</a> module, like: &lt;/p&gt;</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 

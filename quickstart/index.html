@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
   <title>jooby: A micro web framework for Java</title> 
   <meta name="description" content=""> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, start"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, requirements"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -91,6 +91,11 @@
    </div> 
    <div class="row"> 
     <div class="section-content"> 
+     <h2>requirements</h2> 
+     <ul> 
+      <li>Install <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">Java 8+</a></li> 
+      <li>Install <a href="https://maven.apache.org" target="_blank">Maven 3+</a></li> 
+     </ul> 
      <h2>start</h2> 
      <ul> 
       <li> <p>fork one of our <a href="https://github.com/jooby-starters" target="_blank">templates</a></p> </li> 
@@ -101,7 +106,7 @@
       <div class="copy-bar"> 
        <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
       </div> 
-      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>0.11.2
+      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>0.12.0
 </code></pre> 
      </div> 
      <p>You might want to edit/change:</p> 
@@ -115,7 +120,7 @@
       <div class="copy-bar"> 
        <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
       </div> 
-      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>0.11.2
+      <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>com.mycompany -DartifactId<span class="o">=</span>my-app -Dversion<span class="o">=</span>1.0-SNAPSHOT -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>0.12.0
 <span class="nb">cd </span>my-app
 mvn jooby:run
 </code></pre> 
@@ -216,6 +221,11 @@ listening on:
      </div> 
      <p>The maven plugin will compile the code (if necessary) and startup the application.</p> 
      <p>Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE. Then all you have to do is run the: <code class="highlighter-rouge codehilite">App.java</code> class. After all, this is plain Java application with a <code class="highlighter-rouge codehilite">main</code> method.</p> 
+     <h3>where to go now?</h3> 
+     <ul> 
+      <li>read the <a href="/doc">documentation</a></li> 
+      <li>checkout one of our <a href="https://github.com/jooby-starters" target="_blank">templates</a></li> 
+     </ul> 
     </div> 
    </div> 
   </main> 
