@@ -1,7 +1,13 @@
+requirements
+=====
+
+* Install [Java 8+](https://www.java.com/en/download)
+* Install [Maven 3+](https://maven.apache.org)
+
 quickstart
 =====
 
-* fork one of our [templates](https://github.com/jooby-starters)
+* fork one of our {{templates}}
 
 * or via [Maven Archetype](https://maven.apache.org/guides/introduction/introduction-to-archetypes.html):
 
@@ -133,3 +139,9 @@ The maven plugin will compile the code (if necessary) and startup the applicatio
 
 Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.
 Then all you have to do is run the: ```App.java``` class. After all, this is plain Java application with a ```main``` method.
+
+where to go now?
+-----
+
+* read the [documentation](/doc)
+* checkout one of our {{templates}}

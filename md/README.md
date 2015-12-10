@@ -4,7 +4,7 @@
 [![Slack Channel](https://img.shields.io/badge/slack-join chat-orange.svg)](https://jooby.slack.com)
 [![Google Group](https://img.shields.io/badge/google-group-orange.svg)](https://groups.google.com/forum/#!forum/jooby-project)
 [![ASF2](http://img.shields.io/badge/license-ASF2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
-[![Twitter](https://img.shields.io/badge/twitter--blue.svg)](https://twitter.com/edgarespina)
+[![Twitter](https://img.shields.io/badge/twitter--blue.svg)](https://twitter.com/joobyproject)
 
 {{jooby-pre.md}}
 
@@ -21,7 +21,9 @@ Jooby uses [semantic versioning](http://semver.org/) for releases.
 
 API is considered unstable while release version is: ```0.x.x``` and it might changes and/or broke without previous notification.
 
-This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it. Finally, API changes can be filtered and displayed it [at any time](https://github.com/jooby-project/jooby/labels/api-change)
+This might sounds terrible but isn't. Any change on the API will be reported by the Java Compiler and it wont take you a long time to fix it.
+
+Finally, API changes can be filtered and displayed it [at any time](https://github.com/jooby-project/jooby/labels/api-change)
 
 want to contribute?
 =====
@@ -37,11 +39,13 @@ want to contribute?
 * Please suggest changes to javadoc/exception messages when you find something unclear.
 * If you have problems with documentation, find it non intuitive or hard to follow - let us know about it, we'll try to make it better according to your suggestions. Any constructive critique is greatly appreciated. Don't forget that this is an open source project developed and documented in spare time.
 
-help and support
+useful links
 =====
 
 * [jooby.org](http://jooby.org)
-* [google group](https://groups.google.com/forum/#!forum/jooby-project)
+* [twitter](https://twitter.com/joobyproject)
+* [slack](https://jooby.slack.com)
+* [group](https://groups.google.com/forum/#!forum/jooby-project)
 * [issues](https://github.com/jooby-project/jooby/issues)
 
 related projects

@@ -82,11 +82,15 @@ The first err handler that send an output wins!
 
 Default status code is ```500```, except for:
 
-| Exception                                | Status Code |
-| ---------------------------------------- | ----------- |
-| ```java.lang.IllegalArgumentException``` |  ```400```  |
-| ```java.util.NoSuchElementException```   |  ```400```  |
-| ```java.io.FileNotFoundException```      |  ```404```  |
+```
+| Exception                          | Status Code |
+| ---------------------------------- | ----------- |
+| java.lang.IllegalArgumentException |     400     |
+|                                    |             |
+| java.util.NoSuchElementException   |     400     |
+|                                    |             |
+| java.io.FileNotFoundException      |     404     |
+```
 
 ### custom status code
 
