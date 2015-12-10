@@ -18,15 +18,15 @@
  */
 package org.jooby.internal.undertow;
 
-import io.undertow.server.handlers.form.FormData.FormValue;
-import io.undertow.util.HeaderValues;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 import org.jooby.spi.NativeUpload;
+
+import io.undertow.server.handlers.form.FormData.FormValue;
+import io.undertow.util.HeaderValues;
 
 public class UndertowUpload implements NativeUpload {
 
@@ -55,7 +55,7 @@ public class UndertowUpload implements NativeUpload {
 
   @Override
   public File file() throws IOException {
-    return value.getFile();
+    return value.getPath().toFile();
   }
 
 }

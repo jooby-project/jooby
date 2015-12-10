@@ -19,12 +19,6 @@
 package org.jooby.internal.undertow;
 
 import static java.util.Objects.requireNonNull;
-import io.undertow.Handlers;
-import io.undertow.io.IoCallback;
-import io.undertow.server.HttpServerExchange;
-import io.undertow.util.HeaderMap;
-import io.undertow.util.HeaderValues;
-import io.undertow.util.HttpString;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +35,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+
+import io.undertow.Handlers;
+import io.undertow.io.IoCallback;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.util.HeaderMap;
+import io.undertow.util.HeaderValues;
+import io.undertow.util.HttpString;
 
 public class UndertowResponse implements NativeResponse {
 
@@ -100,12 +101,12 @@ public class UndertowResponse implements NativeResponse {
 
   @Override
   public int statusCode() {
-    return exchange.getResponseCode();
+    return exchange.getStatusCode();
   }
 
   @Override
   public void statusCode(final int code) {
-    exchange.setResponseCode(code);
+    exchange.setStatusCode(code);
   }
 
   @Override

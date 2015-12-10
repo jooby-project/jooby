@@ -3,12 +3,6 @@ package org.jooby.internal.undertow;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
-import io.undertow.io.IoCallback;
-import io.undertow.io.Sender;
-import io.undertow.server.HttpServerExchange;
-import io.undertow.server.ServerConnection;
-import io.undertow.util.HeaderMap;
-import io.undertow.util.Headers;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -20,8 +14,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.xnio.Pool;
-import org.xnio.Pooled;
+
+import io.undertow.connector.ByteBufferPool;
+import io.undertow.connector.PooledByteBuffer;
+import io.undertow.io.IoCallback;
+import io.undertow.io.Sender;
+import io.undertow.server.HttpServerExchange;
+import io.undertow.server.ServerConnection;
+import io.undertow.util.HeaderMap;
+import io.undertow.util.Headers;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ChunkedStream.class, HttpServerExchange.class, HeaderMap.class })
@@ -31,13 +32,12 @@ public class ChunkedStreamTest {
   byte[] bytes = "bytes".getBytes();
   ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
-  @SuppressWarnings("unchecked")
   private Block exchange = unit -> {
-    Pool<ByteBuffer> pool = unit.mock(Pool.class);
-    expect(pool.allocate()).andReturn(unit.get(Pooled.class));
+    ByteBufferPool bpool = unit.mock(ByteBufferPool.class);
+    expect(bpool.allocate()).andReturn(unit.get(PooledByteBuffer.class));
 
     ServerConnection conn = unit.mock(ServerConnection.class);
-    expect(conn.getBufferPool()).andReturn(pool);
+    expect(conn.getByteBufferPool()).andReturn(bpool);
     expect(conn.getBufferSize()).andReturn(bufferSize);
 
     HttpServerExchange exchange = unit.get(HttpServerExchange.class);
@@ -109,16 +109,15 @@ public class ChunkedStreamTest {
     expect(channel.read(buffer)).andReturn(bufferSize);
   };
 
-  @SuppressWarnings("unchecked")
   private Block pooled = unit -> {
-    Pooled<ByteBuffer> pooled = unit.get(Pooled.class);
-    expect(pooled.getResource()).andReturn(buffer);
+    PooledByteBuffer pooled = unit.get(PooledByteBuffer.class);
+    expect(pooled.getBuffer()).andReturn(buffer);
   };
 
   @Test
   public void sendNoIoThread() throws Exception {
     new MockUnit(ReadableByteChannel.class, HttpServerExchange.class, IoCallback.class,
-        Sender.class, Pooled.class)
+        Sender.class, PooledByteBuffer.class)
         .expect(exchange)
         .expect(noIoThread)
         .expect(pooled)
@@ -134,7 +133,7 @@ public class ChunkedStreamTest {
   @Test
   public void sendNoIoThreadWithLen() throws Exception {
     new MockUnit(ReadableByteChannel.class, HttpServerExchange.class, IoCallback.class,
-        Sender.class, Pooled.class)
+        Sender.class, PooledByteBuffer.class)
         .expect(exchange)
         .expect(noIoThread)
         .expect(pooled)
@@ -156,7 +155,7 @@ public class ChunkedStreamTest {
   @Test
   public void sendNoIoThread2Chunks() throws Exception {
     new MockUnit(ReadableByteChannel.class, HttpServerExchange.class, IoCallback.class,
-        Sender.class, Pooled.class)
+        Sender.class, PooledByteBuffer.class)
         .expect(exchange)
         .expect(noIoThread)
         .expect(pooled)
@@ -178,7 +177,7 @@ public class ChunkedStreamTest {
   @Test
   public void sendNoIoThread2ChunksWithLen() throws Exception {
     new MockUnit(ReadableByteChannel.class, HttpServerExchange.class, IoCallback.class,
-        Sender.class, Pooled.class)
+        Sender.class, PooledByteBuffer.class)
         .expect(exchange)
         .expect(noIoThread)
         .expect(pooled)
@@ -200,7 +199,7 @@ public class ChunkedStreamTest {
   @Test
   public void sendIoThread() throws Exception {
     new MockUnit(ReadableByteChannel.class, HttpServerExchange.class, IoCallback.class,
-        Sender.class, Pooled.class)
+        Sender.class, PooledByteBuffer.class)
         .expect(exchange)
         .expect(ioThread)
         .expect(pooled)
@@ -215,18 +214,17 @@ public class ChunkedStreamTest {
         });
   }
 
-  @SuppressWarnings("rawtypes")
   @Test
   public void sendNoIoThreadWithErr() throws Exception {
     new MockUnit(ReadableByteChannel.class, HttpServerExchange.class, IoCallback.class,
-        Sender.class, Pooled.class)
+        Sender.class, PooledByteBuffer.class)
         .expect(exchange)
         .expect(noIoThread)
         .expect(pooled)
         .expect(readErrChunk)
         .expect(unit -> {
-          Pooled pooled = unit.get(Pooled.class);
-          pooled.free();
+          PooledByteBuffer pooled = unit.get(PooledByteBuffer.class);
+          pooled.close();
           IoCallback err = unit.get(IoCallback.class);
           err.onException(eq(unit.get(HttpServerExchange.class)), eq(unit.get(Sender.class)),
               isA(IOException.class));
@@ -237,18 +235,17 @@ public class ChunkedStreamTest {
         });
   }
 
-  @SuppressWarnings("rawtypes")
   @Test
   public void sendDone() throws Exception {
     new MockUnit(ReadableByteChannel.class, HttpServerExchange.class, IoCallback.class,
-        Sender.class, Pooled.class)
+        Sender.class, PooledByteBuffer.class)
         .expect(exchange)
         .expect(noIoThread)
         .expect(pooled)
         .expect(readNoChunk)
         .expect(unit -> {
-          Pooled pooled = unit.get(Pooled.class);
-          pooled.free();
+          PooledByteBuffer pooled = unit.get(PooledByteBuffer.class);
+          pooled.close();
           IoCallback success = unit.get(IoCallback.class);
           success.onComplete(eq(unit.get(HttpServerExchange.class)), eq(unit.get(Sender.class)));
         })

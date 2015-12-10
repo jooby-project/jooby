@@ -18,19 +18,19 @@
  */
 package org.jooby.internal.undertow;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+
+import org.xnio.IoUtils;
+
+import io.undertow.connector.PooledByteBuffer;
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.ServerConnection;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
-
-import org.xnio.IoUtils;
-import org.xnio.Pooled;
 
 public class ChunkedStream implements IoCallback, Runnable {
 
@@ -40,7 +40,7 @@ public class ChunkedStream implements IoCallback, Runnable {
 
   private Sender sender;
 
-  private Pooled<ByteBuffer> pooled;
+  private PooledByteBuffer pooled;
 
   private IoCallback callback;
 
@@ -55,7 +55,7 @@ public class ChunkedStream implements IoCallback, Runnable {
     this.callback = callback;
     this.sender = exchange.getResponseSender();
     ServerConnection connection = exchange.getConnection();
-    this.pooled = connection.getBufferPool().allocate();
+    this.pooled = connection.getByteBufferPool().allocate();
     this.bufferSize = connection.getBufferSize();
 
     onComplete(exchange, sender);
@@ -63,7 +63,7 @@ public class ChunkedStream implements IoCallback, Runnable {
 
   @Override
   public void run() {
-    ByteBuffer buffer = pooled.getResource();
+    ByteBuffer buffer = pooled.getBuffer();
     chunk += 1;
     try {
       buffer.clear();
@@ -112,7 +112,7 @@ public class ChunkedStream implements IoCallback, Runnable {
   }
 
   private void done() {
-    pooled.free();
+    pooled.close();
     pooled = null;
     IoUtils.safeClose(source);
   }
