@@ -76,7 +76,7 @@
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class=""><a href="/doc" title="Doc">DOC</a></li> 
       <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
-      <li class=""><a href="/help" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
       <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
@@ -110,7 +110,7 @@
        <h2>jooby:run</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>A <a href="http://maven.apache.org/" target="_blank">Maven</a> plugin for executing <a href="http://jooby.org">Jooby</a> applications.</p> 
+       <p>A <a href="http://maven.apache.org/" target="_blank">Maven</a> plugin for running, debugging and reloading your application.</p> 
        <h3 id="jooby-run-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -124,8 +124,7 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>Picked up JAVA_TOOL_OPTIONS: -Dfile.encoding<span class="o">=</span>UTF8
-Hotswap available on: <span class="o">[</span>myapp/public, myapp/conf, myapp/target/classes]
+        <pre class="highlight"><code>Hotswap available on: <span class="o">[</span>myapp/public, myapp/conf, myapp/target/classes]
   includes: <span class="o">[</span><span class="k">**</span>/<span class="k">*</span>.class,<span class="k">**</span>/<span class="k">*</span>.conf,<span class="k">**</span>/<span class="k">*</span>.properties]
   excludes: <span class="o">[]</span>
 INFO  <span class="o">[</span>2015-03-31 17:47:33,000] <span class="o">[</span>dev@netty]: App server started <span class="k">in </span>401ms
@@ -134,7 +133,7 @@ INFO  <span class="o">[</span>2015-03-31 17:47:33,000] <span class="o">[</span>d
   GET /                    <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>     <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>    <span class="o">(</span>anonymous<span class="o">)</span>
 
 listening on:
-  http://0.0.0.0:8080/
+  http://localhost:8080/
 </code></pre> 
        </div> 
        <h3 id="jooby-run-hot-reload">hot reload</h3> 
@@ -144,7 +143,7 @@ listening on:
         <li>config files (*.conf and *.properties)</li> 
        </ul> 
        <p>Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled/cached it while running on <code class="highlighter-rouge codehilite">application.env = dev</code>.</p> 
-       <p>For the time being, you need to use a tool that compiles your source code, usually an IDE. Otherwise, no changes will be found.</p> 
+       <p><strong>NOTE: For the time being, you need to use a tool that compiles your source code, usually an IDE. Otherwise, no changes will be found.</strong></p> 
        <p>Is it worth to mention that dynamic reload of classes at runtime is done via <a href="https://github.com/jboss-modules/jboss-modules" target="_blank">JBoss Modules</a>.</p> 
        <h3 id="jooby-run-options">options</h3> 
        <div class="highlighter-rouge codehilite">
@@ -173,9 +172,24 @@ listening on:
 </code></pre> 
        </div> 
        <h4>${application.class}</h4> 
-       <p>A <a href="http://maven.apache.org/" target="_blank">Maven</a> property that contains the fully qualified name of the <code class="highlighter-rouge codehilite">main class</code>. Required.</p> 
+       <p>A <a href="http://maven.apache.org/" target="_blank">Maven</a> property that contains the fully qualified name of the <code class="highlighter-rouge codehilite">main class</code>. <strong>Required</strong>.</p> 
        <h4>debug</h4> 
-       <p>The JVM is started in debug mode by default. You can attach a remote debugger at the <code class="highlighter-rouge codehilite">8000</code> port.</p> 
+       <p>The JVM is started in <strong>debug mode by default</strong>. You can attach a remote debugger at the <code class="highlighter-rouge codehilite">8000</code> port.</p> 
+       <p>This property can be one of these:</p> 
+       <ul> 
+        <li><code class="highlighter-rouge codehilite">true</code>: Turn on debug mode using: <strong>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</strong></li> 
+        <li><code class="highlighter-rouge codehilite">false</code>: Turn off debug mode (run normally)</li> 
+        <li><code class="highlighter-rouge codehilite">int</code>: Turn on debug mode using the given number as debug port: <code class="highlighter-rouge codehilite">&lt;debug&gt;8000&lt;/debug&gt;</code></li> 
+        <li><code class="highlighter-rouge codehilite">string</code>: Turn on debug via <code class="highlighter-rouge codehilite">string</code> value, something like: <strong>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</strong></li> 
+       </ul> 
+       <p>Finally this property can be set from command line using the <code class="highlighter-rouge codehilite">application.debug</code> system property:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>mvn jooby:run -Dapplication.debug=9999
+</code></pre> 
+       </div> 
        <h4>commands</h4> 
        <p>List of commands to execute before starting the <code class="highlighter-rouge codehilite">application</code>. Useful for <a href="https://www.npmjs.com" target="_blank">npm</a>, <a href="http://gruntjs.com" target="_blank">npm</a>, etc…</p> 
        <div class="highlighter-rouge codehilite">

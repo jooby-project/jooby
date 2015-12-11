@@ -76,7 +76,7 @@
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class="active"><a href="/doc" title="Doc">DOC</a></li> 
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
-      <li class=""><a href="/help" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
       <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
      </ul> 
@@ -331,13 +331,14 @@
        <p>Modules are a key concept for building reusable and configurable piece of software. Modules like in <a href="https://github.com/google/guice" target="_blank">Guice</a> are used to wire services, connect data, etc…</p> 
        <p>A module is usually a small piece of software that bootstrap and configure common code and/or an external library.</p> 
        <h3 id="modules-do-less-and-be-flexible">do less and be flexible</h3> 
+       <p><em>Do less</em> might sounds confusing, but is the key to flexibility.</p> 
        <p>A module should do as less as possible (key difference with other frameworks). A module for a library <em>X</em> should:</p> 
        <ul> 
         <li>Bootstrap X</li> 
         <li>Configure X</li> 
         <li>Exposes raw API of X</li> 
        </ul> 
-       <p>This means a module should NOT create wrapper for a library. Instead, it should provide a way to extend, configure and use the raw library.</p> 
+       <p>This means a module should NOT create wrapper for a library. Instead, provides a way to extend, configure and use the raw library.</p> 
        <p>This principle, keep module usually small, maintainable and flexible.</p> 
        <p>A module is represented by the <a href="/apidocs/org/jooby/Jooby.Module.html">Jooby.Module</a> class. The configure callback looks like:</p> 
        <div class="highlighter-rouge codehilite">
@@ -352,7 +353,7 @@
 </code></pre> 
        </div> 
        <p>The configure callback is similar to a <a href="https://github.com/google/guice" target="_blank">Guice module</a>, except you can access to the <a href="/apidocs/org/jooby/Env.html">Env</a> and <a href="https://github.com/typesafehub/config" target="_blank">Type Safe Config</a> objects.</p> 
-       <p>In addition to the <strong>configure</strong> callback, a module in Jooby has one additional method: <strong>config</strong>. The <code class="highlighter-rouge codehilite">config</code> method allow a module to specify default properties.</p> 
+       <p>In addition to the <strong>configure</strong> callback, a module in <a href="http://jooby.org">Jooby</a> has one additional method: <strong>config</strong>. The <code class="highlighter-rouge codehilite">config</code> method allows a module to set default properties.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
