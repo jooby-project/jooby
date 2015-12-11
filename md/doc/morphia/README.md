@@ -23,7 +23,7 @@ Before you start make sure to read the doc from [mongodb]({{gh}}/jooby-mongodb) 
 application.conf:
 
 ```properties
-db = "mongo://localhost/mydb"
+db = "mongodb://localhost/mydb"
 ```
 
 ```java
