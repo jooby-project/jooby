@@ -43,7 +43,7 @@
         <dependency>
           <groupId>com.eclipsesource.j2v8</groupId>
           <artifactId>j2v8_win32_x86</artifactId>
-          <version>3.0.2</version>
+          <version>${j2v8.version}</version>
         </dependency>
       </dependencies>
     </profile>
@@ -59,7 +59,23 @@
         <dependency>
           <groupId>com.eclipsesource.j2v8</groupId>
           <artifactId>j2v8_win32_x86_64</artifactId>
-          <version>3.0.2</version>
+          <version>${j2v8.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>windows_amd64</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>com.eclipsesource.j2v8</groupId>
+          <artifactId>j2v8_win32_x86_64</artifactId>
+          <version>${j2v8.version}</version>
         </dependency>
       </dependencies>
     </profile>
@@ -74,7 +90,7 @@
         <dependency>
           <groupId>com.eclipsesource.j2v8</groupId>
           <artifactId>j2v8_linux_x86_64</artifactId>
-          <version>3.0.2</version>
+          <version>${j2v8.version}</version>
         </dependency>
       </dependencies>
     </profile>
@@ -89,7 +105,7 @@
         <dependency>
           <groupId>com.eclipsesource.j2v8</groupId>
           <artifactId>j2v8_macosx_x86_64</artifactId>
-          <version>3.0.2</version>
+          <version>${j2v8.version}</version>
         </dependency>
       </dependencies>
     </profile>
