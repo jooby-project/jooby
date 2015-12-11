@@ -216,8 +216,13 @@ public class JoobyMojo extends AbstractMojo {
             StringBuilder arsb = new StringBuilder();
 
             arsb.append("    <artifact name=\"").append(artifact.getGroupId()).append(":")
-                .append(artifact.getArtifactId()).append(":").append(artifact.getVersion())
-                .append("\" />\n");
+                .append(artifact.getArtifactId()).append(":").append(artifact.getVersion());
+
+            String classifier = artifact.getClassifier();
+            if (classifier != null && classifier.length() > 0) {
+              arsb.append(":").append(classifier);
+            }
+            arsb.append("\" />\n");
 
             String content = jbossModule(artifact.getGroupId(), artifact.getArtifactId(), arsb,
                 null);
@@ -228,8 +233,12 @@ public class JoobyMojo extends AbstractMojo {
 
           } else {
             rsb.append("    <artifact name=\"").append(artifact.getGroupId()).append(":")
-                .append(artifact.getArtifactId()).append(":").append(artifact.getVersion())
-                .append("\" />\n");
+                .append(artifact.getArtifactId()).append(":").append(artifact.getVersion());
+            String classifier = artifact.getClassifier();
+            if (classifier != null && classifier.length() > 0) {
+              rsb.append(":").append(classifier);
+            }
+            rsb.append("\" />\n");
           }
         }
       }
