@@ -32,7 +32,7 @@ The plugin bounces the application every time a change is detected on:
 
 Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled/cached it while running on ```application.env = dev```.
 
-For the time being, you need to use a tool that **compiles your source code**, usually an IDE. Otherwise, no changes will be found.
+**NOTE: For the time being, you need to use a tool that compiles your source code, usually an IDE. Otherwise, no changes will be found.**
 
 Is it worth to mention that dynamic reload of classes at runtime is done via {{jboss-modules}}.
 
@@ -70,10 +70,10 @@ The JVM is started in **debug mode by default**. You can attach a remote debugge
 
 This property can be one of these:
 
-* ```true```: Turn on debug mode using: ```-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n```
+* ```true```: Turn on debug mode using: **-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n**
 * ```false```: Turn off debug mode (run normally)
 * ```int```: Turn on debug mode using the given number as debug port: ```<debug>8000</debug>```
-* ```string```: Turn on debug via ```string``` value, something like: ```-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n```
+* ```string```: Turn on debug via ```string``` value, something like: **-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n**
 
 Finally this property can be set from command line using the ```application.debug``` system property:
 

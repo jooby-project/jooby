@@ -6,13 +6,15 @@ A module is usually a small piece of software that bootstrap and configure commo
 
 ## do less and be flexible
 
+*Do less* might sounds confusing, but is the key to flexibility.
+
 A module should do as less as possible (key difference with other frameworks). A module for a library *X* should:
 
 * Bootstrap X
 * Configure X
 * Exposes raw API of X
 
-This means a module should NOT create wrapper for a library. Instead, it should provide a way to extend, configure and use the raw library.
+This means a module should NOT create wrapper for a library. Instead, provides a way to extend, configure and use the raw library.
 
 This principle, keep module usually small, maintainable and flexible.
 
@@ -28,7 +30,7 @@ public class M1 implements Jooby.Module {
 
 The configure callback is similar to a [Guice module](https://github.com/google/guice), except you can access to the [Env]({{defdocs}}/Env.html) and [Type Safe Config](https://github.com/typesafehub/config) objects.
 
-In addition to the **configure** callback, a module in Jooby has one additional method:  **config**. The ```config``` method allow a module to specify default properties.
+In addition to the **configure** callback, a module in {{Jooby}} has one additional method:  **config**. The ```config``` method allows a module to set default properties.
 
 ```java
 public class M1 implements Jooby.Module {

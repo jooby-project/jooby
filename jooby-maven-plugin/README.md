@@ -1,6 +1,6 @@
 # jooby:run
 
-A [Maven](http://maven.apache.org/) plugin for executing [Jooby](http://jooby.org) applications.
+A [Maven](http://maven.apache.org/) plugin for running, debugging and reloading your application.
 
 ## usage
 
@@ -11,7 +11,6 @@ mvn jooby:run
 You should see something similar:
 
 ```bash
-Picked up JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF8
 Hotswap available on: [myapp/public, myapp/conf, myapp/target/classes]
   includes: [**/*.class,**/*.conf,**/*.properties]
   excludes: []
@@ -21,7 +20,7 @@ INFO  [2015-03-31 17:47:33,000] [dev@netty]: App server started in 401ms
   GET /                    [*/*]     [*/*]    (anonymous)
 
 listening on:
-  http://0.0.0.0:8080/
+  http://localhost:8080/
 ```
 
 ## hot reload
@@ -33,7 +32,7 @@ The plugin bounces the application every time a change is detected on:
 
 Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled/cached it while running on ```application.env = dev```.
 
-For the time being, you need to use a tool that compiles your source code, usually an IDE. Otherwise, no changes will be found.
+**NOTE: For the time being, you need to use a tool that compiles your source code, usually an IDE. Otherwise, no changes will be found.**
 
 Is it worth to mention that dynamic reload of classes at runtime is done via [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
 
@@ -63,11 +62,24 @@ Is it worth to mention that dynamic reload of classes at runtime is done via [JB
 
 ### ${application.class}
 
-A [Maven](http://maven.apache.org/) property that contains the fully qualified name of the ```main class```. Required.
+A [Maven](http://maven.apache.org/) property that contains the fully qualified name of the ```main class```. **Required**.
 
 ### debug
 
-The JVM is started in debug mode by default. You can attach a remote debugger at the ```8000``` port.
+The JVM is started in **debug mode by default**. You can attach a remote debugger at the ```8000``` port.
+
+This property can be one of these:
+
+* ```true```: Turn on debug mode using: **-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n**
+* ```false```: Turn off debug mode (run normally)
+* ```int```: Turn on debug mode using the given number as debug port: ```<debug>8000</debug>```
+* ```string```: Turn on debug via ```string``` value, something like: **-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n**
+
+Finally this property can be set from command line using the ```application.debug``` system property:
+
+```
+mvn jooby:run -Dapplication.debug=9999
+```
 
 ### commands
 
