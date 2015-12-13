@@ -74,6 +74,29 @@ This [Datastore]({{morphiaapi}}/Datastore.html) callback is executed only once, 
 
 For more detailed information, check [here]({{morphia}}/wiki/Datastore#ensure-indexes-and-caps)
 
+### auto-incremental ID
+This modules comes with auto-incremental ID generation, usage:
+
+```java
+{
+  use(new Monphia().idGen(IdGen.GLOBAL); // or IdGen.LOCAL
+}
+```
+
+ID must be of type: ```Long``` and annotated with [GeneratedValue]({{defdocs}}/GeneratedValue.html):
+
+```java
+@Entity
+public class MyEntity {
+  @Id @GeneratedValue Long id;
+}
+```
+
+There two ID gen:
+
+* GLOBAL: generates a global and unique ID regardless of entity type
+* LOCAL: generates an unique ID per entity type
+
 ## entity listeners
 
 {{guice}} will create and inject entity listeners (when need it).

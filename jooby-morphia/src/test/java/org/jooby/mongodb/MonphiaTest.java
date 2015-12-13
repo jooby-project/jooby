@@ -6,6 +6,8 @@ import static org.easymock.EasyMock.isA;
 import javax.inject.Provider;
 
 import org.jooby.Env;
+import org.jooby.internal.mongodb.AutoIncID;
+import org.jooby.internal.mongodb.GuiceObjectFactory;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +31,7 @@ import com.typesafe.config.ConfigFactory;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Monphia.class, Morphia.class, Mapper.class, MongoClient.class,
-    MongodbManaged.class })
+    MongodbManaged.class, AutoIncID.class })
 public class MonphiaTest {
 
   private Config $mongodb = ConfigFactory.parseResources(Mongodb.class, "mongodb.conf");
@@ -206,8 +208,8 @@ public class MonphiaTest {
         .run(unit -> {
           new Monphia()
               .doWith((morphia, config) -> {
-                morphia.map(MonphiaTest.class);
-              })
+            morphia.map(MonphiaTest.class);
+          })
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         });
   }
@@ -233,7 +235,7 @@ public class MonphiaTest {
 
           Morphia morphia = unit.mockConstructor(Morphia.class, new Class[]{Mapper.class },
               mapper);
-          expect(morphia.createDatastore(client, "mydb")).andReturn(ds);
+          expect(morphia.createDatastore(client, mapper, "mydb")).andReturn(ds);
 
           LinkedBindingBuilder<Morphia> mLBB = unit.mock(LinkedBindingBuilder.class);
           mLBB.toInstance(morphia);
@@ -257,7 +259,7 @@ public class MonphiaTest {
         .run(unit -> {
           new Monphia()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, unit -> {
+        } , unit -> {
           unit.captured(MongodbManaged.class).iterator().next().start();
 
           unit.captured(Provider.class).forEach(Provider::get);
@@ -286,7 +288,7 @@ public class MonphiaTest {
 
           Morphia morphia = unit.mockConstructor(Morphia.class, new Class[]{Mapper.class },
               mapper);
-          expect(morphia.createDatastore(client, "mydb")).andReturn(ds);
+          expect(morphia.createDatastore(client, mapper, "mydb")).andReturn(ds);
 
           LinkedBindingBuilder<Morphia> mLBB = unit.mock(LinkedBindingBuilder.class);
           mLBB.toInstance(morphia);
@@ -310,13 +312,73 @@ public class MonphiaTest {
         .run(unit -> {
           new Monphia()
               .doWith(ds -> {
-                ds.ensureIndexes();
-              })
+            ds.ensureIndexes();
+          })
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, unit -> {
+        } , unit -> {
           unit.captured(MongodbManaged.class).iterator().next().start();
 
           unit.captured(Provider.class).forEach(Provider::get);
         });
   }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void withIdGen() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(unit -> {
+          Config config = unit.get(Config.class);
+          expect(config.getConfig("mongodb")).andReturn($mongodb.getConfig("mongodb"));
+          expect(config.hasPath("mongodb.db")).andReturn(false);
+          expect(config.getString("db")).andReturn("mongodb://127.0.0.1/mydb");
+        })
+        .expect(mongodb)
+        .expect(unit -> {
+          MongoClient client = unit.mockConstructor(MongoClient.class,
+              new Class[]{MongoClientURI.class }, isA(MongoClientURI.class));
+
+          Datastore ds = unit.mock(Datastore.class);
+          ds.ensureIndexes();
+
+          AutoIncID inc = unit.constructor(AutoIncID.class)
+              .args(Datastore.class, IdGen.class)
+              .build(ds, IdGen.GLOBAL);
+
+          Mapper mapper = unit.mockConstructor(Mapper.class);
+          mapper.addInterceptor(inc);
+
+          Morphia morphia = unit.mockConstructor(Morphia.class, new Class[]{Mapper.class },
+              mapper);
+          expect(morphia.createDatastore(client, mapper, "mydb")).andReturn(ds);
+
+          LinkedBindingBuilder<Morphia> mLBB = unit.mock(LinkedBindingBuilder.class);
+          mLBB.toInstance(morphia);
+
+          LinkedBindingBuilder<GuiceObjectFactory> gofLBB = unit
+              .mock(LinkedBindingBuilder.class);
+          gofLBB.asEagerSingleton();
+
+          ScopedBindingBuilder dsSBB = unit.mock(ScopedBindingBuilder.class);
+          dsSBB.asEagerSingleton();
+
+          LinkedBindingBuilder<Datastore> dsLBB = unit.mock(LinkedBindingBuilder.class);
+          expect(dsLBB.toProvider(unit.capture(Provider.class))).andReturn(dsSBB);
+
+          Binder binder = unit.get(Binder.class);
+
+          expect(binder.bind(Key.get(Morphia.class))).andReturn(mLBB);
+          expect(binder.bind(Key.get(GuiceObjectFactory.class))).andReturn(gofLBB);
+          expect(binder.bind(Key.get(Datastore.class))).andReturn(dsLBB);
+        })
+        .run(unit -> {
+          new Monphia().with(IdGen.GLOBAL).doWith(ds -> {
+            ds.ensureIndexes();
+          }).configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        } , unit -> {
+          unit.captured(MongodbManaged.class).iterator().next().start();
+
+          unit.captured(Provider.class).forEach(Provider::get);
+        });
+  }
+
 }

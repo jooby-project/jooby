@@ -26,8 +26,12 @@ import java.util.function.Consumer;
 import javax.inject.Provider;
 
 import org.jooby.Env;
+import org.jooby.internal.mongodb.AutoIncID;
+import org.jooby.internal.mongodb.GuiceObjectFactory;
 import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.EntityInterceptor;
 import org.mongodb.morphia.Morphia;
+import org.mongodb.morphia.annotations.PrePersist;
 import org.mongodb.morphia.mapping.Mapper;
 
 import com.google.inject.Binder;
@@ -59,7 +63,8 @@ import com.typesafe.config.Config;
  * }
  * </pre>
  *
- * <h1>morphia callback</h1>
+ * <h1>options</h1>
+ * <h2>morphia callback</h2>
  * <p>
  * The {@link Morphia} callback let you map classes and/or set mapper options.
  * </p>
@@ -78,7 +83,7 @@ import com.typesafe.config.Config;
  * For more detailed information, check
  * <a href="https://github.com/mongodb/morphia/wiki/MappingObjects">here</a>
  *
- * <h1>datastore callback</h1>
+ * <h2>datastore callback</h2>
  * <p>
  * This {@link Datastore} callback is executed only once, it's perfect for checking indexes:
  * </p>
@@ -97,6 +102,36 @@ import com.typesafe.config.Config;
  *
  * For more detailed information, check
  * <a href="https://github.com/mongodb/morphia/wiki/Datastore#ensure-indexes-and-caps">here</a>
+ *
+ * <h2>auto-incremental ID</h2>
+ * <p>
+ * This modules comes with auto-incremental ID generation.
+ * </p>
+ * <p>
+ * usage:
+ * </p>
+ * <pre>
+ * {
+ *   use(new Monphia().idGen(IdGen.GLOBAL); // or IdGen.LOCAL
+ * }
+ * </pre>
+ * <p>
+ * ID must be of type: {@link Long} and annotated with {@link GeneratedValue}:
+ * </p>
+ * <pre>
+ * &#64;Entity
+ * public class MyEntity {
+ *   &#64;Id &#64;GeneratedValue Long id;
+ * }
+ * </pre>
+ *
+ * <p>
+ * There two ID gen:
+ * </p>
+ * <ul>
+ * <li>GLOBAL: generates a global and unique ID regardless of entity type.</li>
+ * <li>LOCAL: generates an unique ID per entity type.</li>
+ * </ul>
  *
  * <h1>entity listeners</h1>
  *
@@ -133,6 +168,8 @@ public class Monphia extends Mongodb {
   private BiConsumer<Morphia, Config> morphiaCbck;
 
   private Consumer<Datastore> callback;
+
+  private IdGen gen = null;
 
   /**
    * Creates a new {@link Monphia} module.
@@ -171,9 +208,40 @@ public class Monphia extends Mongodb {
     return this;
   }
 
+  /**
+   * </p>
+   * Setup up an {@link EntityInterceptor} on {@link PrePersist} events that generates an
+   * incremental ID.
+   * </p>
+   *
+   * Usage:
+   * <pre>
+   * {
+   *   use(new Monphia().idGen(IdGen.GLOBAL);
+   * }
+   * </pre>
+   *
+   * <p>
+   * ID must be of type: {@link Long} and annotated with {@link GeneratedValue}:
+   * </p>
+   * <pre>
+   * &#64;Entity
+   * public class MyEntity {
+   *   &#64;Id &#64;GeneratedValue Long id;
+   * }
+   * </pre>
+   *
+   * @param gen an {@link IdGen} strategy
+   * @return This module.
+   */
+  public Monphia with(final IdGen gen) {
+    this.gen = requireNonNull(gen, "ID Gen is required.");
+    return this;
+  }
+
   @Override
-  public void configure(final Env env, final Config config, final Binder binder) {
-    configure(env, config, binder, (uri, client) -> {
+  public void configure(final Env env, final Config conf, final Binder binder) {
+    configure(env, conf, binder, (uri, client) -> {
       String db = uri.getDatabase();
 
       Mapper mapper = new Mapper();
@@ -181,11 +249,14 @@ public class Monphia extends Mongodb {
       Morphia morphia = new Morphia(mapper);
 
       if (this.morphiaCbck != null) {
-        this.morphiaCbck.accept(morphia, config);
+        this.morphiaCbck.accept(morphia, conf);
       }
 
       Provider<Datastore> ds = () -> {
-        Datastore datastore = morphia.createDatastore(client.get(), db);
+        Datastore datastore = morphia.createDatastore(client.get(), mapper, db);
+        if (gen != null) {
+          mapper.addInterceptor(new AutoIncID(datastore, gen));
+        }
         if (callback != null) {
           callback.accept(datastore);
         }

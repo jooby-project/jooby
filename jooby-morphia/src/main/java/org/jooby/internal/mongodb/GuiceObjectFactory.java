@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.mongodb;
+package org.jooby.internal.mongodb;
 
 import static java.util.Objects.requireNonNull;
 
@@ -36,7 +36,7 @@ import org.mongodb.morphia.mapping.MapperOptions;
 import com.google.inject.Injector;
 import com.mongodb.DBObject;
 
-class GuiceObjectFactory implements ObjectFactory {
+public class GuiceObjectFactory implements ObjectFactory {
 
   private Injector injector;
 

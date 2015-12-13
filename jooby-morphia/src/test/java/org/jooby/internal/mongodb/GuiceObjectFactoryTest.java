@@ -1,4 +1,4 @@
-package org.jooby.mongodb;
+package org.jooby.internal.mongodb;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.jooby.internal.mongodb.GuiceObjectFactory;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.mongodb.morphia.Morphia;
