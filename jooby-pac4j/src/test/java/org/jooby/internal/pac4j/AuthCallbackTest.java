@@ -67,6 +67,7 @@ public class AuthCallbackTest {
     expect(session.unset(Pac4jConstants.REQUESTED_URL)).andReturn(requestedURL);
 
     Request req = unit.get(Request.class);
+    expect(req.set(Auth.ID, profileId)).andReturn(req);
     expect(req.session()).andReturn(session);
 
     Response rsp = unit.get(Response.class);
@@ -86,6 +87,7 @@ public class AuthCallbackTest {
     expect(session.unset(Pac4jConstants.REQUESTED_URL)).andReturn(requestedURL);
 
     Request req = unit.get(Request.class);
+    expect(req.set(Auth.ID, profileId)).andReturn(req);
     expect(req.session()).andReturn(session);
 
     Response rsp = unit.get(Response.class);

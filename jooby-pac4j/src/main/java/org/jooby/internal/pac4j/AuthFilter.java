@@ -89,9 +89,10 @@ public class AuthFilter implements Route.Filter {
           profile = client.getUserProfile(credentials, ctx);
           log.debug("profile: {}", profile);
           if (profile != null) {
+            req.set(Auth.ID, profile.getId());
             store.set(profile);
           }
-        } catch (final RequiresHttpAction e) {
+        } catch (RequiresHttpAction e) {
           throw new TechnicalException("Unexpected HTTP action", e);
         }
       }
