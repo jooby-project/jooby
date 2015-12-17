@@ -25,6 +25,7 @@ import java.util.Optional;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.Session;
 import org.jooby.pac4j.Auth;
 import org.jooby.pac4j.AuthStore;
 import org.pac4j.core.profile.UserProfile;
@@ -45,10 +46,16 @@ public class AuthLogout implements Route.Handler {
   @SuppressWarnings("unchecked")
   @Override
   public void handle(final Request req, final Response rsp) throws Exception {
-    Optional<String> profileId = req.session().unset(Auth.ID).toOptional();
-    if (profileId.isPresent()) {
-      Optional<UserProfile> profile = req.require(AuthStore.class).unset(profileId.get());
-      log.debug("logout {}", profile);
+    // DON'T create a session for JWT/param/header auth (a.k.a stateless)
+    Optional<Session> ifSession = req.ifSession();
+    if (ifSession.isPresent()) {
+      Optional<String> profileId = ifSession.get().unset(Auth.ID).toOptional();
+      if (profileId.isPresent()) {
+        Optional<UserProfile> profile = req.require(AuthStore.class).unset(profileId.get());
+        log.debug("logout {}", profile);
+      }
+    } else {
+      log.debug("nothing to logout from session");
     }
     String redirectTo = req.<String> get("auth.logout.redirectTo").orElse(this.redirectTo);
     rsp.redirect(redirectTo);

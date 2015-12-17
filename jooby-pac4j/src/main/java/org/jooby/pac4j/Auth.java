@@ -22,16 +22,15 @@ import static java.util.Objects.requireNonNull;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
@@ -57,6 +56,8 @@ import org.pac4j.core.authorization.DefaultAuthorizationChecker;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.ClientFinder;
 import org.pac4j.core.client.Clients;
+import org.pac4j.core.client.DefaultClientFinder;
+import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
@@ -65,7 +66,9 @@ import org.pac4j.http.credentials.authenticator.UsernamePasswordAuthenticator;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 import org.pac4j.http.profile.HttpProfile;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.inject.Binder;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
@@ -285,7 +288,8 @@ public class Auth implements Jooby.Module {
   /** Name of the local request variable that holds the username. */
   public static final String ID = Auth.class.getName() + ".id";
 
-  private List<BiConsumer<Binder, Config>> bindings = new ArrayList<>();
+  private Multimap<String, BiFunction<Binder, Config, AuthFilter>> bindings = ArrayListMultimap
+      .create();
 
   private Class<? extends AuthStore<? extends UserProfile>> storeClass = AuthSessionStore.class;
 
@@ -293,7 +297,7 @@ public class Auth implements Jooby.Module {
 
   private Optional<String> redirecTo = Optional.empty();
 
-  private Map<Map.Entry<String, String>, Object> authorizers = new LinkedHashMap<>();
+  private Multimap<String, Map.Entry<String, Object>> authorizers = ArrayListMultimap.create();
 
   private Set<Object> bindedProfiles = new HashSet<>();
 
@@ -322,7 +326,8 @@ public class Auth implements Jooby.Module {
    * @param authorizer Authorizer to apply.
    * @return This module.
    */
-  public Auth authorizer(final String name, final String pattern, final Authorizer<?> authorizer) {
+  public Auth authorizer(final String name, final String pattern,
+      final Authorizer<?> authorizer) {
     authorizer(authorizer, name, pattern);
     return this;
   }
@@ -384,7 +389,7 @@ public class Auth implements Jooby.Module {
     requireNonNull(name, "An authorizer's name is required.");
     requireNonNull(pattern, "An authorizer's pattern is required.");
     requireNonNull(authorizer, "An authorizer is required.");
-    authorizers.put(Maps.immutableEntry(name, pattern), authorizer);
+    authorizers.put(pattern, Maps.immutableEntry(name, authorizer));
   }
 
   /**
@@ -396,7 +401,7 @@ public class Auth implements Jooby.Module {
    */
   public Auth form(final String pattern,
       final Class<? extends UsernamePasswordAuthenticator> authenticator) {
-    bindings.add((binder, config) -> {
+    bindings.put(pattern, (binder, conf) -> {
       binder.bind(UsernamePasswordAuthenticator.class).to(authenticator);
 
       bindProfile(binder, HttpProfile.class);
@@ -404,10 +409,7 @@ public class Auth implements Jooby.Module {
       Multibinder.newSetBinder(binder, Client.class)
           .addBinding().toProvider(FormAuth.class);
 
-      filter(binder, pattern, "Form",
-          () -> (req, rsp, chain) -> new FormFilter(
-              config.getString("auth.form.loginUrl"),
-              config.getString("auth.callback")).handle(req, rsp, chain));
+      return new FormFilter(conf.getString("auth.form.loginUrl"), conf.getString("auth.callback"));
     });
 
     return this;
@@ -443,7 +445,7 @@ public class Auth implements Jooby.Module {
    */
   public Auth basic(final String pattern,
       final Class<? extends UsernamePasswordAuthenticator> authenticator) {
-    bindings.add((binder, config) -> {
+    bindings.put(pattern, (binder, config) -> {
       binder.bind(UsernamePasswordAuthenticator.class).to(authenticator);
 
       bindProfile(binder, HttpProfile.class);
@@ -451,10 +453,7 @@ public class Auth implements Jooby.Module {
       Multibinder.newSetBinder(binder, Client.class)
           .addBinding().toProvider(BasicAuth.class);
 
-      filter(binder, pattern, "Basic",
-          () -> (req, rsp, chain) -> new AuthFilter(IndirectBasicAuthClient.class,
-              HttpProfile.class)
-                  .handle(req, rsp, chain));
+      return new AuthFilter(IndirectBasicAuthClient.class, HttpProfile.class);
     });
     return this;
   }
@@ -546,17 +545,20 @@ public class Auth implements Jooby.Module {
    * @param <U> UserProfile.
    * @return This module.
    */
-
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public <C extends Credentials, U extends UserProfile> Auth client(final String pattern,
       final Function<Config, Client<C, U>> provider) {
-    bindings.add((binder, config) -> {
+    bindings.put(pattern, (binder, config) -> {
 
       Client<C, U> client = provider.apply(config);
       Multibinder.newSetBinder(binder, Client.class)
-          .addBinding().toInstance(provider.apply(config));
+          .addBinding().toInstance(client);
+      Class clientType = client.getClass();
+      Class profileType = ClientType.typeOf(clientType);
 
-      filter(binder, pattern, (Class<? extends Client<?, ?>>) client.getClass());
+      bindProfile(binder, profileType);
+
+      return new AuthFilter(clientType, profileType);
     });
     return this;
   }
@@ -571,14 +573,20 @@ public class Auth implements Jooby.Module {
    * @param <U> UserProfile.
    * @return This module.
    */
+  @SuppressWarnings({"rawtypes", "unchecked" })
   public <C extends Credentials, U extends UserProfile> Auth client(final String pattern,
       final Class<? extends Client<C, U>> client) {
-    bindings.add((binder, config) -> {
+    bindings.put(pattern, (binder, config) -> {
 
       Multibinder.newSetBinder(binder, Client.class)
           .addBinding().to(client);
 
-      filter(binder, pattern, client);
+      Class profileType = ClientType.typeOf(client);
+
+      bindProfile(binder, profileType);
+
+      return new AuthFilter(client, profileType);
+
     });
     return this;
   }
@@ -632,7 +640,7 @@ public class Auth implements Jooby.Module {
         .setDefault().toInstance(new DefaultAuthorizationChecker());
 
     OptionalBinder.newOptionalBinder(binder, ClientFinder.class)
-        .setDefault().toInstance((clients, context, clientName) -> Collections.emptyList());
+        .setDefault().toInstance(new DefaultClientFinder());
 
     String fullcallback = config.getString("auth.callback");
     String callback = URI.create(fullcallback).getPath();
@@ -658,7 +666,23 @@ public class Auth implements Jooby.Module {
       // no auth client, go dev friendly and add a form auth
       form();
     }
-    bindings.forEach(it -> it.accept(binder, config));
+    // bindings.values().forEach(it -> it.accept(binder, config));
+    bindings.asMap().entrySet().forEach(e -> {
+      String pattern = e.getKey();
+      List<AuthFilter> filters = new ArrayList<>();
+      e.getValue().forEach(it -> {
+        AuthFilter filter = it.apply(binder, config);
+        if (filters.size() == 0) {
+          // push 1st filter
+          filters.add(filter);
+        } else {
+          // push recentely created filter to head and discard it.
+          filters.get(0).setName(filter.getName());
+        }
+      });
+      AuthFilter head = filters.get(0);
+      this.filter(binder, pattern, head.getName(), () -> head);
+    });
 
     binder.bind(AuthCallback.class);
 
@@ -666,35 +690,31 @@ public class Auth implements Jooby.Module {
 
     binder.bind(WebContext.class).to(AuthContext.class).in(RequestScoped.class);
 
-    this.authorizers.forEach((m, authorizer) -> {
-      String name = m.getKey();
-      routes.addBinding()
-          .toInstance(new Route.Definition("*", m.getValue(), new AuthorizerFilter(name))
-              .name("auth(" + name + ")"));
-      if (authorizer instanceof Authorizer) {
-        authorizers.addBinding(name).toInstance((Authorizer) authorizer);
-      } else {
-        authorizers.addBinding(name).to((Class) authorizer);
-      }
+    this.authorizers.asMap().entrySet().forEach(e -> {
+      String pattern = e.getKey();
+      String names = e.getValue().stream()
+          .map(Map.Entry::getKey)
+          .collect(Collectors.joining(Pac4jConstants.ELEMENT_SEPRATOR));
+      // bind route
+      routes.addBinding().toInstance(new Route.Definition("*", pattern, new AuthorizerFilter(names))
+          .name("auth(" + names + ")"));
+
+      // bind authorizers
+      e.getValue().forEach(v -> {
+        String name = v.getKey();
+        Object authorizer = v.getValue();
+        if (authorizer instanceof Authorizer) {
+          authorizers.addBinding(name).toInstance((Authorizer) authorizer);
+        } else {
+          authorizers.addBinding(name).to((Class) authorizer);
+        }
+      });
     });
   }
 
   @Override
   public Config config() {
     return ConfigFactory.parseResources(getClass(), "auth.conf");
-  }
-
-  @SuppressWarnings({"unchecked", "rawtypes" })
-  private void filter(final Binder binder, final String pattern,
-      final Class<? extends Client<?, ?>> client) {
-    String name = client.getSimpleName().replace("Client", "");
-
-    Class profileType = ClientType.typeOf(client);
-    bindProfile(binder, profileType);
-
-    filter(binder, pattern, name,
-        () -> (req, rsp, chain) -> new AuthFilter(client, profileType)
-            .handle(req, rsp, chain));
   }
 
   private void filter(final Binder binder, final String pattern, final String name,

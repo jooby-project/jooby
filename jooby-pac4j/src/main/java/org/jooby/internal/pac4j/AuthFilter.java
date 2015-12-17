@@ -26,7 +26,6 @@ import org.jooby.Err;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
-import org.jooby.Route.Chain;
 import org.jooby.Status;
 import org.jooby.pac4j.Auth;
 import org.jooby.pac4j.AuthStore;
@@ -44,14 +43,10 @@ import org.pac4j.core.profile.UserProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.CaseFormat;
-
-public class AuthFilter implements Route.Filter {
+public class AuthFilter implements Route.Handler {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
-
-  private Class<? extends Client<?, ?>> clientType;
 
   private String clientName;
 
@@ -59,21 +54,30 @@ public class AuthFilter implements Route.Filter {
 
   public AuthFilter(final Class<? extends Client<?, ?>> clientType,
       final Class<? extends UserProfile> profileType) {
-    this.clientType = requireNonNull(clientType, "ClientType is required.");
-    this.clientName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL,
-        clientType.getSimpleName().replace("Client", ""));
+    this.clientName = clientType.getSimpleName();
     this.profileType = requireNonNull(profileType, "ProfileType is required.");
+  }
+
+  public AuthFilter setName(final String clientName) {
+    this.clientName += Pac4jConstants.ELEMENT_SEPRATOR + clientName;
+    return this;
+  }
+
+  public String getName() {
+    return clientName;
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
-  public void handle(final Request req, final Response rsp, final Chain chain) throws Exception {
-    WebContext ctx = req.require(WebContext.class);
+  public void handle(final Request req, final Response rsp) throws Exception {
+    Clients clients = req.require(Clients.class);
+    String clientName = req.param(clients.getClientNameParameter()).value(this.clientName);
 
+    WebContext ctx = req.require(WebContext.class);
     ClientFinder finder = req.require(ClientFinder.class);
     AuthStore<UserProfile> store = req.require(AuthStore.class);
-    Clients clients = req.require(Clients.class);
-    Client client = find(finder, clients, ctx, clientType, clientName);
+
+    Client client = find(finder, clients, ctx, null, clientName);
 
     boolean useSession = client instanceof IndirectClient;
 
@@ -116,7 +120,6 @@ public class AuthFilter implements Route.Filter {
     } else {
       log.debug("profile found: {}", profile);
       seed(req, profileType, profile);
-      chain.next(req, rsp);
     }
   }
 
@@ -132,7 +135,7 @@ public class AuthFilter implements Route.Filter {
     if (result.size() > 0) {
       return result.get(0);
     }
-    return clients.findClient(clientType);
+    throw new Err(Status.UNAUTHORIZED);
   }
 
   @SuppressWarnings("rawtypes")

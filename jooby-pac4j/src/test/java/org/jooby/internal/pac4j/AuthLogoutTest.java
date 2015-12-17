@@ -24,7 +24,7 @@ public class AuthLogoutTest {
           Session session = unit.get(Session.class);
 
           Request req = unit.get(Request.class);
-          expect(req.session()).andReturn(session);
+          expect(req.ifSession()).andReturn(Optional.of(session));
           expect(req.require(AuthStore.class)).andReturn(unit.get(AuthStore.class));
           expect(req.get("auth.logout.redirectTo")).andReturn(Optional.empty());
         })
@@ -59,7 +59,7 @@ public class AuthLogoutTest {
           Session session = unit.get(Session.class);
 
           Request req = unit.get(Request.class);
-          expect(req.session()).andReturn(session);
+          expect(req.ifSession()).andReturn(Optional.of(session));
           expect(req.get("auth.logout.redirectTo")).andReturn(Optional.empty());
         })
         .expect(unit -> {
@@ -70,6 +70,24 @@ public class AuthLogoutTest {
 
           Session session = unit.get(Session.class);
           expect(session.unset(Auth.ID)).andReturn(attr);
+        })
+        .expect(unit -> {
+          Response rsp = unit.get(Response.class);
+          rsp.redirect("/");
+        })
+        .run(unit -> {
+          new AuthLogout("/")
+              .handle(unit.get(Request.class), unit.get(Response.class));
+        });
+  }
+
+  @Test
+  public void unsetNoSession() throws Exception {
+    new MockUnit(Request.class, Response.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.ifSession()).andReturn(Optional.empty());
+          expect(req.get("auth.logout.redirectTo")).andReturn(Optional.empty());
         })
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
