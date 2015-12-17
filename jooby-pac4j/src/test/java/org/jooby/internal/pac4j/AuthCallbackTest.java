@@ -276,6 +276,16 @@ public class AuthCallbackTest {
       }
 
       @Override
+      public boolean isSecure() {
+        return false;
+      }
+
+      @Override
+      public String getPath() {
+        return null;
+      }
+
+      @Override
       public String getServerName() {
         return null;
       }

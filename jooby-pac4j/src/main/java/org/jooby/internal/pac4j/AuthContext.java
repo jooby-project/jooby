@@ -192,6 +192,16 @@ public class AuthContext implements WebContext {
   }
 
   @Override
+  public String getPath() {
+    return req.path();
+  }
+
+  @Override
+  public boolean isSecure() {
+    return req.secure();
+  }
+
+  @Override
   public Collection<Cookie> getRequestCookies() {
     return req.cookies().stream().map(c -> {
       Cookie cookie = new Cookie(c.name(), c.value().orElse(null));

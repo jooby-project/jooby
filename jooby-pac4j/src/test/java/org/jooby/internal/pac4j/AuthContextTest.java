@@ -424,6 +424,34 @@ public class AuthContextTest {
   }
 
   @Test
+  public void path() throws Exception {
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.path()).andReturn("/path");
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          assertEquals("/path", ctx.getPath());
+        });
+  }
+
+  @Test
+  public void secure() throws Exception {
+    new MockUnit(Request.class, Response.class, Mutant.class)
+        .expect(params1)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.secure()).andReturn(true);
+        })
+        .run(unit -> {
+          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
+          assertEquals(true, ctx.isSecure());
+        });
+  }
+
+  @Test
   public void writeResponse() throws Exception {
     new MockUnit(Request.class, Response.class, Mutant.class)
         .expect(params1)
