@@ -5,7 +5,7 @@ import java.util.List;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.util.StringMapper;
+import org.skife.jdbi.v2.util.StringColumnMapper;
 
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -28,7 +28,7 @@ public class JdbiInClauseFeature extends ServerFeature {
 
         List<String> name = h.createQuery("select name from members where id in (:id)")
             .bind("id", req.param("id").toList(Integer.class))
-            .map(StringMapper.FIRST)
+            .map(StringColumnMapper.INSTANCE)
             .list();
 
         return name;
@@ -39,7 +39,7 @@ public class JdbiInClauseFeature extends ServerFeature {
       try (Handle h = req.require(Handle.class)) {
         List<String> name = h.createQuery("select name from members where id in (?)")
             .bind(0, req.param("id").toList(Integer.class).toArray(new Integer[0]))
-            .map(StringMapper.FIRST)
+            .map(StringColumnMapper.INSTANCE)
             .list();
 
         return name;

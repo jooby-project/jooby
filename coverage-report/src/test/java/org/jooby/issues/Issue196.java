@@ -6,7 +6,7 @@ import org.jooby.jdbi.Jdbi;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.util.StringMapper;
+import org.skife.jdbi.v2.util.StringColumnMapper;
 
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -28,7 +28,7 @@ public class Issue196 extends ServerFeature {
 
         List<String> ids = h.createQuery("select id from members where name is null")
             .bind("name", (String) null)
-            .map(StringMapper.FIRST)
+            .map(StringColumnMapper.INSTANCE)
             .list();
 
         return ids;

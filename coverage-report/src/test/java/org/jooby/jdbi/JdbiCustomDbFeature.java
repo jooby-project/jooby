@@ -3,7 +3,7 @@ package org.jooby.jdbi;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 import org.skife.jdbi.v2.Handle;
-import org.skife.jdbi.v2.util.StringMapper;
+import org.skife.jdbi.v2.util.StringColumnMapper;
 
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -24,7 +24,7 @@ public class JdbiCustomDbFeature extends ServerFeature {
 
         String name = h.createQuery("select name from something where id = :id")
             .bind("id", 1)
-            .map(StringMapper.FIRST)
+            .map(StringColumnMapper.INSTANCE)
             .first();
 
         return name;
