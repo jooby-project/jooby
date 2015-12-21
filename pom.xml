@@ -65,6 +65,7 @@
     <module>jooby-assets-requirejs</module>
     <module>jooby-assets-babel</module>
     <module>jooby-assets-rollup</module>
+    <module>jooby-metrics</module>
     <module>coverage-report</module>
   </modules>
 
@@ -392,6 +393,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-assets-rollup</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-metrics</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -906,6 +913,24 @@
         <groupId>com.google.javascript</groupId>
         <artifactId>closure-compiler</artifactId>
         <version>${closure-compiler.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-core</artifactId>
+        <version>${metrics.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-healthchecks</artifactId>
+        <version>${metrics.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-jvm</artifactId>
+        <version>${metrics.version}</version>
       </dependency>
 
       <!-- Maven -->
@@ -1857,6 +1882,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <closure-compiler.version>v20150901</closure-compiler.version>
     <jruby.version>9.0.1.0</jruby.version>
     <j2v8.version>3.1.6</j2v8.version>
+    <metrics.version>3.1.2</metrics.version>
 
     <!-- config -->
     <war.maxRequestSize>204800</war.maxRequestSize>
