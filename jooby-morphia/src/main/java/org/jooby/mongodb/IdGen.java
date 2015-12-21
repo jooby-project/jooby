@@ -22,7 +22,7 @@ import org.mongodb.morphia.EntityInterceptor;
 import org.mongodb.morphia.annotations.PrePersist;
 
 /**
- * </p>
+ * <p>
  * Setup up an {@link EntityInterceptor} on {@link PrePersist} events that generates an incremental
  * ID.
  * </p>

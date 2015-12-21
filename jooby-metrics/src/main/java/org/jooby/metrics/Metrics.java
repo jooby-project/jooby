@@ -140,7 +140,9 @@ import com.typesafe.config.Config;
  * don't have to stop them as long they implements the {@link Closeable} interface.
  * </p>
  *
- * <p>That's all folks!</p>
+ * <p>
+ * That's all folks!
+ * </p>
  *
  * @author edgar
  * @since 0.13.0
@@ -228,10 +230,9 @@ public class Metrics implements Jooby.Module {
 
   /**
    * Append a simple ping handler that results in a <code>200</code> responses with a
-   * <code>pong</code> body.
+   * <code>pong</code> body. See {@link PingHandler}
    *
    * @return This metrics module.
-   * @see PingHandler.
    */
   public Metrics ping() {
     bindings.add((binder, conf) -> {
@@ -242,10 +243,9 @@ public class Metrics implements Jooby.Module {
   }
 
   /**
-   * Append a handler that prints thread states (a.k.a thread dump).
+   * Append a handler that prints thread states (a.k.a thread dump). See {@link ThreadDumpHandler}.
    *
    * @return This metrics module.
-   * @see ThreadDumpHandler.
    */
   public Metrics threadDump() {
     bindings.add((binder, conf) -> {
@@ -261,7 +261,7 @@ public class Metrics implements Jooby.Module {
    * {@link MetricRegistry#register(String, Metric)}.
    *
    * @param name Name of the metric.
-   * @param metric A metric object.
+   * @param metric A metric object
    * @return This metrics module.
    */
   public Metrics metric(final String name, final Metric metric) {
@@ -278,6 +278,7 @@ public class Metrics implements Jooby.Module {
    *
    * @param name Name of the metric.
    * @param metric A metric object.
+   * @param <M> Metric type.
    * @return This metrics module.
    */
   public <M extends Metric> Metrics metric(final String name, final Class<M> metric) {
@@ -293,7 +294,7 @@ public class Metrics implements Jooby.Module {
    * {@link HealthCheckRegistry#register(String, HealthCheck)}.
    *
    * @param name Name of the check.
-   * @param metric A check object.
+   * @param check A check object.
    * @return This metrics module.
    */
   public Metrics healthCheck(final String name, final HealthCheck check) {
@@ -309,7 +310,8 @@ public class Metrics implements Jooby.Module {
    * This call is identical to {@link HealthCheckRegistry#register(String, HealthCheck)}.
    *
    * @param name Name of the check.
-   * @param metric A check object.
+   * @param check A check object.
+   * @param <H> {@link HealthCheck} type.
    * @return This metrics module.
    */
   public <H extends HealthCheck> Metrics healthCheck(final String name, final Class<H> check) {
