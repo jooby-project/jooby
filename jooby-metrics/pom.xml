@@ -45,18 +45,6 @@
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-core</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-servlet</artifactId>
-      <version>${metrics.version}</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-servlets</artifactId>
-      <version>${metrics.version}</version>
-    </dependency>
 
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
