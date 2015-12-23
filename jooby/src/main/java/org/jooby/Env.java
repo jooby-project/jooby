@@ -21,6 +21,7 @@ package org.jooby;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -69,14 +70,26 @@ public interface Env {
      * @param config A config instance.
      * @return A new environment.
      */
-    Env build(Config config);
+    default Env build(final Config config) {
+      return build(config, Locale.getDefault());
+    }
 
+    /**
+     * Build a new environment from a {@link Config} object. The environment is created from the
+     * <code>application.env</code> property. If such property is missing, env's name must be:
+     * <code>dev</code>.
+     *
+     * @param config A config instance.
+     * @param locale App locale.
+     * @return A new environment.
+     */
+    Env build(Config config, Locale locale);
   }
 
   /**
    * Default builder.
    */
-  Env.Builder DEFAULT = config -> {
+  Env.Builder DEFAULT = (config, locale) -> {
     requireNonNull(config, "A config is required.");
     String name = config.hasPath("application.env") ? config.getString("application.env") : "dev";
     return new Env() {
@@ -89,6 +102,11 @@ public interface Env {
       @Override
       public Config config() {
         return config;
+      }
+
+      @Override
+      public Locale locale() {
+        return locale;
       }
 
       @Override
@@ -107,6 +125,8 @@ public interface Env {
    * @return environment properties.
    */
   Config config();
+
+  Locale locale();
 
   /**
    * Returns a string with all substitutions (the <code>${foo.bar}</code> syntax,
@@ -134,7 +154,8 @@ public interface Env {
    * @param endDelimiter End delimiter.
    * @return A processed string.
    */
-  default String resolve(final String text, final String startDelimiter, final String endDelimiter) {
+  default String resolve(final String text, final String startDelimiter,
+      final String endDelimiter) {
     return resolve(text, config(), startDelimiter, endDelimiter);
   }
 

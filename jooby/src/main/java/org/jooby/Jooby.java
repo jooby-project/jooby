@@ -3092,12 +3092,12 @@ public class Jooby {
             .orElseGet(
                 () -> ConfigFactory.parseResources("application.conf")));
 
-    Env env = this.env.build(config);
+    final Locale locale = LocaleUtils.toLocale(config.getString("application.lang"));
+
+    Env env = this.env.build(config, locale);
     String envname = env.name();
 
     final Charset charset = Charset.forName(config.getString("application.charset"));
-
-    final Locale locale = LocaleUtils.toLocale(config.getString("application.lang"));
 
     String dateFormat = config.getString("application.dateFormat");
     ZoneId zoneId = ZoneId.of(config.getString("application.tz"));

@@ -661,7 +661,7 @@ public class JoobyTest {
           expect(env.name()).andReturn("dev").times(2);
 
           Env.Builder builder = unit.get(Env.Builder.class);
-          expect(builder.build(isA(Config.class))).andReturn(env);
+          expect(builder.build(isA(Config.class), isA(Locale.class))).andReturn(env);
 
           Binder binder = unit.get(Binder.class);
 
