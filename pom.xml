@@ -20,6 +20,7 @@
     <module>jooby-gson</module>
     <module>jooby-hbs</module>
     <module>jooby-ftl</module>
+    <module>jooby-pebble</module>
     <module>jooby-jdbc</module>
     <module>jooby-hbm</module>
     <module>jooby-dist</module>
@@ -195,6 +196,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-ftl</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-pebble</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -657,6 +664,13 @@
         <groupId>org.freemarker</groupId>
         <artifactId>freemarker</artifactId>
         <version>${freemarker.version}</version>
+      </dependency>
+
+      <!-- pebble -->
+      <dependency>
+        <groupId>com.mitchellbosecke</groupId>
+        <artifactId>pebble</artifactId>
+        <version>${pebble.version}</version>
       </dependency>
 
       <!-- Connection Pool -->
@@ -1883,6 +1897,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jruby.version>9.0.1.0</jruby.version>
     <j2v8.version>3.1.6</j2v8.version>
     <metrics.version>3.1.2</metrics.version>
+    <pebble.version>2.0.0</pebble.version>
 
     <!-- config -->
     <war.maxRequestSize>204800</war.maxRequestSize>

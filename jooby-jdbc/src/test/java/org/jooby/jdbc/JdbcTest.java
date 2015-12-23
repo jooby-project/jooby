@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
@@ -987,6 +988,11 @@ public class JdbcTest {
       @Override
       public Config config() {
         return ConfigFactory.empty();
+      }
+
+      @Override
+      public Locale locale() {
+        return Locale.getDefault();
       }
 
       @Override

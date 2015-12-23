@@ -8,6 +8,8 @@ You will find here the available modules for reading and converting between data
 
 * [freemarker](/doc/ftl): {{freemarker}} templates.
 
+* [pebble](/doc/pebble): [Pebble](http://www.mitchellbosecke.com/pebble) templates.
+
 # json
 
 * [jackson](/doc/jackson): JSON supports via {{jackson}}.

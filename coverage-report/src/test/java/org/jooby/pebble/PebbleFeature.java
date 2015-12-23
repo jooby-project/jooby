@@ -1,22 +1,22 @@
-package org.jooby.hbs;
+package org.jooby.pebble;
 
 import org.jooby.Results;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-public class HbsFeature extends ServerFeature {
+public class PebbleFeature extends ServerFeature {
 
   {
-    use(new Hbs());
+    use(new Pebble());
 
-    get("/", req -> Results.html("org/jooby/hbs/index").put("model", req.param("model").value()));
+    get("/", req -> Results.html("org/jooby/pebble/index").put("model", req.param("model").value()));
   }
 
   @Test
-  public void hbs() throws Exception {
+  public void pebble() throws Exception {
     request()
         .get("/?model=jooby")
-        .expect("<html><title>/org/jooby/hbs/index.html:org/jooby/hbs/index</title><body>jooby</body></html>");
+        .expect("<html><title>org/jooby/pebble/index</title><body>jooby</body></html>");
   }
 
 }
