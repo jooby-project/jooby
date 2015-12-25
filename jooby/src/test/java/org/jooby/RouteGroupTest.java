@@ -9,7 +9,7 @@ import java.util.List;
 import org.jooby.Route.Group;
 import org.junit.Test;
 
-public class RouteNamespaceTest {
+public class RouteGroupTest {
 
   @Test
   public void all() {
@@ -198,6 +198,15 @@ public class RouteNamespaceTest {
     }).name("x");
 
     assertEquals("/x", ns.routes().iterator().next().name());
+  }
+
+  @Test
+  public void namens() {
+    Group ns = new Route.Group("/ns", "/prefix");
+    ns.patch("/p", (req, rsp, chain) -> {
+    }).name("x");
+
+    assertEquals("/prefix/x", ns.routes().iterator().next().name());
   }
 
   @Test

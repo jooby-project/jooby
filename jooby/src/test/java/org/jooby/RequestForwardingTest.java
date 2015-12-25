@@ -50,6 +50,30 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void port() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.port()).andReturn(80);
+        })
+        .run(unit -> {
+          assertEquals(80, new Request.Forwarding(unit.get(Request.class)).port());
+        });
+  }
+
+  @Test
+  public void matches() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.matches("/x")).andReturn(true);
+        })
+        .run(unit -> {
+          assertEquals(true, new Request.Forwarding(unit.get(Request.class)).matches("/x"));
+        });
+  }
+
+  @Test
   public void cpath() throws Exception {
     new MockUnit(Request.class)
         .expect(unit -> {

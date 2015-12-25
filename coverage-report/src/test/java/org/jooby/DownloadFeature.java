@@ -20,6 +20,8 @@ public class DownloadFeature extends ServerFeature {
 
     get("/location", (req, rsp) -> rsp.download("name", req.param("file").value()));
 
+    get("/file", (req, rsp) -> rsp.download(DownloadFeature.class.getName().replace('.', '/') + ".json"));
+
     get("/fs", (req, rsp) -> rsp.download(new File(req.param("file").value())));
 
     get("/favicon.ico", (req, rsp) -> rsp.download("favicon.ico",
@@ -103,6 +105,16 @@ public class DownloadFeature extends ServerFeature {
         .header("Content-Disposition", "attachment; filename=\"favicon.ico\"; filename*=utf-8''favicon.ico")
         .header("Content-Length", "2238")
         .header("Content-Type", "image/x-icon");
+  }
+
+  @Test
+  public void download() throws Exception {
+    request()
+        .get("/file")
+        .expect(200)
+        .header("Content-Disposition", "attachment; filename=\"downloadfeature.json\"; filename*=utf-8''downloadfeature.json")
+        .header("Content-Length", "3")
+        .header("Content-Type", "application/json;charset=utf-8");
   }
 
 }
