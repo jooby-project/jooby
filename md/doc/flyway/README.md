@@ -7,7 +7,7 @@ Run database migrations on startup and exposes a {{flyway}} instance.
 ```xml
 <dependency>
   <groupId>org.jooby</groupId>
-  <artifactId>jooby-flywaydb</artifactId>
+  <artifactId>jooby-flyway</artifactId>
   <version>{{version}}</version>
 </dependency>
 ```
