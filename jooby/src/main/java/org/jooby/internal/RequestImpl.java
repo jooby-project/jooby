@@ -199,7 +199,7 @@ public class RequestImpl implements Request {
         StrParamReferenceImpl paramref = new StrParamReferenceImpl(name, values.build());
         param = new MutantImpl(require(ParserExecutor.class), paramref);
 
-        if (paramref.size() >0) {
+        if (paramref.size() > 0) {
           this.params.put(name, param);
         }
       }
@@ -217,9 +217,7 @@ public class RequestImpl implements Request {
   @Override
   public Map<String, Mutant> headers() {
     Map<String, Mutant> headers = new LinkedHashMap<>();
-    req.headerNames().forEach(name ->
-        headers.put(name, header(name))
-        );
+    req.headerNames().forEach(name -> headers.put(name, header(name)));
     return headers;
   }
 
@@ -247,8 +245,7 @@ public class RequestImpl implements Request {
       }
       File fbody = new File(
           require("application.tmpdir", File.class),
-          Integer.toHexString(System.identityHashCode(this))
-          );
+          Integer.toHexString(System.identityHashCode(this)));
       files.add(fbody);
       Parser.BodyReference body = new BodyReferenceImpl(length, charset(), fbody, req.in());
       return new MutantImpl(require(ParserExecutor.class), type(), body,
@@ -296,7 +293,14 @@ public class RequestImpl implements Request {
 
   @Override
   public int port() {
-    return req.header("host").map(host -> Integer.parseInt(host.split(":")[1])).orElse(port);
+    return req.header("host").map(host -> {
+      String[] parts = host.split(":");
+      if (parts.length > 1) {
+        return Integer.parseInt(parts[1]);
+      }
+      // fallback to default ports
+      return secure() ? 443 : 80;
+    }).orElse(port);
   }
 
   @Override
