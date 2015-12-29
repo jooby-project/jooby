@@ -7,8 +7,8 @@ Run database migrations on startup and exposes a [Flyway](http://flywaydb.org) i
 ```xml
 <dependency>
   <groupId>org.jooby</groupId>
-  <artifactId>jooby-flywaydb</artifactId>
-  <version>0.12.0</version>
+  <artifactId>jooby-flyway</artifactId>
+  <version>0.13.0</version>
 </dependency>
 ```
 ## usage

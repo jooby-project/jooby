@@ -1,10 +1,18 @@
-# mail support
+# metrics
 
-* [commons-email](/doc/commons-email): Email supports via {{commons-email}}.
+* [metrics](/doc/metrics): application metrics from the excellent [metrics](http://metrics.dropwizard.io) library.
 
 # API tools
 
 * [swagger](/doc/swagger): powerful representation of your RESTful API.
+
+# mail support
+
+* [commons-email](/doc/commons-email): Email supports via {{commons-email}}.
+
+# amazon web services
+
+* [aws](/doc/aws): wire AWS services and expose them in Guice.
 
 # validation
 
@@ -17,10 +25,6 @@
 # full text search
 
 * [elastic search](/doc/elasticsearch): enterprise full text search via Elastic Search.
-
-# amazon web services
-
-* [aws](/doc/aws): wire AWS services and expose them in Guice.
 
 # enterprise integration patterns
 

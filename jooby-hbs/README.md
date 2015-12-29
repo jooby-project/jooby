@@ -1,6 +1,6 @@
 # handlebars
 
-Mustache/Handlebars templates for [Jooby](/). Exposes a [Handlebars](https://github.com/jknack/handlebars.java) and [renderer](/apidocs/org/jooby/Renderer.html).
+Mustache/Handlebars templates for [Jooby](/). Exposes a [Handlebars](https://github.com/jknack/handlebars.java) and [renderer](/apidocs/Renderer.html).
 
 ## dependency
 
@@ -8,7 +8,7 @@ Mustache/Handlebars templates for [Jooby](/). Exposes a [Handlebars](https://git
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbs</artifactId>
-  <version>0.12.0</version>
+  <version>0.13.0</version>
 </dependency>
 ```
 

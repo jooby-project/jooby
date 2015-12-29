@@ -10,7 +10,7 @@ Exposes a [Morphia](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mo
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-morphia</artifactId>
-  <version>0.12.0</version>
+  <version>0.13.0</version>
 </dependency>
 ```
 
@@ -23,7 +23,7 @@ Before you start make sure to read the doc from [mongodb](https://github.com/joo
 application.conf:
 
 ```properties
-db = "mongo://localhost/mydb"
+db = "mongodb://localhost/mydb"
 ```
 
 ```java
@@ -73,6 +73,29 @@ This [Datastore](https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongo
 ```
 
 For more detailed information, check [here](https://github.com/mongodb/morphia/wiki/Datastore#ensure-indexes-and-caps)
+
+### auto-incremental ID
+This modules comes with auto-incremental ID generation, usage:
+
+```java
+{
+  use(new Monphia().idGen(IdGen.GLOBAL); // or IdGen.LOCAL
+}
+```
+
+ID must be of type: ```Long``` and annotated with [GeneratedValue](/apidocs/GeneratedValue.html):
+
+```java
+@Entity
+public class MyEntity {
+  @Id @GeneratedValue Long id;
+}
+```
+
+There two ID gen:
+
+* GLOBAL: generates a global and unique ID regardless of entity type
+* LOCAL: generates an unique ID per entity type
 
 ## entity listeners
 

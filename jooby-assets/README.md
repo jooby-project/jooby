@@ -10,7 +10,7 @@ A variety of processors are available: ([jshint](https://github.com/jooby-projec
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets</artifactId>
-  <version>0.12.0</version>
+  <version>0.13.0</version>
 </dependency>
 ```
 
@@ -122,7 +122,7 @@ assets {
 
 ## processors
 
-An [AssetProcessor](/apidocs/org/jooby/assets/AssetProcessor.html) usually checks or modify an asset content in one way or another. They are defined in the ```assets.conf``` files using the ```pipeline``` construction:
+An [AssetProcessor](/apidocs/assets/AssetProcessor.html) usually checks or modify an asset content in one way or another. They are defined in the ```assets.conf``` files using the ```pipeline``` construction:
 
 ```text
 assets {
@@ -152,7 +152,7 @@ If you want to turn it off, just set the ```assets.watch = false```.
 
 # asset processor
 
-Checks, validate and/or modify asset contents. An [AssetProcessor](/apidocs/org/jooby/assets/AssetProcessor.html) is usually provided as a separated dependency.
+Checks, validate and/or modify asset contents. An [AssetProcessor](/apidocs/assets/AssetProcessor.html) is usually provided as a separated dependency.
 
 ## how to use it?
 

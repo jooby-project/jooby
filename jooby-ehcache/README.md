@@ -13,7 +13,7 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>0.12.0</version>
+  <version>0.13.0</version>
 </dependency>
 ```
 
@@ -113,7 +113,7 @@ Please note the ```default``` cache works as a template and isn't a real/usable 
 
 ## usage
 
-This module provides an [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html). In order to use the [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html) all
+This module provides an [EhSessionStore](/apidocs/ehcache/EhSessionStore.html). In order to use the [EhSessionStore](/apidocs/ehcache/EhSessionStore.html) all
 you have to do is define a ```session``` cache:
 
 ```properties
@@ -123,7 +123,7 @@ ehcache.cache.session {
 }
 ```
 
-And then register the [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html):
+And then register the [EhSessionStore](/apidocs/ehcache/EhSessionStore.html):
 
 ```java
 {

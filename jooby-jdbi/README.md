@@ -12,7 +12,7 @@ See [JDBI](http://www.jdbi.org/) for a detailed usage.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbi</artifactId>
-  <version>0.12.0</version>
+  <version>0.13.0</version>
 </dependency>
 ```
 

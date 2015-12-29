@@ -1,6 +1,6 @@
 # hazelcast
 
-Exports a [Hazelcast](http://hazelcast.org) instances and optionally a [session store](/apidocs/org/jooby/hazelcast/HcastSessionStore.html) session store.
+Exports a [Hazelcast](http://hazelcast.org) instances and optionally a [session store](/apidocs/hazelcast/HcastSessionStore.html) session store.
 
 ## dependency
 
@@ -8,7 +8,7 @@ Exports a [Hazelcast](http://hazelcast.org) instances and optionally a [session 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>0.12.0</version>
+  <version>0.13.0</version>
 </dependency>
 ```
 

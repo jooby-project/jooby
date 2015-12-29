@@ -18,11 +18,10 @@ public class RouteFinder {
 
   public void find() throws IOException {
     try (Stream<Path> files = Files.walk(basedir).filter(p -> p.toString().endsWith(".java"))) {
-Iterator<Path> it = files.iterator();
-while (it.hasNext()) {
-  Path path = it.next();
-
-}
+      Iterator<Path> it = files.iterator();
+      while (it.hasNext()) {
+        Path path = it.next();
+      }
     }
   }
 

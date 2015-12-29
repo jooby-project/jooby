@@ -14,7 +14,7 @@ Bean validation via [Hibernate Validator](hibernate.org/validator).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbv</artifactId>
-  <version>0.12.0</version>
+  <version>0.13.0</version>
 </dependency>
 ```
 
@@ -55,7 +55,7 @@ The previous example can be rewritten as:
 }
 ```
 
-Here a [Parser](/apidocs/org/jooby/Parser.html) will do the boilerplate part and throws a ```ConstraintViolationException```.
+Here a [Parser](/apidocs/Parser.html) will do the boilerplate part and throws a ```ConstraintViolationException```.
 
 ### rendering a ```ConstraintViolationException```
 
