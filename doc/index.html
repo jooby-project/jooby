@@ -340,7 +340,7 @@
        </ul> 
        <p>This means a module should NOT create wrapper for a library. Instead, provides a way to extend, configure and use the raw library.</p> 
        <p>This principle, keep module usually small, maintainable and flexible.</p> 
-       <p>A module is represented by the <a href="/apidocs/org/jooby/Jooby.Module.html">Jooby.Module</a> class. The configure callback looks like:</p> 
+       <p>A module is represented by the <a href="/apidocs/Jooby.Module.html">Jooby.Module</a> class. The configure callback looks like:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -352,7 +352,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>The configure callback is similar to a <a href="https://github.com/google/guice" target="_blank">Guice module</a>, except you can access to the <a href="/apidocs/org/jooby/Env.html">Env</a> and <a href="https://github.com/typesafehub/config" target="_blank">Type Safe Config</a> objects.</p> 
+       <p>The configure callback is similar to a <a href="https://github.com/google/guice" target="_blank">Guice module</a>, except you can access to the <a href="/apidocs/Env.html">Env</a> and <a href="https://github.com/typesafehub/config" target="_blank">Type Safe Config</a> objects.</p> 
        <p>In addition to the <strong>configure</strong> callback, a module in <a href="http://jooby.org">Jooby</a> has one additional method: <strong>config</strong>. The <code class="highlighter-rouge codehilite">config</code> method allows a module to set default properties.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -502,7 +502,7 @@
 <span class="n">get</span><span class="o">(</span><span class="s">"/user/{id:\\d+}"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="s">"hey "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">());</span>
 </code></pre> 
        </div> 
-       <p>Reques params are covered later, for now all you need to know is that you can access to a path parameter using the <a href="/apidocs/org/jooby/Request.param(java.lang.String)">Request.param(String)</a>.</p> 
+       <p>Request params are covered later, for now all you need to know is that you can access to a path parameter using the <a href="/apidocs/org/jooby/Request.param(java.lang.String)">Request.param(String)</a>.</p> 
        <h4>ant style patterns</h4> 
        <p><code class="highlighter-rouge codehilite">com/t?st.html</code> - matches <code class="highlighter-rouge codehilite">com/test.html</code> but also <code class="highlighter-rouge codehilite">com/tast.html</code> and <code class="highlighter-rouge codehilite">com/txst.html</code></p> 
        <p><code class="highlighter-rouge codehilite">com/*.html</code> - matches all <code class="highlighter-rouge codehilite">.html</code> files in the <code class="highlighter-rouge codehilite">com</code> directory</p> 
@@ -772,7 +772,7 @@ GET /assets/css/style.css
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>A method annotated with <a href="/apidocs/org/jooby/mvc/GET.html">GET</a>, <a href="/apidocs/org/jooby/mvc/POST.html">POST</a>,… (or any of the rest of the verbs) is considered a route handler (web method).</p> 
+       <p>A method annotated with <a href="/apidocs/mvc/GET.html">GET</a>, <a href="/apidocs/mvc/POST.html">POST</a>,… (or any of the rest of the verbs) is considered a route handler (web method).</p> 
        <h4>registering a mvc route</h4> 
        <p>Mvc routes must be registered, there is no auto-discover feature (and it won’t be), classpath scanning, …, etc.</p> 
        <p>We learnt that the order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly registered. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.</p> 
@@ -942,7 +942,7 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <h5>customizing the response</h5> 
-       <p>If you need to deal with HTTP metadata like: status code, headers, etc… use a <a href="/apidocs/org/jooby/Result.html">org.jooby.Result</a></p> 
+       <p>If you need to deal with HTTP metadata like: status code, headers, etc… use a <a href="/apidocs/Result.html">org.jooby.Result</a></p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -1406,7 +1406,7 @@ GET /assets/css/style.css
        </div> 
        <h3 id="request-guice-access">guice access</h3> 
        <p>In previous section we learnt you can bind/wire your objects with <a href="https://github.com/google/guice" target="_blank">Guice</a>.</p> 
-       <p>You can ask <a href="https://github.com/google/guice" target="_blank">Guice</a> to wired an object from the <a href="/apidocs/org/jooby/Request.html#require-com.google.inject.Key-">request.require(type)</a></p> 
+       <p>You can ask <a href="https://github.com/google/guice" target="_blank">Guice</a> to wired an object from the <a href="/apidocs/Request.html#require-com.google.inject.Key-">request.require(type)</a></p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -1425,8 +1425,8 @@ GET /assets/css/style.css
       <div class="datalist-content"> 
        <p>The response object contains methods for reading and setting headers, status code and body (between others). In the next section we will mention the most important method of a response object, if you need more information please refer to the <a href="/apidocs/org/jooby/Response.html">javadoc</a>.</p> 
        <h3 id="response-sending-data">sending data</h3> 
-       <p>The <a href="/apidocs/org/jooby/Response.html#send-org.jooby.Result-">rsp.send</a> method is responsible for sending and writing data into the HTTP Response.</p> 
-       <p>A <a href="/apidocs/org/jooby/Renderer.html">renderer</a> is responsible for converting a Java Object into something else (json, html, etc..).</p> 
+       <p>The <a href="/apidocs/Response.html#send-org.jooby.Result-">rsp.send</a> method is responsible for sending and writing data into the HTTP Response.</p> 
+       <p>A <a href="/apidocs/Renderer.html">renderer</a> is responsible for converting a Java Object into something else (json, html, etc..).</p> 
        <p>Let’s see a simple example:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -1437,7 +1437,7 @@ GET /assets/css/style.css
 <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="s">"hey jooby"</span><span class="o">);</span> <span class="c1">// or just return a value and Jooby will call send for you.</span>
 </code></pre> 
        </div> 
-       <p>The <strong>send</strong> method will ask the <a href="/apidocs/org/jooby/Renderer.html">Renderer API</a> to format an object and write a response.</p> 
+       <p>The <strong>send</strong> method will ask the <a href="/apidocs/Renderer.html">Renderer API</a> to format an object and write a response.</p> 
        <p>The resulting <code class="highlighter-rouge codehilite">Content-Type</code> when is not set is <code class="highlighter-rouge codehilite">text/html</code>.</p> 
        <p>The resulting <code class="highlighter-rouge codehilite">Status Code</code> when is not set is <code class="highlighter-rouge codehilite">200</code>.</p> 
        <p>Some examples:</p> 
@@ -1494,7 +1494,7 @@ GET /assets/css/style.css
        </div> 
        <p>Performs content-negotiation on the Accept HTTP header of the request object. It select a handler for the request, based on the acceptable types ordered by their quality values. If the header is not specified, the first callback is invoked. When no match is found, the server responds with <code class="highlighter-rouge codehilite">406 Not Acceptable</code>, or invokes the default callback: <code class="highlighter-rouge codehilite">**/*</code>.</p> 
        <h3 id="response-response-headers">response headers</h3> 
-       <p>Retrieval of response headers is done via <a href="/apidocs/org/jooby/Response.html#header-java.lang.String-">rsp.header(“name”)</a>. The method always returns a <a href="/apidocs/org/jooby/Mutant.html">Mutant</a> and from there you can convert to any of the supported types.</p> 
+       <p>Retrieval of response headers is done via <a href="/apidocs/Response.html#header-java.lang.String-">rsp.header(“name”)</a>. The method always returns a <a href="/apidocs/Mutant.html">Mutant</a> and from there you can convert to any of the supported types.</p> 
        <p>Setting a header is pretty straightforward too:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -1510,14 +1510,14 @@ GET /assets/css/style.css
        <h2>session</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Sessions are created on demand via: <a href="/apidocs/org/jooby/Request.html#session--">req.session()</a>.</p> 
+       <p>Sessions are created on demand via: <a href="/apidocs/Request.html#session--">req.session()</a>.</p> 
        <p>Sessions have a lot of uses cases but most commons are: auth, store information about current user, etc.</p> 
        <p>A session attribute must be {@link String} or a primitive. Session doesn’t allow to store arbitrary objects. It is a simple mechanism to store basic data.</p> 
        <h3 id="session-options">options</h3> 
        <h4>No timeout</h4> 
        <p>There is no timeout for sessions from server perspective. By default, a session will expire when the user close the browser (a.k.a session cookie).</p> 
        <h3 id="session-session-store">session store</h3> 
-       <p>A <a href="/apidocs/org/jooby/Session.Store.html">Session.Store</a> is responsible for saving session data. Sessions are kept in memory, by default using the <a href="/apidocs/org/jooby/Session.Mem.html">Session.Mem</a> store, which is useful for development, but wont scale well on production environments. An redis, memcached, ehcache store will be a better option.</p> 
+       <p>A <a href="/apidocs/Session.Store.html">Session.Store</a> is responsible for saving session data. Sessions are kept in memory, by default using the <a href="/apidocs/Session.Mem.html">Session.Mem</a> store, which is useful for development, but wont scale well on production environments. An redis, memcached, ehcache store will be a better option.</p> 
        <h4>store life-cycle</h4> 
        <p>Sessions are persisted every time a request exit, if they are dirty. A session get dirty if an attribute is added or removed from it.</p> 
        <p>The <code>session.saveInterval</code> property indicates how frequently a session will be persisted (in millis).</p> 
@@ -1530,7 +1530,7 @@ GET /assets/css/style.css
        <h4>signed cookie</h4> 
        <p>If the <code>application.secret</code> property has been set, then the session cookie will be signed it with it.</p> 
        <h4>cookie’s name</h4> 
-       <p>The <code>session.cookie.name</code> indicates the name of the cookie that hold the session ID, by defaults: <code>jooby.sid</code>. Cookie’s name can be explicitly set with <a href="/apidocs/org/jooby/Cookie.Definition.html#name-java.lang.String-">cookie.name(“name”)</a> on <a href="/apidocs/org/jooby/Session.Definition.html#cookie">Session.Definition#cookie()</a>.</p> 
+       <p>The <code>session.cookie.name</code> indicates the name of the cookie that hold the session ID, by defaults: <code>jooby.sid</code>. Cookie’s name can be explicitly set with <a href="/apidocs/Cookie.Definition.html#name-java.lang.String-">cookie.name(“name”)</a> on <a href="/apidocs/Session.Definition.html#cookie">Session.Definition#cookie()</a>.</p> 
       </div> 
      </div> 
      <div class="datalist" id="error-handling"> 
@@ -1538,9 +1538,9 @@ GET /assets/css/style.css
        <h2>error handling</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Error handler is represented by the <a href="/apidocs/org/jooby/Err.Handler.html">Err.Handler</a> class and allows you to log and/or render exceptions.</p> 
+       <p>Error handler is represented by the <a href="/apidocs/Err.Handler.html">Err.Handler</a> class and allows you to log and/or render exceptions.</p> 
        <h3 id="error-handling-default-err-handler">default err handler</h3> 
-       <p>The <a href="/apidocs/org/jooby/Err.DefHandler.html">default error handler</a> does content negotiation and optionallydisplay friendly err pages using naming convention.</p> 
+       <p>The <a href="/apidocs/Err.DefHandler.html">default error handler</a> does content negotiation and optionallydisplay friendly err pages using naming convention.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -1558,7 +1558,7 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <h4>html</h4> 
-       <p>If a request to <code class="highlighter-rouge codehilite">/</code> has an <code class="highlighter-rouge codehilite">Accept: text/html</code> header. Then, the default err handler will ask to a <a href="/apidocs/org/jooby/View.Engine.html">View.Engine</a> to render the <code class="highlighter-rouge codehilite">err</code> view.</p> 
+       <p>If a request to <code class="highlighter-rouge codehilite">/</code> has an <code class="highlighter-rouge codehilite">Accept: text/html</code> header. Then, the default err handler will ask to a <a href="/apidocs/View.Engine.html">View.Engine</a> to render the <code class="highlighter-rouge codehilite">err</code> view.</p> 
        <p>The default model has these attributes:</p> 
        <ul> 
         <li>message: exception string</li> 
@@ -1580,7 +1580,7 @@ GET /assets/css/style.css
        </div> 
        <p>HTTP status code will be set too.</p> 
        <h4>no html</h4> 
-       <p>If a request to <code class="highlighter-rouge codehilite">/</code> has an <code class="highlighter-rouge codehilite">Accept: application/json</code> header. Then, the default err handler will ask to a <a href="/apidocs/org/jooby/Renderer.html">renderer</a> to render the <code class="highlighter-rouge codehilite">err</code> model.</p> 
+       <p>If a request to <code class="highlighter-rouge codehilite">/</code> has an <code class="highlighter-rouge codehilite">Accept: application/json</code> header. Then, the default err handler will ask to a <a href="/apidocs/Renderer.html">renderer</a> to render the <code class="highlighter-rouge codehilite">err</code> model.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -1621,7 +1621,7 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <h4>custom status code</h4> 
-       <p>Just throw an <a href="/apidocs/org/jooby/Err.html">Err</a>:</p> 
+       <p>Just throw an <a href="/apidocs/Err.html">Err</a>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -1652,7 +1652,7 @@ GET /assets/css/style.css
       </div> 
       <div class="datalist-content"> 
        <h3 id="parser-and-renderer-parser">parser</h3> 
-       <p>A <a href="/apidocs/org/jooby/Parser.html">Parser</a> is responsible for parsing the HTTP params and/or body to something else.</p> 
+       <p>A <a href="/apidocs/Parser.html">Parser</a> is responsible for parsing the HTTP params and/or body to something else.</p> 
        <p>Automatic type conversion is provided when a type:</p> 
        <ul> 
         <li>Is a primitive, primitive wrapper or String</li> 
@@ -1754,7 +1754,7 @@ GET /assets/css/style.css
 <span class="o">});</span>
 </code></pre> 
        </div> 
-       <p><a href="/apidocs/org/jooby/Parser.html">Parser</a> API is very powerful. It let you apply a parser to a HTTP param, set of param (like a form post), file uploads and/or body. But not just that, you are free to choose if your parser applies for a Java Type and/or a Media Type, like the <code class="highlighter-rouge codehilite">Content-Type</code> header.</p> 
+       <p><a href="/apidocs/Parser.html">Parser</a> API is very powerful. It let you apply a parser to a HTTP param, set of param (like a form post), file uploads and/or body. But not just that, you are free to choose if your parser applies for a Java Type and/or a Media Type, like the <code class="highlighter-rouge codehilite">Content-Type</code> header.</p> 
        <p>For example a generic JSON parser looks like:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -1773,7 +1773,7 @@ GET /assets/css/style.css
        <p>If a param parser isn’t able to resolve a param an exception will be thrown with a <code class="highlighter-rouge codehilite">400</code> status code.</p> 
        <p>If a body parser isn’t able to resolve a param an exception will be thrown with a <code class="highlighter-rouge codehilite">415</code> status code.</p> 
        <h3 id="parser-and-renderer-renderer">renderer</h3> 
-       <p>A <a href="/apidocs/org/jooby/Renderer.html">Renderer</a> is responsible for rendering a Java Object to a series of bytes in order to send them as HTTP response.</p> 
+       <p>A <a href="/apidocs/Renderer.html">Renderer</a> is responsible for rendering a Java Object to a series of bytes in order to send them as HTTP response.</p> 
        <p>There are a few built-in renderers:</p> 
        <ul> 
         <li>InputStream: copy an inputstream to the HTTP response and set a default type of: <code class="highlighter-rouge codehilite">application/octet-stream</code></li> 
@@ -1820,7 +1820,7 @@ GET /assets/css/style.css
        </div> 
        <p>Renderer API is simple and powerful. Renderers are executed in the order they were defined. The renderer who write the response first wins!</p> 
        <h3 id="parser-and-renderer-view-engine">view engine</h3> 
-       <p>A <a href="/apidocs/org/jooby/View.Engine.html">view engine</a> is a specialized <a href="/apidocs/org/jooby/Renderer.html">renderer</a> that ONLY accept instances of a <a href="/apidocs/org/jooby/View.html">view</a>.</p> 
+       <p>A <a href="/apidocs/View.Engine.html">view engine</a> is a specialized <a href="/apidocs/Renderer.html">renderer</a> that ONLY accept instances of a <a href="/apidocs/View.html">view</a>.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -1856,13 +1856,13 @@ GET /assets/css/style.css
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>A <a href="/apidocs/org/jooby/WebSocket.html">web socket</a> consist of a <strong>path pattern</strong> and a <a href="/apidocs/org/jooby/WebSocket.Handler.html">handler</a>.</p> 
+       <p>A <a href="/apidocs/WebSocket.html">web socket</a> consist of a <strong>path pattern</strong> and a <a href="/apidocs/WebSocket.Handler.html">handler</a>.</p> 
        <p>A <strong>path pattern</strong> can be as simple or complex as you need. All the path patterns supported by routes are supported here.</p> 
-       <p>A <a href="/apidocs/org/jooby/WebSocket.Handler.html">handler</a> is executed on new connections, from there we can listen for message, errors and/or send data to the client.</p> 
+       <p>A <a href="/apidocs/WebSocket.Handler.html">handler</a> is executed on new connections, from there we can listen for message, errors and/or send data to the client.</p> 
        <p>Keep in mind that <strong>web socket</strong> are not like routes. There is no stack/pipe or chain.</p> 
        <p>You can mount a socket to a path used by a route, but you can’t have two or more web sockets under the same path.</p> 
        <h3 id="web-sockets-guice-access">guice access</h3> 
-       <p>You can ask <a href="https://github.com/google/guice" target="_blank">Guice</a> to wired an object from the <a href="/apidocs/org/jooby/WebSocket.html#require-com.google.inject.Key-">ws.require(type)</a></p> 
+       <p>You can ask <a href="https://github.com/google/guice" target="_blank">Guice</a> to wired an object from the <a href="/apidocs/WebSocket.html#require-com.google.inject.Key-">ws.require(type)</a></p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -1947,7 +1947,7 @@ GET /assets/css/style.css
   <span class="c"># Set the Access-Control-Expose-Headers header </span>  <span class="c"># exposedHeaders: [] </span><span class="err">}</span>
 </code></pre> 
        </div> 
-       <p><code class="highlighter-rouge codehilite">CORS</code> options are represented at runtime by <a href="/apidocs/org/jooby/handlers/Cors.html">Cors</a>.</p> 
+       <p><code class="highlighter-rouge codehilite">CORS</code> options are represented at runtime by <a href="/apidocs/handlers/Cors.html">Cors</a>.</p> 
       </div> 
      </div> 
      <div class="datalist" id="javascript"> 

@@ -86,7 +86,7 @@
   <main role="main" class="site-content"> 
    <div class="section-title"> 
     <div class="row"> 
-     <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a> 
+     <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
      <h1>morphia</h1> 
     </div> 
    </div> 
@@ -122,7 +122,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-morphia<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.12.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.13.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -134,7 +134,7 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="py">db</span> <span class="p">=</span> <span class="s">"mongo://localhost/mydb"</span>
+        <pre class="highlight"><code><span class="py">db</span> <span class="p">=</span> <span class="s">"mongodb://localhost/mydb"</span>
 </code></pre> 
        </div> 
        <div class="highlighter-rouge codehilite">
@@ -187,6 +187,33 @@
 </code></pre> 
        </div> 
        <p>For more detailed information, check <a href="https://github.com/mongodb/morphia/wiki/Datastore#ensure-indexes-and-caps" target="_blank">here</a></p> 
+       <h4>auto-incremental ID</h4> 
+       <p>This modules comes with auto-incremental ID generation, usage:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Monphia</span><span class="o">().</span><span class="na">idGen</span><span class="o">(</span><span class="n">IdGen</span><span class="o">.</span><span class="na">GLOBAL</span><span class="o">);</span> <span class="c1">// or IdGen.LOCAL</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>ID must be of type: <code class="highlighter-rouge codehilite">Long</code> and annotated with <a href="/apidocs/GeneratedValue.html">GeneratedValue</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@Entity</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyEntity</span> <span class="o">{</span>
+  <span class="nd">@Id</span> <span class="nd">@GeneratedValue</span> <span class="n">Long</span> <span class="n">id</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>There two ID gen:</p> 
+       <ul> 
+        <li>GLOBAL: generates a global and unique ID regardless of entity type</li> 
+        <li>LOCAL: generates an unique ID per entity type</li> 
+       </ul> 
        <h3 id="morphia-entity-listeners">entity listeners</h3> 
        <p><a href="https://github.com/google/guice" target="_blank">Guice</a> will create and inject entity listeners (when need it).</p> 
        <div class="highlighter-rouge codehilite">

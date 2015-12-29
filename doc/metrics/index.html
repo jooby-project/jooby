@@ -3,9 +3,9 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: swagger module</title> 
+  <title>jooby: metrics module</title> 
   <meta name="description" content=""> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, swagger"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, metrics"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -87,148 +87,129 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>swagger</h1> 
+     <h1>metrics</h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
      <div class="show-mobile menu-open">
-      swagger
+      metrics
      </div> 
      <ul> 
-      <li class="active"> <a href="#swagger">swagger</a>
+      <li class="active"> <a href="#metrics">metrics</a>
        <ul> 
-        <li> <a href="#swagger-exposes">exposes</a></li> 
-        <li> <a href="#swagger-dependency">dependency</a></li> 
-        <li> <a href="#swagger-usage">usage</a></li> 
-        <li> <a href="#swagger-swagger-conf">swagger.conf</a></li> 
-        <li> <a href="#swagger-limitations-future-implementation-">limitations (future implementation)</a></li> 
-        <li> <a href="#swagger-swagger-conf">swagger.conf</a></li>
+        <li> <a href="#metrics-dependency">dependency</a></li> 
+        <li> <a href="#metrics-usage">usage</a></li> 
+        <li> <a href="#metrics-metrics">metrics</a></li> 
+        <li> <a href="#metrics-health-checks">health checks</a></li> 
+        <li> <a href="#metrics-instrumented-requests">instrumented requests</a></li> 
+        <li> <a href="#metrics-thread-dump">thread dump</a></li> 
+        <li> <a href="#metrics-reporting">reporting</a></li>
        </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
-     <div class="datalist" id="swagger"> 
+     <div class="datalist" id="metrics"> 
       <div class="datalist-title active"> 
-       <h2>swagger</h2> 
+       <h2>metrics</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p><a href="http://swagger.io" target="_blank">Swagger</a> is a simple yet powerful representation of your RESTful API.</p> 
-       <p>This module generate <a href="http://swagger.io" target="_blank">Swagger</a> spec file: <code class="highlighter-rouge codehilite">.json</code> or <code class="highlighter-rouge codehilite">.yml</code> but also UI for MVC routes.</p> 
-       <h3 id="swagger-exposes">exposes</h3> 
-       <ul> 
-        <li>A <code class="highlighter-rouge codehilite">/swagger</code> route that renders a Swagger UI</li> 
-        <li>A <code class="highlighter-rouge codehilite">/swagger.json</code> route that renders a <a href="http://swagger.io" target="_blank">Swagger</a> spec in <code class="highlighter-rouge codehilite">json</code> format</li> 
-        <li>A <code class="highlighter-rouge codehilite">/swagger.yml</code> route that renders a <a href="http://swagger.io" target="_blank">Swagger</a> spec in <code class="highlighter-rouge codehilite">yaml</code> format</li> 
-       </ul> 
-       <h3 id="swagger-dependency">dependency</h3> 
+       <p><a href="http://metrics.dropwizard.io" target="_blank">Metrics</a> provides a powerful toolkit of ways to measure the behavior of critical components in your production environment.</p> 
+       <h3 id="metrics-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>jooby-swagger<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-metrics<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>0.13.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
-       <h3 id="swagger-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="nd">@Path</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">)</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Pets</span> <span class="o">{</span>
-
-  <span class="nd">@Path</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">)</span>
-  <span class="nd">@GET</span>
-  <span class="kd">public</span> <span class="n">Pet</span> <span class="n">get</span><span class="o">(</span><span class="n">String</span> <span class="n">id</span><span class="o">)</span> <span class="o">{...}</span>
-
-  <span class="nd">@POST</span>
-  <span class="kd">public</span> <span class="n">Pet</span> <span class="n">post</span><span class="o">(</span><span class="n">Pet</span> <span class="n">pet</span><span class="o">)</span> <span class="o">{...}</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
+       <h3 id="metrics-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">SwaggerUI</span><span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
-
-  <span class="c1">// Swagger will generate a swagger spec for the Pets MVC routes.</span>
-  <span class="n">use</span><span class="o">(</span><span class="n">Pets</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+ <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Metrics</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">threadDump</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">ping</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">healthCheck</span><span class="o">(</span><span class="s">"db"</span><span class="o">,</span> <span class="k">new</span> <span class="n">DatabaseHealthCheck</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">metric</span><span class="o">(</span><span class="s">"memory"</span><span class="o">,</span> <span class="k">new</span> <span class="n">MemoryUsageGaugeSet</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">metric</span><span class="o">(</span><span class="s">"threads"</span><span class="o">,</span> <span class="k">new</span> <span class="n">ThreadStatesGaugeSet</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">metric</span><span class="o">(</span><span class="s">"gc"</span><span class="o">,</span> <span class="k">new</span> <span class="n">GarbageCollectorMetricSet</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">metric</span><span class="o">(</span><span class="s">"fs"</span><span class="o">,</span> <span class="k">new</span> <span class="n">FileDescriptorRatioGauge</span><span class="o">())</span>
+    <span class="o">);</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>By default, <a href="http://swagger.io" target="_blank">Swagger</a> will be mounted at <code class="highlighter-rouge codehilite">/swagger</code>, <code class="highlighter-rouge codehilite">/swagger/swagger.json</code> and <code class="highlighter-rouge codehilite">/swagger/swagger.yml</code>. Go and try it!</p> 
-       <p>Or if you want to mount Swagger somewhere else…:</p> 
+       <p>Let’s see what all these means.</p> 
+       <h3 id="metrics-metrics">metrics</h3> 
+       <p>Metrics are available at <code class="highlighter-rouge codehilite">/sys/metrics</code> or <code class="highlighter-rouge codehilite">/sys/metrics/:type</code> via:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">SwaggerUI</span><span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="s">"/api/docs"</span><span class="o">,</span> <span class="k">this</span><span class="o">);</span>
-<span class="o">}</span>
+        <pre class="highlight"><code> <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Metrics</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">metric</span><span class="o">(</span><span class="s">"memory"</span><span class="o">,</span> <span class="k">new</span> <span class="n">MemoryUsageGaugeSet</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">metric</span><span class="o">(</span><span class="s">"threads"</span><span class="o">,</span> <span class="k">new</span> <span class="n">ThreadStatesGaugeSet</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">metric</span><span class="o">(</span><span class="s">"gc"</span><span class="o">,</span> <span class="k">new</span> <span class="n">GarbageCollectorMetricSet</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">metric</span><span class="o">(</span><span class="s">"fs"</span><span class="o">,</span> <span class="k">new</span> <span class="n">FileDescriptorRatioGauge</span><span class="o">()));</span>
 </code></pre> 
        </div> 
-       <p>It is also possible to use Swagger (ui, .json or .yml) on specific resources.</p> 
-       <p>For example, suppose we have a <code class="highlighter-rouge codehilite">Pets.java</code> resource mounted at <code class="highlighter-rouge codehilite">/pets</code>. The following URL will be available too:</p> 
+       <p>The <code class="highlighter-rouge codehilite">/:type</code> parameter is optional and let you filter metrics by type <code class="highlighter-rouge codehilite">counters</code>, <code class="highlighter-rouge codehilite">guages</code>, etc..</p> 
+       <p>There is a <code class="highlighter-rouge codehilite">name</code> filter too: <code class="highlighter-rouge codehilite">/sys/metrics?name=memory</code> or <code class="highlighter-rouge codehilite">/sys/metrics/guages?name=memory</code>. The <code class="highlighter-rouge codehilite">name</code> parameter filter all the metrics where the name starts with the given <code class="highlighter-rouge codehilite">name</code>.</p> 
+       <h3 id="metrics-health-checks">health checks</h3> 
+       <p>Health checks are available at <code class="highlighter-rouge codehilite">/sys/healthCheck</code> via:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>   /swagger/pets <span class="o">(</span>UI<span class="o">)</span>
-   /swagger/pets/swagger.json <span class="o">(</span>JSON<span class="o">)</span>
-   /swagger/pets/swagger.yml <span class="o">(</span>YML<span class="o">)</span>
+        <pre class="highlight"><code> <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Metrics</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">healthCheck</span><span class="o">(</span><span class="s">"db"</span><span class="o">,</span> <span class="k">new</span> <span class="n">DatabaseHealthCheck</span><span class="o">()));</span>
 </code></pre> 
        </div> 
-       <p>It is a small feature, but very useful if you have a medium-size API.</p> 
-       <h3 id="swagger-swagger-conf">swagger.conf</h3> 
-       <p><a href="http://jooby.org">Jooby</a> creates a <a href="http://swagger.io" target="_blank">Swagger</a> model dynamically from MVC routes. But also, defines some defaults inside the <code class="highlighter-rouge codehilite">swagger.conf</code> (see appendix).</p> 
-       <p>For example, <code class="highlighter-rouge codehilite">swagger.info.title</code> is set to <code class="highlighter-rouge codehilite">application.name</code>. If you want to provide a more friendly name, description or API version… you can do it via your <code class="highlighter-rouge codehilite">application.conf</code> file:</p> 
+       <h3 id="metrics-instrumented-requests">instrumented requests</h3> 
+       <p>Captures request information (like active requests or min/mean/max execution time) and a breakdown of the response codes being returned: <a href="/apidocs/assets/InstrumentedHandler.html">InstrumentedHandler</a>.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>
-<span class="py">swagger.info.title</span> <span class="p">=</span> <span class="s">My Awesome API</span>
-<span class="py">swagger.info.version</span> <span class="p">=</span> <span class="s">v0.1.0</span>
-
+        <pre class="highlight"><code> <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Metrics</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">request</span><span class="o">());</span>
 </code></pre> 
        </div> 
-       <h3 id="swagger-limitations-future-implementation-">limitations (future implementation)</h3> 
-       <ul> 
-        <li>Sadly, ONLY MVC routes are supported. Inline/lambda routes has no supports for now.</li> 
-        <li>It might be nice to generate API docs (via markdown or similar) at built time using <a href="http://maven.apache.org/" target="_blank">Maven</a>.</li> 
-       </ul> 
-       <h3 id="swagger-swagger-conf">swagger.conf</h3> 
+       <h3 id="metrics-thread-dump">thread dump</h3> 
+       <p>A thread dump is available at <code class="highlighter-rouge codehilite">/sys/threadDump</code> via:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="err">swagger</span> <span class="err">{</span>
-
-  <span class="py">swagger</span><span class="p">:</span> <span class="s">"2.0"</span>
-
-  <span class="err">info</span> <span class="err">{</span>
-
-    <span class="py">title</span><span class="p">:</span> <span class="s">${application.name}</span>
-
-  <span class="err">}</span>
-
-  <span class="py">basePath</span><span class="p">:</span> <span class="s">${application.path}</span>
-
-  <span class="py">consumes</span><span class="p">:</span> <span class="s">["application/json"]</span>
-
-  <span class="py">produces</span><span class="p">:</span> <span class="s">["application/json"]</span>
-
-  <span class="py">schemes</span><span class="p">:</span> <span class="s">["http"]</span>
-
-<span class="err">}</span>
+        <pre class="highlight"><code> <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Metrics</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">threadDump</span><span class="o">());</span>
 </code></pre> 
        </div> 
+       <h3 id="metrics-reporting">reporting</h3> 
+       <p>Reporters are appended via a callback API:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code> <span class="o">{</span>
+   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Metrics</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">reporter</span><span class="o">(</span><span class="n">registry</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="n">ConsoleReporter</span> <span class="n">reporter</span> <span class="o">=</span> <span class="n">ConsoleReporter</span><span class="o">.</span><span class="na">forRegistry</span><span class="o">(</span><span class="n">registry</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+        <span class="n">reporter</span><span class="o">.</span><span class="na">start</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MINUTES</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">reporter</span><span class="o">;</span>
+      <span class="o">});</span>
+ <span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>You can add all the reporters you want. Keep in mind you have to start them (if need it), but you don’t have to stop them as long they implements the <a href="/apidocs/assets/Closeable.html">Closeable</a> interface.</p> 
+       <p>That’s all folks!</p> 
       </div> 
      </div> 
     </div> 

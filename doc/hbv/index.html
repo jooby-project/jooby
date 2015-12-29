@@ -86,7 +86,7 @@
   <main role="main" class="site-content"> 
    <div class="section-title"> 
     <div class="row"> 
-     <a href="/modules" title="Back to Modules"><span class="icon-arrowback-big-circle"></span></a> 
+     <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
      <h1>hibernate validator</h1> 
     </div> 
    </div> 
@@ -128,7 +128,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-hbv<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.12.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.13.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -170,7 +170,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Here a <a href="/apidocs/org/jooby/Parser.html">Parser</a> will do the boilerplate part and throws a <code class="highlighter-rouge codehilite">ConstraintViolationException</code>.</p> 
+       <p>Here a <a href="/apidocs/Parser.html">Parser</a> will do the boilerplate part and throws a <code class="highlighter-rouge codehilite">ConstraintViolationException</code>.</p> 
        <h4>rendering a ConstraintViolationException</h4> 
        <p>The default err handler will render the <code class="highlighter-rouge codehilite">ConstraintViolationException</code> without problem, but suppose we have a JavaScript client and want to display the errors in a friendly way.</p> 
        <div class="highlighter-rouge codehilite">
