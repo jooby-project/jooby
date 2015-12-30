@@ -104,7 +104,13 @@
         <li> <a href="#jar-deployment-run-start">run / start</a></li> 
         <li> <a href="#jar-deployment-env-and-conf">env and conf</a></li>
        </ul></li> 
-      <li class=""> <a href="#zip-deployment">zip deployment</a></li> 
+      <li class=""> <a href="#zip-deployment">zip deployment</a>
+       <ul> 
+        <li> <a href="#zip-deployment-build-and-package">build and package</a></li> 
+        <li> <a href="#zip-deployment-run-start">run / start</a></li> 
+        <li> <a href="#zip-deployment-env-and-conf">env and conf</a></li>
+       </ul></li> 
+      <li class=""> <a href="#conclusion">conclusion</a></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
@@ -177,6 +183,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 </code></pre> 
        </div> 
        <p>Your application will run now in <code class="highlighter-rouge codehilite">prod</code>. It will find your <code class="highlighter-rouge codehilite">application.conf</code> and overrides in property defined there with those from <code class="highlighter-rouge codehilite">application.prod.conf</code></p> 
+       <p>It works for <code class="highlighter-rouge codehilite">logback.xml</code> too, if <code class="highlighter-rouge codehilite">logback.[env].xml</code> is present, then <strong>Jooby</strong> will use it, otherwise it fallbacks to <code class="highlighter-rouge codehilite">logback.xml</code>.</p> 
       </div> 
      </div> 
      <div class="datalist" id="zip-deployment"> 
@@ -208,13 +215,52 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 └── stop.sh
 </code></pre> 
        </div> 
-       <p>The scripts: <code class="highlighter-rouge codehilite">start/stop.sh</code> are very simple and they allow to start/stop a <strong>Jooby</strong> app.</p> 
+       <p>The scripts: <code class="highlighter-rouge codehilite">start/stop.sh</code> are very simple and they will start/stop a <strong>Jooby</strong> app.</p> 
        <p>The scripts are inside the <code class="highlighter-rouge codehilite">src/etc/bin</code> directory you can edit them, add more, etc… They will be always included in the final <code class="highlighter-rouge codehilite">.zip</code>.</p> 
        <p>The <code class="highlighter-rouge codehilite">zip</code> deployment makes sense when you want to have more control over your application. For example:</p> 
        <ul> 
         <li>If you want to turn on/off loggers at runtime via: <code class="highlighter-rouge codehilite">conf/logback.xml</code></li> 
-        <li>If you have <a href="https://www.nginx.com" target="_blank">nginx</a> or <a href="https://httpd.apache.org" target="_blank">apache</a> server and want to serve static files with them, then the <code class="highlighter-rouge codehilite">public</code> directory will have all your static files.</li> 
+        <li>The <code class="highlighter-rouge codehilite">public</code> folder contains all your static files, you can configure <a href="https://www.nginx.com" target="_blank">nginx</a> or <a href="https://httpd.apache.org" target="_blank">apache</a> server to serve them from disk</li> 
        </ul> 
+       <h3 id="zip-deployment-build-and-package">build and package</h3> 
+       <p>You don’t have to do anything special to get a <code class="highlighter-rouge codehilite">.zip</code> if you created the app from <a href="http://maven.apache.org/" target="_blank">Maven 3+</a> <code class="highlighter-rouge codehilite">archetype</code>.</p> 
+       <p>If you don’t you then open the <code class="highlighter-rouge codehilite">pom.xml</code> add these lines:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>maven-assembly-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;descriptorRefs&gt;</span>
+      <span class="nt">&lt;descriptorRef&gt;</span>jooby.zip<span class="nt">&lt;/descriptorRef&gt;</span>
+    <span class="nt">&lt;/descriptorRefs&gt;</span>
+  <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</code></pre> 
+       </div> 
+       <p>The <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> will generate the <code class="highlighter-rouge codehilite">.zip</code> file.</p> 
+       <h3 id="zip-deployment-run-start">run / start</h3> 
+       <p>It is usually don’t via <code class="highlighter-rouge codehilite">start.sh</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>./start.sh prod
+</code></pre> 
+       </div> 
+       <h3 id="zip-deployment-env-and-conf">env and conf</h3> 
+       <p>It works like the <a href="#jar-deployment-env-and-conf">jar deployment</a></p> 
+      </div> 
+     </div> 
+     <div class="datalist" id="conclusion"> 
+      <div class="datalist-title "> 
+       <h2>conclusion</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p><strong>Jar deployment</strong> makes perfect sense for PaaS like Heroku, AppEngine, etc…</p> 
+       <p><strong>Zip deployment</strong> give you more control for starting and stopping but also control the application log at runtime.</p> 
        <p>Happy coding!!</p> 
       </div> 
      </div> 
