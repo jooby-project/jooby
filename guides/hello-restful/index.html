@@ -3,9 +3,9 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby:  guide</title> 
+  <title>jooby: hello restful guide</title> 
   <meta name="description" content=""> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, "> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, hello restful"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -88,76 +88,91 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/guides" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1></h1> 
+     <h1>hello restful</h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
-     <div class="show-mobile menu-open"></div> 
+     <div class="show-mobile menu-open">
+      hello restful
+     </div> 
      <ul> 
+      <li class="active"> <a href="#hello-restful">hello restful</a>
+       <ul> 
+        <li> <a href="#hello-restful-requirements">requirements</a></li> 
+        <li> <a href="#hello-restful-ready">ready</a></li> 
+        <li> <a href="#hello-restful-quick-preview">quick preview</a></li> 
+        <li> <a href="#hello-restful-getting-dirty">getting dirty</a></li> 
+        <li> <a href="#hello-restful-source-code">source code</a></li>
+       </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
-     <p><a href="https://travis-ci.org/jooby-starters/{{guide}}" target="_blank"><img src="https://travis-ci.org/jooby-starters/{{guide}}.svg?branch=master" alt="Build Status"></a> # hello restful</p> 
-     <p>You will learn how to build a simple <strong>JSON RESTFUL</strong> web service with <a href="http://jooby.org">Jooby</a>.</p> 
-     <p>The service will be available at:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+     <p><a href="https://travis-ci.org/jooby-starters/hello-restful" target="_blank"><img src="https://travis-ci.org/jooby-starters/hello-restful.svg?branch=master" alt="Build Status"></a></p> 
+     <div class="datalist" id="hello-restful"> 
+      <div class="datalist-title active"> 
+       <h2>hello restful</h2> 
       </div> 
-      <pre class="highlight"><code>http://localhost:8080/greeting
+      <div class="datalist-content"> 
+       <p>You will learn how to build a simple <strong>JSON RESTFUL</strong> web service with <a href="http://jooby.org">Jooby</a>.</p> 
+       <p>The service will be available at:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>http://localhost:8080/greeting
 </code></pre> 
-     </div> 
-     <p>and produces a <strong>JSON</strong> response:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello World!"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
-     </div> 
-     <h3>requirements</h3> 
-     <p>Make sure you have all these software installed it in your computer:</p> 
-     <ul> 
-      <li>A text editor or IDE</li> 
-      <li><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">JDK 8+</a> or later</li> 
-      <li><a href="http://maven.apache.org/" target="_blank">Maven 3+</a></li> 
-      <li><a href="https://git-scm.com/downloads" target="_blank">Git</a></li> 
-     </ul> 
-     <h3>ready</h3> 
-     <p>Open a terminal (console for Windows users) and paste:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code>git clone https://github.com/jooby-starters/<span class="o">{{</span>guide<span class="o">}}</span>.git
+       </div> 
+       <p>and produces a <strong>JSON</strong> response:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello World!"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
+       </div> 
+       <h3 id="hello-restful-requirements">requirements</h3> 
+       <p>Make sure you have all these software installed it in your computer:</p> 
+       <ul> 
+        <li>A text editor or IDE</li> 
+        <li><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">JDK 8+</a> or later</li> 
+        <li><a href="http://maven.apache.org/" target="_blank">Maven 3+</a></li> 
+        <li><a href="https://git-scm.com/downloads" target="_blank">Git</a></li> 
+       </ul> 
+       <h3 id="hello-restful-ready">ready</h3> 
+       <p>Open a terminal (console for Windows users) and paste:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>git clone https://github.com/jooby-starters/hello-restful.git
 
-<span class="nb">cd</span> <span class="o">{{</span>guide<span class="o">}}</span>
+<span class="nb">cd </span>hello-restful
 </code></pre> 
-     </div> 
-     <p>An almost empty application is ready to run, you can try now with:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code>mvn jooby:run
+       </div> 
+       <p>An almost empty application is ready to run, you can try now with:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>mvn jooby:run
 </code></pre> 
-     </div> 
-     <p>Open a browser and type:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code>http://localhost:8080
+       </div> 
+       <p>Open a browser and type:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>http://localhost:8080
 </code></pre> 
-     </div> 
-     <p><strong>TIP</strong>: If you are using an IDE that automatically compiles your source code while you save it… <code class="highlighter-rouge codehilite">mvn jooby:run</code> will detects those changes and restart the application for you!! more at <a href="/doc/maven-plugin">mvn jooby:run</a>.</p> 
-     <h3>quick preview</h3> 
-     <p>Before moving forward let’s have a look at <code class="highlighter-rouge codehilite">src/main/java/hellorestful/App.java</code>:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code>
+       </div> 
+       <p><strong>TIP</strong>: If you are using an IDE that automatically compiles your source code while you save it… <code class="highlighter-rouge codehilite">mvn jooby:run</code> will detects those changes and restart the application for you!! more at <a href="/doc/maven-plugin">mvn jooby:run</a>.</p> 
+       <h3 id="hello-restful-quick-preview">quick preview</h3> 
+       <p>Before moving forward let’s have a look at <code class="highlighter-rouge codehilite">src/main/java/hellorestful/App.java</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="kd">extends</span> <span class="n">Jooby</span> <span class="o">{</span> <span class="c1">// 1 extends Jooby</span>
 
   <span class="o">{</span>
@@ -172,21 +187,21 @@
 
 <span class="o">}</span>
 </code></pre> 
-     </div> 
-     <p>Do you see the comments in the source code?</p> 
-     <ol> 
-      <li>A <strong>Jooby</strong> app always extends <code class="highlighter-rouge codehilite">org.jooby.Jooby</code></li> 
-      <li>We define some routes in the instance initializer (this is <strong>NOT static code</strong>)</li> 
-      <li>A <strong>Jooby</strong> app need to be instantiated and then started.</li> 
-     </ol> 
-     <h3>getting dirty</h3> 
-     <p>Now we already see how a <strong>Jooby</strong> app looks like, we are going to create a simple greeting <strong>RESTFUL</strong> web service at <code class="highlighter-rouge codehilite">http://localhost:8080/greeting</code></p> 
-     <p>The <code class="highlighter-rouge codehilite">Greeting.java</code>:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Greeting</span> <span class="o">{</span>
+       </div> 
+       <p>Do you see the comments in the source code?</p> 
+       <ol> 
+        <li>A <strong>Jooby</strong> app always extends <code class="highlighter-rouge codehilite">org.jooby.Jooby</code></li> 
+        <li>We define some routes in the instance initializer (this is <strong>NOT static code</strong>)</li> 
+        <li>A <strong>Jooby</strong> app need to be instantiated and then started.</li> 
+       </ol> 
+       <h3 id="hello-restful-getting-dirty">getting dirty</h3> 
+       <p>Now we already see how a <strong>Jooby</strong> app looks like, we are going to create a simple greeting <strong>RESTFUL</strong> web service at <code class="highlighter-rouge codehilite">http://localhost:8080/greeting</code></p> 
+       <p>The <code class="highlighter-rouge codehilite">Greeting.java</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Greeting</span> <span class="o">{</span>
 
   <span class="kd">public</span> <span class="kt">int</span> <span class="n">id</span><span class="o">;</span>
 
@@ -202,13 +217,13 @@
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre> 
-     </div> 
-     <p>And the new route:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code><span class="kn">import</span> <span class="nn">java.util.concurrent.atomic.AtomicInteger</span><span class="o">;</span>
+       </div> 
+       <p>And the new route:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kn">import</span> <span class="nn">java.util.concurrent.atomic.AtomicInteger</span><span class="o">;</span>
 <span class="o">...</span>
 
 <span class="o">{</span>
@@ -217,25 +232,25 @@
   <span class="n">get</span><span class="o">(</span><span class="s">"/greeting"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">Greeting</span><span class="o">(</span><span class="n">idgen</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">(),</span> <span class="s">"Hello World!"</span><span class="o">));</span>
 <span class="o">}</span>
 </code></pre> 
-     </div> 
-     <p>Open a browser and type:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code>http://localhost:8080/greeting
+       </div> 
+       <p>Open a browser and type:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>http://localhost:8080/greeting
 </code></pre> 
-     </div> 
-     <p>You’ll see <code class="highlighter-rouge codehilite">Hello World!</code> in your browser, not bad ugh?</p> 
-     <p>Not bad at all! But, don’t we suppose to build a <strong>JSON</strong> <strong>RESTFUL</strong> web service?</p> 
-     <p>Absolutely, but before that, let’s see how to add a simple and optional HTTP parameter.</p> 
-     <h4>adding a name parameter</h4> 
-     <p>We are going to improve our service by allowing a name parameter:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code><span class="o">...</span>
+       </div> 
+       <p>You’ll see <code class="highlighter-rouge codehilite">Hello World!</code> in your browser, not bad ugh?</p> 
+       <p>Not bad at all! But, don’t we suppose to build a <strong>JSON</strong> <strong>RESTFUL</strong> web service?</p> 
+       <p>Absolutely, but before that, let’s see how to add a simple and optional HTTP parameter.</p> 
+       <h4>adding a name parameter</h4> 
+       <p>We are going to improve our service by allowing a name parameter:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">...</span>
 <span class="o">{</span>
   <span class="o">...</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/greeting"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -245,22 +260,22 @@
   <span class="o">});</span>
 <span class="o">}</span>
 </code></pre> 
-     </div> 
-     <p>HTTP parameter are accessible via <code class="highlighter-rouge codehilite">req.param(String)</code> method, that is why we change a bit our route to access the <code class="highlighter-rouge codehilite">HTTP request</code>.</p> 
-     <p>Try it:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code>http://localhost:8080/greeting?name=Jooby
+       </div> 
+       <p>HTTP parameter are accessible via <code class="highlighter-rouge codehilite">req.param(String)</code> method, that is why we change a bit our route to access the <code class="highlighter-rouge codehilite">HTTP request</code>.</p> 
+       <p>Try it:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>http://localhost:8080/greeting?name=Jooby
 </code></pre> 
-     </div> 
-     <p>What if you call the service without a <code class="highlighter-rouge codehilite">name</code>? You will get a <code class="highlighter-rouge codehilite">Bad Request(400)</code> response. Let’s fix that with an <code class="highlighter-rouge codehilite">Optional</code> parameter:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code><span class="o">...</span>
+       </div> 
+       <p>What if you call the service without a <code class="highlighter-rouge codehilite">name</code>? You will get a <code class="highlighter-rouge codehilite">Bad Request(400)</code> response. Let’s fix that with an <code class="highlighter-rouge codehilite">Optional</code> parameter:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">...</span>
 <span class="o">{</span>
   <span class="o">...</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/greeting"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -270,24 +285,24 @@
   <span class="o">});</span>
 <span class="o">}</span>
 </code></pre> 
-     </div> 
-     <p>Same as before, we ask for the HTTP parameter but this time we set a default value: <code class="highlighter-rouge codehilite">World</code>. Optional parameters can be retrieve with:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code>Optional&lt;String&gt; name = req.param("name").toOptional();
+       </div> 
+       <p>Same as before, we ask for the HTTP parameter but this time we set a default value: <code class="highlighter-rouge codehilite">World</code>. Optional parameters can be retrieve with:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>Optional&lt;String&gt; name = req.param("name").toOptional();
 </code></pre> 
-     </div> 
-     <p>or from helper methods, like: <code class="highlighter-rouge codehilite">.value(String)</code>.</p> 
-     <p>Try it again with or without a <code class="highlighter-rouge codehilite">name</code> parameter!!</p> 
-     <h4>path parameter</h4> 
-     <p>If you want or prefer a <code class="highlighter-rouge codehilite">path</code> parameter, you can replace the path pattern with: <code class="highlighter-rouge codehilite">/greeting/:name</code> or allow both of them:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code><span class="o">...</span>
+       </div> 
+       <p>or from helper methods, like: <code class="highlighter-rouge codehilite">.value(String)</code>.</p> 
+       <p>Try it again with or without a <code class="highlighter-rouge codehilite">name</code> parameter!!</p> 
+       <h4>path parameter</h4> 
+       <p>If you want or prefer a <code class="highlighter-rouge codehilite">path</code> parameter, you can replace the path pattern with: <code class="highlighter-rouge codehilite">/greeting/:name</code> or allow both of them:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">...</span>
 <span class="o">{</span>
   <span class="o">...</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/greeting"</span><span class="o">,</span> <span class="s">"/greeting/:name"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -297,45 +312,45 @@
   <span class="o">});</span>
 <span class="o">}</span>
 </code></pre> 
-     </div> 
-     <p>Try it:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code>http://localhost:8080/greeting?name=Jooby
+       </div> 
+       <p>Try it:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>http://localhost:8080/greeting?name=Jooby
 </code></pre> 
-     </div> 
-     <p>Or:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code>http://localhost:8080/greeting/Jooby
+       </div> 
+       <p>Or:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>http://localhost:8080/greeting/Jooby
 </code></pre> 
-     </div> 
-     <p>Nice ugh?</p> 
-     <h4>writing JSON</h4> 
-     <p>As you already known, <a href="http://jooby.org">Jooby</a> is a micro-web framework in order to write a <strong>JSON</strong> response we need one of the available <a href="/doc/parser-and-renderer">json modules</a>.</p> 
-     <p>Here we will use <a href="/doc/jackson">jackson</a> but keep in mind the process is exactly the same if you choose any other module.</p> 
-     <p>First of add the <a href="/doc/jackson">jackson</a> dependency to your <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+       </div> 
+       <p>Nice ugh?</p> 
+       <h4>writing JSON</h4> 
+       <p>As you already known, <a href="http://jooby.org">Jooby</a> is a micro-web framework in order to write a <strong>JSON</strong> response we need one of the available <a href="/doc/parser-and-renderer">json modules</a>.</p> 
+       <p>Here we will use <a href="/doc/jackson">jackson</a> but keep in mind the process is exactly the same if you choose any other module.</p> 
+       <p>First of add the <a href="/doc/jackson">jackson</a> dependency to your <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jackson<span class="nt">&lt;/artifactId&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
-     </div> 
-     <p>If <code class="highlighter-rouge codehilite">mvn jooby:run</code> is running, please restart it (we need to force a restart bc we added a new dependency).</p> 
-     <p>Let’s <code class="highlighter-rouge codehilite">use</code> the module in our <code class="highlighter-rouge codehilite">App.java:</code></p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-      </div> 
-      <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.json.Jackson</span><span class="o">;</span>
+       </div> 
+       <p>If <code class="highlighter-rouge codehilite">mvn jooby:run</code> is running, please restart it (we need to force a restart bc we added a new dependency).</p> 
+       <p>Let’s <code class="highlighter-rouge codehilite">use</code> the module in our <code class="highlighter-rouge codehilite">App.java:</code></p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.json.Jackson</span><span class="o">;</span>
 <span class="o">...</span>
 
 <span class="o">{</span>
@@ -350,19 +365,21 @@
   <span class="o">});</span>
 <span class="o">}</span>
 </code></pre> 
-     </div> 
-     <p>Our service method didn’t change at all! we just <em>import</em> the <a href="/doc/jackson">jackson module</a> using <code class="highlighter-rouge codehilite">use(Module)</code> method!!</p> 
-     <p>Now, try the service again and you will get a nice <strong>JSON</strong> response:</p> 
-     <div class="highlighter-rouge codehilite">
-      <div class="copy-bar"> 
-       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+       </div> 
+       <p>Our service method didn’t change at all! we just <em>import</em> the <a href="/doc/jackson">jackson module</a> using <code class="highlighter-rouge codehilite">use(Module)</code> method!!</p> 
+       <p>Now, try the service again and you will get a nice <strong>JSON</strong> response:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello World!"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
+       </div> 
+       <h3 id="hello-restful-source-code">source code</h3> 
+       <p>Fork this guide at: <a href="https://github.com/jooby-starters/hello-restful" target="_blank">hello-restful</a>.</p> 
+       <p>Complete source code is available in the <a href="https://github.com/jooby-starters/hello-restful/tree/final" target="_blank">final</a> branch.</p> 
+       <p>Happy coding!!</p> 
       </div> 
-      <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello World!"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
      </div> 
-     <h3>source code</h3> 
-     <p>Fork this guide at: <a href="https://github.com/jooby-starters/{{guide}}" target="_blank">{{guide}}</a>.</p> 
-     <p>Complete source code is available in the <a href="https://github.com/jooby-starters/{{guide}}/tree/final" target="_blank">final</a> branch.</p> 
-     <p>Happy coding!!</p> 
     </div> 
    </div> 
   </main> 
