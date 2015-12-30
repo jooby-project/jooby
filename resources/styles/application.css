@@ -859,8 +859,7 @@ p {
 }
 
 ul,
-ol,
-li {
+ul li {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1335,7 +1334,7 @@ th {
   text-decoration: underline;
 }
 .section-content .highlighter-rouge {
-  margin-bottom: 46px;
+  margin-bottom: 24px;
 }
 
 .section-sidebar {
