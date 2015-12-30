@@ -3,9 +3,9 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: hello restful guide</title> 
+  <title>jooby: hello mvc restful guide</title> 
   <meta name="description" content=""> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, hello restful"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, hello mvc restful"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -88,35 +88,35 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/guides" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>hello restful</h1> 
+     <h1>hello mvc restful</h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
      <div class="show-mobile menu-open">
-      hello restful
+      hello mvc restful
      </div> 
      <ul> 
-      <li class="active"> <a href="#hello-restful">hello restful</a>
+      <li class="active"> <a href="#hello-mvc-restful">hello mvc restful</a>
        <ul> 
-        <li> <a href="#hello-restful-requirements">requirements</a></li> 
-        <li> <a href="#hello-restful-ready">ready</a></li> 
-        <li> <a href="#hello-restful-quick-preview">quick preview</a></li> 
-        <li> <a href="#hello-restful-getting-dirty">getting dirty</a></li> 
-        <li> <a href="#hello-restful-source-code">source code</a></li> 
-        <li> <a href="#hello-restful-help-and-support">help and support</a></li>
+        <li> <a href="#hello-mvc-restful-requirements">requirements</a></li> 
+        <li> <a href="#hello-mvc-restful-ready">ready</a></li> 
+        <li> <a href="#hello-mvc-restful-quick-preview">quick preview</a></li> 
+        <li> <a href="#hello-mvc-restful-getting-dirty">getting dirty</a></li> 
+        <li> <a href="#hello-mvc-restful-source-code">source code</a></li> 
+        <li> <a href="#hello-mvc-restful-help-and-support">help and support</a></li>
        </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
-     <p><a href="https://travis-ci.org/jooby-starters/hello-restful" target="_blank"><img src="https://travis-ci.org/jooby-starters/hello-restful.svg?branch=master" alt="Build Status"></a></p> 
-     <div class="datalist" id="hello-restful"> 
+     <p><a href="https://travis-ci.org/jooby-starters/hello-mvc-restful" target="_blank"><img src="https://travis-ci.org/jooby-starters/hello-mvc-restful.svg?branch=master" alt="Build Status"></a></p> 
+     <div class="datalist" id="hello-mvc-restful"> 
       <div class="datalist-title active"> 
-       <h2>hello restful</h2> 
+       <h2>hello mvc restful</h2> 
       </div> 
       <div class="datalist-content"> 
        <p>You will learn how to build a simple <strong>JSON RESTFUL</strong> web service with <a href="http://jooby.org">Jooby</a>.</p> 
-       <p>In this guide we will write some routes using the <strong>script programming model</strong>, if you want to compare the same guide using the <strong>mvc programming model</strong> checkout the: <a href="http://jooby.org/guides/hello-mvc-restful">hello mvc restful guide</a></p> 
+       <p>In this guide we will write some routes using the <strong>MVC programming model</strong>, if you want to compare the same guide using the <strong>script programming model</strong> checkout the: <a href="http://jooby.org/guides/hello-restful">hello restful guide</a></p> 
        <p>The service will be available at:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -132,7 +132,7 @@
         </div> 
         <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello World!"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
        </div> 
-       <h3 id="hello-restful-requirements">requirements</h3> 
+       <h3 id="hello-mvc-restful-requirements">requirements</h3> 
        <p>Make sure you have all these software installed it in your computer:</p> 
        <ul> 
         <li>A text editor or IDE</li> 
@@ -140,15 +140,15 @@
         <li><a href="http://maven.apache.org/" target="_blank">Maven 3+</a></li> 
         <li><a href="https://git-scm.com/downloads" target="_blank">Git</a></li> 
        </ul> 
-       <h3 id="hello-restful-ready">ready</h3> 
+       <h3 id="hello-mvc-restful-ready">ready</h3> 
        <p>Open a terminal (console for Windows users) and paste:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>git clone https://github.com/jooby-starters/hello-restful.git
+        <pre class="highlight"><code>git clone https://github.com/jooby-starters/hello-mvc-restful.git
 
-<span class="nb">cd </span>hello-restful
+<span class="nb">cd </span>hello-mvc-restful
 </code></pre> 
        </div> 
        <p>An almost empty application is ready to run, you can try now with:</p> 
@@ -170,7 +170,7 @@
        <blockquote> 
         <p><strong>TIP</strong>: If you are using an IDE that automatically compiles your source code while you save it… <code class="highlighter-rouge codehilite">mvn jooby:run</code> will detects those changes and restart the application for you!! more at <a href="/doc/maven-plugin">mvn jooby:run</a>.</p> 
        </blockquote> 
-       <h3 id="hello-restful-quick-preview">quick preview</h3> 
+       <h3 id="hello-mvc-restful-quick-preview">quick preview</h3> 
        <p>Before moving forward let’s have a look at <code class="highlighter-rouge codehilite">src/main/java/hellorestful/App.java</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -181,7 +181,7 @@
 
   <span class="o">{</span>
     <span class="c1">// 2 define some routes</span>
-    <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"Welcome to the hello-restul guide!"</span><span class="o">);</span>
+    <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"Welcome to the hello-mvc-restful guide!"</span><span class="o">);</span>
   <span class="o">}</span>
 
   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="kd">final</span> <span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
@@ -198,7 +198,7 @@
         <li>We define some routes in the instance initializer (this is <strong>NOT static code</strong>)</li> 
         <li>A <strong>Jooby</strong> app need to be instantiated and then started.</li> 
        </ol> 
-       <h3 id="hello-restful-getting-dirty">getting dirty</h3> 
+       <h3 id="hello-mvc-restful-getting-dirty">getting dirty</h3> 
        <p>Now we already see how a <strong>Jooby</strong> app looks like, we are going to create a simple greeting <strong>RESTFUL</strong> web service at <code class="highlighter-rouge codehilite">http://localhost:8080/greeting</code></p> 
        <p>The <code class="highlighter-rouge codehilite">Greeting.java</code>:</p> 
        <div class="highlighter-rouge codehilite">
@@ -222,21 +222,47 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>And the new route:</p> 
+       <p>The <code class="highlighter-rouge codehilite">Greetings.java</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kn">import</span> <span class="nn">java.util.concurrent.atomic.AtomicInteger</span><span class="o">;</span>
-<span class="o">...</span>
+<span class="kn">import</span> <span class="nn">org.jooby.mvc.Path</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jooby.mvc.GET</span><span class="o">;</span>
 
-<span class="o">{</span>
-  <span class="n">AtomicInteger</span> <span class="n">idgen</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AtomicInteger</span><span class="o">();</span>
+<span class="nd">@Path</span><span class="o">(</span><span class="s">"/greeting"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Greetings</span> <span class="o">{</span>
 
-  <span class="n">get</span><span class="o">(</span><span class="s">"/greeting"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">Greeting</span><span class="o">(</span><span class="n">idgen</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">(),</span> <span class="s">"Hello World!"</span><span class="o">));</span>
+  <span class="kd">static</span> <span class="n">AtomicInteger</span> <span class="n">idgen</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AtomicInteger</span><span class="o">();</span>
+
+  <span class="nd">@GET</span>
+  <span class="kd">public</span> <span class="n">Greeting</span> <span class="n">salute</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Greeting</span><span class="o">(</span><span class="n">idgen</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">(),</span> <span class="s">"Hello World!"</span><span class="o">);</span>
+  <span class="o">}</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
+       <p>A <strong>MVC</strong> route might looks familiar for <a href="http://spring.io" target="_blank">Spring</a> or <a href="https://jersey.java.net" target="_blank">Jersey</a> developers.</p> 
+       <p>They require a <code class="highlighter-rouge codehilite">@Path</code> annotation at class or method level, then for each public method annotated with <code class="highlighter-rouge codehilite">GET</code>, <code class="highlighter-rouge codehilite">POST</code>, etc.. <strong>Jooby</strong> creates a new route.</p> 
+       <p>A key difference with <a href="http://spring.io" target="_blank">Spring</a> is that a <strong>MVC route</strong> MUST be registered in <code class="highlighter-rouge codehilite">App.java</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">...</span>
+
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="n">Grettings</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>You might be wonder why, right? Here are some reasons:</p> 
+       <ul> 
+        <li>routes in <strong>Jooby</strong> are executed in the order they are defined. If we allow classpath-scanning/autodiscovering it is impossible to known when the route should run.</li> 
+        <li>the order is so important that routes from a MVC class, are registered in the order they appears in the source code!</li> 
+        <li>removal of classpath-scanning makes <strong>Jooby</strong> to startup as fast as possible (key difference with other frameworks)</li> 
+       </ul> 
        <p>Open a browser and type:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -254,18 +280,15 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="o">...</span>
-<span class="o">{</span>
+        <pre class="highlight"><code>  <span class="o">...</span>
+  <span class="nd">@GET</span>
+  <span class="kd">public</span> <span class="n">Greeting</span> <span class="n">salute</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Greeting</span><span class="o">(</span><span class="n">idgen</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">(),</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">"!"</span><span class="o">);</span>
+  <span class="o">}</span>
   <span class="o">...</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/greeting"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"name"</span><span class="o">).</span><span class="na">value</span><span class="o">()</span> <span class="o">+</span> <span class="s">"!"</span><span class="o">;</span>
-
-    <span class="k">return</span> <span class="k">new</span> <span class="n">Greeting</span><span class="o">(</span><span class="n">idgen</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">(),</span> <span class="n">name</span><span class="o">);</span>
-  <span class="o">});</span>
-<span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>HTTP parameter are accessible via <code class="highlighter-rouge codehilite">req.param(String)</code> method, that is why we change a bit our route to access the <code class="highlighter-rouge codehilite">HTTP request</code>.</p> 
+       <p>HTTP parameter are accessible via method parameter. Here a parameter named: <code class="highlighter-rouge codehilite">name</code> must be present in the HTTP request.</p> 
        <p>Try it:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -279,26 +302,16 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="o">...</span>
-<span class="o">{</span>
+        <pre class="highlight"><code><span class="kn">import</span> <span class="nn">java.util.Optional</span><span class="o">;</span>
   <span class="o">...</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/greeting"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"name"</span><span class="o">).</span><span class="na">value</span><span class="o">(</span><span class="s">"World"</span><span class="o">)</span> <span class="o">+</span> <span class="s">"!"</span><span class="o">;</span>
-
-    <span class="k">return</span> <span class="k">new</span> <span class="n">Greeting</span><span class="o">(</span><span class="n">idgen</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">(),</span> <span class="n">name</span><span class="o">);</span>
-  <span class="o">});</span>
-<span class="o">}</span>
+  <span class="nd">@GET</span>
+  <span class="kd">public</span> <span class="n">Greeting</span> <span class="n">salute</span><span class="o">(</span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Greeting</span><span class="o">(</span><span class="n">idgen</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">(),</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">name</span><span class="o">.</span><span class="na">orElse</span><span class="o">(</span><span class="s">"World"</span><span class="o">)</span> <span class="o">+</span> <span class="s">"!"</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
 </code></pre> 
        </div> 
-       <p>Same as before, we ask for the HTTP parameter but this time we set a default value: <code class="highlighter-rouge codehilite">World</code>. Optional parameters can be retrieve with:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>Optional&lt;String&gt; name = req.param("name").toOptional();
-</code></pre> 
-       </div> 
-       <p>or from helper methods, like: <code class="highlighter-rouge codehilite">.value(String)</code>.</p> 
+       <p>Same as before, except we declare the parameter as <code class="highlighter-rouge codehilite">java.util.Optional</code></p> 
        <p>Try it again with or without a <code class="highlighter-rouge codehilite">name</code> parameter!!</p> 
        <h4>path parameter</h4> 
        <p>If you want or prefer a <code class="highlighter-rouge codehilite">path</code> parameter, you can replace the path pattern with: <code class="highlighter-rouge codehilite">/greeting/:name</code> or allow both of them:</p> 
@@ -309,11 +322,11 @@
         <pre class="highlight"><code><span class="o">...</span>
 <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/greeting"</span><span class="o">,</span> <span class="s">"/greeting/:name"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"name"</span><span class="o">).</span><span class="na">value</span><span class="o">(</span><span class="s">"World"</span><span class="o">)</span> <span class="o">+</span> <span class="s">"!"</span><span class="o">;</span>
-
-    <span class="k">return</span> <span class="k">new</span> <span class="n">Greeting</span><span class="o">(</span><span class="n">idgen</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">(),</span> <span class="n">name</span><span class="o">);</span>
-  <span class="o">});</span>
+  <span class="nd">@GET</span> <span class="nd">@Path</span><span class="o">({</span><span class="s">"/"</span><span class="o">,</span> <span class="s">"/:name"</span><span class="o">})</span>
+  <span class="kd">public</span> <span class="n">Greeting</span> <span class="n">salute</span><span class="o">(</span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Greeting</span><span class="o">(</span><span class="n">idgen</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">(),</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">name</span><span class="o">.</span><span class="na">orElse</span><span class="o">(</span><span class="s">"World"</span><span class="o">)</span> <span class="o">+</span> <span class="s">"!"</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
@@ -360,13 +373,7 @@
 <span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span>
 
-  <span class="o">...</span>
-
-  <span class="n">get</span><span class="o">(</span><span class="s">"/greeting"</span><span class="o">,</span> <span class="s">"/greeting/:name"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="s">"Hello "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"name"</span><span class="o">).</span><span class="na">value</span><span class="o">(</span><span class="s">"World"</span><span class="o">)</span> <span class="o">+</span> <span class="s">"!"</span><span class="o">;</span>
-
-    <span class="k">return</span> <span class="k">new</span> <span class="n">Greeting</span><span class="o">(</span><span class="n">idgen</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">(),</span> <span class="n">name</span><span class="o">);</span>
-  <span class="o">});</span>
+  <span class="n">use</span><span class="o">(</span><span class="n">Greetings</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
@@ -378,12 +385,12 @@
         </div> 
         <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello World!"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
        </div> 
-       <h3 id="hello-restful-source-code">source code</h3> 
+       <h3 id="hello-mvc-restful-source-code">source code</h3> 
        <ul> 
-        <li>Fork this guide at: <a href="https://github.com/jooby-starters/hello-restful" target="_blank">hello-restful</a></li> 
-        <li>Complete source code is available in the <a href="https://github.com/jooby-starters/hello-restful/tree/final" target="_blank">final</a> branch.</li> 
+        <li>Fork this guide at: <a href="https://github.com/jooby-starters/hello-mvc-restful" target="_blank">hello-mvc-restful</a></li> 
+        <li>Complete source code is available in the <a href="https://github.com/jooby-starters/hello-mvc-restful/tree/final" target="_blank">final</a> branch.</li> 
        </ul> 
-       <h3 id="hello-restful-help-and-support">help and support</h3> 
+       <h3 id="hello-mvc-restful-help-and-support">help and support</h3> 
        <ul> 
         <li>Discuss, share ideas, ask questions at <a href="https://groups.google.com/forum/#!forum/jooby-project" target="_blank">group</a> or <a href="https://jooby.slack.com" target="_blank">slack</a></li> 
         <li>Follow us at <a href="https://twitter.com/joobyproject" target="_blank">@joobyproject</a> and <a href="https://github.com/jooby-project/jooby/tree/master" target="_blank">GitHub</a></li> 

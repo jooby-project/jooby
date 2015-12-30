@@ -1137,6 +1137,20 @@ th {
   padding: 0;
 }
 
+/** Blocks */
+
+blockquote {
+  padding-left: 10px;
+  margin: 0 5px;
+  border-left: 5px solid #21474c;
+  color: #21474c;
+}
+
+.section-content blockquote,
+.section-content blockquote p {
+  color: #21474c;
+}
+
 .page-modules .site-content > .row {
   max-width: 1230px;
   font-size: 0;
