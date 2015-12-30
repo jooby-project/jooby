@@ -74,7 +74,7 @@ public class RequestImpl implements Request {
 
   private Route route;
 
-  private Session reqSession;
+  private Optional<Session> reqSession;
 
   private Charset charset;
 
@@ -308,18 +308,24 @@ public class RequestImpl implements Request {
     return ifSession().orElseGet(() -> {
       SessionManager sm = require(SessionManager.class);
       Response rsp = require(Response.class);
-      Session gsession = sm.get(this, rsp);
-      if (gsession == null) {
-        gsession = sm.create(this, rsp);
-      }
-      this.reqSession = new RequestScopedSession(sm, rsp, gsession, () -> this.reqSession = null);
-      return this.reqSession;
+      Session gsession = sm.create(this, rsp);
+      return setSession(sm, rsp, gsession);
     });
   }
 
   @Override
   public Optional<Session> ifSession() {
-    return Optional.ofNullable(this.reqSession);
+    if (reqSession == null) {
+      SessionManager sm = require(SessionManager.class);
+      Response rsp = require(Response.class);
+      Session gsession = sm.get(this, rsp);
+      if (gsession == null) {
+        reqSession = Optional.empty();
+      } else {
+        setSession(sm, rsp, gsession);
+      }
+    }
+    return reqSession;
   }
 
   @Override
@@ -399,10 +405,19 @@ public class RequestImpl implements Request {
   }
 
   public void done() {
-    ifSession()
-        .ifPresent(session -> require(SessionManager.class).requestDone(session));
+    if (reqSession != null) {
+      reqSession.ifPresent(session -> require(SessionManager.class).requestDone(session));
+    }
     for (File file : files) {
       file.delete();
     }
   }
+
+  private Session setSession(final SessionManager sm, final Response rsp, final Session gsession) {
+    Session rsession = new RequestScopedSession(sm, rsp, gsession,
+        () -> this.reqSession = null);
+    reqSession = Optional.of(rsession);
+    return rsession;
+  }
+
 }
