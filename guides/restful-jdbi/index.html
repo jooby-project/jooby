@@ -3,7 +3,7 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: documentation</title> 
+  <title>jooby: welcome guide</title> 
   <meta name="description" content=""> 
   <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, welcome"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
@@ -87,7 +87,8 @@
   <main role="main" class="site-content"> 
    <div class="section-title"> 
     <div class="row"> 
-     <h1>Guides</h1> 
+     <a href="/guides" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>welcome</h1> 
     </div> 
    </div> 
    <div class="row"> 
@@ -96,52 +97,112 @@
       welcome
      </div> 
      <ul> 
-      <li class="active"> <a href="#welcome">welcome</a></li> 
-      <li class=""> <a href="#basic">basic</a>
+      <li class="active"> <a href="#welcome">welcome</a>
        <ul> 
-        <li> <a href="#basic-hello-restful">hello restful</a></li> 
-        <li> <a href="#basic-deployment">deployment</a></li>
-       </ul></li> 
-      <li class=""> <a href="#jdbc">jdbc</a>
-       <ul> 
-        <li> <a href="#jdbc-restful-API-with-persistence">restful API with persistence</a></li>
+        <li> <a href="#welcome-requirements">requirements</a></li> 
+        <li> <a href="#welcome-ready">ready</a></li> 
+        <li> <a href="#welcome-ready">ready</a></li> 
+        <li> <a href="#welcome-getting-dirty">getting dirty</a></li> 
+        <li> <a href="#welcome-source-code">source code</a></li> 
+        <li> <a href="#welcome-help-and-support">help and support</a></li>
        </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
+     <p><a href="https://travis-ci.org/jooby-guides/restful-jdbi" target="_blank"><img src="https://travis-ci.org/jooby-guides/restful-jdbi.svg?branch=final" alt="Build Status"></a></p> 
      <div class="datalist" id="welcome"> 
       <div class="datalist-title active"> 
        <h2>welcome</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Welcome to the Jooby starter guides, a place to learn and share ideas on how to build powerful and awesome applications.</p> 
-      </div> 
-     </div> 
-     <div class="datalist" id="basic"> 
-      <div class="datalist-title "> 
-       <h2>basic</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <h3 id="basic-hello-restful">hello restful</h3> 
+       <p>In this guide you will learn how to build a rest API for <code class="highlighter-rouge codehilite">Pets</code> and persist them in a <strong>relational database</strong>.</p> 
+       <p>The services will be available at:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>GET http://localhost:8080/pets (produces a **JSON** response with all the pets)
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>GET http://localhost:8080/pets/:id (produces a **JSON** with a single pet or 404 if not found)
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>POST http://localhost:8080/pets (require body as **JSON** and respond with the recently created pet)
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>PUT http://localhost:8080/pets (require body as **JSON** and respond with the updated pet)
+</code></pre> 
+       </div> 
+       <h3 id="welcome-requirements">requirements</h3> 
+       <p>Make sure you have all these software installed it in your computer:</p> 
        <ul> 
-        <li> <p>Learn how to build a <a href="/guides/hello-restful">simple restful</a> web service using the <strong>script programming model</strong></p> </li> 
-        <li> <p>Do you prefer the <strong>MVC programming model</strong>? No problem, <a href="/guides/hello-mvc-restful">here</a> is the same guide with <strong>MVC routes</strong></p> </li> 
+        <li>A text editor or IDE</li> 
+        <li><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">JDK 8+</a> or later</li> 
+        <li><a href="http://maven.apache.org/" target="_blank">Maven 3+</a></li> 
+        <li><a href="https://git-scm.com/downloads" target="_blank">Git</a></li> 
        </ul> 
-       <h3 id="basic-deployment">deployment</h3> 
+       <h3 id="welcome-ready">ready</h3> 
+       <h3 id="welcome-ready">ready</h3> 
+       <p>Open a terminal (console for Windows users) and paste:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>git clone https://github.com/jooby-guides/restful-jdbi.git
+
+<span class="nb">cd </span>restful-jdbi
+</code></pre> 
+       </div> 
+       <p>An almost empty application is ready to run, you can try now with:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>mvn jooby:run
+</code></pre> 
+       </div> 
+       <p>Open a browser and type:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>http://localhost:8080
+</code></pre> 
+       </div> 
+       <blockquote> 
+        <p><strong>TIP</strong>: If you are using an IDE that automatically compiles your source code while you save it… <code class="highlighter-rouge codehilite">mvn jooby:run</code> will detects those changes and restart the application for you!! more at <a href="/doc/maven-plugin">mvn jooby:run</a>.</p> 
+       </blockquote> 
+       <h3 id="welcome-getting-dirty">getting dirty</h3> 
+       <p>Let’s create a <code class="highlighter-rouge codehilite">Pet</code> and <code class="highlighter-rouge codehilite">Category</code> classes:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code></code></pre> 
+       </div> 
+       <h3 id="welcome-source-code">source code</h3> 
        <ul> 
-        <li>Learn how to <a href="/guides/deployment">deploy</a> your application into a <code class="highlighter-rouge codehilite">prod</code> environment.</li> 
+        <li>Fork this guide at: <a href="https://github.com/jooby-guides/restful-jdbi" target="_blank">restful-jdbi</a></li> 
+        <li>Complete source code is available in the <a href="https://github.com/jooby-guides/restful-jdbi/tree/final" target="_blank">final</a> branch.</li> 
        </ul> 
-      </div> 
-     </div> 
-     <div class="datalist" id="jdbc"> 
-      <div class="datalist-title "> 
-       <h2>jdbc</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <h3 id="jdbc-restful-API-with-persistence">restful API with persistence</h3> 
+       <h3 id="welcome-help-and-support">help and support</h3> 
        <ul> 
-        <li>Learn how to build a <a href="/guides/restful-jdbi">restful API</a> and persist your data into a <strong>relational database</strong></li> 
+        <li>Discuss, share ideas, ask questions at <a href="https://groups.google.com/forum/#!forum/jooby-project" target="_blank">group</a> or <a href="https://jooby.slack.com" target="_blank">slack</a></li> 
+        <li>Follow us at <a href="https://twitter.com/joobyproject" target="_blank">@joobyproject</a> and <a href="https://github.com/jooby-project/jooby/tree/master" target="_blank">GitHub</a></li> 
        </ul> 
+       <p>Happy coding!!</p> 
       </div> 
      </div> 
     </div> 
