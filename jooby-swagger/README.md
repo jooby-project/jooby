@@ -85,7 +85,7 @@ swagger.info.version = v0.1.0
 ## limitations (future implementation)
 
 * Sadly, ONLY MVC routes are supported. Inline/lambda routes has no supports for now.
-* It might be nice to generate API docs (via markdown or similar) at built time using [Maven](http://maven.apache.org/).
+* It might be nice to generate API docs (via markdown or similar) at built time using [Maven 3+](http://maven.apache.org/).
 
 ## swagger.conf
 

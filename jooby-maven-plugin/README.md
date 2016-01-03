@@ -1,6 +1,6 @@
 # jooby:run
 
-A [Maven](http://maven.apache.org/) plugin for running, debugging and reloading your application.
+A [Maven 3+](http://maven.apache.org/) plugin for running, debugging and reloading your application.
 
 ## usage
 
@@ -62,7 +62,7 @@ Is it worth to mention that dynamic reload of classes at runtime is done via [JB
 
 ### ${application.class}
 
-A [Maven](http://maven.apache.org/) property that contains the fully qualified name of the ```main class```. **Required**.
+A [Maven 3+](http://maven.apache.org/) property that contains the fully qualified name of the ```main class```. **Required**.
 
 ### debug
 
