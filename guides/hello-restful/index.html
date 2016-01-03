@@ -75,7 +75,6 @@
      <ul> 
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
-      <li class="active"><a href="/guides" title="Doc">GUIDES</a></li> 
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -97,15 +96,18 @@
       hello restful
      </div> 
      <ul> 
-      <li class="active"> <a href="#hello-restful">hello restful</a>
+      <li class="active"> <a href="#hello-restful">hello restful</a></li> 
+      <li class=""> <a href="#requirements">requirements</a></li> 
+      <li class=""> <a href="#ready">ready</a></li> 
+      <li class=""> <a href="#quick-preview">quick preview</a></li> 
+      <li class=""> <a href="#getting-dirty">getting dirty</a>
        <ul> 
-        <li> <a href="#hello-restful-requirements">requirements</a></li> 
-        <li> <a href="#hello-restful-ready">ready</a></li> 
-        <li> <a href="#hello-restful-quick-preview">quick preview</a></li> 
-        <li> <a href="#hello-restful-getting-dirty">getting dirty</a></li> 
-        <li> <a href="#hello-restful-source-code">source code</a></li> 
-        <li> <a href="#hello-restful-help-and-support">help and support</a></li>
+        <li> <a href="#getting-dirty-adding-a-name-parameter">adding a name parameter</a></li> 
+        <li> <a href="#getting-dirty-path-parameter">path parameter</a></li> 
+        <li> <a href="#getting-dirty-json">json</a></li>
        </ul></li> 
+      <li class=""> <a href="#source-code">source code</a></li> 
+      <li class=""> <a href="#help-and-support">help and support</a></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
@@ -132,7 +134,13 @@
         </div> 
         <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello World!"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
        </div> 
-       <h3 id="hello-restful-requirements">requirements</h3> 
+      </div> 
+     </div> 
+     <div class="datalist" id="requirements"> 
+      <div class="datalist-title "> 
+       <h2>requirements</h2> 
+      </div> 
+      <div class="datalist-content"> 
        <p>Make sure you have all these software installed it in your computer:</p> 
        <ul> 
         <li>A text editor or IDE</li> 
@@ -140,7 +148,13 @@
         <li><a href="http://maven.apache.org/" target="_blank">Maven 3+</a></li> 
         <li><a href="https://git-scm.com/downloads" target="_blank">Git</a></li> 
        </ul> 
-       <h3 id="hello-restful-ready">ready</h3> 
+      </div> 
+     </div> 
+     <div class="datalist" id="ready"> 
+      <div class="datalist-title "> 
+       <h2>ready</h2> 
+      </div> 
+      <div class="datalist-content"> 
        <p>Open a terminal (console for Windows users) and paste:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -170,7 +184,13 @@
        <blockquote> 
         <p><strong>TIP</strong>: If you are using an IDE that automatically compiles your source code while you save it… <code class="highlighter-rouge codehilite">mvn jooby:run</code> will detects those changes and restart the application for you!! more at <a href="/doc/maven-plugin">mvn jooby:run</a>.</p> 
        </blockquote> 
-       <h3 id="hello-restful-quick-preview">quick preview</h3> 
+      </div> 
+     </div> 
+     <div class="datalist" id="quick-preview"> 
+      <div class="datalist-title "> 
+       <h2>quick preview</h2> 
+      </div> 
+      <div class="datalist-content"> 
        <p>Before moving forward let’s have a look at <code class="highlighter-rouge codehilite">src/main/java/hellorestful/App.java</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -198,7 +218,13 @@
         <li>We define some routes in the instance initializer (this is <strong>NOT static code</strong>)</li> 
         <li>A <strong>Jooby</strong> app need to be instantiated and then started.</li> 
        </ol> 
-       <h3 id="hello-restful-getting-dirty">getting dirty</h3> 
+      </div> 
+     </div> 
+     <div class="datalist" id="getting-dirty"> 
+      <div class="datalist-title "> 
+       <h2>getting dirty</h2> 
+      </div> 
+      <div class="datalist-content"> 
        <p>Now we already see how a <strong>Jooby</strong> app looks like, we are going to create a simple greeting <strong>RESTFUL</strong> web service at <code class="highlighter-rouge codehilite">http://localhost:8080/greeting</code></p> 
        <p>The <code class="highlighter-rouge codehilite">Greeting.java</code>:</p> 
        <div class="highlighter-rouge codehilite">
@@ -248,7 +274,7 @@
        <p>You’ll see <code class="highlighter-rouge codehilite">Hello World!</code> in your browser, not bad ugh?</p> 
        <p>Not bad at all! But, don’t we suppose to build a <strong>JSON</strong> <strong>RESTFUL</strong> web service?</p> 
        <p>Absolutely, but before that, let’s see how to add a simple and optional HTTP parameter.</p> 
-       <h4>adding a name parameter</h4> 
+       <h3 id="getting-dirty-adding-a-name-parameter">adding a name parameter</h3> 
        <p>We are going to improve our service by allowing a name parameter:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -300,7 +326,7 @@
        </div> 
        <p>or from helper methods, like: <code class="highlighter-rouge codehilite">.value(String)</code>.</p> 
        <p>Try it again with or without a <code class="highlighter-rouge codehilite">name</code> parameter!!</p> 
-       <h4>path parameter</h4> 
+       <h3 id="getting-dirty-path-parameter">path parameter</h3> 
        <p>If you want or prefer a <code class="highlighter-rouge codehilite">path</code> parameter, you can replace the path pattern with: <code class="highlighter-rouge codehilite">/greeting/:name</code> or allow both of them:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -334,7 +360,7 @@
 </code></pre> 
        </div> 
        <p>Nice ugh?</p> 
-       <h4>writing JSON</h4> 
+       <h3 id="getting-dirty-json">json</h3> 
        <p>As you already known, <a href="http://jooby.org">Jooby</a> is a micro-web framework in order to write a <strong>JSON</strong> response we need one of the available <a href="/doc/parser-and-renderer">json modules</a>.</p> 
        <p>Here we will use <a href="/doc/jackson">jackson</a> but keep in mind the process is exactly the same if you choose any other module.</p> 
        <p>First of add the <a href="/doc/jackson">jackson</a> dependency to your <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
@@ -378,12 +404,24 @@
         </div> 
         <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello World!"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
        </div> 
-       <h3 id="hello-restful-source-code">source code</h3> 
+      </div> 
+     </div> 
+     <div class="datalist" id="source-code"> 
+      <div class="datalist-title "> 
+       <h2>source code</h2> 
+      </div> 
+      <div class="datalist-content"> 
        <ul> 
         <li>Fork this guide at: <a href="https://github.com/jooby-guides/hello-restful" target="_blank">hello-restful</a></li> 
         <li>Complete source code is available in the <a href="https://github.com/jooby-guides/hello-restful/tree/final" target="_blank">final</a> branch.</li> 
        </ul> 
-       <h3 id="hello-restful-help-and-support">help and support</h3> 
+      </div> 
+     </div> 
+     <div class="datalist" id="help-and-support"> 
+      <div class="datalist-title "> 
+       <h2>help and support</h2> 
+      </div> 
+      <div class="datalist-content"> 
        <ul> 
         <li>Discuss, share ideas, ask questions at <a href="https://groups.google.com/forum/#!forum/jooby-project" target="_blank">group</a> or <a href="https://jooby.slack.com" target="_blank">slack</a></li> 
         <li>Follow us at <a href="https://twitter.com/joobyproject" target="_blank">@joobyproject</a> and <a href="https://github.com/jooby-project/jooby/tree/master" target="_blank">GitHub</a></li> 
@@ -396,7 +434,7 @@
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2015 <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
+    <p class="pull-left">©2014-2016 <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
     <div class="altquimia">
      DG 
      <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio

@@ -75,7 +75,6 @@
      <ul> 
       <li class="active"><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
-      <li class=""><a href="/guides" title="Doc">GUIDES</a></li> 
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -98,10 +97,6 @@
       <li>Install <a href="http://maven.apache.org/" target="_blank">Maven 3+</a></li> 
      </ul> 
      <h2>start</h2> 
-     <ul> 
-      <li> <p>fork one of our <a href="https://github.com/jooby-starters" target="_blank">templates</a></p> </li> 
-      <li> <p>or via <a href="https://maven.apache.org/guides/introduction/introduction-to-archetypes.html" target="_blank">Maven Archetype</a>:</p> </li> 
-     </ul> 
      <p>Just paste this into a terminal (make sure <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html" target="_blank">Java 8</a> and <a href="http://maven.apache.org/download.cgi" target="_blank">Maven 3.x</a> are installed):</p> 
      <div class="highlighter-rouge codehilite">
       <div class="copy-bar"> 
@@ -136,14 +131,13 @@ INFO  <span class="o">[</span>2015-03-19 21:34:00,368]   includes: <span class="
 INFO  <span class="o">[</span>2015-03-19 21:34:00,369]   excludes: <span class="o">[]</span>
 INFO  <span class="o">[</span>2015-03-19 21:34:00,937] <span class="o">[</span>dev@netty]: App server started <span class="k">in </span>502ms
 
-GET /assets/<span class="k">**</span>    <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>     <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>    <span class="o">(</span>anonymous<span class="o">)</span>
 GET /             <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>     <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>    <span class="o">(</span>anonymous<span class="o">)</span>
 
 listening on:
   http://0.0.0.0:8080/
 </code></pre> 
      </div> 
-     <p>Jooby! is up and running!!!</p> 
+     <p><strong>Jooby</strong>! is up and running!!!</p> 
      <h2>getting started</h2> 
      <h3>exploring the newly created project</h3> 
      <p>A new directory was created: <code class="highlighter-rouge codehilite">my-app</code>. Now, let’s see how it looks like:</p> 
@@ -153,13 +147,7 @@ listening on:
       </div> 
       <pre class="highlight"><code>.
 ├── public
-|   ├── assets
-|   |   ├── js
-|   |   |   └── index.js
-|   |   ├── css
-|   |   |   └── style.css
-|   |   └── images
-|   └── welcome.html
+|   └── <span class="o">(</span>empty<span class="o">)</span>
 ├── conf
 |   ├── application.conf
 |   └── logback.xml
@@ -174,14 +162,15 @@ listening on:
             └── com
                 └── mycompany
                     └── AppTest.java
-                    
 </code></pre> 
      </div> 
-     <p>The <strong>public</strong> directory contains <code class="highlighter-rouge codehilite">*.html</code>, <code class="highlighter-rouge codehilite">*.js</code>, <code class="highlighter-rouge codehilite">*.css</code>, …, <code class="highlighter-rouge codehilite">*.png</code> files.</p> 
-     <p>The <strong>conf</strong> directory contains <code class="highlighter-rouge codehilite">*.conf</code>, <code class="highlighter-rouge codehilite">*.properties</code>, …, <code class="highlighter-rouge codehilite">*.json</code> files.</p> 
-     <p>The <strong>src/main/java</strong> contains <code class="highlighter-rouge codehilite">*.java</code> (of course) files.</p> 
-     <p>The <strong>src/test/java</strong> contains integration or unit test files.</p> 
-     <p><strong>NOTE</strong>: Directories: <code class="highlighter-rouge codehilite">public</code> and <code class="highlighter-rouge codehilite">conf</code> are part of the classpath.</p> 
+     <p>The <strong>public</strong> folder contains static files like <code class="highlighter-rouge codehilite">*.html</code>, <code class="highlighter-rouge codehilite">*.js</code>, <code class="highlighter-rouge codehilite">*.css</code>, …, <code class="highlighter-rouge codehilite">*.png</code> files.</p> 
+     <p>The <strong>conf</strong> folder contains <code class="highlighter-rouge codehilite">*.conf</code>.</p> 
+     <p>The <strong>src/main/java</strong> folder contains <code class="highlighter-rouge codehilite">*.java</code> (of course) files.</p> 
+     <p>The <strong>src/test/java</strong> folder contains unit and integration tests.</p> 
+     <blockquote> 
+      <p><strong>NOTE</strong>: The <code class="highlighter-rouge codehilite">public</code> and <code class="highlighter-rouge codehilite">conf</code> folders are part of the classpath.</p> 
+     </blockquote> 
      <h4>App.java</h4> 
      <div class="highlighter-rouge codehilite">
       <div class="copy-bar"> 
@@ -194,9 +183,7 @@ listening on:
 
   <span class="o">{</span>
     <span class="c1">// 2</span>
-    <span class="n">assets</span><span class="o">(</span><span class="s">"/assets/**"</span><span class="o">);</span>
-
-    <span class="n">assets</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="s">"/welcome.html"</span><span class="o">);</span>
+    <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"Hello World!"</span><span class="o">);</span>
   <span class="o">}</span>
 
   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="kd">final</span> <span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
@@ -225,14 +212,14 @@ listening on:
      <h3>where to go now?</h3> 
      <ul> 
       <li>read the <a href="/doc">documentation</a></li> 
-      <li>checkout one of our <a href="https://github.com/jooby-starters" target="_blank">templates</a></li> 
+      <li>checkout one of our <a href="https://github.com/jooby-guides" target="_blank">guides</a></li> 
      </ul> 
     </div> 
    </div> 
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2015 <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
+    <p class="pull-left">©2014-2016 <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
     <div class="altquimia">
      DG 
      <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio

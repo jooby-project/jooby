@@ -859,9 +859,15 @@ p {
 }
 
 ul,
-ul li {
+ul li,
+ol,
+ol li {
   margin: 0;
   padding: 0;
+}
+
+ul,
+ul li {
   list-style: none;
 }
 
