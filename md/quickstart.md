@@ -1,15 +1,11 @@
 requirements
 =====
 
-* Install [Java 8+](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-* Install [Maven 3+](https://maven.apache.org)
+* Install {{java}}
+* Install {{maven}}
 
 quickstart
 =====
-
-* fork one of our {{templates}}
-
-* or via [Maven Archetype](https://maven.apache.org/guides/introduction/introduction-to-archetypes.html):
 
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
@@ -42,14 +38,13 @@ INFO  [2015-03-19 21:34:00,368]   includes: [**/*.class,**/*.conf,**/*.propertie
 INFO  [2015-03-19 21:34:00,369]   excludes: []
 INFO  [2015-03-19 21:34:00,937] [dev@netty]: App server started in 502ms
 
-GET /assets/**    [*/*]     [*/*]    (anonymous)
 GET /             [*/*]     [*/*]    (anonymous)
 
 listening on:
   http://0.0.0.0:8080/
 ```
 
-Jooby! is up and running!!!
+**Jooby**! is up and running!!!
 
 getting started
 =====
@@ -62,13 +57,7 @@ A new directory was created: ```my-app```. Now, let's see how it looks like:
 ```bash
 .
 ├── public
-|   ├── assets
-|   |   ├── js
-|   |   |   └── index.js
-|   |   ├── css
-|   |   |   └── style.css
-|   |   └── images
-|   └── welcome.html
+|   └── (empty)
 ├── conf
 |   ├── application.conf
 |   └── logback.xml
@@ -83,18 +72,17 @@ A new directory was created: ```my-app```. Now, let's see how it looks like:
             └── com
                 └── mycompany
                     └── AppTest.java
-                    
 ```
 
-The **public** directory contains ```*.html```, ```*.js```, ```*.css```, ..., ```*.png``` files.
+The **public** folder contains static files like ```*.html```, ```*.js```, ```*.css```, ..., ```*.png``` files.
 
-The **conf** directory contains ```*.conf```, ```*.properties```, ..., ```*.json``` files.
+The **conf** folder contains ```*.conf```.
 
-The **src/main/java** contains ```*.java``` (of course) files.
+The **src/main/java** folder contains ```*.java``` (of course) files.
 
-The **src/test/java** contains integration or unit test files.
+The **src/test/java** folder contains unit and integration tests.
 
-**NOTE**: Directories: ```public``` and ```conf``` are part of the classpath.
+> **NOTE**: The ```public``` and ```conf``` folders are part of the classpath.
 
 ### App.java
 
@@ -107,9 +95,7 @@ public class App extends Jooby { // 1
 
   {
     // 2
-    assets("/assets/**");
-
-    assets("/", "/welcome.html");
+    get("/", () -> "Hello World!");
   }
 
   public static void main(final String[] args) throws Exception {

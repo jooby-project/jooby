@@ -8,9 +8,7 @@ import org.jooby.Jooby;
 public class App extends Jooby {
 
   {
-    assets("/assets/**");
-
-    assets("/", "/welcome.html");
+    get("/", () -> "Hello World!");
   }
 
   public static void main(final String[] args) throws Exception {
