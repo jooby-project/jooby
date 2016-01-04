@@ -124,6 +124,9 @@
                     <resource>
                       <directory>${project.parent.basedir}/jooby-hbs/src/test/resources</directory>
                     </resource>
+                    <resource>
+                      <directory>${project.parent.basedir}/jooby-hbm/src/test/resources</directory>
+                    </resource>
                   </resources>
                 </configuration>
               </execution>

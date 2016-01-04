@@ -6,7 +6,9 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Provider;
 import javax.persistence.EntityManager;
@@ -26,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.OutOfScopeException;
@@ -42,10 +45,10 @@ import com.typesafe.config.ConfigValueFactory;
     Route.Definition.class })
 public class HbmTest {
 
-  Config config =
-      ConfigFactory.parseResources(Hbm.class, "hbm.conf")
-          .withFallback(ConfigFactory.parseResources(Jdbc.class, "jdbc.conf"))
-          .withValue("db", ConfigValueFactory.fromAnyRef("mem"));
+  Config config = ConfigFactory.parseResources(Hbm.class, "hbm.conf")
+      .withFallback(ConfigFactory.parseResources(Jdbc.class, "jdbc.conf"))
+      .withValue("db", ConfigValueFactory.fromAnyRef("mem"))
+      .withValue("application.ns", ConfigValueFactory.fromAnyRef("x.y.z"));
 
   @SuppressWarnings("unchecked")
   @Test
@@ -80,8 +83,9 @@ public class HbmTest {
           hpSBB.asEagerSingleton();
 
           unit.mockConstructor(HbmUnitDescriptor.class,
-              new Class[]{ClassLoader.class, Provider.class, Config.class, boolean.class },
-              eq(Hbm.class.getClassLoader()), isA(Provider.class), eq(config), eq(false));
+              new Class[]{ClassLoader.class, Provider.class, Config.class, Set.class },
+              eq(Hbm.class.getClassLoader()), isA(Provider.class), eq(config),
+              eq(Collections.emptySet()));
 
           LinkedBindingBuilder<EntityManagerFactory> emfLBB = unit
               .mock(LinkedBindingBuilder.class);
@@ -186,7 +190,7 @@ public class HbmTest {
         })
         .run(unit -> {
           new Hbm().configure(unit.get(Env.class), config, unit.get(Binder.class));
-        }, unit -> {
+        } , unit -> {
           unit.captured(Provider.class).forEach(Provider::get);
         });
   }
@@ -231,8 +235,9 @@ public class HbmTest {
           hpSBB.asEagerSingleton();
 
           unit.mockConstructor(HbmUnitDescriptor.class,
-              new Class[]{ClassLoader.class, Provider.class, Config.class, boolean.class },
-              eq(Hbm.class.getClassLoader()), isA(Provider.class), eq(config), eq(true));
+              new Class[]{ClassLoader.class, Provider.class, Config.class, Set.class },
+              eq(Hbm.class.getClassLoader()), isA(Provider.class), eq(config),
+              eq(Sets.newHashSet("x.y.z")));
 
           LinkedBindingBuilder<EntityManagerFactory> emfLBB = unit
               .mock(LinkedBindingBuilder.class);

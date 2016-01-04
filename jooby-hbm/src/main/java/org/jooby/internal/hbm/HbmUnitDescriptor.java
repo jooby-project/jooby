@@ -18,10 +18,14 @@
  */
 package org.jooby.internal.hbm;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.inject.Provider;
 import javax.persistence.SharedCacheMode;
@@ -32,10 +36,15 @@ import javax.sql.DataSource;
 import org.hibernate.jpa.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.hibernate.jpa.boot.spi.PersistenceUnitDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
 
 public class HbmUnitDescriptor implements PersistenceUnitDescriptor {
+
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private ClassLoader loader;
 
@@ -43,14 +52,20 @@ public class HbmUnitDescriptor implements PersistenceUnitDescriptor {
 
   private Config config;
 
-  private boolean scan;
+  private List<URL> jars = Collections.emptyList();
+
+  private URL unitRoot;
 
   public HbmUnitDescriptor(final ClassLoader loader, final Provider<DataSource> dataSourceHolder,
-      final Config config, final boolean scan) {
+      final Config config, final Set<String> pkgs) {
     this.loader = loader;
     this.dataSourceHolder = dataSourceHolder;
     this.config = config;
-    this.scan = scan;
+    List<URL> pkgList = packageToScan(loader, pkgs);
+    if (pkgList.size() > 0) {
+      unitRoot = pkgList.get(0);
+      jars = pkgList.subList(1, pkgList.size());
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -108,12 +123,7 @@ public class HbmUnitDescriptor implements PersistenceUnitDescriptor {
 
   @Override
   public URL getPersistenceUnitRootUrl() {
-    if (scan) {
-      String ns = config.getString("application.ns").replace('.', '/');
-      return loader.getResource(ns);
-    } else {
-      return null;
-    }
+    return unitRoot;
   }
 
   @Override
@@ -143,12 +153,28 @@ public class HbmUnitDescriptor implements PersistenceUnitDescriptor {
 
   @Override
   public List<URL> getJarFileUrls() {
-    return null;
+    return jars;
   }
 
   @Override
   public ClassLoader getClassLoader() {
     return loader;
+  }
+
+  private List<URL> packageToScan(final ClassLoader loader, final Set<String> pkgs) {
+    List<URL> result = new ArrayList<>();
+    for (String pkg : pkgs) {
+      try {
+        Enumeration<URL> resources = loader.getResources(pkg.replace(".", "/"));
+        while (resources.hasMoreElements()) {
+          URL url = resources.nextElement();
+          result.add(url);
+        }
+      } catch (IOException ex) {
+        log.debug("Unable to load package: {}", pkg, ex);
+      }
+    }
+    return result;
   }
 
 }

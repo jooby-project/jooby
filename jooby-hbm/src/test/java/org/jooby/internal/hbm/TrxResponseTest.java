@@ -5,6 +5,7 @@ import static org.easymock.EasyMock.expectLastCall;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.RollbackException;
 
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
@@ -52,6 +53,78 @@ public class TrxResponseTest {
           new TrxResponse(unit.get(Response.class), unit.get(EntityManager.class))
               .begin()
               .send(result);
+        });
+  }
+
+  @Test
+  public void doneNoActive() throws Exception {
+    new MockUnit(Response.class, EntityManager.class)
+        .expect(unit -> {
+          Session session = unit.mock(Session.class);
+
+          EntityTransaction trx = unit.mock(EntityTransaction.class);
+          trx.begin();
+          expect(trx.isActive()).andReturn(false);
+
+          EntityManager em = unit.get(EntityManager.class);
+          expect(em.getDelegate()).andReturn(session);
+          expect(em.getTransaction()).andReturn(trx);
+          em.close();
+        })
+        .run(unit -> {
+          TrxResponse trx = new TrxResponse(unit.get(Response.class),
+              unit.get(EntityManager.class));
+          trx.begin();
+          trx.done();
+        });
+  }
+
+  @Test
+  public void doneActive() throws Exception {
+    new MockUnit(Response.class, EntityManager.class)
+        .expect(unit -> {
+          Session session = unit.mock(Session.class);
+
+          EntityTransaction trx = unit.mock(EntityTransaction.class);
+          trx.begin();
+          expect(trx.isActive()).andReturn(true);
+          trx.commit();
+
+          EntityManager em = unit.get(EntityManager.class);
+          expect(em.getDelegate()).andReturn(session);
+          expect(em.getTransaction()).andReturn(trx);
+          em.close();
+        })
+        .run(unit -> {
+          TrxResponse trx = new TrxResponse(unit.get(Response.class),
+              unit.get(EntityManager.class));
+          trx.begin();
+          trx.done();
+        });
+  }
+
+  @Test
+  public void doneCommitWithErr() throws Exception {
+    new MockUnit(Response.class, EntityManager.class)
+        .expect(unit -> {
+          Session session = unit.mock(Session.class);
+
+          EntityTransaction trx = unit.mock(EntityTransaction.class);
+          trx.begin();
+          expect(trx.isActive()).andReturn(true);
+          trx.commit();
+          expectLastCall().andThrow(new RollbackException("intentional err"));
+
+          EntityManager em = unit.get(EntityManager.class);
+          expect(em.getDelegate()).andReturn(session);
+          expect(em.getTransaction()).andReturn(trx);
+          em.close();
+        })
+        .run(unit -> {
+          TrxResponse trx = new TrxResponse(unit.get(Response.class),
+              unit.get(EntityManager.class));
+          trx.begin();
+          trx.done();
         });
   }
 

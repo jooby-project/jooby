@@ -2,9 +2,10 @@ package org.jooby.internal.hbm;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -17,6 +18,7 @@ import javax.sql.DataSource;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 
+import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -24,13 +26,27 @@ import com.typesafe.config.ConfigValueFactory;
 public class HbmUnitDescriptorTest {
 
   @SuppressWarnings("unchecked")
+  @Test
+  public void failPackageScanning() throws Exception {
+    new MockUnit(ClassLoader.class, Provider.class, Config.class)
+        .expect(unit -> {
+          ClassLoader loader = unit.get(ClassLoader.class);
+          expect(loader.getResources("x/y/z")).andThrow(new IOException("Missing x.y.z"));
+        })
+        .run(unit -> {
+          new HbmUnitDescriptor(unit.get(ClassLoader.class), unit.get(Provider.class), unit
+              .get(Config.class), Sets.newHashSet("x.y.z"));
+        });
+  }
+
+  @SuppressWarnings("unchecked")
   @Test(expected = UnsupportedOperationException.class)
   public void pushClassTransformer() throws Exception {
     new MockUnit(ClassLoader.class, Provider.class, Config.class)
         .run(unit -> {
           new HbmUnitDescriptor(unit.get(ClassLoader.class), unit.get(Provider.class), unit
-              .get(Config.class), true)
-              .pushClassTransformer(null);
+              .get(Config.class), Collections.emptySet())
+                  .pushClassTransformer(null);
         });
   }
 
@@ -46,8 +62,8 @@ public class HbmUnitDescriptorTest {
         .run(unit -> {
           assertEquals(true,
               new HbmUnitDescriptor(unit.get(ClassLoader.class), unit.get(Provider.class), unit
-                  .get(Config.class), true)
-                  .isUseQuotedIdentifiers());
+                  .get(Config.class), Collections.emptySet())
+                      .isUseQuotedIdentifiers());
         });
   }
 
@@ -63,8 +79,8 @@ public class HbmUnitDescriptorTest {
         .run(unit -> {
           assertEquals(false,
               new HbmUnitDescriptor(unit.get(ClassLoader.class), unit.get(Provider.class), unit
-                  .get(Config.class), true)
-                  .isUseQuotedIdentifiers());
+                  .get(Config.class), Collections.emptySet())
+                      .isUseQuotedIdentifiers());
         });
   }
 
@@ -80,8 +96,8 @@ public class HbmUnitDescriptorTest {
         .run(unit -> {
           assertEquals(false,
               new HbmUnitDescriptor(unit.get(ClassLoader.class), unit.get(Provider.class), unit
-                  .get(Config.class), true)
-                  .isExcludeUnlistedClasses());
+                  .get(Config.class), Collections.emptySet())
+                      .isExcludeUnlistedClasses());
         });
   }
 
@@ -97,8 +113,8 @@ public class HbmUnitDescriptorTest {
         .run(unit -> {
           assertEquals(ValidationMode.AUTO,
               new HbmUnitDescriptor(unit.get(ClassLoader.class), unit.get(Provider.class), unit
-                  .get(Config.class), true)
-                  .getValidationMode());
+                  .get(Config.class), Collections.emptySet())
+                      .getValidationMode());
         });
   }
 
@@ -109,8 +125,8 @@ public class HbmUnitDescriptorTest {
         .run(unit -> {
           assertEquals(PersistenceUnitTransactionType.RESOURCE_LOCAL,
               new HbmUnitDescriptor(unit.get(ClassLoader.class), unit.get(Provider.class), unit
-                  .get(Config.class), true)
-                  .getTransactionType());
+                  .get(Config.class), Collections.emptySet())
+                      .getTransactionType());
         });
   }
 
@@ -126,8 +142,8 @@ public class HbmUnitDescriptorTest {
         .run(unit -> {
           assertEquals(SharedCacheMode.ALL,
               new HbmUnitDescriptor(unit.get(ClassLoader.class), unit.get(Provider.class), unit
-                  .get(Config.class), true)
-                  .getSharedCacheMode());
+                  .get(Config.class), Collections.emptySet())
+                      .getSharedCacheMode());
         });
   }
 
@@ -138,8 +154,8 @@ public class HbmUnitDescriptorTest {
         .run(unit -> {
           assertEquals("org.hibernate.jpa.HibernatePersistenceProvider",
               new HbmUnitDescriptor(unit.get(ClassLoader.class), unit.get(Provider.class), unit
-                  .get(Config.class), true)
-                  .getProviderClassName());
+                  .get(Config.class), Collections.emptySet())
+                      .getProviderClassName());
         });
   }
 
@@ -158,8 +174,9 @@ public class HbmUnitDescriptorTest {
         .run(unit -> {
           assertEquals(expected,
               new HbmUnitDescriptor(
-                  unit.get(ClassLoader.class), unit.get(Provider.class), config, true
-              ).getProperties());
+                  unit.get(ClassLoader.class), unit.get(Provider.class), config,
+                  Collections.emptySet())
+                      .getProperties());
         });
   }
 
@@ -167,15 +184,11 @@ public class HbmUnitDescriptorTest {
   @Test
   public void persistenceUnitRootUrl() throws Exception {
     new MockUnit(Config.class, Provider.class)
-        .expect(unit -> {
-          Config config = unit.get(Config.class);
-          expect(config.getString("application.ns")).andReturn(getClass().getPackage().getName());
-        })
         .run(unit -> {
-          assertNotNull(new HbmUnitDescriptor(
-              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class), true
-            ).getPersistenceUnitRootUrl());
-          });
+          assertNull(new HbmUnitDescriptor(
+              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class),
+              Collections.emptySet()).getPersistenceUnitRootUrl());
+        });
   }
 
   @SuppressWarnings("unchecked")
@@ -184,8 +197,8 @@ public class HbmUnitDescriptorTest {
     new MockUnit(Config.class, Provider.class)
         .run(unit -> {
           assertNull(new HbmUnitDescriptor(
-              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class), false
-          ).getPersistenceUnitRootUrl());
+              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class),
+              Collections.emptySet()).getPersistenceUnitRootUrl());
         });
   }
 
@@ -199,8 +212,8 @@ public class HbmUnitDescriptorTest {
         })
         .run(unit -> {
           assertEquals(unit.get(DataSource.class), new HbmUnitDescriptor(
-              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class), true
-              ).getNonJtaDataSource());
+              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class),
+              Collections.emptySet()).getNonJtaDataSource());
         });
   }
 
@@ -210,8 +223,8 @@ public class HbmUnitDescriptorTest {
     new MockUnit(Config.class, Provider.class, DataSource.class)
         .run(unit -> {
           assertEquals(unit.get(Provider.class).toString(), new HbmUnitDescriptor(
-              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class), true
-              ).getName());
+              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class),
+              Collections.emptySet()).getName());
         });
   }
 
@@ -221,8 +234,8 @@ public class HbmUnitDescriptorTest {
     new MockUnit(Config.class, Provider.class, DataSource.class)
         .run(unit -> {
           assertEquals(Collections.emptyList(), new HbmUnitDescriptor(
-              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class), true
-              ).getMappingFileNames());
+              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class),
+              Collections.emptySet()).getMappingFileNames());
         });
   }
 
@@ -232,8 +245,8 @@ public class HbmUnitDescriptorTest {
     new MockUnit(Config.class, Provider.class, DataSource.class)
         .run(unit -> {
           assertEquals(Collections.emptyList(), new HbmUnitDescriptor(
-              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class), true
-              ).getManagedClassNames());
+              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class),
+              Collections.emptySet()).getManagedClassNames());
         });
   }
 
@@ -243,8 +256,19 @@ public class HbmUnitDescriptorTest {
     new MockUnit(Config.class, Provider.class, DataSource.class)
         .run(unit -> {
           assertEquals(null, new HbmUnitDescriptor(
-              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class), true
-              ).getJtaDataSource());
+              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class),
+              Collections.emptySet()).getJtaDataSource());
+        });
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void noJarFileUrls() throws Exception {
+    new MockUnit(Config.class, Provider.class, DataSource.class)
+        .run(unit -> {
+          assertEquals(Collections.emptyList(), new HbmUnitDescriptor(
+              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class),
+              Collections.emptySet()).getJarFileUrls());
         });
   }
 
@@ -253,9 +277,11 @@ public class HbmUnitDescriptorTest {
   public void jarFileUrls() throws Exception {
     new MockUnit(Config.class, Provider.class, DataSource.class)
         .run(unit -> {
-          assertEquals(null, new HbmUnitDescriptor(
-              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class), true
-              ).getJarFileUrls());
+          HbmUnitDescriptor desc = new HbmUnitDescriptor(
+              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class),
+              Sets.newLinkedHashSet(Arrays.asList("x.y", "x.y.z")));
+          assertEquals(getClass().getResource("/x/y"), desc.getPersistenceUnitRootUrl());
+          assertEquals(Arrays.asList(getClass().getResource("/x/y/z")), desc.getJarFileUrls());
         });
   }
 
@@ -265,8 +291,8 @@ public class HbmUnitDescriptorTest {
     new MockUnit(Config.class, Provider.class, DataSource.class)
         .run(unit -> {
           assertEquals(getClass().getClassLoader(), new HbmUnitDescriptor(
-              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class), true
-              ).getClassLoader());
+              getClass().getClassLoader(), unit.get(Provider.class), unit.get(Config.class),
+              Collections.emptySet()).getClassLoader());
         });
   }
 

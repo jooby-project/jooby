@@ -21,9 +21,11 @@ package org.jooby.hbm;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Provider;
 import javax.inject.Singleton;
@@ -147,7 +149,7 @@ import com.typesafe.config.ConfigFactory;
  *
  * After calling {@link #scan()}, Hibernate will auto-discover all the entities application's
  * namespace. The namespace is defined by the package of your application. Given:
- * <code>org.myproject.App</code> it will scan everthing under <code>org.myproject</code>.
+ * <code>org.myproject.App</code> it will scan everything under <code>org.myproject</code>.
  *
  * <h1>options</h1>
  *
@@ -167,9 +169,11 @@ public class Hbm extends Jdbc {
 
   private final List<Class<?>> classes = new LinkedList<>();
 
-  private boolean scan = false;
+  private Set<String> pkgs = new LinkedHashSet<>();
 
   private HbmProvider emf;
+
+  private boolean scan;
 
   public Hbm(final String name, final Class<?>... classes) {
     super(name);
@@ -180,8 +184,15 @@ public class Hbm extends Jdbc {
     this.classes.addAll(Arrays.asList(classes));
   }
 
-  public Hbm scan() {
-    this.scan = true;
+  /**
+   * Turn on classpath scanning to discover persistent entities.
+   *
+   * @param pkgs Package to scan. Optional.
+   * @return This module.
+   */
+  public Hbm scan(final String... pkgs) {
+    scan = true;
+    this.pkgs.addAll(Arrays.asList(pkgs));
     return this;
   }
 
@@ -195,8 +206,12 @@ public class Hbm extends Jdbc {
   public void configure(final Env env, final Config config, final Binder binder) {
     super.configure(env, config, binder);
 
+    if (scan) {
+      pkgs.add(config.getString("application.ns"));
+    }
+
     HbmUnitDescriptor descriptor = new HbmUnitDescriptor(getClass().getClassLoader(), dataSource(),
-        config, scan);
+        config, pkgs);
 
     Map<Object, Object> integration = config(env, config, classes);
     emf = new HbmProvider(descriptor, integration);
@@ -211,8 +226,7 @@ public class Hbm extends Jdbc {
 
     Multibinder<Route.Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
     routes.addBinding().toInstance(
-        new Route.Definition("*", "*", new OpenSessionInView(emf, emkeys)).name("hbm")
-        );
+        new Route.Definition("*", "*", new OpenSessionInView(emf, emkeys)).name("hbm"));
   }
 
   private static Map<Object, Object> config(final Env env, final Config config,
