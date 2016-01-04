@@ -3438,6 +3438,7 @@ public class Jooby {
 
     Config defs = ConfigFactory.parseResources(Jooby.class, "jooby.conf")
         .withValue("application.name", ConfigValueFactory.fromAnyRef(appname))
+        .withValue("application.class", ConfigValueFactory.fromAnyRef(getClass().getName()))
         .withValue("application.ns", ConfigValueFactory.fromAnyRef(ns))
         .withValue("application.lang", ConfigValueFactory.fromAnyRef(lang))
         .withValue("application.tz", ConfigValueFactory.fromAnyRef(tz))
