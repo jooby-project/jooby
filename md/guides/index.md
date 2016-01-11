@@ -12,10 +12,14 @@ Welcome to the Jooby guides, a place to learn and share ideas on how to build po
 
 ## deployment
 
-* Learn how to [deploy](/guides/deployment) your application into a ```prod``` environment.
+* Learn how to [deploy](/guides/deployment) your application into a ```prod``` environment
 
-# jdbc
+# restful API
 
-## restful API with persistence
+## with jdbi
 
-* Learn how to build a [restful API](/guides/restful-jdbi) and persist your data into a **relational database**
+* Learn how to build a [restful API](/guides/restful-jdbi) and persist your data into a **relational database** using {{jdbi}}
+
+## with hibernate
+
+* Learn how to build a [restful API](/guides/restful-hbm) and persist your data into a **relational database** using {{hibernate}}

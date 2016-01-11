@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jooby-guides/{{guide}}.svg?branch=final)](https://travis-ci.org/jooby-guides/{{guide}})
+[![Build Status](https://travis-ci.org/jooby-guides/{{guide}}.svg?branch=master)](https://travis-ci.org/jooby-guides/{{guide}})
 
 # hello restful
 
@@ -28,21 +28,20 @@ Make sure you have all these software installed it in your computer:
 * A text editor or IDE
 * {{java}} or later
 * {{maven}}
-* {{git}}
 
 # ready
 
 Open a terminal (console for Windows users) and paste:
 
 ```bash
-git clone {{gh-guides}}/{{guide}}.git
-
-cd {{guide}}
+mvn archetype:generate -B -DgroupId={{pkgguide}} -DartifactId={{guide}} -Dversion=1.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion={{version}}
 ```
 
 An almost empty application is ready to run, you can try now with:
 
 ```
+cd {{guide}}
+
 mvn jooby:run
 ```
 
@@ -64,7 +63,7 @@ public class App extends Jooby { // 1 extends Jooby
 
   {
     // 2 define some routes
-    get("/", () -> "Welcome to the hello-restul guide!");
+    get("/", () -> "Hello World!");
   }
 
   public static void main(final String[] args) throws Exception {

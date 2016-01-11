@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jooby-guides/{{guide}}.svg?branch=final)](https://travis-ci.org/jooby-guides/{{guide}})
+[![Build Status](https://travis-ci.org/jooby-guides/{{guide}}.svg?branch=master)](https://travis-ci.org/jooby-guides/{{guide}})
 
 # restful API with JDBI
 
@@ -41,21 +41,20 @@ Make sure you have all these software installed it in your computer:
 * A text editor or IDE
 * {{java}} or later
 * {{maven}}
-* {{git}}
 
 # ready
 
 Open a terminal (console for Windows users) and paste:
 
 ```bash
-git clone {{gh-guides}}/{{guide}}.git
-
-cd {{guide}}
+mvn archetype:generate -B -DgroupId={{pkgguide}} -DartifactId={{guide}} -Dversion=1.0 -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion={{version}}
 ```
 
 An almost empty application is ready to run, you can try now with:
 
 ```
+cd {{guide}}
+
 mvn jooby:run
 ```
 
@@ -145,7 +144,7 @@ The ```mem``` or ```fs``` are special databases. In order to use them we need th
 </dependency>
 ```
 
-> **NOTE**: If you want to connect to ```mySQL``` database, then you'll have to add the ```mySQL Java Driver``` to your ```pom.xml``` and define the connection properties like:
+> **NOTE**: If you want to connect to ```mySQL``` database (or any other), then you'll have to add the ```mySQL Java Driver``` to your ```pom.xml``` and define the connection properties like:
 >
 > ```
 > db.url = "jdbc:mysql//localhost/pets"
@@ -211,6 +210,7 @@ import org.skife.jdbi.v2.Query;
       return q.list();
     }
   });
+}
 ```
 
 The ```req.require(Handle.class)``` give us a new ```Handle```, we create a new ```Query``` map the result to our ```Pet``` class and list all the results.
@@ -232,6 +232,7 @@ import org.skife.jdbi.v2.Query;
       return q.list();
     }
   });
+}
 ```
 
 Now, our listing service will returns a ```max``` of ```20``` results by default, from the beginning ```start=0```. This two calls are exactly the same:
@@ -246,18 +247,22 @@ http://localhost:8080/pets?start=0&max=20
 Let's add a new route to get a single pet by ID:
 
 ```java
-get("/pets/:id", req -> {
-  try (Handle h = req.require(Handle.class)) {
-    Query<Pet> q = h.createQuery("select * from pets p where p.id = :id")
-        .bind("id", req.param("id").intValue())
-        .map(Pet.class);
-    Pet pet = q.first();
-    if (pet == null) {
-      throw new Err(Status.NOT_FOUND);
+...
+{
+  ...
+  get("/pets/:id", req -> {
+    try (Handle h = req.require(Handle.class)) {
+      Query<Pet> q = h.createQuery("select * from pets p where p.id = :id")
+          .bind("id", req.param("id").intValue())
+          .map(Pet.class);
+      Pet pet = q.first();
+      if (pet == null) {
+        throw new Err(Status.NOT_FOUND);
+      }
+      return pet;
     }
-    return pet;
-  }
-});
+  });
+}
 ```
 
 The SQL query defines an ```id``` parameter which that we bind to the path variable: ```id```.
@@ -279,22 +284,24 @@ You'll see a ```404``` err page because we didn't persist any pet yet. Let's see
 So far, we see how to query pets by ID or listing all them, it is time to see how to creates a new pet:
 
 ```java
-post("/pets", req -> {
-  try (Handle handle = req.require(Handle.class)) {
-    // read post from HTTP body
-    Pet pet = req.body().to(Pet.class);
-
-    GeneratedKeys<Map<String, Object>> keys = handle
-        .createStatement("insert into pets (name) values (:name)")
-        .bind("name", pet.getName())
-        .executeAndReturnGeneratedKeys();
-    Map<String, Object> key = keys.first();
-    // get and set the auto-increment key
-    Number id = (Number) key.values().iterator().next();
-    pet.setId(id.intValue());
-    return pet;
-  }
-});
+{
+  post("/pets", req -> {
+    try (Handle handle = req.require(Handle.class)) {
+      // read post from HTTP body
+      Pet pet = req.body().to(Pet.class);
+  
+      GeneratedKeys<Map<String, Object>> keys = handle
+          .createStatement("insert into pets (name) values (:name)")
+          .bind("name", pet.getName())
+          .executeAndReturnGeneratedKeys();
+      Map<String, Object> key = keys.first();
+      // get and set the auto-increment key
+      Number id = (Number) key.values().iterator().next();
+      pet.setId(id.intValue());
+      return pet;
+    }
+  });
+}
 ```
 
 * We open a ```Handle``` with ```req.require(Handle.class)```
@@ -308,23 +315,28 @@ post("/pets", req -> {
 Updating a pet is quite similar:
 
 ```java
-put("/pets", req -> {
-  try (Handle handle = req.require(Handle.class)) {
-    // read from HTTP body
-    Pet pet = req.body().to(Pet.class);
-
-    int rows = handle
-        .createStatement("update pets p set p.name = :name where p.id = :id")
-        .bind("id", pet.getId())
-        .execute();
-
-    if (rows <= 0) {
-      throw new Err(Status.NOT_FOUND);
+...
+{
+  ...
+  put("/pets", req -> {
+    try (Handle handle = req.require(Handle.class)) {
+      // read from HTTP body
+      Pet pet = req.body().to(Pet.class);
+  
+      int rows = handle
+          .createStatement("update pets p set p.name = :name where p.id = :id")
+          .bind("id", pet.getId())
+          .execute();
+  
+      if (rows <= 0) {
+        throw new Err(Status.NOT_FOUND);
+      }
+      return pet;
     }
-    return pet;
-  }
-});
+  });
+}
 ```
+
 * We open a ```Handle``` with ```req.require(Handle.class)```
 * We read the pet from the JSON HTTP body: ```req.body().to(Pet.class)```
 * We update a pet by ID.
@@ -336,19 +348,23 @@ put("/pets", req -> {
 Again, delete operation is similar to update:
 
 ```java
-delete("/pets/:id", req -> {
-  try (Handle handle = req.require(Handle.class)) {
-    int rows = handle
-        .createStatement("delete pets where p.id = :id")
-        .bind("id", req.param("id").intValue())
-        .execute();
-
-    if (rows <= 0) {
-      throw new Err(Status.NOT_FOUND);
+...
+{
+  ...
+  delete("/pets/:id", req -> {
+    try (Handle handle = req.require(Handle.class)) {
+      int rows = handle
+          .createStatement("delete pets where p.id = :id")
+          .bind("id", req.param("id").intValue())
+          .execute();
+  
+      if (rows <= 0) {
+        throw new Err(Status.NOT_FOUND);
+      }
+      return pet;
     }
-    return pet;
-  }
-});
+  });
+}
 ```
 
 * We open a ```Handle``` with ```req.require(Handle.class)```
@@ -547,8 +563,8 @@ Better now! The ```use``` method has many meanings in **Jooby**, If we use pass 
 
 # conclusion
 
-As you already see, building an API that saves data in a **database** is very simple. Code looks clean and simple thanks to [jdbi]({{gh-prefix}}jdbi).
+As you already see, building an API that saves data in a **database** is very simple. Code looks clean and simple thanks to [jdbi]({{gh-prefix}}-jdbi).
 
-[Jdbi]({{gh-prefix}}jdbi) makes perfect sense if you want to have full control on your SQL queries, or if you don't like **ORM** tools too.
+[Jdbi]({{gh-prefix}}-jdbi) makes perfect sense if you want to have full control on your SQL queries, or if you don't like **ORM** tools too.
 
 {{guides/guide.footer.md}}

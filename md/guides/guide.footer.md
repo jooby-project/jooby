@@ -1,7 +1,6 @@
 # source code
 
-* Fork this guide at: [{{guide}}]({{gh-guides}}/{{guide}})
-* Complete source code is available in the [final]({{gh-guides}}/{{guide}}/tree/final) branch. 
+* Complet source code available at: [{{guide}}]({{gh-guides}}/{{guide}})
 
 # help and support
 
