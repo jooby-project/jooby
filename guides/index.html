@@ -101,9 +101,10 @@
         <li> <a href="#basic-hello-restful">hello restful</a></li> 
         <li> <a href="#basic-deployment">deployment</a></li>
        </ul></li> 
-      <li class=""> <a href="#jdbc">jdbc</a>
+      <li class=""> <a href="#restful-API">restful API</a>
        <ul> 
-        <li> <a href="#jdbc-restful-API-with-persistence">restful API with persistence</a></li>
+        <li> <a href="#restful-API-with-jdbi">with jdbi</a></li> 
+        <li> <a href="#restful-API-with-hibernate">with hibernate</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -128,18 +129,22 @@
        </ul> 
        <h3 id="basic-deployment">deployment</h3> 
        <ul> 
-        <li>Learn how to <a href="/guides/deployment">deploy</a> your application into a <code class="highlighter-rouge codehilite">prod</code> environment.</li> 
+        <li>Learn how to <a href="/guides/deployment">deploy</a> your application into a <code class="highlighter-rouge codehilite">prod</code> environment</li> 
        </ul> 
       </div> 
      </div> 
-     <div class="datalist" id="jdbc"> 
+     <div class="datalist" id="restful-API"> 
       <div class="datalist-title "> 
-       <h2>jdbc</h2> 
+       <h2>restful API</h2> 
       </div> 
       <div class="datalist-content"> 
-       <h3 id="jdbc-restful-API-with-persistence">restful API with persistence</h3> 
+       <h3 id="restful-API-with-jdbi">with jdbi</h3> 
        <ul> 
-        <li>Learn how to build a <a href="/guides/restful-jdbi">restful API</a> and persist your data into a <strong>relational database</strong></li> 
+        <li>Learn how to build a <a href="/guides/restful-jdbi">restful API</a> and persist your data into a <strong>relational database</strong> using {{jdbi}}</li> 
+       </ul> 
+       <h3 id="restful-API-with-hibernate">with hibernate</h3> 
+       <ul> 
+        <li>Learn how to build a <a href="/guides/restful-hbm">restful API</a> and persist your data into a <strong>relational database</strong> using <a href="http://hibernate.org" target="_blank">Hibernate</a></li> 
        </ul> 
       </div> 
      </div> 
@@ -164,6 +169,15 @@
   <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
   <script src="/resources/scripts/libs/swiper.min.js"></script> 
   <script src="/resources/scripts/application.js"></script> 
-  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>  
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>  
  </body>
 </html>

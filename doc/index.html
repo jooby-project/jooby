@@ -2212,7 +2212,7 @@ GET /assets/css/style.css
 
     <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">0</span>
 
-    <span class="py">Method</span> <span class="p">=</span> <span class="s">_method</span>
+    <span class="py">Method</span> <span class="p">=</span> <span class="s">""</span>
 
   <span class="err">}</span>
 
@@ -2223,6 +2223,13 @@ GET /assets/css/style.css
     <span class="py">Max</span> <span class="p">=</span> <span class="s">200</span>
 
     <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">60s</span>
+
+  <span class="err">}</span>
+
+  <span class="err">routes</span> <span class="err">{</span>
+
+    <span class="c"># Guava Cache Spec </span>
+    <span class="py">Cache</span> <span class="p">=</span> <span class="s">"concurrencyLevel=10, maximumSize=100"</span>
 
   <span class="err">}</span>
 
@@ -2742,6 +2749,15 @@ GET /assets/css/style.css
   <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
   <script src="/resources/scripts/libs/swiper.min.js"></script> 
   <script src="/resources/scripts/application.js"></script> 
-  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>  
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>  
  </body>
 </html>
