@@ -250,14 +250,14 @@ public class RouteGroupTest {
   private void matches(final List<Route.Definition> routes, final String method,
       final String pattern) {
     for (Route.Definition r : routes) {
-      assertTrue(r.matches(method, pattern, MediaType.all, MediaType.ALL).isPresent());
+      assertTrue(r.matches(method.toUpperCase(), pattern, MediaType.all, MediaType.ALL).isPresent());
     }
   }
 
   private void noMatches(final List<Route.Definition> routes, final String method,
       final String pattern) {
     for (Route.Definition r : routes) {
-      assertFalse(r.matches(method, pattern, MediaType.all, MediaType.ALL).isPresent());
+      assertFalse(r.matches(method.toUpperCase(), pattern, MediaType.all, MediaType.ALL).isPresent());
     }
   }
 

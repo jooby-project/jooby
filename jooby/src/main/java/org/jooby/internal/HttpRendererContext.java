@@ -26,7 +26,6 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import org.jooby.MediaType;
@@ -42,7 +41,7 @@ public class HttpRendererContext extends AbstractRendererContext {
 
   private NativeResponse rsp;
 
-  public HttpRendererContext(final Set<Renderer> renderers,
+  public HttpRendererContext(final List<Renderer> renderers,
       final NativeResponse rsp, final Consumer<Long> len, final Consumer<MediaType> type,
       final Map<String, Object> locals, final List<MediaType> produces, final Charset charset) {
     super(renderers, produces, charset, locals);

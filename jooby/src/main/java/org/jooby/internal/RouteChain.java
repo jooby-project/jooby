@@ -18,9 +18,6 @@
  */
 package org.jooby.internal;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Iterator;
 import java.util.List;
 
 import org.jooby.Request;
@@ -29,16 +26,20 @@ import org.jooby.Route;
 
 public class RouteChain implements Route.Chain {
 
-  private Iterator<Route> routes;
+  private List<Route> routes;
 
   private String prefix;
 
-  public RouteChain(final List<Route> routes) {
-    this(requireNonNull(routes, "Routes are required.").iterator());
-  }
+  private int i = 0;
 
-  public RouteChain(final Iterator<Route> routes) {
-    this.routes = requireNonNull(routes, "Routes are required.");
+  private RequestImpl rreq;
+
+  private ResponseImpl rrsp;
+
+  public RouteChain(final RequestImpl req, final ResponseImpl rsp, final List<Route> routes) {
+    this.routes = routes;
+    this.rreq = req;
+    this.rrsp = rsp;
   }
 
   @Override
@@ -53,35 +54,25 @@ public class RouteChain implements Route.Chain {
 
     RouteImpl route = get(next(this.prefix));
     // set route
-    set(req, route);
-    set(rsp, route);
+    rreq.route(route);
+    rrsp.route(route);
 
     route.handle(req, rsp, this);
   }
 
   private Route next(final String prefix) {
-    Route route = routes.next();
+    Route route = routes.get(i++);
     if (prefix == null) {
       return route;
     }
     while (!route.apply(prefix)) {
-      route = routes.next();
+      route = routes.get(i++);
     }
     return route;
   }
 
   private RouteImpl get(final Route next) {
     return (RouteImpl) Route.Forwarding.unwrap(next);
-  }
-
-  private void set(final Request req, final Route route) {
-    RequestImpl root = (RequestImpl) Request.Forwarding.unwrap(req);
-    root.route(route);
-  }
-
-  private void set(final Response rsp, final Route route) {
-    ResponseImpl root = (ResponseImpl) Response.Forwarding.unwrap(rsp);
-    root.route(route);
   }
 
 }

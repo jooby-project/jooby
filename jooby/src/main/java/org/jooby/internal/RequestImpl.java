@@ -84,32 +84,30 @@ public class RequestImpl implements Request {
 
   private String contextPath;
 
-  public RequestImpl(final Injector injector,
-      final NativeRequest req, final String contextPath,
-      final int port, final Route route,
-      final Map<Object, Object> scope,
-      final Map<String, Object> locals) {
-    this.injector = requireNonNull(injector, "An injector is required.");
-    this.req = requireNonNull(req, "An exchange is required.");
-    this.route = requireNonNull(route, "A route is required.");
-    this.scope = requireNonNull(scope, "Scope is required.");
-    this.locals = requireNonNull(locals, "Request locals are required.");
+  public RequestImpl(final Injector injector, final NativeRequest req, final String contextPath,
+      final int port, final Route route, final Charset charset, final Locale locale,
+      final Map<Object, Object> scope, final Map<String, Object> locals) {
+    this.injector = injector;
+    this.req = req;
+    this.route = route;
+    this.scope = scope;
+    this.locals = locals;
 
     this.contextPath = contextPath;
 
-    this.accept = findAccept(req);
+    Optional<String> accept = req.header("Accept");
+    this.accept = accept.isPresent() ? MediaType.parse(accept.get()) : MediaType.ALL;
 
-    this.locale = findLocale(req, injector.getInstance(Locale.class));
+    Optional<String> lang = req.header("Accept-Language");
+    this.locale = lang.isPresent() ? LocaleUtils.toLocale(lang.get()) : locale;
 
     this.port = port;
 
-    this.type = req.header("Content-Type")
-        .map(MediaType::valueOf)
-        .orElse(MediaType.all);
+    Optional<String> type = req.header("Content-Type");
+    this.type = type.isPresent() ? MediaType.valueOf(type.get()) : MediaType.all;
 
-    this.charset = Optional.ofNullable(type.params().get("charset"))
-        .map(Charset::forName)
-        .orElse(injector.getInstance(Charset.class));
+    String cs = this.type.params().get("charset");
+    this.charset = cs != null ? Charset.forName(cs) : charset;
 
     this.files = new ArrayList<>();
   }
@@ -359,23 +357,6 @@ public class RequestImpl implements Request {
     return route().toString();
   }
 
-  private static List<MediaType> findAccept(final NativeRequest req) {
-    List<MediaType> accept = req.header("Accept")
-        .map(MediaType::parse)
-        .orElse(MediaType.ALL);
-
-    if (accept.size() > 1) {
-      Collections.sort(accept);
-    }
-    return accept;
-  }
-
-  private static Locale findLocale(final NativeRequest req, final Locale def) {
-    return req.header("Accept-Language")
-        .map(l -> LocaleUtils.toLocale(l))
-        .orElse(def);
-  }
-
   private List<NativeUpload> files(final String name) {
     try {
       return req.files(name);
@@ -408,8 +389,10 @@ public class RequestImpl implements Request {
     if (reqSession != null) {
       reqSession.ifPresent(session -> require(SessionManager.class).requestDone(session));
     }
-    for (File file : files) {
-      file.delete();
+    if (files.size() > 0) {
+      for (File file : files) {
+        file.delete();
+      }
     }
   }
 

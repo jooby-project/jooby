@@ -1,12 +1,17 @@
 package org.jooby;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
+import java.util.Set;
 
+import org.elasticsearch.common.collect.Sets;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
+
+import com.google.common.base.Splitter;
 
 public class RequestLocalsFeature extends ServerFeature {
 
@@ -51,7 +56,11 @@ public class RequestLocalsFeature extends ServerFeature {
   public void attributes() throws Exception {
     request()
         .get("/locals/attributes")
-        .expect("{contextPath=, path=/locals/attributes, l1=v1}");
+        .expect(c -> {
+          String s = c.substring(1, c.length() - 1).trim();
+          Set<String> values = Sets.newHashSet(Splitter.on(",").trimResults().split(s));
+          assertEquals(Sets.newHashSet("contextPath=", "path=/locals/attributes", "l1=v1"), values);
+        });
 
   }
 

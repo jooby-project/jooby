@@ -26,11 +26,9 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jooby.Err;
 import org.jooby.MediaType;
@@ -43,7 +41,7 @@ import com.google.common.base.Joiner;
 
 public abstract class AbstractRendererContext implements Renderer.Context {
 
-  private Set<Renderer> renderers;
+  private List<Renderer> renderers;
 
   private Matcher matcher;
 
@@ -55,20 +53,23 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
   private boolean committed;
 
-  public AbstractRendererContext(final Set<Renderer> renderers, final List<MediaType> produces,
+  private int rsize;
+
+  public AbstractRendererContext(final List<Renderer> renderers, final List<MediaType> produces,
       final Charset charset, final Map<String, Object> locals) {
     this.renderers = renderers;
     this.produces = produces;
     this.matcher = MediaType.matcher(produces);
     this.charset = charset;
     this.locals = locals;
+    rsize = this.renderers.size();
   }
 
   public void render(final Object value) throws Exception {
-    Iterator<Renderer> it = renderers.iterator();
-    List<String> notFound = new LinkedList<>();
-    while (!committed && it.hasNext()) {
-      Renderer next = it.next();
+    int i = 0;
+    List<String> notFound = new ArrayList<>();
+    while (!committed && i < rsize) {
+      Renderer next = renderers.get(i);
       try {
         next.render(value, this);
       } catch (FileNotFoundException ex) {
@@ -79,6 +80,7 @@ public abstract class AbstractRendererContext implements Renderer.Context {
           throw ex;
         }
       }
+      i += 1;
     }
     if (!committed) {
       if (notFound.size() > 0) {
@@ -131,7 +133,9 @@ public abstract class AbstractRendererContext implements Renderer.Context {
   @Override
   public void send(final String text) throws Exception {
     type(MediaType.html);
-    _send(text);
+    byte[] bytes = text.getBytes(charset);
+    length(bytes.length);
+    _send(bytes);
     committed = true;
   }
 

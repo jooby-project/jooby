@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
@@ -50,17 +49,11 @@ import org.jooby.spi.NativeResponse;
 import org.jooby.util.Collectors;
 
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 
 public class ResponseImpl implements Response {
 
   /** Char encoded content disposition. */
-  private static final String CONTENT_DISPOSITION =
-      "attachment; filename=\"%s\"; filename*=%s''%s";
-
-  private final Injector injector;
+  private static final String CONTENT_DISPOSITION = "attachment; filename=\"%s\"; filename*=%s''%s";
 
   private final NativeResponse rsp;
 
@@ -76,22 +69,24 @@ public class ResponseImpl implements Response {
 
   private MediaType type;
 
+  private long len = -1;
+
   private Map<String, Cookie> cookies = new HashMap<>();
 
-  private Set<Renderer> renderers;
+  private List<Renderer> renderers;
 
-  public ResponseImpl(final Injector injector,
-      final NativeResponse rsp, final Route route,
+  private ParserExecutor parserExecutor;
+
+  public ResponseImpl(final ParserExecutor parserExecutor,
+      final NativeResponse rsp, final Route route, final List<Renderer> renderers,
       final Map<String, Object> locals, final Charset charset, final Optional<String> referer) {
-    this.injector = requireNonNull(injector, "An injector is required.");
-    this.rsp = requireNonNull(rsp, "A raw response is required.");
-    this.route = requireNonNull(route, "A route is required.");
-    this.locals = requireNonNull(locals, "Request locals are required.");
-
-    this.renderers = injector.getInstance(Key.get(new TypeLiteral<Set<Renderer>>() {
-    }));
-    this.charset = requireNonNull(charset, "A charset is required.");
-    this.referer = requireNonNull(referer, "A referer header is required.");
+    this.parserExecutor = parserExecutor;
+    this.rsp = rsp;
+    this.route = route;
+    this.locals = locals;
+    this.renderers = renderers;
+    this.charset = charset;
+    this.referer = referer;
   }
 
   @Override
@@ -146,8 +141,7 @@ public class ResponseImpl implements Response {
   @Override
   public Mutant header(final String name) {
     requireNonNull(name, "A header's name is required.");
-    return new MutantImpl(injector.getInstance(ParserExecutor.class),
-        new StrParamReferenceImpl(name, rsp.headers(name)));
+    return new MutantImpl(parserExecutor, new StrParamReferenceImpl(name, rsp.headers(name)));
   }
 
   @Override
@@ -180,6 +174,7 @@ public class ResponseImpl implements Response {
 
   @Override
   public Response length(final long length) {
+    len = length;
     rsp.header("Content-Length", Headers.encode(length));
     return this;
   }
@@ -227,7 +222,7 @@ public class ResponseImpl implements Response {
 
   @Override
   public void end() {
-    if (!committed()) {
+    if (!rsp.committed()) {
       if (status == null) {
         status(rsp.statusCode());
       }
@@ -263,15 +258,17 @@ public class ResponseImpl implements Response {
       throw new DeferredExecution((Deferred) result);
     }
 
-    result.type().ifPresent(type -> type(type));
+    Optional<MediaType> rtype = result.type();
+    if (rtype.isPresent()) {
+      type(rtype.get());
+    }
 
-    List<MediaType> produces = type().
-        <List<MediaType>> map(ImmutableList::of).orElse(route.produces());
+    List<MediaType> produces = this.type == null ? route.produces() : ImmutableList.of(type);
 
     status(result.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
 
     result.headers().forEach((name, value) -> {
-      header(name, value);
+      setHeader(name, value);
     });
 
     writeCookies();
@@ -284,8 +281,6 @@ public class ResponseImpl implements Response {
     /**
      * Do we need to figure it out Content-Length?
      */
-    Optional<Long> length = header("Content-Length").toOptional(Long.class);
-
     Optional<Object> value = result.get(produces);
 
     if (value.isPresent()) {
@@ -296,12 +291,16 @@ public class ResponseImpl implements Response {
       }
 
       Consumer<Long> setLen = len -> {
-        if (len >= 0) {
-          length(length.orElse(len));
+        if (this.len == -1 && len >= 0) {
+          length(len);
         }
       };
 
-      Consumer<MediaType> setType = type -> type(type().orElse(type));
+      Consumer<MediaType> setType = type -> {
+        if (this.type == null) {
+          type(type);
+        }
+      };
 
       new HttpRendererContext(
           renderers,
@@ -320,8 +319,8 @@ public class ResponseImpl implements Response {
     if (cookies.size() > 0) {
       rsp.header("Set-Cookie",
           cookies.values().stream().map(Cookie::encode).collect(Collectors.toList()));
+      cookies.clear();
     }
-    this.cookies.clear();
   }
 
   public void reset() {

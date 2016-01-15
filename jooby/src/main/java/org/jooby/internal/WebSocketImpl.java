@@ -21,6 +21,7 @@ package org.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -45,6 +46,10 @@ public class WebSocketImpl implements WebSocket {
   @SuppressWarnings({"rawtypes" })
   private static final Callback NOOP = arg -> {
   };
+
+  /** renderer key. */
+  static final Key<Set<Renderer>> RENDERER = Key.get(new TypeLiteral<Set<Renderer>>() {
+  });
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(WebSocket.class);
@@ -74,6 +79,8 @@ public class WebSocketImpl implements WebSocket {
   private Injector injector;
 
   private boolean suspended;
+
+  private List<Renderer> renderers;
 
   public WebSocketImpl(final Handler handler, final String path,
       final String pattern, final Map<Object, String> vars,
@@ -119,9 +126,6 @@ public class WebSocketImpl implements WebSocket {
     requireNonNull(success, "A success callback is required.");
     requireNonNull(err, "An error callback is required.");
 
-    Set<Renderer> renderers = injector.getInstance(Key.get(new TypeLiteral<Set<Renderer>>() {
-    }));
-
     new WebSocketRendererContext(
         renderers,
         ws,
@@ -139,6 +143,7 @@ public class WebSocketImpl implements WebSocket {
   public void connect(final Injector injector, final NativeWebSocket ws) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.ws = requireNonNull(ws, "Web socket is required.");
+    renderers = ImmutableList.copyOf(injector.getInstance(RENDERER));
 
     /**
      * Bind callbacks

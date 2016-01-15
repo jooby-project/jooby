@@ -26,13 +26,17 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -169,7 +173,7 @@ public class MediaType implements Comparable<MediaType> {
       if (types.size() == 1) {
         sortedTypes = ImmutableList.of(types.get(0));
       } else {
-        sortedTypes = new LinkedList<>(types);
+        sortedTypes = new ArrayList<>(types);
         Collections.sort(sortedTypes);
       }
       for (MediaType accept : acceptable) {
@@ -290,20 +294,34 @@ public class MediaType implements Comparable<MediaType> {
    */
   private final boolean wildcardSubtype;
 
+  /** Name . */
+  private String name;
+
+  private int hc;
+
   /**
    * Alias for most used types.
    */
-  private static final Map<String, MediaType> alias = ImmutableMap.<String, MediaType> builder()
-      .put("html", html)
-      .put("json", json)
-      .put("css", css)
-      .put("js", js)
-      .put("octetstream", octetstream)
-      .put("form", form)
-      .put("multipart", multipart)
-      .put("xml", xml)
-      .put("*", all)
-      .build();
+  private static final LoadingCache<String, List<MediaType>> cache = CacheBuilder.newBuilder()
+      .build(new CacheLoader<String, List<MediaType>>() {
+        @Override
+        public List<MediaType> load(final String type) throws Exception {
+          return parseInternal(type);
+        }
+
+      });
+
+  static {
+    cache.put("html", ImmutableList.of(html));
+    cache.put("json", ImmutableList.of(json));
+    cache.put("css", ImmutableList.of(css));
+    cache.put("js", ImmutableList.of(js));
+    cache.put("octetstream", ImmutableList.of(octetstream));
+    cache.put("form", ImmutableList.of(form));
+    cache.put("multipart", ImmutableList.of(multipart));
+    cache.put("xml", ImmutableList.of(xml));
+    cache.put("*", ALL);
+  }
 
   static final Config types = ConfigFactory
       .parseResources("mime.properties")
@@ -322,6 +340,10 @@ public class MediaType implements Comparable<MediaType> {
     this.params = ImmutableMap.copyOf(requireNonNull(parameters, "Parameters are required."));
     this.wildcardType = "*".equals(type);
     this.wildcardSubtype = "*".equals(subtype);
+    this.name = type + "/" + subtype;
+
+    hc = 31 + name.hashCode();
+    hc = 31 * hc + params.hashCode();
   }
 
   /**
@@ -363,7 +385,7 @@ public class MediaType implements Comparable<MediaType> {
    * @return The qualified type {@link #type()}/{@link #subtype()}.
    */
   public String name() {
-    return type + "/" + subtype;
+    return name;
   }
 
   /**
@@ -374,10 +396,10 @@ public class MediaType implements Comparable<MediaType> {
       return false;
     }
 
-    if (text.matches(this)) {
+    if (this == text || text.matches(this)) {
       return true;
     }
-    if (js.matches(this)) {
+    if (this == js || js.matches(this)) {
       return true;
     }
     if (jsonLike.matches(this)) {
@@ -474,16 +496,12 @@ public class MediaType implements Comparable<MediaType> {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = prime + type.hashCode();
-    result = prime * result + subtype.hashCode();
-    result = prime * result + params.hashCode();
-    return result;
+    return hc;
   }
 
   @Override
   public final String toString() {
-    return name();
+    return name;
   }
 
   /**
@@ -493,32 +511,55 @@ public class MediaType implements Comparable<MediaType> {
    * @return An immutable {@link MediaType}.
    */
   public static MediaType valueOf(final String type) {
-    requireNonNull(type, "A mediaType is required.");
-    MediaType aliastype = alias.get(type.trim());
-    if (aliastype != null) {
-      return aliastype;
-    }
-    String[] parts = type.trim().split(";");
-    if (parts[0].equals("*")) {
-      // odd and ugly media type
-      return MediaType.all;
-    }
-    String[] typeAndSubtype = parts[0].split("/");
-    checkArgument(typeAndSubtype.length == 2, "Bad media type: %s", type);
-    String stype = typeAndSubtype[0].trim();
-    String subtype = typeAndSubtype[1].trim();
-    checkArgument(!(stype.equals("*") && !subtype.equals("*")), "Bad media type: %s", type);
-    Map<String, String> parameters = DEFAULT_PARAMS;
-    if (parts.length > 1) {
-      parameters = new LinkedHashMap<>(DEFAULT_PARAMS);
-      for (int i = 1; i < parts.length; i++) {
-        String[] parameter = parts[i].split("=");
-        if (parameter.length > 1) {
-          parameters.put(parameter[0].trim(), parameter[1].trim().toLowerCase());
+    return parse(type).get(0);
+  }
+
+  private static List<MediaType> parseInternal(final String value) {
+    String[] types = value.split(",");
+    @SuppressWarnings("serial")
+    List<MediaType> result = new ArrayList<MediaType>(types.length) {
+      int hc = 1;
+
+      @Override
+      public boolean add(final MediaType e) {
+        hc = 31 * hc + e.hashCode();
+        return super.add(e);
+      }
+
+      @Override
+      public int hashCode() {
+        return hc;
+      }
+    };
+    for (String type : types) {
+      requireNonNull(type, "A mediaType is required.");
+      String[] parts = type.trim().split(";");
+      if (parts[0].equals("*")) {
+        // odd and ugly media type
+        result.add(all);
+      } else {
+        String[] typeAndSubtype = parts[0].split("/");
+        checkArgument(typeAndSubtype.length == 2, "Bad media type: %s", type);
+        String stype = typeAndSubtype[0].trim();
+        String subtype = typeAndSubtype[1].trim();
+        checkArgument(!(stype.equals("*") && !subtype.equals("*")), "Bad media type: %s", type);
+        Map<String, String> parameters = DEFAULT_PARAMS;
+        if (parts.length > 1) {
+          parameters = new LinkedHashMap<>(DEFAULT_PARAMS);
+          for (int i = 1; i < parts.length; i++) {
+            String[] parameter = parts[i].split("=");
+            if (parameter.length > 1) {
+              parameters.put(parameter[0].trim(), parameter[1].trim().toLowerCase());
+            }
+          }
         }
+        result.add(new MediaType(stype, subtype, parameters));
       }
     }
-    return new MediaType(stype, subtype, parameters);
+    if (result.size() > 1) {
+      Collections.sort(result);
+    }
+    return result;
   }
 
   /**
@@ -543,7 +584,11 @@ public class MediaType implements Comparable<MediaType> {
    * @return One ore more {@link MediaType}.
    */
   public static List<MediaType> parse(final String value) {
-    return valueOf(value.split(","));
+    try {
+      return cache.getUnchecked(value);
+    } catch (UncheckedExecutionException ex) {
+      throw Throwables.propagate(ex.getCause());
+    }
   }
 
   /**

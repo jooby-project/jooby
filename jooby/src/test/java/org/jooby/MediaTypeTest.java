@@ -209,7 +209,7 @@ public class MediaTypeTest {
 
   @Test
   public void acceptHeader() {
-    List<MediaType> types = MediaType.parse("json , html");
+    List<MediaType> types = MediaType.valueOf("json", "html");
     assertEquals(MediaType.json, types.get(0));
     assertEquals(MediaType.html, types.get(1));
   }

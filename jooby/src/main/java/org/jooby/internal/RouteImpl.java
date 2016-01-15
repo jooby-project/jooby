@@ -31,6 +31,8 @@ import org.jooby.Status;
 
 public class RouteImpl implements Route, Route.Filter {
 
+  private static Map<Object, String> NO_VARS = Collections.emptyMap();
+
   private String method;
 
   private String path;
@@ -53,13 +55,12 @@ public class RouteImpl implements Route, Route.Filter {
       if (!rsp.status().isPresent()) {
         throw new Err(Status.NOT_FOUND, path);
       }
-    } , method, path, Status.NOT_FOUND, produces);
+    } , method, path, "404", produces);
   }
 
   public static RouteImpl fromStatus(final Filter filter, final String method,
-      final String path, final Status status, final List<MediaType> produces) {
-    return new RouteImpl(filter, method, path, path, status.value() + "", Collections.emptyMap(),
-        MediaType.ALL, produces) {
+      final String path, final String name, final List<MediaType> produces) {
+    return new RouteImpl(filter, method, path, path, name, NO_VARS, MediaType.ALL, produces) {
       @Override
       public boolean apply(final String filter) {
         return true;

@@ -736,7 +736,7 @@ public interface Route {
     /**
      * A route pattern.
      */
-    private RoutePattern compiledPattern;
+    private RoutePattern cpattern;
 
     /**
      * The target route.
@@ -816,9 +816,9 @@ public interface Route {
       requireNonNull(filter, "A filter is required.");
 
       this.method = method.toUpperCase();
-      this.compiledPattern = new RoutePattern(method, pattern);
+      this.cpattern = new RoutePattern(method, pattern);
       // normalized pattern
-      this.pattern = compiledPattern.pattern();
+      this.pattern = cpattern.pattern();
       this.filter = filter;
     }
 
@@ -864,7 +864,7 @@ public interface Route {
      * @return List of path variables (if any).
      */
     public List<String> vars() {
-      return compiledPattern.vars();
+      return cpattern.vars();
     }
 
     /**
@@ -879,11 +879,11 @@ public interface Route {
     public Optional<Route> matches(final String verb,
         final String path, final MediaType contentType,
         final List<MediaType> accept) {
-      String fpath = verb.toUpperCase() + path;
-      if (excludes(fpath)) {
+      String fpath = verb + path;
+      if (excludes.size() > 0 && excludes(fpath)) {
         return Optional.empty();
       }
-      RouteMatcher matcher = compiledPattern.matcher(fpath);
+      RouteMatcher matcher = cpattern.matcher(fpath);
       if (matcher.matches()) {
         List<MediaType> result = MediaType.matcher(accept).filter(this.produces);
         if (result.size() > 0 && canConsume(contentType)) {

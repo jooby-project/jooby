@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import org.jooby.MediaType;
 import org.jooby.Renderer;
@@ -43,7 +43,7 @@ public class WebSocketRendererContext extends AbstractRendererContext {
 
   private MediaType type;
 
-  public WebSocketRendererContext(final Set<Renderer> renderers, final NativeWebSocket ws,
+  public WebSocketRendererContext(final List<Renderer> renderers, final NativeWebSocket ws,
       final MediaType type, final Charset charset, final SuccessCallback success,
       final ErrCallback err) {
     super(renderers, ImmutableList.of(type), charset, Collections.emptyMap());
@@ -54,7 +54,7 @@ public class WebSocketRendererContext extends AbstractRendererContext {
   }
 
   @Override
-  protected void _send(final String text) throws Exception {
+  public void send(final String text) throws Exception {
     ws.sendText(text, success, err);
   }
 

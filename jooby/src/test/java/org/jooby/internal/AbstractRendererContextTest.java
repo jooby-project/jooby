@@ -4,10 +4,9 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.jooby.Err;
 import org.jooby.MediaType;
@@ -23,7 +22,7 @@ public class AbstractRendererContextTest {
 
   @Test(expected = Err.class)
   public void norenderer() throws Exception {
-    Set<Renderer> renderers = new LinkedHashSet<>();
+    List<Renderer> renderers = new ArrayList<>();
     List<MediaType> produces = ImmutableList.of(MediaType.json);
     View value = Results.html("view");
     new MockUnit()

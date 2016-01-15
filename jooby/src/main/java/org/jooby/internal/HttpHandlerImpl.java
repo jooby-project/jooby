@@ -20,13 +20,14 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -42,6 +43,7 @@ import org.jooby.Deferred;
 import org.jooby.Err;
 import org.jooby.Err.Handler;
 import org.jooby.MediaType;
+import org.jooby.Renderer;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
@@ -49,6 +51,7 @@ import org.jooby.Session;
 import org.jooby.Status;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.Definition;
+import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.HttpHandler;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeResponse;
@@ -56,22 +59,76 @@ import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.typesafe.config.Config;
 
 @Singleton
 public class HttpHandlerImpl implements HttpHandler {
 
+  private static class RouteKey {
+    protected String method;
+
+    protected String path;
+
+    protected MediaType consumes;
+
+    protected List<MediaType> produces;
+
+    private int hc;
+
+    public RouteKey(final String method, final String path, final MediaType consumes,
+        final List<MediaType> produces) {
+      this.method = method;
+      this.path = path;
+      this.consumes = consumes;
+      this.produces = produces;
+      hc = 1;
+      hc = 31 * hc + method.hashCode();
+      hc = 31 * hc + path.hashCode();
+      hc = 31 * hc + consumes.hashCode();
+      hc = 31 * hc + produces.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+      return hc;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      RouteKey that = (RouteKey) obj;
+      return method.equals(that.method) && path.equals(that.path) && produces.equals(that.produces)
+          && consumes.equals(that.consumes);
+    }
+
+  }
+
   private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
 
-  private static final List<MediaType> ALL = ImmutableList.of(MediaType.all);
+  private static final String WEB_SOCKET = "WebSocket";
+
+  private static final String UPGRADE = "Upgrade";
+
+  private static final String REFERER = "Referer";
+
+  private static final String PATH = "path";
+
+  private static final String CONTEXT_PATH = "contextPath";
+
+  private static final Key<Request> REQ = Key.get(Request.class);
+
+  private static final Key<Response> RSP = Key.get(Response.class);
+
+  private static final Key<Session> SESS = Key.get(Session.class);
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(HttpHandler.class);
-
-  private Set<Route.Definition> routeDefs;
 
   private Injector injector;
 
@@ -89,131 +146,157 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private String _method;
 
+  private Charset charset;
+
+  private List<Renderer> renderers;
+
+  private ParserExecutor parserExecutor;
+
+  private Locale locale;
+
+  private final LoadingCache<RouteKey, List<Route>> routeCache;
+
+  private final String redirectHttps;
+
+  private Function<String, String> rpath = null;
+
+  private String contextPath;
+
+  private boolean hasSockets;
+
   @Inject
   public HttpHandlerImpl(final Injector injector,
       final RequestScope requestScope,
       final Set<Route.Definition> routes,
       final Set<WebSocket.Definition> sockets,
       final @Named("application.path") String path,
-      final Set<Err.Handler> err) {
+      final ParserExecutor parserExecutor,
+      final Set<Renderer> renderers,
+      final Set<Err.Handler> err,
+      final Charset charset,
+      final Locale locale) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.requestScope = requireNonNull(requestScope, "A request scope is required.");
-    this.routeDefs = requireNonNull(routes, "Routes are required.");
     this.socketDefs = requireNonNull(sockets, "Sockets are required.");
+    this.hasSockets = socketDefs.size() > 0;
     this.applicationPath = normalizeURI(requireNonNull(path, "An application.path is required."));
     this.err = requireNonNull(err, "An err handler is required.");
     this.config = injector.getInstance(Config.class);
-    _method = this.config.getString("server.http.Method");
+    _method = this.config.getString("server.http.Method").trim();
     this.port = config.getInt("application.port");
+    this.charset = charset;
+    this.locale = locale;
+    this.parserExecutor = parserExecutor;
+    this.renderers = ImmutableList.copyOf(renderers);
+
+    // route cache
+    routeCache = routeCache(routes, config);
+    // force https
+    String redirectHttps = config.getString("application.redirect_https").trim();
+    this.redirectHttps = redirectHttps.length() > 0 ? redirectHttps : null;
+
+    // custom path?
+    if (applicationPath.equals("/")) {
+      this.contextPath = "";
+    } else {
+      this.contextPath = applicationPath;
+      this.rpath = rootpath(applicationPath);
+    }
   }
 
   @Override
   public void handle(final NativeRequest request, final NativeResponse response) throws Exception {
-    long start = System.currentTimeMillis();
+    Map<String, Object> locals = new HashMap<>(16);
 
-    Map<String, Object> locals = new LinkedHashMap<>();
-
-    Map<Object, Object> scope = new HashMap<>();
+    Map<Object, Object> scope = new HashMap<>(16);
 
     String verb = method(_method, request).toUpperCase();
     String requestPath = normalizeURI(request.path());
-    boolean resolveAs404 = false;
-    if (applicationPath.equals(requestPath)) {
-      requestPath = "/";
-    } else if (requestPath.startsWith(applicationPath)) {
-      if (!applicationPath.equals("/")) {
-        requestPath = requestPath.substring(applicationPath.length());
-      }
-    } else {
-      resolveAs404 = true;
+    if (rpath != null) {
+      requestPath = rpath.apply(requestPath);
     }
 
-    String contextPath = "/".equals(applicationPath) ? "" : applicationPath;
     // default locals
-    locals.put("contextPath", contextPath);
-    locals.put("path", requestPath);
+    locals.put(CONTEXT_PATH, contextPath);
+    locals.put(PATH, requestPath);
 
     final String path = verb + requestPath;
 
     Route notFound = RouteImpl.notFound(verb, path, MediaType.ALL);
 
-    RequestImpl req = new RequestImpl(injector, request, contextPath, port, notFound, scope,
-        locals);
+    RequestImpl req = new RequestImpl(injector, request, contextPath, port, notFound, charset,
+        locale, scope, locals);
 
-    ResponseImpl rsp = new ResponseImpl(injector, response, notFound, locals,
-        req.charset(), request.header("Referer"));
+    ResponseImpl rsp = new ResponseImpl(parserExecutor, response, notFound, renderers,
+        locals, req.charset(), request.header(REFERER));
 
     MediaType type = req.type();
 
-    log.debug("handling: {}", req.path());
-
-    log.debug("  content-type: {}", type);
-
     // seed req & rsp
-    req.set(Request.class, req);
-    req.set(Response.class, rsp);
+    scope.put(REQ, req);
+    scope.put(RSP, rsp);
 
     // seed session
     Provider<Session> session = () -> req.session();
-    req.set(Session.class, session);
+    scope.put(SESS, session);
 
     boolean deferred = false;
     try {
 
       requestScope.enter(scope);
 
-      // not found?
-      if (resolveAs404) {
-        new RouteChain(ImmutableList.of(notFound)).next(req, rsp);
-      }
-
       // force https?
-      String redirectHttps = config.getString("application.redirect_https").trim();
-      if (redirectHttps.length() > 0 && !req.secure()) {
-        rsp.redirect(MessageFormat.format(redirectHttps, requestPath.substring(1)));
-        return;
-      }
-
-      // websocket?
-      if (socketDefs.size() > 0
-          && request.header("Upgrade").orElse("").equalsIgnoreCase("WebSocket")) {
-        Optional<WebSocket> sockets = findSockets(socketDefs, requestPath);
-        if (sockets.isPresent()) {
-          NativeWebSocket ws = request.upgrade(NativeWebSocket.class);
-          ws.onConnect(() -> ((WebSocketImpl) sockets.get()).connect(injector, ws));
+      if (redirectHttps != null) {
+        if (!req.secure()) {
+          rsp.redirect(MessageFormat.format(redirectHttps, requestPath.substring(1)));
           return;
         }
       }
 
-      // usual req/rsp
-      List<Route> routes = routes(routeDefs, verb, requestPath, type, req.accept());
+      // websocket?
+      if (hasSockets) {
+        if (upgrade(request)) {
+          Optional<WebSocket> sockets = findSockets(socketDefs, requestPath);
+          if (sockets.isPresent()) {
+            NativeWebSocket ws = request.upgrade(NativeWebSocket.class);
+            ws.onConnect(() -> ((WebSocketImpl) sockets.get()).connect(injector, ws));
+            return;
+          }
+        }
+      }
 
-      new RouteChain(routes).next(req, rsp);
+      // usual req/rsp
+      List<Route> routes = routeCache
+          .getUnchecked(new RouteKey(verb, requestPath, type, req.accept()));
+
+      new RouteChain(req, rsp, routes).next(req, rsp);
 
     } catch (DeferredExecution ex) {
       deferred = true;
-      onDeferred(scope, request, req, rsp, ex.deferred, start);
+      onDeferred(scope, request, req, rsp, ex.deferred);
     } catch (Exception ex) {
       handleErr(req, rsp, ex);
     } finally {
       requestScope.exit();
       if (!deferred) {
-        done(req, rsp, start);
+        done(req, rsp);
       }
     }
   }
 
-  private void done(final RequestImpl req, final ResponseImpl rsp, final long start) {
+  private boolean upgrade(final NativeRequest request) {
+    Optional<String> upgrade = request.header(UPGRADE);
+    return upgrade.isPresent() && upgrade.get().equalsIgnoreCase(WEB_SOCKET);
+  }
+
+  private void done(final RequestImpl req, final ResponseImpl rsp) {
     // mark request/response as done.
     req.done();
     rsp.end();
-
-    long end = System.currentTimeMillis();
-    log.debug("  status -> {} in {}ms", rsp.status().orElse(Status.OK), end - start);
   }
 
   private void onDeferred(final Map<Object, Object> scope, final NativeRequest request,
-      final RequestImpl req, final ResponseImpl rsp, final Deferred deferred, final long start) {
+      final RequestImpl req, final ResponseImpl rsp, final Deferred deferred) {
     try {
       request.startAsync();
 
@@ -229,7 +312,7 @@ public class HttpHandlerImpl implements HttpHandler {
           handleErr(req, rsp, exerr);
         } finally {
           requestScope.exit();
-          done(req, rsp, start);
+          done(req, rsp);
         }
       });
     } catch (Exception ex) {
@@ -263,37 +346,30 @@ public class HttpHandlerImpl implements HttpHandler {
   }
 
   private static String normalizeURI(final String uri) {
-    return uri.endsWith("/") && uri.length() > 1 ? uri.substring(0, uri.length() - 1) : uri;
+    int len = uri.length();
+    return len > 1 && uri.charAt(len - 1) == '/' ? uri.substring(0, len - 1) : uri;
   }
 
   private static List<Route> routes(final Set<Route.Definition> routeDefs, final String method,
       final String path, final MediaType type, final List<MediaType> accept) {
     List<Route> routes = findRoutes(routeDefs, method, path, type, accept);
 
-    // 406 or 415
     routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
       if (!rsp.status().isPresent()) {
+        // 406 or 415
         Err ex = handle406or415(routeDefs, method, path, type, accept);
         if (ex != null) {
           throw ex;
         }
-      }
-      chain.next(req, rsp);
-    } , method, path, Status.NOT_ACCEPTABLE, accept));
-
-    // 405
-    routes.add(RouteImpl.fromStatus((req, rsp, chain) -> {
-      if (!rsp.status().isPresent()) {
-        Err ex = handle405(routeDefs, method, path, type, accept);
+        // 405
+        ex = handle405(routeDefs, method, path, type, accept);
         if (ex != null) {
           throw ex;
         }
+        // 404
+        throw new Err(Status.NOT_FOUND, path);
       }
-      chain.next(req, rsp);
-    } , method, path, Status.METHOD_NOT_ALLOWED, accept));
-
-    // 404
-    routes.add(RouteImpl.notFound(method, path, accept));
+    } , method, path, "err", accept));
 
     return routes;
   }
@@ -351,8 +427,7 @@ public class HttpHandlerImpl implements HttpHandler {
   }
 
   private static Err handle405(final Set<Route.Definition> routeDefs, final String method,
-      final String uri,
-      final MediaType type, final List<MediaType> accept) {
+      final String uri, final MediaType type, final List<MediaType> accept) {
 
     if (alternative(routeDefs, method, uri).size() > 0) {
       return new Err(Status.METHOD_NOT_ALLOWED, method + uri);
@@ -367,7 +442,7 @@ public class HttpHandlerImpl implements HttpHandler {
     Set<String> verbs = Sets.newHashSet(Route.METHODS);
     verbs.remove(verb);
     for (String alt : verbs) {
-      findRoutes(routeDefs, alt, uri, MediaType.all, ALL)
+      findRoutes(routeDefs, alt, uri, MediaType.all, MediaType.ALL)
           .stream()
           // skip glob pattern
           .filter(r -> !r.pattern().contains("*"))
@@ -380,7 +455,7 @@ public class HttpHandlerImpl implements HttpHandler {
   private static Err handle406or415(final Set<Route.Definition> routeDefs, final String method,
       final String path, final MediaType contentType, final List<MediaType> accept) {
     for (Route.Definition routeDef : routeDefs) {
-      Optional<Route> route = routeDef.matches(method, path, MediaType.all, ALL);
+      Optional<Route> route = routeDef.matches(method, path, MediaType.all, MediaType.ALL);
       if (route.isPresent() && !route.get().pattern().contains("*")) {
         if (!routeDef.canProduce(accept)) {
           return new Err(Status.NOT_ACCEPTABLE, accept.stream()
@@ -395,12 +470,39 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private static String method(final String methodParam, final NativeRequest request)
       throws Exception {
-    Optional<String> header = request.header(methodParam);
-    if (header.isPresent()) {
-      return header.get();
+    if (methodParam.length() > 0) {
+      Optional<String> header = request.header(methodParam);
+      if (header.isPresent()) {
+        return header.get();
+      }
+      List<String> param = request.params(methodParam);
+      return param.size() == 0 ? request.method() : param.get(0);
     }
-    List<String> param = request.params(methodParam);
-    return param.size() == 0 ? request.method() : param.get(0);
+    return request.method();
+  }
+
+  private static LoadingCache<RouteKey, List<Route>> routeCache(final Set<Route.Definition> routes,
+      final Config config) {
+    return CacheBuilder.from(config.getString("server.routes.Cache"))
+        .build(new CacheLoader<RouteKey, List<Route>>() {
+          @Override
+          public List<Route> load(final RouteKey key) throws Exception {
+            return routes(routes, key.method, key.path, key.consumes, key.produces);
+          }
+        });
+  }
+
+  private static Function<String, String> rootpath(final String applicationPath) {
+    return p -> {
+      if (applicationPath.equals(p)) {
+        return "/";
+      } else if (p.startsWith(applicationPath)) {
+        return p.substring(applicationPath.length());
+      } else {
+        // mark as failure
+        return p + '\u200B';
+      }
+    };
   }
 
 }

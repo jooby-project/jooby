@@ -17,7 +17,7 @@ import org.jooby.spi.NativeWebSocket;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 
 public class WebSocketRendererContextTest {
 
@@ -28,7 +28,7 @@ public class WebSocketRendererContextTest {
         WebSocket.ErrCallback.class)
         .run(unit -> {
           WebSocketRendererContext ctx = new WebSocketRendererContext(
-              Sets.newHashSet(unit.get(Renderer.class)),
+              Lists.newArrayList(unit.get(Renderer.class)),
               unit.get(NativeWebSocket.class),
               produces,
               StandardCharsets.UTF_8,
@@ -45,7 +45,7 @@ public class WebSocketRendererContextTest {
         WebSocket.ErrCallback.class, InputStream.class)
         .run(unit -> {
           WebSocketRendererContext ctx = new WebSocketRendererContext(
-              Sets.newHashSet(unit.get(Renderer.class)),
+              Lists.newArrayList(unit.get(Renderer.class)),
               unit.get(NativeWebSocket.class),
               produces,
               StandardCharsets.UTF_8,
