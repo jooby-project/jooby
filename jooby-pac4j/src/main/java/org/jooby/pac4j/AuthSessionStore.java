@@ -20,41 +20,24 @@ package org.jooby.pac4j;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 
 import org.jooby.Session;
+import org.jooby.internal.pac4j.AuthSerializer;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.profile.UserProfile;
-
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * An {@link AuthStore} on top of the {@link Session}. This is the default {@link AuthStore}.
  *
  * @author edgar
  * @since 0.6.0
+ * @param <U> User profile to work with.
  */
-public class AuthSessionStore implements AuthStore<UserProfile> {
-
-  private static final String SEP = "__;_;";
-
-  private static final String CLASS = "class";
-
-  private static final String REMEMBERED = "remembered";
-
-  private static final String PERMISSIONS = "permissions";
-
-  private static final String ROLES = "roles";
-
-  private static final Set<String> SPECIAL_PROPERTIES = ImmutableSet.of(CLASS, REMEMBERED,
-      PERMISSIONS);
+public class AuthSessionStore<U extends UserProfile> implements AuthStore<U> {
 
   private Provider<Session> session;
 
@@ -64,58 +47,29 @@ public class AuthSessionStore implements AuthStore<UserProfile> {
   }
 
   @Override
-  public Optional<UserProfile> get(final String id) throws Exception {
+  public Optional<U> get(final String id) throws Exception {
     Session session = this.session.get();
-    Map<String, String> attributes = session.attributes();
-    String prefix = key(id);
-    String classKey = key(prefix, CLASS);
-    String classname = attributes.get(classKey);
-    if (classname == null) {
-      return Optional.empty();
+    return get(session.get(key(id)).toOptional());
+  }
+
+  @Override
+  public void set(final U profile) throws Exception {
+    this.session.get().set(key(profile.getId()), AuthSerializer.objToStr(profile));
+  }
+
+  @Override
+  public Optional<U> unset(final String id) throws Exception {
+    Session session = this.session.get();
+    return get(session.unset(key(id)).toOptional());
+  }
+
+  @SuppressWarnings("unchecked")
+  private Optional<U> get(final Optional<String> value) {
+    U profile = null;
+    if (value.isPresent()) {
+      profile = (U) AuthSerializer.strToObject(value.get());
     }
-    UserProfile profile = (UserProfile) getClass().getClassLoader().loadClass(classname)
-        .newInstance();
-    attributes.forEach((k, v) -> {
-      if (k.startsWith(prefix)) {
-        String key = k.substring(prefix.length() + 1);
-        if (!SPECIAL_PROPERTIES.contains(key)) {
-          profile.addAttribute(key, v);
-        }
-      }
-    });
-    profile.setRemembered(session.get(key(prefix, REMEMBERED)).booleanValue());
-    profile.setId(id);
-    profile.addPermissions(
-        Splitter.on(SEP).splitToList(session.get(key(prefix, PERMISSIONS)).value()));
-    profile.addRoles(
-        Splitter.on(SEP).splitToList(session.get(key(prefix, ROLES)).value()));
-    return Optional.of(profile);
-  }
-
-  @Override
-  public void set(final UserProfile profile) {
-    Session session = this.session.get();
-    Map<String, Object> attributes = profile.getAttributes();
-    String prefix = key(profile.getId());
-    attributes.forEach((k, v) -> session.set(key(prefix, k), v.toString()));
-    session.set(key(prefix, REMEMBERED), profile.isRemembered());
-    session.set(key(prefix, CLASS), profile.getClass().getName());
-    session.set(key(prefix, PERMISSIONS), Joiner.on(SEP).join(profile.getPermissions()));
-    session.set(key(prefix, ROLES), Joiner.on(SEP).join(profile.getRoles()));
-  }
-
-  @Override
-  public Optional<UserProfile> unset(final String id) throws Exception {
-    Session session = this.session.get();
-    Optional<UserProfile> profile = get(id);
-    String prefix = key(id);
-    Map<String, String> attributes = session.attributes();
-    attributes.forEach((k, v) -> {
-      if (k.startsWith(prefix)) {
-        session.unset(k);
-      }
-    });
-    return profile;
+    return Optional.ofNullable(profile);
   }
 
   private static String key(final String property) {

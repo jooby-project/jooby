@@ -291,7 +291,8 @@ public class Auth implements Jooby.Module {
   private Multimap<String, BiFunction<Binder, Config, AuthFilter>> bindings = ArrayListMultimap
       .create();
 
-  private Class<? extends AuthStore<? extends UserProfile>> storeClass = AuthSessionStore.class;
+  @SuppressWarnings("rawtypes")
+  private Class<? extends AuthStore> storeClass = AuthSessionStore.class;
 
   private Optional<String> logoutUrl = Optional.empty();
 
