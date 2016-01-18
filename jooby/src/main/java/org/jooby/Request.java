@@ -636,11 +636,9 @@ public interface Request {
   Route route();
 
   /**
-   * The fully qualified name of the client or the last proxy that sent the request.
-   * If the engine cannot or chooses not to resolve the hostname (to improve performance),
-   * this method returns the dotted-string form of the IP address
+   * The fully qualified name of the resource being requested, as obtained from the Host HTTP header.
    *
-   * @return The fully qualified name of the client or the last proxy that sent the request.
+   * @return The fully qualified name of the server.
    */
   String hostname();
 
