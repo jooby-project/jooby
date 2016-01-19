@@ -1847,7 +1847,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jackson.version>2.6.4</jackson.version>
     <undertow.version>1.3.12.Final</undertow.version>
     <servlet.version>3.1.0</servlet.version>
-    <jetty.version>9.3.6.v20151106</jetty.version>
+    <jetty.version>9.3.7.v20160115</jetty.version>
     <netty.version>4.1.0.Beta8</netty.version>
     <javassist.version>3.19.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
