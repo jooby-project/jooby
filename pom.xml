@@ -524,6 +524,12 @@
 
       <dependency>
         <groupId>io.netty</groupId>
+        <artifactId>netty-handler</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.netty</groupId>
         <artifactId>netty-codec-http</artifactId>
         <version>${netty.version}</version>
       </dependency>
@@ -1842,7 +1848,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <undertow.version>1.3.9.Final</undertow.version>
     <servlet.version>3.1.0</servlet.version>
     <jetty.version>9.3.6.v20151106</jetty.version>
-    <netty.version>4.0.33.Final</netty.version>
+    <netty.version>4.1.0.Beta8</netty.version>
     <javassist.version>3.19.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>

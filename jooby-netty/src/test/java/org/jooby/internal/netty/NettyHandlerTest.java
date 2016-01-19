@@ -18,10 +18,10 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -29,7 +29,7 @@ import io.netty.util.Attribute;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({NettyHandler.class, NettyRequest.class, NettyResponse.class,
-    DefaultFullHttpResponse.class, HttpHeaders.class })
+    DefaultFullHttpResponse.class, HttpUtil.class })
 public class NettyHandlerTest {
 
   @SuppressWarnings("unchecked")
@@ -40,13 +40,13 @@ public class NettyHandlerTest {
             .expect(unit -> {
 
               FullHttpRequest req = unit.get(FullHttpRequest.class);
-              expect(req.getUri()).andReturn("/");
-              expect(req.getMethod()).andReturn(HttpMethod.GET);
+              expect(req.uri()).andReturn("/");
+              expect(req.method()).andReturn(HttpMethod.GET);
 
               ChannelFuture future = unit.mock(ChannelFuture.class);
 
-              unit.mockStatic(HttpHeaders.class);
-              expect(HttpHeaders.is100ContinueExpected(req)).andReturn(true);
+              unit.mockStatic(HttpUtil.class);
+              expect(HttpUtil.is100ContinueExpected(req)).andReturn(true);
 
               Attribute<Boolean> needFlush = unit.mock(Attribute.class);
               needFlush.set(true);
@@ -86,11 +86,11 @@ public class NettyHandlerTest {
             .expect(unit -> {
 
               FullHttpRequest req = unit.get(FullHttpRequest.class);
-              expect(req.getUri()).andReturn("/");
-              expect(req.getMethod()).andReturn(HttpMethod.GET);
+              expect(req.uri()).andReturn("/");
+              expect(req.method()).andReturn(HttpMethod.GET);
 
-              unit.mockStatic(HttpHeaders.class);
-              expect(HttpHeaders.is100ContinueExpected(req)).andReturn(true);
+              unit.mockStatic(HttpUtil.class);
+              expect(HttpUtil.is100ContinueExpected(req)).andReturn(true);
 
               ChannelFuture future = unit.mock(ChannelFuture.class);
 
@@ -230,12 +230,12 @@ public class NettyHandlerTest {
         FullHttpRequest.class)
             .expect(unit -> {
               FullHttpRequest req = unit.get(FullHttpRequest.class);
-              expect(req.getUri()).andReturn("/");
-              expect(req.getMethod()).andReturn(HttpMethod.GET);
+              expect(req.uri()).andReturn("/");
+              expect(req.method()).andReturn(HttpMethod.GET);
 
-              unit.mockStatic(HttpHeaders.class);
-              expect(HttpHeaders.is100ContinueExpected(req)).andReturn(false);
-              expect(HttpHeaders.isKeepAlive(req)).andReturn(true);
+              unit.mockStatic(HttpUtil.class);
+              expect(HttpUtil.is100ContinueExpected(req)).andReturn(false);
+              expect(HttpUtil.isKeepAlive(req)).andReturn(true);
 
               Attribute<Boolean> needFlush = unit.mock(Attribute.class);
               needFlush.set(true);

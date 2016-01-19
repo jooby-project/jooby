@@ -38,6 +38,8 @@ import io.netty.channel.EventLoop;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -83,21 +85,21 @@ public class NettyResponseTest {
     ByteBuf buffer = unit.get(ByteBuf.class);
     expect(buffer.readableBytes()).andReturn(bytes.length);
 
-    expect(headers.contains(HttpHeaders.Names.CONTENT_LENGTH)).andReturn(false);
-    expect(headers.remove(HttpHeaders.Names.TRANSFER_ENCODING)).andReturn(headers);
-    expect(headers.set(HttpHeaders.Names.CONTENT_LENGTH, bytes.length)).andReturn(headers);
+    expect(headers.contains(HttpHeaderNames.CONTENT_LENGTH)).andReturn(false);
+    expect(headers.remove(HttpHeaderNames.TRANSFER_ENCODING)).andReturn(headers);
+    expect(headers.set(HttpHeaderNames.CONTENT_LENGTH, bytes.length)).andReturn(headers);
   };
 
   private Block connkeep = unit -> {
     DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
 
-    expect(headers.set(HttpHeaders.Names.CONNECTION, "keep-alive")).andReturn(headers);
+    expect(headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE)).andReturn(headers);
   };
 
   private Block len = unit -> {
     DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
 
-    expect(headers.contains(HttpHeaders.Names.CONTENT_LENGTH)).andReturn(true);
+    expect(headers.contains(HttpHeaderNames.CONTENT_LENGTH)).andReturn(true);
   };
 
   private Block fullResponse = unit -> {
@@ -117,13 +119,13 @@ public class NettyResponseTest {
   private Block keeAliveWithLen = unit -> {
     DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
 
-    expect(headers.contains(HttpHeaders.Names.CONTENT_LENGTH)).andReturn(true);
+    expect(headers.contains(HttpHeaderNames.CONTENT_LENGTH)).andReturn(true);
   };
 
   private Block noKeepAlive = unit -> {
     DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
 
-    expect(headers.contains(HttpHeaders.Names.CONTENT_LENGTH)).andReturn(true);
+    expect(headers.contains(HttpHeaderNames.CONTENT_LENGTH)).andReturn(true);
 
     ChannelFuture future = unit.get(ChannelFuture.class);
 
@@ -133,7 +135,7 @@ public class NettyResponseTest {
   private Block noKeepAliveNoLen = unit -> {
     DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
 
-    expect(headers.contains(HttpHeaders.Names.CONTENT_LENGTH)).andReturn(false);
+    expect(headers.contains(HttpHeaderNames.CONTENT_LENGTH)).andReturn(false);
 
     ChannelFuture future = unit.get(ChannelFuture.class);
 
@@ -450,8 +452,8 @@ public class NettyResponseTest {
         .expect(headers)
         .expect(unit -> {
           DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
-          expect(headers.contains(HttpHeaders.Names.CONTENT_LENGTH)).andReturn(false);
-          expect(headers.set(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED))
+          expect(headers.contains(HttpHeaderNames.CONTENT_LENGTH)).andReturn(false);
+          expect(headers.set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED))
               .andReturn(headers);
         })
         .expect(setNeedFlush)
@@ -530,9 +532,9 @@ public class NettyResponseTest {
         .expect(headers)
         .expect(unit -> {
           DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
-          expect(headers.contains(HttpHeaders.Names.CONTENT_LENGTH)).andReturn(false);
-          expect(headers.remove(HttpHeaders.Names.TRANSFER_ENCODING)).andReturn(headers);
-          expect(headers.set(HttpHeaders.Names.CONTENT_LENGTH, 8192L)).andReturn(headers);
+          expect(headers.contains(HttpHeaderNames.CONTENT_LENGTH)).andReturn(false);
+          expect(headers.remove(HttpHeaderNames.TRANSFER_ENCODING)).andReturn(headers);
+          expect(headers.set(HttpHeaderNames.CONTENT_LENGTH, 8192L)).andReturn(headers);
         })
         .expect(unit -> {
           DefaultHttpResponse rsp = unit.mockConstructor(DefaultHttpResponse.class,
@@ -588,7 +590,7 @@ public class NettyResponseTest {
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
               .send(channel);
-        }, unit -> {
+        } , unit -> {
           unit.captured(Runnable.class).iterator().next().run();
         });
   }
@@ -601,7 +603,7 @@ public class NettyResponseTest {
         .expect(headers)
         .expect(unit -> {
           DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
-          expect(headers.contains(HttpHeaders.Names.CONTENT_LENGTH)).andReturn(true);
+          expect(headers.contains(HttpHeaderNames.CONTENT_LENGTH)).andReturn(true);
         })
         .expect(unit -> {
           DefaultHttpResponse rsp = unit.mockConstructor(DefaultHttpResponse.class,
@@ -657,7 +659,7 @@ public class NettyResponseTest {
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
               .send(channel);
-        }, unit -> {
+        } , unit -> {
           unit.captured(Runnable.class).iterator().next().run();
         });
   }

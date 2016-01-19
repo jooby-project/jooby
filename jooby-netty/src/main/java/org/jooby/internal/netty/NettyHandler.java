@@ -33,8 +33,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.Attribute;
@@ -72,14 +72,14 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
       ctx.attr(NettyRequest.NEED_FLUSH).set(true);
 
       FullHttpRequest req = (FullHttpRequest) msg;
-      ctx.attr(PATH).set(req.getMethod().name() + " " + req.getUri());
+      ctx.attr(PATH).set(req.method().name() + " " + req.uri());
 
-      if (HttpHeaders.is100ContinueExpected(req)) {
+      if (HttpUtil.is100ContinueExpected(req)) {
         ctx.write(new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.CONTINUE));
         return;
       }
 
-      boolean keepAlive = HttpHeaders.isKeepAlive(req);
+      boolean keepAlive = HttpUtil.isKeepAlive(req);
 
       try {
         handler.handle(

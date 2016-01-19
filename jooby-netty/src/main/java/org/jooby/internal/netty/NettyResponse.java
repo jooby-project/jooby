@@ -41,6 +41,8 @@ import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -117,11 +119,11 @@ public class NettyResponse implements NativeResponse {
     } else {
       DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
 
-      if (!headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
-        headers.set(HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED);
+      if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
+        headers.set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED);
       } else {
         if (keepAlive) {
-          headers.set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+          headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         }
       }
 
@@ -156,13 +158,13 @@ public class NettyResponse implements NativeResponse {
     long len = channel.size();
 
     DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
-    if (!headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
-      headers.remove(HttpHeaders.Names.TRANSFER_ENCODING);
-      headers.set(HttpHeaders.Names.CONTENT_LENGTH, len);
+    if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
+      headers.remove(HttpHeaderNames.TRANSFER_ENCODING);
+      headers.set(HttpHeaderNames.CONTENT_LENGTH, len);
     }
 
     if (keepAlive) {
-      headers.set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+      headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
     }
 
     // dump headers
@@ -182,13 +184,13 @@ public class NettyResponse implements NativeResponse {
   private void send(final ByteBuf buffer) throws Exception {
     DefaultFullHttpResponse rsp = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, buffer);
 
-    if (!headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
-      headers.remove(HttpHeaders.Names.TRANSFER_ENCODING)
-          .set(HttpHeaders.Names.CONTENT_LENGTH, buffer.readableBytes());
+    if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
+      headers.remove(HttpHeaderNames.TRANSFER_ENCODING)
+          .set(HttpHeaderNames.CONTENT_LENGTH, buffer.readableBytes());
     }
 
     if (keepAlive) {
-      headers.set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+      headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
     }
 
     // dump headers
@@ -207,7 +209,7 @@ public class NettyResponse implements NativeResponse {
   }
 
   private void keepAlive(final ChannelFuture future) {
-    if (headers.contains(HttpHeaders.Names.CONTENT_LENGTH)) {
+    if (headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
       if (!keepAlive) {
         future.addListener(CLOSE);
       }

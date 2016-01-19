@@ -44,7 +44,7 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
@@ -92,7 +92,7 @@ public class NettyRequest implements NativeRequest {
     this.ctx = ctx;
     this.req = req;
     this.tmpdir = tmpdir;
-    this.query = new QueryStringDecoder(req.getUri());
+    this.query = new QueryStringDecoder(req.uri());
     this.path = URLDecoder.decode(query.path(), "UTF-8");
     this.wsMaxMessageSize = wsMaxMessageSize;
     ctx.attr(ASYNC).set(false);
@@ -100,7 +100,7 @@ public class NettyRequest implements NativeRequest {
 
   @Override
   public String method() {
-    return req.getMethod().name();
+    return req.method().name();
   }
 
   @Override
@@ -131,13 +131,15 @@ public class NettyRequest implements NativeRequest {
 
   @Override
   public List<String> headerNames() {
-    return ImmutableList.copyOf(req.headers().names());
+    ImmutableList.Builder<String> builder = ImmutableList.builder();
+    req.headers().names().forEach(it -> builder.add(it.toString()));
+    return builder.build();
   }
 
   @Override
   public List<org.jooby.Cookie> cookies() {
     if (this.cookies == null) {
-      String cookieString = req.headers().get(HttpHeaders.Names.COOKIE);
+      String cookieString = req.headers().get(HttpHeaderNames.COOKIE);
       if (cookieString != null) {
         this.cookies = ServerCookieDecoder.STRICT.decode(cookieString).stream()
             .map(this::cookie)
@@ -174,7 +176,7 @@ public class NettyRequest implements NativeRequest {
 
   @Override
   public String protocol() {
-    return req.getProtocolVersion().text();
+    return req.protocolVersion().text();
   }
 
   @Override
@@ -186,7 +188,7 @@ public class NettyRequest implements NativeRequest {
   @Override
   public <T> T upgrade(final Class<T> type) throws Exception {
     String protocol = secure() ? "wss" : "ws";
-    String webSocketURL = protocol + "://" + req.headers().get(HttpHeaders.Names.HOST) + path;
+    String webSocketURL = protocol + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
 
     WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(webSocketURL,
         null, true, wsMaxMessageSize);
@@ -223,7 +225,7 @@ public class NettyRequest implements NativeRequest {
       query.parameters()
           .forEach((name, values) -> values.forEach(value -> params.put(name, value)));
 
-      HttpMethod method = req.getMethod();
+      HttpMethod method = req.method();
       boolean hasBody = method.equals(HttpMethod.POST) || method.equals(HttpMethod.PUT)
           || method.equals(HttpMethod.PATCH);
       boolean formLike = false;
