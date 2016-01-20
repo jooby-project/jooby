@@ -147,7 +147,7 @@ import com.typesafe.config.ConfigFactory;
  * }
  * </pre>
  *
- * After calling {@link #scan()}, Hibernate will auto-discover all the entities application's
+ * After calling {@link #scan(String...)}, Hibernate will auto-discover all the entities application's
  * namespace. The namespace is defined by the package of your application. Given:
  * <code>org.myproject.App</code> it will scan everything under <code>org.myproject</code>.
  *
