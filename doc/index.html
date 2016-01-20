@@ -75,6 +75,7 @@
      <ul> 
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class="active"><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class=""><a href="/guides" title="Doc">GUIDES</a></li> 
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -2220,7 +2221,7 @@ GET /assets/css/style.css
 
     <span class="py">Min</span> <span class="p">=</span> <span class="s">20</span>
 
-    <span class="py">Max</span> <span class="p">=</span> <span class="s">200</span>
+    <span class="py">Max</span> <span class="p">=</span> <span class="s">100</span>
 
     <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">60s</span>
 
@@ -2229,7 +2230,7 @@ GET /assets/css/style.css
   <span class="err">routes</span> <span class="err">{</span>
 
     <span class="c"># Guava Cache Spec </span>
-    <span class="py">Cache</span> <span class="p">=</span> <span class="s">"concurrencyLevel=10, maximumSize=100"</span>
+    <span class="py">Cache</span> <span class="p">=</span> <span class="s">"concurrencyLevel="${server.threads.Max}", maximumSize=100"</span>
 
   <span class="err">}</span>
 
