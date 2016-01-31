@@ -21,6 +21,7 @@
     <module>jooby-hbs</module>
     <module>jooby-ftl</module>
     <module>jooby-pebble</module>
+    <module>jooby-jade</module>
     <module>jooby-jdbc</module>
     <module>jooby-hbm</module>
     <module>jooby-dist</module>
@@ -670,6 +671,13 @@
         <groupId>org.freemarker</groupId>
         <artifactId>freemarker</artifactId>
         <version>${freemarker.version}</version>
+      </dependency>
+
+      <!-- jade4j -->
+      <dependency>
+        <groupId>de.neuland-bfi</groupId>
+        <artifactId>jade4j</artifactId>
+        <version>${jade4j.version}</version>
       </dependency>
 
       <!-- pebble -->
@@ -1904,6 +1912,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <j2v8.version>3.1.6</j2v8.version>
     <metrics.version>3.1.2</metrics.version>
     <pebble.version>2.0.0</pebble.version>
+    <jade4j.version>1.1.4</jade4j.version>
 
     <!-- config -->
     <war.maxRequestSize>204800</war.maxRequestSize>
