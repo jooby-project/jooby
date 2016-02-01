@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jade</artifactId>
-  <version>0.14.0</version>
+  <version>{{version}}</version>
 </dependency>
 ```
 

@@ -228,5 +228,4 @@ public class JadeTest {
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         });
   }
-
 }
