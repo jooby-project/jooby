@@ -11,9 +11,11 @@ import org.jooby.Cookie.Signature;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+@PowerMockIgnore("javax.crypto.*")
 @RunWith(PowerMockRunner.class)
 public class CookieSignatureTest {
 

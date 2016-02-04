@@ -63,8 +63,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -75,6 +77,7 @@ import java.util.TimeZone;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 import javax.net.ssl.SSLContext;
@@ -3025,15 +3028,73 @@ public class Jooby {
    * <li>A web server is started</li>
    * </ol>
    *
+   * @param routes Routes callback. Invoked once all app routes has been collected.
+   * @throws Exception If something fails to start.
+   */
+  public void start(final Consumer<List<Route.Definition>> routes) throws Exception {
+    start(new String[0], routes);
+  }
+
+  /**
+   * <h1>Bootstrap</h1>
+   * <p>
+   * The bootstrap process is defined as follows:
+   * </p>
+   * <h2>1. Configuration files (first-listed are higher priority)</h2>
+   * <ol>
+   * <li>System properties</li>
+   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
+   * <li>{@link Jooby.Module Modules} properties</li>
+   * </ol>
+   *
+   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
+   * <ol>
+   * <li>An {@link Injector Guice Injector} is created.</li>
+   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
+   * <li>At this point Guice is ready and all the services has been binded.</li>
+   * <li>It calls to {@link Jooby.Module#start() start method} for each module.</li>
+   * <li>A web server is started</li>
+   * </ol>
+   *
    * @param args Application arguments.
    * @throws Exception If something fails to start.
    */
   public void start(final String[] args) throws Exception {
+    start(args, null);
+  }
+
+  /**
+   * <h1>Bootstrap</h1>
+   * <p>
+   * The bootstrap process is defined as follows:
+   * </p>
+   * <h2>1. Configuration files (first-listed are higher priority)</h2>
+   * <ol>
+   * <li>System properties</li>
+   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
+   * <li>{@link Jooby.Module Modules} properties</li>
+   * </ol>
+   *
+   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
+   * <ol>
+   * <li>An {@link Injector Guice Injector} is created.</li>
+   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
+   * <li>At this point Guice is ready and all the services has been binded.</li>
+   * <li>It calls to {@link Jooby.Module#start() start method} for each module.</li>
+   * <li>A web server is started</li>
+   * </ol>
+   *
+   * @param args Application arguments.
+   * @param routes Routes callback. Invoked once all app routes has been collected.
+   * @throws Exception If something fails to start.
+   */
+  public void start(final String[] args, final Consumer<List<Route.Definition>> routes)
+      throws Exception {
     long start = System.currentTimeMillis();
     // shutdown hook
     Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
 
-    this.injector = bootstrap();
+    this.injector = bootstrap(routes);
 
     Config config = injector.getInstance(Config.class);
 
@@ -3086,7 +3147,32 @@ public class Jooby {
     return "";
   }
 
-  private Injector bootstrap() throws Exception {
+  private List<Object> normalizeBag(final Env env, final RouteMetadata classInfo) {
+    List<Object> result = new ArrayList<>();
+    /** modules, routes, parsers, renderers and websockets */
+    bag.forEach(candidate -> {
+      if (candidate instanceof Route.Definition) {
+        result.add(candidate);
+      } else if (candidate instanceof Route.Group) {
+        ((Route.Group) candidate).routes()
+            .forEach(r -> result.add(r));
+      } else if (candidate instanceof RouteClass) {
+        Class<?> routeClass = ((RouteClass) candidate).routeClass;
+        String path = ((RouteClass) candidate).path;
+        MvcRoutes.routes(env, classInfo, path, routeClass).forEach(route -> {
+          if (prefix != null) {
+            route.name(prefix + "/" + route.name());
+          }
+          result.add(route);
+        });
+      } else {
+        result.add(candidate);
+      }
+    });
+    return result;
+  }
+
+  private Injector bootstrap(final Consumer<List<Route.Definition>> rcallback) throws Exception {
     Config config = buildConfig(
         Optional.ofNullable(this.source)
             .orElseGet(
@@ -3117,6 +3203,18 @@ public class Jooby {
         callback.getValue().forEach(it -> it.accept(config));
       }
     }
+    // normalize bag and take routes from it
+    RouteMetadata classInfo = new RouteMetadata(env);
+    List<Object> bag = normalizeBag(env, classInfo);
+
+    List<Route.Definition> routes = bag.stream()
+        .filter(it -> it instanceof Route.Definition)
+        .map(it -> (Route.Definition) it)
+        .collect(Collectors.<Route.Definition> toList());
+    if (rcallback!=null) {
+      rcallback.accept(routes);
+    }
+
     /** dependency injection */
     @SuppressWarnings("unchecked")
     Injector injector = Guice.createInjector(stage, binder -> {
@@ -3169,7 +3267,6 @@ public class Jooby {
       binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
           .toInstance(tmpdir);
 
-      RouteMetadata classInfo = new RouteMetadata(env);
       binder.bind(ParameterNameProvider.class).toInstance(classInfo);
 
       /** err handler */
@@ -3202,32 +3299,28 @@ public class Jooby {
       renderers.addBinding().toInstance(BuiltinRenderer.FileChannel);
 
       /** modules, routes, parsers, renderers and websockets */
+      Set<Object> routeClasses = new HashSet<>();
       bag.forEach(candidate -> {
         if (candidate instanceof Jooby.Module) {
           install((Jooby.Module) candidate, env, config, binder);
         } else if (candidate instanceof Route.Definition) {
-          definitions.addBinding().toInstance((Route.Definition) candidate);
-        } else if (candidate instanceof Route.Group) {
-          ((Route.Group) candidate).routes()
-              .forEach(r -> definitions.addBinding().toInstance(r));
+          Route.Definition rdef = (Definition) candidate;
+          Route.Filter h = rdef.filter();
+          if (h instanceof Route.MethodHandler) {
+            Class<?> routeClass = ((Route.MethodHandler) h).method().getDeclaringClass();
+            if (routeClasses.add(routeClass)) {
+              binder.bind(routeClass);
+            }
+          }
+          definitions.addBinding().toInstance(rdef);
         } else if (candidate instanceof WebSocket.Definition) {
           sockets.addBinding().toInstance((WebSocket.Definition) candidate);
         } else if (candidate instanceof Parser) {
           parsers.addBinding().toInstance((Parser) candidate);
         } else if (candidate instanceof Renderer) {
           renderers.addBinding().toInstance((Renderer) candidate);
-        } else if (candidate instanceof Err.Handler) {
-          ehandlers.addBinding().toInstance((Err.Handler) candidate);
         } else {
-          Class<?> routeClass = ((RouteClass) candidate).routeClass;
-          String path = ((RouteClass) candidate).path;
-          binder.bind(routeClass);
-          MvcRoutes.routes(env, classInfo, path, routeClass).forEach(route -> {
-            if (prefix != null) {
-              route.name(prefix + "/" + route.name());
-            }
-            definitions.addBinding().toInstance(route);
-          });
+          ehandlers.addBinding().toInstance((Err.Handler) candidate);
         }
       });
 

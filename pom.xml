@@ -16,6 +16,7 @@
 
   <modules>
     <module>jooby</module>
+    <module>jooby-spec</module>
     <module>jooby-jackson</module>
     <module>jooby-gson</module>
     <module>jooby-hbs</module>
@@ -446,6 +447,12 @@
       <dependency>
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm</artifactId>
+        <version>${asm.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-util</artifactId>
         <version>${asm.version}</version>
       </dependency>
 
@@ -1104,9 +1111,6 @@
           <source>${java.source.version}</source>
           <target>${java.source.version}</target>
           <encoding>${project.build.sourceEncoding}</encoding>
-          <compilerArgs>
-            <arg>-parameters</arg>
-          </compilerArgs>
         </configuration>
       </plugin>
 
@@ -1857,7 +1861,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <servlet.version>3.1.0</servlet.version>
     <jetty.version>9.3.7.v20160115</jetty.version>
     <netty.version>4.1.0.Beta8</netty.version>
-    <javassist.version>3.19.0-GA</javassist.version>
+    <javassist.version>3.20.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
     <logback-classic.version>1.1.2</logback-classic.version>
@@ -1922,7 +1926,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
     <easymock.version>3.2</easymock.version>
-    <powermock.version>1.5.6</powermock.version>
+    <powermock.version>1.6.4</powermock.version>
     <jacoco.version>0.7.5.201505241946</jacoco.version>
 
     <!-- Maven properties -->
@@ -1932,7 +1936,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <timestamp>${maven.build.timestamp}</timestamp>
 
     <!-- Maven plugins -->
-    <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.5</maven-compiler-plugin.version>
     <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
     <maven-resources-plugin.version>2.7</maven-resources-plugin.version>

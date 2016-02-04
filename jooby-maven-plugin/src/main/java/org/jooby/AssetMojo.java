@@ -21,17 +21,11 @@ package org.jooby;
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -76,28 +70,17 @@ public class AssetMojo extends AbstractMojo {
   @Parameter(defaultValue = "365d")
   private String maxAge;
 
-  @SuppressWarnings("unchecked")
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     long start = System.currentTimeMillis();
     try {
-      List<URL> cp = new ArrayList<>();
-      cp.addAll(resources(mavenProject.getResources()));
-      cp.add(output.toURI().toURL());
-      cp.addAll(jars(mavenProject.getArtifacts()));
-
       // Hack and bind jooby env.
       System.setProperty("application.env", env);
 
-      ClassLoader ctxloader = Thread.currentThread().getContextClassLoader();
-      try (URLClassLoader loader = new URLClassLoader(cp.toArray(new URL[cp.size()]),
-          getClass().getClassLoader())) {
-        Thread.currentThread().setContextClassLoader(loader);
-        Jooby app = (Jooby) loader.loadClass(this.mainClass).newInstance();
-        app.on("*", compile(loader)).start();
-      } finally {
-        Thread.currentThread().setContextClassLoader(ctxloader);
-      }
+      new JoobyRunner(mavenProject)
+        .run(mainClass, (app, loader) -> {
+          app.on("*", compile(loader));
+        });
     } catch (CompilationDone ex) {
       long end = System.currentTimeMillis();
       getLog().info("compilation took " + (end - start) + "ms");
@@ -157,27 +140,6 @@ public class AssetMojo extends AbstractMojo {
       // signal we are done
       throw new CompilationDone();
     };
-  }
-
-  private List<URL> jars(final Iterable<Artifact> artifacts) throws MalformedURLException {
-    List<URL> result = new ArrayList<URL>();
-    for (Artifact artifact : artifacts) {
-      if (!"pom".equals(artifact.getType())) {
-        result.add(artifact.getFile().toURI().toURL());
-      }
-    }
-    return result;
-  }
-
-  private List<URL> resources(final Iterable<Resource> resources) throws MalformedURLException {
-    List<URL> result = new ArrayList<URL>();
-    for (Resource resource : resources) {
-      File dir = new File(resource.getDirectory());
-      if (dir.exists()) {
-        result.add(dir.toURI().toURL());
-      }
-    }
-    return result;
   }
 
 }

@@ -650,6 +650,43 @@ public class JoobyTest {
   }
 
   @Test
+  public void defaultsWithCallback() throws Exception {
+
+    new MockUnit(Binder.class)
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(routes)
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(err)
+        .run(unit -> {
+
+          Jooby jooby = new Jooby();
+
+          jooby.start(routes -> {
+            assertNotNull(routes);
+          });
+
+        } , boot);
+  }
+
+  @Test
   public void customEnv() throws Exception {
 
     new MockUnit(Binder.class, Env.Builder.class)
