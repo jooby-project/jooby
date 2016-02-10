@@ -63,6 +63,7 @@
                     <source>${project.parent.basedir}/jooby-assets/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-metrics/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-pebble/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-jade/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -104,6 +105,7 @@
                     <source>${project.parent.basedir}/jooby-assets/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-metrics/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-pebble/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-jade/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -353,6 +355,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-pebble</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-jade</artifactId>
       <version>${project.version}</version>
     </dependency>
 

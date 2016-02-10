@@ -18,29 +18,29 @@
  */
 package org.jooby.jade;
 
-import de.neuland.jade4j.JadeConfiguration;
-import de.neuland.jade4j.template.JadeTemplate;
-import org.jooby.MediaType;
-import org.jooby.View;
-
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Objects.requireNonNull;
+import org.jooby.MediaType;
+import org.jooby.View;
 
-public class Engine implements View.Engine {
+import de.neuland.jade4j.JadeConfiguration;
+import de.neuland.jade4j.template.JadeTemplate;
+
+class Engine implements View.Engine {
 
   private final JadeConfiguration jadeConfiguration;
+
   private final String suffix;
 
   public Engine(final JadeConfiguration jadeConfiguration, final String suffix) {
-    this.jadeConfiguration = requireNonNull(jadeConfiguration, "jade config is required.");
+    this.jadeConfiguration = jadeConfiguration;
     this.suffix = suffix;
   }
 
   @Override
-  public void render(View view, Context ctx) throws FileNotFoundException, Exception {
+  public void render(final View view, final Context ctx) throws FileNotFoundException, Exception {
     String name = view.name() + suffix;
 
     JadeTemplate template = jadeConfiguration.getTemplate(name);

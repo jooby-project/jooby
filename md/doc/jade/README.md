@@ -1,35 +1,37 @@
 # jade
 
-[Jade](http://jade-lang.com/) templates for [Jooby](/). Exposes a [renderer](/apidocs/Renderer.html).
+<a href="https://github.com/neuland/jade4j">jade4j's</a> intention is to be able to process jade templates in Java without the need of a JavaScript environment, while being fully compatible with the original jade syntax.
 
 ## dependency
 
 ```xml
 <dependency>
-  <groupId>org.jooby</groupId>
-  <artifactId>jooby-jade</artifactId>
-  <version>{{version}}</version>
+ <groupId>org.jooby</groupId>
+ <artifactId>jooby-jade</artifactId>
+ <version>{{version}}</version>
 </dependency>
 ```
 
 ## usage
-It is pretty straightforward:
 
 ```java
 {
   use(new Jade());
 
   get("/", req -> Results.html("index").put("model", new MyModel());
+
+  // or via API
+  get("/jade-api", req -> {
+
+    JadeConfiguration jade = req.require(JadeConfiguration.class);
+    JadeTemplate template = jade.getTemplate("index");
+    template.renderTemplate(...);
+  });
+
 }
 ```
 
-public/index.html:
-
-```java
-${model}
-```
-
-Templates are loaded from root of classpath: ```/``` and must end with: ```.jade``` file extension.
+Templates are loaded from root of classpath: ```/``` and must ends with: ```.jade``` file extension.
 
 ## req locals
 
@@ -40,36 +42,35 @@ A template engine has access to ```request locals``` (a.k.a attributes). Here is
   use(new Jade());
 
   get("*", req -> {
+
     req.set("req", req);
     req.set("session", req.session());
   });
+
 }
 ```
 
 By default, there is no access to ```req``` or ```session``` from your template. This example shows how to do it.
 
-
-## configuration
-
-### application.conf
-Just add a ```jade.*``` option to your ```application.conf``` file:
-
-```
-jade.prettyprint: true
-jade.suffix: .html
-```
-
 ## template loader
-Templates are loaded from the root of classpath and must end with ```.jade```. You can
-change the default template location and extensions too:
+
+Templates are loaded from the root of classpath and must ends with ```.jade```. You can change the extensions too:
 
 ```java
 {
-  use(new Jade("/", ".html"));
+  use(new Jade(".html"));
+
 }
 ```
 
-## cache
+Keep in mind if you change it file name must ends with: ```.html.jade```.
 
-Cache is OFF when ```env=dev``` (useful for template reloading), otherwise is ON and templates do not expire.
+## template cache
 
+Cache is OFF when ```application.env = dev``` (useful for template reloading), otherwise is ON and does not expire, unless you explicitly set ```jade.caching```.
+
+## pretty print
+
+Pretty print is on when ```application.env = dev ```, otherwise is off, unless unless you explicitly set ```jade.prettyprint```.
+
+That's all folks! Enjoy it!!!

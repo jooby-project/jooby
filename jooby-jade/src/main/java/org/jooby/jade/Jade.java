@@ -18,77 +18,104 @@
  */
 package org.jooby.jade;
 
-import com.google.inject.Binder;
-import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import de.neuland.jade4j.JadeConfiguration;
-import de.neuland.jade4j.template.ClasspathTemplateLoader;
-import org.jooby.Env;
-import org.jooby.Jooby;
-import org.jooby.Renderer;
-import org.jooby.View;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.Objects.requireNonNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import org.jooby.Env;
+import org.jooby.Jooby;
+import org.jooby.Renderer;
+
+import com.google.inject.Binder;
+import com.google.inject.multibindings.Multibinder;
+import com.typesafe.config.Config;
+
+import de.neuland.jade4j.JadeConfiguration;
+import de.neuland.jade4j.template.ClasspathTemplateLoader;
 
 /**
- * Exposes a {@link Renderer}.
- *
- * <h1>usage</h1>
+ * <h1>jade</h1>
  * <p>
- * It is pretty straightforward:
+ * <a href="https://github.com/neuland/jade4j">jade4j's</a> intention is to be able to process jade
+ * templates in Java without the need of a JavaScript environment, while being fully compatible with
+ * the original jade syntax.
  * </p>
+ *
+ * <h2>usage</h2>
  *
  * <pre>
  * {
  *   use(new Jade());
  *
  *   get("/", req {@literal ->} Results.html("index").put("model", new MyModel());
+ *
+ *   // or via API
+ *   get("/jade-api", req {@literal ->} {
+ *     JadeConfiguration jade = req.require(JadeConfiguration.class);
+ *     JadeTemplate template = jade.getTemplate("index");
+ *     template.renderTemplate(...);
+ *   });
  * }
  * </pre>
- * <p>
- * public/index.html:
- * </p>
- *
- * <pre>
- * pre= model
- * </pre>
  *
  * <p>
- * Templates are loaded from root of classpath: <code>/</code> and must end with: <code>.jade</code>
+ * Templates are loaded from root of classpath: <code>/</code> and must ends with:
+ * <code>.jade</code>
  * file extension.
  * </p>
  *
- * <h1>configuration</h1>
- * <h2>application.conf</h2>
- * <p>
- * Just add a <code>jade.*</code> option to your <code>application.conf</code> file:
- * </p>
+ * <h2>req locals</h2>
  *
+ * <p>
+ * A template engine has access to ```request locals``` (a.k.a attributes). Here is an example:
+ * </p>
  * <pre>
- * jade.prettyprint: true
- * jade.suffix: .html
+ * {
+ *   use(new Jade());
+ *
+ *   get("*", req {@literal ->} {
+ *     req.set("req", req);
+ *     req.set("session", req.session());
+ *   });
+ * }
  * </pre>
  *
- * <h1>template loader</h1>
  * <p>
- * Templates are loaded from the root of classpath and must end with <code>.jade</code>. You can
- * change the default template location and extensions too:
+ * By default, there is no access to ```req``` or ```session``` from your template. This example
+ * shows how to do it.
+ * </p>
+ *
+ * <h2>template loader</h2>
+ * <p>
+ * Templates are loaded from the root of classpath and must ends with <code>.jade</code>. You can
+ * change the extensions too:
  * </p>
  *
  * <pre>
  * {
- *   use(new Jade("/", ".jade"));
+ *   use(new Jade(".html"));
  * }
  * </pre>
  *
- * <h1>cache</h1>
  * <p>
- * Cache is OFF when <code>env=dev</code> (useful for template reloading), otherwise is ON and does not expire.
+ * Keep in mind if you change it file name must ends with: <code>.html.jade</code>.
  * </p>
+ *
+ * <h2>template cache</h2>
+ * <p>
+ * Cache is OFF when <code>application.env = dev</code> (useful for template reloading), otherwise
+ * is ON and does not expire, unless you explicitly set <code>jade.caching</code>.
+ * </p>
+ *
+ * <h2>pretty print</h2>
+ * <p>
+ * Pretty print is on when <code>application.env = dev </code>, otherwise is off, unless unless you
+ * explicitly set <code>jade.prettyprint</code>.
+ * </p>
+ *
  * <p>
  * That's all folks! Enjoy it!!!
  * </p>
@@ -97,34 +124,78 @@ import java.util.Map;
  */
 public class Jade implements Jooby.Module {
 
-  private final Logger log = LoggerFactory.getLogger(getClass());
+  private BiConsumer<JadeConfiguration, Config> callback;
 
-  @Override
-  public Config config() {
-    return ConfigFactory.empty();
+  private String suffix;
+
+  /**
+   * Creates a {@link Jade} instance with a custom suffix.
+   *
+   * @param suffix A suffix like <code>.html</code>. But keep in mind the final extension will be
+   *        <code>.html.jade</code>
+   */
+  public Jade(final String suffix) {
+    this.suffix = requireNonNull(suffix, "Suffix is required.");
+  }
+
+  /**
+   * Creates a {@link Jade} instance with default suffix <code>.jade</code>.
+   */
+  public Jade() {
+    this(".jade");
+  }
+
+  /**
+   * Configure callback that let you tweak or modified a {@link JadeConfiguration}.
+   *
+   * @param callback A callback.
+   * @return This module.
+   */
+  public Jade doWith(final Consumer<JadeConfiguration> callback) {
+    requireNonNull(callback, "Configurer callback is required.");
+    return doWith((j, c) -> callback.accept(j));
+  }
+
+  /**
+   * Configure callback that let you tweak or modified a {@link JadeConfiguration}.
+   *
+   * @param callback A callback.
+   * @return This module.
+   */
+  public Jade doWith(final BiConsumer<JadeConfiguration, Config> callback) {
+    this.callback = requireNonNull(callback, "Configurer callback is required.");
+    return this;
   }
 
   @Override
-  public void configure(Env env, Config config, Binder binder) {
-    JadeConfiguration jadeConfiguration = new JadeConfiguration();
-    boolean caching = !env.name().equals("dev");
-    boolean prettyPrint = config.hasPath("jade.prettyprint") && config.getBoolean("jade.prettyprint");
+  public void configure(final Env env, final Config conf, final Binder binder) {
+    JadeConfiguration jadeconf = new JadeConfiguration();
+    boolean dev = env.name().equals("dev");
+    boolean caching = conf.hasPath("jade.caching")
+        ? conf.getBoolean("jade.caching")
+        : !dev;
+    boolean prettyPrint = conf.hasPath("jade.prettyprint")
+        ? conf.getBoolean("jade.prettyprint")
+        : dev;
 
-    jadeConfiguration.setCaching(caching);
-    jadeConfiguration.setPrettyPrint(prettyPrint);
+    jadeconf.setCaching(caching);
+    jadeconf.setPrettyPrint(prettyPrint);
 
     Map<String, Object> sharedVariables = new HashMap<>(1);
     sharedVariables.put("env", env);
-    jadeConfiguration.setSharedVariables(sharedVariables);
+    jadeconf.setSharedVariables(sharedVariables);
 
-    jadeConfiguration.setTemplateLoader(new ClasspathTemplateLoader());
+    jadeconf.setTemplateLoader(new ClasspathTemplateLoader());
 
-    binder.bind(JadeConfiguration.class).toInstance(jadeConfiguration);
+    if (callback != null) {
+      callback.accept(jadeconf, conf);
+    }
 
-    String suffix = config.hasPath("jade.suffix") ? config.getString("jade.suffix") : ".jade";
-    View.Engine engine = new Engine(jadeConfiguration, suffix);
-    Multibinder.newSetBinder(binder, Renderer.class).addBinding().toInstance(engine);
+    binder.bind(JadeConfiguration.class)
+        .toInstance(jadeconf);
 
-    log.info("Using jade renderer with options prettyprint:{}, caching:{}, suffix:{}", prettyPrint, caching, suffix);
+    Multibinder.newSetBinder(binder, Renderer.class).addBinding()
+        .toInstance(new Engine(jadeconf, suffix));
   }
+
 }
