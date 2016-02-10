@@ -126,7 +126,7 @@ public class RouteProcessor {
   /**
    * Process a {@link Jooby} application and collect {@link RouteSpec}.
    *
-   * @param app A jooby app to process.
+   * @param appClass A jooby class to process.
    * @param routes Routes to process.
    * @param srcdir Basedir where source code is located. Useful for extracting doc.
    * @return List of route specs.
