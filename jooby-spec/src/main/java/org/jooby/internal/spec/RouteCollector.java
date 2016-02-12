@@ -33,12 +33,16 @@
 package org.jooby.internal.spec;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -46,22 +50,26 @@ import org.jooby.Route;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.LambdaExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
-import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.google.common.collect.Maps;
 
 public class RouteCollector extends VoidVisitorAdapter<Context> {
 
-  private Map<Object, Node> nodes = new LinkedHashMap<>();
+  private List<Map.Entry<Object, Node>> nodes = new ArrayList<>();
 
   private boolean script;
 
   private Consumer<String> owners;
+
+  private Map<String, Node> vars = new HashMap<>();
 
   private RouteCollector(final boolean script, final Consumer<String> owners) {
     this.script = script;
@@ -77,9 +85,14 @@ public class RouteCollector extends VoidVisitorAdapter<Context> {
     });
   }
 
-  public Map<Object, Node> accept(final Node node, final Context ctx) {
+  public List<Entry<Object, Node>> accept(final Node node, final Context ctx) {
     node.accept(this, ctx);
     return nodes;
+  }
+
+  @Override
+  public void visit(final VariableDeclarator n, final Context ctx) {
+    vars.put(n.getId().getName(), n.getInit());
   }
 
   @Override
@@ -91,7 +104,7 @@ public class RouteCollector extends VoidVisitorAdapter<Context> {
           .findFirst()
           .isPresent();
       if (mvc) {
-        nodes.put(m, m.getBody());
+        nodes.add(Maps.immutableEntry(m, m.getBody()));
       }
     }
   }
@@ -107,12 +120,13 @@ public class RouteCollector extends VoidVisitorAdapter<Context> {
         if (appType != null) {
           importRoutes(appType, ctx);
         } else {
-          List<MethodCallExpr> routes = routes(n);
+          List<MethodCallExpr> routes = routes(n, ctx);
           for (MethodCallExpr route : routes) {
-            Optional<Expression> lambda = route.getArgs().stream()
-                .filter(it -> it instanceof LambdaExpr)
+            Optional<LambdaExpr> lambda = route.getArgs().stream()
+                .map(it -> handler(it, ctx))
+                .filter(it -> it != null)
                 .findFirst();
-            this.nodes.put(route, lambda.get());
+            this.nodes.add(Maps.immutableEntry(route, lambda.get()));
           }
         }
       }
@@ -121,23 +135,23 @@ public class RouteCollector extends VoidVisitorAdapter<Context> {
 
   private void importRoutes(final Type type, final Context ctx) {
     // compiled or parse?
-    Map<Object, Node> result = ctx.parseSpec(type).map(specs -> {
-      Map<Object, Node> nodes = new LinkedHashMap<>();
-      specs.forEach(spec -> nodes.put(spec, null));
+    List<Map.Entry<Object, Node>> result = ctx.parseSpec(type).map(specs -> {
+      List<Map.Entry<Object, Node>> nodes = new ArrayList<>();
+      specs.forEach(spec -> nodes.add(Maps.immutableEntry(spec, null)));
       return nodes;
     }).orElseGet(() -> ctx.parse(type)
         .map(unit -> new RouteCollector(true, owners).accept(unit, ctx))
-        .orElse(Collections.emptyMap()));
+        .orElse(Collections.emptyList()));
     owners.accept(type.getTypeName());
-    this.nodes.putAll(result);
+    this.nodes.addAll(result);
   }
 
   private void mvcRoutes(final Node n, final Type type, final Context ctx) {
-    Map<Object, Node> result = ctx.parse(type)
+    List<Map.Entry<Object, Node>> result = ctx.parse(type)
         .map(unit -> new RouteCollector(false, owners).accept(unit, ctx))
-        .orElse(Collections.emptyMap());
+        .orElse(Collections.emptyList());
     owners.accept(type.getTypeName());
-    nodes.putAll(result);
+    nodes.addAll(result);
   }
 
   private Type useMvc(final MethodCallExpr n, final Context ctx) {
@@ -181,8 +195,8 @@ public class RouteCollector extends VoidVisitorAdapter<Context> {
     return null;
   }
 
-  private boolean isJooby(final java.lang.reflect.Type type) {
-    java.lang.reflect.Type t = type;
+  private boolean isJooby(final Type type) {
+    Type t = type;
     while (t instanceof Class) {
       @SuppressWarnings("rawtypes")
       Class c = (Class) t;
@@ -194,30 +208,60 @@ public class RouteCollector extends VoidVisitorAdapter<Context> {
     return false;
   }
 
-  private List<MethodCallExpr> routes(final MethodCallExpr expr) {
+  private List<MethodCallExpr> routes(final MethodCallExpr expr, final Context ctx) {
     LinkedList<MethodCallExpr> expressions = new LinkedList<>();
+
     Expression it = expr;
     while (it instanceof MethodCallExpr) {
       MethodCallExpr local = (MethodCallExpr) it;
-      if (Route.METHODS.contains(local.getName().toUpperCase())) {
-        if (route(local)) {
-          expressions.addFirst(local);
-        }
+      String name = local.getName();
+      int n = 0;
+      if (Route.METHODS.contains(name.toUpperCase())) {
+        n = route(local, ctx);
+      } else if (name.equals("use")) {
+        n = route(local, ctx);
+      } else if (name.equals("all") && AST.scopeOf(local).getName().equals("use")) {
+        n = route(local, ctx);
+      }
+      while (n > 0) {
+        expressions.addFirst(local);
+        n -= 1;
       }
       it = local.getScope();
     }
     return expressions;
   }
 
-  private boolean route(final MethodCallExpr expr) {
+  private int route(final MethodCallExpr expr, final Context ctx) {
     List<Expression> args = expr.getArgs();
     if (args.size() == 1) {
-      return args.get(0) instanceof LambdaExpr;
+      if (handler(args.get(0), ctx) != null) {
+        return 1;
+      }
     }
-    if (args.size() == 2) {
-      return args.get(0) instanceof StringLiteralExpr && args.get(1) instanceof LambdaExpr;
+    // method(path, [path1, path2], handler());
+    if (args.size() < 5) {
+      // method(path, lambda)
+      Set<Type> types = new LinkedHashSet<>();
+      for (int i = 0; i < args.size() - 1; i++) {
+        types.add(args.get(i).accept(new TypeCollector(), ctx));
+      }
+      boolean str = types.size() == 1 && types.contains(String.class);
+      if (str && handler(args.get(args.size() - 1), ctx) != null) {
+        return args.size() - 1;
+      }
     }
-    return false;
+    return 0;
+  }
+
+  private LambdaExpr handler(final Expression expr, final Context ctx) {
+    Node node = vars.getOrDefault(expr.toStringWithoutComments(), expr);
+    return node.accept(new GenericVisitorAdapter<LambdaExpr, Context>() {
+      @Override
+      public LambdaExpr visit(final LambdaExpr n, final Context ctx) {
+        return n;
+      }
+    }, ctx);
   }
 
 }

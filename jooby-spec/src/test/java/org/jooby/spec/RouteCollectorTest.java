@@ -31,6 +31,46 @@ public class RouteCollectorTest extends ASTTest {
   }
 
   @Test
+  public void useAll() throws ParseException {
+    CompilationUnit unit = source("package myapp;",
+        "import org.jooby.Jooby;",
+        "public class App extends Jooby {",
+        "  {",
+        "    use(\"/\").all(\"/all\", () -> \"Hello World!\");",
+        "  }",
+        "}");
+    Node app = new AppCollector().accept(unit);
+
+    routes(new RouteCollector().accept(app, ctx()))
+        .script((m, l) -> {
+          assertEquals("use(\"/\").all(\"/all\", () -> \"Hello World!\")", m.toString());
+          assertEquals("() -> \"Hello World!\"", l.toString());
+        });
+  }
+
+  @Test
+  public void useAll2() throws ParseException {
+    CompilationUnit unit = source("package myapp;",
+        "import org.jooby.Jooby;",
+        "public class App extends Jooby {",
+        "  {",
+        "    use(\"/\").get(\"x\", () -> null).all(\"/all\", () -> \"Hello World!\");",
+        "  }",
+        "}");
+    Node app = new AppCollector().accept(unit);
+
+    routes(new RouteCollector().accept(app, ctx()))
+        .script((m, l) -> {
+          assertEquals("use(\"/\").get(\"x\", () -> null)", m.toString());
+          assertEquals("() -> null", l.toString());
+        })
+        .script((m, l) -> {
+          assertEquals("use(\"/\").get(\"x\", () -> null).all(\"/all\", () -> \"Hello World!\")", m.toString());
+          assertEquals("() -> \"Hello World!\"", l.toString());
+        });
+  }
+
+  @Test
   public void importApp() throws ParseException {
     CompilationUnit unit = source("package myapp;",
         "import org.jooby.Jooby;",

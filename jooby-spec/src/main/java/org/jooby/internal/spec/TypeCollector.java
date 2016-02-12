@@ -19,7 +19,6 @@
 package org.jooby.internal.spec;
 
 import java.lang.reflect.Type;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,15 +53,6 @@ public class TypeCollector extends GenericVisitorAdapter<Type, Context> {
       type = Types.newParameterizedType(type, args.toArray(new Type[args.size()]));
     }
     return type;
-  }
-
-  private String name(ClassOrInterfaceType n) {
-    LinkedList<String> name = new LinkedList<>();
-    while (n != null) {
-      name.addFirst(n.getName());
-      n = n.getScope();
-    }
-    return name.stream().collect(Collectors.joining("."));
   }
 
   @Override
@@ -136,6 +126,24 @@ public class TypeCollector extends GenericVisitorAdapter<Type, Context> {
   @Override
   public Type visit(final WildcardType n, final Context ctx) {
     return null;
+  }
+
+  private String name(ClassOrInterfaceType n) {
+    StringBuilder sb = new StringBuilder();
+    while (n != null) {
+      String name = n.getName();
+      if (sb.length() == 0) {
+        sb.append(name);
+      } else {
+        if (Character.isLowerCase(name.charAt(0))) {
+          sb.insert(0, name + ".");
+        } else {
+          sb.insert(0, name + "$");
+        }
+      }
+      n = n.getScope();
+    }
+    return sb.toString();
   }
 
 }

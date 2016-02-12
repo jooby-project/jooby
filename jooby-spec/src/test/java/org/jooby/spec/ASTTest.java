@@ -7,7 +7,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -38,8 +37,8 @@ public class ASTTest {
   public static class Itr<K, V> implements Verifier {
     Iterator<Entry<K, V>> it;
 
-    public Itr(final Map<K, V> source) {
-      it = source.entrySet().iterator();
+    public Itr(final List<Entry<K, V>> source) {
+      it = source.iterator();
     }
 
     public Itr<K, V> script(final BiConsumer<MethodCallExpr, LambdaExpr> callback) {
@@ -102,7 +101,7 @@ public class ASTTest {
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })
-  public Itr<MethodCallExpr, LambdaExpr> routes(final Map source) {
+  public Itr<MethodCallExpr, LambdaExpr> routes(final List source) {
     Itr itr = new Itr<>(source);
     itrList.add(itr);
     return itr;

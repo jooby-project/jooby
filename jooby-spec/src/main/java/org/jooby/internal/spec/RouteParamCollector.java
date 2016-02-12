@@ -199,15 +199,17 @@ public class RouteParamCollector extends VoidVisitorAdapter<Context> {
   }
 
   private List<MethodCallExpr> call(final MethodCallExpr n) {
-    MethodCallExpr expr = n;
     LinkedList<MethodCallExpr> call = new LinkedList<>();
-    Expression it = expr;
+    Expression it = n;
+    Expression prev = it;
     while (it instanceof MethodCallExpr) {
       MethodCallExpr local = (MethodCallExpr) it;
       call.addFirst(local);
+      prev = it;
       it = local.getScope();
     }
     // req.
+    it = it == null ? prev : it;
     if (names.contains(it.toStringWithoutComments())) {
       // param(id).value
       if (call.size() == 2) {

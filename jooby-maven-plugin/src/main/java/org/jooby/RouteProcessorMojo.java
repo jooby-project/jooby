@@ -20,6 +20,7 @@ package org.jooby;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,6 +33,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.jooby.spec.RouteProcessor;
+import org.jooby.spec.RouteSpec;
 
 @Mojo(name = "spec", requiresDependencyResolution = ResolutionScope.COMPILE,
     defaultPhase = LifecyclePhase.PROCESS_CLASSES)
@@ -70,7 +72,10 @@ public class RouteProcessorMojo extends AbstractMojo {
     for (String n : name) {
       outdir = outdir.resolve(n);
     }
-    processor.compile(app, srcdir, outdir);
+    String routes = processor.compile(app, srcdir, outdir).stream()
+        .map(RouteSpec::toString)
+        .collect(Collectors.joining("\n"));
+    getLog().debug(app.getClass().getSimpleName() + ".spec :\n" + routes);
     throw new ProcessDone();
   }
 

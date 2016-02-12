@@ -225,8 +225,7 @@ public class RouteProcessor {
       /** Collect all routes and process them. */
       Set<String> owners = new HashSet<>();
       owners.add(appClass.getName());
-      List<Entry<Object, Node>> routeNodes = new ArrayList<>(
-          new RouteCollector(owners::add).accept(appNode, ctx).entrySet());
+      List<Entry<Object, Node>> routeNodes = new RouteCollector(owners::add).accept(appNode, ctx);
 
       int j = 0;
       for (int i = 0; i < routes.size(); i++) {
@@ -251,6 +250,7 @@ public class RouteProcessor {
 
           Object candidate = entry.getKey();
           if (candidate instanceof Node) {
+            log.debug("\n*****************{}\n*****************", candidate);
             /** doc and response codes . */
             Map<String, Object> doc = ((Node) candidate).accept(new DocCollector(), ctx);
             if (doc == null) {
@@ -292,6 +292,8 @@ public class RouteProcessor {
       }
     } catch (ParseException ex) {
       throw new IllegalStateException("Error while processing " + appClass.getName(), ex);
+    } catch (Exception ex) {
+      throw new IllegalStateException("Error while processing " + appClass, ex);
     }
     if (outdir != null) {
       save(outdir.resolve(appClass.getSimpleName() + ".spec"), specs);

@@ -70,13 +70,13 @@ public class RouteParamImpl extends SerObject implements RouteParam {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
+    return MoreObjects.toStringHelper("")
         .add("name", name())
-        .add("type", type())
         .add("paramType", paramType())
-        .add("defaultValue", value())
+        .add("type", type())
+        .add("value", value())
         .add("doc", doc())
-        .toString();
+        .toString() + "\n";
   }
 
 }

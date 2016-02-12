@@ -21,6 +21,9 @@ package org.jooby.internal.spec;
 import java.lang.reflect.Type;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
@@ -116,6 +119,9 @@ public class LocalVariableCollector extends VoidVisitorAdapter<Context> {
   private static class WorkDone extends RuntimeException {
   };
 
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
+
   private Set<Node> visited;
 
   private Node node;
@@ -143,11 +149,15 @@ public class LocalVariableCollector extends VoidVisitorAdapter<Context> {
   @Override
   public void visit(final VariableDeclarationExpr n, final Context ctx) {
     if (visited.add(n)) {
-      Type type = n.getType().accept(new TypeCollector(), ctx);
-      n.getVars().forEach(v -> {
-        VariableDeclaratorId id = v.getId();
-        vars.put(id.getName(), type);
-      });
+      try {
+        Type type = n.getType().accept(new TypeCollector(), ctx);
+        n.getVars().forEach(v -> {
+          VariableDeclaratorId id = v.getId();
+          vars.put(id.getName(), type);
+        });
+      } catch (IllegalArgumentException ex) {
+        log.warn("Type not found {}", n, ex);
+      }
     }
     super.visit(n, ctx);
   }
@@ -174,28 +184,24 @@ public class LocalVariableCollector extends VoidVisitorAdapter<Context> {
   public void visit(final AnnotationMemberDeclaration n, final Context ctx) {
     visitNode(n, ctx);
     super.visit(n, ctx);
-
   }
 
   @Override
   public void visit(final ArrayAccessExpr n, final Context ctx) {
     visitNode(n, ctx);
     super.visit(n, ctx);
-
   }
 
   @Override
   public void visit(final ArrayCreationExpr n, final Context ctx) {
     visitNode(n, ctx);
     super.visit(n, ctx);
-
   }
 
   @Override
   public void visit(final ArrayInitializerExpr n, final Context ctx) {
     visitNode(n, ctx);
     super.visit(n, ctx);
-
   }
 
   @Override

@@ -65,9 +65,9 @@ public class RouteResponseImpl extends SerObject implements RouteResponse {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
+    return MoreObjects.toStringHelper("")
         .add("type", type())
         .add("statusCodes", statusCodes())
-        .toString();
+        .toString() + "\n";
   }
 }

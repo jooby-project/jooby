@@ -168,15 +168,11 @@ public class DocCollector extends GenericVisitorAdapter<Map<String, Object>, Con
   }
 
   private Optional<Node> usePath(final MethodCallExpr it) {
-    Node node = it.getScope();
-    while (node instanceof MethodCallExpr) {
-      MethodCallExpr expr = (MethodCallExpr) node;
-      String name = expr.getName();
-      List<Expression> args = expr.getArgs();
-      if (name.equals("use") && args.size() == 1 && args.get(0) instanceof StringLiteralExpr) {
-        return Optional.of(expr);
-      }
-      node = expr.getScope();
+    MethodCallExpr expr = AST.scopeOf(it);
+    String name = expr.getName();
+    List<Expression> args = expr.getArgs();
+    if (name.equals("use") && args.size() == 1 && args.get(0) instanceof StringLiteralExpr) {
+      return Optional.of(expr);
     }
     return Optional.empty();
   }

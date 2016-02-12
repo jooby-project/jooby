@@ -71,17 +71,20 @@ public class ResponseTypeCollector extends VoidVisitorAdapter<Context> {
     }
   }
 
-  @Override
-  public void visit(final ReturnStmt n, final Context ctx) {
-    this.type = type(n.getExpr(), ctx);
-  }
-
   private String scope(final MethodCallExpr n) {
     Expression scope = n.getScope();
     while (scope != null && scope instanceof MethodCallExpr) {
       scope = ((MethodCallExpr) scope).getScope();
     }
-    return ((NameExpr) scope).getName();
+    if (scope instanceof NameExpr) {
+      return ((NameExpr) scope).getName();
+    }
+    return null;
+  }
+
+  @Override
+  public void visit(final ReturnStmt n, final Context ctx) {
+    this.type = type(n.getExpr(), ctx);
   }
 
   private Type type(final Expression expr, final Context ctx) {

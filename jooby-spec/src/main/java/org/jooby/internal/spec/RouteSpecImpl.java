@@ -20,6 +20,7 @@ package org.jooby.internal.spec;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jooby.MediaType;
@@ -27,8 +28,6 @@ import org.jooby.Route;
 import org.jooby.spec.RouteParam;
 import org.jooby.spec.RouteResponse;
 import org.jooby.spec.RouteSpec;
-
-import com.google.common.base.MoreObjects;
 
 public class RouteSpecImpl extends SerObject implements RouteSpec {
 
@@ -105,10 +104,38 @@ public class RouteSpecImpl extends SerObject implements RouteSpec {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("method", method())
-        .add("pattern", pattern())
-        .add("params", params()).toString();
+    int len = 80;
+    Function<String, String> truncate = v -> {
+      String s = v;
+      if (s.length() > len) {
+        s = s.substring(0, len - 3) + "...";
+      }
+      return s.replace("\n", "\\n");
+    };
+    StringBuilder buff = new StringBuilder();
+    buff.append(method()).append(" ").append(pattern()).append("\n");
+    name().ifPresent(v -> buff.append("  name: ").append(v).append("\n"));
+    summary().ifPresent(v -> buff.append("  summary: ").append(truncate.apply(v)).append("\n"));
+    doc().ifPresent(v -> buff.append("  doc: ").append(truncate.apply(v)).append("\n"));
+    buff.append("  consumes: ").append(consumes()).append("\n");
+    buff.append("  produces: ").append(produces()).append("\n");
+    buff.append("  params: ").append("\n");
+    params().forEach(p -> {
+      buff.append("    ").append(p.name()).append("\n");
+      buff.append("      paramType: ").append(p.paramType()).append("\n");
+      buff.append("      type: ").append(p.type().getTypeName()).append("\n");
+      Object pval = p.value();
+      if (pval != null) {
+        buff.append("      value: ").append(pval).append("\n");
+      }
+      p.doc().ifPresent(v -> buff.append("      doc: ").append(truncate.apply(v)).append("\n"));
+    });
+    buff.append("  response: ").append("\n");
+    buff.append("    type: ").append(response().type().getTypeName()).append("\n");
+    response().doc()
+        .ifPresent(v -> buff.append("    doc: ").append(truncate.apply(v)).append("\n"));
+    buff.setLength(buff.length() - 1);
+    return buff.toString();
   }
 
 }

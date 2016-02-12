@@ -19,8 +19,11 @@
 package org.jooby.internal.spec;
 
 import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.inject.util.Types;
 
 public class SerObject implements Serializable {
 
@@ -35,7 +38,12 @@ public class SerObject implements Serializable {
   }
 
   public void put(final String name, final Object value) {
-    attr.put(name, value);
+    Object v = value;
+    if (v instanceof ParameterizedType) {
+      ParameterizedType type = (ParameterizedType) value;
+      v = Types.newParameterizedType(type.getRawType(), type.getActualTypeArguments());
+    }
+    attr.put(name, v);
   }
 
 }
