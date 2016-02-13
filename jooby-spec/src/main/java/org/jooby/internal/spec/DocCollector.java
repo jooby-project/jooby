@@ -38,10 +38,10 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.google.common.base.Splitter;
 
-public class DocCollector extends GenericVisitorAdapter<Map<String, Object>, Context> {
+public class DocCollector extends VoidVisitorAdapter<Context> {
 
   private static final Pattern SPLITTER = Pattern.compile("\\s+\\*");
 
@@ -54,23 +54,39 @@ public class DocCollector extends GenericVisitorAdapter<Map<String, Object>, Con
 
   private static final Pattern TYPE = Pattern.compile("\\{@link\\s+([^\\}]+)\\}");
 
-  @Override
-  public Map<String, Object> visit(final MethodCallExpr n, final Context ctx) {
-    Map<String, Object> doc = doc(n, ctx);
-    if (doc != null) {
-      doc.put("@summary", summary(n, ctx));
+  private Map<String, Object> doc = new HashMap<>();
+
+  public Map<String, Object> accept(final Node node, final String method, final Context ctx) {
+    node.accept(this, ctx);
+    if (!doc.containsKey("@statusCodes")) {
+      Map<Object, Object> codes = new LinkedHashMap<>();
+      Status status = Status.OK;
+      if ("DELETE".equals(method)) {
+        status = Status.NO_CONTENT;
+      }
+      codes.put(status.value(), status.reason());
+      doc.put("@statusCodes", codes);
     }
     return doc;
   }
 
   @Override
-  public Map<String, Object> visit(final MethodDeclaration m, final Context ctx) {
+  public void visit(final MethodCallExpr n, final Context ctx) {
+    Map<String, Object> doc = doc(n, ctx);
+    if (doc != null) {
+      this.doc.putAll(doc);
+      this.doc.put("@summary", summary(n, ctx));
+    }
+  }
+
+  @Override
+  public void visit(final MethodDeclaration m, final Context ctx) {
     ClassOrInterfaceDeclaration clazz = clazz(m);
     Map<String, Object> doc = doc(m, ctx);
     if (doc != null) {
-      doc.put("@summary", doc(clazz, ctx).get("@text"));
+      this.doc.putAll(doc);
+      this.doc.put("@summary", doc(clazz, ctx).get("@text"));
     }
-    return doc;
   }
 
   private ClassOrInterfaceDeclaration clazz(final MethodDeclaration method) {
@@ -134,7 +150,7 @@ public class DocCollector extends GenericVisitorAdapter<Map<String, Object>, Con
           }
         }
       }
-      hash.put("@codes", codes);
+      hash.put("@statusCodes", codes);
       hash.put("@text", text);
     }
     return hash;

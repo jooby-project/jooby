@@ -81,7 +81,7 @@ public class FilterAppTest extends RouteSpecTest {
             assertEquals("id", p.name());
           });
 
-          assertEquals(200, r.response().statusCode());
+          assertEquals(204, r.response().statusCode());
           assertEquals(LocalType.class, r.response().type());
           assertEquals(Optional.empty(), r.response().doc());
         });

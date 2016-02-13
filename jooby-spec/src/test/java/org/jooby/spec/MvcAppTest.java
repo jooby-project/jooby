@@ -34,7 +34,7 @@ public class MvcAppTest {
     assertEquals("Get a pet by ID.", route.doc().get());
     assertEquals("apps.model.Pet", route.response().type().getTypeName());
     assertEquals("Api summary.", route.summary().get());
-    assertEquals(ImmutableMap.of(200, "OK", 404, "Not Found"), route.response().statusCodes());
+    assertEquals(ImmutableMap.of(200, "Success", 404, "Not Found"), route.response().statusCodes());
     assertEquals("A {@link Pet} with a <code>200</code> code or <code>404</code>.",
         route.response().doc().get());
 

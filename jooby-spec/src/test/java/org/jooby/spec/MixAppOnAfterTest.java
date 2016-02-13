@@ -34,7 +34,7 @@ public class MixAppOnAfterTest {
     assertEquals("Get a pet by ID.", route.doc().get());
     assertEquals("apps.model.Pet", route.response().type().getTypeName());
     assertEquals("Api summary.", route.summary().get());
-    assertEquals(ImmutableMap.of(200, "OK", 404, "Not Found"), route.response().statusCodes());
+    assertEquals(ImmutableMap.of(200, "Success", 404, "Not Found"), route.response().statusCodes());
 
     assertEquals(1, route.params().size());
     assertEquals("id", route.params().get(0).name());
@@ -63,6 +63,6 @@ public class MixAppOnAfterTest {
     assertEquals("Get after by id.", route.doc().get());
     assertEquals("apps.model.Pet", route.response().type().getTypeName());
     assertEquals("After summary.", route.summary().get());
-    assertEquals(ImmutableMap.of(200, "OK"), route.response().statusCodes());
+    assertEquals(ImmutableMap.of(200, "Success"), route.response().statusCodes());
   }
 }

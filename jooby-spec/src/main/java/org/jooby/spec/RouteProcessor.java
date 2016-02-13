@@ -67,7 +67,9 @@ import com.google.common.base.Throwables;
 import com.typesafe.config.ConfigFactory;
 
 /**
+ * <p>
  * Process and collect {@link RouteSpec} from {@link Jooby} app.
+ * </p>
  *
  * @author edgar
  * @since 0.15.0
@@ -121,6 +123,21 @@ public class RouteProcessor {
     requireNonNull(outdir, "Out dir is required.");
 
     return processInternal(app, srcdir, outdir);
+  }
+
+  /**
+   * Process a {@link Jooby} application and collect {@link RouteSpec}.
+   *
+   * @param appClass A jooby class to process.
+   * @param routes Routes to process.
+   * @return List of route specs.
+   */
+  public List<RouteSpec> process(final Class<? extends Jooby> appClass,
+      final List<Route.Definition> routes) {
+    requireNonNull(appClass, "App class is required.");
+    requireNonNull(routes, "Routes are required.");
+    return processInternal(appClass, routes, new File(System.getProperty("user.dir")).toPath(),
+        null);
   }
 
   /**
@@ -193,7 +210,7 @@ public class RouteProcessor {
   @SuppressWarnings("unchecked")
   private List<RouteSpec> processInternal(final Class<? extends Jooby> appClass,
       final List<Route.Definition> routes, final Path srcdir, final Path outdir) {
-    log.info("processing {}", appClass.getName());
+    log.info("processing {}.spec", appClass.getName());
     List<RouteSpec> specs = new ArrayList<>();
     try {
       /**
@@ -245,21 +262,16 @@ public class RouteProcessor {
 
         if (owners.stream().filter(o -> owner.startsWith(o)).findFirst().isPresent()) {
 
-          log.info("    found {} {}", route.method(), route.pattern());
+          log.debug("    found {} {}", route.method(), route.pattern());
           Entry<Object, Node> entry = routeNodes.get(j++);
 
           Object candidate = entry.getKey();
           if (candidate instanceof Node) {
-            log.debug("\n*****************{}\n*****************", candidate);
+            log.debug("\n{}\n", candidate);
             /** doc and response codes . */
-            Map<String, Object> doc = ((Node) candidate).accept(new DocCollector(), ctx);
-            if (doc == null) {
-              doc = Collections.emptyMap();
-            }
-            Map<Integer, String> codes = (Map<Integer, String>) doc.remove("@codes");
-            if (codes == null) {
-              codes = Collections.emptyMap();
-            }
+            Map<String, Object> doc = new DocCollector().accept((Node) candidate, route.method(),
+                ctx);
+            Map<Integer, String> codes = (Map<Integer, String>) doc.remove("@statusCodes");
             String desc = (String) doc.remove("@text");
             String summary = (String) doc.remove("@summary");
             String retDoc = (String) doc.remove("@return");

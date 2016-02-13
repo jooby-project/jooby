@@ -121,7 +121,7 @@ public class RouteSpecImpl extends SerObject implements RouteSpec {
     buff.append("  produces: ").append(produces()).append("\n");
     buff.append("  params: ").append("\n");
     params().forEach(p -> {
-      buff.append("    ").append(p.name()).append("\n");
+      buff.append("    ").append(p.name()).append(": \n");
       buff.append("      paramType: ").append(p.paramType()).append("\n");
       buff.append("      type: ").append(p.type().getTypeName()).append("\n");
       Object pval = p.value();
@@ -132,6 +132,9 @@ public class RouteSpecImpl extends SerObject implements RouteSpec {
     });
     buff.append("  response: ").append("\n");
     buff.append("    type: ").append(response().type().getTypeName()).append("\n");
+    buff.append("    statusCodes: ").append("\n");
+    response().statusCodes().forEach(
+        (sc, label) -> buff.append("      ").append(sc).append(": ").append(label).append("\n"));
     response().doc()
         .ifPresent(v -> buff.append("    doc: ").append(truncate.apply(v)).append("\n"));
     buff.setLength(buff.length() - 1);
