@@ -18,8 +18,6 @@
  */
 package org.jooby.internal.swagger;
 
-import static java.util.Objects.requireNonNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -49,7 +47,10 @@ public class SwaggerHandler implements Route.OneArgHandler {
    * @param path Path to listen for, like <code>/swagger</code>.
    */
   public SwaggerHandler(final String path) {
-    this.pattern = requireNonNull(path, "Path pattern is required.");
+    this.pattern = path;
+    if (!this.pattern.startsWith("/")) {
+      this.pattern = "/" + pattern;
+    }
     this.template = template();
   }
 

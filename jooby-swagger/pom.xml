@@ -36,7 +36,7 @@
     <!-- Jooby -->
     <dependency>
       <groupId>org.jooby</groupId>
-      <artifactId>jooby</artifactId>
+      <artifactId>jooby-spec</artifactId>
       <version>${project.version}</version>
     </dependency>
 

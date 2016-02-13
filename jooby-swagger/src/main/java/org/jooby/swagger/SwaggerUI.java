@@ -18,22 +18,28 @@
  */
 package org.jooby.swagger;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 import org.jooby.Jooby;
 import org.jooby.MediaType;
-import org.jooby.Route;
+import org.jooby.Results;
 import org.jooby.internal.swagger.SwaggerBuilder;
 import org.jooby.internal.swagger.SwaggerHandler;
 import org.jooby.internal.swagger.SwaggerModule;
 import org.jooby.internal.swagger.SwaggerYml;
+import org.jooby.spec.RouteSpec;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.common.base.Splitter;
 
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
@@ -43,7 +49,12 @@ import io.swagger.util.Yaml;
  * <h1>swagger module</h1>
  *
  * <p>
- * Generate a Swagger Spec from MVC routes.
+ * Generates a <a href="http://swagger.io">Swagger spec</a> from an application.
+ * </p>
+ *
+ * <p>
+ * <strong>NOTE:</strong> This modules depends on {@link RouteSpec}, please read the
+ * {@link RouteSpec} to learn how to use this tool.
  * </p>
  *
  * <h2>exposes</h2>
@@ -55,6 +66,33 @@ import io.swagger.util.Yaml;
  *
  * <h2>usage</h2>
  *
+ * <p>
+ * via Script API:
+ * </p>
+ *
+ * <pre>
+ * {
+ *    /{@literal *}{@literal *}
+ *     {@literal *}Everything about your pets
+ *     {@literal *}/
+ *    use("/api/pets")
+ *       /{@literal *}{@literal *}
+ *        {@literal *} Get a pet by ID.
+ *        {@literal *} &#64;param id Pet ID
+ *        {@literal *}/
+ *      .get("/:id", req {@literal ->} {
+ *        int id = req.param("id").intValue();
+ *        DB db = req.require(DB.class);
+ *        Pet pet = db.find(Pet.class, id);
+ *        return pet;
+ *      })
+ *      ...;
+ * }
+ * </pre>
+ *
+ * <p>
+ * via MVC API:
+ * </p>
  * <pre>
  * &#64;Path("/api/pets")
  * public class Pets {
@@ -108,7 +146,7 @@ import io.swagger.util.Yaml;
  *
  * <h2>swagger.conf</h2>
  * <p>
- * Jooby creates a {@link Swagger} model dynamically from MVC {@link Route.Definition}. But also,
+ * Jooby creates a {@link Swagger} model dynamically from MVC {@link RouteSpec}. But also,
  * defines some defaults inside the <code>swagger.conf</code> (see appendix).
  * </p>
  *
@@ -125,55 +163,125 @@ import io.swagger.util.Yaml;
  *
  * </pre>
  *
- * <h2>limitations</h2>
- * <p>
- * Sadly, ONLY MVC routes are supported. Inline/lambda routes has no supports for now.
- * </p>
- *
  * @author edgar
  * @since 0.6.2
  */
 public class SwaggerUI {
 
-  public static void install(final Jooby app) {
-    install("/swagger", app);
+  private static final Pattern TAG = Pattern.compile("(api)|/");
+
+  private Predicate<RouteSpec> predicate = r -> r.pattern().startsWith("/api");
+
+  private Function<RouteSpec, String> tag = r -> {
+    Iterator<String> segments = Splitter.on(TAG)
+        .trimResults()
+        .omitEmptyStrings()
+        .split(r.pattern())
+        .iterator();
+    return segments.next();
+  };
+
+  private String path;
+
+  /**
+   * Mount swagger at the given path.
+   *
+   * @param path A swagger path.
+   */
+  public SwaggerUI(final String path) {
+    this.path = requireNonNull(path, "Path is required.");
   }
 
-  public static void install(final String path, final Jooby app) {
+  /**
+   * Mount swagger at <code>/swagger</code>.
+   */
+  public SwaggerUI() {
+    this("/swagger");
+  }
 
+  /**
+   * Apply a route filter. By default, it keeps all the routes that starts with <code>/api</code>.
+   *
+   * @param predicate A filter to apply.
+   * @return This instance.
+   */
+  public SwaggerUI filter(final Predicate<RouteSpec> predicate) {
+    this.predicate = requireNonNull(predicate, "Predicate is required.");
+    return this;
+  }
+
+  /**
+   * Creates a swagger tag from a route. The default tag provider extracts takes the first path
+   * (ignoring <code>api</code>) from route pattern. For example, tag for <code>/api/pets</code>
+   * will be <code>pets</code>.
+   *
+   * @param tag A tag provider.
+   * @return This instance.
+   */
+  public SwaggerUI tag(final Function<RouteSpec, String> tag) {
+    this.tag = requireNonNull(tag, "Tag provider is required.");
+    return this;
+  }
+
+  /**
+   * Publish application routes as Swagger spec.
+   *
+   * @param app An application.
+   */
+  public void publish(final Jooby app) {
+    requireNonNull(app, "Application is required.");
     ObjectMapper mapper = Json.create();
     ObjectWriter yaml = Yaml.pretty();
 
     app.use(new SwaggerModule(mapper));
 
-    app.renderer((value, ctx) -> {
-      if (value instanceof SwaggerYml) {
-        ctx.type("application/yaml")
-            .send(yaml.writeValueAsBytes(value));
-      } else if (value instanceof Swagger) {
-        ctx.type(MediaType.json)
-            .send(mapper.writer().withDefaultPrettyPrinter().writeValueAsBytes(value));
-      }
-    });
-
     app.assets(path + "/ui/**",
         "/META-INF/resources/webjars/swagger-ui/" + wjversion(app.getClass()) + "/{0}");
 
-    app.get(path + "/swagger.json",
-        path + "/:tag/swagger.json",
-        req -> req.require(SwaggerBuilder.class)
-            .build(filter(req.param("tag").toOptional()), Swagger.class))
-        .name("swagger(json)");
+    app.get(path + "/swagger.json", path + "/:tag/swagger.json", req -> {
+      SwaggerBuilder sb = req.require(SwaggerBuilder.class);
+      Swagger swagger = sb.build(req.param("tag").toOptional(), predicate, tag, Swagger.class);
+      byte[] json = mapper.writer().withDefaultPrettyPrinter().writeValueAsBytes(swagger);
+      return Results.json(json);
+    }).name("swagger(json)");
 
-    app.get(path + "/swagger.yml", path + "/:tag/swagger.yml",
-        req -> req.require(SwaggerBuilder.class)
-            .build(filter(req.param("tag").toOptional()), SwaggerYml.class))
-        .name("swagger(yml)");
+    app.get(path + "/swagger.yml", path + "/:tag/swagger.yml", req -> {
+      SwaggerBuilder sb = req.require(SwaggerBuilder.class);
+      Swagger swagger = sb.build(req.param("tag").toOptional(), predicate, tag, SwaggerYml.class);
+      byte[] yml = yaml.writeValueAsBytes(swagger);
+      return Results.ok(yml).type("application/yaml");
+
+    }).name("swagger(yml)");
 
     app.get(path, path + "/:tag", new SwaggerHandler(path))
         .name("swagger(html)")
         .produces(MediaType.html);
+  }
 
+  /**
+   * Install swagger in the given app. This call is identical too:
+   *
+   * <pre>
+   *   new SwaggerUI().publish(app);
+   * </pre>
+   *
+   * @param app Application to configure.
+   */
+  public static void install(final Jooby app) {
+    new SwaggerUI().publish(app);
+  }
+
+  /**
+   * Install swagger in the given app. This call is identical too:
+   *
+   * <pre>
+   *   new SwaggerUI(path).publish(app);
+   * </pre>
+   *
+   * @param app Application to configure.
+   */
+  public static void install(final String path, final Jooby app) {
+    new SwaggerUI(path).publish(app);
   }
 
   private static String wjversion(final Class<?> loader) {
@@ -185,18 +293,6 @@ public class SwaggerUI {
     } catch (IOException ex) {
       throw new IllegalStateException("No version found for swagger-ui", ex);
     }
-  }
-
-  private static Predicate<String> filter(final Optional<String> tag) {
-    return tag.map(SwaggerUI::matches).orElseGet(SwaggerUI::any);
-  }
-
-  private static Predicate<String> matches(final String tag) {
-    return it -> tag.equals(it);
-  }
-
-  private static Predicate<String> any() {
-    return it -> true;
   }
 
 }
