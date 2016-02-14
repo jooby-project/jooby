@@ -68,7 +68,7 @@ public enum Status {
    *
    * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.2.1">HTTP/1.1</a>
    */
-  OK(200, "OK"),
+  OK(200, "Success"),
   /**
    * {@code 201 Created}.
    *

@@ -32,17 +32,17 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
 import com.google.common.collect.ImmutableSet;
 
-public class AppCollector extends GenericVisitorAdapter<Node, Object> {
+public class AppCollector extends GenericVisitorAdapter<Node, Context> {
 
   private static final Set<String> APP = ImmutableSet
       .of(Jooby.class.getSimpleName(), Jooby.class.getName());
 
-  public Node accept(final CompilationUnit unit) {
-    return unit.accept(this, null);
+  public Node accept(final CompilationUnit unit, final Context ctx) {
+    return unit.accept(this, ctx);
   }
 
   @Override
-  public Node visit(final ObjectCreationExpr expr, final Object arg) {
+  public Node visit(final ObjectCreationExpr expr, final Context ctx) {
     /**
      * Inline like:
      *
@@ -57,8 +57,9 @@ public class AppCollector extends GenericVisitorAdapter<Node, Object> {
     return null;
   }
 
+  @SuppressWarnings("rawtypes")
   @Override
-  public Node visit(final InitializerDeclaration expr, final Object arg) {
+  public Node visit(final InitializerDeclaration expr, final Context ctx) {
     /**
      * extends + initializer
      *
@@ -72,8 +73,12 @@ public class AppCollector extends GenericVisitorAdapter<Node, Object> {
     if (node instanceof ClassOrInterfaceDeclaration) {
       List<ClassOrInterfaceType> extendList = ((ClassOrInterfaceDeclaration) node).getExtends();
       if (extendList.size() > 0) {
-        if (APP.contains(extendList.get(0).getName())) {
-          return expr;
+        Class type = (Class) extendList.get(0).accept(new TypeCollector(), ctx);
+        while (type != Object.class) {
+          if (type.getTypeName().equals("org.jooby.Jooby")) {
+            return expr;
+          }
+          type = type.getSuperclass();
         }
       }
     }

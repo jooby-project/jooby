@@ -19,7 +19,7 @@ public class AppNodeFinderTest extends ASTTest {
         "  {",
         "    get(\"/\", () -> \"Hello World!\");",
         "  }",
-        "}"));
+        "}"), ctx());
     assertNotNull(app);
     assertEquals("{\n" +
         "    get(\"/\", () -> \"Hello World!\");\n" +

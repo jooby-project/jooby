@@ -237,7 +237,7 @@ public class RouteProcessor {
       /**
        * Find out app node.
        */
-      Node appNode = new AppCollector().accept(unit);
+      Node appNode = new AppCollector().accept(unit, ctx);
 
       /** Collect all routes and process them. */
       Set<String> owners = new HashSet<>();

@@ -6,9 +6,9 @@ import org.junit.Test;
 public class SwaggerFeature extends ServerFeature {
 
   {
-    SwaggerUI.install(this);
-
     use(Pets.class);
+
+    new SwaggerUI().install(this);
   }
 
   @Test
@@ -47,19 +47,31 @@ public class SwaggerFeature extends ServerFeature {
             "  \"consumes\" : [ \"application/json\" ],\n" +
             "  \"produces\" : [ \"application/json\" ],\n" +
             "  \"paths\" : {\n" +
-            "    \"/pets\" : {\n" +
+            "    \"/api/pets\" : {\n" +
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"consumes\" : [ \"*/*\" ],\n" +
+            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"name\" : \"size\",\n" +
             "          \"in\" : \"query\",\n" +
             "          \"required\" : false,\n" +
             "          \"type\" : \"integer\",\n" +
             "          \"format\" : \"int32\"\n" +
-            "        } ]\n" +
+            "        } ],\n" +
+            "        \"responses\" : {\n" +
+            "          \"200\" : {\n" +
+            "            \"description\" : \"Success\",\n" +
+            "            \"schema\" : {\n" +
+            "              \"$ref\" : \"#/definitions/IterablePet\"\n" +
+            "            }\n" +
+            "          }\n" +
+            "        }\n" +
             "      },\n" +
             "      \"post\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"consumes\" : [ \"*/*\" ],\n" +
+            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"in\" : \"body\",\n" +
             "          \"name\" : \"pet\",\n" +
@@ -67,19 +79,37 @@ public class SwaggerFeature extends ServerFeature {
             "          \"schema\" : {\n" +
             "            \"$ref\" : \"#/definitions/Pet\"\n" +
             "          }\n" +
-            "        } ]\n" +
+            "        } ],\n" +
+            "        \"responses\" : {\n" +
+            "          \"200\" : {\n" +
+            "            \"description\" : \"Success\",\n" +
+            "            \"schema\" : {\n" +
+            "              \"$ref\" : \"#/definitions/Pet\"\n" +
+            "            }\n" +
+            "          }\n" +
+            "        }\n" +
             "      }\n" +
             "    },\n" +
-            "    \"/pets/{id}\" : {\n" +
+            "    \"/api/pets/{id}\" : {\n" +
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"consumes\" : [ \"*/*\" ],\n" +
+            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"name\" : \"id\",\n" +
             "          \"in\" : \"path\",\n" +
             "          \"required\" : true,\n" +
             "          \"type\" : \"integer\",\n" +
             "          \"format\" : \"int32\"\n" +
-            "        } ]\n" +
+            "        } ],\n" +
+            "        \"responses\" : {\n" +
+            "          \"200\" : {\n" +
+            "            \"description\" : \"Success\",\n" +
+            "            \"schema\" : {\n" +
+            "              \"$ref\" : \"#/definitions/Pet\"\n" +
+            "            }\n" +
+            "          }\n" +
+            "        }\n" +
             "      }\n" +
             "    }\n" +
             "  },\n" +
@@ -114,19 +144,31 @@ public class SwaggerFeature extends ServerFeature {
             "  \"consumes\" : [ \"application/json\" ],\n" +
             "  \"produces\" : [ \"application/json\" ],\n" +
             "  \"paths\" : {\n" +
-            "    \"/pets\" : {\n" +
+            "    \"/api/pets\" : {\n" +
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"consumes\" : [ \"*/*\" ],\n" +
+            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"name\" : \"size\",\n" +
             "          \"in\" : \"query\",\n" +
             "          \"required\" : false,\n" +
             "          \"type\" : \"integer\",\n" +
             "          \"format\" : \"int32\"\n" +
-            "        } ]\n" +
+            "        } ],\n" +
+            "        \"responses\" : {\n" +
+            "          \"200\" : {\n" +
+            "            \"description\" : \"Success\",\n" +
+            "            \"schema\" : {\n" +
+            "              \"$ref\" : \"#/definitions/IterablePet\"\n" +
+            "            }\n" +
+            "          }\n" +
+            "        }\n" +
             "      },\n" +
             "      \"post\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"consumes\" : [ \"*/*\" ],\n" +
+            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"in\" : \"body\",\n" +
             "          \"name\" : \"pet\",\n" +
@@ -134,19 +176,37 @@ public class SwaggerFeature extends ServerFeature {
             "          \"schema\" : {\n" +
             "            \"$ref\" : \"#/definitions/Pet\"\n" +
             "          }\n" +
-            "        } ]\n" +
+            "        } ],\n" +
+            "        \"responses\" : {\n" +
+            "          \"200\" : {\n" +
+            "            \"description\" : \"Success\",\n" +
+            "            \"schema\" : {\n" +
+            "              \"$ref\" : \"#/definitions/Pet\"\n" +
+            "            }\n" +
+            "          }\n" +
+            "        }\n" +
             "      }\n" +
             "    },\n" +
-            "    \"/pets/{id}\" : {\n" +
+            "    \"/api/pets/{id}\" : {\n" +
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"consumes\" : [ \"*/*\" ],\n" +
+            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"name\" : \"id\",\n" +
             "          \"in\" : \"path\",\n" +
             "          \"required\" : true,\n" +
             "          \"type\" : \"integer\",\n" +
             "          \"format\" : \"int32\"\n" +
-            "        } ]\n" +
+            "        } ],\n" +
+            "        \"responses\" : {\n" +
+            "          \"200\" : {\n" +
+            "            \"description\" : \"Success\",\n" +
+            "            \"schema\" : {\n" +
+            "              \"$ref\" : \"#/definitions/Pet\"\n" +
+            "            }\n" +
+            "          }\n" +
+            "        }\n" +
             "      }\n" +
             "    }\n" +
             "  },\n" +
@@ -185,35 +245,62 @@ public class SwaggerFeature extends ServerFeature {
             "produces:\n" +
             "- \"application/json\"\n" +
             "paths:\n" +
-            "  /pets:\n" +
+            "  /api/pets:\n" +
             "    get:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      consumes:\n" +
+            "      - \"*/*\"\n" +
+            "      produces:\n" +
+            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - name: \"size\"\n" +
             "        in: \"query\"\n" +
             "        required: false\n" +
             "        type: \"integer\"\n" +
             "        format: \"int32\"\n" +
+            "      responses:\n" +
+            "        200:\n" +
+            "          description: \"Success\"\n" +
+            "          schema:\n" +
+            "            $ref: \"#/definitions/IterablePet\"\n" +
             "    post:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      consumes:\n" +
+            "      - \"*/*\"\n" +
+            "      produces:\n" +
+            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - in: \"body\"\n" +
             "        name: \"pet\"\n" +
             "        required: true\n" +
             "        schema:\n" +
             "          $ref: \"#/definitions/Pet\"\n" +
-            "  /pets/{id}:\n" +
+            "      responses:\n" +
+            "        200:\n" +
+            "          description: \"Success\"\n" +
+            "          schema:\n" +
+            "            $ref: \"#/definitions/Pet\"\n" +
+            "  /api/pets/{id}:\n" +
             "    get:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      consumes:\n" +
+            "      - \"*/*\"\n" +
+            "      produces:\n" +
+            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - name: \"id\"\n" +
             "        in: \"path\"\n" +
             "        required: true\n" +
             "        type: \"integer\"\n" +
             "        format: \"int32\"\n" +
+            "      responses:\n" +
+            "        200:\n" +
+            "          description: \"Success\"\n" +
+            "          schema:\n" +
+            "            $ref: \"#/definitions/Pet\"\n" +
             "definitions:\n" +
             "  Pet:\n" +
             "    type: \"object\"\n" +
@@ -241,35 +328,62 @@ public class SwaggerFeature extends ServerFeature {
             "produces:\n" +
             "- \"application/json\"\n" +
             "paths:\n" +
-            "  /pets:\n" +
+            "  /api/pets:\n" +
             "    get:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      consumes:\n" +
+            "      - \"*/*\"\n" +
+            "      produces:\n" +
+            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - name: \"size\"\n" +
             "        in: \"query\"\n" +
             "        required: false\n" +
             "        type: \"integer\"\n" +
             "        format: \"int32\"\n" +
+            "      responses:\n" +
+            "        200:\n" +
+            "          description: \"Success\"\n" +
+            "          schema:\n" +
+            "            $ref: \"#/definitions/IterablePet\"\n" +
             "    post:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      consumes:\n" +
+            "      - \"*/*\"\n" +
+            "      produces:\n" +
+            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - in: \"body\"\n" +
             "        name: \"pet\"\n" +
             "        required: true\n" +
             "        schema:\n" +
             "          $ref: \"#/definitions/Pet\"\n" +
-            "  /pets/{id}:\n" +
+            "      responses:\n" +
+            "        200:\n" +
+            "          description: \"Success\"\n" +
+            "          schema:\n" +
+            "            $ref: \"#/definitions/Pet\"\n" +
+            "  /api/pets/{id}:\n" +
             "    get:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      consumes:\n" +
+            "      - \"*/*\"\n" +
+            "      produces:\n" +
+            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - name: \"id\"\n" +
             "        in: \"path\"\n" +
             "        required: true\n" +
             "        type: \"integer\"\n" +
             "        format: \"int32\"\n" +
+            "      responses:\n" +
+            "        200:\n" +
+            "          description: \"Success\"\n" +
+            "          schema:\n" +
+            "            $ref: \"#/definitions/Pet\"\n" +
             "definitions:\n" +
             "  Pet:\n" +
             "    type: \"object\"\n" +

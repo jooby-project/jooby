@@ -272,7 +272,7 @@ public class SwaggerBuilder {
   }
 
   private Type paramType(final Type type) {
-    if (type == Optional.class && type instanceof ParameterizedType) {
+    if (type.getTypeName().startsWith("java.util.Optional") && type instanceof ParameterizedType) {
       ParameterizedType pt = (ParameterizedType) type;
       return pt.getActualTypeArguments()[0];
     }

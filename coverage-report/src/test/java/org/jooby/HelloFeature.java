@@ -20,6 +20,10 @@ public class HelloFeature extends ServerFeature {
     request()
         .get("/bye")
         .expect("bye!");
+
+    request()
+        .get("/not-found")
+        .expect(404);
   }
 
 }

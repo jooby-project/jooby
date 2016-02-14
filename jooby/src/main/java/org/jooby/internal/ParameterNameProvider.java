@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.reflect;
+package org.jooby.internal;
 
 import java.lang.reflect.Executable;
 

@@ -29,11 +29,11 @@ import org.jooby.Mutant;
 import org.jooby.Parser;
 import org.jooby.Request;
 import org.jooby.Response;
+import org.jooby.internal.ParameterNameProvider;
 import org.jooby.internal.mvc.RequestParam;
 import org.jooby.internal.mvc.RequestParamNameProviderImpl;
 import org.jooby.internal.mvc.RequestParamProvider;
 import org.jooby.internal.mvc.RequestParamProviderImpl;
-import org.jooby.reflect.ParameterNameProvider;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;

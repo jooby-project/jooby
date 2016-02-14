@@ -22,7 +22,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.util.stream.IntStream;
 
-import org.jooby.reflect.ParameterNameProvider;
+import org.jooby.internal.ParameterNameProvider;
 
 public class RequestParamNameProviderImpl {
 

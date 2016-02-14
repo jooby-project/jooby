@@ -46,6 +46,9 @@ class StaticMethodTypeConverter<T> extends AbstractMatcher<TypeLiteral<T>>
   @Override
   public boolean matches(final TypeLiteral<T> type) {
     Class<? super T> rawType = type.getRawType();
+    if (rawType == Class.class) {
+      return false;
+    }
     if (Primitives.isWrapperType(rawType)) {
       return false;
     }

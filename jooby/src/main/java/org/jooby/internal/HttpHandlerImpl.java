@@ -366,7 +366,6 @@ public class HttpHandlerImpl implements HttpHandler {
         if (ex != null) {
           throw ex;
         }
-        // 404
         throw new Err(Status.NOT_FOUND, path);
       }
     } , method, path, "err", accept));

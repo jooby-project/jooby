@@ -28,67 +28,70 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
    * Everything about your Pets.
    */
   use("/api/pets")
-     /**
-      * List pets ordered by name.
-      *
-      * @param start Start offset, useful for paging. Default is <code>0</code>.
-      * @param max Max page size, useful for paging. Default is <code>200</code>.
-      * @return Pets ordered by name.
-      */
-    .get(req -> {
-      int start = req.param("start").intValue(0);
-      int max = req.param("max").intValue(200);
-      DB db = req.require(DB.class);
-      List<Pet> pets = db.findAll(Pet.class, start, max);
-      return pets;
-    })
-    /**
-      * Find pet by ID.
-      *
-      * @param id Pet ID.
-      * @return Returns a single pet
-      */
-    .get("/:id", req -> {
-      int id = req.param("id").intValue();
-      DB db = req.require(DB.class);
-      Pet pet = db.find(Pet.class, id);
-      return pet;
-    })
-    /**
-      * Add a new pet to the store.
-      *
-      * @param body Pet object that needs to be added to the store.
-      * @return Returns a saved pet.
-      */
-    .post(req -> {
-      Pet pet = req.body().to(Pet.class);
-      DB db = req.require(DB.class);
-      Pet pet = db.save(pet);
-      return pet;
-    })
-    /**
-      * Update an existing pet.
-      *
-      * @param body Pet object that needs to be updated.
-      * @return Returns a saved pet.
-      */
-    .put(req -> {
-      Pet pet = req.body().to(Pet.class);
-      DB db = req.require(DB.class);
-      Pet pet = db.save(pet);
-      return pet;
-    })
-    /**
-      * Deletes a pet by ID.
-      *
-      * @param id Pet ID.
-      */
-    .delete("/:id", req -> {
-      int id = req.param("id").intValue();
-      DB db = req.require(DB.class);
-      Pet pet = db.delete(Pet.class, id);
-      return Results.noContent();
-    });
+      /**
+       * List pets ordered by name.
+       *
+       * @param start Start offset, useful for paging. Default is <code>0</code>.
+       * @param max Max page size, useful for paging. Default is <code>200</code>.
+       * @return Pets ordered by name.
+       */
+      .get(req -> {
+        int start = req.param("start").intValue(0);
+        int max = req.param("max").intValue(200);
+        DB db = req.require(DB.class);
+        List<Pet> pets = db.findAll(Pet.class, start, max);
+        return pets;
+      })
+      /**
+       * Find pet by ID
+       *
+       * @param id Pet ID.
+       * @return Returns <code>200</code> with a single pet or <code>404</code>
+       */
+      .get("/:id", req -> {
+        int id = req.param("id").intValue();
+        DB db = req.require(DB.class);
+        Pet pet = db.find(Pet.class, id);
+        return pet;
+      })
+      /**
+       * Add a new pet to the store.
+       *
+       * @param body Pet object that needs to be added to the store.
+       * @return Returns a saved pet.
+       */
+      .post(req -> {
+        Pet pet = req.body().to(Pet.class);
+        DB db = req.require(DB.class);
+        db.save(pet);
+        return pet;
+      })
+      /**
+       * Update an existing pet.
+       *
+       * @param body Pet object that needs to be updated.
+       * @return Returns a saved pet.
+       */
+      .put(req -> {
+        Pet pet = req.body().to(Pet.class);
+        DB db = req.require(DB.class);
+        db.save(pet);
+        return pet;
+      })
+      /**
+       * Deletes a pet by ID.
+       *
+       * @param id Pet ID.
+       * @return A <code>204</code>
+       */
+      .delete("/:id", req -> {
+        int id = req.param("id").intValue();
+        DB db = req.require(DB.class);
+        db.delete(Pet.class, id);
+        return Results.noContent();
+      })
+      .produces("json")
+      .consumes("json");
 }
 ```
 
@@ -100,182 +103,157 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
  * Everything about your Pets.
  */
 @Path("/api/pets")
+@Consumes("json")
+@Produces("json")
 public class Pets {
 
-    /**
-      * List pets ordered by name.
-      *
-      * @param start Start offset, useful for paging. Default is <code>0</code>.
-      * @param max Max page size, useful for paging. Default is <code>200</code>.
-      * @return Pets ordered by name.
-      */
-    @GET
-    public List<Pet> list(Optional<Integer> start, Optional<Integer> max) { 
-      DB db = req.require(DB.class);
-      List<Pet> pets = db.findAll(Pet.class, start.orElse(0), max.orElse(200));
-      return pets;
-    }
+  private DB db;
 
-    /**
-      * Find pet by ID.
-      *
-      * @param id Pet ID.
-      * @return Returns a single pet
-      */
-    @Path("/:id")
-    @GET
-    public Pet get(int id) {
-      DB db = req.require(DB.class);
-      Pet pet = db.find(Pet.class, id);
-      return pet;
-    }
+  @Inject
+  public Pets(final DB db) {
+    this.db = db;
+  }
 
-    /**
-      * Add a new pet to the store.
-      *
-      * @param pet Pet object that needs to be added to the store.
-      * @return Returns a saved pet.
-      */
-    @POST
-    public Pet post(@Body Pet pet) {
-      DB db = req.require(DB.class);
-      Pet pet = db.save(pet);
-      return pet;
-    }
+  /**
+   * List pets ordered by name.
+   *
+   * @param start Start offset, useful for paging. Default is <code>0</code>.
+   * @param max Max page size, useful for paging. Default is <code>200</code>.
+   * @return Pets ordered by name.
+   */
+  @GET
+  public List<Pet> list(final Optional<Integer> start, final Optional<Integer> max) {
+    List<Pet> pets = db.findAll(Pet.class, start.orElse(0), max.orElse(200));
+    return pets;
+  }
 
-    /**
-      * Update an existing pet.
-      *
-      * @param body Pet object that needs to be updated.
-      * @return Returns a saved pet.
-      */
-    @PUT
-    public Pet put(@Body Pet pet) {
-      DB db = req.require(DB.class);
-      Pet pet = db.save(pet);
-      return pet;
-    }
+  /**
+   * Find pet by ID.
+   *
+   * @param id Pet ID.
+   * @return Returns a single pet
+   */
+  @Path("/:id")
+  @GET
+  public Pet get(final int id) {
+    Pet pet = db.find(Pet.class, id);
+    return pet;
+  }
 
-    /**
-      * Deletes a pet by ID.
-      *
-      * @param id Pet ID.
-      */
-    public void delete(int id) {
-      DB db = req.require(DB.class);
-      Pet pet = db.delete(Pet.class, id);
-    }
+  /**
+   * Add a new pet to the store.
+   *
+   * @param pet Pet object that needs to be added to the store.
+   * @return Returns a saved pet.
+   */
+  @POST
+  public Pet post(@Body final Pet pet) {
+    db.save(pet);
+    return pet;
+  }
+
+  /**
+   * Update an existing pet.
+   *
+   * @param body Pet object that needs to be updated.
+   * @return Returns a saved pet.
+   */
+  @PUT
+  public Pet put(@Body final Pet pet) {
+    db.save(pet);
+    return pet;
+  }
+
+  /**
+   * Deletes a pet by ID.
+   *
+   * @param id Pet ID.
+   */
+  @DELETE
+  public void delete(final int id) {
+    db.delete(Pet.class, id);
+  }
 }
 ```
 
-Previous examples are feature identical, but they were written in very different way. Still they produces the same output:
+Previous examples are feature identical, but they were written in very different way. Still they produces an output likes:
 
-```json
-[ {
-  "summary" : "Everything about your Pets.",
-  "method" : "GET",
-  "response" : {
-    "statusCodes" : { },
-    "doc" : "Pets ordered by name.",
-    "type" : "java.util.List<apps.model.Pet>"
-  },
-  "pattern" : "/api/pets",
-  "produces" : [ "*/*" ],
-  "doc" : "List pets ordered by name.",
-  "params" : [ {
-    "paramType" : "QUERY",
-    "name" : "start",
-    "doc" : "Start offset, useful for paging. Default is <code>0</code>.",
-    "type" : "int",
-    "value" : 0
-  }, {
-    "paramType" : "QUERY",
-    "name" : "max",
-    "doc" : "Max page size, useful for paging. Default is <code>200</code>.",
-    "type" : "int",
-    "value" : 200
-  } ],
-  "consumes" : [ "*/*" ]
-}, {
-  "summary" : "Everything about your Pets.",
-  "method" : "GET",
-  "response" : {
-    "statusCodes" : { },
-    "doc" : "Returns a single pet",
-    "type" : "apps.model.Pet"
-  },
-  "pattern" : "/api/pets/:id",
-  "produces" : [ "*/*" ],
-  "doc" : "Find pet by ID.",
-  "params" : [ {
-    "paramType" : "PATH",
-    "name" : "id",
-    "doc" : "Pet ID.",
-    "type" : "int",
-    "value" : null
-  } ],
-  "consumes" : [ "*/*" ]
-}, {
-  "summary" : "Everything about your Pets.",
-  "method" : "POST",
-  "response" : {
-    "statusCodes" : { },
-    "doc" : "Returns a saved pet.",
-    "type" : "apps.model.Pet"
-  },
-  "pattern" : "/api/pets",
-  "produces" : [ "*/*" ],
-  "doc" : "Add a new pet to the store.",
-  "params" : [ {
-    "paramType" : "BODY",
-    "name" : "<body>",
-    "doc" : "Pet object that needs to be added to the store.",
-    "type" : "apps.model.Pet",
-    "value" : null
-  } ],
-  "consumes" : [ "*/*" ]
-}, {
-  "summary" : "Everything about your Pets.",
-  "method" : "PUT",
-  "response" : {
-    "statusCodes" : { },
-    "doc" : "Returns a saved pet.",
-    "type" : "apps.model.Pet"
-  },
-  "pattern" : "/api/pets",
-  "produces" : [ "*/*" ],
-  "doc" : "Update an existing pet.",
-  "params" : [ {
-    "paramType" : "BODY",
-    "name" : "<body>",
-    "doc" : "Pet object that needs to be updated.",
-    "type" : "apps.model.Pet",
-    "value" : null
-  } ],
-  "consumes" : [ "*/*" ]
-}, {
-  "summary" : "Everything about your Pets.",
-  "method" : "DELETE",
-  "response" : {
-    "statusCodes" : { },
-    "doc" : null,
-    "type" : "java.lang.Object"
-  },
-  "pattern" : "/api/pets/:id",
-  "produces" : [ "*/*" ],
-  "doc" : "Deletes a pet by ID.",
-  "params" : [ {
-    "paramType" : "PATH",
-    "name" : "id",
-    "doc" : "Pet ID.",
-    "type" : "int",
-    "value" : null
-  } ],
-  "consumes" : [ "*/*" ]
-} ]
+```yaml
+
+GET /api/pets
+  summary: Everything about your Pets.
+  doc: List pets ordered by name.
+  consumes: [application/json]
+  produces: [application/json]
+  params: 
+    start: 
+      paramType: QUERY
+      type: int
+      value: 0
+      doc: Start offset, useful for paging. Default is <code>0</code>.
+    max: 
+      paramType: QUERY
+      type: int
+      value: 200
+      doc: Max page size, useful for paging. Default is <code>200</code>.
+  response: 
+    type: java.util.List<apps.model.Pet>
+    doc: Pets ordered by name.
+GET /api/pets/:id
+  summary: Everything about your Pets.
+  doc: Find pet by ID
+  consumes: [application/json]
+  produces: [application/json]
+  params: 
+    id: 
+      paramType: PATH
+      type: int
+      doc: Pet ID.
+  response: 
+    type: apps.model.Pet
+    doc: Returns <code>200</code> with a single pet or <code>404</code>
+POST /api/pets
+  summary: Everything about your Pets.
+  doc: Add a new pet to the store.
+  consumes: [application/json]
+  produces: [application/json]
+  params: 
+    <body>: 
+      paramType: BODY
+      type: apps.model.Pet
+      doc: Pet object that needs to be added to the store.
+  response: 
+    type: apps.model.Pet
+    doc: Returns a saved pet.
+PUT /api/pets
+  summary: Everything about your Pets.
+  doc: Update an existing pet.
+  consumes: [application/json]
+  produces: [application/json]
+  params: 
+    <body>: 
+      paramType: BODY
+      type: apps.model.Pet
+      doc: Pet object that needs to be updated.
+  response: 
+    type: apps.model.Pet
+    doc: Returns a saved pet.
+DELETE /api/pets/:id
+  summary: Everything about your Pets.
+  doc: Deletes a pet by ID.
+  consumes: [application/json]
+  produces: [application/json]
+  params: 
+    id: 
+      paramType: PATH
+      type: int
+      doc: Pet ID.
+  response: 
+    type: void
+    doc: A <code>204</code>
 ```
 
-> NOTE: We use ```json```  here for simplicity and easy read, but keep in mind the output is compiled in binary format.
+> NOTE: We use ```text```  here for simplicity and easy read, but keep in mind the output is compiled in binary format.
 
 ## how it works?
 
@@ -384,30 +362,26 @@ Here is an example on how to document script routes:
 
 The spec for ```/api/pets``` will have the following doc:
 
-```json
-{
-  summary: "Everything about your Pets.",
-  "doc": "List pets ordered by name",
-  params: [
-    {
-      name: "start",
-      doc: "Start offset, useful for paging. Default is <code>0</code>."
-    },
-    {
-      name: "max",
-      doc: "Max page size, useful for paging. Default is <code>200</code>."
-    }
-  ],
-  response: {
-    type: "List<Pet>",
-    doc: "Pets ordered by name"
-  }
-}
+```yaml
+  params: 
+    start: 
+      paramType: QUERY
+      type: int
+      value: 0
+      doc: Start offset, useful for paging. Default is <code>0</code>.
+    max: 
+      paramType: QUERY
+      type: int
+      value: 200
+      doc: Max page size, useful for paging. Default is <code>200</code>.
+  response: 
+    type: java.util.List<apps.model.Pet>
+    doc: Pets ordered by name.
 ```
 
-#### response
+### response
 
-From documentation, you can control the default type returned by the route and/or the status codes. For example:
+With JavaDoc, you can control the default type returned by the route and/or the status codes. For example:
 
 ```java
 
@@ -425,13 +399,13 @@ From documentation, you can control the default type returned by the route and/o
 
 Here you tell the tool that this route produces a ```Pet```, response looks like:
 
-```json
-response: {
-  type: "Pet",
-  statusCodes: {
-    200: "OK",
-    404: "Not Found"
-  }
+```yaml
+response:
+    type: apps.model.Pet
+    statusCodes: 
+      200: Success
+      404: Not Found
+    doc: Returns <code>200</code> with a single pet or <code>404</code>
 ```
 
 You can override the default message of the status code with:

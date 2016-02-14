@@ -228,7 +228,7 @@ public class SwaggerUI {
    *
    * @param app An application.
    */
-  public void publish(final Jooby app) {
+  public void install(final Jooby app) {
     requireNonNull(app, "Application is required.");
     ObjectMapper mapper = Json.create();
     ObjectWriter yaml = Yaml.pretty();
@@ -256,32 +256,6 @@ public class SwaggerUI {
     app.get(path, path + "/:tag", new SwaggerHandler(path))
         .name("swagger(html)")
         .produces(MediaType.html);
-  }
-
-  /**
-   * Install swagger in the given app. This call is identical too:
-   *
-   * <pre>
-   *   new SwaggerUI().publish(app);
-   * </pre>
-   *
-   * @param app Application to configure.
-   */
-  public static void install(final Jooby app) {
-    new SwaggerUI().publish(app);
-  }
-
-  /**
-   * Install swagger in the given app. This call is identical too:
-   *
-   * <pre>
-   *   new SwaggerUI(path).publish(app);
-   * </pre>
-   *
-   * @param app Application to configure.
-   */
-  public static void install(final String path, final Jooby app) {
-    new SwaggerUI(path).publish(app);
   }
 
   private static String wjversion(final Class<?> loader) {

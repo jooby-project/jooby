@@ -21,7 +21,7 @@ public class RouteCollectorTest extends ASTTest {
         "    get(\"/\", () -> \"Hello World!\");",
         "  }",
         "}");
-    Node app = new AppCollector().accept(unit);
+    Node app = new AppCollector().accept(unit, ctx());
 
     routes(new RouteCollector().accept(app, ctx()))
         .script((m, l) -> {
@@ -39,7 +39,7 @@ public class RouteCollectorTest extends ASTTest {
         "    use(\"/\").all(\"/all\", () -> \"Hello World!\");",
         "  }",
         "}");
-    Node app = new AppCollector().accept(unit);
+    Node app = new AppCollector().accept(unit, ctx());
 
     routes(new RouteCollector().accept(app, ctx()))
         .script((m, l) -> {
@@ -57,7 +57,7 @@ public class RouteCollectorTest extends ASTTest {
         "    use(\"/\").get(\"x\", () -> null).all(\"/all\", () -> \"Hello World!\");",
         "  }",
         "}");
-    Node app = new AppCollector().accept(unit);
+    Node app = new AppCollector().accept(unit, ctx());
 
     routes(new RouteCollector().accept(app, ctx()))
         .script((m, l) -> {
@@ -80,7 +80,7 @@ public class RouteCollectorTest extends ASTTest {
         "    use(\"/api/blogs\", new BlogApi());",
         "  }",
         "}");
-    Node app = new AppCollector().accept(unit);
+    Node app = new AppCollector().accept(unit, ctx());
 
     routes(new RouteCollector().accept(app, ctx()))
         .script((m, l) -> {
@@ -114,7 +114,7 @@ public class RouteCollectorTest extends ASTTest {
         "       });",
         "  }",
         "}");
-    Node app = new AppCollector().accept(unit);
+    Node app = new AppCollector().accept(unit, ctx());
 
     routes(new RouteCollector().accept(app, ctx()))
         .script((m, l) -> {
@@ -156,7 +156,7 @@ public class RouteCollectorTest extends ASTTest {
         "    post(\"/\", () -> \"Hello World!\");",
         "  }",
         "}");
-    Node app = new AppCollector().accept(unit);
+    Node app = new AppCollector().accept(unit, ctx());
 
     routes(new RouteCollector().accept(app, ctx()))
         .script((m, l) -> {
@@ -225,7 +225,7 @@ public class RouteCollectorTest extends ASTTest {
         "    post(\"/\", () -> \"Hello World!\");",
         "  }",
         "}");
-    Node app = new AppCollector().accept(unit);
+    Node app = new AppCollector().accept(unit, ctx());
     routes(new RouteCollector().accept(app, ctx()))
         .script((m, l) -> {
           assertEquals("get(\"/\", () -> \"Hello World!\")", m.toString());

@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jooby.Env;
-import org.jooby.reflect.ParameterNameProvider;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;

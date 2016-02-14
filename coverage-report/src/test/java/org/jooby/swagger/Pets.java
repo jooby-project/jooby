@@ -14,7 +14,7 @@ import org.jooby.mvc.Path;
 
 import com.google.common.collect.Lists;
 
-@Path("/pets")
+@Path("/api/pets")
 @Singleton
 public class Pets {
 
