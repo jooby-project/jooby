@@ -185,7 +185,7 @@ import com.zaxxer.hikari.HikariConfig;
  */
 public class Jdbc implements Jooby.Module {
 
-  private static final String DEFAULT_DB = "db";
+  protected static final String DEFAULT_DB = "db";
 
   protected final String dbName;
 

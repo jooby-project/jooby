@@ -1,0 +1,162 @@
+package org.jooby.jooq;
+
+import static java.util.Objects.requireNonNull;
+
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import javax.inject.Provider;
+import javax.sql.DataSource;
+
+import org.jooby.Env;
+import org.jooby.jdbc.Jdbc;
+import org.jooq.Configuration;
+import org.jooq.ConnectionProvider;
+import org.jooq.DSLContext;
+import org.jooq.impl.DefaultConfiguration;
+import org.jooq.impl.DefaultTransactionProvider;
+import org.jooq.tools.jdbc.JDBCUtils;
+
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+
+/**
+ * <h1>jOOQ</h1>
+ * <p>
+ * <a href="http://www.jooq.org">jOOQ</a> generates Java code from your database and lets you build
+ * type safe SQL queries through its fluent API.
+ * </p>
+ *
+ * <p>
+ * This module depends on {@link Jdbc} module, make sure you read the doc of the {@link Jdbc}
+ * module.
+ * </p>
+ *
+ * <h2>usage</h2>
+ * <pre>
+ * {
+ *   use(new jOOQ());
+ *
+ *   get("/jooq", req {@literal ->} {
+ *     try (DSLContext ctx = req.require(DSLContext.class)) {
+ *       return ctx.transactionResult(conf {@literal ->} {
+ *         DSLContext trx = DSL.using(conf);
+ *         return trx.selectFrom(TABLE)
+ *             .where(ID.eq(1))
+ *             .fetchOne(NAME);
+ *       });
+ *     }
+ *   });
+ * }
+ * </pre>
+ *
+ * <h2>multiple db connections</h2>
+ *
+ * <pre>
+ * {
+ *   use(new jOOQ("db.main"));
+ *   use(new jOOQ("db.audit"));
+ *
+ *   get("/main", req {@literal ->} {
+ *     try (DSLContext ctx = req.require("db.main", DSLContext.class)) {
+ *       ...
+ *     }
+ *   });
+ *
+ *   get("/audit", req {@literal ->} {
+ *     try (DSLContext ctx = req.require("db.audit", DSLContext.class)) {
+ *       ...
+ *     }
+ *   });
+ * }
+ * </pre>
+ *
+ * <h2>advanced configuration</h2>
+ * <p>
+ * This module setup a {@link Configuration} object with a {@link DataSource} from {@link Jdbc}
+ * module and the {@link DefaultTransactionProvider}. More advanced configuration is provided via
+ * {@link #doWith(BiConsumer)}:
+ * </p>
+ * <pre>
+ * {
+ *   use(new jOOQ().doWith(conf {@literal ->} {
+ *     conf.set(...);
+ *   });
+ * }
+ * </pre>
+ *
+ * <h2>code generation</h2>
+ * <p>
+ * Unfortunately, this module doesn't provide any built-in facility for code generation. If you need
+ * help to setup the code generator please checkout the
+ * <a href="http://www.jooq.org/doc/latest/manual/code-generation/">jOOQ documentation</a> for more
+ * information.
+ * </p>
+ *
+ * @author edgar
+ * @since 0.15.0
+ */
+public class jOOQ extends Jdbc {
+
+  private BiConsumer<Configuration, Config> callback;
+
+  /**
+   * Creates a new {@link jOOQ} module.
+   *
+   * @param name Database name.
+   */
+  public jOOQ(final String name) {
+    super(name);
+  }
+
+  /**
+   * Creates a new {@link jOOQ} module.
+   */
+  public jOOQ() {
+    this(DEFAULT_DB);
+  }
+
+  /**
+   * Apply advanced configuration.
+   *
+   * @param callback A configuration callback.
+   * @return This module.
+   */
+  public jOOQ doWith(final BiConsumer<Configuration, Config> callback) {
+    this.callback = requireNonNull(callback, "Configurer callback is required.");
+    return this;
+  }
+
+  /**
+   * Apply advanced configuration.
+   *
+   * @param callback A configuration callback.
+   * @return This module.
+   */
+  public jOOQ doWith(final Consumer<Configuration> callback) {
+    requireNonNull(callback, "Configurer callback is required.");
+    return doWith((configuration, conf) -> callback.accept(configuration));
+  }
+
+  @Override
+  public void configure(final Env env, final Config conf, final Binder binder) {
+    super.configure(env, conf, binder);
+
+    Provider<DataSource> ds = dataSource();
+    Configuration jooqconf = new DefaultConfiguration();
+    ConnectionProvider dscp = new DSConnectionProvider(ds);
+    jooqconf.set(JDBCUtils.dialect(ds.toString()));
+    jooqconf.set(dscp);
+    jooqconf.set(new DefaultTransactionProvider(dscp));
+
+    if (callback != null) {
+      callback.accept(jooqconf, conf);
+    }
+
+    keys(Configuration.class, k -> binder.bind(k).toInstance(jooqconf));
+
+    DSLCtxProvider provider = new DSLCtxProvider(jooqconf);
+    keys(DSLContext.class, k -> binder.bind(k).toProvider(provider));
+  }
+
+}

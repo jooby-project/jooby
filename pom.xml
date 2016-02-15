@@ -24,6 +24,7 @@
     <module>jooby-pebble</module>
     <module>jooby-jade</module>
     <module>jooby-jdbc</module>
+    <module>jooby-jooq</module>
     <module>jooby-hbm</module>
     <module>jooby-dist</module>
     <module>jooby-undertow</module>
@@ -144,6 +145,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-jdbi</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-jooq</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -934,6 +941,25 @@
         <groupId>org.avaje.ebeanorm</groupId>
         <artifactId>avaje-ebeanorm-agent</artifactId>
         <version>${avaje-ebeanorm-agent.version}</version>
+      </dependency>
+
+      <!-- jooq -->
+      <dependency>
+        <groupId>org.jooq</groupId>
+        <artifactId>jooq</artifactId>
+        <version>${jooq.version}</version>
+      </dependency>
+  
+      <dependency>
+        <groupId>org.jooq</groupId>
+        <artifactId>jooq-meta</artifactId>
+        <version>${jooq.version}</version>
+      </dependency>
+  
+      <dependency>
+        <groupId>org.jooq</groupId>
+        <artifactId>jooq-codegen</artifactId>
+        <version>${jooq.version}</version>
       </dependency>
 
       <!-- YUI Compressor -->
@@ -1922,6 +1948,9 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <war.maxRequestSize>204800</war.maxRequestSize>
     <ebean.agent.packages>**</ebean.agent.packages>
     <ebean.agent.args>debug=0</ebean.agent.args>
+
+    <!-- jooq -->
+    <jooq.version>3.7.2</jooq.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
