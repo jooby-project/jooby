@@ -10,6 +10,27 @@
   display: none;
 }
 
+@media only screen and (max-width: 1400px), only screen and (max-device-width: 1400px) {
+
+  .page-sidebar .row {
+    padding: 0 10px;
+    width: 100%;
+    box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+  }
+
+  .page-sidebar .section-sidebar {
+    width: 30%;
+  }
+
+  .page-sidebar .section-content {
+    margin-left: 33%;
+  }
+
+}
+
 @media only screen and (max-width: 1200px), only screen and (max-device-width: 1200px) {
   .hide-desktop,
   .hide-mobile,
@@ -45,7 +66,6 @@
 
   .section-sidebar {
     width: 30%;
-    margin-left: 10px;
   }
 
   .home-top {
@@ -643,6 +663,7 @@
   }
   .page-sidebar .section-content {
     width: 100% !important;
+    margin-left: 0;
   }
 
   .module-box {

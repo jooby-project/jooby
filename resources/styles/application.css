@@ -196,6 +196,11 @@ li > code.highlighter-rouge {
   max-width: 1200px;
 }
 
+.page-sidebar .row,
+.page-sidebar .row-builder {
+  max-width: 1400px;
+}
+
 .col {
   float: left;
 }
@@ -1171,8 +1176,7 @@ blockquote {
 }
 
 .page-sidebar .section-content {
-  float: right;
-  width: 66.66%;
+  margin-left: 390px;
 }
 
 .section-title {
