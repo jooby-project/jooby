@@ -126,6 +126,9 @@ public interface Env {
    */
   Config config();
 
+  /**
+   * @return Default locale from <code>application.lang</code>.
+   */
   Locale locale();
 
   /**

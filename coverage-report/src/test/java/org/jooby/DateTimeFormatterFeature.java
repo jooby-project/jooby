@@ -55,7 +55,7 @@ public class DateTimeFormatterFeature extends ServerFeature {
   {
     use(ConfigFactory
         .empty()
-        .withValue("application.lang", ConfigValueFactory.fromAnyRef("en_US"))
+        .withValue("application.lang", ConfigValueFactory.fromAnyRef("en-US"))
         .withValue("application.dateFormat", ConfigValueFactory.fromAnyRef("MM/dd/yy H:mm"))
         .withValue("application.tz", ConfigValueFactory.fromAnyRef("GMT")));
     use(Resource.class);

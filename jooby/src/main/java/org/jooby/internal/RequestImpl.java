@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -60,8 +61,6 @@ public class RequestImpl implements Request {
 
   private final List<MediaType> accept;
 
-  private final Locale locale;
-
   private final MediaType type;
 
   private final Injector injector;
@@ -84,6 +83,10 @@ public class RequestImpl implements Request {
 
   private String contextPath;
 
+  private Optional<String> lang;
+
+  private Locale deflocale;
+
   public RequestImpl(final Injector injector, final NativeRequest req, final String contextPath,
       final int port, final Route route, final Charset charset, final Locale locale,
       final Map<Object, Object> scope, final Map<String, Object> locals) {
@@ -98,8 +101,8 @@ public class RequestImpl implements Request {
     Optional<String> accept = req.header("Accept");
     this.accept = accept.isPresent() ? MediaType.parse(accept.get()) : MediaType.ALL;
 
-    Optional<String> lang = req.header("Accept-Language");
-    this.locale = lang.isPresent() ? LocaleUtils.toLocale(lang.get()) : locale;
+    this.lang = req.header("Accept-Language");
+    this.deflocale = locale;
 
     this.port = port;
 
@@ -270,8 +273,16 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public Locale locale() {
-    return locale;
+  public List<Locale> locales() {
+    return lang.map(h -> LocaleUtils.parse(h)).orElse(ImmutableList.of(deflocale));
+  }
+
+  @Override
+  public Locale locale(final Iterable<Locale> locales) {
+    return lang.map(h -> {
+      Collection<Locale> clocale = ImmutableList.<Locale> copyOf(locales);
+      return Locale.lookup(LocaleUtils.range(h), clocale);
+    }).orElse(deflocale);
   }
 
   @Override

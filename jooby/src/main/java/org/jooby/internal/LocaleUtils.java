@@ -32,18 +32,28 @@
  */
 package org.jooby.internal;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class LocaleUtils {
 
-  public static Locale toLocale(final String locale) {
-    final String[] parts = locale.replace("-", "_").split("_");
-    if (parts.length == 1) {
-      return new Locale(locale, "");
-    } else if (parts.length == 2) {
-      return new Locale(parts[0], parts[1]);
-    } else {
-      return new Locale(parts[0], parts[1], parts[2]);
-    }
+  public static List<Locale> parse(final String value) {
+    return range(value).stream()
+        .map(r -> Locale.forLanguageTag(r.getRange()))
+        .collect(Collectors.toList());
   }
+
+  public static Locale parseOne(final String value) {
+    return parse(value).get(0);
+  }
+
+  public static List<Locale.LanguageRange> range(final String value) {
+    List<Locale.LanguageRange> range = Locale.LanguageRange.parse(value);
+    return range.stream()
+        .sorted(Comparator.comparing(Locale.LanguageRange::getWeight).reversed())
+        .collect(Collectors.toList());
+  }
+
 }

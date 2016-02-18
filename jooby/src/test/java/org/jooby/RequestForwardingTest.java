@@ -4,6 +4,7 @@ import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
@@ -27,14 +28,14 @@ public class RequestForwardingTest {
           assertEquals(req, Request.Forwarding.unwrap(new Request.Forwarding(req)));
 
           // 2 level
-        assertEquals(req,
-            Request.Forwarding.unwrap(new Request.Forwarding(new Request.Forwarding(req))));
+          assertEquals(req,
+              Request.Forwarding.unwrap(new Request.Forwarding(new Request.Forwarding(req))));
 
-        // 3 level
-        assertEquals(req, Request.Forwarding.unwrap(new Request.Forwarding(new Request.Forwarding(
-            new Request.Forwarding(req)))));
+          // 3 level
+          assertEquals(req, Request.Forwarding.unwrap(new Request.Forwarding(new Request.Forwarding(
+              new Request.Forwarding(req)))));
 
-      });
+        });
   }
 
   @Test
@@ -362,6 +363,44 @@ public class RequestForwardingTest {
               assertEquals(Locale.getDefault(),
                   new Request.Forwarding(unit.get(Request.class)).locale());
             });
+  }
+
+  @Test
+  public void locales() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.locales()).andReturn(Arrays.asList(Locale.getDefault()));
+        })
+        .run(
+            unit -> {
+              assertEquals(Arrays.asList(Locale.getDefault()),
+                  new Request.Forwarding(unit.get(Request.class)).locales());
+            });
+  }
+
+  @Test
+  public void bestLocale() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.locale(Locale.CANADA)).andReturn(Locale.getDefault());
+        })
+        .run(unit -> {
+          assertEquals(Locale.getDefault(),
+              new Request.Forwarding(unit.get(Request.class)).locale(Locale.CANADA));
+        });
+
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.locale(Arrays.asList(Locale.CANADA))).andReturn(Locale.getDefault());
+        })
+        .run(unit -> {
+          assertEquals(Locale.getDefault(),
+              new Request.Forwarding(unit.get(Request.class))
+                  .locale(Arrays.asList(Locale.CANADA)));
+        });
   }
 
   @Test

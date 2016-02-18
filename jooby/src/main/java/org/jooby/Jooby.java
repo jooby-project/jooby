@@ -3178,7 +3178,7 @@ public class Jooby {
             .orElseGet(
                 () -> ConfigFactory.parseResources("application.conf")));
 
-    final Locale locale = LocaleUtils.toLocale(config.getString("application.lang"));
+    final Locale locale = LocaleUtils.parseOne(config.getString("application.lang"));
 
     Env env = this.env.build(config, locale);
     String envname = env.name();
@@ -3503,13 +3503,14 @@ public class Jooby {
     String appname = parts[parts.length - 1];
 
     // locale
-    final Locale locale;
+    final List<Locale> locales;
     if (!config.hasPath("application.lang")) {
-      locale = Locale.getDefault();
+      locales = ImmutableList.of(Locale.getDefault());
     } else {
-      locale = LocaleUtils.toLocale(config.getString("application.lang"));
+      locales = LocaleUtils.parse(config.getString("application.lang"));
     }
-    String lang = locale.getLanguage() + "_" + locale.getCountry();
+    Locale locale = locales.iterator().next();
+    String lang = locale.toLanguageTag();
 
     // time zone
     final String tz;

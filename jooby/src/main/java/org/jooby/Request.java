@@ -21,6 +21,7 @@ package org.jooby;
 import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -189,6 +190,21 @@ public interface Request {
     @Override
     public Locale locale() {
       return req.locale();
+    }
+
+    @Override
+    public Locale locale(final Iterable<Locale> locales) {
+      return req.locale(locales);
+    }
+
+    @Override
+    public Locale locale(final Locale... locales) {
+      return req.locale(locales);
+    }
+
+    @Override
+    public List<Locale> locales() {
+      return req.locales();
     }
 
     @Override
@@ -609,9 +625,41 @@ public interface Request {
    * Get the content of the <code>Accept-Language</code> header. If the request doens't specify
    * such header, this method return the global locale: <code>application.lang</code>.
    *
+   * @return List of locale.
+   */
+  List<Locale> locales();
+
+  /**
+   * Get the content of the <code>Accept-Language</code> header. If the request doens't specify
+   * such header, this method return the global locale: <code>application.lang</code>.
+   *
    * @return A locale.
    */
-  Locale locale();
+  default Locale locale() {
+    return locales().get(0);
+  }
+
+  /**
+   * Select a locale in the provided <code>collection</code> based on the
+   * content of the <code>Accept-Language</code> header using the lookup
+   * algorithm of RFC4647. If the request doens't specify such header, this
+   * method return the global locale: <code>application.lang</code>.
+   *
+   * @return A locale.
+   */
+  Locale locale(Iterable<Locale> locales);
+
+  /**
+   * Select a locale in the provided <code>collection</code> based on the
+   * content of the <code>Accept-Language</code> header using the lookup
+   * algorithm of RFC4647. If the request doens't specify such header, this
+   * method return the global locale: <code>application.lang</code>.
+   *
+   * @return A locale.
+   */
+  default Locale locale(final Locale... locales) {
+    return locale(Arrays.asList(locales));
+  }
 
   /**
    * @return The length, in bytes, of the request body and made available by the input stream, or
@@ -636,7 +684,8 @@ public interface Request {
   Route route();
 
   /**
-   * The fully qualified name of the resource being requested, as obtained from the Host HTTP header.
+   * The fully qualified name of the resource being requested, as obtained from the Host HTTP
+   * header.
    *
    * @return The fully qualified name of the server.
    */

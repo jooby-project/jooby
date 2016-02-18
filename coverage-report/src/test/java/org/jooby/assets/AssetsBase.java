@@ -11,7 +11,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
-public class AssetsBase extends ServerFeature {
+public abstract class AssetsBase extends ServerFeature {
 
   public List<Object> list(final Object... args) {
     return Arrays.asList(args);

@@ -13,19 +13,18 @@ public class LocaleUtilsTest {
 
   @Test
   public void lang() {
-    assertEquals("es", LocaleUtils.toLocale("es").getLanguage().toLowerCase());
+    assertEquals("es", LocaleUtils.parse("es").iterator().next().getLanguage().toLowerCase());
   }
 
   @Test
   public void langCountry() {
-    assertEquals("es", LocaleUtils.toLocale("es-ar").getLanguage().toLowerCase());
-    assertEquals("ar", LocaleUtils.toLocale("es-ar").getCountry().toLowerCase());
+    assertEquals("es", LocaleUtils.parse("es-ar").iterator().next().getLanguage().toLowerCase());
+    assertEquals("ar", LocaleUtils.parse("es-ar").iterator().next().getCountry().toLowerCase());
   }
 
   @Test
   public void langCountryVariant() {
-    assertEquals("ja", LocaleUtils.toLocale("ja_JP_JPr").getLanguage().toLowerCase());
-    assertEquals("jp", LocaleUtils.toLocale("ja_JP_JPr").getCountry().toLowerCase());
-    assertEquals("jpr", LocaleUtils.toLocale("ja_JP_JPr").getVariant().toLowerCase());
+    assertEquals("ja", LocaleUtils.parse("ja-JP").iterator().next().getLanguage().toLowerCase());
+    assertEquals("jp", LocaleUtils.parse("ja-JP").iterator().next().getCountry().toLowerCase());
   }
 }

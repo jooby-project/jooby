@@ -35,7 +35,7 @@ class StringConstructTypeConverter<T> extends AbstractMatcher<TypeLiteral<T>>
     Class<?> rawType = type.getRawType();
     try {
       if (rawType == Locale.class) {
-        return LocaleUtils.toLocale(value);
+        return LocaleUtils.parseOne(value);
       }
       return StringConstructorParser.parse(type, value);
     } catch (Exception ex) {

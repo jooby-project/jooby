@@ -105,12 +105,12 @@ public class BuiltinBodyParserFeature extends ServerFeature {
   public void localeBody() throws Exception {
     request()
         .post("/locale")
-        .body("es_AR", "text/palin")
+        .body("es-AR", "text/palin")
         .expect("es_AR");
 
     request()
         .post("/r/locale")
-        .body("es_AR", "text/palin")
+        .body("es-AR", "text/palin")
         .expect("es_AR");
 
   }

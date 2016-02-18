@@ -25,7 +25,7 @@ public class StringConstructorTypeConverterTest {
     TypeLiteral<Locale> type = TypeLiteral.get(Locale.class);
     new MockUnit()
         .run(unit -> {
-          assertEquals(LocaleUtils.toLocale("x"),
+          assertEquals(LocaleUtils.parseOne("x"),
               new StringConstructTypeConverter<Object>().convert("x", type));
         });
   }

@@ -39,7 +39,7 @@ public class NumberFormatterFeature extends ServerFeature {
 
   {
     use(ConfigFactory.empty().withValue("application.lang",
-        ConfigValueFactory.fromAnyRef("en_US")));
+        ConfigValueFactory.fromAnyRef("en-US")));
 
     use(Resource.class);
   }

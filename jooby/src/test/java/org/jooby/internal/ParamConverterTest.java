@@ -198,7 +198,7 @@ public class ParamConverterTest {
   public void shouldConvertFromLocale() throws Exception {
     String locale = "es-ar";
     ParserExecutor resolver = newParser();
-    assertEquals(LocaleUtils.toLocale(locale),
+    assertEquals(LocaleUtils.parse(locale),
         resolver.convert(TypeLiteral.get(Locale.class), data(locale)));
   }
 

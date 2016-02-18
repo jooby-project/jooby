@@ -96,6 +96,21 @@ public class RequestTest {
     }
 
     @Override
+    public Locale locale(final Iterable<Locale> locales) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Locale locale(final Locale... locales) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Locale> locales() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public long length() {
       throw new UnsupportedOperationException();
     }
