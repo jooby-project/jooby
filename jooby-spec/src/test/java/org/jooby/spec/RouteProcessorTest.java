@@ -292,7 +292,7 @@ public class RouteProcessorTest {
     assertEquals("java.util.Calendar", route.params().get(3).type().getTypeName());
 
     assertEquals("u", route.params().get(4).name());
-    assertEquals(RouteParamType.QUERY, route.params().get(4).paramType());
+    assertEquals(RouteParamType.FILE, route.params().get(4).paramType());
     assertEquals("org.jooby.Upload", route.params().get(4).type().getTypeName());
   }
 

@@ -88,11 +88,15 @@ public class RouteParamCollector extends VoidVisitorAdapter<Context> {
           .orElse(BODY);
       Entry<Type, Object> typeDef = type(call.get(1), ctx);
       String doc = (String) this.doc.get(name.equals(BODY) ? "body" : name);
-      params.add(new RouteParamImpl(name, typeDef.getKey(), type(name), typeDef.getValue(), doc));
+      params.add(new RouteParamImpl(name, typeDef.getKey(), type(typeDef.getKey(), name),
+          typeDef.getValue(), doc));
     }
   }
 
-  private RouteParamType type(final String name) {
+  private RouteParamType type(final Type type, final String name) {
+    if (type.getTypeName() == "org.jooby.Upload") {
+      return RouteParamType.FILE;
+    }
     if (name.equals("<body>")) {
       return RouteParamType.BODY;
     } else if (pattern.indexOf(":" + name) >= 0 || pattern.indexOf("{" + name + "}") >= 0) {
