@@ -45,6 +45,7 @@
     <module>jooby-ehcache</module>
     <module>jooby-pac4j</module>
     <module>jooby-swagger</module>
+    <module>jooby-raml</module>
     <module>jooby-spymemcached</module>
     <module>jooby-aws</module>
     <module>jooby-commons-email</module>
@@ -265,6 +266,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-swagger</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-raml</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -786,6 +793,12 @@
         <groupId>org.jboss.modules</groupId>
         <artifactId>jboss-modules</artifactId>
         <version>${jboss-modules.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>${jsoup.version}</version>
       </dependency>
 
       <!-- swagger -->
@@ -1943,6 +1956,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <metrics.version>3.1.2</metrics.version>
     <pebble.version>2.0.0</pebble.version>
     <jade4j.version>1.1.4</jade4j.version>
+    <jsoup.version>1.8.3</jsoup.version>
 
     <!-- config -->
     <war.maxRequestSize>204800</war.maxRequestSize>
