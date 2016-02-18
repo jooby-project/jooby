@@ -179,11 +179,6 @@ public abstract class AbstractRendererContext implements Renderer.Context {
     return renderers.toString();
   }
 
-  protected void _send(final String text) throws Exception {
-    byte[] bytes = text.getBytes(charset);
-    send(bytes);
-  }
-
   protected abstract void _send(final byte[] bytes) throws Exception;
 
   protected abstract void _send(final ByteBuffer buffer) throws Exception;
