@@ -3336,7 +3336,10 @@ public class Jooby {
       binder.bind(ParserExecutor.class).in(Singleton.class);
 
       /** override(able) renderer */
-      renderers.addBinding().toInstance(new DefaulErrRenderer());
+      boolean stacktrace = config.hasPath("err.stacktrace")
+          ? config.getBoolean("err.stacktrace")
+          : "dev".equals(envname);
+      renderers.addBinding().toInstance(new DefaulErrRenderer(stacktrace));
       renderers.addBinding().toInstance(BuiltinRenderer.ToString);
 
       binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
