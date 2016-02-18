@@ -69,45 +69,81 @@ public class RoutePattern {
     Matcher matcher = GLOB.matcher(pattern);
     int end = 0;
     boolean regex = !rwrverb.equals(verb);
+    
     while (matcher.find()) {
+      
       patternBuilder.append(quote(pattern, end, matcher.start()));
       String match = matcher.group();
-      if ("?".equals(match)) {
-        patternBuilder.append("([^/])");
-        regex = true;
-      } else if ("*".equals(match)) {
-        patternBuilder.append("([^/]*)");
-        regex = true;
-      } else if (match.equals("/**")) {
-        patternBuilder.append("($|/.*)");
-        regex = true;
-      } else if (match.startsWith(":")) {
-        regex = true;
-        String varName = match.substring(1);
-        patternBuilder.append("(?<v").append(vars.size()).append(">[^/]+)");
-        vars.add(varName);
-      } else if (match.startsWith("{") && match.endsWith("}")) {
-        regex = true;
-        int colonIdx = match.indexOf(':');
-        if (colonIdx == -1) {
-          String varName = match.substring(1, match.length() - 1);
-          patternBuilder.append("(?<v").append(vars.size()).append(">[^/]+)");
-          vars.add(varName);
-        }
-        else {
-          String varName = match.substring(1, colonIdx);
-          String regexpr = match.substring(colonIdx + 1, match.length() - 1);
-          patternBuilder.append("(?<v").append(vars.size()).append(">");
-          patternBuilder.append(regexpr);
-          patternBuilder.append(')');
-          vars.add(varName);
-        }
+      
+      switch(match) {
+        case "?": 
+          patternBuilder.append("([^/])");
+          regex = true;
+          break;
+        
+        case "*":
+          patternBuilder.append("([^/]*)");
+          regex = true;
+          break;
+        
+        case "/**": 
+          patternBuilder.append("($|/.*)");
+          regex = true;
+          break;
+        
+        case "/**":
+          patternBuilder.append("($|/.*)");
+          regex = true;
+          break;
+        
+        default: 
+          switch(checkMatchPattern(match)) {
+            case ":":
+              regex = true;
+              String varName = match.substring(1);
+              patternBuilder.append("(?<v").append(vars.size()).append(">[^/]+)");
+              vars.add(varName);
+              break;
+            
+            case "{}":
+              regex = true;
+              int colonIdx = match.indexOf(':');
+              if (colonIdx == -1) {
+              String varName = match.substring(1, match.length() - 1);
+              patternBuilder.append("(?<v").append(vars.size()).append(">[^/]+)");
+              vars.add(varName);
+              } 
+              break;
+            
+            case "none":
+              String varName = match.substring(1, colonIdx);
+              String regexpr = match.substring(colonIdx + 1, match.length() - 1);
+              patternBuilder.append("(?<v").append(vars.size()).append(">");
+              patternBuilder.append(regexpr);
+              patternBuilder.append(')');
+              vars.add(varName);
+              break;
+          }
+            break;
       }
       end = matcher.end();
+      
     }
     patternBuilder.append(quote(pattern, end, pattern.length()));
     setVars.accept(vars);
     return fn(owner, regex, regex ? patternBuilder.toString() : verb + pattern, vars);
+  }
+  
+  
+  public static String checkMatchPattern(String match) {
+     if(match.startsWith(":")){
+        return ":";
+     } else if (match.startsWith("{") && match.endsWith("}")) {
+       return "{}";
+     } else {
+       return "none";
+     }
+    
   }
 
   private static String verbs(final String verb) {
@@ -116,6 +152,7 @@ public class RoutePattern {
       return verb.equals("*") ? "(?:[^/]*)" : verb;
     }
     return "(?:" + verb + ")";
+    
   }
 
   private static Function<String, RouteMatcher> fn(final RoutePattern owner, final boolean complex,
