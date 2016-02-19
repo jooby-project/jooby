@@ -56,6 +56,7 @@ import org.jooby.internal.spec.SourceResolver;
 import org.jooby.internal.spec.SourceResolverImpl;
 import org.jooby.internal.spec.TypeResolverImpl;
 import org.jooby.mvc.Body;
+import org.jooby.mvc.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -338,6 +339,8 @@ public class RouteProcessor {
       final RouteParamType paramType;
       if (parameter.getAnnotation(Body.class) != null) {
         paramType = RouteParamType.BODY;
+      } else if (parameter.getAnnotation(Header.class) != null) {
+        paramType = RouteParamType.HEADER;
       } else if (route.vars().contains(name)) {
         paramType = RouteParamType.PATH;
       } else if (route.method().equals("GET")) {

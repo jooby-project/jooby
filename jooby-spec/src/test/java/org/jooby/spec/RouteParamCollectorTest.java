@@ -248,6 +248,19 @@ public class RouteParamCollectorTest extends ASTTest {
   };
 
   @Test
+  public void header() throws ParseException {
+    params(new RouteParamCollector().accept(expr("req -> {",
+        "req.header(\"h1\").intValue();",
+        "}"), ctx()))
+    .next(p -> {
+      assertEquals("h1", p.name());
+      assertEquals(int.class, p.type());
+      assertEquals(null, p.value());
+      assertEquals(RouteParamType.HEADER, p.paramType());
+    });
+  };
+
+  @Test
   public void bodyTo() throws ParseException {
     params(new RouteParamCollector().accept(expr("req -> {",
         "req.body().to(apps.model.Pet.class);",

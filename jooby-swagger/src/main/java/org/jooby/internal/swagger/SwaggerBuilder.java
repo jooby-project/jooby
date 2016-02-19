@@ -63,6 +63,7 @@ import io.swagger.models.Swagger;
 import io.swagger.models.Tag;
 import io.swagger.models.parameters.BodyParameter;
 import io.swagger.models.parameters.FormParameter;
+import io.swagger.models.parameters.HeaderParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.parameters.PathParameter;
 import io.swagger.models.parameters.QueryParameter;
@@ -220,6 +221,10 @@ public class SwaggerBuilder {
           definitions.accept(entry.getKey(), entry.getValue());
         }
         result = bp;
+      }
+        break;
+      case HEADER: {
+        result = new HeaderParameter();
       }
         break;
       case PATH: {

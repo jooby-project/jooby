@@ -82,30 +82,37 @@ public class RouteParamCollector extends VoidVisitorAdapter<Context> {
     List<MethodCallExpr> call = call(n);
     if (call.size() > 0) {
       MethodCallExpr cparam = call.get(0);
-      String name = cparam.getArgs().stream()
+      String cname = cparam.getName();
+      String pname = cparam.getArgs().stream()
           .findFirst()
           .map(it -> ((StringLiteralExpr) it).getValue())
           .orElse(BODY);
       Entry<Type, Object> typeDef = type(call.get(1), ctx);
-      String doc = (String) this.doc.get(name.equals(BODY) ? "body" : name);
-      params.add(new RouteParamImpl(name, typeDef.getKey(), type(typeDef.getKey(), name),
+      String doc = (String) this.doc.get(pname.equals(BODY) ? "body" : pname);
+      params.add(new RouteParamImpl(pname, typeDef.getKey(), type(typeDef.getKey(), pname, cname),
           typeDef.getValue(), doc));
     }
   }
 
-  private RouteParamType type(final Type type, final String name) {
-    if (type.getTypeName() == "org.jooby.Upload") {
-      return RouteParamType.FILE;
-    }
-    if (name.equals("<body>")) {
-      return RouteParamType.BODY;
-    } else if (pattern.indexOf(":" + name) >= 0 || pattern.indexOf("{" + name + "}") >= 0) {
-      return RouteParamType.PATH;
-    } else {
-      if (method.equals("POST")) {
-        return RouteParamType.FORM;
-      } else {
-        return RouteParamType.QUERY;
+  private RouteParamType type(final Type type, final String name, final String cname) {
+    switch (cname) {
+      case "header":
+        return RouteParamType.HEADER;
+      case "body":
+        return RouteParamType.BODY;
+      default: {
+        if (type.getTypeName() == "org.jooby.Upload") {
+          return RouteParamType.FILE;
+        }
+        if (pattern.indexOf(":" + name) >= 0 || pattern.indexOf("{" + name + "}") >= 0) {
+          return RouteParamType.PATH;
+        } else {
+          if (method.equals("POST")) {
+            return RouteParamType.FORM;
+          } else {
+            return RouteParamType.QUERY;
+          }
+        }
       }
     }
   }
@@ -217,7 +224,8 @@ public class RouteParamCollector extends VoidVisitorAdapter<Context> {
     if (names.contains(it.toStringWithoutComments())) {
       // param(id).value
       if (call.size() == 2) {
-        if ("param".equals(call.get(0).getName())) {
+        String cname = call.get(0).getName();
+        if ("param".equals(cname) || "header".equals(cname)) {
           List<Expression> args = call.get(0).getArgs();
           if (args.size() == 1 && args.get(0) instanceof StringLiteralExpr) {
             return call;

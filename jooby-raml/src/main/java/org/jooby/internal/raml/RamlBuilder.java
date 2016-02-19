@@ -148,6 +148,17 @@ public class RamlBuilder {
             doc -> buff.append(indent(level + 2)).append("description: ")
                 .append(Doc.parse(doc, level + 4)).append("\n"));
 
+        // headers
+        List<RouteParam> headers = route.params().stream()
+            .filter(p -> p.paramType() == RouteParamType.HEADER)
+            .collect(Collectors.toList());
+        if (headers.size() > 0) {
+          buff.append(indent(level + 2)).append("headers:\n");
+          headers.forEach(p -> {
+            buff.append(param(p, level + 2));
+          });
+        }
+
         // query params
         List<RouteParam> queryParams = route.params().stream()
             .filter(p -> p.paramType() == RouteParamType.QUERY)

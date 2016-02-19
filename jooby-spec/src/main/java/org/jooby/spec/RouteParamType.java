@@ -39,5 +39,8 @@ public enum RouteParamType {
   BODY,
 
   /** File as part of a multipart-upload. */
-  FILE;
+  FILE,
+
+  /** HTTP header .*/
+  HEADER;
 }
