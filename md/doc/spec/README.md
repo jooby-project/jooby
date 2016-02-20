@@ -1,22 +1,14 @@
-# spec
-
 The spec module allows you to export your API/microservices outside a {{jooby}} application.
 
 The goal of this module is to define a common way to write APIs and provide you API tools like live doc and testing for **FREE**. By **FREE** we mean:
 
-> You aren't force to learn any other tool or annotated your code special annotations. All you have to do is: **write your application** following a few/minor suggestions.
+> You aren't force to learn any other tool or annotated your code special annotations. All you have to do is **write your application** following a few/minor suggestions.
 
 This module process, collect and compile **routes** from your application. It extracts HTTP method/pattern, parameter, responses, types and doc.
 
 You will find here the basis and the necessary documentation to build and expose rich APIs for free, but keep in mind this module isn't intended for direct usage. It is the basis for tools like {{swagger}} or {{raml}}.
 
 # api def
-
-The goal of this module is to define a common way to write APIs and provide you API tools like live doc and testing for **FREE**. By **FREE** we mean:
-
-> You aren't force to learn any other tool or annotated your code special annotations. All you have to do is: **write your application** following a few/minor suggestions.
-
-Cool, isn't?
 
 Let's review how to build rich APIs using the ```spec``` module via ```script``` or ```mvc``` way:
 
@@ -29,17 +21,17 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
    */
   use("/api/pets")
       /**
-       * List pets ordered by name.
+       * List pets ordered by id.
        *
        * @param start Start offset, useful for paging. Default is <code>0</code>.
-       * @param max Max page size, useful for paging. Default is <code>200</code>.
+       * @param max Max page size, useful for paging. Default is <code>50</code>.
        * @return Pets ordered by name.
        */
       .get(req -> {
         int start = req.param("start").intValue(0);
-        int max = req.param("max").intValue(200);
+        int max = req.param("max").intValue(50);
         DB db = req.require(DB.class);
-        List<Pet> pets = db.findAll(Pet.class, start, max);
+        List<Pet> pets = db.findAll(start, max);
         return pets;
       })
       /**
@@ -51,7 +43,10 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
       .get("/:id", req -> {
         int id = req.param("id").intValue();
         DB db = req.require(DB.class);
-        Pet pet = db.find(Pet.class, id);
+        Pet pet = db.find(id);
+        if (pet == null) {
+          throw new Err(Status.NOT_FOUND);
+        }
         return pet;
       })
       /**
@@ -87,7 +82,7 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
       .delete("/:id", req -> {
         int id = req.param("id").intValue();
         DB db = req.require(DB.class);
-        db.delete(Pet.class, id);
+        db.delete(id);
         return Results.noContent();
       })
       .produces("json")
@@ -176,7 +171,7 @@ public class Pets {
 }
 ```
 
-Previous examples are feature identical, but they were written in very different way. Still they produces an output likes:
+Previous examples are feature identical, but they were written in very different way. Still API Spec for them look likes:
 
 ```yaml
 
@@ -253,21 +248,7 @@ DELETE /api/pets/:id
     doc: A <code>204</code>
 ```
 
-> NOTE: We use ```text```  here for simplicity and easy read, but keep in mind the output is compiled in binary format.
-
-## how it works?
-
-The spec module scan and parse the source code: ```*.java``` and produces a list of ```RouteSpec```.
-
-### Why do we parse the source code?
-
-It is required for getting information from ```script routes```. We don't need that for ```mvc routes``` because all the information is available via *Reflection* and ```java.lang.Method```.
-
-But also, you can write clean and useful JavaDoc in your source code that later are added to the API information.
-
-### Why don't parse byte-code with ASM?
-
-Good question, the main reason is that we lost generic type information and we aren't able to tell if the route response is for example a ```List<Pet>```.
+> NOTE: We use ```textual``` representation  here for simplicity and easy read, but keep in mind the output is compiled into a binary format.
 
 ## script rules
 
@@ -303,7 +284,7 @@ req -> {
   ...
   Pet pet = db.find(id); // variable pet
   ...
-  return pet;
+  return pet;  // single return statement
 }
 ```
 
@@ -321,21 +302,22 @@ or
 ```java
 req -> {
   ...
+  // multiple returns statement
   if (...) {
-    return ...;
+    return ...; // here is one
   } else {
-    return ...;
+    return ...; // here is another
   }
 }
 ```
 
 There is a workaround if these rules doesn't make sense to you and/or the algorithm fails to resolve the correct type. Please checkout next section.
 
-## API doc
+## writing doc
 
 If you take a few minutes and write good quality doc the prize will be huge!
 
-The tool takes the doc and export it as part of your API!!
+The tool takes and export the doc as part of your API!!
 
 Here is an example on how to document script routes:
 
@@ -360,7 +342,7 @@ Here is an example on how to document script routes:
     });
 ```
 
-The spec for ```/api/pets``` will have the following doc:
+The route params for ```/api/pets``` looks like:
 
 ```yaml
   params: 
@@ -397,7 +379,7 @@ With JavaDoc, you can control the default type returned by the route and/or the 
   });
 ```
 
-Here you tell the tool that this route produces a ```Pet```, response looks like:
+Produces:
 
 ```yaml
 response:
@@ -408,32 +390,40 @@ response:
     doc: Returns <code>200</code> with a single pet or <code>404</code>
 ```
 
-You can override the default message of the status code with:
+Here you tell the tool response is a ```Pet``` via *JavaDoc* type references: ```{@link Type}```.
+
+This is useful when the tool isn't able to detect the type for you and/or you aren't able to follow the return rules described before.
+
+The status codes section have a ```200``` and ```404``` entries with default messages. You can override the default message by using ```code = message``` like:
 
 ```
 @return Returns a {@link Pet} with <code>200 = Success</code> status or <code>404 = Missing</code>
 ```
 
-Finally, you can specify the response type via JavaDoc type references: ```{@link Pet}```. This is useful when the tool isn't able to detect the type for you and/or you aren't able to follow the return rules described before.
+## how it works?
 
-# how to use it?
+The spec module scan and parse the source code: ```*.java``` and produces a list of ```RouteSpec```.
 
-## dependency
+It is required for getting information from ```script routes``` and extract ```JavaDoc```.
+
+We don't need that for ```mvc routes``` because all the information is available via *Reflection* and ```java.lang.Method```.
+
+So, the tool needs the source code in order to work properly. In order to use the tool at deploy time you have to setup the ```jooby:spec``` maven plugin:
 
 ```xml
-<dependency>
+<plugin>
   <groupId>org.jooby</groupId>
-  <artifactId>jooby-spec</artifactId>
-  <version>{{version}}</version>
-</dependency>
+  <artifactId>jooby-maven-plugin</artifactId>
+  <executions>
+    <execution>
+      <goals>
+        <goal>spec</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
 ```
 
-## usage
+The maven plugin exports the API into a binary format: ```.spec``` which can be parse it later.
 
-```java
-RouteProcessor processor = new RouteProcessor();
-
-List<RouteSpec> specs = processor.process(new App(), "path/to/source/code");
-```
-
-Usage is for documentation propose, you will never have to deal with this API or use it. Instead you should try one of the high level modules/tools like {{swagger}} or {{raml}}.
+That's all about the spec, as you see there are some minor rules to follow while writing ```script routes```. Now it's time see what tools and integrations are available!!!

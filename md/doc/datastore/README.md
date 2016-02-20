@@ -12,13 +12,15 @@ The [jdbc](/doc/jdbc) module provides a high performance connection pool for jdb
 
 ## mapping tools
 
-* [jdbi](/doc/jdbi): is fluent and lightweight SQL library for *jdbc*.
+* [ebean](/doc/ebean): object relational mapping via {{ebean}}.
 
 * [hibernate](/doc/hbm): object relational mapping via {{hibernate}}.
 
-* [ebean](/doc/ebean): object relational mapping via {{ebean}}.
-
 * [hibernate validator](/doc/hbv): bean validation.
+
+* [jdbi](/doc/jdbi): is fluent and lightweight SQL library for *jdbc*.
+
+* [jOOQ](/doc/jOOQ): lets you build type safe SQL queries through its fluent API.
 
 ## migrations
 
@@ -30,6 +32,6 @@ The [mongodb](/doc/mongodb) provides access to {{mongodb}} instances.
 
 ## mapping tools
 
-* [morphia](/doc/morphia): object to document mapper via {{morphia}}.
-
 * [jongo](/doc/jongo): Query in Java as in Mongo Shell.
+
+* [morphia](/doc/morphia): object to document mapper via {{morphia}}.

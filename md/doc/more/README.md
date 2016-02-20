@@ -2,10 +2,6 @@
 
 * [metrics](/doc/metrics): application metrics from the excellent [metrics](http://metrics.dropwizard.io) library.
 
-# API tools
-
-* [swagger](/doc/swagger): powerful representation of your RESTful API.
-
 # mail support
 
 * [commons-email](/doc/commons-email): Email supports via {{commons-email}}.

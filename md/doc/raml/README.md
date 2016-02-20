@@ -2,9 +2,10 @@
 
 RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifecycle from design to sharing. It's concise - you only write what you need to define - and reusable. It is machine readable API design that is actually human friendly. More at <a href="http://raml.org/">http://raml.org</a>
 
-> NOTE: This modules depends on [spec module](/doc/spec), please read the [spec module](/doc/spec) to learn how to use this tool.
+## exposes
 
-The RAML api-console will be available at ```/raml``` and the ```.raml``` will be at: ```/raml/api.raml```
+* The [api-console](https://github.com/mulesoft/api-console) at ```/raml```
+* The ```.raml``` file at ```/raml/api.raml```
 
 ## dependency
 
@@ -42,7 +43,7 @@ The RAML api-console will be available at ```/raml``` and the ```.raml``` will b
 }
 ```
 
-You also need the ```jooby:spec``` maven plugin:
+Now the ```jooby:spec``` maven plugin:
 
 ```xml
 <plugin>
@@ -58,7 +59,10 @@ You also need the ```jooby:spec``` maven plugin:
 </plugin>
 ```
 
-The plugin compiles the API and produces a ```.spec``` file for prod environments.
+Start your app and try:
+
+* The [api-console](https://github.com/mulesoft/api-console) at ```/raml```
+* The ```.raml``` file at ```/raml/api.raml```
 
 ## options
 
@@ -66,7 +70,7 @@ There are a few options available, let's see what they are:
 
 ### path
 
-The ```path``` option controls where to mount the RAML routes:
+The ```path``` option controls where to mount the {{raml}} routes:
 
 ```java
 {
@@ -81,7 +85,7 @@ Produces: ```/docs``` for api-console and ```/docs/api.raml```. Default path is:
 
 ### filter
 
-The ```filter``` option controls what is exported to <a href="http://raml.org">RAML</a>:
+The ```filter``` option controls what is exported to {{raml}}:
 
 ```java
 {

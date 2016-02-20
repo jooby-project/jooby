@@ -1,16 +1,12 @@
 # swagger
 
-{{swagger}} is a simple yet powerful representation of your RESTful API.
-
-It generates {{swagger}} spec file: ```.json```, ```.yml``` or UI from your application.
-
-This module extends [spec](/doc/spec) module, before going forward, make sure you read the doc of the [spec](/doc/spec) module first.
+{{swagger}} is a simple yet powerful representation of your RESTful API. With the largest ecosystem of API tooling on the planet, thousands of developers are supporting Swagger in almost every modern programming language and deployment environment. With a Swagger-enabled API, you get interactive documentation, client SDK generation and discoverability. More at [http://swagger.io](http://swagger.io)
 
 ## exposes
 
-* A ```/swagger``` route that renders a Swagger UI
-* A ```/swagger.json``` route that renders a {{swagger}} spec in ```json``` format
-* A ```/swagger.yml``` route that renders a {{swagger}} spec in ```yaml``` format
+* The Swagger-UI at ```/swagger```
+* The ```swagger.json``` at ```/swagger/swagger.json```
+* The ```swagger.yml``` at ```/swagger/swagger.yml```
 
 ## dependency
 
@@ -24,7 +20,31 @@ This module extends [spec](/doc/spec) module, before going forward, make sure yo
 
 ## usage
 
-Add the ```jooby:spec``` maven plugin:
+```java
+{
+  // define your API... via script or MVC:
+  /**
+   * Everything about your pets
+   */
+   use("/api/pets")
+     /**
+      * Get a pet by ID.
+      * @param id Pet ID
+      */
+     .get("/:id", req -> {
+       int id = req.param("id").intValue();
+       DB db = req.require(DB.class);
+       Pet pet = db.find(Pet.class, id);
+       return pet;
+     })
+     ...;
+
+  new Swagger().install(this);
+
+}
+```
+
+Now the ```jooby:spec``` maven plugin:
 
 ```xml
 <plugin>
@@ -40,132 +60,50 @@ Add the ```jooby:spec``` maven plugin:
 </plugin>
 ```
 
-Then the module into your ```App```:
+Start your app and try:
+
+* The Swagger-UI at ```/swagger```
+* The ```swagger.json``` at ```/swagger/swagger.json```
+* The ```swagger.yml``` at ```/swagger/swagger.yml```
+
+## options
+
+There are a few options available, let's see what they are:
+
+### path
+
+The ```path``` option controls where to mount the {{swagger}} routes:
 
 ```java
 {
   ...
 
-  new SwaggerUI().install(this);
+  new Swagger("docs").install(this);
+
 }
 ```
 
-Finally, just write your API:
+Produces: ```/docs``` for swagger-ui, ```/docs/swagger.json``` and ```/docs/swagger.yml```. Default path is: ```/swagger```.
 
-### via script API
+### filter
 
-There are some minor details you need to known to successfully write API and export them to {{swagger}}. Please refer to the [spec module](/doc/spec) for such details.
+The ```filter``` option controls what is exported to {{swagger}}:
 
 ```java
 {
-  /**
-   * Everything about your Pets.
-   */
-  use("/api/pets")
-    /**
-     * Find pet by ID.
-     *
-     * @param id Pet ID.
-     * @return Returns a single pet
-     */
-    .get("/:id", req -> {
-      int id = req.param("id").intValue();
-      ...
-      return pet;
-    })
-    /**
-     * Add a new pet to the store.
-     *
-     * @param pet Pet object that needs to be added to the store.
-     * @return Returns a saved pet.
-     */
-    .post(req -> {
-      Pet pet = req.body().to(Pet.class);
-      ...
-      return pet;
-    });
+  ...
 
-  new SwaggerUI().install(this);
-}
-```
-
-## mvc API
-
-```java
-{
-  use(Pets.class);
-
-  new SwaggerUI().install(this);
-}
-```
-
-```java
-/**
- * Everything about your Pets.
- */
-@Path("/api/pets")
-public class Pets {
-
-  /**
-   * Find pet by ID.
-   *
-   * @param id Pet ID.
-   * @return Returns a single pet
-   */
-  @Path("/:id")
-  @GET
-  public Pet get(String id) {...}
-
-  /**
-   * Add a new pet to the store.
-   *
-   * @param pet Pet object that needs to be added to the store.
-   * @return Returns a saved pet.
-   */
-  @POST
-  public Pet post(Pet pet) {...}
-}
-```
-
-## options
-
-### swagger path
-
-By default, {{swagger}} will be mounted at ```/swagger```, ```/swagger/swagger.json``` and ```/swagger/swagger.yml```.
-
-If you want to mount Swagger somewhere else:
-
-```java
-{
-  new SwaggerUI("/api/doc").install(this);
-}
-```
-
-It is also possible to use Swagger (ui, .json or .yml) on specific resources.
-
-For example, suppose you have a API for pets at ```/api/pets```. The following URL will be available too:
-
-```bash
-   /swagger/pets (UI)
-   /swagger/pets/swagger.json (JSON)
-   /swagger/pets/swagger.yml (YML)
-```
-
-It is a small feature, but very useful if you have a medium-size API.
-
-### swagger filter
-
-By convention, only routes mounted at ```/api/*``` will be exported to swagger and NOT all the available routes. You can control what to publish with a filter:
-
-```java
-{
   new Swagger()
-    .filter(route -> route.pattern().startsWith("my filter"))
+    .filter(route -> {
+      return route.pattern().startsWith("/api");
+    })
     .install(this);
 }
 ```
 
-### swagger tags
+Default filter keeps ```/api/*``` routes.
+
+### tags
 
 One ore more routes are grouped by a tag. The default tag provider produces ```pets``` for a route at ```/api/pets``` or ```/pets```. You can specify your own tag provider via:
 
@@ -177,18 +115,18 @@ One ore more routes are grouped by a tag. The default tag provider produces ```p
 }
 ```
 
-### swagger.conf
+### noUI
 
-{{jooby}} creates a {{swagger}} model dynamically from MVC routes. But also, defines some defaults inside the ```swagger.conf``` (see appendix).
+This option turn off the swagger-ui:
 
-For example, ```swagger.info.title``` is set to ```application.name```. If you want
-to provide a more friendly name, description or API version... you can do it via your ```application.conf``` file:
+```java
+{
+  ...
 
-```properties
-
-swagger.info.title = My Awesome API
-swagger.info.version = v0.1.0
-
+  new Swagger()
+    .noUI()
+    .install(this);
+}
 ```
 
 {{appendix}}
