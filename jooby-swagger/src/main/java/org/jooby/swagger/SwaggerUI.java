@@ -183,6 +183,8 @@ public class SwaggerUI {
 
   private String path;
 
+  private boolean ui = true;
+
   /**
    * Mount swagger at the given path.
    *
@@ -224,6 +226,16 @@ public class SwaggerUI {
   }
 
   /**
+   * Turn off swagger-ui.
+   *
+   * @return This instance.
+   */
+  public SwaggerUI noUI() {
+    ui = false;
+    return this;
+  }
+
+  /**
    * Publish application routes as Swagger spec.
    *
    * @param app An application.
@@ -234,9 +246,6 @@ public class SwaggerUI {
     ObjectWriter yaml = Yaml.pretty();
 
     app.use(new SwaggerModule(mapper));
-
-    app.assets(path + "/ui/**",
-        "/META-INF/resources/webjars/swagger-ui/" + wjversion(app.getClass()) + "/{0}");
 
     app.get(path + "/swagger.json", path + "/:tag/swagger.json", req -> {
       SwaggerBuilder sb = req.require(SwaggerBuilder.class);
@@ -253,9 +262,14 @@ public class SwaggerUI {
 
     }).name("swagger(yml)");
 
-    app.get(path, path + "/:tag", new SwaggerHandler(path))
-        .name("swagger(html)")
-        .produces(MediaType.html);
+    if (ui) {
+      app.assets(path + "/ui/**",
+          "/META-INF/resources/webjars/swagger-ui/" + wjversion(app.getClass()) + "/{0}");
+
+      app.get(path, path + "/:tag", new SwaggerHandler(path))
+          .name("swagger(html)")
+          .produces(MediaType.html);
+    }
   }
 
   private static String wjversion(final Class<?> loader) {

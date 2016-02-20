@@ -219,7 +219,7 @@ public class Raml {
 
   private boolean console = true;
 
-  private String theme;
+  private String theme = "light";
 
   /**
    * Creates a new {@link Raml}.
