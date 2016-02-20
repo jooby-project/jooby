@@ -89,7 +89,7 @@ public class AuthFilterTest {
   private Block reqAuthID(final String id) {
     return unit -> {
       Request req = unit.get(Request.class);
-      expect(req.get(Auth.ID)).andReturn(Optional.ofNullable(id));
+      expect(req.ifGet(Auth.ID)).andReturn(Optional.ofNullable(id));
     };
   }
 

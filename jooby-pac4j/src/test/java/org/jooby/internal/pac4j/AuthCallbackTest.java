@@ -42,7 +42,7 @@ public class AuthCallbackTest {
 
   private Block localRedirect = unit -> {
     Request req = unit.get(Request.class);
-    expect(req.get("pac4jRequestedUrl")).andReturn(Optional.empty());
+    expect(req.ifGet("pac4jRequestedUrl")).andReturn(Optional.empty());
   };
 
   @SuppressWarnings({"unchecked", "rawtypes" })

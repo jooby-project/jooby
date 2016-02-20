@@ -57,7 +57,7 @@ public class AuthLogout implements Route.Handler {
     } else {
       log.debug("nothing to logout from session");
     }
-    String redirectTo = req.<String> get("auth.logout.redirectTo").orElse(this.redirectTo);
+    String redirectTo = req.<String> ifGet("auth.logout.redirectTo").orElse(this.redirectTo);
     rsp.redirect(redirectTo);
   }
 

@@ -11,9 +11,9 @@ public class CsrfFeature extends ServerFeature {
   {
     use("*", new CsrfHandler());
 
-    get("/csrf", req -> req.get("csrf").get());
+    get("/csrf", req -> req.ifGet("csrf").get());
 
-    post("/csrf", req -> req.get("csrf").get());
+    post("/csrf", req -> req.ifGet("csrf").get());
   }
 
   @Test

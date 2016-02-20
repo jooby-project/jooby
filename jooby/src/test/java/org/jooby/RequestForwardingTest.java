@@ -520,15 +520,41 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void ifGet() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.ifGet("name")).andReturn(Optional.of("value"));
+        })
+        .run(unit -> {
+          assertEquals(Optional.of("value"),
+              new Request.Forwarding(unit.get(Request.class)).ifGet("name"));
+        });
+  }
+
+  @Test
   public void get() throws Exception {
     new MockUnit(Request.class)
         .expect(unit -> {
           Request req = unit.get(Request.class);
-          expect(req.get("name")).andReturn(Optional.of("value"));
+          expect(req.get("name")).andReturn("value");
         })
         .run(unit -> {
-          assertEquals(Optional.of("value"),
+          assertEquals("value",
               new Request.Forwarding(unit.get(Request.class)).get("name"));
+        });
+  }
+
+  @Test
+  public void getdef() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.get("name", "v")).andReturn("value");
+        })
+        .run(unit -> {
+          assertEquals("value",
+              new Request.Forwarding(unit.get(Request.class)).get("name", "v"));
         });
   }
 

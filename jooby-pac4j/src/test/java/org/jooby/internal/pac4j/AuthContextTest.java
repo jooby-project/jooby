@@ -213,7 +213,7 @@ public class AuthContextTest {
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
-          expect(req.get("r")).andReturn(Optional.of("v"));
+          expect(req.ifGet("r")).andReturn(Optional.of("v"));
         })
         .run(unit -> {
           AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
@@ -224,7 +224,7 @@ public class AuthContextTest {
         .expect(params1)
         .expect(unit -> {
           Request req = unit.get(Request.class);
-          expect(req.get("r")).andReturn(Optional.empty());
+          expect(req.ifGet("r")).andReturn(Optional.empty());
         })
         .run(unit -> {
           AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));

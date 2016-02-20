@@ -258,8 +258,18 @@ public interface Request {
     }
 
     @Override
-    public <T> Optional<T> get(final String name) {
+    public <T> Optional<T> ifGet(final String name) {
+      return req.ifGet(name);
+    }
+
+    @Override
+    public <T> T get(final String name) {
       return req.get(name);
+    }
+
+    @Override
+    public <T> T get(final String name, final T def) {
+      return req.get(name, def);
     }
 
     @Override
@@ -737,7 +747,7 @@ public interface Request {
    * @return True if the local attribute is set.
    */
   default boolean isSet(final String name) {
-    return get(name).isPresent();
+    return ifGet(name).isPresent();
   }
 
   /**
@@ -747,7 +757,33 @@ public interface Request {
    * @param <T> Target type.
    * @return A local attribute.
    */
-  <T> Optional<T> get(String name);
+  <T> Optional<T> ifGet(String name);
+
+  /**
+   * Get a request local attribute.
+   *
+   * @param name Attribute's name.
+   * @param def A default value.
+   * @param <T> Target type.
+   * @return A local attribute.
+   */
+  default <T> T get(final String name, final T def) {
+    Optional<T> opt = ifGet(name);
+    return opt.orElse(def);
+  }
+
+  /**
+   * Get a request local attribute.
+   *
+   * @param name Attribute's name.
+   * @param <T> Target type.
+   * @return A local attribute.
+   * @throws Err with {@link Status#BAD_REQUEST}.
+   */
+  default <T> T get(final String name) {
+    Optional<T> opt = ifGet(name);
+    return opt.orElseThrow(() -> new Err(Status.BAD_REQUEST, "Not found: " + name));
+  }
 
   /**
    * Remove a request local attribute.

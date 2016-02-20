@@ -36,6 +36,7 @@ import org.jooby.Session;
 import org.jooby.Status;
 import org.jooby.mvc.Body;
 import org.jooby.mvc.Header;
+import org.jooby.mvc.Local;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -55,6 +56,8 @@ public class RequestParam {
   private static final TypeLiteral<Header> headerType = TypeLiteral.get(Header.class);
 
   private static final TypeLiteral<Body> bodyType = TypeLiteral.get(Body.class);
+
+  private static final TypeLiteral<Local> localType = TypeLiteral.get(Local.class);
 
   private static final Map<Object, GetValue> injector;
 
@@ -94,6 +97,20 @@ public class RequestParam {
      */
     builder.put(headerType, (req, rsp, param) -> req.header(param.name).to(param.type));
 
+    /**
+     * Local
+     */
+    builder.put(localType, (req, rsp, param) -> {
+      if (param.type.getRawType() == Map.class) {
+        return req.attributes();
+      }
+      Optional local = req.ifGet(param.name);
+      if (param.optional) {
+        return local;
+      }
+      return local.get();
+    });
+
     injector = builder.build();
   }
 
@@ -122,6 +139,8 @@ public class RequestParam {
       strategyType = headerType;
     } else if (elem.getAnnotation(Body.class) != null) {
       strategyType = bodyType;
+    } else if (elem.getAnnotation(Local.class) != null) {
+      strategyType = localType;
     } else {
       strategyType = this.type;
     }

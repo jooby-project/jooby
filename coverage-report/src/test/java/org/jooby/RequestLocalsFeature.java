@@ -21,7 +21,7 @@ public class RequestLocalsFeature extends ServerFeature {
       assertFalse(req.isSet("l1"));
       req.set("l1", "v1");
       assertTrue(req.isSet("l1"));
-      return req.get("l1");
+      return req.ifGet("l1");
     });
 
     get("/locals/unset", (req) -> {

@@ -23,7 +23,7 @@ public class RequestValueResolverTest {
     new MockUnit(Request.class)
         .expect(unit -> {
           Request Request = unit.get(Request.class);
-          expect(Request.get("prop")).andReturn(Optional.of("x"));
+          expect(Request.ifGet("prop")).andReturn(Optional.of("x"));
         })
         .run(unit -> {
           assertEquals("x", new RequestValueResolver().resolve(unit.get(Request.class), "prop"));
@@ -35,7 +35,7 @@ public class RequestValueResolverTest {
     new MockUnit(Request.class)
         .expect(unit -> {
           Request Request = unit.get(Request.class);
-          expect(Request.get("prop")).andReturn(Optional.empty());
+          expect(Request.ifGet("prop")).andReturn(Optional.empty());
         })
         .run(
             unit -> {

@@ -124,7 +124,7 @@ public class AuthFilter implements Route.Handler {
   }
 
   private String profileID(final boolean useSession, final Request req) {
-    return req.<String> get(Auth.ID)
+    return req.<String> ifGet(Auth.ID)
         .orElseGet(() -> useSession ? req.session().get(Auth.ID).value(null) : null);
   }
 

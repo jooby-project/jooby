@@ -122,7 +122,7 @@ public class RequestImpl implements Request {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Optional<T> get(final String name) {
+  public <T> Optional<T> ifGet(final String name) {
     requireNonNull(name, "A local's name is required.");
     return Optional.ofNullable((T) locals.get(name));
   }

@@ -203,11 +203,51 @@ public void configure(Mode mode, Config config, Binder binder) {
 ```
 
 ## local variables
-Local variables are bound to the current request. They are created every time a new request is processed and destroyed at the end of the request.
+
+Local variables are bound to the current request. They are created every time a new request comes in and destroyed at the end of the request.
 
 ```java
-  req.set("var", var);
-  String var = rsp.get("var");
+{
+  use("*", (req, rsp) -> {
+    Object value = ...;
+    req.set("var", value);
+  });
+
+  get("/locals", req -> {
+    // optional local
+    Optional<String> ifValue = rsp.ifGet("var");
+
+    // required local
+    String value = rsp.get("var");
+
+    // local with default value
+    String defvalue = rsp.get("var", "defvalue");
+
+    // all locals
+    Map<String, Object> locals = req.attributes();
+  });
+}
+```
+
+In ```mvc routes``` request locals can be injected via ```@Local``` annotation:
+
+```java
+
+  @GET
+  public Result localAttr(@Local String var) {
+    ...
+  }
+
+  @GET
+  public Result ifLocalAttr(@Local Optional<String> var) {
+    ...
+  }
+
+  @GET
+  public Result attributes(@Local Map<String, Object> attributes) {
+    ...
+  }
+
 ```
 
 ## guice access

@@ -156,7 +156,7 @@ public class RequestTest {
     }
 
     @Override
-    public <T> Optional<T> get(final String name) {
+    public <T> Optional<T> ifGet(final String name) {
       throw new UnsupportedOperationException();
     }
 

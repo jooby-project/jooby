@@ -37,7 +37,7 @@ public class RequestValueResolver implements ValueResolver {
   public Object resolve(final Object context, final String name) {
     Object value = null;
     if (context instanceof Request) {
-      value = ((Request) context).get(name).orElse(null);
+      value = ((Request) context).ifGet(name).orElse(null);
     }
     return value == null ? UNRESOLVED : value;
   }

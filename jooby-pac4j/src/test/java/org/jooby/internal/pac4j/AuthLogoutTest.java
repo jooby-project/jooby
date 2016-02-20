@@ -26,7 +26,7 @@ public class AuthLogoutTest {
           Request req = unit.get(Request.class);
           expect(req.ifSession()).andReturn(Optional.of(session));
           expect(req.require(AuthStore.class)).andReturn(unit.get(AuthStore.class));
-          expect(req.get("auth.logout.redirectTo")).andReturn(Optional.empty());
+          expect(req.ifGet("auth.logout.redirectTo")).andReturn(Optional.empty());
         })
         .expect(unit -> {
           Optional<String> id = Optional.of("1");
@@ -60,7 +60,7 @@ public class AuthLogoutTest {
 
           Request req = unit.get(Request.class);
           expect(req.ifSession()).andReturn(Optional.of(session));
-          expect(req.get("auth.logout.redirectTo")).andReturn(Optional.empty());
+          expect(req.ifGet("auth.logout.redirectTo")).andReturn(Optional.empty());
         })
         .expect(unit -> {
           Optional<String> id = Optional.empty();
@@ -87,7 +87,7 @@ public class AuthLogoutTest {
         .expect(unit -> {
           Request req = unit.get(Request.class);
           expect(req.ifSession()).andReturn(Optional.empty());
-          expect(req.get("auth.logout.redirectTo")).andReturn(Optional.empty());
+          expect(req.ifGet("auth.logout.redirectTo")).andReturn(Optional.empty());
         })
         .expect(unit -> {
           Response rsp = unit.get(Response.class);

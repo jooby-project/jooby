@@ -92,7 +92,7 @@ public class AuthCallback implements Route.Filter {
 
       // where to go? if there is a local var set, it use that. If there is a session var set, it
       // use that. Otherwise, it use the global property: "auth.login.redirectTo".
-      String requestedUrl = req.<String> get(Pac4jConstants.REQUESTED_URL).orElseGet(() -> {
+      String requestedUrl = req.<String> ifGet(Pac4jConstants.REQUESTED_URL).orElseGet(() -> {
         return session.unset(Pac4jConstants.REQUESTED_URL).toOptional()
             .map(url -> url.equals("/") ? this.redirectTo : url)
             .orElse(this.redirectTo);

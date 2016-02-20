@@ -154,7 +154,7 @@ public class AuthContext implements WebContext {
 
   @Override
   public Object getRequestAttribute(final String name) {
-    Optional<Object> attr = req.get(name);
+    Optional<Object> attr = req.ifGet(name);
     return attr.orElse(null);
   }
 
