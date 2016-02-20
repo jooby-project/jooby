@@ -1,4 +1,0 @@
-* review router without response (setting content-length should be enough), but we got a 415 err on routers that set just a header
-* Implement a default HTTP response with etags and last-modified-since
-* Signed cookies
-* Test support
