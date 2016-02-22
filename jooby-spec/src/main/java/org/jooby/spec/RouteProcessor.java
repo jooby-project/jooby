@@ -211,7 +211,7 @@ public class RouteProcessor {
   @SuppressWarnings("unchecked")
   private List<RouteSpec> processInternal(final Class<? extends Jooby> appClass,
       final List<Route.Definition> routes, final Path srcdir, final Path outdir) {
-    log.info("processing {}.spec", appClass.getName());
+    log.debug("processing {}.spec", appClass.getName());
     List<RouteSpec> specs = new ArrayList<>();
     try {
       /**
@@ -248,59 +248,67 @@ public class RouteProcessor {
       int j = 0;
       for (int i = 0; i < routes.size(); i++) {
         Route.Definition route = routes.get(i);
-        Route.Filter handler = route.filter();
-        Method method = null;
+        Object cursor = null;
+        try {
+          Route.Filter handler = route.filter();
+          Method method = null;
 
-        // find out where the route was defined
-        final String owner;
-        if (handler instanceof Route.MethodHandler) {
-          method = ((Route.MethodHandler) handler).method();
-          owner = method.getDeclaringClass().getName();
-        } else {
-          // lambda script
-          owner = handler.getClass().getName();
-        }
-
-        if (owners.stream().filter(o -> owner.startsWith(o)).findFirst().isPresent()) {
-
-          log.debug("    found {} {}", route.method(), route.pattern());
-          Entry<Object, Node> entry = routeNodes.get(j++);
-
-          Object candidate = entry.getKey();
-          if (candidate instanceof Node) {
-            log.debug("\n{}\n", candidate);
-            /** doc and response codes . */
-            Map<String, Object> doc = new DocCollector().accept((Node) candidate, route.method(),
-                ctx);
-            Map<Integer, String> codes = (Map<Integer, String>) doc.remove("@statusCodes");
-            String desc = (String) doc.remove("@text");
-            String summary = (String) doc.remove("@summary");
-            String retDoc = (String) doc.remove("@return");
-            Type retType = (Type) doc.remove("@type");
-
-            /** params and return type */
-            List<RouteParam> params = Collections.emptyList();
-            RouteResponse rsp;
-            if (method == null) {
-              // script params
-              params = new RouteParamCollector(doc, route.method(), route.pattern())
-                  .accept(entry.getValue(), ctx);
-              // script response
-              rsp = new ResponseTypeCollector().accept(entry.getValue(), ctx, retType, retDoc,
-                  codes);
-            } else {
-              params = mvcParams(route, method, doc);
-              rsp = new RouteResponseImpl(retType == null ? method.getGenericReturnType() : retType,
-                  retDoc, codes);
-            }
-
-            /** Create spec . */
-            specs.add(new RouteSpecImpl(route, summary, desc, params, rsp));
+          // find out where the route was defined
+          final String owner;
+          if (handler instanceof Route.MethodHandler) {
+            method = ((Route.MethodHandler) handler).method();
+            owner = method.getDeclaringClass().getName();
           } else {
-            specs.add((RouteSpec) candidate);
+            // lambda script
+            owner = handler.getClass().getName();
           }
-        } else {
-          log.debug("    ignoring {} {} from {}", route.method(), route.pattern(), owner);
+
+          if (owners.stream().filter(o -> owner.startsWith(o)).findFirst().isPresent()) {
+
+            log.debug("    found {} {}", route.method(), route.pattern());
+            Entry<Object, Node> entry = routeNodes.get(j++);
+
+            Object candidate = entry.getKey();
+            if (candidate instanceof Node) {
+              cursor = candidate;
+              log.debug("\n{}\n", candidate);
+              /** doc and response codes . */
+              Map<String, Object> doc = new DocCollector().accept((Node) candidate, route.method(),
+                  ctx);
+              Map<Integer, String> codes = (Map<Integer, String>) doc.remove("@statusCodes");
+              String desc = (String) doc.remove("@text");
+              String summary = (String) doc.remove("@summary");
+              String retDoc = (String) doc.remove("@return");
+              Type retType = (Type) doc.remove("@type");
+
+              /** params and return type */
+              List<RouteParam> params = Collections.emptyList();
+              RouteResponse rsp;
+              if (method == null) {
+                // script params
+                params = new RouteParamCollector(doc, route.method(), route.pattern())
+                    .accept(entry.getValue(), ctx);
+                // script response
+                rsp = new ResponseTypeCollector().accept(entry.getValue(), ctx, retType, retDoc,
+                    codes);
+              } else {
+                params = mvcParams(route, method, doc);
+                rsp = new RouteResponseImpl(
+                    retType == null ? method.getGenericReturnType() : retType,
+                    retDoc, codes);
+              }
+
+              /** Create spec . */
+              specs.add(new RouteSpecImpl(route, summary, desc, params, rsp));
+            } else {
+              specs.add((RouteSpec) candidate);
+            }
+          } else {
+            log.debug("    ignoring {} {} from {}", route.method(), route.pattern(), owner);
+          }
+        } catch (Exception ex) {
+          log.error("ignoring {} {} with {}", route.method(), route.pattern(),
+              cursor == null ? "<no source code>" : cursor.toString(), ex);
         }
       }
     } catch (ParseException ex) {
@@ -311,7 +319,7 @@ public class RouteProcessor {
     if (outdir != null) {
       save(outdir.resolve(appClass.getSimpleName() + ".spec"), specs);
     }
-    log.info("done");
+    log.debug("done");
     return specs;
   }
 
