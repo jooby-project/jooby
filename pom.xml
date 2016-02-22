@@ -23,6 +23,7 @@
     <module>jooby-ftl</module>
     <module>jooby-pebble</module>
     <module>jooby-jade</module>
+    <module>jooby-guava-cache</module>
     <module>jooby-jdbc</module>
     <module>jooby-jooq</module>
     <module>jooby-hbm</module>
@@ -200,6 +201,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-quartz</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-guava-cache</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 

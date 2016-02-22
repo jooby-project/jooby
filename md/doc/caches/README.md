@@ -16,5 +16,6 @@ Let's see what modules are available:
 
 # pure java
 
-* [hazelcast](/doc/hazelcast): provides access to a {{hazelcast}}.
 * [ehcache](/doc/ehcache): provides access to a {{ehcache}}.
+* [guava](/doc/guava-cache): caches via [Guava](https://github.com/google/guava).
+* [hazelcast](/doc/hazelcast): provides access to a {{hazelcast}}.
