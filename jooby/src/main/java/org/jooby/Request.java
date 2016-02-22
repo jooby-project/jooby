@@ -650,21 +650,23 @@ public interface Request {
   }
 
   /**
-   * Select a locale in the provided <code>collection</code> based on the
-   * content of the <code>Accept-Language</code> header using the lookup
-   * algorithm of RFC4647. If the request doens't specify such header, this
-   * method return the global locale: <code>application.lang</code>.
+   * Select a locale in the provided <code>collection</code> based on the content of the
+   * <code>Accept-Language</code> header using the lookup algorithm of RFC4647. If the request
+   * doens't specify such header, this method return the global locale:
+   * <code>application.lang</code>.
    *
+   * @param locales Locales to test for.
    * @return A locale.
    */
   Locale locale(Iterable<Locale> locales);
 
   /**
-   * Select a locale in the provided <code>collection</code> based on the
-   * content of the <code>Accept-Language</code> header using the lookup
-   * algorithm of RFC4647. If the request doens't specify such header, this
-   * method return the global locale: <code>application.lang</code>.
+   * Select a locale in the provided <code>collection</code> based on the content of the
+   * <code>Accept-Language</code> header using the lookup algorithm of RFC4647. If the request
+   * doens't specify such header, this method return the global locale:
+   * <code>application.lang</code>.
    *
+   * @param locales Locales to test for.
    * @return A locale.
    */
   default Locale locale(final Locale... locales) {

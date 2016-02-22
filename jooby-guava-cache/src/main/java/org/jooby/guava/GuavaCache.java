@@ -66,7 +66,7 @@ import com.typesafe.config.ConfigValueFactory;
  * }
  * </pre>
  *
- * <h2>options</options>
+ * <h2>options</h2>
  *
  * <h3>cache configuration</h3>
  * <p>

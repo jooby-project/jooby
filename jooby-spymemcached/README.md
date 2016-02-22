@@ -11,7 +11,7 @@ Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-spymemcached</artifactId>
-  <version>0.14.0</version>
+  <version>0.15.0</version>
 </dependency>
 ```
 

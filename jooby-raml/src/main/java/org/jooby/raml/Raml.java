@@ -111,12 +111,12 @@ import com.typesafe.config.ConfigFactory;
  * at: <code>/raml/api.raml</code>
  * </p>
  *
- * <h2>options</options>
+ * <h2>options</h2>
  * <p>
  * There are a few options available, let's see what they are:
  * </p>
  *
- * <h3>path</code>
+ * <h3>path</h3>
  * <p>
  * The <code>path</code> option controls where to mount the RAML routes:
  * </p>
