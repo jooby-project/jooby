@@ -107,9 +107,11 @@
        </ul></li> 
       <li class=""> <a href="#raml">raml</a>
        <ul> 
+        <li> <a href="#raml-exposes">exposes</a></li> 
         <li> <a href="#raml-dependency">dependency</a></li> 
         <li> <a href="#raml-usage">usage</a></li> 
         <li> <a href="#raml-options">options</a></li> 
+        <li> <a href="#raml-live-demo">live demo</a></li> 
         <li> <a href="#raml-raml-conf">raml.conf</a></li>
        </ul></li> 
       <li class=""> <a href="#swagger">swagger</a>
@@ -117,6 +119,7 @@
         <li> <a href="#swagger-dependency">dependency</a></li> 
         <li> <a href="#swagger-usage">usage</a></li> 
         <li> <a href="#swagger-options">options</a></li> 
+        <li> <a href="#swagger-live-demo">live demo</a></li> 
         <li> <a href="#swagger-swagger-conf">swagger.conf</a></li>
        </ul></li> 
      </ul> 
@@ -128,7 +131,7 @@
       </div> 
       <div class="datalist-content"> 
        <p>The spec module allows you to export your API/microservices outside a <a href="http://jooby.org">Jooby</a> application.</p> 
-       <p>The goal of this module is to define a common way to write APIs and provide you tools like live doc and testing for <strong>FREE</strong>. By <strong>FREE</strong> we mean:</p> 
+       <p>The goal of this module is to define a common way to write APIs and provide you tools like live doc and testing <strong>with no extra effort</strong>.</p> 
        <blockquote> 
         <p>You aren’t force to learn any other tool or annotated your code special annotations. All you have to do is <strong>write your application</strong> following a few/minor suggestions.</p> 
        </blockquote> 
@@ -588,7 +591,8 @@
        <h2>raml</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifecycle from design to sharing. It’s concise - you only write what you need to define - and reusable. It is machine readable API design that is actually human friendly. More at <a href="http://raml.org/" target="_blank">http://raml.org</a> ## exposes</p> 
+       <p>RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifecycle from design to sharing. It’s concise - you only write what you need to define - and reusable. It is machine readable API design that is actually human friendly. More at <a href="http://raml.org/" target="_blank">http://raml.org</a></p> 
+       <h3 id="raml-exposes">exposes</h3> 
        <ul> 
         <li>The <a href="https://github.com/mulesoft/api-console" target="_blank">api-console</a> at <code class="highlighter-rouge codehilite">/raml</code></li> 
         <li>The <code class="highlighter-rouge codehilite">.raml</code> file at <code class="highlighter-rouge codehilite">/raml/api.raml</code></li> 
@@ -727,6 +731,9 @@
        <p>Shows/hide the client generator button from api-console.</p> 
        <h4>tryIt</h4> 
        <p>Expand/collapse the try it panel from api-console.</p> 
+       <h3 id="raml-live-demo">live demo</h3> 
+       <p>Check out the a live demo for <a href="https://jooby-spec.herokuapp.com/raml" target="_blank">RAML</a>.</p> 
+       <p>Source code available at <a href="https://github.com/jooby-guides/route-spec" target="_blank">github</a></p> 
        <h3 id="raml-raml-conf">raml.conf</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -889,6 +896,9 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
+       <h3 id="swagger-live-demo">live demo</h3> 
+       <p>Check out the a live demo for <a href="https://jooby-spec.herokuapp.com/swagger" target="_blank">Swagger</a>.</p> 
+       <p>Source code available at <a href="https://github.com/jooby-guides/route-spec" target="_blank">github</a></p> 
        <h3 id="swagger-swagger-conf">swagger.conf</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
