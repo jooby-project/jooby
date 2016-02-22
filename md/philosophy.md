@@ -1,4 +1,4 @@
-# philosophy: do more, more easily
+# do more, more easily
 
 - **Simple** and **effective** programming model for building small and large scale web applications
 - Build with **developer productive** in mind

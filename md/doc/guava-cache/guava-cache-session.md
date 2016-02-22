@@ -1,4 +1,4 @@
-# session store
+# guava session store
 
 ## usage
 

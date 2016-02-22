@@ -1,5 +1,7 @@
 # jooby:run
 
+Increase development productivity: run, debug and auto-reload Jooby applications.
+
 A {{maven}} plugin for running, debugging and reloading your application.
 
 ## usage
