@@ -3,15 +3,15 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: jackson module</title> 
+  <title>jooby: jOOQ module</title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, jackson"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, jOOQ"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
-  <meta name="og:title" content="jooby: jackson module"> 
-  <meta name="og:description" content="JSON support from the excellent Jackson library"> 
+  <meta name="og:title" content="jooby: jooq module"> 
+  <meta name="og:description" content="jOOQ generates Java code from your database and lets you build type safe SQL queries through its fluent API"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -28,9 +28,9 @@
     FORMATO: JPG
     --> 
   <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
-  <meta name="og:site_name" content="jooby: jackson module"> 
+  <meta name="og:site_name" content="jooby: jooq module"> 
   <meta name="twitter:card" content="summary"> 
-  <meta name="twitter:title" content="jooby: jackson module"> 
+  <meta name="twitter:title" content="jooby: jooq module"> 
   <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="JSON support from the excellent Jackson library"> 
+  <meta name="twitter:description" content="jOOQ generates Java code from your database and lets you build type safe SQL queries through its fluent API"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -87,105 +87,112 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>jackson</h1> 
+     <h1>jOOQ</h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
      <div class="show-mobile menu-open">
-      jackson
+      jOOQ
      </div> 
      <ul> 
-      <li class="active"> <a href="#jackson">jackson</a>
+      <li class="active"> <a href="#jOOQ">jOOQ</a>
        <ul> 
-        <li> <a href="#jackson-dependency">dependency</a></li> 
-        <li> <a href="#jackson-usage">usage</a></li>
+        <li> <a href="#jOOQ-dependency">dependency</a></li> 
+        <li> <a href="#jOOQ-usage">usage</a></li> 
+        <li> <a href="#jOOQ-multiple-db-connections">multiple db connections</a></li> 
+        <li> <a href="#jOOQ-advanced-configuration">advanced configuration</a></li> 
+        <li> <a href="#jOOQ-code-generation">code generation</a></li>
        </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
-     <div class="datalist" id="jackson"> 
+     <div class="datalist" id="jOOQ"> 
       <div class="datalist-title active"> 
-       <h2>jackson</h2> 
+       <h2>jOOQ</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>JSON support from the excellent <a href="https://github.com/FasterXML/jackson" target="_blank">Jackson</a> library.</p> 
-       <p>This module provides a JSON body <a href="/apidocs/Parser.html">parser</a> and <a href="/apidocs/Renderer.html">formatter</a> but also an <a href="http://fasterxml.github.io/jackson-databind/javadoc/2.5.2/com/fasterxml/jackson/databind/ObjectMapper.html" target="_blank">ObjectMapper</a>.</p> 
-       <h3 id="jackson-dependency">dependency</h3> 
+       <p><a href="http://www.jooq.org" target="_blank">jOOQ</a> generates Java code from your database and lets you build type safe SQL queries through its fluent API.</p> 
+       <p>This module depends on <a href="/doc/jdbc">jdbc</a> module, make sure you read the doc of the <a href="/doc/jdbc">jdbc</a> module.</p> 
+       <h3 id="jOOQ-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>jooby-jackson<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.15.0<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-jooq<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>0.15.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
-       <h3 id="jackson-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.json.Jackson</span><span class="o">;</span>
-
-<span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span>
- 
-  <span class="c1">// sending</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/my-api"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">MyObject</span><span class="o">());</span> 
-
-  <span class="c1">// receiving a json body</span>
-  <span class="n">post</span><span class="o">(</span><span class="s">"/my-api"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">MyObject</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">MyObject</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="k">return</span> <span class="n">obj</span><span class="o">;</span>
-  <span class="o">});</span>
-
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <h4>advanced configuration</h4> 
-       <p>If you need a special setting or configuration for your <a href="http://fasterxml.github.io/jackson-databind/javadoc/2.2.0/com/fasterxml/jackson/databind/ObjectMapper.html" target="_blank">ObjectMapper</a>:</p> 
+       <h3 id="jOOQ-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">mapper</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="c1">// setup your custom object mapper</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">jOOQ</span><span class="o">());</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/jooq"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="k">try</span> <span class="o">(</span><span class="n">DSLContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DSLContext</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">ctx</span><span class="o">.</span><span class="na">transactionResult</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="n">DSLContext</span> <span class="n">trx</span> <span class="o">=</span> <span class="n">DSL</span><span class="o">.</span><span class="na">using</span><span class="o">(</span><span class="n">conf</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">trx</span><span class="o">.</span><span class="na">selectFrom</span><span class="o">(</span><span class="n">TABLE</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">where</span><span class="o">(</span><span class="n">ID</span><span class="o">.</span><span class="na">eq</span><span class="o">(</span><span class="mi">1</span><span class="o">))</span>
+            <span class="o">.</span><span class="na">fetchOne</span><span class="o">(</span><span class="n">NAME</span><span class="o">);</span>
+      <span class="o">});</span>
+    <span class="o">}</span>
   <span class="o">});</span>
+
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>or provide an <a href="http://fasterxml.github.io/jackson-databind/javadoc/2.2.0/com/fasterxml/jackson/databind/ObjectMapper.html" target="_blank">ObjectMapper</a> instance:</p> 
+       <h3 id="jOOQ-multiple-db-connections">multiple db connections</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-   <span class="n">ObjectMapper</span> <span class="n">mapper</span> <span class="o">=</span> <span class="o">....;</span>
-   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">(</span><span class="n">mapper</span><span class="o">));</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">jOOQ</span><span class="o">(</span><span class="s">"db.main"</span><span class="o">));</span>
+
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">jOOQ</span><span class="o">(</span><span class="s">"db.audit"</span><span class="o">));</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/main"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="k">try</span> <span class="o">(</span><span class="n">DSLContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="s">"db.main"</span><span class="o">,</span> <span class="n">DSLContext</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
+      <span class="o">...</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/audit"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="k">try</span> <span class="o">(</span><span class="n">DSLContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="s">"db.audit"</span><span class="o">,</span> <span class="n">DSLContext</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
+      <span class="o">...</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>It is possible to wire Jackson modules too:</p> 
+       <h3 id="jOOQ-advanced-configuration">advanced configuration</h3> 
+       <p>This module setup a <code class="highlighter-rouge codehilite">Configuration</code> object with a <code class="highlighter-rouge codehilite">DataSource</code> from <a href="/doc/jdbc">jdbc</a> module and the <code class="highlighter-rouge codehilite">DefaultTransactionProvider</code>. More advanced configuration is provided via <code class="highlighter-rouge codehilite">#doWith(BiConsumer)</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">jOOQ</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">{</span>
 
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span>
-
-  <span class="n">use</span><span class="o">((</span><span class="n">mode</span><span class="o">,</span> <span class="n">config</span><span class="o">,</span> <span class="n">binder</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">Multibinder</span><span class="o">.</span><span class="na">newSetBinder</span><span class="o">(</span><span class="n">binder</span><span class="o">,</span> <span class="n">Module</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">addBinding</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">MyJacksonModuleWiredByGuice</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">conf</span><span class="o">.</span><span class="na">set</span><span class="o">(...);</span>
   <span class="o">});</span>
+
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>This is useful when your <em>MyJacksonModuleWiredByGuice</em> module require some dependencies.</p> 
-       <p>That’s all folks! Enjoy it!!!</p> 
+       <h3 id="jOOQ-code-generation">code generation</h3> 
+       <p>Unfortunately, this module doesn’t provide any built-in facility for code generation. If you need help to setup the code generator please checkout the <a href="http://www.jooq.org/doc/latest/manual/code-generation/" target="_blank">jOOQ documentation</a> for more information.</p> 
       </div> 
      </div> 
     </div> 

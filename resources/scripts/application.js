@@ -104,7 +104,7 @@ APP.init = function(){
       $sectionSidebar.removeClass( "active" );
     });  
     $( window ).on( "resize scroll", function(){
-      var left = $sectionSidebar.parent().offset().left + parseInt($sectionSidebar.parent().css('padding-left')),
+      var left = $sectionSidebar.parent().offset().left,
         top = $( this ).scrollTop(),
         stop = $( ".site-footer" ).offset().top - $( this ).height();
       bottom = 20;

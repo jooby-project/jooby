@@ -10,8 +10,8 @@
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
-  <meta name="og:title" content="jooby"> 
-  <meta name="og:description" content="Scalable, fast and modular micro web framework for Java"> 
+  <meta name="og:title" content="jooby: session module"> 
+  <meta name="og:description" content="You will find here the available modules for reading and saving session data in your application"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -28,9 +28,9 @@
     FORMATO: JPG
     --> 
   <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
-  <meta name="og:site_name" content="Jooby"> 
+  <meta name="og:site_name" content="jooby: session module"> 
   <meta name="twitter:card" content="summary"> 
-  <meta name="twitter:title" content="Jooby"> 
+  <meta name="twitter:title" content="jooby: session module"> 
   <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Scalable, fast and modular micro web framework for Java"> 
+  <meta name="twitter:description" content="You will find here the available modules for reading and saving session data in your application"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -97,29 +97,33 @@
      </div> 
      <ul> 
       <li class="active"> <a href="#session">session</a></li> 
-      <li class=""> <a href="#redis-session-store">redis session store</a>
+      <li class=""> <a href="#ehcache-session-store">ehcache session store</a>
        <ul> 
-        <li> <a href="#redis-session-store-usage">usage</a></li> 
-        <li> <a href="#redis-session-store-options">options</a></li>
+        <li> <a href="#ehcache-session-store-usage">usage</a></li>
        </ul></li> 
-      <li class=""> <a href="#spymemcached-session-store">spymemcached session store</a>
+      <li class=""> <a href="#guava-session-store">guava session store</a>
        <ul> 
-        <li> <a href="#spymemcached-session-store-usage">usage</a></li> 
-        <li> <a href="#spymemcached-session-store-options">options</a></li>
-       </ul></li> 
-      <li class=""> <a href="#mongodb-session-store">mongodb session store</a>
-       <ul> 
-        <li> <a href="#mongodb-session-store-usage">usage</a></li> 
-        <li> <a href="#mongodb-session-store-options">options</a></li>
+        <li> <a href="#guava-session-store-usage">usage</a></li>
        </ul></li> 
       <li class=""> <a href="#hazelcast-session-store">hazelcast session store</a>
        <ul> 
         <li> <a href="#hazelcast-session-store-usage">usage</a></li> 
         <li> <a href="#hazelcast-session-store-options">options</a></li>
        </ul></li> 
-      <li class=""> <a href="#ehcache-session-store">ehcache session store</a>
+      <li class=""> <a href="#redis-session-store">redis session store</a>
        <ul> 
-        <li> <a href="#ehcache-session-store-usage">usage</a></li>
+        <li> <a href="#redis-session-store-usage">usage</a></li> 
+        <li> <a href="#redis-session-store-options">options</a></li>
+       </ul></li> 
+      <li class=""> <a href="#mongodb-session-store">mongodb session store</a>
+       <ul> 
+        <li> <a href="#mongodb-session-store-usage">usage</a></li> 
+        <li> <a href="#mongodb-session-store-options">options</a></li>
+       </ul></li> 
+      <li class=""> <a href="#spymemcached-session-store">spymemcached session store</a>
+       <ul> 
+        <li> <a href="#spymemcached-session-store-usage">usage</a></li> 
+        <li> <a href="#spymemcached-session-store-options">options</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -130,6 +134,118 @@
       </div> 
       <div class="datalist-content"> 
        <p>You will find here the available modules for reading and saving session data in your application.</p> 
+      </div> 
+     </div> 
+     <div class="datalist" id="ehcache-session-store"> 
+      <div class="datalist-title "> 
+       <h2>ehcache session store</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <h3 id="ehcache-session-store-usage">usage</h3> 
+       <p>This module provides an <a href="/apidocs/ehcache/EhSessionStore.html">EhSessionStore</a>. In order to use the <a href="/apidocs/ehcache/EhSessionStore.html">EhSessionStore</a> all you have to do is define a <code class="highlighter-rouge codehilite">session</code> cache:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="err">ehcache.cache.session</span> <span class="err">{</span>
+  <span class="c"># cache will expire after 30 minutes of inactivity </span>  <span class="py">timeToIdle</span> <span class="p">=</span> <span class="s">30m</span>
+<span class="err">}</span>
+</code></pre> 
+       </div> 
+       <p>And then register the <a href="/apidocs/ehcache/EhSessionStore.html">EhSessionStore</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">session</span><span class="o">(</span><span class="n">EhSessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+      </div> 
+     </div> 
+     <div class="datalist" id="guava-session-store"> 
+      <div class="datalist-title "> 
+       <h2>guava session store</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <h3 id="guava-session-store-usage">usage</h3> 
+       <p>This module comes with a <code class="highlighter-rouge codehilite">Session.Store</code> implementation. In order to use it you need to define a cache named <code class="highlighter-rouge codehilite">session</code> in your <code class="highlighter-rouge codehilite">application.conf</code> file:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>guava.session = "maximumSize=10"
+</code></pre> 
+       </div> 
+       <p>And set the <code class="highlighter-rouge codehilite">GuavaSessionStore</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.guava.GuavaCache</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jooby.guava.GuavaSessionStore</span><span class="o">;</span>
+
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="n">GuavaCache</span><span class="o">.</span><span class="na">newCache</span><span class="o">());</span>
+
+  <span class="n">session</span><span class="o">(</span><span class="n">GuavaSessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>You can access to the <code class="highlighter-rouge codehilite">session</code> via name:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Cache</span> <span class="n">cache</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="s">"session"</span><span class="o">,</span> <span class="n">Cache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+      </div> 
+     </div> 
+     <div class="datalist" id="hazelcast-session-store"> 
+      <div class="datalist-title "> 
+       <h2>hazelcast session store</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <h3 id="hazelcast-session-store-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hcast</span><span class="o">());</span>
+
+  <span class="n">session</span><span class="o">(</span><span class="n">HcastSessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+   <span class="n">req</span><span class="o">.</span><span class="na">session</span><span class="o">().</span><span class="na">set</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"jooby"</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="hazelcast-session-store-options">options</h3> 
+       <h4>timeout</h4> 
+       <p>By default, a <a href="http://hazelcast.org" target="_blank">Hazelcast</a> session will expire after <code class="highlighter-rouge codehilite">30 minutes</code>. Changing the default timeout is as simple as:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
+
+<span class="c"># 15 seconds </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
+
+<span class="c"># 120 minutes </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
+
+<span class="c"># no timeout </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
+</code></pre> 
+       </div> 
+       <h4>name</h4> 
+       <p>Default session’s name is <code class="highlighter-rouge codehilite">sessions</code>. It’s possible to change the default name by setting the property: <code class="highlighter-rouge codehilite">hazelcast.sesssion.name</code>.</p> 
       </div> 
      </div> 
      <div class="datalist" id="redis-session-store"> 
@@ -173,50 +289,6 @@
        <h4>key prefix</h4> 
        <p>Default redis key prefix is <code class="highlighter-rouge codehilite">sessions</code>. Sessions in [redis] will look like: <code class="highlighter-rouge codehilite">sessions:ID</code></p> 
        <p>It’s possible to change the default key setting the <code class="highlighter-rouge codehilite">jedis.sesssion.prefix</code> properties</p> 
-      </div> 
-     </div> 
-     <div class="datalist" id="spymemcached-session-store"> 
-      <div class="datalist-title "> 
-       <h2>spymemcached session store</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <h3 id="spymemcached-session-store-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">SpyMemcached</span><span class="o">());</span>
-
-  <span class="n">session</span><span class="o">(</span><span class="n">SpySessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-
-  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-   <span class="n">req</span><span class="o">.</span><span class="na">session</span><span class="o">().</span><span class="na">set</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"jooby"</span><span class="o">);</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>The <code class="highlighter-rouge codehilite">name</code> attribute and value will be stored in <a href="http://memcached.org" target="_blank">Memcached</a>.</p> 
-       <p>Session are persisted using the default <code class="highlighter-rouge codehilite">Transcoder</code>.</p> 
-       <h3 id="spymemcached-session-store-options">options</h3> 
-       <h4>timeout</h4> 
-       <p>By default, a <a href="http://memcached.org" target="_blank">Memcached</a> session will expire after <code class="highlighter-rouge codehilite">30 minutes</code>. Changing the default timeout is as simple as:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
-
-<span class="c"># 15 seconds </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
-
-<span class="c"># 120 minutes </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
-
-<span class="c"># no timeout </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
-</code></pre> 
-       </div> 
-       <h4>key prefix</h4> 
-       <p>Default <a href="http://memcached.org" target="_blank">Memcached</a> key prefix is <code class="highlighter-rouge codehilite">sessions:</code>. Sessions in <a href="http://memcached.org" target="_blank">Memcached</a> will looks like: <code class="highlighter-rouge codehilite">sessions:ID</code></p> 
-       <p>It’s possible to change the default key setting the <code class="highlighter-rouge codehilite">memcached.sesssion.prefix</code> property.</p> 
       </div> 
      </div> 
      <div class="datalist" id="mongodb-session-store"> 
@@ -263,20 +335,20 @@
        <p>It’s possible to change the default key setting the <code class="highlighter-rouge codehilite">mongodb.sesssion.collection</code> properties.</p> 
       </div> 
      </div> 
-     <div class="datalist" id="hazelcast-session-store"> 
+     <div class="datalist" id="spymemcached-session-store"> 
       <div class="datalist-title "> 
-       <h2>hazelcast session store</h2> 
+       <h2>spymemcached session store</h2> 
       </div> 
       <div class="datalist-content"> 
-       <h3 id="hazelcast-session-store-usage">usage</h3> 
+       <h3 id="spymemcached-session-store-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hcast</span><span class="o">());</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">SpyMemcached</span><span class="o">());</span>
 
-  <span class="n">session</span><span class="o">(</span><span class="n">HcastSessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="n">session</span><span class="o">(</span><span class="n">SpySessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
    <span class="n">req</span><span class="o">.</span><span class="na">session</span><span class="o">().</span><span class="na">set</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"jooby"</span><span class="o">);</span>
@@ -284,9 +356,11 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <h3 id="hazelcast-session-store-options">options</h3> 
+       <p>The <code class="highlighter-rouge codehilite">name</code> attribute and value will be stored in <a href="http://memcached.org" target="_blank">Memcached</a>.</p> 
+       <p>Session are persisted using the default <code class="highlighter-rouge codehilite">Transcoder</code>.</p> 
+       <h3 id="spymemcached-session-store-options">options</h3> 
        <h4>timeout</h4> 
-       <p>By default, a <a href="http://hazelcast.org" target="_blank">Hazelcast</a> session will expire after <code class="highlighter-rouge codehilite">30 minutes</code>. Changing the default timeout is as simple as:</p> 
+       <p>By default, a <a href="http://memcached.org" target="_blank">Memcached</a> session will expire after <code class="highlighter-rouge codehilite">30 minutes</code>. Changing the default timeout is as simple as:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -300,36 +374,9 @@
 <span class="c"># no timeout </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
 </code></pre> 
        </div> 
-       <h4>name</h4> 
-       <p>Default session’s name is <code class="highlighter-rouge codehilite">sessions</code>. It’s possible to change the default name by setting the property: <code class="highlighter-rouge codehilite">hazelcast.sesssion.name</code>.</p> 
-      </div> 
-     </div> 
-     <div class="datalist" id="ehcache-session-store"> 
-      <div class="datalist-title "> 
-       <h2>ehcache session store</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <h3 id="ehcache-session-store-usage">usage</h3> 
-       <p>This module provides an <a href="/apidocs/ehcache/EhSessionStore.html">EhSessionStore</a>. In order to use the <a href="/apidocs/ehcache/EhSessionStore.html">EhSessionStore</a> all you have to do is define a <code class="highlighter-rouge codehilite">session</code> cache:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="err">ehcache.cache.session</span> <span class="err">{</span>
-  <span class="c"># cache will expire after 30 minutes of inactivity </span>  <span class="py">timeToIdle</span> <span class="p">=</span> <span class="s">30m</span>
-<span class="err">}</span>
-</code></pre> 
-       </div> 
-       <p>And then register the <a href="/apidocs/ehcache/EhSessionStore.html">EhSessionStore</a>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">session</span><span class="o">(</span><span class="n">EhSessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
+       <h4>key prefix</h4> 
+       <p>Default <a href="http://memcached.org" target="_blank">Memcached</a> key prefix is <code class="highlighter-rouge codehilite">sessions:</code>. Sessions in <a href="http://memcached.org" target="_blank">Memcached</a> will looks like: <code class="highlighter-rouge codehilite">sessions:ID</code></p> 
+       <p>It’s possible to change the default key setting the <code class="highlighter-rouge codehilite">memcached.sesssion.prefix</code> property.</p> 
       </div> 
      </div> 
     </div> 

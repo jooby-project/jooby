@@ -1,3 +1,7 @@
+.codehilite pre.cm {
+  padding-top: 0;
+  padding-bottom: 0;
+}
 code .kn,
 code .kd,
 code .k {
@@ -194,11 +198,6 @@ li > code.highlighter-rouge {
   margin: 0 auto;
   width: 100%;
   max-width: 1200px;
-}
-
-.page-sidebar .row,
-.page-sidebar .row-builder {
-  max-width: 1400px;
 }
 
 .col {
@@ -1176,7 +1175,8 @@ blockquote {
 }
 
 .page-sidebar .section-content {
-  margin-left: 390px;
+  float: right;
+  width: 70%;
 }
 
 .section-title {
@@ -1346,7 +1346,7 @@ blockquote {
 .section-content p {
   color: #656565;
   letter-spacing: 1px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   line-height: 22px;
 }
 .section-content p a,

@@ -3,15 +3,15 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: swagger module</title> 
+  <title>jooby: raml module</title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, swagger"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, raml"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
-  <meta name="og:title" content="jooby: swagger module"> 
-  <meta name="og:description" content="Swagger is a simple yet powerful representation of your RESTful API"> 
+  <meta name="og:title" content="jooby: raml module"> 
+  <meta name="og:description" content="RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifecycle from design to sharing"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -28,9 +28,9 @@
     FORMATO: JPG
     --> 
   <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
-  <meta name="og:site_name" content="jooby: swagger module"> 
+  <meta name="og:site_name" content="jooby: raml module"> 
   <meta name="twitter:card" content="summary"> 
-  <meta name="twitter:title" content="jooby: swagger module"> 
+  <meta name="twitter:title" content="jooby: raml module"> 
   <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Swagger is a simple yet powerful representation of your RESTful API"> 
+  <meta name="twitter:description" content="RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifecycle from design to sharing"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -87,54 +87,53 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>swagger</h1> 
+     <h1>raml</h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
      <div class="show-mobile menu-open">
-      swagger
+      raml
      </div> 
      <ul> 
-      <li class="active"> <a href="#swagger">swagger</a>
+      <li class="active"> <a href="#raml">raml</a>
        <ul> 
-        <li> <a href="#swagger-exposes">exposes</a></li> 
-        <li> <a href="#swagger-dependency">dependency</a></li> 
-        <li> <a href="#swagger-usage">usage</a></li> 
-        <li> <a href="#swagger-options">options</a></li> 
-        <li> <a href="#swagger-swagger-conf">swagger.conf</a></li>
+        <li> <a href="#raml-exposes">exposes</a></li> 
+        <li> <a href="#raml-dependency">dependency</a></li> 
+        <li> <a href="#raml-usage">usage</a></li> 
+        <li> <a href="#raml-options">options</a></li> 
+        <li> <a href="#raml-raml-conf">raml.conf</a></li>
        </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
-     <div class="datalist" id="swagger"> 
+     <div class="datalist" id="raml"> 
       <div class="datalist-title active"> 
-       <h2>swagger</h2> 
+       <h2>raml</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p><a href="http://swagger.io" target="_blank">Swagger</a> is a simple yet powerful representation of your RESTful API. With the largest ecosystem of API tooling on the planet, thousands of developers are supporting Swagger in almost every modern programming language and deployment environment. With a Swagger-enabled API, you get interactive documentation, client SDK generation and discoverability. More at <a href="http://swagger.io" target="_blank">http://swagger.io</a></p> 
+       <p>RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifecycle from design to sharing. It’s concise - you only write what you need to define - and reusable. It is machine readable API design that is actually human friendly. More at <a href="http://raml.org/" target="_blank">http://raml.org</a></p> 
        <blockquote> 
         <p>NOTE: This module depends on <a href="/doc/spec/spec.html">route spec</a>, please read the <a href="/doc/spec/spec.html">route spec</a> documentation to learn how to write powerful APIs.</p> 
        </blockquote> 
-       <h3 id="swagger-exposes">exposes</h3> 
+       <h3 id="raml-exposes">exposes</h3> 
        <ul> 
-        <li>The Swagger-UI at <code class="highlighter-rouge codehilite">/swagger</code></li> 
-        <li>The <code class="highlighter-rouge codehilite">swagger.json</code> at <code class="highlighter-rouge codehilite">/swagger/swagger.json</code></li> 
-        <li>The <code class="highlighter-rouge codehilite">swagger.yml</code> at <code class="highlighter-rouge codehilite">/swagger/swagger.yml</code></li> 
+        <li>The <a href="https://github.com/mulesoft/api-console" target="_blank">api-console</a> at <code class="highlighter-rouge codehilite">/raml</code></li> 
+        <li>The <code class="highlighter-rouge codehilite">.raml</code> file at <code class="highlighter-rouge codehilite">/raml/api.raml</code></li> 
        </ul> 
-       <h3 id="swagger-dependency">dependency</h3> 
+       <h3 id="raml-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>jooby-swagger<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.15.0<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-raml<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>0.15.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
-       <h3 id="swagger-usage">usage</h3> 
+       <h3 id="raml-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -159,7 +158,7 @@
      <span class="o">})</span>
      <span class="o">...;</span>
 
-  <span class="k">new</span> <span class="n">Swagger</span><span class="o">().</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+  <span class="k">new</span> <span class="n">Raml</span><span class="o">().</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 
 <span class="o">}</span>
 </code></pre> 
@@ -184,14 +183,13 @@
        </div> 
        <p>Start your app and try:</p> 
        <ul> 
-        <li>The Swagger-UI at <code class="highlighter-rouge codehilite">/swagger</code></li> 
-        <li>The <code class="highlighter-rouge codehilite">swagger.json</code> at <code class="highlighter-rouge codehilite">/swagger/swagger.json</code></li> 
-        <li>The <code class="highlighter-rouge codehilite">swagger.yml</code> at <code class="highlighter-rouge codehilite">/swagger/swagger.yml</code></li> 
+        <li>The <a href="https://github.com/mulesoft/api-console" target="_blank">api-console</a> at <code class="highlighter-rouge codehilite">/raml</code></li> 
+        <li>The <code class="highlighter-rouge codehilite">.raml</code> file at <code class="highlighter-rouge codehilite">/raml/api.raml</code></li> 
        </ul> 
-       <h3 id="swagger-options">options</h3> 
+       <h3 id="raml-options">options</h3> 
        <p>There are a few options available, let’s see what they are:</p> 
        <h4>path</h4> 
-       <p>The <code class="highlighter-rouge codehilite">path</code> option controls where to mount the <a href="http://swagger.io" target="_blank">Swagger</a> routes:</p> 
+       <p>The <code class="highlighter-rouge codehilite">path</code> option controls where to mount the <a href="http://raml.org" target="_blank">RAML</a> routes:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -199,14 +197,14 @@
         <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
-  <span class="k">new</span> <span class="n">Swagger</span><span class="o">(</span><span class="s">"docs"</span><span class="o">).</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+  <span class="k">new</span> <span class="n">Raml</span><span class="o">(</span><span class="s">"docs"</span><span class="o">).</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Produces: <code class="highlighter-rouge codehilite">/docs</code> for swagger-ui, <code class="highlighter-rouge codehilite">/docs/swagger.json</code> and <code class="highlighter-rouge codehilite">/docs/swagger.yml</code>. Default path is: <code class="highlighter-rouge codehilite">/swagger</code>.</p> 
+       <p>Produces: <code class="highlighter-rouge codehilite">/docs</code> for api-console and <code class="highlighter-rouge codehilite">/docs/api.raml</code>. Default path is: <code class="highlighter-rouge codehilite">/raml</code>.</p> 
        <h4>filter</h4> 
-       <p>The <code class="highlighter-rouge codehilite">filter</code> option controls what is exported to <a href="http://swagger.io" target="_blank">Swagger</a>:</p> 
+       <p>The <code class="highlighter-rouge codehilite">filter</code> option controls what is exported to <a href="http://raml.org" target="_blank">RAML</a>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -214,7 +212,7 @@
         <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
-  <span class="k">new</span> <span class="n">Swagger</span><span class="o">()</span>
+  <span class="k">new</span> <span class="n">Raml</span><span class="o">()</span>
     <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">route</span> <span class="o">-&gt;</span> <span class="o">{</span>
       <span class="k">return</span> <span class="n">route</span><span class="o">.</span><span class="na">pattern</span><span class="o">().</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"/api"</span><span class="o">);</span>
     <span class="o">})</span>
@@ -223,21 +221,8 @@
 </code></pre> 
        </div> 
        <p>Default filter keeps <code class="highlighter-rouge codehilite">/api/*</code> routes.</p> 
-       <h4>tags</h4> 
-       <p>One ore more routes are grouped by a tag. The default tag provider produces <code class="highlighter-rouge codehilite">pets</code> for a route at <code class="highlighter-rouge codehilite">/api/pets</code> or <code class="highlighter-rouge codehilite">/pets</code>. You can specify your own tag provider via:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="k">new</span> <span class="n">Swagger</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">tag</span><span class="o">(</span><span class="n">route</span> <span class="o">-&gt;</span> <span class="n">route</span><span class="o">.</span><span class="na">name</span><span class="o">())</span>
-    <span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <h4>noUI</h4> 
-       <p>This option turn off the swagger-ui:</p> 
+       <h4>noConsole</h4> 
+       <p>This option turn off the api-console:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -245,34 +230,47 @@
         <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
-  <span class="k">new</span> <span class="n">Swagger</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">noUI</span><span class="o">()</span>
+  <span class="k">new</span> <span class="n">Raml</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">noConsole</span><span class="o">()</span>
     <span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <h3 id="swagger-swagger-conf">swagger.conf</h3> 
+       <h4>theme</h4> 
+       <p>Set the ui-theme for api-console. Available options are <code class="highlighter-rouge codehilite">light</code> and <code class="highlighter-rouge codehilite">dark</code>. Default is: <code class="highlighter-rouge codehilite">light</code>.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="err">swagger</span> <span class="err">{</span>
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="o">...</span>
 
-  <span class="py">swagger</span><span class="p">:</span> <span class="s">"2.0"</span>
+  <span class="k">new</span> <span class="n">Raml</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">theme</span><span class="o">(</span><span class="s">"dark"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4>clientGenerator</h4> 
+       <p>Shows/hide the client generator button from api-console.</p> 
+       <h4>tryIt</h4> 
+       <p>Expand/collapse the try it panel from api-console.</p> 
+       <h3 id="raml-raml-conf">raml.conf</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="err">raml</span> <span class="err">{</span>
 
-  <span class="err">info</span> <span class="err">{</span>
+  <span class="py">title</span><span class="p">:</span> <span class="s">${application.name}</span>
 
-    <span class="py">title</span><span class="p">:</span> <span class="s">${application.name}</span>
+  <span class="py">version</span><span class="p">:</span> <span class="s">v1.0.0</span>
 
-  <span class="err">}</span>
+  <span class="py">baseUri</span><span class="p">:</span> <span class="s">"http://"${application.host}":"${application.port}${application.path}</span>
 
-  <span class="py">basePath</span><span class="p">:</span> <span class="s">${application.path}</span>
+  <span class="py">mediaType</span><span class="p">:</span> <span class="s">"application/json"</span>
 
-  <span class="py">consumes</span><span class="p">:</span> <span class="s">["application/json"]</span>
-
-  <span class="py">produces</span><span class="p">:</span> <span class="s">["application/json"]</span>
-
-  <span class="py">schemes</span><span class="p">:</span> <span class="s">["http"]</span>
+  <span class="py">protocols</span><span class="p">:</span> <span class="s">[HTTP]</span>
 
 <span class="err">}</span>
 </code></pre> 

@@ -28,9 +28,9 @@
     FORMATO: JPG
     --> 
   <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
-  <meta name="og:site_name" content="Jooby"> 
+  <meta name="og:site_name" content="jooby"> 
   <meta name="twitter:card" content="summary"> 
-  <meta name="twitter:title" content="Jooby"> 
+  <meta name="twitter:title" content="jooby"> 
   <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
@@ -200,7 +200,7 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>restfuljdbi -DartifactId<span class="o">=</span>restful-jdbi -Dversion<span class="o">=</span>1.0 -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>0.14.0
+        <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>restfuljdbi -DartifactId<span class="o">=</span>restful-jdbi -Dversion<span class="o">=</span>1.0 -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>0.15.0
 </code></pre> 
        </div> 
        <p>An almost empty application is ready to run, you can try now with:</p> 
@@ -566,17 +566,23 @@ http://localhost:8080/pets?start=0&amp;max=20
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="cm">/** JSON supports . */</span>
+  <span class="cm">/**</span>
+   <span class="cm">* JSON supports . </span>
+   <span class="cm">*/</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span>
 
-  <span class="cm">/** Create db schema. */</span>
+  <span class="cm">/**</span>
+   <span class="cm">* Create db schema. </span>
+   <span class="cm">*/</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbi</span><span class="o">().</span><span class="na">doWith</span><span class="o">((</span><span class="n">dbi</span><span class="o">,</span> <span class="n">conf</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">handle</span> <span class="o">=</span> <span class="n">dbi</span><span class="o">.</span><span class="na">open</span><span class="o">())</span> <span class="o">{</span>
       <span class="n">handle</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"schema"</span><span class="o">));</span>
     <span class="o">}</span>
   <span class="o">}));</span>
 
-  <span class="cm">/** List pets. */</span>
+  <span class="cm">/**</span>
+   <span class="cm">* List pets. </span>
+   <span class="cm">*/</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">h</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Handle</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
       <span class="n">Query</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">q</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"select * from pets limit :start, :max"</span><span class="o">)</span>
@@ -587,7 +593,9 @@ http://localhost:8080/pets?start=0&amp;max=20
     <span class="o">}</span>
   <span class="o">});</span>
 
-  <span class="cm">/** Get a pet by ID. */</span>
+  <span class="cm">/**</span>
+   <span class="cm">* Get a pet by ID. </span>
+   <span class="cm">*/</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/pets/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">h</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Handle</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
       <span class="n">Query</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">q</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"select * from pets p where p.id = :id"</span><span class="o">)</span>
@@ -601,7 +609,9 @@ http://localhost:8080/pets?start=0&amp;max=20
     <span class="o">}</span>
   <span class="o">});</span>
 
-  <span class="cm">/** Create a pet. */</span>
+  <span class="cm">/**</span>
+   <span class="cm">* Create a pet. </span>
+   <span class="cm">*/</span>
   <span class="n">post</span><span class="o">(</span><span class="s">"/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">handle</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Handle</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
       <span class="c1">// read from HTTP body</span>
@@ -619,7 +629,9 @@ http://localhost:8080/pets?start=0&amp;max=20
     <span class="o">}</span>
   <span class="o">});</span>
 
-  <span class="cm">/** Update a pet. */</span>
+  <span class="cm">/**</span>
+   <span class="cm">* Update a pet. </span>
+   <span class="cm">*/</span>
   <span class="n">put</span><span class="o">(</span><span class="s">"/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">handle</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Handle</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
       <span class="c1">// read from HTTP body</span>
@@ -637,7 +649,9 @@ http://localhost:8080/pets?start=0&amp;max=20
     <span class="o">}</span>
   <span class="o">});</span>
 
-  <span class="cm">/** Delete a pet by ID. */</span>
+  <span class="cm">/**</span>
+   <span class="cm">* Delete a pet by ID. </span>
+   <span class="cm">*/</span>
   <span class="n">delete</span><span class="o">(</span><span class="s">"/pets/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">handle</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Handle</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
       <span class="c1">// read from HTTP body</span>
@@ -667,9 +681,13 @@ http://localhost:8080/pets?start=0&amp;max=20
         <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
-  <span class="cm">/** Pet API. */</span>
+  <span class="cm">/**</span>
+   <span class="cm">* Pet API. </span>
+   <span class="cm">*/</span>
   <span class="n">use</span><span class="o">(</span><span class="s">"/pets"</span><span class="o">)</span>
-      <span class="cm">/** List pets. */</span>
+      <span class="cm">/**</span>
+       <span class="cm">* List pets. </span>
+       <span class="cm">*/</span>
       <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">h</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Handle</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
           <span class="n">Query</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">q</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"select * from pets limit :start, :max"</span><span class="o">)</span>
@@ -679,7 +697,9 @@ http://localhost:8080/pets?start=0&amp;max=20
           <span class="k">return</span> <span class="n">q</span><span class="o">.</span><span class="na">list</span><span class="o">();</span>
         <span class="o">}</span>
       <span class="o">})</span>
-      <span class="cm">/** Get a pet by ID. */</span>
+      <span class="cm">/**</span>
+       <span class="cm">* Get a pet by ID. </span>
+       <span class="cm">*/</span>
       <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">h</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Handle</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
           <span class="n">Query</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">q</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"select * from pets p where p.id = :id"</span><span class="o">)</span>
@@ -692,7 +712,9 @@ http://localhost:8080/pets?start=0&amp;max=20
           <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
         <span class="o">}</span>
       <span class="o">})</span>
-      <span class="cm">/** Create a pet. */</span>
+      <span class="cm">/**</span>
+       <span class="cm">* Create a pet. </span>
+       <span class="cm">*/</span>
       <span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">handle</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Handle</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
           <span class="c1">// read from HTTP body</span>
@@ -709,7 +731,9 @@ http://localhost:8080/pets?start=0&amp;max=20
           <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
         <span class="o">}</span>
       <span class="o">})</span>
-      <span class="cm">/** Update a pet. */</span>
+      <span class="cm">/**</span>
+       <span class="cm">* Update a pet. </span>
+       <span class="cm">*/</span>
       <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">handle</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Handle</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
           <span class="c1">// read from HTTP body</span>
@@ -726,7 +750,9 @@ http://localhost:8080/pets?start=0&amp;max=20
           <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
         <span class="o">}</span>
       <span class="o">})</span>
-      <span class="cm">/** Delete a pet by ID. */</span>
+      <span class="cm">/**</span>
+       <span class="cm">* Delete a pet by ID. </span>
+       <span class="cm">*/</span>
       <span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">handle</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Handle</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
           <span class="c1">// read from HTTP body</span>

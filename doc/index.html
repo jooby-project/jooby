@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
   <title>jooby: documentation</title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, philosophy: do more, more easily"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, do more, more easily"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -28,9 +28,9 @@
     FORMATO: JPG
     --> 
   <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
-  <meta name="og:site_name" content="Jooby"> 
+  <meta name="og:site_name" content="jooby"> 
   <meta name="twitter:card" content="summary"> 
-  <meta name="twitter:title" content="Jooby"> 
+  <meta name="twitter:title" content="jooby"> 
   <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
@@ -90,19 +90,19 @@
     </div> 
    </div> 
    <div class="row"> 
-    <div class="section-sidebar" style="position: fixed; left: 60px; top: 160px; bottom: 20px;"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
      <div class="show-mobile menu-open">
-      philosophy: do more, more easily
+      do more, more easily
      </div> 
      <ul> 
-      <li class="active"> <a href="#philosophy-do-more-more-easily">philosophy: do more, more easily</a></li> 
-      <li class=""> <a href="#config-environment-and-logging">config, environment and logging</a>
+      <li class="active"> <a href="#do-more-more-easily">do more, more easily</a></li> 
+      <li class=""> <a href="#config-env-and-logging">config, env and logging</a>
        <ul> 
-        <li> <a href="#config-environment-and-logging-application-conf">application.conf</a></li> 
-        <li> <a href="#config-environment-and-logging-injecting-properties">injecting properties</a></li> 
-        <li> <a href="#config-environment-and-logging-special-properties">special properties</a></li> 
-        <li> <a href="#config-environment-and-logging-config-precedence">config precedence</a></li> 
-        <li> <a href="#config-environment-and-logging-logging">logging</a></li>
+        <li> <a href="#config-env-and-logging-application-conf">application.conf</a></li> 
+        <li> <a href="#config-env-and-logging-injecting-properties">injecting properties</a></li> 
+        <li> <a href="#config-env-and-logging-special-properties">special properties</a></li> 
+        <li> <a href="#config-env-and-logging-config-precedence">config precedence</a></li> 
+        <li> <a href="#config-env-and-logging-logging">logging</a></li>
        </ul></li> 
       <li class=""> <a href="#modules">modules</a>
        <ul> 
@@ -178,9 +178,9 @@
      </ul> 
     </div> 
     <div class="section-content"> 
-     <div class="datalist" id="philosophy-do-more-more-easily"> 
+     <div class="datalist" id="do-more-more-easily"> 
       <div class="datalist-title active"> 
-       <h2>philosophy: do more, more easily</h2> 
+       <h2>do more, more easily</h2> 
       </div> 
       <div class="datalist-content"> 
        <ul> 
@@ -194,15 +194,15 @@
        <p><a href="http://jooby.org">Jooby</a> keeps it <strong>simple</strong> but yet <strong>powerful</strong>.</p> 
       </div> 
      </div> 
-     <div class="datalist" id="config-environment-and-logging"> 
+     <div class="datalist" id="config-env-and-logging"> 
       <div class="datalist-title "> 
-       <h2>config, environment and logging</h2> 
+       <h2>config, env and logging</h2> 
       </div> 
       <div class="datalist-content"> 
        <p>Jooby delegates configuration management to <a href="https://github.com/typesafehub/config" target="_blank">TypeSafe Config</a>. If you aren’t familiar with <a href="https://github.com/typesafehub/config" target="_blank">TypeSafe Config</a> please take a few minutes to discover what <a href="https://github.com/typesafehub/config" target="_blank">TypeSafe Config</a> can do for you.</p> 
-       <h3 id="config-environment-and-logging-application-conf">application.conf</h3> 
+       <h3 id="config-env-and-logging-application-conf">application.conf</h3> 
        <p>By defaults Jooby will attempt to load an <code class="highlighter-rouge codehilite">application.conf</code> file from root of classpath. Inside the file you can add/override any property you want.</p> 
-       <h3 id="config-environment-and-logging-injecting-properties">injecting properties</h3> 
+       <h3 id="config-env-and-logging-injecting-properties">injecting properties</h3> 
        <p>Any property can be injected using the <code class="highlighter-rouge codehilite">javax.inject.Named</code> annotation and automatic type conversion is provided when a type:</p> 
        <p>1) Is a primitive, primitive wrapper or String</p> 
        <p>2) Is an enum</p> 
@@ -212,7 +212,7 @@
        <p>6) Has a static method <strong>forName</strong> that accepts a single <strong>String</strong> argument. Like <code class="highlighter-rouge codehilite">java.nio.charset.Charset</code></p> 
        <p>7) There is custom <a href="https://github.com/google/guice" target="_blank">Guice</a> type converter for the type</p> 
        <p>It is also possible to inject the root <code class="highlighter-rouge codehilite">com.typesafe.config.Config</code> object or a child of it.</p> 
-       <h3 id="config-environment-and-logging-special-properties">special properties</h3> 
+       <h3 id="config-env-and-logging-special-properties">special properties</h3> 
        <h4>application.env</h4> 
        <p>Jooby internals and the module system rely on the <code class="highlighter-rouge codehilite">application.env</code> property. By defaults, this property is set to: <code class="highlighter-rouge codehilite">dev</code>.</p> 
        <p>This special property is represented at runtime with the <a href="/apidocs/org/jooby/Env.html">Env</a> class.</p> 
@@ -230,7 +230,7 @@
         <li><strong>application.numberFormat</strong>: number format to use. Default is: <em>DecimalFormat.getInstance(“application.lang”)</em></li> 
         <li><strong>application.tz</strong>: time zone to use. Default is: <em>ZoneId.systemDefault().getId()</em>. A <code class="highlighter-rouge codehilite">java.time.ZoneId</code> can be injected.</li> 
        </ul> 
-       <h3 id="config-environment-and-logging-config-precedence">config precedence</h3> 
+       <h3 id="config-env-and-logging-config-precedence">config precedence</h3> 
        <p>Config files are loaded in the following order (first-listed are higher priority)</p> 
        <ul> 
         <li>system properties</li> 
@@ -308,7 +308,7 @@
        </div> 
        <p>In the previous example the M2 modules properties will take precedence over M1 properties.</p> 
        <p>As you can see the config system is very powerful and can do a lot for you.</p> 
-       <h3 id="config-environment-and-logging-logging">logging</h3> 
+       <h3 id="config-env-and-logging-logging">logging</h3> 
        <p>Logging is done via <a href="http://logback.qos.ch" target="_blank">logback</a>. Logback bootstrap and configuration is described here <a href="http://logback.qos.ch/manual/configuration.html" target="_blank">logback configuration</a></p> 
        <p>It is useful that we can bundle logging configuration files inside our <em>fat</em> jar, it works very well for small/simple apps.</p> 
        <p>For medium/complex apps and/or if you need/want to debug errors the configuration files should/must be outside the jar, so you can turn on/off loggers, change log level etc..</p> 
@@ -1039,7 +1039,9 @@ GET /assets/css/style.css
   <span class="o">}</span>
 <span class="o">}</span>
 
-<span class="cm">/** merge everything .*/</span>
+<span class="cm">/**</span>
+ <span class="cm">* merge everything .</span>
+ <span class="cm">*/</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="kd">extends</span> <span class="n">Jooby</span> <span class="o">{</span>
   <span class="o">{</span>
      <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1395,13 +1397,54 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <h3 id="request-local-variables">local variables</h3> 
-       <p>Local variables are bound to the current request. They are created every time a new request is processed and destroyed at the end of the request.</p> 
+       <p>Local variables are bound to the current request. They are created every time a new request comes in and destroyed at the end of the request.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>  <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"var"</span><span class="o">,</span> <span class="n">var</span><span class="o">);</span>
-  <span class="n">String</span> <span class="n">var</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"var"</span><span class="o">);</span>
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Object</span> <span class="n">value</span> <span class="o">=</span> <span class="o">...;</span>
+    <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"var"</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+  <span class="o">});</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/locals"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// optional local</span>
+    <span class="n">Optional</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">ifValue</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="na">ifGet</span><span class="o">(</span><span class="s">"var"</span><span class="o">);</span>
+
+    <span class="c1">// required local</span>
+    <span class="n">String</span> <span class="n">value</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"var"</span><span class="o">);</span>
+
+    <span class="c1">// local with default value</span>
+    <span class="n">String</span> <span class="n">defvalue</span> <span class="o">=</span> <span class="n">rsp</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"var"</span><span class="o">,</span> <span class="s">"defvalue"</span><span class="o">);</span>
+
+    <span class="c1">// all locals</span>
+    <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">locals</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">attributes</span><span class="o">();</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>In <code class="highlighter-rouge codehilite">mvc routes</code> request locals can be injected via <code class="highlighter-rouge codehilite">@Local</code> annotation:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+  <span class="nd">@GET</span>
+  <span class="kd">public</span> <span class="n">Result</span> <span class="n">localAttr</span><span class="o">(</span><span class="nd">@Local</span> <span class="n">String</span> <span class="n">var</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+  <span class="nd">@GET</span>
+  <span class="kd">public</span> <span class="n">Result</span> <span class="n">ifLocalAttr</span><span class="o">(</span><span class="nd">@Local</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">var</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+  <span class="nd">@GET</span>
+  <span class="kd">public</span> <span class="n">Result</span> <span class="n">attributes</span><span class="o">(</span><span class="nd">@Local</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">attributes</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
 </code></pre> 
        </div> 
        <h3 id="request-guice-access">guice access</h3> 
@@ -2135,6 +2178,7 @@ GET /assets/css/style.css
   <span class="c"># number format, system default. set it at runtime </span>
   <span class="c"># numberFormat = DecimalFormat.getInstance(${application.lang})).toPattern() </span>
   <span class="c"># lang (a.k.a locale), system default. set it at runtime </span>
+  <span class="c"># use tag format, for example en-us but not en_US </span>
   <span class="c"># lang = Locale.getDefault() </span>
   <span class="c"># timezone, system default. set it at runtime </span>
   <span class="c"># tz = ZoneId.systemDefault().getId() </span>
