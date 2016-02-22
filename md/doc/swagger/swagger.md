@@ -125,4 +125,10 @@ This option turn off the swagger-ui:
 }
 ```
 
+## live demo
+
+There is a live demo at [https://jooby-spec.herokuapp.com/swagger].
+
+Source code available at [github](https://github.com/jooby-guides/route-spec)
+
 {{appendix}}

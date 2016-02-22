@@ -133,5 +133,10 @@ Shows/hide the client generator button from api-console.
 
 Expand/collapse the try it panel from api-console.
 
+## live demo
+
+There is a live demo at [https://jooby-spec.herokuapp.com/raml].
+
+Source code available at [github](https://github.com/jooby-guides/route-spec)
 
 {{appendix}}
