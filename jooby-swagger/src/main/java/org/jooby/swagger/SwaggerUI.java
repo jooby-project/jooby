@@ -178,7 +178,10 @@ public class SwaggerUI {
         .omitEmptyStrings()
         .split(r.pattern())
         .iterator();
-    return segments.next();
+    if (segments.hasNext()) {
+      return segments.next();
+    }
+    return "";
   };
 
   private String path;
