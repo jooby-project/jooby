@@ -3532,9 +3532,11 @@ public class Jooby {
     }
 
     int processors = Runtime.getRuntime().availableProcessors();
-
+    String version = Optional.ofNullable(getClass().getPackage().getImplementationVersion())
+        .orElse("0.0.0");
     Config defs = ConfigFactory.parseResources(Jooby.class, "jooby.conf")
         .withValue("application.name", ConfigValueFactory.fromAnyRef(appname))
+        .withValue("application.version", ConfigValueFactory.fromAnyRef(version))
         .withValue("application.class", ConfigValueFactory.fromAnyRef(getClass().getName()))
         .withValue("application.ns", ConfigValueFactory.fromAnyRef(ns))
         .withValue("application.lang", ConfigValueFactory.fromAnyRef(lang))

@@ -37,7 +37,8 @@ public class SwaggerFeature extends ServerFeature {
         .expect("{\n" +
             "  \"swagger\" : \"2.0\",\n" +
             "  \"info\" : {\n" +
-            "    \"title\" : \"swagger\"\n" +
+            "    \"version\" : \"0.0.0\",\n" +
+            "    \"title\" : \"swagger API\"\n" +
             "  },\n" +
             "  \"basePath\" : \"/\",\n" +
             "  \"tags\" : [ {\n" +
@@ -134,7 +135,8 @@ public class SwaggerFeature extends ServerFeature {
         .expect("{\n" +
             "  \"swagger\" : \"2.0\",\n" +
             "  \"info\" : {\n" +
-            "    \"title\" : \"swagger\"\n" +
+            "    \"version\" : \"0.0.0\",\n" +
+            "    \"title\" : \"swagger API\"\n" +
             "  },\n" +
             "  \"basePath\" : \"/\",\n" +
             "  \"tags\" : [ {\n" +
@@ -234,7 +236,8 @@ public class SwaggerFeature extends ServerFeature {
         .expect("---\n" +
             "swagger: \"2.0\"\n" +
             "info:\n" +
-            "  title: \"swagger\"\n" +
+            "  version: \"0.0.0\"\n" +
+            "  title: \"swagger API\"\n" +
             "basePath: \"/\"\n" +
             "tags:\n" +
             "- name: \"pets\"\n" +
@@ -317,7 +320,8 @@ public class SwaggerFeature extends ServerFeature {
         .expect("---\n" +
             "swagger: \"2.0\"\n" +
             "info:\n" +
-            "  title: \"swagger\"\n" +
+            "  version: \"0.0.0\"\n" +
+            "  title: \"swagger API\"\n" +
             "basePath: \"/\"\n" +
             "tags:\n" +
             "- name: \"pets\"\n" +

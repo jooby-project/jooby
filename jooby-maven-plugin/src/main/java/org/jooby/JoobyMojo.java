@@ -164,6 +164,7 @@ public class JoobyMojo extends AbstractMojo {
     try {
       FileOutputStream output = new FileOutputStream(path.toFile());
       Properties properties = System.getProperties();
+      properties.setProperty("application.version", mavenProject.getVersion());
       properties.store(output, "system properties");
     } catch (IOException ex) {
       throw new MojoFailureException("Can't dump system properties to: " + path, ex);

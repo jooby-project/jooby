@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>0.15.1-SNAPSHOT</version>
+  <version>0.15.1</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
@@ -969,13 +969,13 @@
         <artifactId>jooq</artifactId>
         <version>${jooq.version}</version>
       </dependency>
-  
+
       <dependency>
         <groupId>org.jooq</groupId>
         <artifactId>jooq-meta</artifactId>
         <version>${jooq.version}</version>
       </dependency>
-  
+
       <dependency>
         <groupId>org.jooq</groupId>
         <artifactId>jooq-codegen</artifactId>
@@ -1163,6 +1163,14 @@
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <version>${maven-jar-plugin.version}</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+            </manifest>
+          </archive>
+        </configuration>
       </plugin>
 
       <!-- version plugin -->
