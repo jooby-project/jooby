@@ -1,6 +1,6 @@
 The spec module allows you to export your API/microservices outside a {{jooby}} application.
 
-The goal of this module is to define a common way to write APIs and provide you tools like live doc and testing for **FREE**. By **FREE** we mean:
+The goal of this module is to define a common way to write APIs and provide you tools like live doc and testing **with no extra effort**.
 
 > You aren't force to learn any other tool or annotated your code special annotations. All you have to do is **write your application** following a few/minor suggestions.
 

@@ -20,7 +20,7 @@ The [jdbc](/doc/jdbc) module provides a high performance connection pool for jdb
 
 * [jdbi](/doc/jdbi): is fluent and lightweight SQL library for *jdbc*.
 
-* [jOOQ](/doc/jOOQ): lets you build type safe SQL queries through its fluent API.
+* [jOOQ](/doc/jooq): lets you build type safe SQL queries through its fluent API.
 
 ## migrations
 
