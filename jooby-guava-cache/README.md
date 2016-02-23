@@ -8,7 +8,7 @@ Exposes ```com.google.common.cache.Cache``` services from <a href="https://githu
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-guava-cache</artifactId>
- <version>0.15.0</version>
+ <version>0.15.1</version>
 </dependency>
 ```
 

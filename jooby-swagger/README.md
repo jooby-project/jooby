@@ -18,7 +18,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-swagger</artifactId>
-  <version>0.15.0</version>
+  <version>0.15.1</version>
 </dependency>
 ```
 
@@ -133,6 +133,12 @@ This option turn off the swagger-ui:
 }
 ```
 
+## live demo
+
+Check out the a live demo for [Swagger](https://jooby-spec.herokuapp.com/swagger).
+
+Source code available at [github](https://github.com/jooby-guides/route-spec)
+
 ## swagger.conf
 
 ```properties
@@ -142,7 +148,9 @@ swagger {
 
   info {
 
-    title: ${application.name}
+    title: ${application.name} API
+
+    version: ${application.version}
 
   }
 

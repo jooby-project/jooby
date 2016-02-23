@@ -17,7 +17,7 @@ RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifec
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-raml</artifactId>
- <version>0.15.0</version>
+ <version>0.15.1</version>
 </dependency>
 ```
 
@@ -141,15 +141,20 @@ Shows/hide the client generator button from api-console.
 
 Expand/collapse the try it panel from api-console.
 
+## live demo
+
+Check out the a live demo for [RAML](https://jooby-spec.herokuapp.com/raml).
+
+Source code available at [github](https://github.com/jooby-guides/route-spec)
 
 ## raml.conf
 
 ```properties
 raml {
 
-  title: ${application.name}
+  title: ${application.name} API
 
-  version: v1.0.0
+  version: ${application.version}
 
   baseUri: "http://"${application.host}":"${application.port}${application.path}
 
