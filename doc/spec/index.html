@@ -605,7 +605,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-raml<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>0.15.0<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>0.15.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -741,9 +741,9 @@
         </div> 
         <pre class="highlight"><code><span class="err">raml</span> <span class="err">{</span>
 
-  <span class="py">title</span><span class="p">:</span> <span class="s">${application.name}</span>
+  <span class="py">title</span><span class="p">:</span> <span class="s">${application.name} API</span>
 
-  <span class="py">version</span><span class="p">:</span> <span class="s">v1.0.0</span>
+  <span class="py">version</span><span class="p">:</span> <span class="s">${application.version}</span>
 
   <span class="py">baseUri</span><span class="p">:</span> <span class="s">"http://"${application.host}":"${application.port}${application.path}</span>
 
@@ -775,7 +775,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-swagger<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.15.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.15.1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -910,7 +910,9 @@
 
   <span class="err">info</span> <span class="err">{</span>
 
-    <span class="py">title</span><span class="p">:</span> <span class="s">${application.name}</span>
+    <span class="py">title</span><span class="p">:</span> <span class="s">${application.name} API</span>
+
+    <span class="py">version</span><span class="p">:</span> <span class="s">${application.version}</span>
 
   <span class="err">}</span>
 
