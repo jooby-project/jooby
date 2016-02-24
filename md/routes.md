@@ -314,7 +314,7 @@ get("/", (req, rsp, chain) -> {
     // It is OK
     chain.next(req, rsp);
   } else {
-    throw new Route.Err(403);
+    throw new Err(Status.FORBIDDEN);
   }
 });
 ```
