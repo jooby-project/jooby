@@ -121,9 +121,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -381,7 +379,6 @@ import com.typesafe.config.ConfigValueFactory;
  * <li>An {@link Injector Guice Injector} is created.</li>
  * <li>It configures each registered {@link Jooby.Module module}</li>
  * <li>At this point Guice is ready and all the services has been binded.</li>
- * <li>The {@link Jooby.Module#start() start method} is invoked.</li>
  * <li>Finally, Jooby starts the web server</li>
  * </ol>
  *
@@ -462,6 +459,17 @@ public class Jooby {
     }
   }
 
+  private static class EnvDep {
+    Predicate<String> predicate;
+
+    Consumer<Config> callback;
+
+    public EnvDep(final Predicate<String> predicate, final Consumer<Config> callback) {
+      this.predicate = predicate;
+      this.callback = callback;
+    }
+  }
+
   static {
     // set pid as system property
     String pid = System.getProperty("pid", JvmInfo.pid() + "");
@@ -486,15 +494,9 @@ public class Jooby {
   private final Set<Jooby.Module> modules = new LinkedHashSet<>();
 
   /**
-   * Env callback.
-   */
-  private final Multimap<Predicate<String>, Consumer<Config>> envcallbacks = ArrayListMultimap
-      .create();
-
-  /**
    * The override config. Optional.
    */
-  private Config source;
+  private Config srcconf;
 
   /** Keep the global injector instance. */
   private Injector injector;
@@ -584,9 +586,10 @@ public class Jooby {
         Object routes = path.<Object> map(p -> new RouteClass(((RouteClass) it).routeClass, p))
             .orElse(it);
         this.bag.add(routes);
+      } else if (it instanceof EnvDep) {
+        this.bag.add(it);
       }
     });
-    this.envcallbacks.putAll(app.envcallbacks);
     return this;
   }
 
@@ -701,7 +704,7 @@ public class Jooby {
   public Jooby on(final Predicate<String> predicate, final Consumer<Config> callback) {
     requireNonNull(predicate, "Predicate is required.");
     requireNonNull(callback, "Callback is required.");
-    envcallbacks.put(predicate, callback);
+    this.bag.add(new EnvDep(predicate, callback));
 
     return this;
   }
@@ -725,9 +728,7 @@ public class Jooby {
    */
   public Jooby on(final String env1, final String env2, final String env3,
       final Runnable callback) {
-    on(env1, callback);
-    on(env2, callback);
-    on(env3, callback);
+    on(envpredicate(env1).or(envpredicate(env2)).or(envpredicate(env3)), callback);
     return this;
   }
 
@@ -2940,7 +2941,7 @@ public class Jooby {
    * @see Config
    */
   public Jooby use(final Config config) {
-    this.source = requireNonNull(config, "A config is required.");
+    this.srcconf = requireNonNull(config, "A config is required.");
     return this;
   }
 
@@ -2997,7 +2998,6 @@ public class Jooby {
    * <li>An {@link Injector Guice Injector} is created.</li>
    * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
    * <li>At this point Guice is ready and all the services has been binded.</li>
-   * <li>It calls to {@link Jooby.Module#start() start method} for each module.</li>
    * <li>A web server is started</li>
    * </ol>
    *
@@ -3024,7 +3024,6 @@ public class Jooby {
    * <li>An {@link Injector Guice Injector} is created.</li>
    * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
    * <li>At this point Guice is ready and all the services has been binded.</li>
-   * <li>It calls to {@link Jooby.Module#start() start method} for each module.</li>
    * <li>A web server is started</li>
    * </ol>
    *
@@ -3052,7 +3051,6 @@ public class Jooby {
    * <li>An {@link Injector Guice Injector} is created.</li>
    * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
    * <li>At this point Guice is ready and all the services has been binded.</li>
-   * <li>It calls to {@link Jooby.Module#start() start method} for each module.</li>
    * <li>A web server is started</li>
    * </ol>
    *
@@ -3080,7 +3078,6 @@ public class Jooby {
    * <li>An {@link Injector Guice Injector} is created.</li>
    * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
    * <li>At this point Guice is ready and all the services has been binded.</li>
-   * <li>It calls to {@link Jooby.Module#start() start method} for each module.</li>
    * <li>A web server is started</li>
    * </ol>
    *
@@ -3147,10 +3144,12 @@ public class Jooby {
     return "";
   }
 
-  private List<Object> normalizeBag(final Env env, final RouteMetadata classInfo) {
+  private List<Object> normalize(final List<Object> services, final Env env,
+      final RouteMetadata classInfo) {
     List<Object> result = new ArrayList<>();
+    List<Object> snapshot = services;
     /** modules, routes, parsers, renderers and websockets */
-    bag.forEach(candidate -> {
+    snapshot.forEach(candidate -> {
       if (candidate instanceof Route.Definition) {
         result.add(candidate);
       } else if (candidate instanceof Route.Group) {
@@ -3172,48 +3171,68 @@ public class Jooby {
     return result;
   }
 
+  private List<Object> processEnvDep(final Env env) {
+    List<Object> result = new ArrayList<>();
+    List<Object> bag = new ArrayList<>(this.bag);
+    bag.forEach(it -> {
+      if (it instanceof EnvDep) {
+        EnvDep envdep = (EnvDep) it;
+        if (envdep.predicate.test(env.name())) {
+          int from = this.bag.size();
+          envdep.callback.accept(env.config());
+          int to = this.bag.size();
+          result.addAll(new ArrayList<>(this.bag).subList(from, to));
+        }
+      } else {
+        result.add(it);
+      }
+    });
+    return result;
+  }
+
   private Injector bootstrap(final Consumer<List<Route.Definition>> rcallback) throws Exception {
-    Config config = buildConfig(
-        Optional.ofNullable(this.source)
-            .orElseGet(
-                () -> ConfigFactory.parseResources("application.conf")));
+    Config appconf = ConfigFactory.parseResources("application.conf");
+    Config initconf = srcconf == null ? appconf : srcconf.withFallback(appconf);
+    List<Config> modconf = modconf(this.bag);
+    Config conf = buildConfig(initconf, modconf);
 
-    final Locale locale = LocaleUtils.parseOne(config.getString("application.lang"));
+    final Locale locale = LocaleUtils.parseOne(conf.getString("application.lang"));
 
-    Env env = this.env.build(config, locale);
+    Env env = this.env.build(conf, locale);
     String envname = env.name();
 
-    final Charset charset = Charset.forName(config.getString("application.charset"));
+    final Charset charset = Charset.forName(conf.getString("application.charset"));
 
-    String dateFormat = config.getString("application.dateFormat");
-    ZoneId zoneId = ZoneId.of(config.getString("application.tz"));
+    String dateFormat = conf.getString("application.dateFormat");
+    ZoneId zoneId = ZoneId.of(conf.getString("application.tz"));
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter
         .ofPattern(dateFormat, locale)
         .withZone(zoneId);
 
-    DecimalFormat numberFormat = new DecimalFormat(config.getString("application.numberFormat"));
+    DecimalFormat numberFormat = new DecimalFormat(conf.getString("application.numberFormat"));
 
     // Guice Stage
     Stage stage = "dev".equals(envname) ? Stage.DEVELOPMENT : Stage.PRODUCTION;
 
-    // run env callbacks
-    for (Entry<Predicate<String>, Collection<Consumer<Config>>> callback : envcallbacks.asMap()
-        .entrySet()) {
-      if (callback.getKey().test(envname)) {
-        callback.getValue().forEach(it -> it.accept(config));
-      }
-    }
-    // normalize bag and take routes from it
+    // expand and normalize bag
     RouteMetadata classInfo = new RouteMetadata(env);
-    List<Object> bag = normalizeBag(env, classInfo);
+    List<Object> realbag = processEnvDep(env);
+    List<Config> realmodconf = modconf(realbag);
+    List<Object> bag = normalize(realbag, env, classInfo);
 
+    // collect routes and fire route callback
     List<Route.Definition> routes = bag.stream()
         .filter(it -> it instanceof Route.Definition)
         .map(it -> (Route.Definition) it)
         .collect(Collectors.<Route.Definition> toList());
-    if (rcallback!=null) {
+    if (rcallback != null) {
       rcallback.accept(routes);
     }
+
+    // final config ? if we add a mod that depends on env
+    Config finalConfig = modconf.size() != realmodconf.size()
+        ? buildConfig(initconf, realmodconf)
+        : conf;
 
     /** dependency injection */
     @SuppressWarnings("unchecked")
@@ -3223,7 +3242,7 @@ public class Jooby {
       new TypeConverters().configure(binder);
 
       /** bind config */
-      bindConfig(binder, config);
+      bindConfig(binder, finalConfig);
 
       /** bind env */
       binder.bind(Env.class).toInstance(env);
@@ -3262,7 +3281,7 @@ public class Jooby {
           .newSetBinder(binder, WebSocket.Definition.class);
 
       /** tmp dir */
-      File tmpdir = new File(config.getString("application.tmpdir"));
+      File tmpdir = new File(finalConfig.getString("application.tmpdir"));
       tmpdir.mkdirs();
       binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
           .toInstance(tmpdir);
@@ -3302,7 +3321,7 @@ public class Jooby {
       Set<Object> routeClasses = new HashSet<>();
       bag.forEach(candidate -> {
         if (candidate instanceof Jooby.Module) {
-          install((Jooby.Module) candidate, env, config, binder);
+          install((Jooby.Module) candidate, env, finalConfig, binder);
         } else if (candidate instanceof Route.Definition) {
           Route.Definition rdef = (Definition) candidate;
           Route.Filter h = rdef.filter();
@@ -3336,8 +3355,8 @@ public class Jooby {
       binder.bind(ParserExecutor.class).in(Singleton.class);
 
       /** override(able) renderer */
-      boolean stacktrace = config.hasPath("err.stacktrace")
-          ? config.getBoolean("err.stacktrace")
+      boolean stacktrace = finalConfig.hasPath("err.stacktrace")
+          ? finalConfig.getBoolean("err.stacktrace")
           : "dev".equals(envname);
       renderers.addBinding().toInstance(new DefaulErrRenderer(stacktrace));
       renderers.addBinding().toInstance(BuiltinRenderer.ToString);
@@ -3375,6 +3394,14 @@ public class Jooby {
     return injector;
   }
 
+  private List<Config> modconf(final Collection<Object> bag) {
+    return bag.stream()
+        .filter(it -> it instanceof Jooby.Module)
+        .map(it -> ((Jooby.Module) it).config())
+        .filter(c -> !c.isEmpty())
+        .collect(Collectors.toList());
+  }
+
   /**
    * Stop the application, close all the modules and stop the web server.
    */
@@ -3404,9 +3431,10 @@ public class Jooby {
    * Build configuration properties, it configure system, app and modules properties.
    *
    * @param source Source config to use.
+   * @param modules List of modules.
    * @return A configuration properties ready to use.
    */
-  private Config buildConfig(final Config source) {
+  private Config buildConfig(final Config source, final List<Config> modules) {
     // normalize tmpdir
     Config system = ConfigFactory.systemProperties();
     Config tmpdir = source.hasPath("java.io.tmpdir") ? source : system;
@@ -3420,8 +3448,8 @@ public class Jooby {
 
     // set module config
     Config moduleStack = ConfigFactory.empty();
-    for (Jooby.Module module : ImmutableList.copyOf(modules).reverse()) {
-      moduleStack = moduleStack.withFallback(module.config());
+    for (Config module : ImmutableList.copyOf(modules).reverse()) {
+      moduleStack = moduleStack.withFallback(module);
     }
 
     String env = Arrays.asList(system, source).stream()

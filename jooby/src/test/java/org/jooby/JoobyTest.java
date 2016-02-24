@@ -802,7 +802,7 @@ public class JoobyTest {
 
           Config config = ConfigFactory.empty();
 
-          expect(module.config()).andReturn(config);
+          expect(module.config()).andReturn(config).times(2);
 
           module.configure(isA(Env.class), isA(Config.class), eq(binder));
 
@@ -2473,7 +2473,7 @@ public class JoobyTest {
 
           Config config = ConfigFactory.empty();
 
-          expect(module.config()).andReturn(config);
+          expect(module.config()).andReturn(config).times(2);
 
           module.configure(isA(Env.class), isA(Config.class), eq(binder));
         })
@@ -2519,7 +2519,7 @@ public class JoobyTest {
 
           Config config = ConfigFactory.empty();
 
-          expect(module.config()).andReturn(config);
+          expect(module.config()).andReturn(config).times(2);
 
           module.configure(isA(Env.class), isA(Config.class), eq(binder));
           expectLastCall().andThrow(new NullPointerException());
