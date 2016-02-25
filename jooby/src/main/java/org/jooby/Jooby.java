@@ -122,6 +122,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -386,7 +387,7 @@ import com.typesafe.config.ConfigValueFactory;
  * @since 0.1.0
  * @see Jooby.Module
  */
-public class Jooby {
+public class Jooby implements Router {
 
   /**
    * A module can publish or produces: {@link Route.Definition routes}, {@link Parser},
@@ -486,7 +487,7 @@ public class Jooby {
   /**
    * Keep track of routes.
    */
-  private final Set<Object> bag = new LinkedHashSet<>();
+  private Set<Object> bag = new LinkedHashSet<>();
 
   /**
    * Keep track of modules.
@@ -607,6 +608,7 @@ public class Jooby {
    * @param pattern Global pattern to use.
    * @return A route namespace.
    */
+  @Override
   public Route.Group use(final String pattern) {
     Route.Group group = new Route.Group(pattern, prefix);
     this.bag.add(group);
@@ -931,6 +933,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition use(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("*", path, filter));
@@ -944,6 +947,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition use(final String verb, final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition(verb, path, filter));
@@ -957,6 +961,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition use(final String verb, final String path,
       final Route.Handler handler) {
     return appendDefinition(new Route.Definition(verb, path, handler));
@@ -969,6 +974,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition use(final String path,
       final Route.Handler handler) {
     return appendDefinition(new Route.Definition("*", path, handler));
@@ -981,6 +987,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition use(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("*", path, handler));
@@ -1001,6 +1008,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition get(final String path,
       final Route.Handler handler) {
     return appendDefinition(new Route.Definition("GET", path, handler));
@@ -1022,6 +1030,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection get(final String path1, final String path2,
       final Route.Handler handler) {
     return new Route.Collection(
@@ -1045,6 +1054,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection get(final String path1, final String path2, final String path3,
       final Route.Handler handler) {
     return new Route.Collection(
@@ -1066,6 +1076,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition get(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("GET", path, handler));
@@ -1087,6 +1098,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection get(final String path1, final String path2,
       final Route.OneArgHandler handler) {
     return new Route.Collection(
@@ -1110,6 +1122,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
     return new Route.Collection(
@@ -1131,6 +1144,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition get(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("GET", path, handler));
@@ -1152,6 +1166,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection get(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
     return new Route.Collection(
@@ -1175,6 +1190,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
     return new Route.Collection(
@@ -1196,6 +1212,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition get(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("GET", path, filter));
@@ -1217,6 +1234,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection get(final String path1, final String path2,
       final Route.Filter filter) {
     return new Route.Collection(
@@ -1240,6 +1258,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
     return new Route.Collection(
@@ -1261,6 +1280,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition post(final String path,
       final Route.Handler handler) {
     return appendDefinition(new Route.Definition("POST", path, handler));
@@ -1282,6 +1302,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection post(final String path1, final String path2,
       final Route.Handler handler) {
     return new Route.Collection(
@@ -1305,6 +1326,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.Handler handler) {
     return new Route.Collection(
@@ -1326,6 +1348,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition post(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("POST", path, handler));
@@ -1347,6 +1370,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection post(final String path1, final String path2,
       final Route.OneArgHandler handler) {
     return new Route.Collection(
@@ -1370,6 +1394,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
     return new Route.Collection(
@@ -1391,6 +1416,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition post(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("POST", path, handler));
@@ -1412,6 +1438,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection post(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
     return new Route.Collection(
@@ -1435,6 +1462,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
     return new Route.Collection(
@@ -1456,6 +1484,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition post(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("POST", path, filter));
@@ -1477,6 +1506,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection post(final String path1, final String path2,
       final Route.Filter filter) {
     return new Route.Collection(
@@ -1500,6 +1530,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
     return new Route.Collection(
@@ -1521,6 +1552,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition head(final String path, final Route.Handler handler) {
     return appendDefinition(new Route.Definition("HEAD", path, handler));
   }
@@ -1540,6 +1572,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition head(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("HEAD", path, handler));
@@ -1560,6 +1593,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition head(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("HEAD", path, handler));
@@ -1580,6 +1614,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition head(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("HEAD", path, filter));
@@ -1596,6 +1631,7 @@ public class Jooby {
    *
    * @return A new route definition.
    */
+  @Override
   public Route.Definition head() {
     return appendDefinition(new Route.Definition("HEAD", "*", filter(HeadHandler.class))
         .name("*.head"));
@@ -1616,6 +1652,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition options(final String path,
       final Route.Handler handler) {
     return appendDefinition(new Route.Definition("OPTIONS", path, handler));
@@ -1636,6 +1673,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition options(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("OPTIONS", path, handler));
@@ -1656,6 +1694,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition options(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("OPTIONS", path, handler));
@@ -1677,6 +1716,7 @@ public class Jooby {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition options(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("OPTIONS", path, filter));
@@ -1699,6 +1739,7 @@ public class Jooby {
    *
    * @return A new route definition.
    */
+  @Override
   public Route.Definition options() {
     return appendDefinition(new Route.Definition("OPTIONS", "*", handler(OptionsHandler.class))
         .name("*.options"));
@@ -1719,6 +1760,7 @@ public class Jooby {
    * @param handler A route to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition put(final String path,
       final Route.Handler handler) {
     return appendDefinition(new Route.Definition("PUT", path, handler));
@@ -1740,6 +1782,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection put(final String path1, final String path2,
       final Route.Handler handler) {
     return new Route.Collection(
@@ -1763,6 +1806,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.Handler handler) {
     return new Route.Collection(
@@ -1784,6 +1828,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition put(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("PUT", path, handler));
@@ -1805,6 +1850,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection put(final String path1, final String path2,
       final Route.OneArgHandler handler) {
     return new Route.Collection(
@@ -1828,6 +1874,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
     return new Route.Collection(
@@ -1849,6 +1896,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition put(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("PUT", path, handler));
@@ -1870,6 +1918,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection put(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
     return new Route.Collection(
@@ -1893,6 +1942,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
     return new Route.Collection(
@@ -1914,6 +1964,7 @@ public class Jooby {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition put(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("PUT", path, filter));
@@ -1935,6 +1986,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection put(final String path1, final String path2,
       final Route.Filter filter) {
     return new Route.Collection(
@@ -1958,6 +2010,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
     return new Route.Collection(
@@ -1979,6 +2032,7 @@ public class Jooby {
    * @param handler A route to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition patch(final String path,
       final Route.Handler handler) {
     return appendDefinition(new Route.Definition("PATCH", path, handler));
@@ -2000,6 +2054,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection patch(final String path1, final String path2,
       final Route.Handler handler) {
     return new Route.Collection(
@@ -2023,6 +2078,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.Handler handler) {
     return new Route.Collection(
@@ -2045,6 +2101,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition patch(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("PATCH", path, handler));
@@ -2066,6 +2123,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection patch(final String path1, final String path2,
       final Route.OneArgHandler handler) {
     return new Route.Collection(
@@ -2089,6 +2147,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
     return new Route.Collection(
@@ -2111,6 +2170,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition patch(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("PATCH", path, handler));
@@ -2132,6 +2192,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection patch(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
     return new Route.Collection(
@@ -2155,6 +2216,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
     return new Route.Collection(
@@ -2177,6 +2239,7 @@ public class Jooby {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition patch(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("PATCH", path, filter));
@@ -2198,6 +2261,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection patch(final String path1, final String path2,
       final Route.Filter filter) {
     return new Route.Collection(
@@ -2221,6 +2285,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
     return new Route.Collection(
@@ -2243,6 +2308,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition delete(final String path,
       final Route.Handler handler) {
     return appendDefinition(new Route.Definition("DELETE", path, handler));
@@ -2264,6 +2330,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection delete(final String path1,
       final String path2,
       final Route.Handler handler) {
@@ -2288,6 +2355,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection delete(final String path1,
       final String path2,
       final String path3, final Route.Handler handler) {
@@ -2311,6 +2379,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition delete(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("DELETE", path, handler));
@@ -2332,6 +2401,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection delete(final String path1,
       final String path2, final Route.OneArgHandler handler) {
     return new Route.Collection(
@@ -2355,6 +2425,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection delete(final String path1,
       final String path2, final String path3,
       final Route.OneArgHandler handler) {
@@ -2378,6 +2449,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition delete(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("DELETE", path, handler));
@@ -2399,6 +2471,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection delete(final String path1,
       final String path2, final Route.ZeroArgHandler handler) {
     return new Route.Collection(
@@ -2422,6 +2495,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection delete(final String path1,
       final String path2, final String path3,
       final Route.ZeroArgHandler handler) {
@@ -2446,6 +2520,7 @@ public class Jooby {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition delete(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("DELETE", path, filter));
@@ -2467,6 +2542,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection delete(final String path1,
       final String path2, final Route.Filter filter) {
     return new Route.Collection(
@@ -2490,6 +2566,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Collection delete(final String path1,
       final String path2, final String path3,
       final Route.Filter filter) {
@@ -2513,6 +2590,7 @@ public class Jooby {
    * @param handler A callback to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition trace(final String path,
       final Route.Handler handler) {
     return appendDefinition(new Route.Definition("TRACE", path, handler));
@@ -2533,6 +2611,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition trace(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("TRACE", path, handler));
@@ -2553,6 +2632,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition trace(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("TRACE", path, handler));
@@ -2573,6 +2653,7 @@ public class Jooby {
    * @param filter A callback to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition trace(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("TRACE", path, filter));
@@ -2591,6 +2672,7 @@ public class Jooby {
    *
    * @return A new route definition.
    */
+  @Override
   public Route.Definition trace() {
     return appendDefinition(new Route.Definition("TRACE", "*", handler(TraceHandler.class))
         .name("*.trace"));
@@ -2611,6 +2693,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition connect(final String path,
       final Route.Handler handler) {
     return appendDefinition(new Route.Definition("CONNECT", path, handler));
@@ -2631,6 +2714,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition connect(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("CONNECT", path, handler));
@@ -2651,6 +2735,7 @@ public class Jooby {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition connect(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("CONNECT", path, handler));
@@ -2671,6 +2756,7 @@ public class Jooby {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition connect(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("CONNECT", path, filter));
@@ -2761,6 +2847,7 @@ public class Jooby {
    * @param path The path to publish.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition assets(final String path) {
     return assets(path, "/");
   }
@@ -2807,6 +2894,7 @@ public class Jooby {
    * @param location A resource location.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition assets(final String path, final String location) {
     return assets(path, new AssetHandler(location));
   }
@@ -2853,6 +2941,7 @@ public class Jooby {
    * @param handler Asset handler.
    * @return A new route definition.
    */
+  @Override
   public Route.Definition assets(final String path, final AssetHandler handler) {
 
     AssetProxy router = new AssetProxy();
@@ -2897,6 +2986,7 @@ public class Jooby {
    * @param routeClass A route(s) class.
    * @return This jooby instance.
    */
+  @Override
   public Jooby use(final Class<?> routeClass) {
     requireNonNull(routeClass, "Route class is required.");
     bag.add(new RouteClass(routeClass, ""));
@@ -2974,6 +3064,7 @@ public class Jooby {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
+  @Override
   public WebSocket.Definition ws(final String path,
       final WebSocket.Handler handler) {
     WebSocket.Definition ws = new WebSocket.Definition(path, handler);
@@ -3144,8 +3235,9 @@ public class Jooby {
     return "";
   }
 
-  private List<Object> normalize(final List<Object> services, final Env env,
-      final RouteMetadata classInfo) {
+  private static List<Object> normalize(final List<Object> services, final Env env,
+      final RouteMetadata classInfo,
+      final String prefix) {
     List<Object> result = new ArrayList<>();
     List<Object> snapshot = services;
     /** modules, routes, parsers, renderers and websockets */
@@ -3171,17 +3263,17 @@ public class Jooby {
     return result;
   }
 
-  private List<Object> processEnvDep(final Env env) {
+  private static List<Object> processEnvDep(final Set<Object> src, final Env env) {
     List<Object> result = new ArrayList<>();
-    List<Object> bag = new ArrayList<>(this.bag);
+    List<Object> bag = new ArrayList<>(src);
     bag.forEach(it -> {
       if (it instanceof EnvDep) {
         EnvDep envdep = (EnvDep) it;
         if (envdep.predicate.test(env.name())) {
-          int from = this.bag.size();
+          int from = src.size();
           envdep.callback.accept(env.config());
-          int to = this.bag.size();
-          result.addAll(new ArrayList<>(this.bag).subList(from, to));
+          int to = src.size();
+          result.addAll(new ArrayList<>(src).subList(from, to));
         }
       } else {
         result.add(it);
@@ -3198,7 +3290,7 @@ public class Jooby {
 
     final Locale locale = LocaleUtils.parseOne(conf.getString("application.lang"));
 
-    Env env = this.env.build(conf, locale);
+    Env env = this.env.build(conf, this, locale);
     String envname = env.name();
 
     final Charset charset = Charset.forName(conf.getString("application.charset"));
@@ -3215,10 +3307,10 @@ public class Jooby {
     Stage stage = "dev".equals(envname) ? Stage.DEVELOPMENT : Stage.PRODUCTION;
 
     // expand and normalize bag
-    RouteMetadata classInfo = new RouteMetadata(env);
-    List<Object> realbag = processEnvDep(env);
+    RouteMetadata rm = new RouteMetadata(env);
+    List<Object> realbag = processEnvDep(this.bag, env);
     List<Config> realmodconf = modconf(realbag);
-    List<Object> bag = normalize(realbag, env, classInfo);
+    List<Object> bag = normalize(realbag, env, rm, prefix);
 
     // collect routes and fire route callback
     List<Route.Definition> routes = bag.stream()
@@ -3230,9 +3322,15 @@ public class Jooby {
     }
 
     // final config ? if we add a mod that depends on env
-    Config finalConfig = modconf.size() != realmodconf.size()
-        ? buildConfig(initconf, realmodconf)
-        : conf;
+    Config finalConfig;
+    Env finalEnv;
+    if (modconf.size() != realmodconf.size()) {
+      finalConfig = buildConfig(initconf, realmodconf);
+      finalEnv = this.env.build(finalConfig, this, locale);
+    } else {
+      finalConfig = conf;
+      finalEnv = env;
+    }
 
     /** dependency injection */
     @SuppressWarnings("unchecked")
@@ -3245,7 +3343,7 @@ public class Jooby {
       bindConfig(binder, finalConfig);
 
       /** bind env */
-      binder.bind(Env.class).toInstance(env);
+      binder.bind(Env.class).toInstance(finalEnv);
 
       /** bind charset */
       binder.bind(Charset.class).toInstance(charset);
@@ -3286,7 +3384,7 @@ public class Jooby {
       binder.bind(File.class).annotatedWith(Names.named("application.tmpdir"))
           .toInstance(tmpdir);
 
-      binder.bind(ParameterNameProvider.class).toInstance(classInfo);
+      binder.bind(ParameterNameProvider.class).toInstance(rm);
 
       /** err handler */
       Multibinder<Err.Handler> ehandlers = Multibinder
@@ -3319,29 +3417,18 @@ public class Jooby {
 
       /** modules, routes, parsers, renderers and websockets */
       Set<Object> routeClasses = new HashSet<>();
-      bag.forEach(candidate -> {
-        if (candidate instanceof Jooby.Module) {
-          install((Jooby.Module) candidate, env, finalConfig, binder);
-        } else if (candidate instanceof Route.Definition) {
-          Route.Definition rdef = (Definition) candidate;
-          Route.Filter h = rdef.filter();
-          if (h instanceof Route.MethodHandler) {
-            Class<?> routeClass = ((Route.MethodHandler) h).method().getDeclaringClass();
-            if (routeClasses.add(routeClass)) {
-              binder.bind(routeClass);
-            }
-          }
-          definitions.addBinding().toInstance(rdef);
-        } else if (candidate instanceof WebSocket.Definition) {
-          sockets.addBinding().toInstance((WebSocket.Definition) candidate);
-        } else if (candidate instanceof Parser) {
-          parsers.addBinding().toInstance((Parser) candidate);
-        } else if (candidate instanceof Renderer) {
-          renderers.addBinding().toInstance((Renderer) candidate);
-        } else {
-          ehandlers.addBinding().toInstance((Err.Handler) candidate);
-        }
-      });
+      bag.forEach(it -> bindService(
+          this.bag,
+          finalConfig,
+          finalEnv,
+          rm,
+          binder,
+          definitions,
+          sockets,
+          ehandlers,
+          parsers,
+          renderers,
+          routeClasses).accept(it));
 
       parsers.addBinding().toInstance(new DateParser(dateFormat));
       parsers.addBinding().toInstance(new LocalDateParser(dateTimeFormatter));
@@ -3391,10 +3478,67 @@ public class Jooby {
       ehandlers.addBinding().toInstance(new Err.DefHandler());
     });
 
+    // clear bag and freeze it
+    this.bag.clear();
+    this.bag = ImmutableSet.of();
+
     return injector;
   }
 
-  private List<Config> modconf(final Collection<Object> bag) {
+  private static Consumer<? super Object> bindService(final Set<Object> src,
+      final Config conf,
+      final Env env,
+      final RouteMetadata rm,
+      final Binder binder,
+      final Multibinder<Route.Definition> definitions,
+      final Multibinder<WebSocket.Definition> sockets,
+      final Multibinder<Err.Handler> ehandlers,
+      final Multibinder<Parser> parsers,
+      final Multibinder<Renderer> renderers,
+      final Set<Object> routeClasses) {
+    return it -> {
+      if (it instanceof Jooby.Module) {
+        int from = src.size();
+        install((Jooby.Module) it, env, conf, binder);
+        int to = src.size();
+        // collect any route a module might add
+        if (to > from) {
+          normalize(new ArrayList<>(src).subList(from, to), env, rm, null)
+              .forEach(e -> bindService(src,
+                  conf,
+                  env,
+                  rm,
+                  binder,
+                  definitions,
+                  sockets,
+                  ehandlers,
+                  parsers,
+                  renderers,
+                  routeClasses).accept(e));
+        }
+      } else if (it instanceof Route.Definition) {
+        Route.Definition rdef = (Definition) it;
+        Route.Filter h = rdef.filter();
+        if (h instanceof Route.MethodHandler) {
+          Class<?> routeClass = ((Route.MethodHandler) h).method().getDeclaringClass();
+          if (routeClasses.add(routeClass)) {
+            binder.bind(routeClass);
+          }
+        }
+        definitions.addBinding().toInstance(rdef);
+      } else if (it instanceof WebSocket.Definition) {
+        sockets.addBinding().toInstance((WebSocket.Definition) it);
+      } else if (it instanceof Parser) {
+        parsers.addBinding().toInstance((Parser) it);
+      } else if (it instanceof Renderer) {
+        renderers.addBinding().toInstance((Renderer) it);
+      } else {
+        ehandlers.addBinding().toInstance((Err.Handler) it);
+      }
+    };
+  }
+
+  private static List<Config> modconf(final Collection<Object> bag) {
     return bag.stream()
         .filter(it -> it instanceof Jooby.Module)
         .map(it -> ((Jooby.Module) it).config())
@@ -3586,7 +3730,7 @@ public class Jooby {
    * @param config The configuration object.
    * @param binder A Guice binder.
    */
-  private void install(final Jooby.Module module, final Env env, final Config config,
+  private static void install(final Jooby.Module module, final Env env, final Config config,
       final Binder binder) {
     try {
       module.configure(env, config, binder);
@@ -3627,7 +3771,7 @@ public class Jooby {
     binder.bind(Config.class).toInstance(config);
   }
 
-  private void traverse(final Binder binder, final String p, final ConfigObject root) {
+  private static void traverse(final Binder binder, final String p, final ConfigObject root) {
     root.forEach((n, v) -> {
       if (v instanceof ConfigObject) {
         ConfigObject child = (ConfigObject) v;

@@ -68,11 +68,13 @@ public interface Env {
      * <code>application.env</code> property. If such property is missing, env's name must be:
      * <code>dev</code>.
      *
+     * Please note an environment created with this method won't have a {@link Env#router()}.
+     *
      * @param config A config instance.
      * @return A new environment.
      */
     default Env build(final Config config) {
-      return build(config, Locale.getDefault());
+      return build(config, null, Locale.getDefault());
     }
 
     /**
@@ -81,16 +83,17 @@ public interface Env {
      * <code>dev</code>.
      *
      * @param config A config instance.
+     * @param router Application router.
      * @param locale App locale.
      * @return A new environment.
      */
-    Env build(Config config, Locale locale);
+    Env build(Config config, Router router, Locale locale);
   }
 
   /**
    * Default builder.
    */
-  Env.Builder DEFAULT = (config, locale) -> {
+  Env.Builder DEFAULT = (config, router, locale) -> {
     requireNonNull(config, "A config is required.");
     String name = config.hasPath("application.env") ? config.getString("application.env") : "dev";
     return new Env() {
@@ -98,6 +101,14 @@ public interface Env {
       @Override
       public String name() {
         return name;
+      }
+
+      @Override
+      public Router router() {
+        if (router == null) {
+          throw new UnsupportedOperationException();
+        }
+        return router;
       }
 
       @Override
@@ -121,6 +132,14 @@ public interface Env {
    * @return Env's name.
    */
   String name();
+
+  /**
+   * Application router.
+   *
+   * @return Available {@link Router}.
+   * @throws UnsupportedOperationException if router isn't available.
+   */
+  Router router() throws UnsupportedOperationException;
 
   /**
    * @return environment properties.

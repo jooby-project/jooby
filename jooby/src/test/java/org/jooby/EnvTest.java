@@ -144,13 +144,18 @@ public class EnvTest {
   }
 
   @Test
-  public void when() throws Throwable {
+  public void when() {
     assertEquals("$dev", Env.DEFAULT.build(ConfigFactory.empty()).when("dev", () -> "$dev").get());
 
     assertEquals("$dev", Env.DEFAULT.build(ConfigFactory.empty()).when("dev", "$dev").get());
 
     assertEquals("$dev",
         Env.DEFAULT.build(ConfigFactory.empty()).when((env) -> env.equals("dev"), "$dev").get());
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void noRouter() {
+    Env.DEFAULT.build(ConfigFactory.empty()).router();
   }
 
   @Test

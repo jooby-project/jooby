@@ -1414,7 +1414,30 @@
               <compilerArgs>
                 <arg>-parameters</arg>
               </compilerArgs>
+              <!-- eclipse compiler
+                            <debuglevel>lines,vars,source</debuglevel>
+              <compilerId>eclipse</compilerId>
+              <compilerArguments>
+                <org.eclipse.jdt.core.compiler.codegen.methodParameters>generate</org.eclipse.jdt.core.compiler.codegen.methodParameters>
+                <org.eclipse.jdt.core.compiler.debug.lineNumber>generate</org.eclipse.jdt.core.compiler.debug.lineNumber>
+                <org.eclipse.jdt.core.compiler.debug.localVariable>generate</org.eclipse.jdt.core.compiler.debug.localVariable>
+                <org.eclipse.jdt.core.compiler.debug.sourceFile>generate</org.eclipse.jdt.core.compiler.debug.sourceFile>
+                <org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>enabled</org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>
+                <org.eclipse.jdt.core.compiler.codegen.unusedLocal>preserve</org.eclipse.jdt.core.compiler.codegen.unusedLocal>
+                <org.eclipse.jdt.core.compiler.compliance>1.8</org.eclipse.jdt.core.compiler.compliance>
+                <org.eclipse.jdt.core.compiler.source>1.8</org.eclipse.jdt.core.compiler.source>
+                <org.eclipse.jdt.core.compiler.codegen.targetPlatform>1.8</org.eclipse.jdt.core.compiler.codegen.targetPlatform>
+                <encoding>UTF-8</encoding>
+              </compilerArguments>
+              -->
             </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-compiler-eclipse</artifactId>
+                <version>2.7</version>
+              </dependency>
+            </dependencies>
           </plugin>
 
           <plugin>
