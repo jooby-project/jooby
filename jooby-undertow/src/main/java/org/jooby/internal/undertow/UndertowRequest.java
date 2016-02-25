@@ -30,13 +30,13 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.jooby.Cookie;
 import org.jooby.MediaType;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.spi.NativeWebSocket;
-import org.jooby.util.Collectors;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;

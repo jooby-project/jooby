@@ -1,5 +1,6 @@
 package org.jooby.util;
 
+import org.jooby.scope.Providers;
 import org.junit.Test;
 
 import com.google.inject.OutOfScopeException;

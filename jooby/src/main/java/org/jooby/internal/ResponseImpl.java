@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.jooby.Asset;
@@ -46,7 +47,6 @@ import org.jooby.Route;
 import org.jooby.Status;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeResponse;
-import org.jooby.util.Collectors;
 
 import com.google.common.collect.ImmutableList;
 

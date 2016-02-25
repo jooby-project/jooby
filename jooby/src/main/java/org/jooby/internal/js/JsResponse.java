@@ -19,13 +19,13 @@
 package org.jooby.internal.js;
 
 import java.util.Map;
-
-import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import java.util.stream.Collectors;
 
 import org.jooby.Response;
-import org.jooby.util.Collectors;
 
 import com.google.common.collect.ImmutableMap;
+
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 public class JsResponse extends Response.Forwarding {
 

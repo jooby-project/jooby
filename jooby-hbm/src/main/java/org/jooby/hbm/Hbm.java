@@ -39,8 +39,8 @@ import org.jooby.Route;
 import org.jooby.internal.hbm.HbmProvider;
 import org.jooby.internal.hbm.HbmUnitDescriptor;
 import org.jooby.jdbc.Jdbc;
+import org.jooby.scope.Providers;
 import org.jooby.scope.RequestScoped;
-import org.jooby.util.Providers;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;

@@ -16,25 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.util;
+package org.jooby.scope;
 
-/**
- * Represents a supplier of results.
- *
- * <p>
- * There is no requirement that a new or distinct result be returned each time the supplier is
- * invoked.
- *
- * @author edgar
- * @param <T> the type of results supplied by this supplier
- */
-public interface ExSupplier<T> {
+import javax.inject.Provider;
 
-  /**
-   * Get a result or throw an exception.
-   *
-   * @return A result.
-   * @throws Exception If something goes wrong.
-   */
-  T get() throws Exception;
+import com.google.inject.Key;
+import com.google.inject.OutOfScopeException;
+
+public class Providers {
+
+  public static <T> Provider<T> outOfScope(final Class<T> type) {
+    return outOfScope(Key.get(type));
+  }
+
+  public static <T> Provider<T> outOfScope(final Key<T> key) {
+    return () -> {
+      throw new OutOfScopeException(key.toString());
+    };
+  }
+
 }

@@ -21,6 +21,7 @@ package org.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -28,11 +29,14 @@ import java.util.function.BiConsumer;
 
 import org.jooby.Asset;
 import org.jooby.MediaType;
-import org.jooby.util.ExSupplier;
 
 import com.google.common.io.Closeables;
 
 public class URLAsset implements Asset {
+
+  interface Supplier {
+    InputStream get() throws IOException;
+  }
 
   private URL url;
 
@@ -42,7 +46,7 @@ public class URLAsset implements Asset {
 
   private long length = -1;
 
-  private ExSupplier<InputStream> stream;
+  private Supplier stream;
 
   private String path;
 

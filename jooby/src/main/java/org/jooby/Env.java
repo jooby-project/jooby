@@ -24,14 +24,15 @@ import static java.util.Objects.requireNonNull;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
-
-import org.jooby.util.ExSupplier;
-import org.jooby.util.Switch;
+import java.util.function.Supplier;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
+
+import javaslang.control.Match;
+import javaslang.control.Match.MatchValue;
 
 /**
  * Allows to optimize, customize or apply defaults values for services.
@@ -231,15 +232,35 @@ public interface Env {
    * @param fn A callback function.
    * @param <T> A resulting type.
    * @return A resulting object.
-   * @throws Exception If something fails.
    */
-  default <T> Optional<T> ifMode(final String name, final ExSupplier<T> fn)
-      throws Exception {
-    return when(name, fn).value();
+  default <T> Optional<T> ifMode(final String name, final Supplier<T> fn) {
+    if (name().equals(name)) {
+      return Optional.of(fn.get());
+    }
+    return Optional.empty();
   }
 
   /**
-   * Produces a {@link Switch} of the current {@link Env}.
+   * Produces a {@link Match} of the current {@link Env}.
+   *
+   * <pre>
+   *   String accessKey = env.match()"dev", () {@literal ->} "1234")
+   *                          .when("stage", () {@literal ->} "4321")
+   *                          .when("prod", () {@literal ->} "abc")
+   *                          .get();
+   * </pre>
+   *
+   * @param name A name to test for.
+   * @param fn A callback function.
+   * @param <T> A resulting type.
+   * @return A new matcher.
+   */
+  default MatchValue.Of<String> match() {
+    return Match.of(name());
+  }
+
+  /**
+   * Produces a {@link Match} of the current {@link Env}.
    *
    * <pre>
    *   String accessKey = env.when("dev", () {@literal ->} "1234")
@@ -251,14 +272,14 @@ public interface Env {
    * @param name A name to test for.
    * @param fn A callback function.
    * @param <T> A resulting type.
-   * @return A new switch.
+   * @return A new matcher.
    */
-  default <T> Switch<String, T> when(final String name, final ExSupplier<T> fn) {
-    return Switch.<T> newSwitch(name()).when(name, fn);
+  default <T> MatchValue.Then<String, T> when(final String name, final Supplier<T> fn) {
+    return match().whenIs(name).then(fn);
   }
 
   /**
-   * Produces a {@link Switch} of the current {@link Env}.
+   * Produces a {@link Match} of the current {@link Env}.
    *
    * <pre>
    *   String accessKey = env.when("dev", "1234")
@@ -270,14 +291,14 @@ public interface Env {
    * @param name A name to test for.
    * @param result A constant value to return.
    * @param <T> A resulting type.
-   * @return A new switch.
+   * @return A new matcher.
    */
-  default <T> Switch<String, T> when(final String name, final T result) {
-    return Switch.<T> newSwitch(name()).when(name, result);
+  default <T> MatchValue.Then<String, T> when(final String name, final T result) {
+    return match().whenIs(name).then(result);
   }
 
   /**
-   * Produces a {@link Switch} of the current {@link Env}.
+   * Produces a {@link Match} of the current {@link Env}.
    *
    * <pre>
    *   String accessKey = env.when("dev", () {@literal ->} "1234")
@@ -289,10 +310,10 @@ public interface Env {
    * @param predicate A predicate to use.
    * @param result A constant value to return.
    * @param <T> A resulting type.
-   * @return A new switch.
+   * @return A new matcher.
    */
-  default <T> Switch<String, T> when(final Predicate<String> predicate,
-      final T result) {
-    return Switch.<T> newSwitch(name()).when(predicate, result);
+  default <T> MatchValue.Then<String, T> when(final Predicate<String> predicate, final T result) {
+    return match().when(e -> predicate.test(e.toString())).then(result);
   }
+
 }

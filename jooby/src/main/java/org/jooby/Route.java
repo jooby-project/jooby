@@ -28,12 +28,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.jooby.internal.AssetProxy;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
-import org.jooby.util.Collectors;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;

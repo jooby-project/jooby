@@ -33,6 +33,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jooby.Cookie;
 import org.jooby.Err;
@@ -48,7 +49,6 @@ import org.jooby.Upload;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
-import org.jooby.util.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

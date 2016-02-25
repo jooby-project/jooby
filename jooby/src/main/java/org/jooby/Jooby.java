@@ -113,10 +113,10 @@ import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.internal.parser.StaticMethodParser;
 import org.jooby.internal.parser.StringConstructorParser;
 import org.jooby.internal.ssl.SslContextProvider;
+import org.jooby.scope.Providers;
 import org.jooby.scope.RequestScoped;
 import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
-import org.jooby.util.Providers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

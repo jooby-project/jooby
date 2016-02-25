@@ -26,11 +26,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-
-import org.jooby.util.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;

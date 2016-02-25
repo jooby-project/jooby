@@ -125,7 +125,7 @@ public class EnvTest {
   }
 
   @Test
-  public void ifMode() throws Exception {
+  public void ifMode() throws Throwable {
     assertEquals("$dev", Env.DEFAULT.build(ConfigFactory.empty()).ifMode("dev", () -> "$dev").get());
     assertEquals(Optional.empty(),
         Env.DEFAULT.build(ConfigFactory.empty()).ifMode("prod", () -> "$dev"));
@@ -144,15 +144,13 @@ public class EnvTest {
   }
 
   @Test
-  public void when() throws Exception {
-    assertEquals("$dev", Env.DEFAULT.build(ConfigFactory.empty()).when("dev", () -> "$dev").value()
-        .get());
+  public void when() throws Throwable {
+    assertEquals("$dev", Env.DEFAULT.build(ConfigFactory.empty()).when("dev", () -> "$dev").get());
 
-    assertEquals("$dev", Env.DEFAULT.build(ConfigFactory.empty()).when("dev", "$dev").value().get());
+    assertEquals("$dev", Env.DEFAULT.build(ConfigFactory.empty()).when("dev", "$dev").get());
 
     assertEquals("$dev",
-        Env.DEFAULT.build(ConfigFactory.empty()).when((env) -> env.equals("dev"), "$dev").value()
-            .get());
+        Env.DEFAULT.build(ConfigFactory.empty()).when((env) -> env.equals("dev"), "$dev").get());
   }
 
   @Test

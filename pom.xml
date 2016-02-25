@@ -498,6 +498,13 @@
         <version>${guava.version}</version>
       </dependency>
 
+      <!-- javaslang -->
+      <dependency>
+        <groupId>com.javaslang</groupId>
+        <artifactId>javaslang</artifactId>
+        <version>${javaslang.version}</version>
+      </dependency>
+
       <!-- Guice -->
       <dependency>
         <groupId>com.google.inject</groupId>
@@ -1980,6 +1987,9 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
 
     <!-- jooq -->
     <jooq.version>3.7.2</jooq.version>
+
+    <!-- javaslang -->
+    <javaslang.version>2.0.0-RC4</javaslang.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
