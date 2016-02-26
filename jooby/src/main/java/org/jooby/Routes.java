@@ -21,12 +21,12 @@ package org.jooby;
 import org.jooby.handlers.AssetHandler;
 
 /**
- * Router DSL. Constructs and creates several flavors of jooby routes.
+ * Route DSL. Constructs and creates several flavors of jooby routes.
  *
  * @author edgar
  * @since 0.16.0
  */
-public interface Router {
+public interface Routes {
 
   /**
    * Define one or more routes under the same namespace:

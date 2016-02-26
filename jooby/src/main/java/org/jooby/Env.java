@@ -68,7 +68,7 @@ public interface Env {
      * <code>application.env</code> property. If such property is missing, env's name must be:
      * <code>dev</code>.
      *
-     * Please note an environment created with this method won't have a {@link Env#router()}.
+     * Please note an environment created with this method won't have a {@link Env#routes()}.
      *
      * @param config A config instance.
      * @return A new environment.
@@ -87,7 +87,7 @@ public interface Env {
      * @param locale App locale.
      * @return A new environment.
      */
-    Env build(Config config, Router router, Locale locale);
+    Env build(Config config, Routes router, Locale locale);
   }
 
   /**
@@ -104,7 +104,7 @@ public interface Env {
       }
 
       @Override
-      public Router router() {
+      public Routes routes() {
         if (router == null) {
           throw new UnsupportedOperationException();
         }
@@ -136,10 +136,10 @@ public interface Env {
   /**
    * Application router.
    *
-   * @return Available {@link Router}.
+   * @return Available {@link Routes}.
    * @throws UnsupportedOperationException if router isn't available.
    */
-  Router router() throws UnsupportedOperationException;
+  Routes routes() throws UnsupportedOperationException;
 
   /**
    * @return environment properties.

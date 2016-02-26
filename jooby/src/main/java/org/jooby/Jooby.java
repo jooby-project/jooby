@@ -387,7 +387,7 @@ import com.typesafe.config.ConfigValueFactory;
  * @since 0.1.0
  * @see Jooby.Module
  */
-public class Jooby implements Router {
+public class Jooby implements Routes {
 
   /**
    * A module can publish or produces: {@link Route.Definition routes}, {@link Parser},

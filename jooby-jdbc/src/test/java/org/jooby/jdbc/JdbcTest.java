@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 
 import org.easymock.Capture;
 import org.jooby.Env;
-import org.jooby.Router;
+import org.jooby.Routes;
 import org.junit.Test;
 
 import com.google.inject.Binder;
@@ -987,7 +987,7 @@ public class JdbcTest {
     return new Env() {
 
       @Override
-      public Router router() throws UnsupportedOperationException {
+      public Routes routes() throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
       }
 

@@ -155,7 +155,7 @@ public class EnvTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void noRouter() {
-    Env.DEFAULT.build(ConfigFactory.empty()).router();
+    Env.DEFAULT.build(ConfigFactory.empty()).routes();
   }
 
   @Test
