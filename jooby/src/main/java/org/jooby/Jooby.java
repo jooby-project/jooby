@@ -490,11 +490,6 @@ public class Jooby implements Router {
   private Set<Object> bag = new LinkedHashSet<>();
 
   /**
-   * Keep track of modules.
-   */
-  private final Set<Jooby.Module> modules = new LinkedHashSet<>();
-
-  /**
    * The override config. Optional.
    */
   private Config srcconf;
@@ -510,6 +505,12 @@ public class Jooby implements Router {
 
   /** Route's prefix. */
   private String prefix;
+
+  /** startup callback .*/
+  private List<Runnable> onStart = new ArrayList<>();
+
+  /** stop callback .*/
+  private List<Runnable> onStop = new ArrayList<>();
 
   public Jooby() {
     this(null);
@@ -623,6 +624,30 @@ public class Jooby implements Router {
    */
   public Jooby env(final Env.Builder env) {
     this.env = requireNonNull(env, "Env builder is required.");
+    return this;
+  }
+
+  /**
+   * Run code at application startup time.
+   *
+   * @param callback A callback to run.
+   * @return This instance.
+   */
+  public Jooby onStart(final Runnable callback) {
+    requireNonNull(callback, "Callback is required.");
+    onStart.add(callback);
+    return this;
+  }
+
+  /**
+   * Run code at application shutdown time.
+   *
+   * @param callback A callback to run.
+   * @return This instance.
+   */
+  public Jooby onStop(final Runnable callback) {
+    requireNonNull(callback, "Callback is required.");
+    onStop.add(callback);
     return this;
   }
 
@@ -3016,7 +3041,6 @@ public class Jooby implements Router {
    */
   public Jooby use(final Jooby.Module module) {
     requireNonNull(module, "A module is required.");
-    modules.add(module);
     bag.add(module);
     return this;
   }
@@ -3200,6 +3224,8 @@ public class Jooby implements Router {
         serverName,
         end - start,
         injector.getInstance(AppPrinter.class));
+
+    onStart.forEach(Runnable::run);
 
     boolean join = config.hasPath("server.join") ? config.getBoolean("server.join") : true;
     if (join) {
@@ -3551,7 +3577,7 @@ public class Jooby implements Router {
    */
   public void stop() {
     if (injector != null) {
-      stopManaged();
+      stopManaged(injector, onStop);
 
       try {
         Server server = injector.getInstance(Server.class);
@@ -3565,10 +3591,10 @@ public class Jooby implements Router {
     }
   }
 
-  private void stopManaged() {
+  private static void stopManaged(final Injector injector, final List<Runnable> onStop) {
     // stop modules
     injector.getInstance(LifecycleProcessor.class).destroy();
-    modules.clear();
+    onStop.forEach(Runnable::run);
   }
 
   /**

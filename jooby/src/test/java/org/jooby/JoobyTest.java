@@ -650,6 +650,47 @@ public class JoobyTest {
   }
 
   @Test
+  public void onStartStopCallback() throws Exception {
+
+    new MockUnit(Binder.class, Runnable.class)
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(routes)
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(err)
+        .expect(unit -> {
+          unit.get(Runnable.class).run();
+          unit.get(Runnable.class).run();
+        })
+        .run(unit -> {
+
+          Jooby app = new Jooby()
+              .onStart(unit.get(Runnable.class))
+              .onStop(unit.get(Runnable.class));
+          app.start();
+          app.stop();
+
+        } , boot);
+  }
+
+  @Test
   public void defaultsWithCallback() throws Exception {
 
     new MockUnit(Binder.class)
@@ -698,7 +739,8 @@ public class JoobyTest {
           expect(env.name()).andReturn("dev").times(2);
 
           Env.Builder builder = unit.get(Env.Builder.class);
-          expect(builder.build(isA(Config.class), isA(Jooby.class), isA(Locale.class))).andReturn(env);
+          expect(builder.build(isA(Config.class), isA(Jooby.class), isA(Locale.class)))
+              .andReturn(env);
 
           Binder binder = unit.get(Binder.class);
 
@@ -2016,7 +2058,6 @@ public class JoobyTest {
               MediaType.all, MediaType.ALL);
           assertNotNull(route);
           assertTrue(route.isPresent());
-
 
           ((RouteImpl) route.get()).handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));
