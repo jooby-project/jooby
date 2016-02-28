@@ -110,8 +110,6 @@ public class RouteDefinitionTest {
   @Test
   public void toStr() throws Exception {
     new MockUnit(Request.class, Response.class, Route.Chain.class)
-        .expect(unit -> {
-        })
         .run(unit -> {
           Definition def = new Route.Definition("GET", "/", (req, rsp, chain) -> {
           }).excludes("/**/logout");
@@ -121,6 +119,30 @@ public class RouteDefinitionTest {
               "  excludes: [/**/logout]\n" +
               "  consumes: [*/*]\n" +
               "  produces: [*/*]\n", def.toString());
+        });
+  }
+
+  @Test
+  public void attributes() throws Exception {
+    new MockUnit(Request.class, Response.class, Route.Chain.class)
+        .run(unit -> {
+          Definition def = new Route.Definition("GET", "/", (req, rsp, chain) -> {
+          }).attr("foo", "bar");
+
+          assertEquals(Optional.of("bar"), def.attr("foo"));
+          assertEquals("{foo=bar}", def.attributes().toString());
+        });
+  }
+
+  @Test
+  public void rendererAttr() throws Exception {
+    new MockUnit(Request.class, Response.class, Route.Chain.class)
+        .run(unit -> {
+          Definition def = new Route.Definition("GET", "/", (req, rsp, chain) -> {
+          }).renderer("json");
+
+          assertEquals(Optional.of("json"), def.attr("renderer"));
+          assertEquals("{renderer=json}", def.attributes().toString());
         });
   }
 

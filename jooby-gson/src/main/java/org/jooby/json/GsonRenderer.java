@@ -46,8 +46,13 @@ class GsonRenderer implements Renderer {
   }
 
   @Override
+  public String name() {
+    return "json";
+  }
+
+  @Override
   public String toString() {
-    return "gson";
+    return name();
   }
 
 }

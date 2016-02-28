@@ -84,8 +84,14 @@ public class Engine implements View.Engine {
   }
 
   @Override
-  public String toString() {
+  public String name() {
     return "freemarker";
   }
+
+  @Override
+  public String toString() {
+    return name();
+  }
+
 
 }

@@ -75,6 +75,31 @@ public class RouteForwardingTest {
         });
   }
 
+  @Test
+  public void attributes() throws Exception {
+    Map<String, String> attributes = new HashMap<>();
+    new MockUnit(Route.class)
+        .expect(unit -> {
+          Route route = unit.get(Route.class);
+          expect(route.attributes()).andReturn(attributes);
+        })
+        .run(unit -> {
+          assertEquals(attributes, new Route.Forwarding(unit.get(Route.class)).attributes());
+        });
+  }
+
+  @Test
+  public void attr() throws Exception {
+    new MockUnit(Route.class)
+        .expect(unit -> {
+          Route route = unit.get(Route.class);
+          expect(route.attr("foo")).andReturn("bar");
+        })
+        .run(unit -> {
+          assertEquals("bar", new Route.Forwarding(unit.get(Route.class)).attr("foo"));
+        });
+  }
+
   @Test(expected = NullPointerException.class)
   public void nullRoute() throws Exception {
     new Route.Forwarding(null);

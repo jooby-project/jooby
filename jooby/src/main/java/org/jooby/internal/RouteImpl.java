@@ -29,6 +29,8 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
 
+import com.google.common.collect.ImmutableMap;
+
 public class RouteImpl implements Route, Route.Filter {
 
   private static Map<Object, String> NO_VARS = Collections.emptyMap();
@@ -49,6 +51,8 @@ public class RouteImpl implements Route, Route.Filter {
 
   private Filter filter;
 
+  private ImmutableMap<String, String> attributes;
+
   public static RouteImpl notFound(final String method, final String path,
       final List<MediaType> produces) {
     return fromStatus((req, rsp, chain) -> {
@@ -60,7 +64,8 @@ public class RouteImpl implements Route, Route.Filter {
 
   public static RouteImpl fromStatus(final Filter filter, final String method,
       final String path, final String name, final List<MediaType> produces) {
-    return new RouteImpl(filter, method, path, path, name, NO_VARS, MediaType.ALL, produces) {
+    return new RouteImpl(filter, method, path, path, name, NO_VARS, MediaType.ALL, produces,
+        Collections.emptyMap()) {
       @Override
       public boolean apply(final String filter) {
         return true;
@@ -70,7 +75,8 @@ public class RouteImpl implements Route, Route.Filter {
 
   public RouteImpl(final Filter filter, final String method, final String path,
       final String pattern, final String name, final Map<Object, String> vars,
-      final List<MediaType> consumes, final List<MediaType> produces) {
+      final List<MediaType> consumes, final List<MediaType> produces,
+      final Map<String, String> attributes) {
     this.filter = filter;
     this.method = method;
     this.path = path;
@@ -79,12 +85,18 @@ public class RouteImpl implements Route, Route.Filter {
     this.vars = vars;
     this.consumes = consumes;
     this.produces = produces;
+    this.attributes = ImmutableMap.copyOf(attributes);
   }
 
   @Override
   public void handle(final Request request, final Response response, final Chain chain)
       throws Exception {
     filter.handle(request, response, chain);
+  }
+
+  @Override
+  public Map<String, String> attributes() {
+    return attributes;
   }
 
   @Override

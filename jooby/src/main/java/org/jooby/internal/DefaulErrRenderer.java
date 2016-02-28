@@ -100,8 +100,8 @@ public class DefaulErrRenderer implements Renderer {
   }
 
   @Override
-  public String toString() {
-    return "default.err";
+  public String name() {
+    return "defaultErr";
   }
 
 }

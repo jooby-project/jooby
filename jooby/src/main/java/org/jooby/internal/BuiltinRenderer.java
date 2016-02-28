@@ -75,11 +75,6 @@ public enum BuiltinRenderer implements Renderer {
             .send((byte[]) object);
       }
     }
-
-    @Override
-    public String toString() {
-      return "byte[]";
-    }
   },
 
   ByteBuffer {
@@ -132,11 +127,6 @@ public enum BuiltinRenderer implements Renderer {
         ctx.type(MediaType.html);
         ctx.send(object.toString());
       }
-    }
-
-    @Override
-    public String toString() {
-      return "toString()";
     }
   };
 

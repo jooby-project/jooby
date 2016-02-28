@@ -59,7 +59,13 @@ class Engine implements View.Engine {
   }
 
   @Override
-  public String toString() {
+  public String name() {
     return "jade";
   }
+
+  @Override
+  public String toString() {
+    return name();
+  }
+
 }

@@ -29,6 +29,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.jooby.Err;
 import org.jooby.MediaType;
@@ -55,7 +56,8 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
   private int rsize;
 
-  public AbstractRendererContext(final List<Renderer> renderers, final List<MediaType> produces,
+  public AbstractRendererContext(final List<Renderer> renderers,
+      final List<MediaType> produces,
       final Charset charset, final Map<String, Object> locals) {
     this.renderers = renderers;
     this.produces = produces;
@@ -176,7 +178,7 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
   @Override
   public String toString() {
-    return renderers.toString();
+    return renderers.stream().map(Renderer::name).collect(Collectors.joining(", "));
   }
 
   protected abstract void _send(final byte[] bytes) throws Exception;

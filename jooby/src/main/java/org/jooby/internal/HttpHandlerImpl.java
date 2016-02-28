@@ -164,6 +164,8 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private boolean hasSockets;
 
+  private final Map<String, Renderer> rendererMap;
+
   @Inject
   public HttpHandlerImpl(final Injector injector,
       final RequestScope requestScope,
@@ -188,6 +190,8 @@ public class HttpHandlerImpl implements HttpHandler {
     this.locale = locale;
     this.parserExecutor = parserExecutor;
     this.renderers = ImmutableList.copyOf(renderers);
+    rendererMap = new HashMap<>();
+    this.renderers.forEach(r -> rendererMap.put(r.name(), r));
 
     // route cache
     routeCache = routeCache(routes, config);
@@ -228,7 +232,7 @@ public class HttpHandlerImpl implements HttpHandler {
         locale, scope, locals);
 
     ResponseImpl rsp = new ResponseImpl(parserExecutor, response, notFound, renderers,
-        locals, req.charset(), request.header(REFERER));
+        rendererMap, locals, req.charset(), request.header(REFERER));
 
     MediaType type = req.type();
 

@@ -65,8 +65,13 @@ public class HbsEngine implements View.Engine {
   }
 
   @Override
-  public String toString() {
+  public String name() {
     return "hbs";
+  }
+
+  @Override
+  public String toString() {
+    return name();
   }
 
 }

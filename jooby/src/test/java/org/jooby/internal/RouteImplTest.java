@@ -49,7 +49,7 @@ public class RouteImplTest {
     Route route = new RouteImpl((req, rsp, chain) -> {
     } , "GET", "/path", "/p?th", "path", Collections.emptyMap(),
         MediaType.valueOf("html", "json"),
-        MediaType.valueOf("json", "html"));
+        MediaType.valueOf("json", "html"), Collections.emptyMap());
 
     assertEquals("GET /path\n" +
         "  pattern: /p?th\n" +
@@ -64,7 +64,7 @@ public class RouteImplTest {
     Route route = new RouteImpl((req, rsp, chain) -> {
     } , "GET", "/path", "/p?th", "path", Collections.emptyMap(),
         MediaType.valueOf("html", "json"),
-        MediaType.valueOf("json", "html"));
+        MediaType.valueOf("json", "html"), Collections.emptyMap());
 
     assertEquals(MediaType.valueOf("html", "json"), route.consumes());
   }

@@ -26,6 +26,8 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Map;
 
+import com.google.common.base.CaseFormat;
+
 /**
  * Write a value into the HTTP response and apply a format, if need it.
  *
@@ -238,6 +240,16 @@ public interface Renderer {
   }
 
   /**
+   * @return Renderer's name.
+   */
+  default String name() {
+    String name = getClass().getSimpleName()
+        .replace("renderer", "")
+        .replace("render", "");
+    return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, name);
+  }
+
+  /**
    * Render the given value and write the response (if possible). If no response is written, the
    * next renderer in the chain will be invoked.
    *
@@ -246,4 +258,25 @@ public interface Renderer {
    * @throws Exception If rendering fails.
    */
   void render(Object value, Context ctx) throws Exception;
+
+  /**
+   * Renderer factory method.
+   *
+   * @param name Renderer's name.
+   * @param renderer Renderer's function.
+   * @return A new renderer.
+   */
+  static Renderer of(final String name, final Renderer renderer) {
+    return new Renderer() {
+      @Override
+      public void render(final Object value, final Context ctx) throws Exception {
+        renderer.render(value, ctx);
+      }
+
+      @Override
+      public String name() {
+        return name;
+      }
+    };
+  }
 }

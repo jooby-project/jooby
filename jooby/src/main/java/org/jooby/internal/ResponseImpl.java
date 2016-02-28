@@ -77,14 +77,18 @@ public class ResponseImpl implements Response {
 
   private ParserExecutor parserExecutor;
 
+  private Map<String, Renderer> rendererMap;
+
   public ResponseImpl(final ParserExecutor parserExecutor,
       final NativeResponse rsp, final Route route, final List<Renderer> renderers,
-      final Map<String, Object> locals, final Charset charset, final Optional<String> referer) {
+      final Map<String, Renderer> rendererMap, final Map<String, Object> locals,
+      final Charset charset, final Optional<String> referer) {
     this.parserExecutor = parserExecutor;
     this.rsp = rsp;
     this.route = route;
     this.locals = locals;
     this.renderers = renderers;
+    this.rendererMap = rendererMap;
     this.charset = charset;
     this.referer = referer;
   }
@@ -302,14 +306,21 @@ public class ResponseImpl implements Response {
         }
       };
 
-      new HttpRendererContext(
+      HttpRendererContext ctx = new HttpRendererContext(
           renderers,
           rsp,
           setLen,
           setType,
           locals,
           produces,
-          charset).render(message);
+          charset);
+      // explicit renderer?
+      Renderer renderer = rendererMap.get(route.attr("renderer"));
+      if (renderer != null) {
+        renderer.render(message, ctx);
+      } else {
+        ctx.render(message);
+      }
     }
     // end response
     end();

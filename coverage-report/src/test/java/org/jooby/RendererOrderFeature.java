@@ -3,6 +3,7 @@ package org.jooby;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -22,12 +23,12 @@ public class RendererOrderFeature extends ServerFeature {
 
       @Override
       public void render(final Object object, final Context ctx) throws Exception {
-        assertEquals("[Asset, byte[], ByteBuffer, File, CharBuffer, InputStream, Reader, FileChannel, r1, r2, r3, default.err, toString()]",
+        assertEquals("Asset, Bytes, ByteBuffer, File, CharBuffer, InputStream, Reader, FileChannel, r1, r2, r3, defaultErr, ToString",
             ctx.toString());
       }
 
       @Override
-      public String toString() {
+      public String name() {
         return "r1";
       }
     });
@@ -40,7 +41,7 @@ public class RendererOrderFeature extends ServerFeature {
         }
 
         @Override
-        public String toString() {
+        public String name() {
           return "r2";
         }
 
@@ -54,12 +55,13 @@ public class RendererOrderFeature extends ServerFeature {
       }
 
       @Override
-      public String toString() {
+      public String name() {
         return "r3";
       }
     });
 
-    get("/renderer/order", req -> req.require(KEY));
+    get("/renderer/order", req -> req.require(KEY).stream().map(Renderer::name)
+        .collect(Collectors.joining(", ")));
 
   }
 
@@ -67,6 +69,6 @@ public class RendererOrderFeature extends ServerFeature {
   public void order() throws Exception {
     request()
         .get("/renderer/order")
-        .expect("[Asset, byte[], ByteBuffer, File, CharBuffer, InputStream, Reader, FileChannel, r1, r2, r3, default.err, toString()]");
+        .expect("Asset, Bytes, ByteBuffer, File, CharBuffer, InputStream, Reader, FileChannel, r1, r2, r3, defaultErr, ToString");
   }
 }

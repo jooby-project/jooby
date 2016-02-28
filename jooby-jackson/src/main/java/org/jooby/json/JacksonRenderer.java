@@ -39,15 +39,20 @@ class JacksonRenderer implements Renderer {
     if (ctx.accepts(type) && mapper.canSerialize(value.getClass())) {
       ctx.type(type);
       // use UTF-8 and get byte version
-      byte[] bytes = mapper.writer().writeValueAsBytes(value);
+      byte[] bytes = mapper.writeValueAsBytes(value);
       ctx.length(bytes.length)
           .send(bytes);
     }
   }
 
   @Override
-  public String toString() {
+  public String name() {
     return "json";
+  }
+
+  @Override
+  public String toString() {
+    return name();
   }
 
 }

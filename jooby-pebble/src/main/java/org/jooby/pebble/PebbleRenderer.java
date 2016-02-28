@@ -58,8 +58,13 @@ class PebbleRenderer implements View.Engine {
   }
 
   @Override
-  public String toString() {
+  public String name() {
     return "pebble";
+  }
+
+  @Override
+  public String toString() {
+    return name();
   }
 
 }

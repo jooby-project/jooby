@@ -1,6 +1,7 @@
 package org.jooby;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -15,7 +16,8 @@ public class RendererDefOrderFeature extends ServerFeature {
 
   {
 
-    get("/renderer/order", req -> req.require(KEY));
+    get("/renderer/order", req -> req.require(KEY).stream().map(Renderer::name)
+        .collect(Collectors.joining(", ")));
 
   }
 
@@ -23,6 +25,6 @@ public class RendererDefOrderFeature extends ServerFeature {
   public void order() throws Exception {
     request()
         .get("/renderer/order")
-        .expect("[Asset, byte[], ByteBuffer, File, CharBuffer, InputStream, Reader, FileChannel, default.err, toString()]");
+        .expect("Asset, Bytes, ByteBuffer, File, CharBuffer, InputStream, Reader, FileChannel, defaultErr, ToString");
   }
 }

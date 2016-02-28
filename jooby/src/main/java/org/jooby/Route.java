@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +38,7 @@ import org.jooby.internal.RoutePattern;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 /**
@@ -767,6 +769,8 @@ public interface Route {
 
     private List<RoutePattern> excludes = Collections.emptyList();
 
+    private Map<String, String> attributes = new HashMap<>();
+
     /**
      * Creates a new route definition.
      *
@@ -865,6 +869,48 @@ public interface Route {
      */
     public List<String> vars() {
       return cpattern.vars();
+    }
+
+    /**
+     * Set route attribute.
+     *
+     * @param name Attribute's name.
+     * @param value Attribute's value.
+     * @return This instance.
+     */
+    public Definition attr(final String name, final String value) {
+      requireNonNull(name, "A name is required.");
+      requireNonNull(value, "A value is required.");
+      attributes.put(name, value);
+      return this;
+    }
+
+    /**
+     * Get an attribute by name.
+     *
+     * @param name Attribute's name.
+     * @return Attribute's value.
+     */
+    public Optional<String> attr(final String name) {
+      return Optional.ofNullable(attributes.get(name));
+    }
+
+    /**
+     * @return A read only view of attributes.
+     */
+    public Map<String, String> attributes() {
+      return ImmutableMap.copyOf(attributes);
+    }
+
+    /**
+     * Tell jooby what renderer should use to render the output.
+     *
+     * @param name A renderer's name.
+     * @return This instance.
+     */
+    public Definition renderer(final String name) {
+      attr(RENDERER, name);
+      return this;
     }
 
     /**
@@ -1147,7 +1193,7 @@ public interface Route {
         filter = ((AssetProxy) filter).delegate();
       }
       return new RouteImpl(filter, method, matcher.path(), pattern, name, matcher.vars(), consumes,
-          produces);
+          produces, attributes);
     }
 
   }
@@ -1207,6 +1253,16 @@ public interface Route {
     @Override
     public List<MediaType> produces() {
       return route.produces();
+    }
+
+    @Override
+    public Map<String, String> attributes() {
+      return route.attributes();
+    }
+
+    @Override
+    public String attr(final String name) {
+      return route.attr(name);
     }
 
     @Override
@@ -1463,6 +1519,13 @@ public interface Route {
       .build();
 
   /**
+   * Renderer attribute.
+   *
+   * @see Route.Definition#renderer(String)
+   */
+  String RENDERER = "renderer";
+
+  /**
    * @return Current request path.
    */
   String path();
@@ -1518,4 +1581,20 @@ public interface Route {
   default boolean apply(final String prefix) {
     return name().startsWith(prefix);
   }
+
+  /**
+   * @return All the available attributes.
+   */
+  Map<String, String> attributes();
+
+  /**
+   * Attribute by name.
+   *
+   * @param name Attribute's name.
+   * @return Attribute value.
+   */
+  default String attr(final String name) {
+    return attributes().get(name);
+  }
+
 }
