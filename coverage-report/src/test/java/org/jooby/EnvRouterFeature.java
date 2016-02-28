@@ -7,7 +7,7 @@ public class EnvRouterFeature extends ServerFeature {
 
   {
     use((env, conf, binder) -> {
-      env.router().get("/", () -> "router");
+      env.routes().get("/", () -> "router");
     });
 
   }
