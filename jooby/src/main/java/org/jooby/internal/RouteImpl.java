@@ -18,7 +18,6 @@
  */
 package org.jooby.internal;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +32,9 @@ import com.google.common.collect.ImmutableMap;
 
 public class RouteImpl implements Route, Route.Filter {
 
-  private static Map<Object, String> NO_VARS = Collections.emptyMap();
+  private static Map<Object, String> NO_VARS = ImmutableMap.of();
+
+  private static ImmutableMap<String, String> NO_ATTRS = ImmutableMap.of();
 
   private String method;
 
@@ -51,7 +52,7 @@ public class RouteImpl implements Route, Route.Filter {
 
   private Filter filter;
 
-  private ImmutableMap<String, String> attributes;
+  private Map<String, String> attributes;
 
   public static RouteImpl notFound(final String method, final String path,
       final List<MediaType> produces) {
@@ -65,7 +66,7 @@ public class RouteImpl implements Route, Route.Filter {
   public static RouteImpl fromStatus(final Filter filter, final String method,
       final String path, final String name, final List<MediaType> produces) {
     return new RouteImpl(filter, method, path, path, name, NO_VARS, MediaType.ALL, produces,
-        Collections.emptyMap()) {
+        NO_ATTRS) {
       @Override
       public boolean apply(final String filter) {
         return true;
@@ -77,6 +78,14 @@ public class RouteImpl implements Route, Route.Filter {
       final String pattern, final String name, final Map<Object, String> vars,
       final List<MediaType> consumes, final List<MediaType> produces,
       final Map<String, String> attributes) {
+    this(filter, method, path, pattern, name, vars, consumes, produces,
+        ImmutableMap.<String, String> copyOf(attributes));
+  }
+
+  public RouteImpl(final Filter filter, final String method, final String path,
+      final String pattern, final String name, final Map<Object, String> vars,
+      final List<MediaType> consumes, final List<MediaType> produces,
+      final ImmutableMap<String, String> attributes) {
     this.filter = filter;
     this.method = method;
     this.path = path;
@@ -85,7 +94,7 @@ public class RouteImpl implements Route, Route.Filter {
     this.vars = vars;
     this.consumes = consumes;
     this.produces = produces;
-    this.attributes = ImmutableMap.copyOf(attributes);
+    this.attributes = attributes;
   }
 
   @Override

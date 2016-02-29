@@ -58,7 +58,7 @@ public class GsonRendererTest {
   public void toStr() throws Exception {
     new MockUnit(Gson.class)
         .run(unit -> {
-          assertEquals("gson", new GsonRenderer(MediaType.json, unit.get(Gson.class)).toString());
+          assertEquals("json", new GsonRenderer(MediaType.json, unit.get(Gson.class)).toString());
         });
   }
 }
