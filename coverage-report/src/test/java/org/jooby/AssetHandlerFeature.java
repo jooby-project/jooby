@@ -7,7 +7,7 @@ import org.junit.Test;
 public class AssetHandlerFeature extends ServerFeature {
 
   {
-    assets("/assets/**", new AssetHandler("/", getClass()));
+    assets("/assets/**", new AssetHandler("/", getClass().getClassLoader()));
   }
 
   @Test

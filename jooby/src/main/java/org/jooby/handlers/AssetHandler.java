@@ -20,11 +20,13 @@ package org.jooby.handlers;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Map;
-import java.util.function.BiFunction;
 
 import org.jooby.Asset;
 import org.jooby.Jooby;
@@ -37,6 +39,9 @@ import org.jooby.internal.RoutePattern;
 import org.jooby.internal.URLAsset;
 
 import com.google.common.base.Strings;
+
+import javaslang.Function1;
+import javaslang.Function2;
 
 /**
  * Serve static resources, via {@link Jooby#assets(String)} or variants.
@@ -76,9 +81,13 @@ import com.google.common.base.Strings;
  */
 public class AssetHandler implements Route.Handler {
 
-  private BiFunction<Request, String, String> fn;
+  private static final Function1<ClassLoader, ClassLoader> cloader = loader().memoized();
 
-  private Class<?> loader;
+  private static final Function1<String, String> prefix = prefix().memoized();
+
+  private Function2<Request, String, String> fn;
+
+  private ClassLoader loader;
 
   private String cdn;
 
@@ -115,7 +124,7 @@ public class AssetHandler implements Route.Handler {
    * @param pattern Pattern to locate static resources.
    * @param loader The one who load the static resources.
    */
-  public AssetHandler(final String pattern, final Class<?> loader) {
+  public AssetHandler(final String pattern, final ClassLoader loader) {
     init(RoutePattern.normalize(pattern), loader);
   }
 
@@ -146,7 +155,7 @@ public class AssetHandler implements Route.Handler {
    * @param pattern Pattern to locate static resources.
    */
   public AssetHandler(final String pattern) {
-    init(RoutePattern.normalize(pattern), getClass());
+    init(RoutePattern.normalize(pattern), getClass().getClassLoader());
   }
 
   /**
@@ -283,17 +292,44 @@ public class AssetHandler implements Route.Handler {
     return loader.getResource(path);
   }
 
-  private void init(final String pattern, final Class<?> loader) {
+  private void init(final String pattern, final ClassLoader loader) {
     requireNonNull(loader, "Resource loader is required.");
     this.fn = pattern.equals("/")
-        ? (req, p) -> p
-        : (req, p) -> MessageFormat.format(pattern, vars(req));
-    this.loader = loader;
+        ? (req, p) -> prefix.apply(p)
+        : (req, p) -> MessageFormat.format(prefix.apply(pattern), vars(req));
+    this.loader = cloader.apply(loader);
   }
 
   private static Object[] vars(final Request req) {
     Map<Object, String> vars = req.route().vars();
     return vars.values().toArray(new Object[vars.size()]);
+  }
+
+  private static Function1<ClassLoader, ClassLoader> loader() {
+    return parent -> {
+      File publicDir = new File("public");
+      if (publicDir.exists()) {
+        try {
+          return new URLClassLoader(new URL[]{publicDir.toURI().toURL() }, null) {
+            @Override
+            public URL getResource(final String name) {
+              URL url = findResource(name);
+              if (url == null) {
+                url = parent.getResource(name);
+              }
+              return url;
+            };
+          };
+        } catch (MalformedURLException ex) {
+          // shh
+        }
+      }
+      return parent;
+    };
+  }
+
+  private static Function1<String, String> prefix() {
+    return p -> p.substring(1);
   }
 
 }

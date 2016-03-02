@@ -3681,7 +3681,7 @@ public class Jooby implements Routes {
    */
   private Config fileConfig(final String fname) {
     File froot = new File(fname);
-    File fconfig = new File("config", fname);
+    File fconfig = new File("conf", fname);
     Config config = ConfigFactory.empty();
     if (froot.exists()) {
       config = config.withFallback(ConfigFactory.parseFile(froot));
