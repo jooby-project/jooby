@@ -66,10 +66,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
@@ -506,10 +508,10 @@ public class Jooby implements Routes {
   /** Route's prefix. */
   private String prefix;
 
-  /** startup callback .*/
+  /** startup callback . */
   private List<Runnable> onStart = new ArrayList<>();
 
-  /** stop callback .*/
+  /** stop callback . */
   private List<Runnable> onStop = new ArrayList<>();
 
   public Jooby() {
@@ -3169,7 +3171,8 @@ public class Jooby implements Routes {
    * <li>A web server is started</li>
    * </ol>
    *
-   * @param args Application arguments.
+   * @param args Application arguments. Using the <code>name=value</code> format, except for
+   *        application.env where can be just: <code>myenv</code>.
    * @throws Exception If something fails to start.
    */
   public void start(final String[] args) throws Exception {
@@ -3196,7 +3199,8 @@ public class Jooby implements Routes {
    * <li>A web server is started</li>
    * </ol>
    *
-   * @param args Application arguments.
+   * @param args Application arguments. Using the <code>name=value</code> format, except for
+   *        application.env where can be just: <code>myenv</code>.
    * @param routes Routes callback. Invoked once all app routes has been collected.
    * @throws Exception If something fails to start.
    */
@@ -3206,7 +3210,7 @@ public class Jooby implements Routes {
     // shutdown hook
     Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
 
-    this.injector = bootstrap(routes);
+    this.injector = bootstrap(args(args), routes);
 
     Config config = injector.getInstance(Config.class);
 
@@ -3236,12 +3240,16 @@ public class Jooby implements Routes {
   /**
    * Run app in javascript.
    *
-   * @param args Arguments, first arg must be the name of the javascript file.
+   * @param jsargs Arguments, first arg must be the name of the javascript file.
    * @throws Exception If app fails to start.
    */
-  public static void main(final String[] args) throws Exception {
-    String filename = args.length > 0 ? args[0] : "app.js";
-    new JsJooby().run(new File(filename)).start();
+  public static void main(final String[] jsargs) throws Exception {
+    String[] args = new String[Math.max(0, jsargs.length - 1)];
+    if (args.length > 0) {
+      System.arraycopy(jsargs, 1, args, 0, args.length);
+    }
+    String filename = jsargs.length > 0 ? jsargs[0] : "app.js";
+    new JsJooby().run(new File(filename)).start(args);
   }
 
   private String configTree(final String description) {
@@ -3308,11 +3316,12 @@ public class Jooby implements Routes {
     return result;
   }
 
-  private Injector bootstrap(final Consumer<List<Route.Definition>> rcallback) throws Exception {
+  private Injector bootstrap(final Config args,
+      final Consumer<List<Route.Definition>> rcallback) throws Exception {
     Config appconf = ConfigFactory.parseResources("application.conf");
     Config initconf = srcconf == null ? appconf : srcconf.withFallback(appconf);
     List<Config> modconf = modconf(this.bag);
-    Config conf = buildConfig(initconf, modconf);
+    Config conf = buildConfig(initconf, args, modconf);
 
     final Locale locale = LocaleUtils.parseOne(conf.getString("application.lang"));
 
@@ -3351,7 +3360,7 @@ public class Jooby implements Routes {
     Config finalConfig;
     Env finalEnv;
     if (modconf.size() != realmodconf.size()) {
-      finalConfig = buildConfig(initconf, realmodconf);
+      finalConfig = buildConfig(initconf, args, realmodconf);
       finalEnv = this.env.build(finalConfig, this, locale);
     } else {
       finalConfig = conf;
@@ -3601,10 +3610,12 @@ public class Jooby implements Routes {
    * Build configuration properties, it configure system, app and modules properties.
    *
    * @param source Source config to use.
+   * @param args Args conf.
    * @param modules List of modules.
    * @return A configuration properties ready to use.
    */
-  private Config buildConfig(final Config source, final List<Config> modules) {
+  private Config buildConfig(final Config source, final Config args,
+      final List<Config> modules) {
     // normalize tmpdir
     Config system = ConfigFactory.systemProperties();
     Config tmpdir = source.hasPath("java.io.tmpdir") ? source : system;
@@ -3634,11 +3645,42 @@ public class Jooby implements Routes {
     Config config = modeConfig.withFallback(source);
 
     return system
+        .withFallback(args)
         .withFallback(config)
         .withFallback(moduleStack)
         .withFallback(MediaType.types)
         .withFallback(defaultConfig(config))
         .resolve();
+  }
+
+  /**
+   * Build a conf from arguments.
+   *
+   * @param args Application arguments.
+   * @return A conf.
+   */
+  static Config args(final String[] args) {
+    if (args == null || args.length == 0) {
+      return ConfigFactory.empty();
+    }
+    Map<String, String> conf = new HashMap<>();
+    for (String arg : args) {
+      String[] values = arg.split("=");
+      String name;
+      String value;
+      if (values.length == 2) {
+        name = values[0];
+        value = values[1];
+      } else {
+        name = "application.env";
+        value = values[0];
+      }
+      if (name.indexOf(".") == -1) {
+        conf.put("application." + name, value);
+      }
+      conf.put(name, value);
+    }
+    return ConfigFactory.parseMap(conf, "args");
   }
 
   /**
