@@ -1464,6 +1464,66 @@
     </profile>
 
     <profile>
+      <id>stork</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}stork${file.separator}app.stork</exists>
+        </file>
+      </activation>
+      <properties>
+        <stork-src>${basedir}${file.separator}src${file.separator}etc${file.separator}stork</stork-src>
+        <inputFiles>${basedir}${file.separator}target${file.separator}stork-launchers</inputFiles>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>2.7</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${inputFiles}</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${stork-src}</directory>
+                      <filtering>true</filtering>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- stork:generate -->
+          <plugin>
+            <groupId>com.fizzed</groupId>
+            <artifactId>fizzed-stork-maven-plugin</artifactId>
+            <version>${fizzed-stork-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+              <descriptorRefs>
+                <descriptorRef>jooby.stork</descriptorRef>
+              </descriptorRefs>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
       <id>coverage</id>
       <build>
         <plugins>
@@ -2059,6 +2119,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <maven-checkstyle-plugin.version>2.15</maven-checkstyle-plugin.version>
     <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
     <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
+    <fizzed-stork-maven-plugin.version>1.2.3</fizzed-stork-maven-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>
   </properties>
