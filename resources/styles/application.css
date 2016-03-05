@@ -1363,7 +1363,6 @@ blockquote {
 
 .section-sidebar {
   float: left;
-  width: 350px;
   overflow: auto;
 }
 .section-sidebar ul li {
