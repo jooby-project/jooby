@@ -3441,14 +3441,14 @@ public class Jooby implements Routes {
       parsers.addBinding().toInstance(BuiltinParser.Bytes);
 
       /** basic render */
-      renderers.addBinding().toInstance(BuiltinRenderer.Asset);
-      renderers.addBinding().toInstance(BuiltinRenderer.Bytes);
-      renderers.addBinding().toInstance(BuiltinRenderer.ByteBuffer);
-      renderers.addBinding().toInstance(BuiltinRenderer.File);
-      renderers.addBinding().toInstance(BuiltinRenderer.CharBuffer);
-      renderers.addBinding().toInstance(BuiltinRenderer.InputStream);
-      renderers.addBinding().toInstance(BuiltinRenderer.Reader);
-      renderers.addBinding().toInstance(BuiltinRenderer.FileChannel);
+      renderers.addBinding().toInstance(BuiltinRenderer.asset);
+      renderers.addBinding().toInstance(BuiltinRenderer.bytes);
+      renderers.addBinding().toInstance(BuiltinRenderer.byteBuffer);
+      renderers.addBinding().toInstance(BuiltinRenderer.file);
+      renderers.addBinding().toInstance(BuiltinRenderer.charBuffer);
+      renderers.addBinding().toInstance(BuiltinRenderer.stream);
+      renderers.addBinding().toInstance(BuiltinRenderer.reader);
+      renderers.addBinding().toInstance(BuiltinRenderer.fileChannel);
 
       /** modules, routes, parsers, renderers and websockets */
       Set<Object> routeClasses = new HashSet<>();
@@ -3481,7 +3481,7 @@ public class Jooby implements Routes {
           ? finalConfig.getBoolean("err.stacktrace")
           : "dev".equals(envname);
       renderers.addBinding().toInstance(new DefaulErrRenderer(stacktrace));
-      renderers.addBinding().toInstance(BuiltinRenderer.ToString);
+      renderers.addBinding().toInstance(BuiltinRenderer.text);
 
       binder.bind(HttpHandler.class).to(HttpHandlerImpl.class).in(Singleton.class);
 
@@ -3785,7 +3785,9 @@ public class Jooby implements Routes {
         .withValue("runtime.processors", ConfigValueFactory.fromAnyRef(processors))
         .withValue("runtime.processors-plus1", ConfigValueFactory.fromAnyRef(processors + 1))
         .withValue("runtime.processors-plus2", ConfigValueFactory.fromAnyRef(processors + 2))
-        .withValue("runtime.processors-x2", ConfigValueFactory.fromAnyRef(processors * 2));
+        .withValue("runtime.processors-x2", ConfigValueFactory.fromAnyRef(processors * 2))
+        .withValue("runtime.concurrencyLevel", ConfigValueFactory
+            .fromAnyRef(Math.max(4, processors)));
 
     return defs;
   }

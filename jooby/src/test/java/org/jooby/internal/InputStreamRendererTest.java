@@ -8,9 +8,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.jooby.MediaType;
+import org.jooby.Renderer;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
-import org.jooby.Renderer;
 import org.junit.Test;
 
 public class InputStreamRendererTest {
@@ -29,7 +29,7 @@ public class InputStreamRendererTest {
           ctx.send(unit.get(InputStream.class));
         })
         .run(unit -> {
-          BuiltinRenderer.InputStream
+          BuiltinRenderer.stream
               .render(unit.get(InputStream.class), unit.get(Renderer.Context.class));
         });
   }
@@ -38,7 +38,7 @@ public class InputStreamRendererTest {
   public void renderIgnored() throws Exception {
     new MockUnit(Renderer.Context.class)
         .run(unit -> {
-          BuiltinRenderer.InputStream
+          BuiltinRenderer.stream
               .render(new Object(), unit.get(Renderer.Context.class));
         });
   }
@@ -53,7 +53,7 @@ public class InputStreamRendererTest {
           expectLastCall().andThrow(new IOException("intentational err"));
         })
         .run(unit -> {
-          BuiltinRenderer.InputStream
+          BuiltinRenderer.stream
               .render(unit.get(InputStream.class), unit.get(Renderer.Context.class));
         });
   }

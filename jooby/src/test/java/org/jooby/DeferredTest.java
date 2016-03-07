@@ -51,7 +51,7 @@ public class DeferredTest {
     Deferred deferred = new Deferred();
     deferred.handler((result, ex) -> {
       assertFalse(result instanceof Deferred);
-      assertEquals(value, result.get().get());
+      assertEquals(value, result.ifGet().get());
       assertNull(ex);
       latch.countDown();
     });
@@ -66,7 +66,7 @@ public class DeferredTest {
     Deferred deferred = new Deferred();
     deferred.handler((result, ex) -> {
       assertFalse(result instanceof Deferred);
-      assertEquals(value, result.get().get());
+      assertEquals(value, result.ifGet().get());
       latch.countDown();
     });
     deferred.set(value);
@@ -108,7 +108,7 @@ public class DeferredTest {
     Deferred deferred = new Deferred();
     deferred.handler((result, ex) -> {
       assertFalse(result instanceof Deferred);
-      assertEquals(value, result.get().get());
+      assertEquals(value, result.ifGet().get());
       latch.countDown();
     });
     deferred.run(() -> value).run();
@@ -138,7 +138,7 @@ public class DeferredTest {
     Deferred deferred = new Deferred();
     deferred.handler((result, ex) -> {
       assertFalse(result instanceof Deferred);
-      assertEquals(value, result.get().get());
+      assertEquals(value, result.ifGet().get());
       latch.countDown();
     });
     deferred.resolve(() -> value);

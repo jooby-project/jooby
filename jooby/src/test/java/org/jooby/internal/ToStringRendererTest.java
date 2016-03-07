@@ -3,10 +3,10 @@ package org.jooby.internal;
 import static org.easymock.EasyMock.expect;
 
 import org.jooby.MediaType;
-import org.jooby.test.MockUnit;
-import org.jooby.test.MockUnit.Block;
 import org.jooby.Renderer;
 import org.jooby.Results;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 
 public class ToStringRendererTest {
@@ -31,7 +31,7 @@ public class ToStringRendererTest {
           ctx.send("toString");
         })
         .run(unit -> {
-          BuiltinRenderer.ToString
+          BuiltinRenderer.text
               .render(value, unit.get(Renderer.Context.class));
         });
 
@@ -41,7 +41,7 @@ public class ToStringRendererTest {
   public void renderIgnored() throws Exception {
     new MockUnit(Renderer.Context.class)
         .run(unit -> {
-          BuiltinRenderer.ToString
+          BuiltinRenderer.text
               .render(Results.html("v"), unit.get(Renderer.Context.class));
         });
   }

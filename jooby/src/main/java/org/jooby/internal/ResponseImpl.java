@@ -256,8 +256,6 @@ public class ResponseImpl implements Response {
 
   @Override
   public void send(final Result result) throws Exception {
-    requireNonNull(result, "A result is required.");
-
     if (result instanceof Deferred) {
       throw new DeferredExecution((Deferred) result);
     }
@@ -277,7 +275,7 @@ public class ResponseImpl implements Response {
 
     writeCookies();
 
-    if (route.method().equals("HEAD")) {
+    if (Route.HEAD.equals(route.method())) {
       end();
       return;
     }
@@ -285,13 +283,12 @@ public class ResponseImpl implements Response {
     /**
      * Do we need to figure it out Content-Length?
      */
-    Optional<Object> value = result.get(produces);
+    Object value = result.get(produces);
 
-    if (value.isPresent()) {
-      Object message = value.get();
-      if (message instanceof Status) {
+    if (value != null) {
+      if (value instanceof Status) {
         // override status when message is a status
-        status((Status) message);
+        status((Status) value);
       }
 
       Consumer<Long> setLen = len -> {
@@ -317,9 +314,9 @@ public class ResponseImpl implements Response {
       // explicit renderer?
       Renderer renderer = rendererMap.get(route.attr("renderer"));
       if (renderer != null) {
-        renderer.render(message, ctx);
+        renderer.render(value, ctx);
       } else {
-        ctx.render(message);
+        ctx.render(value);
       }
     }
     // end response

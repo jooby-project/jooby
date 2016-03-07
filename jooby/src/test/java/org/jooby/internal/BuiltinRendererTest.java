@@ -13,7 +13,7 @@ public class BuiltinRendererTest {
 
   @Test
   public void bytesValueOf() {
-    assertEquals(BuiltinRenderer.Bytes, BuiltinRenderer.valueOf("Bytes"));
+    assertEquals(BuiltinRenderer.bytes, BuiltinRenderer.valueOf("bytes"));
   }
 
 }

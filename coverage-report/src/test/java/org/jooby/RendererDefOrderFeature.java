@@ -25,6 +25,6 @@ public class RendererDefOrderFeature extends ServerFeature {
   public void order() throws Exception {
     request()
         .get("/renderer/order")
-        .expect("Asset, Bytes, ByteBuffer, File, CharBuffer, InputStream, Reader, FileChannel, defaultErr, ToString");
+        .expect("asset, bytes, byteBuffer, file, charBuffer, stream, reader, fileChannel, defaultErr, text");
   }
 }

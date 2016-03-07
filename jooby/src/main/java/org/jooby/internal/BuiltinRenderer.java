@@ -33,7 +33,7 @@ import org.jooby.View;
 
 public enum BuiltinRenderer implements Renderer {
 
-  Asset {
+  asset {
     @Override
     public void render(final Object value, final Context ctx) throws Exception {
       if (value instanceof Asset) {
@@ -45,7 +45,7 @@ public enum BuiltinRenderer implements Renderer {
     }
   },
 
-  InputStream {
+  stream {
     @Override
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       if (object instanceof InputStream) {
@@ -56,7 +56,7 @@ public enum BuiltinRenderer implements Renderer {
     }
   },
 
-  Reader {
+  reader {
     @Override
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       if (object instanceof Reader) {
@@ -66,7 +66,7 @@ public enum BuiltinRenderer implements Renderer {
     }
   },
 
-  Bytes {
+  bytes {
     @Override
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       Class<?> type = object.getClass();
@@ -77,7 +77,7 @@ public enum BuiltinRenderer implements Renderer {
     }
   },
 
-  ByteBuffer {
+  byteBuffer {
     @Override
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       if (object instanceof ByteBuffer) {
@@ -88,7 +88,7 @@ public enum BuiltinRenderer implements Renderer {
     }
   },
 
-  File {
+  file {
     @Override
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       if (object instanceof File) {
@@ -99,7 +99,7 @@ public enum BuiltinRenderer implements Renderer {
     }
   },
 
-  CharBuffer {
+  charBuffer {
     @Override
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       if (object instanceof CharBuffer) {
@@ -110,7 +110,7 @@ public enum BuiltinRenderer implements Renderer {
     }
   },
 
-  FileChannel {
+  fileChannel {
     @Override
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       if (object instanceof FileChannel) {
@@ -120,7 +120,7 @@ public enum BuiltinRenderer implements Renderer {
     }
   },
 
-  ToString {
+  text {
     @Override
     public void render(final Object object, final Renderer.Context ctx) throws Exception {
       if (!(object instanceof View)) {

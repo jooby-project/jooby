@@ -28,6 +28,7 @@ import java.util.function.Supplier;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Utility class for HTTP responses. Usually you start with a result builder {@link Results} and
@@ -70,8 +71,10 @@ import com.google.common.collect.ImmutableList;
  */
 public class Result {
 
+  private static Map<String, Object> NO_HEADERS = ImmutableMap.of();
+
   /** Response headers. */
-  private Map<String, Object> headers = new LinkedHashMap<>();
+  private Map<String, Object> headers = NO_HEADERS;
 
   /** Response status. */
   private Status status;
@@ -80,6 +83,9 @@ public class Result {
   private MediaType type;
 
   private final Map<MediaType, Supplier<Object>> data = new LinkedHashMap<>();
+
+  /** Quick access to first result . */
+  private Supplier<Object> first;
 
   /**
    * Set response status.
@@ -131,7 +137,9 @@ public class Result {
    */
   public Result set(final Object content) {
     requireNonNull(content, "No content.");
-    data.put(MediaType.all, () -> content);
+    Supplier<Object> supplier = () -> content;
+    first = supplier;
+    data.put(MediaType.all, supplier);
     return this;
   }
 
@@ -156,6 +164,7 @@ public class Result {
   public Result when(final MediaType type, final Supplier<Object> supplier) {
     requireNonNull(type, "A media type is required.");
     requireNonNull(supplier, "A supplier fn is required.");
+    first = supplier;
     data.put(type, supplier);
     return this;
   }
@@ -181,7 +190,21 @@ public class Result {
     return Optional.ofNullable(type);
   }
 
-  public Optional<Object> get() {
+  /**
+   * Get a result value.
+   *
+   * @return Value or <code>empty</code>
+   */
+  public Optional<Object> ifGet() {
+    return ifGet(MediaType.ALL);
+  }
+
+  /**
+   * Get a result value.
+   *
+   * @return Value or <code>null</code>
+   */
+  public Object get() {
     return get(MediaType.ALL);
   }
 
@@ -191,23 +214,32 @@ public class Result {
    * @param types Accept header.
    * @return Result content.
    */
-  public Optional<Object> get(final List<MediaType> types) {
+  public Optional<Object> ifGet(final List<MediaType> types) {
+    return Optional.ofNullable(get(types));
+  }
+
+  /**
+   * Get a result value for the given types (accept header).
+   *
+   * @param types Accept header.
+   * @return Result content or <code>null</code>.
+   */
+  public Object get(final List<MediaType> types) {
     requireNonNull(types, "Types are required.");
     int size = data.size();
     if (size == 1) {
-      return Optional.of(data.values().iterator().next().get());
+      return first.get();
     }
     if (size == 0) {
-      return Optional.empty();
+      return null;
     }
     Supplier<Object> provider = MediaType
         .matcher(types)
         .first(ImmutableList.copyOf(data.keySet()))
         .map(it -> data.remove(it))
         .orElseThrow(
-            () -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(types))
-        );
-    return Optional.of(provider.get());
+            () -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(types)));
+    return provider.get();
   }
 
   /**
@@ -222,7 +254,7 @@ public class Result {
     requireNonNull(name, "Header's name is required.");
     requireNonNull(value, "Header's value is required.");
 
-    headers.put(name, value);
+    put(name, value);
     return this;
   }
 
@@ -253,18 +285,27 @@ public class Result {
     requireNonNull(name, "Header's name is required.");
     requireNonNull(values, "Header's values are required.");
 
-    headers.put(name, values);
+    put(name, values);
     return this;
   }
 
   @Override
   protected Result clone() {
     Result result = new Result();
-    result.headers.putAll(headers);
+    headers.forEach(result::header);
     result.status = status;
     result.type = type;
+    result.first = first;
     result.data.putAll(data);
     return result;
+  }
+
+  private void put(final String name, final Object val) {
+    if (headers == NO_HEADERS) {
+      // assign memory
+      headers = new LinkedHashMap<>();
+    }
+    headers.put(name, val);
   }
 
 }

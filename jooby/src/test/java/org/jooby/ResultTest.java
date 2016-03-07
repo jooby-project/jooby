@@ -19,7 +19,7 @@ public class ResultTest {
   @Test
   public void entityAndStatus() {
     Result result = Results.with("x", 200);
-    assertEquals("x", result.get().get());
+    assertEquals("x", result.ifGet().get());
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.OK, result.status().get());
   }
@@ -27,7 +27,7 @@ public class ResultTest {
   @Test
   public void json() {
     Result result = Results.json("{}");
-    assertEquals("{}", result.get().get());
+    assertEquals("{}", result.ifGet().get());
     assertEquals(MediaType.json, result.type().get());
     assertEquals(Status.OK, result.status().get());
   }
@@ -35,7 +35,7 @@ public class ResultTest {
   @Test
   public void xml() {
     Result result = Results.xml("{}");
-    assertEquals("{}", result.get().get());
+    assertEquals("{}", result.ifGet().get());
     assertEquals(MediaType.xml, result.type().get());
     assertEquals(Status.OK, result.status().get());
   }
@@ -43,7 +43,7 @@ public class ResultTest {
   @Test
   public void accepted() {
     Result result = Results.accepted();
-    assertEquals(Optional.empty(), result.get());
+    assertEquals(Optional.empty(), result.ifGet());
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.ACCEPTED, result.status().get());
   }
@@ -52,14 +52,15 @@ public class ResultTest {
   public void acceptedWithConent() {
     Result result = Results.accepted("s");
     assertEquals(Optional.empty(), result.type());
-    assertEquals("s", result.get().get());
+    assertEquals("s", result.ifGet().get());
     assertEquals(Status.ACCEPTED, result.status().get());
   }
 
   @Test
   public void ok() {
     Result result = Results.ok();
-    assertEquals(Optional.empty(), result.get());
+    assertEquals(Optional.empty(), result.ifGet());
+    assertEquals(null, result.get());
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.OK, result.status().get());
   }
@@ -68,14 +69,14 @@ public class ResultTest {
   public void okWithConent() {
     Result result = Results.ok("s");
     assertEquals(Optional.empty(), result.type());
-    assertEquals("s", result.get().get());
+    assertEquals("s", result.ifGet().get());
     assertEquals(Status.OK, result.status().get());
   }
 
   @Test
   public void withStatusCode() {
     Result result = Results.with(200);
-    assertEquals(Optional.empty(), result.get());
+    assertEquals(Optional.empty(), result.ifGet());
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.OK, result.status().get());
   }
@@ -84,7 +85,7 @@ public class ResultTest {
   public void chainStatusCode() {
     Result result = Results.with("b").status(200);
     assertEquals(Optional.empty(), result.type());
-    assertEquals("b", result.get().get());
+    assertEquals("b", result.ifGet().get());
     assertEquals(Status.OK, result.status().get());
   }
 
@@ -92,7 +93,7 @@ public class ResultTest {
   public void type() {
     Result result = Results.with("b").type("json");
     assertEquals(MediaType.json, result.type().get());
-    assertEquals("b", result.get().get());
+    assertEquals("b", result.ifGet().get());
     assertEquals(Optional.empty(), result.status());
   }
 
@@ -124,14 +125,14 @@ public class ResultTest {
   public void chainStatus() {
     Result result = Results.with("b").status(Status.OK);
     assertEquals(Optional.empty(), result.type());
-    assertEquals("b", result.get().get());
+    assertEquals("b", result.ifGet().get());
     assertEquals(Status.OK, result.status().get());
   }
 
   @Test
   public void noContent() {
     Result result = Results.noContent();
-    assertEquals(Optional.empty(), result.get());
+    assertEquals(Optional.empty(), result.ifGet());
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.NO_CONTENT, result.status().get());
   }
@@ -139,7 +140,7 @@ public class ResultTest {
   @Test
   public void withStatus() {
     Result result = Results.with(Status.CREATED);
-    assertEquals(Optional.empty(), result.get());
+    assertEquals(Optional.empty(), result.ifGet());
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.CREATED, result.status().get());
   }
@@ -149,13 +150,13 @@ public class ResultTest {
     Result result = Results.with("s");
     assertEquals(Optional.empty(), result.type());
     assertEquals(Optional.empty(), result.status());
-    assertEquals("s", result.get().get());
+    assertEquals("s", result.ifGet().get());
   }
 
   @Test
   public void moved() {
     Result result = Results.moved("/location");
-    assertEquals(Optional.empty(), result.get());
+    assertEquals(Optional.empty(), result.ifGet());
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.MOVED_PERMANENTLY, result.status().get());
     assertEquals("/location", result.headers().get("location"));
@@ -164,7 +165,7 @@ public class ResultTest {
   @Test
   public void redirect() {
     Result result = Results.redirect("/location");
-    assertEquals(Optional.empty(), result.get());
+    assertEquals(Optional.empty(), result.ifGet());
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.FOUND, result.status().get());
     assertEquals("/location", result.headers().get("location"));
@@ -173,7 +174,7 @@ public class ResultTest {
   @Test
   public void seeOther() {
     Result result = Results.seeOther("/location");
-    assertEquals(Optional.empty(), result.get());
+    assertEquals(Optional.empty(), result.ifGet());
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.SEE_OTHER, result.status().get());
     assertEquals("/location", result.headers().get("location"));
@@ -182,7 +183,7 @@ public class ResultTest {
   @Test
   public void temporaryRedirect() {
     Result result = Results.tempRedirect("/location");
-    assertEquals(Optional.empty(), result.get());
+    assertEquals(Optional.empty(), result.ifGet());
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.TEMPORARY_REDIRECT, result.status().get());
     assertEquals("/location", result.headers().get("location"));

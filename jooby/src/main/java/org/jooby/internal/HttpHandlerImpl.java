@@ -485,8 +485,8 @@ public class HttpHandlerImpl implements HttpHandler {
   }
 
   private static LoadingCache<RouteKey, List<Route>> routeCache(final Set<Route.Definition> routes,
-      final Config config) {
-    return CacheBuilder.from(config.getString("server.routes.Cache"))
+      final Config conf) {
+    return CacheBuilder.from(conf.getString("server.routes.Cache"))
         .build(new CacheLoader<RouteKey, List<Route>>() {
           @Override
           public List<Route> load(final RouteKey key) throws Exception {

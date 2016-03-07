@@ -8,9 +8,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.jooby.MediaType;
+import org.jooby.Renderer;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
-import org.jooby.Renderer;
 import org.junit.Test;
 
 public class BytesRendererTest {
@@ -30,7 +30,7 @@ public class BytesRendererTest {
           ctx.send(bytes);
         })
         .run(unit -> {
-          BuiltinRenderer.Bytes
+          BuiltinRenderer.bytes
               .render(bytes, unit.get(Renderer.Context.class));
         });
   }
@@ -40,7 +40,7 @@ public class BytesRendererTest {
     int[] bytes = new int[0];
     new MockUnit(Renderer.Context.class)
         .run(unit -> {
-          BuiltinRenderer.Bytes
+          BuiltinRenderer.bytes
               .render(bytes, unit.get(Renderer.Context.class));
         });
   }
@@ -49,7 +49,7 @@ public class BytesRendererTest {
   public void renderIgnore() throws Exception {
     new MockUnit(Renderer.Context.class)
         .run(unit -> {
-          BuiltinRenderer.Bytes
+          BuiltinRenderer.bytes
               .render(new Object(), unit.get(Renderer.Context.class));
         });
   }
@@ -66,7 +66,7 @@ public class BytesRendererTest {
 
         })
         .run(unit -> {
-          BuiltinRenderer.Bytes
+          BuiltinRenderer.bytes
               .render(bytes, unit.get(Renderer.Context.class));
         });
   }

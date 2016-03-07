@@ -128,7 +128,7 @@ public class ResponseTest {
         assertNotNull(result);
         assertEquals(Status.OK, result.status().get());
         assertEquals(MediaType.json, result.type().get());
-        dataList.add(result.get().get());
+        dataList.add(result.ifGet().get());
       }
 
       @Override

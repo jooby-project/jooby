@@ -56,12 +56,12 @@ public class DefaultErrHandlerTest {
           new Err.DefHandler().handle(req, rsp, ex);
         }, unit -> {
           Result result = unit.captured(Result.class).iterator().next();
-          View view = (View) result.get(ImmutableList.of(MediaType.html)).get();
+          View view = (View) result.ifGet(ImmutableList.of(MediaType.html)).get();
           assertEquals("err", view.name());
           checkErr(stacktrace, "Server Error(500)", (Map<String, Object>) view.model()
               .get("err"));
 
-          Object hash = result.get(MediaType.ALL).get();
+          Object hash = result.ifGet(MediaType.ALL).get();
           assertEquals(4, ((Map<String, Object>) hash).size());
         });
   }
@@ -102,13 +102,13 @@ public class DefaultErrHandlerTest {
             },
             unit -> {
               Result result = unit.captured(Result.class).iterator().next();
-              View view = (View) result.get(ImmutableList.of(MediaType.html)).get();
+              View view = (View) result.ifGet(ImmutableList.of(MediaType.html)).get();
               assertEquals("err", view.name());
               checkErr(stacktrace, "Server Error(500): Something something dark",
                   (Map<String, Object>) view.model()
                       .get("err"));
 
-              Object hash = result.get(MediaType.ALL).get();
+              Object hash = result.ifGet(MediaType.ALL).get();
               assertEquals(4, ((Map<String, Object>) hash).size());
             });
   }

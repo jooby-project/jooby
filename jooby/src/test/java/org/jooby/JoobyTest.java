@@ -256,34 +256,34 @@ public class JoobyTest {
     expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(multibinder);
 
     LinkedBindingBuilder<Renderer> formatAsset = unit.mock(LinkedBindingBuilder.class);
-    formatAsset.toInstance(BuiltinRenderer.Asset);
+    formatAsset.toInstance(BuiltinRenderer.asset);
 
     LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
-    formatByteArray.toInstance(BuiltinRenderer.Bytes);
+    formatByteArray.toInstance(BuiltinRenderer.bytes);
 
     LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
-    formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
+    formatByteBuffer.toInstance(BuiltinRenderer.byteBuffer);
 
     LinkedBindingBuilder<Renderer> file = unit.mock(LinkedBindingBuilder.class);
-    file.toInstance(BuiltinRenderer.File);
+    file.toInstance(BuiltinRenderer.file);
 
     LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
-    formatStream.toInstance(BuiltinRenderer.InputStream);
+    formatStream.toInstance(BuiltinRenderer.stream);
 
     LinkedBindingBuilder<Renderer> reader = unit.mock(LinkedBindingBuilder.class);
-    reader.toInstance(BuiltinRenderer.Reader);
+    reader.toInstance(BuiltinRenderer.reader);
 
     LinkedBindingBuilder<Renderer> charBuffer = unit.mock(LinkedBindingBuilder.class);
-    charBuffer.toInstance(BuiltinRenderer.CharBuffer);
+    charBuffer.toInstance(BuiltinRenderer.charBuffer);
 
     LinkedBindingBuilder<Renderer> fchannel = unit.mock(LinkedBindingBuilder.class);
-    fchannel.toInstance(BuiltinRenderer.FileChannel);
+    fchannel.toInstance(BuiltinRenderer.fileChannel);
 
     LinkedBindingBuilder<Renderer> err = unit.mock(LinkedBindingBuilder.class);
     err.toInstance(isA(DefaulErrRenderer.class));
 
     LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
-    formatAny.toInstance(BuiltinRenderer.ToString);
+    formatAny.toInstance(BuiltinRenderer.text);
 
     expect(multibinder.addBinding()).andReturn(formatAsset);
     expect(multibinder.addBinding()).andReturn(formatByteArray);
@@ -1962,34 +1962,34 @@ public class JoobyTest {
 
           LinkedBindingBuilder<Renderer> customFormatter = unit
               .mock(LinkedBindingBuilder.class);
-          customFormatter.toInstance(BuiltinRenderer.Asset);
+          customFormatter.toInstance(BuiltinRenderer.asset);
 
           LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
-          formatByteArray.toInstance(BuiltinRenderer.Bytes);
+          formatByteArray.toInstance(BuiltinRenderer.bytes);
 
           LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
-          formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
+          formatByteBuffer.toInstance(BuiltinRenderer.byteBuffer);
 
           LinkedBindingBuilder<Renderer> file = unit.mock(LinkedBindingBuilder.class);
-          file.toInstance(BuiltinRenderer.File);
+          file.toInstance(BuiltinRenderer.file);
 
           LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
-          formatStream.toInstance(BuiltinRenderer.InputStream);
+          formatStream.toInstance(BuiltinRenderer.stream);
 
           LinkedBindingBuilder<Renderer> reader = unit.mock(LinkedBindingBuilder.class);
-          reader.toInstance(BuiltinRenderer.Reader);
+          reader.toInstance(BuiltinRenderer.reader);
 
           LinkedBindingBuilder<Renderer> charBuffer = unit.mock(LinkedBindingBuilder.class);
-          charBuffer.toInstance(BuiltinRenderer.CharBuffer);
+          charBuffer.toInstance(BuiltinRenderer.charBuffer);
 
           LinkedBindingBuilder<Renderer> fchannel = unit.mock(LinkedBindingBuilder.class);
-          fchannel.toInstance(BuiltinRenderer.FileChannel);
+          fchannel.toInstance(BuiltinRenderer.fileChannel);
 
           LinkedBindingBuilder<Renderer> err = unit.mock(LinkedBindingBuilder.class);
           err.toInstance(isA(DefaulErrRenderer.class));
 
           LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
-          formatAny.toInstance(BuiltinRenderer.ToString);
+          formatAny.toInstance(BuiltinRenderer.text);
 
           expect(multibinder.addBinding()).andReturn(customFormatter);
           expect(multibinder.addBinding()).andReturn(formatByteArray);
@@ -2346,34 +2346,34 @@ public class JoobyTest {
           customFormatter.toInstance(unit.get(Renderer.class));
 
           LinkedBindingBuilder<Renderer> formatAsset = unit.mock(LinkedBindingBuilder.class);
-          formatAsset.toInstance(BuiltinRenderer.Asset);
+          formatAsset.toInstance(BuiltinRenderer.asset);
 
           LinkedBindingBuilder<Renderer> formatByteArray = unit.mock(LinkedBindingBuilder.class);
-          formatByteArray.toInstance(BuiltinRenderer.Bytes);
+          formatByteArray.toInstance(BuiltinRenderer.bytes);
 
           LinkedBindingBuilder<Renderer> formatByteBuffer = unit.mock(LinkedBindingBuilder.class);
-          formatByteBuffer.toInstance(BuiltinRenderer.ByteBuffer);
+          formatByteBuffer.toInstance(BuiltinRenderer.byteBuffer);
 
           LinkedBindingBuilder<Renderer> file = unit.mock(LinkedBindingBuilder.class);
-          file.toInstance(BuiltinRenderer.File);
+          file.toInstance(BuiltinRenderer.file);
 
           LinkedBindingBuilder<Renderer> formatStream = unit.mock(LinkedBindingBuilder.class);
-          formatStream.toInstance(BuiltinRenderer.InputStream);
+          formatStream.toInstance(BuiltinRenderer.stream);
 
           LinkedBindingBuilder<Renderer> reader = unit.mock(LinkedBindingBuilder.class);
-          reader.toInstance(BuiltinRenderer.Reader);
+          reader.toInstance(BuiltinRenderer.reader);
 
           LinkedBindingBuilder<Renderer> charBuffer = unit.mock(LinkedBindingBuilder.class);
-          charBuffer.toInstance(BuiltinRenderer.CharBuffer);
+          charBuffer.toInstance(BuiltinRenderer.charBuffer);
 
           LinkedBindingBuilder<Renderer> fchannel = unit.mock(LinkedBindingBuilder.class);
-          fchannel.toInstance(BuiltinRenderer.FileChannel);
+          fchannel.toInstance(BuiltinRenderer.fileChannel);
 
           LinkedBindingBuilder<Renderer> err = unit.mock(LinkedBindingBuilder.class);
           err.toInstance(isA(DefaulErrRenderer.class));
 
           LinkedBindingBuilder<Renderer> formatAny = unit.mock(LinkedBindingBuilder.class);
-          formatAny.toInstance(BuiltinRenderer.ToString);
+          formatAny.toInstance(BuiltinRenderer.text);
 
           expect(multibinder.addBinding()).andReturn(formatAsset);
           expect(multibinder.addBinding()).andReturn(formatByteArray);

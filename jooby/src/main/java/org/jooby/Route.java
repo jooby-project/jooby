@@ -1502,20 +1502,37 @@ public interface Route {
 
   }
 
+  String GET = "GET";
+
+  String POST = "POST";
+
+  String PUT = "PUT";
+
+  String DELETE = "DELETE";
+
+  String PATCH = "PATCH";
+
+  String HEAD = "HEAD";
+
+  String CONNECT = "CONNECT";
+
+  String OPTIONS = "OPTIONS";
+
+  String TRACE = "TRACE";
+
   /**
    * Well known HTTP methods.
    */
   List<String> METHODS = ImmutableList.<String> builder()
-      .add(
-          "GET",
-          "POST",
-          "PUT",
-          "DELETE",
-          "PATCH",
-          "HEAD",
-          "CONNECT",
-          "OPTIONS",
-          "TRACE")
+      .add(GET,
+          POST,
+          PUT,
+          DELETE,
+          PATCH,
+          HEAD,
+          CONNECT,
+          OPTIONS,
+          TRACE)
       .build();
 
   /**
