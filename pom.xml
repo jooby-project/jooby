@@ -1523,6 +1523,58 @@
       </build>
     </profile>
 
+    <!-- capsule -->
+    <profile>
+      <id>capsule</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}capsule.activator</exists>
+        </file>
+      </activation>
+      <properties>
+        <capsule.resolve>false</capsule.resolve>
+        <capsule.chmod>true</capsule.chmod>
+        <capsule.trampoline>false</capsule.trampoline>
+        <capsule.JVM-Args>-Xms512m -Xmx512m</capsule.JVM-Args>
+        <capsule.types>fat</capsule.types>
+        <capsule.caplets>Capsule</capsule.caplets>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.chrischristo</groupId>
+            <artifactId>capsule-maven-plugin</artifactId>
+            <version>${capsule-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <configuration>
+                  <appClass>${application.class}</appClass>
+                  <types>${capsule.types}</types>
+                  <resolve>${capsule.resolve}</resolve>
+                  <chmod>${capsule.chmod}</chmod>
+                  <trampoline>${capsule.trampoline}</trampoline>
+                  <caplets>${capsule.caplets}</caplets>
+                  <manifest>
+                    <entry>
+                      <key>JVM-Args</key>
+                      <value>${capsule.JVM-Args}</value>
+                    </entry>
+                    <entry>
+                      <key>Min-Java-Version</key>
+                      <value>1.8.0</value>
+                    </entry>
+                  </manifest>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <profile>
       <id>coverage</id>
       <build>
@@ -2120,6 +2172,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <apt-maven-plugin.version>1.1.3</apt-maven-plugin.version>
     <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
     <fizzed-stork-maven-plugin.version>1.2.3</fizzed-stork-maven-plugin.version>
+    <capsule-maven-plugin.version>1.0.4</capsule-maven-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>
   </properties>
