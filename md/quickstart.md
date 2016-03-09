@@ -99,7 +99,7 @@ public class App extends Jooby { // 1
   }
 
   public static void main(final String[] args) throws Exception {
-    new App().start(args); // 3. start the application.
+    run(App::new, args); // 3. start the application.
   }
 
 }
@@ -112,7 +112,7 @@ Steps involved are:
 
 2) define some routes
 
-3) call the ```start``` method
+3) call the ```run``` method
 
 running
 -----

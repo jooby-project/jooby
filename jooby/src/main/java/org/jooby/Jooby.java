@@ -79,6 +79,7 @@ import java.util.TimeZone;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
@@ -140,6 +141,8 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
+
+import javaslang.control.Try;
 
 /**
  * <h1>Getting Started:</h1>
@@ -477,14 +480,7 @@ public class Jooby implements Routes {
     // set pid as system property
     String pid = System.getProperty("pid", JvmInfo.pid() + "");
     System.setProperty("pid", pid);
-
-    // Avoid warning message from logback when multiples files are present
-    String logback = System.getProperty("logback.configurationFile", "logback.xml");
-    System.setProperty("logback.configurationFile", logback);
   }
-
-  /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
    * Keep track of routes.
@@ -3118,6 +3114,67 @@ public class Jooby implements Routes {
    * <li>A web server is started</li>
    * </ol>
    *
+   * @param app App creator.
+   * @param args App arguments.
+   * @throws Exception If something fails to start.
+   */
+  public static void run(final Supplier<? extends Jooby> app, final String... args)
+      throws Exception {
+    Config conf = ConfigFactory.systemProperties()
+        .withFallback(args(args));
+    System.setProperty("logback.configurationFile", logback(conf));
+    app.get().start(args);
+  }
+
+  /**
+   * <h1>Bootstrap</h1>
+   * <p>
+   * The bootstrap process is defined as follows:
+   * </p>
+   * <h2>1. Configuration files (first-listed are higher priority)</h2>
+   * <ol>
+   * <li>System properties</li>
+   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
+   * <li>{@link Jooby.Module Modules} properties</li>
+   * </ol>
+   *
+   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
+   * <ol>
+   * <li>An {@link Injector Guice Injector} is created.</li>
+   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
+   * <li>At this point Guice is ready and all the services has been binded.</li>
+   * <li>A web server is started</li>
+   * </ol>
+   *
+   * @param app App creator.
+   * @param args App arguments.
+   * @throws Exception If something fails to start.
+   */
+  public static void run(final Class<? extends Jooby> app, final String... args)
+      throws Exception {
+    run(() -> Try.of(() -> app.newInstance()).get(), args);
+  }
+
+  /**
+   * <h1>Bootstrap</h1>
+   * <p>
+   * The bootstrap process is defined as follows:
+   * </p>
+   * <h2>1. Configuration files (first-listed are higher priority)</h2>
+   * <ol>
+   * <li>System properties</li>
+   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
+   * <li>{@link Jooby.Module Modules} properties</li>
+   * </ol>
+   *
+   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
+   * <ol>
+   * <li>An {@link Injector Guice Injector} is created.</li>
+   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
+   * <li>At this point Guice is ready and all the services has been binded.</li>
+   * <li>A web server is started</li>
+   * </ol>
+   *
    * @throws Exception If something fails to start.
    */
   public void start() throws Exception {
@@ -3214,6 +3271,7 @@ public class Jooby implements Routes {
 
     Config config = injector.getInstance(Config.class);
 
+    Logger log = LoggerFactory.getLogger(getClass());
     log.debug("config tree:\n{}", configTree(config.origin().description()));
 
     // Start server
@@ -3249,7 +3307,7 @@ public class Jooby implements Routes {
       System.arraycopy(jsargs, 1, args, 0, args.length);
     }
     String filename = jsargs.length > 0 ? jsargs[0] : "app.js";
-    new JsJooby().run(new File(filename)).start(args);
+    run(new JsJooby().run(new File(filename)), args);
   }
 
   private String configTree(final String description) {
@@ -3588,6 +3646,7 @@ public class Jooby implements Routes {
     if (injector != null) {
       stopManaged(injector, onStop);
 
+      Logger log = LoggerFactory.getLogger(getClass());
       try {
         Server server = injector.getInstance(Server.class);
         String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
@@ -3721,17 +3780,18 @@ public class Jooby implements Routes {
    * @param fname A file name.
    * @return A config for the file name.
    */
-  private Config fileConfig(final String fname) {
-    File froot = new File(fname);
-    File fconfig = new File("conf", fname);
-    Config config = ConfigFactory.empty();
+  static Config fileConfig(final String fname) {
+    File dir = new File(System.getProperty("user.dir"));
+    File froot = new File(dir, fname);
     if (froot.exists()) {
-      config = config.withFallback(ConfigFactory.parseFile(froot));
+      return ConfigFactory.parseFile(froot);
+    } else {
+      File fconfig = new File(new File(dir, "conf"), fname);
+      if (fconfig.exists()) {
+        return ConfigFactory.parseFile(fconfig);
+      }
     }
-    if (fconfig.exists()) {
-      config = config.withFallback(ConfigFactory.parseFile(fconfig));
-    }
-    return config;
+    return ConfigFactory.empty();
   }
 
   /**
@@ -3855,6 +3915,32 @@ public class Jooby implements Routes {
 
   private static Predicate<String> envpredicate(final String candidate) {
     return env -> env.equalsIgnoreCase(candidate) || candidate.equals("*");
+  }
+
+  static String logback(final Config conf) {
+    // Avoid warning message from logback when multiples files are present
+    String logback;
+    if (conf.hasPath("logback.configurationFile")) {
+      logback = conf.getString("logback.configurationFile");
+    } else {
+      ImmutableList.Builder<File> files = ImmutableList.builder();
+      File userdir = new File(System.getProperty("user.dir"));
+      File confdir = new File(userdir, "conf");
+      if (conf.hasPath("application.env")) {
+        String env = conf.getString("application.env");
+        files.add(new File(userdir, "logback." + env + ".xml"));
+        files.add(new File(confdir, "logback." + env + ".xml"));
+      }
+      files.add(new File(userdir, "logback.xml"));
+      files.add(new File(confdir, "logback.xml"));
+      logback = files.build()
+          .stream()
+          .filter(f -> f.exists())
+          .map(f -> f.getAbsolutePath())
+          .findFirst()
+          .orElse("logback.xml");
+    }
+    return logback;
   }
 
 }

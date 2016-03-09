@@ -1,6 +1,7 @@
 package org.jooby.js;
 
 import java.io.File;
+import java.io.InputStreamReader;
 import java.nio.file.Paths;
 
 import org.jooby.Jooby;
@@ -20,7 +21,7 @@ public class JsAppFeature {
   }
 
   private void run(final String filename) throws Exception {
-    new JsJooby().run(getClass().getResourceAsStream(filename));
+    new JsJooby().run(new InputStreamReader(getClass().getResourceAsStream(filename))).get();
   }
 
   private void run(final File filename) throws Exception {
