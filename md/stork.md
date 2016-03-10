@@ -8,27 +8,25 @@ Build, package and distribute your application using [Stork](https://github.com/
 
 [Stork](https://github.com/fizzed/stork) integration is provided via [Maven Profiles](http://maven.apache.org/guides/introduction/introduction-to-profiles.html).
 
-* Write your [app.stork launcher](https://github.com/fizzed/stork#launcher-configuration) and save it in the ```src/etc/stork``` directory
+* Write your [stork.yml launcher](https://github.com/fizzed/stork#launcher-configuration) and save it in the ```src/etc``` directory
 
-* Open a console and type:
-
-  ```mvn clean package```
+* Open a console and type: ```mvn clean package```
 
 * It builds a ```[app-name].zip``` file inside the ```target``` directory
 
 ## profile activation
 
-The ```stork``` Maven profile is activated by the presence of the ```src/etc/stork/app.stork``` file.
+The ```stork``` Maven profile is activated by the presence of the ```src/etc/stork.yml``` file.
 
 ## launcher configuration
 
-You must name your [launcher](https://github.com/fizzed/stork#launcher-configuration) as ```app.stork``` and save it inside the ```src/etc/stork``` directory.
+You must name your [launcher](https://github.com/fizzed/stork#launcher-configuration) as ```stork.yml``` and save it inside the ```src/etc``` directory.
 
-Any {{maven}} properties defined here will be resolved and merged into the final output. Examples of these properties are: ```${application.class}```, ```${project.groupId}```, etc...
+Maven properties defined here will be resolved and merged into the final output. Examples of these properties are: ```${application.class}```, ```${project.groupId}```, etc...
 
-## app.stork
+## example
 
-Here is a simple example of the stork launcher:
+Here is a simple example of the ```stork.yml``` launcher:
 
 ```yml
 # Name of application (make sure it has no spaces)
@@ -70,5 +68,3 @@ max_java_memory: 1024
 # easier to find your app
 symlink_java: true
 ```
-
-Happy coding!!

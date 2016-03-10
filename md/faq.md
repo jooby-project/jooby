@@ -1,25 +1,33 @@
-# faq and facts
+# status
 
-## build status [![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
+* <a target="_blank" href="https://travis-ci.org/jooby-project/jooby"><img src="https://travis-ci.org/jooby-project/jooby.svg?branch=master" alt="Build Status"></a>
 
-## code coverage [![Coverage Status](https://img.shields.io/coveralls/jooby-project/jooby.svg)](https://coveralls.io/r/jooby-project/jooby?branch=master)
+* <a target="_blank" href="https://coveralls.io/r/jooby-project/jooby?branch=master"><img src="https://img.shields.io/coveralls/jooby-project/jooby.svg" alt="Coverage Status"></a>
 
-Code coverage is composed by unit and integration tests. Integration tests can be found [here](https://github.com/jooby-project/jooby/tree/master/coverage-report)
+* Code coverage is composed by unit and integration tests. Integration tests can be found <a target="_blank" href="https://github.com/jooby-project/jooby/tree/master/coverage-report">here</a>
 
-Integration tests run again each of the available servers: {{netty}}, {{jetty}} and {{undertow}}
+* Integration tests run again each of the available servers: {{netty}}, {{jetty}} and {{undertow}}
 
+# general
+
+## what jvm do I need?
+
+* Java 8 or higher
+ 
 ## where are the default properties?
 
-Default properties can be found [here](/doc/#appendix:-jooby.conf)
+* Default properties can be found [here](/doc/#appendix:-jooby.conf)
+
+## how do I deploy my application?
+
+* Deployment options can be found [here](/doc/deployment)
+
+# mime types
 
 ## what mime types are supported?
 
-Full list of mime types can be found [here](/doc/#appendix:-mime.properties)
+* Full list of mime types can be found [here](/doc/#appendix:-mime.properties)
 
 ## how do I add a new/override mime type?
 
-Create a ```mime.properties``` file inside the ```conf``` directory. Then, add the new mime type there.
-
-## can I deploy my application inside a Servlet Container?
-
-Yes, it is possible with [some limitations](/doc/jooby-servlet/).
+* Create a ```mime.properties``` file inside the ```conf``` directory. Then, add the new mime type there.

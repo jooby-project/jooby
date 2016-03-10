@@ -1467,18 +1467,18 @@
       <id>stork</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}stork${file.separator}app.stork</exists>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}stork.yml</exists>
         </file>
       </activation>
       <properties>
-        <stork-src>${basedir}${file.separator}src${file.separator}etc${file.separator}stork</stork-src>
+        <stork-src>${basedir}${file.separator}src${file.separator}etc</stork-src>
         <inputFiles>${basedir}${file.separator}target${file.separator}stork-launchers</inputFiles>
       </properties>
       <build>
         <plugins>
           <plugin>
             <artifactId>maven-resources-plugin</artifactId>
-            <version>2.7</version>
+            <version>${maven-resources-plugin.version}</version>
             <executions>
               <execution>
                 <phase>package</phase>
@@ -1491,6 +1491,9 @@
                     <resource>
                       <directory>${stork-src}</directory>
                       <filtering>true</filtering>
+                      <includes>
+                        <include>stork.yml</include>
+                      </includes>
                     </resource>
                   </resources>
                 </configuration>
@@ -1504,6 +1507,7 @@
             <version>${fizzed-stork-maven-plugin.version}</version>
             <executions>
               <execution>
+                <phase>package</phase>
                 <goals>
                   <goal>generate</goal>
                 </goals>
@@ -1513,11 +1517,19 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
-            <configuration>
-              <descriptorRefs>
-                <descriptorRef>jooby.stork</descriptorRef>
-              </descriptorRefs>
-            </configuration>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptorRefs>
+                    <descriptorRef>jooby.stork</descriptorRef>
+                  </descriptorRefs>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

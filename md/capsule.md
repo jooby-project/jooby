@@ -1,8 +1,8 @@
-# stork
+# capsule
 
-Package and Deploy JVM Applications with [Capsule](http://www.capsule.io/).
+Package and Deploy JVM Applications with [Capsule](http://www.capsule.io).
 
-[Capsule](http://www.capsule.io/) is a collection of utilities for optimizing your **after-build** workflow by filling in the gap between your Java build system and eventual end-user app execution.
+A capsule is a single executable JAR that contains everything your application needs to run either in the form of embedded files or as declarative metadata. More at [capsule.io](http://www.capsule.io)
 
 ## usage
 
@@ -10,13 +10,11 @@ Package and Deploy JVM Applications with [Capsule](http://www.capsule.io/).
 
 * Write a ```capsule.activator``` file inside the ```src/etc``` directory
 
-* Open a console and type:
-
-  ```mvn clean package```
+* Open a console and type: ```mvn clean package```
 
 * It builds a ```[app-name]-capsule-fat.jar``` file inside the ```target``` directory
 
-It generates a ```fat capsule``` by default.
+It generates a ```fat capsule``` by default inside the ```target``` directory.
 
 ## profile activation
 
@@ -49,8 +47,6 @@ For example, if you need or prefer a ```thin capsule```, follow these steps:
 </properties>
 ```
 
-* Open a console and type:
+* Open a console and type: ```mvn clean package```
 
-    mvn clean package
-
-You'll find your ```think``` capsule in the ```target``` directory.
+You'll find your ```thin``` capsule in the ```target``` directory.

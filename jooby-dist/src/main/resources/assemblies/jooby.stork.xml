@@ -28,6 +28,16 @@
     </fileSet>
 
     <fileSet>
+      <directory>${project.basedir}${file.separator}src${file.separator}etc${file.separator}bin</directory>
+      <filtered>true</filtered>
+      <outputDirectory>bin</outputDirectory>
+      <fileMode>544</fileMode>
+      <includes>
+        <include>**/*.sh</include>
+      </includes>
+    </fileSet>
+
+    <fileSet>
       <directory>${project.build.directory}${file.separator}stork${file.separator}bin</directory>
       <outputDirectory>bin</outputDirectory>
       <filtered>true</filtered>
