@@ -35,13 +35,13 @@ public class MyRoutes {
 }
 ```
 
-A method annotated with [GET]({{defdocs}}/mvc/GET.html), [POST]({{defdocs}}/mvc/POST.html),... (or any of the rest of the verbs) is considered a route handler (web method).
+A method annotated with [GET]({{defdocs}}/mvc/GET.html), [POST]({{defdocs}}/mvc/POST.html),..., is considered a route handler (web method).
 
 ### registering a mvc route
 
-Mvc routes must be registered, there is no auto-discover feature (and it won't be), classpath scanning, ..., etc.
+Mvc routes must be registered, there is **no auto-discover** feature (and it won't be), no classpath scanning, ..., etc.
 
-We learnt that the order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly registered. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
+The order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly registered. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
 
 So, how do I register a mvc route?
 
@@ -83,7 +83,7 @@ A call to ```/routes``` will print: **first**, **second** and produces a respons
 
 ### binding req params
 
-A mvc handler can be bound to current request parameters:
+A mvc handler can be bound to request parameters:
 
 ```java
    @GET
@@ -92,9 +92,9 @@ A mvc handler can be bound to current request parameters:
    }
 ```
 
-Here **q** can be any of the available param types and it will resolved as described in the [param types and precedence](#param-types-and-precedence) section.
+Here **q** can be any of the available param types and it will resolved as described in the [request params](#request-request-params) section.
 
-Optional params work in the same way, all you have to do is to declare the param as *java.util.Optional*:
+Optional params work in the same way, all you have to do is to declare the param as ```java.util.Optional```:
 
 ```java
    @GET
@@ -103,7 +103,7 @@ Optional params work in the same way, all you have to do is to declare the param
    }
 ```
 
-Multi-value params work in the same way, all you have to do is to declare the param as *java.util.List*, *java.util.Set* or *java.util.SortedSet*:
+Multi-value params work in the same way, all you have to do is to declare the param as ```java.util.List```, ```java.util.Set``` or ```java.util.SortedSet```:
 
 ```java
    @GET
@@ -114,7 +114,7 @@ Multi-value params work in the same way, all you have to do is to declare the pa
 
 Just remember the injected collection is immutable.
 
-File uploads (again) work in the same way, just use *org.jooby.Upload*
+File uploads (again) work in the same way, just use ```org.jooby.Upload```
 
 ```java
    @POST
@@ -147,7 +147,7 @@ All you have to do is add the ```@Body``` annotation.
 
 ### binding req headers
 
-Works just like [req params](#binding-req-params) but you must annotated the param with *org.jooby.mvc.Header*:
+Works just like [req params](#routes-binding-req-params) but you must annotated the param with *org.jooby.mvc.Header*:
 
 ```java
    @GET

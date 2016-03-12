@@ -90,7 +90,7 @@ get("/user/{id}", req -> "hey " + req.param("id").value());
 get("/user/{id:\\d+}", req -> "hey " + req.param("id").intValue());
 ```
 
-Request params are covered later, for now all you need to know is that you can access to a path parameter using the [Request.param(String)]({{apidocs}}/org/jooby/Request.param(java.lang.String)).
+Request params are covered later, for now all you need to know is that you can access to a path parameter using the [Request.param(String)]({{apidocs}}/org/jooby/Request.html#param(java.lang.String)).
 
 ### ant style patterns
 
@@ -106,7 +106,7 @@ Request params are covered later, for now all you need to know is that you can a
 
 ## static files
 
-Static files are located under the ```public``` directory.
+Static files are located inside the ```public``` directory.
 
 ```bash
 ├── public
@@ -120,7 +120,7 @@ Static files are located under the ```public``` directory.
     └── welcome.html
 ```
 
-Now, let's add an asset handler:
+Let's add an asset handler:
 
 ```java
 {
@@ -145,7 +145,7 @@ It is possible to map a single static file to a path:
 
 A ```GET /``` will display the static file ```welcome.html```.
 
-Here is another example that uses [Webjars](http://www.webjars.org/):
+Here is another example that uses [webjars](http://www.webjars.org):
 
 ```java
 {
@@ -177,6 +177,7 @@ All you have to do is to define a ```assets.cdn``` property:
 
 ```properties
 # application.prod.properties
+
 assets.cdn = "http://http://d7471vfo50fqt.cloudfront.net"
 ```
 
@@ -190,10 +191,10 @@ A ```GET``` to ```/assets/js/index.js``` will be redirected to: ```http://http:/
 
 Of course, you usually set a ```cdn``` in your ```application.prod.conf``` file only.
 
+### assets module
+
 There is also a super awesome and powerful [assets](/doc/assets/) module. The [assets](/doc/assets/)
-is library to concatenate, minify or compress JavaScript and CSS assets. It also adds the ability
-to write these assets in other languages and process/compile them to another language. Finally,
-it help you to write high quality code by validate JavaScript and CSS too.
+is library to validate, concatenate, minify or compress JavaScript and CSS assets.
 
 ## precedence and order
 
@@ -213,9 +214,11 @@ get("/abc", req -> "second");
 get("/abc", req -> "first");
 ```
 
-It produces a response of ```second```. As you can see **order is very important**.
+It produces a response of ```second```.
 
-Now, why is it allowed to have two routes for the same exactly path?
+> As you can see **ORDER IS SUPER IMPORTANT**.
+
+Now, why is it allowed to have two routes for the same path?
 
 Because we want **filters** for routes.
 
@@ -232,7 +235,7 @@ get("/abc", (req, rsp) -> {
 });
 ```
 
-Again the order of route definition is very important. Forgetting this will cause your app behave unpredictably. We will learn more about this behavior in the examples in the next section.
+Again the order of route definition is super important. Forgetting this will cause your app behave unpredictably. We will learn more about this behavior in the examples of the next section.
 
 ## request handling
 

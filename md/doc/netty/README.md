@@ -1,6 +1,6 @@
 # netty
 
-[Netty](http://netty.io) web server for Jooby.
+NIO web server via [Netty](http://netty.io).
 
 ## dependency
 

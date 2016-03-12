@@ -1,6 +1,6 @@
 # guava-cache
 
-Exposes ```com.google.common.cache.Cache``` services from <a href="https://github.com/google/guava">Guava</a>
+Provides cache solution and session storage via: <a href="https://github.com/google/guava">Guava</a>.
 
 ## dependency
 

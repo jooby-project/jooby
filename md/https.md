@@ -6,8 +6,6 @@
 application.securePort = 8443
 ```
 
-That's all!
-
 ## certificates
 
 {{jooby}} comes with a self-signed certificate, useful for development and test. But of course, you

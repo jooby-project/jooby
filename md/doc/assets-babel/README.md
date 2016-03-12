@@ -1,6 +1,6 @@
 # babel
 
-<a href="http://babeljs.io/">Babel</a> is a JavaScript compiler. By default, Babel ships with a set of ES2015 syntax transformers. These allow you to use new syntax, right now without waiting for browser support.
+<a href="http://babeljs.io/">Babel</a> is a JavaScript compiler with a set of ES2015 syntax transformers that allow you to use new syntax, right now without waiting for browser support.
 
 {{assets-require.md}}
 

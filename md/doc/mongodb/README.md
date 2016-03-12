@@ -73,6 +73,7 @@ or programmatically:
   );
 }
 ```
+
 ### connection URI
 
 Default connection URI is defined by the ```db``` property. Mongodb URI looks like:
@@ -101,9 +102,6 @@ Use [named]({{defdocs}}/mongodb/Mongodb.html#-named) when you need two or more `
 }
 ```
 
-{{mongodb-session.md}}
-
-That's all folks! Enjoy it!!
-
+{{doc/mongodb/mongodb-session.md}}
 
 {{appendix}}

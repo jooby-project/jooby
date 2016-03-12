@@ -269,9 +269,6 @@ public interface Env {
    *                          .get();
    * </pre>
    *
-   * @param name A name to test for.
-   * @param fn A callback function.
-   * @param <T> A resulting type.
    * @return A new matcher.
    */
   default MatchValue.Of<String> match() {

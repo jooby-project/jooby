@@ -1,6 +1,8 @@
 # flyway
 
-Run database migrations on startup and exposes a {{flyway}} instance.
+Evolve your Database Schema easily and reliably across all your instances.
+
+This module run {{flyway}} on startup and apply database migration.
 
 ## dependency
 
@@ -11,6 +13,7 @@ Run database migrations on startup and exposes a {{flyway}} instance.
   <version>{{version}}</version>
 </dependency>
 ```
+
 ## usage
 
 ```properties

@@ -144,7 +144,7 @@ get("/", req -> {
 
 ## request headers
 
-Retrieval of request headers is done via: [request.header("name")]({{}}Request.html#header-java.lang.String-). All the explained before for [request params](#request params) apply for headers too.
+Retrieval of request headers is done via: [request.header("name")]({{}}Request.html#header-java.lang.String-). All the explained before for [request params](#request-request-params) apply for headers too.
 
 ```java
 get("/", req -> {
@@ -174,7 +174,7 @@ get("/", req -> {
 
 ## request body
 
-Retrieval of request body is done via [request.body()]({{apidocs}}/org/jooby/Request.html#body).
+Retrieval of request body is done via [request.body()]({{defdocs}}/Request.html#body--).
 
 A [parser]({{apidocs}}/org/jooby/Parser.html) is responsible for parse or convert the HTTP request body to something else.
 
@@ -250,7 +250,7 @@ In ```mvc routes``` request locals can be injected via ```@Local``` annotation:
 
 ```
 
-## guice access
+## require
 
 In previous section we learnt you can bind/wire your objects with [Guice](https://github.com/google/guice).
 

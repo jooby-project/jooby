@@ -22,8 +22,6 @@ documentation
 
 {{dynamic-routing.md}}
 
-{{async.md}}
-
 {{req.md}}
 
 {{rsp.md}}
@@ -33,6 +31,8 @@ documentation
 {{err.md}}
 
 {{working-with-data.md}}
+
+{{async.md}}
 
 {{web-sockets.md}}
 

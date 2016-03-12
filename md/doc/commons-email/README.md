@@ -1,6 +1,8 @@
 # commons-email
 
-Email supports via {{commons-email}}. Small but helpful module that provides access to ```Email``` instances via {{guice}} and {{config}}.
+Email supports via {{commons-email}}.
+
+Small but helpful module that provides access to ```Email``` instances.
 
 ## usage
 
@@ -29,7 +31,5 @@ application.conf:
 ```
 
 That's all it does! Every time you require an email, it creates one and setup properties from ```mail.*```.
-
-Happy coding!!!
 
 {{appendix}}

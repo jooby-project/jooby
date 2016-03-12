@@ -1,6 +1,6 @@
 # quartz
 
-A job scheduler from [Quartz](http://quartz-scheduler.org/).
+Cron triggers, job scheduling and async processing via [Quartz](http://quartz-scheduler.org/).
 
 ## dependency
 

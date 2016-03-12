@@ -1,6 +1,6 @@
 # undertow
 
-[Undertow](http://undertow.io/) web server for Jooby.
+NIO web server via [Undertow](http://undertow.io/).
 
 ## dependency
 

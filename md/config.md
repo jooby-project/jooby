@@ -1,14 +1,40 @@
 # config, env and logging
 
-Jooby delegates configuration management to [TypeSafe Config](https://github.com/typesafehub/config). If you aren't familiar with [TypeSafe Config](https://github.com/typesafehub/config) please take a few minutes to discover what [TypeSafe Config](https://github.com/typesafehub/config) can do for you.
+Jooby delegates configuration management to [config](https://github.com/typesafehub/config). If you aren't familiar with [config](https://github.com/typesafehub/config) please take a few minutes to discover what [config](https://github.com/typesafehub/config) can do for you.
 
 ## application.conf
 
 By defaults Jooby will attempt to load an ```application.conf``` file from root of classpath. Inside the file you can add/override any property you want.
 
-## injecting properties
+## accessing properties
 
-Any property can be injected using the ```javax.inject.Named``` annotation and automatic type conversion is provided when a type:
+via script:
+
+```java
+{
+  get("/", req -> {
+    Config conf = req.require(Config.class);
+    String myprop = conf.getString("myprop");
+    ...
+  });
+}
+```
+
+or via ```@Named``` annoation:
+
+```java
+public class Controller {
+
+  @Inject
+  public Controller(@Named("myprop") String myprop) {
+    ...
+  }
+}
+```
+
+## type conversion
+
+Automatic type conversion is provided when a type:
 
 1) Is a primitive, primitive wrapper or String
 
@@ -53,11 +79,12 @@ Here is the list of default properties provided by  Jooby:
 * **application.numberFormat**: number format to use. Default is: *DecimalFormat.getInstance("application.lang")*
 * **application.tz**: time zone to use. Default is: *ZoneId.systemDefault().getId()*. A ```java.time.ZoneId``` can be injected.
 
-## config precedence
+## precedence
 
 Config files are loaded in the following order (first-listed are higher priority)
 
 * system properties
+* arguments properties
 * (file://[application].[mode].[conf])?
 * (cp://[application].[mode].[conf])?
 * ([application].[conf])?
@@ -71,7 +98,13 @@ It does, but at the same time it is very intuitive and makes a lot of sense. Let
 
 System properties can override any other property. A sys property is set at startup time, like: 
 
-    java -jar myapp.jar -Dapplication.secret=xyz
+    java -Dapplication.env=prod -jar myapp.jar
+
+### arguments properties
+
+Arguments properties can override any other property. A argument property is set at startup time, like: 
+
+    java -jar myapp.jar application.env=prod
 
 ### file://[application].[mode].[conf] 
 
@@ -89,7 +122,7 @@ That's all. The file system conf file will take precedence over the classpath co
 
 A good practice is to start up your app with a **env**, like:
 
-    java -jar myapp.jar -Dapplication.env=prod
+    java -jar myapp.jar prod
 
 The process is the same, except this time you can name your file as:
 
@@ -101,7 +134,7 @@ Again, the use of this conf file is optional and works like previous config opti
 
 Example: you have two config files: ```application.conf``` and ```application.prod.conf````. Both files were bundled inside the **fat jar**, starting the app in **prod** env:
 
-    java -jar myapp.jar -Dapplication.env=prod
+    java -jar myapp.jar application.env=prod
 
 So here the ```application.prod.conf``` will takes precedence over the ```application.conf``` conf file.
 
@@ -109,13 +142,7 @@ This is the recommended option from Jooby, because your app doesn't have an exte
 
 ### [application].[conf]
 
-This is the default config files and it should be bundle inside the **fat jar**. As mentioned early, the default name is: **application.conf**, but if you don't like it or need to change it:
-
-```java
-{
-   use(ConfigFactory.parseResources("myconfig.conf"));
-}
-```
+This is the default config file and it should be bundle inside the **fat jar**. As mentioned early, the default name is: **application.conf**
 
 
 ### [modules in reverse].[conf]

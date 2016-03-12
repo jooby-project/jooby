@@ -1,7 +1,10 @@
 # jongo
+
+{{jongo}} query in Java as in Mongo shell.
+
 Exposes {{jongo}} instances to a default database. Or [JongoFactory]({{defdocs}}/mongodb/JongoFactory.html) to use alternative databases.
 
-Please note, this module depends on: [mongodb]({{gh}}/jooby-mongodb) module.
+> NOTE: This module depends on: [mongodb driver]({{gh}}/jooby-mongodb) module.
 
 ```xml
 <dependency>
@@ -42,6 +45,3 @@ Access to alternate database is provided via: [JongoFactory]({{defdocs}}/mongodb
 ```
 
 For more information, please visit the {{jongo}} web site.
-
-Happy coding!!!
-

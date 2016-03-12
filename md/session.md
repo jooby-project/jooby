@@ -1,15 +1,14 @@
 # session
-Sessions are created on demand via: [req.session()]({{defdocs}}/Request.html#session--).
+Sessions are created on demand via: [req.ifSession()]({{defdocs}}/Request.html#ifSession--) or [req.session()]({{defdocs}}/Request.html#session--).
 
 Sessions have a lot of uses cases but most commons are: auth, store information about current
 user, etc.
 
-A session attribute must be {@link String} or a primitive. Session doesn't allow to store
+A session attribute must be ```String``` or a primitive. Session doesn't allow to store
 arbitrary objects. It is a simple mechanism to store basic data.
 
-## options
+## no timeout
 
-### No timeout
 There is no timeout for sessions from server perspective. By default, a session will expire when
 the user close the browser (a.k.a session cookie).
 
@@ -17,7 +16,7 @@ the user close the browser (a.k.a session cookie).
 
 A [Session.Store]({{defdocs}}/Session.Store.html) is responsible for saving session data. Sessions are kept in memory, by
 default using the [Session.Mem]({{defdocs}}/Session.Mem.html) store, which is useful for development, but wont scale well
-on production environments. An redis, memcached, ehcache store will be a better option.
+on production environments. A [redis](/doc/session/#redis-session-store), [memcached](/doc/session/#spymemcached-session-store), [ehcache](/doc/session/#ehcache-session-store) store will be a better option. Checkout the available [session storage](/doc/session).
 
 ### store life-cycle
 
@@ -27,7 +26,11 @@ attribute is added or removed from it.
 The <code>session.saveInterval</code> property indicates how frequently a session will be
 persisted (in millis).
 
-In short, a session is persisted when: 1) it is dirty; or 2) save interval has expired it.
+In short, a session is persisted when:
+
+1) it is dirty; or
+
+2) save interval has expired it.
 
 ## cookie
 

@@ -1,5 +1,3 @@
-# intro
-
 {{async.md}}
 
 # modules

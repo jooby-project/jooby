@@ -22,7 +22,7 @@ Keep in mind that **web socket** are not like routes. There is no stack/pipe or 
 
 You can mount a socket to a path used by a route, but you can't have two or more web sockets under the same path.
 
-## guice access
+## require
 
 You can ask [Guice](https://github.com/google/guice) to wired an object from the [ws.require(type)]({{defdocs}}/WebSocket.html#require-com.google.inject.Key-)
 

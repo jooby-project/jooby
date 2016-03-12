@@ -1,6 +1,10 @@
 # jdbi
 
-Exposes [DBI](http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/DBI.html), [Handles](http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/Handle.html) and SQL Objects (a.k.a DAO). This module extends the  [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module so all the services provided by the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc)  module are inherited.
+[JDBI](http://www.jdbi.org/) is a SQL convenience library for Java.
+
+Exposes [DBI](http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/DBI.html), [Handles](http://jdbi.org/maven_site/apidocs/org/skife/jdbi/v2/Handle.html) and SQL Objects (a.k.a DAO).
+
+This module extends the  [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module so all the services provided by the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc)  module are inherited.
 
 Before start, make sure you already setup a database connection as described in the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
 

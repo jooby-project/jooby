@@ -1,6 +1,6 @@
 # jetty
 
-[Jetty](https://www.eclipse.org/jetty) web server for Jooby.
+NIO web server via: [Jetty](https://www.eclipse.org/jetty).
 
 ## dependency
 

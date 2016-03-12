@@ -43,9 +43,11 @@ get("/", req -> {
 
 Let's have a closer look:
 
-1. Check if current type is what we can parse to
-2. We add a param callback
-3. We can't deal with current type, so we ask next parser to resolve it
+1) Check if current type is what we can parse to
+
+2) We add a param callback
+
+3) We can't deal with current type, so we ask next parser to resolve it
 
 Now, if we ask for HTTP body
 
@@ -104,21 +106,21 @@ parser((type, ctx) -> {
 
 Parsers are executed in the order they are defined.
 
-If a param parser isn't able to resolve a param an exception will be thrown with a ```400``` status code.
+If a param parser isn't able to resolve a param a ```BAD REQUEST(400)``` error will be generated.
 
-If a body parser isn't able to resolve a param an exception will be thrown with a ```415``` status code.
+If a body parser isn't able to resolve a param an ```UNSUPPORTED_MEDIA_TYPE(415)``` error will be generated.
 
 ## renderer
 
-A [Renderer]({{defdocs}}/Renderer.html) is responsible for rendering a Java Object to a series of bytes in order to send them as HTTP response.
+A [Renderer]({{defdocs}}/Renderer.html) converts a Java Object to a series of bytes or text and write them into the HTTP response.
 
 There are a few built-in renderers:
 
-* InputStream: copy an inputstream to the HTTP response and set a default type of: ```application/octet-stream```
-* byte[]: copy bytes to the HTTP response and set a default type of: ```application/octet-stream```
-* ByteBuffer: copy bytes to the HTTP response and set a default type of: ```application/octet-stream```
-* Readble: copy a readable object to the HTTP response and a default type of: ```text/html```
-* ToString: copy the toString() result to the HTTP response and set a default type of: ```text/html```
+* stream: copy an inputstream to the HTTP response and set a default type of: ```application/octet-stream```
+* bytes: copy bytes to the HTTP response and set a default type of: ```application/octet-stream```
+* byteBuffer: copy bytes to the HTTP response and set a default type of: ```application/octet-stream```
+* readble: copy a readable object to the HTTP response and a default type of: ```text/html```
+* text: copy the toString() result to the HTTP response and set a default type of: ```text/html```
 
 ### custom renderer
 
@@ -171,4 +173,4 @@ A [view engine]({{defdocs}}/View.Engine.html) is a specialized [renderer]({{defd
 
 In order to support multiples view engine, a view engine is allowed to throw a ```java.io.FileNotFoundException``` when a template can't be resolved it. This gives the chance to the next view resolver to load the template.
 
-There is no much to say about views & engines, any other detail or documentation should be provided in the specific module (mustache, handlebars, freemarker, etc.).
+There is no much to say about views & engines, any other detail or documentation should be provided in the specific [module](/doc/parser-and-renderer)

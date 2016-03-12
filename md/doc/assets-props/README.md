@@ -1,6 +1,6 @@
-# clean-css
+# props
 
-Replace ```${expressions}``` with a value from ```application.conf```
+Replace ```${expressions}``` with a value from ```application.conf```.
 
 {{assets-require.md}}
 

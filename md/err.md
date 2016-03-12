@@ -4,7 +4,7 @@ Error handler is represented by the [Err.Handler]({{defdocs}}/Err.Handler.html) 
 
 ## default err handler
 
-The [default error handler]({{defdocs}}/Err.DefHandler.html) does content negotiation and optionallydisplay friendly err pages using naming convention.
+The [default error handler]({{defdocs}}/Err.DefHandler.html) does content negotiation and optionally display friendly err pages using naming convention.
 
 ```java
 {
