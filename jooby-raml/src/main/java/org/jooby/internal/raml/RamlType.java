@@ -21,6 +21,7 @@ package org.jooby.internal.raml;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -157,6 +158,9 @@ public class RamlType {
 
   @SuppressWarnings("rawtypes")
   private static RamlType simpleParse(final Type type) {
+    if (type == null) {
+      return new RamlType("object");
+    }
     Class<?> rawType = toClass(type);
     Class<?> componentType = componentType(type);
     boolean optional = rawType == Optional.class;
@@ -219,8 +223,21 @@ public class RamlType {
   }
 
   private static Class<?> toClass(final Type type) {
+    if (type == null) {
+      return Object.class;
+    }
     if (type instanceof ParameterizedType) {
       return toClass(((ParameterizedType) type).getRawType());
+    }
+    if (type instanceof WildcardType) {
+      WildcardType wtype = ((WildcardType) type);
+      Type[] lowerBounds = wtype.getLowerBounds();
+      Type[] upperBounds = wtype.getUpperBounds();
+      if (lowerBounds.length == 0) {
+        return toClass(upperBounds[0]);
+      } else {
+        return toClass(lowerBounds[0]);
+      }
     }
     return (Class<?>) type;
   }
