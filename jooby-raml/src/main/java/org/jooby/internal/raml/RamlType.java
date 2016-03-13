@@ -19,8 +19,10 @@
 package org.jooby.internal.raml;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -148,7 +150,14 @@ public class RamlType {
         Field[] fields = rawType.getDeclaredFields();
         Map<String, RamlType> props = new LinkedHashMap<>();
         for (Field field : fields) {
-          props.put(field.getName(), parse(field.getGenericType(), ctx));
+          RamlType ftype = parse(field.getGenericType(), ctx);
+          if (field.getType().isArray()) {
+            String ctype = ramlTypeName(field.getType());
+            ftype.type = (ctype == null ? ftype.type() : ctype) + "[]";
+            ftype.name = null;
+            ftype.properties = null;
+          }
+          props.put(field.getName(), ftype);
         }
         ramlType.properties = props;
       }
@@ -167,38 +176,13 @@ public class RamlType {
     if (optional && componentType != null) {
       rawType = componentType;
     }
-    String typeName = rawType.getTypeName();
-    switch (typeName) {
-      case "byte":
-      case "java.lang.Byte":
-      case "short":
-      case "java.lang.Short":
-      case "int":
-      case "java.lang.Integer":
-      case "long":
-      case "java.lang.Long":
-        return new RamlType("integer").required(!optional);
-      case "float":
-      case "java.lang.Float":
-      case "double":
-      case "java.lang.Double":
-        return new RamlType("number").required(!optional);
-      case "boolean":
-      case "java.lang.Boolean":
-        return new RamlType("boolean").required(!optional);
-      case "char":
-      case "java.lang.Character":
-      case "java.lang.String":
-        return new RamlType("string").required(!optional);
-      case "org.jooby.Upload":
-        return new RamlType("file").required(!optional);
-      case "java.util.Date":
-      case "java.time.LocalDate":
-        return new RamlType("date").required(!optional);
+    String ramlName = ramlTypeName(rawType);
+    if (ramlName != null) {
+      return new RamlType(ramlName).required(!optional);
     }
 
     RamlType complex;
-    if (Collection.class.isAssignableFrom(rawType)) {
+    if (Collection.class.isAssignableFrom(rawType) || rawType.isArray()) {
       complex = new RamlType("array");
       complex.uniqueItems = Set.class.isAssignableFrom(rawType);
     } else if (rawType.isEnum()) {
@@ -217,12 +201,46 @@ public class RamlType {
     return complex;
   }
 
+  private static String ramlTypeName(final Class<?> rawType) {
+    String typeName = rawType.getTypeName();
+    switch (typeName) {
+      case "byte":
+      case "java.lang.Byte":
+      case "short":
+      case "java.lang.Short":
+      case "int":
+      case "java.lang.Integer":
+      case "long":
+      case "java.lang.Long":
+        return "integer";
+      case "float":
+      case "java.lang.Float":
+      case "double":
+      case "java.lang.Double":
+        return "number";
+      case "boolean":
+      case "java.lang.Boolean":
+        return "boolean";
+      case "char":
+      case "java.lang.Character":
+      case "java.lang.String":
+        return "string";
+      case "org.jooby.Upload":
+        return "file";
+      case "java.util.Date":
+      case "java.time.LocalDate":
+        return "date";
+    }
+    return null;
+  }
+
   private RamlType required(final boolean required) {
     this.required = required;
     return this;
   }
 
-  private static Class<?> toClass(final Type type) {
+  @SuppressWarnings("rawtypes")
+  private static Class<?> toClass(final Object type) {
     if (type == null) {
       return Object.class;
     }
@@ -239,12 +257,25 @@ public class RamlType {
         return toClass(lowerBounds[0]);
       }
     }
+    if (type instanceof TypeVariable) {
+      TypeVariable tvar = (TypeVariable) type;
+      return toClass(tvar.getBounds()[0]);
+    }
+    if (type instanceof GenericArrayType) {
+      GenericArrayType array = (GenericArrayType) type;
+      return toClass(array.getGenericComponentType());
+    }
     return (Class<?>) type;
   }
 
+  @SuppressWarnings("rawtypes")
   private static Class<?> componentType(final Type type) {
     if (type instanceof ParameterizedType) {
       return toClass(((ParameterizedType) type).getActualTypeArguments()[0]);
+    } else if (type instanceof Class) {
+      if (((Class) type).isArray()) {
+        return ((Class) type).getComponentType();
+      }
     }
     return null;
   }
