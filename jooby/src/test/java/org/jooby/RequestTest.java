@@ -98,11 +98,6 @@ public class RequestTest {
     }
 
     @Override
-    public Locale locale(final Iterable<Locale> locales) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public List<Locale> locales(
         final BiFunction<List<LanguageRange>, List<Locale>, List<Locale>> filter) {
       throw new UnsupportedOperationException();
@@ -110,11 +105,6 @@ public class RequestTest {
 
     @Override
     public Locale locale(final BiFunction<List<LanguageRange>, List<Locale>, Locale> filter) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Locale locale(final Locale... locales) {
       throw new UnsupportedOperationException();
     }
 

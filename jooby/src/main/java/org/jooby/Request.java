@@ -195,11 +195,6 @@ public interface Request {
     }
 
     @Override
-    public Locale locale(final Iterable<Locale> locales) {
-      return req.locale(locales);
-    }
-
-    @Override
     public Locale locale(final BiFunction<List<LanguageRange>, List<Locale>, Locale> filter) {
       return req.locale(filter);
     }
@@ -208,11 +203,6 @@ public interface Request {
     public List<Locale> locales(
         final BiFunction<List<LanguageRange>, List<Locale>, List<Locale>> filter) {
       return req.locales(filter);
-    }
-
-    @Override
-    public Locale locale(final Locale... locales) {
-      return req.locale(locales);
     }
 
     @Override
@@ -645,12 +635,13 @@ public interface Request {
   Charset charset();
 
   /**
-   * Get the content of the <code>Accept-Language</code> header. If the request doens't specify
-   * such header, this method return the global locale: <code>application.lang</code>.
+   * Get a list of locale that best matches the current request as per {@link Locale::filter}.
    *
-   * @return List of locale.
+   * @return A list of matching locales.
    */
-  List<Locale> locales();
+  default List<Locale> locales() {
+    return locales(Locale::filter);
+  }
 
   /**
    * Get a list of locale that best matches the current request.
@@ -671,7 +662,7 @@ public interface Request {
   List<Locale> locales(BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter);
 
   /**
-   * Get a list of locale that best matches the current request.
+   * Get a locale that best matches the current request.
    *
    * The first filter argument is the value of <code>Accept-Language</code> as
    * {@link Locale.LanguageRange} and filter while the second argument is a list of supported
@@ -684,42 +675,21 @@ public interface Request {
    * req.locale(Locale::lookup)
    * }</pre>
    *
-   * @return A list of matching locales.
+   * @return A matching locale.
    */
   Locale locale(BiFunction<List<Locale.LanguageRange>, List<Locale>, Locale> filter);
 
   /**
-   * Get the content of the <code>Accept-Language</code> header. If the request doens't specify
-   * such header, this method return the global locale: <code>application.lang</code>.
+   * Get a locale that best matches the current request or the default locale as specified
+   * in <code>application.lang</code>.
    *
-   * @return A locale.
+   * @return A matching locale.
    */
   default Locale locale() {
-    return locales().get(0);
-  }
-
-  /**
-   * Select a locale in the provided <code>collection</code> based on the content of the
-   * <code>Accept-Language</code> header using the lookup algorithm of RFC4647. If the request
-   * doens't specify such header, this method return the global locale:
-   * <code>application.lang</code>.
-   *
-   * @param locales Locales to test for.
-   * @return A locale.
-   */
-  Locale locale(Iterable<Locale> locales);
-
-  /**
-   * Select a locale in the provided <code>collection</code> based on the content of the
-   * <code>Accept-Language</code> header using the lookup algorithm of RFC4647. If the request
-   * doens't specify such header, this method return the global locale:
-   * <code>application.lang</code>.
-   *
-   * @param locales Locales to test for.
-   * @return A locale.
-   */
-  default Locale locale(final Locale... locales) {
-    return locale(Arrays.asList(locales));
+    return locale((ranges, locales) ->
+      Locale.filter(ranges, locales).stream()
+        .findFirst()
+        .orElse(locales.get(0)));
   }
 
   /**

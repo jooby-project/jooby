@@ -411,30 +411,6 @@ public class RequestForwardingTest {
   }
 
   @Test
-  public void bestLocale() throws Exception {
-    new MockUnit(Request.class)
-        .expect(unit -> {
-          Request req = unit.get(Request.class);
-          expect(req.locale(Locale.CANADA)).andReturn(Locale.getDefault());
-        })
-        .run(unit -> {
-          assertEquals(Locale.getDefault(),
-              new Request.Forwarding(unit.get(Request.class)).locale(Locale.CANADA));
-        });
-
-    new MockUnit(Request.class)
-        .expect(unit -> {
-          Request req = unit.get(Request.class);
-          expect(req.locale(Arrays.asList(Locale.CANADA))).andReturn(Locale.getDefault());
-        })
-        .run(unit -> {
-          assertEquals(Locale.getDefault(),
-              new Request.Forwarding(unit.get(Request.class))
-                  .locale(Arrays.asList(Locale.CANADA)));
-        });
-  }
-
-  @Test
   public void ip() throws Exception {
     new MockUnit(Request.class)
         .expect(unit -> {
