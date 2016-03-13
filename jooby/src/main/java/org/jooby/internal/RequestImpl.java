@@ -275,11 +275,6 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public List<Locale> locales() {
-    return lang.map(LocaleUtils::parse).orElse(locales);
-  }
-
-  @Override
   public List<Locale> locales(
       final BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter) {
     return lang.map(h ->  filter.apply(LocaleUtils.range(h), locales))
@@ -290,14 +285,6 @@ public class RequestImpl implements Request {
   public Locale locale(final BiFunction<List<LanguageRange>, List<Locale>, Locale> filter) {
     return lang.map(h ->  filter.apply(LocaleUtils.range(h), locales))
         .orElseGet(() -> filter.apply(ImmutableList.of(), locales));
-  }
-
-  @Override
-  public Locale locale(final Iterable<Locale> locales) {
-    return lang.map(h -> {
-      Collection<Locale> clocale = ImmutableList.<Locale> copyOf(locales);
-      return Locale.lookup(LocaleUtils.range(h), clocale);
-    }).orElse(this.locales.get(0));
   }
 
   @Override

@@ -16,22 +16,10 @@ public class Issue273b extends ServerFeature {
         .withValue("application.lang",
             ConfigValueFactory.fromAnyRef("fr-CA,fr-FR,en,en-CA,en-GB,en-US,de")));
 
-    get("/locale/def", req -> {
-      req.locales().forEach(l -> System.out.println(l.getCountry()));
-      return req.locales();
-    });
-
     get("/locale/filter", req -> req.locales(Locale::filter));
 
-    get("/locale/lookup",
-        req -> Optional.ofNullable(req.locale((range, locales) -> Locale.lookup(range, locales)))
+    get("/locale/lookup", req -> Optional.ofNullable(req.locale(Locale::lookup))
             .map(Locale::toString).orElse(""));
-  }
-
-  @Test
-  public void deflocales() throws Exception {
-    request().get("/locale/def")
-        .expect("[fr_CA, fr_FR, fr_FX, en, en_CA, en_GB, en_US, de]");
   }
 
   @Test
