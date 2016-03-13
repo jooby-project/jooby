@@ -65,6 +65,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Stage;
+import com.google.inject.TypeLiteral;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.AnnotatedConstantBindingBuilder;
 import com.google.inject.binder.ConstantBindingBuilder;
@@ -199,7 +200,14 @@ public class JoobyTest {
     AnnotatedBindingBuilder<Locale> binding = unit.mock(AnnotatedBindingBuilder.class);
     binding.toInstance(isA(Locale.class));
 
+    AnnotatedBindingBuilder<List<Locale>> bindings = unit.mock(AnnotatedBindingBuilder.class);
+    bindings.toInstance(isA(List.class));
+
     expect(binder.bind(Locale.class)).andReturn(binding);
+
+    TypeLiteral<List<Locale>> localeType = (TypeLiteral<List<Locale>>) TypeLiteral
+        .get(Types.listOf(Locale.class));
+    expect(binder.bind(localeType)).andReturn(bindings);
   };
 
   private MockUnit.Block zoneId = unit -> {

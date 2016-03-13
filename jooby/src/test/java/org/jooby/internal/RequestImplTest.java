@@ -45,7 +45,8 @@ public class RequestImplTest {
         .expect(contentType)
         .run(unit -> {
           new RequestImpl(unit.get(Injector.class), unit.get(NativeRequest.class), "/", 8080,
-              unit.get(Route.class), StandardCharsets.UTF_8, Locale.ENGLISH, ImmutableMap.of(), ImmutableMap.of());
+              unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH),
+              ImmutableMap.of(), ImmutableMap.of());
         });
   }
 
@@ -63,7 +64,8 @@ public class RequestImplTest {
         .run(unit -> {
           RequestImpl req = new RequestImpl(unit.get(Injector.class), unit.get(NativeRequest.class),
               "/", 8080,
-              unit.get(Route.class), StandardCharsets.UTF_8, Locale.ENGLISH, ImmutableMap.of(), ImmutableMap.of());
+              unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH), ImmutableMap.of(),
+              ImmutableMap.of());
           assertEquals(true, req.matches("/path/**"));
         });
   }
@@ -80,7 +82,8 @@ public class RequestImplTest {
         .run(unit -> {
           RequestImpl req = new RequestImpl(unit.get(Injector.class), unit.get(NativeRequest.class),
               "/", 8080,
-              unit.get(Route.class), StandardCharsets.UTF_8, Locale.ENGLISH, ImmutableMap.of(), ImmutableMap.of());
+              unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH), ImmutableMap.of(),
+              ImmutableMap.of());
           assertEquals(Locale.ENGLISH, req.locale());
         });
   }
@@ -99,7 +102,8 @@ public class RequestImplTest {
         .run(unit -> {
           try {
             new RequestImpl(unit.get(Injector.class), unit.get(NativeRequest.class), "/", 8080,
-                unit.get(Route.class), StandardCharsets.UTF_8, Locale.ENGLISH, ImmutableMap.of(), ImmutableMap.of()).param("f");
+                unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH), ImmutableMap.of(),
+                ImmutableMap.of()).param("f");
             fail("expecting error");
           } catch (Err ex) {
             assertEquals(400, ex.statusCode());
@@ -125,7 +129,8 @@ public class RequestImplTest {
         .run(unit -> {
           try {
             new RequestImpl(unit.get(Injector.class), unit.get(NativeRequest.class), "/", 8080,
-                unit.get(Route.class), StandardCharsets.UTF_8, Locale.ENGLISH, ImmutableMap.of(), ImmutableMap.of()).params();
+                unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH), ImmutableMap.of(),
+                ImmutableMap.of()).params();
             fail("expecting error");
           } catch (Err ex) {
             assertEquals(400, ex.statusCode());
@@ -152,7 +157,8 @@ public class RequestImplTest {
         .run(unit -> {
           try {
             new RequestImpl(unit.get(Injector.class), unit.get(NativeRequest.class), "/", 8080,
-                unit.get(Route.class), StandardCharsets.UTF_8, Locale.ENGLISH, ImmutableMap.of(), ImmutableMap.of()).param("p");
+                unit.get(Route.class), StandardCharsets.UTF_8, ImmutableList.of(Locale.ENGLISH), ImmutableMap.of(),
+                ImmutableMap.of()).param("p");
             fail("expecting error");
           } catch (Err ex) {
             assertEquals(400, ex.statusCode());

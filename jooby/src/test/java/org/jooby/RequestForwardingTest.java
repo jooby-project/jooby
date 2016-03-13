@@ -6,9 +6,11 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 import org.jooby.test.MockUnit;
 import org.junit.Test;
@@ -366,6 +368,21 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void localeLookup() throws Exception {
+    BiFunction<List<Locale.LanguageRange>, List<Locale>, Locale> lookup = Locale::lookup;
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.locale(lookup)).andReturn(Locale.getDefault());
+        })
+        .run(
+            unit -> {
+              assertEquals(Locale.getDefault(),
+                  new Request.Forwarding(unit.get(Request.class)).locale(lookup));
+            });
+  }
+
+  @Test
   public void locales() throws Exception {
     new MockUnit(Request.class)
         .expect(unit -> {
@@ -377,6 +394,20 @@ public class RequestForwardingTest {
               assertEquals(Arrays.asList(Locale.getDefault()),
                   new Request.Forwarding(unit.get(Request.class)).locales());
             });
+  }
+
+  @Test
+  public void localesFilter() throws Exception {
+    BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> lookup = Locale::filter;
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.locales(lookup)).andReturn(Arrays.asList(Locale.getDefault()));
+        })
+        .run(unit -> {
+          assertEquals(Arrays.asList(Locale.getDefault()),
+              new Request.Forwarding(unit.get(Request.class)).locales(lookup));
+        });
   }
 
   @Test

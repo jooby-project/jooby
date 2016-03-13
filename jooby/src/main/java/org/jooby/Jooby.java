@@ -131,6 +131,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Stage;
+import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
@@ -3381,9 +3382,9 @@ public class Jooby implements Routes {
     List<Config> modconf = modconf(this.bag);
     Config conf = buildConfig(initconf, args, modconf);
 
-    final Locale locale = LocaleUtils.parseOne(conf.getString("application.lang"));
+    final List<Locale> locales = LocaleUtils.parse(conf.getString("application.lang"));
 
-    Env env = this.env.build(conf, this, locale);
+    Env env = this.env.build(conf, this, locales.get(0));
     String envname = env.name();
 
     final Charset charset = Charset.forName(conf.getString("application.charset"));
@@ -3391,7 +3392,7 @@ public class Jooby implements Routes {
     String dateFormat = conf.getString("application.dateFormat");
     ZoneId zoneId = ZoneId.of(conf.getString("application.tz"));
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter
-        .ofPattern(dateFormat, locale)
+        .ofPattern(dateFormat, locales.get(0))
         .withZone(zoneId);
 
     DecimalFormat numberFormat = new DecimalFormat(conf.getString("application.numberFormat"));
@@ -3419,7 +3420,7 @@ public class Jooby implements Routes {
     Env finalEnv;
     if (modconf.size() != realmodconf.size()) {
       finalConfig = buildConfig(initconf, args, realmodconf);
-      finalEnv = this.env.build(finalConfig, this, locale);
+      finalEnv = this.env.build(finalConfig, this, locales.get(0));
     } else {
       finalConfig = conf;
       finalEnv = env;
@@ -3442,7 +3443,10 @@ public class Jooby implements Routes {
       binder.bind(Charset.class).toInstance(charset);
 
       /** bind locale */
-      binder.bind(Locale.class).toInstance(locale);
+      binder.bind(Locale.class).toInstance(locales.get(0));
+      TypeLiteral<List<Locale>> localeType = (TypeLiteral<List<Locale>>) TypeLiteral
+          .get(Types.listOf(Locale.class));
+      binder.bind(localeType).toInstance(locales);
 
       /** bind time zone */
       binder.bind(ZoneId.class).toInstance(zoneId);

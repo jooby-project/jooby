@@ -24,8 +24,10 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Locale.LanguageRange;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 import org.jooby.scope.RequestScoped;
 
@@ -195,6 +197,17 @@ public interface Request {
     @Override
     public Locale locale(final Iterable<Locale> locales) {
       return req.locale(locales);
+    }
+
+    @Override
+    public Locale locale(final BiFunction<List<LanguageRange>, List<Locale>, Locale> filter) {
+      return req.locale(filter);
+    }
+
+    @Override
+    public List<Locale> locales(
+        final BiFunction<List<LanguageRange>, List<Locale>, List<Locale>> filter) {
+      return req.locales(filter);
     }
 
     @Override
@@ -638,6 +651,42 @@ public interface Request {
    * @return List of locale.
    */
   List<Locale> locales();
+
+  /**
+   * Get a list of locale that best matches the current request.
+   *
+   * The first filter argument is the value of <code>Accept-Language</code> as
+   * {@link Locale.LanguageRange} and filter while the second argument is a list of supported
+   * locales defined by the <code>application.lang</code> property.
+   *
+   * The next example returns a list of matching {@code Locale} instances using the filtering
+   * mechanism defined in RFC 4647:
+   *
+   * <pre>{@code
+   * req.locales(Locale::filter)
+   * }</pre>
+   *
+   * @return A list of matching locales.
+   */
+  List<Locale> locales(BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter);
+
+  /**
+   * Get a list of locale that best matches the current request.
+   *
+   * The first filter argument is the value of <code>Accept-Language</code> as
+   * {@link Locale.LanguageRange} and filter while the second argument is a list of supported
+   * locales defined by the <code>application.lang</code> property.
+   *
+   * The next example returns a {@code Locale} instance for the best-matching language
+   * tag using the lookup mechanism defined in RFC 4647.
+   *
+   * <pre>{@code
+   * req.locale(Locale::lookup)
+   * }</pre>
+   *
+   * @return A list of matching locales.
+   */
+  Locale locale(BiFunction<List<Locale.LanguageRange>, List<Locale>, Locale> filter);
 
   /**
    * Get the content of the <code>Accept-Language</code> header. If the request doens't specify

@@ -8,8 +8,10 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Locale.LanguageRange;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 import org.jooby.test.MockUnit;
 import org.junit.Test;
@@ -97,6 +99,17 @@ public class RequestTest {
 
     @Override
     public Locale locale(final Iterable<Locale> locales) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Locale> locales(
+        final BiFunction<List<LanguageRange>, List<Locale>, List<Locale>> filter) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Locale locale(final BiFunction<List<LanguageRange>, List<Locale>, Locale> filter) {
       throw new UnsupportedOperationException();
     }
 

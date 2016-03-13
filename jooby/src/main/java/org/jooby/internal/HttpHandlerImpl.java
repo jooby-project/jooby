@@ -152,7 +152,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private ParserExecutor parserExecutor;
 
-  private Locale locale;
+  private List<Locale> locale;
 
   private final LoadingCache<RouteKey, List<Route>> routeCache;
 
@@ -176,7 +176,7 @@ public class HttpHandlerImpl implements HttpHandler {
       final Set<Renderer> renderers,
       final Set<Err.Handler> err,
       final Charset charset,
-      final Locale locale) {
+      final List<Locale> locale) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.requestScope = requireNonNull(requestScope, "A request scope is required.");
     this.socketDefs = requireNonNull(sockets, "Sockets are required.");

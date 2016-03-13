@@ -2025,6 +2025,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
             <configuration>
               <excludePackageNames>org.jooby.internal:org.jooby.test</excludePackageNames>
               <aggregate>true</aggregate>
+            </configuration>
           </plugin>
         </plugins>
       </build>

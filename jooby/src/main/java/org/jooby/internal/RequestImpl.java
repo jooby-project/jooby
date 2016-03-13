@@ -30,9 +30,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Locale.LanguageRange;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import org.jooby.Cookie;
@@ -85,10 +87,10 @@ public class RequestImpl implements Request {
 
   private Optional<String> lang;
 
-  private Locale deflocale;
+  private List<Locale> locales;
 
   public RequestImpl(final Injector injector, final NativeRequest req, final String contextPath,
-      final int port, final Route route, final Charset charset, final Locale locale,
+      final int port, final Route route, final Charset charset, final List<Locale> locale,
       final Map<Object, Object> scope, final Map<String, Object> locals) {
     this.injector = injector;
     this.req = req;
@@ -102,7 +104,7 @@ public class RequestImpl implements Request {
     this.accept = accept.isPresent() ? MediaType.parse(accept.get()) : MediaType.ALL;
 
     this.lang = req.header("Accept-Language");
-    this.deflocale = locale;
+    this.locales = locale;
 
     this.port = port;
 
@@ -274,7 +276,20 @@ public class RequestImpl implements Request {
 
   @Override
   public List<Locale> locales() {
-    return lang.map(h -> LocaleUtils.parse(h)).orElse(ImmutableList.of(deflocale));
+    return lang.map(LocaleUtils::parse).orElse(locales);
+  }
+
+  @Override
+  public List<Locale> locales(
+      final BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter) {
+    return lang.map(h ->  filter.apply(LocaleUtils.range(h), locales))
+        .orElseGet(() -> filter.apply(ImmutableList.of(), locales));
+  }
+
+  @Override
+  public Locale locale(final BiFunction<List<LanguageRange>, List<Locale>, Locale> filter) {
+    return lang.map(h ->  filter.apply(LocaleUtils.range(h), locales))
+        .orElseGet(() -> filter.apply(ImmutableList.of(), locales));
   }
 
   @Override
@@ -282,7 +297,7 @@ public class RequestImpl implements Request {
     return lang.map(h -> {
       Collection<Locale> clocale = ImmutableList.<Locale> copyOf(locales);
       return Locale.lookup(LocaleUtils.range(h), clocale);
-    }).orElse(deflocale);
+    }).orElse(this.locales.get(0));
   }
 
   @Override
