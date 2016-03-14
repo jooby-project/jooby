@@ -91,36 +91,25 @@
    </div> 
    <div class="row"> 
     <div class="section-content"> 
-     <h2>build status</h2> 
-     <ul> 
-      <li> <p> <a target="_blank" href="https://travis-ci.org/jooby-project/jooby"><img src="https://travis-ci.org/jooby-project/jooby.svg?branch=master" alt="Build Status"></a> </p> </li> 
-     </ul> 
-     <h2> build code coverage </h2> 
-     <ul> 
-      <li> <p> <a target="_blank" href="https://coveralls.io/r/jooby-project/jooby?branch=master"><img src="https://img.shields.io/coveralls/jooby-project/jooby.svg" alt="Coverage Status"></a> </p> </li> 
-     </ul> 
-     <ul> 
-      <li> <p> Code coverage is composed by unit and integration tests. Integration tests can be found <a target="_blank" href="https://github.com/jooby-project/jooby/tree/master/coverage-report">here</a> </p> </li> 
-      <li> <p> Integration tests run again each of the available servers: <a target="_blank" href="http://netty.io/">Netty</a>, <a target="_blank" href="http://www.eclipse.org/jetty/">Jetty</a>and <a target="_blank" href="http://undertow.io/">Undertow</a> </p> </li> 
-     </ul> 
-     <h2>what JVM do I need?</h2> 
-     <ul> 
-      <li> <p> Java 8 or higher. </p> </li> 
-     </ul> 
-     <h2>where are the default properties?</h2> 
-     <ul> 
-      <li> <p> Default properties can be found <a href="/doc/#jooby-conf">here</a> </p> </li> 
-     </ul> 
-     <h2>what mime types are supported?</h2> 
-     <ul> 
-      <li> <p>Full list of mime types can be found <a href="/doc/#mime-properties">here</a></p> </li> 
-     </ul> 
-     <h2>how do I add a new/override mime type?</h2> 
-     <p> Create a <code>mime.properties</code> file inside the <code>conf</code> directory. Then, add the new mime type there. </p> 
-     <h2>can I deploy my application inside a Servlet Container?</h2> 
-     <ul> 
-      <li> <p> Yes, it is possible with <a href="/doc/servlet/">some limitations</a>. </p> </li> 
-     </ul> 
+     <div class="datalist" id="faq-and-facts"> 
+      <div class="datalist-title active"> 
+       <h2>faq and facts</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <h3 id="faq-and-facts-build-status">build status</h3> 
+       <h3 id="faq-and-facts-code-coverage">code coverage</h3> 
+       <p>Code coverage is composed by unit and integration tests. Integration tests can be found <a href="https://github.com/jooby-project/jooby/tree/master/coverage-report" target="_blank">here</a></p> 
+       <p>Integration tests run again each of the available servers: <a href="http://netty.io" target="_blank">Netty</a>, <a href="http://www.eclipse.org/jetty/" target="_blank">Jetty</a> and <a href="http://undertow.io" target="_blank">Undertow</a></p> 
+       <h3 id="faq-and-facts-where-are-the-default-properties-">where are the default properties?</h3> 
+       <p>Default properties can be found <a href="/doc/#appendix:-jooby.conf">here</a></p> 
+       <h3 id="faq-and-facts-what-mime-types-are-supported-">what mime types are supported?</h3> 
+       <p>Full list of mime types can be found <a href="/doc/#appendix:-mime.properties">here</a></p> 
+       <h3 id="faq-and-facts-how-do-I-add-a-new-override-mime-type-">how do I add a new/override mime type?</h3> 
+       <p>Create a <code class="highlighter-rouge codehilite">mime.properties</code> file inside the <code class="highlighter-rouge codehilite">conf</code> directory. Then, add the new mime type there.</p> 
+       <h3 id="faq-and-facts-can-I-deploy-my-application-inside-a-Servlet-Container-">can I deploy my application inside a Servlet Container?</h3> 
+       <p>Yes, it is possible with <a href="/doc/jooby-servlet/">some limitations</a>.</p> 
+      </div> 
+     </div> 
     </div> 
    </div> 
   </main> 

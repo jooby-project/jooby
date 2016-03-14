@@ -1,3 +1,7 @@
+.share-network {
+  padding-bottom: 20px;
+}
+
 .codehilite pre.cm {
   padding-top: 0;
   padding-bottom: 0;
@@ -668,7 +672,7 @@ a.module-box:hover [class*="icon-"] {
   background-color: #f9f9f9;
   border: 1px solid #e3e3e3;
   width: 380px;
-  height: 262px;
+  height: 245px;
   border-radius: 10px;
   font-size: 14px;
   margin: 0 15px 30px;
@@ -1151,7 +1155,7 @@ th {
 
 blockquote {
   padding-left: 10px;
-  margin: 0 5px;
+  margin: 10px 5px 20px 10px;
   border-left: 5px solid #21474c;
   color: #21474c;
 }
@@ -1226,7 +1230,8 @@ blockquote {
   line-height: 22px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  margin-bottom: 20px;
+  margin-top: 20px;
+  margin-bottom: 5px;
 }
 .section-content h4 {
   font-size: 16px;
@@ -1364,6 +1369,7 @@ blockquote {
 .section-sidebar {
   float: left;
   overflow: auto;
+  width: 280px;
 }
 .section-sidebar ul li {
   margin-bottom: 12px;

@@ -168,7 +168,7 @@
 <span class="py">jedis.pool.maxTotal</span> <span class="p">=</span> <span class="s">200</span>
 </code></pre> 
        </div> 
-       <h4>two or more redis connections</h4> 
+       <h4 id="jedis-two-or-more-redis-connections">two or more redis connections</h4> 
        <p>In case you need two or more Redis connection, just do:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -234,7 +234,7 @@
        </div> 
        <p>The <code class="highlighter-rouge codehilite">name</code> attribute and value will be stored in a <a href="http://redis.io" target="_blank">Redis</a>. Sessions are persisted as <a href="http://redis.io/topics/data-types#hashes" target="_blank">hashes</a>.</p> 
        <h3 id="redis-session-store-options">options</h3> 
-       <h4>timeout</h4> 
+       <h4 id="redis-session-store-timeout">timeout</h4> 
        <p>By default, a <a href="http://redis.io" target="_blank">Redis</a> session will expire after <code class="highlighter-rouge codehilite">30 minutes</code>. Changing the default timeout is as simple as:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -249,7 +249,7 @@
 <span class="c"># no timeout </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
 </code></pre> 
        </div> 
-       <h4>key prefix</h4> 
+       <h4 id="redis-session-store-key-prefix">key prefix</h4> 
        <p>Default redis key prefix is <code class="highlighter-rouge codehilite">sessions</code>. Sessions in [redis] will look like: <code class="highlighter-rouge codehilite">sessions:ID</code></p> 
        <p>It’s possible to change the default key setting the <code class="highlighter-rouge codehilite">jedis.sesssion.prefix</code> properties</p> 
        <p>That’s all folks! Enjoy it!</p> 
@@ -306,6 +306,21 @@
      </div> 
     </div> 
    </div> 
+   <!-- AddToAny BEGIN --> 
+   <div class="row share-network"> 
+    <div class="section-content"> 
+     <h3>Share</h3> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/jedis" data-a2a-title="Redis cache and key/value data store for Jooby"> 
+      <a class="a2a_button_twitter" data-text="Redis cache and key/value data store for Jooby"></a> 
+      <a class="a2a_button_reddit a2a_counter"></a> 
+      <a class="a2a_button_linkedin a2a_counter"></a> 
+      <a class="a2a_button_facebook a2a_counter"></a> 
+      <a class="a2a_button_google_plus a2a_counter"></a> 
+     </div> 
+    </div> 
+   </div> 
+   <script async src="https://static.addtoany.com/menu/page.js"></script> 
+   <!-- AddToAny END --> 
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 

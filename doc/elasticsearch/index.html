@@ -220,14 +220,14 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <h4>http.enabled</h4> 
+       <h4 id="elasticsearch-http-enabled">http.enabled</h4> 
        <p>HTTP is disabled and isn’t possible to change this value. What does it mean? <a href="http://jooby.org">Jooby</a> setup a custom handler which makes it possible to use a <a href="http://jooby.org">Jooby</a> server to serve Elastic Search requests and avoid the need of starting up another server running in a different port.</p> 
        <p>Most of the <code class="highlighter-rouge codehilite">http.*</code> properties has no sense in Jooby.</p> 
-       <h4>path.data</h4> 
+       <h4 id="elasticsearch-path-data">path.data</h4> 
        <p>Path data is set to a temporary directory: <code class="highlighter-rouge codehilite">${application.tmpdir}/es/data</code>. It is useful for development, but if you need want to make sure the index is persistent between server restarts, please make sure to setup this path to something else.</p> 
-       <h4>node.name</h4> 
+       <h4 id="elasticsearch-node-name">node.name</h4> 
        <p>Node name is set to: <code class="highlighter-rouge codehilite">application.name</code>.</p> 
-       <h4>cluster.name</h4> 
+       <h4 id="elasticsearch-cluster-name">cluster.name</h4> 
        <p>Cluster name is set to: <code class="highlighter-rouge codehilite">${application.name}-cluster</code>.</p> 
        <p>That’s all folks! Enjoy it!!!</p> 
        <h3 id="elasticsearch-es-conf">es.conf</h3> 
@@ -557,6 +557,21 @@
      </div> 
     </div> 
    </div> 
+   <!-- AddToAny BEGIN --> 
+   <div class="row share-network"> 
+    <div class="section-content"> 
+     <h3>Share</h3> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/elasticsearch" data-a2a-title="Enterprise full text search via Elastic Search"> 
+      <a class="a2a_button_twitter" data-text="Enterprise full text search via Elastic Search"></a> 
+      <a class="a2a_button_reddit a2a_counter"></a> 
+      <a class="a2a_button_linkedin a2a_counter"></a> 
+      <a class="a2a_button_facebook a2a_counter"></a> 
+      <a class="a2a_button_google_plus a2a_counter"></a> 
+     </div> 
+    </div> 
+   </div> 
+   <script async src="https://static.addtoany.com/menu/page.js"></script> 
+   <!-- AddToAny END --> 
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 

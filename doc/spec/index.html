@@ -405,7 +405,7 @@
        <h3 id="definition-script-rules">script rules</h3> 
        <p>Have a look at the previous examples again? Do you see anything special? No, right?</p> 
        <p>Well there are some minor things you need to keep in mind for getting or collecting route metadata from <strong>script</strong> routes:</p> 
-       <h4>params</h4> 
+       <h4 id="definition-params">params</h4> 
        <p>Params need to be in one sentence/statement, like:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -427,7 +427,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <h4>response type (a.k.a return type)</h4> 
+       <h4 id="definition-response-type-a-k-a-return-type-">response type (a.k.a return type)</h4> 
        <p>There should be <strong>ONLY one</strong> return statement and return type needs to be declared as variable, like:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -517,7 +517,7 @@
     <span class="s">doc</span><span class="pi">:</span> <span class="s">Pets ordered by name.</span>
 </code></pre> 
        </div> 
-       <h4>response</h4> 
+       <h4 id="definition-response">response</h4> 
        <p>With JavaDoc, you can control the default type returned by the route and/or the status codes. For example:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -664,7 +664,7 @@
        </ul> 
        <h3 id="raml-options">options</h3> 
        <p>There are a few options available, let’s see what they are:</p> 
-       <h4>path</h4> 
+       <h4 id="raml-path">path</h4> 
        <p>The <code class="highlighter-rouge codehilite">path</code> option controls where to mount the <a href="http://raml.org" target="_blank">RAML</a> routes:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -679,7 +679,7 @@
 </code></pre> 
        </div> 
        <p>Produces: <code class="highlighter-rouge codehilite">/docs</code> for api-console and <code class="highlighter-rouge codehilite">/docs/api.raml</code>. Default path is: <code class="highlighter-rouge codehilite">/raml</code>.</p> 
-       <h4>filter</h4> 
+       <h4 id="raml-filter">filter</h4> 
        <p>The <code class="highlighter-rouge codehilite">filter</code> option controls what is exported to <a href="http://raml.org" target="_blank">RAML</a>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -697,7 +697,7 @@
 </code></pre> 
        </div> 
        <p>Default filter keeps <code class="highlighter-rouge codehilite">/api/*</code> routes.</p> 
-       <h4>noConsole</h4> 
+       <h4 id="raml-noConsole">noConsole</h4> 
        <p>This option turn off the api-console:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -712,7 +712,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <h4>theme</h4> 
+       <h4 id="raml-theme">theme</h4> 
        <p>Set the ui-theme for api-console. Available options are <code class="highlighter-rouge codehilite">light</code> and <code class="highlighter-rouge codehilite">dark</code>. Default is: <code class="highlighter-rouge codehilite">light</code>.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -727,9 +727,9 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <h4>clientGenerator</h4> 
+       <h4 id="raml-clientGenerator">clientGenerator</h4> 
        <p>Shows/hide the client generator button from api-console.</p> 
-       <h4>tryIt</h4> 
+       <h4 id="raml-tryIt">tryIt</h4> 
        <p>Expand/collapse the try it panel from api-console.</p> 
        <h3 id="raml-live-demo">live demo</h3> 
        <p>Check out the a live demo for <a href="https://jooby-spec.herokuapp.com/raml" target="_blank">RAML</a>.</p> 
@@ -835,7 +835,7 @@
        </ul> 
        <h3 id="swagger-options">options</h3> 
        <p>There are a few options available, let’s see what they are:</p> 
-       <h4>path</h4> 
+       <h4 id="swagger-path">path</h4> 
        <p>The <code class="highlighter-rouge codehilite">path</code> option controls where to mount the <a href="http://swagger.io" target="_blank">Swagger</a> routes:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -850,7 +850,7 @@
 </code></pre> 
        </div> 
        <p>Produces: <code class="highlighter-rouge codehilite">/docs</code> for swagger-ui, <code class="highlighter-rouge codehilite">/docs/swagger.json</code> and <code class="highlighter-rouge codehilite">/docs/swagger.yml</code>. Default path is: <code class="highlighter-rouge codehilite">/swagger</code>.</p> 
-       <h4>filter</h4> 
+       <h4 id="swagger-filter">filter</h4> 
        <p>The <code class="highlighter-rouge codehilite">filter</code> option controls what is exported to <a href="http://swagger.io" target="_blank">Swagger</a>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -868,7 +868,7 @@
 </code></pre> 
        </div> 
        <p>Default filter keeps <code class="highlighter-rouge codehilite">/api/*</code> routes.</p> 
-       <h4>tags</h4> 
+       <h4 id="swagger-tags">tags</h4> 
        <p>One ore more routes are grouped by a tag. The default tag provider produces <code class="highlighter-rouge codehilite">pets</code> for a route at <code class="highlighter-rouge codehilite">/api/pets</code> or <code class="highlighter-rouge codehilite">/pets</code>. You can specify your own tag provider via:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -881,7 +881,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <h4>noUI</h4> 
+       <h4 id="swagger-noUI">noUI</h4> 
        <p>This option turn off the swagger-ui:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -931,6 +931,21 @@
      </div> 
     </div> 
    </div> 
+   <!-- AddToAny BEGIN --> 
+   <div class="row share-network"> 
+    <div class="section-content"> 
+     <h3>Share</h3> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/spec" data-a2a-title="The spec module allows you to export your API/microservices outside a Jooby application"> 
+      <a class="a2a_button_twitter" data-text="The spec module allows you to export your API/microservices outside a Jooby application"></a> 
+      <a class="a2a_button_reddit a2a_counter"></a> 
+      <a class="a2a_button_linkedin a2a_counter"></a> 
+      <a class="a2a_button_facebook a2a_counter"></a> 
+      <a class="a2a_button_google_plus a2a_counter"></a> 
+     </div> 
+    </div> 
+   </div> 
+   <script async src="https://static.addtoany.com/menu/page.js"></script> 
+   <!-- AddToAny END --> 
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 

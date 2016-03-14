@@ -80,6 +80,16 @@ APP.init = function(){
     $this.parent().siblings( ".lang" ).find( "li" ).eq( $this.index() ).addClass( "active" );
   });
 
+  var sync = function(e){
+    var $other = $('.section-sidebar'), other = $other.get(0);
+    var percentage = this.scrollTop / (this.scrollHeight - this.offsetHeight);
+    other.scrollTop = percentage * (other.scrollHeight - other.offsetHeight);
+    setTimeout( function(){ $other.on('scroll', sync ); },10);
+  }
+  $('h2').mouseenter(function () {
+    console.log($(this).attr('id'));
+  });
+
   if( APP.isPage( "sidebar" ) ){
     var $sectionSidebar = $( ".section-sidebar" );
     $sectionSidebar.on( "click", "a", function( e ){
@@ -102,7 +112,7 @@ APP.init = function(){
     $sectionSidebar.on( "click", "a", function( e ){
       $sectionSidebar.find( ".menu-open" ).html( $( this ).text() );
       $sectionSidebar.removeClass( "active" );
-    });  
+    });
     $( window ).on( "resize scroll", function(){
       var left = $sectionSidebar.parent().offset().left,
         top = $( this ).scrollTop(),

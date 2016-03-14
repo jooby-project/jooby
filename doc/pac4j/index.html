@@ -119,9 +119,9 @@
        <h3 id="pac-j-exposes">exposes</h3> 
        <ul> 
         <li><code class="highlighter-rouge codehilite">Clients</code></li> 
-        <li><code class="highlighter-rouge codehilite">WebContext</code> as <a href="/apidocs/RequestedScoped.html">RequestScoped</a></li> 
-        <li><a href="/apidocs/Route.Filter.html">auth filter</a> per <code class="highlighter-rouge codehilite">Client</code></li> 
-        <li><a href="/apidocs/Route.Filter.html">auth callback</a></li> 
+        <li><code class="highlighter-rouge codehilite">WebContext</code> as <a href="/apidocs/org/jooby/RequestedScoped.html">RequestScoped</a></li> 
+        <li><a href="/apidocs/org/jooby/Route.Filter.html">auth filter</a> per <code class="highlighter-rouge codehilite">Client</code></li> 
+        <li><a href="/apidocs/org/jooby/Route.Filter.html">auth callback</a></li> 
        </ul> 
        <h3 id="pac-j-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
@@ -153,7 +153,7 @@
        <p>Previous example adds a very basic but ready to use form login auth every time you try to access to <code class="highlighter-rouge codehilite">/private</code> or any route defined below the auth module.</p> 
        <h3 id="pac-j-clients">clients</h3> 
        <p><a href="https://github.com/pac4j/pac4j" target="_blank">Pac4j</a> is a powerful library that supports multiple clients and/or authentication protocols. In the next example, we will see how to configure the most basic of them, but also some complex protocols.</p> 
-       <h4>basic auth</h4> 
+       <h4 id="pac-j-basic-auth">basic auth</h4> 
        <p>If basic auth is all you need, then:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -174,7 +174,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <h4>form auth</h4> 
+       <h4 id="pac-j-form-auth">form auth</h4> 
        <p>Form authentication will be activated by calling <code class="highlighter-rouge codehilite">form</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -196,7 +196,7 @@
 </code></pre> 
        </div> 
        <p>Like basic auth, form auth depends on a <code class="highlighter-rouge codehilite">UsernamePasswordAuthenticator</code>.</p> 
-       <p>A login form will be ready under the path: <code class="highlighter-rouge codehilite">/login</code>. Again, it is a very basic login form useful for development. If you need a custom login page, just add a route before the <a href="/apidocs/pack4j/Auth.html">Auth</a> module, like: &lt;/p&gt;</p> 
+       <p>A login form will be ready under the path: <code class="highlighter-rouge codehilite">/login</code>. Again, it is a very basic login form useful for development. If you need a custom login page, just add a route before the <a href="/apidocs/org/jooby/pack4j/Auth.html">Auth</a> module, like: &lt;/p&gt;</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -209,7 +209,7 @@
 </code></pre> 
        </div> 
        <p>Simply and easy!</p> 
-       <h4>oauth, openid, etc…</h4> 
+       <h4 id="pac-j-oauth-openid-etc-">oauth, openid, etc…</h4> 
        <p>Twitter, example:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -241,7 +241,7 @@
        </div> 
        <p>Here the <code class="highlighter-rouge codehilite">/hello</code> path is un-protected, because the client will intercept everything under <code class="highlighter-rouge codehilite">/private</code>.</p> 
        <h3 id="pac-j-user-profile">user profile</h3> 
-       <p><a href="http://jooby.org">Jooby</a> relies on <a href="/apidocs/pac4j/AuthStore.html">AuthStore</a> for saving and retrieving an <code class="highlighter-rouge codehilite">UserProfile</code>. By default, the <code class="highlighter-rouge codehilite">UserProfile</code> is stored in the <a href="{{defcods}}/Session.html">Session</a> via <a href="{{defcods}}/pack4j/AuthSessionStore.html">auth session store</a></p> 
+       <p><a href="http://jooby.org">Jooby</a> relies on <a href="/apidocs/org/jooby/pac4j/AuthStore.html">AuthStore</a> for saving and retrieving an <code class="highlighter-rouge codehilite">UserProfile</code>. By default, the <code class="highlighter-rouge codehilite">UserProfile</code> is stored in the <a href="{{defcods}}/Session.html">Session</a> via <a href="{{defcods}}/pack4j/AuthSessionStore.html">auth session store</a></p> 
        <p>After a successful authentication the <code class="highlighter-rouge codehilite">UserProfile</code> is accessible as a request scoped attribute:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -266,7 +266,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Custom <a href="/apidocs/pac4j/AuthStore.html">AuthStore</a> is provided via <a href="/apidocs/pac4j/Auth.html">Auth#store</a> method:</p> 
+       <p>Custom <a href="/apidocs/org/jooby/pac4j/AuthStore.html">AuthStore</a> is provided via <a href="/apidocs/org/jooby/pac4j/Auth.html">Auth#store</a> method:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -279,7 +279,7 @@
 </code></pre> 
        </div> 
        <h3 id="pac-j-logout">logout</h3> 
-       <p>A default <code class="highlighter-rouge codehilite">/logout</code> handler is provided it too. The handler will remove the profile from <a href="/apidocs/pac4j/AuthStore.html">AuthStore</a> by calling the <a href="/apidocs/pac4j/AuthStore.html">AuthStore#unset</a> method. The default login will redirect to <code class="highlighter-rouge codehilite">/</code>.</p> 
+       <p>A default <code class="highlighter-rouge codehilite">/logout</code> handler is provided it too. The handler will remove the profile from <a href="/apidocs/org/jooby/pac4j/AuthStore.html">AuthStore</a> by calling the <a href="/apidocs/org/jooby/pac4j/AuthStore.html">AuthStore#unset</a> method. The default login will redirect to <code class="highlighter-rouge codehilite">/</code>.</p> 
        <p>A custom logout and redirect urls can be set via <code class="highlighter-rouge codehilite">.conf</code> file or programmatically:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -328,6 +328,21 @@
      </div> 
     </div> 
    </div> 
+   <!-- AddToAny BEGIN --> 
+   <div class="row share-network"> 
+    <div class="section-content"> 
+     <h3>Share</h3> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/pac4j" data-a2a-title="Authentication module via: Pac4j"> 
+      <a class="a2a_button_twitter" data-text="Authentication module via: Pac4j"></a> 
+      <a class="a2a_button_reddit a2a_counter"></a> 
+      <a class="a2a_button_linkedin a2a_counter"></a> 
+      <a class="a2a_button_facebook a2a_counter"></a> 
+      <a class="a2a_button_google_plus a2a_counter"></a> 
+     </div> 
+    </div> 
+   </div> 
+   <script async src="https://static.addtoany.com/menu/page.js"></script> 
+   <!-- AddToAny END --> 
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
