@@ -21,7 +21,6 @@ package org.jooby;
 import static java.util.Objects.requireNonNull;
 
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Locale.LanguageRange;

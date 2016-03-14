@@ -1,0 +1,3 @@
+lib/* linguist-vendored
+gems/* linguist-vendored
+*.gemspec linguist-vendored
