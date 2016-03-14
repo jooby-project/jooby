@@ -152,12 +152,10 @@
        <p>Usage is pretty straightforward, but of course we need to setup/configure the enhancement.</p> 
        <h3 id="ebean-enhancement">enhancement</h3> 
        <p>The enhancement process comes in two flavors:</p> 
-       <ol> 
-        <li>Runtime: via a JVM Agent&lt;/li&gt;</li> 
-        <li>Build time: via Maven plugin&lt;/li&gt;</li> 
-       </ol> 
+       <p>1) Runtime: via a JVM Agent</p> 
+       <p>2) Build time: via Maven plugin</p> 
        <h4 id="ebean-recommended-setup">recommended setup</h4> 
-       <p>The recommended setup consist of setting up both: runtime and build time enhancement.</p> 
+       <p>The recommended setup consist of setting up both: <strong>runtime and build time enhancement</strong>.</p> 
        <p>The runtime enhancer increases developer productivity, it let you start your app from IDE and/or <code class="highlighter-rouge codehilite">mvn jooby:run</code>. All you have to do is to add the agent dependencies to your classpath:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -179,7 +177,7 @@
        </div> 
        <p>Did you see the <code class="highlighter-rouge codehilite">test scope</code>? We don’t want to use the runtime enhancer while running in <code class="highlighter-rouge codehilite">prod</code>. Instead, we want to use the build time enhancer.</p> 
        <p>All you have to do is to add <code class="highlighter-rouge codehilite">avaje-ebeanorm-mavenenhancer</code> to your <code class="highlighter-rouge codehilite">pom.xml</code> as described in the <a href="http://ebean-orm.github.io/docs#enhance_maven" target="_blank">official doc</a>.</p> 
-       <p>Alternative, and because we want to keep our <code class="highlighter-rouge codehilite">pom.xml</code> small, you can drop a <code class="highlighter-rouge codehilite">ebean.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc/mvn</code> folder. The presence of the file <code class="highlighter-rouge codehilite">src/etc/mvn/ebean.activator</code> will trigger the <code class="highlighter-rouge codehilite">avaje-ebeanorm-mavenenhancer</code> plugin.</p> 
+       <p>Alternative, and because we want to keep our <code class="highlighter-rouge codehilite">pom.xml</code> small, you can drop a <code class="highlighter-rouge codehilite">ebean.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc</code> folder. The presence of the file <code class="highlighter-rouge codehilite">src/etc/ebean.activator</code> will trigger the <code class="highlighter-rouge codehilite">avaje-ebeanorm-mavenenhancer</code> plugin.</p> 
        <h3 id="ebean-configuration">configuration</h3> 
        <p>Configuration is done via <code class="highlighter-rouge codehilite">.conf</code>, for example:</p> 
        <div class="highlighter-rouge codehilite">
@@ -207,7 +205,6 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Happy coding!!!</p> 
        <h3 id="ebean-ebean-conf">ebean.conf</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 

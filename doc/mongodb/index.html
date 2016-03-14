@@ -101,8 +101,13 @@
         <li> <a href="#mongodb-driver-dependency">dependency</a></li> 
         <li> <a href="#mongodb-driver-usage">usage</a></li> 
         <li> <a href="#mongodb-driver-options">options</a></li> 
-        <li> <a href="#mongodb-driver-two-or-more-connections">two or more connections</a></li> 
-        <li> <a href="#mongodb-driver-mongodb-conf">mongodb.conf</a></li>
+        <li> <a href="#mongodb-driver-two-or-more-connections">two or more connections</a></li>
+       </ul></li> 
+      <li class=""> <a href="#mongodb-session-store">mongodb session store</a>
+       <ul> 
+        <li> <a href="#mongodb-session-store-usage">usage</a></li> 
+        <li> <a href="#mongodb-session-store-options">options</a></li> 
+        <li> <a href="#mongodb-session-store-mongodb-conf">mongodb.conf</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -197,7 +202,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>### connection URI</p> 
+       <h4 id="mongodb-driver-connection-URI">connection URI</h4> 
        <p>Default connection URI is defined by the <code class="highlighter-rouge codehilite">db</code> property. Mongodb URI looks like:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -226,9 +231,51 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>{{mongodb-session.md}}</p> 
-       <p>That’s all folks! Enjoy it!!</p> 
-       <h3 id="mongodb-driver-mongodb-conf">mongodb.conf</h3> 
+      </div> 
+     </div> 
+     <div class="datalist" id="mongodb-session-store"> 
+      <div class="datalist-title "> 
+       <h2>mongodb session store</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <h3 id="mongodb-session-store-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Mongodb</span><span class="o">());</span>
+
+  <span class="n">session</span><span class="o">(</span><span class="n">MongoSessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+   <span class="n">req</span><span class="o">.</span><span class="na">session</span><span class="o">().</span><span class="na">set</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"jooby"</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>The <code class="highlighter-rouge codehilite">name</code> attribute and value will be stored in a <a href="http://mongodb.github.io/mongo-java-driver/" target="_blank">MongoDB</a>.</p> 
+       <h3 id="mongodb-session-store-options">options</h3> 
+       <h4 id="mongodb-session-store-timeout">timeout</h4> 
+       <p>By default, a mongodb session will expire after <code class="highlighter-rouge codehilite">30 minutes</code>. Changing the default timeout is as simple as:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
+
+<span class="c"># 15 seconds </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
+
+<span class="c"># 120 minutes </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
+
+<span class="c"># no timeout </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
+</code></pre> 
+       </div> 
+       <p>It uses <a href="docs.mongodb.org/manual/core/index-ttl">MongoDB’s TTL</a> collection feature (2.2+) to have <code class="highlighter-rouge codehilite">mongod</code> automatically remove expired sessions.</p> 
+       <h4 id="mongodb-session-store-session-collection">session collection</h4> 
+       <p>Default <a href="http://mongodb.github.io/mongo-java-driver/" target="_blank">MongoDB</a> collection is <code class="highlighter-rouge codehilite">sessions</code>.</p> 
+       <p>It’s possible to change the default key setting the <code class="highlighter-rouge codehilite">mongodb.sesssion.collection</code> properties.</p> 
+       <h3 id="mongodb-session-store-mongodb-conf">mongodb.conf</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>

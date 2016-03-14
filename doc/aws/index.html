@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: aws module"> 
-  <meta name="og:description" content="Small utility module that exposes AmazonWebServiceClient and give you access to aws credentials (access and secret keys)"> 
+  <meta name="og:description" content="Small utility module that exposes AmazonWebServiceClient services"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Small utility module that exposes AmazonWebServiceClient and give you access to aws credentials (access and secret keys)"> 
+  <meta name="twitter:description" content="Small utility module that exposes AmazonWebServiceClient services"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -111,7 +111,8 @@
        <h2>aws</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Small utility module that exposes <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code> and give you access to aws credentials (access and secret keys).</p> 
+       <p>Small utility module that exposes <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code> services.</p> 
+       <p>It also give you access to aws credentials (access and secret keys).</p> 
        <h3 id="aws-exposes">exposes</h3> 
        <ul> 
         <li>One ore more <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code></li> 
@@ -193,8 +194,6 @@
         <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="err">use(new</span><span class="w"> </span><span class="err">Aws()</span><span class="w"> </span><span class="err">.with(creds</span><span class="w"> </span><span class="err">-&gt;</span><span class="w"> </span><span class="err">new</span><span class="w"> </span><span class="err">AmazonS3Client(creds))</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">aws.s3</span><span class="w"> </span><span class="err">keys</span><span class="w"> </span><span class="err">.with(creds</span><span class="w"> </span><span class="err">-&gt;</span><span class="w"> </span><span class="err">new</span><span class="w"> </span><span class="err">AmazonSimpleEmailServiceClient(creds))</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">global</span><span class="w"> </span><span class="err">keys</span><span class="w"> </span><span class="err">);</span><span class="w"> </span></code></pre> 
        </div> 
        <p>It uses the <code class="highlighter-rouge codehilite">AmazonWebServiceClient#getServiceName()</code> method in order to find per service keys.</p> 
-       <p>That’s all folks!</p> 
-       <p>Happy coding!!!</p> 
       </div> 
      </div> 
     </div> 
@@ -203,8 +202,8 @@
    <div class="row share-network"> 
     <div class="section-content"> 
      <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/aws" data-a2a-title="Small utility module that exposes AmazonWebServiceClient and give you access to aws credentials (access and secret keys)"> 
-      <a class="a2a_button_twitter" data-text="Small utility module that exposes AmazonWebServiceClient and give you access to aws credentials (access and secret keys)"></a> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/aws" data-a2a-title="Small utility module that exposes AmazonWebServiceClient services"> 
+      <a class="a2a_button_twitter" data-text="Small utility module that exposes AmazonWebServiceClient services"></a> 
       <a class="a2a_button_reddit a2a_counter"></a> 
       <a class="a2a_button_linkedin a2a_counter"></a> 
       <a class="a2a_button_facebook a2a_counter"></a> 

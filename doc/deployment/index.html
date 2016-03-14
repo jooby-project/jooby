@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en">
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: deployment module</title> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, deployment"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby: deployment module"> 
+  <meta name="og:description" content="Learn how to build, package and deploy applications"> 
+  <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    --> 
+  <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby: deployment module"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:title" content="jooby: deployment module"> 
+  <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    --> 
+  <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg"> 
+  <meta name="twitter:site" content="@joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="Learn how to build, package and deploy applications"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <link rel="stylesheet" href="/resources/styles/github.css"> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
+      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
+   </div> 
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>deployment</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open">
+      deployment
+     </div> 
+     <ul> 
+      <li class="active"> <a href="#deployment">deployment</a>
+       <ul> 
+        <li> <a href="#deployment-intro">intro</a></li> 
+        <li> <a href="#deployment-environments">environments</a></li> 
+        <li> <a href="#deployment-run-your-app">run your app</a></li>
+       </ul></li> 
+      <li class=""> <a href="#fat-jar">fat jar</a>
+       <ul> 
+        <li> <a href="#fat-jar-configuration">configuration</a></li> 
+        <li> <a href="#fat-jar-run-start">run / start</a></li>
+       </ul></li> 
+      <li class=""> <a href="#stork">stork</a>
+       <ul> 
+        <li> <a href="#stork-usage">usage</a></li> 
+        <li> <a href="#stork-profile-activation">profile activation</a></li> 
+        <li> <a href="#stork-launcher-configuration">launcher configuration</a></li> 
+        <li> <a href="#stork-example">example</a></li>
+       </ul></li> 
+      <li class=""> <a href="#capsule">capsule</a>
+       <ul> 
+        <li> <a href="#capsule-usage">usage</a></li> 
+        <li> <a href="#capsule-profile-activation">profile activation</a></li> 
+        <li> <a href="#capsule-options">options</a></li>
+       </ul></li> 
+      <li class=""> <a href="#static-resources">static resources</a>
+       <ul> 
+        <li> <a href="#static-resources-usage">usage</a></li>
+       </ul></li> 
+      <li class=""> <a href="#war-">war?</a>
+       <ul> 
+        <li> <a href="#war--usage">usage</a></li> 
+        <li> <a href="#war--limitations">limitations</a></li> 
+        <li> <a href="#war--how-it-works-">how it works?</a></li>
+       </ul></li> 
+      <li class=""> <a href="#conclusion">conclusion</a></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+     <div class="datalist" id="deployment"> 
+      <div class="datalist-title active"> 
+       <h2>deployment</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Learn how to build, package and deploy applications.</p> 
+       <h3 id="deployment-intro">intro</h3> 
+       <p>Jooby applications are <code class="highlighter-rouge codehilite">self-contained</code> and they doesn’t run inside a container or <strong>Servlet</strong> environment.</p> 
+       <p>Application resources (a.k.a conf files) are packaged within your app. Not only that, the <a href="/doc/servers">server</a> you pick is <strong>also</strong> packaged within your application.</p> 
+       <p>Jooby lack of the concept of server/servlet container it just a raw/plain/normal Java application that can be launched via:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>java -jar myapp.jar
+</code></pre> 
+       </div> 
+       <p>Where <code class="highlighter-rouge codehilite">myapp.jar</code> is a <code class="highlighter-rouge codehilite">fat jar</code>. A <code class="highlighter-rouge codehilite">fat jar</code> is a jar with all the app dependencies, conf files and web server… all bundle as a single jar.</p> 
+       <h3 id="deployment-environments">environments</h3> 
+       <p>The <code class="highlighter-rouge codehilite">fat jar</code> is nice when we need to deploy our application into one single environment, but what if we need to deploy to stage? or prod?</p> 
+       <p>The way we deploy to a different environment is by creating a conf file (.conf or logback.xml) and adding the environment as suffix.</p> 
+       <p>If you need to deploy to <code class="highlighter-rouge codehilite">stage</code> and <code class="highlighter-rouge codehilite">prod</code> then you probably need:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code># dev environment
+conf/application.conf
+conf/logback.xml
+
+conf/application.stage.conf
+conf/logback.stage.xml
+
+conf/application.prod.conf
+conf/logback.prod.xml
+</code></pre> 
+       </div> 
+       <p>The file jar contains <strong>everything</strong> your dev, stage and prod conf files.</p> 
+       <p><strong>Jooby</strong> is built around the <code class="highlighter-rouge codehilite">environment</code> concept, which means a <strong>Jooby</strong> app always known in which environment it runs.</p> 
+       <p>The <code class="highlighter-rouge codehilite">application.env</code> property controls the <code class="highlighter-rouge codehilite">environment</code>, by default this property is set to <code class="highlighter-rouge codehilite">dev</code> (the unique and well known environment).</p> 
+       <p>Suppose you need to deploy your awesome app into <code class="highlighter-rouge codehilite">prod</code> and you need to set/update a few properties. The <code class="highlighter-rouge codehilite">application.conf</code> file looks like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>...
+aws.accessKey = AKIAIOSFODNN7EXAMPLE
+aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+...
+</code></pre> 
+       </div> 
+       <p>For <code class="highlighter-rouge codehilite">prod</code> you have a new key pair… then all you have to do is to create a new file <code class="highlighter-rouge codehilite">application.prod.conf</code> and just add those new keys:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>aws.accessKey = AKIAIOSFODNN7PROD
+aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
+</code></pre> 
+       </div> 
+       <blockquote> 
+        <p><strong>TIP</strong>: You don’t have to add all the properties, just those that changes between environments.</p> 
+       </blockquote> 
+       <h3 id="deployment-run-your-app">run your app</h3> 
+       <p>In order to start your application in one specific environment, you need to set the <code class="highlighter-rouge codehilite">application.env</code> argument:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>java myapp.jar application.env=prod
+</code></pre> 
+       </div> 
+       <p>or using a shortcut, like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>java myapp.jar env=prod
+</code></pre> 
+       </div> 
+       <p>or just:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>java myapp.jar prod
+</code></pre> 
+       </div> 
+       <p>Your application will run now in <code class="highlighter-rouge codehilite">prod</code> mode. It will find your <code class="highlighter-rouge codehilite">application.conf</code> and overrides any property defined there with those from <code class="highlighter-rouge codehilite">application.prod.conf</code></p> 
+       <p>It works for <code class="highlighter-rouge codehilite">logback.xml</code> too, if <code class="highlighter-rouge codehilite">logback.[env].xml</code> is present, then <strong>Jooby</strong> will use it, otherwise it fallbacks to <code class="highlighter-rouge codehilite">logback.xml</code>.</p> 
+      </div> 
+     </div> 
+     <div class="datalist" id="fat-jar"> 
+      <div class="datalist-title "> 
+       <h2>fat jar</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>This is the default deployment option and you (usually) don’t need to do anything if you created your application via <a href="/quickstart">maven archetype</a>.</p> 
+       <p>In order to create a <strong>fat jar</strong> go to your project home, open a terminal and run:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>mvn clean package
+</code></pre> 
+       </div> 
+       <p>The jar will be available inside the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
+       <h3 id="fat-jar-configuration">configuration</h3> 
+       <p>We use the <a href="https://maven.apache.org/plugins/maven-shade-plugin/" target="_blank">maven-shade-plugin</a> for creating the fat jar:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>...
+<span class="nt">&lt;build&gt;</span>
+  <span class="nt">&lt;plugins&gt;</span>
+    ...
+    <span class="c">&lt;!-- Build fat jar --&gt;</span>
+    <span class="nt">&lt;plugin&gt;</span>
+      <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+      <span class="nt">&lt;artifactId&gt;</span>maven-shade-plugin<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;/plugin&gt;</span>
+    ...
+  <span class="nt">&lt;/plugins&gt;</span>
+<span class="nt">&lt;/build&gt;</span>
+</code></pre> 
+       </div> 
+       <p>If you created your application via <a href="/quickstart">maven archetype</a> this setup is already present in your application.</p> 
+       <h3 id="fat-jar-run-start">run / start</h3> 
+       <p>Due everything was bundle into a single <code class="highlighter-rouge codehilite">jar</code> file, all you have to do is:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>java -jar myapp.jar <span class="o">[</span>env]
+</code></pre> 
+       </div> 
+       <p>Easy hugh? No complex deployment, <strong>no heavy-weight servers</strong>, <strong>no classpath hell</strong>, nothing!!!</p> 
+       <p>Your application is up and running!!</p> 
+      </div> 
+     </div> 
+     <div class="datalist" id="stork"> 
+      <div class="datalist-title "> 
+       <h2>stork</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Build, package and distribute your application using <a href="https://github.com/fizzed/stork" target="_blank">Stork</a>.</p> 
+       <p><a href="https://github.com/fizzed/stork" target="_blank">Stork</a> is a collection of utilities for optimizing your <strong>after-build</strong> workflow by filling in the gap between your Java build system and eventual end-user app execution.</p> 
+       <h3 id="stork-usage">usage</h3> 
+       <p><a href="https://github.com/fizzed/stork" target="_blank">Stork</a> integration is provided via <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html" target="_blank">Maven Profiles</a>.</p> 
+       <ul> 
+        <li> <p>Write your <a href="https://github.com/fizzed/stork#launcher-configuration" target="_blank">stork.yml launcher</a> and save it in the <code class="highlighter-rouge codehilite">src/etc</code> directory</p> </li> 
+        <li> <p>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></p> </li> 
+        <li> <p>It builds a <code class="highlighter-rouge codehilite">[app-name].zip</code> file inside the <code class="highlighter-rouge codehilite">target</code> directory</p> </li> 
+       </ul> 
+       <h3 id="stork-profile-activation">profile activation</h3> 
+       <p>The <code class="highlighter-rouge codehilite">stork</code> Maven profile is activated by the presence of the <code class="highlighter-rouge codehilite">src/etc/stork.yml</code> file.</p> 
+       <h3 id="stork-launcher-configuration">launcher configuration</h3> 
+       <p>You must name your <a href="https://github.com/fizzed/stork#launcher-configuration" target="_blank">launcher</a> as <code class="highlighter-rouge codehilite">stork.yml</code> and save it inside the <code class="highlighter-rouge codehilite">src/etc</code> directory.</p> 
+       <p>Maven properties defined here will be resolved and merged into the final output. Examples of these properties are: <code class="highlighter-rouge codehilite">${application.class}</code>, <code class="highlighter-rouge codehilite">${project.groupId}</code>, etc…</p> 
+       <h3 id="stork-example">example</h3> 
+       <p>Here is a simple example of the <code class="highlighter-rouge codehilite">stork.yml</code> launcher:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c1"># Name of application (make sure it has no spaces)</span>
+<span class="s">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">${project.artifactId}"</span>
+
+<span class="c1"># Type of launcher (CONSOLE or DAEMON)</span>
+<span class="s">type</span><span class="pi">:</span> <span class="s">DAEMON</span>
+
+<span class="c1"># Java class to run</span>
+<span class="s">main_class</span><span class="pi">:</span> <span class="s2">"</span><span class="s">${application.class}"</span>
+
+<span class="s">domain</span><span class="pi">:</span> <span class="s2">"</span><span class="s">${project.groupId}"</span>
+
+<span class="s">short_description</span><span class="pi">:</span> <span class="s2">"</span><span class="s">${project.artifactId}"</span>
+
+<span class="c1"># Platform launchers to generate (WINDOWS, LINUX, MAC_OSX)</span>
+<span class="c1"># Linux launcher is suitable for Bourne shells (e.g. Linux/BSD)</span>
+<span class="s">platforms</span><span class="pi">:</span> <span class="pi">[</span> <span class="nv">LINUX</span> <span class="pi">]</span>
+
+<span class="c1"># Working directory for app</span>
+<span class="c1"># RETAIN will not change the working directory</span>
+<span class="c1"># APP_HOME will change the working directory to the home of the app</span>
+<span class="c1"># (where it was intalled) before running the main class</span>
+<span class="s">working_dir_mode</span><span class="pi">:</span> <span class="s">RETAIN</span>
+
+<span class="c1"># Minimum version of java required (system will be searched for acceptable jvm)</span>
+<span class="s">min_java_version</span><span class="pi">:</span> <span class="s2">"</span><span class="s">1.8"</span>
+
+<span class="c1"># Min/max fixed memory (measured in MB)</span>
+<span class="s">min_java_memory</span><span class="pi">:</span> <span class="s">512</span>
+<span class="s">max_java_memory</span><span class="pi">:</span> <span class="s">1024</span>
+
+<span class="c1"># Min/max memory by percentage of system</span>
+<span class="c1">#min_java_memory_pct: 10</span>
+<span class="c1">#max_java_memory_pct: 20</span>
+
+<span class="c1"># Try to create a symbolic link to java executable in &lt;app_home&gt;/run with</span>
+<span class="c1"># the name of "&lt;app_name&gt;-java" so that commands like "ps" will make it</span>
+<span class="c1"># easier to find your app</span>
+<span class="s">symlink_java</span><span class="pi">:</span> <span class="s">true</span>
+</code></pre> 
+       </div> 
+      </div> 
+     </div> 
+     <div class="datalist" id="capsule"> 
+      <div class="datalist-title "> 
+       <h2>capsule</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Package and Deploy JVM Applications with <a href="http://www.capsule.io" target="_blank">Capsule</a>.</p> 
+       <p>A capsule is a single executable JAR that contains everything your application needs to run either in the form of embedded files or as declarative metadata. More at <a href="http://www.capsule.io" target="_blank">capsule.io</a></p> 
+       <h3 id="capsule-usage">usage</h3> 
+       <p><a href="http://www.capsule.io/" target="_blank">Capsule</a> integration is provided via <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html" target="_blank">Maven Profiles</a> using the <a href="https://github.com/chrischristo/capsule-maven-plugin" target="_blank">capsule-maven-plugin</a>.</p> 
+       <ul> 
+        <li> <p>Write a <code class="highlighter-rouge codehilite">capsule.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc</code> directory</p> </li> 
+        <li> <p>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></p> </li> 
+        <li> <p>It builds a <code class="highlighter-rouge codehilite">[app-name]-capsule-fat.jar</code> file inside the <code class="highlighter-rouge codehilite">target</code> directory</p> </li> 
+       </ul> 
+       <p>It generates a <code class="highlighter-rouge codehilite">fat capsule</code> by default inside the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
+       <h3 id="capsule-profile-activation">profile activation</h3> 
+       <p>The <code class="highlighter-rouge codehilite">capsule</code> Maven profile is activated by the presence of the <code class="highlighter-rouge codehilite">src/etc/capsule.activator</code> file (file content doesn’t matter, just the file presence).</p> 
+       <h3 id="capsule-options">options</h3> 
+       <p>Integration provides some defaults, which are listed here:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
+  <span class="nt">&lt;capsule.resolve&gt;</span>false<span class="nt">&lt;/capsule.resolve&gt;</span>
+  <span class="nt">&lt;capsule.chmod&gt;</span>true<span class="nt">&lt;/capsule.chmod&gt;</span>
+  <span class="nt">&lt;capsule.trampoline&gt;</span>false<span class="nt">&lt;/capsule.trampoline&gt;</span>
+  <span class="nt">&lt;capsule.JVM-Args&gt;</span>-Xms512m -Xmx512m<span class="nt">&lt;/capsule.JVM-Args&gt;</span>
+  <span class="nt">&lt;capsule.types&gt;</span>fat<span class="nt">&lt;/capsule.types&gt;</span>
+  <span class="nt">&lt;capsule.caplets&gt;</span>Capsule<span class="nt">&lt;/capsule.caplets&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
+</code></pre> 
+       </div> 
+       <p>For example, if you need or prefer a <code class="highlighter-rouge codehilite">thin capsule</code>, follow these steps:</p> 
+       <ul> 
+        <li>Open your <code class="highlighter-rouge codehilite">pom.xml</code></li> 
+        <li>Go to the <code class="highlighter-rouge codehilite">&lt;properties&gt;</code> section and add/set:</li> 
+       </ul> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
+  <span class="nt">&lt;capsule.resolve&gt;</span>true<span class="nt">&lt;/capsule.resolve&gt;</span>
+  <span class="nt">&lt;capsule.types&gt;</span>thin<span class="nt">&lt;/capsule.types&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
+</code></pre> 
+       </div> 
+       <ul> 
+        <li>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></li> 
+       </ul> 
+       <p>You’ll find your <code class="highlighter-rouge codehilite">thin</code> capsule in the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
+      </div> 
+     </div> 
+     <div class="datalist" id="static-resources"> 
+      <div class="datalist-title "> 
+       <h2>static resources</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>This isn’t a deployment option, just a way to collect static resources and deploy them somewhere else.</p> 
+       <p>The <code class="highlighter-rouge codehilite">static</code> assembly let you collect and bundle all your static resources into a <code class="highlighter-rouge codehilite">zip</code> file.</p> 
+       <p>This is nice if you want or prefer to serve static resources via <a href="https://www.nginx.com" target="_blank">nginx</a> or <a href="https://httpd.apache.org" target="_blank">apache</a>.</p> 
+       <h3 id="static-resources-usage">usage</h3> 
+       <ul> 
+        <li>Open your <code class="highlighter-rouge codehilite">pom.xml</code> and setup the <code class="highlighter-rouge codehilite">jooby.static</code> assembly, like:</li> 
+       </ul> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>...
+<span class="nt">&lt;build&gt;</span>
+  <span class="nt">&lt;plugins&gt;</span>
+    ...
+    <span class="nt">&lt;plugin&gt;</span>
+      <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+      <span class="nt">&lt;artifactId&gt;</span>maven-assembly-plugin<span class="nt">&lt;/artifactId&gt;</span>
+      <span class="nt">&lt;configuration&gt;</span>
+        <span class="nt">&lt;descriptorRefs&gt;</span>
+          <span class="nt">&lt;descriptorRef&gt;</span>jooby.static<span class="nt">&lt;/descriptorRef&gt;</span>
+        <span class="nt">&lt;/descriptorRefs&gt;</span>
+      <span class="nt">&lt;/configuration&gt;</span>
+    <span class="nt">&lt;/plugin&gt;</span>
+    ...
+  <span class="nt">&lt;/plugins&gt;</span>
+<span class="nt">&lt;/build&gt;</span>
+...
+</code></pre> 
+       </div> 
+       <ul> 
+        <li> <p>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></p> </li> 
+        <li> <p>Look for <code class="highlighter-rouge codehilite">[app-name]tar.gz</code> inside the <code class="highlighter-rouge codehilite">target</code> direactory</p> </li> 
+       </ul> 
+      </div> 
+     </div> 
+     <div class="datalist" id="war-"> 
+      <div class="datalist-title "> 
+       <h2>war?</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>This module exists for strict environments where the ONLY option is to deploy into a Servlet Container. If you are free to deploy a new server technology, we strongly recommend to avoid this and go directly with <a href="http://netty.io" target="_blank">Netty</a>, <a href="http://www.eclipse.org/jetty/" target="_blank">Jetty</a> or <a href="http://undertow.io" target="_blank">Undertow</a>.</p> 
+       <h3 id="war--usage">usage</h3> 
+       <p>In order to deploy into a Servlet Container, we need to generate a <code class="highlighter-rouge codehilite">*.war</code> file. The next steps guide you on how to do it:</p> 
+       <h4 id="war--step-">step 1</h4> 
+       <p>Add the <code class="highlighter-rouge codehilite">jooby-servlet</code> dependency to your <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-servlet<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.15.1<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
+       <p>IMPORTANT: Scope must be <code class="highlighter-rouge codehilite">provided</code>.</p> 
+       <h4 id="war--step-">step 2</h4> 
+       <p>Find out the <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> section in your <code class="highlighter-rouge codehilite">pom.xml</code>, it looks like this:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c">&lt;!-- Build jooby.zip | jooby.war --&gt;</span>
+<span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>maven-assembly-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;descriptorRefs&gt;</span>
+      <span class="nt">&lt;descriptorRef&gt;</span>jooby.zip<span class="nt">&lt;/descriptorRef&gt;</span>
+    <span class="nt">&lt;/descriptorRefs&gt;</span>
+  <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</code></pre> 
+       </div> 
+       <p>Add a new descriptorRef: <code class="highlighter-rouge codehilite">jooby.war</code></p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c">&lt;!-- Build jooby.zip | jooby.war --&gt;</span>
+<span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>maven-assembly-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;descriptorRefs&gt;</span>
+      <span class="nt">&lt;descriptorRef&gt;</span>jooby.zip<span class="nt">&lt;/descriptorRef&gt;</span>
+      <span class="nt">&lt;descriptorRef&gt;</span>jooby.war<span class="nt">&lt;/descriptorRef&gt;</span>
+    <span class="nt">&lt;/descriptorRefs&gt;</span>
+  <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</code></pre> 
+       </div> 
+       <h4 id="war--step-">step 3</h4> 
+       <p>Run: <code class="highlighter-rouge codehilite">mvn clean package</code> and find the <code class="highlighter-rouge codehilite">*.war</code> file in the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
+       <h3 id="war--limitations">limitations</h3> 
+       <ul> 
+        <li>web-sockets are not supported</li> 
+        <li>some properties has no effect when deploying into a Servlet Container:</li> 
+        <li>application.path / contextPath</li> 
+        <li>appplication.port</li> 
+        <li>max upload file sizes</li> 
+        <li>any other server specific property: server.<em>, jetty.</em>, netty.<em>, undertow.</em></li> 
+       </ul> 
+       <h4 id="war--special-note-on-contextPath">special note on contextPath</h4> 
+       <p>To avoid a headache… make sure to use the <code class="highlighter-rouge codehilite">contextPath</code> variable while loading static/dynamic resources (.css, .js, etc..).</p> 
+       <p>For example:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+  <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"stylesheet"</span> <span class="na">text=</span><span class="s">"text/css"</span> <span class="na">href=</span><span class="s">"{{contextPath}}/css/styles.css"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">"{{contextPath}}/js/app.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre> 
+       </div> 
+       <p>Here the expression: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">{</span><span class="w"> </span><span class="nt">"{{contextPath"</span><span class="w"> </span><span class="err">}}}}</span></code> correspond to the template engine (handlebars here) or <code class="highlighter-rouge codehilite">${contextPath}</code> for Freemarker.</p> 
+       <h3 id="war--how-it-works-">how it works?</h3> 
+       <p>The <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> generates the *.war file. The assembly descriptor can be found <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml" target="_blank">here</a></p> 
+       <h4 id="war--web-xml">web.xml</h4> 
+       <p>A default <code class="highlighter-rouge codehilite">web.xml</code> file is generated by the assembly plugin. File looks like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="nt">&lt;web-app</span> <span class="na">xmlns=</span><span class="s">"http://xmlns.jcp.org/xml/ns/javaee"</span> <span class="na">xmlns:xsi=</span><span class="s">"http://www.w3.org/2001/XMLSchema-instance"</span>
+  <span class="na">xsi:schemaLocation=</span><span class="s">"http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"</span>
+  <span class="na">version=</span><span class="s">"3.1"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;context-param&gt;</span>
+    <span class="nt">&lt;param-name&gt;</span>application.class<span class="nt">&lt;/param-name&gt;</span>
+    <span class="nt">&lt;param-value&gt;</span>${application.class}<span class="nt">&lt;/param-value&gt;</span>
+  <span class="nt">&lt;/context-param&gt;</span>
+
+  <span class="nt">&lt;listener&gt;</span>
+    <span class="nt">&lt;listener-class&gt;</span>org.jooby.servlet.ServerInitializer<span class="nt">&lt;/listener-class&gt;</span>
+  <span class="nt">&lt;/listener&gt;</span>
+
+  <span class="nt">&lt;servlet&gt;</span>
+    <span class="nt">&lt;servlet-name&gt;</span>jooby<span class="nt">&lt;/servlet-name&gt;</span>
+    <span class="nt">&lt;servlet-class&gt;</span>org.jooby.servlet.ServletHandler<span class="nt">&lt;/servlet-class&gt;</span>
+    <span class="nt">&lt;load-on-startup&gt;</span>0<span class="nt">&lt;/load-on-startup&gt;</span>
+    <span class="c">&lt;!-- MultiPart setup --&gt;</span>
+    <span class="nt">&lt;multipart-config&gt;</span>
+      <span class="nt">&lt;file-size-threshold&gt;</span>0<span class="nt">&lt;/file-size-threshold&gt;</span>
+      <span class="c">&lt;!-- Default 200k --&gt;</span>
+      <span class="nt">&lt;max-request-size&gt;</span>${war.maxRequestSize}<span class="nt">&lt;/max-request-size&gt;</span>
+    <span class="nt">&lt;/multipart-config&gt;</span>
+  <span class="nt">&lt;/servlet&gt;</span>
+
+  <span class="nt">&lt;servlet-mapping&gt;</span>
+    <span class="nt">&lt;servlet-name&gt;</span>jooby<span class="nt">&lt;/servlet-name&gt;</span>
+    <span class="nt">&lt;url-pattern&gt;</span>/*<span class="nt">&lt;/url-pattern&gt;</span>
+  <span class="nt">&lt;/servlet-mapping&gt;</span>
+<span class="nt">&lt;/web-app&gt;</span>
+</code></pre> 
+       </div> 
+       <h5>upload size</h5> 
+       <p>Default upload size is set to <code class="highlighter-rouge codehilite">204800b</code> (200kb). If you need to increase the upload size, add the <code class="highlighter-rouge codehilite">war.maxRequestSize</code> property to <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
+  <span class="nt">&lt;war.maxRequestSize&gt;</span>1048576<span class="nt">&lt;/war.maxRequestSize&gt;</span> <span class="c">&lt;!-- 1mb --&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
+</code></pre> 
+       </div> 
+       <h5>custom web.xml</h5> 
+       <p>When the generated file isn’t enough, follow these steps:</p> 
+       <ol> 
+        <li>create a dir: <code class="highlighter-rouge codehilite">src/etc/war/WEB-INF</code></li> 
+        <li>save a <code class="highlighter-rouge codehilite">web.xml</code> file inside that dir</li> 
+        <li>run: <code class="highlighter-rouge codehilite">mvn clean package</code></li> 
+       </ol> 
+      </div> 
+     </div> 
+     <div class="datalist" id="conclusion"> 
+      <div class="datalist-title "> 
+       <h2>conclusion</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <ul> 
+        <li> <p><strong>jar/capsule deployment</strong> makes perfect sense for PaaS like Heroku, AppEngine, etc…</p> </li> 
+        <li> <p><strong>stork deployment</strong> give you more control and the sense of a traditional Java Server with start/stop scripts but also the power of control the application logs at runtime.</p> </li> 
+       </ul> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+   <!-- AddToAny BEGIN --> 
+   <div class="row share-network"> 
+    <div class="section-content"> 
+     <h3>Share</h3> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/deployment" data-a2a-title="Learn how to build, package and deploy applications"> 
+      <a class="a2a_button_twitter" data-text="Learn how to build, package and deploy applications"></a> 
+      <a class="a2a_button_reddit a2a_counter"></a> 
+      <a class="a2a_button_linkedin a2a_counter"></a> 
+      <a class="a2a_button_facebook a2a_counter"></a> 
+      <a class="a2a_button_google_plus a2a_counter"></a> 
+     </div> 
+    </div> 
+   </div> 
+   <script async src="https://static.addtoany.com/menu/page.js"></script> 
+   <!-- AddToAny END --> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left">©2014-2016 <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
+    <div class="altquimia">
+     DG 
+     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
+    </div> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>  
+ </body>
+</html>

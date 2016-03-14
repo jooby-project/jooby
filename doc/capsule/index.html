@@ -3,15 +3,15 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: netty module</title> 
+  <title>jooby: capsule module</title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, netty"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, capsule"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
-  <meta name="og:title" content="jooby: netty module"> 
-  <meta name="og:description" content="NIO web server via Netty"> 
+  <meta name="og:title" content="jooby: capsule module"> 
+  <meta name="og:description" content="Package and Deploy JVM Applications with Capsule"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -28,9 +28,9 @@
     FORMATO: JPG
     --> 
   <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
-  <meta name="og:site_name" content="jooby: netty module"> 
+  <meta name="og:site_name" content="jooby: capsule module"> 
   <meta name="twitter:card" content="summary"> 
-  <meta name="twitter:title" content="jooby: netty module"> 
+  <meta name="twitter:title" content="jooby: capsule module"> 
   <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="NIO web server via Netty"> 
+  <meta name="twitter:description" content="Package and Deploy JVM Applications with Capsule"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -87,99 +87,77 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>netty</h1> 
+     <h1>capsule</h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
      <div class="show-mobile menu-open">
-      netty
+      capsule
      </div> 
      <ul> 
-      <li class="active"> <a href="#netty">netty</a>
+      <li class="active"> <a href="#capsule">capsule</a>
        <ul> 
-        <li> <a href="#netty-dependency">dependency</a></li> 
-        <li> <a href="#netty-usage">usage</a></li> 
-        <li> <a href="#netty-server-conf">server.conf</a></li>
+        <li> <a href="#capsule-usage">usage</a></li> 
+        <li> <a href="#capsule-profile-activation">profile activation</a></li> 
+        <li> <a href="#capsule-options">options</a></li>
        </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
-     <div class="datalist" id="netty"> 
+     <div class="datalist" id="capsule"> 
       <div class="datalist-title active"> 
-       <h2>netty</h2> 
+       <h2>capsule</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>NIO web server via <a href="http://netty.io" target="_blank">Netty</a>.</p> 
-       <h3 id="netty-dependency">dependency</h3> 
+       <p>Package and Deploy JVM Applications with <a href="http://www.capsule.io" target="_blank">Capsule</a>.</p> 
+       <p>A capsule is a single executable JAR that contains everything your application needs to run either in the form of embedded files or as declarative metadata. More at <a href="http://www.capsule.io" target="_blank">capsule.io</a></p> 
+       <h3 id="capsule-usage">usage</h3> 
+       <p><a href="http://www.capsule.io/" target="_blank">Capsule</a> integration is provided via <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html" target="_blank">Maven Profiles</a> using the <a href="https://github.com/chrischristo/capsule-maven-plugin" target="_blank">capsule-maven-plugin</a>.</p> 
+       <ul> 
+        <li> <p>Write a <code class="highlighter-rouge codehilite">capsule.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc</code> directory</p> </li> 
+        <li> <p>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></p> </li> 
+        <li> <p>It builds a <code class="highlighter-rouge codehilite">[app-name]-capsule-fat.jar</code> file inside the <code class="highlighter-rouge codehilite">target</code> directory</p> </li> 
+       </ul> 
+       <p>It generates a <code class="highlighter-rouge codehilite">fat capsule</code> by default inside the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
+       <h3 id="capsule-profile-activation">profile activation</h3> 
+       <p>The <code class="highlighter-rouge codehilite">capsule</code> Maven profile is activated by the presence of the <code class="highlighter-rouge codehilite">src/etc/capsule.activator</code> file (file content doesn’t matter, just the file presence).</p> 
+       <h3 id="capsule-options">options</h3> 
+       <p>Integration provides some defaults, which are listed here:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>jooby-netty<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.15.1<span class="nt">&lt;/version&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
+        <pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
+  <span class="nt">&lt;capsule.resolve&gt;</span>false<span class="nt">&lt;/capsule.resolve&gt;</span>
+  <span class="nt">&lt;capsule.chmod&gt;</span>true<span class="nt">&lt;/capsule.chmod&gt;</span>
+  <span class="nt">&lt;capsule.trampoline&gt;</span>false<span class="nt">&lt;/capsule.trampoline&gt;</span>
+  <span class="nt">&lt;capsule.JVM-Args&gt;</span>-Xms512m -Xmx512m<span class="nt">&lt;/capsule.JVM-Args&gt;</span>
+  <span class="nt">&lt;capsule.types&gt;</span>fat<span class="nt">&lt;/capsule.types&gt;</span>
+  <span class="nt">&lt;capsule.caplets&gt;</span>Capsule<span class="nt">&lt;/capsule.caplets&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
 </code></pre> 
        </div> 
-       <h3 id="netty-usage">usage</h3> 
-       <p>In order to use a web server all you have to do is add the dependency to your build system. <a href="http://jooby.org">Jooby</a> will find the server and start it.</p> 
-       <h3 id="netty-server-conf">server.conf</h3> 
+       <p>For example, if you need or prefer a <code class="highlighter-rouge codehilite">thin capsule</code>, follow these steps:</p> 
+       <ul> 
+        <li>Open your <code class="highlighter-rouge codehilite">pom.xml</code></li> 
+        <li>Go to the <code class="highlighter-rouge codehilite">&lt;properties&gt;</code> section and add/set:</li> 
+       </ul> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># netty defaults </span>
-<span class="py">server.module</span> <span class="p">=</span> <span class="s">org.jooby.netty.Netty</span>
-
-<span class="err">netty</span> <span class="err">{</span>
-
-  <span class="err">http</span> <span class="err">{</span>
-
-    <span class="py">MaxInitialLineLength</span> <span class="p">=</span> <span class="s">4k</span>
-
-    <span class="py">MaxHeaderSize</span> <span class="p">=</span> <span class="s">${server.http.HeaderSize}</span>
-
-    <span class="py">MaxChunkSize</span> <span class="p">=</span> <span class="s">8k</span>
-
-    <span class="py">MaxContentLength</span> <span class="p">=</span> <span class="s">${server.http.MaxRequestSize}</span>
-
-    <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">${server.http.IdleTimeout}</span>
-
-  <span class="err">}</span>
-
-  <span class="err">threads</span> <span class="err">{</span>
-
-    <span class="py">Min</span> <span class="p">=</span> <span class="s">${server.threads.Min}</span>
-
-    <span class="py">Max</span> <span class="p">=</span> <span class="s">${server.threads.Max}</span>
-
-    <span class="py">Name</span> <span class="p">=</span> <span class="s">netty task</span>
-
-    <span class="py">Parent</span> <span class="p">=</span> <span class="s">${runtime.processors-x2}</span>
-
-  <span class="err">}</span>
-
-  <span class="err">options</span> <span class="err">{</span>
-
-    <span class="py">SO_REUSEADDR</span> <span class="p">=</span> <span class="s">true</span>
-
-  <span class="err">}</span>
-
-  <span class="err">child</span> <span class="err">{</span>
-
-    <span class="err">options</span> <span class="err">{</span>
-
-      <span class="py">SO_REUSEADDR</span> <span class="p">=</span> <span class="s">true</span>
-
-    <span class="err">}</span>
-
-  <span class="err">}</span>
-
-<span class="err">}</span>
+        <pre class="highlight"><code><span class="nt">&lt;properties&gt;</span>
+  <span class="nt">&lt;capsule.resolve&gt;</span>true<span class="nt">&lt;/capsule.resolve&gt;</span>
+  <span class="nt">&lt;capsule.types&gt;</span>thin<span class="nt">&lt;/capsule.types&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
 </code></pre> 
        </div> 
+       <ul> 
+        <li>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></li> 
+       </ul> 
+       <p>You’ll find your <code class="highlighter-rouge codehilite">thin</code> capsule in the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
+       <p>Happy deploy!!</p> 
       </div> 
      </div> 
     </div> 
@@ -188,8 +166,8 @@
    <div class="row share-network"> 
     <div class="section-content"> 
      <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/netty" data-a2a-title="NIO web server via Netty"> 
-      <a class="a2a_button_twitter" data-text="NIO web server via Netty"></a> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/capsule" data-a2a-title="Package and Deploy JVM Applications with Capsule"> 
+      <a class="a2a_button_twitter" data-text="Package and Deploy JVM Applications with Capsule"></a> 
       <a class="a2a_button_reddit a2a_counter"></a> 
       <a class="a2a_button_linkedin a2a_counter"></a> 
       <a class="a2a_button_facebook a2a_counter"></a> 

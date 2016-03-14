@@ -3,15 +3,15 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: intro module</title> 
+  <title>jooby: async module</title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, intro"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, async"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: async module"> 
-  <meta name="og:description" content="Async processing is achieved via: Deferred API"> 
+  <meta name="og:description" content="In Jooby all the IO operations are performed in async &amp; non blocking fashion across servers: Netty, Jetty and Undertow"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Async processing is achieved via: Deferred API"> 
+  <meta name="twitter:description" content="In Jooby all the IO operations are performed in async &amp; non blocking fashion across servers: Netty, Jetty and Undertow"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -87,18 +87,20 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>intro</h1> 
+     <h1>async</h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
      <div class="show-mobile menu-open">
-      intro
+      async
      </div> 
      <ul> 
-      <li class="active"> <a href="#intro">intro</a>
+      <li class="active"> <a href="#async">async</a>
        <ul> 
-        <li> <a href="#intro-async-routes">async routes</a></li>
+        <li> <a href="#async-threads">threads</a></li> 
+        <li> <a href="#async-deferred">deferred</a></li> 
+        <li> <a href="#async-RxJava-example">RxJava example</a></li>
        </ul></li> 
       <li class=""> <a href="#modules">modules</a>
        <ul> 
@@ -107,12 +109,36 @@
      </ul> 
     </div> 
     <div class="section-content"> 
-     <div class="datalist" id="intro"> 
+     <div class="datalist" id="async"> 
       <div class="datalist-title active"> 
-       <h2>intro</h2> 
+       <h2>async</h2> 
       </div> 
       <div class="datalist-content"> 
-       <h3 id="intro-async-routes">async routes</h3> 
+       <p>In <a href="http://jooby.org">Jooby</a> all the IO operations are performed in async &amp; non blocking fashion across servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>.</p> 
+       <p>All IO operations run in an IO thread while application logic <strong>always run in a worker thread</strong>. Worker threads can block at any time.</p> 
+       <p>Having said that let see what tools are available for async/reactive programming.</p> 
+       <h3 id="async-threads">threads</h3> 
+       <p>Default worker thread pool is 20/100. You can change this setup via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="py">server.threads.Min</span><span class="p">=</span><span class="s">20</span>
+<span class="py">server.threads.Max</span><span class="p">=</span><span class="s">20</span>
+</code></pre> 
+       </div> 
+       <p>You can set them to the <code class="highlighter-rouge codehilite">available processors</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="py">server.threads.Min</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
+<span class="py">server.threads.Max</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
+</code></pre> 
+       </div> 
+       <p>Or pick one variant: <code class="highlighter-rouge codehilite">runtime.processors-plus1</code>, <code class="highlighter-rouge codehilite">runtime.processors-plus2</code> or <code class="highlighter-rouge codehilite">runtime.processors-x2</code>.</p> 
+       <p>This is a typical setup if you want to build your application using <strong>reactive</strong> programming.</p> 
+       <h3 id="async-deferred">deferred</h3> 
        <p>Async processing is achieved via: <a href="/apidocs/org/jooby/Deferred.html">Deferred API</a>. Application can produces a result from a thread of its choice.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -185,36 +211,27 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>All the examples work in the same way, you can choose which programming model makes more sense to you.</p> 
+       <p>All the examples work in the same way, you can choose which programming model makes <strong>more sense to you</strong>.</p> 
        <p>The last two examples, will <code class="highlighter-rouge codehilite">resolve</code> the deferred. But also, catch any error and call <code class="highlighter-rouge codehilite">reject</code> for you.</p> 
-       <p><a href="/apidocs/org/jooby/Deferred.html">Deferred API</a> is pretty simple and the main goal of is to detach the request, or put it in async mode then application can produces a result from a thread of its choice.</p> 
+       <p><a href="/apidocs/org/jooby/Deferred.html">Deferred API</a> is pretty simple and the main goal of is to detach the request, or put it in async mode then you can produces a result from a thread of its choice.</p> 
+       <h3 id="async-RxJava-example">RxJava example</h3> 
        <p>Here is an example of deferred with <a href="https://github.com/ReactiveX/RxJava" target="_blank">RxJava</a>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/rx"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
-  <span class="n">Observable</span><span class="o">.&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">s</span><span class="o">.</span><span class="na">onNext</span><span class="o">(...);</span>
-    <span class="n">s</span><span class="o">.</span><span class="na">onCompleted</span><span class="o">();</span>
-  <span class="o">}).</span><span class="na">subscribeOn</span><span class="o">(</span><span class="n">Schedulers</span><span class="o">.</span><span class="na">computation</span><span class="o">())</span>
-    <span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="nl">deferred:</span><span class="o">:</span><span class="n">resolve</span><span class="o">,</span> <span class="nl">deferred:</span><span class="o">:</span><span class="n">reject</span><span class="o">);</span>
-  <span class="o">}));</span>
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/rx"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Observable</span><span class="o">.&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">s</span><span class="o">.</span><span class="na">onNext</span><span class="o">(...);</span>
+      <span class="n">s</span><span class="o">.</span><span class="na">onCompleted</span><span class="o">();</span>
+    <span class="o">}).</span><span class="na">subscribeOn</span><span class="o">(</span><span class="n">Schedulers</span><span class="o">.</span><span class="na">computation</span><span class="o">())</span>
+      <span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="nl">deferred:</span><span class="o">:</span><span class="n">resolve</span><span class="o">,</span> <span class="nl">deferred:</span><span class="o">:</span><span class="n">reject</span><span class="o">);</span>
+    <span class="o">}));</span>
+<span class="o">}</span>
 </code></pre> 
        </div> 
-       <h4 id="intro-threads">threads</h4> 
-       <p><a href="http://jooby.org">Jooby</a> is an async web framework. IO is performed in async &amp; non blocking fashion across servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>.</p> 
-       <p>Application code will <strong>never run in an IO thread</strong>. Application code <strong>always run in a worker thread</strong> and a worker thread can block.</p> 
-       <p>Default pool size of the worker thread pool is 20/200. You can change this setup via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="py">server.threads.Min</span><span class="p">=</span><span class="s">20</span>
-<span class="py">server.threads.Max</span><span class="p">=</span><span class="s">20</span>
-</code></pre> 
-       </div> 
-       <p>You can set them to the <code class="highlighter-rouge codehilite">available processors</code>:</p> 
+       <p>And of course the threads setup:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -243,8 +260,8 @@
    <div class="row share-network"> 
     <div class="section-content"> 
      <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/async" data-a2a-title="Async processing is achieved via: Deferred API"> 
-      <a class="a2a_button_twitter" data-text="Async processing is achieved via: Deferred API"></a> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/async" data-a2a-title="In Jooby all the IO operations are performed in async &amp; non blocking fashion across servers: Netty, Jetty and Undertow"> 
+      <a class="a2a_button_twitter" data-text="In Jooby all the IO operations are performed in async &amp; non blocking fashion across servers: Netty, Jetty and Undertow"></a> 
       <a class="a2a_button_reddit a2a_counter"></a> 
       <a class="a2a_button_linkedin a2a_counter"></a> 
       <a class="a2a_button_facebook a2a_counter"></a> 

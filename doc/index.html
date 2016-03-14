@@ -99,14 +99,18 @@
       <li class=""> <a href="#config-env-and-logging">config, env and logging</a>
        <ul> 
         <li> <a href="#config-env-and-logging-application-conf">application.conf</a></li> 
-        <li> <a href="#config-env-and-logging-injecting-properties">injecting properties</a></li> 
+        <li> <a href="#config-env-and-logging-accessing-properties">accessing properties</a></li> 
+        <li> <a href="#config-env-and-logging-type-conversion">type conversion</a></li> 
         <li> <a href="#config-env-and-logging-special-properties">special properties</a></li> 
-        <li> <a href="#config-env-and-logging-config-precedence">config precedence</a></li> 
+        <li> <a href="#config-env-and-logging-precedence">precedence</a></li> 
         <li> <a href="#config-env-and-logging-logging">logging</a></li>
        </ul></li> 
       <li class=""> <a href="#modules">modules</a>
        <ul> 
-        <li> <a href="#modules-do-less-and-be-flexible">do less and be flexible</a></li>
+        <li> <a href="#modules-do-less-and-be-flexible">do less and be flexible</a></li> 
+        <li> <a href="#modules-creating-modules">creating modules</a></li> 
+        <li> <a href="#modules-module-properties">module properties</a></li> 
+        <li> <a href="#modules-usage">usage</a></li>
        </ul></li> 
       <li class=""> <a href="#routes">routes</a>
        <ul> 
@@ -117,8 +121,7 @@
         <li> <a href="#routes-precedence-and-order">precedence and order</a></li> 
         <li> <a href="#routes-request-handling">request handling</a></li> 
         <li> <a href="#routes-mvc-routes">mvc routes</a></li> 
-        <li> <a href="#routes-dynamic-advanced-routing">dynamic / advanced routing</a></li> 
-        <li> <a href="#routes-async-routes">async routes</a></li>
+        <li> <a href="#routes-dynamic-advanced-routing">dynamic / advanced routing</a></li>
        </ul></li> 
       <li class=""> <a href="#request">request</a>
        <ul> 
@@ -126,7 +129,7 @@
         <li> <a href="#request-request-headers">request headers</a></li> 
         <li> <a href="#request-request-body">request body</a></li> 
         <li> <a href="#request-local-variables">local variables</a></li> 
-        <li> <a href="#request-guice-access">guice access</a></li>
+        <li> <a href="#request-require">require</a></li>
        </ul></li> 
       <li class=""> <a href="#response">response</a>
        <ul> 
@@ -136,7 +139,7 @@
        </ul></li> 
       <li class=""> <a href="#session">session</a>
        <ul> 
-        <li> <a href="#session-options">options</a></li> 
+        <li> <a href="#session-no-timeout">no timeout</a></li> 
         <li> <a href="#session-session-store">session store</a></li> 
         <li> <a href="#session-cookie">cookie</a></li>
        </ul></li> 
@@ -152,9 +155,15 @@
         <li> <a href="#parser-and-renderer-renderer">renderer</a></li> 
         <li> <a href="#parser-and-renderer-view-engine">view engine</a></li>
        </ul></li> 
+      <li class=""> <a href="#async">async</a>
+       <ul> 
+        <li> <a href="#async-threads">threads</a></li> 
+        <li> <a href="#async-deferred">deferred</a></li> 
+        <li> <a href="#async-RxJava-example">RxJava example</a></li>
+       </ul></li> 
       <li class=""> <a href="#web-sockets">web sockets</a>
        <ul> 
-        <li> <a href="#web-sockets-guice-access">guice access</a></li> 
+        <li> <a href="#web-sockets-require">require</a></li> 
         <li> <a href="#web-sockets-consumes">consumes</a></li> 
         <li> <a href="#web-sockets-produces">produces</a></li>
        </ul></li> 
@@ -199,11 +208,40 @@
        <h2>config, env and logging</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Jooby delegates configuration management to <a href="https://github.com/typesafehub/config" target="_blank">TypeSafe Config</a>. If you aren’t familiar with <a href="https://github.com/typesafehub/config" target="_blank">TypeSafe Config</a> please take a few minutes to discover what <a href="https://github.com/typesafehub/config" target="_blank">TypeSafe Config</a> can do for you.</p> 
+       <p>Jooby delegates configuration management to <a href="https://github.com/typesafehub/config" target="_blank">config</a>. If you aren’t familiar with <a href="https://github.com/typesafehub/config" target="_blank">config</a> please take a few minutes to discover what <a href="https://github.com/typesafehub/config" target="_blank">config</a> can do for you.</p> 
        <h3 id="config-env-and-logging-application-conf">application.conf</h3> 
        <p>By defaults Jooby will attempt to load an <code class="highlighter-rouge codehilite">application.conf</code> file from root of classpath. Inside the file you can add/override any property you want.</p> 
-       <h3 id="config-env-and-logging-injecting-properties">injecting properties</h3> 
-       <p>Any property can be injected using the <code class="highlighter-rouge codehilite">javax.inject.Named</code> annotation and automatic type conversion is provided when a type:</p> 
+       <h3 id="config-env-and-logging-accessing-properties">accessing properties</h3> 
+       <p>via script:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Config</span> <span class="n">conf</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Config</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">String</span> <span class="n">myprop</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"myprop"</span><span class="o">);</span>
+    <span class="o">...</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>or via <code class="highlighter-rouge codehilite">@Named</code> annoation:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Controller</span> <span class="o">{</span>
+
+  <span class="nd">@Inject</span>
+  <span class="kd">public</span> <span class="n">Controller</span><span class="o">(</span><span class="nd">@Named</span><span class="o">(</span><span class="s">"myprop"</span><span class="o">)</span> <span class="n">String</span> <span class="n">myprop</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="config-env-and-logging-type-conversion">type conversion</h3> 
+       <p>Automatic type conversion is provided when a type:</p> 
        <p>1) Is a primitive, primitive wrapper or String</p> 
        <p>2) Is an enum</p> 
        <p>3) Has a public <strong>constructor</strong> that accepts a single <strong>String</strong> argument</p> 
@@ -230,10 +268,11 @@
         <li><strong>application.numberFormat</strong>: number format to use. Default is: <em>DecimalFormat.getInstance(“application.lang”)</em></li> 
         <li><strong>application.tz</strong>: time zone to use. Default is: <em>ZoneId.systemDefault().getId()</em>. A <code class="highlighter-rouge codehilite">java.time.ZoneId</code> can be injected.</li> 
        </ul> 
-       <h3 id="config-env-and-logging-config-precedence">config precedence</h3> 
+       <h3 id="config-env-and-logging-precedence">precedence</h3> 
        <p>Config files are loaded in the following order (first-listed are higher priority)</p> 
        <ul> 
         <li>system properties</li> 
+        <li>arguments properties</li> 
         <li>(file://[application].[mode].[conf])?</li> 
         <li>(cp://[application].[mode].[conf])?</li> 
         <li>([application].[conf])?</li> 
@@ -246,7 +285,16 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>java -jar myapp.jar -Dapplication.secret=xyz
+        <pre class="highlight"><code>java -Dapplication.env=prod -jar myapp.jar
+</code></pre> 
+       </div> 
+       <h4 id="config-env-and-logging-arguments-properties">arguments properties</h4> 
+       <p>Arguments properties can override any other property. A argument property is set at startup time, like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>java -jar myapp.jar application.env=prod
 </code></pre> 
        </div> 
        <h4 id="config-env-and-logging-file-application-mode-conf-">file://[application].[mode].[conf]</h4> 
@@ -264,7 +312,7 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>java -jar myapp.jar -Dapplication.env=prod
+        <pre class="highlight"><code>java -jar myapp.jar prod
 </code></pre> 
        </div> 
        <p>The process is the same, except this time you can name your file as:</p> 
@@ -282,22 +330,13 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>java -jar myapp.jar -Dapplication.env=prod
+        <pre class="highlight"><code>java -jar myapp.jar application.env=prod
 </code></pre> 
        </div> 
        <p>So here the <code class="highlighter-rouge codehilite">application.prod.conf</code> will takes precedence over the <code class="highlighter-rouge codehilite">application.conf</code> conf file.</p> 
        <p>This is the recommended option from Jooby, because your app doesn’t have an external dependency. If you need to deploy the app in a new server all you need is your <strong>fat jar</strong></p> 
        <h4 id="config-env-and-logging--application-conf-">[application].[conf]</h4> 
-       <p>This is the default config files and it should be bundle inside the <strong>fat jar</strong>. As mentioned early, the default name is: <strong>application.conf</strong>, but if you don’t like it or need to change it:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-   <span class="n">use</span><span class="o">(</span><span class="n">ConfigFactory</span><span class="o">.</span><span class="na">parseResources</span><span class="o">(</span><span class="s">"myconfig.conf"</span><span class="o">));</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
+       <p>This is the default config file and it should be bundle inside the <strong>fat jar</strong>. As mentioned early, the default name is: <strong>application.conf</strong></p> 
        <h4 id="config-env-and-logging--modules-in-reverse-conf-">[modules in reverse].[conf]</h4> 
        <p>As mentioned in the <a href="#modules">modules</a> section a module might define his own set of properties.</p> 
        <div class="highlighter-rouge codehilite">
@@ -328,31 +367,37 @@
        <h2>modules</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Modules are a key concept for building reusable and configurable piece of software. Modules like in <a href="https://github.com/google/guice" target="_blank">Guice</a> are used to wire services, connect data, etc…</p> 
-       <p>A module is usually a small piece of software that bootstrap and configure common code and/or an external library.</p> 
+       <p>Modules are a key concept for building reusable and configurable piece of software.</p> 
+       <p>Modules are thin and do a lot of work to bootstrap and configure the external library, but they <strong>don’t provide a new level of abstraction</strong> nor [do] they provide a custom API to access functionality in that library. Instead they expose the library components as they are</p> 
+       <p>Modules like in <a href="https://github.com/google/guice" target="_blank">Guice</a> are used to wire services, connect data, etc…</p> 
+       <p>There is an extensive <a href="/modules">module ecosystem</a> which makes Jooby a <strong>full stack</strong> framework (when need it).</p> 
        <h3 id="modules-do-less-and-be-flexible">do less and be flexible</h3> 
-       <p><em>Do less</em> might sounds confusing, but is the key to flexibility.</p> 
-       <p>A module should do as less as possible (key difference with other frameworks). A module for a library <em>X</em> should:</p> 
+       <p><strong>Do less</strong> might sounds confusing, but is the key to flexibility.</p> 
+       <p>A module should do as <strong>less as possible</strong> (key difference with other frameworks). A module for a library <em>X</em> should:</p> 
        <ul> 
         <li>Bootstrap X</li> 
         <li>Configure X</li> 
         <li>Exposes raw API of X</li> 
        </ul> 
        <p>This means a module should NOT create wrapper for a library. Instead, provides a way to extend, configure and use the raw library.</p> 
-       <p>This principle, keep module usually small, maintainable and flexible.</p> 
+       <blockquote> 
+        <p>This principle, keep module usually small, maintainable and flexible.</p> 
+       </blockquote> 
+       <h3 id="modules-creating-modules">creating modules</h3> 
        <p>A module is represented by the <a href="/apidocs/org/jooby/Jooby.Module.html">Jooby.Module</a> class. The configure callback looks like:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">M1</span> <span class="kd">implements</span> <span class="n">Jooby</span><span class="o">.</span><span class="na">Module</span> <span class="o">{</span>
-    <span class="kd">public</span> <span class="kt">void</span> <span class="n">configure</span><span class="o">(</span><span class="n">Env</span> <span class="n">env</span><span class="o">,</span> <span class="n">Config</span> <span class="n">config</span><span class="o">,</span> <span class="n">Binder</span> <span class="n">binder</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="n">configure</span><span class="o">(</span><span class="n">Env</span> <span class="n">env</span><span class="o">,</span> <span class="n">Config</span> <span class="n">conf</span><span class="o">,</span> <span class="n">Binder</span> <span class="n">binder</span><span class="o">)</span> <span class="o">{</span>
       <span class="n">binder</span><span class="o">.</span><span class="na">bind</span><span class="o">(...).</span><span class="na">to</span><span class="o">(...);</span>
     <span class="o">}</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>The configure callback is similar to a <a href="https://github.com/google/guice" target="_blank">Guice module</a>, except you can access to the <a href="/apidocs/org/jooby/Env.html">Env</a> and <a href="https://github.com/typesafehub/config" target="_blank">Type Safe Config</a> objects.</p> 
+       <p>The configure callback is similar to a <a href="https://github.com/google/guice" target="_blank">Guice module</a>, except you can access to the <a href="/apidocs/org/jooby/Env.html">Env</a> and <a href="https://github.com/typesafehub/config" target="_blank">config</a> objects.</p> 
+       <h3 id="modules-module-properties">module properties</h3> 
        <p>In addition to the <strong>configure</strong> callback, a module in <a href="http://jooby.org">Jooby</a> has one additional method: <strong>config</strong>. The <code class="highlighter-rouge codehilite">config</code> method allows a module to set default properties.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -369,7 +414,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>This is useful for setting defaults values or similar.</p> 
+       <h3 id="modules-usage">usage</h3> 
        <p>A module is registered at startup time:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -381,7 +426,7 @@
 
   <span class="o">{</span>
      <span class="c1">// as lambda</span>
-     <span class="n">use</span><span class="o">((</span><span class="n">mode</span><span class="o">,</span> <span class="n">config</span><span class="o">,</span> <span class="n">binder</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+     <span class="n">use</span><span class="o">((</span><span class="n">env</span><span class="o">,</span> <span class="n">config</span><span class="o">,</span> <span class="n">binder</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="n">binder</span><span class="o">.</span><span class="na">bind</span><span class="o">(...).</span><span class="na">to</span><span class="o">(...);</span>
      <span class="o">});</span>
      <span class="c1">// as instance</span>
@@ -392,7 +437,6 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Cool, isn’t?</p> 
       </div> 
      </div> 
      <div class="datalist" id="routes"> 
@@ -502,7 +546,7 @@
 <span class="n">get</span><span class="o">(</span><span class="s">"/user/{id:\\d+}"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="s">"hey "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">());</span>
 </code></pre> 
        </div> 
-       <p>Request params are covered later, for now all you need to know is that you can access to a path parameter using the <a href="/apidocs/org/jooby/Request.param(java.lang.String)">Request.param(String)</a>.</p> 
+       <p>Request params are covered later, for now all you need to know is that you can access to a path parameter using the <a href="/apidocs/org/jooby/Request.html#param(java.lang.String)">Request.param(String)</a>.</p> 
        <h4 id="routes-ant-style-patterns">ant style patterns</h4> 
        <p><code class="highlighter-rouge codehilite">com/t?st.html</code> - matches <code class="highlighter-rouge codehilite">com/test.html</code> but also <code class="highlighter-rouge codehilite">com/tast.html</code> and <code class="highlighter-rouge codehilite">com/txst.html</code></p> 
        <p><code class="highlighter-rouge codehilite">com/*.html</code> - matches all <code class="highlighter-rouge codehilite">.html</code> files in the <code class="highlighter-rouge codehilite">com</code> directory</p> 
@@ -510,7 +554,7 @@
        <p><code class="highlighter-rouge codehilite">**</code> - matches any path at any level</p> 
        <p><code class="highlighter-rouge codehilite">*</code> - matches any path at any level, shortcut for <code class="highlighter-rouge codehilite">**</code></p> 
        <h3 id="routes-static-files">static files</h3> 
-       <p>Static files are located under the <code class="highlighter-rouge codehilite">public</code> directory.</p> 
+       <p>Static files are located inside the <code class="highlighter-rouge codehilite">public</code> directory.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -526,7 +570,7 @@
     └── welcome.html
 </code></pre> 
        </div> 
-       <p>Now, let’s add an asset handler:</p> 
+       <p>Let’s add an asset handler:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -556,7 +600,7 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>A <code class="highlighter-rouge codehilite">GET /</code> will display the static file <code class="highlighter-rouge codehilite">welcome.html</code>.</p> 
-       <p>Here is another example that uses <a href="http://www.webjars.org/" target="_blank">Webjars</a>:</p> 
+       <p>Here is another example that uses <a href="http://www.webjars.org" target="_blank">webjars</a>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -592,7 +636,8 @@ GET /assets/css/style.css
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># application.prod.properties </span><span class="py">assets.cdn</span> <span class="p">=</span> <span class="s">"http://http://d7471vfo50fqt.cloudfront.net"</span>
+        <pre class="highlight"><code><span class="c"># application.prod.properties </span>
+<span class="py">assets.cdn</span> <span class="p">=</span> <span class="s">"http://http://d7471vfo50fqt.cloudfront.net"</span>
 </code></pre> 
        </div> 
        <div class="highlighter-rouge codehilite">
@@ -606,7 +651,8 @@ GET /assets/css/style.css
        </div> 
        <p>A <code class="highlighter-rouge codehilite">GET</code> to <code class="highlighter-rouge codehilite">/assets/js/index.js</code> will be redirected to: <code class="highlighter-rouge codehilite">http://http://d7471vfo50fqt.cloudfront.net/assets/js/index.js</code></p> 
        <p>Of course, you usually set a <code class="highlighter-rouge codehilite">cdn</code> in your <code class="highlighter-rouge codehilite">application.prod.conf</code> file only.</p> 
-       <p>There is also a super awesome and powerful <a href="/doc/assets/">assets</a> module. The <a href="/doc/assets/">assets</a> is library to concatenate, minify or compress JavaScript and CSS assets. It also adds the ability to write these assets in other languages and process/compile them to another language. Finally, it help you to write high quality code by validate JavaScript and CSS too.</p> 
+       <h4 id="routes-assets-module">assets module</h4> 
+       <p>There is also a super awesome and powerful <a href="/doc/assets/">assets</a> module. The <a href="/doc/assets/">assets</a> is library to validate, concatenate, minify or compress JavaScript and CSS assets.</p> 
        <h3 id="routes-precedence-and-order">precedence and order</h3> 
        <p>Routes are executed in the order they are defined. So the ordering of routes is crucial to the behavior of an application. Let’s review this fact via some examples.</p> 
        <div class="highlighter-rouge codehilite">
@@ -628,8 +674,11 @@ GET /assets/css/style.css
 <span class="n">get</span><span class="o">(</span><span class="s">"/abc"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="s">"first"</span><span class="o">);</span>
 </code></pre> 
        </div> 
-       <p>It produces a response of <code class="highlighter-rouge codehilite">second</code>. As you can see <strong>order is very important</strong>.</p> 
-       <p>Now, why is it allowed to have two routes for the same exactly path?</p> 
+       <p>It produces a response of <code class="highlighter-rouge codehilite">second</code>.</p> 
+       <blockquote> 
+        <p>As you can see <strong>ORDER IS SUPER IMPORTANT</strong>.</p> 
+       </blockquote> 
+       <p>Now, why is it allowed to have two routes for the same path?</p> 
        <p>Because we want <strong>filters</strong> for routes.</p> 
        <p>A route handler accept a third parameter, commonly named chain, which refers to the next route handler in line:</p> 
        <div class="highlighter-rouge codehilite">
@@ -646,7 +695,7 @@ GET /assets/css/style.css
 <span class="o">});</span>
 </code></pre> 
        </div> 
-       <p>Again the order of route definition is very important. Forgetting this will cause your app behave unpredictably. We will learn more about this behavior in the examples in the next section.</p> 
+       <p>Again the order of route definition is super important. Forgetting this will cause your app behave unpredictably. We will learn more about this behavior in the examples of the next section.</p> 
        <h3 id="routes-request-handling">request handling</h3> 
        <p>When a request is made to the server, which matches a route definition, the associated callback functions kick in to process the request and send back a response. We call this route pipe or stack.</p> 
        <p>Routes are like a plumbing pipe, requests start at the first route you define and work their way “down” the route stack processing for each path they match.</p> 
@@ -772,10 +821,10 @@ GET /assets/css/style.css
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>A method annotated with <a href="/apidocs/org/jooby/mvc/GET.html">GET</a>, <a href="/apidocs/org/jooby/mvc/POST.html">POST</a>,… (or any of the rest of the verbs) is considered a route handler (web method).</p> 
+       <p>A method annotated with <a href="/apidocs/org/jooby/mvc/GET.html">GET</a>, <a href="/apidocs/org/jooby/mvc/POST.html">POST</a>,…, is considered a route handler (web method).</p> 
        <h4 id="routes-registering-a-mvc-route">registering a mvc route</h4> 
-       <p>Mvc routes must be registered, there is no auto-discover feature (and it won’t be), classpath scanning, …, etc.</p> 
-       <p>We learnt that the order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly registered. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.</p> 
+       <p>Mvc routes must be registered, there is <strong>no auto-discover</strong> feature (and it won’t be), no classpath scanning, …, etc.</p> 
+       <p>The order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly registered. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.</p> 
        <p>So, how do I register a mvc route?</p> 
        <p>In the same way everything else is registered in Jooby!! from your app class:</p> 
        <div class="highlighter-rouge codehilite">
@@ -816,7 +865,7 @@ GET /assets/css/style.css
        </div> 
        <p>A call to <code class="highlighter-rouge codehilite">/routes</code> will print: <strong>first</strong>, <strong>second</strong> and produces a response of <strong>third</strong>.</p> 
        <h4 id="routes-binding-req-params">binding req params</h4> 
-       <p>A mvc handler can be bound to current request parameters:</p> 
+       <p>A mvc handler can be bound to request parameters:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -827,8 +876,8 @@ GET /assets/css/style.css
    <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Here <strong>q</strong> can be any of the available param types and it will resolved as described in the <a href="#param-types-and-precedence">param types and precedence</a> section.</p> 
-       <p>Optional params work in the same way, all you have to do is to declare the param as <em>java.util.Optional</em>:</p> 
+       <p>Here <strong>q</strong> can be any of the available param types and it will resolved as described in the <a href="#request-request-params">request params</a> section.</p> 
+       <p>Optional params work in the same way, all you have to do is to declare the param as <code class="highlighter-rouge codehilite">java.util.Optional</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -839,7 +888,7 @@ GET /assets/css/style.css
    <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Multi-value params work in the same way, all you have to do is to declare the param as <em>java.util.List</em>, <em>java.util.Set</em> or <em>java.util.SortedSet</em>:</p> 
+       <p>Multi-value params work in the same way, all you have to do is to declare the param as <code class="highlighter-rouge codehilite">java.util.List</code>, <code class="highlighter-rouge codehilite">java.util.Set</code> or <code class="highlighter-rouge codehilite">java.util.SortedSet</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -851,7 +900,7 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Just remember the injected collection is immutable.</p> 
-       <p>File uploads (again) work in the same way, just use <em>org.jooby.Upload</em></p> 
+       <p>File uploads (again) work in the same way, just use <code class="highlighter-rouge codehilite">org.jooby.Upload</code></p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -887,7 +936,7 @@ GET /assets/css/style.css
        </div> 
        <p>All you have to do is add the <code class="highlighter-rouge codehilite">@Body</code> annotation.</p> 
        <h4 id="routes-binding-req-headers">binding req headers</h4> 
-       <p>Works just like <a href="#binding-req-params">req params</a> but you must annotated the param with <em>org.jooby.mvc.Header</em>:</p> 
+       <p>Works just like <a href="#routes-binding-req-params">req params</a> but you must annotated the param with <em>org.jooby.mvc.Header</em>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -1060,117 +1109,6 @@ GET /assets/css/style.css
        </div> 
        <p>A call to <code class="highlighter-rouge codehilite">Jooby(String)</code> will prepend the given prefix to all the routes defined by the application.</p> 
        <p>As you can see routes and routing in <a href="http://jooby.org">Jooby</a> are very powerful!</p> 
-       <h3 id="routes-async-routes">async routes</h3> 
-       <p>Async processing is achieved via: <a href="/apidocs/org/jooby/Deferred.html">Deferred API</a>. Application can produces a result from a thread of its choice.</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">Deferred</span> <span class="n">deferred</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Deferred</span><span class="o">();</span>
-    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-      <span class="k">try</span> <span class="o">{</span>
-        <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(...);</span> <span class="c1">// success</span>
-      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
-        <span class="n">deferred</span><span class="o">.</span><span class="na">reject</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span> <span class="c1">// errr</span>
-      <span class="o">}</span>
-    <span class="o">});</span>
-    <span class="k">return</span> <span class="n">deferred</span><span class="o">;</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>Too verbose? Let’s rewrite it a bit with: <code class="highlighter-rouge codehilite">Jooby.promise</code></p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-      <span class="k">try</span> <span class="o">{</span>
-        <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(...);</span> <span class="c1">// success</span>
-      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
-        <span class="n">deferred</span><span class="o">.</span><span class="na">reject</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span> <span class="c1">// errr</span>
-      <span class="o">}</span>
-    <span class="o">});</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>A bit better, let’s try it again with automatic error handler:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-        <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-           <span class="k">return</span> <span class="o">...;</span>
-        <span class="o">});</span>
-    <span class="o">});</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>Better, hugh? but we can make it just a bit better:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">deferred</span><span class="o">.</span><span class="na">run</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-      <span class="k">return</span> <span class="o">...;</span>
-    <span class="o">});</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>All the examples work in the same way, you can choose which programming model makes more sense to you.</p> 
-       <p>The last two examples, will <code class="highlighter-rouge codehilite">resolve</code> the deferred. But also, catch any error and call <code class="highlighter-rouge codehilite">reject</code> for you.</p> 
-       <p><a href="/apidocs/org/jooby/Deferred.html">Deferred API</a> is pretty simple and the main goal of is to detach the request, or put it in async mode then application can produces a result from a thread of its choice.</p> 
-       <p>Here is an example of deferred with <a href="https://github.com/ReactiveX/RxJava" target="_blank">RxJava</a>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/rx"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
-  <span class="n">Observable</span><span class="o">.&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">s</span><span class="o">.</span><span class="na">onNext</span><span class="o">(...);</span>
-    <span class="n">s</span><span class="o">.</span><span class="na">onCompleted</span><span class="o">();</span>
-  <span class="o">}).</span><span class="na">subscribeOn</span><span class="o">(</span><span class="n">Schedulers</span><span class="o">.</span><span class="na">computation</span><span class="o">())</span>
-    <span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="nl">deferred:</span><span class="o">:</span><span class="n">resolve</span><span class="o">,</span> <span class="nl">deferred:</span><span class="o">:</span><span class="n">reject</span><span class="o">);</span>
-  <span class="o">}));</span>
-</code></pre> 
-       </div> 
-       <h4 id="routes-threads">threads</h4> 
-       <p><a href="http://jooby.org">Jooby</a> is an async web framework. IO is performed in async &amp; non blocking fashion across servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>.</p> 
-       <p>Application code will <strong>never run in an IO thread</strong>. Application code <strong>always run in a worker thread</strong> and a worker thread can block.</p> 
-       <p>Default pool size of the worker thread pool is 20/200. You can change this setup via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="py">server.threads.Min</span><span class="p">=</span><span class="s">20</span>
-<span class="py">server.threads.Max</span><span class="p">=</span><span class="s">20</span>
-</code></pre> 
-       </div> 
-       <p>You can set them to the <code class="highlighter-rouge codehilite">available processors</code>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="py">server.threads.Min</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
-<span class="py">server.threads.Max</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
      <div class="datalist" id="request"> 
@@ -1334,7 +1272,7 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <h3 id="request-request-headers">request headers</h3> 
-       <p>Retrieval of request headers is done via: <a href="{{}}Request.html#header-java.lang.String-">request.header(“name”)</a>. All the explained before for <a href="#request params">request params</a> apply for headers too.</p> 
+       <p>Retrieval of request headers is done via: <a href="{{}}Request.html#header-java.lang.String-">request.header(“name”)</a>. All the explained before for <a href="#request-request-params">request params</a> apply for headers too.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -1365,7 +1303,7 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <h3 id="request-request-body">request body</h3> 
-       <p>Retrieval of request body is done via <a href="/apidocs/org/jooby/Request.html#body">request.body()</a>.</p> 
+       <p>Retrieval of request body is done via <a href="/apidocs/org/jooby/Request.html#body--">request.body()</a>.</p> 
        <p>A <a href="/apidocs/org/jooby/Parser.html">parser</a> is responsible for parse or convert the HTTP request body to something else.</p> 
        <p>There are a few built-in parsers for reading body as String or Reader objects. Once the body is read it, it can’t be read it again.</p> 
        <p>A detailed explanation for parser is covered later. For now, all you need to know is that they can read/parse the HTTP body.</p> 
@@ -1447,7 +1385,7 @@ GET /assets/css/style.css
 
 </code></pre> 
        </div> 
-       <h3 id="request-guice-access">guice access</h3> 
+       <h3 id="request-require">require</h3> 
        <p>In previous section we learnt you can bind/wire your objects with <a href="https://github.com/google/guice" target="_blank">Guice</a>.</p> 
        <p>You can ask <a href="https://github.com/google/guice" target="_blank">Guice</a> to wired an object from the <a href="/apidocs/org/jooby/Request.html#require-com.google.inject.Key-">request.require(type)</a></p> 
        <div class="highlighter-rouge codehilite">
@@ -1553,18 +1491,19 @@ GET /assets/css/style.css
        <h2>session</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Sessions are created on demand via: <a href="/apidocs/org/jooby/Request.html#session--">req.session()</a>.</p> 
+       <p>Sessions are created on demand via: <a href="/apidocs/org/jooby/Request.html#ifSession--">req.ifSession()</a> or <a href="/apidocs/org/jooby/Request.html#session--">req.session()</a>.</p> 
        <p>Sessions have a lot of uses cases but most commons are: auth, store information about current user, etc.</p> 
-       <p>A session attribute must be {@link String} or a primitive. Session doesn’t allow to store arbitrary objects. It is a simple mechanism to store basic data.</p> 
-       <h3 id="session-options">options</h3> 
-       <h4 id="session-No-timeout">No timeout</h4> 
+       <p>A session attribute must be <code class="highlighter-rouge codehilite">String</code> or a primitive. Session doesn’t allow to store arbitrary objects. It is a simple mechanism to store basic data.</p> 
+       <h3 id="session-no-timeout">no timeout</h3> 
        <p>There is no timeout for sessions from server perspective. By default, a session will expire when the user close the browser (a.k.a session cookie).</p> 
        <h3 id="session-session-store">session store</h3> 
-       <p>A <a href="/apidocs/org/jooby/Session.Store.html">Session.Store</a> is responsible for saving session data. Sessions are kept in memory, by default using the <a href="/apidocs/org/jooby/Session.Mem.html">Session.Mem</a> store, which is useful for development, but wont scale well on production environments. An redis, memcached, ehcache store will be a better option.</p> 
+       <p>A <a href="/apidocs/org/jooby/Session.Store.html">Session.Store</a> is responsible for saving session data. Sessions are kept in memory, by default using the <a href="/apidocs/org/jooby/Session.Mem.html">Session.Mem</a> store, which is useful for development, but wont scale well on production environments. A <a href="/doc/session/#redis-session-store">redis</a>, <a href="/doc/session/#spymemcached-session-store">memcached</a>, <a href="/doc/session/#ehcache-session-store">ehcache</a> store will be a better option. Checkout the available <a href="/doc/session">session storage</a>.</p> 
        <h4 id="session-store-life-cycle">store life-cycle</h4> 
        <p>Sessions are persisted every time a request exit, if they are dirty. A session get dirty if an attribute is added or removed from it.</p> 
        <p>The <code>session.saveInterval</code> property indicates how frequently a session will be persisted (in millis).</p> 
-       <p>In short, a session is persisted when: 1) it is dirty; or 2) save interval has expired it.</p> 
+       <p>In short, a session is persisted when:</p> 
+       <p>1) it is dirty; or</p> 
+       <p>2) save interval has expired it.</p> 
        <h3 id="session-cookie">cookie</h3> 
        <h4 id="session-max-age">max-age</h4> 
        <p>The <code>session.cookie.maxAge</code> sets the maximum age in seconds. A positive value indicates that the cookie will expire after that many seconds have passed. Note that the value is the <i>maximum</i> age when the cookie will expire, not the cookie’s current age.</p> 
@@ -1583,7 +1522,7 @@ GET /assets/css/style.css
       <div class="datalist-content"> 
        <p>Error handler is represented by the <a href="/apidocs/org/jooby/Err.Handler.html">Err.Handler</a> class and allows you to log and/or render exceptions.</p> 
        <h3 id="error-handling-default-err-handler">default err handler</h3> 
-       <p>The <a href="/apidocs/org/jooby/Err.DefHandler.html">default error handler</a> does content negotiation and optionallydisplay friendly err pages using naming convention.</p> 
+       <p>The <a href="/apidocs/org/jooby/Err.DefHandler.html">default error handler</a> does content negotiation and optionally display friendly err pages using naming convention.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -1745,11 +1684,9 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Let’s have a closer look:</p> 
-       <ol> 
-        <li>Check if current type is what we can parse to</li> 
-        <li>We add a param callback</li> 
-        <li>We can’t deal with current type, so we ask next parser to resolve it</li> 
-       </ol> 
+       <p>1) Check if current type is what we can parse to</p> 
+       <p>2) We add a param callback</p> 
+       <p>3) We can’t deal with current type, so we ask next parser to resolve it</p> 
        <p>Now, if we ask for HTTP body</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -1813,17 +1750,17 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Parsers are executed in the order they are defined.</p> 
-       <p>If a param parser isn’t able to resolve a param an exception will be thrown with a <code class="highlighter-rouge codehilite">400</code> status code.</p> 
-       <p>If a body parser isn’t able to resolve a param an exception will be thrown with a <code class="highlighter-rouge codehilite">415</code> status code.</p> 
+       <p>If a param parser isn’t able to resolve a param a <code class="highlighter-rouge codehilite">BAD REQUEST(400)</code> error will be generated.</p> 
+       <p>If a body parser isn’t able to resolve a param an <code class="highlighter-rouge codehilite">UNSUPPORTED_MEDIA_TYPE(415)</code> error will be generated.</p> 
        <h3 id="parser-and-renderer-renderer">renderer</h3> 
-       <p>A <a href="/apidocs/org/jooby/Renderer.html">Renderer</a> is responsible for rendering a Java Object to a series of bytes in order to send them as HTTP response.</p> 
+       <p>A <a href="/apidocs/org/jooby/Renderer.html">Renderer</a> converts a Java Object to a series of bytes or text and write them into the HTTP response.</p> 
        <p>There are a few built-in renderers:</p> 
        <ul> 
-        <li>InputStream: copy an inputstream to the HTTP response and set a default type of: <code class="highlighter-rouge codehilite">application/octet-stream</code></li> 
-        <li>byte[]: copy bytes to the HTTP response and set a default type of: <code class="highlighter-rouge codehilite">application/octet-stream</code></li> 
-        <li>ByteBuffer: copy bytes to the HTTP response and set a default type of: <code class="highlighter-rouge codehilite">application/octet-stream</code></li> 
-        <li>Readble: copy a readable object to the HTTP response and a default type of: <code class="highlighter-rouge codehilite">text/html</code></li> 
-        <li>ToString: copy the toString() result to the HTTP response and set a default type of: <code class="highlighter-rouge codehilite">text/html</code></li> 
+        <li>stream: copy an inputstream to the HTTP response and set a default type of: <code class="highlighter-rouge codehilite">application/octet-stream</code></li> 
+        <li>bytes: copy bytes to the HTTP response and set a default type of: <code class="highlighter-rouge codehilite">application/octet-stream</code></li> 
+        <li>byteBuffer: copy bytes to the HTTP response and set a default type of: <code class="highlighter-rouge codehilite">application/octet-stream</code></li> 
+        <li>readble: copy a readable object to the HTTP response and a default type of: <code class="highlighter-rouge codehilite">text/html</code></li> 
+        <li>text: copy the toString() result to the HTTP response and set a default type of: <code class="highlighter-rouge codehilite">text/html</code></li> 
        </ul> 
        <h4 id="parser-and-renderer-custom-renderer">custom renderer</h4> 
        <p>Suppose we want to apply a custom rendering for <code class="highlighter-rouge codehilite">MyObject</code>. Renderer is as simple as:</p> 
@@ -1877,7 +1814,140 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>In order to support multiples view engine, a view engine is allowed to throw a <code class="highlighter-rouge codehilite">java.io.FileNotFoundException</code> when a template can’t be resolved it. This gives the chance to the next view resolver to load the template.</p> 
-       <p>There is no much to say about views &amp; engines, any other detail or documentation should be provided in the specific module (mustache, handlebars, freemarker, etc.).</p> 
+       <p>There is no much to say about views &amp; engines, any other detail or documentation should be provided in the specific <a href="/doc/parser-and-renderer">module</a></p> 
+      </div> 
+     </div> 
+     <div class="datalist" id="async"> 
+      <div class="datalist-title "> 
+       <h2>async</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>In <a href="http://jooby.org">Jooby</a> all the IO operations are performed in async &amp; non blocking fashion across servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>.</p> 
+       <p>All IO operations run in an IO thread while application logic <strong>always run in a worker thread</strong>. Worker threads can block at any time.</p> 
+       <p>Having said that let see what tools are available for async/reactive programming.</p> 
+       <h3 id="async-threads">threads</h3> 
+       <p>Default worker thread pool is 20/100. You can change this setup via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="py">server.threads.Min</span><span class="p">=</span><span class="s">20</span>
+<span class="py">server.threads.Max</span><span class="p">=</span><span class="s">20</span>
+</code></pre> 
+       </div> 
+       <p>You can set them to the <code class="highlighter-rouge codehilite">available processors</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="py">server.threads.Min</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
+<span class="py">server.threads.Max</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
+</code></pre> 
+       </div> 
+       <p>Or pick one variant: <code class="highlighter-rouge codehilite">runtime.processors-plus1</code>, <code class="highlighter-rouge codehilite">runtime.processors-plus2</code> or <code class="highlighter-rouge codehilite">runtime.processors-x2</code>.</p> 
+       <p>This is a typical setup if you want to build your application using <strong>reactive</strong> programming.</p> 
+       <h3 id="async-deferred">deferred</h3> 
+       <p>Async processing is achieved via: <a href="/apidocs/org/jooby/Deferred.html">Deferred API</a>. Application can produces a result from a thread of its choice.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Deferred</span> <span class="n">deferred</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Deferred</span><span class="o">();</span>
+    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">try</span> <span class="o">{</span>
+        <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(...);</span> <span class="c1">// success</span>
+      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">deferred</span><span class="o">.</span><span class="na">reject</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span> <span class="c1">// errr</span>
+      <span class="o">}</span>
+    <span class="o">});</span>
+    <span class="k">return</span> <span class="n">deferred</span><span class="o">;</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Too verbose? Let’s rewrite it a bit with: <code class="highlighter-rouge codehilite">Jooby.promise</code></p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">try</span> <span class="o">{</span>
+        <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(...);</span> <span class="c1">// success</span>
+      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">deferred</span><span class="o">.</span><span class="na">reject</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span> <span class="c1">// errr</span>
+      <span class="o">}</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>A bit better, let’s try it again with automatic error handler:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+           <span class="k">return</span> <span class="o">...;</span>
+        <span class="o">});</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Better, hugh? but we can make it just a bit better:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">deferred</span><span class="o">.</span><span class="na">run</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="o">...;</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>All the examples work in the same way, you can choose which programming model makes <strong>more sense to you</strong>.</p> 
+       <p>The last two examples, will <code class="highlighter-rouge codehilite">resolve</code> the deferred. But also, catch any error and call <code class="highlighter-rouge codehilite">reject</code> for you.</p> 
+       <p><a href="/apidocs/org/jooby/Deferred.html">Deferred API</a> is pretty simple and the main goal of is to detach the request, or put it in async mode then you can produces a result from a thread of its choice.</p> 
+       <h3 id="async-RxJava-example">RxJava example</h3> 
+       <p>Here is an example of deferred with <a href="https://github.com/ReactiveX/RxJava" target="_blank">RxJava</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/rx"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Observable</span><span class="o">.&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">s</span><span class="o">.</span><span class="na">onNext</span><span class="o">(...);</span>
+      <span class="n">s</span><span class="o">.</span><span class="na">onCompleted</span><span class="o">();</span>
+    <span class="o">}).</span><span class="na">subscribeOn</span><span class="o">(</span><span class="n">Schedulers</span><span class="o">.</span><span class="na">computation</span><span class="o">())</span>
+      <span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="nl">deferred:</span><span class="o">:</span><span class="n">resolve</span><span class="o">,</span> <span class="nl">deferred:</span><span class="o">:</span><span class="n">reject</span><span class="o">);</span>
+    <span class="o">}));</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>And of course the threads setup:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="py">server.threads.Min</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
+<span class="py">server.threads.Max</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
+</code></pre> 
+       </div> 
       </div> 
      </div> 
      <div class="datalist" id="web-sockets"> 
@@ -1904,7 +1974,7 @@ GET /assets/css/style.css
        <p>A <a href="/apidocs/org/jooby/WebSocket.Handler.html">handler</a> is executed on new connections, from there we can listen for message, errors and/or send data to the client.</p> 
        <p>Keep in mind that <strong>web socket</strong> are not like routes. There is no stack/pipe or chain.</p> 
        <p>You can mount a socket to a path used by a route, but you can’t have two or more web sockets under the same path.</p> 
-       <h3 id="web-sockets-guice-access">guice access</h3> 
+       <h3 id="web-sockets-require">require</h3> 
        <p>You can ask <a href="https://github.com/google/guice" target="_blank">Guice</a> to wired an object from the <a href="/apidocs/org/jooby/WebSocket.html#require-com.google.inject.Key-">ws.require(type)</a></p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -2116,7 +2186,6 @@ GET /assets/css/style.css
         <pre class="highlight"><code><span class="py">application.securePort</span> <span class="p">=</span> <span class="s">8443</span>
 </code></pre> 
        </div> 
-       <p>That’s all!</p> 
        <h3 id="https-certificates">certificates</h3> 
        <p><a href="http://jooby.org">Jooby</a> comes with a self-signed certificate, useful for development and test. But of course, you should NEVER use it in the real world.</p> 
        <p>In order to setup HTTPS with a secure certificate, you need to set these properties:</p> 
@@ -2273,7 +2342,7 @@ GET /assets/css/style.css
   <span class="err">routes</span> <span class="err">{</span>
 
     <span class="c"># Guava Cache Spec </span>
-    <span class="py">Cache</span> <span class="p">=</span> <span class="s">"concurrencyLevel="${server.threads.Max}", maximumSize=100"</span>
+    <span class="py">Cache</span> <span class="p">=</span> <span class="s">"concurrencyLevel="${runtime.concurrencyLevel}",maximumSize="${server.threads.Max}</span>
 
   <span class="err">}</span>
 
