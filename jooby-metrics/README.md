@@ -58,7 +58,7 @@ Health checks are available at ```/sys/healthCheck``` via:
 
 ## instrumented requests
 
-Captures request information (like active requests or min/mean/max execution time) and a breakdown of the response codes being returned: [InstrumentedHandler](/apidocs/assets/InstrumentedHandler.html).
+Captures request information (like active requests or min/mean/max execution time) and a breakdown of the response codes being returned: [InstrumentedHandler](/apidocs/org/jooby/assets/InstrumentedHandler.html).
 
 ```java
  use(new Metrics()
@@ -89,6 +89,6 @@ Reporters are appended via a callback API:
  }
 ```
 
-You can add all the reporters you want. Keep in mind you have to start them (if need it), but you don't have to stop them as long they implements the [Closeable](/apidocs/assets/Closeable.html) interface.
+You can add all the reporters you want. Keep in mind you have to start them (if need it), but you don't have to stop them as long they implements the [Closeable](/apidocs/org/jooby/assets/Closeable.html) interface.
 
 That's all folks!

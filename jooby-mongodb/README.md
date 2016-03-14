@@ -2,7 +2,7 @@
 
 [MongoDB](http://mongodb.github.io/mongo-java-driver/) driver for Jooby.
 
-Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient.html), a [MongoDatabase](http://api.mongodb.org/java/2.13/com/mongodb/DB.html) and a [Session Store](/apidocs/mongodb/MongoSessionStore.html)
+Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient.html), a [MongoDatabase](http://api.mongodb.org/java/2.13/com/mongodb/DB.html) and a [Session Store](/apidocs/org/jooby/mongodb/MongoSessionStore.html)
 
 ## dependency
 
@@ -85,7 +85,7 @@ For more detailed information please check: [MongoClientURI](http://api.mongodb.
 
 ## two or more connections
 
-Use [named](/apidocs/mongodb/Mongodb.html#-named) when you need two or more ```mongodb``` connections:
+Use [named](/apidocs/org/jooby/mongodb/Mongodb.html#-named) when you need two or more ```mongodb``` connections:
 
 ```java
 {

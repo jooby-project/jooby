@@ -113,7 +113,7 @@ Please note the ```default``` cache works as a template and isn't a real/usable 
 
 ## usage
 
-This module provides an [EhSessionStore](/apidocs/ehcache/EhSessionStore.html). In order to use the [EhSessionStore](/apidocs/ehcache/EhSessionStore.html) all
+This module provides an [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html). In order to use the [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html) all
 you have to do is define a ```session``` cache:
 
 ```properties
@@ -123,7 +123,7 @@ ehcache.cache.session {
 }
 ```
 
-And then register the [EhSessionStore](/apidocs/ehcache/EhSessionStore.html):
+And then register the [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html):
 
 ```java
 {

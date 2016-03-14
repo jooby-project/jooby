@@ -637,7 +637,7 @@ public interface Request {
   /**
    * Get a list of locale that best matches the current request as per {@link Locale::filter}.
    *
-   * @return A list of matching locales.
+   * @return A list of matching locales or empty list.
    */
   default List<Locale> locales() {
     return locales(Locale::filter);
@@ -657,6 +657,7 @@ public interface Request {
    * req.locales(Locale::filter)
    * }</pre>
    *
+   * @param filter A locale filter.
    * @return A list of matching locales.
    */
   List<Locale> locales(BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter);
@@ -675,6 +676,7 @@ public interface Request {
    * req.locale(Locale::lookup)
    * }</pre>
    *
+   * @param filter A locale filter.
    * @return A matching locale.
    */
   Locale locale(BiFunction<List<Locale.LanguageRange>, List<Locale>, Locale> filter);
@@ -686,8 +688,7 @@ public interface Request {
    * @return A matching locale.
    */
   default Locale locale() {
-    return locale((ranges, locales) ->
-      Locale.filter(ranges, locales).stream()
+    return locale((ranges, locales) -> Locale.filter(ranges, locales).stream()
         .findFirst()
         .orElse(locales.get(0)));
   }

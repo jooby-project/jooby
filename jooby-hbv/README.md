@@ -55,7 +55,7 @@ The previous example can be rewritten as:
 }
 ```
 
-Here a [Parser](/apidocs/Parser.html) will do the boilerplate part and throws a ```ConstraintViolationException```.
+Here a [Parser](/apidocs/org/jooby/Parser.html) will do the boilerplate part and throws a ```ConstraintViolationException```.
 
 ### rendering a ```ConstraintViolationException```
 

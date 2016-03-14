@@ -1,5 +1,5 @@
 # jongo
-Exposes [Jongo](http://jongo.org) instances to a default database. Or [JongoFactory](/apidocs/mongodb/JongoFactory.html) to use alternative databases.
+Exposes [Jongo](http://jongo.org) instances to a default database. Or [JongoFactory](/apidocs/org/jooby/mongodb/JongoFactory.html) to use alternative databases.
 
 Please note, this module depends on: [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb) module.
 
@@ -27,7 +27,7 @@ Please note, this module depends on: [mongodb](https://github.com/jooby-project/
 
 Previous example will give you a [Jongo](http://jongo.org) instance connected to the default database, provided by the [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb)  module.
 
-Access to alternate database is provided via: [JongoFactory](/apidocs/mongodb/JongoFactory.html).
+Access to alternate database is provided via: [JongoFactory](/apidocs/org/jooby/mongodb/JongoFactory.html).
 
 ```java
 {

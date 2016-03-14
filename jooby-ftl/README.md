@@ -1,6 +1,6 @@
 # freemarker
 
-[Freemarker](http://freemarker.org) templates for [Jooby](/). Exposes a Configuration and [renderer](/apidocs/Renderer.html).
+[Freemarker](http://freemarker.org) templates for [Jooby](/). Exposes a Configuration and [renderer](/apidocs/org/jooby/Renderer.html).
 
 ## dependency
 
