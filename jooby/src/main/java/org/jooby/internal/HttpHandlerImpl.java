@@ -278,7 +278,7 @@ public class HttpHandlerImpl implements HttpHandler {
     } catch (DeferredExecution ex) {
       deferred = true;
       onDeferred(scope, request, req, rsp, ex.deferred);
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       handleErr(req, rsp, ex);
     } finally {
       requestScope.exit();
@@ -312,7 +312,7 @@ public class HttpHandlerImpl implements HttpHandler {
           } else {
             handleErr(req, rsp, ex);
           }
-        } catch (Exception exerr) {
+        } catch (Throwable exerr) {
           handleErr(req, rsp, exerr);
         } finally {
           requestScope.exit();
@@ -324,7 +324,7 @@ public class HttpHandlerImpl implements HttpHandler {
     }
   }
 
-  private void handleErr(final RequestImpl req, final ResponseImpl rsp, final Exception ex) {
+  private void handleErr(final RequestImpl req, final ResponseImpl rsp, final Throwable ex) {
     try {
       log.debug("execution of: " + req.method() + req.path() + " resulted in exception", ex);
 
@@ -401,7 +401,7 @@ public class HttpHandlerImpl implements HttpHandler {
     return Optional.empty();
   }
 
-  private Status statusCode(final Exception ex) {
+  private Status statusCode(final Throwable ex) {
     if (ex instanceof Err) {
       return Status.valueOf(((Err) ex).statusCode());
     }
