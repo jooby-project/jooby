@@ -79,16 +79,14 @@ public class JettyHandler extends AbstractHandler {
             @SuppressWarnings("unchecked")
             @Override
             public <T> T upgrade(final Class<T> type) throws Exception {
-              if (type == NativeWebSocket.class) {
-                if (webSocketServerFactory.isUpgradeRequest(request, response)) {
-                  if (webSocketServerFactory.acceptWebSocket(request, response)) {
-                    String key = JettyWebSocket.class.getName();
-                    NativeWebSocket ws = (NativeWebSocket) request.getAttribute(key);
-                    if (ws != null) {
-                      request.removeAttribute(key);
-                      return (T) ws;
-                    }
-                  }
+              if (type == NativeWebSocket.class
+                  && webSocketServerFactory.isUpgradeRequest(request, response)
+                  && webSocketServerFactory.acceptWebSocket(request, response)) {
+                String key = JettyWebSocket.class.getName();
+                NativeWebSocket ws = (NativeWebSocket) request.getAttribute(key);
+                if (ws != null) {
+                  request.removeAttribute(key);
+                  return (T) ws;
                 }
               }
               throw new UnsupportedOperationException("Not Supported: " + type);
