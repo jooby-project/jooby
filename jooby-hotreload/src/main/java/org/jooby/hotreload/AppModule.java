@@ -101,7 +101,7 @@ public class AppModule {
         }
       }
     }
-    if (cp.size() == 0) {
+    if (cp.isEmpty()) {
       cp.add(new File(System.getProperty("user.dir")));
     }
     AppModule launcher = new AppModule(args[0], args[1], args[2], cp.toArray(new File[cp.size()]))
@@ -165,9 +165,9 @@ public class AppModule {
   }
 
   public void run() {
-    System.out.printf("Hotswap available on: %s\n", Arrays.toString(dirs));
-    System.out.printf("  includes: %s\n", includes);
-    System.out.printf("  excludes: %s\n", excludes);
+    System.out.printf("Hotswap available on: %s%n", Arrays.toString(dirs));
+    System.out.printf("  includes: %s%n", includes);
+    System.out.printf("  excludes: %s%n", excludes);
 
     this.scanner.start();
     this.startApp();
