@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
 
 public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 
+  private static final String A_CALLBACK_IS_REQUIRED = "A callback is required.";
+  private static final String NO_DATA_TO_SEND = "No data to send.";
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(WebSocket.class);
 
@@ -74,27 +76,27 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 
   @Override
   public void onConnect(final Runnable callback) {
-    this.onConnectCallback = requireNonNull(callback, "A callback is required.");
+    this.onConnectCallback = requireNonNull(callback, A_CALLBACK_IS_REQUIRED);
   }
 
   @Override
   public void onTextMessage(final Consumer<String> callback) {
-    this.onTextCallback = requireNonNull(callback, "A callback is required.");
+    this.onTextCallback = requireNonNull(callback, A_CALLBACK_IS_REQUIRED);
   }
 
   @Override
   public void onBinaryMessage(final Consumer<ByteBuffer> callback) {
-    this.onBinaryCallback = requireNonNull(callback, "A callback is required.");
+    this.onBinaryCallback = requireNonNull(callback, A_CALLBACK_IS_REQUIRED);
   }
 
   @Override
   public void onCloseMessage(final BiConsumer<Integer, Optional<String>> callback) {
-    this.onCloseCallback = requireNonNull(callback, "A callback is required.");
+    this.onCloseCallback = requireNonNull(callback, A_CALLBACK_IS_REQUIRED);
   }
 
   @Override
   public void onErrorMessage(final Consumer<Throwable> callback) {
-    this.onErrorCallback = requireNonNull(callback, "A callback is required.");
+    this.onErrorCallback = requireNonNull(callback, A_CALLBACK_IS_REQUIRED);
   }
 
   @Override
@@ -111,7 +113,7 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 
   @Override
   public void sendBytes(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
-    requireNonNull(data, "No data to send.");
+    requireNonNull(data, NO_DATA_TO_SEND);
 
     RemoteEndpoint remote = session.getRemote();
     remote.sendBytes(data, callback(log, success, err));
@@ -119,13 +121,13 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 
   @Override
   public void sendBytes(final byte[] data, final SuccessCallback success, final ErrCallback err) {
-    requireNonNull(data, "No data to send.");
+    requireNonNull(data, NO_DATA_TO_SEND);
     sendBytes(ByteBuffer.wrap(data), success, err);
   }
 
   @Override
   public void sendText(final String data, final SuccessCallback success, final ErrCallback err) {
-    requireNonNull(data, "No data to send.");
+    requireNonNull(data, NO_DATA_TO_SEND);
 
     RemoteEndpoint remote = session.getRemote();
     remote.sendString(data, callback(log, success, err));
@@ -133,7 +135,7 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 
   @Override
   public void sendText(final byte[] data, final SuccessCallback success, final ErrCallback err) {
-    requireNonNull(data, "No data to send.");
+    requireNonNull(data, NO_DATA_TO_SEND);
 
     RemoteEndpoint remote = session.getRemote();
     remote.sendString(new String(data, StandardCharsets.UTF_8), callback(log, success, err));
@@ -141,7 +143,7 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 
   @Override
   public void sendText(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
-    requireNonNull(data, "No data to send.");
+    requireNonNull(data, NO_DATA_TO_SEND);
 
     RemoteEndpoint remote = session.getRemote();
     CharBuffer buffer = StandardCharsets.UTF_8.decode(data);

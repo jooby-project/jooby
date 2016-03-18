@@ -52,6 +52,8 @@ import com.typesafe.config.ConfigException;
 
 public class JettyServer implements org.jooby.spi.Server {
 
+  private static final String JETTY_HTTP = "jetty.http";
+  private static final String CONNECTOR = "connector";
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(org.jooby.spi.Server.class);
 
@@ -78,13 +80,13 @@ public class JettyServer implements org.jooby.spi.Server {
     server.setStopAtShutdown(false);
 
     // HTTP connector
-    ServerConnector http = http(server, config.getConfig("jetty.http"), "jetty.http");
+    ServerConnector http = http(server, config.getConfig(JETTY_HTTP), JETTY_HTTP);
     http.setPort(config.getInt("application.port"));
     http.setHost(config.getString("application.host"));
 
     if (config.hasPath("application.securePort")) {
 
-      ServerConnector https = https(server, config.getConfig("jetty.http"), "jetty.http",
+      ServerConnector https = https(server, config.getConfig(JETTY_HTTP), JETTY_HTTP,
           sslCtx.get());
       https.setPort(config.getInt("application.securePort"));
 
@@ -109,19 +111,19 @@ public class JettyServer implements org.jooby.spi.Server {
   }
 
   private ServerConnector http(final Server server, final Config conf, final String path) {
-    HttpConfiguration httpConfig = conf(new HttpConfiguration(), conf.withoutPath("connector"),
+    HttpConfiguration httpConfig = conf(new HttpConfiguration(), conf.withoutPath(CONNECTOR),
         path);
 
     HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfig);
 
     ServerConnector connector = new ServerConnector(server, httpFactory);
 
-    return conf(connector, conf.getConfig("connector"), path + ".connector");
+    return conf(connector, conf.getConfig(CONNECTOR), path + ".connector");
   }
 
   private ServerConnector https(final Server server, final Config conf, final String path,
       final SSLContext sslContext) {
-    HttpConfiguration httpConf = conf(new HttpConfiguration(), conf.withoutPath("connector"),
+    HttpConfiguration httpConf = conf(new HttpConfiguration(), conf.withoutPath(CONNECTOR),
         path);
 
     SslContextFactory sslContextFactory = new SslContextFactory();
@@ -135,7 +137,7 @@ public class JettyServer implements org.jooby.spi.Server {
     ServerConnector connector = new ServerConnector(server,
         new SslConnectionFactory(sslContextFactory, "HTTP/1.1"), httpsFactory);
 
-    return conf(connector, conf.getConfig("connector"), path + ".connector");
+    return conf(connector, conf.getConfig(CONNECTOR), path + ".connector");
   }
 
   @Override
@@ -158,30 +160,30 @@ public class JettyServer implements org.jooby.spi.Server {
       String optionName = option.getName().replace("set", "");
       Object optionValue = config.getAnyRef(optionName);
       Class<?> optionType = Primitives.wrap(option.getParameterTypes()[0]);
-      if (Number.class.isAssignableFrom(optionType)) {
-        if (optionValue instanceof String) {
-          // either a byte or time unit
-          try {
-            optionValue = config.getBytes(optionName);
-          } catch (ConfigException.BadValue ex) {
-            optionValue = config.getDuration(optionName, TimeUnit.MILLISECONDS);
-          }
-          if (optionType == Integer.class) {
-            // to int
-            optionValue = ((Number) optionValue).intValue();
-          }
+      if (Number.class.isAssignableFrom(optionType) && optionValue instanceof String) {
+        // either a byte or time unit
+        try {
+          optionValue = config.getBytes(optionName);
+        } catch (ConfigException.BadValue ex) {
+          optionValue = config.getDuration(optionName, TimeUnit.MILLISECONDS);
+        }
+        if (optionType == Integer.class) {
+          // to int
+          optionValue = ((Number) optionValue).intValue();
         }
       }
       log.debug("{}.{}({})", source.getClass().getSimpleName(), option.getName(), optionValue);
       option.invoke(source, optionValue);
+    } catch(InvocationTargetException ex) {
+      logAndRethrowException(option, ex.getTargetException());
     } catch (Exception ex) {
-      Throwable cause = ex;
-      if (ex instanceof InvocationTargetException) {
-        cause = ((InvocationTargetException) ex).getTargetException();
-      }
-      log.error("invocation of " + option + " resulted in exception", cause);
-      throw Throwables.propagate(cause);
+      logAndRethrowException(option, ex);
     }
+  }
+
+  private void logAndRethrowException(Method option, Throwable e) {
+    log.error("invocation of " + option + " resulted in exception", e);
+    throw Throwables.propagate(e);
   }
 
   private <T> T conf(final T source, final Config config, final String path) {
