@@ -7,3 +7,7 @@ Let's see what modules are available:
 ## akka
 
 * [akka](/doc/akka): build concurrent & distributed applications via {{akka}}.
+
+## executor
+
+* [executor](/doc/executor): async processing via Java ```Executors```
