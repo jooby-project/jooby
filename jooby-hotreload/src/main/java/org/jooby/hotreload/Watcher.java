@@ -53,6 +53,25 @@ public class Watcher {
   private Thread scanner;
   private volatile boolean stopped = false;
 
+  public Watcher(final BiConsumer<Kind<?>, Path> listener, final Path... dirs)
+          throws IOException {
+    this.watcher = FileSystems.getDefault().newWatchService();
+    this.keys = new HashMap<WatchKey, Path>();
+    this.listener = listener;
+    for (Path dir : dirs) {
+      registerAll(dir);
+    }
+
+    this.scanner = new Thread(() -> {
+      boolean process = true;
+      while (!stopped && process) {
+        process = processEvents();
+      }
+    }, "HotswapScanner");
+
+    scanner.setDaemon(true);
+  }
+
   @SuppressWarnings("unchecked")
   static <T> WatchEvent<T> cast(final WatchEvent<?> event) {
     return (WatchEvent<T>) event;
@@ -89,25 +108,6 @@ public class Watcher {
         return FileVisitResult.CONTINUE;
       }
     });
-  }
-
-  public Watcher(final BiConsumer<Kind<?>, Path> listener, final Path... dirs)
-      throws IOException {
-    this.watcher = FileSystems.getDefault().newWatchService();
-    this.keys = new HashMap<WatchKey, Path>();
-    this.listener = listener;
-    for (Path dir : dirs) {
-      registerAll(dir);
-    }
-
-    this.scanner = new Thread(() -> {
-      boolean process = true;
-      while (!stopped && process) {
-        process = processEvents();
-      }
-    }, "HotswapScanner");
-
-    scanner.setDaemon(true);
   }
 
   private boolean processEvents() {
