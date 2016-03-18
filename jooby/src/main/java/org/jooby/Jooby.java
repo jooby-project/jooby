@@ -3575,6 +3575,9 @@ public class Jooby implements Routes {
       ehandlers.addBinding().toInstance(new Err.DefHandler());
     });
 
+    onStart.addAll(0, finalEnv.startTasks());
+    onStop.addAll(finalEnv.stopTasks());
+
     // clear bag and freeze it
     this.bag.clear();
     this.bag = ImmutableSet.of();

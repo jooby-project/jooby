@@ -15,6 +15,7 @@ import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -745,6 +746,8 @@ public class JoobyTest {
         .expect(unit -> {
           Env env = unit.mock(Env.class);
           expect(env.name()).andReturn("dev").times(2);
+          expect(env.startTasks()).andReturn(Collections.emptyList());
+          expect(env.stopTasks()).andReturn(Collections.emptyList());
 
           Env.Builder builder = unit.get(Env.Builder.class);
           expect(builder.build(isA(Config.class), isA(Jooby.class), isA(Locale.class)))

@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.function.BiConsumer;
@@ -988,6 +989,26 @@ public class JdbcTest {
 
       @Override
       public Routes routes() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public Env onStop(final Runnable shutdownTask) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public List<Runnable> stopTasks() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public Env onStart(final Runnable task) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public List<Runnable> startTasks() {
         throw new UnsupportedOperationException();
       }
 

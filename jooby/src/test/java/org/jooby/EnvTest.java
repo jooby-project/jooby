@@ -3,6 +3,7 @@ package org.jooby;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -126,7 +127,8 @@ public class EnvTest {
 
   @Test
   public void ifMode() throws Throwable {
-    assertEquals("$dev", Env.DEFAULT.build(ConfigFactory.empty()).ifMode("dev", () -> "$dev").get());
+    assertEquals("$dev",
+        Env.DEFAULT.build(ConfigFactory.empty()).ifMode("dev", () -> "$dev").get());
     assertEquals(Optional.empty(),
         Env.DEFAULT.build(ConfigFactory.empty()).ifMode("prod", () -> "$dev"));
 
@@ -135,12 +137,14 @@ public class EnvTest {
         Env.DEFAULT
             .build(
                 ConfigFactory.empty().withValue("application.env",
-                    ConfigValueFactory.fromAnyRef("prod"))).ifMode("prod", () -> "$prod").get());
+                    ConfigValueFactory.fromAnyRef("prod")))
+            .ifMode("prod", () -> "$prod").get());
     assertEquals(Optional.empty(),
         Env.DEFAULT
             .build(
                 ConfigFactory.empty().withValue("application.env",
-                    ConfigValueFactory.fromAnyRef("prod"))).ifMode("dev", () -> "$prod"));
+                    ConfigValueFactory.fromAnyRef("prod")))
+            .ifMode("dev", () -> "$prod"));
   }
 
   @Test
@@ -165,5 +169,25 @@ public class EnvTest {
     assertEquals("prod", Env.DEFAULT.build(ConfigFactory.empty().withValue("application.env",
         ConfigValueFactory.fromAnyRef("prod"))).toString());
 
+  }
+
+  @Test
+  public void onStart() throws Exception {
+    Env env = Env.DEFAULT.build(ConfigFactory.empty());
+    Runnable task = () -> {
+    };
+    env.onStart(task);
+
+    assertEquals(Arrays.asList(task), env.startTasks());
+  }
+
+  @Test
+  public void onStop() throws Exception {
+    Env env = Env.DEFAULT.build(ConfigFactory.empty());
+    Runnable task = () -> {
+    };
+    env.onStop(task);
+
+    assertEquals(Arrays.asList(task), env.stopTasks());
   }
 }

@@ -21,6 +21,7 @@ package org.jooby;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -29,6 +30,7 @@ import java.util.function.Supplier;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 
 import javaslang.control.Match;
@@ -98,6 +100,10 @@ public interface Env {
     String name = config.hasPath("application.env") ? config.getString("application.env") : "dev";
     return new Env() {
 
+      private ImmutableList.Builder<Runnable> start = ImmutableList.builder();
+
+      private ImmutableList.Builder<Runnable> shutdown = ImmutableList.builder();
+
       @Override
       public String name() {
         return name;
@@ -124,6 +130,28 @@ public interface Env {
       @Override
       public String toString() {
         return name();
+      }
+
+      @Override
+      public List<Runnable> stopTasks() {
+        return shutdown.build();
+      }
+
+      @Override
+      public Env onStop(final Runnable task) {
+        this.shutdown.add(task);
+        return this;
+      }
+
+      @Override
+      public Env onStart(final Runnable task) {
+        this.start.add(task);
+        return this;
+      }
+
+      @Override
+      public List<Runnable> startTasks() {
+        return this.start.build();
       }
     };
   };
@@ -331,5 +359,41 @@ public interface Env {
   default <T> MatchValue.Then<String, T> when(final Predicate<String> predicate, final T result) {
     return match().when(e -> predicate.test(e.toString())).then(result);
   }
+
+  /**
+   * Add a start task, useful for initialize and/or start services at startup time.
+   *
+   * You should ONLY call this method while the application is been initialized, usually executing
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
+   *
+   * The behaviour of this method once application has been initialized is <code>undefined</code>.
+   *
+   * @param task Task to run.
+   * @return This env.
+   */
+  Env onStart(Runnable task);
+
+  /**
+   * Add a stop task, useful for cleanup and/or stop service at stop time.
+   *
+   * You should ONLY call this method while the application is been initialized, usually executing
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
+   *
+   * The behaviour of this method once application has been initialized is <code>undefined</code>.
+   *
+   * @param task Task to run.
+   * @return This env.
+   */
+  Env onStop(Runnable task);
+
+  /**
+   * @return List of start tasks.
+   */
+  List<Runnable> startTasks();
+
+  /**
+   * @return List of stop tasks.
+   */
+  List<Runnable> stopTasks();
 
 }
