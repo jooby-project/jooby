@@ -175,14 +175,11 @@ public class AppModule {
 
   private void startApp() {
     if (app != null) {
-      // System.out.println("stopping ap");
       stopApp(app);
     }
-     // System.out.println("scheduling app");
     executor.execute(() -> {
       ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
       try {
-        // System.out.println("starting app");
         module = loader.loadModule(mId);
         ModuleClassLoader mcloader = module.getClassLoader();
 
@@ -199,7 +196,6 @@ public class AppModule {
               .getDeclaredConstructors()[0].newInstance();
         }
         app.getClass().getMethod("start").invoke(app);
-        // System.out.println("new app " + app);
 
       } catch (InvocationTargetException ex) {
         System.err.println("Error found while starting: " + mainClass);
@@ -237,19 +233,8 @@ public class AppModule {
 
   private void onChange(final Kind<?> kind, final Path path) {
     try {
-      // System.out.println("found: " + path );
       Path candidate = relativePath(path);
-      if (candidate == null) {
-        // System.("Can't resolve path: {}... ignoring it", path);
-        return;
-      }
-      // System.out.println("resolved: " + path  + " ->" + candidate);
-      if (!includes.matches(candidate)) {
-        // System.out.printf("ignoring file %s -> ~%s\n", candidate, includes);
-        return;
-      }
-      if (excludes.matches(candidate)) {
-        // System.out.printf("ignoring file %s -> %s\n", candidate, excludes);
+      if (candidate == null || !includes.matches(candidate) || excludes.matches(candidate)) {
         return;
       }
       // reload
