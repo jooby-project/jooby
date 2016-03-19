@@ -74,21 +74,21 @@
 
   <build>
     <plugins>
-      <!-- Build fat jar -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-      </plugin>
-
-      <!-- Build jooby.zip | jooby.war -->
+      <!-- Build jooby.stork | jooby.war | jooby.static -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
           <descriptorRefs>
-            <descriptorRef>jooby.zip</descriptorRef>
+            <descriptorRef>jooby.war</descriptorRef>
           </descriptorRefs>
         </configuration>
+      </plugin>
+
+      <!-- Build fat jar -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

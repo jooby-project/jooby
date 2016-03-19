@@ -1349,7 +1349,7 @@
           </dependencies>
         </plugin>
 
-        <!-- Zip -->
+        <!-- jooby assemblies -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
@@ -1361,18 +1361,6 @@
               <version>${jooby.version}</version>
             </dependency>
           </dependencies>
-          <executions>
-            <execution>
-              <id>make-assembly</id>
-              <phase>package</phase>
-              <goals>
-                <goal>single</goal>
-              </goals>
-              <configuration>
-                <appendAssemblyId>false</appendAssemblyId>
-              </configuration>
-            </execution>
-          </executions>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -1524,15 +1512,98 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
+            <version>${maven-assembly-plugin.version}</version>
             <executions>
               <execution>
+                <id>jooby.stork</id>
                 <phase>package</phase>
                 <goals>
                   <goal>single</goal>
                 </goals>
                 <configuration>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <finalName>${project.artifactId}-${project.version}.stork</finalName>
                   <descriptorRefs>
                     <descriptorRef>jooby.stork</descriptorRef>
+                  </descriptorRefs>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>static-assets</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}assets.activator</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>${maven-assembly-plugin.version}</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <id>jooby.static</id>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <finalName>${project.artifactId}-${project.version}.static</finalName>
+                  <descriptorRefs>
+                    <descriptorRef>jooby.static</descriptorRef>
+                  </descriptorRefs>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>war</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}war.activator</exists>
+        </file>
+      </activation>
+      <properties>
+        <war.maxRequestSize>204800</war.maxRequestSize>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.jooby</groupId>
+          <artifactId>jooby-servlet</artifactId>
+          <version>${jooby.version}</version>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>${maven-assembly-plugin.version}</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <id>jooby.war</id>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <finalName>${project.artifactId}-${project.version}</finalName>
+                  <descriptorRefs>
+                    <descriptorRef>jooby.war</descriptorRef>
                   </descriptorRefs>
                 </configuration>
               </execution>
@@ -2110,7 +2181,6 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jsoup.version>1.8.3</jsoup.version>
 
     <!-- config -->
-    <war.maxRequestSize>204800</war.maxRequestSize>
     <ebean.agent.packages>**</ebean.agent.packages>
     <ebean.agent.args>debug=0</ebean.agent.args>
 

@@ -5,57 +5,11 @@ If you are free to deploy a new server technology, we strongly recommend to avoi
 
 In order to deploy into a Servlet Container, we need to generate a ```*.war``` file. The next steps guide you on how to do it:
 
-### step 1
+* Write a ```war.activator``` file inside the ```src/etc``` directory.
 
-Add the ```jooby-servlet``` dependency to your ```pom.xml```:
+* Open a console and type: ```mvn clean package```
 
-```xml
-<dependency>
-  <groupId>org.jooby</groupId>
-  <artifactId>jooby-servlet</artifactId>
-  <version>{{version}}</version>
-  <scope>provided</scope>
-</dependency>
-```
-
-IMPORTANT: Scope must be ```provided```.
-
-### step 2
-
-Find out the ```maven-assembly-plugin``` section in your ```pom.xml```, it looks like this:
-
-```xml
-<!-- Build jooby.zip | jooby.war -->
-<plugin>
-  <groupId>org.apache.maven.plugins</groupId>
-  <artifactId>maven-assembly-plugin</artifactId>
-  <configuration>
-    <descriptorRefs>
-      <descriptorRef>jooby.zip</descriptorRef>
-    </descriptorRefs>
-  </configuration>
-</plugin>
-```
-
-Add a new descriptorRef: ```jooby.war```
-
-```xml
-<!-- Build jooby.zip | jooby.war -->
-<plugin>
-  <groupId>org.apache.maven.plugins</groupId>
-  <artifactId>maven-assembly-plugin</artifactId>
-  <configuration>
-    <descriptorRefs>
-      <descriptorRef>jooby.zip</descriptorRef>
-      <descriptorRef>jooby.war</descriptorRef>
-    </descriptorRefs>
-  </configuration>
-</plugin>
-```
-
-### step 3
-
-Run: ```mvn clean package``` and find the ```*.war``` file in the ```target``` directory.
+* Find the ```*.war``` file in the ```target``` directory.
 
 ## limitations
 
@@ -87,7 +41,9 @@ Here the expression: ```{{ "{{contextPath" }}}}``` correspond to the template en
 
 ## how it works?
 
-The ```maven-assembly-plugin``` generates the *.war file. The assembly descriptor can be found
+The presence of the ```src/etc/war.activator``` file triggers a Maven profile. Content of the file doesn't matter, just the presence.
+
+The Maven profile build the ```*.war``` file using the ```maven-assembly-plugin```. The assembly descriptor can be found
 [here](https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml)
 
 ### web.xml
