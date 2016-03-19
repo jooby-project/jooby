@@ -40,7 +40,7 @@ At bootstrap time you will see something similar to this:
   *    /**      [*/*]    [*/*]  (hbm)
 ```
 
-That is the filter with the <strong>Open Session in View</strong> pattern.
+The **hbm** route is the **Open Session in View** filter.
 
 ## life-cycle
 
@@ -58,15 +58,15 @@ singleton services, you need to inject a ```Provider```.
 ```java
 @Singleton
 public class MySingleton {
- 
+
   @Inject
-  public MySingleton(Provider&lt;EntityManager&gt; em) {
+  public MySingleton(Provider<EntityManager> em) {
     this.em = em;
   }
 }
 ```
 
-This is because the ```EntityManager``` is bound as [RequestScoped]({{defdocs/RequestScoped.html}}).
+This is because the ```EntityManager``` is bound as [RequestScoped]({{defdocs}}/RequestScoped.html).
 
 
 Still, we strongly recommend to leave your services in the default scope and avoid to use
@@ -89,7 +89,7 @@ If you don't care about bootstrap time and/or just like the auto-discover featur
 }
 ```
 
-After calling ```scan()```, [Hibernate](http://hibernate.org/) will auto-discover all the entities application's
+After calling ```scan()```, [Hibernate](http://hibernate.org) will auto-discover all the entities application's
 namespace. The namespace is defined by the package of your application. Given:
 ```org.myproject.App``` it will scan everything under ```org.myproject```.
 

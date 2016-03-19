@@ -35,7 +35,7 @@ import org.mongodb.morphia.annotations.PrePersist;
  * Usage:
  * <pre>
  * {
- *   use(new Monphia().idGen(IdGen.GLOBAL);
+ *   use(new Monphia().with(IdGen.GLOBAL);
  * }
  * </pre>
  * <p>

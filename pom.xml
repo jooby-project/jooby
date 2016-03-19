@@ -1808,7 +1808,7 @@
       <id>querydsl-jpa</id>
       <activation>
         <file>
-          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}querydsl-jpa.md</exists>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}querydsl-jpa.activator</exists>
         </file>
       </activation>
       <properties>
@@ -1825,7 +1825,7 @@
             <version>${build-helper-maven-plugin.version}</version>
             <executions>
               <execution>
-                <id>add-source</id>
+                <id>add-querydsl-source</id>
                 <phase>generate-sources</phase>
                 <goals>
                   <goal>add-source</goal>
@@ -2188,7 +2188,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jooq.version>3.7.2</jooq.version>
 
     <!-- javaslang -->
-    <javaslang.version>2.0.0-RC4</javaslang.version>
+    <javaslang.version>2.0.0</javaslang.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

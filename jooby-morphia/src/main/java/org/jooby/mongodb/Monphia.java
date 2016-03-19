@@ -112,7 +112,7 @@ import com.typesafe.config.Config;
  * </p>
  * <pre>
  * {
- *   use(new Monphia().idGen(IdGen.GLOBAL); // or IdGen.LOCAL
+ *   use(new Monphia().with(IdGen.GLOBAL); // or IdGen.LOCAL
  * }
  * </pre>
  * <p>
@@ -217,7 +217,7 @@ public class Monphia extends Mongodb {
    * Usage:
    * <pre>
    * {
-   *   use(new Monphia().idGen(IdGen.GLOBAL);
+   *   use(new Monphia().with(IdGen.GLOBAL);
    * }
    * </pre>
    *

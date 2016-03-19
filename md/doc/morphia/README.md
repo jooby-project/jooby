@@ -1,6 +1,6 @@
 # morphia
 
-Extends the [mongodb]({{gh}}/jooby-mongodb) module with object-document mapping via [Morphia]({{morphia}}).
+Extends the [mongodb]({{gh}}/jooby-mongodb) module with object-document mapping via {{morphia}}.
 
 Exposes a [Morphia]({{morphiaapi}}/Morphia.html) and [Datastore]({{morphiaapi}}/Datastore.html) services.
 
@@ -49,7 +49,7 @@ The [Morphia]({{morphiaapi}}/Morphia.html) callback let you map classes and/or s
     .doWith((morphia, config) -> {
       // work with morphia
       morphia.map(MyObject.class);
-    });
+    })
   );
 }
 ```
@@ -58,7 +58,7 @@ For more detailed information, check [here]({{morphia}}/wiki/MappingObjects)
 
 ### datastore callback
 
-This [Datastore]({{morphiaapi}}/Datastore.html) callback is executed only once, it's perfect for checking indexes:
+The [Datastore]({{morphiaapi}}/Datastore.html) callback is executed only once, it's perfect for checking indexes:
 
 ```java
 {
@@ -67,7 +67,7 @@ This [Datastore]({{morphiaapi}}/Datastore.html) callback is executed only once, 
       // work with datastore
       datastore.ensureIndexes();
       datastore.ensureCap();
-    });
+    })
   );
 }
 ```
@@ -79,11 +79,11 @@ This modules comes with auto-incremental ID generation, usage:
 
 ```java
 {
-  use(new Monphia().idGen(IdGen.GLOBAL); // or IdGen.LOCAL
+  use(new Monphia().with(IdGen.GLOBAL); // or IdGen.LOCAL
 }
 ```
 
-ID must be of type: ```Long``` and annotated with [GeneratedValue]({{defdocs}}/GeneratedValue.html):
+ID must be of type: ```Long``` and annotated with [GeneratedValue]({{defdocs}}/mongodb/GeneratedValue.html):
 
 ```java
 @Entity
@@ -119,6 +119,6 @@ public class MyListener {
 }
 ```
 
-NOTE: ONLY Constructor injection is supported.
+> NOTE: ONLY Constructor injection is supported.
 
 That's all folks! Enjoy it!!
