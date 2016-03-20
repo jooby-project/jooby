@@ -201,7 +201,7 @@ public class ExecTest {
 
   @Test
   public void forkJoin() throws Exception {
-    int n = 8;
+    int n = Runtime.getRuntime().availableProcessors();
     Config conf = ConfigFactory.empty()
         .withValue("executors", ConfigValueFactory.fromAnyRef("forkjoin, asyncMode"));
     new MockUnit(Env.class, Binder.class)
