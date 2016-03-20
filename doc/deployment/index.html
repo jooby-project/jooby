@@ -406,34 +406,9 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
        <p>This is nice if you want or prefer to serve static resources via <a href="https://www.nginx.com" target="_blank">nginx</a> or <a href="https://httpd.apache.org" target="_blank">apache</a>.</p> 
        <h3 id="static-resources-usage">usage</h3> 
        <ul> 
-        <li>Open your <code class="highlighter-rouge codehilite">pom.xml</code> and setup the <code class="highlighter-rouge codehilite">jooby.static</code> assembly, like:</li> 
-       </ul> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>...
-<span class="nt">&lt;build&gt;</span>
-  <span class="nt">&lt;plugins&gt;</span>
-    ...
-    <span class="nt">&lt;plugin&gt;</span>
-      <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
-      <span class="nt">&lt;artifactId&gt;</span>maven-assembly-plugin<span class="nt">&lt;/artifactId&gt;</span>
-      <span class="nt">&lt;configuration&gt;</span>
-        <span class="nt">&lt;descriptorRefs&gt;</span>
-          <span class="nt">&lt;descriptorRef&gt;</span>jooby.static<span class="nt">&lt;/descriptorRef&gt;</span>
-        <span class="nt">&lt;/descriptorRefs&gt;</span>
-      <span class="nt">&lt;/configuration&gt;</span>
-    <span class="nt">&lt;/plugin&gt;</span>
-    ...
-  <span class="nt">&lt;/plugins&gt;</span>
-<span class="nt">&lt;/build&gt;</span>
-...
-</code></pre> 
-       </div> 
-       <ul> 
+        <li> <p>Write a <code class="highlighter-rouge codehilite">assets.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc</code> directory</p> </li> 
         <li> <p>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></p> </li> 
-        <li> <p>Look for <code class="highlighter-rouge codehilite">[app-name]tar.gz</code> inside the <code class="highlighter-rouge codehilite">target</code> direactory</p> </li> 
+        <li> <p>Look for <code class="highlighter-rouge codehilite">[app-name].static.zip</code> inside the <code class="highlighter-rouge codehilite">target</code> directory</p> </li> 
        </ul> 
       </div> 
      </div> 
@@ -445,59 +420,11 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
        <p>This module exists for strict environments where the ONLY option is to deploy into a Servlet Container. If you are free to deploy a new server technology, we strongly recommend to avoid this and go directly with <a href="http://netty.io" target="_blank">Netty</a>, <a href="http://www.eclipse.org/jetty/" target="_blank">Jetty</a> or <a href="http://undertow.io" target="_blank">Undertow</a>.</p> 
        <h3 id="war--usage">usage</h3> 
        <p>In order to deploy into a Servlet Container, we need to generate a <code class="highlighter-rouge codehilite">*.war</code> file. The next steps guide you on how to do it:</p> 
-       <h4 id="war--step-">step 1</h4> 
-       <p>Add the <code class="highlighter-rouge codehilite">jooby-servlet</code> dependency to your <code class="highlighter-rouge codehilite">pom.xml</code>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>jooby-servlet<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.15.1<span class="nt">&lt;/version&gt;</span>
-  <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</code></pre> 
-       </div> 
-       <p>IMPORTANT: Scope must be <code class="highlighter-rouge codehilite">provided</code>.</p> 
-       <h4 id="war--step-">step 2</h4> 
-       <p>Find out the <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> section in your <code class="highlighter-rouge codehilite">pom.xml</code>, it looks like this:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c">&lt;!-- Build jooby.zip | jooby.war --&gt;</span>
-<span class="nt">&lt;plugin&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>maven-assembly-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;configuration&gt;</span>
-    <span class="nt">&lt;descriptorRefs&gt;</span>
-      <span class="nt">&lt;descriptorRef&gt;</span>jooby.zip<span class="nt">&lt;/descriptorRef&gt;</span>
-    <span class="nt">&lt;/descriptorRefs&gt;</span>
-  <span class="nt">&lt;/configuration&gt;</span>
-<span class="nt">&lt;/plugin&gt;</span>
-</code></pre> 
-       </div> 
-       <p>Add a new descriptorRef: <code class="highlighter-rouge codehilite">jooby.war</code></p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="c">&lt;!-- Build jooby.zip | jooby.war --&gt;</span>
-<span class="nt">&lt;plugin&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>maven-assembly-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;configuration&gt;</span>
-    <span class="nt">&lt;descriptorRefs&gt;</span>
-      <span class="nt">&lt;descriptorRef&gt;</span>jooby.zip<span class="nt">&lt;/descriptorRef&gt;</span>
-      <span class="nt">&lt;descriptorRef&gt;</span>jooby.war<span class="nt">&lt;/descriptorRef&gt;</span>
-    <span class="nt">&lt;/descriptorRefs&gt;</span>
-  <span class="nt">&lt;/configuration&gt;</span>
-<span class="nt">&lt;/plugin&gt;</span>
-</code></pre> 
-       </div> 
-       <h4 id="war--step-">step 3</h4> 
-       <p>Run: <code class="highlighter-rouge codehilite">mvn clean package</code> and find the <code class="highlighter-rouge codehilite">*.war</code> file in the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
+       <ul> 
+        <li> <p>Write a <code class="highlighter-rouge codehilite">war.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc</code> directory.</p> </li> 
+        <li> <p>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></p> </li> 
+        <li> <p>Find the <code class="highlighter-rouge codehilite">*.war</code> file in the <code class="highlighter-rouge codehilite">target</code> directory.</p> </li> 
+       </ul> 
        <h3 id="war--limitations">limitations</h3> 
        <ul> 
         <li>web-sockets are not supported</li> 
@@ -524,7 +451,8 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
        </div> 
        <p>Here the expression: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">{</span><span class="w"> </span><span class="nt">"{{contextPath"</span><span class="w"> </span><span class="err">}}}}</span></code> correspond to the template engine (handlebars here) or <code class="highlighter-rouge codehilite">${contextPath}</code> for Freemarker.</p> 
        <h3 id="war--how-it-works-">how it works?</h3> 
-       <p>The <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> generates the *.war file. The assembly descriptor can be found <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml" target="_blank">here</a></p> 
+       <p>The presence of the <code class="highlighter-rouge codehilite">src/etc/war.activator</code> file triggers a Maven profile. Content of the file doesn’t matter, just the presence.</p> 
+       <p>The Maven profile build the <code class="highlighter-rouge codehilite">*.war</code> file using the <code class="highlighter-rouge codehilite">maven-assembly-plugin</code>. The assembly descriptor can be found <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml" target="_blank">here</a></p> 
        <h4 id="war--web-xml">web.xml</h4> 
        <p>A default <code class="highlighter-rouge codehilite">web.xml</code> file is generated by the assembly plugin. File looks like:</p> 
        <div class="highlighter-rouge codehilite">

@@ -6,6 +6,7 @@ org.jooby.camel
 org.jooby.ebean
 org.jooby.ehcache
 org.jooby.elasticsearch
+org.jooby.exec
 org.jooby.flyway
 org.jooby.ftl
 org.jooby.guava
@@ -38,5 +39,4 @@ org.jooby.spec
 org.jooby.spi
 org.jooby.swagger
 org.jooby.undertow
-org.jooby.util
 org.skife.jdbi.v2

@@ -112,7 +112,7 @@
        <h2>morphia</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Extends the <a href="/doc/mongodb">mongodb</a> module with object-document mapping via <a href="[Morphia](https://github.com/mongodb/morphia)">Morphia</a>.</p> 
+       <p>Extends the <a href="/doc/mongodb">mongodb</a> module with object-document mapping via <a href="https://github.com/mongodb/morphia" target="_blank">Morphia</a>.</p> 
        <p>Exposes a <a href="https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Morphia.html" target="_blank">Morphia</a> and <a href="https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Datastore.html" target="_blank">Datastore</a> services.</p> 
        <h3 id="morphia-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
@@ -122,7 +122,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-morphia<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.15.1<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.16.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -163,14 +163,14 @@
     <span class="o">.</span><span class="na">doWith</span><span class="o">((</span><span class="n">morphia</span><span class="o">,</span> <span class="n">config</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
       <span class="c1">// work with morphia</span>
       <span class="n">morphia</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">MyObject</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="o">});</span>
+    <span class="o">})</span>
   <span class="o">);</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
        <p>For more detailed information, check <a href="[Morphia](https://github.com/mongodb/morphia)/wiki/MappingObjects">here</a></p> 
        <h4 id="morphia-datastore-callback">datastore callback</h4> 
-       <p>This <a href="https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Datastore.html" target="_blank">Datastore</a> callback is executed only once, it’s perfect for checking indexes:</p> 
+       <p>The <a href="https://rawgit.com/wiki/mongodb/morphia/javadoc/0.111/org/mongodb/morphia/Datastore.html" target="_blank">Datastore</a> callback is executed only once, it’s perfect for checking indexes:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -181,7 +181,7 @@
       <span class="c1">// work with datastore</span>
       <span class="n">datastore</span><span class="o">.</span><span class="na">ensureIndexes</span><span class="o">();</span>
       <span class="n">datastore</span><span class="o">.</span><span class="na">ensureCap</span><span class="o">();</span>
-    <span class="o">});</span>
+    <span class="o">})</span>
   <span class="o">);</span>
 <span class="o">}</span>
 </code></pre> 
@@ -194,11 +194,11 @@
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Monphia</span><span class="o">().</span><span class="na">idGen</span><span class="o">(</span><span class="n">IdGen</span><span class="o">.</span><span class="na">GLOBAL</span><span class="o">);</span> <span class="c1">// or IdGen.LOCAL</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Monphia</span><span class="o">().</span><span class="na">with</span><span class="o">(</span><span class="n">IdGen</span><span class="o">.</span><span class="na">GLOBAL</span><span class="o">);</span> <span class="c1">// or IdGen.LOCAL</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>ID must be of type: <code class="highlighter-rouge codehilite">Long</code> and annotated with <a href="/apidocs/org/jooby/GeneratedValue.html">GeneratedValue</a>:</p> 
+       <p>ID must be of type: <code class="highlighter-rouge codehilite">Long</code> and annotated with <a href="/apidocs/org/jooby/mongodb/GeneratedValue.html">GeneratedValue</a>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -236,7 +236,9 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>NOTE: ONLY Constructor injection is supported.</p> 
+       <blockquote> 
+        <p>NOTE: ONLY Constructor injection is supported.</p> 
+       </blockquote> 
        <p>That’s all folks! Enjoy it!!</p> 
       </div> 
      </div> 

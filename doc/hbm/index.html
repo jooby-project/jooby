@@ -126,7 +126,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-hbm<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.15.1<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.16.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -153,7 +153,7 @@
         <pre class="highlight"><code>  <span class="k">*</span>    /<span class="k">**</span>      <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>    <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>  <span class="o">(</span>hbm<span class="o">)</span>
 </code></pre> 
        </div> 
-       <p>That is the filter with the <strong>Open Session in View</strong> pattern.</p> 
+       <p>The <strong>hbm</strong> route is the <strong>Open Session in View</strong> filter.</p> 
        <h3 id="hibernate-life-cycle">life-cycle</h3> 
        <p>You are free to inject an <code class="highlighter-rouge codehilite">EntityManagerFactory</code> create a new <code class="highlighter-rouge codehilite">EntityManagerFactory#createEntityManager()</code>, start transactions and do everything you need.</p> 
        <p>For the time being, this doesn’t work for an <code class="highlighter-rouge codehilite">EntityManager</code>. An <code class="highlighter-rouge codehilite">EntityManager</code> is bound to the current request, which means you can’t freely access from every single thread (like manually started thread, started by an executor service, quartz, etc…).</p> 
@@ -164,15 +164,15 @@
         </div> 
         <pre class="highlight"><code><span class="nd">@Singleton</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">MySingleton</span> <span class="o">{</span>
- 
+
   <span class="nd">@Inject</span>
-  <span class="kd">public</span> <span class="n">MySingleton</span><span class="o">(</span><span class="n">Provider</span><span class="o">&amp;</span><span class="n">lt</span><span class="o">;</span><span class="n">EntityManager</span><span class="o">&amp;</span><span class="n">gt</span><span class="o">;</span> <span class="n">em</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="n">MySingleton</span><span class="o">(</span><span class="n">Provider</span><span class="o">&lt;</span><span class="n">EntityManager</span><span class="o">&gt;</span> <span class="n">em</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">this</span><span class="o">.</span><span class="na">em</span> <span class="o">=</span> <span class="n">em</span><span class="o">;</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>This is because the <code class="highlighter-rouge codehilite">EntityManager</code> is bound as <a href="{{defdocs/RequestScoped.html}}">RequestScoped</a>.</p> 
+       <p>This is because the <code class="highlighter-rouge codehilite">EntityManager</code> is bound as <a href="/apidocs/org/jooby/RequestScoped.html">RequestScoped</a>.</p> 
        <p>Still, we strongly recommend to leave your services in the default scope and avoid to use <code class="highlighter-rouge codehilite">Singleton</code> objects, except of course for really expensive resources. This is also recommend it by <a href="https://github.com/google/guice" target="_blank">Guice</a>.</p> 
        <p>Services in the default scope won’t have this problem and are free to inject the <code class="highlighter-rouge codehilite">EntityManager</code> directly.</p> 
        <h3 id="hibernate-persistent-classes">persistent classes</h3> 
@@ -187,7 +187,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>After calling <code class="highlighter-rouge codehilite">scan()</code>, <a href="http://hibernate.org/" target="_blank">Hibernate</a> will auto-discover all the entities application’s namespace. The namespace is defined by the package of your application. Given: <code class="highlighter-rouge codehilite">org.myproject.App</code> it will scan everything under <code class="highlighter-rouge codehilite">org.myproject</code>.</p> 
+       <p>After calling <code class="highlighter-rouge codehilite">scan()</code>, <a href="http://hibernate.org" target="_blank">Hibernate</a> will auto-discover all the entities application’s namespace. The namespace is defined by the package of your application. Given: <code class="highlighter-rouge codehilite">org.myproject.App</code> it will scan everything under <code class="highlighter-rouge codehilite">org.myproject</code>.</p> 
        <h3 id="hibernate-options">options</h3> 
        <p><a href="http://hibernate.org/" target="_blank">Hibernate</a> options can be set from your <code class="highlighter-rouge codehilite">application.conf</code> file, just make sure to prefix them with <code class="highlighter-rouge codehilite">hibernate.*</code></p> 
        <div class="highlighter-rouge codehilite">
