@@ -1,6 +1,6 @@
 # guava-cache
 
-Exposes ```com.google.common.cache.Cache``` services from <a href="https://github.com/google/guava">Guava</a>
+Provides cache solution and session storage via: <a href="https://github.com/google/guava">Guava</a>.
 
 ## dependency
 
@@ -8,7 +8,7 @@ Exposes ```com.google.common.cache.Cache``` services from <a href="https://githu
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-guava-cache</artifactId>
- <version>0.15.1</version>
+ <version>0.16.0</version>
 </dependency>
 ```
 

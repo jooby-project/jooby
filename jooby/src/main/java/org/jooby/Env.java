@@ -33,8 +33,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 
-import javaslang.control.Match;
-import javaslang.control.Match.MatchValue;
+import javaslang.API;
+import javaslang.control.Option;
 
 /**
  * Allows to optimize, customize or apply defaults values for services.
@@ -288,7 +288,7 @@ public interface Env {
   }
 
   /**
-   * Produces a {@link Match} of the current {@link Env}.
+   * Produces a {@link API.Match} of the current {@link Env}.
    *
    * <pre>
    *   String accessKey = env.match()"dev", () {@literal ->} "1234")
@@ -299,12 +299,12 @@ public interface Env {
    *
    * @return A new matcher.
    */
-  default MatchValue.Of<String> match() {
-    return Match.of(name());
+  default API.Match<String> match() {
+    return API.Match(name());
   }
 
   /**
-   * Produces a {@link Match} of the current {@link Env}.
+   * Produces a {@link API.Match} of the current {@link Env}.
    *
    * <pre>
    *   String accessKey = env.when("dev", () {@literal ->} "1234")
@@ -318,12 +318,12 @@ public interface Env {
    * @param <T> A resulting type.
    * @return A new matcher.
    */
-  default <T> MatchValue.Then<String, T> when(final String name, final Supplier<T> fn) {
-    return match().whenIs(name).then(fn);
+  default <T> Option<T> when(final String name, final Supplier<T> fn) {
+    return match().option(API.Case(name, fn));
   }
 
   /**
-   * Produces a {@link Match} of the current {@link Env}.
+   * Produces a {@link API.Match} of the current {@link Env}.
    *
    * <pre>
    *   String accessKey = env.when("dev", "1234")
@@ -337,12 +337,12 @@ public interface Env {
    * @param <T> A resulting type.
    * @return A new matcher.
    */
-  default <T> MatchValue.Then<String, T> when(final String name, final T result) {
-    return match().whenIs(name).then(result);
+  default <T> Option<T> when(final String name, final T result) {
+    return match().option(API.Case(name, result));
   }
 
   /**
-   * Produces a {@link Match} of the current {@link Env}.
+   * Produces a {@link API.Match} of the current {@link Env}.
    *
    * <pre>
    *   String accessKey = env.when("dev", () {@literal ->} "1234")
@@ -356,8 +356,8 @@ public interface Env {
    * @param <T> A resulting type.
    * @return A new matcher.
    */
-  default <T> MatchValue.Then<String, T> when(final Predicate<String> predicate, final T result) {
-    return match().when(e -> predicate.test(e.toString())).then(result);
+  default <T> Option<T> when(final Predicate<String> predicate, final T result) {
+    return match().option(API.Case(predicate, result));
   }
 
   /**

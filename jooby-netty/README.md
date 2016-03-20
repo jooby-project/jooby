@@ -1,6 +1,6 @@
 # netty
 
-[Netty](http://netty.io) web server for Jooby.
+NIO web server via [Netty](http://netty.io).
 
 ## dependency
 
@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-netty</artifactId>
-  <version>0.15.1</version>
+  <version>0.16.0</version>
 </dependency>
 ```
 

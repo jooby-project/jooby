@@ -1,6 +1,9 @@
 # camel
 
-[Apache Camel](http://camel.apache.org) integration for Jooby.
+Enterprise Integration Patterns via [Apache Camel](http://camel.apache.org).
+
+[Apache Camel](http://camel.apache.org) is a rule-based routing and mediation engine that provides a
+Java object-based implementation of the Enterprise Integration Patterns using an API (or declarative Java Domain Specific Language) to configure routing and mediation rules.
 
 Exposes a [CamelContext], [ProducerTemplate] and [ConsumerTemplate].
 
@@ -13,7 +16,7 @@ depend on [camel-guice](http://camel.apache.org/guice.html), but it provides sim
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-camel</artifactId>
-  <version>0.15.1</version>
+  <version>0.16.0</version>
 </dependency>
 ```
 

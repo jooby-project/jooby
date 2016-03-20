@@ -1,13 +1,16 @@
 # jongo
+
+[Jongo](http://jongo.org) query in Java as in Mongo shell.
+
 Exposes [Jongo](http://jongo.org) instances to a default database. Or [JongoFactory](/apidocs/org/jooby/mongodb/JongoFactory.html) to use alternative databases.
 
-Please note, this module depends on: [mongodb](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb) module.
+> NOTE: This module depends on: [mongodb driver](https://github.com/jooby-project/jooby/tree/master/jooby-mongodb) module.
 
 ```xml
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jongo</artifactId>
-  <version>0.15.1</version>
+  <version>0.16.0</version>
 </dependency>
 ```
 
@@ -42,5 +45,3 @@ Access to alternate database is provided via: [JongoFactory](/apidocs/org/jooby/
 ```
 
 For more information, please visit the [Jongo](http://jongo.org) web site.
-
-Happy coding!!!

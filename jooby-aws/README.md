@@ -1,8 +1,11 @@
 # aws
 
-Small utility module that exposes ```AmazonWebServiceClient``` and give you access to aws credentials (access and secret keys).
+Small utility module that exposes ```AmazonWebServiceClient``` services.
+
+It also give you access to aws credentials (access and secret keys).
 
 ## exposes
+
 * One ore more ```AmazonWebServiceClient```
 
 ## dependency
@@ -11,7 +14,7 @@ Small utility module that exposes ```AmazonWebServiceClient``` and give you acce
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-aws</artifactId>
-  <version>0.15.1</version>
+  <version>0.16.0</version>
 </dependency>
 ```
 
@@ -78,7 +81,3 @@ Keys are defined in ```.conf``` file. It is possible to use global or per servic
 
 It uses the ```AmazonWebServiceClient#getServiceName()``` method in order to find per service
 keys.
-
-That's all folks!
-
-Happy coding!!!

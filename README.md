@@ -73,7 +73,7 @@ quickstart
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.15.1
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.16.0
 ```
 
 You might want to edit/change:
@@ -88,7 +88,7 @@ You might want to edit/change:
 Let's try it!:
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.15.1
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=0.16.0
 cd my-app
 mvn jooby:run
 ```
@@ -162,7 +162,7 @@ public class App extends Jooby { // 1
   }
 
   public static void main(final String[] args) throws Exception {
-    new App().start(args); // 3. start the application.
+    run(App::new, args); // 3. start the application.
   }
 
 }
@@ -175,7 +175,7 @@ Steps involved are:
 
 2) define some routes
 
-3) call the ```start``` method
+3) call the ```run``` method
 
 running
 -----

@@ -634,7 +634,7 @@ public interface Request {
   Charset charset();
 
   /**
-   * Get a list of locale that best matches the current request as per {@link Locale::filter}.
+   * Get a list of locale that best matches the current request as per {@link Locale#filter}.
    *
    * @return A list of matching locales or empty list.
    */

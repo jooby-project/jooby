@@ -1,6 +1,6 @@
 # undertow
 
-[Undertow](http://undertow.io/) web server for Jooby.
+NIO web server via [Undertow](http://undertow.io/).
 
 ## dependency
 
@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-undertow</artifactId>
-  <version>0.15.1</version>
+  <version>0.16.0</version>
 </dependency>
 ```
 

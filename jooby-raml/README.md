@@ -17,7 +17,7 @@ RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifec
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-raml</artifactId>
- <version>0.15.1</version>
+ <version>0.16.0</version>
 </dependency>
 ```
 

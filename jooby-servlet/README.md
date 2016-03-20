@@ -1,64 +1,17 @@
 # servlets
 
 This module exists for strict environments where the ONLY option is to deploy into a Servlet Container.
-If you are free to deploy a new server technology, we strongly recommend to avoid this and go
-directly with netty, jetty or undertow.
+If you are free to deploy a new server technology, we strongly recommend to avoid this and go directly with [Netty](http://netty.io), [Jetty](http://www.eclipse.org/jetty/) or [Undertow](http://undertow.io).
 
-## prepare
+## usage
 
-In order to deploy into a Servlet Container, we need to generate a ```*.war``` file. The next steps guide you how to do it:
+In order to deploy into a Servlet Container, we need to generate a ```*.war``` file. The next steps guide you on how to do it:
 
-### step 1
+* Write a ```war.activator``` file inside the ```src/etc``` directory.
 
-Add the ```jooby-servlet``` dependency to your ```pom.xml```:
+* Open a console and type: ```mvn clean package```
 
-```xml
-<dependency>
-  <groupId>org.jooby</groupId>
-  <artifactId>jooby-servlet</artifactId>
-  <version>0.15.1</version>
-  <scope>provided</scope>
-</dependency>
-```
-
-IMPORTANT: Scope must be ```provided```.
-
-### step 2
-
-Find out the ```maven-assembly-plugin``` section in your ```pom.xml```, it looks like this:
-
-```xml
-<!-- Build jooby.zip | jooby.war -->
-<plugin>
-  <groupId>org.apache.maven.plugins</groupId>
-  <artifactId>maven-assembly-plugin</artifactId>
-  <configuration>
-    <descriptorRefs>
-      <descriptorRef>jooby.zip</descriptorRef>
-    </descriptorRefs>
-  </configuration>
-</plugin>
-```
-
-Add a new descriptorRef: ```jooby.war```
-
-```xml
-<!-- Build jooby.zip | jooby.war -->
-<plugin>
-  <groupId>org.apache.maven.plugins</groupId>
-  <artifactId>maven-assembly-plugin</artifactId>
-  <configuration>
-    <descriptorRefs>
-      <descriptorRef>jooby.zip</descriptorRef>
-      <descriptorRef>jooby.war</descriptorRef>
-    </descriptorRefs>
-  </configuration>
-</plugin>
-```
-
-### step 3
-
-Run: ```mvn clean package``` and find the ```*.war``` file in the ```target``` directory.
+* Find the ```*.war``` file in the ```target``` directory.
 
 ## limitations
 
@@ -90,7 +43,9 @@ Here the expression: ```{{ "{{contextPath" }}}}``` correspond to the template en
 
 ## how it works?
 
-The ```maven-assembly-plugin``` generates the *.war file. The assembly descriptor can be found
+The presence of the ```src/etc/war.activator``` file triggers a Maven profile. Content of the file doesn't matter, just the presence.
+
+The Maven profile build the ```*.war``` file using the ```maven-assembly-plugin```. The assembly descriptor can be found
 [here](https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml)
 
 ### web.xml
@@ -148,5 +103,3 @@ When the generated file isn't enough, follow these steps:
 1. create a dir: ```src/etc/war/WEB-INF```
 2. save a ```web.xml``` file inside that dir
 3. run: ```mvn clean package```
-
-That's all folks! Enjoy it!!!

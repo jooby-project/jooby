@@ -1,6 +1,6 @@
 # quartz
 
-A job scheduler from [Quartz](http://quartz-scheduler.org/).
+Cron triggers, job scheduling and async processing via [Quartz](http://quartz-scheduler.org/).
 
 ## dependency
 
@@ -8,7 +8,7 @@ A job scheduler from [Quartz](http://quartz-scheduler.org/).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>0.15.1</version>
+  <version>0.16.0</version>
 </dependency>
 ```
 ## usage

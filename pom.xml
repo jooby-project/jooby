@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>0.15.2-SNAPSHOT</version>
+  <version>0.16.0</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
@@ -507,8 +507,13 @@
 
       <!-- javaslang -->
       <dependency>
-        <groupId>com.javaslang</groupId>
+        <groupId>io.javaslang</groupId>
         <artifactId>javaslang</artifactId>
+        <version>${javaslang.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.javaslang</groupId>
+        <artifactId>javaslang-match</artifactId>
         <version>${javaslang.version}</version>
       </dependency>
 
@@ -1319,6 +1324,7 @@
           </configuration>
           <executions>
             <execution>
+              <id>fat-jar</id>
               <phase>package</phase>
               <goals>
                 <goal>shade</goal>
@@ -2092,7 +2098,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.7</version>
+            <version>${maven-javadoc-plugin.version}</version>
             <executions>
               <execution>
                 <goals>

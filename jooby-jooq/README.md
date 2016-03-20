@@ -10,7 +10,7 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-jooq</artifactId>
- <version>0.15.1</version>
+ <version>0.16.0</version>
 </dependency>
 ```
 

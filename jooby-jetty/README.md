@@ -1,6 +1,6 @@
 # jetty
 
-[Jetty](https://www.eclipse.org/jetty) web server for Jooby.
+NIO web server via: [Jetty](https://www.eclipse.org/jetty).
 
 ## dependency
 
@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jetty</artifactId>
-  <version>0.15.1</version>
+  <version>0.16.0</version>
 </dependency>
 ```
 

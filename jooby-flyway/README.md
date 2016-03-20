@@ -1,6 +1,8 @@
 # flyway
 
-Run database migrations on startup and exposes a [Flyway](http://flywaydb.org) instance.
+Evolve your Database Schema easily and reliably across all your instances.
+
+This module run [Flyway](http://flywaydb.org) on startup and apply database migration.
 
 ## dependency
 
@@ -8,9 +10,10 @@ Run database migrations on startup and exposes a [Flyway](http://flywaydb.org) i
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-flyway</artifactId>
-  <version>0.15.1</version>
+  <version>0.16.0</version>
 </dependency>
 ```
+
 ## usage
 
 ```properties
