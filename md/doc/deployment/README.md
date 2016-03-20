@@ -4,7 +4,7 @@ Learn how to build, package and deploy applications.
 
 ## intro
 
-Jooby applications are ```self-contained``` and they doesn't run inside a container or **Servlet** environment.
+Jooby applications are ```self-contained``` and they don't run inside a container or **Servlet** environment.
 
 Application resources (a.k.a conf files) are packaged within your app. Not only that, the [server](/doc/servers) you pick is **also** packaged within your application.
 

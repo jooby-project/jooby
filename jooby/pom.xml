@@ -118,10 +118,6 @@
       <groupId>io.javaslang</groupId>
       <artifactId>javaslang</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.javaslang</groupId>
-      <artifactId>javaslang-match</artifactId>
-    </dependency>
 
     <!-- Guava -->
     <dependency>
