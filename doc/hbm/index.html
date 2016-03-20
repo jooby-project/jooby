@@ -172,7 +172,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>This is because the <code class="highlighter-rouge codehilite">EntityManager</code> is bound as <a href="/apidocs/org/jooby/RequestScoped.html">RequestScoped</a>.</p> 
+       <p>This is because the <code class="highlighter-rouge codehilite">EntityManager</code> is bound as <a href="/apidocs/org/jooby/RequestScoped.html" target="_blank">RequestScoped</a>.</p> 
        <p>Still, we strongly recommend to leave your services in the default scope and avoid to use <code class="highlighter-rouge codehilite">Singleton</code> objects, except of course for really expensive resources. This is also recommend it by <a href="https://github.com/google/guice" target="_blank">Guice</a>.</p> 
        <p>Services in the default scope won’t have this problem and are free to inject the <code class="highlighter-rouge codehilite">EntityManager</code> directly.</p> 
        <h3 id="hibernate-persistent-classes">persistent classes</h3> 

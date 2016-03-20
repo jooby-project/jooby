@@ -119,9 +119,9 @@
        <h3 id="pac-j-exposes">exposes</h3> 
        <ul> 
         <li><code class="highlighter-rouge codehilite">Clients</code></li> 
-        <li><code class="highlighter-rouge codehilite">WebContext</code> as <a href="/apidocs/org/jooby/RequestedScoped.html">RequestScoped</a></li> 
-        <li><a href="/apidocs/org/jooby/Route.Filter.html">auth filter</a> per <code class="highlighter-rouge codehilite">Client</code></li> 
-        <li><a href="/apidocs/org/jooby/Route.Filter.html">auth callback</a></li> 
+        <li><code class="highlighter-rouge codehilite">WebContext</code> as <a href="/apidocs/org/jooby/RequestedScoped.html" target="_blank">RequestScoped</a></li> 
+        <li><a href="/apidocs/org/jooby/Route.Filter.html" target="_blank">auth filter</a> per <code class="highlighter-rouge codehilite">Client</code></li> 
+        <li><a href="/apidocs/org/jooby/Route.Filter.html" target="_blank">auth callback</a></li> 
        </ul> 
        <h3 id="pac-j-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
@@ -196,7 +196,7 @@
 </code></pre> 
        </div> 
        <p>Like basic auth, form auth depends on a <code class="highlighter-rouge codehilite">UsernamePasswordAuthenticator</code>.</p> 
-       <p>A login form will be ready under the path: <code class="highlighter-rouge codehilite">/login</code>. Again, it is a very basic login form useful for development. If you need a custom login page, just add a route before the <a href="/apidocs/org/jooby/pack4j/Auth.html">Auth</a> module, like: &lt;/p&gt;</p> 
+       <p>A login form will be ready under the path: <code class="highlighter-rouge codehilite">/login</code>. Again, it is a very basic login form useful for development. If you need a custom login page, just add a route before the <a href="/apidocs/org/jooby/pack4j/Auth.html" target="_blank">Auth</a> module, like: &lt;/p&gt;</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -241,7 +241,7 @@
        </div> 
        <p>Here the <code class="highlighter-rouge codehilite">/hello</code> path is un-protected, because the client will intercept everything under <code class="highlighter-rouge codehilite">/private</code>.</p> 
        <h3 id="pac-j-user-profile">user profile</h3> 
-       <p><a href="http://jooby.org">Jooby</a> relies on <a href="/apidocs/org/jooby/pac4j/AuthStore.html">AuthStore</a> for saving and retrieving an <code class="highlighter-rouge codehilite">UserProfile</code>. By default, the <code class="highlighter-rouge codehilite">UserProfile</code> is stored in the <a href="{{defcods}}/Session.html">Session</a> via <a href="{{defcods}}/pack4j/AuthSessionStore.html">auth session store</a></p> 
+       <p><a href="http://jooby.org">Jooby</a> relies on <a href="/apidocs/org/jooby/pac4j/AuthStore.html" target="_blank">AuthStore</a> for saving and retrieving an <code class="highlighter-rouge codehilite">UserProfile</code>. By default, the <code class="highlighter-rouge codehilite">UserProfile</code> is stored in the <a href="{{defcods}}/Session.html">Session</a> via <a href="{{defcods}}/pack4j/AuthSessionStore.html">auth session store</a></p> 
        <p>After a successful authentication the <code class="highlighter-rouge codehilite">UserProfile</code> is accessible as a request scoped attribute:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -266,7 +266,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Custom <a href="/apidocs/org/jooby/pac4j/AuthStore.html">AuthStore</a> is provided via <a href="/apidocs/org/jooby/pac4j/Auth.html">Auth#store</a> method:</p> 
+       <p>Custom <a href="/apidocs/org/jooby/pac4j/AuthStore.html" target="_blank">AuthStore</a> is provided via <a href="/apidocs/org/jooby/pac4j/Auth.html" target="_blank">Auth#store</a> method:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -279,7 +279,7 @@
 </code></pre> 
        </div> 
        <h3 id="pac-j-logout">logout</h3> 
-       <p>A default <code class="highlighter-rouge codehilite">/logout</code> handler is provided it too. The handler will remove the profile from <a href="/apidocs/org/jooby/pac4j/AuthStore.html">AuthStore</a> by calling the <a href="/apidocs/org/jooby/pac4j/AuthStore.html">AuthStore#unset</a> method. The default login will redirect to <code class="highlighter-rouge codehilite">/</code>.</p> 
+       <p>A default <code class="highlighter-rouge codehilite">/logout</code> handler is provided it too. The handler will remove the profile from <a href="/apidocs/org/jooby/pac4j/AuthStore.html" target="_blank">AuthStore</a> by calling the <a href="/apidocs/org/jooby/pac4j/AuthStore.html" target="_blank">AuthStore#unset</a> method. The default login will redirect to <code class="highlighter-rouge codehilite">/</code>.</p> 
        <p>A custom logout and redirect urls can be set via <code class="highlighter-rouge codehilite">.conf</code> file or programmatically:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
