@@ -73,6 +73,7 @@
     <module>jooby-assets-babel</module>
     <module>jooby-assets-rollup</module>
     <module>jooby-metrics</module>
+    <module>jooby-querydsl</module>
     <module>coverage-report</module>
   </modules>
 
@@ -2192,6 +2193,9 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
 
     <!-- jooq -->
     <jooq.version>3.7.2</jooq.version>
+
+    <!-- QueryDSL -->
+    <querydsl.version>4.0.9</querydsl.version>
 
     <!-- javaslang -->
     <javaslang.version>2.0.0</javaslang.version>
