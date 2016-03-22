@@ -6,8 +6,10 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 import org.jooby.Session;
+import org.jooby.mvc.Local;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
@@ -44,7 +46,8 @@ public class SessionConfigCookieFeature extends ServerFeature {
     long maxAge = System.currentTimeMillis() + 60 * 1000;
     // remove seconds to make sure test always work
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E, dd-MMM-yyyy HH:mm")
-        .withZone(ZoneId.of("GMT"));
+        .withZone(ZoneId.of("GMT"))
+        .withLocale(Locale.ENGLISH);
     Instant instant = Instant.ofEpochMilli(maxAge);
 
     request()
@@ -54,7 +57,7 @@ public class SessionConfigCookieFeature extends ServerFeature {
           List<String> setCookie = Lists.newArrayList(
               Splitter.onPattern(";\\s*")
                   .splitToList(value)
-              );
+          );
 
           assertTrue(setCookie.remove(0).startsWith("custom.sid"));
           assertTrue(setCookie.remove("Path=/session") || setCookie.remove("Path=\"/session\""));

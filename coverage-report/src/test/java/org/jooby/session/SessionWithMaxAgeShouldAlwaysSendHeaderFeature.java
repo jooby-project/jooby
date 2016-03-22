@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jooby.Session;
@@ -77,7 +78,8 @@ public class SessionWithMaxAgeShouldAlwaysSendHeaderFeature extends ServerFeatur
 
   private String sessionId(final String id, final Instant instant) {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("E, dd-MMM-yyyy HH:mm")
-        .withZone(ZoneId.of("GMT"));
+        .withZone(ZoneId.of("GMT"))
+        .withLocale(Locale.ENGLISH);
     return "jooby.sid=" + id + ";Version=1;Path=/;HttpOnly;Max-Age=2;Expires="
         + formatter.format(instant);
   }
