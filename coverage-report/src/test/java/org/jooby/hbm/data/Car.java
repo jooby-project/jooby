@@ -7,14 +7,14 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 public class Car {
 
-  @NotEmpty
+  @NotEmpty(message = "may not be empty")
   private String manufacturer;
 
-  @NotEmpty
+  @NotEmpty(message = "may not be empty")
   @Size(min = 2, max = 14)
   private String licensePlate;
 
-  @Min(2)
+  @Min(value = 2, message = "must be greater than or equal to 2")
   private int seatCount;
 
   public Car(final String manufacturer, final String licencePlate, final int seatCount) {
