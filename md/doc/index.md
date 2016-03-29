@@ -34,6 +34,8 @@ documentation
 
 {{async.md}}
 
+{{sse.md}}
+
 {{web-sockets.md}}
 
 {{cors.md}}

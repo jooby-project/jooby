@@ -23,25 +23,6 @@ public class RequestScopeTest {
     requestScope.exit();
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void enterTwice() {
-    RequestScope requestScope = new RequestScope();
-    try {
-      requestScope.enter(Collections.emptyMap());
-      requestScope.enter(Collections.emptyMap());
-    } finally {
-      requestScope.exit();
-    }
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void exitTwice() {
-    RequestScope requestScope = new RequestScope();
-    requestScope.enter(Collections.emptyMap());
-    requestScope.exit();
-    requestScope.exit();
-  }
-
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void scopedValue() throws Exception {

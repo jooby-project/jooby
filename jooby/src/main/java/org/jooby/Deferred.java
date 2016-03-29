@@ -145,7 +145,7 @@ public class Deferred extends Result {
    * @since 0.10.0
    */
   public static interface Handler {
-    void handle(Result result, Exception exception);
+    void handle(Result result, Throwable exception);
   }
 
   /** Current req. Optional. */
@@ -185,7 +185,7 @@ public class Deferred extends Result {
   }
 
   /**
-   * {@link #resolve(Object)} or {@link #reject(Exception)} the given value.
+   * {@link #resolve(Object)} or {@link #reject(Throwable)} the given value.
    *
    * @param value Resolved value.
    */
@@ -206,8 +206,12 @@ public class Deferred extends Result {
    * @param value A value for this deferred.
    */
   public void resolve(final Object value) {
-    super.set(value);
-    handler.handle(clone(), null);
+    if (value == null) {
+      handler.handle(null, null);
+    } else {
+      super.set(value);
+      handler.handle(clone(), null);
+    }
   }
 
   /**
@@ -216,13 +220,13 @@ public class Deferred extends Result {
    *
    * @param cause A value for this deferred.
    */
-  public void reject(final Exception cause) {
+  public void reject(final Throwable cause) {
     handler.handle(null, cause);
   }
 
   /**
    * Produces a {@link Runnable} that runs the given {@link Callable} and {@link #resolve(Callable)}
-   * or {@link #reject(Exception)} the deferred.
+   * or {@link #reject(Throwable)} the deferred.
    *
    * Please note, the given {@link Callable} runs in the caller thread.
    *
@@ -237,7 +241,7 @@ public class Deferred extends Result {
   }
 
   /**
-   * Run the given {@link Callable} and {@link #resolve(Callable)} or {@link #reject(Exception)} the
+   * Run the given {@link Callable} and {@link #resolve(Callable)} or {@link #reject(Throwable)} the
    * deferred.
    *
    * Please note, the given {@link Callable} runs in the caller thread.

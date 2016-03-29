@@ -11,9 +11,9 @@ import org.junit.Test;
 
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.websocket.WebSocket;
-import com.ning.http.client.websocket.WebSocketListener;
-import com.ning.http.client.websocket.WebSocketUpgradeHandler;
+import com.ning.http.client.ws.WebSocket;
+import com.ning.http.client.ws.WebSocketListener;
+import com.ning.http.client.ws.WebSocketUpgradeHandler;
 
 public class OnRuntimeErrFeature extends ServerFeature {
 

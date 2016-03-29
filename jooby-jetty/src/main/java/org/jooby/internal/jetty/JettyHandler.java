@@ -26,9 +26,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.websocket.server.WebSocketServerFactory;
 import org.jooby.MediaType;
+import org.jooby.Sse;
 import org.jooby.servlet.ServletServletRequest;
 import org.jooby.servlet.ServletUpgrade;
 import org.jooby.spi.HttpHandler;
@@ -61,7 +63,7 @@ public class JettyHandler extends AbstractHandler {
   @Override
   public void handle(final String target, final Request baseRequest,
       final HttpServletRequest request, final HttpServletResponse response) throws IOException,
-          ServletException {
+      ServletException {
     try {
 
       baseRequest.setHandled(true);
@@ -88,6 +90,8 @@ public class JettyHandler extends AbstractHandler {
                   request.removeAttribute(key);
                   return (T) ws;
                 }
+              } else if (type == Sse.class) {
+                return (T) new JettySse(baseRequest, (Response) response);
               }
               throw new UnsupportedOperationException("Not Supported: " + type);
             }

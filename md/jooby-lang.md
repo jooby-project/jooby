@@ -12,7 +12,7 @@ public class App extends Jooby {
   }
 
   public static void main(final String[] args) throws Exception {
-    new App().start(args);
+    run(App::new, args);
   }
 }
 

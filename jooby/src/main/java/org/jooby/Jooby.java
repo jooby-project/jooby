@@ -3095,6 +3095,16 @@ public class Jooby implements Routes {
     return ws;
   }
 
+  @Override
+  public Route.Definition sse(final String path, final Sse.Handler handler) {
+    return appendDefinition(new Route.Definition("GET", path, handler)).consumes(MediaType.sse);
+  }
+
+  @Override
+  public Route.Definition sse(final String path, final Sse.Handler1 handler) {
+    return appendDefinition(new Route.Definition("GET", path, handler)).consumes(MediaType.sse);
+  }
+
   /**
    * <h1>Bootstrap</h1>
    * <p>
@@ -3275,6 +3285,9 @@ public class Jooby implements Routes {
     Logger log = LoggerFactory.getLogger(getClass());
     log.debug("config tree:\n{}", configTree(config.origin().description()));
 
+    // start services
+    onStart.forEach(Runnable::run);
+
     // Start server
     Server server = injector.getInstance(Server.class);
     String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
@@ -3287,8 +3300,6 @@ public class Jooby implements Routes {
         serverName,
         end - start,
         injector.getInstance(AppPrinter.class));
-
-    onStart.forEach(Runnable::run);
 
     boolean join = config.hasPath("server.join") ? config.getBoolean("server.join") : true;
     if (join) {
@@ -3564,9 +3575,11 @@ public class Jooby implements Routes {
 
       binder.bind(Request.class).toProvider(Providers.outOfScope(Request.class))
           .in(RequestScoped.class);
-
       binder.bind(Response.class).toProvider(Providers.outOfScope(Response.class))
           .in(RequestScoped.class);
+      /** server sent event */
+      binder.bind(Sse.class).toProvider(Providers.outOfScope(Sse.class))
+      .in(RequestScoped.class);
 
       binder.bind(Session.class).toProvider(Providers.outOfScope(Session.class))
           .in(RequestScoped.class);

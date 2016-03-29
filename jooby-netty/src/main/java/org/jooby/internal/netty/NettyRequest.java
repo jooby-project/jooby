@@ -32,8 +32,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jooby.MediaType;
+import org.jooby.Sse;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
+import org.jooby.spi.NativeWebSocket;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
@@ -187,20 +189,27 @@ public class NettyRequest implements NativeRequest {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T upgrade(final Class<T> type) throws Exception {
-    String protocol = secure() ? "wss" : "ws";
-    String webSocketURL = protocol + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
+    if (type == NativeWebSocket.class) {
+      String protocol = secure() ? "wss" : "ws";
+      String webSocketURL = protocol + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
 
-    WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(webSocketURL,
-        null, true, wsMaxMessageSize);
-    WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(req);
-    NettyWebSocket result = new NettyWebSocket(ctx, handshaker, (ws) -> {
-      handshaker.handshake(ctx.channel(), (FullHttpRequest) req)
-          .addListener(FIRE_EXCEPTION_ON_FAILURE)
-          .addListener(payload -> ws.connect())
-          .addListener(FIRE_EXCEPTION_ON_FAILURE);
-    });
-    ctx.attr(NettyWebSocket.KEY).set(result);
-    return (T) result;
+      WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
+          webSocketURL,
+          null, true, wsMaxMessageSize);
+      WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(req);
+      NettyWebSocket result = new NettyWebSocket(ctx, handshaker, (ws) -> {
+        handshaker.handshake(ctx.channel(), (FullHttpRequest) req)
+            .addListener(FIRE_EXCEPTION_ON_FAILURE)
+            .addListener(payload -> ws.connect())
+            .addListener(FIRE_EXCEPTION_ON_FAILURE);
+      });
+      ctx.attr(NettyWebSocket.KEY).set(result);
+      return (T) result;
+    } else if (type == Sse.class) {
+      NettySse sse = new NettySse(ctx);
+      return (T) sse;
+    }
+    throw new UnsupportedOperationException("Not Supported: " + type);
   }
 
   @Override

@@ -136,7 +136,6 @@ public class Result {
    * @return This content.
    */
   public Result set(final Object content) {
-    requireNonNull(content, "No content.");
     Supplier<Object> supplier = () -> content;
     first = supplier;
     data.put(MediaType.all, supplier);

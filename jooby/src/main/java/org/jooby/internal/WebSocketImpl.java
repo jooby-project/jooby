@@ -24,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import org.jooby.Err;
 import org.jooby.MediaType;
@@ -39,17 +38,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 
 public class WebSocketImpl implements WebSocket {
 
   @SuppressWarnings({"rawtypes" })
   private static final Callback NOOP = arg -> {
   };
-
-  /** renderer key. */
-  static final Key<Set<Renderer>> RENDERER = Key.get(new TypeLiteral<Set<Renderer>>() {
-  });
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(WebSocket.class);
@@ -143,7 +137,7 @@ public class WebSocketImpl implements WebSocket {
   public void connect(final Injector injector, final NativeWebSocket ws) {
     this.injector = requireNonNull(injector, "An injector is required.");
     this.ws = requireNonNull(ws, "Web socket is required.");
-    renderers = ImmutableList.copyOf(injector.getInstance(RENDERER));
+    renderers = ImmutableList.copyOf(injector.getInstance(Renderer.KEY));
 
     /**
      * Bind callbacks

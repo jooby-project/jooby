@@ -2110,6 +2110,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
             <configuration>
               <excludePackageNames>org.jooby.internal:org.jooby.test</excludePackageNames>
               <aggregate>true</aggregate>
+              <show>public</show>
             </configuration>
           </plugin>
         </plugins>
@@ -2143,7 +2144,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <hibernate.version>4.3.9.Final</hibernate.version>
     <jsr305.version>3.0.0</jsr305.version>
     <http-client.version>4.3.6</http-client.version>
-    <async-http-client.version>1.8.14</async-http-client.version>
+    <async-http-client.version>1.9.36</async-http-client.version>
     <cglib.version>3.2.0</cglib.version>
     <asm.version>5.0.3</asm.version>
     <quartz.version>2.2.2</quartz.version>

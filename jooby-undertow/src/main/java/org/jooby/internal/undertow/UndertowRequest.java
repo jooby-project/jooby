@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import org.jooby.Cookie;
 import org.jooby.MediaType;
+import org.jooby.Sse;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.spi.NativeWebSocket;
@@ -188,6 +189,9 @@ public class UndertowRequest implements NativeRequest {
       UndertowWebSocket ws = new UndertowWebSocket(config);
       exchange.putAttachment(SOCKET, ws);
       return (T) ws;
+    }
+    if (type == Sse.class) {
+      return (T) new UndertowSse(exchange);
     }
     throw new UnsupportedOperationException("Not Supported: " + type);
   }

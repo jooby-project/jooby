@@ -399,6 +399,7 @@ public class JoobyTest {
 
     ScopedBindingBuilder reqscope = unit.mock(ScopedBindingBuilder.class);
     reqscope.in(RequestScoped.class);
+    reqscope.in(RequestScoped.class);
 
     AnnotatedBindingBuilder<Request> reqbinding = unit.mock(AnnotatedBindingBuilder.class);
     expect(reqbinding.toProvider(isA(Provider.class))).andReturn(reqscope);
@@ -420,6 +421,11 @@ public class JoobyTest {
         .andReturn(sessionscope);
 
     expect(binder.bind(Session.class)).andReturn(sessionbinding);
+
+    AnnotatedBindingBuilder<Sse> sseb = unit.mock(AnnotatedBindingBuilder.class);
+    expect(sseb.toProvider(isA(Provider.class)))
+        .andReturn(reqscope);
+    expect(binder.bind(Sse.class)).andReturn(sseb);
   };
 
   private MockUnit.Block params = unit -> {

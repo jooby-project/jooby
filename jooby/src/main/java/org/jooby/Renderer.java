@@ -25,8 +25,11 @@ import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.base.CaseFormat;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 /**
  * Write a value into the HTTP response and apply a format, if need it.
@@ -238,6 +241,10 @@ public interface Renderer {
     void send(FileChannel file) throws Exception;
 
   }
+
+  /** Renderer key. */
+  Key<Set<Renderer>> KEY = Key.get(new TypeLiteral<Set<Renderer>>() {
+  });
 
   /**
    * @return Renderer's name.

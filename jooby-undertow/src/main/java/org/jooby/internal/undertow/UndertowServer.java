@@ -56,11 +56,14 @@ public class UndertowServer implements org.jooby.spi.Server {
 
   private final GracefulShutdownHandler shutdown;
 
+  private long awaitShutdown;
+
   @Inject
   public UndertowServer(final org.jooby.spi.HttpHandler dispatcher, final Config config,
       final Provider<SSLContext> sslContext)
           throws Exception {
 
+    awaitShutdown = config.getDuration("undertow.awaitShutdown", TimeUnit.MILLISECONDS);
     shutdown = new GracefulShutdownHandler(doHandler(dispatcher, config));
     Undertow.Builder ubuilder = configure(config, io.undertow.Undertow.builder())
         .addHttpListener(config.getInt("application.port"),
@@ -196,8 +199,7 @@ public class UndertowServer implements org.jooby.spi.Server {
   @Override
   public void stop() throws Exception {
     shutdown.shutdown();
-    // TODO add a shutdown timeout
-    shutdown.awaitShutdown();
+    shutdown.awaitShutdown(awaitShutdown);
     server.stop();
   }
 

@@ -18,8 +18,6 @@
  */
 package org.jooby.internal;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import java.util.Map;
 
 import com.google.inject.Key;
@@ -33,12 +31,10 @@ public class RequestScope implements Scope {
   private final ThreadLocal<Map<Object, Object>> scope = new ThreadLocal<>();
 
   public void enter(final Map<Object, Object> locals) {
-    checkState(scope.get() == null, "A scoping block is already in progress");
     scope.set(locals);
   }
 
   public void exit() {
-    checkState(scope.get() != null, "No scoping block in progress");
     scope.remove();
   }
 

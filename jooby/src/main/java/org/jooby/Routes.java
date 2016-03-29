@@ -1696,6 +1696,9 @@ public interface Routes {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
-  WebSocket.Definition ws(String path,
-      WebSocket.Handler handler);
+  WebSocket.Definition ws(String path, WebSocket.Handler handler);
+
+  Route.Definition sse(String path, Sse.Handler handler);
+
+  Route.Definition sse(String path, Sse.Handler1 handler);
 }

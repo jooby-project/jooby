@@ -13,9 +13,10 @@ import org.junit.Test;
 
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.websocket.WebSocket;
-import com.ning.http.client.websocket.WebSocketByteListener;
-import com.ning.http.client.websocket.WebSocketUpgradeHandler;
+import com.ning.http.client.ws.WebSocket;
+import com.ning.http.client.ws.WebSocketByteListener;
+import com.ning.http.client.ws.WebSocketUpgradeHandler;
+
 
 public class OnByteArrayMessageFeature extends ServerFeature {
 
@@ -53,10 +54,6 @@ public class OnByteArrayMessageFeature extends ServerFeature {
     client.prepareGet(ws("onBinaryMessage").toString())
         .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(
             new WebSocketByteListener() {
-
-              @Override
-              public void onFragment(final byte[] fragment, final boolean last) {
-              }
 
               @Override
               public void onMessage(final byte[] message) {

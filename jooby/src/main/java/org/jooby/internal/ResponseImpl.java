@@ -265,8 +265,6 @@ public class ResponseImpl implements Response {
       type(rtype.get());
     }
 
-    List<MediaType> produces = this.type == null ? route.produces() : ImmutableList.of(type);
-
     status(result.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
 
     result.headers().forEach((name, value) -> {
@@ -283,6 +281,7 @@ public class ResponseImpl implements Response {
     /**
      * Do we need to figure it out Content-Length?
      */
+    List<MediaType> produces = this.type == null ? route.produces() : ImmutableList.of(type);
     Object value = result.get(produces);
 
     if (value != null) {

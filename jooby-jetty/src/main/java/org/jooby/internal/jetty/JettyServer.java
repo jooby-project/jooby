@@ -174,14 +174,14 @@ public class JettyServer implements org.jooby.spi.Server {
       }
       log.debug("{}.{}({})", source.getClass().getSimpleName(), option.getName(), optionValue);
       option.invoke(source, optionValue);
-    } catch(InvocationTargetException ex) {
+    } catch (InvocationTargetException ex) {
       logAndRethrowException(option, ex.getTargetException());
     } catch (Exception ex) {
       logAndRethrowException(option, ex);
     }
   }
 
-  private void logAndRethrowException(Method option, Throwable e) {
+  private void logAndRethrowException(final Method option, final Throwable e) {
     log.error("invocation of " + option + " resulted in exception", e);
     throw Throwables.propagate(e);
   }

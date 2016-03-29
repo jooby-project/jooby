@@ -266,6 +266,9 @@ public class MediaType implements Comparable<MediaType> {
   /** Xml media type. */
   public static MediaType xml = new MediaType("application", "xml");
 
+  /** Server sent event type. */
+  public static MediaType sse = new MediaType("text", "event-stream");
+
   /** Xml like media type. */
   private static MediaType xmlLike = new MediaType("application", "*+xml");
 
@@ -320,6 +323,7 @@ public class MediaType implements Comparable<MediaType> {
     cache.put("form", ImmutableList.of(form));
     cache.put("multipart", ImmutableList.of(multipart));
     cache.put("xml", ImmutableList.of(xml));
+    cache.put("plain", ImmutableList.of(plain));
     cache.put("*", ALL);
   }
 
@@ -532,17 +536,18 @@ public class MediaType implements Comparable<MediaType> {
       }
     };
     for (String type : types) {
-      requireNonNull(type, "A mediaType is required.");
       String[] parts = type.trim().split(";");
       if (parts[0].equals("*")) {
         // odd and ugly media type
         result.add(all);
       } else {
         String[] typeAndSubtype = parts[0].split("/");
-        checkArgument(typeAndSubtype.length == 2, "Bad media type: %s", type);
+        checkArgument(typeAndSubtype.length == 2, "Bad media type found '%s' while parsing '%s'",
+            type, value);
         String stype = typeAndSubtype[0].trim();
         String subtype = typeAndSubtype[1].trim();
-        checkArgument(!(stype.equals("*") && !subtype.equals("*")), "Bad media type: %s", type);
+        checkArgument(!(stype.equals("*") && !subtype.equals("*")),
+            "Bad media type found '%s' while parsing '%s'", type, value);
         Map<String, String> parameters = DEFAULT_PARAMS;
         if (parts.length > 1) {
           parameters = new LinkedHashMap<>(DEFAULT_PARAMS);

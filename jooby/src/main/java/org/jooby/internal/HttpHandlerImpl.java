@@ -48,6 +48,7 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Session;
+import org.jooby.Sse;
 import org.jooby.Status;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.Definition;
@@ -67,6 +68,8 @@ import com.google.common.collect.Sets;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.typesafe.config.Config;
+
+import javaslang.control.Try;
 
 @Singleton
 public class HttpHandlerImpl implements HttpHandler {
@@ -124,6 +127,8 @@ public class HttpHandlerImpl implements HttpHandler {
   private static final Key<Request> REQ = Key.get(Request.class);
 
   private static final Key<Response> RSP = Key.get(Response.class);
+
+  private static final Key<Sse> SSE = Key.get(Sse.class);
 
   private static final Key<Session> SESS = Key.get(Session.class);
 
@@ -240,6 +245,11 @@ public class HttpHandlerImpl implements HttpHandler {
     scope.put(REQ, req);
     scope.put(RSP, rsp);
 
+    // seed sse
+    Provider<Sse> sse = () -> Try.of(() -> request.upgrade(Sse.class))
+        .getOrElseThrow(() -> new UnsupportedOperationException("Server sent events"));
+    scope.put(SSE, sse);
+
     // seed session
     Provider<Session> session = () -> req.session();
     scope.put(SESS, session);
@@ -283,7 +293,7 @@ public class HttpHandlerImpl implements HttpHandler {
     } finally {
       requestScope.exit();
       if (!deferred) {
-        done(req, rsp);
+        done(req, rsp, true);
       }
     }
   }
@@ -293,10 +303,12 @@ public class HttpHandlerImpl implements HttpHandler {
     return upgrade.isPresent() && upgrade.get().equalsIgnoreCase(WEB_SOCKET);
   }
 
-  private void done(final RequestImpl req, final ResponseImpl rsp) {
+  private void done(final RequestImpl req, final ResponseImpl rsp, final boolean close) {
     // mark request/response as done.
     req.done();
-    rsp.end();
+    if (close) {
+      rsp.end();
+    }
   }
 
   private void onDeferred(final Map<Object, Object> scope, final NativeRequest request,
@@ -305,18 +317,21 @@ public class HttpHandlerImpl implements HttpHandler {
       request.startAsync();
 
       deferred.handler((result, ex) -> {
+        boolean close = false;
         try {
           requestScope.enter(scope);
           if (result != null) {
+            close = true;
             rsp.send(result);
-          } else {
+          } else if (ex != null) {
+            close = true;
             handleErr(req, rsp, ex);
           }
         } catch (Throwable exerr) {
           handleErr(req, rsp, exerr);
         } finally {
           requestScope.exit();
-          done(req, rsp);
+          done(req, rsp, close);
         }
       });
     } catch (Exception ex) {
@@ -372,7 +387,7 @@ public class HttpHandlerImpl implements HttpHandler {
         }
         throw new Err(Status.NOT_FOUND, path);
       }
-    } , method, path, "err", accept));
+    }, method, path, "err", accept));
 
     return routes;
   }
