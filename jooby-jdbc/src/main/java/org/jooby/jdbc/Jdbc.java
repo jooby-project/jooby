@@ -191,7 +191,7 @@ public class Jdbc implements Jooby.Module {
 
   private HikariDataSourceProvider ds;
 
-  private Optional<String> dbtype;
+  protected Optional<String> dbtype;
 
   public Jdbc(final String name) {
     checkArgument(name != null && name.length() > 0, "A database name is required.");
