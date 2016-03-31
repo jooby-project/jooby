@@ -18,69 +18,102 @@
  */
 package org.jooby.querydsl;
 
-import com.google.inject.Binder;
-import com.google.inject.Provider;
-import com.querydsl.sql.Configuration;
-import com.querydsl.sql.SQLQueryFactory;
-import com.querydsl.sql.SQLTemplates;
-import com.typesafe.config.Config;
-import org.jooby.Env;
-import org.jooby.jdbc.Jdbc;
-import org.jooby.querydsl.internal.ConfigurationProvider;
-import org.jooby.querydsl.internal.SQLQueryFactoryProvider;
-import org.jooby.querydsl.internal.SQLTemplatesProvider;
+import static java.util.Objects.requireNonNull;
+import static javaslang.API.Case;
+import static javaslang.API.Match;
+import static javaslang.Predicates.isIn;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
-import static java.util.Objects.requireNonNull;
+import javax.inject.Provider;
+import javax.sql.DataSource;
+
+import org.jooby.Env;
+import org.jooby.jdbc.Jdbc;
+
+import com.google.inject.Binder;
+import com.querydsl.sql.Configuration;
+import com.querydsl.sql.DB2Templates;
+import com.querydsl.sql.FirebirdTemplates;
+import com.querydsl.sql.H2Templates;
+import com.querydsl.sql.HSQLDBTemplates;
+import com.querydsl.sql.MySQLTemplates;
+import com.querydsl.sql.OracleTemplates;
+import com.querydsl.sql.PostgreSQLTemplates;
+import com.querydsl.sql.SQLQueryFactory;
+import com.querydsl.sql.SQLTemplates;
+import com.querydsl.sql.SQLiteTemplates;
+import com.typesafe.config.Config;
 
 /**
- * <h1>QueryDSL</h1>
+ * <h1>queryDSL</h1>
+ *
  * <p>
- * SQL abstraction provided by <a href="http://www.querydsl.com"QueryDSL</a> using plain JDBC underneath.
+ * SQL abstraction provided by <a href="http://www.querydsl.com">QueryDSL</a> using plain JDBC
+ * underneath.
  * </p>
  *
  * <p>
  * This module depends on {@link Jdbc} module, make sure you read the doc of the {@link Jdbc}
- * module.
+ * module before using this module.
  * </p>
  *
- * <h2>Usage</h2>
+ * <h2>usage</h2>
+ *
  * <pre>
  * import org.jooby.querydsl.QueryDSL;
  *
  * {
  *   use(new QueryDSL());
  *
- *   get("/my-api", (req, rsp) {@literal ->} {
+ *   get("/my-api", req {@literal ->} {
  *     SQLQueryFactory queryFactory = req.require(SQLQueryFactory.class);
  *     // Do something with the database
+ *     ...
  *   });
  * }
  * </pre>
  *
- * <h2>Multiple DBs</h2>
+ * <h2>dialects</h2>
+ * <p>
+ * Dialect is detected automatically and usually you don't need to do anything. But if the default
+ * dialect detector doesn't work and/or you have a custom dialect:
+ * </p>
+ *
+ * <pre>
+ * {
+ *   use(new QueryDSL().with(new MyCustomTemplates());
+ * }
+ * </pre>
+ *
+ * <h2>multiple databases</h2>
  *
  * <pre>
  * import org.jooby.querydsl.QueryDSL;
  *
  * {
- *   use(new QueryDSL("db.main");
- *   use(new QueryDSL("db.aux");
+ *   use(new QueryDSL("db.main"));
+ *   use(new QueryDSL("db.aux"));
  *
- *   get("/my-api", (req, rsp) {@literal ->} {
+ *   get("/my-api", req {@literal ->} {
  *     SQLQueryFactory queryFactory = req.require("db.main", SQLQueryFactory.class);
  *     // Do something with the database
  *   });
  * }
  * </pre>
  *
- * <h2>Advanced Configuration</h2>
- * <p>This module builds QueryDSL SQLQueryFactories on top of a default {@link Configuration} object, a
- * {@link SQLTemplates} instance and a {@link javax.sql.DataSource} from the {@link Jdbc} module. Advanced
- * configuration can be added by invoking the {@link #doWith(BiConsumer)} method, adding your own settings to the
- * configuration</p>
+ * <h2>advanced configuration</h2>
+ * <p>
+ * This module builds QueryDSL SQLQueryFactories on top of a default {@link Configuration} object, a
+ * {@link SQLTemplates} instance and a {@link javax.sql.DataSource} from the {@link Jdbc} module.
+ * </p>
+ * <p>
+ * Advanced configuration can be added by invoking the {@link #doWith(BiConsumer)} method, adding
+ * your own settings to the configuration.
+ * </p>
+ *
  * <pre>
  * {
  *   use(new QueryDSL().doWith(conf {@literal ->} {
@@ -89,23 +122,26 @@ import static java.util.Objects.requireNonNull;
  * }
  * </pre>
  *
- * <h2>Code generation</h2>
+ * <h2>code generation</h2>
  * <p>
- *   This module does not provide code generation for DB mapping classes. To learn how to create QueryDSL mapping
- *   classes using Maven, please consult the
- *   <a href="http://www.querydsl.com/static/querydsl/latest/reference/html_single/#d0e725">QueryDSL documentation.</a>
+ * This module does not provide code generation for DB mapping classes. To learn how to create
+ * QueryDSL mapping classes using Maven, please consult the
+ * <a href="http://www.querydsl.com/static/querydsl/latest/reference/html_single/#d0e725">QueryDSL
+ * documentation.</a>
  * </p>
  *
- *
- * @since 0.17.0-SNAPSHOT
+ * @since 1.0.0.CR
  * @author sjackel
  */
 public class QueryDSL extends Jdbc {
 
   private BiConsumer<Configuration, Config> callback;
 
+  private Function<String, SQLTemplates> templates = QueryDSL::toSQLTemplates;
+
   /**
    * Creates a new {@link QueryDSL} module
+   *
    * @param name Database name
    */
   public QueryDSL(final String name) {
@@ -120,25 +156,28 @@ public class QueryDSL extends Jdbc {
   }
 
   @Override
-  public void configure(final Env env, final Config config, final Binder binder) {
-    super.configure(env, config, binder);
+  public void configure(final Env env, final Config conf, final Binder binder) {
+    super.configure(env, conf, binder);
+    SQLTemplates templates = this.templates.apply(dbtype.orElse("unknown"));
 
-    Provider<SQLTemplates> templatesProvider = new SQLTemplatesProvider(dbtype.orElse("custom"));
-    Configuration queryDslConfig = new Configuration(templatesProvider.get());
+    Configuration querydslconf = new Configuration(templates);
 
     if (callback != null) {
-      callback.accept(queryDslConfig, config);
+      callback.accept(querydslconf, conf);
     }
+    DataSource ds = dataSource().get();
+    Provider<SQLQueryFactory> sqfp = () -> new SQLQueryFactory(querydslconf, ds);
 
-    keys(SQLTemplates.class, k -> binder.bind(k).toProvider(templatesProvider));
-    keys(Configuration.class, k -> binder.bind(k).toInstance(queryDslConfig));
-    keys(SQLQueryFactory.class, k -> binder.bind(k).toProvider(SQLQueryFactoryProvider.class));
+    keys(SQLTemplates.class, k -> binder.bind(k).toInstance(templates));
+    keys(Configuration.class, k -> binder.bind(k).toInstance(querydslconf));
+    keys(SQLQueryFactory.class, k -> binder.bind(k).toProvider(sqfp));
   }
 
   /**
    * Apply advanced configuration
+   *
    * @param callback a configuration callback.
-   * @return this module.
+   * @return This module.
    */
   public QueryDSL doWith(final Consumer<Configuration> callback) {
     requireNonNull(callback, "Callback needs to be defined");
@@ -147,11 +186,32 @@ public class QueryDSL extends Jdbc {
 
   /**
    * Apply advanced configuration
+   *
    * @param callback a configuration callback.
-   * @return this module.
+   * @return This module.
    */
   public QueryDSL doWith(final BiConsumer<Configuration, Config> callback) {
     this.callback = requireNonNull(callback, "Callback needs to be defined");
     return this;
+  }
+
+  public QueryDSL with(final SQLTemplates templates) {
+    requireNonNull(templates, "SQL templates needs to be defined");
+    this.templates = t -> templates;
+    return this;
+  }
+
+  static SQLTemplates toSQLTemplates(final String type) {
+    return Match(type).option(
+        Case("db2", DB2Templates::new),
+        Case(isIn("mysql", "mariadb"), MySQLTemplates::new),
+        Case("mariadb", MySQLTemplates::new),
+        Case("h2", H2Templates::new),
+        Case("hsqldb", HSQLDBTemplates::new),
+        Case(isIn("pgsql", "postgresql"), PostgreSQLTemplates::new),
+        Case("sqlite", SQLiteTemplates::new),
+        Case("oracle", OracleTemplates::new),
+        Case("firebirdsql", FirebirdTemplates::new))
+        .getOrElseThrow(() -> new IllegalStateException("Unsupported database: " + type));
   }
 }

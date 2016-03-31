@@ -194,7 +194,7 @@ public class Jdbc implements Jooby.Module {
   protected Optional<String> dbtype;
 
   public Jdbc(final String name) {
-    checkArgument(name != null && name.length() > 0, "A database name is required.");
+    checkArgument(name != null && name.length() > 0, "Database name is required.");
     this.dbName = name;
   }
 

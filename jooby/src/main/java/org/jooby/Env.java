@@ -319,7 +319,7 @@ public interface Env {
    * @return A new matcher.
    */
   default <T> Option<T> when(final String name, final Supplier<T> fn) {
-    return match().option(API.Case(name, fn));
+    return match().option(API.Case(API.$(name), fn));
   }
 
   /**
@@ -338,7 +338,7 @@ public interface Env {
    * @return A new matcher.
    */
   default <T> Option<T> when(final String name, final T result) {
-    return match().option(API.Case(name, result));
+    return match().option(API.Case(API.$(name), result));
   }
 
   /**

@@ -66,6 +66,7 @@
                     <source>${project.parent.basedir}/jooby-jooq/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-guava-cache/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-executor/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-querydsl/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -111,6 +112,7 @@
                     <source>${project.parent.basedir}/jooby-jooq/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-guava-cache/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-executor/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-querydsl/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -322,6 +324,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-jooq</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-querydsl</artifactId>
       <version>${project.version}</version>
     </dependency>
 

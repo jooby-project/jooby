@@ -22,7 +22,9 @@ The [jdbc](/doc/jdbc) module provides a high performance connection pool for jdb
 
 * [jOOQ](/doc/jooq): lets you build type safe SQL queries through its fluent API.
 
-* [querydsl](/doc/querydsl): unified Queries for Java. [Querydsl](http://www.querydsl.com/) is compact, safe and easy to learn.
+* [querydsl](/doc/querydsl): unified Queries for SQL. [Querydsl](http://www.querydsl.com/) is compact, safe and easy to learn.
+
+* [querydsl-jpa](/doc/querydsl-jpa): unified Queries for JPA. [Querydsl](http://www.querydsl.com/) is compact, safe and easy to learn.
 
 ## migrations
 
