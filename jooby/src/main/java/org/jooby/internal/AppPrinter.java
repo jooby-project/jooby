@@ -18,6 +18,11 @@
  */
 package org.jooby.internal;
 
+import static javaslang.API.$;
+import static javaslang.API.Case;
+import static javaslang.API.Match;
+import static javaslang.Predicates.instanceOf;
+
 import java.util.Set;
 import java.util.function.Function;
 
@@ -69,31 +74,31 @@ public class AppPrinter {
 
   private void routes(final StringBuilder buffer) {
     Function<Route.Definition, String> p = route -> {
-      String pattern = route.pattern();
-      Route.Filter filter = route.filter();
-      if (filter instanceof Route.Interceptor) {
-        pattern = ":" + ((Route.Interceptor) filter).name() + " " + pattern;
-      }
-      return pattern;
+      return Match(route.filter()).of(
+          Case(instanceOf(Route.Before.class), "> " + route.pattern()),
+          Case(instanceOf(Route.BeforeSend.class), route.pattern() + " >>"),
+          Case(instanceOf(Route.After.class), route.pattern() + " >"),
+          Case($(), route.pattern()));
     };
 
     int verbMax = 0, routeMax = 0, consumesMax = 0, producesMax = 0;
     for (Route.Definition route : routes) {
       verbMax = Math.max(verbMax, route.method().length());
 
-      routeMax = Math.max(routeMax, p.apply(route).length());
+      routeMax = Math.max(routeMax, route.pattern().length());
 
       consumesMax = Math.max(consumesMax, route.consumes().toString().length());
 
       producesMax = Math.max(producesMax, route.produces().toString().length());
     }
 
-    String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax + "s     %"
-        + producesMax + "s    (%s)\n";
+    String format = "  %-" + verbMax + "s %-" + routeMax + "s    %" + consumesMax
+        + "s     %" + producesMax + "s    (%s)\n";
 
     for (Route.Definition route : routes) {
-      buffer.append(String.format(format, route.method(), p.apply(route), route.consumes(),
-          route.produces(), route.name()));
+      buffer.append(
+          String.format(format, route.method(), p.apply(route), route.consumes(),
+              route.produces(), route.name()));
     }
 
     sockets(buffer, Math.max(verbMax, "WS".length()), routeMax, consumesMax, producesMax);

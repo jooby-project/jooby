@@ -1474,22 +1474,6 @@ public interface Route {
   }
 
   /**
-   * Marker interface for interceptors.
-   *
-   * @author edgar
-   * @since 1.0.0.CR
-   */
-  interface Interceptor extends Filter {
-
-    /**
-     * Interceptor's name.
-     *
-     * @return Interceptor's name.
-     */
-    String name();
-  }
-
-  /**
    * <h2>before</h2>
    *
    * Allows for customized handler execution chains. It will be invoked before the actual handler.
@@ -1543,11 +1527,7 @@ public interface Route {
    * @author edgar
    * @since 1.0.0.CR
    */
-  interface Before extends Interceptor {
-    @Override
-    default String name() {
-      return "before";
-    }
+  interface Before extends Route.Filter {
 
     @Override
     default void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
@@ -1626,12 +1606,7 @@ public interface Route {
    * @author edgar
    * @since 1.0.0.CR
    */
-  interface BeforeSend extends Interceptor {
-    @Override
-    default String name() {
-      return "before-send";
-    }
-
+  interface BeforeSend extends Filter {
     @Override
     default void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
       chain.next(req, new Response.Forwarding(rsp) {
@@ -1757,12 +1732,7 @@ public interface Route {
    * @author edgar
    * @since 1.0.0.CR
    */
-  interface After extends Interceptor {
-
-    @Override
-    default String name() {
-      return "after";
-    }
+  interface After extends Filter {
 
     @Override
     default void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {

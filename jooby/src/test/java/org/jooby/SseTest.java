@@ -305,7 +305,7 @@ public class SseTest {
   @Test
   public void sseHandlerSuccess() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
-    new MockUnit(Request.class, Response.class, Sse.class)
+    new MockUnit(Request.class, Response.class, Route.Chain.class, Sse.class)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           Sse sse = unit.get(Sse.class);
@@ -323,7 +323,8 @@ public class SseTest {
           Sse.Handler handler = (req, sse) -> {
             latch.countDown();
           };
-          handler.handle(unit.get(Request.class), unit.get(Response.class));
+          handler.handle(unit.get(Request.class), unit.get(Response.class),
+              unit.get(Route.Chain.class));
         }, unit -> {
           Deferred deferred = unit.captured(Deferred.class).iterator().next();
           deferred.handler((value, ex) -> {
@@ -337,7 +338,7 @@ public class SseTest {
 
   @Test
   public void sseHandlerFailure() throws Exception {
-    new MockUnit(Request.class, Response.class, Sse.class)
+    new MockUnit(Request.class, Response.class, Sse.class, Route.Chain.class)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           Sse sse = unit.get(Sse.class);
@@ -355,7 +356,8 @@ public class SseTest {
           Sse.Handler handler = (req, sse) -> {
             throw new IllegalStateException("intentional err");
           };
-          handler.handle(unit.get(Request.class), unit.get(Response.class));
+          handler.handle(unit.get(Request.class), unit.get(Response.class),
+              unit.get(Route.Chain.class));
         }, unit -> {
           Deferred deferred = unit.captured(Deferred.class).iterator().next();
           deferred.handler((value, ex) -> {
@@ -367,7 +369,7 @@ public class SseTest {
 
   @Test
   public void sseHandlerHandshakeFailure() throws Exception {
-    new MockUnit(Request.class, Response.class, Sse.class)
+    new MockUnit(Request.class, Response.class, Sse.class, Route.Chain.class)
         .expect(unit -> {
           Request req = unit.get(Request.class);
           Sse sse = unit.get(Sse.class);
@@ -385,7 +387,8 @@ public class SseTest {
         .run(unit -> {
           Sse.Handler handler = (req, sse) -> {
           };
-          handler.handle(unit.get(Request.class), unit.get(Response.class));
+          handler.handle(unit.get(Request.class), unit.get(Response.class),
+              unit.get(Route.Chain.class));
         }, unit -> {
           Deferred deferred = unit.captured(Deferred.class).iterator().next();
           deferred.handler((value, ex) -> {

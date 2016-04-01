@@ -19,13 +19,16 @@ public class AppPrinterTest {
   @Test
   public void print() {
     String setup = new AppPrinter(
-        Sets.newLinkedHashSet(Arrays.asList(interceptor("/"), route("/"), route("/home"))),
+        Sets.newLinkedHashSet(
+            Arrays.asList(before("/"), beforeSend("/"), after("/"), route("/"), route("/home"))),
         Sets.newLinkedHashSet(Arrays.asList(socket("/ws"))), config("/"))
             .toString();
-    assertEquals("  GET :before /    [*/*]     [*/*]    (/anonymous)\n" +
-        "  GET /            [*/*]     [*/*]    (/anonymous)\n" +
-        "  GET /home        [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws          [*/*]     [*/*]\n" +
+    assertEquals("  GET > /      [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET / >>     [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET / >      [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET /        [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
+        "  WS  /ws      [*/*]     [*/*]\n" +
         "\n" +
         "listening on:\n" +
         "  http://localhost:8080/", setup);
@@ -86,8 +89,19 @@ public class AppPrinterTest {
     });
   }
 
-  private Route.Definition interceptor(final String pattern) {
+  private Route.Definition before(final String pattern) {
     return new Route.Definition("GET", pattern, (Before) (req, rsp) -> {
+    });
+  }
+
+  private Route.Definition beforeSend(final String pattern) {
+    return new Route.Definition("GET", pattern, (Route.BeforeSend) (req, rsp, r) -> {
+      return r;
+    });
+  }
+
+  private Route.Definition after(final String pattern) {
+    return new Route.Definition("GET", pattern, (Route.After) (req, rsp, r) -> {
     });
   }
 

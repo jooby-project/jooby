@@ -2384,7 +2384,39 @@ public interface Routes {
    */
   WebSocket.Definition ws(String path, WebSocket.Handler handler);
 
+  /**
+   * Add a server-sent event handler.
+   *
+   * <pre>{@code
+   * {
+   *   sse("/path",(req, sse) -> {
+   *     // 1. connected
+   *     sse.send("data"); // 2. send/push data
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param path Event path.
+   * @param handler Callback. It might executed in a different thread (web server choice).
+   * @return A route definition.
+   */
   Route.Definition sse(String path, Sse.Handler handler);
 
+  /**
+   * Add a server-sent event handler.
+   *
+   * <pre>{@code
+   * {
+   *   sse("/path", sse -> {
+   *     // 1. connected
+   *     sse.send("data"); // 2. send/push data
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param path Event path.
+   * @param handler Callback. It might executed in a different thread (web server choice).
+   * @return A route definition.
+   */
   Route.Definition sse(String path, Sse.Handler1 handler);
 }

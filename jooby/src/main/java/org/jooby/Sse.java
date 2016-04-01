@@ -32,6 +32,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.jooby.Route.Chain;
 import org.jooby.internal.SseRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -416,14 +417,15 @@ public abstract class Sse implements AutoCloseable {
   }
 
   /**
-   * Server sent event handler.
+   * Server-sent event handler.
    *
    * @author edgar
    * @since 1.0.0.CR
    */
-  public interface Handler extends Route.Handler {
+  public interface Handler extends Route.Filter {
+
     @Override
-    default void handle(final Request req, final Response rsp) throws Exception {
+    default void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
       Sse sse = req.require(Sse.class);
       String path = req.path();
       rsp.send(new Deferred(deferred -> {
