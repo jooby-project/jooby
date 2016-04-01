@@ -18,6 +18,8 @@
  */
 package org.jooby;
 
+import java.util.Optional;
+
 import org.jooby.handlers.AssetHandler;
 
 /**
@@ -1678,6 +1680,690 @@ public interface Routes {
    * @return This jooby instance.
    */
   Jooby use(Class<?> routeClass);
+
+  /**
+   * <h2>before</h2>
+   *
+   * Allows for customized handler execution chains. It will be invoked before the actual handler.
+   *
+   * <pre>{@code
+   * {
+   *   before((req, rsp) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request and response objects.
+   *
+   * Please note that the <code>before</code> handler is just syntax sugar for {@link Route.Filter}.
+   * For example, the <code>before</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("*", "*", (req, rsp, chain) -> {
+   *     before(req, rsp);
+   *     // your code goes here
+   *     chain.next(req, rsp);
+   *   });
+   * }
+   * }</pre>
+   *
+   * A <code>before</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   before((req, rsp) -> {
+   *     // your code goes here
+   *   });
+   *
+   *   get("/path", req -> {
+   *     // your code goes here
+   *     return ...;
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param handler Before handler.
+   * @return A new route definition.
+   */
+  default Route.Definition before(final Route.Before handler) {
+    return before("*", handler);
+  }
+
+  /**
+   * <h2>before</h2>
+   *
+   * Allows for customized handler execution chains. It will be invoked before the actual handler.
+   *
+   * <pre>{@code
+   * {
+   *   before("*", (req, rsp) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request and response objects.
+   *
+   * Please note that the <code>before</code> handler is just syntax sugar for {@link Route.Filter}.
+   * For example, the <code>before</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("*", (req, rsp, chain) -> {
+   *     before(req, rsp);
+   *     chain.next(req, rsp);
+   *   });
+   * }
+   * }</pre>
+   *
+   * A <code>before</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   before("/path", (req, rsp) -> {
+   *     // your code goes here
+   *   });
+   *
+   *   get("/path", req -> {
+   *     // your code goes here
+   *     return ...;
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param pattern Pattern to intercept.
+   * @param handler Before handler.
+   * @return A new route definition.
+   */
+  default Route.Definition before(final String pattern, final Route.Before handler) {
+    return before("*", pattern, handler);
+  }
+
+  /**
+   * <h2>before</h2>
+   *
+   * Allows for customized handler execution chains. It will be invoked before the actual handler.
+   *
+   * <pre>{@code
+   * {
+   *   before("GET", "*", (req, rsp) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request and response objects.
+   *
+   * Please note that the <code>before</code> handler is just syntax sugar for {@link Route.Filter}.
+   * For example, the <code>before</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("GET", "*", (req, rsp, chain) -> {
+   *     before(req, rsp);
+   *     chain.next(req, rsp);
+   *   });
+   * }
+   * }</pre>
+   *
+   * A <code>before</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   before("GET", "/path", (req, rsp) -> {
+   *     // your code goes here
+   *   });
+   *
+   *   get("/path", req -> {
+   *     // your code goes here
+   *     return ...;
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param method HTTP method to intercept.
+   * @param pattern Pattern to intercept.
+   * @param handler Before handler.
+   * @return A new route definition.
+   */
+  Route.Definition before(String method, String pattern, Route.Before handler);
+
+  /**
+   * <h2>before send</h2>
+   *
+   * Allows for customized response before send it. It will be invoked at the time a response need
+   * to be send.
+   *
+   * <pre>{@code
+   * {
+   *   before((req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request, response and result objects. The handler returns a
+   * {@link Result} which can be the same or an entirely new {@link Result}.
+   *
+   * Please note that the <code>before send</code> handler is just syntax sugar for
+   * {@link Route.Filter}.
+   * For example, the <code>before send</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("*", (req, rsp, chain) -> {
+   *     chain.next(req, new Response.Forwarding(rsp) {
+   *       public void send(Result result) {
+   *         rsp.send(before(req, rsp, result);
+   *       }
+   *     });
+   *   });
+   * }
+   * }</pre>
+   *
+   * Due <code>before send</code> is implemented by wrapping the {@link Response} object. A
+   * <code>before send</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   before((req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   *
+   *   get("/path", req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param handler Before handler.
+   * @return A new route definition.
+   */
+  default Route.Definition before(final Route.BeforeSend handler) {
+    return before("*", handler);
+  }
+
+  /**
+   * <h2>before send</h2>
+   *
+   * Allows for customized response before send it. It will be invoked at the time a response need
+   * to be send.
+   *
+   * <pre>{@code
+   * {
+   *   before("*", (req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request, response and result objects. The handler returns a
+   * {@link Result} which can be the same or an entirely new {@link Result}.
+   *
+   * Please note that the <code>before send</code> handler is just syntax sugar for
+   * {@link Route.Filter}.
+   * For example, the <code>before send</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("*", (req, rsp, chain) -> {
+   *     chain.next(req, new Response.Forwarding(rsp) {
+   *       public void send(Result result) {
+   *         rsp.send(before(req, rsp, result);
+   *       }
+   *     });
+   *   });
+   * }
+   * }</pre>
+   *
+   * Due <code>before send</code> is implemented by wrapping the {@link Response} object. A
+   * <code>before send</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   before("/path", (req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   *
+   *   get("/path", req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param pattern Pattern to intercept.
+   * @param handler Before handler.
+   * @return A new route definition.
+   */
+  default Route.Definition before(final String pattern, final Route.BeforeSend handler) {
+    return before("*", pattern, handler);
+  }
+
+  /**
+   * <h2>before send</h2>
+   *
+   * Allows for customized response before send it. It will be invoked at the time a response need
+   * to be send.
+   *
+   * <pre>{@code
+   * {
+   *   before("GET", "*", (req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are allowed to modify the request, response and result objects. The handler returns a
+   * {@link Result} which can be the same or an entirely new {@link Result}.
+   *
+   * Please note that the <code>before send</code> handler is just syntax sugar for
+   * {@link Route.Filter}.
+   * For example, the <code>before send</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("GET", "*", (req, rsp, chain) -> {
+   *     chain.next(req, new Response.Forwarding(rsp) {
+   *       public void send(Result result) {
+   *         rsp.send(before(req, rsp, result);
+   *       }
+   *     });
+   *   });
+   * }
+   * }</pre>
+   *
+   * Due <code>before send</code> is implemented by wrapping the {@link Response} object. A
+   * <code>before send</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   before("GET", "/path", (req, rsp, result) -> {
+   *     // your code goes here
+   *     return result;
+   *   });
+   *
+   *   get("/path", req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * @param method HTTP method to intercept.
+   * @param pattern Pattern to intercept.
+   * @param handler Before handler.
+   * @return A new route definition.
+   */
+  Route.Definition before(String method, String pattern, Route.BeforeSend handler);
+
+  /**
+   * <h2>after</h2>
+   *
+   * Allows for log and cleanup a request. It will be invoked after we send a response.
+   *
+   * <pre>{@code
+   * {
+   *   after((req, rsp, cause) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are NOT allowed to modify the request and response objects. The <code>cause</code> is an
+   * {@link Optional} with a {@link Throwable} useful to identify problems.
+   *
+   * The goal of the <code>after</code> handler is to probably cleanup request object and log
+   * responses.
+   *
+   * Please note that the <code>after</code> handler is just syntax sugar for {@link Route.Filter}.
+   * For example, the <code>after</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("*", "*", (req, rsp, chain) -> {
+   *     Optional<Throwable> err = Optional.empty();
+   *     try {
+   *       chain.next(req, rsp);
+   *     } catch (Throwable cause) {
+   *       err = Optional.of(cause);
+   *     } finally {
+   *       after(req, rsp, err);
+   *     }
+   *   });
+   * }
+   * }</pre>
+   *
+   * An <code>after</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   after((req, rsp, cause) -> {
+   *     // your code goes here
+   *   });
+   *
+   *   get(req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * <h2>example</h2>
+   * <p>
+   * Suppose you have a transactional resource, like a database connection. The next example shows
+   * you how to implement a simple and effective <code>transaction-per-request</code> pattern:
+   * </p>
+   *
+   * <pre>{@code
+   * {
+   *   // start transaction
+   *   before((req, rsp) -> {
+   *     DataSource ds = req.require(DataSource.class);
+   *     Connection connection = ds.getConnection();
+   *     Transaction trx = connection.getTransaction();
+   *     trx.begin();
+   *     req.set("connection", connection);
+   *     return true;
+   *   });
+   *
+   *   // commit/rollback transaction
+   *   after((req, rsp, cause) -> {
+   *     // unbind connection from request
+   *     try(Connection connection = req.unset("connection").get()) {
+   *       Transaction trx = connection.getTransaction();
+   *       if (cause.ifPresent()) {
+   *         trx.rollback();
+   *       } else {
+   *         trx.commit();
+   *       }
+   *     }
+   *   });
+   *
+   *   // your transactional routes goes here
+   *   get("/api/something", req -> {
+   *     Connection connection = req.get("connection");
+   *     // work with connection
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param handler Before handler.
+   * @return A new route definition.
+   */
+  default Route.Definition after(final Route.After handler) {
+    return after("*", handler);
+  }
+
+  /**
+   * <h2>after</h2>
+   *
+   * Allows for log and cleanup a request. It will be invoked after we send a response.
+   *
+   * <pre>{@code
+   * {
+   *   after("*", (req, rsp, cause) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are NOT allowed to modify the request and response objects. The <code>cause</code> is an
+   * {@link Optional} with a {@link Throwable} useful to identify problems.
+   *
+   * The goal of the <code>after</code> handler is to probably cleanup request object and log
+   * responses.
+   *
+   * Please note that the <code>after</code> handler is just syntax sugar for {@link Route.Filter}.
+   * For example, the <code>after</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("*", "*", (req, rsp, chain) -> {
+   *     Optional<Throwable> err = Optional.empty();
+   *     try {
+   *       chain.next(req, rsp);
+   *     } catch (Throwable cause) {
+   *       err = Optional.of(cause);
+   *     } finally {
+   *       after(req, rsp, err);
+   *     }
+   *   });
+   * }
+   * }</pre>
+   *
+   * An <code>after</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   after("/path", (req, rsp, cause) -> {
+   *     // your code goes here
+   *   });
+   *
+   *   get("/path", req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * <h2>example</h2>
+   * <p>
+   * Suppose you have a transactional resource, like a database connection. The next example shows
+   * you how to implement a simple and effective <code>transaction-per-request</code> pattern:
+   * </p>
+   *
+   * <pre>{@code
+   * {
+   *   // start transaction
+   *   before("/api/*", (req, rsp) -> {
+   *     DataSource ds = req.require(DataSource.class);
+   *     Connection connection = ds.getConnection();
+   *     Transaction trx = connection.getTransaction();
+   *     trx.begin();
+   *     req.set("connection", connection);
+   *     return true;
+   *   });
+   *
+   *   // commit/rollback transaction
+   *   after("/api/*", (req, rsp, cause) -> {
+   *     // unbind connection from request
+   *     try(Connection connection = req.unset("connection").get()) {
+   *       Transaction trx = connection.getTransaction();
+   *       if (cause.ifPresent()) {
+   *         trx.rollback();
+   *       } else {
+   *         trx.commit();
+   *       }
+   *     }
+   *   });
+   *
+   *   // your transactional routes goes here
+   *   get("/api/something", req -> {
+   *     Connection connection = req.get("connection");
+   *     // work with connection
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param pattern Pattern to intercept.
+   * @param handler Before handler.
+   * @return A new route definition.
+   */
+  default Route.Definition after(final String pattern, final Route.After handler) {
+    return after("*", pattern, handler);
+  }
+
+  /**
+   * <h2>after</h2>
+   *
+   * Allows for log and cleanup a request. It will be invoked after we send a response.
+   *
+   * <pre>{@code
+   * {
+   *   after("*", "*", (req, rsp, cause) -> {
+   *     // your code goes here
+   *   });
+   * }
+   * }</pre>
+   *
+   * You are NOT allowed to modify the request and response objects. The <code>cause</code> is an
+   * {@link Optional} with a {@link Throwable} useful to identify problems.
+   *
+   * The goal of the <code>after</code> handler is to probably cleanup request object and log
+   * responses.
+   *
+   * Please note that the <code>after</code> handler is just syntax sugar for {@link Route.Filter}.
+   * For example, the <code>after</code> handler was implemented as:
+   *
+   * <pre>{@code
+   * {
+   *   use("*", "*", (req, rsp, chain) -> {
+   *     Optional<Throwable> err = Optional.empty();
+   *     try {
+   *       chain.next(req, rsp);
+   *     } catch (Throwable cause) {
+   *       err = Optional.of(cause);
+   *     } finally {
+   *       after(req, rsp, err);
+   *     }
+   *   });
+   * }
+   * }</pre>
+   *
+   * An <code>after</code> handler must to be registered before the actual handler you want to
+   * intercept.
+   *
+   * <pre>{@code
+   * {
+   *   after("*", "/path", (req, rsp, cause) -> {
+   *   });
+   *
+   *   get("/path", req -> {
+   *     return "hello";
+   *   });
+   * }
+   * }</pre>
+   *
+   * If you reverse the order then it won't work.
+   *
+   * <p>
+   * <strong>Remember</strong>: routes are executed in the order they are defined and the pipeline
+   * is executed as long you don't generate a response.
+   * </p>
+   *
+   * <h2>example</h2>
+   * <p>
+   * Suppose you have a transactional resource, like a database connection. The next example shows
+   * you how to implement a simple and effective <code>transaction-per-request</code> pattern:
+   * </p>
+   *
+   * <pre>{@code
+   * {
+   *   // start transaction
+   *   before((req, rsp) -> {
+   *     DataSource ds = req.require(DataSource.class);
+   *     Connection connection = ds.getConnection();
+   *     Transaction trx = connection.getTransaction();
+   *     trx.begin();
+   *     req.set("connection", connection);
+   *     return true;
+   *   });
+   *
+   *   // commit/rollback transaction
+   *   after((req, rsp, cause) -> {
+   *     // unbind connection from request
+   *     try(Connection connection = req.unset("connection")) {
+   *       Transaction trx = connection.getTransaction();
+   *       if (cause.ifPresent()) {
+   *         trx.rollback();
+   *       } else {
+   *         trx.commit();
+   *       }
+   *     }
+   *   });
+   *
+   *   // your transactional routes goes here
+   *   get("/my-trx-route", req -> {
+   *     Connection connection = req.get("connection");
+   *     // work with connection
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param method HTTP method to intercept.
+   * @param pattern Pattern to intercept.
+   * @param handler Before handler.
+   * @return A new route definition.
+   */
+  Route.Definition after(String method, String pattern, Route.After handler);
 
   /**
    * Append a new WebSocket handler under the given path.

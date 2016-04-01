@@ -28,15 +28,15 @@ public class ResponseForwardingTest {
           assertEquals(rsp, Response.Forwarding.unwrap(new Response.Forwarding(rsp)));
 
           // 2 level
-        assertEquals(rsp,
-            Response.Forwarding.unwrap(new Response.Forwarding(new Response.Forwarding(rsp))));
+          assertEquals(rsp,
+              Response.Forwarding.unwrap(new Response.Forwarding(new Response.Forwarding(rsp))));
 
-        // 3 level
-        assertEquals(rsp,
-            Response.Forwarding.unwrap(new Response.Forwarding(new Response.Forwarding(
-                new Response.Forwarding(rsp)))));
+          // 3 level
+          assertEquals(rsp,
+              Response.Forwarding.unwrap(new Response.Forwarding(new Response.Forwarding(
+                  new Response.Forwarding(rsp)))));
 
-      });
+        });
   }
 
   @Test
@@ -234,9 +234,15 @@ public class ResponseForwardingTest {
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
 
+          expect(rsp.status()).andReturn(Optional.empty());
+          expect(rsp.type()).andReturn(Optional.empty());
+        })
+        .expect(unit -> {
+          Response rsp = unit.get(Response.class);
+
           rsp.send(body);
 
-          rsp.send(obody);
+          rsp.send(unit.capture(Result.class));
         })
         .run(unit -> {
           Response rsp = new Response.Forwarding(unit.get(Response.class));

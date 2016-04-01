@@ -18,6 +18,8 @@ documentation
 
 {{routes.md}}
 
+{{interceptors.md}}
+
 {{mvc-routes.md}}
 
 {{dynamic-routing.md}}

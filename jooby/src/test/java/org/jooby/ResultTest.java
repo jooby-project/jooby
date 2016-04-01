@@ -60,7 +60,7 @@ public class ResultTest {
   public void ok() {
     Result result = Results.ok();
     assertEquals(Optional.empty(), result.ifGet());
-    assertEquals(null, result.get());
+    assertEquals((Object) null, result.get());
     assertEquals(Optional.empty(), result.type());
     assertEquals(Status.OK, result.status().get());
   }

@@ -101,7 +101,7 @@ public class TrxResponse extends Response.Forwarding {
         readOnlyTrx.begin();
 
         // send it!
-        super.send(result);
+        rsp.send(result);
 
         log.debug("  [{}] commiting readonly transaction: {}", sessionId, readOnlyTrx);
         readOnlyTrx.commit();

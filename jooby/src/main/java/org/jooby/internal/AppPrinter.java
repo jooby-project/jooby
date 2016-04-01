@@ -19,6 +19,7 @@
 package org.jooby.internal;
 
 import java.util.Set;
+import java.util.function.Function;
 
 import javax.inject.Inject;
 
@@ -67,11 +68,20 @@ public class AppPrinter {
   }
 
   private void routes(final StringBuilder buffer) {
+    Function<Route.Definition, String> p = route -> {
+      String pattern = route.pattern();
+      Route.Filter filter = route.filter();
+      if (filter instanceof Route.Interceptor) {
+        pattern = ":" + ((Route.Interceptor) filter).name() + " " + pattern;
+      }
+      return pattern;
+    };
+
     int verbMax = 0, routeMax = 0, consumesMax = 0, producesMax = 0;
     for (Route.Definition route : routes) {
       verbMax = Math.max(verbMax, route.method().length());
 
-      routeMax = Math.max(routeMax, route.pattern().length());
+      routeMax = Math.max(routeMax, p.apply(route).length());
 
       consumesMax = Math.max(consumesMax, route.consumes().toString().length());
 
@@ -82,8 +92,8 @@ public class AppPrinter {
         + producesMax + "s    (%s)\n";
 
     for (Route.Definition route : routes) {
-      buffer.append(String.format(format, route.method(), route.pattern(),
-          route.consumes(), route.produces(), route.name()));
+      buffer.append(String.format(format, route.method(), p.apply(route), route.consumes(),
+          route.produces(), route.name()));
     }
 
     sockets(buffer, Math.max(verbMax, "WS".length()), routeMax, consumesMax, producesMax);

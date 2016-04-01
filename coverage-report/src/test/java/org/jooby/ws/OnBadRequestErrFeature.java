@@ -12,11 +12,8 @@ import org.junit.Test;
 
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
-import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ws.WebSocket;
 import com.ning.http.client.ws.WebSocketListener;
-import com.ning.http.client.ws.WebSocketTextListener;
 import com.ning.http.client.ws.WebSocketUpgradeHandler;
 
 public class OnBadRequestErrFeature extends ServerFeature {

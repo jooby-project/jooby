@@ -21,7 +21,7 @@ import com.google.common.collect.ImmutableList;
 public class AbstractRendererContextTest {
 
   @Test(expected = Err.class)
-  public void norenderer() throws Exception {
+  public void norenderer() throws Throwable {
     List<Renderer> renderers = new ArrayList<>();
     List<MediaType> produces = ImmutableList.of(MediaType.json);
     View value = Results.html("view");

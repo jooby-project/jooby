@@ -43,7 +43,7 @@ public class HeadHandler implements Route.Filter {
 
   @Override
   public void handle(final Request req, final Response rsp, final Route.Chain chain)
-      throws Exception {
+      throws Throwable {
 
     String path = req.path();
     for (Route.Definition routeDef : routeDefs) {

@@ -61,7 +61,8 @@ import com.google.common.collect.ImmutableSet;
  *
  * <h2>Token verification</h2>
  * <p>
- * The {@link CsrfHandler} handler will read an existing token from {@link Session} (or created a new one
+ * The {@link CsrfHandler} handler will read an existing token from {@link Session} (or created a
+ * new one
  * is necessary) and make available as a request local variable via:
  * {@link Request#set(String, Object)}.
  * </p>
@@ -137,7 +138,7 @@ public class CsrfHandler implements Route.Filter {
 
   @Override
   public void handle(final Request req, final Response rsp, final Route.Chain chain)
-      throws Exception {
+      throws Throwable {
 
     /**
      * Get or generate a token

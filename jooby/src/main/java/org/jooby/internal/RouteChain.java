@@ -43,7 +43,7 @@ public class RouteChain implements Route.Chain {
   }
 
   @Override
-  public void next(final String prefix, final Request req, final Response rsp) throws Exception {
+  public void next(final String prefix, final Request req, final Response rsp) throws Throwable {
     if (rsp.committed()) {
       return;
     }

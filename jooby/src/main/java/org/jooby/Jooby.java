@@ -950,6 +950,24 @@ public class Jooby implements Routes {
     return this;
   }
 
+  @Override
+  public Route.Definition before(final String method, final String pattern,
+      final Route.Before handler) {
+    return appendDefinition(new Route.Definition(method, pattern, handler));
+  }
+
+  @Override
+  public Route.Definition before(final String method, final String pattern,
+      final Route.BeforeSend handler) {
+    return appendDefinition(new Route.Definition(method, pattern, handler));
+  }
+
+  @Override
+  public Route.Definition after(final String method, final String pattern,
+      final Route.After handler) {
+    return appendDefinition(new Route.Definition(method, pattern, handler));
+  }
+
   /**
    * Append a new filter that matches any method under the given path.
    *
@@ -3579,7 +3597,7 @@ public class Jooby implements Routes {
           .in(RequestScoped.class);
       /** server sent event */
       binder.bind(Sse.class).toProvider(Providers.outOfScope(Sse.class))
-      .in(RequestScoped.class);
+          .in(RequestScoped.class);
 
       binder.bind(Session.class).toProvider(Providers.outOfScope(Session.class))
           .in(RequestScoped.class);

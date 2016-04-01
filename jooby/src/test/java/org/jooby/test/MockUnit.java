@@ -16,6 +16,8 @@ import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.powermock.api.easymock.PowerMock;
 
+import com.google.common.base.Throwables;
+
 @SuppressWarnings({"rawtypes", "unchecked" })
 public class MockUnit {
 
@@ -51,7 +53,7 @@ public class MockUnit {
 
   public interface Block {
 
-    public void run(MockUnit unit) throws Exception;
+    public void run(MockUnit unit) throws Throwable;
 
   }
 
@@ -155,7 +157,13 @@ public class MockUnit {
   public MockUnit run(final Block... blocks) throws Exception {
 
     for (Block block : this.blocks) {
-      block.run(this);
+      try {
+        block.run(this);
+      } catch (Exception | AssertionError ex) {
+        throw ex;
+      } catch (Throwable ex) {
+        Throwables.propagate(ex);
+      }
     }
 
     mockClasses.forEach(PowerMock::replay);
@@ -163,7 +171,13 @@ public class MockUnit {
     mocks.forEach(EasyMock::replay);
 
     for (Block main : blocks) {
-      main.run(this);
+      try {
+        main.run(this);
+      } catch (Exception | AssertionError ex) {
+        throw ex;
+      } catch (Throwable ex) {
+        Throwables.propagate(ex);
+      }
     }
 
     mocks.forEach(EasyMock::verify);

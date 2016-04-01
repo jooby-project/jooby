@@ -54,7 +54,7 @@ public class OpenSessionInView implements Route.Filter {
   }
 
   @Override
-  public void handle(final Request req, final Response rsp, final Chain chain) throws Exception {
+  public void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
     HibernateEntityManagerFactory hemf = emf.get();
     SessionFactory sf = hemf.getSessionFactory();
 

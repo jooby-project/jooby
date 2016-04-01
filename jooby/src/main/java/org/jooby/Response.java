@@ -166,7 +166,9 @@ public interface Response {
 
     @Override
     public void send(final Object result) throws Exception {
-      rsp.send(result);
+      // Special case: let the default response to deal with Object refs.
+      // once resolved it will call the Result version.
+      Response.super.send(result);
     }
 
     @Override

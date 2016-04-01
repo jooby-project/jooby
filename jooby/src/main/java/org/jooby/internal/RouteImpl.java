@@ -60,7 +60,7 @@ public class RouteImpl implements Route, Route.Filter {
       if (!rsp.status().isPresent()) {
         throw new Err(Status.NOT_FOUND, path);
       }
-    } , method, path, "404", produces);
+    }, method, path, "404", produces);
   }
 
   public static RouteImpl fromStatus(final Filter filter, final String method,
@@ -99,7 +99,7 @@ public class RouteImpl implements Route, Route.Filter {
 
   @Override
   public void handle(final Request request, final Response response, final Chain chain)
-      throws Exception {
+      throws Throwable {
     filter.handle(request, response, chain);
   }
 

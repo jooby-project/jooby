@@ -85,7 +85,7 @@ public class CorsHandler implements Route.Filter {
   }
 
   @Override
-  public void handle(final Request req, final Response rsp, final Chain chain) throws Exception {
+  public void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
     Optional<String> origin = req.header("Origin").toOptional();
     Cors cors = this.cors.orElseGet(() -> req.require(Cors.class));
     if (cors.enabled() && origin.isPresent()) {

@@ -247,7 +247,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
     // seed sse
     Provider<Sse> sse = () -> Try.of(() -> request.upgrade(Sse.class))
-        .getOrElseThrow(() -> new UnsupportedOperationException("Server sent events"));
+        .getOrElseThrow(() -> new UnsupportedOperationException("Server-sent events"));
     scope.put(SSE, sse);
 
     // seed session

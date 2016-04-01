@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 
 import org.jooby.Route;
+import org.jooby.Route.Before;
 import org.jooby.WebSocket;
 import org.junit.Test;
 
@@ -18,12 +19,13 @@ public class AppPrinterTest {
   @Test
   public void print() {
     String setup = new AppPrinter(
-        Sets.newLinkedHashSet(Arrays.asList(route("/"), route("/home"))),
+        Sets.newLinkedHashSet(Arrays.asList(interceptor("/"), route("/"), route("/home"))),
         Sets.newLinkedHashSet(Arrays.asList(socket("/ws"))), config("/"))
             .toString();
-    assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
-        "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws      [*/*]     [*/*]\n" +
+    assertEquals("  GET :before /    [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET /            [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET /home        [*/*]     [*/*]    (/anonymous)\n" +
+        "  WS  /ws          [*/*]     [*/*]\n" +
         "\n" +
         "listening on:\n" +
         "  http://localhost:8080/", setup);
@@ -81,6 +83,11 @@ public class AppPrinterTest {
 
   private Route.Definition route(final String pattern) {
     return new Route.Definition("GET", pattern, (req, rsp) -> {
+    });
+  }
+
+  private Route.Definition interceptor(final String pattern) {
+    return new Route.Definition("GET", pattern, (Before) (req, rsp) -> {
     });
   }
 

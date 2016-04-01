@@ -38,7 +38,7 @@ import com.codahale.metrics.Timer;
 public class InstrumentedHandler implements Route.Filter {
 
   @Override
-  public void handle(final Request req, final Response rsp, final Chain chain) throws Exception {
+  public void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
     MetricRegistry registry = req.require(MetricRegistry.class);
     Counter counter = registry.counter("request.actives");
     Timer.Context timer = registry.timer("request").time();

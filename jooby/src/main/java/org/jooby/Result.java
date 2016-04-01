@@ -203,7 +203,7 @@ public class Result {
    *
    * @return Value or <code>null</code>
    */
-  public Object get() {
+  public <T> T get() {
     return get(MediaType.ALL);
   }
 
@@ -223,11 +223,12 @@ public class Result {
    * @param types Accept header.
    * @return Result content or <code>null</code>.
    */
-  public Object get(final List<MediaType> types) {
+  @SuppressWarnings("unchecked")
+  public <T> T get(final List<MediaType> types) {
     requireNonNull(types, "Types are required.");
     int size = data.size();
     if (size == 1) {
-      return first.get();
+      return (T) first.get();
     }
     if (size == 0) {
       return null;
@@ -238,7 +239,7 @@ public class Result {
         .map(it -> data.remove(it))
         .orElseThrow(
             () -> new Err(Status.NOT_ACCEPTABLE, Joiner.on(", ").join(types)));
-    return provider.get();
+    return (T) provider.get();
   }
 
   /**

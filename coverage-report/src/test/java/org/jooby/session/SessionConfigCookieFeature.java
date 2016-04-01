@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Locale;
 
 import org.jooby.Session;
-import org.jooby.mvc.Local;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
