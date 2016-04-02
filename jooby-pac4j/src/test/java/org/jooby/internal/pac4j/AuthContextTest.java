@@ -279,16 +279,6 @@ public class AuthContextTest {
   }
 
   @Test
-  public void setEncoding() throws Exception {
-    new MockUnit(Request.class, Response.class, Mutant.class)
-        .expect(params1)
-        .run(unit -> {
-          AuthContext ctx = new AuthContext(unit.get(Request.class), unit.get(Response.class));
-          ctx.setResponseCharacterEncoding("UTF-8");
-        });
-  }
-
-  @Test
   public void setContentType() throws Exception {
     new MockUnit(Request.class, Response.class, Mutant.class)
         .expect(params1)

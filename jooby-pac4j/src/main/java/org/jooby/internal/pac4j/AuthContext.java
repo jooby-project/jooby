@@ -174,11 +174,6 @@ public class AuthContext implements WebContext {
   }
 
   @Override
-  public void setResponseCharacterEncoding(final String encoding) {
-    // NOOP
-  }
-
-  @Override
   public void setResponseContentType(final String content) {
     rsp.type(content);
   }

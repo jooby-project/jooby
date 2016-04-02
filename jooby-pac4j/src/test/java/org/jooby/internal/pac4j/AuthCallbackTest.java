@@ -340,10 +340,6 @@ public class AuthCallbackTest {
       }
 
       @Override
-      public void setResponseCharacterEncoding(final String encoding) {
-      }
-
-      @Override
       public void setResponseContentType(final String content) {
       }
 
