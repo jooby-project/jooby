@@ -1,6 +1,7 @@
 package org.jooby.internal.metrics;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +44,29 @@ public class MetricRegistryInitializerTest {
               unit.get(MetricRegistry.class), metrics, reporters);
           mri.start();
           mri.stop();
+        });
+  }
+
+  @Test
+  public void closeWithError() throws Exception {
+    new MockUnit(MetricRegistry.class, Metric.class, Reporter.class, ConsoleReporter.class)
+        .expect(unit -> {
+          MetricRegistry registry = unit.get(MetricRegistry.class);
+
+          expect(registry.register("m", unit.get(Metric.class)))
+              .andReturn(unit.get(Metric.class));
+        })
+        .expect(unit -> {
+          unit.get(ConsoleReporter.class).close();
+          expectLastCall().andThrow(new IllegalStateException("intentional err"));
+        })
+        .run(unit -> {
+          Map<String, Metric> metrics = ImmutableMap.of("m", unit.get(Metric.class));
+          Set<Reporter> reporters = ImmutableSet.of(unit.get(Reporter.class),
+              unit.get(ConsoleReporter.class));
+          MetricRegistryInitializer mri = new MetricRegistryInitializer(
+              unit.get(MetricRegistry.class), metrics, reporters);
+          mri.start();
           mri.stop();
         });
   }

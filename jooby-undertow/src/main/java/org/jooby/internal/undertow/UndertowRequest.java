@@ -18,13 +18,10 @@
  */
 package org.jooby.internal.undertow;
 
-import static java.util.Objects.requireNonNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.Deque;
@@ -66,16 +63,17 @@ public class UndertowRequest implements NativeRequest {
 
   private final FormData form;
 
-  private String path;
+  private final String path;
 
   private Supplier<BlockingHttpExchange> blocking;
 
-  public UndertowRequest(final HttpServerExchange exchange, final Config config) throws IOException {
-    this.exchange = requireNonNull(exchange, "An undertow exchange is required.");
+  public UndertowRequest(final HttpServerExchange exchange, final Config conf)
+      throws IOException {
+    this.exchange = exchange;
     this.blocking = Suppliers.memoize(() -> this.exchange.startBlocking());
-    this.config = requireNonNull(config, "A config is required.");
-    this.form = parseForm(exchange, config.getString("application.tmpdir"),
-        config.getString("application.charset"));
+    this.config = conf;
+    this.form = parseForm(exchange, conf.getString("application.tmpdir"),
+        conf.getString("application.charset"));
     this.path = URLDecoder.decode(exchange.getRequestPath(), "UTF-8");
   }
 
@@ -164,12 +162,11 @@ public class UndertowRequest implements NativeRequest {
 
   @Override
   public String ip() {
-    InetSocketAddress sourceAddress = exchange.getSourceAddress();
-    if (sourceAddress == null) {
-      return "";
-    }
-    InetAddress address = sourceAddress.getAddress();
-    return address == null ? "" : address.getHostAddress();
+    return Optional.ofNullable(exchange.getSourceAddress())
+        .map(src -> Optional.ofNullable(src.getAddress())
+            .map(InetAddress::getHostAddress)
+            .orElse(""))
+        .orElse("");
   }
 
   @Override

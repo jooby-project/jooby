@@ -40,6 +40,8 @@ import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javaslang.control.Try;
+
 public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
 
   private static final String A_CALLBACK_IS_REQUIRED = "A callback is required.";
@@ -112,7 +114,8 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
   }
 
   @Override
-  public void sendBytes(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
+  public void sendBytes(final ByteBuffer data, final SuccessCallback success,
+      final ErrCallback err) {
     requireNonNull(data, NO_DATA_TO_SEND);
 
     RemoteEndpoint remote = session.getRemote();
@@ -142,7 +145,8 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
   }
 
   @Override
-  public void sendText(final ByteBuffer data, final SuccessCallback success, final ErrCallback err) {
+  public void sendText(final ByteBuffer data, final SuccessCallback success,
+      final ErrCallback err) {
     requireNonNull(data, NO_DATA_TO_SEND);
 
     RemoteEndpoint remote = session.getRemote();
@@ -182,7 +186,7 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
     this.onErrorCallback.accept(cause);
   }
 
-  private static WriteCallback callback(final Logger log, final SuccessCallback success,
+  static WriteCallback callback(final Logger log, final SuccessCallback success,
       final ErrCallback err) {
     requireNonNull(success, "Success callback is required.");
     requireNonNull(err, "Error callback is required.");
@@ -190,20 +194,14 @@ public class JettyWebSocket implements NativeWebSocket, WebSocketListener {
     WriteCallback callback = new WriteCallback() {
       @Override
       public void writeSuccess() {
-        try {
-          success.invoke();
-        } catch (Exception ex) {
-          log.error("Error while invoking success callback", ex);
-        }
+        Try.run(success::invoke)
+            .onFailure(cause -> log.error("Error while invoking success callback", cause));
       }
 
       @Override
       public void writeFailed(final Throwable cause) {
-        try {
-          err.invoke(cause);
-        } catch (Exception ex) {
-          log.error("Error while invoking err callback", ex);
-        }
+        Try.run(() -> err.invoke(cause))
+            .onFailure(ex -> log.error("Error while invoking err callback", ex));
       }
     };
     return callback;

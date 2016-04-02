@@ -20,7 +20,6 @@ package org.jooby.internal.undertow;
 
 import static java.util.Objects.requireNonNull;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -50,9 +49,8 @@ public class UndertowResponse implements NativeResponse {
 
   private HttpServerExchange exchange;
 
-  public UndertowResponse(final HttpServerExchange exchange)
-      throws IOException {
-    this.exchange = requireNonNull(exchange, "An undertow exchange is required.");
+  public UndertowResponse(final HttpServerExchange exchange) {
+    this.exchange = exchange;
   }
 
   @Override

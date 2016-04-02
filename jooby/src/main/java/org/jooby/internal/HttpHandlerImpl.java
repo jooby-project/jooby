@@ -60,6 +60,7 @@ import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -189,7 +190,7 @@ public class HttpHandlerImpl implements HttpHandler {
     this.applicationPath = normalizeURI(requireNonNull(path, "An application.path is required."));
     this.err = requireNonNull(err, "An err handler is required.");
     this.config = injector.getInstance(Config.class);
-    _method = this.config.getString("server.http.Method").trim();
+    _method = Strings.emptyToNull(this.config.getString("server.http.Method").trim());
     this.port = config.getInt("application.port");
     this.charset = charset;
     this.locale = locale;
@@ -219,7 +220,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
     Map<Object, Object> scope = new HashMap<>(16);
 
-    String verb = method(_method, request).toUpperCase();
+    String verb = (_method == null ? request.method() : method(_method, request)).toUpperCase();
     String requestPath = normalizeURI(request.path());
     if (rpath != null) {
       requestPath = rpath.apply(requestPath);
@@ -488,15 +489,12 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private static String method(final String methodParam, final NativeRequest request)
       throws Exception {
-    if (methodParam.length() > 0) {
-      Optional<String> header = request.header(methodParam);
-      if (header.isPresent()) {
-        return header.get();
-      }
-      List<String> param = request.params(methodParam);
-      return param.size() == 0 ? request.method() : param.get(0);
+    Optional<String> header = request.header(methodParam);
+    if (header.isPresent()) {
+      return header.get();
     }
-    return request.method();
+    List<String> param = request.params(methodParam);
+    return param.size() == 0 ? request.method() : param.get(0);
   }
 
   private static LoadingCache<RouteKey, List<Route>> routeCache(final Set<Route.Definition> routes,

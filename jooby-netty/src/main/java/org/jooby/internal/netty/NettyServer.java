@@ -18,6 +18,10 @@
  */
 package org.jooby.internal.netty;
 
+import static javaslang.API.Case;
+import static javaslang.API.Match;
+import static javaslang.Predicates.is;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -48,6 +52,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -112,10 +117,9 @@ public class NettyServer implements Server {
       final int port) throws InterruptedException {
     ServerBootstrap bootstrap = new ServerBootstrap();
 
+    boolean epoll = bossLoop instanceof EpollEventLoopGroup;
     bootstrap.group(bossLoop, workerLoop)
-        .channel(bossLoop instanceof EpollEventLoopGroup
-            ? EpollServerSocketChannel.class
-            : NioServerSocketChannel.class)
+        .channel(epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
         .handler(new LoggingHandler(Server.class, LogLevel.DEBUG))
         .childHandler(new NettyInitializer(executor, dispatcher, config, sslCtx));
 
@@ -157,12 +161,10 @@ public class NettyServer implements Server {
         ChannelOption option = result.getKey();
         String optionName = entry.getKey();
         Class<?> optionType = result.getValue();
-        Object value = config.getAnyRef(optionName);
-        if (Number.class.isAssignableFrom(optionType)) {
-          if (optionType == Integer.class) {
-            value = ((Number) value).intValue();
-          }
-        }
+        Object value = Match(optionType).of(
+            Case(is(Boolean.class), () -> config.getBoolean(optionName)),
+            Case(is(Integer.class), () -> config.getInt(optionName)),
+            Case(is(Long.class), () -> config.getLong(optionName)));
         log.debug("{}.{}({})", path, option, value);
         setter.accept(option, value);
       } else {
@@ -175,7 +177,7 @@ public class NettyServer implements Server {
   @SuppressWarnings("rawtypes")
   private Map.Entry<ChannelOption, Class<?>> findOption(final String optionName) {
     try {
-      Field field = ChannelOption.class.getDeclaredField(optionName);
+      Field field = EpollChannelOption.class.getField(optionName);
       ChannelOption option = (ChannelOption) field.get(null);
       Class optionType = (Class) ((ParameterizedType) field.getGenericType())
           .getActualTypeArguments()[0];

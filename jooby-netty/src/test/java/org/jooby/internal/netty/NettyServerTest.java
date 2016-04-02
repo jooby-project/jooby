@@ -29,6 +29,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -59,7 +60,7 @@ public class NettyServerTest {
       .withValue("netty.http.MaxHeaderSize", ConfigValueFactory.fromAnyRef("8k"))
       .withValue("netty.http.MaxChunkSize", ConfigValueFactory.fromAnyRef("8k"))
       .withValue("netty.http.IdleTimeout", ConfigValueFactory.fromAnyRef("30s"))
-      .withValue("netty.channel.CONNECT_TIMEOUT_MILLIS", ConfigValueFactory.fromAnyRef("1s"))
+      .withValue("netty.options.CONNECT_TIMEOUT_MILLIS", ConfigValueFactory.fromAnyRef(1000))
       .withValue("application.port", ConfigValueFactory.fromAnyRef(6789))
       .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"));
 
@@ -156,8 +157,14 @@ public class NettyServerTest {
         .expect(taskExecutor)
         .expect(channel)
         .expect(bootstrap(6789, EpollEventLoopGroup.class, EpollServerSocketChannel.class))
+        .expect(unit -> {
+          ServerBootstrap bootstrap = unit.get(ServerBootstrap.class);
+          ChannelOption option = EpollChannelOption.TCP_NOTSENT_LOWAT;
+          expect(bootstrap.option(option, 1000L)).andReturn(bootstrap);
+        })
         .run(unit -> {
-          NettyServer server = new NettyServer(unit.get(HttpHandler.class), config);
+          NettyServer server = new NettyServer(unit.get(HttpHandler.class), config
+              .withValue("netty.options.TCP_NOTSENT_LOWAT", ConfigValueFactory.fromAnyRef(1000)));
           try {
             server.start();
             server.join();
@@ -393,6 +400,7 @@ public class NettyServerTest {
       expect(bootstrap.childHandler(isA(NettyInitializer.class))).andReturn(bootstrap);
 
       expect(bootstrap.option(ChannelOption.SO_BACKLOG, 1024)).andReturn(bootstrap);
+      expect(bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)).andReturn(bootstrap);
       expect(bootstrap.childOption(ChannelOption.SO_REUSEADDR, true)).andReturn(bootstrap);
 
       ChannelFuture future = unit.mock(ChannelFuture.class);

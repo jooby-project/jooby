@@ -22,6 +22,7 @@ public class UndertowServerTest {
         .withValue("undertow.directBuffers", ConfigValueFactory.fromAnyRef(true))
         .withValue("undertow.buffersPerRegion", ConfigValueFactory.fromAnyRef("1"))
         .withValue("undertow.server.REUSE_ADDRESSES", ConfigValueFactory.fromAnyRef(true))
+        .withValue("undertow.server.IDLE_TIMEOUT", ConfigValueFactory.fromAnyRef("60s"))
         .withValue("undertow.server.MAX_ENTITY_SIZE", ConfigValueFactory.fromAnyRef("200k"))
         .withValue("undertow.socket.TCP_NODELAY", ConfigValueFactory.fromAnyRef(true))
         .withValue("undertow.worker.REUSE_ADDRESSES", ConfigValueFactory.fromAnyRef(true))
@@ -36,6 +37,7 @@ public class UndertowServerTest {
               unit.get(Provider.class));
           try {
             server.start();
+            server.join();// NOOP
           } finally {
             server.stop();
           }

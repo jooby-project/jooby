@@ -26,14 +26,21 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.jooby.Managed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Reporter;
 
+import javaslang.control.Try;
+
 public class MetricRegistryInitializer implements Managed {
 
   private Set<Closeable> reporters = new HashSet<>();
+
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(MetricRegistry.class);
 
   @Inject
   public MetricRegistryInitializer(final MetricRegistry registry, final Map<String, Metric> metrics,
@@ -52,13 +59,8 @@ public class MetricRegistryInitializer implements Managed {
 
   @Override
   public void stop() throws Exception {
-    try {
-      for (Closeable r : reporters) {
-        r.close();
-      }
-    } finally {
-      reporters.clear();
-    }
+    reporters.forEach(r -> Try.run(() -> r.close())
+        .onFailure(cause -> log.error("close of {} resulted in error", r, cause)));
   }
 
 }

@@ -50,6 +50,8 @@ import com.google.common.primitives.Primitives;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 
+import javaslang.control.Try;
+
 public class JettyServer implements org.jooby.spi.Server {
 
   private static final String JETTY_HTTP = "jetty.http";
@@ -156,7 +158,7 @@ public class JettyServer implements org.jooby.spi.Server {
   }
 
   private void tryOption(final Object source, final Config config, final Method option) {
-    try {
+    Try.run(() -> {
       String optionName = option.getName().replace("set", "");
       Object optionValue = config.getAnyRef(optionName);
       Class<?> optionType = Primitives.wrap(option.getParameterTypes()[0]);
@@ -174,16 +176,13 @@ public class JettyServer implements org.jooby.spi.Server {
       }
       log.debug("{}.{}({})", source.getClass().getSimpleName(), option.getName(), optionValue);
       option.invoke(source, optionValue);
-    } catch (InvocationTargetException ex) {
-      logAndRethrowException(option, ex.getTargetException());
-    } catch (Exception ex) {
-      logAndRethrowException(option, ex);
-    }
-  }
-
-  private void logAndRethrowException(final Method option, final Throwable e) {
-    log.error("invocation of " + option + " resulted in exception", e);
-    throw Throwables.propagate(e);
+    }).onFailure(x -> {
+      Throwable cause = x;
+      if (x instanceof InvocationTargetException) {
+        cause = ((InvocationTargetException) x).getTargetException();
+      }
+      Throwables.propagate(cause);
+    });
   }
 
   private <T> T conf(final T source, final Config config, final String path) {
