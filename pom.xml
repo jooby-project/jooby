@@ -2204,7 +2204,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <querydsl.version>4.0.9</querydsl.version>
 
     <!-- javaslang -->
-    <javaslang.version>2.0.0</javaslang.version>
+    <javaslang.version>2.0.2</javaslang.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

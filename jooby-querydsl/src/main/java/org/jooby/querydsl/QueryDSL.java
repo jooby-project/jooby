@@ -21,7 +21,6 @@ package org.jooby.querydsl;
 import static java.util.Objects.requireNonNull;
 import static javaslang.API.Case;
 import static javaslang.API.Match;
-import static javaslang.Predicates.isIn;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -204,11 +203,13 @@ public class QueryDSL extends Jdbc {
   static SQLTemplates toSQLTemplates(final String type) {
     return Match(type).option(
         Case("db2", DB2Templates::new),
-        Case(isIn("mysql", "mariadb"), MySQLTemplates::new),
+        Case("mysql", MySQLTemplates::new),
+        Case("mariadb", MySQLTemplates::new),
         Case("mariadb", MySQLTemplates::new),
         Case("h2", H2Templates::new),
         Case("hsqldb", HSQLDBTemplates::new),
-        Case(isIn("pgsql", "postgresql"), PostgreSQLTemplates::new),
+        Case("pgsql", PostgreSQLTemplates::new),
+        Case("postgresql", PostgreSQLTemplates::new),
         Case("sqlite", SQLiteTemplates::new),
         Case("oracle", OracleTemplates::new),
         Case("firebirdsql", FirebirdTemplates::new))
