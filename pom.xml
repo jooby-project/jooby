@@ -2170,7 +2170,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jdbi.version>2.72</jdbi.version>
     <freemarker.version>2.3.23</freemarker.version>
     <camel.version>2.17.0</camel.version>
-    <jedis.version>2.8.0</jedis.version>
+    <jedis.version>2.8.1</jedis.version>
     <mongo-java-driver.version>3.2.0</mongo-java-driver.version>
     <morphia.version>1.0.1</morphia.version>
     <jboss-modules.version>1.4.5.Final</jboss-modules.version>

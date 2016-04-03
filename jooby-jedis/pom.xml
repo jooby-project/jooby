@@ -12,7 +12,6 @@
   <artifactId>jooby-jedis</artifactId>
 
   <name>jedis module</name>
-  <description>Redis key-value cache and store for Jooby</description>
 
   <build>
     <plugins>
