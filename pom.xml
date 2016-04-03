@@ -1797,7 +1797,6 @@
       </build>
     </profile>
 
-    <!-- Ebean activator -->
     <profile>
       <id>ebean-activator</id>
       <activation>
@@ -1805,6 +1804,20 @@
           <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}ebean.activator</exists>
         </file>
       </activation>
+      <dependencies>
+        <!-- ebean-runtime-enchancer -->
+        <dependency>
+          <groupId>org.avaje.ebeanorm</groupId>
+          <artifactId>avaje-ebeanorm-agent</artifactId>
+          <scope>test</scope>
+        </dependency>
+
+        <dependency>
+          <groupId>org.avaje</groupId>
+          <artifactId>avaje-agentloader</artifactId>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
       <build>
         <plugins>
           <!-- ebean-enchancer -->
@@ -2180,9 +2193,9 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <flyway.version>3.2.1</flyway.version>
     <hazelcast.version>3.5</hazelcast.version>
     <less4j.version>1.13.0</less4j.version>
-    <ebean.version>6.3.1</ebean.version>
+    <ebean.version>7.5.1</ebean.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
-    <avaje-ebeanorm-agent.version>4.5.4</avaje-ebeanorm-agent.version>
+    <avaje-ebeanorm-agent.version>4.9.2</avaje-ebeanorm-agent.version>
     <akka.version>2.4.3</akka.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
     <closure-compiler.version>v20150901</closure-compiler.version>

@@ -63,7 +63,6 @@ classpath:
   <artifactId>avaje-agentloader</artifactId>
   <scope>test</scope>
 </dependency>
-</pre>
 ```
 
 Did you see the ```test scope```? We don't want to use the runtime enhancer while
