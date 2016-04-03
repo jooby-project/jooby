@@ -2,7 +2,7 @@
 
 The request object contains methods for reading params, headers and body (between others). In the next section we will mention the most important method of a request object, if you need more information please refer to the [javadoc]({{apidocs}}/org/jooby/Request.html).
 
-## request params
+## params
 
 Retrieval of param is done via: [req.param("name")]({{apidocs}}/org/jooby/Request.html#param-java.lang.String-) method.
 
@@ -142,7 +142,7 @@ get("/", req -> {
 });
 ```
 
-## request headers
+## headers
 
 Retrieval of request headers is done via: [request.header("name")]({{}}Request.html#header-java.lang.String-). All the explained before for [request params](#request-request-params) apply for headers too.
 
@@ -172,7 +172,7 @@ get("/", req -> {
 });
 ```
 
-## request body
+## body
 
 Retrieval of request body is done via [request.body()]({{defdocs}}/Request.html#body--).
 
@@ -202,9 +202,39 @@ public void configure(Mode mode, Config config, Binder binder) {
 }
 ```
 
-## local variables
+## file upload
 
-Local variables are bound to the current request. They are created every time a new request comes in and destroyed at the end of the request.
+File uploads are accessible via: [request.file(name)]({{defdocs}}/Request.html#file-java.lang.String-):
+
+```html
+<form enctype="multipart/form-data" action="/upload" method="post">
+  <input name="myfile" type="file"/>
+</form>
+```
+
+```java
+// Script API
+
+{
+   post("/upload", req -> {
+     Upload upload = req.file("myfile");
+     ...
+   });
+}
+
+// MVC API
+
+class Controller {
+
+  @Path("/upload") @POST
+  public Object upload(Upload myfile) {
+  }
+}
+```
+
+## locals
+
+Local attributes are bound to the current request. They are created every time a new request comes in and destroyed at the end of the request.
 
 ```java
 {

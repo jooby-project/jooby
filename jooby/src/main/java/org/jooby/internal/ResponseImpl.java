@@ -99,8 +99,7 @@ public class ResponseImpl implements Response {
     requireNonNull(stream, "A stream is required.");
 
     // handle type
-    MediaType type = MediaType.byPath(filename).orElse(MediaType.octetstream);
-    type(type().orElseGet(() -> type));
+    type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.octetstream)));
 
     Asset asset = new InputStreamAsset(stream, filename, type().get());
     contentDisposition(filename);
@@ -114,9 +113,8 @@ public class ResponseImpl implements Response {
       throw new FileNotFoundException(location);
     }
     // handle type
-    MediaType type = MediaType.byPath(filename).orElse(MediaType.byPath(location)
-        .orElse(MediaType.octetstream));
-    type(type().orElseGet(() -> type));
+    type(type().orElseGet(() -> MediaType.byPath(filename).orElse(MediaType.byPath(location)
+        .orElse(MediaType.octetstream))));
 
     URLAsset asset = new URLAsset(url, location, type().get());
     length(asset.length());
@@ -341,15 +339,18 @@ public class ResponseImpl implements Response {
   }
 
   private void contentDisposition(final String filename) throws IOException {
-    String basename = filename;
-    int last = filename.lastIndexOf('/');
-    if (last >= 0) {
-      basename = basename.substring(last + 1);
-    }
+    List<String> headers = rsp.headers("Content-Disposition");
+    if (headers.isEmpty()) {
+      String basename = filename;
+      int last = filename.lastIndexOf('/');
+      if (last >= 0) {
+        basename = basename.substring(last + 1);
+      }
 
-    String ebasename = URLEncoder.encode(basename, charset.name()).replaceAll("\\+", "%20");
-    header("Content-Disposition",
-        String.format(CONTENT_DISPOSITION, basename, charset.name(), ebasename));
+      String cs = charset.name();
+      String ebasename = URLEncoder.encode(basename, cs).replaceAll("\\+", "%20");
+      header("Content-Disposition", String.format(CONTENT_DISPOSITION, basename, cs, ebasename));
+    }
   }
 
   @SuppressWarnings("unchecked")

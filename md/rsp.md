@@ -2,7 +2,7 @@
 
 The response object contains methods for reading and setting headers, status code and body (between others). In the next section we will mention the most important method of a response object, if you need more information please refer to the [javadoc]({{apidocs}}/org/jooby/Response.html).
 
-## sending data
+## send
 
 The [rsp.send]({{defdocs}}/Response.html#send-org.jooby.Result-) method is responsible for sending and writing data into the HTTP Response.
 
@@ -53,6 +53,49 @@ get("/", req -> {
 });
 ```
 
+## headers
+
+Retrieval of response headers is done via [rsp.header("name")]({{defdocs}}/Response.html#header-java.lang.String-). The method always returns a [Mutant]({{defdocs}}/Mutant.html) and from there you can convert to any of the supported types.
+
+Setting a header is pretty straightforward too:
+
+```java
+rsp.header("Header-Name", value).header("Header2", value);
+```
+
+## send file
+
+Send file API is available via [rsp.download*]({{defdocs}}/Response.html#download-java.lang.String-) methods:
+
+```java
+{
+  get("/download", (req, rsp) -> {
+    rsp.download("myfile", new File(...));
+  });
+}
+```
+
+The ```download``` method sets all these headers:
+
+* ```Content-Disposition```
+
+* ```Content-Length```
+
+* ```Content-Type```
+
+The next example we explicitly set some of these headers:
+
+```java
+{
+  get("/download", (req, rsp) -> {
+    rsp
+      .type("text/plain")
+      .header("Content-Disposition", "attachment; filename=myfile.txt;")
+      .download(new File(...));
+  });
+}
+```
+
 ## content negotiation
 
 A route can produces different results based on the ```Accept``` header: 
@@ -67,13 +110,3 @@ get("/", () ->
 ```
 
 Performs content-negotiation on the Accept HTTP header of the request object. It select a handler for the request, based on the acceptable types ordered by their quality values. If the header is not specified, the first callback is invoked. When no match is found, the server responds with ```406 Not Acceptable```, or invokes the default callback: ```**/*```.
-
-## response headers
-
-Retrieval of response headers is done via [rsp.header("name")]({{defdocs}}/Response.html#header-java.lang.String-). The method always returns a [Mutant]({{defdocs}}/Mutant.html) and from there you can convert to any of the supported types.
-
-Setting a header is pretty straightforward too:
-
-```java
-rsp.header("Header-Name", value).header("Header2", value);
-```

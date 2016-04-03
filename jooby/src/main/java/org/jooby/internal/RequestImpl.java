@@ -56,6 +56,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 
+import javaslang.control.Try;
+
 public class RequestImpl implements Request {
 
   private final Map<String, Mutant> params = new HashMap<>();
@@ -182,7 +184,8 @@ public class RequestImpl implements Request {
   public Mutant param(final String name) {
     Mutant param = this.params.get(name);
     if (param == null) {
-      List<NativeUpload> files = files(name);
+      List<NativeUpload> files = Try.of(() -> req.files(name)).getOrElseThrow(
+          ex -> new Err(Status.BAD_REQUEST, "Upload " + name + " resulted in error", ex));
       if (files.size() > 0) {
         List<Upload> uploads = files.stream()
             .map(upload -> new UploadImpl(injector, upload))
@@ -276,13 +279,13 @@ public class RequestImpl implements Request {
   @Override
   public List<Locale> locales(
       final BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter) {
-    return lang.map(h ->  filter.apply(LocaleUtils.range(h), locales))
+    return lang.map(h -> filter.apply(LocaleUtils.range(h), locales))
         .orElseGet(() -> filter.apply(ImmutableList.of(), locales));
   }
 
   @Override
   public Locale locale(final BiFunction<List<LanguageRange>, List<Locale>, Locale> filter) {
-    return lang.map(h ->  filter.apply(LocaleUtils.range(h), locales))
+    return lang.map(h -> filter.apply(LocaleUtils.range(h), locales))
         .orElseGet(() -> filter.apply(ImmutableList.of(), locales));
   }
 
@@ -367,14 +370,6 @@ public class RequestImpl implements Request {
   @Override
   public String toString() {
     return route().toString();
-  }
-
-  private List<NativeUpload> files(final String name) {
-    try {
-      return req.files(name);
-    } catch (Exception ex) {
-      throw new Err(Status.BAD_REQUEST, "Upload " + name + " resulted in error", ex);
-    }
   }
 
   private List<String> paramNames() {

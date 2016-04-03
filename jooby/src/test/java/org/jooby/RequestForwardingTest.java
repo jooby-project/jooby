@@ -342,6 +342,33 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void file() throws Exception {
+    new MockUnit(Request.class, Upload.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.file("f")).andReturn(unit.get(Upload.class));
+        })
+        .run(unit -> {
+          assertEquals(unit.get(Upload.class),
+              new Request.Forwarding(unit.get(Request.class)).file("f"));
+        });
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void files() throws Exception {
+    new MockUnit(Request.class, List.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.files("f")).andReturn(unit.get(List.class));
+        })
+        .run(unit -> {
+          assertEquals(unit.get(List.class),
+              new Request.Forwarding(unit.get(Request.class)).files("f"));
+        });
+  }
+
+  @Test
   public void length() throws Exception {
     new MockUnit(Request.class)
         .expect(unit -> {

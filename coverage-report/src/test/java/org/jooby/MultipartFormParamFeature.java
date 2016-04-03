@@ -67,7 +67,7 @@ public class MultipartFormParamFeature extends ServerFeature {
     });
 
     post("/form/files", (req, rsp) -> {
-      List<Upload> uploads = req.param("uploads").toList(Upload.class);
+      List<Upload> uploads = req.files("uploads");
       StringBuilder buffer = new StringBuilder();
       for (Upload upload : uploads) {
         try (Upload u = upload) {
@@ -78,7 +78,7 @@ public class MultipartFormParamFeature extends ServerFeature {
     });
 
     post("/form/use/file", (req, rsp) -> {
-      Upload upload = req.param("myfile").toUpload();
+      Upload upload = req.file("myfile");
       File file = upload.file();
       try (Upload u = upload) {
         assertEquals("p=1", Files.readAllLines(file.toPath()).stream()

@@ -139,6 +139,16 @@ public interface Request {
     }
 
     @Override
+    public Upload file(final String name) {
+      return req.file(name);
+    }
+
+    @Override
+    public List<Upload> files(final String name) {
+      return req.files(name);
+    }
+
+    @Override
     public Mutant header(final String name) {
       return req.header(name);
     }
@@ -547,6 +557,28 @@ public interface Request {
    * @return A HTTP request parameter.
    */
   Mutant param(String name);
+
+  /**
+   * Get a file {@link Upload} with the given name. The request must be a POST with
+   * <code>multipart/form-data</code> content-type.
+   *
+   * @param name File's name.
+   * @return An {@link Upload}.
+   */
+  default Upload file(final String name) {
+    return param(name).toUpload();
+  }
+
+  /**
+   * Get a list of file {@link Upload} with the given name. The request must be a POST with
+   * <code>multipart/form-data</code> content-type.
+   *
+   * @param name File's name.
+   * @return A list of {@link Upload}.
+   */
+  default List<Upload> files(final String name) {
+    return param(name).toList(Upload.class);
+  }
 
   /**
    * Get a HTTP header.
