@@ -12,7 +12,6 @@
   <artifactId>jooby-jdbc</artifactId>
 
   <name>jdbc module</name>
-  <description>Jdbc access for Jooby</description>
 
   <dependencies>
     <!-- Jooby -->

@@ -12,7 +12,6 @@
   <artifactId>jooby-jackson</artifactId>
 
   <name>jackson module</name>
-  <description>Json support for Jooby</description>
 
   <build>
     <plugins>

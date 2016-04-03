@@ -12,7 +12,6 @@
   <artifactId>jooby-jade</artifactId>
 
   <name>jade module</name>
-  <description>jade4j Template Engine for Jooby</description>
 
   <build>
     <plugins>
