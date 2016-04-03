@@ -12,7 +12,6 @@
   <artifactId>jooby-flyway</artifactId>
 
   <name>flyway module</name>
-  <description>Database migrations via Flyway</description>
 
   <build>
     <plugins>
