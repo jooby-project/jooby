@@ -12,7 +12,6 @@
   <artifactId>jooby-morphia</artifactId>
 
   <name>morphia module</name>
-  <description>Morphia library for Jooby</description>
 
   <build>
     <plugins>
