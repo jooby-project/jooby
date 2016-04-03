@@ -12,7 +12,6 @@
   <artifactId>jooby-swagger</artifactId>
 
   <name>swagger module</name>
-  <description>Swagger powerful representation of your RESTful API</description>
 
   <build>
     <plugins>

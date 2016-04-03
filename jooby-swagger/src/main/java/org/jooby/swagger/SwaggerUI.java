@@ -245,7 +245,7 @@ public class SwaggerUI {
    */
   public void install(final Jooby app) {
     requireNonNull(app, "Application is required.");
-    ObjectMapper mapper = Json.create();
+    ObjectMapper mapper = Json.mapper();
     ObjectWriter yaml = Yaml.pretty();
 
     app.use(new SwaggerModule(mapper));
@@ -262,7 +262,6 @@ public class SwaggerUI {
       Swagger swagger = sb.build(req.param("tag").toOptional(), predicate, tag, SwaggerYml.class);
       byte[] yml = yaml.writeValueAsBytes(swagger);
       return Results.ok(yml).type("application/yaml");
-
     }).name("swagger(yml)");
 
     if (ui) {

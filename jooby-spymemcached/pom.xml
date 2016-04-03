@@ -12,7 +12,6 @@
   <artifactId>jooby-spymemcached</artifactId>
 
   <name>spymemcached module</name>
-  <description>Memcached for Jooby</description>
 
   <build>
     <plugins>
