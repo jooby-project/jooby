@@ -1,4 +1,4 @@
-## exposes
+## exports
 
 * The [api-console](https://github.com/mulesoft/api-console) at ```/raml```
 * The ```.raml``` file at ```/raml/api.raml```

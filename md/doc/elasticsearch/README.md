@@ -47,7 +47,7 @@ Getting a doc:
 
 ## client API
 
-The module exposes a ```Client``` and ```Node``` instances, so it is possible to manage the index inside programmatically.
+The module exports a ```Client``` and ```Node``` instances, so it is possible to manage the index inside programmatically.
 
 ```java
 

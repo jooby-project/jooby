@@ -2,7 +2,7 @@
 
 Provides advanced cache features via {{ehcache}}
 
-## exposes
+## exports
 
 * A ```CacheManager```
 * Direct access to ```Ehcache``` instances

@@ -127,7 +127,7 @@ import org.jooby.jdbi.Jdbi;
 }
 ```
 
-The [jdbi module](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) extends the [jdbc module](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc). The [jdbc module](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) give us access to relational databases and exposes a {{hikari}} **high performance connection pool**.
+The [jdbi module](https://github.com/jooby-project/jooby/tree/master/jooby-jdbi) extends the [jdbc module](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc). The [jdbc module](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) give us access to relational databases and exports a {{hikari}} **high performance connection pool**.
 
 To connect to a database, we have to define our database connection properties in ```conf/application.conf```:
 

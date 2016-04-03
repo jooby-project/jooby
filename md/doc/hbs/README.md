@@ -1,6 +1,6 @@
 # handlebars
 
-Mustache/Handlebars templates for [Jooby]({{site}}). Exposes a [Handlebars](https://github.com/jknack/handlebars.java) and [renderer]({{defdocs}}/Renderer.html).
+Mustache/Handlebars templates for [Jooby]({{site}}). exports a [Handlebars](https://github.com/jknack/handlebars.java) and [renderer]({{defdocs}}/Renderer.html).
 
 ## dependency
 

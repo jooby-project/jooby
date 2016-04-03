@@ -1,6 +1,6 @@
 # freemarker
 
-[Freemarker](http://freemarker.org) templates for [Jooby]({{site}}). Exposes a Configuration and [renderer]({{defdocs}}/Renderer.html).
+[Freemarker](http://freemarker.org) templates for [Jooby]({{site}}). exports a Configuration and [renderer]({{defdocs}}/Renderer.html).
 
 ## dependency
 

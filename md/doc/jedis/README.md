@@ -1,6 +1,6 @@
 # jedis
 
-[Redis](http://redis.io/) cache and key/value data store for Jooby. Exposes a {{jedis}} service.
+[Redis](http://redis.io/) cache and key/value data store for Jooby. exports a {{jedis}} service.
 
 ## dependency
 

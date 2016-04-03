@@ -1,10 +1,10 @@
 # ebean
 
-Object-Relational-Mapping via {{ebean}}. It configures and exposes ```EbeanServer``` instances.
+Object-Relational-Mapping via {{ebean}}. It configures and exports ```EbeanServer``` instances.
 
 This module extends [jdbc module](/doc/jdbc), before going forward, make sure you read the doc of the [jdbc module](/doc/jooby-dbc) first.
  
-## exposes
+## exports
 
 * ```EbeanServer``` objects
 

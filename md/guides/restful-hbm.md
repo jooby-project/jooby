@@ -93,7 +93,7 @@ import org.jooby.jdbi.Jdbi;
 }
 ```
 
-The [hbm module]({{gh-prefix}}-hbm) extends the [jdbc module]({{gh-prefix}}-jdbc). The [jdbc module]({{gh-prefix}}-jdbc) give us access to relational databases and exposes a {{hikari}} **high performance connection pool**.
+The [hbm module]({{gh-prefix}}-hbm) extends the [jdbc module]({{gh-prefix}}-jdbc). The [jdbc module]({{gh-prefix}}-jdbc) give us access to relational databases and exports a {{hikari}} **high performance connection pool**.
 
 To connect to a database, we have to define our database connection properties in ```conf/application.conf```:
 

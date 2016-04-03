@@ -1,6 +1,6 @@
 # hibernate
 
-Object-Relational-Mapping via [Hibernate](http://hibernate.org/). Exposes an ```EntityManagerFactory``` and ```EntityManager``` services.
+Object-Relational-Mapping via [Hibernate](http://hibernate.org/). exports an ```EntityManagerFactory``` and ```EntityManager``` services.
 
 This module extends [jdbc](/doc/jdbc) module, before going forward, make sure you read the doc of the [jdbc](/doc/jdbc) module first.
 

@@ -1,10 +1,10 @@
 # aws
 
-Small utility module that exposes ```AmazonWebServiceClient``` services.
+Small utility module that exports ```AmazonWebServiceClient``` services.
 
 It also give you access to aws credentials (access and secret keys).
 
-## exposes
+## exports
 
 * One ore more ```AmazonWebServiceClient```
 

@@ -2,7 +2,7 @@
 
 Bean validation via [Hibernate Validator](hibernate.org/validator).
 
-## exposes
+## exports
 
 * a ```Validator```,
 * a ```HibernateValidatorConfiguration``` and

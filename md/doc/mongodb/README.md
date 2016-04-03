@@ -2,7 +2,7 @@
 
 {{mongodb}} driver for Jooby.
 
-Exposes a [MongoClient]({{mongodbapi}}/MongoClient.html), a [MongoDatabase]({{mongodbapi}}/DB.html) and a [Session Store]({{defdocs}}/mongodb/MongoSessionStore.html)
+exports a [MongoClient]({{mongodbapi}}/MongoClient.html), a [MongoDatabase]({{mongodbapi}}/DB.html) and a [Session Store]({{defdocs}}/mongodb/MongoSessionStore.html)
 
 ## dependency
 

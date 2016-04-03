@@ -5,7 +5,7 @@ Enterprise Integration Patterns via [Apache Camel](http://camel.apache.org).
 [Apache Camel](http://camel.apache.org) is a rule-based routing and mediation engine that provides a
 Java object-based implementation of the Enterprise Integration Patterns using an API (or declarative Java Domain Specific Language) to configure routing and mediation rules.
 
-Exposes a [CamelContext], [ProducerTemplate] and [ConsumerTemplate].
+exports a [CamelContext], [ProducerTemplate] and [ConsumerTemplate].
 
 NOTE: This module was designed to provide a better integration with Jooby. This module doesn't
 depend on [camel-guice](http://camel.apache.org/guice.html), but it provides similar features.

@@ -16,7 +16,7 @@ A module should do as **less as possible** (key difference with other frameworks
 
 * Bootstrap X
 * Configure X
-* Exposes raw API of X
+* exports raw API of X
 
 This means a module should NOT create wrapper for a library. Instead, provides a way to extend, configure and use the raw library.
 

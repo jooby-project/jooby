@@ -2,7 +2,7 @@
 
 Small module to build concurrent & distributed applications via [Akka](http://akka.io).
 
-## exposes
+## exports
 * An ```ActorSystem```
 
 ## dependency

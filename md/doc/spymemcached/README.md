@@ -2,7 +2,7 @@
 
 Provides memcached access via {{spymemcached}}
 
-## exposes
+## exports
 * A ```MemcachedClient``` service
 
 ## dependency

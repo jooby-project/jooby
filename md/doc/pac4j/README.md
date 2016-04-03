@@ -2,7 +2,7 @@
 
 Authentication module via: {{pac4j}}.
 
-## exposes
+## exports
 
 * ```Clients```
 * ```WebContext``` as [RequestScoped]({{defdocs}}/RequestedScoped.html)

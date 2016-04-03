@@ -1,4 +1,4 @@
-## exposes
+## exports
 
 * The Swagger-UI at ```/swagger```
 * The ```swagger.json``` at ```/swagger/swagger.json```
