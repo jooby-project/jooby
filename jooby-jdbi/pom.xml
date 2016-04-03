@@ -12,7 +12,6 @@
   <artifactId>jooby-jdbi</artifactId>
 
   <name>jdbi module</name>
-  <description>JDBI for Jooby</description>
   <build>
     <plugins>
       <!-- sure-fire -->
