@@ -12,7 +12,6 @@
   <artifactId>jooby-quartz</artifactId>
 
   <name>quartz module</name>
-  <description>Quartz Scheduler</description>
 
   <build>
     <plugins>

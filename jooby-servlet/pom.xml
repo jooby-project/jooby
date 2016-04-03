@@ -12,7 +12,6 @@
   <artifactId>jooby-servlet</artifactId>
 
   <name>servlet module</name>
-  <description>Servlet API</description>
 
   <build>
     <plugins>

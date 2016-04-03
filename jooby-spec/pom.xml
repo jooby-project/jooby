@@ -12,7 +12,6 @@
   <artifactId>jooby-spec</artifactId>
 
   <name>route specification module</name>
-  <description>Route metadata</description>
 
   <build>
     <plugins>
