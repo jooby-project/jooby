@@ -12,7 +12,6 @@
   <artifactId>jooby-mongodb</artifactId>
 
   <name>mongodb module</name>
-  <description>Mongodb Driver for Jooby</description>
 
   <build>
     <plugins>

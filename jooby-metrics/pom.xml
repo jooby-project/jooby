@@ -12,7 +12,6 @@
   <artifactId>jooby-metrics</artifactId>
 
   <name>metrics module</name>
-  <description>dropwizard metrics for Jooby</description>
 
   <build>
     <plugins>
