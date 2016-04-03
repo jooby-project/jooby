@@ -12,7 +12,6 @@
   <artifactId>jooby-elasticsearch</artifactId>
 
   <name>elastic search</name>
-  <description>Elastic Search for Jooby</description>
 
   <build>
     <plugins>

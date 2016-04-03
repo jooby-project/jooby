@@ -12,7 +12,6 @@
   <artifactId>jooby-hbv</artifactId>
 
   <name>hibernate validator module</name>
-  <description>Hibernate Validator for Jooby</description>
   <build>
     <plugins>
       <!-- sure-fire -->

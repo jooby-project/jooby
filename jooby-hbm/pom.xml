@@ -12,7 +12,6 @@
   <artifactId>jooby-hbm</artifactId>
 
   <name>hibernate module</name>
-  <description>Hibernate and JPA support for Jooby</description>
   <build>
     <plugins>
       <!-- sure-fire -->

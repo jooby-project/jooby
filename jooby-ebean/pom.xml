@@ -12,7 +12,6 @@
   <artifactId>jooby-ebean</artifactId>
 
   <name>ebean module</name>
-  <description>Ebean for Jooby</description>
 
   <build>
     <plugins>

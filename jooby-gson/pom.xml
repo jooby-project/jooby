@@ -12,7 +12,6 @@
   <artifactId>jooby-gson</artifactId>
 
   <name>gson module</name>
-  <description>JSON via Gson for Jooby</description>
 
   <build>
     <plugins>

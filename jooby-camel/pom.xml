@@ -12,7 +12,6 @@
   <artifactId>jooby-camel</artifactId>
 
   <name>camel module</name>
-  <description>Apache Camel for Jooby</description>
 
   <build>
     <plugins>

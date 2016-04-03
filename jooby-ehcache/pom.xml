@@ -12,7 +12,6 @@
   <artifactId>jooby-ehcache</artifactId>
 
   <name>ehcache module</name>
-  <description>EhCache for Jooby</description>
 
   <build>
     <plugins>

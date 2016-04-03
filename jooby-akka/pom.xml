@@ -12,7 +12,6 @@
   <artifactId>jooby-akka</artifactId>
 
   <name>akka module</name>
-  <description>Akka for Jooby</description>
 
   <build>
     <plugins>

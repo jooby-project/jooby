@@ -12,7 +12,6 @@
   <artifactId>jooby-jetty</artifactId>
 
   <name>jetty module</name>
-  <description>Jetty web server</description>
 
   <build>
     <plugins>

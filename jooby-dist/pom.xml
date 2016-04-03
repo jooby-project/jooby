@@ -13,6 +13,4 @@
 
   <name>jooby-dist</name>
 
-  <description>Distribute Jooby applications as zip, tar, etc.</description>
-
 </project>

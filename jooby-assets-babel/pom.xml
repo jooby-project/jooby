@@ -11,8 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-assets-babel</artifactId>
 
-  <name>babel module</name>
-  <description>babel compiler for Jooby</description>
+  <name>babeljs module</name>
 
   <build>
     <plugins>

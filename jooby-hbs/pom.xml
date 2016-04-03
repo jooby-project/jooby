@@ -12,8 +12,6 @@
   <artifactId>jooby-hbs</artifactId>
 
   <name>handlebars module</name>
-  <description>Handlebars Template Engine for Jooby</description>
-
   <build>
     <plugins>
       <!-- sure-fire -->

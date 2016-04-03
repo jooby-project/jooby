@@ -12,7 +12,6 @@
   <artifactId>jooby-commons-email</artifactId>
 
   <name>commons email module</name>
-  <description>Apache Commons Email for Jooby</description>
 
   <build>
     <plugins>

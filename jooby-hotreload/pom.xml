@@ -12,8 +12,6 @@
   <artifactId>jooby-hotreload</artifactId>
 
   <name>hot reload module</name>
-  <description>Hot reload for development</description>
-
   <build>
     <plugins>
       <!-- sure-fire -->

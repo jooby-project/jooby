@@ -12,7 +12,6 @@
   <artifactId>jooby-netty</artifactId>
 
   <name>netty module</name>
-  <description>Netty web server</description>
 
   <build>
     <plugins>

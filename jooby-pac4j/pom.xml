@@ -12,7 +12,6 @@
   <artifactId>jooby-pac4j</artifactId>
 
   <name>pac4j module</name>
-  <description>Jooby authentication multi protocols (CAS, OAuth, OpenID, HTTP...) client</description>
 
   <build>
     <plugins>

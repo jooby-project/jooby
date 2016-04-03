@@ -12,7 +12,6 @@
   <artifactId>jooby-undertow</artifactId>
 
   <name>undertow module</name>
-  <description>Undertow web server</description>
 
   <build>
     <plugins>

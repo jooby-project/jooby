@@ -14,8 +14,6 @@
   <packaging>maven-archetype</packaging>
 
   <name>jooby archetype generator</name>
-  <description>Maven archetype generator for Jooby</description>
-  
 
   <build>
     <resources>

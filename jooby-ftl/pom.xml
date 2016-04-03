@@ -12,7 +12,6 @@
   <artifactId>jooby-ftl</artifactId>
 
   <name>freemarker module</name>
-  <description>Freemarker Template Engine for Jooby</description>
 
   <build>
     <plugins>
