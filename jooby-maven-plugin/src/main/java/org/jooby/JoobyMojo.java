@@ -25,14 +25,19 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.maven.Maven;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.execution.DefaultMavenExecutionRequest;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -45,15 +50,47 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.jooby.hotreload.Watcher;
 
 import com.google.common.io.Files;
+
+import javaslang.control.Try;
 
 @Mojo(name = "run", threadSafe = true, requiresDependencyResolution = ResolutionScope.TEST)
 @Execute(phase = LifecyclePhase.TEST_COMPILE)
 public class JoobyMojo extends AbstractMojo {
 
+  private static class ShutdownHook extends Thread {
+    private Log log;
+
+    private List<Command> commands;
+
+    private Watcher watcher;
+
+    public ShutdownHook(final Log log, final List<Command> commands) {
+      this.log = log;
+      this.commands = commands;
+      setDaemon(true);
+    }
+
+    @Override
+    public void run() {
+      if (watcher != null) {
+        log.info("stopping: watcher");
+        Try.run(watcher::stop).onFailure(ex -> log.debug("Stop of watcher resulted in error", ex));
+      }
+      commands.forEach(cmd -> {
+        log.info("stopping: " + cmd);
+        Try.run(cmd::stop).onFailure(ex -> log.error("Stop of " + cmd + " resulted in error", ex));
+      });
+    }
+  }
+
   @Component
   private MavenProject mavenProject;
+
+  @Parameter(defaultValue = "${session}", required = true, readonly = true)
+  protected MavenSession session;
 
   @Parameter(property = "main.class", defaultValue = "${application.class}")
   protected String mainClass;
@@ -78,6 +115,12 @@ public class JoobyMojo extends AbstractMojo {
 
   @Parameter(defaultValue = "${plugin.artifacts}")
   private List<org.apache.maven.artifact.Artifact> pluginArtifacts;
+
+  @Parameter(property = "compiler", defaultValue = "on")
+  private String compiler;
+
+  @Component
+  protected Maven maven;
 
   @SuppressWarnings("unchecked")
   @Override
@@ -141,10 +184,20 @@ public class JoobyMojo extends AbstractMojo {
       cmd.setWorkdir(mavenProject.getBasedir());
       getLog().debug("cmd: " + cmd.debug());
     }
+
+    Watcher watcher = setupCompiler(mavenProject, compiler, goal -> {
+      maven.execute(DefaultMavenExecutionRequest.copy(session.getRequest())
+          .setGoals(Arrays.asList(goal)));
+
+    });
+    ShutdownHook shutdownHook = new ShutdownHook(getLog(), cmds);
+    shutdownHook.watcher = watcher;
     /**
      * Shutdown hook
      */
-    Runtime.getRuntime().addShutdownHook(shutdownHook(cmds, getLog()));
+    Runtime.getRuntime().addShutdownHook(shutdownHook);
+
+    watcher.start();
 
     /**
      * Start process
@@ -158,6 +211,33 @@ public class JoobyMojo extends AbstractMojo {
       }
     }
 
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Watcher setupCompiler(final MavenProject project, final String compiler,
+      final Consumer<String> task) throws MojoFailureException {
+    File eclipseClasspath = new File(project.getBasedir(), ".classpath");
+    if ("off".equalsIgnoreCase(compiler) || eclipseClasspath.exists()) {
+      return null;
+    }
+    List<String> resources = resources(project.getResources());
+    resources.add(0, project.getBuild().getSourceDirectory());
+    Path[] paths = new Path[resources.size()];
+    for (int i = 0; i < paths.length; i++) {
+      paths[i] = Paths.get(resources.get(i));
+    }
+    try {
+      return new Watcher((kind, path) -> {
+        if (path.toString().endsWith(".java")) {
+          task.accept("compile");
+        } else if (path.toString().endsWith(".conf")
+            || path.toString().endsWith(".properties")) {
+          task.accept("compile");
+        }
+      }, paths);
+    } catch (Exception ex) {
+      throw new MojoFailureException("Can't compile source code", ex);
+    }
   }
 
   private void dumpSysProps(final Path path) throws MojoFailureException {
@@ -334,7 +414,7 @@ public class JoobyMojo extends AbstractMojo {
     return result;
   }
 
-  private List<String> resources(final Iterable<Resource> resources) {
+  private static List<String> resources(final Iterable<Resource> resources) {
     List<String> result = new ArrayList<String>();
     for (Resource resource : resources) {
       String dir = resource.getDirectory();
@@ -343,22 +423,6 @@ public class JoobyMojo extends AbstractMojo {
       }
     }
     return result;
-  }
-
-  private static Thread shutdownHook(final List<Command> cmds, final Log log) {
-    return new Thread() {
-      @Override
-      public void run() {
-        for (Command command : cmds) {
-          try {
-            log.info("stopping: " + command);
-            command.stop();
-          } catch (Exception ex) {
-            log.error("Stopping process: " + command + " resulted in error", ex);
-          }
-        }
-      }
-    };
   }
 
   private Optional<Artifact> extra(final List<Artifact> artifacts, final String name) {
