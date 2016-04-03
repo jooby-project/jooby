@@ -12,7 +12,6 @@
   <artifactId>jooby-jongo</artifactId>
 
   <name>jongo module</name>
-  <description>Jongo for Jooby</description>
 
   <build>
     <plugins>

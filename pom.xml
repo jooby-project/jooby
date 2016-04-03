@@ -2211,7 +2211,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <ebean.agent.args>debug=0</ebean.agent.args>
 
     <!-- jooq -->
-    <jooq.version>3.7.2</jooq.version>
+    <jooq.version>3.7.3</jooq.version>
 
     <!-- QueryDSL -->
     <querydsl.version>4.0.9</querydsl.version>
