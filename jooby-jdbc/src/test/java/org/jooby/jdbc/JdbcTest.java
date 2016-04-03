@@ -516,7 +516,7 @@ public class JdbcTest {
           assertEquals(0, hikariConfig.getLeakDetectionThreshold());
           assertEquals(1800000, hikariConfig.getMaxLifetime());
           assertEquals(10, hikariConfig.getMaximumPoolSize());
-          assertEquals(-1, hikariConfig.getMinimumIdle());
+          assertEquals(10, hikariConfig.getMinimumIdle());
           assertEquals("h2.db", hikariConfig.getPoolName());
           assertEquals(null, hikariConfig.getTransactionIsolation());
         });
@@ -533,7 +533,7 @@ public class JdbcTest {
 
     long connectionTimeout = 1000;
     int maximumPoolSize = 10;
-    long idleTimeout = 2000;
+    long idleTimeout = 800000;
     // config
     config = config.withValue("db", fromAnyRef("mem"))
         // hikari override
@@ -575,7 +575,7 @@ public class JdbcTest {
           assertEquals(0, hikariConfig.getLeakDetectionThreshold());
           assertEquals(1800000, hikariConfig.getMaxLifetime());
           assertEquals(maximumPoolSize, hikariConfig.getMaximumPoolSize());
-          assertEquals(-1, hikariConfig.getMinimumIdle());
+          assertEquals(10, hikariConfig.getMinimumIdle());
           assertEquals("h2.db", hikariConfig.getPoolName());
           assertEquals(null, hikariConfig.getTransactionIsolation());
         });
@@ -979,6 +979,7 @@ public class JdbcTest {
     HikariDataSourceProvider hikariProvider = (HikariDataSourceProvider) provider;
 
     HikariConfig hikariConfig = hikariProvider.config();
+    hikariConfig.validate();
     assertNotNull(hikariConfig);
 
     asserts.accept(hikariConfig, hikariConfig.getDataSourceProperties());
