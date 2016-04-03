@@ -20,11 +20,13 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import java.security.SecureRandom;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import com.google.common.io.BaseEncoding;
 
 /**
  * <p>
@@ -185,6 +187,9 @@ public interface Session {
    */
   interface Store {
 
+    /** Single secure random instance. */
+    SecureRandom rnd = new SecureRandom();
+
     /**
      * Get a session by ID (if any).
      *
@@ -210,14 +215,14 @@ public interface Session {
     void delete(String id);
 
     /**
-     * Generate a session ID, default algorithm use an {@link UUID}.
+     * Generate a session ID.
      *
      * @return A unique session ID.
      */
     default String generateID() {
-      UUID uuid = UUID.randomUUID();
-      return Long.toString(Math.abs(uuid.getMostSignificantBits()), 36)
-          + Long.toString(Math.abs(uuid.getLeastSignificantBits()), 36);
+      byte[] bytes = new byte[30];
+      rnd.nextBytes(bytes);
+      return BaseEncoding.base64Url().encode(bytes);
     }
   }
 
