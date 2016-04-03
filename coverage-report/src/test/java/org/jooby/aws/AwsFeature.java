@@ -18,9 +18,9 @@ public class AwsFeature extends ServerFeature {
   {
     use(ConfigFactory
         .empty()
-        .withValue("aws.email.accessKey",
+        .withValue("aws.ses.accessKey",
             ConfigValueFactory.fromAnyRef("123"))
-        .withValue("aws.email.secretKey",
+        .withValue("aws.ses.secretKey",
             ConfigValueFactory.fromAnyRef("1234"))
         .withValue("aws.s3.accessKey",
             ConfigValueFactory.fromAnyRef("123"))

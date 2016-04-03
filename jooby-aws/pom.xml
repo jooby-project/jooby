@@ -12,7 +12,6 @@
   <artifactId>jooby-aws</artifactId>
 
   <name>aws module</name>
-  <description>Amazon Web Services for Jooby</description>
 
   <build>
     <plugins>
