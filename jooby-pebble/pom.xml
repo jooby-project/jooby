@@ -12,7 +12,6 @@
   <artifactId>jooby-pebble</artifactId>
 
   <name>pebble module</name>
-  <description>pebble templates for Jooby</description>
 
   <build>
     <plugins>
