@@ -1546,14 +1546,14 @@ public interface Route {
   }
 
   /**
-   * <h2>before send</h2>
+   * <h2>after</h2>
    *
    * Allows for customized response before send it. It will be invoked at the time a response need
    * to be send.
    *
    * <pre>{@code
    * {
-   *   before("GET", "*", (req, rsp, result) -> {
+   *   after("GET", "*", (req, rsp, result) -> {
    *     // your code goes here
    *     return result;
    *   });
@@ -1563,29 +1563,29 @@ public interface Route {
    * You are allowed to modify the request, response and result objects. The handler returns a
    * {@link Result} which can be the same or an entirely new {@link Result}.
    *
-   * Please note that the <code>before send</code> handler is just syntax sugar for
+   * Please note that the <code>after</code> handler is just syntax sugar for
    * {@link Route.Filter}.
-   * For example, the <code>before send</code> handler was implemented as:
+   * For example, the <code>after</code> handler was implemented as:
    *
    * <pre>{@code
    * {
    *   use("GET", "*", (req, rsp, chain) -> {
    *     chain.next(req, new Response.Forwarding(rsp) {
    *       public void send(Result result) {
-   *         rsp.send(before(req, rsp, result);
+   *         rsp.send(after(req, rsp, result);
    *       }
    *     });
    *   });
    * }
    * }</pre>
    *
-   * Due <code>before send</code> is implemented by wrapping the {@link Response} object. A
-   * <code>before send</code> handler must to be registered before the actual handler you want to
+   * Due <code>after</code> is implemented by wrapping the {@link Response} object. A
+   * <code>after</code> handler must to be registered before the actual handler you want to
    * intercept.
    *
    * <pre>{@code
    * {
-   *   before("GET", "/path", (req, rsp, result) -> {
+   *   after("GET", "/path", (req, rsp, result) -> {
    *     // your code goes here
    *     return result;
    *   });
@@ -1606,7 +1606,7 @@ public interface Route {
    * @author edgar
    * @since 1.0.0.CR
    */
-  interface BeforeSend extends Filter {
+  interface After extends Filter {
     @Override
     default void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
       chain.next(req, new Response.Forwarding(rsp) {
@@ -1632,13 +1632,13 @@ public interface Route {
   }
 
   /**
-   * <h2>after</h2>
+   * <h2>complete</h2>
    *
    * Allows for log and cleanup a request. It will be invoked after we send a response.
    *
    * <pre>{@code
    * {
-   *   after((req, rsp, cause) -> {
+   *   complete((req, rsp, cause) -> {
    *     // your code goes here
    *   });
    * }
@@ -1647,11 +1647,11 @@ public interface Route {
    * You are NOT allowed to modify the request and response objects. The <code>cause</code> is an
    * {@link Optional} with a {@link Throwable} useful to identify problems.
    *
-   * The goal of the <code>after</code> handler is to probably cleanup request object and log
+   * The goal of the <code>complete</code> handler is to probably cleanup request object and log
    * responses.
    *
-   * Please note that the <code>after</code> handler is just syntax sugar for {@link Route.Filter}.
-   * For example, the <code>after</code> handler was implemented as:
+   * Please note that the <code>complete</code> handler is just syntax sugar for {@link Route.Filter}.
+   * For example, the <code>complete</code> handler was implemented as:
    *
    * <pre>{@code
    * {
@@ -1662,18 +1662,18 @@ public interface Route {
    *     } catch (Throwable cause) {
    *       err = Optional.of(cause);
    *     } finally {
-   *       after(req, rsp, err);
+   *       complete(req, rsp, err);
    *     }
    *   });
    * }
    * }</pre>
    *
-   * An <code>after</code> handler must to be registered before the actual handler you want to
+   * An <code>complete</code> handler must to be registered before the actual handler you want to
    * intercept.
    *
    * <pre>{@code
    * {
-   *   after((req, rsp, cause) -> {
+   *   complete((req, rsp, cause) -> {
    *     // your code goes here
    *   });
    *
@@ -1709,7 +1709,7 @@ public interface Route {
    *   });
    *
    *   // commit/rollback transaction
-   *   after((req, rsp, cause) -> {
+   *   complete((req, rsp, cause) -> {
    *     // unbind connection from request
    *     try(Connection connection = req.unset("connection").get()) {
    *       Transaction trx = connection.getTransaction();
@@ -1732,7 +1732,7 @@ public interface Route {
    * @author edgar
    * @since 1.0.0.CR
    */
-  interface After extends Filter {
+  interface Complete extends Filter {
 
     @Override
     default void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {

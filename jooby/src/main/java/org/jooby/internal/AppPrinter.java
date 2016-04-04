@@ -75,9 +75,9 @@ public class AppPrinter {
   private void routes(final StringBuilder buffer) {
     Function<Route.Definition, String> p = route -> {
       return Match(route.filter()).of(
-          Case(instanceOf(Route.Before.class), "> " + route.pattern()),
-          Case(instanceOf(Route.BeforeSend.class), route.pattern() + " >>"),
-          Case(instanceOf(Route.After.class), route.pattern() + " >"),
+          Case(instanceOf(Route.Before.class), "{before}" + route.pattern()),
+          Case(instanceOf(Route.After.class), "{after}" + route.pattern()),
+          Case(instanceOf(Route.Complete.class), "{complete}" + route.pattern()),
           Case($(), route.pattern()));
     };
 
@@ -85,7 +85,7 @@ public class AppPrinter {
     for (Route.Definition route : routes) {
       verbMax = Math.max(verbMax, route.method().length());
 
-      routeMax = Math.max(routeMax, route.pattern().length());
+      routeMax = Math.max(routeMax, p.apply(route).length());
 
       consumesMax = Math.max(consumesMax, route.consumes().toString().length());
 

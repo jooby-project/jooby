@@ -957,14 +957,14 @@ public class Jooby implements Routes {
   }
 
   @Override
-  public Route.Definition before(final String method, final String pattern,
-      final Route.BeforeSend handler) {
+  public Route.Definition after(final String method, final String pattern,
+      final Route.After handler) {
     return appendDefinition(new Route.Definition(method, pattern, handler));
   }
 
   @Override
-  public Route.Definition after(final String method, final String pattern,
-      final Route.After handler) {
+  public Route.Definition complete(final String method, final String pattern,
+      final Route.Complete handler) {
     return appendDefinition(new Route.Definition(method, pattern, handler));
   }
 

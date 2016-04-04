@@ -15,7 +15,7 @@ public class Issue315 extends ServerFeature {
   {
     AtomicInteger inc = new AtomicInteger(1);
 
-    after("/err", (req, rsp, cause) -> {
+    complete("/err", (req, rsp, cause) -> {
       assertTrue(cause.isPresent());
     });
 
@@ -41,18 +41,18 @@ public class Issue315 extends ServerFeature {
       buff.append("a");
     });
 
-    after("/buff", (req, rsp, cause) -> {
+    complete("/buff", (req, rsp, cause) -> {
       buff.append("b");
     });
     get("/buff", () -> buff);
 
-    before("/chain", (req, rsp, result) -> {
+    after("/chain", (req, rsp, result) -> {
       String v = result.get();
       result.set("<" + v + ">");
       return result;
     });
 
-    before("/chain", (req, rsp, result) -> {
+    after("/chain", (req, rsp, result) -> {
       String v = result.get();
       result.set("-" + v + "-");
       return result;
@@ -60,7 +60,7 @@ public class Issue315 extends ServerFeature {
 
     get("/chain", () -> "v");
 
-    after("/async", (req, rsp, cause) -> {
+    complete("/async", (req, rsp, cause) -> {
       assertEquals(false, cause.isPresent());
     });
 
@@ -73,13 +73,13 @@ public class Issue315 extends ServerFeature {
       inc.incrementAndGet();
     });
 
-    before((req, rsp, result) -> {
+    after((req, rsp, result) -> {
       Integer i = result.get();
       result.set(i + 2);
       return result;
     });
 
-    after((req, rsp, cause) -> {
+    complete((req, rsp, cause) -> {
       inc.incrementAndGet();
     });
 
