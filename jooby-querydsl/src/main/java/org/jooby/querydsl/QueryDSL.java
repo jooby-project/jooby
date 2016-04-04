@@ -205,7 +205,6 @@ public class QueryDSL extends Jdbc {
         Case("db2", DB2Templates::new),
         Case("mysql", MySQLTemplates::new),
         Case("mariadb", MySQLTemplates::new),
-        Case("mariadb", MySQLTemplates::new),
         Case("h2", H2Templates::new),
         Case("hsqldb", HSQLDBTemplates::new),
         Case("pgsql", PostgreSQLTemplates::new),
