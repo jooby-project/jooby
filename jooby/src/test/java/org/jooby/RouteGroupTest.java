@@ -247,17 +247,37 @@ public class RouteGroupTest {
     assertEquals(MediaType.json, ns.routes().iterator().next().produces().iterator().next());
   }
 
+  @Test
+  public void renderer() {
+    Group ns = new Route.Group("/ns");
+    ns.patch("/p", (req, rsp, chain) -> {
+    }).renderer("json");
+
+    assertEquals("json", ns.routes().iterator().next().attr("renderer").get());
+  }
+
+  @Test
+  public void attr() {
+    Group ns = new Route.Group("/ns");
+    ns.patch("/p", (req, rsp, chain) -> {
+    }).attr("foo", "bar");
+
+    assertEquals("bar", ns.routes().iterator().next().attr("foo").get());
+  }
+
   private void matches(final List<Route.Definition> routes, final String method,
       final String pattern) {
     for (Route.Definition r : routes) {
-      assertTrue(r.matches(method.toUpperCase(), pattern, MediaType.all, MediaType.ALL).isPresent());
+      assertTrue(
+          r.matches(method.toUpperCase(), pattern, MediaType.all, MediaType.ALL).isPresent());
     }
   }
 
   private void noMatches(final List<Route.Definition> routes, final String method,
       final String pattern) {
     for (Route.Definition r : routes) {
-      assertFalse(r.matches(method.toUpperCase(), pattern, MediaType.all, MediaType.ALL).isPresent());
+      assertFalse(
+          r.matches(method.toUpperCase(), pattern, MediaType.all, MediaType.ALL).isPresent());
     }
   }
 

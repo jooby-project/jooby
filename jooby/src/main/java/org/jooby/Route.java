@@ -556,6 +556,33 @@ public interface Route {
       return this;
     }
 
+    /**
+     * Set route attribute.
+     *
+     * @param name Attribute's name.
+     * @param value Attribute's value.
+     * @return This instance.
+     */
+    public Group attr(final String name, final String value) {
+      for (Definition definition : routes) {
+        definition.attr(name, value);
+      }
+      return this;
+    }
+
+    /**
+     * Tell jooby what renderer should use to render the output.
+     *
+     * @param name A renderer's name.
+     * @return This instance.
+     */
+    public Group renderer(final String name) {
+      for (Definition definition : routes) {
+        definition.renderer(name);
+      }
+      return this;
+    }
+
     private void newRoute(final String method, final String pattern,
         final Route.Filter filter) {
       newRoute(new Route.Definition(method, this.rootPattern + pattern, filter));
@@ -594,15 +621,15 @@ public interface Route {
   class Collection {
 
     /** List of definitions. */
-    private Route.Definition[] definitions;
+    private Route.Definition[] routes;
 
     /**
      * Creates a new collection of route definitions.
      *
      * @param definitions Collection of route definitions.
      */
-    public Collection(final Route.Definition[] definitions) {
-      this.definitions = requireNonNull(definitions, "Route definitions are required.");
+    public Collection(final Route.Definition... definitions) {
+      this.routes = requireNonNull(definitions, "Route definitions are required.");
     }
 
     /**
@@ -612,7 +639,7 @@ public interface Route {
      * @return This instance.
      */
     public Collection name(final String name) {
-      for (Definition definition : definitions) {
+      for (Definition definition : routes) {
         definition.name(name);
       }
       return this;
@@ -625,7 +652,7 @@ public interface Route {
      * @return This instance.
      */
     public Collection consumes(final MediaType... types) {
-      for (Definition definition : definitions) {
+      for (Definition definition : routes) {
         definition.consumes(types);
       }
       return this;
@@ -638,7 +665,7 @@ public interface Route {
      * @return This instance.
      */
     public Collection consumes(final String... types) {
-      for (Definition definition : definitions) {
+      for (Definition definition : routes) {
         definition.consumes(types);
       }
       return this;
@@ -651,7 +678,7 @@ public interface Route {
      * @return This instance.
      */
     public Collection produces(final MediaType... types) {
-      for (Definition definition : definitions) {
+      for (Definition definition : routes) {
         definition.produces(types);
       }
       return this;
@@ -664,11 +691,39 @@ public interface Route {
      * @return This instance.
      */
     public Collection produces(final String... types) {
-      for (Definition definition : definitions) {
+      for (Definition definition : routes) {
         definition.produces(types);
       }
       return this;
     }
+
+    /**
+     * Set route attribute.
+     *
+     * @param name Attribute's name.
+     * @param value Attribute's value.
+     * @return This instance.
+     */
+    public Collection attr(final String name, final String value) {
+      for (Definition definition : routes) {
+        definition.attr(name, value);
+      }
+      return this;
+    }
+
+    /**
+     * Tell jooby what renderer should use to render the output.
+     *
+     * @param name A renderer's name.
+     * @return This instance.
+     */
+    public Collection renderer(final String name) {
+      for (Definition definition : routes) {
+        definition.renderer(name);
+      }
+      return this;
+    }
+
   }
 
   /**
