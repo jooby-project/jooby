@@ -1,3 +1,0 @@
-{{capsule.md}}
-
-Happy deploy!!

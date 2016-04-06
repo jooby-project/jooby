@@ -146,7 +146,7 @@ import com.typesafe.config.ConfigValueFactory;
 import javaslang.control.Try;
 
 /**
- * <h1>Getting Started:</h1>
+ * <h1>jooby</h1>
  * <p>
  * A new application must extends Jooby, register one ore more {@link Renderer} and some
  * {@link Route routes}. It sounds like a lot of work to do, but it isn't.
@@ -159,19 +159,19 @@ import javaslang.control.Try;
  *      renderer(new Json()); // 1. JSON serializer.
  *
  *      // 2. Define a route
- *      get("/", (req, rsp) {@literal ->} {
+ *      get("/", req {@literal ->} {
  *        Map{@literal <}String, Object{@literal >} model = ...;
- *        rsp.send(model);
+ *        return model;
  *      }
  *   }
  *
  *  public static void main(String[] args) throws Exception {
- *    new MyApp().start(); // 3. Done!
+ *    run(MyApp::new, args); // 3. Done!
  *  }
  * }
  * </pre>
  *
- * <h1>Properties files</h1>
+ * <h2>application.conf</h2>
  * <p>
  * Jooby delegate configuration management to <a
  * href="https://github.com/typesafehub/config">TypeSafe Config</a>. If you are unfamiliar with <a
@@ -212,7 +212,7 @@ import javaslang.control.Try;
  * System properties takes precedence over any application specific property.
  * </p>
  *
- * <h1>env</h1>
+ * <h2>env</h2>
  * <p>
  * Jooby defines two modes: <strong>dev</strong> or something else. In Jooby, <strong>dev</strong>
  * is special and some modules could apply special settings while running in <strong>dev</strong>.
@@ -228,7 +228,7 @@ import javaslang.control.Try;
  * There is more at {@link Env} so take a few minutes to discover what a {@link Env} can do for you.
  * </p>
  *
- * <h1>Modules</h1>
+ * <h2>modules: the jump to full-stack framework</h2>
  * <p>
  * {@link Jooby.Module Modules} are quite similar to a Guice modules except that the configure
  * callback has been complementing with {@link Env} and {@link Config}.
@@ -247,7 +247,7 @@ import javaslang.control.Try;
  * {@link Jooby.Module} can do for you.
  * </p>
  *
- * <h1>Path Patterns</h1>
+ * <h2>path patterns</h2>
  * <p>
  * Jooby supports Ant-style path patterns:
  * </p>
@@ -264,7 +264,7 @@ import javaslang.control.Try;
  * <li>{@code *} - matches any path at any level, shorthand for {@code **}/{@code *}.</li>
  * </ul>
  *
- * <h2>Variables</h2>
+ * <h3>variables</h3>
  * <p>
  * Jooby supports path parameters too:
  * </p>
@@ -278,7 +278,7 @@ import javaslang.control.Try;
  * <code>id</code> var.</li>
  * </ul>
  *
- * <h1>Routes</h1>
+ * <h2>routes</h2>
  * <p>
  * Routes perform actions in response to a server HTTP request. There are two types of routes
  * callback: {@link Route.Handler} and {@link Route.Filter}.
@@ -331,7 +331,7 @@ import javaslang.control.Try;
  *   });
  * </pre>
  *
- * <h2>Mvc Route</h2>
+ * <h3>mvc routes</h3>
  * <p>
  * A Mvc route use annotations to define routes:
  * </p>
@@ -359,7 +359,7 @@ import javaslang.control.Try;
  * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes} .
  * </p>
  *
- * <h1>Static Files</h1>
+ * <h2>static files</h2>
  * <p>
  * Static files, like: *.js, *.css, ..., etc... can be served with:
  * </p>
@@ -370,7 +370,8 @@ import javaslang.control.Try;
  * <p>
  * Classpath resources under the <code>/assets</code> folder will be accessible from client/browser.
  * </p>
- * <h1>Bootstrap</h1>
+ *
+ * <h2>bootstrap</h2>
  * <p>
  * The bootstrap process is defined as follows:
  * </p>

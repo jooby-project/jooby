@@ -1,1 +1,0 @@
-{{doc/querydsl/querydsl.md}}

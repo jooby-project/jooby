@@ -1,3 +1,0 @@
-{{stork.md}}
-
-Happy deploy!!
