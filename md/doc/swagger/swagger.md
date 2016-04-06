@@ -1,8 +1,8 @@
 ## exports
 
-* The Swagger-UI at ```/swagger```
-* The ```swagger.json``` at ```/swagger/swagger.json```
-* The ```swagger.yml``` at ```/swagger/swagger.yml```
+* ```/swagger``` rout with SwaggerUI
+* ```/swagger/swagger.json``` route
+* ```/swagger/swagger.yml``` route
 
 ## dependency
 

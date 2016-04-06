@@ -6,7 +6,7 @@ It also give you access to aws credentials (access and secret keys).
 
 ## exports
 
-* One ore more ```AmazonWebServiceClient```
+* One ore more ```AmazonWebServiceClient```, like ```AmazonS3Client```, ```AmazonSimpleEmailServiceClient```, etc...
 
 ## dependency
 

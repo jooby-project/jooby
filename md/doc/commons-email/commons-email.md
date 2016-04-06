@@ -4,6 +4,22 @@ Email supports via {{commons-email}}.
 
 Small but helpful module that provides access to ```Email``` instances.
 
+## exports
+
+* ```SimpleEmail```
+* ```MultiPartEmail```
+* ```HtmlEmail```
+
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-commons-email</artifactId>
+  <version>{{version}}</version>
+</dependency>
+```
+
 ## usage
 
 application.conf:

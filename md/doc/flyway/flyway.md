@@ -74,6 +74,4 @@ There are some defaults setting that you can see in the appendix.
 
 For more information, please visit the {{flyway}} site.
 
-Happy coding!!!
-
 {{appendix}}

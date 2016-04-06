@@ -1,7 +1,7 @@
 ## exports
 
-* The [api-console](https://github.com/mulesoft/api-console) at ```/raml```
-* The ```.raml``` file at ```/raml/api.raml```
+* ```/raml``` route with [api-console](https://github.com/mulesoft/api-console)
+* ```/raml/api.raml``` route
 
 ## dependency
 

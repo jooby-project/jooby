@@ -2,6 +2,10 @@
 
 NIO web server via: [Jetty](https://www.eclipse.org/jetty).
 
+## exports
+
+* Jetty Server
+
 ## dependency
 
 ```xml

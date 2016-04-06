@@ -4,8 +4,8 @@ Provides advanced cache features via {{ehcache}}
 
 ## exports
 
-* A ```CacheManager```
-* Direct access to ```Ehcache``` instances
+* ```CacheManager```
+* ```Ehcache```
 
 ## dependency
 

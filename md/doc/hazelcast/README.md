@@ -2,7 +2,10 @@
 
 Provides cache solution and session storage via {{hazelcast}}.
 
-Exports a {{hazelcast}} instances and optionally a [session store]({{defdocs}}/hazelcast/HcastSessionStore.html) session store.
+## exports
+
+* ```HazelcastInstance```
+* Optionally, a [session store]({{defdocs}}/hazelcast/HcastSessionStore.html)
 
 ## dependency
 

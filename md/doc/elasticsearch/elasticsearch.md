@@ -4,6 +4,11 @@ Enterprise full text search via {{elasticsearch}}.
 
 Provides a client/local API but also a RESTFul API.
 
+## exports
+
+* ```/search``` route
+* ```Client```
+
 ## dependency
 
 ```xml

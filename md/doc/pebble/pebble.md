@@ -2,6 +2,11 @@
 
 <a href="http://www.mitchellbosecke.com/pebble">Pebble</a> a lightweight but rock solid Java templating engine.
 
+## exports
+
+* ```PebbleEngine```
+* [ViewEngine]({{defdocs}}/View.Engine.html)
+
 ## dependency
 
 ```xml

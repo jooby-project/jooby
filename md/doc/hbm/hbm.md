@@ -11,6 +11,13 @@ pattern, which basically keeps the ```Session``` opened until the view is render
 
 2) a read only transaction is opened for rendering the view.
 
+
+## exports
+
+* An interceptor with a [Open Session in View](https://developer.jboss.org/wiki/OpenSessionInView#jive_content_id_Can_I_use_two_transactions_in_one_Session)
+* ```EntityManagerFactory```
+* ```EntityManager``` during request/response cycles
+
 ## dependency
 
 ```xml

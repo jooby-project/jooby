@@ -2,7 +2,10 @@
 
 Extends the [mongodb]({{gh}}/jooby-mongodb) module with object-document mapping via {{morphia}}.
 
-exports a [Morphia]({{morphiaapi}}/Morphia.html) and [Datastore]({{morphiaapi}}/Datastore.html) services.
+## exports
+
+* [Morphia]({{morphiaapi}}/Morphia.html)
+* [Datastore]({{morphiaapi}}/Datastore.html)
 
 ## dependency
 

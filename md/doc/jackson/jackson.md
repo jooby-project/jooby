@@ -2,8 +2,11 @@
 
 JSON support from the excellent [Jackson](https://github.com/FasterXML/jackson) library.
 
-This module provides a JSON body [parser]({{apidocs}}/Parser.html) and [formatter]({{apidocs}}/Renderer.html)
-but also an [ObjectMapper](http://fasterxml.github.io/jackson-databind/javadoc/2.5.2/com/fasterxml/jackson/databind/ObjectMapper.html).
+## exports
+
+* ```ObjectMapper```
+* [Parser]({{defdocs}}/Parser.html)
+* [Renderer]({{defdocs}}/Renderer.html)
 
 ## dependency
 

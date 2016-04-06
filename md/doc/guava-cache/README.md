@@ -2,6 +2,10 @@
 
 Provides cache solution and session storage via: <a href="https://github.com/google/guava">Guava</a>.
 
+## exports
+
+* ```Cache```
+
 ## dependency
 
 ```xml

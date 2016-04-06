@@ -6,7 +6,7 @@ This module extends [jdbc module](/doc/jdbc), before going forward, make sure yo
  
 ## exports
 
-* ```EbeanServer``` objects
+* ```EbeanServer```
 
 ## dependency
 

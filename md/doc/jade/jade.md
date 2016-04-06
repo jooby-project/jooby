@@ -2,6 +2,11 @@
 
 <a href="https://github.com/neuland/jade4j">jade4j's</a> intention is to be able to process jade templates in Java without the need of a JavaScript environment, while being fully compatible with the original jade syntax.
 
+## exports
+
+* ```JadeConfiguration```
+* [ViewEngine]({{defdocs}}/View.Engine.html)
+
 ## dependency
 
 ```xml

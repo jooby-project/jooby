@@ -4,6 +4,10 @@
 
 This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of the [jdbc](/doc/jdbc) module.
 
+## exports
+
+* ```DSLContext```
+
 ## dependency
 
 ```xml

@@ -2,6 +2,10 @@
 
 Production-ready jdbc data source, powered by the [HikariCP](https://github.com/brettwooldridge/HikariCP) library.
 
+## exports
+
+* ```DataSource```
+
 ## dependency
 
 ```xml

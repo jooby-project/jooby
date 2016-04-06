@@ -4,6 +4,10 @@ SQL abstraction provided by <a href="http://www.querydsl.com">QueryDSL</a> using
 
 This module depends on [jdbc module](doc/jdbc), make sure you read the doc of the [jdbc module](doc/jdbc) module before using this module.
 
+## exports
+
+* ```SQLQueryFactory```
+
 ## dependency
 
 ```xml

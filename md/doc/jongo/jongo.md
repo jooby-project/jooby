@@ -2,9 +2,13 @@
 
 {{jongo}} query in Java as in Mongo shell.
 
-exports {{jongo}} instances to a default database. Or [JongoFactory]({{defdocs}}/mongodb/JongoFactory.html) to use alternative databases.
-
 > NOTE: This module depends on: [mongodb driver]({{gh}}/jooby-mongodb) module.
+
+## exports
+
+* {{jongo}} instances to a default database
+
+* [JongoFactory]({{defdocs}}/mongodb/JongoFactory.html) to use alternative databases.
 
 ```xml
 <dependency>

@@ -10,6 +10,13 @@ exports a [CamelContext], [ProducerTemplate] and [ConsumerTemplate].
 NOTE: This module was designed to provide a better integration with Jooby. This module doesn't
 depend on [camel-guice](http://camel.apache.org/guice.html), but it provides similar features.
 
+## exports
+
+* ```CamelContext```
+* ```ProducerTemplate```
+* ```ConsumerTemplate```
+* ```RouteBuilder```
+
 ## dependency
 
 ```xml

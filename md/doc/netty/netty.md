@@ -2,6 +2,10 @@
 
 NIO web server via [Netty](http://netty.io).
 
+## exports
+
+* Netty Server
+
 ## dependency
 
 ```xml

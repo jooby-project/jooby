@@ -4,9 +4,9 @@ JSON support via [Gson](https://github.com/google/gson) library.
 
 ## exports
 
-* A [Gson](https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/Gson.html)
-* A [Parser]({{apidocs}}/Parser.html)
-* A [Renderer]({{apidocs}}/Renderer.html)
+* [Gson](https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/Gson.html)
+* [Parser]({{defdocs}}/Parser.html)
+* [Renderer]({{defdocs}}/Renderer.html)
 
 ## dependency
 

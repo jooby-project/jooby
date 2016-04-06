@@ -4,9 +4,9 @@ Bean validation via [Hibernate Validator](hibernate.org/validator).
 
 ## exports
 
-* a ```Validator```,
-* a ```HibernateValidatorConfiguration``` and
-* a ```org.jooby.Parser```
+* ```Validator```,
+* ```HibernateValidatorConfiguration```
+* [Parser]({{defdocs}}/Parser.html)
 
 ## dependency
 

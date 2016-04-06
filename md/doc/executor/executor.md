@@ -2,6 +2,10 @@
 
 Manage the life cycle of {@link ExecutorService} and build async apps, schedule tasks, etc...
 
+## exports
+
+* One or more ```ExecutorService``` or sub-types of it
+
 ## dependency
 
 ```xml
