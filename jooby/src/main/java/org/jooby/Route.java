@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jooby.internal.AssetProxy;
@@ -41,6 +42,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 /**
  * Routes are a key concept in Jooby. Routes are executed in the same order they are defined
@@ -928,6 +931,26 @@ public interface Route {
     }
 
     /**
+     * Recreate a route path and apply the given variables.
+     *
+     * @param vars Path variables.
+     * @return A route pattern.
+     */
+    public String reverse(final Map<String, Object> vars) {
+      return cpattern.reverse(vars);
+    }
+
+    /**
+     * Recreate a route path and apply the given variables.
+     *
+     * @param values Path variable values.
+     * @return A route pattern.
+     */
+    public String reverse(final Object... values) {
+      return cpattern.reverse(values);
+    }
+
+    /**
      * Set route attribute.
      *
      * @param name Attribute's name.
@@ -1032,7 +1055,7 @@ public interface Route {
      */
     public Definition name(final String name) {
       checkArgument(!Strings.isNullOrEmpty(name), "A route's name is required.");
-      this.name = RoutePattern.normalize(name);
+      this.name = normalize(name);
       return this;
     }
 
@@ -1705,7 +1728,8 @@ public interface Route {
    * The goal of the <code>complete</code> handler is to probably cleanup request object and log
    * responses.
    *
-   * Please note that the <code>complete</code> handler is just syntax sugar for {@link Route.Filter}.
+   * Please note that the <code>complete</code> handler is just syntax sugar for
+   * {@link Route.Filter}.
    * For example, the <code>complete</code> handler was implemented as:
    *
    * <pre>{@code
@@ -1845,6 +1869,10 @@ public interface Route {
 
   }
 
+  /** Renderer key. */
+  Key<Set<Route.Definition>> KEY = Key.get(new TypeLiteral<Set<Route.Definition>>() {
+  });
+
   String GET = "GET";
 
   String POST = "POST";
@@ -1957,4 +1985,13 @@ public interface Route {
     return attributes().get(name);
   }
 
+  /**
+   * Normalize a path by removing double or trailing slashes.
+   *
+   * @param path A path to normalize.
+   * @return A normalized path.
+   */
+  static String normalize(final String path) {
+    return RoutePattern.normalize(path);
+  }
 }

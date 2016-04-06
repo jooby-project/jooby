@@ -6,11 +6,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jooby.Route.Definition;
 import org.jooby.internal.RouteImpl;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 public class RouteDefinitionTest {
 
@@ -281,4 +284,20 @@ public class RouteDefinitionTest {
     assertEquals(MediaType.json, def.consumes().get(0));
     assertEquals(MediaType.json, def.produces().get(0));
   }
+
+  @Test
+  public void reverse() throws Exception {
+    Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
+    assertEquals("/1", route.apply("/:id").reverse(1));
+
+    assertEquals("/cat/1", route.apply("/:type/:id").reverse("cat", 1));
+
+    assertEquals("/cat/5", route.apply("/{type}/{id}").reverse("cat", 5));
+
+    assertEquals("/ccat/1",
+        route.apply("/c{type}/{id}").reverse(ImmutableMap.of("type", "cat", "id", 1)));
+
+    assertEquals("/cat/tom", route.apply("/cat/tom").reverse("cat", 1));
+  }
+
 }
