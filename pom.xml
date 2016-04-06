@@ -74,6 +74,7 @@
     <module>jooby-assets-rollup</module>
     <module>jooby-metrics</module>
     <module>jooby-querydsl</module>
+    <module>jooby-sitemap</module>
     <module>coverage-report</module>
   </modules>
 
@@ -443,6 +444,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-querydsl</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-sitemap</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1087,6 +1094,13 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>${maven-antrun-plugin.version}</version>
+      </dependency>
+
+      <!-- sitemap -->
+      <dependency>
+        <groupId>cz.jiripinkas</groupId>
+        <artifactId>jsitemapgenerator</artifactId>
+        <version>${jsitemapgenerator.version}</version>
       </dependency>
 
       <!-- Ehcache -->
@@ -2218,6 +2232,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
 
     <!-- javaslang -->
     <javaslang.version>2.0.2</javaslang.version>
+
+    <jsitemapgenerator.version>2.1</jsitemapgenerator.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

@@ -35,7 +35,6 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
-import org.jooby.internal.RoutePattern;
 import org.jooby.internal.URLAsset;
 
 import com.google.common.base.Strings;
@@ -125,7 +124,7 @@ public class AssetHandler implements Route.Handler {
    * @param loader The one who load the static resources.
    */
   public AssetHandler(final String pattern, final ClassLoader loader) {
-    init(RoutePattern.normalize(pattern), loader);
+    init(Route.normalize(pattern), loader);
   }
 
   /**
@@ -155,7 +154,7 @@ public class AssetHandler implements Route.Handler {
    * @param pattern Pattern to locate static resources.
    */
   public AssetHandler(final String pattern) {
-    init(RoutePattern.normalize(pattern), getClass().getClassLoader());
+    init(Route.normalize(pattern), getClass().getClassLoader());
   }
 
   /**

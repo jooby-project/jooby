@@ -10,6 +10,10 @@
 
 * [aws](/doc/aws): wire AWS services and expose them in Guice.
 
+# sitemap
+
+* [sitemap](/doc/sitemap): automatically generates ```sitemap.xml``` file.
+
 # validation
 
 * [hibernate validator](/doc/hbv): bean validation.
@@ -18,10 +22,10 @@
 
 * [quartz](/doc/quartz): advanced job scheduling via {{quartz}}.
 
-# full text search
-
-* [elastic search](/doc/elasticsearch): enterprise full text search via Elastic Search.
-
 # enterprise integration patterns
 
 * [camel](/doc/camel): enterprise service bus for {{jooby}}.
+
+# full text search
+
+* [elastic search](/doc/elasticsearch): enterprise full text search via Elastic Search.

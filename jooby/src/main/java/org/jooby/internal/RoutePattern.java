@@ -20,12 +20,18 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javaslang.Tuple;
+import javaslang.Tuple3;
 
 public class RoutePattern {
 
@@ -40,12 +46,17 @@ public class RoutePattern {
 
   private List<String> vars;
 
+  private List<String> reverse;
+
   public RoutePattern(final String verb, final String pattern) {
     requireNonNull(verb, "A HTTP verb is required.");
     requireNonNull(pattern, "A path pattern is required.");
     this.pattern = normalize(pattern);
-    this.matcher = rewrite(this, verb.toUpperCase(), this.pattern.replace("/**/", "/**"),
-        vars -> this.vars = vars);
+    Tuple3<Function<String, RouteMatcher>, List<String>, List<String>> result = rewrite(this,
+        verb.toUpperCase(), this.pattern.replace("/**/", "/**"));
+    matcher = result._1;
+    vars = result._2;
+    reverse = result._3;
   }
 
   public List<String> vars() {
@@ -56,29 +67,50 @@ public class RoutePattern {
     return pattern;
   }
 
+  public String reverse(final Map<String, Object> vars) {
+    return reverse.stream()
+        .map(segment -> vars.getOrDefault(segment, segment).toString())
+        .collect(Collectors.joining(""));
+  }
+
+  public String reverse(final Object... value) {
+    List<String> vars = vars();
+    Map<String, Object> hash = new HashMap<>();
+    for (int i = 0; i < Math.min(vars.size(), value.length); i++) {
+      hash.put(vars.get(i), value[i]);
+    }
+    return reverse(hash);
+  }
+
   public RouteMatcher matcher(final String path) {
     requireNonNull(path, "A path is required.");
     return matcher.apply(path);
   }
 
-  private static Function<String, RouteMatcher> rewrite(final RoutePattern owner,
-      final String verb, final String pattern, final Consumer<List<String>> setVars) {
+  private static Tuple3<Function<String, RouteMatcher>, List<String>, List<String>> rewrite(
+      final RoutePattern owner, final String verb, final String pattern) {
     List<String> vars = new LinkedList<>();
     String rwrverb = verbs(verb);
     StringBuilder patternBuilder = new StringBuilder(rwrverb);
     Matcher matcher = GLOB.matcher(pattern);
     int end = 0;
     boolean regex = !rwrverb.equals(verb);
+    List<String> reverse = new ArrayList<>();
     while (matcher.find()) {
-      patternBuilder.append(quote(pattern, end, matcher.start()));
+      String head = pattern.substring(end, matcher.start());
+      patternBuilder.append(Pattern.quote(head));
+      reverse.add(head);
       String match = matcher.group();
       if ("?".equals(match)) {
         patternBuilder.append("([^/])");
+        reverse.add(match);
         regex = true;
       } else if ("*".equals(match)) {
         patternBuilder.append("([^/]*)");
+        reverse.add(match);
         regex = true;
       } else if (match.equals("/**")) {
+        reverse.add(match);
         patternBuilder.append("($|/.*)");
         regex = true;
       } else if (match.startsWith(":")) {
@@ -86,6 +118,7 @@ public class RoutePattern {
         String varName = match.substring(1);
         patternBuilder.append("(?<v").append(vars.size()).append(">[^/]+)");
         vars.add(varName);
+        reverse.add(varName);
       } else if (match.startsWith("{") && match.endsWith("}")) {
         regex = true;
         int colonIdx = match.indexOf(':');
@@ -93,21 +126,24 @@ public class RoutePattern {
           String varName = match.substring(1, match.length() - 1);
           patternBuilder.append("(?<v").append(vars.size()).append(">[^/]+)");
           vars.add(varName);
-        }
-        else {
+          reverse.add(varName);
+        } else {
           String varName = match.substring(1, colonIdx);
           String regexpr = match.substring(colonIdx + 1, match.length() - 1);
           patternBuilder.append("(?<v").append(vars.size()).append(">");
           patternBuilder.append(regexpr);
           patternBuilder.append(')');
           vars.add(varName);
+          reverse.add(varName);
         }
       }
       end = matcher.end();
     }
-    patternBuilder.append(quote(pattern, end, pattern.length()));
-    setVars.accept(vars);
-    return fn(owner, regex, regex ? patternBuilder.toString() : verb + pattern, vars);
+    String tail = pattern.substring(end, pattern.length());
+    reverse.add(tail);
+    patternBuilder.append(Pattern.quote(tail));
+    return Tuple.of(fn(owner, regex, regex ? patternBuilder.toString() : verb + pattern, vars),
+        vars, reverse);
   }
 
   private static String verbs(final String verb) {
@@ -131,13 +167,6 @@ public class RoutePattern {
             : new SimpleRouteMatcher(pattern, path, fullpath);
       }
     };
-  }
-
-  private static String quote(final String s, final int start, final int end) {
-    if (start == end) {
-      return "";
-    }
-    return Pattern.quote(s.substring(start, end));
   }
 
   public static String normalize(final String pattern) {
