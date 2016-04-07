@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.jooby.Route.Group;
@@ -263,6 +264,15 @@ public class RouteGroupTest {
     }).attr("foo", "bar");
 
     assertEquals("bar", ns.routes().iterator().next().attr("foo").get());
+  }
+
+  @Test
+  public void excludes() {
+    Group ns = new Route.Group("/ns");
+    ns.patch("/p", (req, rsp, chain) -> {
+    }).excludes("/bar");
+
+    assertEquals(Arrays.asList("/bar"), ns.routes().iterator().next().excludes());
   }
 
   private void matches(final List<Route.Definition> routes, final String method,

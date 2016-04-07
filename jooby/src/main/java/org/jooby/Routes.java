@@ -2422,4 +2422,31 @@ public interface Routes {
    * @return A route definition.
    */
   Route.Definition sse(String path, Sse.Handler1 handler);
+
+  /**
+   * Apply common configuration and attributes to a group of routes:
+   *
+   * <pre>{@code
+   * {
+   *   with(() -> {
+   *     get("/foo", ...);
+   *
+   *     get("/bar", ...);
+   *
+   *     get("/etc", ...);
+   *
+   *     ...
+   *   }).attr("v1", "k1")
+   *     .excludes("/public/**");
+   * }
+   * }</pre>
+   *
+   * All the routes wrapped by <code>with</code> will have a <code>v1</code> attribute and will
+   * excludes/ignores a <code>/public</code> request.
+   *
+   * @param callback Route callback.
+   * @return A route collection.
+   */
+  Route.Collection with(Runnable callback);
+
 }

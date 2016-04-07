@@ -143,6 +143,7 @@ import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
 
+import javaslang.Predicates;
 import javaslang.control.Try;
 
 /**
@@ -3122,6 +3123,20 @@ public class Jooby implements Routes {
   @Override
   public Route.Definition sse(final String path, final Sse.Handler1 handler) {
     return appendDefinition(new Route.Definition("GET", path, handler)).consumes(MediaType.sse);
+  }
+
+  @Override
+  public Route.Collection with(final Runnable callback) {
+    // hacky way of doing what we want... but we do simplify developer life
+    int size = this.bag.size();
+    callback.run();
+    // collect latest routes and apply collection attr
+    List<Route.Definition> local = this.bag.stream()
+        .skip(size)
+        .filter(Predicates.instanceOf(Route.Definition.class))
+        .map(r -> (Route.Definition) r)
+        .collect(Collectors.toList());
+    return new Route.Collection(local.toArray(new Route.Definition[local.size()]));
   }
 
   /**

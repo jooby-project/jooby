@@ -209,7 +209,135 @@ import com.google.inject.TypeLiteral;
  */
 public interface Route {
 
-  class Group {
+  /**
+   * Static and global route attributes. Useful for annotated route with metadata.
+   *
+   * @author edgar
+   * @since 1.0.0.CR
+   * @param <T> Attribute subtype.
+   */
+  interface Attributes<T extends Attributes<T>> {
+    /**
+     * Set route attribute.
+     *
+     * @param name Attribute's name.
+     * @param value Attribute's value.
+     * @return This instance.
+     */
+    T attr(String name, String value);
+
+    /**
+     * Tell jooby what renderer should use to render the output.
+     *
+     * @param name A renderer's name.
+     * @return This instance.
+     */
+    default T renderer(final String name) {
+      return attr(RENDERER, name);
+    }
+
+    /**
+     * Set the route name. Route's name, helpful for debugging but also to implement dynamic and
+     * advanced routing. See {@link Route.Chain#next(String, Request, Response)}
+     *
+     *
+     * @param name A route's name.
+     * @return This instance.
+     */
+    T name(final String name);
+
+    /**
+     * Set the media types the route can consume.
+     *
+     * @param consumes The media types to test for.
+     * @return This instance.
+     */
+    default T consumes(final MediaType... consumes) {
+      return consumes(Arrays.asList(consumes));
+    }
+
+    /**
+     * Set the media types the route can consume.
+     *
+     * @param consumes The media types to test for.
+     * @return This instance.
+     */
+    default T consumes(final String... consumes) {
+      return consumes(MediaType.valueOf(consumes));
+    }
+
+    /**
+     * Set the media types the route can consume.
+     *
+     * @param consumes The media types to test for.
+     * @return This instance.
+     */
+    T consumes(final List<MediaType> consumes);
+
+    /**
+     * Set the media types the route can produces.
+     *
+     * @param produces The media types to test for.
+     * @return This instance.
+     */
+    default T produces(final MediaType... produces) {
+      return produces(Arrays.asList(produces));
+    }
+
+    /**
+     * Set the media types the route can produces.
+     *
+     * @param produces The media types to test for.
+     * @return This instance.
+     */
+    default T produces(final String... produces) {
+      return produces(MediaType.valueOf(produces));
+    }
+
+    /**
+     * Set the media types the route can produces.
+     *
+     * @param produces The media types to test for.
+     * @return This instance.
+     */
+    T produces(final List<MediaType> produces);
+
+    /**
+     * Excludes one or more path pattern from this route, useful for filter:
+     *
+     * <pre>
+     * {
+     *   use("*", req {@literal ->} {
+     *    ...
+     *   }).excludes("/logout");
+     * }
+     * </pre>
+     *
+     * @param excludes A path pattern.
+     * @return This instance.
+     */
+    default T excludes(final String... excludes) {
+      return excludes(Arrays.asList(excludes));
+    }
+
+    /**
+     * Excludes one or more path pattern from this route, useful for filter:
+     *
+     * <pre>
+     * {
+     *   use("*", req {@literal ->} {
+     *    ...
+     *   }).excludes("/logout");
+     * }
+     * </pre>
+     *
+     * @param excludes A path pattern.
+     * @return This instance.
+     */
+    public T excludes(final List<String> excludes);
+  }
+
+  class Group implements Attributes<Group> {
 
     /** List of definitions. */
     private List<Route.Definition> routes = new ArrayList<>();
@@ -496,6 +624,7 @@ public interface Route {
      * @param name Name to use/set.
      * @return This instance.
      */
+    @Override
     public Group name(final String name) {
       for (Definition definition : routes) {
         if (prefix != null) {
@@ -507,65 +636,23 @@ public interface Route {
       return this;
     }
 
-    /**
-     * Set what a route can consumes.
-     *
-     * @param types Media types.
-     * @return This instance.
-     */
-    public Group consumes(final MediaType... types) {
+    @Override
+    public Group consumes(final List<MediaType> types) {
       for (Definition definition : routes) {
         definition.consumes(types);
       }
       return this;
     }
 
-    /**
-     * Set what a route can consumes.
-     *
-     * @param types Media types.
-     * @return This instance.
-     */
-    public Group consumes(final String... types) {
-      for (Definition definition : routes) {
-        definition.consumes(types);
-      }
-      return this;
-    }
-
-    /**
-     * Set what a route can produces.
-     *
-     * @param types Media types.
-     * @return This instance.
-     */
-    public Group produces(final MediaType... types) {
+    @Override
+    public Group produces(final List<MediaType> types) {
       for (Definition definition : routes) {
         definition.produces(types);
       }
       return this;
     }
 
-    /**
-     * Set what a route can produces.
-     *
-     * @param types Media types.
-     * @return This instance.
-     */
-    public Group produces(final String... types) {
-      for (Definition definition : routes) {
-        definition.produces(types);
-      }
-      return this;
-    }
-
-    /**
-     * Set route attribute.
-     *
-     * @param name Attribute's name.
-     * @param value Attribute's value.
-     * @return This instance.
-     */
+    @Override
     public Group attr(final String name, final String value) {
       for (Definition definition : routes) {
         definition.attr(name, value);
@@ -573,15 +660,10 @@ public interface Route {
       return this;
     }
 
-    /**
-     * Tell jooby what renderer should use to render the output.
-     *
-     * @param name A renderer's name.
-     * @return This instance.
-     */
-    public Group renderer(final String name) {
+    @Override
+    public Group excludes(final List<String> excludes) {
       for (Definition definition : routes) {
-        definition.renderer(name);
+        definition.excludes(excludes);
       }
       return this;
     }
@@ -621,7 +703,7 @@ public interface Route {
    * @author edgar
    * @since 0.5.0
    */
-  class Collection {
+  class Collection implements Attributes<Collection> {
 
     /** List of definitions. */
     private Route.Definition[] routes;
@@ -635,12 +717,7 @@ public interface Route {
       this.routes = requireNonNull(definitions, "Route definitions are required.");
     }
 
-    /**
-     * Set the route name to the whole collection.
-     *
-     * @param name Name to use/set.
-     * @return This instance.
-     */
+    @Override
     public Collection name(final String name) {
       for (Definition definition : routes) {
         definition.name(name);
@@ -648,65 +725,23 @@ public interface Route {
       return this;
     }
 
-    /**
-     * Set what a route can consumes.
-     *
-     * @param types Media types.
-     * @return This instance.
-     */
-    public Collection consumes(final MediaType... types) {
+    @Override
+    public Collection consumes(final List<MediaType> types) {
       for (Definition definition : routes) {
         definition.consumes(types);
       }
       return this;
     }
 
-    /**
-     * Set what a route can consumes.
-     *
-     * @param types Media types.
-     * @return This instance.
-     */
-    public Collection consumes(final String... types) {
-      for (Definition definition : routes) {
-        definition.consumes(types);
-      }
-      return this;
-    }
-
-    /**
-     * Set what a route can produces.
-     *
-     * @param types Media types.
-     * @return This instance.
-     */
-    public Collection produces(final MediaType... types) {
+    @Override
+    public Collection produces(final List<MediaType> types) {
       for (Definition definition : routes) {
         definition.produces(types);
       }
       return this;
     }
 
-    /**
-     * Set what a route can produces.
-     *
-     * @param types Media types.
-     * @return This instance.
-     */
-    public Collection produces(final String... types) {
-      for (Definition definition : routes) {
-        definition.produces(types);
-      }
-      return this;
-    }
-
-    /**
-     * Set route attribute.
-     *
-     * @param name Attribute's name.
-     * @param value Attribute's value.
-     * @return This instance.
-     */
+    @Override
     public Collection attr(final String name, final String value) {
       for (Definition definition : routes) {
         definition.attr(name, value);
@@ -714,15 +749,10 @@ public interface Route {
       return this;
     }
 
-    /**
-     * Tell jooby what renderer should use to render the output.
-     *
-     * @param name A renderer's name.
-     * @return This instance.
-     */
-    public Collection renderer(final String name) {
+    @Override
+    public Collection excludes(final List<String> excludes) {
       for (Definition definition : routes) {
-        definition.renderer(name);
+        definition.excludes(excludes);
       }
       return this;
     }
@@ -787,7 +817,7 @@ public interface Route {
    * @author edgar
    * @since 0.1.0
    */
-  class Definition {
+  class Definition implements Attributes<Definition> {
 
     /**
      * Route's name.
@@ -957,6 +987,7 @@ public interface Route {
      * @param value Attribute's value.
      * @return This instance.
      */
+    @Override
     public Definition attr(final String name, final String value) {
       requireNonNull(name, "A name is required.");
       requireNonNull(value, "A value is required.");
@@ -979,17 +1010,6 @@ public interface Route {
      */
     public Map<String, String> attributes() {
       return ImmutableMap.copyOf(attributes);
-    }
-
-    /**
-     * Tell jooby what renderer should use to render the output.
-     *
-     * @param name A renderer's name.
-     * @return This instance.
-     */
-    public Definition renderer(final String name) {
-      attr(RENDERER, name);
-      return this;
     }
 
     /**
@@ -1053,6 +1073,7 @@ public interface Route {
      * @param name A route's name.
      * @return This definition.
      */
+    @Override
     public Definition name(final String name) {
       checkArgument(!Strings.isNullOrEmpty(name), "A route's name is required.");
       this.name = normalize(name);
@@ -1109,106 +1130,31 @@ public interface Route {
       return canProduce(MediaType.valueOf(types));
     }
 
-    /**
-     * Set the media types the route can consume.
-     *
-     * @param consumes The media types to test for.
-     * @return This route definition.
-     */
-    public Definition consumes(final MediaType... consumes) {
-      return consumes(Arrays.asList(consumes));
-    }
-
-    /**
-     * Set the media types the route can consume.
-     *
-     * @param consumes The media types to test for.
-     * @return This route definition.
-     */
-    public Definition consumes(final String... consumes) {
-      return consumes(MediaType.valueOf(consumes));
-    }
-
-    /**
-     * Set the media types the route can consume.
-     *
-     * @param consumes The media types to test for.
-     * @return This route definition.
-     */
-    public Definition consumes(final List<MediaType> consumes) {
-      checkArgument(consumes != null && consumes.size() > 0, "Consumes types are required");
-      if (consumes.size() > 1) {
-        this.consumes = Lists.newLinkedList(consumes);
+    @Override
+    public Definition consumes(final List<MediaType> types) {
+      checkArgument(types != null && types.size() > 0, "Consumes types are required");
+      if (types.size() > 1) {
+        this.consumes = Lists.newLinkedList(types);
         Collections.sort(this.consumes);
       } else {
-        this.consumes = ImmutableList.of(consumes.get(0));
+        this.consumes = ImmutableList.of(types.get(0));
       }
       return this;
     }
 
-    /**
-     * Set the media types the route can produces.
-     *
-     * @param produces The media types to test for.
-     * @return This route definition.
-     */
-    public Definition produces(final MediaType... produces) {
-      return produces(Arrays.asList(produces));
-    }
-
-    public Definition produces(final String... produces) {
-      return produces(MediaType.valueOf(produces));
-    }
-
-    /**
-     * Set the media types the route can produces.
-     *
-     * @param produces The media types to test for.
-     * @return This route definition.
-     */
-    public Definition produces(final List<MediaType> produces) {
-      checkArgument(produces != null && produces.size() > 0, "Produces types are required");
-      if (produces.size() > 1) {
-        this.produces = Lists.newLinkedList(produces);
+    @Override
+    public Definition produces(final List<MediaType> types) {
+      checkArgument(types != null && types.size() > 0, "Produces types are required");
+      if (types.size() > 1) {
+        this.produces = Lists.newLinkedList(types);
         Collections.sort(this.produces);
       } else {
-        this.produces = ImmutableList.of(produces.get(0));
+        this.produces = ImmutableList.of(types.get(0));
       }
       return this;
     }
 
-    /**
-     * Excludes one or more path pattern from this route, useful for filter:
-     *
-     * <pre>
-     * {
-     *   use("*", req {@literal ->} {
-     *    ...
-     *   }).excludes("/logout");
-     * }
-     * </pre>
-     *
-     * @param excludes A path pattern.
-     * @return This route definition.
-     */
-    public Definition excludes(final String... excludes) {
-      return excludes(Arrays.asList(excludes));
-    }
-
-    /**
-     * Excludes one or more path pattern from this route, useful for filter:
-     *
-     * <pre>
-     * {
-     *   use("*", req {@literal ->} {
-     *    ...
-     *   }).excludes("/logout");
-     * }
-     * </pre>
-     *
-     * @param excludes A path pattern.
-     * @return This route definition.
-     */
+    @Override
     public Definition excludes(final List<String> excludes) {
       this.excludes = excludes.stream()
           .map(it -> new RoutePattern(method, it))

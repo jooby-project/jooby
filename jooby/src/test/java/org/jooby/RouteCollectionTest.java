@@ -2,6 +2,8 @@ package org.jooby;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+
 import org.jooby.Route.Definition;
 import org.junit.Test;
 
@@ -26,4 +28,15 @@ public class RouteCollectionTest {
 
     assertEquals("bar", def.attr("foo").get());
   }
+
+  @Test
+  public void excludes() {
+    Definition def = new Route.Definition("*", "*", (req, rsp, chain) -> {
+    });
+    new Route.Collection(def)
+        .excludes("/path");
+
+    assertEquals(Arrays.asList("/path"), def.excludes());
+  }
+
 }
