@@ -32,10 +32,14 @@ public interface WebPageProvider {
   WebPageProvider SITEMAP = route -> {
     WebPage page = new WebPage();
     page.setName(route.pattern());
-    route.attr("changefreq")
-        .ifPresent(v -> page.setChangeFreq(ChangeFreq.valueOf(v.toUpperCase())));
-    route.attr("priority")
-        .ifPresent(v -> page.setPriority(Double.parseDouble(v)));
+    ChangeFreq freq = route.attr("changefreq");
+    if (freq != null) {
+        page.setChangeFreq(freq);
+    }
+    Double priority = route.attr("priority");
+    if (priority != null) {
+      page.setPriority(priority);
+    }
     return ImmutableList.of(page);
   };
 

@@ -99,7 +99,7 @@ public class MvcRoutes {
     }
 
     List<Definition> definitions = new ArrayList<>();
-    Map<String, String> attrs = attrs(routeClass.getAnnotations());
+    Map<String, Object> attrs = attrs(routeClass.getAnnotations());
     methods
         .keySet()
         .stream()
@@ -121,7 +121,7 @@ public class MvcRoutes {
           List<Class<?>> verbs = methods.get(method);
           List<MediaType> produces = produces(method);
           List<MediaType> consumes = consumes(method);
-          Map<String, String> localAttrs = new HashMap<>(attrs);
+          Map<String, Object> localAttrs = new HashMap<>(attrs);
           localAttrs.putAll(attrs(method.getAnnotations()));
 
           for (String path : expandPaths(rootPaths, method)) {
@@ -146,22 +146,22 @@ public class MvcRoutes {
     return definitions;
   }
 
-  private static Map<String, String> attrs(final Annotation[] annotations) {
-    Map<String, String> result = new LinkedHashMap<>();
+  private static Map<String, Object> attrs(final Annotation[] annotations) {
+    Map<String, Object> result = new LinkedHashMap<>();
     for (Annotation annotation : annotations) {
       result.putAll(attrs(annotation));
     }
     return result;
   }
 
-  private static Map<String, String> attrs(final Annotation annotation) {
-    Map<String, String> result = new LinkedHashMap<>();
+  private static Map<String, Object> attrs(final Annotation annotation) {
+    Map<String, Object> result = new LinkedHashMap<>();
     Class<? extends Annotation> annotationType = annotation.annotationType();
     if (!IGNORE.contains(annotationType)) {
       Method[] attrs = annotation.annotationType().getDeclaredMethods();
       for (Method attr : attrs) {
         Try.of(() -> attr.invoke(annotation))
-            .onSuccess(value -> result.put(attrName(annotation, attr), value.toString()));
+            .onSuccess(value -> result.put(attrName(annotation, attr), value));
       }
     }
     return result;

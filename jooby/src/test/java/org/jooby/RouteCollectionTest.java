@@ -16,7 +16,7 @@ public class RouteCollectionTest {
     new Route.Collection(def)
         .renderer("json");
 
-    assertEquals("json", def.attr("renderer").get());
+    assertEquals("json", def.attr("renderer"));
   }
 
   @Test
@@ -26,7 +26,7 @@ public class RouteCollectionTest {
     new Route.Collection(def)
         .attr("foo", "bar");
 
-    assertEquals("bar", def.attr("foo").get());
+    assertEquals("bar", def.attr("foo"));
   }
 
   @Test

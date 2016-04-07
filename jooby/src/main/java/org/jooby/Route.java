@@ -20,7 +20,11 @@ package org.jooby;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
+import static javaslang.API.Case;
+import static javaslang.API.Match;
+import static javaslang.Predicates.instanceOf;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +46,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Primitives;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
@@ -218,13 +223,14 @@ public interface Route {
    */
   interface Attributes<T extends Attributes<T>> {
     /**
-     * Set route attribute.
+     * Set route attribute. Only primitives, string, class, enum or array of previous types are
+     * allowed as attributes values.
      *
      * @param name Attribute's name.
      * @param value Attribute's value.
      * @return This instance.
      */
-    T attr(String name, String value);
+    T attr(String name, Object value);
 
     /**
      * Tell jooby what renderer should use to render the output.
@@ -653,7 +659,7 @@ public interface Route {
     }
 
     @Override
-    public Group attr(final String name, final String value) {
+    public Group attr(final String name, final Object value) {
       for (Definition definition : routes) {
         definition.attr(name, value);
       }
@@ -742,7 +748,7 @@ public interface Route {
     }
 
     @Override
-    public Collection attr(final String name, final String value) {
+    public Collection attr(final String name, final Object value) {
       for (Definition definition : routes) {
         definition.attr(name, value);
       }
@@ -858,7 +864,7 @@ public interface Route {
 
     private List<RoutePattern> excludes = Collections.emptyList();
 
-    private Map<String, String> attributes = new HashMap<>();
+    private Map<String, Object> attributes = new HashMap<>();
 
     /**
      * Creates a new route definition.
@@ -980,35 +986,41 @@ public interface Route {
       return cpattern.reverse(values);
     }
 
-    /**
-     * Set route attribute.
-     *
-     * @param name Attribute's name.
-     * @param value Attribute's value.
-     * @return This instance.
-     */
     @Override
-    public Definition attr(final String name, final String value) {
-      requireNonNull(name, "A name is required.");
-      requireNonNull(value, "A value is required.");
+    public Definition attr(final String name, final Object value) {
+      requireNonNull(name, "Attribute name is required.");
+      requireNonNull(value, "Attribute value is required.");
+
+      validate(value);
       attributes.put(name, value);
       return this;
+    }
+
+    private boolean validate(final Object value) {
+      return Match(value).option(
+          Case(v -> Primitives.isWrapperType(Primitives.wrap(v.getClass())), true),
+          Case(instanceOf(String.class), true),
+          Case(instanceOf(Enum.class), true),
+          Case(instanceOf(Class.class), true),
+          Case(c -> c.getClass().isArray(), v -> validate(Array.get(v, 0))))
+          .getOrElseThrow(() -> new IllegalArgumentException("Unsupported attribute: " + value));
     }
 
     /**
      * Get an attribute by name.
      *
      * @param name Attribute's name.
-     * @return Attribute's value.
+     * @return Attribute's value or <code>null</code>.
      */
-    public Optional<String> attr(final String name) {
-      return Optional.ofNullable(attributes.get(name));
+    @SuppressWarnings("unchecked")
+    public <T> T attr(final String name) {
+      return (T) attributes.get(name);
     }
 
     /**
      * @return A read only view of attributes.
      */
-    public Map<String, String> attributes() {
+    public Map<String, Object> attributes() {
       return ImmutableMap.copyOf(attributes);
     }
 
@@ -1281,12 +1293,12 @@ public interface Route {
     }
 
     @Override
-    public Map<String, String> attributes() {
+    public Map<String, Object> attributes() {
       return route.attributes();
     }
 
     @Override
-    public String attr(final String name) {
+    public <T> T attr(final String name) {
       return route.attr(name);
     }
 
@@ -1918,7 +1930,7 @@ public interface Route {
   /**
    * @return All the available attributes in the execution chain.
    */
-  Map<String, String> attributes();
+  Map<String, Object> attributes();
 
   /**
    * Attribute by name.
@@ -1926,8 +1938,9 @@ public interface Route {
    * @param name Attribute's name.
    * @return Attribute value.
    */
-  default String attr(final String name) {
-    return attributes().get(name);
+  @SuppressWarnings("unchecked")
+  default <T> T attr(final String name) {
+    return (T) attributes().get(name);
   }
 
   /**

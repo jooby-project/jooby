@@ -59,6 +59,12 @@ Any runtime annotations are automatically added as route attributes. Following t
 * If the annotation has a ```value``` method, then we use the annotation's name as attribute name.
 * Otherwise, we use the method name as attribute name.
 
+> **request attributes vs route attributes:**
+>
+> Route attributes are created at bootstrap time they are global and once you set they won't change.
+>
+> While, request attributes are created in a request/response cycle.
+
 ### excludes
 
 The excludes attribute skip/ignore a route path match:

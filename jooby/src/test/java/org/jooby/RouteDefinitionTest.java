@@ -1,6 +1,7 @@
 package org.jooby;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,7 +31,7 @@ public class RouteDefinitionTest {
           });
 
           RouteImpl route = (RouteImpl) (def.matches("GET", "/", MediaType.all,
-              MediaType.ALL).get());
+              MediaType.ALL)).get();
 
           route.handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));
@@ -56,7 +57,7 @@ public class RouteDefinitionTest {
           });
 
           RouteImpl route = (RouteImpl) (def.matches("GET", "/", MediaType.all,
-              MediaType.ALL).get());
+              MediaType.ALL)).get();
 
           route.handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));
@@ -82,7 +83,7 @@ public class RouteDefinitionTest {
           });
 
           RouteImpl route = (RouteImpl) (def.matches("GET", "/", MediaType.all,
-              MediaType.ALL).get());
+              MediaType.ALL)).get();
 
           route.handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));
@@ -103,7 +104,7 @@ public class RouteDefinitionTest {
           });
 
           RouteImpl route = (RouteImpl) (def.matches("GET", "/", MediaType.all,
-              MediaType.ALL).get());
+              MediaType.ALL)).get();
 
           route.handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));
@@ -132,7 +133,7 @@ public class RouteDefinitionTest {
           Definition def = new Route.Definition("GET", "/", (req, rsp, chain) -> {
           }).attr("foo", "bar");
 
-          assertEquals(Optional.of("bar"), def.attr("foo"));
+          assertEquals("bar", def.attr("foo"));
           assertEquals("{foo=bar}", def.attributes().toString());
         });
   }
@@ -144,7 +145,7 @@ public class RouteDefinitionTest {
           Definition def = new Route.Definition("GET", "/", (req, rsp, chain) -> {
           }).renderer("json");
 
-          assertEquals(Optional.of("json"), def.attr("renderer"));
+          assertEquals("json", def.attr("renderer"));
           assertEquals("{renderer=json}", def.attributes().toString());
         });
   }
@@ -298,6 +299,36 @@ public class RouteDefinitionTest {
         route.apply("/c{type}/{id}").reverse(ImmutableMap.of("type", "cat", "id", 1)));
 
     assertEquals("/cat/tom", route.apply("/cat/tom").reverse("cat", 1));
+  }
+
+  @Test
+  public void attrs() throws Exception {
+    Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
+    Route.Definition r = route.apply("/")
+        .attr("i", 7)
+        .attr("s", "string")
+        .attr("enum", Status.OK)
+        .attr("type", Route.class);
+
+    assertEquals(Integer.valueOf(7), r.attr("i"));
+    assertEquals("string", r.attr("s"));
+    assertEquals(Status.OK, r.attr("enum"));
+    assertEquals(Route.class, r.attr("type"));
+  }
+
+  @Test
+  public void attrsArray() throws Exception {
+    Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
+    Route.Definition r = route.apply("/")
+        .attr("i", new int[]{7 });
+
+    assertTrue(Arrays.equals(new int[]{7 }, (int[]) r.attr("i")));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void attrUnsupportedType() throws Exception {
+    Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
+    route.apply("/").attr("i", new Object());
   }
 
 }

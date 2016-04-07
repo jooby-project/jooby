@@ -27,7 +27,7 @@ public class WebPageProviderTest {
   public void sitemapWithFreq() {
     WebPageProvider sitemap = WebPageProvider.SITEMAP;
     List<WebPage> pages = sitemap
-        .apply(new Route.Definition("get", "/path", () -> "").attr("changefreq", "always"));
+        .apply(new Route.Definition("get", "/path", () -> "").attr("changefreq", ChangeFreq.ALWAYS));
     assertEquals(1, pages.size());
     assertEquals("/path", pages.get(0).getName());
     assertEquals(ChangeFreq.ALWAYS, pages.get(0).getChangeFreq());
@@ -39,8 +39,8 @@ public class WebPageProviderTest {
     WebPageProvider sitemap = WebPageProvider.SITEMAP;
     List<WebPage> pages = sitemap
         .apply(new Route.Definition("get", "/path", () -> "")
-            .attr("changefreq", "always")
-            .attr("priority", "1.0"));
+            .attr("changefreq", ChangeFreq.ALWAYS)
+            .attr("priority", 1d));
     assertEquals(1, pages.size());
     assertEquals("/path", pages.get(0).getName());
     assertEquals(ChangeFreq.ALWAYS, pages.get(0).getChangeFreq());

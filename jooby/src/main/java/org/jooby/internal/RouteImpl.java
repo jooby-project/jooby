@@ -34,7 +34,7 @@ public class RouteImpl implements Route, Route.Filter {
 
   private static Map<Object, String> NO_VARS = ImmutableMap.of();
 
-  private static ImmutableMap<String, String> NO_ATTRS = ImmutableMap.of();
+  private static ImmutableMap<String, Object> NO_ATTRS = ImmutableMap.of();
 
   private String method;
 
@@ -52,7 +52,7 @@ public class RouteImpl implements Route, Route.Filter {
 
   private Filter filter;
 
-  private Map<String, String> attributes;
+  private Map<String, Object> attributes;
 
   public static RouteImpl notFound(final String method, final String path,
       final List<MediaType> produces) {
@@ -77,15 +77,15 @@ public class RouteImpl implements Route, Route.Filter {
   public RouteImpl(final Filter filter, final String method, final String path,
       final String pattern, final String name, final Map<Object, String> vars,
       final List<MediaType> consumes, final List<MediaType> produces,
-      final Map<String, String> attributes) {
+      final Map<String, Object> attributes) {
     this(filter, method, path, pattern, name, vars, consumes, produces,
-        ImmutableMap.<String, String> copyOf(attributes));
+        ImmutableMap.<String, Object> copyOf(attributes));
   }
 
   public RouteImpl(final Filter filter, final String method, final String path,
       final String pattern, final String name, final Map<Object, String> vars,
       final List<MediaType> consumes, final List<MediaType> produces,
-      final ImmutableMap<String, String> attributes) {
+      final ImmutableMap<String, Object> attributes) {
     this.filter = filter;
     this.method = method;
     this.path = path;
@@ -104,7 +104,7 @@ public class RouteImpl implements Route, Route.Filter {
   }
 
   @Override
-  public Map<String, String> attributes() {
+  public Map<String, Object> attributes() {
     return attributes;
   }
 

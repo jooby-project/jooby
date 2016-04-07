@@ -77,7 +77,7 @@ public class RouteForwardingTest {
 
   @Test
   public void attributes() throws Exception {
-    Map<String, String> attributes = new HashMap<>();
+    Map<String, Object> attributes = new HashMap<>();
     new MockUnit(Route.class)
         .expect(unit -> {
           Route route = unit.get(Route.class);

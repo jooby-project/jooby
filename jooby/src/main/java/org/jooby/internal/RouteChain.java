@@ -47,7 +47,7 @@ public class RouteChain implements Route.Chain {
     this.rrsp = rsp;
 
     // eager decision if we need to wrap a route to get all the attrs within the change.
-    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
     routes.forEach(r -> builder.putAll(r.attributes()));
     this.hasAttrs = builder.build().size() > 0;
   }
@@ -86,14 +86,14 @@ public class RouteChain implements Route.Chain {
   }
 
   private static Route attrs(final Route route, final List<Route> routes, final int i) {
-    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
     for (int t = i; t < routes.size(); t++) {
       builder.putAll(routes.get(t).attributes());
     }
-    Map<String, String> attrs = builder.build();
+    Map<String, Object> attrs = builder.build();
     return new Route.Forwarding(route) {
       @Override
-      public Map<String, String> attributes() {
+      public Map<String, Object> attributes() {
         return attrs;
       }
     };
