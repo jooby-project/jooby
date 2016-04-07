@@ -69,7 +69,7 @@ public class TrxResponse extends Response.Forwarding {
     rollbackOnly = true;
   }
 
-  private void trxSend(final Object result) throws Exception {
+  private void trxSend(final Object result) throws Throwable {
 
     Consumer<Boolean> setReadOnly = (readOnly) -> {
       try {
@@ -105,7 +105,7 @@ public class TrxResponse extends Response.Forwarding {
 
         log.debug("  [{}] commiting readonly transaction: {}", sessionId, readOnlyTrx);
         readOnlyTrx.commit();
-      } catch (Exception ex) {
+      } catch (Throwable ex) {
         if (readOnlyTrx != null && readOnlyTrx.isActive()) {
           log.debug("  [{}] rolling back readonly transaction: {}", sessionId, readOnlyTrx);
           readOnlyTrx.rollback();
@@ -115,7 +115,7 @@ public class TrxResponse extends Response.Forwarding {
         log.debug("  [{}] removing readonly mode from connection", sessionId);
         setReadOnly.accept(false);
       }
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       rollbackOnly = true;
       throw ex;
     } finally {
@@ -151,12 +151,12 @@ public class TrxResponse extends Response.Forwarding {
   }
 
   @Override
-  public void send(final Object result) throws Exception {
+  public void send(final Object result) throws Throwable {
     trxSend(result);
   }
 
   @Override
-  public void send(final Result result) throws Exception {
+  public void send(final Result result) throws Throwable {
     trxSend(result);
   }
 

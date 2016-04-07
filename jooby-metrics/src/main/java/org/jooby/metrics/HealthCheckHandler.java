@@ -43,7 +43,7 @@ import com.google.common.collect.ImmutableSortedMap;
 public class HealthCheckHandler implements Handler {
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Throwable {
     HealthCheckRegistry registry = req.require(HealthCheckRegistry.class);
     SortedMap<String, Result> checks = req.param("name").toOptional().map(name -> {
       SortedMap<String, Result> set = ImmutableSortedMap.of(name, registry.runHealthCheck(name));

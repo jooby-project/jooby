@@ -48,7 +48,7 @@ class MvcHandler implements Route.MethodHandler {
   }
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Throwable {
 
     try {
       Object target = req.require(handler.getDeclaringClass());

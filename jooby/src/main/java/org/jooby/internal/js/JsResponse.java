@@ -33,7 +33,7 @@ public class JsResponse extends Response.Forwarding {
     super(rsp);
   }
 
-  public void sendjs(final ScriptObjectMirror result) throws Exception {
+  public void sendjs(final ScriptObjectMirror result) throws Throwable {
     Object value;
     if (result.isArray()) {
       value = result.entrySet().stream()

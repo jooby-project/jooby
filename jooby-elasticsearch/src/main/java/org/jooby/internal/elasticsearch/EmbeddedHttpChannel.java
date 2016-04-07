@@ -34,7 +34,7 @@ public class EmbeddedHttpChannel extends HttpChannel {
 
   private final CountDownLatch latch = new CountDownLatch(1);
 
-  private Exception failure;
+  private Throwable failure;
 
   public EmbeddedHttpChannel(final RestRequest request, final Response rsp,
       final boolean detailedErrorsEnabled) {
@@ -55,7 +55,7 @@ public class EmbeddedHttpChannel extends HttpChannel {
           .length(content.length())
           .type(response.contentType())
           .send(content);
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       failure = ex;
     } finally {
       latch.countDown();
@@ -63,7 +63,7 @@ public class EmbeddedHttpChannel extends HttpChannel {
 
   }
 
-  public void done() throws Exception {
+  public void done() throws Throwable {
     latch.await();
 
     if (failure != null) {

@@ -43,7 +43,7 @@ public class EmbeddedHandler implements Route.Handler {
   }
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Throwable {
 
     EmbeddedHttpRequest restReq = new EmbeddedHttpRequest(path, req);
     EmbeddedHttpChannel channel = new EmbeddedHttpChannel(restReq, rsp, detailedErrorsEnabled);

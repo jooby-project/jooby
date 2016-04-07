@@ -215,13 +215,14 @@ import com.google.inject.TypeLiteral;
 public interface Route {
 
   /**
-   * Static and global route attributes. Useful for annotated route with metadata.
+   * Common route properties, like static and global metadata via attributes, path exclusion,
+   * produces and consumes types.
    *
    * @author edgar
    * @since 1.0.0.CR
    * @param <T> Attribute subtype.
    */
-  interface Attributes<T extends Attributes<T>> {
+  interface Props<T extends Props<T>> {
     /**
      * Set route attribute. Only primitives, string, class, enum or array of previous types are
      * allowed as attributes values.
@@ -341,9 +342,10 @@ public interface Route {
      * @return This instance.
      */
     public T excludes(final List<String> excludes);
+
   }
 
-  class Group implements Attributes<Group> {
+  class Group implements Props<Group> {
 
     /** List of definitions. */
     private List<Route.Definition> routes = new ArrayList<>();
@@ -709,7 +711,7 @@ public interface Route {
    * @author edgar
    * @since 0.5.0
    */
-  class Collection implements Attributes<Collection> {
+  class Collection implements Props<Collection> {
 
     /** List of definitions. */
     private Route.Definition[] routes;
@@ -823,7 +825,7 @@ public interface Route {
    * @author edgar
    * @since 0.1.0
    */
-  class Definition implements Attributes<Definition> {
+  class Definition implements Props<Definition> {
 
     /**
      * Route's name.
@@ -1648,7 +1650,7 @@ public interface Route {
       chain.next(req, new Response.Forwarding(rsp) {
 
         @Override
-        public void send(final Result result) throws Exception {
+        public void send(final Result result) throws Throwable {
           super.send(handle(req, rsp, result));
         }
       });

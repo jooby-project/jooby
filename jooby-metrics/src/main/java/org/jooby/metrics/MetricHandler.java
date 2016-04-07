@@ -60,7 +60,7 @@ public class MetricHandler implements Handler {
   private static final String NO_CACHE = "must-revalidate,no-cache,no-store";
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Throwable {
     MetricRegistry registry = req.require(MetricRegistry.class);
     Map<String, Metric> allmetrics = registry.getMetrics();
     if (allmetrics.isEmpty()) {

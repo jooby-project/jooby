@@ -119,12 +119,12 @@ public class ResponseTest {
   }
 
   @Test
-  public void sendObject() throws Exception {
+  public void sendObject() throws Throwable {
     Object data = new Object();
     LinkedList<Object> dataList = new LinkedList<>();
     new ResponseMock() {
       @Override
-      public void send(final Result result) throws Exception {
+      public void send(final Result result) {
         assertNotNull(result);
         assertEquals(Status.OK, result.status().get());
         assertEquals(MediaType.json, result.type().get());
@@ -147,7 +147,7 @@ public class ResponseTest {
   }
 
   @Test
-  public void sendBody() throws Exception {
+  public void sendBody() throws Throwable {
     Object data = Results.noContent();
     LinkedList<Object> dataList = new LinkedList<>();
     new ResponseMock() {

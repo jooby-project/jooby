@@ -30,7 +30,7 @@ import org.jooby.Route;
 public class TraceHandler implements Route.Handler {
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Throwable {
     String CRLF = "\r\n";
     StringBuilder buffer = new StringBuilder("TRACE ").append(req.path())
         .append(" ").append(req.protocol());

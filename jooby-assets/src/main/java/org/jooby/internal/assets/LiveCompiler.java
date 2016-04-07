@@ -82,7 +82,7 @@ public class LiveCompiler implements Route.Handler, Managed {
   }
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Throwable {
     String path = req.path();
     if (path.startsWith("/org/jooby/assets/live")) {
       new AssetHandler("/").handle(req, rsp);
@@ -95,7 +95,7 @@ public class LiveCompiler implements Route.Handler, Managed {
   }
 
   private void reportErr(final Request req, final Response rsp, final AssetException ex)
-      throws Exception {
+      throws Throwable {
     StringBuilder buff = new StringBuilder();
     buff.append("<!doctype html>\n" +
         "<html lang=\"en\">\n" +

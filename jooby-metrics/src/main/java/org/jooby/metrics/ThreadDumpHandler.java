@@ -54,7 +54,7 @@ public class ThreadDumpHandler implements Handler {
   }
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Throwable {
     Object data;
     Status status;
     if (threadDump == null) {

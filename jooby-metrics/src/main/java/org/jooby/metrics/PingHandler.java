@@ -36,7 +36,7 @@ import org.jooby.Status;
 public class PingHandler implements Handler {
 
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Throwable {
     rsp.status(Status.OK)
         .type(MediaType.plain)
         .header("Cache-Control", "must-revalidate,no-cache,no-store")

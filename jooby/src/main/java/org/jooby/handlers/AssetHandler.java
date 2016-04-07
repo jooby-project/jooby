@@ -194,8 +194,7 @@ public class AssetHandler implements Route.Handler {
   }
 
   @Override
-  public void handle(final Request req, final Response rsp)
-      throws Exception {
+  public void handle(final Request req, final Response rsp) throws Throwable {
     String path = req.path();
     URL resource = resolve(req, path);
 
@@ -222,8 +221,7 @@ public class AssetHandler implements Route.Handler {
     }
   }
 
-  private void doHandle(final Request req, final Response rsp,
-      final Asset asset) throws Exception {
+  private void doHandle(final Request req, final Response rsp, final Asset asset) throws Throwable {
 
     // handle etag
     if (this.etag) {
@@ -270,8 +268,7 @@ public class AssetHandler implements Route.Handler {
    * @param asset Resolve asset.
    * @throws Exception If send fails.
    */
-  protected void send(final Request req, final Response rsp, final Asset asset)
-      throws Exception {
+  protected void send(final Request req, final Response rsp, final Asset asset) throws Throwable {
     rsp.send(asset);
   }
 

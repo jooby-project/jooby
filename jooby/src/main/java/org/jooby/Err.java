@@ -57,8 +57,7 @@ public class Err extends RuntimeException {
     private final Logger log = LoggerFactory.getLogger(Err.class);
 
     @Override
-    public void handle(final Request req, final Response rsp, final Err ex)
-        throws Exception {
+    public void handle(final Request req, final Response rsp, final Err ex) throws Throwable {
       log.error("execution of: " + req.method() + req.path() + " resulted in exception", ex);
 
       rsp.send(
@@ -88,9 +87,9 @@ public class Err extends RuntimeException {
      * @param req HTTP request.
      * @param rsp HTTP response.
      * @param ex Error found and status code.
-     * @throws Exception If something goes wrong.
+     * @throws Throwable If something goes wrong.
      */
-    void handle(Request req, Response rsp, Err ex) throws Exception;
+    void handle(Request req, Response rsp, Err ex) throws Throwable;
   }
 
   /**

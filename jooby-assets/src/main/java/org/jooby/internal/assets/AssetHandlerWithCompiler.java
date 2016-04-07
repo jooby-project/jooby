@@ -36,7 +36,7 @@ public class AssetHandlerWithCompiler extends AssetHandler {
   }
 
   @Override
-  protected void send(final Request req, final Response rsp, final Asset asset) throws Exception {
+  protected void send(final Request req, final Response rsp, final Asset asset) throws Throwable {
     super.send(req, rsp, compiler.build(asset));
   }
 }

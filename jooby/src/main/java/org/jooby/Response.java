@@ -165,14 +165,14 @@ public interface Response {
     }
 
     @Override
-    public void send(final Object result) throws Exception {
+    public void send(final Object result) throws Throwable {
       // Special case: let the default response to deal with Object refs.
       // once resolved it will call the Result version.
       Response.super.send(result);
     }
 
     @Override
-    public void send(final Result result) throws Exception {
+    public void send(final Result result) throws Throwable {
       rsp.send(result);
     }
 
@@ -427,7 +427,7 @@ public interface Response {
    * @param result The HTTP body.
    * @throws Exception If the response write fails.
    */
-  default void send(final Object result) throws Exception {
+  default void send(final Object result) throws Throwable {
     requireNonNull(result, "A response message is required.");
     if (result instanceof Result) {
       send((Result) result);
@@ -446,7 +446,7 @@ public interface Response {
    * @param result A HTTP response.
    * @throws Exception If the response write fails.
    */
-  void send(Result result) throws Exception;
+  void send(Result result) throws Throwable;
 
   /**
    * Redirect to the given url with status code defaulting to {@link Status#FOUND}.

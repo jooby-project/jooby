@@ -98,7 +98,7 @@ public class AuthContext implements WebContext {
   public void writeResponseContent(final String content) {
     try {
       rsp.send(content);
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       throw new Err(Status.SERVER_ERROR, ex);
     }
   }

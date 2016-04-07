@@ -360,7 +360,7 @@ public class HttpHandlerImpl implements HttpHandler {
         log.debug("handling err with: {}", next);
         next.handle(req, rsp, err);
       }
-    } catch (Exception errex) {
+    } catch (Throwable errex) {
       log.error("execution of err handler resulted in exception", errex);
     }
   }
