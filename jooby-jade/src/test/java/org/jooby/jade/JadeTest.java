@@ -53,6 +53,18 @@ public class JadeTest {
   }
 
   @Test
+  public void testCachingOn() throws Exception {
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(env("prod"))
+        .expect(conf(".jade", true, false))
+        .expect(jade(".jade", true, false))
+        .run(unit -> {
+          new Jade()
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
+  }
+
+  @Test
   public void testCachingOnInProduction() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(env("prod"))
@@ -142,6 +154,9 @@ public class JadeTest {
     return unit -> {
       Config config = unit.get(Config.class);
       expect(config.hasPath("jade.caching")).andReturn(caching);
+      if (caching) {
+        expect(config.getBoolean("jade.caching")).andReturn(caching);
+      }
       expect(config.hasPath("jade.prettyprint")).andReturn(prettyprint);
     };
   }

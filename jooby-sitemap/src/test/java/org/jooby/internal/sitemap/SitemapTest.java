@@ -67,12 +67,11 @@ public class SitemapTest {
   @Test
   public void configure() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(confWithSiteMapUrl)
         .expect(defwpp)
         .expect(handler)
         .expect(route)
         .run(unit -> {
-          new Sitemap()
+          new Sitemap("http://localhost")
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         });
   }

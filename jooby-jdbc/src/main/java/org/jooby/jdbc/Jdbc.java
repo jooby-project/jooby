@@ -148,7 +148,9 @@ import com.zaxxer.hikari.HikariConfig;
  * }
  * </pre>
  *
- * <p>application.conf</p>
+ * <p>
+ * application.conf
+ * </p>
  *
  * <pre>
  * # main database
@@ -162,7 +164,9 @@ import com.zaxxer.hikari.HikariConfig;
  * db.audit.password = ....
  * </pre>
  *
- * <p>Same principle applies if you need to tweak hikari:</p>
+ * <p>
+ * Same principle applies if you need to tweak hikari:
+ * </p>
  *
  * <pre>
  * # max pool size for main db
@@ -222,8 +226,7 @@ public class Jdbc implements Jooby.Module {
       if (db.toString().indexOf(':') == -1 && source.hasPath(embeddeddb)) {
         Config dbtree = source.getConfig(embeddeddb);
         dbtree = dbtree.withValue("url", ConfigValueFactory.fromAnyRef(
-            dbtree.getString("url").replace("{mem.seed}", System.currentTimeMillis() + "")
-            ));
+            dbtree.getString("url").replace("{mem.seed}", System.currentTimeMillis() + "")));
         // write embedded with current key
         return ConfigFactory.empty()
             .withValue(key, dbtree.root())
@@ -266,10 +269,8 @@ public class Jdbc implements Jooby.Module {
      * # db.* -> dataSource.*
      * # hikari.* -> * (no prefix)
      */
-    dbtype.ifPresent(type ->
-        config.getConfig("databases." + type)
-            .entrySet().forEach(entry -> dumper.accept("dataSource.", entry))
-        );
+    dbtype.ifPresent(type -> config.getConfig("databases." + type)
+        .entrySet().forEach(entry -> dumper.accept("dataSource.", entry)));
 
     config.getConfig(key).entrySet().forEach(entry -> dumper.accept("dataSource.", entry));
 
@@ -294,10 +295,7 @@ public class Jdbc implements Jooby.Module {
         .findFirst()
         .get();
 
-    if (config.hasPath("databases." + type)) {
-      return Optional.of(type);
-    }
-    return Optional.empty();
+    return Optional.of(type);
   }
 
   /**

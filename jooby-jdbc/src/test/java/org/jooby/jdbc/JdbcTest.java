@@ -32,9 +32,25 @@ import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
 
 public class JdbcTest {
+
+  @Test(expected = IllegalArgumentException.class)
+  public void nullname() throws Exception {
+    new Jdbc(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void emptyname() throws Exception {
+    new Jdbc("");
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void nods() throws Exception {
+    new Jdbc().dataSource();
+  }
 
   @SuppressWarnings("unchecked")
   @Test
@@ -66,11 +82,11 @@ public class JdbcTest {
       assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());
 
       // datasource properties
-        assertTrue(Pattern.matches("jdbc:h2:mem:\\d+;DB_CLOSE_DELAY=-1", properties.get("url")
-            .toString()));
-        assertEquals("sa", properties.get("user"));
-        assertEquals("", properties.get("password"));
-      });
+      assertTrue(Pattern.matches("jdbc:h2:mem:\\d+;DB_CLOSE_DELAY=-1", properties.get("url")
+          .toString()));
+      assertEquals("sa", properties.get("user"));
+      assertEquals("", properties.get("password"));
+    });
 
     verify(mocks);
   }
@@ -116,10 +132,10 @@ public class JdbcTest {
       assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());
 
       // datasource properties
-        assertEquals("jdbc:h2:" + apptmpdir + File.separator + dbname, properties.get("url"));
-        assertEquals("sa", properties.get("user"));
-        assertEquals("", properties.get("password"));
-      });
+      assertEquals("jdbc:h2:" + apptmpdir + File.separator + dbname, properties.get("url"));
+      assertEquals("sa", properties.get("user"));
+      assertEquals("", properties.get("password"));
+    });
 
     verify(mocks);
   }
@@ -155,10 +171,10 @@ public class JdbcTest {
       assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());
 
       // datasource properties
-        assertEquals("jdbc:h2:testdb", properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+      assertEquals("jdbc:h2:testdb", properties.get("url"));
+      assertEquals(null, properties.get("user"));
+      assertEquals(null, properties.get("password"));
+    });
 
     verify(mocks);
   }
@@ -195,10 +211,10 @@ public class JdbcTest {
       assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());
 
       // datasource properties
-        assertEquals("jdbc:h2:testdb", properties.get("url"));
-        assertEquals("test", properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+      assertEquals("jdbc:h2:testdb", properties.get("url"));
+      assertEquals("test", properties.get("user"));
+      assertEquals(null, properties.get("password"));
+    });
 
     verify(mocks);
   }
@@ -237,10 +253,10 @@ public class JdbcTest {
               hikariConfig.getDataSourceClassName());
 
           // datasource properties
-        assertEquals("jdbc:derby:testdb", properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+          assertEquals("jdbc:derby:testdb", properties.get("url"));
+          assertEquals(null, properties.get("user"));
+          assertEquals(null, properties.get("password"));
+        });
 
     verify(mocks);
   }
@@ -277,10 +293,10 @@ public class JdbcTest {
       assertEquals("com.ibm.db2.jcc.DB2SimpleDataSource", hikariConfig.getDataSourceClassName());
 
       // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+      assertEquals(dburl, properties.get("url"));
+      assertEquals(null, properties.get("user"));
+      assertEquals(null, properties.get("password"));
+    });
 
     verify(mocks);
   }
@@ -317,10 +333,10 @@ public class JdbcTest {
       assertEquals("org.hsqldb.jdbc.JDBCDataSource", hikariConfig.getDataSourceClassName());
 
       // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+      assertEquals(dburl, properties.get("url"));
+      assertEquals(null, properties.get("user"));
+      assertEquals(null, properties.get("password"));
+    });
 
     verify(mocks);
   }
@@ -357,10 +373,10 @@ public class JdbcTest {
       assertEquals("org.mariadb.jdbc.MySQLDataSource", hikariConfig.getDataSourceClassName());
 
       // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+      assertEquals(dburl, properties.get("url"));
+      assertEquals(null, properties.get("user"));
+      assertEquals(null, properties.get("password"));
+    });
 
     verify(mocks);
   }
@@ -404,15 +420,15 @@ public class JdbcTest {
               hikariConfig.getDataSourceClassName());
 
           // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals("UTF-8", properties.get("encoding"));
-        assertEquals("true", properties.get("cachePrepStmts"));
-        assertEquals("250", properties.get("prepStmtCacheSize"));
-        assertEquals("2048", properties.get("prepStmtCacheSqlLimit"));
-        assertEquals("true", properties.get("useServerPrepStmts"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+          assertEquals(dburl, properties.get("url"));
+          assertEquals("UTF-8", properties.get("encoding"));
+          assertEquals("true", properties.get("cachePrepStmts"));
+          assertEquals("250", properties.get("prepStmtCacheSize"));
+          assertEquals("2048", properties.get("prepStmtCacheSqlLimit"));
+          assertEquals("true", properties.get("useServerPrepStmts"));
+          assertEquals(null, properties.get("user"));
+          assertEquals(null, properties.get("password"));
+        });
 
     verify(mocks);
   }
@@ -460,15 +476,15 @@ public class JdbcTest {
               hikariConfig.getDataSourceClassName());
 
           // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals("UTF-8", properties.get("encoding"));
-        assertEquals("false", properties.get("cachePrepStmts"));
-        assertEquals("250", properties.get("prepStmtCacheSize"));
-        assertEquals("2048", properties.get("prepStmtCacheSqlLimit"));
-        assertEquals("true", properties.get("useServerPrepStmts"));
-        assertEquals("test", properties.get("user"));
-        assertEquals("pass", properties.get("password"));
-      });
+          assertEquals(dburl, properties.get("url"));
+          assertEquals("UTF-8", properties.get("encoding"));
+          assertEquals("false", properties.get("cachePrepStmts"));
+          assertEquals("250", properties.get("prepStmtCacheSize"));
+          assertEquals("2048", properties.get("prepStmtCacheSqlLimit"));
+          assertEquals("true", properties.get("useServerPrepStmts"));
+          assertEquals("test", properties.get("user"));
+          assertEquals("pass", properties.get("password"));
+        });
 
     verify(mocks);
   }
@@ -655,12 +671,12 @@ public class JdbcTest {
       assertEquals(1, hikariConfig.getMaximumPoolSize());
 
       // datasource properties
-        assertTrue(Pattern.matches("jdbc:h2:mem:\\d+;DB_CLOSE_DELAY=-1", properties.get("url")
-            .toString()));
-        assertEquals("h2.db.audit", hikariConfig.getPoolName());
-        assertEquals("sa", properties.get("user"));
-        assertEquals("", properties.get("password"));
-      });
+      assertTrue(Pattern.matches("jdbc:h2:mem:\\d+;DB_CLOSE_DELAY=-1", properties.get("url")
+          .toString()));
+      assertEquals("h2.db.audit", hikariConfig.getPoolName());
+      assertEquals("sa", properties.get("user"));
+      assertEquals("", properties.get("password"));
+    });
 
     verify(mocks);
   }
@@ -700,10 +716,10 @@ public class JdbcTest {
               hikariConfig.getDataSourceClassName());
 
           // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+          assertEquals(dburl, properties.get("url"));
+          assertEquals(null, properties.get("user"));
+          assertEquals(null, properties.get("password"));
+        });
 
     verify(mocks);
   }
@@ -743,10 +759,10 @@ public class JdbcTest {
               hikariConfig.getDataSourceClassName());
 
           // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+          assertEquals(dburl, properties.get("url"));
+          assertEquals(null, properties.get("user"));
+          assertEquals(null, properties.get("password"));
+        });
 
     verify(mocks);
   }
@@ -786,10 +802,10 @@ public class JdbcTest {
               hikariConfig.getDataSourceClassName());
 
           // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+          assertEquals(dburl, properties.get("url"));
+          assertEquals(null, properties.get("user"));
+          assertEquals(null, properties.get("password"));
+        });
 
     verify(mocks);
   }
@@ -829,10 +845,10 @@ public class JdbcTest {
               hikariConfig.getDataSourceClassName());
 
           // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+          assertEquals(dburl, properties.get("url"));
+          assertEquals(null, properties.get("user"));
+          assertEquals(null, properties.get("password"));
+        });
 
     verify(mocks);
   }
@@ -872,10 +888,10 @@ public class JdbcTest {
               hikariConfig.getDataSourceClassName());
 
           // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+          assertEquals(dburl, properties.get("url"));
+          assertEquals(null, properties.get("user"));
+          assertEquals(null, properties.get("password"));
+        });
 
     verify(mocks);
   }
@@ -915,10 +931,10 @@ public class JdbcTest {
               hikariConfig.getDataSourceClassName());
 
           // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+          assertEquals(dburl, properties.get("url"));
+          assertEquals(null, properties.get("user"));
+          assertEquals(null, properties.get("password"));
+        });
 
     verify(mocks);
   }
@@ -958,10 +974,55 @@ public class JdbcTest {
               hikariConfig.getDataSourceClassName());
 
           // datasource properties
-        assertEquals(dburl, properties.get("url"));
-        assertEquals(null, properties.get("user"));
-        assertEquals(null, properties.get("password"));
-      });
+          assertEquals(dburl, properties.get("url"));
+          assertEquals(null, properties.get("user"));
+          assertEquals(null, properties.get("password"));
+        });
+
+    verify(mocks);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void unknownDb() throws Exception {
+    Env mode = mode("dev");
+    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf")
+        .withValue("databases.custom.dataSourceClassName",
+            ConfigValueFactory.fromAnyRef("org.h2.jdbcx.JdbcDataSource"));
+    Binder binder = createMock(Binder.class);
+
+    // config
+    String dburl = "jdbc:custom:testdb";
+    config = config.withValue("db", fromAnyRef(dburl));
+
+    // binder
+    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
+    scope.asEagerSingleton();
+    scope.asEagerSingleton();
+
+    Capture<Provider<DataSource>> provider = new Capture<>();
+    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
+    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
+    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
+
+    Object[] mocks = {binder, binding, scope };
+
+    replay(mocks);
+
+    new Jdbc().configure(mode, config, binder);
+
+    withHikariConfig(
+        provider,
+        (hikariConfig, properties) -> {
+          assertEquals("org.h2.jdbcx.JdbcDataSource",
+              hikariConfig.getDataSourceClassName());
+
+          // datasource properties
+          assertEquals(dburl, properties.get("url"));
+          assertEquals(null, properties.get("user"));
+          assertEquals(null, properties.get("password"));
+        });
 
     verify(mocks);
   }
