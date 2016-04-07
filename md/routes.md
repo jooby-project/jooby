@@ -66,8 +66,6 @@ get("/", (req, rsp, chain) -> {
 });
 ```
 
-{{route-attrs.md}}
-
 ## path patterns
 
 ### static patterns

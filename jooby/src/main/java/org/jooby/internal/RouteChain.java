@@ -19,10 +19,13 @@
 package org.jooby.internal;
 
 import java.util.List;
+import java.util.Map;
 
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
+
+import com.google.common.collect.ImmutableMap;
 
 public class RouteChain implements Route.Chain {
 
@@ -36,10 +39,17 @@ public class RouteChain implements Route.Chain {
 
   private ResponseImpl rrsp;
 
+  private boolean hasAttrs;
+
   public RouteChain(final RequestImpl req, final ResponseImpl rsp, final List<Route> routes) {
     this.routes = routes;
     this.rreq = req;
     this.rrsp = rsp;
+
+    // eager decision if we need to wrap a route to get all the attrs within the change.
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    routes.forEach(r -> builder.putAll(r.attributes()));
+    this.hasAttrs = builder.build().size() > 0;
   }
 
   @Override
@@ -52,12 +62,12 @@ public class RouteChain implements Route.Chain {
       this.prefix = prefix;
     }
 
-    RouteImpl route = get(next(this.prefix));
+    Route route = next(this.prefix);
     // set route
-    rreq.route(route);
+    rreq.route(hasAttrs ? attrs(route, routes, i - 1) : route);
     rrsp.route(route);
 
-    route.handle(req, rsp, this);
+    get(route).handle(req, rsp, this);
   }
 
   private Route next(final String prefix) {
@@ -73,6 +83,20 @@ public class RouteChain implements Route.Chain {
 
   private RouteImpl get(final Route next) {
     return (RouteImpl) Route.Forwarding.unwrap(next);
+  }
+
+  private static Route attrs(final Route route, final List<Route> routes, final int i) {
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    for (int t = i; t < routes.size(); t++) {
+      builder.putAll(routes.get(t).attributes());
+    }
+    Map<String, String> attrs = builder.build();
+    return new Route.Forwarding(route) {
+      @Override
+      public Map<String, String> attributes() {
+        return attrs;
+      }
+    };
   }
 
 }

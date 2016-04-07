@@ -15,7 +15,7 @@ You can add as many attributes as you need. They can be accessed later and use i
 {
   use((req, rsp, chain) -> {
     User user = ...;
-    String role = req.route.attr("role");
+    String role = req.route().attr("role");
     if (user.hasRole(role)) {
       chain.next(req, rsp);
     }
@@ -24,6 +24,40 @@ You can add as many attributes as you need. They can be accessed later and use i
 
 }
 ```
+
+In MVC routes we use ```annotations``` to define route attributes:
+
+```java
+@Target({ElementType.METHOD, ElementType.TYPE, ElementType.ANNOTATION_TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public static @interface Role {
+  String value();
+}
+
+@Path("/path")
+public class AdminResource {
+
+  @Role("admin")
+  public Object doSomething() {
+    ...
+  }
+
+}
+
+{
+  use("*", (req, rsp) -> {
+    System.out.println(req.route().attributes())
+  });
+}
+
+```
+
+The previous example will print: ```{role = admin}```.
+
+Any runtime annotations are automatically added as route attributes. Following these rules:
+
+* If the annotation has a ```value``` method, then we use the annotation's name as attribute name.
+* Otherwise, we use the method name as attribute name.
 
 ### excludes
 

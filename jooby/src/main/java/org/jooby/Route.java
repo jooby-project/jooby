@@ -1812,7 +1812,6 @@ public interface Route {
     default void next(final Request req, final Response rsp) throws Throwable {
       next(null, req, rsp);
     }
-
   }
 
   /** Renderer key. */
@@ -1917,7 +1916,7 @@ public interface Route {
   }
 
   /**
-   * @return All the available attributes.
+   * @return All the available attributes in the execution chain.
    */
   Map<String, String> attributes();
 

@@ -24,6 +24,8 @@ documentation
 
 {{dynamic-routing.md}}
 
+{{route-attrs.md}}
+
 {{req.md}}
 
 {{rsp.md}}

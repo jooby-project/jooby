@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,7 +49,10 @@ import org.jooby.mvc.Path;
 import org.jooby.mvc.Produces;
 import org.jooby.mvc.TRACE;
 
+import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableSet;
+
+import javaslang.control.Try;
 
 public class MvcRoutes {
 
@@ -58,6 +62,14 @@ public class MvcRoutes {
   private static final Set<Class<? extends Annotation>> VERBS = ImmutableSet.of(GET.class,
       POST.class, PUT.class, DELETE.class, PATCH.class, HEAD.class, OPTIONS.class, TRACE.class,
       CONNECT.class);
+
+  private static final Set<Class<? extends Annotation>> IGNORE = ImmutableSet
+      .<Class<? extends Annotation>> builder()
+      .addAll(VERBS)
+      .add(Path.class)
+      .add(Produces.class)
+      .add(Consumes.class)
+      .build();
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   public static List<Route.Definition> routes(final Env env, final RouteMetadata classInfo,
@@ -87,7 +99,7 @@ public class MvcRoutes {
     }
 
     List<Definition> definitions = new ArrayList<>();
-
+    Map<String, String> attrs = attrs(routeClass.getAnnotations());
     methods
         .keySet()
         .stream()
@@ -109,6 +121,8 @@ public class MvcRoutes {
           List<Class<?>> verbs = methods.get(method);
           List<MediaType> produces = produces(method);
           List<MediaType> consumes = consumes(method);
+          Map<String, String> localAttrs = new HashMap<>(attrs);
+          localAttrs.putAll(attrs(method.getAnnotations()));
 
           for (String path : expandPaths(rootPaths, method)) {
             for (Class<?> verb : verbs) {
@@ -123,12 +137,43 @@ public class MvcRoutes {
                       .excludes(excludes)
                       .name(name);
 
+              localAttrs.forEach((n, v) -> definition.attr(n, v));
               definitions.add(definition);
             }
           }
         });
 
     return definitions;
+  }
+
+  private static Map<String, String> attrs(final Annotation[] annotations) {
+    Map<String, String> result = new LinkedHashMap<>();
+    for (Annotation annotation : annotations) {
+      result.putAll(attrs(annotation));
+    }
+    return result;
+  }
+
+  private static Map<String, String> attrs(final Annotation annotation) {
+    Map<String, String> result = new LinkedHashMap<>();
+    Class<? extends Annotation> annotationType = annotation.annotationType();
+    if (!IGNORE.contains(annotationType)) {
+      Method[] attrs = annotation.annotationType().getDeclaredMethods();
+      for (Method attr : attrs) {
+        Try.of(() -> attr.invoke(annotation))
+            .onSuccess(value -> result.put(attrName(annotation, attr), value.toString()));
+      }
+    }
+    return result;
+  }
+
+  private static String attrName(final Annotation annotation, final Method attr) {
+    String name = attr.getName();
+    if (name.equals("value")) {
+      return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_CAMEL,
+          annotation.annotationType().getSimpleName());
+    }
+    return name;
   }
 
   private static List<MediaType> produces(final Method method) {
