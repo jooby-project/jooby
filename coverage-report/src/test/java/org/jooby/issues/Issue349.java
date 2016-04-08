@@ -39,6 +39,13 @@ public class Issue349 extends ServerFeature {
         .get("/a", () -> "a")
         .map(v -> "//" + v);
 
+    with(() -> {
+
+      get("/double", () -> 2);
+
+      get("/str", req -> "str");
+    }).map((final Integer v) -> v * 2);
+
   }
 
   @Test
@@ -63,7 +70,14 @@ public class Issue349 extends ServerFeature {
 
     request().get("/mvc/void")
         .expect(204);
-
   }
 
+  @Test
+  public void applyIntMapper() throws Exception {
+    request().get("/double")
+        .expect("4");
+
+    request().get("/str")
+        .expect("str");
+  }
 }

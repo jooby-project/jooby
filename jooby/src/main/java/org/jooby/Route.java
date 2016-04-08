@@ -214,7 +214,74 @@ import com.google.inject.TypeLiteral;
  */
 public interface Route {
 
+  /**
+   * The map operator converts a route output to something else
+   *
+   * <pre>{@code
+   * {
+   *   // we got bar.. not foo
+   *   get("/foo", () -> "foo")
+   *       .map(value -> "bar");
+   *
+   *   // we got foo.. not bar
+   *   get("/bar", () -> "bar")
+   *       .map(value -> "foo");
+   * }
+   * }</pre>
+   *
+   * If you want to apply a single map to several routes:
+   *
+   * <pre>{@code
+   * {
+   *    with(() -> {
+   *      get("/foo", () -> "foo");
+   *
+   *      get("/bar", () -> "bar");
+   *
+   *    }).map(v -> "foo or bar");
+   * }
+   * }</pre>
+   *
+   * You can apply a {@link Mapper} to specific return type:
+   *
+   * <pre>{@code
+   * {
+   *    with(() -> {
+   *      get("/str", () -> "str");
+   *
+   *      get("/int", () -> 1);
+   *
+   *    }).map(String v -> "{" + v + "}");
+   * }
+   * }</pre>
+   *
+   * A call to <code>/str</code> produces <code>{str}</code>, while <code>/int</code> just
+   * <code>1</code>.
+   *
+   * <strong>NOTE</strong>: You can apply the map operator to routes that produces an output.
+   *
+   * For example, the map operator will be silently ignored here:
+   *
+   * <pre>{@code
+   * {
+   *    get("/", (req, rsp) -> {
+   *      rsp.send(...);
+   *    }).map(v -> ..);
+   * }
+   * }</pre>
+   *
+   * @author edgar
+   * @param <T> Type to map.
+   */
   interface Mapper<T> {
+
+    /**
+     * Map the type to something else.
+     *
+     * @param value Value to map.
+     * @return Mapped value.
+     * @throws Throwable If mapping fails.
+     */
     Object map(T value) throws Throwable;
   }
 
