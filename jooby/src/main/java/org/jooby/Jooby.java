@@ -86,6 +86,7 @@ import javax.inject.Singleton;
 import javax.net.ssl.SSLContext;
 
 import org.jooby.Route.Definition;
+import org.jooby.Route.Mapper;
 import org.jooby.Session.Store;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.AppPrinter;
@@ -125,6 +126,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
@@ -457,14 +459,82 @@ public class Jooby implements Routes {
 
   }
 
-  private static class RouteClass {
+  private static class MvcClass implements Route.Props<MvcClass> {
     Class<?> routeClass;
 
     String path;
 
-    public RouteClass(final Class<?> routeClass, final String path) {
+    ImmutableMap.Builder<String, Object> attrs = ImmutableMap.builder();
+
+    private List<MediaType> consumes;
+
+    private String name;
+
+    private List<MediaType> produces;
+
+    private List<String> excludes;
+
+    private Mapper<?> mapper;
+
+    public MvcClass(final Class<?> routeClass, final String path) {
       this.routeClass = routeClass;
       this.path = path;
+    }
+
+    @Override
+    public MvcClass attr(final String name, final Object value) {
+      attrs.put(name, value);
+      return this;
+    }
+
+    @Override
+    public MvcClass name(final String name) {
+      this.name = name;
+      return this;
+    }
+
+    @Override
+    public MvcClass consumes(final List<MediaType> consumes) {
+      this.consumes = consumes;
+      return this;
+    }
+
+    @Override
+    public MvcClass produces(final List<MediaType> produces) {
+      this.produces = produces;
+      return this;
+    }
+
+    @Override
+    public MvcClass excludes(final List<String> excludes) {
+      this.excludes = excludes;
+      return this;
+    }
+
+    @Override
+    public MvcClass map(final Mapper<?> mapper) {
+      this.mapper = mapper;
+      return this;
+    }
+
+    public Route.Definition apply(final Route.Definition route) {
+      attrs.build().forEach(route::attr);
+      if (name != null) {
+        route.name(name);
+      }
+      if (consumes != null) {
+        route.consumes(consumes);
+      }
+      if (produces != null) {
+        route.produces(produces);
+      }
+      if (excludes != null) {
+        route.excludes(excludes);
+      }
+      if (mapper != null) {
+        route.map(mapper);
+      }
+      return route;
     }
   }
 
@@ -585,8 +655,8 @@ public class Jooby implements Routes {
         this.bag.add(rewrite.apply((Definition) it));
       } else if (it instanceof Route.Group) {
         ((Route.Group) it).routes().forEach(r -> this.bag.add(rewrite.apply(r)));
-      } else if (it instanceof RouteClass) {
-        Object routes = path.<Object> map(p -> new RouteClass(((RouteClass) it).routeClass, p))
+      } else if (it instanceof MvcClass) {
+        Object routes = path.<Object> map(p -> new MvcClass(((MvcClass) it).routeClass, p))
             .orElse(it);
         this.bag.add(routes);
       } else if (it instanceof EnvDep) {
@@ -3031,10 +3101,11 @@ public class Jooby implements Routes {
    * @return This jooby instance.
    */
   @Override
-  public Jooby use(final Class<?> routeClass) {
+  public Route.Collection use(final Class<?> routeClass) {
     requireNonNull(routeClass, "Route class is required.");
-    bag.add(new RouteClass(routeClass, ""));
-    return this;
+    MvcClass mvc = new MvcClass(routeClass, "");
+    bag.add(mvc);
+    return new Route.Collection(mvc);
   }
 
   /**
@@ -3125,18 +3196,19 @@ public class Jooby implements Routes {
     return appendDefinition(new Route.Definition("GET", path, handler)).consumes(MediaType.sse);
   }
 
+  @SuppressWarnings("rawtypes")
   @Override
   public Route.Collection with(final Runnable callback) {
     // hacky way of doing what we want... but we do simplify developer life
     int size = this.bag.size();
     callback.run();
-    // collect latest routes and apply collection attr
-    List<Route.Definition> local = this.bag.stream()
+    // collect latest routes and apply route props
+    List<Route.Props> local = this.bag.stream()
         .skip(size)
-        .filter(Predicates.instanceOf(Route.Definition.class))
-        .map(r -> (Route.Definition) r)
+        .filter(Predicates.instanceOf(Route.Props.class))
+        .map(r -> (Route.Props) r)
         .collect(Collectors.toList());
-    return new Route.Collection(local.toArray(new Route.Definition[local.size()]));
+    return new Route.Collection(local.toArray(new Route.Props[local.size()]));
   }
 
   /**
@@ -3385,10 +3457,12 @@ public class Jooby implements Routes {
       } else if (candidate instanceof Route.Group) {
         ((Route.Group) candidate).routes()
             .forEach(r -> result.add(r));
-      } else if (candidate instanceof RouteClass) {
-        Class<?> routeClass = ((RouteClass) candidate).routeClass;
-        String path = ((RouteClass) candidate).path;
-        MvcRoutes.routes(env, classInfo, path, routeClass).forEach(route -> {
+      } else if (candidate instanceof MvcClass) {
+        MvcClass mvcRoute = ((MvcClass) candidate);
+        Class<?> mvcClass = mvcRoute.routeClass;
+        String path = ((MvcClass) candidate).path;
+        MvcRoutes.routes(env, classInfo, path, mvcClass).forEach(route -> {
+          mvcRoute.apply(route);
           if (prefix != null) {
             route.name(prefix + "/" + route.name());
           }

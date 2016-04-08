@@ -1679,7 +1679,7 @@ public interface Routes {
    * @param routeClass A route(s) class.
    * @return This jooby instance.
    */
-  Jooby use(Class<?> routeClass);
+  Route.Collection use(Class<?> routeClass);
 
   /**
    * <h2>before</h2>
