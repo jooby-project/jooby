@@ -83,11 +83,9 @@ public class SseRenderer extends AbstractRendererContext {
 
     data = ByteSource.concat(data, NL);
 
-    return data.read();
-  }
-
-  public void clear() {
+    byte[] bytes = data.read();
     data = null;
+    return bytes;
   }
 
   @Override

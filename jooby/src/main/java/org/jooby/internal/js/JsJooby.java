@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.script.ScriptEngine;
@@ -58,12 +59,12 @@ public class JsJooby {
     eval(new InputStreamReader(stream, StandardCharsets.UTF_8));
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })
   void eval(final Reader reader) throws Exception {
-    try {
-      engine.eval(reader);
-    } finally {
-      Closeables.closeQuietly(reader);
-    }
+    Consumer closer = x -> Closeables.closeQuietly(reader);
+    Try.run(() -> engine.eval(reader))
+        .onFailure(closer)
+        .onSuccess(closer);
   }
 
 }

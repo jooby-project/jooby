@@ -110,7 +110,7 @@ public class RequestTest {
 
     @Override
     public List<Locale> locales() {
-      throw new UnsupportedOperationException();
+      return Request.super.locales();
     }
 
     @Override
@@ -311,6 +311,20 @@ public class RequestTest {
               return unit.get(Route.class);
             }
           }.method());
+        });
+  }
+
+  @Test
+  public void locales() throws Exception {
+    new MockUnit(Route.class)
+        .run(unit -> {
+          assertEquals(null, new RequestMock() {
+            @Override
+            public List<Locale> locales(
+                final BiFunction<List<LanguageRange>, List<Locale>, List<Locale>> filter) {
+              return null;
+            }
+          }.locales());
         });
   }
 

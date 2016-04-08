@@ -8,4 +8,5 @@ public class StatusTest {
   public void badCode() {
     Status.valueOf(907);
   }
+
 }

@@ -875,16 +875,14 @@ public abstract class Sse implements AutoCloseable {
     List<MediaType> produces = event.type().<List<MediaType>> map(ImmutableList::of)
         .orElse(this.produces);
     SseRenderer ctx = new SseRenderer(renderers, produces, StandardCharsets.UTF_8, locals);
-    try {
+    return Try.of(() -> {
       byte[] bytes = ctx.format(event);
-      return send(event.id(), bytes).future();
-    } catch (Throwable cause) {
+      return send(event.id(), bytes);
+    }).recover(cause -> {
       Promise<Optional<Object>> promise = Promise.make(MoreExecutors.newDirectExecutorService());
       promise.failure(cause);
-      return promise.future();
-    } finally {
-      ctx.clear();
-    }
+      return promise;
+    }).get().future();
   }
 
 }

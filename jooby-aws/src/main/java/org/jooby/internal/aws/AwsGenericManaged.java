@@ -66,7 +66,8 @@ public class AwsGenericManaged implements Provider, Managed {
         log.debug("no shutdown method found for: {}", dep);
       }
     } catch (InvocationTargetException ex) {
-      Throwables.propagate(ex.getCause());
+      RuntimeException x = Throwables.propagate(ex.getCause());
+      throw x;
     } finally {
       dep = null;
     }

@@ -445,57 +445,6 @@ public class SseTest {
               .build(isA(List.class), isA(List.class), eq(StandardCharsets.UTF_8), isA(Map.class));
 
           expect(renderer.format(isA(Sse.Event.class))).andThrow(new IOException("failure"));
-          renderer.clear();
-        })
-        .run(unit -> {
-          Sse sse = new Sse() {
-
-            @Override
-            protected void closeInternal() {
-            }
-
-            @Override
-            protected void fireCloseEvent() {
-            }
-
-            @Override
-            protected Promise<Optional<Object>> send(final Optional<Object> id, final byte[] data) {
-              Promise<Optional<Object>> promise = Promise
-                  .make(MoreExecutors.newDirectExecutorService());
-              promise.failure(new IOException("intentional err"));
-              return promise;
-            }
-
-            @Override
-            public Sse keepAlive(final long millis) {
-              return this;
-            }
-
-            @Override
-            protected void handshake(final Runnable handler) throws Exception {
-            }
-          };
-          sse.handshake(unit.get(Request.class), unit.get(Runnable.class));
-          sse.event(data).type(MediaType.all).send().onFailure(cause -> latch.countDown());
-          latch.await();
-        });
-  }
-
-  @SuppressWarnings("resource")
-  @Test(expected = IllegalStateException.class)
-  public void sendFailure() throws Exception {
-    CountDownLatch latch = new CountDownLatch(1);
-    Object data = new Object();
-    new MockUnit(Request.class, Route.class, Injector.class, Runnable.class)
-        .expect(handshake)
-        .expect(unit -> {
-          SseRenderer renderer = unit.constructor(SseRenderer.class)
-              .args(List.class, List.class, Charset.class, Map.class)
-              .build(isA(List.class), isA(List.class), eq(StandardCharsets.UTF_8), isA(Map.class));
-
-          expect(renderer.format(isA(Sse.Event.class))).andReturn(new byte[0]);
-          renderer.clear();
-          expectLastCall().andThrow(new IllegalStateException("intentional err"));
         })
         .run(unit -> {
           Sse sse = new Sse() {

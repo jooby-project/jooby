@@ -107,4 +107,10 @@ public class CookieDefinitionTest {
     assertEquals(true, def.secure(true).secure().get());
     assertEquals(true, def.toCookie().secure());
   }
+
+  @Test
+  public void toStr() {
+    Definition def = new Cookie.Definition("name", "q");
+    assertEquals("name=q;Version=1", def.toString());
+  }
 }
