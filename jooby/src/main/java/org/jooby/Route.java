@@ -214,6 +214,10 @@ import com.google.inject.TypeLiteral;
  */
 public interface Route {
 
+  interface Mapper<T> {
+    Object map(T value) throws Throwable;
+  }
+
   /**
    * Common route properties, like static and global metadata via attributes, path exclusion,
    * produces and consumes types.
@@ -341,8 +345,9 @@ public interface Route {
      * @param excludes A path pattern.
      * @return This instance.
      */
-    public T excludes(final List<String> excludes);
+    T excludes(final List<String> excludes);
 
+    T map(Mapper<?> mapper);
   }
 
   class Group implements Props<Group> {
@@ -676,6 +681,14 @@ public interface Route {
       return this;
     }
 
+    @Override
+    public Group map(final Mapper<?> mapper) {
+      for (Definition definition : routes) {
+        definition.map(mapper);
+      }
+      return this;
+    }
+
     private void newRoute(final String method, final String pattern,
         final Route.Filter filter) {
       newRoute(new Route.Definition(method, this.rootPattern + pattern, filter));
@@ -706,28 +719,29 @@ public interface Route {
   };
 
   /**
-   * Collection of {@link Route.Definition} useful for registering/setting route options at once.
+   * Collection of {@link Route.Props} useful for registering/setting route options at once.
    *
    * @author edgar
    * @since 0.5.0
    */
+  @SuppressWarnings({"unchecked", "rawtypes" })
   class Collection implements Props<Collection> {
 
     /** List of definitions. */
-    private Route.Definition[] routes;
+    private Route.Props[] routes;
 
     /**
      * Creates a new collection of route definitions.
      *
      * @param definitions Collection of route definitions.
      */
-    public Collection(final Route.Definition... definitions) {
+    public Collection(final Route.Props... definitions) {
       this.routes = requireNonNull(definitions, "Route definitions are required.");
     }
 
     @Override
     public Collection name(final String name) {
-      for (Definition definition : routes) {
+      for (Props definition : routes) {
         definition.name(name);
       }
       return this;
@@ -735,7 +749,7 @@ public interface Route {
 
     @Override
     public Collection consumes(final List<MediaType> types) {
-      for (Definition definition : routes) {
+      for (Props definition : routes) {
         definition.consumes(types);
       }
       return this;
@@ -743,7 +757,7 @@ public interface Route {
 
     @Override
     public Collection produces(final List<MediaType> types) {
-      for (Definition definition : routes) {
+      for (Props definition : routes) {
         definition.produces(types);
       }
       return this;
@@ -751,7 +765,7 @@ public interface Route {
 
     @Override
     public Collection attr(final String name, final Object value) {
-      for (Definition definition : routes) {
+      for (Props definition : routes) {
         definition.attr(name, value);
       }
       return this;
@@ -759,12 +773,19 @@ public interface Route {
 
     @Override
     public Collection excludes(final List<String> excludes) {
-      for (Definition definition : routes) {
+      for (Props definition : routes) {
         definition.excludes(excludes);
       }
       return this;
     }
 
+    @Override
+    public Collection map(final Mapper<?> mapper) {
+      for (Props route : routes) {
+        route.map(mapper);
+      }
+      return this;
+    }
   }
 
   /**
@@ -867,6 +888,8 @@ public interface Route {
     private List<RoutePattern> excludes = Collections.emptyList();
 
     private Map<String, Object> attributes = new HashMap<>();
+
+    private Mapper<?> mapper;
 
     /**
      * Creates a new route definition.
@@ -1207,6 +1230,12 @@ public interface Route {
     }
 
     @Override
+    public Definition map(final Mapper<?> mapper) {
+      this.mapper = requireNonNull(mapper, "Mapper is required.");
+      return this;
+    }
+
+    @Override
     public String toString() {
       StringBuilder buffer = new StringBuilder();
       buffer.append(method()).append(" ").append(pattern()).append("\n");
@@ -1232,7 +1261,7 @@ public interface Route {
         filter = ((AssetProxy) filter).delegate();
       }
       return new RouteImpl(filter, method, matcher.path(), pattern, name, matcher.vars(), consumes,
-          produces, attributes);
+          produces, attributes, mapper);
     }
 
   }

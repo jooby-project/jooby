@@ -18,6 +18,11 @@
  */
 package org.jooby.internal;
 
+import static javaslang.API.$;
+import static javaslang.API.Case;
+import static javaslang.API.Match;
+import static javaslang.Predicates.instanceOf;
+
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +32,11 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
+import org.jooby.internal.mvc.MvcHandler;
 
 import com.google.common.collect.ImmutableMap;
+
+import javaslang.control.Option;
 
 public class RouteImpl implements Route, Route.Filter {
 
@@ -66,7 +74,7 @@ public class RouteImpl implements Route, Route.Filter {
   public static RouteImpl fromStatus(final Filter filter, final String method,
       final String path, final String name, final List<MediaType> produces) {
     return new RouteImpl(filter, method, path, path, name, NO_VARS, MediaType.ALL, produces,
-        NO_ATTRS) {
+        NO_ATTRS, null) {
       @Override
       public boolean apply(final String filter) {
         return true;
@@ -77,16 +85,30 @@ public class RouteImpl implements Route, Route.Filter {
   public RouteImpl(final Filter filter, final String method, final String path,
       final String pattern, final String name, final Map<Object, String> vars,
       final List<MediaType> consumes, final List<MediaType> produces,
-      final Map<String, Object> attributes) {
+      final Map<String, Object> attributes, final Mapper<?> mapper) {
     this(filter, method, path, pattern, name, vars, consumes, produces,
-        ImmutableMap.<String, Object> copyOf(attributes));
+        ImmutableMap.<String, Object> copyOf(attributes), mapper);
   }
 
   public RouteImpl(final Filter filter, final String method, final String path,
       final String pattern, final String name, final Map<Object, String> vars,
       final List<MediaType> consumes, final List<MediaType> produces,
-      final ImmutableMap<String, Object> attributes) {
-    this.filter = filter;
+      final ImmutableMap<String, Object> attributes, final Mapper<?> mapper) {
+    this.filter = Option.of(mapper)
+        .map(m -> Match(filter).of(
+            Case(instanceOf(Route.OneArgHandler.class),
+                f -> new MappedHandler((req, rsp) -> f.handle(req), mapper)),
+            Case(instanceOf(Route.ZeroArgHandler.class),
+                f -> new MappedHandler((req, rsp) -> f.handle(), mapper)),
+            Case(instanceOf(MvcHandler.class), f -> {
+              if (f.method().getReturnType() == void.class) {
+                // ignore void results
+                return filter;
+              }
+              return new MappedHandler((req, rsp) -> f.invoke(req, rsp), mapper);
+            }),
+            Case($(), filter)))
+        .getOrElse(filter);
     this.method = method;
     this.path = path;
     this.pattern = pattern;

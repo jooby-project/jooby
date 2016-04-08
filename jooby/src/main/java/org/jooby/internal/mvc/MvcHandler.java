@@ -31,7 +31,7 @@ import org.jooby.Status;
 
 import com.google.common.base.Throwables;
 
-class MvcHandler implements Route.MethodHandler {
+public class MvcHandler implements Route.MethodHandler {
 
   private Method handler;
 
@@ -50,6 +50,19 @@ class MvcHandler implements Route.MethodHandler {
   @Override
   public void handle(final Request req, final Response rsp) throws Throwable {
 
+    Object result = invoke(req, rsp);
+
+    Class<?> returnType = handler.getReturnType();
+    if (returnType == void.class) {
+      rsp.status(Status.NO_CONTENT);
+      return;
+    }
+    rsp.status(Status.OK);
+
+    rsp.send(result);
+  }
+
+  public Object invoke(final Request req, final Response rsp) throws Throwable {
     try {
       Object target = req.require(handler.getDeclaringClass());
 
@@ -61,18 +74,11 @@ class MvcHandler implements Route.MethodHandler {
 
       final Object result = handler.invoke(target, args);
 
-      Class<?> returnType = handler.getReturnType();
-      if (returnType == void.class) {
-        rsp.status(Status.NO_CONTENT);
-        return;
-      }
-      rsp.status(Status.OK);
-
-      rsp.send(result);
+      return result;
     } catch (InvocationTargetException ex) {
       Throwable cause = ex.getCause();
       Throwables.propagateIfInstanceOf(cause, Exception.class);
-      Throwables.propagate(cause);
+      throw Throwables.propagate(cause);
     }
   }
 }
