@@ -34,11 +34,11 @@ import com.google.inject.Inject;
 
 public class HeadHandler implements Route.Filter {
 
-  private Set<Definition> routeDefs;
+  private Set<Definition> routes;
 
   @Inject
-  public HeadHandler(final Set<Route.Definition> routeDefs) {
-    this.routeDefs = requireNonNull(routeDefs, "Route definitions are required.");
+  public HeadHandler(final Set<Route.Definition> routes) {
+    this.routes = requireNonNull(routes, "Routes are required.");
   }
 
   @Override
@@ -46,18 +46,20 @@ public class HeadHandler implements Route.Filter {
       throws Throwable {
 
     String path = req.path();
-    for (Route.Definition routeDef : routeDefs) {
-      Optional<Route> route = routeDef
-          .matches("GET", path, MediaType.all, MediaType.ALL);
-      if (route.isPresent() && !route.get().pattern().contains("*")) {
-        // route found
-        rsp.length(0);
-        ((RouteImpl) route.get()).handle(req, rsp, chain);
-        return;
+    for (Route.Definition router : routes) {
+      // ignore glob route
+      if (!router.glob()) {
+        Optional<Route> ifRoute = router
+            .matches(Route.GET, path, MediaType.all, MediaType.ALL);
+        if (ifRoute.isPresent()) {
+          // route found
+          rsp.length(0);
+          ((RouteImpl) ifRoute.get()).handle(req, rsp, chain);
+          return;
+        }
       }
     }
     // not handled, just call next
     chain.next(req, rsp);
   }
-
 }

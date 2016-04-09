@@ -21,7 +21,6 @@ package org.jooby.internal.handlers;
 import static java.util.Objects.requireNonNull;
 
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import org.jooby.MediaType;
@@ -36,31 +35,32 @@ import com.google.inject.Inject;
 
 public class OptionsHandler implements Route.Handler {
 
-  private Set<Definition> routeDefs;
+  private static final String SEP = ", ";
+
+  private static final String ALLOW = "Allow";
+
+  private Set<Definition> routes;
 
   @Inject
-  public OptionsHandler(final Set<Route.Definition> routeDefs) {
-    this.routeDefs = requireNonNull(routeDefs, "Route definitions are required.");
+  public OptionsHandler(final Set<Route.Definition> routes) {
+    this.routes = requireNonNull(routes, "Routes are required.");
   }
 
   @Override
   public void handle(final Request req, final Response rsp) throws Exception {
-    if (!rsp.header("Allow").toOptional(String.class).isPresent()) {
+    if (!rsp.header(ALLOW).isSet()) {
       Set<String> allow = new LinkedHashSet<>();
       Set<String> methods = new LinkedHashSet<>(Route.METHODS);
       String path = req.path();
       methods.remove(req.method());
-      for (String alt : methods) {
-        for (Route.Definition routeDef : routeDefs) {
-          Optional<Route> route = routeDef.matches(alt, path, MediaType.all, MediaType.ALL);
-          if (route.isPresent()) {
-            allow.add(route.get().method());
-          }
-        }
+      for (String method : methods) {
+        routes.stream()
+            .filter(route -> route.matches(method, path, MediaType.all, MediaType.ALL).isPresent())
+            .forEach(route -> allow.add(route.method()));
       }
-      rsp.header("Allow", Joiner.on(", ").join(allow));
-      rsp.length(0);
-      rsp.status(Status.OK);
+      rsp.header(ALLOW, Joiner.on(SEP).join(allow))
+          .length(0)
+          .status(Status.OK);
     }
   }
 

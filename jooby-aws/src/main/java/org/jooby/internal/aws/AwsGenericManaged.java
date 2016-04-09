@@ -18,6 +18,11 @@
  */
 package org.jooby.internal.aws;
 
+import static javaslang.API.$;
+import static javaslang.API.Case;
+import static javaslang.API.Match;
+import static javaslang.Predicates.instanceOf;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -29,8 +34,6 @@ import javax.inject.Provider;
 import org.jooby.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Throwables;
 
 @SuppressWarnings("rawtypes")
 public class AwsGenericManaged implements Provider, Managed {
@@ -66,8 +69,9 @@ public class AwsGenericManaged implements Provider, Managed {
         log.debug("no shutdown method found for: {}", dep);
       }
     } catch (InvocationTargetException ex) {
-      RuntimeException x = Throwables.propagate(ex.getCause());
-      throw x;
+      throw Match(ex.getTargetException()).of(
+          Case(instanceOf(Exception.class), x -> x),
+          Case($(), x -> new IllegalStateException("shutdown result in error", x)));
     } finally {
       dep = null;
     }

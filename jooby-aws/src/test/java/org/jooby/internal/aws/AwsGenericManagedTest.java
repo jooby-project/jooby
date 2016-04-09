@@ -76,6 +76,20 @@ public class AwsGenericManagedTest {
   }
 
   @Test
+  @SuppressWarnings("unused")
+  public void shouldIgnorePrivateStop() throws Exception {
+    new MockUnit()
+        .run(unit -> {
+          AwsGenericManaged aws = new AwsGenericManaged(new Object() {
+            private void shutdown() {
+              throw new UnsupportedOperationException();
+            }
+          });
+          aws.stop();
+        });
+  }
+
+  @Test
   public void shutdownOverloaded() throws Exception {
     new MockUnit(ShutdownOverloaded.class)
         .expect(unit -> {
@@ -92,6 +106,20 @@ public class AwsGenericManagedTest {
     new MockUnit()
         .run(unit -> {
           AwsGenericManaged aws = new AwsGenericManaged(new ShutdownErr());
+          aws.stop();
+        });
+  }
+
+  @Test(expected = IllegalStateException.class)
+  @SuppressWarnings("unused")
+  public void stopNoRuntimeErr() throws Exception {
+    new MockUnit()
+        .run(unit -> {
+          AwsGenericManaged aws = new AwsGenericManaged(new Object() {
+            public void shutdown() throws Throwable {
+              throw new Throwable();
+            }
+          });
           aws.stop();
         });
   }
