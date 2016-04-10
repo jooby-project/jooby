@@ -98,6 +98,7 @@
      <ul> 
       <li class="active"> <a href="#jackson">jackson</a>
        <ul> 
+        <li> <a href="#jackson-exports">exports</a></li> 
         <li> <a href="#jackson-dependency">dependency</a></li> 
         <li> <a href="#jackson-usage">usage</a></li>
        </ul></li> 
@@ -110,7 +111,12 @@
       </div> 
       <div class="datalist-content"> 
        <p>JSON support from the excellent <a href="https://github.com/FasterXML/jackson" target="_blank">Jackson</a> library.</p> 
-       <p>This module provides a JSON body <a href="/apidocs/Parser.html" target="_blank">parser</a> and <a href="/apidocs/Renderer.html" target="_blank">formatter</a> but also an <a href="http://fasterxml.github.io/jackson-databind/javadoc/2.5.2/com/fasterxml/jackson/databind/ObjectMapper.html" target="_blank">ObjectMapper</a>.</p> 
+       <h3 id="jackson-exports">exports</h3> 
+       <ul> 
+        <li><code class="highlighter-rouge codehilite">ObjectMapper</code></li> 
+        <li><a href="/apidocs/org/jooby/Parser.html" target="_blank">Parser</a></li> 
+        <li><a href="/apidocs/org/jooby/Renderer.html" target="_blank">Renderer</a></li> 
+       </ul> 
        <h3 id="jackson-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -119,7 +125,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jackson<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.16.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -208,7 +214,7 @@
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2016 <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
+    <p class="pull-left">©2014-2016 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="altquimia">
      DG 
      <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio

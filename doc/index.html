@@ -120,22 +120,27 @@
         <li> <a href="#routes-static-files">static files</a></li> 
         <li> <a href="#routes-precedence-and-order">precedence and order</a></li> 
         <li> <a href="#routes-request-handling">request handling</a></li> 
+        <li> <a href="#routes-interceptors">interceptors</a></li> 
         <li> <a href="#routes-mvc-routes">mvc routes</a></li> 
-        <li> <a href="#routes-dynamic-advanced-routing">dynamic / advanced routing</a></li>
+        <li> <a href="#routes-dynamic-advanced-routing">dynamic / advanced routing</a></li> 
+        <li> <a href="#routes-properties">properties</a></li>
        </ul></li> 
       <li class=""> <a href="#request">request</a>
        <ul> 
-        <li> <a href="#request-request-params">request params</a></li> 
-        <li> <a href="#request-request-headers">request headers</a></li> 
-        <li> <a href="#request-request-body">request body</a></li> 
-        <li> <a href="#request-local-variables">local variables</a></li> 
+        <li> <a href="#request-params">params</a></li> 
+        <li> <a href="#request-headers">headers</a></li> 
+        <li> <a href="#request-body">body</a></li> 
+        <li> <a href="#request-form-submit">form submit</a></li> 
+        <li> <a href="#request-file-upload">file upload</a></li> 
+        <li> <a href="#request-locals">locals</a></li> 
         <li> <a href="#request-require">require</a></li>
        </ul></li> 
       <li class=""> <a href="#response">response</a>
        <ul> 
-        <li> <a href="#response-sending-data">sending data</a></li> 
-        <li> <a href="#response-content-negotiation">content negotiation</a></li> 
-        <li> <a href="#response-response-headers">response headers</a></li>
+        <li> <a href="#response-send">send</a></li> 
+        <li> <a href="#response-headers">headers</a></li> 
+        <li> <a href="#response-send-file">send file</a></li> 
+        <li> <a href="#response-content-negotiation">content negotiation</a></li>
        </ul></li> 
       <li class=""> <a href="#session">session</a>
        <ul> 
@@ -160,6 +165,16 @@
         <li> <a href="#async-threads">threads</a></li> 
         <li> <a href="#async-deferred">deferred</a></li> 
         <li> <a href="#async-RxJava-example">RxJava example</a></li>
+       </ul></li> 
+      <li class=""> <a href="#server-sent-events">server-sent events</a>
+       <ul> 
+        <li> <a href="#server-sent-events-usage">usage</a></li> 
+        <li> <a href="#server-sent-events-structured-data">structured data</a></li> 
+        <li> <a href="#server-sent-events-request-params">request params</a></li> 
+        <li> <a href="#server-sent-events-connection-lost">connection lost</a></li> 
+        <li> <a href="#server-sent-events-keep-alive-time">keep alive time</a></li> 
+        <li> <a href="#server-sent-events-require">require</a></li> 
+        <li> <a href="#server-sent-events-example">example</a></li>
        </ul></li> 
       <li class=""> <a href="#web-sockets">web sockets</a>
        <ul> 
@@ -377,7 +392,7 @@
        <ul> 
         <li>Bootstrap X</li> 
         <li>Configure X</li> 
-        <li>Exposes raw API of X</li> 
+        <li>exports raw API of X</li> 
        </ul> 
        <p>This means a module should NOT create wrapper for a library. Instead, provides a way to extend, configure and use the raw library.</p> 
        <blockquote> 
@@ -783,6 +798,211 @@ GET /assets/css/style.css
 <span class="o">});</span>
 </code></pre> 
        </div> 
+       <h3 id="routes-interceptors">interceptors</h3> 
+       <p>An interceptor allows to customize a HTTP request and response at three stages:</p> 
+       <ul> 
+        <li>before the actual handler is invoked</li> 
+        <li>after the handler was executed, but before we send the response</li> 
+        <li>after a response was send</li> 
+       </ul> 
+       <h4 id="routes-before">before</h4> 
+       <p>Allows for customized handler execution chains. It will be invoked before the actual handler.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">before</span><span class="o">((</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// your code goes here</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>You are allowed to modify the request and response objects. Please note that the <code class="highlighter-rouge codehilite">before</code> handler is just syntax sugar for <a href="/apidocs/org/jooby/Route.Filter.html" target="_blank">Route.Filter</a>. For example, the <code class="highlighter-rouge codehilite">before</code> handler was implemented as:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="s">"*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">before</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">);</span>
+    <span class="n">chain</span><span class="o">.</span><span class="na">next</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">);</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>A <code class="highlighter-rouge codehilite">before</code> handler must to be registered before the actual handler you want to intercept.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">before</span><span class="o">((</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// your code goes here</span>
+  <span class="o">});</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/path"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// your code goes here</span>
+    <span class="k">return</span> <span class="o">...;</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>If you reverse the order then it won’t work.</p> 
+       <blockquote> 
+        <p><strong>Remember</strong>: routes are executed in the order they are defined and the pipeline is executed as long you don’t generate a response.</p> 
+       </blockquote> 
+       <h4 id="routes-after">after</h4> 
+       <p>Allows for customized response before sending it. It will be invoked at the time a response need to be send.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">after</span><span class="o">((</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">result</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// your code goes here</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>You are allowed to modify the request, response and result objects. The handler returns a <a href="/apidocs/org/jooby/Result.html" target="_blank">Result</a> which can be the same or an entirely new <a href="/apidocs/org/jooby/Result.html" target="_blank">Result</a>. Please note that the <code class="highlighter-rouge codehilite">after</code> handler is just syntax sugar for <a href="/apidocs/org/jooby/Route.Filter.html" target="_blank">Route.Filter</a>. For example, the <code class="highlighter-rouge codehilite">after</code> handler was implemented as:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">chain</span><span class="o">.</span><span class="na">next</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="k">new</span> <span class="n">Response</span><span class="o">.</span><span class="na">Forwarding</span><span class="o">(</span><span class="n">rsp</span><span class="o">)</span> <span class="o">{</span>
+      <span class="kd">public</span> <span class="kt">void</span> <span class="n">send</span><span class="o">(</span><span class="n">Result</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">rsp</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">after</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">result</span><span class="o">);</span>
+      <span class="o">}</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Due <code class="highlighter-rouge codehilite">after</code> is implemented by wrapping the {@link Response} object. A <code class="highlighter-rouge codehilite">after</code> handler must to be registered before the actual handler you want to intercept.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">after</span><span class="o">((</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">result</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// your code goes here</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+  <span class="o">});</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/path"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="s">"hello"</span><span class="o">;</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>If you reverse the order then it won’t work.</p> 
+       <blockquote> 
+        <p><strong>Remember</strong>: routes are executed in the order they are defined and the pipeline is executed as long you don’t generate a response.</p> 
+       </blockquote> 
+       <h4 id="routes-complete">complete</h4> 
+       <p>Allows for log and cleanup a request. It will be invoked after we send a response.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">complete</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">cause</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// your code goes here</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>You are NOT allowed to modify the request and response objects. The <code class="highlighter-rouge codehilite">cause</code> is an <code class="highlighter-rouge codehilite">Optional</code> with a <code class="highlighter-rouge codehilite">Throwable</code> useful to identify problems. The goal of the <code class="highlighter-rouge codehilite">complete</code> handler is to probably cleanup request object and log responses. Please note that the <code class="highlighter-rouge codehilite">complete</code> handler is just syntax sugar for <a href="/apidocs/org/jooby/Route.Filter.html" target="_blank">Route.Filter</a>. For example, the <code class="highlighter-rouge codehilite">complete</code> handler was implemented as:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="s">"*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Optional</span><span class="o">&lt;</span><span class="n">Throwable</span><span class="o">&gt;</span> <span class="n">err</span> <span class="o">=</span> <span class="n">Optional</span><span class="o">.</span><span class="na">empty</span><span class="o">();</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="n">chain</span><span class="o">.</span><span class="na">next</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">cause</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">err</span> <span class="o">=</span> <span class="n">Optional</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">cause</span><span class="o">);</span>
+      <span class="k">throw</span> <span class="n">cause</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+      <span class="n">complete</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">err</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>A <code class="highlighter-rouge codehilite">complete</code> handler must to be registered before the actual handler you want to intercept.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">complete</span><span class="o">(</span><span class="s">"/path"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">cause</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// your code goes here</span>
+  <span class="o">});</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/path"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="s">"hello"</span><span class="o">;</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>If you reverse the order then it won’t work.</p> 
+       <blockquote> 
+        <p><strong>Remember</strong>: routes are executed in the order they are defined and the pipeline is executed as long you don’t generate a response.</p> 
+       </blockquote> 
+       <h4 id="routes-example">example</h4> 
+       <p>Suppose you have a transactional resource, like a database connection. The next example shows you how to implement a simple and effective <code class="highlighter-rouge codehilite">transaction-per-request</code> pattern:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="c1">// start transaction</span>
+  <span class="n">before</span><span class="o">(</span><span class="s">"/api/*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">DataSource</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Connection</span> <span class="n">connection</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="na">getConnection</span><span class="o">();</span>
+    <span class="n">Transaction</span> <span class="n">trx</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="na">getTransaction</span><span class="o">();</span>
+    <span class="n">trx</span><span class="o">.</span><span class="na">begin</span><span class="o">();</span>
+    <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"connection"</span><span class="o">,</span> <span class="n">connection</span><span class="o">);</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+  <span class="o">});</span>
+
+  <span class="c1">// commit/rollback transaction</span>
+  <span class="n">complete</span><span class="o">(</span><span class="s">"/api/*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">cause</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// unbind connection from request</span>
+    <span class="k">try</span><span class="o">(</span><span class="n">Connection</span> <span class="n">connection</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">unset</span><span class="o">(</span><span class="s">"connection"</span><span class="o">).</span><span class="na">get</span><span class="o">())</span> <span class="o">{</span>
+      <span class="n">Transaction</span> <span class="n">trx</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="na">getTransaction</span><span class="o">();</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">cause</span><span class="o">.</span><span class="na">ifPresent</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">trx</span><span class="o">.</span><span class="na">rollback</span><span class="o">();</span>
+      <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="n">trx</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+
+  <span class="c1">// your transactional routes goes here</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/api/something"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Connection</span> <span class="n">connection</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"connection"</span><span class="o">);</span>
+    <span class="c1">// work with connection</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
        <h3 id="routes-mvc-routes">mvc routes</h3> 
        <p>Mvc routes are like <strong>controllers</strong> in <a href="http://spring.io" target="_blank">Spring</a> and/or <strong>resources</strong> in <a href="https://jersey.java.net/" target="_blank">Jersey</a> with some minor enhancements and/or simplifications.</p> 
        <div class="highlighter-rouge codehilite">
@@ -1109,6 +1329,215 @@ GET /assets/css/style.css
        </div> 
        <p>A call to <code class="highlighter-rouge codehilite">Jooby(String)</code> will prepend the given prefix to all the routes defined by the application.</p> 
        <p>As you can see routes and routing in <a href="http://jooby.org">Jooby</a> are very powerful!</p> 
+       <h3 id="routes-properties">properties</h3> 
+       <p>Routes have a few properties that let you extend basic functionality in one way or another including:</p> 
+       <ul> 
+        <li>attributes</li> 
+        <li>with, map and excludes operators</li> 
+        <li>consumes/produces types.</li> 
+       </ul> 
+       <h4 id="routes-attributes">attributes</h4> 
+       <p>Attributes let you annotated a route at application bootstrap time. It is like static metadata available at runtime:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/path"</span><span class="o">,</span> <span class="o">..)</span>
+    <span class="o">.</span><span class="na">attr</span><span class="o">(</span><span class="s">"foo"</span><span class="o">,</span> <span class="s">"bar"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>An attribute consist of a name and value. Allowed values are <code class="highlighter-rouge codehilite">primitives</code>, <code class="highlighter-rouge codehilite">String</code>, <code class="highlighter-rouge codehilite">enum</code>, <code class="highlighter-rouge codehilite">class</code> or an <code class="highlighter-rouge codehilite">array</code> of previous types.</p> 
+       <p>Attributes can be accessed at runtime in a request/response cycle. For example, a security module might check for <code class="highlighter-rouge codehilite">role</code> attribute, a sitemap generator might check for <code class="highlighter-rouge codehilite">priority</code> attribute, etc…</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">((</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">User</span> <span class="n">user</span> <span class="o">=</span> <span class="o">...;</span>
+    <span class="n">String</span> <span class="n">role</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">route</span><span class="o">().</span><span class="na">attr</span><span class="o">(</span><span class="s">"role"</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="na">hasRole</span><span class="o">(</span><span class="n">role</span><span class="o">))</span> <span class="o">{</span>
+      <span class="n">chain</span><span class="o">.</span><span class="na">next</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">Err</span><span class="o">(</span><span class="mi">403</span><span class="o">);</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>In MVC routes you can set attributes for all the web methods:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+   <span class="n">use</span><span class="o">(</span><span class="n">Controller</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+     <span class="o">.</span><span class="na">attr</span><span class="o">(</span><span class="s">"foo"</span><span class="o">,</span> <span class="s">"bar"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Or via <code class="highlighter-rouge codehilite">annotations</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@Target</span><span class="o">({</span><span class="n">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">TYPE</span><span class="o">,</span> <span class="n">ElementType</span><span class="o">.</span><span class="na">ANNOTATION_TYPE</span> <span class="o">})</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="nd">@interface</span> <span class="n">Role</span> <span class="o">{</span>
+  <span class="n">String</span> <span class="n">value</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="nd">@Path</span><span class="o">(</span><span class="s">"/path"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AdminResource</span> <span class="o">{</span>
+
+  <span class="nd">@Role</span><span class="o">(</span><span class="s">"admin"</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">Object</span> <span class="n">doSomething</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">req</span><span class="o">.</span><span class="na">route</span><span class="o">().</span><span class="na">attributes</span><span class="o">())</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+
+</code></pre> 
+       </div> 
+       <p>The previous example will print: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">role</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="err">admin</span><span class="p">}</span></code>.</p> 
+       <p>Any runtime annotations are automatically added as route attributes. Following these rules:</p> 
+       <ul> 
+        <li>If the annotation has a <code class="highlighter-rouge codehilite">value</code> method, then we use the annotation’s name as attribute name.</li> 
+        <li>Otherwise, we use the method name as attribute name.</li> 
+       </ul> 
+       <blockquote> 
+        <p><strong>request attributes vs route attributes:</strong></p> 
+        <p>Route attributes are created at bootstrap time they are global and once you set they won’t change.</p> 
+        <p>While, request attributes are created in a request/response cycle.</p> 
+       </blockquote> 
+       <h4 id="routes-with-operator">with operator</h4> 
+       <p>The with operator set attributes, consumes and produces types, exclusions, etc.. to one or more routes:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">with</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">get</span><span class="o">(</span><span class="s">"/admin/1"</span><span class="o">,</span> <span class="o">...);</span>
+
+    <span class="n">get</span><span class="o">(</span><span class="s">"/admin/2"</span><span class="o">,</span> <span class="o">...);</span>
+
+  <span class="o">}).</span><span class="na">attr</span><span class="o">(</span><span class="s">"role"</span><span class="o">,</span> <span class="s">"admin"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="routes-map-operator">map operator</h4> 
+       <p>The map operator converts a route output to something else</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="c1">// we got bar.. not foo</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/foo"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"foo"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">value</span> <span class="o">-&gt;</span> <span class="s">"bar"</span><span class="o">);</span>
+
+  <span class="c1">// we got foo.. not bar</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/bar"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"bar"</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">value</span> <span class="o">-&gt;</span> <span class="s">"foo"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>If you want to apply a single map to several routes:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">with</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">get</span><span class="o">(</span><span class="s">"/foo"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"foo"</span><span class="o">);</span>
+
+    <span class="n">get</span><span class="o">(</span><span class="s">"/bar"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"bar"</span><span class="o">);</span>
+
+  <span class="o">}).</span><span class="na">map</span><span class="o">(</span><span class="n">v</span> <span class="o">-&gt;</span> <span class="s">"foo or bar"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>You can apply a <a href="/apidocs/org/jooby/Route.Mapper.html" target="_blank">Mapper</a> to specific types:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">with</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">get</span><span class="o">(</span><span class="s">"/str"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"str"</span><span class="o">);</span>
+
+    <span class="n">get</span><span class="o">(</span><span class="s">"/int"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="mi">1</span><span class="o">);</span>
+
+  <span class="o">}).</span><span class="na">map</span><span class="o">(</span><span class="n">String</span> <span class="n">v</span> <span class="o">-&gt;</span> <span class="s">"{"</span> <span class="o">+</span> <span class="n">v</span> <span class="o">+</span> <span class="s">"}"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>A call to <code class="highlighter-rouge codehilite">/str</code> produces <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">str</span><span class="p">}</span></code>, while <code class="highlighter-rouge codehilite">/int</code> just <code class="highlighter-rouge codehilite">1</code>.</p> 
+       <blockquote> 
+        <p><strong>NOTE</strong>: You can apply the map operator to routes that produces an output.</p> 
+       </blockquote> 
+       <p>For example, the map operator will be silently ignored here:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">rsp</span><span class="o">.</span><span class="na">send</span><span class="o">(...);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="routes-excludes">excludes</h4> 
+       <p>The excludes operator skip/ignore a route path match:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+   <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+     <span class="c1">// all except /login</span>
+   <span class="o">}).</span><span class="na">excludes</span><span class="o">(</span><span class="s">"/login"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="routes-consumes">consumes</h4> 
+       <p>The consumes operator indicates the expected input the route can handle. It is used will accepting requests.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">MyObject</span> <span class="n">json</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">MyObject</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="o">}).</span><span class="na">consumes</span><span class="o">(</span><span class="s">"json"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="routes-produces">produces</h4> 
+       <p>The produces operator indicates the expected output the route can produces.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">MyObject</span><span class="o">();</span>
+  <span class="o">}).</span><span class="na">produces</span><span class="o">(</span><span class="s">"json"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
       </div> 
      </div> 
      <div class="datalist" id="request"> 
@@ -1117,7 +1546,7 @@ GET /assets/css/style.css
       </div> 
       <div class="datalist-content"> 
        <p>The request object contains methods for reading params, headers and body (between others). In the next section we will mention the most important method of a request object, if you need more information please refer to the <a href="/apidocs/org/jooby/Request.html" target="_blank">javadoc</a>.</p> 
-       <h3 id="request-request-params">request params</h3> 
+       <h3 id="request-params">params</h3> 
        <p>Retrieval of param is done via: <a href="/apidocs/org/jooby/Request.html#param-java.lang.String-" target="_blank">req.param(“name”)</a> method.</p> 
        <p>The <a href="/apidocs/org/jooby/Request.html#param-java.lang.String-" target="_blank">req.param(“name”)</a> <strong>always</strong> returns a <a href="/apidocs/org/jooby/Mutant.html" target="_blank">Mutant</a> instance. A mutant had severals utility methods for doing type conversion.</p> 
        <p>Some examples:</p> 
@@ -1271,7 +1700,7 @@ GET /assets/css/style.css
 <span class="o">});</span>
 </code></pre> 
        </div> 
-       <h3 id="request-request-headers">request headers</h3> 
+       <h3 id="request-headers">headers</h3> 
        <p>Retrieval of request headers is done via: <a href="{{}}Request.html#header-java.lang.String-">request.header(“name”)</a>. All the explained before for <a href="#request-request-params">request params</a> apply for headers too.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -1302,7 +1731,7 @@ GET /assets/css/style.css
 <span class="o">});</span>
 </code></pre> 
        </div> 
-       <h3 id="request-request-body">request body</h3> 
+       <h3 id="request-body">body</h3> 
        <p>Retrieval of request body is done via <a href="/apidocs/org/jooby/Request.html#body--" target="_blank">request.body()</a>.</p> 
        <p>A <a href="/apidocs/org/jooby/Parser.html" target="_blank">parser</a> is responsible for parse or convert the HTTP request body to something else.</p> 
        <p>There are a few built-in parsers for reading body as String or Reader objects. Once the body is read it, it can’t be read it again.</p> 
@@ -1334,8 +1763,142 @@ GET /assets/css/style.css
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <h3 id="request-local-variables">local variables</h3> 
-       <p>Local variables are bound to the current request. They are created every time a new request comes in and destroyed at the end of the request.</p> 
+       <h3 id="request-form-submit">form submit</h3> 
+       <p>Form submit and parsing via Java object is also supported:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Contact</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">email</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="n">Contact</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">email</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">email</span> <span class="o">=</span> <span class="n">email</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>// enctype: x-www-form-urlencoded or multipart/form-data
+<span class="nt">&lt;form</span> <span class="na">enctype=</span><span class="s">"application/x-www-form-urlencoded"</span> <span class="na">action=</span><span class="s">"/save"</span> <span class="na">method=</span><span class="s">"post"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">"id"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">"name"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">"email"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">post</span><span class="o">(</span><span class="s">"/save"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Contact</span> <span class="n">contact</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">Contact</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="c1">// save contact...</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Nested paths are supported via <code class="highlighter-rouge codehilite">[name]</code> notation:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Contact</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">email</span><span class="o">;</span>
+
+  <span class="c1">// nested path</span>
+  <span class="kd">private</span> <span class="n">Address</span> <span class="n">address</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="n">Contact</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">email</span><span class="o">,</span> <span class="n">Address</span> <span class="n">addres</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">email</span> <span class="o">=</span> <span class="n">email</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">address</span> <span class="o">=</span> <span class="n">address</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Address</span> <span class="o">{</span>
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">line</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">state</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">country</span><span class="o">;</span>
+
+  <span class="n">publuc</span> <span class="n">Address</span><span class="o">(</span><span class="n">String</span> <span class="n">line</span><span class="o">,</span> <span class="n">String</span> <span class="n">state</span><span class="o">,</span> <span class="n">String</span> <span class="n">country</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">state</span> <span class="o">=</span> <span class="n">state</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">country</span> <span class="o">=</span> <span class="n">country</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>// enctype: x-www-form-urlencoded or multipart/form-data
+<span class="nt">&lt;form</span> <span class="na">enctype=</span><span class="s">"application/x-www-form-urlencoded"</span> <span class="na">action=</span><span class="s">"/save"</span> <span class="na">method=</span><span class="s">"post"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">"id"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">"name"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">"email"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">"address[line]"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">"address[state]"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">"address[country]"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</code></pre> 
+       </div> 
+       <h3 id="request-file-upload">file upload</h3> 
+       <p>File uploads are accessible via: <a href="/apidocs/org/jooby/Request.html#file-java.lang.String-" target="_blank">request.file(name)</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;form</span> <span class="na">enctype=</span><span class="s">"multipart/form-data"</span> <span class="na">action=</span><span class="s">"/upload"</span> <span class="na">method=</span><span class="s">"post"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;input</span> <span class="na">name=</span><span class="s">"myfile"</span> <span class="na">type=</span><span class="s">"file"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c1">// Script API</span>
+
+<span class="o">{</span>
+   <span class="n">post</span><span class="o">(</span><span class="s">"/upload"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+     <span class="n">Upload</span> <span class="n">upload</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">file</span><span class="o">(</span><span class="s">"myfile"</span><span class="o">);</span>
+     <span class="o">...</span>
+   <span class="o">});</span>
+<span class="o">}</span>
+
+<span class="c1">// MVC API</span>
+
+<span class="kd">class</span> <span class="nc">Controller</span> <span class="o">{</span>
+
+  <span class="nd">@Path</span><span class="o">(</span><span class="s">"/upload"</span><span class="o">)</span> <span class="nd">@POST</span>
+  <span class="kd">public</span> <span class="n">Object</span> <span class="n">upload</span><span class="o">(</span><span class="n">Upload</span> <span class="n">myfile</span><span class="o">)</span> <span class="o">{</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="request-locals">locals</h3> 
+       <p>Local attributes are bound to the current request. They are created every time a new request comes in and destroyed at the end of the request.</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -1405,7 +1968,7 @@ GET /assets/css/style.css
       </div> 
       <div class="datalist-content"> 
        <p>The response object contains methods for reading and setting headers, status code and body (between others). In the next section we will mention the most important method of a response object, if you need more information please refer to the <a href="/apidocs/org/jooby/Response.html" target="_blank">javadoc</a>.</p> 
-       <h3 id="response-sending-data">sending data</h3> 
+       <h3 id="response-send">send</h3> 
        <p>The <a href="/apidocs/org/jooby/Response.html#send-org.jooby.Result-" target="_blank">rsp.send</a> method is responsible for sending and writing data into the HTTP Response.</p> 
        <p>A <a href="/apidocs/org/jooby/Renderer.html" target="_blank">renderer</a> is responsible for converting a Java Object into something else (json, html, etc..).</p> 
        <p>Let’s see a simple example:</p> 
@@ -1459,6 +2022,50 @@ GET /assets/css/style.css
 <span class="o">});</span>
 </code></pre> 
        </div> 
+       <h3 id="response-headers">headers</h3> 
+       <p>Retrieval of response headers is done via <a href="/apidocs/org/jooby/Response.html#header-java.lang.String-" target="_blank">rsp.header(“name”)</a>. The method always returns a <a href="/apidocs/org/jooby/Mutant.html" target="_blank">Mutant</a> and from there you can convert to any of the supported types.</p> 
+       <p>Setting a header is pretty straightforward too:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="n">rsp</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">"Header-Name"</span><span class="o">,</span> <span class="n">value</span><span class="o">).</span><span class="na">header</span><span class="o">(</span><span class="s">"Header2"</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+</code></pre> 
+       </div> 
+       <h3 id="response-send-file">send file</h3> 
+       <p>Send file API is available via <a href="/apidocs/org/jooby/Response.html#download-java.lang.String-" target="_blank">rsp.download*</a> methods:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/download"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">rsp</span><span class="o">.</span><span class="na">download</span><span class="o">(</span><span class="s">"myfile"</span><span class="o">,</span> <span class="k">new</span> <span class="n">File</span><span class="o">(...));</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>The <code class="highlighter-rouge codehilite">download</code> method sets all these headers:</p> 
+       <ul> 
+        <li> <p><code class="highlighter-rouge codehilite">Content-Disposition</code></p> </li> 
+        <li> <p><code class="highlighter-rouge codehilite">Content-Length</code></p> </li> 
+        <li> <p><code class="highlighter-rouge codehilite">Content-Type</code></p> </li> 
+       </ul> 
+       <p>The next example we explicitly set some of these headers:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/download"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">rsp</span>
+      <span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="s">"text/plain"</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">"Content-Disposition"</span><span class="o">,</span> <span class="s">"attachment; filename=myfile.txt;"</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">download</span><span class="o">(</span><span class="k">new</span> <span class="n">File</span><span class="o">(...));</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
        <h3 id="response-content-negotiation">content negotiation</h3> 
        <p>A route can produces different results based on the <code class="highlighter-rouge codehilite">Accept</code> header:</p> 
        <div class="highlighter-rouge codehilite">
@@ -1474,16 +2081,6 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p>Performs content-negotiation on the Accept HTTP header of the request object. It select a handler for the request, based on the acceptable types ordered by their quality values. If the header is not specified, the first callback is invoked. When no match is found, the server responds with <code class="highlighter-rouge codehilite">406 Not Acceptable</code>, or invokes the default callback: <code class="highlighter-rouge codehilite">**/*</code>.</p> 
-       <h3 id="response-response-headers">response headers</h3> 
-       <p>Retrieval of response headers is done via <a href="/apidocs/org/jooby/Response.html#header-java.lang.String-" target="_blank">rsp.header(“name”)</a>. The method always returns a <a href="/apidocs/org/jooby/Mutant.html" target="_blank">Mutant</a> and from there you can convert to any of the supported types.</p> 
-       <p>Setting a header is pretty straightforward too:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="n">rsp</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">"Header-Name"</span><span class="o">,</span> <span class="n">value</span><span class="o">).</span><span class="na">header</span><span class="o">(</span><span class="s">"Header2"</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
-</code></pre> 
-       </div> 
       </div> 
      </div> 
      <div class="datalist" id="session"> 
@@ -1950,6 +2547,183 @@ GET /assets/css/style.css
        </div> 
       </div> 
      </div> 
+     <div class="datalist" id="server-sent-events"> 
+      <div class="datalist-title "> 
+       <h2>server-sent events</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Server-Sent Events (SSE) is a mechanism that allows server to push the data from the server to the client once the client-server connection is established by the client. Once the connection is established by the client, it is the server who provides the data and decides to send it to the client whenever new <strong>chunk</strong> of data is available.</p> 
+       <h3 id="server-sent-events-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">sse</span><span class="o">(</span><span class="s">"/path"</span><span class="o">,</span> <span class="n">sse</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="c1">// 1. connected</span>
+    <span class="n">sse</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="s">"data"</span><span class="o">);</span> <span class="c1">// 2. send/push data</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Simple, effective and easy to use. The callback will be executed once when a new client is connected. Inside the callback we can send data, listen for connection close events, etc.</p> 
+       <p>There is a factory method <a href="/apidocs/org/jooby/Sse.html#event-java.lang.Object-" target="_blank">sse.event(Object)</a> that let you set event attributes:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">sse</span><span class="o">(</span><span class="s">"/path"</span><span class="o">,</span> <span class="n">sse</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">sse</span><span class="o">.</span><span class="na">event</span><span class="o">(</span><span class="s">"data"</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">id</span><span class="o">(</span><span class="s">"id"</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="s">"myevent"</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">retry</span><span class="o">(</span><span class="mi">5000L</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">send</span><span class="o">();</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="server-sent-events-structured-data">structured data</h3> 
+       <p>Beside raw/string data you can also send structured data, like <code class="highlighter-rouge codehilite">json</code>, <code class="highlighter-rouge codehilite">xml</code>, etc..</p> 
+       <p>The next example will send two message one in <code class="highlighter-rouge codehilite">json</code> format and one in <code class="highlighter-rouge codehilite">text/plain</code> format:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">MyJsonRenderer</span><span class="o">());</span>
+
+  <span class="n">sse</span><span class="o">(</span><span class="s">"/path"</span><span class="o">,</span> <span class="n">sse</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">MyObject</span> <span class="n">object</span> <span class="o">=</span> <span class="o">...</span>
+    <span class="n">sse</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">object</span><span class="o">,</span> <span class="s">"json"</span><span class="o">);</span>
+    <span class="n">sse</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">object</span><span class="o">,</span> <span class="s">"plain"</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Or if your need only one format, just:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">MyJsonRenderer</span><span class="o">());</span>
+
+  <span class="n">sse</span><span class="o">(</span><span class="s">"/path"</span><span class="o">,</span> <span class="n">sse</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">MyObject</span> <span class="n">object</span> <span class="o">=</span> <span class="o">...</span>
+    <span class="n">sse</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">object</span><span class="o">);</span>
+  <span class="o">}).</span><span class="na">produces</span><span class="o">(</span><span class="s">"json"</span><span class="o">);</span> <span class="c1">// by json by default</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="server-sent-events-request-params">request params</h3> 
+       <p>We provide request access via two arguments callback:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">sse</span><span class="o">(</span><span class="s">"/events/:id"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">sse</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">String</span> <span class="n">id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">value</span><span class="o">();</span>
+    <span class="n">MyObject</span> <span class="n">object</span> <span class="o">=</span> <span class="n">findObject</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+    <span class="n">sse</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">object</span><span class="o">);</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="server-sent-events-connection-lost">connection lost</h3> 
+       <p>The <a href="/apidocs/org/jooby/Sse.html#onClose-javaslang.control.Try.CheckedRunnable-" target="_blank">sse.onClose(Runnable)</a> callback allow you to clean and release resources on connection close. A connection is closed when you call <a href="/apidocs/org/jooby/Sse.html#close--" target="_blank">sse.close()</a> method or the client/browser close the connection.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">sse</span><span class="o">(</span><span class="s">"/events/:id"</span><span class="o">,</span> <span class="n">sse</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">sse</span><span class="o">.</span><span class="na">onClose</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="c1">// clean up resources</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>A connection close event is detected and fired when you attempt to send some data.</p> 
+       <h3 id="server-sent-events-keep-alive-time">keep alive time</h3> 
+       <p>The keep alive time feature can be used to prevent connections from timing out:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">sse</span><span class="o">(</span><span class="s">"/events/:id"</span><span class="o">,</span> <span class="n">sse</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">sse</span><span class="o">.</span><span class="na">keepAlive</span><span class="o">(</span><span class="mi">15</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">);</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>The previous example will sent a <code class="highlighter-rouge codehilite">':'</code> message (empty comment) every 15 seconds to keep the connection alive. If the client drop the connection, then the <a href="/apidocs/org/jooby/Sse.html#onClose-javaslang.control.Try.CheckedRunnable-" target="_blank">sse.onClose(Runnable)</a> event will be fired it.</p> 
+       <p>This feature is useful when you want to detect close events without waiting for the next time you send an event. But for example, if your application already generate events every 15s, then the use of keep alive is useless and you can avoid it.</p> 
+       <h3 id="server-sent-events-require">require</h3> 
+       <p>The <a href="/apidocs/org/jooby/Sse.html#require-java.lang.Class-" target="_blank">sse.require(Type)</a> methods let you access to application services:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">sse</span><span class="o">(</span><span class="s">"/events/:id"</span><span class="o">,</span> <span class="n">sse</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">MyService</span> <span class="n">service</span> <span class="o">=</span> <span class="n">sse</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">MyService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="server-sent-events-example">example</h3> 
+       <p>The next example will generate a new event every 60s. It recovers from a server shutdown by using the <a href="/apidocs/org/jooby/Sse.html#lastEventId--" target="_blank">sse.lastEventId()</a> and clean resources on connection close.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="c1">// creates an executor service</span>
+  <span class="n">ScheduledExecutorService</span> <span class="n">executor</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newScheduledThreadPool</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+
+  <span class="n">sse</span><span class="o">(</span><span class="s">"/events"</span><span class="o">,</span> <span class="n">sse</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="c1">// if we go down, recover from last event ID we sent. Otherwise, start from zero.</span>
+    <span class="kt">int</span> <span class="n">lastId</span> <span class="o">=</span> <span class="n">sse</span><span class="o">.</span><span class="na">lastEventId</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">orElse</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+    <span class="n">AtomicInteger</span> <span class="n">next</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AtomicInteger</span><span class="o">(</span><span class="n">lastId</span><span class="o">);</span>
+
+    <span class="c1">// send events every 60s</span>
+    <span class="n">ScheduledFuture</span><span class="o">&lt;?&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="na">scheduleAtFixedRate</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">Integer</span> <span class="n">id</span> <span class="o">=</span> <span class="n">next</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">();</span>
+      <span class="n">Object</span> <span class="n">data</span> <span class="o">=</span> <span class="n">findDataById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+      <span class="c1">// send data and id</span>
+      <span class="n">sse</span><span class="o">.</span><span class="na">event</span><span class="o">(</span><span class="n">data</span><span class="o">).</span><span class="na">id</span><span class="o">(</span><span class="n">id</span><span class="o">).</span><span class="na">send</span><span class="o">();</span>
+    <span class="o">},</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">60</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">);</span>
+
+    <span class="c1">// on connection lost, cancel 60s task</span>
+    <span class="n">sse</span><span class="o">.</span><span class="na">onClose</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">future</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+      </div> 
+     </div> 
      <div class="datalist" id="web-sockets"> 
       <div class="datalist-title "> 
        <h2>web sockets</h2> 
@@ -2047,17 +2821,33 @@ GET /assets/css/style.css
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">cors</span> <span class="err">{</span>
-  <span class="c"># Configures the Access-Control-Allow-Origin CORS header. Possibly values: *, domain, regex or a list of previous values. </span>  <span class="c"># Example: </span>  <span class="c"># "*" </span>  <span class="c"># ["http://foo.com"] </span>  <span class="c"># ["http://*.com"] </span>  <span class="c"># ["http://foo.com", "http://bar.com"] </span>  <span class="py">origin</span><span class="p">:</span> <span class="s">"*"</span>
+  <span class="c"># Configures the Access-Control-Allow-Origin CORS header. Possibly values: *, domain, regex or a list of previous values. </span>
+  <span class="c"># Example: </span>
+  <span class="c"># "*" </span>
+  <span class="c"># ["http://foo.com"] </span>
+  <span class="c"># ["http://*.com"] </span>
+  <span class="c"># ["http://foo.com", "http://bar.com"] </span>
+  <span class="py">origin</span><span class="p">:</span> <span class="s">"*"</span>
 
-  <span class="c"># If true, set the Access-Control-Allow-Credentials header </span>  <span class="py">credentials</span><span class="p">:</span> <span class="s">true</span>
+  <span class="c"># If true, set the Access-Control-Allow-Credentials header </span>
+  <span class="py">credentials</span><span class="p">:</span> <span class="s">true</span>
 
-  <span class="c"># Allowed methods: Set the Access-Control-Allow-Methods header </span>  <span class="py">allowedMethods</span><span class="p">:</span> <span class="s">[GET, POST]</span>
+  <span class="c"># Allowed methods: Set the Access-Control-Allow-Methods header </span>
+  <span class="py">allowedMethods</span><span class="p">:</span> <span class="s">[GET, POST]</span>
 
-  <span class="c"># Allowed headers: set the Access-Control-Allow-Headers header. Possibly values: *, header name or a list of previous values. </span>  <span class="c"># Examples </span>  <span class="c"># "*" </span>  <span class="c"># Custom-Header </span>  <span class="c"># [Header-1, Header-2] </span>  <span class="py">allowedHeaders</span><span class="p">:</span> <span class="s">[X-Requested-With, Content-Type, Accept, Origin]</span>
+  <span class="c"># Allowed headers: set the Access-Control-Allow-Headers header. Possibly values: *, header name or a list of previous values. </span>
+  <span class="c"># Examples </span>
+  <span class="c"># "*" </span>
+  <span class="c"># Custom-Header </span>
+  <span class="c"># [Header-1, Header-2] </span>
+  <span class="py">allowedHeaders</span><span class="p">:</span> <span class="s">[X-Requested-With, Content-Type, Accept, Origin]</span>
 
-  <span class="c"># Preflight max age: number of seconds that preflight requests can be cached by the client </span>  <span class="py">maxAge</span><span class="p">:</span> <span class="s">30m</span>
+  <span class="c"># Preflight max age: number of seconds that preflight requests can be cached by the client </span>
+  <span class="py">maxAge</span><span class="p">:</span> <span class="s">30m</span>
 
-  <span class="c"># Set the Access-Control-Expose-Headers header </span>  <span class="c"># exposedHeaders: [] </span><span class="err">}</span>
+  <span class="c"># Set the Access-Control-Expose-Headers header </span>
+  <span class="c"># exposedHeaders: [] </span>
+<span class="err">}</span>
 </code></pre> 
        </div> 
        <p><code class="highlighter-rouge codehilite">CORS</code> options are represented at runtime by <a href="/apidocs/org/jooby/handlers/Cors.html" target="_blank">Cors</a>.</p> 
@@ -2845,7 +3635,7 @@ GET /assets/css/style.css
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2016 <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
+    <p class="pull-left">©2014-2016 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="altquimia">
      DG 
      <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio

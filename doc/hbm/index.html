@@ -98,6 +98,7 @@
      <ul> 
       <li class="active"> <a href="#hibernate">hibernate</a>
        <ul> 
+        <li> <a href="#hibernate-exports">exports</a></li> 
         <li> <a href="#hibernate-dependency">dependency</a></li> 
         <li> <a href="#hibernate-usage">usage</a></li> 
         <li> <a href="#hibernate-life-cycle">life-cycle</a></li> 
@@ -113,11 +114,17 @@
        <h2>hibernate</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Object-Relational-Mapping via <a href="http://hibernate.org/" target="_blank">Hibernate</a>. Exposes an <code class="highlighter-rouge codehilite">EntityManagerFactory</code> and <code class="highlighter-rouge codehilite">EntityManager</code> services.</p> 
+       <p>Object-Relational-Mapping via <a href="http://hibernate.org/" target="_blank">Hibernate</a>. exports an <code class="highlighter-rouge codehilite">EntityManagerFactory</code> and <code class="highlighter-rouge codehilite">EntityManager</code> services.</p> 
        <p>This module extends <a href="/doc/jdbc">jdbc</a> module, before going forward, make sure you read the doc of the <a href="/doc/jdbc">jdbc</a> module first.</p> 
        <p>This module provides an advanced and recommended <a href="https://developer.jboss.org/wiki/OpenSessionInView#jive_content_id_Can_I_use_two_transactions_in_one_Session" target="_blank">Open Session in View</a> pattern, which basically keeps the <code class="highlighter-rouge codehilite">Session</code> opened until the view is rendered. But it uses two database transactions:</p> 
        <p>1) first transaction is committed before rendering the view and then</p> 
        <p>2) a read only transaction is opened for rendering the view.</p> 
+       <h3 id="hibernate-exports">exports</h3> 
+       <ul> 
+        <li>An interceptor with a <a href="https://developer.jboss.org/wiki/OpenSessionInView#jive_content_id_Can_I_use_two_transactions_in_one_Session" target="_blank">Open Session in View</a></li> 
+        <li><code class="highlighter-rouge codehilite">EntityManagerFactory</code></li> 
+        <li><code class="highlighter-rouge codehilite">EntityManager</code> during request/response cycles</li> 
+       </ul> 
        <h3 id="hibernate-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -126,7 +133,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-hbm<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.16.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -241,7 +248,7 @@
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2016 <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
+    <p class="pull-left">©2014-2016 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="altquimia">
      DG 
      <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio

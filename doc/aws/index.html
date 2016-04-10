@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: aws module"> 
-  <meta name="og:description" content="Small utility module that exposes AmazonWebServiceClient services"> 
+  <meta name="og:description" content="Small utility module that exports AmazonWebServiceClient services"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Small utility module that exposes AmazonWebServiceClient services"> 
+  <meta name="twitter:description" content="Small utility module that exports AmazonWebServiceClient services"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -98,7 +98,7 @@
      <ul> 
       <li class="active"> <a href="#aws">aws</a>
        <ul> 
-        <li> <a href="#aws-exposes">exposes</a></li> 
+        <li> <a href="#aws-exports">exports</a></li> 
         <li> <a href="#aws-dependency">dependency</a></li> 
         <li> <a href="#aws-usage">usage</a></li> 
         <li> <a href="#aws-handling-access-and-secret-keys">handling access and secret keys</a></li>
@@ -111,11 +111,11 @@
        <h2>aws</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Small utility module that exposes <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code> services.</p> 
+       <p>Small utility module that exports <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code> services.</p> 
        <p>It also give you access to aws credentials (access and secret keys).</p> 
-       <h3 id="aws-exposes">exposes</h3> 
+       <h3 id="aws-exports">exports</h3> 
        <ul> 
-        <li>One ore more <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code></li> 
+        <li>One ore more <code class="highlighter-rouge codehilite">AmazonWebServiceClient</code>, like <code class="highlighter-rouge codehilite">AmazonS3Client</code>, <code class="highlighter-rouge codehilite">AmazonSimpleEmailServiceClient</code>, etc…</li> 
        </ul> 
        <h3 id="aws-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
@@ -125,7 +125,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-aws<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.16.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -202,8 +202,8 @@
    <div class="row share-network"> 
     <div class="section-content"> 
      <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/aws" data-a2a-title="Small utility module that exposes AmazonWebServiceClient services"> 
-      <a class="a2a_button_twitter" data-text="Small utility module that exposes AmazonWebServiceClient services"></a> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/aws" data-a2a-title="Small utility module that exports AmazonWebServiceClient services"> 
+      <a class="a2a_button_twitter" data-text="Small utility module that exports AmazonWebServiceClient services"></a> 
       <a class="a2a_button_reddit a2a_counter"></a> 
       <a class="a2a_button_linkedin a2a_counter"></a> 
       <a class="a2a_button_facebook a2a_counter"></a> 
@@ -216,7 +216,7 @@
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2016 <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
+    <p class="pull-left">©2014-2016 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="altquimia">
      DG 
      <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio

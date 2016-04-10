@@ -32,9 +32,11 @@ org.jooby.netty
 org.jooby.pac4j
 org.jooby.pebble
 org.jooby.quartz
+org.jooby.querydsl
 org.jooby.raml
 org.jooby.scope
 org.jooby.servlet
+org.jooby.sitemap
 org.jooby.spec
 org.jooby.spi
 org.jooby.swagger

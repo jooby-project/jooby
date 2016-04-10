@@ -98,7 +98,7 @@
      <ul> 
       <li class="active"> <a href="#ebean">ebean</a>
        <ul> 
-        <li> <a href="#ebean-exposes">exposes</a></li> 
+        <li> <a href="#ebean-exports">exports</a></li> 
         <li> <a href="#ebean-dependency">dependency</a></li> 
         <li> <a href="#ebean-usage">usage</a></li> 
         <li> <a href="#ebean-enhancement">enhancement</a></li> 
@@ -113,11 +113,11 @@
        <h2>ebean</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Object-Relational-Mapping via <a href="http://ebean-orm.github.io" target="_blank">Ebean ORM</a>. It configures and exposes <code class="highlighter-rouge codehilite">EbeanServer</code> instances.</p> 
-       <p>This module extends <a href="/doc/jdbc">jdbc</a> module, before going forward, make sure you read the doc of the <a href="/doc/jooby-dbc">jdbc</a> module first.</p> 
-       <h3 id="ebean-exposes">exposes</h3> 
+       <p>Object-Relational-Mapping via <a href="http://ebean-orm.github.io" target="_blank">Ebean ORM</a>. It configures and exports <code class="highlighter-rouge codehilite">EbeanServer</code> instances.</p> 
+       <p>This module extends <a href="/doc/jdbc">jdbc module</a>, before going forward, make sure you read the doc of the <a href="/doc/jooby-dbc">jdbc module</a> first.</p> 
+       <h3 id="ebean-exports">exports</h3> 
        <ul> 
-        <li><code class="highlighter-rouge codehilite">EbeanServer</code> objects</li> 
+        <li><code class="highlighter-rouge codehilite">EbeanServer</code></li> 
        </ul> 
        <h3 id="ebean-dependency">dependency</h3> 
        <div class="highlighter-rouge codehilite">
@@ -127,7 +127,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-ebean<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.16.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR1<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -172,7 +172,6 @@
   <span class="nt">&lt;artifactId&gt;</span>avaje-agentloader<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
-<span class="nt">&lt;/pre&gt;</span>
 </code></pre> 
        </div> 
        <p>Did you see the <code class="highlighter-rouge codehilite">test scope</code>? We don’t want to use the runtime enhancer while running in <code class="highlighter-rouge codehilite">prod</code>. Instead, we want to use the build time enhancer.</p> 
@@ -273,7 +272,7 @@
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 
-    <p class="pull-left">©2014-2016 <a href="https://twitter.com/edgarespina" target="_blank">Edgar Espina</a></p> 
+    <p class="pull-left">©2014-2016 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
     <div class="altquimia">
      DG 
      <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
