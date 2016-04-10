@@ -22,6 +22,10 @@
 
 * Deployment options can be found [here](/doc/deployment)
 
+## can I use Gradle?
+
+Yes, with some limitation that are being documented [here](/doc/gradle).
+
 # mime types
 
 ## what mime types are supported?

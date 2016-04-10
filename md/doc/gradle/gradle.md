@@ -10,9 +10,10 @@ duplicate a Maven development environment to Gradle.
 
 ## A minimal `build.gradle`
 
-```
+```js
 /*
  * We are writing a standalone application.
+ *
  */
 apply plugin: 'application'
 
@@ -31,11 +32,11 @@ repositories {
 }
 
 /*
- * A minimal project needs the framwork and a webserver.
+ * A minimal project needs the framework and a webserver.
  */
 dependencies {
-  compile group: 'org.jooby', name: 'jooby', version: '0.16.0'
-  compile group: 'org.jooby', name: 'jooby-netty', version: '0.16.0'
+  compile group: 'org.jooby', name: 'jooby', version: '{{version}}'
+  compile group: 'org.jooby', name: 'jooby-netty', version: '{{version}}'
 }
 
 /*
