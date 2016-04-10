@@ -44,7 +44,6 @@ import org.jooby.internal.RoutePattern;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Primitives;
 import com.google.inject.Key;
@@ -1059,6 +1058,17 @@ public interface Route {
     }
 
     /**
+     * Indicates if the {@link #pattern()} contains a glob charecter, like <code>?</code>,
+     * <code>*</code> or <code>**</code>.
+     *
+     * @return Indicates if the {@link #pattern()} contains a glob charecter, like <code>?</code>,
+     *         <code>*</code> or <code>**</code>.
+     */
+    public boolean glob() {
+      return cpattern.glob();
+    }
+
+    /**
      * Recreate a route path and apply the given variables.
      *
      * @param vars Path variables.
@@ -1113,22 +1123,22 @@ public interface Route {
      * @return A read only view of attributes.
      */
     public Map<String, Object> attributes() {
-      return ImmutableMap.copyOf(attributes);
+      return Collections.unmodifiableMap(attributes);
     }
 
     /**
      * Test if the route matches the given verb, path, content type and accept header.
      *
-     * @param verb A HTTP verb.
+     * @param method A HTTP verb.
      * @param path Current HTTP path.
      * @param contentType The <code>Content-Type</code> header.
      * @param accept The <code>Accept</code> header.
      * @return A route or an empty optional.
      */
-    public Optional<Route> matches(final String verb,
+    public Optional<Route> matches(final String method,
         final String path, final MediaType contentType,
         final List<MediaType> accept) {
-      String fpath = verb + path;
+      String fpath = method + path;
       if (excludes.size() > 0 && excludes(fpath)) {
         return Optional.empty();
       }
@@ -1139,7 +1149,7 @@ public interface Route {
           // keep accept when */*
           List<MediaType> produces = result.size() == 1 && result.get(0).name().equals("*/*")
               ? accept : this.produces;
-          return Optional.of(asRoute(verb, matcher, produces));
+          return Optional.of(asRoute(method, matcher, produces));
         }
       }
       return Optional.empty();
@@ -1286,14 +1296,14 @@ public interface Route {
      * @return All the types this route can consumes.
      */
     public List<MediaType> consumes() {
-      return ImmutableList.copyOf(this.consumes);
+      return Collections.unmodifiableList(this.consumes);
     }
 
     /**
      * @return All the types this route can produces.
      */
     public List<MediaType> produces() {
-      return ImmutableList.copyOf(this.produces);
+      return Collections.unmodifiableList(this.produces);
     }
 
     @Override
@@ -1327,8 +1337,7 @@ public interface Route {
       if (filter instanceof AssetProxy) {
         filter = ((AssetProxy) filter).delegate();
       }
-      return new RouteImpl(filter, method, matcher.path(), pattern, name, matcher.vars(), consumes,
-          produces, attributes, mapper);
+      return new RouteImpl(filter, this, method, matcher.path(), produces, matcher.vars(), mapper);
     }
 
   }
@@ -1398,6 +1407,21 @@ public interface Route {
     @Override
     public <T> T attr(final String name) {
       return route.attr(name);
+    }
+
+    @Override
+    public boolean glob() {
+      return route.glob();
+    }
+
+    @Override
+    public String reverse(final Map<String, Object> vars) {
+      return route.reverse(vars);
+    }
+
+    @Override
+    public String reverse(final Object... values) {
+      return route.reverse(values);
     }
 
     @Override
@@ -2040,6 +2064,31 @@ public interface Route {
   default <T> T attr(final String name) {
     return (T) attributes().get(name);
   }
+
+  /**
+   * Indicates if the {@link #pattern()} contains a glob charecter, like <code>?</code>,
+   * <code>*</code> or <code>**</code>.
+   *
+   * @return Indicates if the {@link #pattern()} contains a glob charecter, like <code>?</code>,
+   *         <code>*</code> or <code>**</code>.
+   */
+  boolean glob();
+
+  /**
+   * Recreate a route path and apply the given variables.
+   *
+   * @param vars Path variables.
+   * @return A route pattern.
+   */
+  String reverse(final Map<String, Object> vars);
+
+  /**
+   * Recreate a route path and apply the given variables.
+   *
+   * @param values Path variable values.
+   * @return A route pattern.
+   */
+  String reverse(final Object... values);
 
   /**
    * Normalize a path by removing double or trailing slashes.

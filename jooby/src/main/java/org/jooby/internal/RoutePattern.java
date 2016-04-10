@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javaslang.Tuple;
-import javaslang.Tuple3;
+import javaslang.Tuple4;
 
 public class RoutePattern {
 
@@ -48,15 +48,22 @@ public class RoutePattern {
 
   private List<String> reverse;
 
+  private boolean glob;
+
   public RoutePattern(final String verb, final String pattern) {
     requireNonNull(verb, "A HTTP verb is required.");
     requireNonNull(pattern, "A path pattern is required.");
     this.pattern = normalize(pattern);
-    Tuple3<Function<String, RouteMatcher>, List<String>, List<String>> result = rewrite(this,
+    Tuple4<Function<String, RouteMatcher>, List<String>, List<String>, Boolean> result = rewrite(this,
         verb.toUpperCase(), this.pattern.replace("/**/", "/**"));
     matcher = result._1;
     vars = result._2;
     reverse = result._3;
+    glob = result._4;
+  }
+
+  public boolean glob() {
+    return glob;
   }
 
   public List<String> vars() {
@@ -87,7 +94,7 @@ public class RoutePattern {
     return matcher.apply(path);
   }
 
-  private static Tuple3<Function<String, RouteMatcher>, List<String>, List<String>> rewrite(
+  private static Tuple4<Function<String, RouteMatcher>, List<String>, List<String>, Boolean> rewrite(
       final RoutePattern owner, final String verb, final String pattern) {
     List<String> vars = new LinkedList<>();
     String rwrverb = verbs(verb);
@@ -96,6 +103,7 @@ public class RoutePattern {
     int end = 0;
     boolean regex = !rwrverb.equals(verb);
     List<String> reverse = new ArrayList<>();
+    boolean glob = false;
     while (matcher.find()) {
       String head = pattern.substring(end, matcher.start());
       patternBuilder.append(Pattern.quote(head));
@@ -105,14 +113,17 @@ public class RoutePattern {
         patternBuilder.append("([^/])");
         reverse.add(match);
         regex = true;
+        glob = true;
       } else if ("*".equals(match)) {
         patternBuilder.append("([^/]*)");
         reverse.add(match);
         regex = true;
+        glob = true;
       } else if (match.equals("/**")) {
         reverse.add(match);
         patternBuilder.append("($|/.*)");
         regex = true;
+        glob = true;
       } else if (match.startsWith(":")) {
         regex = true;
         String varName = match.substring(1);
@@ -143,7 +154,7 @@ public class RoutePattern {
     reverse.add(tail);
     patternBuilder.append(Pattern.quote(tail));
     return Tuple.of(fn(owner, regex, regex ? patternBuilder.toString() : verb + pattern, vars),
-        vars, reverse);
+        vars, reverse, glob);
   }
 
   private static String verbs(final String verb) {
@@ -195,4 +206,5 @@ public class RoutePattern {
   public String toString() {
     return pattern;
   }
+
 }

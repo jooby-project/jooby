@@ -42,25 +42,17 @@ public class RouteImpl implements Route, Route.Filter {
 
   private static Map<Object, String> NO_VARS = ImmutableMap.of();
 
-  private static ImmutableMap<String, Object> NO_ATTRS = ImmutableMap.of();
-
-  private String method;
+  private Definition route;
 
   private String path;
 
-  private String pattern;
-
-  private String name;
-
   private Map<Object, String> vars;
-
-  private List<MediaType> consumes;
-
-  private List<MediaType> produces;
 
   private Filter filter;
 
-  private Map<String, Object> attributes;
+  private List<MediaType> produces;
+
+  private String method;
 
   public static RouteImpl notFound(final String method, final String path,
       final List<MediaType> produces) {
@@ -73,8 +65,8 @@ public class RouteImpl implements Route, Route.Filter {
 
   public static RouteImpl fromStatus(final Filter filter, final String method,
       final String path, final String name, final List<MediaType> produces) {
-    return new RouteImpl(filter, method, path, path, name, NO_VARS, MediaType.ALL, produces,
-        NO_ATTRS, null) {
+    return new RouteImpl(filter, new Route.Definition(method, path, filter)
+        .name(name), method, path, produces, NO_VARS, null) {
       @Override
       public boolean apply(final String filter) {
         return true;
@@ -82,18 +74,9 @@ public class RouteImpl implements Route, Route.Filter {
     };
   }
 
-  public RouteImpl(final Filter filter, final String method, final String path,
-      final String pattern, final String name, final Map<Object, String> vars,
-      final List<MediaType> consumes, final List<MediaType> produces,
-      final Map<String, Object> attributes, final Mapper<?> mapper) {
-    this(filter, method, path, pattern, name, vars, consumes, produces,
-        ImmutableMap.<String, Object> copyOf(attributes), mapper);
-  }
-
-  public RouteImpl(final Filter filter, final String method, final String path,
-      final String pattern, final String name, final Map<Object, String> vars,
-      final List<MediaType> consumes, final List<MediaType> produces,
-      final ImmutableMap<String, Object> attributes, final Mapper<?> mapper) {
+  public RouteImpl(final Filter filter, final Definition route, final String method,
+      final String path, final List<MediaType> produces, final Map<Object, String> vars,
+      final Mapper<?> mapper) {
     this.filter = Option.of(mapper)
         .map(m -> Match(filter).of(
             Case(instanceOf(Route.OneArgHandler.class),
@@ -109,14 +92,11 @@ public class RouteImpl implements Route, Route.Filter {
             }),
             Case($(), filter)))
         .getOrElse(filter);
+    this.route = route;
     this.method = method;
-    this.path = path;
-    this.pattern = pattern;
-    this.name = name;
-    this.vars = vars;
-    this.consumes = consumes;
     this.produces = produces;
-    this.attributes = attributes;
+    this.path = path;
+    this.vars = vars;
   }
 
   @Override
@@ -127,7 +107,7 @@ public class RouteImpl implements Route, Route.Filter {
 
   @Override
   public Map<String, Object> attributes() {
-    return attributes;
+    return route.attributes();
   }
 
   @Override
@@ -142,12 +122,12 @@ public class RouteImpl implements Route, Route.Filter {
 
   @Override
   public String pattern() {
-    return pattern.substring(pattern.indexOf('/'));
+    return route.pattern().substring(route.pattern().indexOf('/'));
   }
 
   @Override
   public String name() {
-    return name;
+    return route.name();
   }
 
   @Override
@@ -157,12 +137,27 @@ public class RouteImpl implements Route, Route.Filter {
 
   @Override
   public List<MediaType> consumes() {
-    return consumes;
+    return route.consumes();
   }
 
   @Override
   public List<MediaType> produces() {
     return produces;
+  }
+
+  @Override
+  public boolean glob() {
+    return route.glob();
+  }
+
+  @Override
+  public String reverse(final Map<String, Object> vars) {
+    return route.reverse(vars);
+  }
+
+  @Override
+  public String reverse(final Object... values) {
+    return route.reverse(values);
   }
 
   @Override

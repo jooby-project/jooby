@@ -46,14 +46,16 @@ public class RouteImplTest {
 
   @Test
   public void toStr() {
-    Route route = new RouteImpl((req, rsp, chain) -> {
-    } , "GET", "/path", "/p?th", "path", Collections.emptyMap(),
-        MediaType.valueOf("html", "json"),
-        MediaType.valueOf("json", "html"), Collections.emptyMap(), null);
+    Route.Filter f = (req, rsp, chain) -> {
+    };
+    Route route = new RouteImpl(f, new Route.Definition("GET", "/p?th", f)
+        .name("path")
+        .consumes("html", "json"), "GET", "/path", MediaType.valueOf("json", "html"),
+        Collections.emptyMap(), null);
 
     assertEquals("GET /path\n" +
         "  pattern: /p?th\n" +
-        "  name: path\n" +
+        "  name: /path\n" +
         "  vars: {}\n" +
         "  consumes: [text/html, application/json]\n" +
         "  produces: [application/json, text/html]\n", route.toString());
@@ -61,10 +63,10 @@ public class RouteImplTest {
 
   @Test
   public void consumes() {
-    Route route = new RouteImpl((req, rsp, chain) -> {
-    } , "GET", "/path", "/p?th", "path", Collections.emptyMap(),
-        MediaType.valueOf("html", "json"),
-        MediaType.valueOf("json", "html"), Collections.emptyMap(), null);
+    Route.Filter f = (req, rsp, chain) -> {
+    };
+    Route route = new RouteImpl(f, new Route.Definition("GET", "/p?th", f).consumes("html", "json"),
+        "GET", "/path", Collections.emptyList(), Collections.emptyMap(), null);
 
     assertEquals(MediaType.valueOf("html", "json"), route.consumes());
   }

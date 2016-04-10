@@ -140,6 +140,45 @@ public class RouteForwardingTest {
   }
 
   @Test
+  public void glob() throws Exception {
+    new MockUnit(Route.class)
+        .expect(unit -> {
+          Route route = unit.get(Route.class);
+          expect(route.glob()).andReturn(true);
+        })
+        .run(unit -> {
+          assertEquals(true, new Route.Forwarding(unit.get(Route.class)).glob());
+        });
+  }
+
+  @Test
+  public void reverseMap() throws Exception {
+    Map<String, Object> vars = new HashMap<>();
+    new MockUnit(Route.class)
+        .expect(unit -> {
+          Route route = unit.get(Route.class);
+          expect(route.reverse(vars)).andReturn("/");
+        })
+        .run(unit -> {
+          assertEquals("/", new Route.Forwarding(unit.get(Route.class)).reverse(vars));
+        });
+  }
+
+  @Test
+  public void reverseVars() throws Exception {
+    Object[] vars = {};
+    new MockUnit(Route.class)
+        .expect(unit -> {
+          Route route = unit.get(Route.class);
+          expect(route.reverse(vars)).andReturn("/");
+        })
+        .run(unit -> {
+          assertEquals("/", new Route.Forwarding(unit.get(Route.class)).reverse(vars));
+        });
+  }
+
+
+  @Test
   public void unwrap() throws Exception {
     new MockUnit(Route.class)
         .run(unit -> {
@@ -148,13 +187,13 @@ public class RouteForwardingTest {
           assertEquals(route, Route.Forwarding.unwrap(new Route.Forwarding(route)));
 
           // 2 level
-        assertEquals(route,
-            Route.Forwarding.unwrap(new Route.Forwarding(new Route.Forwarding(route))));
+          assertEquals(route,
+              Route.Forwarding.unwrap(new Route.Forwarding(new Route.Forwarding(route))));
 
-        // 3 level
-        assertEquals(route, Route.Forwarding.unwrap(new Route.Forwarding(new Route.Forwarding(
-            new Route.Forwarding(route)))));
+          // 3 level
+          assertEquals(route, Route.Forwarding.unwrap(new Route.Forwarding(new Route.Forwarding(
+              new Route.Forwarding(route)))));
 
-      });
+        });
   }
 }

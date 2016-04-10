@@ -13,7 +13,7 @@ public class RoutePatternTest {
 
   class RoutePathAssert {
 
-    private RoutePattern path;
+    RoutePattern path;
 
     public RoutePathAssert(final String method, final String pattern) {
       path = new RoutePattern(method, pattern);

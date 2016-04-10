@@ -317,6 +317,18 @@ public class RouteDefinitionTest {
   }
 
   @Test
+  public void glob() throws Exception {
+    Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
+
+    assertEquals(false, route.apply("/").glob());
+    assertEquals(false, route.apply("/static").glob());
+    assertEquals(true, route.apply("/t?st").glob());
+    assertEquals(true, route.apply("/*/id").glob());
+    assertEquals(true, route.apply("*").glob());
+    assertEquals(true, route.apply("/public/**").glob());
+  }
+
+  @Test
   public void attrsArray() throws Exception {
     Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
     Route.Definition r = route.apply("/")
