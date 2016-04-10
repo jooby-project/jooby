@@ -2,7 +2,10 @@
 
 Provides cache solution and session storage via [Hazelcast](http://hazelcast.org).
 
-Exports a [Hazelcast](http://hazelcast.org) instances and optionally a [session store](/apidocs/org/jooby/hazelcast/HcastSessionStore.html) session store.
+## exports
+
+* ```HazelcastInstance```
+* Optionally, a [session store](/apidocs/org/jooby/hazelcast/HcastSessionStore.html)
 
 ## dependency
 
@@ -10,7 +13,7 @@ Exports a [Hazelcast](http://hazelcast.org) instances and optionally a [session 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

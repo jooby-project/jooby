@@ -1,6 +1,6 @@
 # jedis
 
-[Redis](http://redis.io/) cache and key/value data store for Jooby. Exposes a [Jedis](https://github.com/xetorthio/jedis) service.
+[Redis](http://redis.io/) cache and key/value data store for Jooby. exports a [Jedis](https://github.com/xetorthio/jedis) service.
 
 ## dependency
 
@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

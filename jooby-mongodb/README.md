@@ -2,7 +2,11 @@
 
 [MongoDB](http://mongodb.github.io/mongo-java-driver/) driver for Jooby.
 
-Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient.html), a [MongoDatabase](http://api.mongodb.org/java/2.13/com/mongodb/DB.html) and a [Session Store](/apidocs/org/jooby/mongodb/MongoSessionStore.html)
+## exports
+
+* [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient.html)
+* [MongoDatabase](http://api.mongodb.org/java/2.13/com/mongodb/DB.html)
+* [Session Store](/apidocs/org/jooby/mongodb/MongoSessionStore.html)
 
 ## dependency
 
@@ -10,7 +14,7 @@ Exposes a [MongoClient](http://api.mongodb.org/java/2.13/com/mongodb/MongoClient
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-mongodb</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

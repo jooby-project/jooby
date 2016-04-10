@@ -4,13 +4,18 @@ Enterprise full text search via [Elastic Search](https://github.com/elastic/elas
 
 Provides a client/local API but also a RESTFul API.
 
+## exports
+
+* ```/search``` route
+* ```Client```
+
 ## dependency
 
 ```xml
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-elasticsearch</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 
@@ -47,7 +52,7 @@ Getting a doc:
 
 ## client API
 
-The module exposes a ```Client``` and ```Node``` instances, so it is possible to manage the index inside programmatically.
+The module exports a ```Client``` and ```Node``` instances, so it is possible to manage the index inside programmatically.
 
 ```java
 

@@ -4,6 +4,22 @@ Email supports via [Apache Commons Email](https://commons.apache.org/proper/comm
 
 Small but helpful module that provides access to ```Email``` instances.
 
+## exports
+
+* ```SimpleEmail```
+* ```MultiPartEmail```
+* ```HtmlEmail```
+
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-commons-email</artifactId>
+  <version>1.0.0.CR1</version>
+</dependency>
+```
+
 ## usage
 
 application.conf:

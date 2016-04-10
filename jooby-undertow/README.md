@@ -2,13 +2,17 @@
 
 NIO web server via [Undertow](http://undertow.io/).
 
+## exports
+
+* Undertow server
+
 ## dependency
 
 ```xml
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-undertow</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 
@@ -30,6 +34,12 @@ undertow {
   bufferSize = ${server.http.ResponseBufferSize}
 
   workerThreads = ${server.threads.Max}
+
+  # Waits a set length of time for the handler to shut down. It provides a way to prevent the server
+
+  # from accepting new requests, and wait for existing requests to complete
+
+  awaitShutdown = 1000
 
   server {
 

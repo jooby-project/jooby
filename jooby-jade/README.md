@@ -2,13 +2,18 @@
 
 <a href="https://github.com/neuland/jade4j">jade4j's</a> intention is to be able to process jade templates in Java without the need of a JavaScript environment, while being fully compatible with the original jade syntax.
 
+## exports
+
+* ```JadeConfiguration```
+* [ViewEngine](/apidocs/org/jooby/View.Engine.html)
+
 ## dependency
 
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-jade</artifactId>
- <version>0.16.0</version>
+ <version>1.0.0.CR1</version>
 </dependency>
 ```
 

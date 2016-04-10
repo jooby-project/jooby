@@ -6,11 +6,11 @@
 > NOTE: This module depends on [route spec](/doc/spec/spec.html), please read the [route spec](/doc/spec/spec.html) documentation to learn how to write powerful APIs.
 
 
-## exposes
+## exports
 
-* The Swagger-UI at ```/swagger```
-* The ```swagger.json``` at ```/swagger/swagger.json```
-* The ```swagger.yml``` at ```/swagger/swagger.yml```
+* ```/swagger``` rout with SwaggerUI
+* ```/swagger/swagger.json``` route
+* ```/swagger/swagger.yml``` route
 
 ## dependency
 
@@ -18,7 +18,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-swagger</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

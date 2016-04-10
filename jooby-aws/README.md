@@ -1,12 +1,12 @@
 # aws
 
-Small utility module that exposes ```AmazonWebServiceClient``` services.
+Small utility module that exports ```AmazonWebServiceClient``` services.
 
 It also give you access to aws credentials (access and secret keys).
 
-## exposes
+## exports
 
-* One ore more ```AmazonWebServiceClient```
+* One ore more ```AmazonWebServiceClient```, like ```AmazonS3Client```, ```AmazonSimpleEmailServiceClient```, etc...
 
 ## dependency
 
@@ -14,7 +14,7 @@ It also give you access to aws credentials (access and secret keys).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-aws</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

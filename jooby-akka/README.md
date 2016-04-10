@@ -2,7 +2,7 @@
 
 Small module to build concurrent & distributed applications via [Akka](http://akka.io).
 
-## exposes
+## exports
 * An ```ActorSystem```
 
 ## dependency
@@ -11,7 +11,7 @@ Small module to build concurrent & distributed applications via [Akka](http://ak
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-akka</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

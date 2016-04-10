@@ -1,6 +1,11 @@
 # freemarker
 
-[Freemarker](http://freemarker.org) templates for [Jooby](/). Exposes a Configuration and [renderer](/apidocs/org/jooby/Renderer.html).
+[Freemarker](http://freemarker.org) templates for [Jooby](/).
+
+## exports
+
+* Freemarker ```Configuration```
+* [ViewEngine](/apidocs/org/jooby/View.Engine.html)
 
 ## dependency
 
@@ -8,7 +13,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ftl</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

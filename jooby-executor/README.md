@@ -2,13 +2,17 @@
 
 Manage the life cycle of {@link ExecutorService} and build async apps, schedule tasks, etc...
 
+## exports
+
+* One or more ```ExecutorService``` or sub-types of it
+
 ## dependency
 
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-executor</artifactId>
- <version>0.16.0</version>
+ <version>1.0.0.CR1</version>
 </dependency>
 ```
 

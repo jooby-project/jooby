@@ -2,10 +2,10 @@
 
 Provides advanced cache features via [Ehcache](http://ehcache.org)
 
-## exposes
+## exports
 
-* A ```CacheManager```
-* Direct access to ```Ehcache``` instances
+* ```CacheManager```
+* ```Ehcache```
 
 ## dependency
 
@@ -13,7 +13,7 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

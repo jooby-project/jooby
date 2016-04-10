@@ -2,13 +2,17 @@
 
 Provides cache solution and session storage via: <a href="https://github.com/google/guava">Guava</a>.
 
+## exports
+
+* ```Cache```
+
 ## dependency
 
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-guava-cache</artifactId>
- <version>0.16.0</version>
+ <version>1.0.0.CR1</version>
 </dependency>
 ```
 

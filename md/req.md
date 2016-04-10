@@ -202,6 +202,94 @@ public void configure(Mode mode, Config config, Binder binder) {
 }
 ```
 
+## form submit
+
+Form submit and parsing via Java object is also supported:
+
+```java
+public class Contact {
+
+  private int id;
+
+  private String name;
+
+  private String email;
+
+  public Contact(int id, String name, String email) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+  }
+}
+```
+
+```html
+// enctype: x-www-form-urlencoded or multipart/form-data
+<form enctype="application/x-www-form-urlencoded" action="/save" method="post">
+  <input name="id" />
+  <input name="name" />
+  <input name="email" />
+</form>
+```
+
+```java
+{
+  post("/save", req -> {
+    Contact contact = req.body().to(Contact.class);
+    // save contact...
+  });
+}
+```
+
+Nested paths are supported via ```[name]``` notation:
+
+```java
+public class Contact {
+
+  private int id;
+
+  private String name;
+
+  private String email;
+
+  // nested path
+  private Address address;
+
+  public Contact(int id, String name, String email, Address addres) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.address = address;
+  }
+}
+
+public class Address {
+  private String line;
+
+  private String state;
+
+  private String country;
+
+  publuc Address(String line, String state, String country) {
+    this.line = line;
+    this.state = state;
+    this.country = country;
+  }
+}
+```
+
+```html
+// enctype: x-www-form-urlencoded or multipart/form-data
+<form enctype="application/x-www-form-urlencoded" action="/save" method="post">
+  <input name="id" />
+  <input name="name" />
+  <input name="email" />
+  <input name="address[line]" />
+  <input name="address[state]" />
+  <input name="address[country]" />
+</form>
+```
+
 ## file upload
 
 File uploads are accessible via: [request.file(name)]({{defdocs}}/Request.html#file-java.lang.String-):

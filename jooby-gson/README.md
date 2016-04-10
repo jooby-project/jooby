@@ -2,11 +2,11 @@
 
 JSON support via [Gson](https://github.com/google/gson) library.
 
-## exposes
+## exports
 
-* A [Gson](https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/Gson.html)
-* A [Parser](/apidocs/Parser.html)
-* A [Renderer](/apidocs/Renderer.html)
+* [Gson](https://google-gson.googlecode.com/svn/trunk/gson/docs/javadocs/com/google/gson/Gson.html)
+* [Parser](/apidocs/org/jooby/Parser.html)
+* [Renderer](/apidocs/org/jooby/Renderer.html)
 
 ## dependency
 
@@ -14,7 +14,7 @@ JSON support via [Gson](https://github.com/google/gson) library.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-gson</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

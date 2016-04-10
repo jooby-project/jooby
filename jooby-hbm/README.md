@@ -1,6 +1,6 @@
 # hibernate
 
-Object-Relational-Mapping via [Hibernate](http://hibernate.org/). Exposes an ```EntityManagerFactory``` and ```EntityManager``` services.
+Object-Relational-Mapping via [Hibernate](http://hibernate.org/). exports an ```EntityManagerFactory``` and ```EntityManager``` services.
 
 This module extends [jdbc](/doc/jdbc) module, before going forward, make sure you read the doc of the [jdbc](/doc/jdbc) module first.
 
@@ -11,13 +11,20 @@ pattern, which basically keeps the ```Session``` opened until the view is render
 
 2) a read only transaction is opened for rendering the view.
 
+
+## exports
+
+* An interceptor with a [Open Session in View](https://developer.jboss.org/wiki/OpenSessionInView#jive_content_id_Can_I_use_two_transactions_in_one_Session)
+* ```EntityManagerFactory```
+* ```EntityManager``` during request/response cycles
+
 ## dependency
 
 ```xml
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbm</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

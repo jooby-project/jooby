@@ -2,7 +2,7 @@
 
 Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 
-## exposes
+## exports
 
 * ```Clients```
 * ```WebContext``` as [RequestScoped](/apidocs/org/jooby/RequestedScoped.html)
@@ -15,7 +15,7 @@ Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

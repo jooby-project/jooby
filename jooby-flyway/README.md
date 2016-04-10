@@ -10,7 +10,7 @@ This module run [Flyway](http://flywaydb.org) on startup and apply database migr
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-flyway</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 
@@ -73,8 +73,6 @@ There are some defaults setting that you can see in the appendix.
 
 
 For more information, please visit the [Flyway](http://flywaydb.org) site.
-
-Happy coding!!!
 
 ## flyway.conf
 

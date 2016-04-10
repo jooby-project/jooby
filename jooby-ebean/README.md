@@ -1,12 +1,12 @@
 # ebean
 
-Object-Relational-Mapping via [Ebean ORM](http://ebean-orm.github.io). It configures and exposes ```EbeanServer``` instances.
+Object-Relational-Mapping via [Ebean ORM](http://ebean-orm.github.io). It configures and exports ```EbeanServer``` instances.
 
-This module extends [jdbc](/doc/jdbc) module, before going forward, make sure you read the doc of the [jdbc](/doc/jooby-dbc) module first.
+This module extends [jdbc module](/doc/jdbc), before going forward, make sure you read the doc of the [jdbc module](/doc/jooby-dbc) first.
  
-## exposes
+## exports
 
-* ```EbeanServer``` objects
+* ```EbeanServer```
 
 ## dependency
 
@@ -14,7 +14,7 @@ This module extends [jdbc](/doc/jdbc) module, before going forward, make sure yo
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ebean</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 
@@ -63,7 +63,6 @@ classpath:
   <artifactId>avaje-agentloader</artifactId>
   <scope>test</scope>
 </dependency>
-</pre>
 ```
 
 Did you see the ```test scope```? We don't want to use the runtime enhancer while

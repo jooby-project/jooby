@@ -2,13 +2,17 @@
 
 NIO web server via [Netty](http://netty.io).
 
+## exports
+
+* Netty Server
+
 ## dependency
 
 ```xml
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-netty</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

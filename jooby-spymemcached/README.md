@@ -2,7 +2,7 @@
 
 Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memcached-client)
 
-## exposes
+## exports
 * A ```MemcachedClient``` service
 
 ## dependency
@@ -11,7 +11,7 @@ Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-spymemcached</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

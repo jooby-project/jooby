@@ -2,11 +2,11 @@
 
 Bean validation via [Hibernate Validator](hibernate.org/validator).
 
-## exposes
+## exports
 
-* a ```Validator```,
-* a ```HibernateValidatorConfiguration``` and
-* a ```org.jooby.Parser```
+* ```Validator```,
+* ```HibernateValidatorConfiguration```
+* [Parser](/apidocs/org/jooby/Parser.html)
 
 ## dependency
 
@@ -14,7 +14,7 @@ Bean validation via [Hibernate Validator](hibernate.org/validator).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbv</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
 </dependency>
 ```
 

@@ -6,10 +6,10 @@ RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifec
 > NOTE: This module depends on [route spec](/doc/spec/spec.html), please read the [route spec](/doc/spec/spec.html) documentation to learn how to write powerful APIs. 
 
 
-## exposes
+## exports
 
-* The [api-console](https://github.com/mulesoft/api-console) at ```/raml```
-* The ```.raml``` file at ```/raml/api.raml```
+* ```/raml``` route with [api-console](https://github.com/mulesoft/api-console)
+* ```/raml/api.raml``` route
 
 ## dependency
 
@@ -17,7 +17,7 @@ RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifec
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-raml</artifactId>
- <version>0.16.0</version>
+ <version>1.0.0.CR1</version>
 </dependency>
 ```
 

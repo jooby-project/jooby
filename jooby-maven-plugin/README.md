@@ -1,6 +1,6 @@
 # jooby:run
 
-Increase development productivity: run, debug and auto-reload Jooby applications.
+Increase development productivity: run, debug, compile and auto-reload Jooby applications.
 
 A [Maven 3+](http://maven.apache.org/) plugin for running, debugging and reloading your application.
 
@@ -34,9 +34,7 @@ The plugin bounces the application every time a change is detected on:
 
 Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled/cached it while running on ```application.env = dev```.
 
-**NOTE: For the time being, you need to use a tool that compiles your source code, usually an IDE. Otherwise, no changes will be found.**
-
-Is it worth to mention that dynamic reload of classes at runtime is done via [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
+Is it worth to mention that dynamic reload of classes is done via [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
 
 ## options
 
@@ -44,11 +42,12 @@ Is it worth to mention that dynamic reload of classes at runtime is done via [JB
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
     </commands>
+    <compiler>on</compiler>
     <vmArgs></vmArgs>
     <debug>true</debug>
     <includes>
@@ -65,6 +64,20 @@ Is it worth to mention that dynamic reload of classes at runtime is done via [JB
 ### ${application.class}
 
 A [Maven 3+](http://maven.apache.org/) property that contains the fully qualified name of the ```main class```. **Required**.
+
+### compiler
+
+The compiler is ```on``` by default, unless:
+
+* A ```.classpath``` file is present in the project directory. If present, means you're a Eclipse user and we turn off the compiler and let Eclipse recompiles the code on save.
+
+* The compiler is set to ```off```.
+
+On compilation success, the application is effectively reloaded.
+
+On compilation error, the application won't reload.
+
+Compilation success or error messages are displayed in the console (not at the browser).
 
 ### debug
 
@@ -91,7 +104,7 @@ List of commands to execute before starting the ```application```. Useful for [n
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -112,7 +125,7 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>0.16.0</version>
+  <version>1.0.0.CR1</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <vmArgs>

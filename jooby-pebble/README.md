@@ -2,13 +2,18 @@
 
 <a href="http://www.mitchellbosecke.com/pebble">Pebble</a> a lightweight but rock solid Java templating engine.
 
+## exports
+
+* ```PebbleEngine```
+* [ViewEngine](/apidocs/org/jooby/View.Engine.html)
+
 ## dependency
 
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-pebble</artifactId>
- <version>0.16.0</version>
+ <version>1.0.0.CR1</version>
 </dependency>
 ```
 
