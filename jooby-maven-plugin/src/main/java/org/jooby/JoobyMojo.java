@@ -197,7 +197,9 @@ public class JoobyMojo extends AbstractMojo {
      */
     Runtime.getRuntime().addShutdownHook(shutdownHook);
 
-    watcher.start();
+    if (watcher != null) {
+      watcher.start();
+    }
 
     /**
      * Start process
