@@ -93,7 +93,7 @@ public class LifecycleProcessor implements TypeListener {
       try {
         log.debug("stopping: {}", managed);
         managed.stop();
-      } catch (Exception ex) {
+      } catch (Throwable ex) {
         log.error("stop of: " + managed + " resulted in error", ex);
       }
     }

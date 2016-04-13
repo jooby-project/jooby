@@ -33,12 +33,16 @@ import java.util.function.Supplier;
 import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.Route;
+import org.jooby.Routes;
 import org.jooby.exec.Exec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import javaslang.control.Try;
 import rx.Completable;
 import rx.Observable;
 import rx.Scheduler;
@@ -48,6 +52,197 @@ import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 import rx.schedulers.Schedulers;
 
+/**
+ * <h1>rxjava</h1>
+ * <p>
+ * Reactive programming via <a href="https://github.com/ReactiveX/RxJava">rxjava</a>.
+ * </p>
+ * <p>
+ * RxJava is a Java VM implementation of <a href="http://reactivex.io">Reactive Extensions</a>: a
+ * library for composing asynchronous and event-based programs by using observable sequences.
+ * </p>
+ *
+ * <h2>exports</h2>
+ * <ul>
+ * <li>map route operator that converts {@link Observable} (and family) into {@link Deferred} API.
+ * </li>
+ * <li>
+ * manage the lifecycle of {@link Scheduler schedulers} and make sure they go down on application
+ * shutdown time.
+ * </li>
+ * <li>set a default server thread pool with the number of available processors.</li>
+ * </ul>
+ *
+ * <h2>usage</h2>
+ * <pre>{@code
+ *
+ * ...
+ * import org.jooby.rx.Rx;
+ * ...
+ *
+ * {
+ *   use(new Rx());
+ *
+ *   get("/", req -> Observable.from("reactive programming in jooby!"))
+ *      .map(Rx.rx());
+ * }
+ * }</pre>
+ *
+ * <h2>how it works?</h2>
+ * <p>
+ * Previous example is translated to:
+ * </p>
+ * <pre>{@code
+ * {
+ *   use(new Rx());
+ *
+ *   get("/", req -> {
+ *
+ *    return new Deferred(deferred -> {
+ *      Observable.from("reactive programming in jooby!")
+ *        .subscribe(deferred::resolve, deferred::reject);
+ *    });
+ *
+ *   });
+ * }
+ * }</pre>
+ *
+ * <p>
+ * Translation is done with the {@link Rx#rx()} route operator. If you are a
+ * <a href="https://github.com/ReactiveX/RxJava">rxjava</a> programmer then you don't need to worry
+ * for learning a new API and semantic. The {@link Rx#rx()} route operator deal and take cares of
+ * the {@link Deferred} API.
+ * </p>
+ *
+ * <h2>rx()</h2>
+ * <p>
+ * We just learn that we are not force to learn a new API, just write
+ * <a href="https://github.com/ReactiveX/RxJava">rxjava</a> code. That's cool!
+ * </p>
+ *
+ * <p>
+ * But.. what if you have 10 routes? 50 routes?
+ * </p>
+ *
+ * <pre>{@code
+ *
+ * ...
+ * import org.jooby.rx.Rx;
+ * ...
+ *
+ * {
+ *   use(new Rx());
+ *
+ *   get("/1", req -> Observable...)
+ *      .map(Rx.rx());
+ *
+ *   get("/2", req -> Observable...)
+ *      .map(Rx.rx());
+ *
+ *   ....
+ *
+ *   get("/N", req -> Observable...)
+ *      .map(Rx.rx());
+ * }
+ * }</pre>
+ *
+ * <p>
+ * This is better than written N routes using the {@link Deferred} API route by route... but still
+ * there is one more option to help you (and your fingers) to right less code:
+ * </p>
+ *
+ * <pre>{@code
+ * ...
+ * import org.jooby.rx.Rx;
+ * ...
+ *
+ * {
+ *   use(new Rx());
+ *
+ *   with(() -> {
+ *     get("/1", req -> Observable...);
+ *
+ *     get("/2", req -> Observable...);
+ *
+ *     ....
+ *
+ *     get("/N", req -> Observable...);
+ *
+ *   }).map(Rx.rx());
+ * }
+ * }</pre>
+ *
+ * <p>
+ * <strong>Beautiful, hugh?</strong>
+ * </p>
+ *
+ * <p>
+ * The {@link Routes#with(Runnable) with} operator let you group any number of routes and apply
+ * common attributes and/or operator to all them!!!
+ * </p>
+ *
+ * <h2>rx()+scheduler</h2>
+ * <p>
+ * You can provide a {@link Scheduler} to the {@link #rx()} operator:
+ * </p>
+ *
+ * <pre>{@code
+ * ...
+ * import org.jooby.rx.Rx;
+ * ...
+ *
+ * {
+ *   use(new Rx());
+ *
+ *   with(() -> {
+ *     get("/1", req -> Observable...);
+ *
+ *     get("/2", req -> Observable...);
+ *
+ *     ....
+ *
+ *     get("/N", req -> Observable...);
+ *
+ *   }).map(Rx.rx(Schedulers::io));
+ * }
+ * }</pre>
+ *
+ * <p>
+ * All the routes here will {@link Observable#subscribeOn(Scheduler) subscribe-on} the
+ * provided {@link Scheduler}.
+ * </p>
+ *
+ * <h2>schedulers</h2>
+ * <p>
+ * This module provides the default {@link Scheduler} from
+ * <a href="https://github.com/ReactiveX/RxJava">rxjava</a>. But also let you define your own
+ * {@link Scheduler scheduler} using the {@link Exec} module.
+ * </p>
+ *
+ * <pre>
+ * rx.schedulers.io = forkjoin
+ * rx.schedulers.computation = fixed
+ * rx.schedulers.newThread = "fixed = 10"
+ * </pre>
+ *
+ * <p>
+ * The previous example defines a:
+ * </p>
+ * <ul>
+ * <li>forkjoin pool for {@link Schedulers#io()}</li>
+ * <li>fixed thread pool equals to the number of available processors for
+ * {@link Schedulers#computation()}</li>
+ * <li>fixed thread pool with a max of 10 for {@link Schedulers#newThread()}</li>
+ * </ul>
+ *
+ * <p>
+ * Of course, you can define/override all, some or none of them. In any case the {@link Scheduler}
+ * will be shutdown at application shutdown time.
+ * </p>
+ *
+ * @author edgar
+ * @since 1.0.0.CR3
+ */
 public class Rx extends Exec {
 
   static class DeferredSubscriber extends Subscriber<Object> {
@@ -81,6 +276,9 @@ public class Rx extends Exec {
       }
     }
   }
+
+  /** The logging system. */
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   public Rx() {
     super("rx.schedulers");
@@ -124,19 +322,22 @@ public class Rx extends Exec {
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     // dump rx.* as system properties
-    if (conf.hasPath("rx")) {
-      conf.getConfig("rx")
-          .withoutPath("schedulers").entrySet()
-          .forEach(
-              e -> System.setProperty("rx." + e.getKey(), e.getValue().unwrapped().toString()));
-    }
+    conf.getConfig("rx")
+        .withoutPath("schedulers").entrySet()
+        .forEach(
+            e -> System.setProperty("rx." + e.getKey(), e.getValue().unwrapped().toString()));
     Map<String, Executor> executors = new HashMap<>();
     super.configure(env, conf, binder, executors::put);
-    RxJavaPlugins plugins = RxJavaPlugins.getInstance();
-    plugins.registerSchedulersHook(schedulerHook(executors));
+
+    /**
+     * Side effects of global/evil static state. Hack to turn off some of this errors.
+     */
+    trySchedulerHook(executors);
+
     // shutdown schedulers: silent shutdown on tests we got a NoClassDefFoundError: Could not
     // initialize class rx.internal.util.RxRingBuffer
-    env.onStop(Schedulers::shutdown);
+    env.onStop(() -> Try.run(Schedulers::shutdown)
+        .onFailure(x -> log.debug("Schedulers.shutdown resulted in error", x)));
   }
 
   @Override
@@ -144,29 +345,17 @@ public class Rx extends Exec {
     return ConfigFactory.parseResources(getClass(), "rx.conf");
   }
 
-  static RxJavaSchedulersHook schedulerHook(final Map<String, Executor> executors) {
-    return new RxJavaSchedulersHook() {
-      @Override
-      public Scheduler getComputationScheduler() {
-        return Optional.ofNullable(executors.get("computation"))
-            .map(Schedulers::from)
-            .orElse(null);
+  private static void trySchedulerHook(final Map<String, Executor> executors) {
+    RxJavaPlugins plugins = RxJavaPlugins.getInstance();
+    try {
+      plugins.registerSchedulersHook(new ExecSchedulerHook(executors));
+    } catch (IllegalStateException ex) {
+      // there is a scheduler hook already, check if ours and ignore the exception
+      RxJavaSchedulersHook hook = plugins.getSchedulersHook();
+      if (!(hook instanceof ExecSchedulerHook)) {
+        throw ex;
       }
-
-      @Override
-      public Scheduler getIOScheduler() {
-        return Optional.ofNullable(executors.get("io"))
-            .map(Schedulers::from)
-            .orElse(null);
-      }
-
-      @Override
-      public Scheduler getNewThreadScheduler() {
-        return Optional.ofNullable(executors.get("newThread"))
-            .map(Schedulers::from)
-            .orElse(null);
-      }
-    };
+    }
   }
 
 }
