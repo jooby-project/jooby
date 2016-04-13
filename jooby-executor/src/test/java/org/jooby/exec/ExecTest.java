@@ -31,6 +31,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+import javaslang.control.Try.CheckedRunnable;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Exec.class, Executors.class, ForkJoinPool.class, Thread.class })
 public class ExecTest {
@@ -41,7 +43,7 @@ public class ExecTest {
 
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStop(unit.capture(Runnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
   };
 
   @Test
@@ -93,7 +95,7 @@ public class ExecTest {
         .run(unit -> {
           new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          Runnable stop = unit.captured(Runnable.class).iterator().next();
+          CheckedRunnable stop = unit.captured(CheckedRunnable.class).iterator().next();
           stop.run();
         });
   }
@@ -116,7 +118,7 @@ public class ExecTest {
         .run(unit -> {
           new Exec().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          Runnable stop = unit.captured(Runnable.class).iterator().next();
+          CheckedRunnable stop = unit.captured(CheckedRunnable.class).iterator().next();
           stop.run();
         });
   }

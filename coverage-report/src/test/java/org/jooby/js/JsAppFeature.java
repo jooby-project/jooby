@@ -16,7 +16,7 @@ public class JsAppFeature {
   }
 
   @Test
-  public void appfile() throws Exception {
+  public void appfile() throws Throwable {
     run(Paths.get("src", "test", "resources", "org", "jooby", "js", "appfile.js").toFile());
   }
 
@@ -24,7 +24,7 @@ public class JsAppFeature {
     new JsJooby().run(new InputStreamReader(getClass().getResourceAsStream(filename))).get();
   }
 
-  private void run(final File filename) throws Exception {
+  private void run(final File filename) throws Throwable {
     Jooby.main(new String[]{filename.getAbsolutePath() });
   }
 

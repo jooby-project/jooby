@@ -148,6 +148,8 @@ import com.typesafe.config.ConfigValueFactory;
 
 import javaslang.Predicates;
 import javaslang.control.Try;
+import javaslang.control.Try.CheckedConsumer;
+import javaslang.control.Try.CheckedRunnable;
 
 /**
  * <h1>jooby</h1>
@@ -581,10 +583,10 @@ public class Jooby implements Routes {
   private String prefix;
 
   /** startup callback . */
-  private List<Runnable> onStart = new ArrayList<>();
+  private List<CheckedConsumer<Jooby>> onStart = new ArrayList<>();
 
   /** stop callback . */
-  private List<Runnable> onStop = new ArrayList<>();
+  private List<CheckedConsumer<Jooby>> onStop = new ArrayList<>();
 
   public Jooby() {
     this(null);
@@ -707,9 +709,9 @@ public class Jooby implements Routes {
    * @param callback A callback to run.
    * @return This instance.
    */
-  public Jooby onStart(final Runnable callback) {
+  public Jooby onStart(final CheckedRunnable callback) {
     requireNonNull(callback, "Callback is required.");
-    onStart.add(callback);
+    onStart.add(e -> callback.run());
     return this;
   }
 
@@ -719,9 +721,9 @@ public class Jooby implements Routes {
    * @param callback A callback to run.
    * @return This instance.
    */
-  public Jooby onStop(final Runnable callback) {
+  public Jooby onStop(final CheckedRunnable callback) {
     requireNonNull(callback, "Callback is required.");
-    onStop.add(callback);
+    onStop.add(e -> callback.run());
     return this;
   }
 
@@ -3236,10 +3238,10 @@ public class Jooby implements Routes {
    *
    * @param app App creator.
    * @param args App arguments.
-   * @throws Exception If something fails to start.
+   * @throws Throwable If something fails to start.
    */
   public static void run(final Supplier<? extends Jooby> app, final String... args)
-      throws Exception {
+      throws Throwable {
     Config conf = ConfigFactory.systemProperties()
         .withFallback(args(args));
     System.setProperty("logback.configurationFile", logback(conf));
@@ -3268,10 +3270,10 @@ public class Jooby implements Routes {
    *
    * @param app App creator.
    * @param args App arguments.
-   * @throws Exception If something fails to start.
+   * @throws Throwable If something fails to start.
    */
   public static void run(final Class<? extends Jooby> app, final String... args)
-      throws Exception {
+      throws Throwable {
     run(() -> Try.of(() -> app.newInstance()).get(), args);
   }
 
@@ -3295,9 +3297,9 @@ public class Jooby implements Routes {
    * <li>A web server is started</li>
    * </ol>
    *
-   * @throws Exception If something fails to start.
+   * @throws Throwable If something fails to start.
    */
-  public void start() throws Exception {
+  public void start() throws Throwable {
     start(new String[0]);
   }
 
@@ -3322,9 +3324,9 @@ public class Jooby implements Routes {
    * </ol>
    *
    * @param routes Routes callback. Invoked once all app routes has been collected.
-   * @throws Exception If something fails to start.
+   * @throws Throwable If something fails to start.
    */
-  public void start(final Consumer<List<Route.Definition>> routes) throws Exception {
+  public void start(final Consumer<List<Route.Definition>> routes) throws Throwable {
     start(new String[0], routes);
   }
 
@@ -3350,9 +3352,9 @@ public class Jooby implements Routes {
    *
    * @param args Application arguments. Using the <code>name=value</code> format, except for
    *        application.env where can be just: <code>myenv</code>.
-   * @throws Exception If something fails to start.
+   * @throws Throwable If something fails to start.
    */
-  public void start(final String[] args) throws Exception {
+  public void start(final String[] args) throws Throwable {
     start(args, null);
   }
 
@@ -3379,10 +3381,10 @@ public class Jooby implements Routes {
    * @param args Application arguments. Using the <code>name=value</code> format, except for
    *        application.env where can be just: <code>myenv</code>.
    * @param routes Routes callback. Invoked once all app routes has been collected.
-   * @throws Exception If something fails to start.
+   * @throws Throwable If something fails to start.
    */
   public void start(final String[] args, final Consumer<List<Route.Definition>> routes)
-      throws Exception {
+      throws Throwable {
     long start = System.currentTimeMillis();
     // shutdown hook
     Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
@@ -3397,7 +3399,9 @@ public class Jooby implements Routes {
     log.debug("config tree:\n{}", configTree(config.origin().description()));
 
     // start services
-    onStart.forEach(Runnable::run);
+    for (CheckedConsumer<Jooby> onStart : this.onStart) {
+      onStart.accept(this);
+    }
 
     // Start server
     Server server = injector.getInstance(Server.class);
@@ -3422,9 +3426,9 @@ public class Jooby implements Routes {
    * Run app in javascript.
    *
    * @param jsargs Arguments, first arg must be the name of the javascript file.
-   * @throws Exception If app fails to start.
+   * @throws Throwable If app fails to start.
    */
-  public static void main(final String[] jsargs) throws Exception {
+  public static void main(final String[] jsargs) throws Throwable {
     String[] args = new String[Math.max(0, jsargs.length - 1)];
     if (args.length > 0) {
       System.arraycopy(jsargs, 1, args, 0, args.length);
@@ -3777,25 +3781,32 @@ public class Jooby implements Routes {
    */
   public void stop() {
     if (started.compareAndSet(true, false)) {
-      stopManaged(injector, onStop);
-
       Logger log = LoggerFactory.getLogger(getClass());
+      stopManaged(injector, this, log, onStop);
+
       try {
         Server server = injector.getInstance(Server.class);
         String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
         server.stop();
         log.info("[{}] Server stopped", serverName);
-      } catch (Exception ex) {
+      } catch (Throwable ex) {
         log.error("Web server didn't stop normally", ex);
       }
       injector = null;
     }
   }
 
-  private static void stopManaged(final Injector injector, final List<Runnable> onStop) {
+  private static void stopManaged(final Injector injector, final Jooby app, final Logger log,
+      final List<CheckedConsumer<Jooby>> onStop) {
     // stop modules
     injector.getInstance(LifecycleProcessor.class).destroy();
-    onStop.forEach(Runnable::run);
+    onStop.forEach(c -> {
+      try {
+        c.accept(app);
+      } catch (Throwable x) {
+        log.error("shutdown of {} resulted in error", c, x);
+      }
+    });
   }
 
   /**

@@ -78,12 +78,12 @@ public class JoobyRunTest {
   }
 
   @Test
-  public void runClass() throws Exception {
+  public void runClass() throws Throwable {
     Jooby.run(NoopApp.class);
   }
 
   @Test
-  public void runClassArg() throws Exception {
+  public void runClassArg() throws Throwable {
     String[] args = {"foo" };
     try {
       Jooby.run(NoopAppEx.class, args);

@@ -196,13 +196,13 @@ public class AppModule {
               .getDeclaredConstructors()[0].newInstance();
         }
         app.getClass().getMethod("start").invoke(app);
-
-      } catch (InvocationTargetException ex) {
-        System.err.println("Error found while starting: " + mainClass);
-        ex.printStackTrace();
-      } catch (Exception ex) {
-        System.err.println("Error found while starting: " + mainClass);
-        ex.printStackTrace();
+      } catch (Throwable ex) {
+        System.err.println(mainClass + ".start() resulted in error");
+        Throwable cause = ex;
+        if (ex instanceof InvocationTargetException) {
+          cause = ((InvocationTargetException) ex).getTargetException();
+        }
+        cause.printStackTrace();
       } finally {
         Thread.currentThread().setContextClassLoader(ctxLoader);
       }
@@ -212,11 +212,15 @@ public class AppModule {
   private void stopApp(final Object app) {
     try {
       app.getClass().getMethod("stop").invoke(app);
-    } catch (Exception ex) {
-      System.err.println("couldn't stop app");
+    } catch (Throwable ex) {
+      System.err.println(app.getClass().getName() + ".stop() resulted in error");
       ex.printStackTrace();
     } finally {
-      loader.unload(module);
+      try {
+        loader.unload(module);
+      } catch (Throwable ex) {
+        // sshhhh
+      }
     }
 
   }

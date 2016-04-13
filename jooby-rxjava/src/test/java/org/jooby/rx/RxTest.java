@@ -24,6 +24,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+import javaslang.control.Try.CheckedRunnable;
 import rx.plugins.RxJavaPlugins;
 import rx.plugins.RxJavaSchedulersHook;
 import rx.schedulers.Schedulers;
@@ -35,7 +36,7 @@ public class RxTest {
 
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStop(unit.capture(Runnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
   };
 
   @Test
@@ -60,13 +61,13 @@ public class RxTest {
         })
         .expect(unit -> {
           Env env = unit.get(Env.class);
-          expect(env.onStop(unit.capture(Runnable.class))).andReturn(env);
+          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
         })
         .expect(onStop)
         .run(unit -> {
           new Rx().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(Runnable.class).get(1).run();
+          unit.captured(CheckedRunnable.class).get(1).run();
         });
   }
 
@@ -93,13 +94,13 @@ public class RxTest {
         })
         .expect(unit -> {
           Env env = unit.get(Env.class);
-          expect(env.onStop(unit.capture(Runnable.class))).andReturn(env);
+          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
         })
         .expect(onStop)
         .run(unit -> {
           new Rx().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(Runnable.class).get(1).run();
+          unit.captured(CheckedRunnable.class).get(1).run();
         });
   }
 
@@ -127,13 +128,13 @@ public class RxTest {
         })
         .expect(unit -> {
           Env env = unit.get(Env.class);
-          expect(env.onStop(unit.capture(Runnable.class))).andReturn(env);
+          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
         })
         .expect(onStop)
         .run(unit -> {
           new Rx().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(Runnable.class).get(1).run();
+          unit.captured(CheckedRunnable.class).get(1).run();
         });
   }
 
@@ -161,13 +162,13 @@ public class RxTest {
         })
         .expect(unit -> {
           Env env = unit.get(Env.class);
-          expect(env.onStop(unit.capture(Runnable.class))).andReturn(env);
+          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
         })
         .expect(onStop)
         .run(unit -> {
           new Rx().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
-          unit.captured(Runnable.class).get(1).run();
+          unit.captured(CheckedRunnable.class).get(1).run();
         });
   }
 

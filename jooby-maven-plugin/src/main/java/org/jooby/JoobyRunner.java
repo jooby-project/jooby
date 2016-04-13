@@ -55,12 +55,12 @@ public class JoobyRunner {
   }
 
   public void run(final String mainClass, final Consumer<Jooby> callback)
-      throws Exception {
+      throws Throwable {
     run(mainClass, (app, loader) -> callback.accept(app));
   }
 
   public void run(final String mainClass, final BiConsumer<Jooby, ClassLoader> callback)
-      throws Exception {
+      throws Throwable {
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     try (URLClassLoader apploader = cp.toClassLoader()) {
       Thread.currentThread().setContextClassLoader(apploader);

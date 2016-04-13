@@ -84,7 +84,7 @@ public class AssetMojo extends AbstractMojo {
     } catch (CompilationDone ex) {
       long end = System.currentTimeMillis();
       getLog().info("compilation took " + (end - start) + "ms");
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       throw new MojoFailureException("Can't compile assets for " + mainClass, ex);
     }
   }

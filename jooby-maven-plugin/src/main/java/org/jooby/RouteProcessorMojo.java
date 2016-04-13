@@ -60,7 +60,7 @@ public class RouteProcessorMojo extends AbstractMojo {
             process(app, srcdir, bindir);
           });
     } catch (ProcessDone ex) {
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       throw new MojoFailureException("Can't build route spec for: " + mainClass, ex);
     }
   }

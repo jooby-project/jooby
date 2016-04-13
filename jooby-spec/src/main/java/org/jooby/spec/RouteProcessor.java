@@ -192,7 +192,7 @@ public class RouteProcessor {
       });
     } catch (StopEx cause) {
       log.trace("routes were collected successfully");
-    } catch (Exception cause) {
+    } catch (Throwable cause) {
       log.error("Unable to get routes from {}", app, cause);
       return Collections.emptyList();
     }

@@ -83,6 +83,8 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigOrigin;
 import com.typesafe.config.ConfigValueFactory;
 
+import javaslang.control.Try.CheckedRunnable;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Jooby.class, Guice.class, TypeConverters.class, Multibinder.class,
     OptionalBinder.class, Runtime.class, Thread.class })
@@ -667,7 +669,7 @@ public class JoobyTest {
   @Test
   public void onStartStopCallback() throws Exception {
 
-    new MockUnit(Binder.class, Runnable.class)
+    new MockUnit(Binder.class, CheckedRunnable.class)
         .expect(guice)
         .expect(shutdown)
         .expect(config)
@@ -691,14 +693,14 @@ public class JoobyTest {
         .expect(tmpdir)
         .expect(err)
         .expect(unit -> {
-          unit.get(Runnable.class).run();
-          unit.get(Runnable.class).run();
+          unit.get(CheckedRunnable.class).run();
+          unit.get(CheckedRunnable.class).run();
         })
         .run(unit -> {
 
           Jooby app = new Jooby()
-              .onStart(unit.get(Runnable.class))
-              .onStop(unit.get(Runnable.class));
+              .onStart(unit.get(CheckedRunnable.class))
+              .onStop(unit.get(CheckedRunnable.class));
           app.start();
           app.stop();
 

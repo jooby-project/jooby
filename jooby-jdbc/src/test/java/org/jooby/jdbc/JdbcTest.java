@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 
 import org.easymock.Capture;
 import org.jooby.Env;
+import org.jooby.Jooby;
 import org.jooby.Routes;
 import org.junit.Test;
 
@@ -34,6 +35,9 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
+
+import javaslang.control.Try.CheckedConsumer;
+import javaslang.control.Try.CheckedRunnable;
 
 public class JdbcTest {
 
@@ -1055,22 +1059,22 @@ public class JdbcTest {
       }
 
       @Override
-      public Env onStop(final Runnable shutdownTask) {
+      public Env onStop(final CheckedRunnable shutdownTask) {
         throw new UnsupportedOperationException();
       }
 
       @Override
-      public List<Runnable> stopTasks() {
+      public List<CheckedConsumer<Jooby>> stopTasks() {
         throw new UnsupportedOperationException();
       }
 
       @Override
-      public Env onStart(final Runnable task) {
+      public Env onStart(final CheckedRunnable task) {
         throw new UnsupportedOperationException();
       }
 
       @Override
-      public List<Runnable> startTasks() {
+      public List<CheckedConsumer<Jooby>> startTasks() {
         throw new UnsupportedOperationException();
       }
 

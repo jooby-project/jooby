@@ -3,7 +3,6 @@ package org.jooby;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -11,6 +10,8 @@ import org.junit.Test;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+
+import javaslang.control.Try.CheckedRunnable;
 
 public class EnvTest {
 
@@ -174,20 +175,20 @@ public class EnvTest {
   @Test
   public void onStart() throws Exception {
     Env env = Env.DEFAULT.build(ConfigFactory.empty());
-    Runnable task = () -> {
+    CheckedRunnable task = () -> {
     };
     env.onStart(task);
 
-    assertEquals(Arrays.asList(task), env.startTasks());
+    assertEquals(1, env.startTasks().size());
   }
 
   @Test
   public void onStop() throws Exception {
     Env env = Env.DEFAULT.build(ConfigFactory.empty());
-    Runnable task = () -> {
+    CheckedRunnable task = () -> {
     };
     env.onStop(task);
 
-    assertEquals(Arrays.asList(task), env.stopTasks());
+    assertEquals(1, env.stopTasks().size());
   }
 }

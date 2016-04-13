@@ -42,7 +42,6 @@ import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import javaslang.control.Try;
 import rx.Completable;
 import rx.Observable;
 import rx.Scheduler;
@@ -334,10 +333,14 @@ public class Rx extends Exec {
      */
     trySchedulerHook(executors);
 
-    // shutdown schedulers: silent shutdown on tests we got a NoClassDefFoundError: Could not
-    // initialize class rx.internal.util.RxRingBuffer
-    env.onStop(() -> Try.run(Schedulers::shutdown)
-        .onFailure(x -> log.debug("Schedulers.shutdown resulted in error", x)));
+    // shutdown schedulers: silent shutdown in dev mode between app reloads
+    env.onStop(() -> {
+      try {
+        Schedulers.shutdown();
+      } catch (Throwable ex) {
+        log.debug("Schedulers.shutdown() resulted in error", ex);
+      }
+    });
   }
 
   @Override
@@ -345,7 +348,7 @@ public class Rx extends Exec {
     return ConfigFactory.parseResources(getClass(), "rx.conf");
   }
 
-  private static void trySchedulerHook(final Map<String, Executor> executors) {
+  private void trySchedulerHook(final Map<String, Executor> executors) {
     RxJavaPlugins plugins = RxJavaPlugins.getInstance();
     try {
       plugins.registerSchedulersHook(new ExecSchedulerHook(executors));

@@ -38,7 +38,7 @@ public class MetricsApp extends Jooby {
     get("/", () -> "Hello metrics!");
   }
 
-  public static void main(final String[] args) throws Exception {
+  public static void main(final String[] args) throws Throwable {
     new MetricsApp().start(args);
   }
 }

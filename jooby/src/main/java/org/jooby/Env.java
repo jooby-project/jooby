@@ -35,6 +35,8 @@ import com.typesafe.config.Config;
 
 import javaslang.API;
 import javaslang.control.Option;
+import javaslang.control.Try.CheckedConsumer;
+import javaslang.control.Try.CheckedRunnable;
 
 /**
  * Allows to optimize, customize or apply defaults values for services.
@@ -100,9 +102,9 @@ public interface Env {
     String name = config.hasPath("application.env") ? config.getString("application.env") : "dev";
     return new Env() {
 
-      private ImmutableList.Builder<Runnable> start = ImmutableList.builder();
+      private ImmutableList.Builder<CheckedConsumer<Jooby>> start = ImmutableList.builder();
 
-      private ImmutableList.Builder<Runnable> shutdown = ImmutableList.builder();
+      private ImmutableList.Builder<CheckedConsumer<Jooby>> shutdown = ImmutableList.builder();
 
       @Override
       public String name() {
@@ -133,24 +135,24 @@ public interface Env {
       }
 
       @Override
-      public List<Runnable> stopTasks() {
+      public List<CheckedConsumer<Jooby>> stopTasks() {
         return shutdown.build();
       }
 
       @Override
-      public Env onStop(final Runnable task) {
-        this.shutdown.add(task);
+      public Env onStop(final CheckedRunnable task) {
+        this.shutdown.add(e -> task.run());
         return this;
       }
 
       @Override
-      public Env onStart(final Runnable task) {
-        this.start.add(task);
+      public Env onStart(final CheckedRunnable task) {
+        this.start.add(e -> task.run());
         return this;
       }
 
       @Override
-      public List<Runnable> startTasks() {
+      public List<CheckedConsumer<Jooby>> startTasks() {
         return this.start.build();
       }
     };
@@ -371,7 +373,7 @@ public interface Env {
    * @param task Task to run.
    * @return This env.
    */
-  Env onStart(Runnable task);
+  Env onStart(CheckedRunnable task);
 
   /**
    * Add a stop task, useful for cleanup and/or stop service at stop time.
@@ -384,16 +386,16 @@ public interface Env {
    * @param task Task to run.
    * @return This env.
    */
-  Env onStop(Runnable task);
+  Env onStop(CheckedRunnable task);
 
   /**
    * @return List of start tasks.
    */
-  List<Runnable> startTasks();
+  List<CheckedConsumer<Jooby>> startTasks();
 
   /**
    * @return List of stop tasks.
    */
-  List<Runnable> stopTasks();
+  List<CheckedConsumer<Jooby>> stopTasks();
 
 }
