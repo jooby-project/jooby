@@ -12,7 +12,7 @@ NIO web server via: [Jetty](https://www.eclipse.org/jetty).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jetty</artifactId>
-  <version>1.0.0.CR1</version>
+  <version>1.0.0.CR2</version>
 </dependency>
 ```
 
