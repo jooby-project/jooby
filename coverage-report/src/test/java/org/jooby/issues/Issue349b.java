@@ -7,7 +7,7 @@ import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-public class Issue350 extends ServerFeature {
+public class Issue349b extends ServerFeature {
   @Path("/mvc")
   public static class Resource {
 

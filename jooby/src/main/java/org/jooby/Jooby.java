@@ -76,6 +76,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -564,6 +565,8 @@ public class Jooby implements Routes {
    * The override config. Optional.
    */
   private Config srcconf;
+
+  private final AtomicBoolean started = new AtomicBoolean(false);
 
   /** Keep the global injector instance. */
   private Injector injector;
@@ -3386,6 +3389,8 @@ public class Jooby implements Routes {
 
     this.injector = bootstrap(args(args), routes);
 
+    started.set(true);
+
     Config config = injector.getInstance(Config.class);
 
     Logger log = LoggerFactory.getLogger(getClass());
@@ -3771,7 +3776,7 @@ public class Jooby implements Routes {
    * Stop the application, close all the modules and stop the web server.
    */
   public void stop() {
-    if (injector != null) {
+    if (started.compareAndSet(true, false)) {
       stopManaged(injector, onStop);
 
       Logger log = LoggerFactory.getLogger(getClass());

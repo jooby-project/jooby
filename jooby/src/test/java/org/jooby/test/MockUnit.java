@@ -105,6 +105,14 @@ public class MockUnit {
     return type;
   }
 
+  public <T> Class<T> mockStaticPartial(final Class<T> type, final String... names) {
+    if (mockClasses.add(type)) {
+      PowerMock.mockStaticPartial(type, names);
+      mockClasses.add(type);
+    }
+    return type;
+  }
+
   public <T> T partialMock(final Class<T> type, final String... methods) {
     T mock = PowerMock.createPartialMock(type, methods);
     partialMocks.add(mock);
@@ -117,8 +125,21 @@ public class MockUnit {
     return mock;
   }
 
+  public <T> T partialMock(final Class<T> type, final String method, final Class t1,
+      final Class t2) {
+    T mock = PowerMock.createPartialMock(type, method, t1, t2);
+    partialMocks.add(mock);
+    return mock;
+  }
+
   public <T> T mock(final Class<T> type) {
     return mock(type, false);
+  }
+
+  public <T> T powerMock(final Class<T> type) {
+    T mock = PowerMock.createMock(type);
+    partialMocks.add(mock);
+    return mock;
   }
 
   public <T> T mock(final Class<T> type, final boolean strict) {

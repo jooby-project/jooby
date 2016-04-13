@@ -32,6 +32,6 @@ public class ExecFeature extends ServerFeature {
 
   @Test
   public void forkJoinPool() throws Exception {
-    request().get("/forkjoin").expect("forkjoin");
+    request().get("/forkjoin").expect("forkjoin-1");
   }
 }

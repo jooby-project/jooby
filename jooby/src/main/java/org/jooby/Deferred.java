@@ -191,8 +191,8 @@ public class Deferred extends Result {
    */
   @Override
   public Result set(final Object value) {
-    if (value instanceof Exception) {
-      reject((Exception) value);
+    if (value instanceof Throwable) {
+      reject((Throwable) value);
     } else {
       resolve(value);
     }

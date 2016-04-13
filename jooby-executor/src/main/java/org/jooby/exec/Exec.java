@@ -35,6 +35,8 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinPool.ForkJoinWorkerThreadFactory;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import org.jooby.Env;
@@ -169,6 +171,9 @@ import javaslang.control.Try;
  */
 public class Exec implements Module {
 
+  private static final BiConsumer<String, Executor> NOOP = (n, e) -> {
+  };
+
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -188,6 +193,16 @@ public class Exec implements Module {
                     .toString());
                 return new ForkJoinPool(n, fjwtf(name), null, asyncMode);
               });
+
+  private String namespace;
+
+  protected Exec(final String namespace) {
+    this.namespace = namespace;
+  }
+
+  public Exec() {
+    this("executors");
+  }
 
   /**
    * Defined the default value for daemon. This value is used when a executor spec doesn't define a
@@ -216,14 +231,21 @@ public class Exec implements Module {
 
   @Override
   public Config config() {
-    return ConfigFactory.empty("exec.conf").withValue("executors",
+    return ConfigFactory.empty("exec.conf").withValue(namespace,
         ConfigValueFactory.fromAnyRef("fixed"));
   }
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    List<Map<String, Object>> executors = executors(conf.getValue("executors"), daemon, priority,
-        Runtime.getRuntime().availableProcessors());
+    configure(env, conf, binder, NOOP);
+  }
+
+  protected void configure(final Env env, final Config conf, final Binder binder,
+      final BiConsumer<String, Executor> callback) {
+    List<Map<String, Object>> executors = conf.hasPath(namespace)
+        ? executors(conf.getValue(namespace), daemon, priority,
+            Runtime.getRuntime().availableProcessors())
+        : Collections.emptyList();
     List<Entry<String, ExecutorService>> services = new ArrayList<>(executors.size());
     for (Map<String, Object> options : executors) {
       // thread factory options
@@ -246,6 +268,7 @@ public class Exec implements Module {
           options);
 
       bind(binder, name, executor);
+      callback.accept(name, executor);
 
       services.add(Maps.immutableEntry(name, executor));
     }
@@ -292,8 +315,9 @@ public class Exec implements Module {
 
   private static ThreadFactory factory(final String name, final boolean daemon,
       final int priority) {
+    AtomicLong id = new AtomicLong(0);
     return r -> {
-      Thread thread = new Thread(r, name);
+      Thread thread = new Thread(r, name + "-" + id.incrementAndGet());
       thread.setDaemon(daemon);
       thread.setPriority(priority);
       return thread;
@@ -301,9 +325,10 @@ public class Exec implements Module {
   }
 
   private static ForkJoinWorkerThreadFactory fjwtf(final String name) {
+    AtomicLong id = new AtomicLong();
     return pool -> {
       ForkJoinWorkerThread thread = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
-      thread.setName(name);
+      thread.setName(name + "-" + id.incrementAndGet());
       return thread;
     };
   }

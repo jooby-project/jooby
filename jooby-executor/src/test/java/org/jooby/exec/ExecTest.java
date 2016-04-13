@@ -146,7 +146,7 @@ public class ExecTest {
         .expect(unit -> {
           Thread t = unit.constructor(Thread.class)
               .args(Runnable.class, String.class)
-              .build(unit.get(Runnable.class), "default");
+              .build(unit.get(Runnable.class), "default-1");
           t.setDaemon(true);
           t.setPriority(Thread.NORM_PRIORITY);
         })
@@ -170,7 +170,7 @@ public class ExecTest {
         .expect(unit -> {
           Thread t = unit.constructor(Thread.class)
               .args(Runnable.class, String.class)
-              .build(unit.get(Runnable.class), "default");
+              .build(unit.get(Runnable.class), "default-1");
           t.setDaemon(false);
           t.setPriority(Thread.MAX_PRIORITY);
         })

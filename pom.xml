@@ -75,6 +75,7 @@
     <module>jooby-metrics</module>
     <module>jooby-querydsl</module>
     <module>jooby-sitemap</module>
+    <module>jooby-rxjava</module>
     <module>coverage-report</module>
   </modules>
 
@@ -453,6 +454,12 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-rxjava</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
       <!-- bson4jackon -->
       <dependency>
         <groupId>de.undercouch</groupId>
@@ -686,6 +693,13 @@
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-core</artifactId>
         <version>${camel.version}</version>
+      </dependency>
+
+      <!-- rxjava -->
+      <dependency>
+        <groupId>io.reactivex</groupId>
+        <artifactId>rxjava</artifactId>
+        <version>${rxjava.version}</version>
       </dependency>
 
       <!-- Fluent HC -->
@@ -2219,6 +2233,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <pebble.version>2.2.1</pebble.version>
     <jade4j.version>1.1.4</jade4j.version>
     <jsoup.version>1.8.3</jsoup.version>
+    <rxjava.version>1.1.3</rxjava.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>
