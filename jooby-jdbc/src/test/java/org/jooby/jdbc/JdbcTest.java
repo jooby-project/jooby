@@ -37,7 +37,6 @@ import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
 
 import javaslang.control.Try.CheckedConsumer;
-import javaslang.control.Try.CheckedRunnable;
 
 public class JdbcTest {
 
@@ -1059,7 +1058,7 @@ public class JdbcTest {
       }
 
       @Override
-      public Env onStop(final CheckedRunnable shutdownTask) {
+      public Env onStop(final CheckedConsumer<Jooby> shutdownTask) {
         throw new UnsupportedOperationException();
       }
 
@@ -1069,7 +1068,7 @@ public class JdbcTest {
       }
 
       @Override
-      public Env onStart(final CheckedRunnable task) {
+      public Env onStart(final CheckedConsumer<Jooby> task) {
         throw new UnsupportedOperationException();
       }
 

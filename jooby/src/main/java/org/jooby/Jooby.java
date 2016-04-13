@@ -711,7 +711,18 @@ public class Jooby implements Routes {
    */
   public Jooby onStart(final CheckedRunnable callback) {
     requireNonNull(callback, "Callback is required.");
-    onStart.add(e -> callback.run());
+    return onStart(a -> callback.run());
+  }
+
+  /**
+   * Run code at application startup time.
+   *
+   * @param callback A callback to run.
+   * @return This instance.
+   */
+  public Jooby onStart(final CheckedConsumer<Jooby> callback) {
+    requireNonNull(callback, "Callback is required.");
+    onStart.add(callback);
     return this;
   }
 
@@ -723,7 +734,18 @@ public class Jooby implements Routes {
    */
   public Jooby onStop(final CheckedRunnable callback) {
     requireNonNull(callback, "Callback is required.");
-    onStop.add(e -> callback.run());
+    return onStop(e -> callback.run());
+  }
+
+  /**
+   * Run code at application shutdown time.
+   *
+   * @param callback A callback to run.
+   * @return This instance.
+   */
+  public Jooby onStop(final CheckedConsumer<Jooby> callback) {
+    requireNonNull(callback, "Callback is required.");
+    onStop.add(callback);
     return this;
   }
 

@@ -140,14 +140,14 @@ public interface Env {
       }
 
       @Override
-      public Env onStop(final CheckedRunnable task) {
-        this.shutdown.add(e -> task.run());
+      public Env onStop(final CheckedConsumer<Jooby> task) {
+        this.shutdown.add(task);
         return this;
       }
 
       @Override
-      public Env onStart(final CheckedRunnable task) {
-        this.start.add(e -> task.run());
+      public Env onStart(final CheckedConsumer<Jooby> task) {
+        this.start.add(task);
         return this;
       }
 
@@ -373,7 +373,22 @@ public interface Env {
    * @param task Task to run.
    * @return This env.
    */
-  Env onStart(CheckedRunnable task);
+  Env onStart(CheckedConsumer<Jooby> task);
+
+  /**
+   * Add a start task, useful for initialize and/or start services at startup time.
+   *
+   * You should ONLY call this method while the application is been initialized, usually executing
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
+   *
+   * The behaviour of this method once application has been initialized is <code>undefined</code>.
+   *
+   * @param task Task to run.
+   * @return This env.
+   */
+  default Env onStart(final CheckedRunnable task) {
+    return onStart(app -> task.run());
+  }
 
   /**
    * Add a stop task, useful for cleanup and/or stop service at stop time.
@@ -386,7 +401,22 @@ public interface Env {
    * @param task Task to run.
    * @return This env.
    */
-  Env onStop(CheckedRunnable task);
+  default Env onStop(final CheckedRunnable task) {
+    return onStop(app -> task.run());
+  }
+
+  /**
+   * Add a stop task, useful for cleanup and/or stop service at stop time.
+   *
+   * You should ONLY call this method while the application is been initialized, usually executing
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
+   *
+   * The behaviour of this method once application has been initialized is <code>undefined</code>.
+   *
+   * @param task Task to run.
+   * @return This env.
+   */
+  Env onStop(CheckedConsumer<Jooby> task);
 
   /**
    * @return List of start tasks.
