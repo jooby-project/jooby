@@ -24,13 +24,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Provider;
 
+import javaslang.control.Try;
 import net.spy.memcached.ConnectionFactory;
 import net.spy.memcached.ConnectionFactoryBuilder;
 import net.spy.memcached.MemcachedClient;
 
-import org.jooby.Managed;
-
-public class MemcachedClientProvider implements Provider<MemcachedClient>, Managed {
+public class MemcachedClientProvider implements Provider<MemcachedClient> {
 
   private ConnectionFactoryBuilder builder;
 
@@ -47,15 +46,7 @@ public class MemcachedClientProvider implements Provider<MemcachedClient>, Manag
     this.shutdownTimeout = shutdownTimeout;
   }
 
-  @Override
-  public void start() throws Exception {
-    ConnectionFactory connectionFactory = builder.build();
-    this.client = new MemcachedClient(connectionFactory, servers);
-    this.builder = null;
-  }
-
-  @Override
-  public void stop() throws Exception {
+  public void destroy() {
     if (client != null) {
       client.shutdown(shutdownTimeout, TimeUnit.MILLISECONDS);
       client = null;
@@ -64,6 +55,11 @@ public class MemcachedClientProvider implements Provider<MemcachedClient>, Manag
 
   @Override
   public MemcachedClient get() {
+    client = Try.of(() -> {
+      ConnectionFactory connectionFactory = builder.build();
+      this.builder = null;
+      return new MemcachedClient(connectionFactory, servers);
+    }).get();
     return client;
   }
 

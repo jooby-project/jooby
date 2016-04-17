@@ -2,10 +2,9 @@ package org.jooby.aws;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
-import net.sf.cglib.proxy.Factory;
 
 import org.jooby.Env;
-import org.jooby.internal.aws.AwsManaged;
+import org.jooby.internal.aws.AwsShutdownSupport;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 
@@ -13,8 +12,9 @@ import com.amazonaws.AmazonWebServiceClient;
 import com.amazonaws.ClientConfiguration;
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.google.inject.binder.ScopedBindingBuilder;
 import com.typesafe.config.Config;
+
+import net.sf.cglib.proxy.Factory;
 
 public class AwsTest {
 
@@ -47,17 +47,18 @@ public class AwsTest {
         .expect(unit -> {
           AmazonWebServiceClient aws = unit.get(AmazonWebServiceClient.class);
 
-          ScopedBindingBuilder sbbAWSC = unit.mock(ScopedBindingBuilder.class);
-          sbbAWSC.asEagerSingleton();
-          sbbAWSC.asEagerSingleton();
-
           AnnotatedBindingBuilder abbAWSC = unit.mock(AnnotatedBindingBuilder.class);
-          expect(abbAWSC.toProvider(isA(AwsManaged.class))).andReturn(sbbAWSC).times(2);
+          abbAWSC.toInstance(aws);
+          abbAWSC.toInstance(aws);
 
           Binder binder = unit.get(Binder.class);
           expect(binder.bind(Factory.class)).andReturn(abbAWSC);
 
           expect(binder.bind(aws.getClass())).andReturn(abbAWSC);
+        })
+        .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.onStop(isA(AwsShutdownSupport.class))).andReturn(env);
         })
         .run(unit -> {
           new Aws()
@@ -86,15 +87,16 @@ public class AwsTest {
           expect(config.getString("aws.secretKey")).andReturn("secretKey");
         })
         .expect(unit -> {
-          ScopedBindingBuilder sbbAWSC = unit.mock(ScopedBindingBuilder.class);
-          sbbAWSC.asEagerSingleton();
-
           AnnotatedBindingBuilder abbAWSC = unit.mock(AnnotatedBindingBuilder.class);
-          expect(abbAWSC.toProvider(isA(AwsManaged.class))).andReturn(sbbAWSC);
+          abbAWSC.toInstance(aws);
 
           Binder binder = unit.get(Binder.class);
 
           expect(binder.bind(aws.getClass())).andReturn(abbAWSC);
+        })
+        .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.onStop(isA(AwsShutdownSupport.class))).andReturn(env);
         })
         .run(unit -> {
           new Aws()

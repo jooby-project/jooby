@@ -6,10 +6,7 @@ import static org.easymock.EasyMock.isA;
 import java.util.Collections;
 import java.util.Map;
 
-import net.sf.ehcache.CacheManager;
-
 import org.jooby.Env;
-import org.jooby.internal.ehcache.CacheManagerProvider;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,10 +15,12 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.google.inject.binder.ScopedBindingBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+
+import javaslang.control.Try.CheckedRunnable;
+import net.sf.ehcache.CacheManager;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Eh.class })
@@ -40,13 +39,14 @@ public class EhCacheTest {
         .expect(unit -> {
           Binder binder = unit.get(Binder.class);
 
-          ScopedBindingBuilder sbbCM = unit.mock(ScopedBindingBuilder.class);
-          sbbCM.asEagerSingleton();
-
           AnnotatedBindingBuilder<CacheManager> abbCM = unit.mock(AnnotatedBindingBuilder.class);
-          expect(abbCM.toProvider(isA(CacheManagerProvider.class))).andReturn(sbbCM);
+          abbCM.toInstance(isA(CacheManager.class));
 
           expect(binder.bind(CacheManager.class)).andReturn(abbCM);
+        })
+        .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
         })
         .run(unit -> {
           new Eh()

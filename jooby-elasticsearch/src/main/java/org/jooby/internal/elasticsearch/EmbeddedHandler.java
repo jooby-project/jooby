@@ -18,6 +18,7 @@
  */
 package org.jooby.internal.elasticsearch;
 
+import org.elasticsearch.node.Node;
 import org.elasticsearch.node.internal.InternalNode;
 import org.elasticsearch.rest.RestController;
 import org.jooby.Request;
@@ -35,10 +36,10 @@ public class EmbeddedHandler implements Route.Handler {
 
   private boolean detailedErrorsEnabled;
 
-  public EmbeddedHandler(final String path, final ManagedNode node, final boolean detailedErrors) {
+  public EmbeddedHandler(final String path, final Node node, final boolean detailedErrors) {
     this.path = path;
     this.controller = Suppliers.memoize(() ->
-        ((InternalNode) node.get()).injector().getInstance(RestController.class));
+        ((InternalNode) node).injector().getInstance(RestController.class));
     detailedErrorsEnabled = detailedErrors;
   }
 

@@ -29,35 +29,29 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Optional;
 
-import javax.inject.Provider;
-
-import org.jooby.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("rawtypes")
-public class AwsGenericManaged implements Provider, Managed {
+import javaslang.control.Try.CheckedRunnable;
+
+public class AwsShutdownSupport implements CheckedRunnable {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private Object dep;
 
-  public AwsGenericManaged(final Object dep) {
+  public AwsShutdownSupport(final Object dep) {
     this.dep = dep;
   }
 
   @Override
-  public void start() throws Exception {
-  }
-
-  @Override
-  public void stop() throws Exception {
+  public void run() throws Throwable {
     if (dep == null) {
       return;
     }
     try {
-      Optional<Method> shutdown = Arrays.stream(dep.getClass().getDeclaredMethods())
+      Optional<Method> shutdown = Arrays.stream(dep.getClass().getMethods())
           .filter(m -> m.getName().startsWith("shutdown")
               && m.getParameterCount() == 0
               && Modifier.isPublic(m.getModifiers()))
@@ -75,11 +69,6 @@ public class AwsGenericManaged implements Provider, Managed {
     } finally {
       dep = null;
     }
-  }
-
-  @Override
-  public Object get() {
-    return dep;
   }
 
 }

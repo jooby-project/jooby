@@ -4,7 +4,6 @@ import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertTrue;
 
 import org.jooby.Env;
-import org.jooby.Managed;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
@@ -22,7 +21,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Binder;
-import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
@@ -135,17 +133,14 @@ public class AssetsTest {
               .args(Config.class, AssetCompiler.class)
               .build(conf, compiler);
 
-          Binder binder = unit.get(Binder.class);
+          Env env = unit.get(Env.class);
+          expect(env.managed(liveCompiler)).andReturn(env);
 
           LinkedBindingBuilder<Definition> lbblc = unit.mock(LinkedBindingBuilder.class);
           lbblc.toInstance(unit.capture(Route.Definition.class));
 
           Multibinder<Definition> mbr = unit.get(Multibinder.class);
           expect(mbr.addBinding()).andReturn(lbblc);
-
-          AnnotatedBindingBuilder<Managed> abbManaged = unit.mock(AnnotatedBindingBuilder.class);
-          abbManaged.toInstance(liveCompiler);
-          expect(binder.bind(Managed.class)).andReturn(abbManaged);
 
         }).expect(unit -> {
           AssetCompiler compiler = unit.get(AssetCompiler.class);

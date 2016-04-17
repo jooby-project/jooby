@@ -50,37 +50,6 @@ public class HbmProviderTest {
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalStateException.class)
-  public void getShouldFailIfStartCallIsMissing() throws Exception {
-    new MockUnit(HibernateEntityManagerFactory.class, HbmUnitDescriptor.class, Map.class)
-        .expect(unit -> {
-          HibernateEntityManagerFactory emf = unit.get(HibernateEntityManagerFactory.class);
-
-          EntityManagerFactoryBuilder emfb = unit.mock(EntityManagerFactoryBuilder.class);
-          expect(emfb.build()).andReturn(emf);
-
-          unit.mockStatic(Bootstrap.class);
-          expect(
-              Bootstrap.getEntityManagerFactoryBuilder(unit.get(HbmUnitDescriptor.class),
-                  unit.get(Map.class))).andReturn(emfb);
-        })
-        .run(unit -> {
-          HbmProvider hbm = new HbmProvider(unit.get(HbmUnitDescriptor.class), unit.get(Map.class));
-          assertEquals(unit.get(HibernateEntityManagerFactory.class), hbm.get());
-        });
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  public void stopShouldBeIgnoredWhenThereIsNoEMF() throws Exception {
-    new MockUnit(HbmUnitDescriptor.class, Map.class)
-        .run(unit -> {
-          HbmProvider hbm = new HbmProvider(unit.get(HbmUnitDescriptor.class), unit.get(Map.class));
-          hbm.stop();
-        });
-  }
-
-  @SuppressWarnings("unchecked")
   @Test
   public void stop() throws Exception {
     new MockUnit(HibernateEntityManagerFactory.class, HbmUnitDescriptor.class, Map.class)
@@ -100,6 +69,7 @@ public class HbmProviderTest {
         .run(unit -> {
           HbmProvider hbm = new HbmProvider(unit.get(HbmUnitDescriptor.class), unit.get(Map.class));
           hbm.start();
+          hbm.stop();
           hbm.stop();
         });
   }

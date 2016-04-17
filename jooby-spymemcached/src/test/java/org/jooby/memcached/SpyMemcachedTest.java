@@ -5,14 +5,6 @@ import static org.easymock.EasyMock.isA;
 
 import java.util.Arrays;
 
-import net.spy.memcached.ConnectionFactoryBuilder;
-import net.spy.memcached.ConnectionFactoryBuilder.Locator;
-import net.spy.memcached.ConnectionFactoryBuilder.Protocol;
-import net.spy.memcached.FailureMode;
-import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.auth.AuthDescriptor;
-import net.spy.memcached.metrics.MetricType;
-
 import org.jooby.Env;
 import org.jooby.internal.memcached.MemcachedClientProvider;
 import org.jooby.test.MockUnit;
@@ -27,6 +19,15 @@ import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
+
+import javaslang.control.Try.CheckedRunnable;
+import net.spy.memcached.ConnectionFactoryBuilder;
+import net.spy.memcached.ConnectionFactoryBuilder.Locator;
+import net.spy.memcached.ConnectionFactoryBuilder.Protocol;
+import net.spy.memcached.FailureMode;
+import net.spy.memcached.MemcachedClient;
+import net.spy.memcached.auth.AuthDescriptor;
+import net.spy.memcached.metrics.MetricType;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({SpyMemcached.class, ConnectionFactoryBuilder.class })
@@ -77,6 +78,12 @@ public class SpyMemcachedTest {
     expect(binder.bind(MemcachedClient.class)).andReturn(abbMC);
   };
 
+  private Block onStop = unit -> {
+    Env env = unit.get(Env.class);
+
+    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+  };
+
   @Test
   public void configure() throws Exception {
     Config config = new SpyMemcached().config()
@@ -85,9 +92,12 @@ public class SpyMemcachedTest {
         .expect(cfb)
         .expect(defprops)
         .expect(bind)
+        .expect(onStop)
         .run(unit -> {
           new SpyMemcached()
               .configure(unit.get(Env.class), config, unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(CheckedRunnable.class).iterator().next().run();
         });
   }
 
@@ -107,6 +117,7 @@ public class SpyMemcachedTest {
         .expect(cfb)
         .expect(fullprops)
         .expect(bind)
+        .expect(onStop)
         .run(unit -> {
           new SpyMemcached()
               .configure(unit.get(Env.class), config, unit.get(Binder.class));
@@ -138,6 +149,7 @@ public class SpyMemcachedTest {
         .expect(cfb)
         .expect(defprops)
         .expect(bind)
+        .expect(onStop)
         .run(unit -> {
           new SpyMemcached()
               .configure(unit.get(Env.class), config, unit.get(Binder.class));
@@ -157,6 +169,7 @@ public class SpyMemcachedTest {
           expect(cfb.setAuthDescriptor(unit.get(AuthDescriptor.class))).andReturn(cfb);
         })
         .expect(bind)
+        .expect(onStop)
         .run(unit -> {
           new SpyMemcached()
               .doWith(builder -> {

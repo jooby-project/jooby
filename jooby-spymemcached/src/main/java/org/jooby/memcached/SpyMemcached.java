@@ -27,15 +27,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import net.spy.memcached.AddrUtil;
-import net.spy.memcached.ConnectionFactoryBuilder;
-import net.spy.memcached.ConnectionFactoryBuilder.Locator;
-import net.spy.memcached.ConnectionFactoryBuilder.Protocol;
-import net.spy.memcached.FailureMode;
-import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.compat.log.SLF4JLogger;
-import net.spy.memcached.metrics.MetricType;
-
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Session;
@@ -44,6 +35,15 @@ import org.jooby.internal.memcached.MemcachedClientProvider;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+
+import net.spy.memcached.AddrUtil;
+import net.spy.memcached.ConnectionFactoryBuilder;
+import net.spy.memcached.ConnectionFactoryBuilder.Locator;
+import net.spy.memcached.ConnectionFactoryBuilder.Protocol;
+import net.spy.memcached.FailureMode;
+import net.spy.memcached.MemcachedClient;
+import net.spy.memcached.compat.log.SLF4JLogger;
+import net.spy.memcached.metrics.MetricType;
 
 /**
  * <h1>memcached module</h1>
@@ -139,15 +139,16 @@ public class SpyMemcached implements Jooby.Module {
       servers.add($servers.toString());
     }
 
+    MemcachedClientProvider provider = new MemcachedClientProvider(
+        builder,
+        AddrUtil.getAddresses(servers),
+        $memcached.getDuration("shutdownTimeout", TimeUnit.MILLISECONDS));
+
+    env.onStop(provider::destroy);
+
     binder
         .bind(MemcachedClient.class)
-        .toProvider(
-            new MemcachedClientProvider(
-                builder,
-                AddrUtil.getAddresses(servers),
-                $memcached.getDuration("shutdownTimeout", TimeUnit.MILLISECONDS)
-            )
-        )
+        .toProvider(provider)
         .asEagerSingleton();
   }
 

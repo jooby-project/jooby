@@ -114,6 +114,7 @@ public class Hcast implements Module {
 
     binder.bind(com.hazelcast.config.Config.class).toInstance(config);
     binder.bind(HazelcastInstance.class).toProvider(HcastManaged.class).asEagerSingleton();
+    env.managed(HcastManaged.class);
   }
 
   @Override

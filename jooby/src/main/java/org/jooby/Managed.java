@@ -41,15 +41,15 @@ public interface Managed {
   /**
    * Start callback, useful to initialize an expensive service.
    *
-   * @throws Exception If something goes wrong.
+   * @throws Throwable If something goes wrong.
    */
-  void start() throws Exception;
+  void start() throws Throwable;
 
   /**
    * Stop callback, useful for cleanup and free resources. ONLY for singleton objects.
    *
-   * @throws Exception If something goes wrong.
+   * @throws Throwable If something goes wrong.
    */
-  void stop() throws Exception;
+  void stop() throws Throwable;
 
 }

@@ -25,12 +25,13 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.sql.DataSource;
 
-import org.jooby.Managed;
 import org.quartz.CalendarIntervalTrigger;
 import org.quartz.CronTrigger;
 import org.quartz.DailyTimeIntervalTrigger;
@@ -51,7 +52,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 
-public class QuartzProvider implements Provider<Scheduler>, Managed {
+public class QuartzProvider implements Provider<Scheduler> {
 
   public static final TypeLiteral<Provider<DataSource>> DS_TYPE =
       new TypeLiteral<Provider<DataSource>>() {
@@ -92,7 +93,7 @@ public class QuartzProvider implements Provider<Scheduler>, Managed {
     }
   }
 
-  @Override
+  @PostConstruct
   public void start() throws Exception {
     for (Entry<JobDetail, Trigger> job : jobs) {
       JobDetail detail = job.getKey();
@@ -103,7 +104,7 @@ public class QuartzProvider implements Provider<Scheduler>, Managed {
     scheduler.start();
   }
 
-  @Override
+  @PreDestroy
   public void stop() throws Exception {
     scheduler.shutdown();
   }

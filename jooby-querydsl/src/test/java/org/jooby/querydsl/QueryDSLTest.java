@@ -9,6 +9,7 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.jooby.Env;
+import org.jooby.Managed;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
@@ -60,6 +61,11 @@ public class QueryDSLTest {
     conf.addListener(SQLCloseListener.DEFAULT);
   };
 
+  private MockUnit.Block managed = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.managed(isA(Managed.class))).andReturn(env);
+  };
+
   @Test
   public void defaults() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, Configuration.class)
@@ -71,6 +77,7 @@ public class QueryDSLTest {
         .expect(bindconf("db"))
         .expect(sqlqueryfactory(null))
         .expect(sqlqueryfactory("db"))
+        .expect(managed)
         .run(unit -> {
           new QueryDSL()
               .configure(unit.get(Env.class), config("mem"), unit.get(Binder.class));
@@ -88,6 +95,7 @@ public class QueryDSLTest {
         .expect(bindconf("db"))
         .expect(sqlqueryfactory(null))
         .expect(sqlqueryfactory("db"))
+        .expect(managed)
         .run(unit -> {
           new QueryDSL()
               .with(new CUBRIDTemplates())
@@ -107,6 +115,7 @@ public class QueryDSLTest {
         .expect(bindconf("db"))
         .expect(sqlqueryfactory(null))
         .expect(sqlqueryfactory("db"))
+        .expect(managed)
         .run(unit -> {
           new QueryDSL()
               .doWith(conf -> {
@@ -130,6 +139,7 @@ public class QueryDSLTest {
         .expect(sqlqueryfactory())
         .expect(sqlqueryfactory(null))
         .expect(sqlqueryfactory("db"))
+        .expect(managed)
         .run(unit -> {
           new QueryDSL()
               .configure(unit.get(Env.class), config("mem"), unit.get(Binder.class));

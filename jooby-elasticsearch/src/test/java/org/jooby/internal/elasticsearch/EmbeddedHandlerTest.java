@@ -3,7 +3,6 @@ package org.jooby.internal.elasticsearch;
 import static org.easymock.EasyMock.expect;
 
 import org.elasticsearch.common.inject.Injector;
-import org.elasticsearch.node.NodeBuilder;
 import org.elasticsearch.node.internal.InternalNode;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
@@ -21,7 +20,7 @@ public class EmbeddedHandlerTest {
 
   @Test
   public void handle() throws Exception {
-    new MockUnit(NodeBuilder.class, Request.class, Response.class)
+    new MockUnit(Request.class, Response.class)
         .expect(unit -> {
           EmbeddedHttpRequest req = unit.mockConstructor(EmbeddedHttpRequest.class,
               new Class[]{String.class, Request.class }, "/search", unit.get(Request.class));
@@ -38,14 +37,11 @@ public class EmbeddedHandlerTest {
           expect(injector.getInstance(RestController.class)).andReturn(controller);
 
           InternalNode node = unit.mock(InternalNode.class);
+          unit.registerMock(InternalNode.class, node);
           expect(node.injector()).andReturn(injector);
-
-          NodeBuilder nb = unit.get(NodeBuilder.class);
-          expect(nb.build()).andReturn(node);
-
         })
         .run(unit -> {
-          new EmbeddedHandler("/search", new ManagedNode(unit.get(NodeBuilder.class)), true)
+          new EmbeddedHandler("/search", unit.get(InternalNode.class), true)
               .handle(unit.get(Request.class), unit.get(Response.class));
         });
   }

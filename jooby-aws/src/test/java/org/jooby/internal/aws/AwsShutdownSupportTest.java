@@ -1,13 +1,11 @@
 package org.jooby.internal.aws;
 
-import static org.junit.Assert.assertEquals;
-
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.amazonaws.AmazonWebServiceClient;
 
-public class AwsGenericManagedTest {
+public class AwsShutdownSupportTest {
 
   public static class NoShutdown {
   }
@@ -32,24 +30,7 @@ public class AwsGenericManagedTest {
   public void defaults() throws Exception {
     new MockUnit(AmazonWebServiceClient.class)
         .run(unit -> {
-          new AwsGenericManaged(unit.get(AmazonWebServiceClient.class));
-        });
-  }
-
-  @Test
-  public void start() throws Exception {
-    new MockUnit(AmazonWebServiceClient.class)
-        .run(unit -> {
-          new AwsGenericManaged(unit.get(AmazonWebServiceClient.class)).start();
-        });
-  }
-
-  @Test
-  public void get() throws Exception {
-    new MockUnit(AmazonWebServiceClient.class)
-        .run(unit -> {
-          assertEquals(unit.get(AmazonWebServiceClient.class),
-              new AwsGenericManaged(unit.get(AmazonWebServiceClient.class)).get());
+          new AwsShutdownSupport(unit.get(AmazonWebServiceClient.class));
         });
   }
 
@@ -60,9 +41,9 @@ public class AwsGenericManagedTest {
           unit.get(AmazonWebServiceClient.class).shutdown();
         })
         .run(unit -> {
-          AwsGenericManaged aws = new AwsGenericManaged(unit.get(AmazonWebServiceClient.class));
-          aws.stop();
-          aws.stop();
+          AwsShutdownSupport aws = new AwsShutdownSupport(unit.get(AmazonWebServiceClient.class));
+          aws.run();
+          aws.run();
         });
   }
 
@@ -70,8 +51,8 @@ public class AwsGenericManagedTest {
   public void nostop() throws Exception {
     new MockUnit(NoShutdown.class)
         .run(unit -> {
-          AwsGenericManaged aws = new AwsGenericManaged(unit.get(NoShutdown.class));
-          aws.stop();
+          AwsShutdownSupport aws = new AwsShutdownSupport(unit.get(NoShutdown.class));
+          aws.run();
         });
   }
 
@@ -80,12 +61,12 @@ public class AwsGenericManagedTest {
   public void shouldIgnorePrivateStop() throws Exception {
     new MockUnit()
         .run(unit -> {
-          AwsGenericManaged aws = new AwsGenericManaged(new Object() {
+          AwsShutdownSupport aws = new AwsShutdownSupport(new Object() {
             private void shutdown() {
               throw new UnsupportedOperationException();
             }
           });
-          aws.stop();
+          aws.run();
         });
   }
 
@@ -96,8 +77,8 @@ public class AwsGenericManagedTest {
           unit.get(ShutdownOverloaded.class).shutdownNow();
         })
         .run(unit -> {
-          AwsGenericManaged aws = new AwsGenericManaged(unit.get(ShutdownOverloaded.class));
-          aws.stop();
+          AwsShutdownSupport aws = new AwsShutdownSupport(unit.get(ShutdownOverloaded.class));
+          aws.run();
         });
   }
 
@@ -105,8 +86,8 @@ public class AwsGenericManagedTest {
   public void stopErr() throws Exception {
     new MockUnit()
         .run(unit -> {
-          AwsGenericManaged aws = new AwsGenericManaged(new ShutdownErr());
-          aws.stop();
+          AwsShutdownSupport aws = new AwsShutdownSupport(new ShutdownErr());
+          aws.run();
         });
   }
 
@@ -115,12 +96,12 @@ public class AwsGenericManagedTest {
   public void stopNoRuntimeErr() throws Exception {
     new MockUnit()
         .run(unit -> {
-          AwsGenericManaged aws = new AwsGenericManaged(new Object() {
+          AwsShutdownSupport aws = new AwsShutdownSupport(new Object() {
             public void shutdown() throws Throwable {
               throw new Throwable();
             }
           });
-          aws.stop();
+          aws.run();
         });
   }
 

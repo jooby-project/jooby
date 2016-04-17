@@ -27,8 +27,7 @@ import java.util.function.Function;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.internal.aws.AwsGenericManaged;
-import org.jooby.internal.aws.AwsManaged;
+import org.jooby.internal.aws.AwsShutdownSupport;
 import org.jooby.internal.aws.ConfigCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -236,26 +235,26 @@ public class Aws implements Jooby.Module {
       AmazonWebServiceClient service = it.apply(creds, config);
       creds.service(service.getServiceName());
       Class serviceType = service.getClass();
-      AwsManaged provider = new AwsManaged(service);
       Class[] interfaces = serviceType.getInterfaces();
       if (interfaces.length > 0) {
         // pick first
-        binder.bind(interfaces[0]).toProvider(provider).asEagerSingleton();
+        binder.bind(interfaces[0]).toInstance(service);
       }
-      binder.bind(serviceType).toProvider(provider).asEagerSingleton();
-      after(binder, config, service);
+      binder.bind(serviceType).toInstance(service);
+      env.onStop(new AwsShutdownSupport(service));
+      after(env, binder, config, service);
     });
-
   }
 
-  private void after(final Binder binder, final Config config,
+  private void after(final Env env, final Binder binder, final Config config,
       final AmazonWebServiceClient service) {
     after.forEach(it -> {
       try {
         Object dep = it.apply(service, config);
         requireNonNull(dep, "A nonnull value is required.");
         Class type = dep.getClass();
-        binder.bind(type).toProvider(new AwsGenericManaged(dep));
+        binder.bind(type).toInstance(dep);
+        env.onStop(new AwsShutdownSupport(dep));
       } catch (ClassCastException ex) {
         log.debug("ignoring callback {}", it);
       }

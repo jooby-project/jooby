@@ -34,8 +34,6 @@ import org.jooby.Renderer;
 import org.jooby.Route;
 import org.jooby.internal.elasticsearch.BytesReferenceRenderer;
 import org.jooby.internal.elasticsearch.EmbeddedHandler;
-import org.jooby.internal.elasticsearch.ManagedClient;
-import org.jooby.internal.elasticsearch.ManagedNode;
 
 import com.google.inject.Binder;
 import com.google.inject.multibindings.Multibinder;
@@ -260,9 +258,16 @@ public class ElasticSearch implements Jooby.Module {
     NodeBuilder nb = NodeBuilder.nodeBuilder()
         .settings(settings);
 
-    ManagedNode node = new ManagedNode(nb);
-    binder.bind(Node.class).toProvider(node).asEagerSingleton();
-    binder.bind(Client.class).toProvider(new ManagedClient(node)).asEagerSingleton();
+    // node start/stop
+    Node node = nb.build();
+    env.onStart(node::start);
+    env.onStop(node::stop);
+    binder.bind(Node.class).toInstance(node);
+
+    Client client = node.client();
+    binder.bind(Client.class).toInstance(client);
+
+    env.onStop(client::close);
 
     Multibinder.newSetBinder(binder, Renderer.class).addBinding()
         .toInstance(new BytesReferenceRenderer());

@@ -1,7 +1,5 @@
 package org.jooby;
 
-import java.util.concurrent.CountDownLatch;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 
@@ -15,100 +13,35 @@ public class PostConstructFeature extends ServerFeature {
   /** The logging system. */
   private static final Logger log = LoggerFactory.getLogger(PostConstructFeature.class);
 
-  private static CountDownLatch counter;
-
-  public static class ManagedObject {
-
-    @PostConstruct
-    public void start() throws Exception {
-      log.info("starting: {}", getClass().getName());
-      counter.countDown();
-    }
-
-  }
-
   @Singleton
   public static class SingletonObject {
+    static int started;
 
     @PostConstruct
     public void start() throws Exception {
       log.info("starting: {}", this);
-      counter.countDown();
-    }
-
-  }
-
-  public static class ManagedExObject {
-
-    @PostConstruct
-    public void start() throws Exception {
-      throw new Exception("intentional err");
+      started += 1;
     }
 
   }
 
   {
 
-    get("/proto", req -> {
-      int n = req.param("n").intValue();
-      for (int i = 0; i < n; i++) {
-        req.require(ManagedObject.class);
-      }
-      return "OK";
-    });
+    managed(SingletonObject.class);
 
     get("/singleton", req -> {
-      int n = req.param("n").intValue();
-      for (int i = 0; i < n; i++) {
-        req.require(SingletonObject.class);
-      }
-      return "OK";
+      return SingletonObject.started;
     });
-
-    get("/protoex", req ->
-        req.require(ManagedExObject.class));
   }
 
-  @Test
-  public void startOneProto() throws Exception {
-    counter = new CountDownLatch(1);
-    request()
-        .get("/proto?n=" + counter.getCount())
-        .expect("OK");
-    counter.await();
-  }
+  static int value = 1;
 
   @Test
-  public void startNSingleton() throws Exception {
-    counter = new CountDownLatch(1);
+  public void shouldCallPostCConstructMethod() throws Exception {
     request()
-        .get("/singleton?n=7")
-        .expect("OK");
-    counter.await();
+        .get("/singleton")
+        .expect(value + "");
+    value += 1;
   }
 
-  @Test
-  public void startTwoProto() throws Exception {
-    counter = new CountDownLatch(2);
-    request()
-        .get("/proto?n=" + counter.getCount())
-        .expect("OK");
-    counter.await();
-  }
-
-  @Test
-  public void startNProto() throws Exception {
-    counter = new CountDownLatch(5);
-    request()
-        .get("/proto?n=" + counter.getCount())
-        .expect("OK");
-    counter.await();
-  }
-
-  @Test
-  public void startWithCheckedException() throws Exception {
-    request()
-        .get("/protoex")
-        .expect(500);
-  }
 }

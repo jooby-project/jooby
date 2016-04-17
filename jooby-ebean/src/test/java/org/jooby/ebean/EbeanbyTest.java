@@ -9,6 +9,7 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.jooby.Env;
+import org.jooby.Managed;
 import org.jooby.internal.ebean.EbeanEnhancer;
 import org.jooby.internal.ebean.EbeanManaged;
 import org.jooby.internal.ebean.ForwardingDataSource;
@@ -72,6 +73,13 @@ public class EbeanbyTest {
     expect(binder.bind(Key.get(EbeanServer.class, Names.named("db")))).andReturn(lbbES);
   };
 
+  private Block onStop = unit -> {
+    Env env = unit.get(Env.class);
+
+    expect(env.managed(isA(EbeanManaged.class))).andReturn(env);
+    expect(env.managed(isA(Managed.class))).andReturn(env);
+  };
+
   @Test
   public void configure() throws Exception {
     new MockUnit(Env.class, Binder.class)
@@ -80,6 +88,7 @@ public class EbeanbyTest {
         .expect(serverConfig(true))
         .expect(enhancer("my.model"))
         .expect(binder)
+        .expect(onStop)
         .run(unit -> {
           new Ebeanby("db")
               .configure(unit.get(Env.class), config(), unit.get(Binder.class));
@@ -98,6 +107,7 @@ public class EbeanbyTest {
           ServerConfig conf = unit.get(ServerConfig.class);
           conf.addPackage("otro.package");
         })
+        .expect(onStop)
         .run(unit -> {
           new Ebeanby()
               .packages("otro.package")
@@ -117,6 +127,7 @@ public class EbeanbyTest {
           ServerConfig conf = unit.get(ServerConfig.class);
           conf.setName("xx");
         })
+        .expect(onStop)
         .run(unit -> {
           new Ebeanby()
               .doWith(conf -> {
@@ -134,6 +145,7 @@ public class EbeanbyTest {
         .expect(serverConfig(false))
         .expect(enhancer("my.model"))
         .expect(binder)
+        .expect(onStop)
         .run(unit -> {
           Config customConfig = config().withValue("ebean.db.defaultServer",
               ConfigValueFactory.fromAnyRef(false));

@@ -62,6 +62,11 @@ public class QuartzTest {
     })).andReturn(jobsBB);
   };
 
+  MockUnit.Block onManaged = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.managed(QuartzProvider.class)).andReturn(env);
+  };
+
   @SuppressWarnings({"unchecked" })
   @Test
   public void defaultUse() throws Exception {
@@ -79,6 +84,7 @@ public class QuartzTest {
               .get(LinkedBindingBuilder.class);
           namedJobsBB.toInstance(jobs);
         })
+        .expect(onManaged)
         .run(unit -> {
           new Quartz(Job.class)
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -102,6 +108,7 @@ public class QuartzTest {
               .get(LinkedBindingBuilder.class);
           namedJobsBB.toInstance(jobs);
         })
+        .expect(onManaged)
         .run(unit -> {
           new Quartz()
               .with(Job.class)
@@ -130,6 +137,7 @@ public class QuartzTest {
               .get(LinkedBindingBuilder.class);
           namedJobsBB.toInstance(jobs);
         })
+        .expect(onManaged)
         .run(unit -> {
           new Quartz()
               .with(unit.get(JobDetail.class), unit.get(Trigger.class))
@@ -155,6 +163,7 @@ public class QuartzTest {
               .get(LinkedBindingBuilder.class);
           namedJobsBB.toInstance(unit.capture(Map.class));
         })
+        .expect(onManaged)
         .run(unit -> {
           new Quartz()
               .with(Job.class, trigger -> {
@@ -187,6 +196,7 @@ public class QuartzTest {
               .get(LinkedBindingBuilder.class);
           namedJobsBB.toInstance(unit.capture(Map.class));
         })
+        .expect(onManaged)
         .run(unit -> {
           new Quartz()
               .with(Job.class, (job, trigger) -> {

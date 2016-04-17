@@ -54,10 +54,16 @@ public class HcastTest {
     expect(binder.bind(HazelcastInstance.class)).andReturn(abbHI);
   };
 
+  private MockUnit.Block onStop = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.managed(HcastManaged.class)).andReturn(env);
+  };
+
   @Test
   public void defaults() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(bindings)
+        .expect(onStop)
         .run(unit -> {
           new Hcast()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -73,6 +79,7 @@ public class HcastTest {
           Consumer<com.hazelcast.config.Config> consumer = unit.get(Consumer.class);
           consumer.accept(unit.get(com.hazelcast.config.Config.class));
         })
+        .expect(onStop)
         .run(unit -> {
           new Hcast()
               .doWith(unit.get(Consumer.class))

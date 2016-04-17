@@ -27,8 +27,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import javax.inject.Provider;
-
 import org.jooby.Env;
 import org.jooby.internal.ebean.EbeanEnhancer;
 import org.jooby.internal.ebean.EbeanManaged;
@@ -244,8 +242,8 @@ public class Ebeanby extends Jdbc {
       configurer.accept(config, conf);
     }
 
-    Provider<EbeanServer> server = new EbeanManaged(conf, config);
-
+    EbeanManaged server = new EbeanManaged(conf, config);
+    env.managed(server);
     keys(EbeanServer.class, key -> binder.bind(key).toProvider(server).asEagerSingleton());
   }
 

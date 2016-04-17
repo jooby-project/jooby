@@ -97,7 +97,6 @@ import org.jooby.internal.BuiltinRenderer;
 import org.jooby.internal.DefaulErrRenderer;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.JvmInfo;
-import org.jooby.internal.LifecycleProcessor;
 import org.jooby.internal.LocaleUtils;
 import org.jooby.internal.ParameterNameProvider;
 import org.jooby.internal.RequestScope;
@@ -135,7 +134,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
-import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -400,7 +398,7 @@ import javaslang.control.Try.CheckedRunnable;
  * @since 0.1.0
  * @see Jooby.Module
  */
-public class Jooby implements Routes {
+public class Jooby implements Routes, LifeCycle {
 
   /**
    * A module can publish or produces: {@link Route.Definition routes}, {@link Parser},
@@ -709,6 +707,7 @@ public class Jooby implements Routes {
    * @param callback A callback to run.
    * @return This instance.
    */
+  @Override
   public Jooby onStart(final CheckedRunnable callback) {
     requireNonNull(callback, "Callback is required.");
     return onStart(a -> callback.run());
@@ -720,6 +719,7 @@ public class Jooby implements Routes {
    * @param callback A callback to run.
    * @return This instance.
    */
+  @Override
   public Jooby onStart(final CheckedConsumer<Jooby> callback) {
     requireNonNull(callback, "Callback is required.");
     onStart.add(callback);
@@ -732,6 +732,7 @@ public class Jooby implements Routes {
    * @param callback A callback to run.
    * @return This instance.
    */
+  @Override
   public Jooby onStop(final CheckedRunnable callback) {
     requireNonNull(callback, "Callback is required.");
     return onStop(e -> callback.run());
@@ -743,6 +744,7 @@ public class Jooby implements Routes {
    * @param callback A callback to run.
    * @return This instance.
    */
+  @Override
   public Jooby onStop(final CheckedConsumer<Jooby> callback) {
     requireNonNull(callback, "Callback is required.");
     onStop.add(callback);
@@ -3612,11 +3614,6 @@ public class Jooby implements Routes {
       /** bind ssl provider. */
       binder.bind(SSLContext.class).toProvider(SslContextProvider.class);
 
-      /** bind managed */
-      LifecycleProcessor lifecycleProcessor = new LifecycleProcessor();
-      binder.bind(LifecycleProcessor.class).toInstance(lifecycleProcessor);
-      binder.bindListener(Matchers.any(), lifecycleProcessor);
-
       /** routes */
       Multibinder<Route.Definition> definitions = Multibinder
           .newSetBinder(binder, Route.Definition.class);
@@ -3804,7 +3801,7 @@ public class Jooby implements Routes {
   public void stop() {
     if (started.compareAndSet(true, false)) {
       Logger log = LoggerFactory.getLogger(getClass());
-      stopManaged(injector, this, log, onStop);
+      fireStop(injector, this, log, onStop);
 
       try {
         Server server = injector.getInstance(Server.class);
@@ -3818,10 +3815,9 @@ public class Jooby implements Routes {
     }
   }
 
-  private static void stopManaged(final Injector injector, final Jooby app, final Logger log,
+  private static void fireStop(final Injector injector, final Jooby app, final Logger log,
       final List<CheckedConsumer<Jooby>> onStop) {
-    // stop modules
-    injector.getInstance(LifecycleProcessor.class).destroy();
+    // stop services
     onStop.forEach(c -> {
       try {
         c.accept(app);

@@ -36,7 +36,6 @@ import com.typesafe.config.Config;
 import javaslang.API;
 import javaslang.control.Option;
 import javaslang.control.Try.CheckedConsumer;
-import javaslang.control.Try.CheckedRunnable;
 
 /**
  * Allows to optimize, customize or apply defaults values for services.
@@ -58,7 +57,7 @@ import javaslang.control.Try.CheckedRunnable;
  * @author edgar
  * @since 0.1.0
  */
-public interface Env {
+public interface Env extends LifeCycle {
 
   /**
    * Build an jooby environment.
@@ -361,62 +360,6 @@ public interface Env {
   default <T> Option<T> when(final Predicate<String> predicate, final T result) {
     return match().option(API.Case(predicate, result));
   }
-
-  /**
-   * Add a start task, useful for initialize and/or start services at startup time.
-   *
-   * You should ONLY call this method while the application is been initialized, usually executing
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
-   *
-   * The behaviour of this method once application has been initialized is <code>undefined</code>.
-   *
-   * @param task Task to run.
-   * @return This env.
-   */
-  Env onStart(CheckedConsumer<Jooby> task);
-
-  /**
-   * Add a start task, useful for initialize and/or start services at startup time.
-   *
-   * You should ONLY call this method while the application is been initialized, usually executing
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
-   *
-   * The behaviour of this method once application has been initialized is <code>undefined</code>.
-   *
-   * @param task Task to run.
-   * @return This env.
-   */
-  default Env onStart(final CheckedRunnable task) {
-    return onStart(app -> task.run());
-  }
-
-  /**
-   * Add a stop task, useful for cleanup and/or stop service at stop time.
-   *
-   * You should ONLY call this method while the application is been initialized, usually executing
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
-   *
-   * The behaviour of this method once application has been initialized is <code>undefined</code>.
-   *
-   * @param task Task to run.
-   * @return This env.
-   */
-  default Env onStop(final CheckedRunnable task) {
-    return onStop(app -> task.run());
-  }
-
-  /**
-   * Add a stop task, useful for cleanup and/or stop service at stop time.
-   *
-   * You should ONLY call this method while the application is been initialized, usually executing
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
-   *
-   * The behaviour of this method once application has been initialized is <code>undefined</code>.
-   *
-   * @param task Task to run.
-   * @return This env.
-   */
-  Env onStop(CheckedConsumer<Jooby> task);
 
   /**
    * @return List of start tasks.

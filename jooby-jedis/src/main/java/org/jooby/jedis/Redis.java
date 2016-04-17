@@ -30,13 +30,13 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.jooby.Env;
 import org.jooby.Jooby;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-
 import com.google.inject.Binder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 /**
  * Redis cache and key/value data store for Jooby. Exposes a {@link Jedis} service.
@@ -208,7 +208,7 @@ public class Redis implements Jooby.Module {
     URI uri = URI.create(config.getString(name));
     JedisPool pool = new JedisPool(poolConfig, uri, timeout);
 
-    Provider<JedisPool> managed = new RedisProvider(pool, uri, poolConfig);
+    env.managed(new RedisProvider(pool, uri, poolConfig));
 
     Provider<Jedis> jedis = (Provider<Jedis>) () -> pool.getResource();
 
@@ -218,13 +218,12 @@ public class Redis implements Jooby.Module {
     if (named) {
       binder.bind(JedisPool.class)
           .annotatedWith(Names.named(name))
-          .toProvider(managed)
-          .asEagerSingleton();
+          .toInstance(pool);
 
       binder.bind(Jedis.class).annotatedWith(Names.named(name)).toProvider(jedis)
           .asEagerSingleton();
     } else {
-      binder.bind(JedisPool.class).toProvider(managed).asEagerSingleton();
+      binder.bind(JedisPool.class).toInstance(pool);
 
       binder.bind(Jedis.class).toProvider(jedis)
           .asEagerSingleton();

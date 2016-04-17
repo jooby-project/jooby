@@ -64,6 +64,11 @@ public class CamelTest {
       .getConfig("camel")
       .withValue("x", ConfigValueFactory.fromAnyRef("X"));
 
+  private MockUnit.Block onStop = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.managed(CamelFinalizer.class)).andReturn(env);
+  };
+
   @Test(expected = IllegalArgumentException.class)
   public void camelBadOption() throws Exception {
     Config camel = ConfigFactory.empty()
@@ -180,6 +185,7 @@ public class CamelTest {
           expect(Multibinder.newSetBinder(binder, Object.class, Names.named("camel.routes")))
               .andReturn(rbMB);
         })
+        .expect(onStop)
         .run(unit -> {
           new Camel()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -298,6 +304,7 @@ public class CamelTest {
               expect(Multibinder.newSetBinder(binder, Object.class, Names.named("camel.routes")))
                   .andReturn(rbMB);
             })
+        .expect(onStop)
         .run(unit -> {
           new Camel()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -404,6 +411,7 @@ public class CamelTest {
           expect(Multibinder.newSetBinder(binder, Object.class, Names.named("camel.routes")))
               .andReturn(rbMB);
         })
+        .expect(onStop)
         .run(unit -> {
           new Camel()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -511,6 +519,7 @@ public class CamelTest {
           expect(Multibinder.newSetBinder(binder, Object.class, Names.named("camel.routes")))
               .andReturn(rbMB);
         })
+        .expect(onStop)
         .run(unit -> {
           new Camel()
               .doWith((ctx, config) -> {
@@ -843,6 +852,7 @@ public class CamelTest {
           expect(Multibinder.newSetBinder(binder, Object.class, Names.named("camel.routes")))
               .andReturn(rbMB);
         })
+        .expect(onStop)
         .run(unit -> {
           new Camel()
               .routes((router, config) -> {
@@ -952,6 +962,7 @@ public class CamelTest {
           expect(Multibinder.newSetBinder(binder, Object.class, Names.named("camel.routes")))
               .andReturn(rbMB);
         })
+        .expect(onStop)
         .run(unit -> {
           new Camel() {
             @Override
@@ -1072,6 +1083,7 @@ public class CamelTest {
           expect(Multibinder.newSetBinder(binder, Object.class, Names.named("camel.routes")))
               .andReturn(rbMB);
         })
+        .expect(onStop)
         .run(unit -> {
           new Camel()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -1188,6 +1200,7 @@ public class CamelTest {
           expect(Multibinder.newSetBinder(binder, Object.class, Names.named("camel.routes")))
               .andReturn(rbMB);
         })
+        .expect(onStop)
         .run(unit -> {
           new Camel()
               .routes(CamelTest.class)

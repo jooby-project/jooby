@@ -9,6 +9,7 @@ import org.jooby.Env;
 import org.jooby.internal.mongodb.AutoIncID;
 import org.jooby.internal.mongodb.GuiceObjectFactory;
 import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mongodb.morphia.Datastore;
@@ -86,6 +87,11 @@ public class MonphiaTest {
     expect(binder.bind(Key.get(MongoDatabase.class, Names.named("mydb")))).andReturn(dbABB);
   };
 
+  private Block onManaged = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.managed(isA(MongodbManaged.class))).andReturn(env);
+  };
+
   @SuppressWarnings("unchecked")
   @Test
   public void defaults() throws Exception {
@@ -120,6 +126,7 @@ public class MonphiaTest {
           expect(binder.bind(Key.get(GuiceObjectFactory.class))).andReturn(gofLBB);
           expect(binder.bind(Key.get(Datastore.class))).andReturn(dsLBB);
         })
+        .expect(onManaged)
         .run(unit -> {
           new Monphia()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -162,6 +169,7 @@ public class MonphiaTest {
               .andReturn(gofLBB);
           expect(binder.bind(Key.get(Datastore.class, Names.named("mydb")))).andReturn(dsLBB);
         })
+        .expect(onManaged)
         .run(unit -> {
           new Monphia("db")
               .named()
@@ -205,6 +213,7 @@ public class MonphiaTest {
           expect(binder.bind(Key.get(GuiceObjectFactory.class))).andReturn(gofLBB);
           expect(binder.bind(Key.get(Datastore.class))).andReturn(dsLBB);
         })
+        .expect(onManaged)
         .run(unit -> {
           new Monphia()
               .doWith((morphia, config) -> {
@@ -256,6 +265,7 @@ public class MonphiaTest {
           expect(binder.bind(Key.get(GuiceObjectFactory.class))).andReturn(gofLBB);
           expect(binder.bind(Key.get(Datastore.class))).andReturn(dsLBB);
         })
+        .expect(onManaged)
         .run(unit -> {
           new Monphia()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -309,6 +319,7 @@ public class MonphiaTest {
           expect(binder.bind(Key.get(GuiceObjectFactory.class))).andReturn(gofLBB);
           expect(binder.bind(Key.get(Datastore.class))).andReturn(dsLBB);
         })
+        .expect(onManaged)
         .run(unit -> {
           new Monphia()
               .doWith(ds -> {
@@ -370,6 +381,7 @@ public class MonphiaTest {
           expect(binder.bind(Key.get(GuiceObjectFactory.class))).andReturn(gofLBB);
           expect(binder.bind(Key.get(Datastore.class))).andReturn(dsLBB);
         })
+        .expect(onManaged)
         .run(unit -> {
           new Monphia().with(IdGen.GLOBAL).doWith(ds -> {
             ds.ensureIndexes();

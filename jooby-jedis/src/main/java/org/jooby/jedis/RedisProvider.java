@@ -20,8 +20,6 @@ package org.jooby.jedis;
 
 import java.net.URI;
 
-import javax.inject.Provider;
-
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.jooby.Managed;
 import org.slf4j.Logger;
@@ -29,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.JedisPool;
 
-class RedisProvider implements Provider<JedisPool>, Managed {
+class RedisProvider implements Managed {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(Redis.class);
@@ -76,11 +74,6 @@ class RedisProvider implements Provider<JedisPool>, Managed {
       this.pool.destroy();
       this.pool = null;
     }
-  }
-
-  @Override
-  public JedisPool get() {
-    return pool;
   }
 
 }

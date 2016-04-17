@@ -368,6 +368,9 @@ public class Metrics implements Jooby.Module {
     this.reporters.forEach(it -> reporters.addBinding().toInstance(it.apply(registry, conf)));
 
     binder.bind(MetricRegistryInitializer.class).asEagerSingleton();
+
+    env.onStop(app -> app.require(MetricRegistryInitializer.class).close());
+
     binder.bind(HealthCheckRegistry.class)
         .toProvider(HealthCheckRegistryProvider.class)
         .asEagerSingleton();

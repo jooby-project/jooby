@@ -1,7 +1,6 @@
 package org.jooby.jedis;
 
 import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
 
 import java.net.URI;
 
@@ -142,21 +141,6 @@ public class RedisProviderTest {
           // 2nd call ignored
             redis.stop();
           });
-  }
-
-  @Test
-  public void get() throws Exception {
-    URI uri = URI.create("redis://localhost:6789");
-    new MockUnit(JedisPool.class, GenericObjectPoolConfig.class, Logger.class)
-        .expect(unit -> {
-          unit.mockStatic(LoggerFactory.class);
-          expect(LoggerFactory.getLogger(Redis.class)).andReturn(unit.get(Logger.class));
-        })
-        .run(unit -> {
-          JedisPool jedis = new RedisProvider(unit.get(JedisPool.class), uri, unit
-              .get(GenericObjectPoolConfig.class)).get();
-          assertEquals(unit.get(JedisPool.class), jedis);
-        });
   }
 
 }

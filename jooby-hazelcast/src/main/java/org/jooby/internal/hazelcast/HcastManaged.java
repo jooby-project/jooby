@@ -18,16 +18,16 @@
  */
 package org.jooby.internal.hazelcast;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Provider;
-
-import org.jooby.Managed;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
-public class HcastManaged implements Provider<HazelcastInstance>, Managed {
+public class HcastManaged implements Provider<HazelcastInstance> {
 
   private Config config;
 
@@ -38,7 +38,7 @@ public class HcastManaged implements Provider<HazelcastInstance>, Managed {
     this.config = config;
   }
 
-  @Override
+  @PostConstruct
   public void start() throws Exception {
     hazelcast = Hazelcast.newHazelcastInstance(config);
   }
@@ -48,7 +48,7 @@ public class HcastManaged implements Provider<HazelcastInstance>, Managed {
     return hazelcast;
   }
 
-  @Override
+  @PreDestroy
   public void stop() throws Exception {
     if (hazelcast != null) {
       hazelcast.shutdown();

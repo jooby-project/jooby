@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.Managed;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.handlers.AssetHandler;
@@ -254,7 +253,7 @@ public class Assets implements Jooby.Module {
       }
       if (watch) {
         LiveCompiler liveCompiler = new LiveCompiler(conf, compiler);
-        binder.bind(Managed.class).toInstance(liveCompiler);
+        env.managed(liveCompiler);
         routes.addBinding()
             .toInstance(new Route.Definition("*", "*", liveCompiler).name("/assets/compiler"));
       }

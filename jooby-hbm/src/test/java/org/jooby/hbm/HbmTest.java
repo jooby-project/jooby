@@ -16,6 +16,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.jooby.Env;
+import org.jooby.Managed;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.internal.hbm.HbmProvider;
@@ -49,6 +50,12 @@ public class HbmTest {
       .withFallback(ConfigFactory.parseResources(Jdbc.class, "jdbc.conf"))
       .withValue("db", ConfigValueFactory.fromAnyRef("mem"))
       .withValue("application.ns", ConfigValueFactory.fromAnyRef("x.y.z"));
+
+  private MockUnit.Block onStop = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.managed(isA(HbmProvider.class))).andReturn(env);
+    expect(env.managed(isA(Managed.class))).andReturn(env);
+  };
 
   @SuppressWarnings("unchecked")
   @Test
@@ -119,6 +126,7 @@ public class HbmTest {
           unit.mockStatic(Multibinder.class);
           expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(mbrd);
         })
+        .expect(onStop)
         .run(unit -> {
           new Hbm().configure(unit.get(Env.class), config, unit.get(Binder.class));
         });
@@ -188,6 +196,7 @@ public class HbmTest {
           unit.mockStatic(Multibinder.class);
           expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(mbrd);
         })
+        .expect(onStop)
         .run(unit -> {
           new Hbm().configure(unit.get(Env.class), config, unit.get(Binder.class));
         } , unit -> {
@@ -271,6 +280,7 @@ public class HbmTest {
           unit.mockStatic(Multibinder.class);
           expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(mbrd);
         })
+        .expect(onStop)
         .run(unit -> {
           new Hbm().scan().configure(unit.get(Env.class), config, unit.get(Binder.class));
         });

@@ -390,6 +390,7 @@ public class Quartz implements Jooby.Module {
   public void configure(final Env env, final Config config, final Binder binder) {
     jobMap.putAll(JobExpander.jobs(config, jobs));
     binder.bind(Scheduler.class).toProvider(QuartzProvider.class).asEagerSingleton();
+    env.managed(QuartzProvider.class);
     binder.bind(new TypeLiteral<Map<JobDetail, Trigger>>() {
     }).annotatedWith(Names.named("org.quartz.jobs")).toInstance(jobMap);
   }

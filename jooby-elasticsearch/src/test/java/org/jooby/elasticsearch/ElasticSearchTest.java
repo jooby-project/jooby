@@ -2,9 +2,9 @@ package org.jooby.elasticsearch;
 
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -19,8 +19,6 @@ import org.jooby.Renderer;
 import org.jooby.Route;
 import org.jooby.internal.elasticsearch.BytesReferenceRenderer;
 import org.jooby.internal.elasticsearch.EmbeddedHandler;
-import org.jooby.internal.elasticsearch.ManagedClient;
-import org.jooby.internal.elasticsearch.ManagedNode;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,15 +29,16 @@ import com.google.common.collect.Sets;
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValue;
 
+import javaslang.control.Try.CheckedRunnable;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ElasticSearch.class, ImmutableSettings.class, NodeBuilder.class,
-    Multibinder.class, ManagedNode.class, ManagedClient.class })
+    Multibinder.class })
 public class ElasticSearchTest {
 
   @SuppressWarnings("unchecked")
@@ -66,6 +65,18 @@ public class ElasticSearchTest {
     expect(config.getConfig("elasticsearch")).andReturn(es);
   };
 
+  private MockUnit.Block onStart = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.onStart(unit.capture(CheckedRunnable.class))).andReturn(env);
+  };
+
+  private MockUnit.Block onStop = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+
+    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+  };
+
   private MockUnit.Block settings = unit -> {
     ImmutableSettings.Builder builder = unit.get(ImmutableSettings.Builder.class);
     expect(builder.put("http.port", (Object) "8080")).andReturn(builder);
@@ -78,8 +89,16 @@ public class ElasticSearchTest {
   };
 
   private MockUnit.Block nb = unit -> {
+    Client client = unit.mock(Client.class);
+    unit.registerMock(Client.class, client);
+
+    Node node = unit.mock(Node.class);
+    unit.registerMock(Node.class, node);
+    expect(node.client()).andReturn(client);
+
     NodeBuilder nb = unit.get(NodeBuilder.class);
     expect(nb.settings(unit.get(ImmutableSettings.Builder.class))).andReturn(nb);
+    expect(nb.build()).andReturn(node);
 
     unit.mockStatic(NodeBuilder.class);
     expect(NodeBuilder.nodeBuilder()).andReturn(nb);
@@ -87,15 +106,11 @@ public class ElasticSearchTest {
 
   @SuppressWarnings("unchecked")
   private MockUnit.Block bindings = unit -> {
-    ScopedBindingBuilder sbbnode = unit.mock(ScopedBindingBuilder.class);
-    sbbnode.asEagerSingleton();
     AnnotatedBindingBuilder<Node> abbnode = unit.mock(AnnotatedBindingBuilder.class);
-    expect(abbnode.toProvider(isA(ManagedNode.class))).andReturn(sbbnode);
+    abbnode.toInstance(unit.get(Node.class));
 
-    ScopedBindingBuilder sbbclient = unit.mock(ScopedBindingBuilder.class);
-    sbbclient.asEagerSingleton();
     AnnotatedBindingBuilder<Client> abbclient = unit.mock(AnnotatedBindingBuilder.class);
-    expect(abbclient.toProvider(isA(ManagedClient.class))).andReturn(sbbclient);
+    abbclient.toInstance(unit.get(Client.class));
 
     Binder binder = unit.get(Binder.class);
     expect(binder.bind(Node.class)).andReturn(abbnode);
@@ -110,7 +125,7 @@ public class ElasticSearchTest {
     expect(formatters.addBinding()).andReturn(lbbbf);
 
     EmbeddedHandler handler = unit.mockConstructor(EmbeddedHandler.class, new Class[]{String.class,
-        ManagedNode.class, boolean.class }, eq("/es"), isA(ManagedNode.class), eq(true));
+        Node.class, boolean.class }, eq("/es"), eq(unit.get(Node.class)), eq(true));
 
     Route.Definition rh = unit.mockConstructor(Route.Definition.class, new Class[]{String.class,
         String.class, Route.Handler.class }, "*", "/es/**", handler);
@@ -132,14 +147,28 @@ public class ElasticSearchTest {
   public void defaults() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, ImmutableSettings.Builder.class,
         NodeBuilder.class)
-        .expect(config)
-        .expect(settings)
-        .expect(nb)
-        .expect(bindings)
-        .run(unit -> {
-          new ElasticSearch("/es")
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        });
+            .expect(config)
+            .expect(settings)
+            .expect(nb)
+            .expect(bindings)
+            .expect(onStart)
+            .expect(onStop)
+            .expect(unit -> {
+              Node node = unit.get(Node.class);
+              expect(node.start()).andReturn(node);
+              expect(node.stop()).andReturn(node);
+
+              unit.get(Client.class).close();
+            })
+            .run(unit -> {
+              new ElasticSearch("/es")
+                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, unit -> {
+              List<CheckedRunnable> callbacks = unit.captured(CheckedRunnable.class);
+              callbacks.get(0).run();
+              callbacks.get(1).run();
+              callbacks.get(2).run();
+            });
   }
 
   @SuppressWarnings("unchecked")
@@ -147,18 +176,20 @@ public class ElasticSearchTest {
   public void defaultsWithSettingsCallack() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, ImmutableSettings.Builder.class,
         NodeBuilder.class, Consumer.class)
-        .expect(config)
-        .expect(settings)
-        .expect(nb)
-        .expect(bindings)
-        .expect(unit -> {
-          unit.get(Consumer.class).accept(unit.get(ImmutableSettings.Builder.class));
-        })
-        .run(unit -> {
-          new ElasticSearch("/es")
-              .doWith(unit.get(Consumer.class))
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        });
+            .expect(config)
+            .expect(settings)
+            .expect(nb)
+            .expect(bindings)
+            .expect(unit -> {
+              unit.get(Consumer.class).accept(unit.get(ImmutableSettings.Builder.class));
+            })
+            .expect(onStart)
+            .expect(onStop)
+            .run(unit -> {
+              new ElasticSearch("/es")
+                  .doWith(unit.get(Consumer.class))
+                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            });
   }
 
   @SuppressWarnings("unchecked")
@@ -166,19 +197,21 @@ public class ElasticSearchTest {
   public void defaultsWithSettingsAndConfigCallack() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, ImmutableSettings.Builder.class,
         NodeBuilder.class, BiConsumer.class)
-        .expect(config)
-        .expect(settings)
-        .expect(nb)
-        .expect(bindings)
-        .expect(unit -> {
-          unit.get(BiConsumer.class).accept(unit.get(ImmutableSettings.Builder.class),
-              unit.get(Config.class));
-        })
-        .run(unit -> {
-          new ElasticSearch("/es")
-              .doWith(unit.get(BiConsumer.class))
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        });
+            .expect(config)
+            .expect(settings)
+            .expect(nb)
+            .expect(bindings)
+            .expect(unit -> {
+              unit.get(BiConsumer.class).accept(unit.get(ImmutableSettings.Builder.class),
+                  unit.get(Config.class));
+            })
+            .expect(onStart)
+            .expect(onStop)
+            .run(unit -> {
+              new ElasticSearch("/es")
+                  .doWith(unit.get(BiConsumer.class))
+                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            });
   }
 
   @Test

@@ -18,8 +18,6 @@
  */
 package org.jooby.internal.hbm;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import java.util.Map;
 
 import javax.inject.Provider;
@@ -29,36 +27,33 @@ import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.jooby.Managed;
 
+import javaslang.Lazy;
+
 public class HbmProvider implements Provider<HibernateEntityManagerFactory>, Managed {
 
-  private HibernateEntityManagerFactory emf;
-
-  private HbmUnitDescriptor descriptor;
-
-  private Map<Object, Object> config;
+  private Lazy<HibernateEntityManagerFactory> emf;
 
   public HbmProvider(final HbmUnitDescriptor descriptor, final Map<Object, Object> config) {
-    this.descriptor = descriptor;
-    this.config = config;
+    this.emf = Lazy.of(() -> {
+      EntityManagerFactoryBuilder builder = Bootstrap
+          .getEntityManagerFactoryBuilder(descriptor, config);
+      return (HibernateEntityManagerFactory) builder.build();
+    });
   }
 
   @Override
   public void start() {
-    EntityManagerFactoryBuilder builder = Bootstrap
-        .getEntityManagerFactoryBuilder(descriptor, config);
-    emf = (HibernateEntityManagerFactory) builder.build();
   }
 
   @Override
   public HibernateEntityManagerFactory get() {
-    checkState(emf != null, "Hbm wasn't started yet");
-    return emf;
+    return emf.get();
   }
 
   @Override
   public void stop() {
     if (emf != null) {
-      emf.close();
+      emf.get().close();
       emf = null;
     }
   }

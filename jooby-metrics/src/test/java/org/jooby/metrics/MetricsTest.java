@@ -6,6 +6,7 @@ import static org.easymock.EasyMock.isA;
 import java.util.function.BiConsumer;
 
 import org.jooby.Env;
+import org.jooby.Jooby;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.internal.metrics.HealthCheckRegistryProvider;
@@ -32,6 +33,8 @@ import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
+
+import javaslang.control.Try.CheckedConsumer;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Metrics.class, MapBinder.class, Multibinder.class })
@@ -102,9 +105,16 @@ public class MetricsTest {
     }
   });
 
+  @SuppressWarnings("unchecked")
+  private Block onStop = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.onStop(unit.capture(CheckedConsumer.class))).andReturn(env);
+  };
+
+  @SuppressWarnings("unchecked")
   @Test
   public void basic() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Jooby.class, MetricRegistryInitializer.class)
         .expect(newRegistry)
         .expect(mapBinderStatic)
         .expect(mapbinder(Metric.class, (unit, binder) -> {
@@ -119,9 +129,19 @@ public class MetricsTest {
         .expect(bindRegistry)
         .expect(bindRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(onStop)
+        .expect(unit -> {
+          MetricRegistryInitializer closer = unit.get(MetricRegistryInitializer.class);
+          closer.close();
+
+          Jooby app = unit.get(Jooby.class);
+          expect(app.require(MetricRegistryInitializer.class)).andReturn(closer);
+        })
         .run(unit -> {
           new Metrics()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(CheckedConsumer.class).get(0).accept(unit.get(Jooby.class));
         });
   }
 
@@ -145,6 +165,7 @@ public class MetricsTest {
         .expect(bindRegistry)
         .expect(bindRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(onStop)
         .run(unit -> {
           MetricRegistry registry = unit.get(MetricRegistry.class);
           new Metrics(registry)
@@ -186,6 +207,7 @@ public class MetricsTest {
         .expect(bindRegistry)
         .expect(bindRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(onStop)
         .run(unit -> {
           Metrics metrics = new Metrics().request();
           metrics.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -218,6 +240,7 @@ public class MetricsTest {
         .expect(bindRegistry)
         .expect(bindRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(onStop)
         .run(unit -> {
           Metrics metrics = new Metrics().ping();
           metrics.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -250,6 +273,7 @@ public class MetricsTest {
         .expect(bindRegistry)
         .expect(bindRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(onStop)
         .run(unit -> {
           Metrics metrics = new Metrics().threadDump();
           metrics.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -279,6 +303,7 @@ public class MetricsTest {
         .expect(bindRegistry)
         .expect(bindRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(onStop)
         .run(unit -> {
           new Metrics()
               .metric("m", unit.get(Metric.class))
@@ -309,6 +334,7 @@ public class MetricsTest {
         .expect(bindRegistry)
         .expect(bindRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(onStop)
         .run(unit -> {
           new Metrics()
               .metric("m", Meter.class)
@@ -339,6 +365,7 @@ public class MetricsTest {
         .expect(bindRegistry)
         .expect(bindRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(onStop)
         .run(unit -> {
           new Metrics()
               .healthCheck("h", unit.get(HealthCheck.class))
@@ -369,6 +396,7 @@ public class MetricsTest {
         .expect(bindRegistry)
         .expect(bindRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(onStop)
         .run(unit -> {
           new Metrics()
               .healthCheck("h", HealthCheck.class)
@@ -397,6 +425,7 @@ public class MetricsTest {
         .expect(bindRegistry)
         .expect(bindRegistryInitializer)
         .expect(bindHealthCheckRegistry)
+        .expect(onStop)
         .run(unit -> {
           new Metrics()
               .reporter(r -> {

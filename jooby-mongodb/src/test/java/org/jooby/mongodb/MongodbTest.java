@@ -9,6 +9,7 @@ import javax.inject.Provider;
 
 import org.jooby.Env;
 import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -82,6 +83,11 @@ public class MongodbTest {
     expect(binder.bind(Key.get(MongoDatabase.class, Names.named("mydb")))).andReturn(dbABB);
   };
 
+  private Block onManaged = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.managed(isA(MongodbManaged.class))).andReturn(env);
+  };
+
   @Test
   public void defaults() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
@@ -99,6 +105,7 @@ public class MongodbTest {
           MongoDatabase db = unit.mock(MongoDatabase.class);
           expect(client.getDatabase("mydb")).andReturn(db);
         })
+        .expect(onManaged)
         .run(unit -> {
           Mongodb mongodb = new Mongodb();
           mongodb.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -138,6 +145,7 @@ public class MongodbTest {
           expect(config.getString("db")).andReturn("mongodb://127.0.0.1/mydb");
         })
         .expect(mongodb)
+        .expect(onManaged)
         .run(unit -> {
           new Mongodb()
               .options((options, config) -> {
@@ -165,6 +173,7 @@ public class MongodbTest {
           expect(config.getString("db")).andReturn("mongodb://127.0.0.1/mydb");
         })
         .expect(mongodb)
+        .expect(onManaged)
         .run(unit -> {
           new Mongodb()
               .options((options, config) -> {
@@ -184,6 +193,7 @@ public class MongodbTest {
           expect(config.getString("db")).andReturn("mongodb://127.0.0.1/mydb");
         })
         .expect(mongodbNamed)
+        .expect(onManaged)
         .run(unit -> {
           new Mongodb()
               .named()
@@ -201,6 +211,7 @@ public class MongodbTest {
           expect(config.getString("xdb")).andReturn("mongodb://127.0.0.1/mydb");
         })
         .expect(mongodbNamed)
+        .expect(onManaged)
         .run(unit -> {
           new Mongodb("xdb")
               .named()

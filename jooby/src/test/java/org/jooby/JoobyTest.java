@@ -33,7 +33,6 @@ import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
 import org.jooby.internal.DefaulErrRenderer;
 import org.jooby.internal.HttpHandlerImpl;
-import org.jooby.internal.LifecycleProcessor;
 import org.jooby.internal.ParameterNameProvider;
 import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteImpl;
@@ -72,7 +71,6 @@ import com.google.inject.binder.AnnotatedConstantBindingBuilder;
 import com.google.inject.binder.ConstantBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
 import com.google.inject.binder.ScopedBindingBuilder;
-import com.google.inject.matcher.Matchers;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.OptionalBinder;
 import com.google.inject.name.Named;
@@ -509,14 +507,10 @@ public class JoobyTest {
     expect(config.getBoolean("server.join")).andReturn(true);
     expect(config.origin()).andReturn(configOrigin);
 
-    LifecycleProcessor lp = unit.mock(LifecycleProcessor.class);
-    lp.destroy();
-
     Injector injector = unit.mock(Injector.class);
     expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
     expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
     expect(injector.getInstance(Config.class)).andReturn(config);
-    expect(injector.getInstance(LifecycleProcessor.class)).andReturn(lp);
 
     unit.mockStatic(Guice.class);
     expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class))).andReturn(
@@ -526,14 +520,6 @@ public class JoobyTest {
 
     TypeConverters tc = unit.mockConstructor(TypeConverters.class);
     tc.configure(binder);
-
-    AnnotatedBindingBuilder<LifecycleProcessor> abblp = unit.mock(AnnotatedBindingBuilder.class);
-    abblp.toInstance(isA(LifecycleProcessor.class));
-
-    expect(binder.bind(LifecycleProcessor.class)).andReturn(abblp);
-
-    binder.bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
-
   };
 
   @Test
@@ -569,14 +555,10 @@ public class JoobyTest {
               expect(config.getBoolean("server.join")).andReturn(true);
               expect(config.origin()).andReturn(configOrigin);
 
-              LifecycleProcessor lp = unit.mock(LifecycleProcessor.class);
-              lp.destroy();
-
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
               expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
               expect(injector.getInstance(Config.class)).andReturn(config);
-              expect(injector.getInstance(LifecycleProcessor.class)).andReturn(lp);
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.PRODUCTION), unit.capture(Module.class)))
@@ -587,15 +569,6 @@ public class JoobyTest {
 
               TypeConverters tc = unit.mockConstructor(TypeConverters.class);
               tc.configure(binder);
-
-              AnnotatedBindingBuilder<LifecycleProcessor> abblp = unit
-                  .mock(AnnotatedBindingBuilder.class);
-              abblp.toInstance(isA(LifecycleProcessor.class));
-
-              expect(binder.bind(LifecycleProcessor.class)).andReturn(abblp);
-
-              binder.bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
-
             })
         .expect(shutdown)
         .expect(config)
@@ -825,16 +798,6 @@ public class JoobyTest {
 
               TypeConverters tc = unit.mockConstructor(TypeConverters.class);
               tc.configure(unit.get(Binder.class));
-
-              AnnotatedBindingBuilder<LifecycleProcessor> abblp = unit
-                  .mock(AnnotatedBindingBuilder.class);
-              abblp.toInstance(isA(LifecycleProcessor.class));
-
-              expect(unit.get(Binder.class).bind(LifecycleProcessor.class)).andReturn(abblp);
-
-              unit.get(Binder.class)
-                  .bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
-
             })
         .expect(shutdown)
         .expect(config)
@@ -956,14 +919,10 @@ public class JoobyTest {
               expect(config.getBoolean("server.join")).andReturn(true);
               expect(config.origin()).andReturn(configOrigin);
 
-              LifecycleProcessor lp = unit.mock(LifecycleProcessor.class);
-              lp.destroy();
-
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
               expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
               expect(injector.getInstance(Config.class)).andReturn(config);
-              expect(injector.getInstance(LifecycleProcessor.class)).andReturn(lp);
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
@@ -974,15 +933,6 @@ public class JoobyTest {
 
               TypeConverters tc = unit.mockConstructor(TypeConverters.class);
               tc.configure(binder);
-
-              AnnotatedBindingBuilder<LifecycleProcessor> abblp = unit
-                  .mock(AnnotatedBindingBuilder.class);
-              abblp.toInstance(isA(LifecycleProcessor.class));
-
-              expect(binder.bind(LifecycleProcessor.class)).andReturn(abblp);
-
-              binder.bindListener(eq(Matchers.any()), isA(LifecycleProcessor.class));
-
             })
         .expect(shutdown)
         .expect(config)

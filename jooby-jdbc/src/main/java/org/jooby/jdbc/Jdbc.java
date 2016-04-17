@@ -207,8 +207,10 @@ public class Jdbc implements Jooby.Module {
   }
 
   @Override
-  public void configure(final Env mode, final Config config, final Binder binder) {
+  public void configure(final Env env, final Config config, final Binder binder) {
     this.ds = newDataSource(dbName, dbConfig(dbName, config));
+
+    env.managed(ds);
 
     keys(DataSource.class, key -> binder.bind(key).toProvider(ds).asEagerSingleton());
   }

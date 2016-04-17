@@ -215,6 +215,7 @@ public class Hbm extends Jdbc {
 
     Map<Object, Object> integration = config(env, config, classes);
     emf = new HbmProvider(descriptor, integration);
+    env.managed(emf);
     keys(EntityManagerFactory.class, key -> binder.bind(key).toProvider(emf).asEagerSingleton());
 
     List<Key<EntityManager>> emkeys = new ArrayList<>();

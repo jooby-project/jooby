@@ -8,6 +8,7 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.jooby.Env;
+import org.jooby.Managed;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.jooq.Configuration;
@@ -91,12 +92,18 @@ public class jOOQTest {
     expect(binder.bind(Key.get(DSLContext.class, Names.named("db")))).andReturn(abbC);
   };
 
+  private MockUnit.Block managed = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.managed(isA(Managed.class))).andReturn(env);
+  };
+
   @Test
   public void defaults() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(jdbc)
         .expect(configuration)
         .expect(ctx)
+        .expect(managed)
         .run(unit -> {
           new jOOQ()
               .configure(unit.get(Env.class), config(), unit.get(Binder.class));
@@ -109,6 +116,7 @@ public class jOOQTest {
         .expect(jdbc)
         .expect(configuration)
         .expect(ctx)
+        .expect(managed)
         .run(unit -> {
           new jOOQ()
               .doWith(c -> assertEquals(unit.get(Configuration.class), c))

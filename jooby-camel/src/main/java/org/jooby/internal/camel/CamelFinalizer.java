@@ -20,6 +20,8 @@ package org.jooby.internal.camel;
 
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -28,11 +30,10 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.jooby.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CamelFinalizer implements Managed {
+public class CamelFinalizer {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -64,14 +65,14 @@ public class CamelFinalizer implements Managed {
     this.ctx.addRoutes(rb);
   }
 
-  @Override
+  @PostConstruct
   public void start() throws Exception {
     this.ctx.start();
     this.producer.start();
     this.consumer.start();
   }
 
-  @Override
+  @PreDestroy
   public void stop() throws Exception {
     try {
       this.consumer.stop();

@@ -42,8 +42,7 @@ public class MetricRegistryInitializerTest {
               unit.get(ConsoleReporter.class));
           MetricRegistryInitializer mri = new MetricRegistryInitializer(
               unit.get(MetricRegistry.class), metrics, reporters);
-          mri.start();
-          mri.stop();
+          mri.close();
         });
   }
 
@@ -66,8 +65,7 @@ public class MetricRegistryInitializerTest {
               unit.get(ConsoleReporter.class));
           MetricRegistryInitializer mri = new MetricRegistryInitializer(
               unit.get(MetricRegistry.class), metrics, reporters);
-          mri.start();
-          mri.stop();
+          mri.close();
         });
   }
 }

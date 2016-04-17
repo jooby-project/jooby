@@ -20,17 +20,18 @@ package org.jooby.hbv;
 
 import static java.util.Objects.requireNonNull;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 import org.hibernate.validator.HibernateValidatorConfiguration;
-import org.jooby.Managed;
 
 import com.google.inject.Injector;
 
-class HbvFactory implements Managed, Provider<Validator> {
+class HbvFactory implements Provider<Validator> {
 
   private HibernateValidatorConfiguration conf;
 
@@ -47,17 +48,19 @@ class HbvFactory implements Managed, Provider<Validator> {
 
   @Override
   public Validator get() {
-    requireNonNull(validator, "No validator available");
+    start();
     return validator;
   }
 
-  @Override
-  public void start() throws Exception {
-    this.factory = conf.buildValidatorFactory();
-    validator = factory.getValidator();
+  @PostConstruct
+  public void start() {
+    if (factory == null) {
+      this.factory = conf.buildValidatorFactory();
+      validator = factory.getValidator();
+    }
   }
 
-  @Override
+  @PreDestroy
   public void stop() throws Exception {
     if (factory != null) {
       factory.close();

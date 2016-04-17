@@ -18,8 +18,6 @@
  */
 package org.jooby.mongodb;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import javax.inject.Provider;
 
 import org.jooby.Managed;
@@ -44,17 +42,13 @@ class MongodbManaged implements Managed, Provider<MongoClient> {
 
   @Override
   public MongoClient get() {
-    checkState(client != null, "Mongodb didn't start");
+    log.debug("Starting {}", uri);
+    client = new MongoClient(uri);
     return client;
   }
 
   @Override
   public void start() throws Exception {
-    checkState(client == null, "Mongodb already started");
-    log.debug("Starting {}", uri);
-
-    client = new MongoClient(uri);
-
     log.info("Started {}", uri);
   }
 

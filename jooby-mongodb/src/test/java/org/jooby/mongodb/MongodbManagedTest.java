@@ -19,25 +19,8 @@ public class MongodbManagedTest {
   public void start() throws Exception {
     MongoClientURI uri = new MongoClientURI("mongodb://127.0.0.1");
     new MockUnit()
-        .expect(unit -> {
-          unit.mockConstructor(MongoClient.class, new Class[]{MongoClientURI.class }, uri);
-        })
         .run(unit -> {
           MongodbManaged managed = new MongodbManaged(uri);
-          managed.start();
-        });
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void startShouldFailOn2ndCall() throws Exception {
-    MongoClientURI uri = new MongoClientURI("mongodb://127.0.0.1");
-    new MockUnit()
-        .expect(unit -> {
-          unit.mockConstructor(MongoClient.class, new Class[]{MongoClientURI.class }, uri);
-        })
-        .run(unit -> {
-          MongodbManaged managed = new MongodbManaged(uri);
-          managed.start();
           managed.start();
         });
   }
@@ -56,19 +39,6 @@ public class MongodbManagedTest {
         });
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void getShouldFailIfStartWasntCallIt() throws Exception {
-    MongoClientURI uri = new MongoClientURI("mongodb://127.0.0.1");
-    new MockUnit()
-        .expect(unit -> {
-          unit.mockConstructor(MongoClient.class, new Class[]{MongoClientURI.class }, uri);
-        })
-        .run(unit -> {
-          MongodbManaged managed = new MongodbManaged(uri);
-          assertNotNull(managed.get());
-        });
-  }
-
   @Test
   public void stop() throws Exception {
     MongoClientURI uri = new MongoClientURI("mongodb://127.0.0.1");
@@ -80,7 +50,7 @@ public class MongodbManagedTest {
         })
         .run(unit -> {
           MongodbManaged managed = new MongodbManaged(uri);
-          managed.start();
+          managed.get();
           managed.stop();
         });
   }
@@ -96,7 +66,7 @@ public class MongodbManagedTest {
         })
         .run(unit -> {
           MongodbManaged managed = new MongodbManaged(uri);
-          managed.start();
+          managed.get();
           managed.stop();
           managed.stop();
         });

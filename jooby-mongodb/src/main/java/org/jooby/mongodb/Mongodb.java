@@ -205,6 +205,8 @@ public class Mongodb implements Jooby.Module {
         .toProvider(dbprovider)
         .asEagerSingleton();
 
+    env.managed(mongodb);
+
     callback.accept(uri, mongodb);
   }
 

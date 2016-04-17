@@ -375,6 +375,8 @@ public class Camel implements Jooby.Module {
     properties.setSuffixToken("}");
     ctx.addComponent("properties", properties);
 
+    env.managed(CamelFinalizer.class);
+
     /**
      * Guice!
      */

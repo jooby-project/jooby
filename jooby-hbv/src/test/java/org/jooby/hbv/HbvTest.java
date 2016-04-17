@@ -13,9 +13,9 @@ import javax.validation.bootstrap.ProviderSpecificBootstrap;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
 import org.jooby.Env;
+import org.jooby.Parser;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
-import org.jooby.Parser;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -99,6 +99,11 @@ public class HbvTest {
     expect(hvc.addProperty("hibernate.validator.fail_fast", "true")).andReturn(hvc);
   };
 
+  private Block onStop = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.managed(HbvFactory.class)).andReturn(env);
+  };
+
   @Test
   public void defaults() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, HibernateValidatorConfiguration.class)
@@ -106,6 +111,7 @@ public class HbvTest {
         .expect(noproperties)
         .expect(validatorProvider)
         .expect(hvparser)
+        .expect(onStop)
         .run(unit -> {
           new Hbv()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -119,6 +125,7 @@ public class HbvTest {
         .expect(properties)
         .expect(validatorProvider)
         .expect(hvparser)
+        .expect(onStop)
         .run(unit -> {
           new Hbv()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -139,6 +146,7 @@ public class HbvTest {
 
           configurer.accept(unit.get(HibernateValidatorConfiguration.class));
         })
+        .expect(onStop)
         .run(unit -> {
           new Hbv()
               .doWith(unit.get(Consumer.class))
@@ -162,6 +170,7 @@ public class HbvTest {
           configurer.accept(unit.get(HibernateValidatorConfiguration.class),
               unit.get(Config.class));
         })
+        .expect(onStop)
         .run(unit -> {
           new Hbv()
               .doWith(unit.get(BiConsumer.class))
