@@ -91,7 +91,6 @@ import org.jooby.Route.Mapper;
 import org.jooby.Session.Store;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.AppPrinter;
-import org.jooby.internal.AssetProxy;
 import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
 import org.jooby.internal.DefaulErrRenderer;
@@ -3033,7 +3032,14 @@ public class Jooby implements Routes, LifeCycle, Registry {
    */
   @Override
   public Route.Definition assets(final String path, final String location) {
-    return assets(path, new AssetHandler(location));
+    AssetHandler handler = new AssetHandler(location);
+    on("*", conf -> {
+      handler
+        .cdn(conf.getString("assets.cdn"))
+        .lastModified(conf.getBoolean("assets.lastModified"))
+        .etag(conf.getBoolean("assets.etag"));
+    });
+    return assets(path, handler);
   }
 
   /**
@@ -3080,16 +3086,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    */
   @Override
   public Route.Definition assets(final String path, final AssetHandler handler) {
-
-    AssetProxy router = new AssetProxy();
-    Route.Definition asset = new Route.Definition("GET", path, router);
-    on("*", conf -> {
-      router.fwd(handler
-          .cdn(conf.getString("assets.cdn"))
-          .lastModified(conf.getBoolean("assets.lastModified"))
-          .etag(conf.getBoolean("assets.etag")));
-    });
-    return appendDefinition(asset);
+    return appendDefinition(new Route.Definition("GET", path, handler));
   }
 
   /**
