@@ -56,7 +56,7 @@ public class HcastTest {
 
   private MockUnit.Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.managed(HcastManaged.class)).andReturn(env);
+    expect(env.lifeCycle(HcastManaged.class)).andReturn(env);
   };
 
   @Test

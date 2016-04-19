@@ -253,7 +253,8 @@ public class Assets implements Jooby.Module {
       }
       if (watch) {
         LiveCompiler liveCompiler = new LiveCompiler(conf, compiler);
-        env.managed(liveCompiler);
+        env.onStart(liveCompiler::start);
+        env.onStop(liveCompiler::stop);
         routes.addBinding()
             .toInstance(new Route.Definition("*", "*", liveCompiler).name("/assets/compiler"));
       }

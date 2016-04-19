@@ -235,7 +235,7 @@ public class Hbv implements Jooby.Module {
 
     binder.bind(Validator.class).toProvider(HbvFactory.class).asEagerSingleton();
 
-    env.managed(HbvFactory.class);
+    env.lifeCycle(HbvFactory.class);
 
     Multibinder.newSetBinder(binder, Parser.class).addBinding()
         .toInstance(new HbvParser(predicate));

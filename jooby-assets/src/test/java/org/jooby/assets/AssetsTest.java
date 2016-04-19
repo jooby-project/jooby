@@ -1,6 +1,7 @@
 package org.jooby.assets;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertTrue;
 
 import org.jooby.Env;
@@ -26,6 +27,8 @@ import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+
+import javaslang.control.Try.CheckedRunnable;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Assets.class, AssetCompiler.class, Multibinder.class, LiveCompiler.class })
@@ -129,12 +132,13 @@ public class AssetsTest {
         }).expect(unit -> {
           AssetCompiler compiler = unit.get(AssetCompiler.class);
 
-          LiveCompiler liveCompiler = unit.constructor(LiveCompiler.class)
+          unit.constructor(LiveCompiler.class)
               .args(Config.class, AssetCompiler.class)
               .build(conf, compiler);
 
           Env env = unit.get(Env.class);
-          expect(env.managed(liveCompiler)).andReturn(env);
+          expect(env.onStart(isA(CheckedRunnable.class))).andReturn(env);
+          expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
 
           LinkedBindingBuilder<Definition> lbblc = unit.mock(LinkedBindingBuilder.class);
           lbblc.toInstance(unit.capture(Route.Definition.class));

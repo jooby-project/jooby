@@ -21,20 +21,27 @@ package org.jooby.jdbc;
 import javax.inject.Provider;
 import javax.sql.DataSource;
 
-import org.jooby.Managed;
 import org.slf4j.LoggerFactory;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-class HikariDataSourceProvider implements Provider<DataSource>, Managed {
+import javaslang.Lazy;
 
-  private HikariDataSource dataSource;
+class HikariDataSourceProvider implements Provider<DataSource> {
+
+  private Lazy<HikariDataSource> dataSource;
 
   private HikariConfig config;
 
   public HikariDataSourceProvider(final HikariConfig config) {
     this.config = config;
+    dataSource = Lazy.of(() -> {
+      LoggerFactory.getLogger(HikariDataSource.class).info("  {}",
+          config.getDataSourceProperties().getProperty("url"));
+      return new HikariDataSource(config);
+    });
+
   }
 
   public HikariConfig config() {
@@ -42,26 +49,12 @@ class HikariDataSourceProvider implements Provider<DataSource>, Managed {
   }
 
   @Override
-  public void start() {
-    if (dataSource == null) {
-      dataSource = new HikariDataSource(config);
-      LoggerFactory.getLogger(HikariDataSource.class).info("  {}",
-          config.getDataSourceProperties().getProperty("url"));
-    }
-  }
-
-  @Override
   public DataSource get() {
-    start();
-    return dataSource;
+    return dataSource.get();
   }
 
-  @Override
   public void stop() {
-    if (dataSource != null) {
-      dataSource.close();
-      dataSource = null;
-    }
+    dataSource.get().close();
   }
 
   @Override

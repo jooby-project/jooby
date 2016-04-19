@@ -210,7 +210,7 @@ public class Jdbc implements Jooby.Module {
   public void configure(final Env env, final Config config, final Binder binder) {
     this.ds = newDataSource(dbName, dbConfig(dbName, config));
 
-    env.managed(ds);
+    env.onStop(ds::stop);
 
     keys(DataSource.class, key -> binder.bind(key).toProvider(ds).asEagerSingleton());
   }

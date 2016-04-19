@@ -20,14 +20,13 @@ package org.jooby.mongodb;
 
 import javax.inject.Provider;
 
-import org.jooby.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 
-class MongodbManaged implements Managed, Provider<MongoClient> {
+class MongodbManaged implements Provider<MongoClient> {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(Mongodb.class);
@@ -47,12 +46,10 @@ class MongodbManaged implements Managed, Provider<MongoClient> {
     return client;
   }
 
-  @Override
   public void start() throws Exception {
     log.info("Started {}", uri);
   }
 
-  @Override
   public void stop() throws Exception {
     if (client != null) {
       log.debug("Stopping {}", uri);

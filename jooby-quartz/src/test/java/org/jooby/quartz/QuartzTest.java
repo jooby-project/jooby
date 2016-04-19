@@ -64,7 +64,7 @@ public class QuartzTest {
 
   MockUnit.Block onManaged = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.managed(QuartzProvider.class)).andReturn(env);
+    expect(env.lifeCycle(QuartzProvider.class)).andReturn(env);
   };
 
   @SuppressWarnings({"unchecked" })

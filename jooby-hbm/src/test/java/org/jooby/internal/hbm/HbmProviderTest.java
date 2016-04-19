@@ -44,7 +44,6 @@ public class HbmProviderTest {
         })
         .run(unit -> {
           HbmProvider hbm = new HbmProvider(unit.get(HbmUnitDescriptor.class), unit.get(Map.class));
-          hbm.start();
           assertEquals(unit.get(HibernateEntityManagerFactory.class), hbm.get());
         });
   }
@@ -68,7 +67,7 @@ public class HbmProviderTest {
         })
         .run(unit -> {
           HbmProvider hbm = new HbmProvider(unit.get(HbmUnitDescriptor.class), unit.get(Map.class));
-          hbm.start();
+          hbm.get();
           hbm.stop();
           hbm.stop();
         });

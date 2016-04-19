@@ -30,6 +30,8 @@ import com.mongodb.client.MongoDatabase;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import javaslang.control.Try.CheckedRunnable;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Monphia.class, Morphia.class, Mapper.class, MongoClient.class,
     MongodbManaged.class, AutoIncID.class })
@@ -89,7 +91,8 @@ public class MonphiaTest {
 
   private Block onManaged = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.managed(isA(MongodbManaged.class))).andReturn(env);
+    expect(env.onStart(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
   };
 
   @SuppressWarnings("unchecked")

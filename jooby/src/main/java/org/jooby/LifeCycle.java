@@ -19,8 +19,133 @@ import com.typesafe.config.Config;
 import javaslang.control.Try.CheckedConsumer;
 import javaslang.control.Try.CheckedRunnable;
 
+/**
+ * <h2>life cycle</h2>
+ * <p>
+ * Listen for application start and stop events. Useful for starting/stopping services.
+ * </p>
+ *
+ * <h3>onStart/onStop events</h3>
+ * <p>
+ * Start/stop callbacks are accessible via application:
+ * </p>
+ * <pre>{@code
+ * {
+ *    onStart(() -> {
+ *      log.info("starting app");
+ *    });
+ *
+ *    onStop(() -> {
+ *      log.info("stopping app");
+ *    });
+ * }
+ * }</pre>
+ *
+ * <p>
+ * Or via module:
+ * </p>
+ * <pre>{@code
+ * public class MyModule implements Jooby.Module {
+ *
+ *   public void configure(Env env, Config conf, Binder binder) {
+ *     env.onStart(() -> {
+ *       log.info("starting module");
+ *     });
+ *
+ *     env.onStop(() -> {
+ *       log.info("stopping module");
+ *     });
+ *   }
+ * }
+ * }</pre>
+ *
+ * <h3>callbacks order</h3>
+ * <p>
+ * Callback order is preserved:
+ * </p>
+ *
+ * <pre>{@code
+ * {
+ *   onStart(() -> {
+ *     log.info("first");
+ *   });
+ *
+ *   onStart(() -> {
+ *     log.info("second");
+ *   });
+ *
+ *   onStart(() -> {
+ *     log.info("third");
+ *   });
+ * }
+ * }</pre>
+ * <p>
+ * Order is useful for service dependencies, like ServiceB should be started after ServiceA.
+ * </p>
+ *
+ * <h3>service registry</h3>
+ * <p>
+ * You can also request for a service and start or stop it:
+ * </p>
+ *
+ * <pre>{@code
+ * {
+ *   onStart(registry -> {
+ *     MyService service = registry.require(MyService.class);
+ *     service.start();
+ *   });
+ *
+ *   onStop(registry -> {
+ *     MyService service = registry.require(MyService.class);
+ *     service.stop();
+ *   });
+ * }
+ * }</pre>
+ *
+ * <h3>PostConstruct/PreDestroy annotations</h3>
+ * <p>
+ * If you prefer the annotation way... you can too:
+ * </p>
+ *
+ * <pre>{@code
+ *
+ * &#64;Singleton
+ * public class MyService {
+ *
+ *   &#64;PostConstruct
+ *   public void start() {
+ *   }
+ *
+ *   &#64;PreDestroy
+ *   public void stop() {
+ *   }
+ * }
+ *
+ * App.java:
+ *
+ * {
+ *   lifeCycle(MyService.class);
+ * }
+ *
+ * }</pre>
+ *
+ * <p>
+ * It works as expected just make sure <code>MyService</code> is a <strong>Singleton</strong>
+ * object.
+ * </p>
+ *
+ * @author edgar
+ * @since 1.0.0.CR3
+ */
 public interface LifeCycle {
 
+  /**
+   * Find a single method annotated with the given annotation in the provided type.
+   *
+   * @param rawType The type to look for a method.
+   * @param annotation Annotation to look for.
+   * @return A callback to the method. Or empty.
+   */
   static Optional<CheckedConsumer<Object>> lifeCycleAnnotation(final Class<?> rawType,
       final Class<? extends Annotation> annotation) {
     for (Method method : rawType.getDeclaredMethods()) {
@@ -58,40 +183,69 @@ public interface LifeCycle {
     return Optional.empty();
   };
 
-  default LifeCycle managed(final Managed managed) {
-    onStart(managed::start);
+  /**
+   * Add to lifecycle the given service. Any method annotated with {@link PostConstruct} or
+   * {@link PreDestroy} will be executed at application startup or shutdown time.
+   *
+   * The service must be a Singleton object.
+   *
+   * <pre>{@code
+   *
+   * &#64;Singleton
+   * public class MyService {
+   *
+   *   &#64;PostConstruct
+   *   public void start() {
+   *   }
+   *
+   *   &#64;PreDestroy
+   *   public void stop() {
+   *   }
+   * }
+   *
+   * App.java:
+   *
+   * {
+   *   lifeCycle(MyService.class);
+   * }
+   *
+   * }</pre>
+   *
+   * You should ONLY call this method while the application is been initialized or while
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
+   *
+   * The behaviour of this method once application has been initialized is <code>undefined</code>.
+   *
+   * @param service Service type. Must be a singleton object.
+   * @return This instance.
+   */
+  default LifeCycle lifeCycle(final Class<?> service) {
+    lifeCycleAnnotation(service, PostConstruct.class)
+        .ifPresent(it -> onStart(app -> it.accept(app.require(service))));
 
-    onStop(managed::stop);
-    return this;
-  }
-
-  default LifeCycle managed(final Class<?> managed) {
-    lifeCycleAnnotation(managed, PostConstruct.class)
-        .ifPresent(it -> onStart(app -> it.accept(app.require(managed))));
-
-    lifeCycleAnnotation(managed, PreDestroy.class)
-        .ifPresent(it -> onStop(app -> it.accept(app.require(managed))));
+    lifeCycleAnnotation(service, PreDestroy.class)
+        .ifPresent(it -> onStop(app -> it.accept(app.require(service))));
     return this;
   }
 
   /**
-   * Add a start task, useful for initialize and/or start services at startup time.
+   * Add a start lifecycle event, useful for initialize and/or start services at startup time.
    *
-   * You should ONLY call this method while the application is been initialized, usually executing
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
+   * You should ONLY call this method while the application is been initialized or while
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
    *
    * The behaviour of this method once application has been initialized is <code>undefined</code>.
    *
    * @param task Task to run.
    * @return This env.
    */
-  LifeCycle onStart(CheckedConsumer<Jooby> task);
+  LifeCycle onStart(CheckedConsumer<Registry> task);
 
   /**
-   * Add a start task, useful for initialize and/or start services at startup time.
+   * Add a start lifecycle event, useful for initialize and/or start services at startup time.
    *
-   * You should ONLY call this method while the application is been initialized, usually executing
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
+   * You should ONLY call this method while the application is been initialized or while
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
    *
    * The behaviour of this method once application has been initialized is <code>undefined</code>.
    *
@@ -103,10 +257,10 @@ public interface LifeCycle {
   }
 
   /**
-   * Add a stop task, useful for cleanup and/or stop service at stop time.
+   * Add a stop lifecycle event, useful for cleanup and/or stop service at stop time.
    *
-   * You should ONLY call this method while the application is been initialized, usually executing
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
+   * You should ONLY call this method while the application is been initialized or while
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
    *
    * The behaviour of this method once application has been initialized is <code>undefined</code>.
    *
@@ -118,16 +272,16 @@ public interface LifeCycle {
   }
 
   /**
-   * Add a stop task, useful for cleanup and/or stop service at stop time.
+   * Add a stop lifecycle event, useful for cleanup and/or stop service at stop time.
    *
-   * You should ONLY call this method while the application is been initialized, usually executing
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
+   * You should ONLY call this method while the application is been initialized or while
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
    *
    * The behaviour of this method once application has been initialized is <code>undefined</code>.
    *
    * @param task Task to run.
    * @return This env.
    */
-  LifeCycle onStop(CheckedConsumer<Jooby> task);
+  LifeCycle onStop(CheckedConsumer<Registry> task);
 
 }

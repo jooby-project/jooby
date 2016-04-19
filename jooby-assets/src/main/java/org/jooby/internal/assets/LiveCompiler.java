@@ -28,7 +28,6 @@ import java.nio.file.WatchEvent.Kind;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import org.jooby.Managed;
 import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
@@ -43,7 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
 
-public class LiveCompiler implements Route.Handler, Managed {
+public class LiveCompiler implements Route.Handler {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -170,12 +169,10 @@ public class LiveCompiler implements Route.Handler, Managed {
 
   }
 
-  @Override
-  public void start() throws Exception {
+  public void start() {
     watcher.start();
   }
 
-  @Override
   public void stop() throws Exception {
     watcher.stop();
   }

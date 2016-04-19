@@ -66,7 +66,7 @@ public class CamelTest {
 
   private MockUnit.Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.managed(CamelFinalizer.class)).andReturn(env);
+    expect(env.lifeCycle(CamelFinalizer.class)).andReturn(env);
   };
 
   @Test(expected = IllegalArgumentException.class)

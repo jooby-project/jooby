@@ -101,7 +101,7 @@ public class HbvTest {
 
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.managed(HbvFactory.class)).andReturn(env);
+    expect(env.lifeCycle(HbvFactory.class)).andReturn(env);
   };
 
   @Test

@@ -22,8 +22,6 @@ import java.io.File;
 
 import javax.inject.Provider;
 
-import org.jooby.Managed;
-
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.EbeanServerFactory;
 import com.avaje.ebean.config.ServerConfig;
@@ -31,7 +29,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.typesafe.config.Config;
 
-public class EbeanManaged implements Provider<EbeanServer>, Managed {
+public class EbeanManaged implements Provider<EbeanServer> {
 
   private Supplier<EbeanServer> ebean;
 
@@ -52,12 +50,10 @@ public class EbeanManaged implements Provider<EbeanServer>, Managed {
     new File(fname).renameTo(new File(tmpdir, fname));
   }
 
-  @Override
   public void start() throws Exception {
     ebean.get();
   }
 
-  @Override
   public void stop() throws Exception {
     if (ebean != null) {
       ebean.get().shutdown(false, false);

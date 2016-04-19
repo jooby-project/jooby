@@ -147,7 +147,8 @@ import com.typesafe.config.ConfigFactory;
  * }
  * </pre>
  *
- * After calling {@link #scan(String...)}, Hibernate will auto-discover all the entities application's
+ * After calling {@link #scan(String...)}, Hibernate will auto-discover all the entities
+ * application's
  * namespace. The namespace is defined by the package of your application. Given:
  * <code>org.myproject.App</code> it will scan everything under <code>org.myproject</code>.
  *
@@ -215,7 +216,7 @@ public class Hbm extends Jdbc {
 
     Map<Object, Object> integration = config(env, config, classes);
     emf = new HbmProvider(descriptor, integration);
-    env.managed(emf);
+    env.onStop(emf::stop);
     keys(EntityManagerFactory.class, key -> binder.bind(key).toProvider(emf).asEagerSingleton());
 
     List<Key<EntityManager>> emkeys = new ArrayList<>();

@@ -243,7 +243,8 @@ public class Ebeanby extends Jdbc {
     }
 
     EbeanManaged server = new EbeanManaged(conf, config);
-    env.managed(server);
+    env.onStart(server::start);
+    env.onStop(server::stop);
     keys(EbeanServer.class, key -> binder.bind(key).toProvider(server).asEagerSingleton());
   }
 

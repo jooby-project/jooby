@@ -1,12 +1,8 @@
-# config, env and logging
+# conf, env and logging
 
-Jooby delegates configuration management to [config](https://github.com/typesafehub/config). If you aren't familiar with [config](https://github.com/typesafehub/config) please take a few minutes to discover what [config](https://github.com/typesafehub/config) can do for you.
+Jooby delegates configuration management to [config](https://github.com/typesafehub/config). By defaults Jooby will attempt to load an ```application.conf``` file from root of classpath. Inside the file you can add/override any property you want.
 
-## application.conf
-
-By defaults Jooby will attempt to load an ```application.conf``` file from root of classpath. Inside the file you can add/override any property you want.
-
-## accessing properties
+## property access
 
 via script:
 
@@ -20,7 +16,7 @@ via script:
 }
 ```
 
-or via ```@Named``` annoation:
+or via ```@Named``` annotation:
 
 ```java
 public class Controller {
@@ -32,7 +28,7 @@ public class Controller {
 }
 ```
 
-## type conversion
+### type conversion
 
 Automatic type conversion is provided when a type:
 
@@ -56,14 +52,14 @@ It is also possible to inject the root ```com.typesafe.config.Config``` object o
 
 ### application.env
 
-Jooby internals and the module system rely on the ```application.env``` property. By defaults, this property is set to: ```dev```.
+Jooby internals and also the module system rely on the ```application.env``` property. By defaults, this property is set to: ```dev```.
 
 This special property is represented at runtime with the [Env]({{apidocs}}/org/jooby/Env.html) class.
 
 For example, the [development stage](https://github.com/google/guice/wiki/Bootstrap) is set in [Guice](https://github.com/google/guice) when ```application.env == dev```.
 A module provider, might decided to create a connection pool, cache, etc when ```application.env != dev ```.
 
-### application.secret
+#### application.secret
 
 If present, the session cookie will be signed with the ```application.secret```.
 
@@ -144,7 +140,6 @@ This is the recommended option from Jooby, because your app doesn't have an exte
 
 This is the default config file and it should be bundle inside the **fat jar**. As mentioned early, the default name is: **application.conf**
 
-
 ### [modules in reverse].[conf]
 
 As mentioned in the [modules](#modules) section a module might define his own set of properties.
@@ -158,4 +153,5 @@ As mentioned in the [modules](#modules) section a module might define his own se
 
 In the previous example the M2 modules properties will take precedence over M1 properties.
 
-As you can see the config system is very powerful and can do a lot for you.
+The config system is very powerful and allow you to create a single distribution with different configuration per environment.
+ 

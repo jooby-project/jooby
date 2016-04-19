@@ -101,9 +101,9 @@ public interface Env extends LifeCycle {
     String name = config.hasPath("application.env") ? config.getString("application.env") : "dev";
     return new Env() {
 
-      private ImmutableList.Builder<CheckedConsumer<Jooby>> start = ImmutableList.builder();
+      private ImmutableList.Builder<CheckedConsumer<Registry>> start = ImmutableList.builder();
 
-      private ImmutableList.Builder<CheckedConsumer<Jooby>> shutdown = ImmutableList.builder();
+      private ImmutableList.Builder<CheckedConsumer<Registry>> shutdown = ImmutableList.builder();
 
       @Override
       public String name() {
@@ -134,24 +134,24 @@ public interface Env extends LifeCycle {
       }
 
       @Override
-      public List<CheckedConsumer<Jooby>> stopTasks() {
+      public List<CheckedConsumer<Registry>> stopTasks() {
         return shutdown.build();
       }
 
       @Override
-      public Env onStop(final CheckedConsumer<Jooby> task) {
+      public Env onStop(final CheckedConsumer<Registry> task) {
         this.shutdown.add(task);
         return this;
       }
 
       @Override
-      public Env onStart(final CheckedConsumer<Jooby> task) {
+      public Env onStart(final CheckedConsumer<Registry> task) {
         this.start.add(task);
         return this;
       }
 
       @Override
-      public List<CheckedConsumer<Jooby>> startTasks() {
+      public List<CheckedConsumer<Registry>> startTasks() {
         return this.start.build();
       }
     };
@@ -364,11 +364,11 @@ public interface Env extends LifeCycle {
   /**
    * @return List of start tasks.
    */
-  List<CheckedConsumer<Jooby>> startTasks();
+  List<CheckedConsumer<Registry>> startTasks();
 
   /**
    * @return List of stop tasks.
    */
-  List<CheckedConsumer<Jooby>> stopTasks();
+  List<CheckedConsumer<Registry>> stopTasks();
 
 }

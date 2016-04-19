@@ -25,11 +25,10 @@ import javax.inject.Provider;
 import org.hibernate.jpa.HibernateEntityManagerFactory;
 import org.hibernate.jpa.boot.spi.Bootstrap;
 import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
-import org.jooby.Managed;
 
 import javaslang.Lazy;
 
-public class HbmProvider implements Provider<HibernateEntityManagerFactory>, Managed {
+public class HbmProvider implements Provider<HibernateEntityManagerFactory> {
 
   private Lazy<HibernateEntityManagerFactory> emf;
 
@@ -42,15 +41,10 @@ public class HbmProvider implements Provider<HibernateEntityManagerFactory>, Man
   }
 
   @Override
-  public void start() {
-  }
-
-  @Override
   public HibernateEntityManagerFactory get() {
     return emf.get();
   }
 
-  @Override
   public void stop() {
     if (emf != null) {
       emf.get().close();

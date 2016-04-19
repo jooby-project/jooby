@@ -16,7 +16,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.jooby.Env;
-import org.jooby.Managed;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.internal.hbm.HbmProvider;
@@ -41,6 +40,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+import javaslang.control.Try.CheckedRunnable;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Hbm.class, HbmProvider.class, HbmUnitDescriptor.class, Multibinder.class,
     Route.Definition.class })
@@ -53,8 +54,8 @@ public class HbmTest {
 
   private MockUnit.Block onStop = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.managed(isA(HbmProvider.class))).andReturn(env);
-    expect(env.managed(isA(Managed.class))).andReturn(env);
+    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
   };
 
   @SuppressWarnings("unchecked")

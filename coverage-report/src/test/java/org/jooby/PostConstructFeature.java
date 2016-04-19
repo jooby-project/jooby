@@ -27,7 +27,7 @@ public class PostConstructFeature extends ServerFeature {
 
   {
 
-    managed(SingletonObject.class);
+    lifeCycle(SingletonObject.class);
 
     get("/singleton", req -> {
       return SingletonObject.started;

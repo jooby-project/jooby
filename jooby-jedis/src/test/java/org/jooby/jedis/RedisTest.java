@@ -26,6 +26,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+import javaslang.control.Try.CheckedRunnable;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -35,7 +36,8 @@ public class RedisTest {
 
   private Block onManaged = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.managed(isA(RedisProvider.class))).andReturn(env);
+    expect(env.onStart(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
   };
 
   @SuppressWarnings("unchecked")

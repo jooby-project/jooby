@@ -208,7 +208,9 @@ public class Redis implements Jooby.Module {
     URI uri = URI.create(config.getString(name));
     JedisPool pool = new JedisPool(poolConfig, uri, timeout);
 
-    env.managed(new RedisProvider(pool, uri, poolConfig));
+    RedisProvider provider = new RedisProvider(pool, uri, poolConfig);
+    env.onStart(provider::start);
+    env.onStop(provider::stop);
 
     Provider<Jedis> jedis = (Provider<Jedis>) () -> pool.getResource();
 

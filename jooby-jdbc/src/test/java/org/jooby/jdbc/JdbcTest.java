@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 
 import org.easymock.Capture;
 import org.jooby.Env;
-import org.jooby.Jooby;
+import org.jooby.Registry;
 import org.jooby.Routes;
 import org.junit.Test;
 
@@ -1059,22 +1059,22 @@ public class JdbcTest {
       }
 
       @Override
-      public Env onStop(final CheckedConsumer<Jooby> shutdownTask) {
+      public Env onStop(final CheckedConsumer<Registry> shutdownTask) {
         return this;
       }
 
       @Override
-      public List<CheckedConsumer<Jooby>> stopTasks() {
+      public List<CheckedConsumer<Registry>> stopTasks() {
         throw new UnsupportedOperationException();
       }
 
       @Override
-      public Env onStart(final CheckedConsumer<Jooby> task) {
+      public Env onStart(final CheckedConsumer<Registry> task) {
         return this;
       }
 
       @Override
-      public List<CheckedConsumer<Jooby>> startTasks() {
+      public List<CheckedConsumer<Registry>> startTasks() {
         throw new UnsupportedOperationException();
       }
 

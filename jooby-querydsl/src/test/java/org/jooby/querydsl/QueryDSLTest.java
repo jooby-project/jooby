@@ -9,7 +9,6 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.jooby.Env;
-import org.jooby.Managed;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
@@ -38,6 +37,8 @@ import com.querydsl.sql.SQLiteTemplates;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 
+import javaslang.control.Try.CheckedRunnable;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({QueryDSL.class, Configuration.class, H2Templates.class })
 public class QueryDSLTest {
@@ -63,7 +64,7 @@ public class QueryDSLTest {
 
   private MockUnit.Block managed = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.managed(isA(Managed.class))).andReturn(env);
+    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
   };
 
   @Test

@@ -10,9 +10,11 @@ documentation
 
 {{philosophy.md}}
 
-{{config.md}}
+{{app.md}}
 
 {{logging.md}}
+
+{{conf.md}}
 
 {{modules.md}}
 

@@ -33,7 +33,6 @@ import org.jooby.scope.RequestScoped;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
 
 /**
  * Give you access at the current HTTP request in order to read parameters, headers and body.
@@ -41,7 +40,7 @@ import com.google.inject.name.Names;
  * @author edgar
  * @since 0.1.0
  */
-public interface Request {
+public interface Request extends Registry {
 
   /**
    * Forwarding request.
@@ -613,49 +612,6 @@ public interface Request {
    * @throws Exception If body can't be converted or there is no HTTP body.
    */
   Mutant body() throws Exception;
-
-  /**
-   * Ask Guice for the given type.
-   *
-   * @param type A service type.
-   * @param <T> Service type.
-   * @return A ready to use object.
-   */
-  default <T> T require(final Class<T> type) {
-    return require(Key.get(type));
-  }
-
-  /**
-   * Ask Guice for the given type.
-   *
-   * @param name A service name.
-   * @param type A service type.
-   * @param <T> Service type.
-   * @return A ready to use object.
-   */
-  default <T> T require(final String name, final Class<T> type) {
-    return require(Key.get(type, Names.named(name)));
-  }
-
-  /**
-   * Ask Guice for the given type.
-   *
-   * @param type A service type.
-   * @param <T> Service type.
-   * @return A ready to use object.
-   */
-  default <T> T require(final TypeLiteral<T> type) {
-    return require(Key.get(type));
-  }
-
-  /**
-   * Ask Guice for the given type.
-   *
-   * @param key A service key.
-   * @param <T> Service type.
-   * @return A ready to use object.
-   */
-  <T> T require(Key<T> key);
 
   /**
    * The charset defined in the request body. If the request doesn't specify a character

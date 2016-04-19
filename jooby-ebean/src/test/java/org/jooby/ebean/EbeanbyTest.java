@@ -9,7 +9,6 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.jooby.Env;
-import org.jooby.Managed;
 import org.jooby.internal.ebean.EbeanEnhancer;
 import org.jooby.internal.ebean.EbeanManaged;
 import org.jooby.internal.ebean.ForwardingDataSource;
@@ -31,6 +30,8 @@ import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
+
+import javaslang.control.Try.CheckedRunnable;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Ebeanby.class, ServerConfig.class, EbeanEnhancer.class })
@@ -76,8 +77,9 @@ public class EbeanbyTest {
   private Block onStop = unit -> {
     Env env = unit.get(Env.class);
 
-    expect(env.managed(isA(EbeanManaged.class))).andReturn(env);
-    expect(env.managed(isA(Managed.class))).andReturn(env);
+    expect(env.onStart(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
   };
 
   @Test

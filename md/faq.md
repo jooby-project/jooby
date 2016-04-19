@@ -13,6 +13,8 @@
 ## what jvm do I need?
 
 * Java 8 or higher
+
+# development
  
 ## where are the default properties?
 
@@ -25,6 +27,10 @@
 ## can I use Gradle?
 
 Yes, with some limitation that are being documented [here](/doc/gradle).
+
+## how do I run code on start/stop?
+
+Documentation for [lyfeCycle]({{defdocs}}/LyfeCycle.html) events is available [here](/doc/#application-life-cycle)
 
 # mime types
 

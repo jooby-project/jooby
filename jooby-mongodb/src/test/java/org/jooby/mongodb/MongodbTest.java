@@ -27,6 +27,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+import javaslang.control.Try.CheckedRunnable;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Mongodb.class, MongodbManaged.class, MongoClient.class })
 public class MongodbTest {
@@ -85,7 +87,8 @@ public class MongodbTest {
 
   private Block onManaged = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.managed(isA(MongodbManaged.class))).andReturn(env);
+    expect(env.onStart(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
   };
 
   @Test

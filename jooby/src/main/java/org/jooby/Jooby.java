@@ -398,7 +398,7 @@ import javaslang.control.Try.CheckedRunnable;
  * @since 0.1.0
  * @see Jooby.Module
  */
-public class Jooby implements Routes, LifeCycle {
+public class Jooby implements Routes, LifeCycle, Registry {
 
   /**
    * A module can publish or produces: {@link Route.Definition routes}, {@link Parser},
@@ -581,10 +581,10 @@ public class Jooby implements Routes, LifeCycle {
   private String prefix;
 
   /** startup callback . */
-  private List<CheckedConsumer<Jooby>> onStart = new ArrayList<>();
+  private List<CheckedConsumer<Registry>> onStart = new ArrayList<>();
 
   /** stop callback . */
-  private List<CheckedConsumer<Jooby>> onStop = new ArrayList<>();
+  private List<CheckedConsumer<Registry>> onStop = new ArrayList<>();
 
   public Jooby() {
     this(null);
@@ -720,7 +720,7 @@ public class Jooby implements Routes, LifeCycle {
    * @return This instance.
    */
   @Override
-  public Jooby onStart(final CheckedConsumer<Jooby> callback) {
+  public Jooby onStart(final CheckedConsumer<Registry> callback) {
     requireNonNull(callback, "Callback is required.");
     onStart.add(callback);
     return this;
@@ -745,7 +745,7 @@ public class Jooby implements Routes, LifeCycle {
    * @return This instance.
    */
   @Override
-  public Jooby onStop(final CheckedConsumer<Jooby> callback) {
+  public Jooby onStop(final CheckedConsumer<Registry> callback) {
     requireNonNull(callback, "Callback is required.");
     onStop.add(callback);
     return this;
@@ -859,14 +859,8 @@ public class Jooby implements Routes, LifeCycle {
     return this;
   }
 
-  /**
-   * Ask Guice for the given type.
-   *
-   * @param type A service type.
-   * @param <T> Service type.
-   * @return A ready to use object.
-   */
-  public <T> T require(final Class<T> type) {
+  @Override
+  public <T> T require(final Key<T> type) {
     checkState(injector != null, "App didn't start yet");
     return injector.getInstance(type);
   }
@@ -3423,7 +3417,7 @@ public class Jooby implements Routes, LifeCycle {
     log.debug("config tree:\n{}", configTree(config.origin().description()));
 
     // start services
-    for (CheckedConsumer<Jooby> onStart : this.onStart) {
+    for (CheckedConsumer<Registry> onStart : this.onStart) {
       onStart.accept(this);
     }
 
@@ -3816,7 +3810,7 @@ public class Jooby implements Routes, LifeCycle {
   }
 
   private static void fireStop(final Injector injector, final Jooby app, final Logger log,
-      final List<CheckedConsumer<Jooby>> onStop) {
+      final List<CheckedConsumer<Registry>> onStop) {
     // stop services
     onStop.forEach(c -> {
       try {

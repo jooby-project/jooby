@@ -21,13 +21,12 @@ package org.jooby.jedis;
 import java.net.URI;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.jooby.Managed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.JedisPool;
 
-class RedisProvider implements Managed {
+class RedisProvider {
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(Redis.class);
@@ -44,8 +43,7 @@ class RedisProvider implements Managed {
     this.config = config;
   }
 
-  @Override
-  public void start() throws Exception {
+  public void start() {
     // NOOP
     log.info("Starting {}", uri);
     if (log.isDebugEnabled()) {
@@ -67,8 +65,7 @@ class RedisProvider implements Managed {
     }
   }
 
-  @Override
-  public void stop() throws Exception {
+  public void stop() {
     if (this.pool != null) {
       log.info("Stopping {}", uri);
       this.pool.destroy();
