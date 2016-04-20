@@ -91,7 +91,12 @@ public class UndertowRequest implements NativeRequest {
   public List<String> paramNames() {
     ImmutableList.Builder<String> builder = ImmutableList.<String> builder();
     builder.addAll(exchange.getQueryParameters().keySet());
-    form.forEach(builder::add);
+    form.forEach(v -> {
+      // excludes upload from param names.
+      if (!form.getFirst(v).isFile()) {
+        builder.add(v);
+      }
+    });
     return builder.build();
   }
 

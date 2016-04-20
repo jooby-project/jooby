@@ -258,6 +258,8 @@ public class NettyRequest implements NativeRequest {
           switch (field.getHttpDataType()) {
             case FileUpload:
               files.put(name, new NettyUpload((FileUpload) field, tmpdir));
+              // excludes upload from param names.
+              break;
             default:
               params.put(name, field.getString());
               break;
