@@ -69,6 +69,7 @@
                     <source>${project.parent.basedir}/jooby-querydsl/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-sitemap/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-rxjava/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-banner/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -117,6 +118,7 @@
                     <source>${project.parent.basedir}/jooby-querydsl/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-sitemap/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-rxjava/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-banner/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -468,6 +470,12 @@
           <artifactId>persistence-api</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-banner</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>

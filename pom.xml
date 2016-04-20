@@ -76,6 +76,7 @@
     <module>jooby-querydsl</module>
     <module>jooby-sitemap</module>
     <module>jooby-rxjava</module>
+    <module>jooby-banner</module>
     <module>coverage-report</module>
   </modules>
 
@@ -457,6 +458,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-rxjava</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-banner</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1128,6 +1135,13 @@
         <groupId>net.spy</groupId>
         <artifactId>spymemcached</artifactId>
         <version>${spymemcached.version}</version>
+      </dependency>
+
+      <!-- jfiglet -->
+      <dependency>
+        <groupId>com.github.lalyos</groupId>
+        <artifactId>jfiglet</artifactId>
+        <version>${jfiglet.version}</version>
       </dependency>
 
       <!-- Test dependencies -->
@@ -2249,6 +2263,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <javaslang.version>2.0.2</javaslang.version>
 
     <jsitemapgenerator.version>2.1</jsitemapgenerator.version>
+
+    <jfiglet.version>0.0.7</jfiglet.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

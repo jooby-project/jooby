@@ -2,9 +2,13 @@
 
 * [metrics](/doc/metrics): application metrics from the excellent [metrics](http://metrics.dropwizard.io) library.
 
-# mail support
+# utils
 
 * [commons-email](/doc/commons-email): Email supports via {{commons-email}}.
+
+* [hibernate validator](/doc/hbv): bean validation.
+
+* [banner](/doc/banner): prints out ascii char art at startup.
 
 # amazon web services
 
@@ -13,10 +17,6 @@
 # sitemap
 
 * [sitemap](/doc/sitemap): automatically generates ```sitemap.xml``` file.
-
-# validation
-
-* [hibernate validator](/doc/hbv): bean validation.
 
 # scheduling
 
