@@ -25,8 +25,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jooby.Asset;
 import org.jooby.Jooby;
@@ -92,7 +94,7 @@ public class AssetHandler implements Route.Handler {
 
   private boolean etag = true;
 
-  private long maxAge = -1;
+  private Optional<Duration> maxAgeOpt = Optional.empty();
 
   private boolean lastModified = true;
 
@@ -185,11 +187,20 @@ public class AssetHandler implements Route.Handler {
   }
 
   /**
+   * @param maxAge Set the cache header max-age value.
+   * @return This handler.
+   */
+  public AssetHandler maxAge(final Duration maxAge) {
+    this.maxAgeOpt = Optional.of(maxAge);
+    return this;
+  }
+
+  /**
    * @param maxAge Set the cache header max-age value in seconds.
    * @return This handler.
    */
   public AssetHandler maxAge(final long maxAge) {
-    this.maxAge = maxAge;
+    this.maxAgeOpt = Optional.of(Duration.ofSeconds(maxAge));
     return this;
   }
 
@@ -253,9 +264,9 @@ public class AssetHandler implements Route.Handler {
     }
 
     // cache max-age
-    if (maxAge > 0) {
-      rsp.header("Cache-Control", "max-age=" + maxAge);
-    }
+    maxAgeOpt.ifPresent(d -> {
+      rsp.header("Cache-Control", "max-age=" + d.getSeconds());
+    });
 
     send(req, rsp, asset);
   }

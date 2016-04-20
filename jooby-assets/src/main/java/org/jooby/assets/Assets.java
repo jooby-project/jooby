@@ -18,7 +18,8 @@
  */
 package org.jooby.assets;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+import java.util.Optional;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
@@ -266,8 +267,11 @@ public class Assets implements Jooby.Module {
           : new AssetHandler("/")
               .etag(conf.getBoolean("assets.etag"))
               .cdn(conf.getString("assets.cdn"))
-              .lastModified(conf.getBoolean("assets.lastModified"))
-              .maxAge(conf.getDuration("assets.cache.maxAge", TimeUnit.SECONDS));
+              .lastModified(conf.getBoolean("assets.lastModified"));
+
+      if (conf.hasPath("assets.cache.maxAge")) {
+        handler.maxAge(Duration.parse(conf.getString("assets.cache.maxAge")));
+      }
 
       compiler.patterns().forEach(
           pattern -> routes.addBinding()

@@ -1,5 +1,7 @@
 package org.jooby.issues;
 
+import java.time.Duration;
+
 import org.jooby.handlers.AssetHandler;
 import org.jooby.test.ServerFeature;
 
@@ -13,16 +15,16 @@ import org.junit.Test;
 public class Issue356 extends ServerFeature {
   {
     assets("/assets/file.css", new AssetHandler("/")
-      .etag(false).lastModified(false).maxAge(86400));
+      .etag(false).lastModified(false).maxAge(Duration.ofDays(1)));
 
     assets("/assets/favicon.ico", new AssetHandler("/")
-      .etag(false).lastModified(true).maxAge(1209600));
+      .etag(false).lastModified(true).maxAge(Duration.ofDays(14)));
 
     assets("/assets/file.js", new AssetHandler("/")
-      .etag(true).lastModified(false).maxAge(172800));
+      .etag(true).lastModified(false).maxAge(Duration.ofDays(2)));
 
     assets("/assets/empty.css", new AssetHandler("/")
-      .etag(true).lastModified(true).maxAge(604800));
+      .etag(true).lastModified(true).maxAge(Duration.ofDays(7)));
   }
 
   @Test
