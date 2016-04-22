@@ -285,10 +285,65 @@ public class Rx extends Exec {
     daemon(true);
   }
 
+  /**
+   * Map a rx object like {@link Observable}, {@link Single} or {@link Completable} into a
+   * {@link Deferred} object.
+   *
+   * <pre>{@code
+   * ...
+   * import org.jooby.rx.Rx;
+   * ...
+   *
+   * {
+   *   use(new Rx());
+   *
+   *   with(() -> {
+   *     get("/1", req -> Observable...);
+   *
+   *     get("/2", req -> Observable...);
+   *
+   *     ....
+   *
+   *     get("/N", req -> Observable...);
+   *
+   *   }).map(Rx.rx());
+   * }
+   * }</pre>
+   *
+   * @return A new mapper.
+   */
   public static Route.Mapper<Object> rx() {
     return rx(Optional.empty());
   }
 
+  /**
+   * Map a rx object like {@link Observable}, {@link Single} or {@link Completable} into a
+   * {@link Deferred} object.
+   *
+   * <pre>{@code
+   * ...
+   * import org.jooby.rx.Rx;
+   * ...
+   *
+   * {
+   *   use(new Rx());
+   *
+   *   with(() -> {
+   *     get("/1", req -> Observable...);
+   *
+   *     get("/2", req -> Observable...);
+   *
+   *     ....
+   *
+   *     get("/N", req -> Observable...);
+   *
+   *   }).map(Rx.rx());
+   * }
+   * }</pre>
+   *
+   * @param subscribeOn An scheduler to subscribeOn.
+   * @return A new mapper.
+   */
   public static Route.Mapper<Object> rx(final Supplier<Scheduler> subscribeOn) {
     return rx(Optional.of(subscribeOn));
   }

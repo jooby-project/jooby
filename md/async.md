@@ -4,7 +4,7 @@ In {{jooby}} all the IO operations are performed in async & non blocking fashion
 
 All IO operations run in an IO thread while application logic **always run in a worker thread**. Worker threads can block at any time.
 
-Having said that let see what tools are available for async/reactive programming.
+Having said that let see what tools are available for reactive/async programming.
 
 ## threads
 

@@ -44,10 +44,13 @@ import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
 
 /**
+ * <h1>jdbc</h1>
+ * <p>
  * Production-ready jdbc data source, powered by the
  * <a href="https://github.com/brettwooldridge/HikariCP">HikariCP</a> library.
+ * </p>
  *
- * <h1>Usage</h1>
+ * <h2>usage</h2>
  *
  * <pre>
  * import org.jooby.jdbc.Jdbc;
@@ -64,11 +67,13 @@ import com.zaxxer.hikari.HikariConfig;
  * }
  * </pre>
  *
- * <h1>db configuration</h1> Database configuration is controlled from your
- * <code>application.conf</code> file using the <code>db</code> property and friends:
- * <code>db.*</code>.
+ * <h2>db configuration</h2>
+ * <p>
+ * Database configuration is controlled from your <code>application.conf</code> file using the
+ * <code>db</code> property and friends: <code>db.*</code>.
+ * </p>
  *
- * <h2>mem db</h2>
+ * <h3>mem db</h3>
  *
  * <pre>
  *   db = mem
@@ -86,7 +91,7 @@ import com.zaxxer.hikari.HikariConfig;
  *
  * Mem db is useful for dev environment and/or transient data that can be regenerated.
  *
- * <h2>fs db</h2>
+ * <h3>fs db</h3>
  *
  * <pre>
  *   db = fs
@@ -99,7 +104,10 @@ import com.zaxxer.hikari.HikariConfig;
  * regenerated. Keep in mind this db is saved in a tmp directory and db will be deleted it
  * on restarts.
  *
- * <h2>db.url</h2> Connect to a database using a jdbc url, some examples here:
+ * <h3>db.url</h3>
+ * <p>
+ * Connect to a database using a jdbc url, some examples here:
+ * </p>
  *
  * <pre>
  *   # mysql
@@ -111,7 +119,7 @@ import com.zaxxer.hikari.HikariConfig;
  * Previous example, show you how to connect to <strong>mysql</strong>, setting user and password.
  * But of course you need the jdbc driver on your <code>pom.xml</code>:
  *
- * <h2>hikari configuration</h2>
+ * <h3>hikari configuration</h3>
  * <p>
  * If you need to configure or tweak the <a
  * href="https://github.com/brettwooldridge/HikariCP">hikari pool</a> just add <code>hikari.*</code>
@@ -149,7 +157,7 @@ import com.zaxxer.hikari.HikariConfig;
  * </pre>
  *
  * <p>
- * application.conf
+ * application.conf:
  * </p>
  *
  * <pre>

@@ -93,7 +93,7 @@ public class jOOQTest {
     expect(binder.bind(Key.get(DSLContext.class, Names.named("db")))).andReturn(abbC);
   };
 
-  private MockUnit.Block managed = unit -> {
+  private MockUnit.Block onStop = unit -> {
     Env env = unit.get(Env.class);
     expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
   };
@@ -104,7 +104,7 @@ public class jOOQTest {
         .expect(jdbc)
         .expect(configuration)
         .expect(ctx)
-        .expect(managed)
+        .expect(onStop)
         .run(unit -> {
           new jOOQ()
               .configure(unit.get(Env.class), config(), unit.get(Binder.class));
@@ -117,7 +117,7 @@ public class jOOQTest {
         .expect(jdbc)
         .expect(configuration)
         .expect(ctx)
-        .expect(managed)
+        .expect(onStop)
         .run(unit -> {
           new jOOQ()
               .doWith(c -> assertEquals(unit.get(Configuration.class), c))

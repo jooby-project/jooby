@@ -61,6 +61,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -342,7 +343,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private void handleErr(final RequestImpl req, final ResponseImpl rsp, final Throwable ex) {
     try {
-      log.debug("execution of: " + req.method() + req.path() + " resulted in exception", ex);
+      log.debug("execution of: {}{} resulted in exception", req.method(), req.path(), ex);
 
       rsp.reset();
 
@@ -361,7 +362,8 @@ public class HttpHandlerImpl implements HttpHandler {
         next.handle(req, rsp, err);
       }
     } catch (Throwable errex) {
-      log.error("execution of err handler resulted in exception", errex);
+      log.error("execution of: {}{} resulted in exception\n{}Caused by:",
+          req.method(), req.path(), Throwables.getStackTraceAsString(errex), ex);
     }
   }
 

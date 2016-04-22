@@ -54,7 +54,10 @@ class HikariDataSourceProvider implements Provider<DataSource> {
   }
 
   public void stop() {
-    dataSource.get().close();
+    HikariDataSource ds = dataSource.get();
+    if (!ds.isClosed()) {
+      ds.close();
+    }
   }
 
   @Override

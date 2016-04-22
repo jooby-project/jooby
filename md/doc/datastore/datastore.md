@@ -26,6 +26,8 @@ The [jdbc](/doc/jdbc) module provides a high performance connection pool for jdb
 
 * [querydsl-jpa](/doc/querydsl-jpa): unified Queries for JPA. [Querydsl](http://www.querydsl.com/) is compact, safe and easy to learn.
 
+* [rxjdbc](/doc/rxjava-jdbc): efficient execution, concise code, and functional composition of database calls using JDBC and RxJava Observable
+
 ## migrations
 
 * [flyway](/doc/flyway): provides database migrations via {{flyway}}.

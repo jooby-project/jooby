@@ -76,6 +76,7 @@
     <module>jooby-querydsl</module>
     <module>jooby-sitemap</module>
     <module>jooby-rxjava</module>
+    <module>jooby-rxjava-jdbc</module>
     <module>jooby-banner</module>
     <module>coverage-report</module>
   </modules>
@@ -464,6 +465,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-banner</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-rxjava-jdbc</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1066,6 +1073,25 @@
         <groupId>io.dropwizard.metrics</groupId>
         <artifactId>metrics-jvm</artifactId>
         <version>${metrics.version}</version>
+      </dependency>
+
+      <!-- rxjava-jdbc -->
+      <dependency>
+        <groupId>io.reactivex</groupId>
+        <artifactId>rxjava-string</artifactId>
+        <version>${rxjava-string.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.reactivex</groupId>
+        <artifactId>rxjava-math</artifactId>
+        <version>${rxjava-math.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.davidmoten</groupId>
+        <artifactId>rxjava-jdbc</artifactId>
+        <version>${rxjava-jdbc.version}</version>
       </dependency>
 
       <!-- Maven -->
@@ -2248,6 +2274,9 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jade4j.version>1.1.4</jade4j.version>
     <jsoup.version>1.8.3</jsoup.version>
     <rxjava.version>1.1.3</rxjava.version>
+    <rxjava-string.version>1.1.0</rxjava-string.version>
+    <rxjava-math.version>1.0.0</rxjava-math.version>
+    <rxjava-jdbc.version>0.7</rxjava-jdbc.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>

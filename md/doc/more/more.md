@@ -18,7 +18,7 @@
 
 * [sitemap](/doc/sitemap): automatically generates ```sitemap.xml``` file.
 
-# scheduling
+# job scheduling
 
 * [quartz](/doc/quartz): advanced job scheduling via {{quartz}}.
 
