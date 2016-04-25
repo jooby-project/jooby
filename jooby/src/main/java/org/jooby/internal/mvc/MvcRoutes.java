@@ -82,7 +82,7 @@ public class MvcRoutes {
     String[] rootExcludes = excludes(routeClass, EMPTY);
 
     Map<Method, List<Class<?>>> methods = new HashMap<>();
-    for (Method method : routeClass.getDeclaredMethods()) {
+    for (Method method : routeClass.getMethods()) {
       List<Class<?>> annotations = new ArrayList<>();
       for (Class annotationType : VERBS) {
         Annotation annotation = method.getAnnotation(annotationType);
