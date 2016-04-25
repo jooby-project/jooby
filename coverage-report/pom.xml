@@ -71,6 +71,7 @@
                     <source>${project.parent.basedir}/jooby-rxjava/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-banner/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-rxjava-jdbc/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-reactor/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -121,6 +122,7 @@
                     <source>${project.parent.basedir}/jooby-rxjava/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-banner/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-rxjava-jdbc/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-reactor/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -483,6 +485,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-banner</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-reactor</artifactId>
       <version>${project.version}</version>
     </dependency>
 

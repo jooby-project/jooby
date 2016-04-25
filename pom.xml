@@ -78,6 +78,7 @@
     <module>jooby-rxjava</module>
     <module>jooby-rxjava-jdbc</module>
     <module>jooby-banner</module>
+    <module>jooby-reactor</module>
     <module>coverage-report</module>
   </modules>
 
@@ -471,6 +472,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-rxjava-jdbc</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-reactor</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1092,6 +1099,12 @@
         <groupId>com.github.davidmoten</groupId>
         <artifactId>rxjava-jdbc</artifactId>
         <version>${rxjava-jdbc.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.projectreactor</groupId>
+        <artifactId>reactor-core</artifactId>
+        <version>${reactor.version}</version>
       </dependency>
 
       <!-- Maven -->
@@ -2277,6 +2290,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <rxjava-string.version>1.1.0</rxjava-string.version>
     <rxjava-math.version>1.0.0</rxjava-math.version>
     <rxjava-jdbc.version>0.7</rxjava-jdbc.version>
+    <reactor.version>2.5.0.M3</reactor.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>
