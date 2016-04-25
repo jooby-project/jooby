@@ -3848,7 +3848,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
       moduleStack = moduleStack.withFallback(module);
     }
 
-    String env = Arrays.asList(system, source).stream()
+    String env = Arrays.asList(system, args, source).stream()
         .filter(it -> it.hasPath("application.env"))
         .findFirst()
         .map(c -> c.getString("application.env"))
