@@ -21,7 +21,6 @@ package org.jooby.internal.mvc;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -82,7 +81,7 @@ public class MvcRoutes {
     String[] rootExcludes = excludes(routeClass, EMPTY);
 
     Map<Method, List<Class<?>>> methods = new HashMap<>();
-    for (Method method : routeClass.getDeclaredMethods()) {
+    for (Method method : routeClass.getMethods()) {
       List<Class<?>> annotations = new ArrayList<>();
       for (Class annotationType : VERBS) {
         Annotation annotation = method.getAnnotation(annotationType);
@@ -91,9 +90,6 @@ public class MvcRoutes {
         }
       }
       if (annotations.size() > 0) {
-        if (!Modifier.isPublic(method.getModifiers())) {
-          throw new IllegalArgumentException("Not a public method: " + method);
-        }
         methods.put(method, annotations);
       }
     }

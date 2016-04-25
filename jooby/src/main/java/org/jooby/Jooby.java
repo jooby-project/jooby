@@ -3473,8 +3473,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   private static List<Object> normalize(final List<Object> services, final Env env,
-      final RouteMetadata classInfo,
-      final String prefix) {
+      final RouteMetadata classInfo, final String prefix) {
     List<Object> result = new ArrayList<>();
     List<Object> snapshot = services;
     /** modules, routes, parsers, renderers and websockets */
