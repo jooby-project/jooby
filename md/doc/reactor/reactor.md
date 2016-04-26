@@ -15,7 +15,7 @@
 ## exports
 
 * map route operator that converts ```Flux``` and ```Mono``` into [Deferred API]({{defdocs}}/Deferred.html).
-* set a default server thread pool with the number of available processors. 
+* set a default server thread pool with the number of available processors.
 
 ## usage
 
@@ -26,7 +26,7 @@ import org.jooby.reactor.Reactor;
 {
   use(new Reactor());
 
-  get("/", req -> Flux.just("reactive programming in jooby!"))
+  get("/", () -> Flux.just("reactive programming in jooby!"))
      .map(Reactor.reactor());
 }
 ```
@@ -76,7 +76,7 @@ import org.jooby.reactor.Reactor;
 }
 ```
 
-This is better than written N routes using the [Deferred API]({{defdocs}}/Deferred.html) route by route... but still there is one more option to help you (and your fingers) to right less code:
+This is better than written N routes using the [Deferred API]({{defdocs}}/Deferred.html)... but still there is one more option to help you (and your fingers) to right less code:
 
 ```java
 ...
@@ -86,10 +86,10 @@ import org.jooby.reactor.Reactor;
   use(new Reactor());
 
   with(() -> {
-    get("/1", req -> Observable...);
-    get("/2", req -> Observable...);
+    get("/1", () -> Observable...);
+    get("/2", () -> Observable...);
     ....
-    get("/N", req -> Observable...);
+    get("/N", () -> Observable...);
   }).map(Reactor.reactor());
 
 }
@@ -112,10 +112,10 @@ import org.jooby.reactor.Reactor;
 
   with(() -> {
 
-    get("/1", req -> Observable...);
-    get("/2", req -> Observable...);
+    get("/1", () -> Observable...);
+    get("/2", () -> Observable...);
     ....
-    get("/N", req -> Observable...);
+    get("/N", () -> Observable...);
   }).map(Reactor.reactor(Computations::concurrent));
 
 }

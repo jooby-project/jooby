@@ -1,6 +1,6 @@
 {{async.md}}
 
-# reactive & async modules
+# modules
 
 ## akka
 
@@ -10,9 +10,11 @@
 
 * [executor](/doc/executor): async processing via Java ```Executors```
 
-## reactive
+## reactor
 
 * [reactor](/doc/reactor): build reactive web applications via <a href="http://projectreactor.io">reactor</a>
+
+## rxjava
 
 * [rx](/doc/rxjava): build reactive web applications via <a href="https://github.com/ReactiveX/RxJava">rxjava</a>
 
