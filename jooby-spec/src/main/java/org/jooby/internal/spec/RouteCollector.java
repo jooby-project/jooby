@@ -146,7 +146,14 @@ public class RouteCollector extends VoidVisitorAdapter<Context> {
     this.nodes.addAll(result);
   }
 
+  @SuppressWarnings("rawtypes")
   private void mvcRoutes(final Node n, final Type type, final Context ctx) {
+    if (type instanceof Class) {
+      Class sclass = ((Class) type).getSuperclass();
+      if (sclass != Object.class) {
+        mvcRoutes(n, sclass, ctx);
+      }
+    }
     List<Map.Entry<Object, Node>> result = ctx.parse(type)
         .map(unit -> new RouteCollector(false, owners).accept(unit, ctx))
         .orElse(Collections.emptyList());

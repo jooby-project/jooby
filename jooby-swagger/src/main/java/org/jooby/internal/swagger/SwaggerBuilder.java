@@ -124,10 +124,11 @@ public class SwaggerBuilder {
         if (tag == null) {
           tag = new Tag();
           tag.name(tagname);
-          route.summary().ifPresent(tag::description);
           tags.put(tagname, tag);
           swagger.addTag(tag);
         }
+        // tag summary
+        route.summary().ifPresent(tag::description);
 
         /**
          * Path
@@ -145,8 +146,9 @@ public class SwaggerBuilder {
         op.addTag(tag.getName());
 
         /**
-         * Doc and summary
+         * Doc and summary: default or full
          */
+        route.name().ifPresent(n -> op.summary(n.substring(1)));
         route.doc().ifPresent(doc -> {
           String summary = Splitter.on(SENTENCE)
               .trimResults()

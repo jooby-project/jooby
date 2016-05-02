@@ -51,6 +51,7 @@ public class SwaggerFeature extends ServerFeature {
             "    \"/api/pets\" : {\n" +
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"summary\" : \"Pets.list\",\n" +
             "        \"consumes\" : [ \"*/*\" ],\n" +
             "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
@@ -71,6 +72,7 @@ public class SwaggerFeature extends ServerFeature {
             "      },\n" +
             "      \"post\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"summary\" : \"Pets.create\",\n" +
             "        \"consumes\" : [ \"*/*\" ],\n" +
             "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
@@ -94,6 +96,7 @@ public class SwaggerFeature extends ServerFeature {
             "    \"/api/pets/{id}\" : {\n" +
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"summary\" : \"Pets.get\",\n" +
             "        \"consumes\" : [ \"*/*\" ],\n" +
             "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
@@ -149,6 +152,7 @@ public class SwaggerFeature extends ServerFeature {
             "    \"/api/pets\" : {\n" +
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"summary\" : \"Pets.list\",\n" +
             "        \"consumes\" : [ \"*/*\" ],\n" +
             "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
@@ -169,6 +173,7 @@ public class SwaggerFeature extends ServerFeature {
             "      },\n" +
             "      \"post\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"summary\" : \"Pets.create\",\n" +
             "        \"consumes\" : [ \"*/*\" ],\n" +
             "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
@@ -192,6 +197,7 @@ public class SwaggerFeature extends ServerFeature {
             "    \"/api/pets/{id}\" : {\n" +
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
+            "        \"summary\" : \"Pets.get\",\n" +
             "        \"consumes\" : [ \"*/*\" ],\n" +
             "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
@@ -252,6 +258,7 @@ public class SwaggerFeature extends ServerFeature {
             "    get:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      summary: \"Pets.list\"\n" +
             "      consumes:\n" +
             "      - \"*/*\"\n" +
             "      produces:\n" +
@@ -270,6 +277,7 @@ public class SwaggerFeature extends ServerFeature {
             "    post:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      summary: \"Pets.create\"\n" +
             "      consumes:\n" +
             "      - \"*/*\"\n" +
             "      produces:\n" +
@@ -289,6 +297,7 @@ public class SwaggerFeature extends ServerFeature {
             "    get:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      summary: \"Pets.get\"\n" +
             "      consumes:\n" +
             "      - \"*/*\"\n" +
             "      produces:\n" +
@@ -336,6 +345,7 @@ public class SwaggerFeature extends ServerFeature {
             "    get:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      summary: \"Pets.list\"\n" +
             "      consumes:\n" +
             "      - \"*/*\"\n" +
             "      produces:\n" +
@@ -354,6 +364,7 @@ public class SwaggerFeature extends ServerFeature {
             "    post:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      summary: \"Pets.create\"\n" +
             "      consumes:\n" +
             "      - \"*/*\"\n" +
             "      produces:\n" +
@@ -373,6 +384,7 @@ public class SwaggerFeature extends ServerFeature {
             "    get:\n" +
             "      tags:\n" +
             "      - \"pets\"\n" +
+            "      summary: \"Pets.get\"\n" +
             "      consumes:\n" +
             "      - \"*/*\"\n" +
             "      produces:\n" +
