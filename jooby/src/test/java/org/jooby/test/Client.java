@@ -72,7 +72,7 @@ public class Client extends ExternalResource {
       this.req = req;
     }
 
-    private Response execute() throws Exception {
+    public Response execute() throws Exception {
       this.rsp = executor.execute(req).returnResponse();
       return new Response(server, rsp);
     }
@@ -252,7 +252,10 @@ public class Client extends ExternalResource {
     }
 
     public Response header(final String headerName, final Callback callback) throws Exception {
-      callback.execute(rsp.getFirstHeader(headerName).getValue());
+      callback.execute(
+        Optional.ofNullable(rsp.getFirstHeader(headerName))
+          .map(Header::getValue)
+          .orElse(null));
       return this;
     }
 

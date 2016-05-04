@@ -36,7 +36,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.jooby.internal.AssetProxy;
 import org.jooby.internal.DeferredExecution;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMatcher;
@@ -1333,11 +1332,8 @@ public interface Route {
      */
     private Route asRoute(final String method, final RouteMatcher matcher,
         final List<MediaType> produces) {
-      Route.Filter filter = this.filter;
-      if (filter instanceof AssetProxy) {
-        filter = ((AssetProxy) filter).delegate();
-      }
-      return new RouteImpl(filter, this, method, matcher.path(), produces, matcher.vars(), mapper);
+      return new RouteImpl(filter, this, method, matcher.path(), produces,
+        matcher.vars(), mapper);
     }
 
   }
