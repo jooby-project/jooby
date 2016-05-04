@@ -19,7 +19,6 @@
 package org.jooby.assets;
 
 import java.time.Duration;
-import java.util.Optional;
 
 import org.jooby.Env;
 import org.jooby.Jooby;

@@ -1,14 +1,12 @@
 package org.jooby.issues;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.time.Duration;
 
 import org.jooby.handlers.AssetHandler;
 import org.jooby.test.ServerFeature;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Assert;
 import org.junit.Test;
 
