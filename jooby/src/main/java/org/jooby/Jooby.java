@@ -585,7 +585,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
   /** stop callback . */
   private List<CheckedConsumer<Registry>> onStop = new ArrayList<>();
 
-  /** Mappers .*/
+  /** Mappers . */
   @SuppressWarnings("rawtypes")
   private Mapper mapper;
 
@@ -3039,9 +3039,9 @@ public class Jooby implements Routes, LifeCycle, Registry {
     AssetHandler handler = new AssetHandler(location);
     on("*", conf -> {
       handler
-        .cdn(conf.getString("assets.cdn"))
-        .lastModified(conf.getBoolean("assets.lastModified"))
-        .etag(conf.getBoolean("assets.etag"));
+          .cdn(conf.getString("assets.cdn"))
+          .lastModified(conf.getBoolean("assets.lastModified"))
+          .etag(conf.getBoolean("assets.etag"));
     });
     return assets(path, handler);
   }
@@ -3455,6 +3455,130 @@ public class Jooby implements Routes, LifeCycle, Registry {
     this.mapper = Optional.ofNullable(this.mapper)
         .map(it -> Route.Mapper.compose(it, mapper))
         .orElse(mapper);
+    return this;
+  }
+
+  /**
+   * Bind the provided abstract type to the given implementation:
+   *
+   * <pre>
+   * {
+   *   bind(MyInterface.class, MyImplementation.class);
+   * }
+   * </pre>
+   *
+   * @param type Service interface.
+   * @param implementation Service implementation.
+   * @return This instance.
+   */
+  public <T> Jooby bind(final Class<T> type, final Class<? extends T> implementation) {
+    use((env, conf, binder) -> {
+      binder.bind(type).to(implementation);
+    });
+    return this;
+  }
+
+  /**
+   * Bind the provided abstract type to the given implementation:
+   *
+   * <pre>
+   * {
+   *   bind(MyInterface.class, MyImplementation::new);
+   * }
+   * </pre>
+   *
+   * @param type Service interface.
+   * @param implementation Service implementation.
+   * @return This instance.
+   */
+  public <T> Jooby bind(final Class<T> type, final Supplier<T> implementation) {
+    use((env, conf, binder) -> {
+      binder.bind(type).toInstance(implementation.get());
+    });
+    return this;
+  }
+
+  /**
+   * Bind the provided type:
+   *
+   * <pre>
+   * {
+   *   bind(MyInterface.class);
+   * }
+   * </pre>
+   *
+   * @param type Service interface.
+   * @return This instance.
+   */
+  public <T> Jooby bind(final Class<T> type) {
+    use((env, conf, binder) -> {
+      binder.bind(type);
+    });
+    return this;
+  }
+
+  /**
+   * Bind the provided type:
+   *
+   * <pre>
+   * {
+   *   bind(new MyService());
+   * }
+   * </pre>
+   *
+   * @param service Service.
+   * @return This instance.
+   */
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  public <T> Jooby bind(final Object service) {
+    use((env, conf, binder) -> {
+      Class type = service.getClass();
+      binder.bind(type).toInstance(service);
+    });
+    return this;
+  }
+
+  /**
+   * Bind the provided type and object that requires some type of configuration:
+   *
+   * <pre>{@code
+   * {
+   *   bind(MyService.class, conf -> new MyService(conf.getString("service.url")));
+   * }
+   * }</pre>
+   *
+   * @param type Service type.
+   * @param provider Service provider.
+   * @return This instance.
+   */
+  public <T> Jooby bind(final Class<T> type, final Function<Config, ? extends T> provider) {
+    use((env, conf, binder) -> {
+      T service = provider.apply(conf);
+      binder.bind(type).toInstance(service);
+    });
+    return this;
+  }
+
+  /**
+   * Bind the provided type and object that requires some type of configuration:
+   *
+   * <pre>{@code
+   * {
+   *   bind(conf -> new MyService(conf.getString("service.url")));
+   * }
+   * }</pre>
+   *
+   * @param type Service type.
+   * @param provider Service provider.
+   * @return This instance.
+   */
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  public <T> Jooby bind(final Function<Config, T> provider) {
+    use((env, conf, binder) -> {
+      Object service = provider.apply(conf);
+      Class type = service.getClass();
+      binder.bind(type).toInstance(service);
+    });
     return this;
   }
 
