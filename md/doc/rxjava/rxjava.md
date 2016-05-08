@@ -29,8 +29,11 @@ import org.jooby.rx.Rx;
 {
   use(new Rx());
 
-  get("/", () -> Observable.from("reactive programming in jooby!"))
-     .map(Rx.rx());
+  /** Deal with Observable, Single and others .*/ 
+  mapper(Rx.rx());
+
+  get("/", () -> Observable.from("reactive programming in jooby!"));
+
 }
 ```
 
@@ -53,56 +56,6 @@ Previous example is translated to:
 ```
 
 Translation is done with the [Rx.rx()]({{defdocs}}/rx/Rx.html#rx--) route operator. If you are a <a href="https://github.com/ReactiveX/RxJava">RxJava</a> programmer then you don't need to worry for learning a new API and semantic. The [Rx.rx()]({{defdocs}}/rx/Rx.html#rx--) route operator deal and take cares of the [Deferred API]({{defdocs}}/Deferred.html).
-
-## rx()
-
-We just learn that we are not force to learn a new API, just write <a href="https://github.com/ReactiveX/RxJava">RxJava</a> code. That's cool!
-
-But.. what if you have 10 routes? 50 routes?
-
-```java
-...
-import org.jooby.rx.Rx;
-...
-{
-  use(new Rx());
-
-  get("/1", () -> Observable...)
-     .map(Rx.rx());
-
-  get("/2", () -> Observable...)
-     .map(Rx.rx());
-  ....
-
-  get("/N", () -> Observable...)
-     .map(Rx.rx());
-}
-```
-
-This is better than written N routes using the [Deferred API]({{defdocs}}/Deferred.html)... but still there is one more option to help you (and your fingers) to right less code:
-
-```java
-...
-import org.jooby.rx.Rx;
-...
-{
-  use(new Rx());
-
-  with(() -> {
-
-    get("/1", req -> Observable...);
-    get("/2", req -> Observable...);
-    ....
-    get("/N", req -> Observable...);
-
-  }).map(Rx.rx());
-
-}
-```
-
-**Beautiful, hugh?**
-
-The [with]({{defdocs}}/Routes.html#with-java.lang.Runnable-) operator let you group any number of routes and apply common attributes and/or operator to all them!!!
 
 ## rx()+scheduler
 

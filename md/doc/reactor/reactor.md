@@ -26,8 +26,10 @@ import org.jooby.reactor.Reactor;
 {
   use(new Reactor());
 
-  get("/", () -> Flux.just("reactive programming in jooby!"))
-     .map(Reactor.reactor());
+  /** Deal with Flux & Mono. */
+  mapper(Reactor.reactor());
+
+  get("/", () -> Flux.just("reactive programming in jooby!"));
 }
 ```
 
@@ -51,53 +53,6 @@ Previous example is translated to:
 
 Translation is done with the [Reactor.reactor()]({{defdocs}}/reactor/Reactor.html#reactor--) route operator. If you are a <a href="http://projectreactor.io">reactor</a> programmer then you don't need to worry for learning a new API and semantic. The [Reactor.reactor()]({{defdocs}}/reactor/Reactor.html#reactor--) route operator deal and take cares of the [Deferred API]({{defdocs}}/Deferred.html).
 
-## reactor()
-
-We just learn that we are not force to learn a new API, just write <a href="http://projectreactor.io">reactor</a> code. That's cool!
-
-But.. what if you have 10 routes? 50 routes?
-
-```java
-...
-import org.jooby.reactor.Reactor;
-...
-{
-  use(new Reactor());
-
-  get("/1", req -> Observable...)
-     .map(Reactor.reactor());
-  
-  get("/2", req -> Observable...)
-     .map(Reactor.reactor());
-  ....
-
-  get("/N", req -> Observable...)
-     .map(Reactor.reactor());
-}
-```
-
-This is better than written N routes using the [Deferred API]({{defdocs}}/Deferred.html)... but still there is one more option to help you (and your fingers) to right less code:
-
-```java
-...
-import org.jooby.reactor.Reactor;
-...
-{
-  use(new Reactor());
-
-  with(() -> {
-    get("/1", () -> Observable...);
-    get("/2", () -> Observable...);
-    ....
-    get("/N", () -> Observable...);
-  }).map(Reactor.reactor());
-
-}
-```
-
-**Beautiful, hugh?**
-
-The [with]({{defdocs}}/Routes.html#with-java.lang.Runnable-) operator let you group any number of routes and apply common attributes and/or operator to all them!!!
 
 ## reactor()+scheduler
 
@@ -112,10 +67,10 @@ import org.jooby.reactor.Reactor;
 
   with(() -> {
 
-    get("/1", () -> Observable...);
-    get("/2", () -> Observable...);
+    get("/1", () -> Flux...);
+    get("/2", () -> Flux...);
     ....
-    get("/N", () -> Observable...);
+    get("/N", () -> Flux...);
   }).map(Reactor.reactor(Computations::concurrent));
 
 }
