@@ -23,6 +23,7 @@ import static java.util.Objects.requireNonNull;
 import java.io.Closeable;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
@@ -82,6 +83,10 @@ import com.google.inject.TypeLiteral;
  * @since 0.1.0
  */
 public interface WebSocket extends Closeable {
+
+  /** Websocket key. */
+  Key<Set<WebSocket.Definition>> KEY = Key.get(new TypeLiteral<Set<WebSocket.Definition>>() {
+  });
 
   /**
    * A web socket connect handler. Executed every time a new client connect to the socket.

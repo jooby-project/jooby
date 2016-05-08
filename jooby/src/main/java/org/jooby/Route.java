@@ -273,6 +273,14 @@ public interface Route {
    */
   interface Mapper<T> {
 
+     @SuppressWarnings({"rawtypes", "unchecked" })
+    static Mapper<Object> compose(final Mapper it, final Mapper next) {
+      return v -> {
+        Object m = it.map(v);
+        return m == v ? next.map(v) : m;
+      };
+    }
+
     /**
      * Map the type to something else.
      *
@@ -1944,7 +1952,7 @@ public interface Route {
     }
   }
 
-  /** Renderer key. */
+  /** Route key. */
   Key<Set<Route.Definition>> KEY = Key.get(new TypeLiteral<Set<Route.Definition>>() {
   });
 

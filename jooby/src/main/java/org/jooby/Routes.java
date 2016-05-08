@@ -20,6 +20,7 @@ package org.jooby;
 
 import java.util.Optional;
 
+import org.jooby.Route.Mapper;
 import org.jooby.handlers.AssetHandler;
 
 /**
@@ -2449,4 +2450,24 @@ public interface Routes {
    */
   Route.Collection with(Runnable callback);
 
+  /**
+   * Apply the mapper to all the functional routes.
+   *
+   * <pre>{@code
+   * {
+   *   mapper(Rx.rx());
+   *
+   *   mapper(Reactor.reactor());
+   *
+   *   get("/rx", () -> Observable.just("reactive"));
+   *
+   *   get("/flux", () -> Flux.just("reactive"));
+   *
+   * }
+   * }</pre>
+   *
+   * @param mapper
+   * @return This instance.
+   */
+  Routes mapper(final Mapper<?> mapper);
 }

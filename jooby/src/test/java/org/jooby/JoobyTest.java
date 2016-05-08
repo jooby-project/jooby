@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.inject.Provider;
@@ -496,8 +497,6 @@ public class JoobyTest {
     Binder binder = unit.get(Binder.class);
     expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
-    AppPrinter printer = unit.mock(AppPrinter.class);
-
     ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
     expect(configOrigin.description()).andReturn("test.conf, mock.conf");
 
@@ -507,10 +506,15 @@ public class JoobyTest {
     expect(config.getBoolean("server.join")).andReturn(true);
     expect(config.origin()).andReturn(configOrigin);
 
+    unit.constructor(AppPrinter.class)
+        .args(Set.class, Set.class, Config.class)
+        .build(isA(Set.class), isA(Set.class), isA(Config.class));
+
     Injector injector = unit.mock(Injector.class);
     expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
-    expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
     expect(injector.getInstance(Config.class)).andReturn(config);
+    expect(injector.getInstance(Route.KEY)).andReturn(Collections.emptySet());
+    expect(injector.getInstance(WebSocket.KEY)).andReturn(Collections.emptySet());
 
     unit.mockStatic(Guice.class);
     expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class))).andReturn(
@@ -544,7 +548,9 @@ public class JoobyTest {
               Binder binder = unit.get(Binder.class);
               expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
-              AppPrinter printer = unit.mock(AppPrinter.class);
+              unit.constructor(AppPrinter.class)
+                  .args(Set.class, Set.class, Config.class)
+                  .build(isA(Set.class), isA(Set.class), isA(Config.class));
 
               ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
               expect(configOrigin.description()).andReturn("test.conf, mock.conf");
@@ -557,8 +563,9 @@ public class JoobyTest {
 
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
-              expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
               expect(injector.getInstance(Config.class)).andReturn(config);
+              expect(injector.getInstance(Route.KEY)).andReturn(Collections.emptySet());
+              expect(injector.getInstance(WebSocket.KEY)).andReturn(Collections.emptySet());
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.PRODUCTION), unit.capture(Module.class)))
@@ -601,7 +608,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -636,7 +643,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -677,7 +684,7 @@ public class JoobyTest {
           app.start();
           app.stop();
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -714,7 +721,7 @@ public class JoobyTest {
             assertNotNull(routes);
           });
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -767,7 +774,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -829,8 +836,6 @@ public class JoobyTest {
           expect(module.config()).andReturn(config).times(2);
 
           module.configure(isA(Env.class), isA(Config.class), eq(binder));
-
-          // module.stop();
         })
         .run(unit -> {
 
@@ -844,7 +849,7 @@ public class JoobyTest {
             // we are OK
           }
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -882,7 +887,7 @@ public class JoobyTest {
 
               jooby.start();
 
-            } , boot);
+            }, boot);
   }
 
   @Test
@@ -908,7 +913,9 @@ public class JoobyTest {
               Binder binder = unit.get(Binder.class);
               expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
-              AppPrinter printer = unit.mock(AppPrinter.class);
+              unit.constructor(AppPrinter.class)
+                  .args(Set.class, Set.class, Config.class)
+                  .build(isA(Set.class), isA(Set.class), isA(Config.class));
 
               ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
               expect(configOrigin.description()).andReturn("test.conf, mock.conf");
@@ -921,8 +928,9 @@ public class JoobyTest {
 
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
-              expect(injector.getInstance(AppPrinter.class)).andReturn(printer);
               expect(injector.getInstance(Config.class)).andReturn(config);
+              expect(injector.getInstance(Route.KEY)).andReturn(Collections.emptySet());
+              expect(injector.getInstance(WebSocket.KEY)).andReturn(Collections.emptySet());
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
@@ -961,7 +969,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -1031,7 +1039,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot,
+        }, boot,
             unit -> {
               List<Route.Definition> found = unit.captured(Route.Definition.class);
               assertEquals(expected, found);
@@ -1105,7 +1113,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot,
+        }, boot,
             unit -> {
               List<Route.Definition> found = unit.captured(Route.Definition.class);
               assertEquals(expected, found);
@@ -1203,7 +1211,7 @@ public class JoobyTest {
 
               jooby.start();
 
-            } , boot,
+            }, boot,
                 unit -> {
                   List<Route.Definition> found = unit.captured(Route.Definition.class);
                   assertEquals(expected, found);
@@ -1301,7 +1309,7 @@ public class JoobyTest {
 
               jooby.start();
 
-            } , boot,
+            }, boot,
                 unit -> {
                   List<Route.Definition> found = unit.captured(Route.Definition.class);
                   assertEquals(expected, found);
@@ -1401,7 +1409,7 @@ public class JoobyTest {
 
               jooby.start();
 
-            } , boot,
+            }, boot,
                 unit -> {
                   List<Route.Definition> found = unit.captured(Route.Definition.class);
                   assertEquals(expected, found);
@@ -1499,7 +1507,7 @@ public class JoobyTest {
 
               jooby.start();
 
-            } , boot,
+            }, boot,
                 unit -> {
                   List<Route.Definition> found = unit.captured(Route.Definition.class);
                   assertEquals(expected, found);
@@ -1597,7 +1605,7 @@ public class JoobyTest {
 
               jooby.start();
 
-            } , boot,
+            }, boot,
                 unit -> {
                   List<Route.Definition> found = unit.captured(Route.Definition.class);
                   assertEquals(expected, found);
@@ -1696,7 +1704,7 @@ public class JoobyTest {
 
               jooby.start();
 
-            } , boot,
+            }, boot,
                 unit -> {
                   List<Route.Definition> found = unit.captured(Route.Definition.class);
                   assertEquals(expected, found);
@@ -1796,7 +1804,7 @@ public class JoobyTest {
 
               jooby.start();
 
-            } , boot,
+            }, boot,
                 unit -> {
                   List<Route.Definition> found = unit.captured(Route.Definition.class);
                   assertEquals(expected, found);
@@ -1894,7 +1902,7 @@ public class JoobyTest {
 
               jooby.start();
 
-            } , boot,
+            }, boot,
                 unit -> {
                   List<Route.Definition> found = unit.captured(Route.Definition.class);
                   assertEquals(expected, found);
@@ -2031,7 +2039,7 @@ public class JoobyTest {
           ((RouteImpl) route.get()).handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));
 
-        } , boot, unit -> {
+        }, boot, unit -> {
           List<Route.Definition> found = unit.captured(Route.Definition.class);
           assertEquals(expected, found);
         });
@@ -2094,7 +2102,7 @@ public class JoobyTest {
           jooby.use(ProtoTestRoute.class);
           jooby.start();
 
-        } ,
+        },
             boot,
             unit -> {
               // assert routes
@@ -2217,7 +2225,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot, unit -> {
+        }, boot, unit -> {
           assertEquals(defs, unit.captured(WebSocket.Definition.class));
         });
   }
@@ -2277,7 +2285,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot,
+        }, boot,
             unit -> {
               Definition def = unit.captured(Session.Definition.class).iterator().next();
               assertEquals(unit.get(Store.class).getClass(), def.store());
@@ -2370,7 +2378,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -2448,7 +2456,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -2495,7 +2503,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot);
+        }, boot);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -2542,7 +2550,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -2590,7 +2598,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -2627,7 +2635,7 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot);
+        }, boot);
   }
 
   @Test
@@ -2678,6 +2686,6 @@ public class JoobyTest {
 
           jooby.start();
 
-        } , boot);
+        }, boot);
   }
 }

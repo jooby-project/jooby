@@ -26,8 +26,6 @@ import static javaslang.Predicates.instanceOf;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-
 import org.jooby.Route;
 import org.jooby.WebSocket;
 
@@ -41,7 +39,6 @@ public class AppPrinter {
 
   private String[] urls;
 
-  @Inject
   public AppPrinter(final Set<Route.Definition> routes,
       final Set<WebSocket.Definition> sockets,
       final Config conf) {

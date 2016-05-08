@@ -585,6 +585,10 @@ public class Jooby implements Routes, LifeCycle, Registry {
   /** stop callback . */
   private List<CheckedConsumer<Registry>> onStop = new ArrayList<>();
 
+  /** Mappers .*/
+  @SuppressWarnings("rawtypes")
+  private Mapper mapper;
+
   public Jooby() {
     this(null);
   }
@@ -3401,6 +3405,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
   public void start(final String[] args, final Consumer<List<Route.Definition>> routes)
       throws Throwable {
     long start = System.currentTimeMillis();
+
     // shutdown hook
     Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
 
@@ -3408,14 +3413,21 @@ public class Jooby implements Routes, LifeCycle, Registry {
 
     started.set(true);
 
-    Config config = injector.getInstance(Config.class);
+    Config conf = injector.getInstance(Config.class);
 
     Logger log = LoggerFactory.getLogger(getClass());
-    log.debug("config tree:\n{}", configTree(config.origin().description()));
+    log.debug("config tree:\n{}", configTree(conf.origin().description()));
 
     // start services
     for (CheckedConsumer<Registry> onStart : this.onStart) {
       onStart.accept(this);
+    }
+
+    // route mapper
+    Set<Route.Definition> routeDefs = injector.getInstance(Route.KEY);
+    Set<WebSocket.Definition> sockets = injector.getInstance(WebSocket.KEY);
+    if (mapper != null) {
+      routeDefs.forEach(it -> it.map(mapper));
     }
 
     // Start server
@@ -3426,15 +3438,24 @@ public class Jooby implements Routes, LifeCycle, Registry {
     long end = System.currentTimeMillis();
 
     log.info("[{}@{}]: Server started in {}ms\n\n{}\n",
-        config.getString("application.env"),
+        conf.getString("application.env"),
         serverName,
         end - start,
-        injector.getInstance(AppPrinter.class));
+        new AppPrinter(routeDefs, sockets, conf));
 
-    boolean join = config.hasPath("server.join") ? config.getBoolean("server.join") : true;
+    boolean join = conf.hasPath("server.join") ? conf.getBoolean("server.join") : true;
     if (join) {
       server.join();
     }
+  }
+
+  @Override
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  public Jooby mapper(final Mapper mapper) {
+    this.mapper = Optional.ofNullable(this.mapper)
+        .map(it -> Route.Mapper.compose(it, mapper))
+        .orElse(mapper);
+    return this;
   }
 
   /**
