@@ -3469,6 +3469,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    *
    * @param type Service interface.
    * @param implementation Service implementation.
+   * @param <T> Service type.
    * @return This instance.
    */
   public <T> Jooby bind(final Class<T> type, final Class<? extends T> implementation) {
@@ -3489,6 +3490,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    *
    * @param type Service interface.
    * @param implementation Service implementation.
+   * @param <T> Service type.
    * @return This instance.
    */
   public <T> Jooby bind(final Class<T> type, final Supplier<T> implementation) {
@@ -3508,6 +3510,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * </pre>
    *
    * @param type Service interface.
+   * @param <T> Service type.
    * @return This instance.
    */
   public <T> Jooby bind(final Class<T> type) {
@@ -3530,7 +3533,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * @return This instance.
    */
   @SuppressWarnings({"rawtypes", "unchecked" })
-  public <T> Jooby bind(final Object service) {
+  public Jooby bind(final Object service) {
     use((env, conf, binder) -> {
       Class type = service.getClass();
       binder.bind(type).toInstance(service);
@@ -3549,6 +3552,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    *
    * @param type Service type.
    * @param provider Service provider.
+   * @param <T> Service type.
    * @return This instance.
    */
   public <T> Jooby bind(final Class<T> type, final Function<Config, ? extends T> provider) {
@@ -3568,8 +3572,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * }
    * }</pre>
    *
-   * @param type Service type.
    * @param provider Service provider.
+   * @param <T> Service type.
    * @return This instance.
    */
   @SuppressWarnings({"unchecked", "rawtypes" })

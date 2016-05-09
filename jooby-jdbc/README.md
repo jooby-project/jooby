@@ -12,7 +12,7 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>1.0.0.CR2</version>
+  <version>1.0.0.CR3</version>
 </dependency>
 ```
 

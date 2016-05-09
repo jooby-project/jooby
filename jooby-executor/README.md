@@ -12,7 +12,7 @@ Manage the life cycle of {@link ExecutorService} and build async apps, schedule 
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-executor</artifactId>
- <version>1.0.0.CR2</version>
+ <version>1.0.0.CR3</version>
 </dependency>
 ```
 

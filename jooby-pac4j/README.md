@@ -15,7 +15,7 @@ Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>1.0.0.CR2</version>
+  <version>1.0.0.CR3</version>
 </dependency>
 ```
 

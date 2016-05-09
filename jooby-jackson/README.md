@@ -14,7 +14,7 @@ JSON support from the excellent [Jackson](https://github.com/FasterXML/jackson) 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>1.0.0.CR2</version>
+  <version>1.0.0.CR3</version>
 </dependency>
 ```
 
