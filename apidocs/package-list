@@ -2,6 +2,7 @@ org.jooby
 org.jooby.akka
 org.jooby.assets
 org.jooby.aws
+org.jooby.banner
 org.jooby.camel
 org.jooby.ebean
 org.jooby.ehcache
@@ -34,6 +35,8 @@ org.jooby.pebble
 org.jooby.quartz
 org.jooby.querydsl
 org.jooby.raml
+org.jooby.reactor
+org.jooby.rx
 org.jooby.scope
 org.jooby.servlet
 org.jooby.sitemap

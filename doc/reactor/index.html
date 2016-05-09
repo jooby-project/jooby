@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: reactor module</title> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, reactor"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby: reactor module"> 
+  <meta name="og:description" content="Reactor is a second-generation Reactive library for building non-blocking applications on the JVM based on the Reactive Streams Specification"> 
+  <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    --> 
+  <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby: reactor module"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:title" content="jooby: reactor module"> 
+  <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    --> 
+  <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg"> 
+  <meta name="twitter:site" content="@joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="Reactor is a second-generation Reactive library for building non-blocking applications on the JVM based on the Reactive Streams Specification"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <link rel="stylesheet" href="/resources/styles/github.css"> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
+      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
+   </div> 
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>reactor</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open">
+      reactor
+     </div> 
+     <ul> 
+      <li class="active"> <a href="#reactor">reactor</a>
+       <ul> 
+        <li> <a href="#reactor-dependency">dependency</a></li> 
+        <li> <a href="#reactor-exports">exports</a></li> 
+        <li> <a href="#reactor-usage">usage</a></li> 
+        <li> <a href="#reactor-how-it-works-">how it works?</a></li> 
+        <li> <a href="#reactor-reactor-scheduler">reactor()+scheduler</a></li>
+       </ul></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+     <div class="datalist" id="reactor"> 
+      <div class="datalist-title active"> 
+       <h2>reactor</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p><a href="http://projectreactor.io" target="_blank">Reactor</a> is a second-generation Reactive library for building non-blocking applications on the JVM based on the <a href="http://www.reactive-streams.org" target="_blank">Reactive Streams Specification</a></p> 
+       <h3 id="reactor-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-reactor<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0.CR3<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
+       <h3 id="reactor-exports">exports</h3> 
+       <ul> 
+        <li>map route operator that converts <code class="highlighter-rouge codehilite">Flux</code> and <code class="highlighter-rouge codehilite">Mono</code> into <a href="/apidocs/org/jooby/Deferred.html" target="_blank">Deferred API</a>.</li> 
+        <li>set a default server thread pool with the number of available processors.</li> 
+       </ul> 
+       <h3 id="reactor-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">...</span>
+<span class="kn">import</span> <span class="nn">org.jooby.reactor.Reactor</span><span class="o">;</span>
+<span class="o">...</span>
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Reactor</span><span class="o">());</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">* Deal with Flux &amp; Mono. </span>
+   <span class="cm">*/</span>
+  <span class="n">mapper</span><span class="o">(</span><span class="n">Reactor</span><span class="o">.</span><span class="na">reactor</span><span class="o">());</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">Flux</span><span class="o">.</span><span class="na">just</span><span class="o">(</span><span class="s">"reactive programming in jooby!"</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="reactor-how-it-works-">how it works?</h3> 
+       <p>Previous example is translated to:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Reactor</span><span class="o">());</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="k">new</span> <span class="n">Deferred</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
+     <span class="n">Flux</span><span class="o">.</span><span class="na">just</span><span class="o">(</span><span class="s">"reactive programming in jooby!"</span><span class="o">)</span>
+       <span class="o">.</span><span class="na">consume</span><span class="o">(</span><span class="nl">deferred:</span><span class="o">:</span><span class="n">resolve</span><span class="o">,</span> <span class="nl">deferred:</span><span class="o">:</span><span class="n">reject</span><span class="o">);</span>
+   <span class="o">});</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Translation is done with the <a href="/apidocs/org/jooby/reactor/Reactor.html#reactor--" target="_blank">Reactor.reactor()</a> route operator. If you are a <a href="http://projectreactor.io" target="_blank">reactor</a> programmer then you don’t need to worry for learning a new API and semantic. The <a href="/apidocs/org/jooby/reactor/Reactor.html#reactor--" target="_blank">Reactor.reactor()</a> route operator deal and take cares of the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">Deferred API</a>.</p> 
+       <h3 id="reactor-reactor-scheduler">reactor()+scheduler</h3> 
+       <p>You can provide a <code class="highlighter-rouge codehilite">Scheduler</code> to the <a href="/apidocs/org/jooby/reactor/Reactor.html#reactor--" target="_blank">Reactor.reactor(Supplier)</a> operator:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">...</span>
+<span class="kn">import</span> <span class="nn">org.jooby.reactor.Reactor</span><span class="o">;</span>
+<span class="o">...</span>
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Reactor</span><span class="o">());</span>
+
+  <span class="n">with</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">get</span><span class="o">(</span><span class="s">"/1"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">Flux</span><span class="o">...);</span>
+    <span class="n">get</span><span class="o">(</span><span class="s">"/2"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">Flux</span><span class="o">...);</span>
+    <span class="o">....</span>
+    <span class="n">get</span><span class="o">(</span><span class="s">"/N"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">Flux</span><span class="o">...);</span>
+  <span class="o">}).</span><span class="na">map</span><span class="o">(</span><span class="n">Reactor</span><span class="o">.</span><span class="na">reactor</span><span class="o">(</span><span class="nl">Computations:</span><span class="o">:</span><span class="n">concurrent</span><span class="o">));</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>All the routes here will <code class="highlighter-rouge codehilite">Flux#subscribeOn(Scheduler)</code> subscribe-on the provided <code class="highlighter-rouge codehilite">Scheduler</code>.</p> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+   <!-- AddToAny BEGIN --> 
+   <div class="row share-network"> 
+    <div class="section-content"> 
+     <h3>Share</h3> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/reactor" data-a2a-title="Reactor is a second-generation Reactive library for building non-blocking applications on the JVM based on the Reactive Streams Specification"> 
+      <a class="a2a_button_twitter" data-text="Reactor is a second-generation Reactive library for building non-blocking applications on the JVM based on the Reactive Streams Specification"></a> 
+      <a class="a2a_button_reddit a2a_counter"></a> 
+      <a class="a2a_button_linkedin a2a_counter"></a> 
+      <a class="a2a_button_facebook a2a_counter"></a> 
+      <a class="a2a_button_google_plus a2a_counter"></a> 
+     </div> 
+    </div> 
+   </div> 
+   <script async src="https://static.addtoany.com/menu/page.js"></script> 
+   <!-- AddToAny END --> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left">©2014-2016 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <div class="altquimia">
+     DG 
+     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
+    </div> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>  
+ </body>
+</html>

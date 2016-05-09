@@ -105,7 +105,10 @@
       <li class=""> <a href="#modules">modules</a>
        <ul> 
         <li> <a href="#modules-akka">akka</a></li> 
-        <li> <a href="#modules-executor">executor</a></li>
+        <li> <a href="#modules-executor">executor</a></li> 
+        <li> <a href="#modules-reactor">reactor</a></li> 
+        <li> <a href="#modules-rxjava">rxjava</a></li> 
+        <li> <a href="#modules-scheduling">scheduling</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -117,7 +120,7 @@
       <div class="datalist-content"> 
        <p>In <a href="http://jooby.org">Jooby</a> all the IO operations are performed in async &amp; non blocking fashion across servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>.</p> 
        <p>All IO operations run in an IO thread while application logic <strong>always run in a worker thread</strong>. Worker threads can block at any time.</p> 
-       <p>Having said that let see what tools are available for async/reactive programming.</p> 
+       <p>Having said that let see what tools are available for reactive/async programming.</p> 
        <h3 id="async-threads">threads</h3> 
        <p>Default worker thread pool is 20/100. You can change this setup via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
        <div class="highlighter-rouge codehilite">
@@ -248,7 +251,6 @@
        <h2>modules</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Let’s see what modules are available:</p> 
        <h3 id="modules-akka">akka</h3> 
        <ul> 
         <li><a href="/doc/akka">akka</a>: build concurrent &amp; distributed applications via <a href="http://akka.io/" target="_blank">akka</a>.</li> 
@@ -256,6 +258,19 @@
        <h3 id="modules-executor">executor</h3> 
        <ul> 
         <li><a href="/doc/executor">executor</a>: async processing via Java <code class="highlighter-rouge codehilite">Executors</code></li> 
+       </ul> 
+       <h3 id="modules-reactor">reactor</h3> 
+       <ul> 
+        <li><a href="/doc/reactor">reactor</a>: build reactive web applications via <a href="http://projectreactor.io" target="_blank">reactor</a></li> 
+       </ul> 
+       <h3 id="modules-rxjava">rxjava</h3> 
+       <ul> 
+        <li> <p><a href="/doc/rxjava">rx</a>: build reactive web applications via <a href="https://github.com/ReactiveX/RxJava" target="_blank">rxjava</a></p> </li> 
+        <li> <p><a href="/doc/rxjava-jdbc">rxjdbc</a>: efficient execution, concise code, and functional composition of database calls using JDBC and RxJava Observable</p> </li> 
+       </ul> 
+       <h3 id="modules-scheduling">scheduling</h3> 
+       <ul> 
+        <li><a href="/doc/quartz">quartz</a>: advanced job scheduling via {{quartz}}.</li> 
        </ul> 
       </div> 
      </div> 
