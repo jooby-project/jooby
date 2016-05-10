@@ -22,6 +22,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -91,6 +92,8 @@ public class MvcRoutes {
       }
       if (annotations.size() > 0) {
         methods.put(method, annotations);
+      } else if (method.isAnnotationPresent(Path.class)) {
+        methods.put(method, Arrays.asList(GET.class));
       }
     }
 
