@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.jooby.Cookie;
@@ -285,8 +286,10 @@ public class RequestImpl implements Request {
 
   @Override
   public Locale locale(final BiFunction<List<LanguageRange>, List<Locale>, Locale> filter) {
-    return lang.map(h -> filter.apply(LocaleUtils.range(h), locales))
-        .orElseGet(() -> filter.apply(ImmutableList.of(), locales));
+    Supplier<Locale> def = () -> filter.apply(ImmutableList.of(), locales);
+    // don't fail on bad Accept-Language header, just fallback to default locale.
+    return lang.map(h -> Try.of(() -> filter.apply(LocaleUtils.range(h), locales)).getOrElse(def))
+        .orElseGet(def);
   }
 
   @Override

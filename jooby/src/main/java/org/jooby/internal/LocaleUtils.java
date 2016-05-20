@@ -50,7 +50,8 @@ public class LocaleUtils {
   }
 
   public static List<Locale.LanguageRange> range(final String value) {
-    List<Locale.LanguageRange> range = Locale.LanguageRange.parse(value);
+    // replace ';' by ',' well-formed vs ill-formed
+    List<Locale.LanguageRange> range = Locale.LanguageRange.parse(value.replace(';', ','));
     return range.stream()
         .sorted(Comparator.comparing(Locale.LanguageRange::getWeight).reversed())
         .collect(Collectors.toList());
