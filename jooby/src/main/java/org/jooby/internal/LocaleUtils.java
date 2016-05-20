@@ -50,8 +50,12 @@ public class LocaleUtils {
   }
 
   public static List<Locale.LanguageRange> range(final String value) {
-    // replace ';' by ',' well-formed vs ill-formed
-    List<Locale.LanguageRange> range = Locale.LanguageRange.parse(value.replace(';', ','));
+    // remove trailing ';' well-formed vs ill-formed
+    String wellformed = value;
+    if (wellformed.charAt(wellformed.length() - 1) == ';') {
+      wellformed = wellformed.substring(0, wellformed.length() - 1);
+    }
+    List<Locale.LanguageRange> range = Locale.LanguageRange.parse(wellformed);
     return range.stream()
         .sorted(Comparator.comparing(Locale.LanguageRange::getWeight).reversed())
         .collect(Collectors.toList());
