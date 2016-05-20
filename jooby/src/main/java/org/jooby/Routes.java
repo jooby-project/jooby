@@ -2470,4 +2470,13 @@ public interface Routes {
    * @return This instance.
    */
   Routes mapper(final Mapper<?> mapper);
+
+  /**
+   * Setup a route error handler. Default error handler {@link Err.DefHandler} does content
+   * negotation and this method allow to override/complement default handler.
+   *
+   * @param err A route error handler.
+   * @return This jooby instance.
+   */
+  Routes err(final Err.Handler err);
 }

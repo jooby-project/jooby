@@ -1,0 +1,52 @@
+<div class="frame-code-container{% if frames.size == 0 %} empty{% endif %}">
+  {% for frame in frames %}
+      <div class="frame-code{% if loop.index == 0 %} active{% endif %}" id="frame-code-{{loop.index}}">
+        <div class="frame-file">
+          {%if frame.open != '' %}
+            Open:
+            <a href="{{frame.open}}" class="editor-link">
+              <strong>{{frame.fileName}}</strong>
+            </a>
+          {%else%}
+            <strong>{{frame.fileName}}</strong>
+          {%endif%}
+        </div>
+        {% if frame.source != null %}
+            <style>
+             #frame-code-{{loop.index}} .linenums li:nth-child({{frame.lineNth - 1}}) {
+                 background-color: rgba(255, 100, 100, .07); 
+                 padding: 2px;
+              }
+             #frame-code-{{loop.index}} .linenums li:nth-child({{frame.lineNth}}) {
+                 background-color: rgba(255, 100, 100, .17);
+                 padding: 2px;
+              }
+             #frame-code-{{loop.index}} .linenums li:nth-child({{frame.lineNth + 1}}) {
+                 background-color: rgba(255, 100, 100, .07); 
+                 padding: 2px;
+              }
+            </style>
+            <pre class="code-block prettyprint linenums:{{frame.lineStart}}">{{frame.source}}</pre>
+        {% endif %}
+
+        {% if frame.args %}
+          <div class="frame-file">
+              Arguments
+          </div>
+          <div class="code-block frame-args prettyprint">
+              {{frame.args}}
+          </div>
+        {% endif %}
+
+        <div class="frame-comments {% if frame.comments.size == 0%}empty{%endif%}">
+          {%for comment in frame.comments %}
+            <div class="frame-comment" id="comment-{{loop.index}}">
+              <span class="frame-comment-context">{{comment.context}}</span>
+              {{comment.text}}
+            </div>
+          {%endfor%}
+        </div>
+
+      </div>
+  {%endfor%}
+</div>

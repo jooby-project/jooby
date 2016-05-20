@@ -1,0 +1,30 @@
+<div class="details">
+
+  <div class="data-table-container" id="data-tables">
+    {% for e in env %}
+      <div class="data-table" id="sg-{{e.key}}">
+        {% if e.value.size > 0 %}
+            <h2 class="details-heading">{{e.key}}</h2>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <td class="data-table-k">Key</td>
+                  <td class="data-table-v">Value</td>
+                </tr>
+              </thead>
+            {% for data in e.value %}
+              <tr>
+                <td>{{data.key}}</td>
+                <td>{{data.value}}</td>
+              </tr>
+            {%endfor%}
+            </table>
+        {%else%}
+            <h2 class="details-heading empty">{{e.key}}</h2>
+            <span class="empty">empty</span>
+        {%endif%}
+      </div>
+    {%endfor%}
+  </div>
+
+</div>

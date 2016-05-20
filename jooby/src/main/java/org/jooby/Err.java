@@ -63,8 +63,7 @@ public class Err extends RuntimeException {
       rsp.send(
           Results
               .when(MediaType.html, () -> Results.html(VIEW).put("err", ex.toMap()))
-              .when(MediaType.all, () -> ex.toMap())
-          );
+              .when(MediaType.all, () -> ex.toMap()));
     }
 
   }
@@ -83,6 +82,13 @@ public class Err extends RuntimeException {
     /**
      * Handle a route exception by probably logging the error and sending a err response to the
      * client.
+     *
+     * Please note you always get an {@link Err} whenever you throw it or not. For example if your
+     * application throws an {@link IllegalArgumentException} exception you will get an {@link Err}
+     * and you can retrieve the original exception by calling {@link Err#getCause()}.
+     *
+     * Jooby always give you an {@link Err} with an optional root cause and an associated status
+     * code.
      *
      * @param req HTTP request.
      * @param rsp HTTP response.

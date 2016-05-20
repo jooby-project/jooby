@@ -1,8 +1,6 @@
 # jooby:run
 
-Increase development productivity: run, debug, compile and auto-reload Jooby applications.
-
-A {{maven}} plugin for running, debugging and reloading your application.
+```jooby:run``` is a {{maven}} plugin for running, debugging and reloading your application.
 
 ## usage
 
@@ -34,7 +32,7 @@ The plugin bounces the application every time a change is detected on:
 
 Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled/cached it while running on ```application.env = dev```.
 
-Is it worth to mention that dynamic reload of classes is done via {{jboss-modules}}.
+It's worth to mention that dynamic reload of classes is done via {{jboss-modules}}.
 
 ## options
 
