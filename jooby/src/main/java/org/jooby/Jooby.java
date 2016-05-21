@@ -400,6 +400,54 @@ import javaslang.control.Try.CheckedRunnable;
 public class Jooby implements Routes, LifeCycle, Registry {
 
   /**
+   * <pre>{@code
+   * {
+   *   on("dev", () -> {
+   *     // run something on dev
+   *   }).orElse(() -> {
+   *     // run something on prod
+   *   });
+   * }
+   * }</pre>
+   *
+   */
+  public interface EnvPredicate {
+
+    /**
+     * <pre>{@code
+     * {
+     *   on("dev", () -> {
+     *     // run something on dev
+     *   }).orElse(() -> {
+     *     // run something on prod
+     *   });
+     * }
+     * }</pre>
+     *
+     * @param callback Env callback.
+     */
+    default void orElse(final Runnable callback) {
+      orElse(conf -> callback.run());
+    }
+
+    /**
+     * <pre>{@code
+     * {
+     *   on("dev", () -> {
+     *     // run something on dev
+     *   }).orElse(conf -> {
+     *     // run something on prod
+     *   });
+     * }
+     * }</pre>
+     *
+     * @param callback Env callback.
+     */
+    void orElse(Consumer<Config> callback);
+
+  }
+
+  /**
    * A module can publish or produces: {@link Route.Definition routes}, {@link Parser},
    * {@link Renderer}, and any other application specific service or contract of your choice.
    * <p>
@@ -765,11 +813,23 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * }
    * </pre>
    *
+   * There is an else clause which is the opposite version of the env predicate:
+   *
+   * <pre>
+   * {
+   *   on("dev", () {@literal ->} {
+   *     use(new DevModule());
+   *   }).orElse(() {@literal ->} {
+   *     use(new RealModule());
+   *   });
+   * }
+   * </pre>
+   *
    * @param env Environment where we want to run the callback.
    * @param callback An env callback.
    * @return This jooby instance.
    */
-  public Jooby on(final String env, final Runnable callback) {
+  public EnvPredicate on(final String env, final Runnable callback) {
     requireNonNull(env, "Env is required.");
     return on(envpredicate(env), callback);
   }
@@ -785,11 +845,23 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * }
    * </pre>
    *
+   * There is an else clause which is the opposite version of the env predicate:
+   *
+   * <pre>
+   * {
+   *   on("dev", conf {@literal ->} {
+   *     use(new DevModule());
+   *   }).orElse(conf {@literal ->} {
+   *     use(new RealModule());
+   *   });
+   * }
+   * </pre>
+   *
    * @param env Environment where we want to run the callback.
    * @param callback An env callback.
    * @return This jooby instance.
    */
-  public Jooby on(final String env, final Consumer<Config> callback) {
+  public EnvPredicate on(final String env, final Consumer<Config> callback) {
     requireNonNull(env, "Env is required.");
     return on(envpredicate(env), callback);
   }
@@ -805,11 +877,23 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * }
    * </pre>
    *
+   * There is an else clause which is the opposite version of the env predicate:
+   *
+   * <pre>
+   * {
+   *   on(env {@literal ->} env.equals("dev"), () {@literal ->} {
+   *     use(new DevModule());
+   *   }).orElse(() {@literal ->} {
+   *     use(new RealModule());
+   *   });
+   * }
+   * </pre>
+   *
    * @param predicate Predicate to check the environment.
    * @param callback An env callback.
    * @return This jooby instance.
    */
-  public Jooby on(final Predicate<String> predicate, final Runnable callback) {
+  public EnvPredicate on(final Predicate<String> predicate, final Runnable callback) {
     requireNonNull(predicate, "Predicate is required.");
     requireNonNull(callback, "Callback is required.");
 
@@ -821,7 +905,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    *
    * <pre>
    * {
-   *   on("dev", "test", () {@literal ->} {
+   *   on(env {@literal ->} env.equals("dev"), conf {@literal ->} {
    *     use(new DevModule());
    *   });
    * }
@@ -831,12 +915,12 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * @param callback An env callback.
    * @return This jooby instance.
    */
-  public Jooby on(final Predicate<String> predicate, final Consumer<Config> callback) {
+  public EnvPredicate on(final Predicate<String> predicate, final Consumer<Config> callback) {
     requireNonNull(predicate, "Predicate is required.");
     requireNonNull(callback, "Callback is required.");
     this.bag.add(new EnvDep(predicate, callback));
 
-    return this;
+    return otherwise -> this.bag.add(new EnvDep(predicate.negate(), otherwise));
   }
 
   /**
