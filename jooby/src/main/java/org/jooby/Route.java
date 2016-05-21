@@ -801,7 +801,7 @@ public interface Route {
   class Collection implements Props<Collection> {
 
     /** List of definitions. */
-    private Route.Props[] routes;
+    private final Route.Props[] routes;
 
     /**
      * Creates a new collection of route definitions.

@@ -1049,21 +1049,33 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   @Override
-  public Route.Definition before(final String method, final String pattern,
-      final Route.Before handler) {
-    return appendDefinition(new Route.Definition(method, pattern, handler));
+  public Route.Collection before(final String method, final String pattern,
+      final Route.Before handler, final Route.Before... chain) {
+    Route.Definition[] routes = javaslang.collection.List.of(handler)
+        .appendAll(Arrays.asList(chain))
+        .map(before -> appendDefinition(new Route.Definition(method, pattern, before)))
+        .toJavaArray(Route.Definition.class);
+    return new Route.Collection(routes);
   }
 
   @Override
-  public Route.Definition after(final String method, final String pattern,
-      final Route.After handler) {
-    return appendDefinition(new Route.Definition(method, pattern, handler));
+  public Route.Collection after(final String method, final String pattern,
+      final Route.After handler, final Route.After... chain) {
+    Route.Definition[] routes = javaslang.collection.List.of(handler)
+        .appendAll(Arrays.asList(chain))
+        .map(after -> appendDefinition(new Route.Definition(method, pattern, after)))
+        .toJavaArray(Route.Definition.class);
+    return new Route.Collection(routes);
   }
 
   @Override
-  public Route.Definition complete(final String method, final String pattern,
-      final Route.Complete handler) {
-    return appendDefinition(new Route.Definition(method, pattern, handler));
+  public Route.Collection complete(final String method, final String pattern,
+      final Route.Complete handler, final Route.Complete... chain) {
+    Route.Definition[] routes = javaslang.collection.List.of(handler)
+        .appendAll(Arrays.asList(chain))
+        .map(complete -> appendDefinition(new Route.Definition(method, pattern, complete)))
+        .toJavaArray(Route.Definition.class);
+    return new Route.Collection(routes);
   }
 
   /**
@@ -3180,6 +3192,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * @param err A route error handler.
    * @return This jooby instance.
    */
+  @Override
   public Jooby err(final Err.Handler err) {
     this.bag.add(requireNonNull(err, "An err handler is required."));
     return this;

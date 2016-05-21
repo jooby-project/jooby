@@ -1734,10 +1734,11 @@ public interface Routes {
    * </p>
    *
    * @param handler Before handler.
+   * @param chain Chain of before handler.
    * @return A new route definition.
    */
-  default Route.Definition before(final Route.Before handler) {
-    return before("*", handler);
+  default Route.Collection before(final Route.Before handler, final Route.Before... chain) {
+    return before("*", handler, chain);
   }
 
   /**
@@ -1792,10 +1793,12 @@ public interface Routes {
    *
    * @param pattern Pattern to intercept.
    * @param handler Before handler.
+   * @param chain Chain of before handler.
    * @return A new route definition.
    */
-  default Route.Definition before(final String pattern, final Route.Before handler) {
-    return before("*", pattern, handler);
+  default Route.Collection before(final String pattern, final Route.Before handler,
+      final Route.Before... chain) {
+    return before("*", pattern, handler, chain);
   }
 
   /**
@@ -1851,9 +1854,11 @@ public interface Routes {
    * @param method HTTP method to intercept.
    * @param pattern Pattern to intercept.
    * @param handler Before handler.
+   * @param chain Chain of before handler.
    * @return A new route definition.
    */
-  Route.Definition before(String method, String pattern, Route.Before handler);
+  Route.Collection before(String method, String pattern, Route.Before handler,
+      Route.Before... chain);
 
   /**
    * <h2>after</h2>
@@ -1915,10 +1920,11 @@ public interface Routes {
    * </p>
    *
    * @param handler After handler.
+   * @param chain After chain.
    * @return A new route definition.
    */
-  default Route.Definition after(final Route.After handler) {
-    return after("*", handler);
+  default Route.Collection after(final Route.After handler, final Route.After... chain) {
+    return after("*", handler, chain);
   }
 
   /**
@@ -1980,10 +1986,12 @@ public interface Routes {
    *
    * @param pattern Pattern to intercept.
    * @param handler After handler.
+   * @param chain After chain.
    * @return A new route definition.
    */
-  default Route.Definition after(final String pattern, final Route.After handler) {
-    return after("*", pattern, handler);
+  default Route.Collection after(final String pattern, final Route.After handler,
+      final Route.After... chain) {
+    return after("*", pattern, handler, chain);
   }
 
   /**
@@ -2047,9 +2055,10 @@ public interface Routes {
    * @param method HTTP method to intercept.
    * @param pattern Pattern to intercept.
    * @param handler After handler.
+   * @param chain After chain.
    * @return A new route definition.
    */
-  Route.Definition after(String method, String pattern, Route.After handler);
+  Route.Collection after(String method, String pattern, Route.After handler, Route.After... chain);
 
   /**
    * <h2>complete</h2>
@@ -2151,10 +2160,11 @@ public interface Routes {
    * }</pre>
    *
    * @param handler Complete handler.
+   * @param chain Complete chain.
    * @return A new route definition.
    */
-  default Route.Definition complete(final Route.Complete handler) {
-    return complete("*", handler);
+  default Route.Collection complete(final Route.Complete handler, final Route.Complete... chain) {
+    return complete("*", handler, chain);
   }
 
   /**
@@ -2257,11 +2267,13 @@ public interface Routes {
    * }</pre>
    *
    * @param pattern Pattern to intercept.
-   * @param handler Before handler.
+   * @param handler Complete handler.
+   * @param chain Complete chain.
    * @return A new route definition.
    */
-  default Route.Definition complete(final String pattern, final Route.Complete handler) {
-    return complete("*", pattern, handler);
+  default Route.Collection complete(final String pattern, final Route.Complete handler,
+      final Route.Complete... chain) {
+    return complete("*", pattern, handler, chain);
   }
 
   /**
@@ -2365,9 +2377,11 @@ public interface Routes {
    * @param method HTTP method to intercept.
    * @param pattern Pattern to intercept.
    * @param handler Complete handler.
+   * @param chain Complete chain.
    * @return A new route definition.
    */
-  Route.Definition complete(String method, String pattern, Route.Complete handler);
+  Route.Collection complete(String method, String pattern, Route.Complete handler,
+      Route.Complete... chain);
 
   /**
    * Append a new WebSocket handler under the given path.
