@@ -2293,7 +2293,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <pebble.version>2.2.1</pebble.version>
     <jade4j.version>1.1.4</jade4j.version>
     <jsoup.version>1.8.3</jsoup.version>
-    <rxjava.version>1.1.3</rxjava.version>
+    <rxjava.version>1.1.5</rxjava.version>
     <rxjava-string.version>1.1.0</rxjava-string.version>
     <rxjava-math.version>1.0.0</rxjava-math.version>
     <rxjava-jdbc.version>0.7</rxjava-jdbc.version>
