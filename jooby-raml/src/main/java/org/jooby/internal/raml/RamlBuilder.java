@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -57,15 +59,8 @@ public class RamlBuilder {
     private String mediaType;
 
     public Resource(final String pattern, final String mediaType) {
-      this.pattern = normalize(pattern);
+      this.pattern = pattern;
       this.mediaType = mediaType;
-    }
-
-    private String normalize(final String pattern) {
-      if (pattern.startsWith("/:")) {
-        return "/{" + pattern.substring(2) + "}";
-      }
-      return pattern;
     }
 
     List<RouteSpec> routes() {
@@ -103,7 +98,7 @@ public class RamlBuilder {
       if (deep.size() == 1) {
         routes = deep;
         List<String> snested = Splitter.on("/").trimResults().omitEmptyStrings()
-            .splitToList(deep.get(0).pattern());
+            .splitToList(normalize(deep.get(0).pattern()));
         pattern = normalize("/"
             + snested.subList(level, snested.size()).stream().collect(Collectors.joining("/")));
         children = Collections.emptySet();
@@ -215,7 +210,7 @@ public class RamlBuilder {
           statusCodes.remove(rsp.statusCode());
           statusCodes.forEach((sc, msg) -> {
             buff.append(indent(level + 3)).append(sc).append(":\n");
-            buff.append(indent(level + 4)).append("description: ").append(msg).append("\n");
+            buff.append(indent(level + 4)).append("description: ").append(Doc.parse(msg, level + 8)).append("\n");
           });
         }
       }
@@ -253,6 +248,8 @@ public class RamlBuilder {
     }
 
   }
+
+  private static final Pattern VAR = Pattern.compile("\\:((?:[^/]+)+?)");
 
   private Config conf;
 
@@ -296,10 +293,11 @@ public class RamlBuilder {
     List<Resource> result = new ArrayList<>();
     Map<String, Resource> hash = new HashMap<>();
     for (RouteSpec route : routes) {
+      String pattern = normalize(route.pattern());
       List<String> segments = Splitter.on('/')
           .trimResults()
           .omitEmptyStrings()
-          .splitToList(route.pattern());
+          .splitToList(pattern);
       String prev = "/";
       Resource root = null;
       for (int i = 0; i < segments.size(); i++) {
@@ -319,7 +317,7 @@ public class RamlBuilder {
         root = resource;
         prev = it + "/";
       }
-      hash.get(route.pattern()).routes.add(route);
+      hash.get(pattern).routes.add(route);
     }
     return result;
   }
@@ -331,4 +329,18 @@ public class RamlBuilder {
     }
     return buff.toString();
   }
+
+  private static String normalize(final String pattern) {
+    Matcher matcher = VAR.matcher(pattern);
+    StringBuilder result = new StringBuilder();
+    int end = 0;
+    while (matcher.find()) {
+      result.append(pattern, end, matcher.start());
+      result.append("{").append(matcher.group(1)).append("}");
+      end = matcher.end();
+    }
+    result.append(pattern, end, pattern.length());
+    return result.toString();
+  }
+
 }

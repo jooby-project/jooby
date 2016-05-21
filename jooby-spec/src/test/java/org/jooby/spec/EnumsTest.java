@@ -21,7 +21,10 @@ public class EnumsTest extends RouteSpecTest {
           assertEquals("GET", r.method());
           assertEquals("/", r.pattern());
 
-          params(r.params());
+          params(r.params()).next(p -> {
+            assertEquals("freq", p.name());
+            assertEquals(String.class, p.type());
+          });
 
           assertEquals(Event.Frequency.class, r.response().type());
         });

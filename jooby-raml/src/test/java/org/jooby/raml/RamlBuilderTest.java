@@ -306,7 +306,7 @@ public class RamlBuilderTest {
         "    /{id}:\n" +
         "      get:\n" +
         "      delete:\n" +
-        "  /people/:id:\n" +
+        "  /people/{id}:\n" +
         "    get:", raml);
   }
 
@@ -329,11 +329,11 @@ public class RamlBuilderTest {
         .trim();
     assertEquals("#%RAML 1.0\n" +
         "mediaType: application/json\n" +
-        "/users/:userId:\n" +
+        "/users/{userId}:\n" +
         "  uriParameters:\n" +
         "    userId:\n" +
         "      type: integer\n" +
-        "      description: The id of the user\n" +
+        "      description: 'The id of the user'\n" +
         "      required: true\n" +
         "  get:", raml);
   }
@@ -347,11 +347,11 @@ public class RamlBuilderTest {
         .trim();
     assertEquals("#%RAML 1.0\n" +
         "mediaType: application/json\n" +
-        "/users/:userId:\n" +
+        "/users/{userId}:\n" +
         "  uriParameters:\n" +
         "    userId:\n" +
         "      type: integer\n" +
-        "      description: The id of the user\n" +
+        "      description: 'The id of the user'\n" +
         "      required: true\n" +
         "  get:\n" +
         "    queryParameters:\n" +
@@ -393,9 +393,9 @@ public class RamlBuilderTest {
         "mediaType: application/json\n" +
         "/users:\n" +
         "  post:\n" +
-        "    description: |\n" +
-        "      Enters the file content for an existing song entity. \n" +
-        "       * Use the `binary/octet-stream` content type to specify the content from any consumer (excepting web-browsers).\n" +
+        "    description: |-\n" +
+        "      Enters the file content for an existing song entity. \n\n" +
+        "       * Use the `binary/octet-stream` content type to specify the content from any consumer (excepting web-browsers).\n\n" +
         "       * Use the `multipart-form/data` content type to upload a file which content will become the file-content\n" +
         "    body:\n" +
         "      application/json:\n" +
@@ -418,9 +418,9 @@ public class RamlBuilderTest {
         "mediaType: application/json\n" +
         "/users:\n" +
         "  post:\n" +
-        "    description: |\n" +
-        "      Enters the file content for an existing song entity. \n" +
-        "       * Use the `binary/octet-stream` content type to specify the content from any consumer (excepting web-browsers).\n" +
+        "    description: |-\n" +
+        "      Enters the file content for an existing song entity. \n\n" +
+        "       * Use the `binary/octet-stream` content type to specify the content from any consumer (excepting web-browsers).\n\n" +
         "       * Use the `multipart-form/data` content type to upload a file which content will become the file-content\n" +
         "    body:\n" +
         "      multipart/form-data:\n" +
@@ -452,11 +452,11 @@ public class RamlBuilderTest {
         "      age:\n" +
         "        type: integer\n" +
         "        required: false\n" +
-        "/users/:userId:\n" +
+        "/users/{userId}:\n" +
         "  uriParameters:\n" +
         "    userId:\n" +
         "      type: integer\n" +
-        "      description: The id of the user\n" +
+        "      description: 'The id of the user'\n" +
         "      required: true\n" +
         "  get:\n" +
         "    responses:\n" +
@@ -472,7 +472,7 @@ public class RamlBuilderTest {
         .build(Arrays.asList(
             route("GET", "/users/:userId", path("userId", int.class, "The id of the user"))
                 .rsp(
-                    rsp -> rsp.type(Person.class).status(200, "Success").status(404, "Not found"))))
+                    rsp -> rsp.type(Person.class).status(200, "Success").status(404, "Not found\nNextLine"))))
         .trim();
     assertEquals("#%RAML 1.0\n" +
         "mediaType: application/json\n" +
@@ -489,11 +489,11 @@ public class RamlBuilderTest {
         "      age:\n" +
         "        type: integer\n" +
         "        required: false\n" +
-        "/users/:userId:\n" +
+        "/users/{userId}:\n" +
         "  uriParameters:\n" +
         "    userId:\n" +
         "      type: integer\n" +
-        "      description: The id of the user\n" +
+        "      description: 'The id of the user'\n" +
         "      required: true\n" +
         "  get:\n" +
         "    responses:\n" +
@@ -502,7 +502,9 @@ public class RamlBuilderTest {
         "          application/json:\n" +
         "            type: Person\n" +
         "      404:\n" +
-        "        description: Not found", raml);
+        "        description: |-\n" +
+        "          Not found\n" +
+        "          NextLine", raml);
   }
 
   @Test
@@ -529,21 +531,21 @@ public class RamlBuilderTest {
         "      age:\n" +
         "        type: integer\n" +
         "        required: false\n" +
-        "/users/:userId:\n" +
+        "/users/{userId}:\n" +
         "  uriParameters:\n" +
         "    userId:\n" +
         "      type: integer\n" +
-        "      description: The id of the user\n" +
+        "      description: 'The id of the user'\n" +
         "      required: true\n" +
         "  get:\n" +
         "    responses:\n" +
         "      200:\n" +
-        "        description: Some doc\n" +
+        "        description: 'Some doc'\n" +
         "        body:\n" +
         "          application/json:\n" +
         "            type: Person[]\n" +
         "      404:\n" +
-        "        description: Not found", raml);
+        "        description: 'Not found'", raml);
   }
 
   Param path(final String name, final Type type) {

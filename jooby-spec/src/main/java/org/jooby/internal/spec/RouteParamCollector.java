@@ -78,19 +78,22 @@ public class RouteParamCollector extends VoidVisitorAdapter<Context> {
   }
 
   @Override
-  public void visit(final MethodCallExpr n, final Context ctx) {
-    List<MethodCallExpr> call = call(n);
-    if (call.size() > 0) {
-      MethodCallExpr cparam = call.get(0);
-      String cname = cparam.getName();
-      String pname = cparam.getArgs().stream()
-          .findFirst()
-          .map(it -> ((StringLiteralExpr) it).getValue())
-          .orElse(BODY);
-      Entry<Type, Object> typeDef = type(call.get(1), ctx);
-      String doc = (String) this.doc.get(pname.equals(BODY) ? "body" : pname);
-      params.add(new RouteParamImpl(pname, typeDef.getKey(), type(typeDef.getKey(), pname, cname),
-          typeDef.getValue(), doc));
+  public void visit(final MethodCallExpr node, final Context ctx) {
+    List<MethodCallExpr> nodes = dump(node);
+    for (MethodCallExpr n : nodes) {
+      List<MethodCallExpr> call = call(n);
+      if (call.size() > 0) {
+        MethodCallExpr cparam = call.get(0);
+        String cname = cparam.getName();
+        String pname = cparam.getArgs().stream()
+            .findFirst()
+            .map(it -> ((StringLiteralExpr) it).getValue())
+            .orElse(BODY);
+        Entry<Type, Object> typeDef = type(call.get(1), ctx);
+        String doc = (String) this.doc.get(pname.equals(BODY) ? "body" : pname);
+        params.add(new RouteParamImpl(pname, typeDef.getKey(), type(typeDef.getKey(), pname, cname),
+            typeDef.getValue(), doc));
+      }
     }
   }
 
@@ -207,6 +210,18 @@ public class RouteParamCollector extends VoidVisitorAdapter<Context> {
       type = Types.newParameterizedType(type, String.class);
     }
     return Maps.immutableEntry(type, defaultValue);
+  }
+
+  private List<MethodCallExpr> dump(final Node n) {
+    List<MethodCallExpr> dump = new ArrayList<>();
+    if (n instanceof MethodCallExpr) {
+      dump.add((MethodCallExpr) n);
+    }
+    List<Node> children = n.getChildrenNodes();
+    for (Node c : children) {
+      dump.addAll(dump(c));
+    }
+    return dump;
   }
 
   private List<MethodCallExpr> call(final MethodCallExpr n) {

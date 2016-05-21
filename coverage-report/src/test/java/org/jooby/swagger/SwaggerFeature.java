@@ -52,8 +52,6 @@ public class SwaggerFeature extends ServerFeature {
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
             "        \"summary\" : \"Pets.list\",\n" +
-            "        \"consumes\" : [ \"*/*\" ],\n" +
-            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"name\" : \"size\",\n" +
             "          \"in\" : \"query\",\n" +
@@ -73,8 +71,6 @@ public class SwaggerFeature extends ServerFeature {
             "      \"post\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
             "        \"summary\" : \"Pets.create\",\n" +
-            "        \"consumes\" : [ \"*/*\" ],\n" +
-            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"in\" : \"body\",\n" +
             "          \"name\" : \"pet\",\n" +
@@ -97,8 +93,6 @@ public class SwaggerFeature extends ServerFeature {
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
             "        \"summary\" : \"Pets.get\",\n" +
-            "        \"consumes\" : [ \"*/*\" ],\n" +
-            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"name\" : \"id\",\n" +
             "          \"in\" : \"path\",\n" +
@@ -153,8 +147,6 @@ public class SwaggerFeature extends ServerFeature {
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
             "        \"summary\" : \"Pets.list\",\n" +
-            "        \"consumes\" : [ \"*/*\" ],\n" +
-            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"name\" : \"size\",\n" +
             "          \"in\" : \"query\",\n" +
@@ -174,8 +166,6 @@ public class SwaggerFeature extends ServerFeature {
             "      \"post\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
             "        \"summary\" : \"Pets.create\",\n" +
-            "        \"consumes\" : [ \"*/*\" ],\n" +
-            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"in\" : \"body\",\n" +
             "          \"name\" : \"pet\",\n" +
@@ -198,8 +188,6 @@ public class SwaggerFeature extends ServerFeature {
             "      \"get\" : {\n" +
             "        \"tags\" : [ \"pets\" ],\n" +
             "        \"summary\" : \"Pets.get\",\n" +
-            "        \"consumes\" : [ \"*/*\" ],\n" +
-            "        \"produces\" : [ \"*/*\" ],\n" +
             "        \"parameters\" : [ {\n" +
             "          \"name\" : \"id\",\n" +
             "          \"in\" : \"path\",\n" +
@@ -259,10 +247,6 @@ public class SwaggerFeature extends ServerFeature {
             "      tags:\n" +
             "      - \"pets\"\n" +
             "      summary: \"Pets.list\"\n" +
-            "      consumes:\n" +
-            "      - \"*/*\"\n" +
-            "      produces:\n" +
-            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - name: \"size\"\n" +
             "        in: \"query\"\n" +
@@ -278,10 +262,6 @@ public class SwaggerFeature extends ServerFeature {
             "      tags:\n" +
             "      - \"pets\"\n" +
             "      summary: \"Pets.create\"\n" +
-            "      consumes:\n" +
-            "      - \"*/*\"\n" +
-            "      produces:\n" +
-            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - in: \"body\"\n" +
             "        name: \"pet\"\n" +
@@ -298,10 +278,6 @@ public class SwaggerFeature extends ServerFeature {
             "      tags:\n" +
             "      - \"pets\"\n" +
             "      summary: \"Pets.get\"\n" +
-            "      consumes:\n" +
-            "      - \"*/*\"\n" +
-            "      produces:\n" +
-            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - name: \"id\"\n" +
             "        in: \"path\"\n" +
@@ -346,10 +322,6 @@ public class SwaggerFeature extends ServerFeature {
             "      tags:\n" +
             "      - \"pets\"\n" +
             "      summary: \"Pets.list\"\n" +
-            "      consumes:\n" +
-            "      - \"*/*\"\n" +
-            "      produces:\n" +
-            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - name: \"size\"\n" +
             "        in: \"query\"\n" +
@@ -365,10 +337,6 @@ public class SwaggerFeature extends ServerFeature {
             "      tags:\n" +
             "      - \"pets\"\n" +
             "      summary: \"Pets.create\"\n" +
-            "      consumes:\n" +
-            "      - \"*/*\"\n" +
-            "      produces:\n" +
-            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - in: \"body\"\n" +
             "        name: \"pet\"\n" +
@@ -385,10 +353,6 @@ public class SwaggerFeature extends ServerFeature {
             "      tags:\n" +
             "      - \"pets\"\n" +
             "      summary: \"Pets.get\"\n" +
-            "      consumes:\n" +
-            "      - \"*/*\"\n" +
-            "      produces:\n" +
-            "      - \"*/*\"\n" +
             "      parameters:\n" +
             "      - name: \"id\"\n" +
             "        in: \"path\"\n" +

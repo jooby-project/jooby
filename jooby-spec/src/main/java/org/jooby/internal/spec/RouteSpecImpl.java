@@ -45,7 +45,7 @@ public class RouteSpecImpl extends SerObject implements RouteSpec {
     put("consumes", route.consumes().stream()
         .map(MediaType::name)
         .collect(Collectors.toList()));
-    put("produces", route.consumes().stream()
+    put("produces", route.produces().stream()
         .map(MediaType::name)
         .collect(Collectors.toList()));
     put("summary", summary);

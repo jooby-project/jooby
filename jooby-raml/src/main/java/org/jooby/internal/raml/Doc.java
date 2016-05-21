@@ -40,7 +40,7 @@ public class Doc {
   private static final Logger log = LoggerFactory.getLogger(Raml.class);
 
   public static String toMarkDown(final String html) {
-    Document doc = Jsoup.parseBodyFragment(html);
+    Document doc = Jsoup.parseBodyFragment(html.replace("\n", "<br>"));
     StringBuilder buff = new StringBuilder();
     recurseElement(doc.body(), buff);
     return buff.toString();
@@ -52,13 +52,13 @@ public class Doc {
         .filter(l -> l.trim().length() > 0)
         .count();
     if (count == 1) {
-      return text.trim();
+      return "'" + text.trim().replace("'", "''") + "'";
     }
     StringBuilder indent = new StringBuilder();
     for (int i = 0; i < level + 2; i++) {
       indent.append(" ");
     }
-    return "|\n" + lines.stream()
+    return "|-\n" + lines.stream()
         .map(line -> {
           if (line.trim().length() > 0) {
             return indent + line;

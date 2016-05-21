@@ -163,10 +163,10 @@ public class SwaggerBuilder {
 
         /** Consumes/Produces . */
         route.consumes().stream()
-            .filter(t -> t.equals("*/*"))
+            .filter(t -> !t.equals("*/*"))
             .forEach(type -> op.addConsumes(type));
         route.produces().stream()
-            .filter(t -> t.equals("*/*"))
+            .filter(t -> !t.equals("*/*"))
             .forEach(type -> op.addProduces(type));
 
         /**
@@ -186,7 +186,9 @@ public class SwaggerBuilder {
         int statusCode = routersp.statusCode();
         String doc = routersp.doc().orElse(statusCodes.get(statusCode));
         rsp.description(doc);
-        rsp.schema(ModelConverters.getInstance().readAsProperty(routersp.type()));
+        Type returnType = routersp.type();
+        definitions(returnType, swagger::addDefinition);
+        rsp.schema(ModelConverters.getInstance().readAsProperty(returnType));
         op.addResponse(String.valueOf(statusCode), rsp);
         // additional status codes
         statusCodes.forEach((sc, label) -> {
@@ -216,12 +218,7 @@ public class SwaggerBuilder {
     switch (param.paramType()) {
       case BODY: {
         BodyParameter bp = new BodyParameter();
-        final Map<PropertyBuilder.PropertyId, Object> args = new EnumMap<PropertyBuilder.PropertyId, Object>(
-            PropertyBuilder.PropertyId.class);
-        bp.setSchema(PropertyBuilder.toModel(PropertyBuilder.merge(property, args)));
-        for (Map.Entry<String, Model> entry : converter.readAll(type).entrySet()) {
-          definitions.accept(entry.getKey(), entry.getValue());
-        }
+        bp.setSchema(definitions(type, definitions));
         result = bp;
       }
         break;
@@ -269,6 +266,18 @@ public class SwaggerBuilder {
     result.setRequired(required);
     param.doc().ifPresent(result::setDescription);
     return result;
+  }
+
+  private Model definitions(final Type type, final BiConsumer<String, Model> definitions) {
+    ModelConverters converter = ModelConverters.getInstance();
+    final Property property = converter.readAsProperty(type);
+
+    final Map<PropertyBuilder.PropertyId, Object> args = new EnumMap<PropertyBuilder.PropertyId, Object>(
+        PropertyBuilder.PropertyId.class);
+    for (Map.Entry<String, Model> entry : converter.readAll(type).entrySet()) {
+      definitions.accept(entry.getKey(), entry.getValue());
+    }
+    return PropertyBuilder.toModel(PropertyBuilder.merge(property, args));
   }
 
   private Optional<SerializableParameter> serializable(final Parameter param) {

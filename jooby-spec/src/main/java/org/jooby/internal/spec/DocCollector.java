@@ -122,32 +122,29 @@ public class DocCollector extends VoidVisitorAdapter<Context> {
           .map(l -> l.charAt(0) == '*' ? l.substring(1).trim() : l)
           .collect(Collectors.joining("\n"));
       int at = clean.indexOf('@');
-      String text = clean;
+      String text = at == 0 ? null : (at > 0 ? clean.substring(0, at) : clean).trim();
       Map<Integer, String> codes = Collections.emptyMap();
-      if (at > 0) {
-        text = clean.substring(0, at).trim();
-        String tail = clean.substring(at);
-        // params
-        Matcher pmatcher = PARAM.matcher(tail);
-        while (pmatcher.find()) {
-          hash.put(pmatcher.group(2).trim(), pmatcher.group(3).trim());
+      String tail = clean.substring(Math.max(0, at));
+      // params
+      Matcher pmatcher = PARAM.matcher(tail);
+      while (pmatcher.find()) {
+        hash.put(pmatcher.group(2).trim(), pmatcher.group(3).trim());
+      }
+      // returns
+      String returnText = returnText(tail);
+      codes = new LinkedHashMap<>();
+      if (returnText != null) {
+        hash.put("@return", returnText);
+        Matcher cmatcher = CODE.matcher(returnText);
+        while (cmatcher.find()) {
+          Status status = Status.valueOf(Integer.parseInt(cmatcher.group(1).trim()));
+          String message = Optional.ofNullable(cmatcher.group(3)).orElse(status.reason()).trim();
+          codes.put(status.value(), message);
         }
-        // returns
-        String returnText = returnText(tail);
-        codes = new LinkedHashMap<>();
-        if (returnText != null) {
-          hash.put("@return", returnText);
-          Matcher cmatcher = CODE.matcher(returnText);
-          while (cmatcher.find()) {
-            Status status = Status.valueOf(Integer.parseInt(cmatcher.group(1).trim()));
-            String message = Optional.ofNullable(cmatcher.group(3)).orElse(status.reason()).trim();
-            codes.put(status.value(), message);
-          }
 
-          Matcher tmatcher = TYPE.matcher(returnText);
-          if (tmatcher.find()) {
-            ctx.resolveType(node, tmatcher.group(1).trim()).ifPresent(t -> hash.put("@type", t));
-          }
+        Matcher tmatcher = TYPE.matcher(returnText);
+        if (tmatcher.find()) {
+          ctx.resolveType(node, tmatcher.group(1).trim()).ifPresent(t -> hash.put("@type", t));
         }
       }
       hash.put("@statusCodes", codes);

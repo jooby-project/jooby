@@ -460,6 +460,12 @@
 
     <dependency>
       <groupId>org.jooby</groupId>
+      <artifactId>jooby-raml</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
       <artifactId>jooby-aws</artifactId>
       <version>${project.version}</version>
     </dependency>
