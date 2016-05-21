@@ -21,6 +21,7 @@ package org.jooby.internal.mvc;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.jooby.Env;
@@ -71,9 +74,17 @@ public class MvcRoutes {
       .add(Consumes.class)
       .build();
 
-  @SuppressWarnings({"unchecked", "rawtypes" })
   public static List<Route.Definition> routes(final Env env, final RouteMetadata classInfo,
       final String rpath, final Class<?> routeClass) {
+
+    // check and fail fast
+    methods(routeClass, methods -> {
+      routes(methods, (m, a) -> {
+        if (!Modifier.isPublic(m.getModifiers())) {
+          throw new IllegalArgumentException("Not a public method: " + m);
+        }
+      });
+    });
 
     RequestParamProvider provider = new RequestParamProviderImpl(
         new RequestParamNameProviderImpl(classInfo));
@@ -81,21 +92,9 @@ public class MvcRoutes {
     String[] rootPaths = path(routeClass);
     String[] rootExcludes = excludes(routeClass, EMPTY);
 
+    // we are good, now collect them
     Map<Method, List<Class<?>>> methods = new HashMap<>();
-    for (Method method : routeClass.getMethods()) {
-      List<Class<?>> annotations = new ArrayList<>();
-      for (Class annotationType : VERBS) {
-        Annotation annotation = method.getAnnotation(annotationType);
-        if (annotation != null) {
-          annotations.add(annotationType);
-        }
-      }
-      if (annotations.size() > 0) {
-        methods.put(method, annotations);
-      } else if (method.isAnnotationPresent(Path.class)) {
-        methods.put(method, Arrays.asList(GET.class));
-      }
-    }
+    routes(routeClass.getMethods(), methods::put);
 
     List<Definition> definitions = new ArrayList<>();
     Map<String, Object> attrs = attrs(routeClass.getAnnotations());
@@ -143,6 +142,32 @@ public class MvcRoutes {
         });
 
     return definitions;
+  }
+
+  private static void methods(final Class<?> clazz, final Consumer<Method[]> callback) {
+    if (clazz != Object.class) {
+      callback.accept(clazz.getDeclaredMethods());
+      methods(clazz.getSuperclass(), callback);
+    }
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  private static void routes(final Method[] methods,
+      final BiConsumer<Method, List<Class<?>>> consumer) {
+    for (Method method : methods) {
+      List<Class<?>> annotations = new ArrayList<>();
+      for (Class annotationType : VERBS) {
+        Annotation annotation = method.getAnnotation(annotationType);
+        if (annotation != null) {
+          annotations.add(annotationType);
+        }
+      }
+      if (annotations.size() > 0) {
+        consumer.accept(method, annotations);
+      } else if (method.isAnnotationPresent(Path.class)) {
+        consumer.accept(method, Arrays.asList(GET.class));
+      }
+    }
   }
 
   private static Map<String, Object> attrs(final Annotation[] annotations) {
