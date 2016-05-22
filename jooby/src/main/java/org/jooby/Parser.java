@@ -89,7 +89,7 @@ public interface Parser {
      * @return A parsed value
      * @throws Exception If something goes wrong.
      */
-    Object invoke(T data) throws Exception;
+    Object invoke(T data) throws Throwable;
 
   }
 
@@ -340,7 +340,7 @@ public interface Parser {
      * @return A parsed value.
      * @throws Exception An err with a 400 status.
      */
-    Object next() throws Exception;
+    Object next() throws Throwable;
 
     /**
      * Invoke next parser in the chain and switch/change the target type we are looking for. Useful
@@ -350,7 +350,7 @@ public interface Parser {
      * @return A parsed value.
      * @throws Exception An err with a 400 status.
      */
-    Object next(TypeLiteral<?> type) throws Exception;
+    Object next(TypeLiteral<?> type) throws Throwable;
 
     /**
      * Invoke next parser in the chain and switch/change the target type we are looking for but also
@@ -362,7 +362,7 @@ public interface Parser {
      * @return A parsed value.
      * @throws Exception An err with a 400 status.
      */
-    Object next(TypeLiteral<?> type, Object data) throws Exception;
+    Object next(TypeLiteral<?> type, Object data) throws Throwable;
 
   }
 
@@ -408,8 +408,8 @@ public interface Parser {
    * @param type Requested type.
    * @param ctx Execution context.
    * @return A parsed value.
-   * @throws Exception If conversion fails.
+   * @throws Throwable If conversion fails.
    */
-  Object parse(TypeLiteral<?> type, Context ctx) throws Exception;
+  Object parse(TypeLiteral<?> type, Context ctx) throws Throwable;
 
 }

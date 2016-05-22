@@ -43,8 +43,7 @@ public class LocalDateParser implements Parser {
   }
 
   @Override
-  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx)
-      throws Exception {
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Throwable {
     if (type.getRawType() == LocalDate.class) {
       return ctx
           .param(values -> parse(formatter, values.get(0)))

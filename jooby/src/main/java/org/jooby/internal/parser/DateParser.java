@@ -36,7 +36,7 @@ public class DateParser implements Parser {
   }
 
   @Override
-  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+  public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Throwable {
     if (type.getRawType() == Date.class) {
       return ctx
           .param(values -> parse(dateFormat, values.get(0)))
@@ -51,7 +51,7 @@ public class DateParser implements Parser {
     return "Date";
   }
 
-  private static Date parse(final String dateFormat, final String value) throws Exception {
+  private static Date parse(final String dateFormat, final String value) throws Throwable {
     try {
       return new Date(Long.parseLong(value));
     } catch (NumberFormatException ex) {

@@ -38,7 +38,7 @@ class JacksonParser implements Parser {
   }
 
   @Override
-  public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
+  public Object parse(final TypeLiteral<?> type, final Context ctx) throws Throwable {
     MediaType ctype = ctx.type();
     if (ctype.isAny()) {
       // */*

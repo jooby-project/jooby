@@ -19,7 +19,6 @@
 package org.jooby.internal.mvc;
 
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -80,8 +79,7 @@ public class RequestParam {
      */
     builder.put(TypeLiteral.get(Session.class), (req, rsp, param) -> req.session());
     builder.put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Session.class)),
-        (req, rsp, param) -> req.ifSession()
-        );
+        (req, rsp, param) -> req.ifSession());
     /**
      * Cookie
      */
@@ -90,8 +88,7 @@ public class RequestParam {
     builder.put(TypeLiteral.get(Types.listOf(Cookie.class)), (req, rsp, param) -> req.cookies());
     builder.put(TypeLiteral.get(Types.newParameterizedType(Optional.class, Cookie.class)),
         (req, rsp, param) -> req.cookies().stream()
-            .filter(c -> c.name().equalsIgnoreCase(param.name)).findFirst()
-        );
+            .filter(c -> c.name().equalsIgnoreCase(param.name)).findFirst());
     /**
      * Header
      */
@@ -122,10 +119,6 @@ public class RequestParam {
 
   private boolean optional;
 
-  public RequestParam(final Field field) {
-    this(field, field.getName(), field.getGenericType());
-  }
-
   public RequestParam(final Parameter parameter, final String name) {
     this(parameter, name, parameter.getParameterizedType());
   }
@@ -147,7 +140,7 @@ public class RequestParam {
     this.strategy = injector.getOrDefault(strategyType, param());
   }
 
-  public Object value(final Request req, final Response rsp) throws Exception {
+  public Object value(final Request req, final Response rsp) throws Throwable {
     return strategy.apply(req, rsp, this);
   }
 

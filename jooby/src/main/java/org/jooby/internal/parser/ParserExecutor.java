@@ -77,7 +77,7 @@ public class ParserExecutor {
       return (T) result;
     } catch (Err err) {
       throw err;
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       throw new Err(status, ex);
     }
   }
@@ -138,18 +138,18 @@ public class ParserExecutor {
       }
 
       @Override
-      public Object next() throws Exception {
+      public Object next() throws Throwable {
         return next(builder.toType, builder.value);
       }
 
       @Override
-      public Object next(final TypeLiteral<?> type) throws Exception {
+      public Object next(final TypeLiteral<?> type) throws Throwable {
         return next(type, builder.value);
       }
 
       @Override
       public Object next(final TypeLiteral<?> nexttype, final Object nextval)
-          throws Exception {
+          throws Throwable {
         if (cursor == parsers.size()) {
           return NOT_FOUND;
         }

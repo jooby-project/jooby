@@ -22,7 +22,7 @@ public class ParserOrder2Feature extends ServerFeature {
       Multibinder.newSetBinder(binder, Parser.class).addBinding().toInstance(new Parser() {
 
         @Override
-        public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
+        public Object parse(final TypeLiteral<?> type, final Context ctx) throws Throwable {
           return ctx.next();
         }
 
@@ -37,7 +37,7 @@ public class ParserOrder2Feature extends ServerFeature {
     parser(new Parser() {
 
       @Override
-      public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
+      public Object parse(final TypeLiteral<?> type, final Context ctx) throws Throwable {
         assertEquals(
             "[Basic, Collection, Optional, Enum, Upload, byte[], p2, p1, p3, Date, LocalDate, Locale, bean, valueOf(String), fromString(String), forName(String), init(String)]",
             ctx.toString());
@@ -54,7 +54,7 @@ public class ParserOrder2Feature extends ServerFeature {
     parser(new Parser() {
 
       @Override
-      public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
+      public Object parse(final TypeLiteral<?> type, final Context ctx) throws Throwable {
         return ctx.next();
       }
 

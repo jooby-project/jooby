@@ -67,6 +67,7 @@ public class ParserBuilder implements Parser.Builder {
     return this;
   }
 
+  @Override
   public Builder ifbody(final Callback<Parser.BodyReference> callback) {
     return body(ifcallback(callback));
   }
@@ -77,6 +78,7 @@ public class ParserBuilder implements Parser.Builder {
     return this;
   }
 
+  @Override
   public Builder ifparam(final Callback<Parser.ParamReference<String>> callback) {
     return param(ifcallback(callback));
   }
@@ -87,6 +89,7 @@ public class ParserBuilder implements Parser.Builder {
     return this;
   }
 
+  @Override
   public Builder ifparams(final Callback<Map<String, Mutant>> callback) {
     return params(ifcallback(callback));
   }
@@ -97,12 +100,13 @@ public class ParserBuilder implements Parser.Builder {
     return this;
   }
 
+  @Override
   public Builder ifupload(final Callback<Parser.ParamReference<Upload>> callback) {
     return upload(ifcallback(callback));
   }
 
   @SuppressWarnings("unchecked")
-  public Object parse() throws Exception {
+  public Object parse() throws Throwable {
     Map<TypeLiteral<?>, Callback> map = strategies.build();
     Callback callback = map.get(type);
     if (callback == null) {

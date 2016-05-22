@@ -71,7 +71,7 @@ public enum BuiltinParser implements Parser {
             .build();
 
     @Override
-    public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+    public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Throwable {
       Function<String, Object> parser = parsers.get(type.getRawType());
       if (parser != null) {
         return ctx
@@ -132,7 +132,7 @@ public enum BuiltinParser implements Parser {
     }
 
     @Override
-    public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+    public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Throwable {
       if (matches(type)) {
         return ctx.param(values -> {
           ImmutableCollection.Builder builder = parsers.get(type.getRawType()).get();
@@ -163,7 +163,7 @@ public enum BuiltinParser implements Parser {
 
     @Override
     public Object parse(final TypeLiteral<?> type, final Parser.Context ctx)
-        throws Exception {
+        throws Throwable {
       if (matches(type)) {
         TypeLiteral<?> paramType = TypeLiteral.get(((ParameterizedType) type.getType())
             .getActualTypeArguments()[0]);
@@ -190,7 +190,7 @@ public enum BuiltinParser implements Parser {
   Enum {
     @Override
     public Object parse(final TypeLiteral<?> type, final Parser.Context ctx)
-        throws Exception {
+        throws Throwable {
       Class rawType = type.getRawType();
       if (Enum.class.isAssignableFrom(rawType)) {
         return ctx
@@ -207,7 +207,7 @@ public enum BuiltinParser implements Parser {
 
   Upload {
     @Override
-    public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
+    public Object parse(final TypeLiteral<?> type, final Context ctx) throws Throwable {
       if (Upload.class == type.getRawType()) {
         return ctx.upload(uploads -> uploads.get(0));
       } else {
@@ -218,7 +218,7 @@ public enum BuiltinParser implements Parser {
 
   Bytes {
     @Override
-    public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Exception {
+    public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Throwable {
       if (type.getRawType() == byte[].class) {
         return ctx.body(body -> body.bytes());
       }

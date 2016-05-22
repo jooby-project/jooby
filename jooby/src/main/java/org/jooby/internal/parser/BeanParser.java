@@ -21,9 +21,13 @@ package org.jooby.internal.parser;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
 
 import org.jooby.Mutant;
 import org.jooby.Parser;
@@ -45,7 +49,7 @@ import com.google.inject.TypeLiteral;
 public class BeanParser implements Parser {
 
   @Override
-  public Object parse(final TypeLiteral<?> type, final Context ctx) throws Exception {
+  public Object parse(final TypeLiteral<?> type, final Context ctx) throws Throwable {
     Class<?> beanType = type.getRawType();
     if (Primitives.isWrapperType(Primitives.wrap(beanType))
         || CharSequence.class.isAssignableFrom(beanType)) {
@@ -69,17 +73,22 @@ public class BeanParser implements Parser {
   }
 
   private Object newBean(final Request req, final Response rsp,
-      final Map<String, Mutant> params, final Class<?> beanType)
-      throws Exception {
+      final Map<String, Mutant> params, final Class<?> beanType) throws Throwable {
     ParameterNameProvider classInfo = req.require(ParameterNameProvider.class);
-    Constructor<?>[] constructors = beanType.getDeclaredConstructors();
-    if (constructors.length > 1) {
+    List<Constructor<?>> constructors = Arrays.asList(beanType.getDeclaredConstructors()).stream()
+        .filter(c -> c.isAnnotationPresent(Inject.class))
+        .collect(Collectors.toList());
+    if (constructors.size() == 0) {
+      // No inject annotation, use a declared constructor
+      constructors.addAll(Arrays.asList(beanType.getDeclaredConstructors()));
+    }
+    if (constructors.size() > 1) {
       return null;
     }
     final Object bean;
-    Constructor<?> constructor = constructors[0];
-    RequestParamProvider provider =
-        new RequestParamProviderImpl(new RequestParamNameProviderImpl(classInfo));
+    Constructor<?> constructor = constructors.get(0);
+    RequestParamProvider provider = new RequestParamProviderImpl(
+        new RequestParamNameProviderImpl(classInfo));
     List<RequestParam> parameters = provider.parameters(constructor);
     Object[] args = new Object[parameters.size()];
     for (int i = 0; i < args.length; i++) {
@@ -100,9 +109,8 @@ public class BeanParser implements Parser {
         int mods = field.getModifiers();
         if (!Modifier.isFinal(mods) && !Modifier.isStatic(mods) && !Modifier.isTransient(mods)) {
           // get
-          RequestParam fparam = new RequestParam(field);
-          @SuppressWarnings("unchecked")
-          Object value = req.param(pname).to(fparam.type);
+          RequestParam fparam = new RequestParam(field, pname, field.getGenericType());
+          Object value = fparam.value(req, rsp);
 
           // set
           field.setAccessible(true);
@@ -145,8 +153,7 @@ public class BeanParser implements Parser {
     return Reflection.newProxy(beanType, (proxy, method, args) -> {
       StringBuilder name = new StringBuilder(method.getName()
           .replace("get", "")
-          .replace("is", "")
-          );
+          .replace("is", ""));
       name.setCharAt(0, Character.toLowerCase(name.charAt(0)));
       return req.param(name.toString()).to(TypeLiteral.get(method.getGenericReturnType()));
     });
