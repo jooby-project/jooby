@@ -2492,5 +2492,40 @@ public interface Routes {
    * @param err A route error handler.
    * @return This jooby instance.
    */
-  Routes err(final Err.Handler err);
+  Routes err(Err.Handler err);
+
+  /**
+   * Setup a route error handler.The error handler will be executed if the current exception is an
+   * instance of this type.
+   *
+   * @param type Exception type. The error handler will be executed if the current exception is an
+   *        instance of this type.
+   * @param handler A route error handler.
+   * @return This jooby instance.
+   */
+  default Routes err(final Class<? extends Throwable> type, final Err.Handler handler) {
+    return err((req, rsp, err) -> {
+      Throwable cause = err.getCause();
+      if (type.isInstance(cause)) {
+        handler.handle(req, rsp, err);
+      }
+    });
+  }
+
+  /**
+   * Setup a route error handler. The error handler will be executed if current status code matches
+   * the one provided.
+   *
+   * @param statusCode The status code to match.
+   * @param handler A route error handler.
+   * @return This jooby instance.
+   */
+  default Routes err(final int statusCode, final Err.Handler handler) {
+    return err((req, rsp, err) -> {
+      if (statusCode == err.statusCode()) {
+        handler.handle(req, rsp, err);
+      }
+    });
+  }
+
 }

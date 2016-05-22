@@ -63,7 +63,7 @@ HTTP status code will be set too.
 
 ## custom err handler
 
-If the default view resolution and/or err model isn't enough, you can create your own err handler.
+If the default view resolution and/or err model isn't enough, you can create your own err handler:
 
 ```java
 {
@@ -75,8 +75,47 @@ If the default view resolution and/or err model isn't enough, you can create you
 }
 ```
 
-Err handler are executed in the order they were provided (like routes, parser and renderers).
+Err handler are executed in the order they were provided (like routes, parsers and renderers).
 The first err handler that send an output wins!
+
+### catch specific exception or status code
+
+
+```java
+{
+  err(MyException1.class, (req, rsp, err) -> {
+    MyException1 cause = (MyException1) err.getCause();
+    // handle MyException1
+  });
+
+  err(MyException2.class, (req, rsp, err) -> {
+    MyException2 cause = (MyException2) err.getCause();
+    // handle MyException2
+  });
+
+  err((req, rsp, err) -> {
+    // handle any other exception
+  });
+}
+```
+
+Or you can catch exception base on their response status code (see next section):
+
+```java
+{
+  err(404, (req, rsp, err) -> {
+    // handle 404
+  });
+
+  err(503, (req, rsp, err) -> {
+    // handle 503
+  });
+
+  err((req, rsp, err) -> {
+    // handle any other exception
+  });
+}
+```
 
 ## status code
 
@@ -106,6 +145,4 @@ or add a new entry in the ```application.conf``` file:
 err.com.security.Forbidden = 403
 ```
 
-```java
-throw new Forbidden();
-```
+So, now if you throw a ```com.security.Forbidden``` exception the status code will be ```403```.
