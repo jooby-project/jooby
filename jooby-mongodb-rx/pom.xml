@@ -41,6 +41,11 @@
 
     <dependency>
       <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-async</artifactId>
     </dependency>
 
@@ -48,11 +53,6 @@
     <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-rx</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.mongodb.morphia</groupId>
-      <artifactId>morphia-logging-slf4j</artifactId>
     </dependency>
 
     <!-- Test dependencies -->
