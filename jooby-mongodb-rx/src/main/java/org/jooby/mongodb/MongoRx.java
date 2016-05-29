@@ -403,7 +403,7 @@ public class MongoRx implements Module {
 
   @SuppressWarnings("rawtypes")
   static Route.Mapper mapper() {
-    return v -> Match(v).of(
+    return Route.Mapper.create("mongo-rx", v -> Match(v).of(
         Case(instanceOf(FindObservable.class), m -> m.toObservable().toList()),
         Case(instanceOf(ListCollectionsObservable.class), m -> m.toObservable().toList()),
         Case(instanceOf(ListDatabasesObservable.class), m -> m.toObservable().toList()),
@@ -411,7 +411,7 @@ public class MongoRx implements Module {
         Case(instanceOf(DistinctObservable.class), m -> m.toObservable().toList()),
         Case(instanceOf(MapReduceObservable.class), m -> m.toObservable().toList()),
         Case(instanceOf(MongoObservable.class), m -> m.toObservable()),
-        Case($(), v));
+        Case($(), v)));
   }
 
   static MongoClientSettings.Builder settings(final ConnectionString cstr, final Config conf) {

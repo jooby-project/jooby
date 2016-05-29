@@ -2469,16 +2469,15 @@ public interface Routes {
    *
    * <pre>{@code
    * {
-   *   mapper(Rx.rx());
+   *   mapper((Integer v) -> v * 2);
    *
-   *   mapper(Reactor.reactor());
+   *   mapper(v -> Integer.parseInt(v.toString()));
    *
-   *   get("/rx", () -> Observable.just("reactive"));
-   *
-   *   get("/flux", () -> Flux.just("reactive"));
-   *
+   *   get("/four", () -> "2");
    * }
    * }</pre>
+   *
+   * A call to <code>/four</code> outputs <code>4</code>
    *
    * @param mapper
    * @return This instance.

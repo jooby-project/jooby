@@ -350,7 +350,7 @@ public class Rx extends Exec {
 
   @SuppressWarnings("unchecked")
   private static Route.Mapper<Object> rx(final Optional<Supplier<Scheduler>> subscribeOn) {
-    return value -> Match(value).of(
+    return Route.Mapper.create("rx", value -> Match(value).of(
         /** Observable : */
         Case(instanceOf(Observable.class),
             it -> new Deferred(deferred -> subscribeOn
@@ -370,7 +370,7 @@ public class Rx extends Exec {
                 .orElse(it)
                 .subscribe(new DeferredSubscriber(deferred)))),
         /** Ignore */
-        Case($(), value));
+        Case($(), value)));
   }
 
   @Override

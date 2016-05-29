@@ -263,7 +263,7 @@ public class Reactor implements Jooby.Module {
 
   @SuppressWarnings("unchecked")
   private static Route.Mapper<Object> reactor(final Optional<Supplier<Scheduler>> subscribeOn) {
-    return value -> Match(value).of(
+    return Route.Mapper.create("reactor", value -> Match(value).of(
         /** Flux: */
         Case(instanceOf(Flux.class),
             it -> new Deferred(deferred -> subscribeOn
@@ -277,7 +277,7 @@ public class Reactor implements Jooby.Module {
                 .orElse(it)
                 .consume(deferred::set, deferred::set))),
         /** Ignore */
-        Case($(), value));
+        Case($(), value)));
   }
 
   @Override

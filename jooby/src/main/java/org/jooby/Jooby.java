@@ -637,6 +637,9 @@ public class Jooby implements Routes, LifeCycle, Registry {
   @SuppressWarnings("rawtypes")
   private Mapper mapper;
 
+  /** Don't add same mapper twice . */
+  private Set<String> mappers = new HashSet<>();
+
   public Jooby() {
     this(null);
   }
@@ -3547,11 +3550,14 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   @Override
-  @SuppressWarnings({"rawtypes", "unchecked" })
-  public Jooby mapper(final Mapper mapper) {
-    this.mapper = Optional.ofNullable(this.mapper)
-        .map(it -> Route.Mapper.compose(it, mapper))
-        .orElse(mapper);
+  @SuppressWarnings("unchecked")
+  public Jooby mapper(final Mapper<?> mapper) {
+    requireNonNull(mapper, "Mapper is required.");
+    if (mappers.add(mapper.name())) {
+      this.mapper = Optional.ofNullable(this.mapper)
+          .map(next -> Route.Mapper.chain(mapper, next))
+          .orElse((Mapper<Object>) mapper);
+    }
     return this;
   }
 

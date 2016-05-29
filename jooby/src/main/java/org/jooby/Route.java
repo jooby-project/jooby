@@ -41,12 +41,15 @@ import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
 
+import com.google.common.base.CaseFormat;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Primitives;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+
+import javaslang.CheckedFunction1;
 
 /**
  * Routes are a key concept in Jooby. Routes are executed in the same order they are defined
@@ -273,12 +276,54 @@ public interface Route {
    */
   interface Mapper<T> {
 
-     @SuppressWarnings({"rawtypes", "unchecked" })
-    static Mapper<Object> compose(final Mapper it, final Mapper next) {
-      return v -> {
-        Object m = it.map(v);
-        return m == v ? next.map(v) : m;
+    /**
+     * Produces a new mapper by combining the two mapper into one.
+     *
+     * @param it The first mapper to apply.
+     * @param next The second mapper to apply.
+     * @return A new mapper.
+     */
+    @SuppressWarnings({"rawtypes", "unchecked" })
+    static Mapper<Object> chain(final Mapper it, final Mapper next) {
+      return create(it.name() + ">" + next.name(), v -> next.map(it.map(v)));
+    }
+
+    /**
+     * Creates a new named mapper (just syntax suggar for creating a new mapper).
+     *
+     * @param name Mapper's name.
+     * @param fn Map function.
+     * @return A new mapper.
+     */
+    static <T> Mapper<T> create(final String name, final CheckedFunction1<T, Object> fn) {
+      return new Route.Mapper<T>() {
+        @Override
+        public String name() {
+          return name;
+        }
+
+        @Override
+        public Object map(final T value) throws Throwable {
+          return fn.apply(value);
+        }
+
+        @Override
+        public String toString() {
+          return name();
+        }
       };
+    }
+
+    /**
+     * @return Mapper's name.
+     */
+    default String name() {
+      String name = Optional.ofNullable(Strings.emptyToNull(getClass().getSimpleName()))
+          .orElseGet(() -> {
+            String classname = getClass().getName();
+            return classname.substring(classname.lastIndexOf('.') + 1);
+          });
+      return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, name);
     }
 
     /**
@@ -1341,7 +1386,7 @@ public interface Route {
     private Route asRoute(final String method, final RouteMatcher matcher,
         final List<MediaType> produces) {
       return new RouteImpl(filter, this, method, matcher.path(), produces,
-        matcher.vars(), mapper);
+          matcher.vars(), mapper);
     }
 
   }
