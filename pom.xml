@@ -38,6 +38,7 @@
     <module>jooby-hotreload</module>
     <module>jooby-jedis</module>
     <module>jooby-mongodb</module>
+    <module>jooby-mongodb-rx</module>
     <module>jooby-morphia</module>
     <module>jooby-camel</module>
     <module>jooby-elasticsearch</module>
@@ -251,6 +252,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-mongodb</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-mongodb-rx</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -809,6 +816,18 @@
         <groupId>org.mongodb</groupId>
         <artifactId>mongo-java-driver</artifactId>
         <version>${mongo-java-driver.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-async</artifactId>
+        <version>${mongodb-driver-async.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-rx</artifactId>
+        <version>${mongo-driver-driver-rx.version}</version>
       </dependency>
 
       <dependency>
@@ -2260,6 +2279,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <camel.version>2.17.0</camel.version>
     <jedis.version>2.8.1</jedis.version>
     <mongo-java-driver.version>3.2.2</mongo-java-driver.version>
+    <mongodb-driver-async.version>${mongo-java-driver.version}</mongodb-driver-async.version>
     <morphia.version>1.1.1</morphia.version>
     <jboss-modules.version>1.4.5.Final</jboss-modules.version>
     <elasticsearch>1.5.2</elasticsearch>
@@ -2315,6 +2335,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jsitemapgenerator.version>2.1</jsitemapgenerator.version>
 
     <jfiglet.version>0.0.7</jfiglet.version>
+
+    <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

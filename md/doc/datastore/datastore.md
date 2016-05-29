@@ -41,3 +41,7 @@ The [mongodb](/doc/mongodb) provides access to {{mongodb}} instances.
 * [jongo](/doc/jongo): Query in Java as in Mongo Shell.
 
 * [morphia](/doc/morphia): object to document mapper via {{morphia}}.
+
+## async / reactive
+
+* [mongodb-rx](/doc/mongodb-rx): provides composable asynchronous and event-based observable sequences for {{mongodb}}.
