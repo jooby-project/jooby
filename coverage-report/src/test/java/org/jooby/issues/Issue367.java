@@ -11,9 +11,9 @@ import rx.Observable;
 public class Issue367 extends ServerFeature {
 
   {
-    mapper(Rx.rx());
+    map(Rx.rx());
 
-    mapper(Reactor.reactor());
+    map(Reactor.reactor());
 
     get("/rx", () -> Observable.just("reactive"));
 

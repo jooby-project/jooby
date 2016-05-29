@@ -3551,7 +3551,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
 
   @Override
   @SuppressWarnings("unchecked")
-  public Jooby mapper(final Mapper<?> mapper) {
+  public Jooby map(final Mapper<?> mapper) {
     requireNonNull(mapper, "Mapper is required.");
     if (mappers.add(mapper.name())) {
       this.mapper = Optional.ofNullable(this.mapper)

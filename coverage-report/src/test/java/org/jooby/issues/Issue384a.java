@@ -8,8 +8,8 @@ public class Issue384a extends ServerFeature {
 
   {
 
-    mapper(Route.Mapper.create("counter", (final Integer v) -> v + 1));
-    mapper(Route.Mapper.create("counter", (final Integer v) -> v + 1));
+    map(Route.Mapper.create("counter", (final Integer v) -> v + 1));
+    map(Route.Mapper.create("counter", (final Integer v) -> v + 1));
 
     get("/counter", () -> 1);
   }

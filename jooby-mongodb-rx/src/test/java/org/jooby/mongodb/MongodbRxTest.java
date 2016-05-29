@@ -108,8 +108,8 @@ public class MongodbRxTest {
     expect(Rx.rx()).andReturn(rx);
 
     Routes routes = unit.mock(Routes.class);
-    expect(routes.mapper(rx)).andReturn(routes);
-    expect(routes.mapper(unit.capture(Route.Mapper.class))).andReturn(routes);
+    expect(routes.map(rx)).andReturn(routes);
+    expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
     Env env = unit.get(Env.class);
     expect(env.routes()).andReturn(routes);

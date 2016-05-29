@@ -2477,12 +2477,12 @@ public interface Routes {
    * }
    * }</pre>
    *
-   * A call to <code>/four</code> outputs <code>4</code>
+   * A call to <code>/four</code> outputs <code>4</code>.
    *
-   * @param mapper
+   * @param mapper Route mapper to append.
    * @return This instance.
    */
-  Routes mapper(final Mapper<?> mapper);
+  Routes map(final Mapper<?> mapper);
 
   /**
    * Setup a route error handler. Default error handler {@link Err.DefHandler} does content

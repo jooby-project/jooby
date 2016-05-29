@@ -17,7 +17,7 @@ public abstract class AssetsBase extends ServerFeature {
     return Arrays.asList(args);
   }
 
-  public Map<String, Object> map(final Object... args) {
+  public Map<String, Object> hash(final Object... args) {
     ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
     for (int i = 0; i < args.length; i += 2) {
       builder.put(args[i].toString(), args[i + 1]);
@@ -27,6 +27,6 @@ public abstract class AssetsBase extends ServerFeature {
 
   public Config assets(final String dist, final Object... args) {
     return ConfigFactory.empty()
-        .withValue("assets", ConfigValueFactory.fromMap(map(args)));
+        .withValue("assets", ConfigValueFactory.fromMap(hash(args)));
   }
 }

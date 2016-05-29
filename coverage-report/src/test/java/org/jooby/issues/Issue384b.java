@@ -7,9 +7,9 @@ public class Issue384b extends ServerFeature {
 
   {
 
-    mapper(((final Integer value) -> value * 2));
+    map(((final Integer value) -> value * 2));
 
-    mapper((v -> Integer.parseInt(v.toString())));
+    map((v -> Integer.parseInt(v.toString())));
 
     get("/4", () -> {
       return "2";
