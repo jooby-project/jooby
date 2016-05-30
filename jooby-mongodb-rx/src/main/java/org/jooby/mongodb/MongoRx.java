@@ -72,6 +72,11 @@ import rx.Observable;
  * execution, concise code, and functional composition of results.
  * </p>
  *
+ * <p>
+ * This module depends on {@link Rx} module, please read the {@link Rx} documentation before using
+ * this module.
+ * </p>
+ *
  * <h2>exports</h2>
  * <ul>
  * <li>{@link MongoClient}</li>
@@ -80,12 +85,20 @@ import rx.Observable;
  * <li>{@link Route.Mapper} for mongo observables</li>
  * </ul>
  *
+ * <h2>depends on</h2>
+ * <ul>
+ * <li>{@link Rx rx module}</li>
+ * </ul>
+ *
  * <h2>usage</h2>
  * <pre>{@code
  *
  * import org.jooby.mongodb.MongoRx;
  *
  * {
+ *   // required by MongoRx
+ *   use(new Rx());
+ *
  *   use(new MongoRx());
  *
  *   get("/", req -> {
@@ -110,6 +123,9 @@ import rx.Observable;
  * </p>
  * <pre>{@code
  * {
+ *   // required by MongoRx
+ *   use(new Rx());
+ *
  *   use(new MongoRx("mongodb://localhost/mydb"));
  * }
  * }</pre>
@@ -120,6 +136,9 @@ import rx.Observable;
  *
  * <pre>{@code
  * {
+ *   // required by MongoRx
+ *   use(new Rx());
+ *
  *   use(new MongoRx("mongodb://localhost/mydb"));
  *
  *   get("/", req -> {
@@ -135,6 +154,9 @@ import rx.Observable;
  *
  * <pre>{@code
  * {
+ *   // required by MongoRx
+ *   use(new Rx());
+ *
  *   use(new MongoRx("mongodb://localhost/mydb.mycol"));
  *
  *   get("/", req -> {
@@ -151,6 +173,9 @@ import rx.Observable;
  *
  * <pre>{@code
  * {
+ *   // required by MongoRx
+ *   use(new Rx());
+ *
  *   use(new MongoRx()
  *      .observableAdapter(observable -> observable.observeOn(Scheduler.io())));
  *
@@ -175,6 +200,9 @@ import rx.Observable;
  * <p>
  * <pre>{@code
  * {
+ *   // required by MongoRx
+ *   use(new Rx());
+ *
  *   use(new MongoRx("db1"));
  *
  *   use(new MongoRx("db2"));
@@ -207,6 +235,9 @@ import rx.Observable;
  *
  * <pre>{@code
  * {
+ *   // required by MongoRx
+ *   use(new Rx());
+ *
  *   use(new MongoRx().observableAdapter(o -> o.observeOn(Schedulers.io())));
  * }
  * }</pre>
@@ -389,7 +420,6 @@ public class MongoRx implements Module {
 
     /** mapper */
     env.routes()
-        .map(Rx.rx())
         .map(mapper());
 
     log.info("Started {}", cstr);

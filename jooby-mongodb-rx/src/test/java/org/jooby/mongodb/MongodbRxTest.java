@@ -100,15 +100,8 @@ public class MongodbRxTest {
         .andReturn(unit.get(MongoClient.class));
   };
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
   private Block env = unit -> {
-    Route.Mapper rx = unit.mock(Route.Mapper.class);
-
-    unit.mockStatic(Rx.class);
-    expect(Rx.rx()).andReturn(rx);
-
     Routes routes = unit.mock(Routes.class);
-    expect(routes.map(rx)).andReturn(routes);
     expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
     Env env = unit.get(Env.class);

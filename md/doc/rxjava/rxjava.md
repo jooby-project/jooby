@@ -29,9 +29,6 @@ import org.jooby.rx.Rx;
 {
   use(new Rx());
 
-  /** Deal with Observable, Single and others .*/ 
-  mapper(Rx.rx());
-
   get("/", () -> Observable.from("reactive programming in jooby!"));
 
 }
@@ -55,32 +52,28 @@ Previous example is translated to:
 }
 ```
 
-Translation is done with the [Rx.rx()]({{defdocs}}/rx/Rx.html#rx--) route operator. If you are a <a href="https://github.com/ReactiveX/RxJava">RxJava</a> programmer then you don't need to worry for learning a new API and semantic. The [Rx.rx()]({{defdocs}}/rx/Rx.html#rx--) route operator deal and take cares of the [Deferred API]({{defdocs}}/Deferred.html).
+Translation is done via [Rx.rx()]({{defdocs}}/rx/Rx.html#rx--) route operator. If you are a <a href="https://github.com/ReactiveX/RxJava">RxJava</a> programmer then you don't need to worry for learning a new API and semantic. The [Rx.rx()]({{defdocs}}/rx/Rx.html#rx--) route operator deal and take cares of the [Deferred API]({{defdocs}}/Deferred.html).
 
-## rx()+scheduler
+## rx mapper
 
-You can provide a ```Scheduler``` to the [Rx.rx()]({{defdocs}}/rx/Rx.html#rx--) operator:
+Advanced observable configuration is allowed via adapter function:
 
 ```java
 ...
 import org.jooby.rx.Rx;
 ...
 {
-  use(new Rx());
+  use(new Rx(observable -> observable.observeOn(Schedulers.io())));
 
-  with(() -> {
-
-    get("/1", req -> Observable...);
-    get("/2", req -> Observable...);
-    ....
-    get("/N", req -> Observable...);
-
-  }).map(Rx.rx(Schedulers::io));
+  get("/1", req -> Observable...);
+  get("/2", req -> Observable...);
+  ....
+  get("/N", req -> Observable...);
 
 }
 ```
 
-All the routes here will ```Observable#subscribeOn(Scheduler)``` the provided ```Scheduler```.
+The adapter function allow you to customize observables from routes.
 
 ## schedulers
 

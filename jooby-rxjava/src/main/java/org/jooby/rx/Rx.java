@@ -18,6 +18,7 @@
  */
 package org.jooby.rx;
 
+import static java.util.Objects.requireNonNull;
 import static javaslang.API.$;
 import static javaslang.API.Case;
 import static javaslang.API.Match;
@@ -25,15 +26,13 @@ import static javaslang.Predicates.instanceOf;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.Route;
-import org.jooby.Routes;
 import org.jooby.exec.Exec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,7 @@ import rx.schedulers.Schedulers;
 /**
  * <h1>rxjava</h1>
  * <p>
- * Reactive programming via <a href="https://github.com/ReactiveX/RxJava">rxjava</a>.
+ * Reactive programming via <a href="https://github.com/ReactiveX/RxJava">RxJava library</a>.
  * </p>
  * <p>
  * RxJava is a Java VM implementation of <a href="http://reactivex.io">Reactive Extensions</a>: a
@@ -63,7 +62,7 @@ import rx.schedulers.Schedulers;
  *
  * <h2>exports</h2>
  * <ul>
- * <li>map route operator that converts {@link Observable} (and family) into {@link Deferred} API.
+ * <li>Route mapper that converts {@link Observable} (and family) into {@link Deferred} API.
  * </li>
  * <li>
  * manage the lifecycle of {@link Scheduler schedulers} and make sure they go down on application
@@ -82,8 +81,7 @@ import rx.schedulers.Schedulers;
  * {
  *   use(new Rx());
  *
- *   get("/", req -> Observable.from("reactive programming in jooby!"))
- *      .map(Rx.rx());
+ *   get("/", req -> Observable.from("reactive programming in jooby!"));
  * }
  * }</pre>
  *
@@ -107,108 +105,39 @@ import rx.schedulers.Schedulers;
  * }</pre>
  *
  * <p>
- * Translation is done with the {@link Rx#rx()} route operator. If you are a
+ * Translation is done via {@link Rx#rx()} route mapper. If you are a
  * <a href="https://github.com/ReactiveX/RxJava">rxjava</a> programmer then you don't need to worry
- * for learning a new API and semantic. The {@link Rx#rx()} route operator deal and take cares of
+ * for learning a new API and semantic. The {@link Rx#rx()} route mapper deal and take cares of
  * the {@link Deferred} API.
  * </p>
  *
- * <h2>rx()</h2>
+ * <h2>rx mapper</h2>
  * <p>
- * We just learn that we are not force to learn a new API, just write
- * <a href="https://github.com/ReactiveX/RxJava">rxjava</a> code. That's cool!
- * </p>
- *
- * <p>
- * But.. what if you have 10 routes? 50 routes?
+ * Advanced observable configuration is allowed via function adapter:
  * </p>
  *
  * <pre>{@code
- *
  * ...
  * import org.jooby.rx.Rx;
  * ...
  *
  * {
- *   use(new Rx());
+ *   use(new Rx(o -> o.observeOn(Scheduler.io())));
  *
- *   get("/1", req -> Observable...)
- *      .map(Rx.rx());
+ *   get("/1", req -> Observable...);
  *
- *   get("/2", req -> Observable...)
- *      .map(Rx.rx());
+ *   get("/2", req -> Observable...);
  *
  *   ....
  *
- *   get("/N", req -> Observable...)
- *      .map(Rx.rx());
+ *   get("/N", req -> Observable...);
+ *
  * }
  * }</pre>
  *
  * <p>
- * This is better than written N routes using the {@link Deferred} API route by route... but still
- * there is one more option to help you (and your fingers) to right less code:
- * </p>
- *
- * <pre>{@code
- * ...
- * import org.jooby.rx.Rx;
- * ...
- *
- * {
- *   use(new Rx());
- *
- *   with(() -> {
- *     get("/1", req -> Observable...);
- *
- *     get("/2", req -> Observable...);
- *
- *     ....
- *
- *     get("/N", req -> Observable...);
- *
- *   }).map(Rx.rx());
- * }
- * }</pre>
- *
- * <p>
- * <strong>Beautiful, hugh?</strong>
- * </p>
- *
- * <p>
- * The {@link Routes#with(Runnable) with} operator let you group any number of routes and apply
- * common attributes and/or operator to all them!!!
- * </p>
- *
- * <h2>rx()+scheduler</h2>
- * <p>
- * You can provide a {@link Scheduler} to the {@link #rx()} operator:
- * </p>
- *
- * <pre>{@code
- * ...
- * import org.jooby.rx.Rx;
- * ...
- *
- * {
- *   use(new Rx());
- *
- *   with(() -> {
- *     get("/1", req -> Observable...);
- *
- *     get("/2", req -> Observable...);
- *
- *     ....
- *
- *     get("/N", req -> Observable...);
- *
- *   }).map(Rx.rx(Schedulers::io));
- * }
- * }</pre>
- *
- * <p>
- * All the routes here will {@link Observable#subscribeOn(Scheduler) subscribe-on} the
- * provided {@link Scheduler}.
+ * All the routes here will {@link Observable#observeOn(Scheduler) observeOn} the provided
+ * {@link Scheduler}.
  * </p>
  *
  * <h2>schedulers</h2>
@@ -242,6 +171,7 @@ import rx.schedulers.Schedulers;
  * @author edgar
  * @since 1.0.0.CR3
  */
+@SuppressWarnings("rawtypes")
 public class Rx extends Exec {
 
   static class DeferredSubscriber extends Subscriber<Object> {
@@ -279,10 +209,31 @@ public class Rx extends Exec {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  public Rx() {
+  private final Function<Observable, Observable> adapter = Function.identity();
+
+  /**
+   * Creates a new {@link Rx} module and allow further customization of the {@link Observable}
+   * returned by routes, like:
+   *
+   * <pre>{@code
+   * {
+   *   use(new Rx(o -> o.observeOn(Schedulers.io())));
+   * }
+   * }</pre>
+   *
+   * @param adapter Observable adapter.
+   */
+  public Rx(final Function<Observable, Observable> adapter) {
     super("rx.schedulers");
     // daemon by default.
     daemon(true);
+  }
+
+  /**
+   * Creates a new {@link Rx} module.
+   */
+  public Rx() {
+    this(Function.identity());
   }
 
   /**
@@ -313,7 +264,7 @@ public class Rx extends Exec {
    * @return A new mapper.
    */
   public static Route.Mapper<Object> rx() {
-    return rx(Optional.empty());
+    return rx(Function.identity());
   }
 
   /**
@@ -337,40 +288,34 @@ public class Rx extends Exec {
    *
    *     get("/N", req -> Observable...);
    *
-   *   }).map(Rx.rx());
+   *   }).map(Rx.rx(o -> o.observeOn(Scheduler.io())));
    * }
    * }</pre>
    *
-   * @param subscribeOn An scheduler to subscribeOn.
+   * @param adapter Observable adapter.
    * @return A new mapper.
    */
-  public static Route.Mapper<Object> rx(final Supplier<Scheduler> subscribeOn) {
-    return rx(Optional.of(subscribeOn));
-  }
-
   @SuppressWarnings("unchecked")
-  private static Route.Mapper<Object> rx(final Optional<Supplier<Scheduler>> subscribeOn) {
-    return Route.Mapper.create("rx", value -> Match(value).of(
+  public static Route.Mapper<Object> rx(final Function<Observable, Observable> adapter) {
+    requireNonNull(adapter, "Observable adapter is required.");
+
+    return Route.Mapper.create("rx", v -> Match(observable(v)).of(
         /** Observable : */
         Case(instanceOf(Observable.class),
-            it -> new Deferred(deferred -> subscribeOn
-                .map(s -> it.subscribeOn(s.get()))
-                .orElse(it)
-                .subscribe(new DeferredSubscriber(deferred)))),
-        /** Single : */
-        Case(instanceOf(Single.class),
-            it -> new Deferred(deferred -> subscribeOn
-                .map(s -> it.subscribeOn(s.get()))
-                .orElse(it)
-                .subscribe(new DeferredSubscriber(deferred)))),
-        /** Completable : */
-        Case(instanceOf(Completable.class),
-            it -> new Deferred(deferred -> subscribeOn
-                .map(s -> it.subscribeOn(s.get()))
-                .orElse(it)
+            it -> new Deferred(deferred -> adapter.apply(it)
                 .subscribe(new DeferredSubscriber(deferred)))),
         /** Ignore */
-        Case($(), value)));
+        Case($(), v)));
+  }
+
+  private static Object observable(final Object value) {
+    return Match(value).of(
+        /** Single : */
+        Case(instanceOf(Single.class), s -> s.toObservable()),
+        /** Completable : */
+        Case(instanceOf(Completable.class), c -> c.toObservable()),
+        /** Ignore */
+        Case($(), value));
   }
 
   @Override
@@ -382,6 +327,9 @@ public class Rx extends Exec {
             e -> System.setProperty("rx." + e.getKey(), e.getValue().unwrapped().toString()));
     Map<String, Executor> executors = new HashMap<>();
     super.configure(env, conf, binder, executors::put);
+
+    env.routes()
+        .map(rx(adapter));
 
     /**
      * Side effects of global/evil static state. Hack to turn off some of this errors.

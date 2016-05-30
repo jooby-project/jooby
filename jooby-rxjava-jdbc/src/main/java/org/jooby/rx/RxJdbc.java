@@ -21,15 +21,12 @@ package org.jooby.rx;
 import javax.inject.Provider;
 import javax.sql.DataSource;
 
-import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.jdbc.Jdbc;
 
 import com.github.davidmoten.rx.jdbc.Database;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
-
-import rx.Observable;
 
 /**
  * <h1>rxjdbc</h1>
@@ -39,14 +36,19 @@ import rx.Observable;
  * </p>
  *
  * <p>
- * This module depends on {@link Jdbc} module, make sure you read the doc of the {@link Jdbc}
- * module.
+ * This module depends on {@link Jdbc} and {@link Rx} modules, make sure you read the doc of the {@link Jdbc}
+ * and {@link Rx} modules before using {@link RxJdbc}.
  * </p>
  *
  * <h2>exports</h2>
  * <ul>
  * <li>A {@link Database} object</li>
  * <li>A Hikari {@link DataSource} object</li>
+ * </ul>
+ *
+ * <h2>depends on</h2>
+ * <ul>
+ * <li>{@link Rx rx module}</li>
  * </ul>
  *
  * <h2>usage</h2>
@@ -57,6 +59,9 @@ import rx.Observable;
  * import org.jooby.rx.Rx;
  *
  * {
+ *   // required by RxJdbc
+ *   use(new Rx());
+ *
  *   use(new RxJdbc());
  *
  *   get("/reactive", req ->
@@ -64,14 +69,9 @@ import rx.Observable;
  *       .select("select name from something where id = :id")
  *       .parameter("id", 1)
  *       .getAs(String.class)
- *   ).map(Rx.rx());
+ *   );
  * }
  * }</pre>
- *
- * <p>
- * The {@link Rx#rx()} mapper converts {@link Observable rx observables} to {@link Deferred}
- * instances. More at {@link Rx}.
- * </p>
  *
  * <h2>multiple db connections</h2>
  *
@@ -81,6 +81,9 @@ import rx.Observable;
  * import org.jooby.rx.Rx;
  *
  * {
+ *   // required by RxJdbc
+ *   use(new Rx());
+ *
  *   use(new RxJdbc("db.main"));
  *   use(new RxJdbc("db.audit"));
  *

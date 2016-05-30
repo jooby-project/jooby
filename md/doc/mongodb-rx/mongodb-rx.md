@@ -4,6 +4,9 @@
 
 A MongoDB based driver providing support for <a href="http://reactivex.io">ReactiveX (Reactive Extensions)</a> by using the <a href="https://github.com/ReactiveX/RxJava">RxJava library</a>. All database calls return an <a href="http://reactivex.io/documentation/observable.html">Observable</a> allowing for efficient execution, concise code, and functional composition of results.
 
+
+> This module depends on [rx module](/doc/rxjava), please read the documentation of [rx module](/doc/rxjava) before using ```mongodb-rx```.
+
 ## dependency
 
 ```xml
@@ -24,14 +27,16 @@ A MongoDB based driver providing support for <a href="http://reactivex.io">React
 ## usage
 
 ```java
-
+import org.jooby.rx.Rx;
 import org.jooby.mongodb.MongoRx;
 
 {
+  // required
+  use(new Rx());
+
   use(new MongoRx());
 
   get("/", req -> {
-
     MongoClient client = req.require(MongoClient.class);
     // work with client:
   });
@@ -49,6 +54,9 @@ Or at creation time:
 
 ```java
 {
+  // required
+  use(new Rx());
+
   use(new MongoRx("mongodb://localhost/mydb"));
 }
 ```
@@ -57,6 +65,9 @@ If your connection string has a database, then you can require a ```MongoDatabas
 
 ```java
 {
+  // required
+  use(new Rx());
+
   use(new MongoRx("mongodb://localhost/mydb"));
 
   get("/", req -> {
@@ -72,6 +83,9 @@ And if your connection string has a collection:
 
 ```java
 {
+  // required
+  use(new Rx());
+
   use(new MongoRx("mongodb://localhost/mydb.mycol"));
 
   get("/", req -> {
@@ -88,6 +102,9 @@ The module let you return ```MongoObservable``` from routes:
 
 ```java
 {
+  // required
+  use(new Rx());
+
   use(new MongoRx());
 
   get("/pets", req -> {
@@ -107,6 +124,9 @@ Multiple databases are supported by adding multiple [MongoRx]({{defdocs}}/mongo/
 
 ```java
 {
+  // required
+  use(new Rx());
+
   use(new MongoRx("db1"));
 
   use(new MongoRx("db2"));
@@ -138,6 +158,9 @@ db2 = "mongodb://localhost/db2"
 
 ```java
 {
+  // required
+  use(new Rx());
+
   use(new MongoRx()
       .observableAdapter(o -> o.observeOn(Schedulers.io())));
 }
