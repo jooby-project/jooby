@@ -68,7 +68,6 @@ import rx.schedulers.Schedulers;
  * manage the lifecycle of {@link Scheduler schedulers} and make sure they go down on application
  * shutdown time.
  * </li>
- * <li>set a default server thread pool with the number of available processors.</li>
  * </ul>
  *
  * <h2>usage</h2>

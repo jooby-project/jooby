@@ -18,7 +18,6 @@ RxJava is a Java VM implementation of <a href="http://reactivex.io">Reactive Ext
 
 * map route operator: [Rx.rx()]({{defdocs}}/rx/Rx.html#rx--) that converts ```Observable``` (and family) into [Deferred API]({{defdocs}}/Deferred.html).
 * manage the lifecycle of ```Schedulers``` and make sure they go down on application shutdown time.
-* set a default server thread pool with the number of available processors.
 
 ## usage
 
