@@ -33,7 +33,6 @@ import org.jooby.Route;
 
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -50,7 +49,6 @@ import reactor.core.publisher.Mono;
  * <ul>
  * <li>map route operator that converts {@link Flux} and {@link Mono} into {@link Deferred} API.
  * </li>
- * <li>set a default server thread pool with the number of available processors.</li>
  * </ul>
  *
  * <h2>usage</h2>
@@ -218,8 +216,4 @@ public class Reactor implements Jooby.Module {
         .map(reactor(flux, mono));
   }
 
-  @Override
-  public Config config() {
-    return ConfigFactory.parseResources(getClass(), "reactor.conf");
-  }
 }

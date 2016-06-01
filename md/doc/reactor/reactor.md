@@ -15,7 +15,6 @@
 ## exports
 
 * map route operator that converts ```Flux``` and ```Mono``` into [Deferred API]({{defdocs}}/Deferred.html).
-* set a default server thread pool with the number of available processors.
 
 ## usage
 

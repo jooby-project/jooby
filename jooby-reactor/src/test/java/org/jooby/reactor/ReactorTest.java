@@ -19,7 +19,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -153,12 +152,6 @@ public class ReactorTest {
           deferred.handler((r, x) -> {
           });
         });
-  }
-
-  @Test
-  public void config() throws Exception {
-    assertEquals(ConfigFactory.parseResources(Reactor.class, "reactor.conf"),
-        new Reactor().config());
   }
 
 }
