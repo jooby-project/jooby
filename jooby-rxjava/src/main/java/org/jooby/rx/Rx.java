@@ -72,7 +72,6 @@ import rx.schedulers.Schedulers;
  *
  * <h2>usage</h2>
  * <pre>{@code
- *
  * ...
  * import org.jooby.rx.Rx;
  * ...
@@ -121,22 +120,25 @@ import rx.schedulers.Schedulers;
  * ...
  *
  * {
- *   use(new Rx(o -> o.observeOn(Scheduler.io())));
+ *   use(new Rx()
+ *     .withObservable(observable -> observable.observeOn(Scheduler.io()),
+ *     .withSingle(single -> single.observeOn(Scheduler.io()),
+ *     .withCompletable(completable -> completable.observeOn(Scheduler.io()));
  *
- *   get("/1", req -> Observable...);
+ *   get("/observable", req -> Observable...);
  *
- *   get("/2", req -> Observable...);
+ *   get("/single", req -> Single...);
  *
  *   ....
  *
- *   get("/N", req -> Observable...);
+ *   get("/completable", req -> Completable...);
  *
  * }
  * }</pre>
  *
  * <p>
- * All the routes here will {@link Observable#observeOn(Scheduler) observeOn} the provided
- * {@link Scheduler}.
+ * Here every Observable/Single/Completable from a route handler will observe on the <code>io</code>
+ * scheduler.
  * </p>
  *
  * <h2>schedulers</h2>
@@ -208,31 +210,18 @@ public class Rx extends Exec {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final Function<Observable, Observable> adapter = Function.identity();
+  private Function<Observable, Observable> observable = Function.identity();
 
-  /**
-   * Creates a new {@link Rx} module and allow further customization of the {@link Observable}
-   * returned by routes, like:
-   *
-   * <pre>{@code
-   * {
-   *   use(new Rx(o -> o.observeOn(Schedulers.io())));
-   * }
-   * }</pre>
-   *
-   * @param adapter Observable adapter.
-   */
-  public Rx(final Function<Observable, Observable> adapter) {
-    super("rx.schedulers");
-    // daemon by default.
-    daemon(true);
-  }
+  private Function<Single, Single> single = Function.identity();
+
+  private Function<Completable, Completable> completable = Function.identity();
 
   /**
    * Creates a new {@link Rx} module.
    */
   public Rx() {
-    this(Function.identity());
+    // daemon by default.
+    daemon(true);
   }
 
   /**
@@ -245,16 +234,14 @@ public class Rx extends Exec {
    * ...
    *
    * {
-   *   use(new Rx());
-   *
    *   with(() -> {
    *     get("/1", req -> Observable...);
    *
-   *     get("/2", req -> Observable...);
+   *     get("/2", req -> Single...);
    *
    *     ....
    *
-   *     get("/N", req -> Observable...);
+   *     get("/N", req -> Completable...);
    *
    *   }).map(Rx.rx());
    * }
@@ -263,7 +250,7 @@ public class Rx extends Exec {
    * @return A new mapper.
    */
   public static Route.Mapper<Object> rx() {
-    return rx(Function.identity());
+    return rx(Function.identity(), Function.identity());
   }
 
   /**
@@ -287,34 +274,140 @@ public class Rx extends Exec {
    *
    *     get("/N", req -> Observable...);
    *
-   *   }).map(Rx.rx(o -> o.observeOn(Scheduler.io())));
+   *   }).map(Rx.rx(
+   *       observable -> observable.observeOn(Scheduler.io()),
+   *       single -> single.observeOn(Scheduler.io()),
+   *       completable -> completable.observeOn(Scheduler.io())));
    * }
    * }</pre>
    *
-   * @param adapter Observable adapter.
+   * @param observable Observable adapter.
+   * @param single Single adapter.
+   * @return A new mapper.
+   */
+  public static Route.Mapper<Object> rx(final Function<Observable, Observable> observable,
+      final Function<Single, Single> single) {
+    return rx(observable, single, Function.identity());
+  }
+
+  /**
+   * Map a rx object like {@link Observable}, {@link Single} or {@link Completable} into a
+   * {@link Deferred} object.
+   *
+   * <pre>{@code
+   * ...
+   * import org.jooby.rx.Rx;
+   * ...
+   *
+   * {
+   *   use(new Rx());
+   *
+   *   with(() -> {
+   *     get("/1", req -> Observable...);
+   *
+   *     get("/2", req -> Observable...);
+   *
+   *     ....
+   *
+   *     get("/N", req -> Observable...);
+   *
+   *   }).map(Rx.rx(
+   *       observable -> observable.observeOn(Scheduler.io()),
+   *       single -> single.observeOn(Scheduler.io()),
+   *       completable -> completable.observeOn(Scheduler.io())));
+   * }
+   * }</pre>
+   *
+   * @param observable Observable adapter.
+   * @param single Single adapter.
+   * @param completable Completable adapter.
    * @return A new mapper.
    */
   @SuppressWarnings("unchecked")
-  public static Route.Mapper<Object> rx(final Function<Observable, Observable> adapter) {
-    requireNonNull(adapter, "Observable adapter is required.");
+  public static Route.Mapper<Object> rx(final Function<Observable, Observable> observable,
+      final Function<Single, Single> single, final Function<Completable, Completable> completable) {
+    requireNonNull(observable, "Observable's adapter is required.");
+    requireNonNull(single, "Single's adapter is required.");
+    requireNonNull(completable, "Completable's adapter is required.");
 
-    return Route.Mapper.create("rx", v -> Match(observable(v)).of(
+    return Route.Mapper.create("rx", v -> Match(v).of(
         /** Observable : */
         Case(instanceOf(Observable.class),
-            it -> new Deferred(deferred -> adapter.apply(it)
+            it -> new Deferred(deferred -> observable.apply(it)
+                .subscribe(new DeferredSubscriber(deferred)))),
+        /** Single : */
+        Case(instanceOf(Single.class),
+            it -> new Deferred(deferred -> single.apply(it)
+                .subscribe(new DeferredSubscriber(deferred)))),
+        /** Completable : */
+        Case(instanceOf(Completable.class),
+            it -> new Deferred(deferred -> completable.apply(it)
                 .subscribe(new DeferredSubscriber(deferred)))),
         /** Ignore */
         Case($(), v)));
   }
 
-  private static Object observable(final Object value) {
-    return Match(value).of(
-        /** Single : */
-        Case(instanceOf(Single.class), s -> s.toObservable()),
-        /** Completable : */
-        Case(instanceOf(Completable.class), c -> c.toObservable()),
-        /** Ignore */
-        Case($(), value));
+  /**
+   * Apply the given function adapter to observables returned by routes:
+   *
+   * <pre>{@code
+   * {
+   *   use(new Rx().withObservable(observable -> observable.observeOn(Schedulers.io())));
+   *
+   *   get("observable", -> {
+   *     return Observable...
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param adapter Observable adapter.
+   * @return This module.
+   */
+  public Rx withObservable(final Function<Observable, Observable> adapter) {
+    this.observable = requireNonNull(adapter, "Observable's adapter is required.");
+    return this;
+  }
+
+  /**
+   * Apply the given function adapter to single returned by routes:
+   *
+   * <pre>{@code
+   * {
+   *   use(new Rx().withSingle(observable -> observable.observeOn(Schedulers.io())));
+   *
+   *   get("single", -> {
+   *     return Single...
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param adapter Single adapter.
+   * @return This module.
+   */
+  public Rx withSingle(final Function<Single, Single> adapter) {
+    this.single = requireNonNull(adapter, "Single's adapter is required.");
+    return this;
+  }
+
+  /**
+   * Apply the given function adapter to completable returned by routes:
+   *
+   * <pre>{@code
+   * {
+   *   use(new Rx().withObservable(observable -> observable.observeOn(Schedulers.io())));
+   *
+   *   get("completable", -> {
+   *     return Completable...
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param adapter Completable adapter.
+   * @return This module.
+   */
+  public Rx withCompletable(final Function<Completable, Completable> adapter) {
+    this.completable = requireNonNull(adapter, "Completable's adapter is required.");
+    return this;
   }
 
   @Override
@@ -328,7 +421,7 @@ public class Rx extends Exec {
     super.configure(env, conf, binder, executors::put);
 
     env.routes()
-        .map(rx(adapter));
+        .map(rx(observable, single, completable));
 
     /**
      * Side effects of global/evil static state. Hack to turn off some of this errors.

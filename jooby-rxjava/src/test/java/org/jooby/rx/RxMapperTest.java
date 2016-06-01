@@ -4,6 +4,8 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
 
+import java.util.function.Function;
+
 import org.jooby.Deferred;
 import org.jooby.rx.Rx.DeferredSubscriber;
 import org.jooby.test.MockUnit;
@@ -32,15 +34,12 @@ public class RxMapperTest {
 
   private Block sSubscribeInit = unit -> {
     Single single = unit.powerMock(Single.class);
-    expect(single.toObservable()).andReturn(unit.get(Observable.class));
 
     unit.registerMock(Single.class, single);
   };
 
   private Block cSubscribeInit = unit -> {
     Completable single = unit.powerMock(Completable.class);
-
-    expect(single.toObservable()).andReturn(unit.get(Observable.class));
     unit.registerMock(Completable.class, single);
   };
 
@@ -57,6 +56,22 @@ public class RxMapperTest {
     DeferredSubscriber subscriber = unit.get(DeferredSubscriber.class);
 
     expect(value.subscribe(subscriber)).andReturn(null);
+  };
+
+  private Block sSubscribe = unit -> {
+    Single value = unit.get(Single.class);
+
+    DeferredSubscriber subscriber = unit.get(DeferredSubscriber.class);
+
+    expect(value.subscribe(subscriber)).andReturn(null);
+  };
+
+  private Block cSubscribe = unit -> {
+    Completable value = unit.get(Completable.class);
+
+    DeferredSubscriber subscriber = unit.get(DeferredSubscriber.class);
+
+    value.subscribe(subscriber);
   };
 
   private Block scheduler = unit -> {
@@ -90,7 +105,8 @@ public class RxMapperTest {
           expect(single.observeOn(unit.get(Scheduler.class))).andReturn(single);
         })
         .run(unit -> {
-          Deferred deferred = (Deferred) Rx.rx(o -> o.observeOn(unit.get(Scheduler.class)))
+          Deferred deferred = (Deferred) Rx
+              .rx(o -> o.observeOn(unit.get(Scheduler.class)), Function.identity())
               .map(unit.get(Observable.class));
           deferred.handler((r, x) -> {
           });
@@ -100,10 +116,9 @@ public class RxMapperTest {
   @Test
   public void rxSingle() throws Exception {
     new MockUnit()
-        .expect(obsSubscribeInit)
         .expect(sSubscribeInit)
         .expect(deferredSubscriber)
-        .expect(obsSubscribe)
+        .expect(sSubscribe)
         .run(unit -> {
           Deferred deferred = (Deferred) Rx.rx().map(unit.get(Single.class));
           deferred.handler((r, x) -> {
@@ -114,10 +129,9 @@ public class RxMapperTest {
   @Test
   public void rxComplete() throws Exception {
     new MockUnit()
-        .expect(obsSubscribeInit)
         .expect(cSubscribeInit)
         .expect(deferredSubscriber)
-        .expect(obsSubscribe)
+        .expect(cSubscribe)
         .run(unit -> {
           Deferred deferred = (Deferred) Rx.rx().map(unit.get(Completable.class));
           deferred.handler((r, x) -> {

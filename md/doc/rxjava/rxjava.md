@@ -62,17 +62,15 @@ Advanced observable configuration is allowed via adapter function:
 import org.jooby.rx.Rx;
 ...
 {
-  use(new Rx(observable -> observable.observeOn(Schedulers.io())));
+  use(new Rx()
+      .withObservable(observable -> observable.observeOn(Schedulers.io())));
 
-  get("/1", req -> Observable...);
-  get("/2", req -> Observable...);
-  ....
-  get("/N", req -> Observable...);
+  get("/observable", req -> Observable...);
 
 }
 ```
 
-The adapter function allow you to customize observables from routes.
+The observable adapter function allow you to customize observables from routes.
 
 ## schedulers
 

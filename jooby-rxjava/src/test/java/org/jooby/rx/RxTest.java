@@ -9,7 +9,9 @@ import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Function;
 
+import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.Route;
 import org.jooby.Routes;
@@ -74,6 +76,150 @@ public class RxTest {
           new Rx().configure(unit.get(Env.class), conf, unit.get(Binder.class));
         }, unit -> {
           unit.captured(CheckedRunnable.class).get(1).run();
+        });
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  @Test
+  public void withObservableAdapter() throws Exception {
+    Config conf = ConfigFactory.empty()
+        .withValue("rx.foo", ConfigValueFactory.fromAnyRef("bar"));
+    rx.Observable<String> value = rx.Observable.just("1");
+    new MockUnit(Env.class, Binder.class, ExecutorService.class, Routes.class, Function.class)
+        .expect(unit -> {
+          unit.mockStatic(Schedulers.class);
+          Schedulers.shutdown();
+        })
+        .expect(unit -> {
+          unit.mockStatic(System.class);
+          expect(System.setProperty("rx.foo", "bar")).andReturn(null);
+        })
+        .expect(unit -> {
+          RxJavaPlugins plugins = unit.mock(RxJavaPlugins.class);
+          plugins.registerSchedulersHook(isA(RxJavaSchedulersHook.class));
+
+          unit.mockStatic(RxJavaPlugins.class);
+          expect(RxJavaPlugins.getInstance()).andReturn(plugins);
+        })
+        .expect(unit -> {
+          Routes routes = unit.get(Routes.class);
+          expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
+
+          Env env = unit.get(Env.class);
+          expect(env.routes()).andReturn(routes);
+          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+        })
+        .expect(onStop)
+        .expect(unit -> {
+          Function adapter = unit.get(Function.class);
+          expect(adapter.apply(value)).andReturn(value);
+        })
+        .run(unit -> {
+          new Rx()
+              .withObservable(unit.get(Function.class))
+              .configure(unit.get(Env.class), conf, unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(CheckedRunnable.class).get(1).run();
+
+          Deferred deferred = (Deferred) unit.captured(Route.Mapper.class).get(0).map(value);
+          deferred.handler((r, x) -> {
+          });
+        });
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  @Test
+  public void withSingleAdapter() throws Exception {
+    Config conf = ConfigFactory.empty()
+        .withValue("rx.foo", ConfigValueFactory.fromAnyRef("bar"));
+    rx.Single<String> value = rx.Single.just("1");
+    new MockUnit(Env.class, Binder.class, ExecutorService.class, Routes.class, Function.class)
+        .expect(unit -> {
+          unit.mockStatic(Schedulers.class);
+          Schedulers.shutdown();
+        })
+        .expect(unit -> {
+          unit.mockStatic(System.class);
+          expect(System.setProperty("rx.foo", "bar")).andReturn(null);
+        })
+        .expect(unit -> {
+          RxJavaPlugins plugins = unit.mock(RxJavaPlugins.class);
+          plugins.registerSchedulersHook(isA(RxJavaSchedulersHook.class));
+
+          unit.mockStatic(RxJavaPlugins.class);
+          expect(RxJavaPlugins.getInstance()).andReturn(plugins);
+        })
+        .expect(unit -> {
+          Routes routes = unit.get(Routes.class);
+          expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
+
+          Env env = unit.get(Env.class);
+          expect(env.routes()).andReturn(routes);
+          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+        })
+        .expect(onStop)
+        .expect(unit -> {
+          Function adapter = unit.get(Function.class);
+          expect(adapter.apply(value)).andReturn(value);
+        })
+        .run(unit -> {
+          new Rx()
+              .withSingle(unit.get(Function.class))
+              .configure(unit.get(Env.class), conf, unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(CheckedRunnable.class).get(1).run();
+
+          Deferred deferred = (Deferred) unit.captured(Route.Mapper.class).get(0).map(value);
+          deferred.handler((r, x) -> {
+          });
+        });
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  @Test
+  public void withCompletableAdapter() throws Exception {
+    Config conf = ConfigFactory.empty()
+        .withValue("rx.foo", ConfigValueFactory.fromAnyRef("bar"));
+    rx.Completable value = rx.Completable.complete();
+    new MockUnit(Env.class, Binder.class, ExecutorService.class, Routes.class, Function.class)
+        .expect(unit -> {
+          unit.mockStatic(Schedulers.class);
+          Schedulers.shutdown();
+        })
+        .expect(unit -> {
+          unit.mockStatic(System.class);
+          expect(System.setProperty("rx.foo", "bar")).andReturn(null);
+        })
+        .expect(unit -> {
+          RxJavaPlugins plugins = unit.mock(RxJavaPlugins.class);
+          plugins.registerSchedulersHook(isA(RxJavaSchedulersHook.class));
+
+          unit.mockStatic(RxJavaPlugins.class);
+          expect(RxJavaPlugins.getInstance()).andReturn(plugins);
+        })
+        .expect(unit -> {
+          Routes routes = unit.get(Routes.class);
+          expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
+
+          Env env = unit.get(Env.class);
+          expect(env.routes()).andReturn(routes);
+          expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+        })
+        .expect(onStop)
+        .expect(unit -> {
+          Function adapter = unit.get(Function.class);
+          expect(adapter.apply(value)).andReturn(value);
+        })
+        .run(unit -> {
+          new Rx()
+              .withCompletable(unit.get(Function.class))
+              .configure(unit.get(Env.class), conf, unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(CheckedRunnable.class).get(1).run();
+
+          Deferred deferred = (Deferred) unit.captured(Route.Mapper.class).get(0).map(value);
+          deferred.handler((r, x) -> {
+          });
         });
   }
 
