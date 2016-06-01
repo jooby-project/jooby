@@ -26,9 +26,6 @@ import org.jooby.reactor.Reactor;
 {
   use(new Reactor());
 
-  /** Deal with Flux & Mono. */
-  mapper(Reactor.reactor());
-
   get("/", () -> Flux.just("reactive programming in jooby!"));
 }
 ```
@@ -54,26 +51,24 @@ Previous example is translated to:
 Translation is done with the [Reactor.reactor()]({{defdocs}}/reactor/Reactor.html#reactor--) route operator. If you are a <a href="http://projectreactor.io">reactor</a> programmer then you don't need to worry for learning a new API and semantic. The [Reactor.reactor()]({{defdocs}}/reactor/Reactor.html#reactor--) route operator deal and take cares of the [Deferred API]({{defdocs}}/Deferred.html).
 
 
-## reactor()+scheduler
+## reactor mapper
 
-You can provide a ```Scheduler``` to the [Reactor.reactor(Supplier)]({{defdocs}}/reactor/Reactor.html#reactor--) operator:
+Advanced flux/mono configuration is allowed via function adapters:
 
 ```java
 ...
 import org.jooby.reactor.Reactor;
 ...
 {
-  use(new Reactor());
+  use(new Reactor()
+    .withFlux(flux -> flux.pusblishOn(Computations.concurrent())
+    .withMono(mono -> mono.pusblishOn(Computations.concurrent()));
 
-  with(() -> {
+  get("/flux", () -> Flux...);
 
-    get("/1", () -> Flux...);
-    get("/2", () -> Flux...);
-    ....
-    get("/N", () -> Flux...);
-  }).map(Reactor.reactor(Computations::concurrent));
+  get("/mono", () -> Mono...);
 
 }
 ```
 
-All the routes here will ```Flux#subscribeOn(Scheduler)``` subscribe-on the provided ```Scheduler```.
+Here every Flux/Mono from a route handler will publish on the ```concurrent``` scheduler.

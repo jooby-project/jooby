@@ -18,19 +18,18 @@
  */
 package org.jooby.reactor;
 
+import static java.util.Objects.requireNonNull;
 import static javaslang.API.$;
 import static javaslang.API.Case;
 import static javaslang.API.Match;
 import static javaslang.Predicates.instanceOf;
 
-import java.util.Optional;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Route;
-import org.jooby.Routes;
 
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
@@ -38,7 +37,6 @@ import com.typesafe.config.ConfigFactory;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 /**
  * <h1>reactor</h1>
@@ -65,8 +63,7 @@ import reactor.core.scheduler.Scheduler;
  * {
  *   use(new Reactor());
  *
- *   get("/", req -> Flux.just("reactive programming in jooby!"))
- *      .map(Reactor.reactor());
+ *   get("/", req -> Flux.just("reactive programming in jooby!"));
  * }
  * }</pre>
  *
@@ -91,20 +88,15 @@ import reactor.core.scheduler.Scheduler;
  * }</pre>
  *
  * <p>
- * Translation is done with the {@link Reactor#reactor()} route operator. If you are a
+ * Translation is done via {@link Reactor#reactor()} route mapper. If you are a
  * <a href="http://projectreactor.io">reactor</a> programmer then you don't need to worry
  * for learning a new API and semantic. The {@link Reactor#reactor()} route operator deal and take
  * cares of the {@link Deferred} API.
  * </p>
  *
- * <h2>reactor()</h2>
+ * <h2>reactor mapper</h2>
  * <p>
- * We just learn that we are not force to learn a new API, just write
- * <a href="http://projectreactor.io">reactor</a> code. That's cool!
- * </p>
- *
- * <p>
- * But.. what if you have 10 routes? 50 routes?
+ * Advanced flux/mono configuration is allowed via function adapters:
  * </p>
  *
  * <pre>{@code
@@ -114,121 +106,39 @@ import reactor.core.scheduler.Scheduler;
  * ...
  *
  * {
- *   use(new Reactor());
+ *   use(new Reactor()
+ *       .withFlux(f -> f.publishOn(Computations.concurrent())
+ *       .withMono(m -> m.publishOn(Computations.concurrent()));
  *
- *   get("/1", req -> Observable...)
- *      .map(Reactor.reactor());
+ *   get("/flux", req -> Flux...);
  *
- *   get("/2", req -> Observable...)
- *      .map(Reactor.reactor());
+ *   get("/mono", req -> Mono...);
  *
- *   ....
- *
- *   get("/N", req -> Observable...)
- *      .map(Reactor.reactor());
  * }
  * }</pre>
  *
  * <p>
- * This is better than written N routes using the {@link Deferred} API route by route... but still
- * there is one more option to help you (and your fingers) to right less code:
- * </p>
- *
- * <pre>{@code
- * ...
- * import org.jooby.reactor.Reactor;
- * ...
- *
- * {
- *   use(new Reactor());
- *
- *   with(() -> {
- *     get("/1", req -> Observable...);
- *
- *     get("/2", req -> Observable...);
- *
- *     ....
- *
- *     get("/N", req -> Observable...);
- *
- *   }).map(Reactor.reactor());
- * }
- * }</pre>
- *
- * <p>
- * <strong>Beautiful, hugh?</strong>
- * </p>
- *
- * <p>
- * The {@link Routes#with(Runnable) with} operator let you group any number of routes and apply
- * common attributes and/or operator to all them!!!
- * </p>
- *
- * <h2>reactor()+scheduler</h2>
- * <p>
- * You can provide a {@link Scheduler} to the {@link #reactor(Supplier)} operator:
- * </p>
- *
- * <pre>{@code
- * ...
- * import org.jooby.reactor.Reactor;
- * ...
- *
- * {
- *   use(new Reactor());
- *
- *   with(() -> {
- *     get("/1", req -> Observable...);
- *
- *     get("/2", req -> Observable...);
- *
- *     ....
- *
- *     get("/N", req -> Observable...);
- *
- *   }).map(Reactor.reactor(Computations::concurrent));
- * }
- * }</pre>
- *
- * <p>
- * All the routes here will {@link Flux#subscribeOn(Scheduler) subscribe-on} the provided
- * {@link Scheduler}.
+ * Here every Flux/Mono from a route handler will publish on the <code>concurrent</code> scheduler.
  * </p>
  *
  * @author edgar
  * @since 1.0.0.CR3
  */
+@SuppressWarnings("rawtypes")
 public class Reactor implements Jooby.Module {
 
-  /**
-   * Map a reactor object like {@link Flux} or {@link Mono} into a {@link Deferred} object.
-   *
-   * <pre>{@code
-   * ...
-   * import org.jooby.reactor.Reactor;
-   * ...
-   *
-   * {
-   *   use(new Reactor());
-   *
-   *   with(() -> {
-   *     get("/1", req -> Observable...);
-   *
-   *     get("/2", req -> Observable...);
-   *
-   *     ....
-   *
-   *     get("/N", req -> Observable...);
-   *
-   *   }).map(Reactor.reactor());
-   * }
-   * }</pre>
-   *
-   * @param subscribeOn An scheduler to subscribeOn.
-   * @return A new mapper.
-   */
-  public static Route.Mapper<Object> reactor(final Supplier<Scheduler> subscribeOn) {
-    return reactor(Optional.of(subscribeOn));
+  private Function<Flux, Flux> flux = Function.identity();
+
+  private Function<Mono, Mono> mono = Function.identity();
+
+  public Reactor withFlux(final Function<Flux, Flux> adapter) {
+    this.flux = requireNonNull(adapter, "Flux's adapter is required.");
+    return this;
+  }
+
+  public Reactor withMono(final Function<Mono, Mono> adapter) {
+    this.mono = requireNonNull(adapter, "Mono's adapter is required.");
+    return this;
   }
 
   /**
@@ -240,48 +150,72 @@ public class Reactor implements Jooby.Module {
    * ...
    *
    * {
-   *   use(new Reactor());
-   *
    *   with(() -> {
-   *     get("/1", req -> Observable...);
+   *     get("/lux", req -> Flux...);
    *
-   *     get("/2", req -> Observable...);
+   *     get("/mono", req -> Mono...);
    *
-   *     ....
-   *
-   *     get("/N", req -> Observable...);
-   *
-   *   }).map(Reactor.reactor());
+   *   }).map(Reactor.reactor(
+   *       flux -> flux.publishOn(Computations.concurrent()),
+   *       mono -> mono.publishOn(Computations.concurrent()));
    * }
    * }</pre>
    *
+   * @param flux A flux adapter.
+   * @param mono A mono adapter.
    * @return A new mapper.
    */
-  public static Route.Mapper<Object> reactor() {
-    return reactor(Optional.empty());
-  }
-
   @SuppressWarnings("unchecked")
-  private static Route.Mapper<Object> reactor(final Optional<Supplier<Scheduler>> subscribeOn) {
+  public static Route.Mapper<Object> reactor(final Function<Flux, Flux> flux,
+      final Function<Mono, Mono> mono) {
+    requireNonNull(flux, "Flux's adapter is required.");
+    requireNonNull(mono, "Mono's adapter is required.");
     return Route.Mapper.create("reactor", value -> Match(value).of(
         /** Flux: */
         Case(instanceOf(Flux.class),
-            it -> new Deferred(deferred -> subscribeOn
-                .map(s -> it.subscribeOn(s.get()))
-                .orElse(it)
+            it -> new Deferred(deferred -> flux.apply(it)
                 .consume(deferred::set, deferred::set))),
         /** Mono: */
         Case(instanceOf(Mono.class),
-            it -> new Deferred(deferred -> subscribeOn
-                .map(s -> it.subscribeOn(s.get()))
-                .orElse(it)
+            it -> new Deferred(deferred -> mono.apply(it)
                 .consume(deferred::set, deferred::set))),
         /** Ignore */
         Case($(), value)));
+
+  }
+
+  /**
+   * Map a reactor object like {@link Flux} or {@link Mono} into a {@link Deferred} object.
+   *
+   * <pre>{@code
+   * ...
+   * import org.jooby.reactor.Reactor;
+   * ...
+   *
+   * {
+   *   with(() -> {
+   *     get("/lux", req -> Flux...);
+   *
+   *     get("/mono", req -> Mono...);
+   *
+   *   }).map(Reactor.reactor(
+   *       flux -> flux.publishOn(Computations.concurrent()),
+   *       mono -> mono.publishOn(Computations.concurrent()));
+   * }
+   * }</pre>
+   *
+   * @param flux A flux adapter.
+   * @param mono A mono adapter.
+   * @return A new mapper.
+   */
+  public static Route.Mapper<Object> reactor() {
+    return reactor(Function.identity(), Function.identity());
   }
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
+    env.routes()
+        .map(reactor(flux, mono));
   }
 
   @Override
