@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 
+import org.jooby.MediaType;
 import org.junit.Test;
 
 import com.typesafe.config.ConfigFactory;
@@ -67,6 +68,11 @@ public class ClosureCompilerTest {
     assertEquals("function(a){return a*2;}",
         new ClosureCompiler().process("/x.js", "function (longvar) {\nreturn longvar  2;\n}",
             ConfigFactory.empty()));
+  }
+
+  @Test
+  public void ctype() throws Exception {
+    assertEquals(true, new ClosureCompiler().matches(MediaType.js));
   }
 
 }

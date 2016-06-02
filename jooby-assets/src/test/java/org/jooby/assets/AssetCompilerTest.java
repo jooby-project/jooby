@@ -3,12 +3,12 @@ package org.jooby.assets;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -176,12 +176,8 @@ public class AssetCompilerTest {
     assertEquals("foo", prod.iterator().next().get("foo"));
     assertEquals("bar", prod.iterator().next().get("bar"));
 
-    try {
-      compiler.pipeline("prod");
-      fail("no pipeline");
-    } catch (IllegalArgumentException ex) {
-
-    }
+    List<AssetProcessor> pipeline = compiler.pipeline("prod");
+    assertEquals(Collections.emptyList(), pipeline);
   }
 
   private String compile(final AssetCompiler compiler, final String path) throws Exception {

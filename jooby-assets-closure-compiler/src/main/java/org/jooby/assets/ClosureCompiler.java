@@ -92,7 +92,7 @@ public class ClosureCompiler extends AssetProcessor {
 
   @Override
   public boolean matches(final MediaType type) {
-    return MediaType.css.matches(type);
+    return MediaType.js.matches(type);
   }
 
   @Override

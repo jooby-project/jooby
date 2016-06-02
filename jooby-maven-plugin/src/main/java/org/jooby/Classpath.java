@@ -61,7 +61,16 @@ public class Classpath {
   }
 
   public URLClassLoader toClassLoader() throws MalformedURLException {
-    return new URLClassLoader(build().toArray(new URL[0]), getClass().getClassLoader());
+    return toClassLoader(build(), getClass().getClassLoader());
+  }
+
+  private static URLClassLoader toClassLoader(final List<URL> cp, final ClassLoader parent) {
+    return new URLClassLoader(cp.toArray(new URL[cp.size()]), parent) {
+      @Override
+      public String toString() {
+        return cp.toString();
+      }
+    };
   }
 
   private List<URL> jars(final Iterable<Artifact> artifacts) throws MalformedURLException {

@@ -182,7 +182,7 @@ public class AssetsTest {
         .withValue("assets.etag", ConfigValueFactory.fromAnyRef(true))
         .withValue("application.path", ConfigValueFactory.fromAnyRef("/"))
         .withValue("assets.cdn", ConfigValueFactory.fromAnyRef(""))
-        .withValue("assets.cache.maxAge", ConfigValueFactory.fromAnyRef("P365D"))
+        .withValue("assets.cache.maxAge", ConfigValueFactory.fromAnyRef("365d"))
         .withValue("assets.lastModified", ConfigValueFactory.fromAnyRef(true))
         .withValue("assets.watch", ConfigValueFactory.fromAnyRef(false));
     new MockUnit(Env.class, Config.class, Binder.class, Request.class, Response.class,

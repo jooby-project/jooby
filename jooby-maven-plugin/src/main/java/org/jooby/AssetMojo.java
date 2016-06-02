@@ -43,9 +43,9 @@ import com.google.common.io.Files;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-@Mojo(name = "assets", requiresDependencyResolution = ResolutionScope.TEST,
-    defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
-@Execute(phase = LifecyclePhase.PREPARE_PACKAGE)
+@Mojo(name = "assets", defaultPhase = LifecyclePhase.COMPILE,
+    requiresDependencyResolution = ResolutionScope.TEST)
+@Execute(phase = LifecyclePhase.COMPILE)
 public class AssetMojo extends AbstractMojo {
 
   @SuppressWarnings("serial")
@@ -78,9 +78,9 @@ public class AssetMojo extends AbstractMojo {
       System.setProperty("application.env", env);
 
       new JoobyRunner(mavenProject)
-        .run(mainClass, (app, loader) -> {
-          app.on("*", compile(loader));
-        });
+          .run(mainClass, app -> {
+            app.on("*", compile(app.getClass().getClassLoader()));
+          });
     } catch (CompilationDone ex) {
       long end = System.currentTimeMillis();
       getLog().info("compilation took " + (end - start) + "ms");
@@ -94,8 +94,12 @@ public class AssetMojo extends AbstractMojo {
       try {
         output.mkdirs();
 
+        getLog().debug("claspath: " + loader);
+
         Config assetConf = ConfigFactory.parseResources(loader, "assets.conf")
             .withFallback(conf);
+
+        getLog().debug("assets.conf: " + assetConf.getConfig("assets"));
 
         AssetCompiler compiler = new AssetCompiler(loader, assetConf);
 

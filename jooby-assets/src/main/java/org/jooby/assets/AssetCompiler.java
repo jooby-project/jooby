@@ -147,32 +147,35 @@ public class AssetCompiler {
   public List<AssetProcessor> pipeline(final String dist) {
     List<AssetProcessor> chain = this.pipeline.get(dist);
     if (chain == null) {
-      throw new IllegalArgumentException("No pipeline for: " + dist);
+      log.debug("no pipeline for: {}", dist);
+      return Collections.emptyList();
     }
     return chain;
   }
 
   public Map<String, List<File>> build(final String dist, final File dir) throws Exception {
     Map<String, List<File>> output = new LinkedHashMap<>();
+    List<AssetProcessor> pipeline = pipeline(dist);
+    log.info("{} pipeline: {}", dist, pipeline);
     for (String fset : keySet()) {
       List<String> files = assets(fset);
 
-      log.info("compiling {}: ", fset);
+      log.info("compiling {}:", fset);
 
-      String css = compile(dist, files.stream().filter(styles).iterator(), MediaType.css, "");
+      String css = compile(pipeline, files.stream().filter(styles).iterator(), MediaType.css, "");
       Path pcss = Paths.get(patterns(styles).findFirst().get(), fset + "." + sha1(css) + ".css");
       File fcss = dir.toPath().resolve(pcss).toFile();
       fcss.getParentFile().mkdirs();
       Files.write(css, fcss, charset);
 
-      String js = compile(dist, files.stream().filter(scripts).iterator(), MediaType.js, ";");
+      String js = compile(pipeline, files.stream().filter(scripts).iterator(), MediaType.js, ";");
       Path pjs = Paths.get(patterns(scripts).findFirst().get(), fset + "." + sha1(js) + ".js");
       File fjs = dir.toPath().resolve(pjs).toFile();
       fjs.getParentFile().mkdirs();
       Files.write(js, fjs, charset);
 
-      log.info("{}", fcss);
-      log.info("{}", fjs);
+      log.info("{}.css {} ({})", fset, humanReadableByteCount(fcss.length()), fcss);
+      log.info("{}.js  {} ({})", fset, humanReadableByteCount(fjs.length()), fjs);
 
       output.put(fset, Arrays.asList(fcss, fjs));
     }
@@ -196,7 +199,8 @@ public class AssetCompiler {
       return asset;
     }
 
-    String output = compile("dev", filename, type, toString(asset.stream(), charset));
+    List<AssetProcessor> pipeline = pipeline("dev");
+    String output = compile(pipeline, filename, type, toString(asset.stream(), charset));
 
     return new InMemoryAsset(asset, output.getBytes(charset));
   }
@@ -214,22 +218,21 @@ public class AssetCompiler {
 
   }
 
-  private String compile(final String env, final Iterator<String> files, final MediaType type,
-      final String sep)
-          throws Exception {
+  private String compile(final List<AssetProcessor> pipeline, final Iterator<String> files,
+      final MediaType type, final String sep) throws Exception {
     StringBuilder buff = new StringBuilder();
     while (files.hasNext()) {
       String file = files.next();
       log.info("  {}", file);
-      buff.append(compile(env, file, type, readFile(loader, file, charset))).append(sep);
+      buff.append(compile(pipeline, file, type, readFile(loader, file, charset))).append(sep);
     }
     return buff.toString();
   }
 
-  private String compile(final String env, final String filename, final MediaType type,
-      final String input) throws Exception {
+  private String compile(final List<AssetProcessor> pipeline, final String filename,
+      final MediaType type, final String input) throws Exception {
 
-    Iterator<AssetProcessor> it = pipeline(env).iterator();
+    Iterator<AssetProcessor> it = pipeline.iterator();
     String contents = input;
     while (it.hasNext()) {
       AssetProcessor processor = it.next();
@@ -428,6 +431,16 @@ public class AssetCompiler {
 
   private static String spath(final String path) {
     return path.startsWith("/") ? path : "/" + path;
+  }
+
+  private static String humanReadableByteCount(final long bytes) {
+    int unit = 1024;
+    if (bytes < unit) {
+      return bytes + "b";
+    }
+    int exp = (int) (Math.log(bytes) / Math.log(unit));
+    char pre = "kmgtpe".charAt(exp - 1);
+    return String.format("%.1f%sb", bytes / Math.pow(unit, exp), pre);
   }
 
 }
