@@ -33,7 +33,7 @@ By default, job name is set the class name or to the method name. Default group 
 
 ### job methods
 
-A job method must follow this rules:
+A job method must follow these rules:
 
 * It must be a public method
 * Without a return value
