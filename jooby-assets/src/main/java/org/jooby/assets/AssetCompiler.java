@@ -433,7 +433,8 @@ public class AssetCompiler {
     return path.startsWith("/") ? path : "/" + path;
   }
 
-  private static String humanReadableByteCount(final long bytes) {
+  // http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
+  static String humanReadableByteCount(final long bytes) {
     int unit = 1024;
     if (bytes < unit) {
       return bytes + "b";

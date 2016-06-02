@@ -180,6 +180,14 @@ public class AssetCompilerTest {
     assertEquals(Collections.emptyList(), pipeline);
   }
 
+  @Test
+  public void humandReadableBytes() throws Exception {
+    assertEquals("1.0kb", AssetCompiler.humanReadableByteCount(1024));
+    assertEquals("1.0mb", AssetCompiler.humanReadableByteCount(1024 * 1024));
+
+    assertEquals("100.0mb", AssetCompiler.humanReadableByteCount(1024 * 1024 * 100));
+  }
+
   private String compile(final AssetCompiler compiler, final String path) throws Exception {
     return new String(
         ByteStreams.toByteArray(compiler.build(asset(path)).stream()), "UTF-8");
