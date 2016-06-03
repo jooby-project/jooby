@@ -215,7 +215,8 @@ import rx.Observable;
  * <p>
  * Multiple databases are supported by adding multiple {@link MongoRx} instances to your
  * application:
- * <p>
+ * </p>
+ *
  * <pre>{@code
  * {
  *   // required by MongoRx

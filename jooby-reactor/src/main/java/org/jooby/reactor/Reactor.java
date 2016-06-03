@@ -202,8 +202,6 @@ public class Reactor implements Jooby.Module {
    * }
    * }</pre>
    *
-   * @param flux A flux adapter.
-   * @param mono A mono adapter.
    * @return A new mapper.
    */
   public static Route.Mapper<Object> reactor() {
