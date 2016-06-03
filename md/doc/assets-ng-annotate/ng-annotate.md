@@ -11,7 +11,7 @@
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-ng-annotate</artifactId>
   <version>{{version}}</version>
-  <scope>test</scope>
+  <scope>provided</scope>
 </dependency>
 ```
 

@@ -11,7 +11,7 @@ A fast, efficient, and well tested CSS minifier, via: <a href="https://github.co
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-clean-css</artifactId>
   <version>{{version}}</version>
-  <scope>test</scope>
+  <scope>provided</scope>
 </dependency>
 ```
 

@@ -43,9 +43,9 @@ import com.google.common.io.Files;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-@Mojo(name = "assets", defaultPhase = LifecyclePhase.COMPILE,
-    requiresDependencyResolution = ResolutionScope.TEST)
-@Execute(phase = LifecyclePhase.COMPILE)
+@Mojo(name = "assets", defaultPhase = LifecyclePhase.PREPARE_PACKAGE,
+    requiresDependencyResolution = ResolutionScope.COMPILE)
+@Execute(phase = LifecyclePhase.PREPARE_PACKAGE)
 public class AssetMojo extends AbstractMojo {
 
   @SuppressWarnings("serial")

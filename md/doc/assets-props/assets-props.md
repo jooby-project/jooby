@@ -11,7 +11,7 @@ Replace ```${expressions}``` with a value from ```application.conf```.
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-props</artifactId>
   <version>{{version}}</version>
-  <scope>test</scope>
+  <scope>provided</scope>
 </dependency>
 ```
 

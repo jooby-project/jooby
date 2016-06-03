@@ -11,7 +11,7 @@
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-babel</artifactId>
   <version>{{version}}</version>
-  <scope>test</scope>
+  <scope>provided</scope>
 </dependency>
 ```
 
@@ -36,7 +36,7 @@ assets {
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-babel</artifactId>
   <version>{{version}}</version>
-  <scope>test</scope>
+  <scope>provided</scope>
 </dependency>
 ```
 

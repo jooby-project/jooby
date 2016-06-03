@@ -10,11 +10,11 @@ First thing to do is to add the dependency:
   <dependency>
     <groupId>org.jooby</groupId>
     <artifactId>jooby-assets-my-processor</artifactId>
-    <scope>test</scope>
+    <scope>provided</scope>
   </dependency>
 ```
 
-Did you see the **test** scope? We just need the processor for development, because assets are processed on the fly. For ```prod```, assets are processed at built-time via Maven plugin, at runtime we don't need this. This also, helps to keep our dependencies and the jar size to minimum.
+Did you see the **provided** scope? We just need the processor for development, because assets are processed on the fly. For ```prod```, assets are processed at built-time via Maven plugin, so we don't need this library/dependency. This also, helps to keep our dependencies and the jar size to minimum.
 
 Now we have the dependency all we have to do is to add it to our pipeline:
 

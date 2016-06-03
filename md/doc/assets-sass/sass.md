@@ -11,7 +11,7 @@
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-sass</artifactId>
   <version>{{version}}</version>
-  <scope>test</scope>
+  <scope>provided</scope>
 </dependency>
 ```
 

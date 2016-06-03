@@ -44,15 +44,15 @@ import com.typesafe.config.ConfigValueFactory;
  *   &lt;dependency&gt;
  *     &lt;groupId&gt;org.jooby&lt;/groupId&gt;
  *     &lt;artifactId&gt;jooby-assets-my-processor&lt;/artifactId&gt;
- *     &lt;scope&gt;test&lt;/scope&gt;
+ *     &lt;scope&gt;provided&lt;/scope&gt;
  *   &lt;/dependency&gt;
  * </pre>
  *
  * <p>
- * Did you see the <strong>test</strong> scope? We just need the processor for development, because
- * assets are processed on the fly. For <code>prod</code>, assets are processed at built-time via
- * Maven plugin, at runtime we don't need this. This also, helps to keep our dependencies and the
- * jar size to minimum.
+ * Did you see the <strong>provided</strong> scope? We just need the processor for development,
+ * because assets are processed on the fly. For <code>prod</code>, assets are processed at
+ * built-time via Maven plugin, at runtime we don't need this. This also, helps to keep our
+ * dependencies and the jar size to minimum.
  * </p>
  *
  * <p>
