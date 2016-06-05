@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jooby.Err;
+import org.jooby.internal.parser.ParamNotFound;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ public class ParamReferenceImplTest {
   public void defaults() throws Exception {
     new MockUnit()
         .run(unit -> {
-          new StrParamReferenceImpl("name", Collections.emptyList());
+          new StrParamReferenceImpl("parameter", "name", Collections.emptyList());
         });
   }
 
@@ -27,7 +27,8 @@ public class ParamReferenceImplTest {
   public void first() throws Exception {
     new MockUnit()
         .run(unit -> {
-          assertEquals("first", new StrParamReferenceImpl("name", ImmutableList.of("first")).first());
+          assertEquals("first",
+              new StrParamReferenceImpl("parameter", "name", ImmutableList.of("first")).first());
         });
   }
 
@@ -35,7 +36,8 @@ public class ParamReferenceImplTest {
   public void last() throws Exception {
     new MockUnit()
         .run(unit -> {
-          assertEquals("last", new StrParamReferenceImpl("name", ImmutableList.of("last")).last());
+          assertEquals("last",
+              new StrParamReferenceImpl("parameter", "name", ImmutableList.of("last")).last());
         });
   }
 
@@ -43,24 +45,26 @@ public class ParamReferenceImplTest {
   public void get() throws Exception {
     new MockUnit()
         .run(unit -> {
-          assertEquals("0", new StrParamReferenceImpl("name", ImmutableList.of("0")).get(0));
-          assertEquals("1", new StrParamReferenceImpl("name", ImmutableList.of("0", "1")).get(1));
+          assertEquals("0",
+              new StrParamReferenceImpl("parameter", "name", ImmutableList.of("0")).get(0));
+          assertEquals("1",
+              new StrParamReferenceImpl("parameter", "name", ImmutableList.of("0", "1")).get(1));
         });
   }
 
-  @Test(expected = Err.class)
+  @Test(expected = ParamNotFound.class)
   public void missing() throws Exception {
     new MockUnit()
         .run(unit -> {
-          new StrParamReferenceImpl("name", ImmutableList.of("0")).get(1);
+          new StrParamReferenceImpl("parameter", "name", ImmutableList.of("0")).get(1);
         });
   }
 
-  @Test(expected = Err.class)
+  @Test(expected = ParamNotFound.class)
   public void missingLowIndex() throws Exception {
     new MockUnit()
         .run(unit -> {
-          new StrParamReferenceImpl("name", ImmutableList.of("0")).get(-1);
+          new StrParamReferenceImpl("parameter", "name", ImmutableList.of("0")).get(-1);
         });
   }
 
@@ -68,8 +72,10 @@ public class ParamReferenceImplTest {
   public void size() throws Exception {
     new MockUnit()
         .run(unit -> {
-          assertEquals(1, new StrParamReferenceImpl("name", ImmutableList.of("0")).size());
-          assertEquals(2, new StrParamReferenceImpl("name", ImmutableList.of("0", "1")).size());
+          assertEquals(1,
+              new StrParamReferenceImpl("parameter", "name", ImmutableList.of("0")).size());
+          assertEquals(2,
+              new StrParamReferenceImpl("parameter", "name", ImmutableList.of("0", "1")).size());
         });
   }
 
@@ -83,7 +89,7 @@ public class ParamReferenceImplTest {
         })
         .run(unit -> {
           assertEquals(unit.get(Iterator.class),
-              new StrParamReferenceImpl("name", unit.get(List.class)).iterator());
+              new StrParamReferenceImpl("parameter", "name", unit.get(List.class)).iterator());
         });
   }
 

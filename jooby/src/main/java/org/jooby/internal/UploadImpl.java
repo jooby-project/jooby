@@ -61,7 +61,7 @@ public class UploadImpl implements Upload {
   @Override
   public Mutant header(final String name) {
     return new MutantImpl(injector.getInstance(ParserExecutor.class),
-        new StrParamReferenceImpl(name, upload.headers(name)));
+        new StrParamReferenceImpl("header", name, upload.headers(name)));
   }
 
   @Override

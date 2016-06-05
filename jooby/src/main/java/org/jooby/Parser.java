@@ -102,6 +102,11 @@ public interface Parser {
   interface ParamReference<T> extends Iterable<T> {
 
     /**
+     * @return Descriptive type: parameter, header, cookie, etc...
+     */
+    String type();
+
+    /**
      * @return Parameter name.
      */
     String name();

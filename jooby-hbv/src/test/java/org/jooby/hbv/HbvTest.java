@@ -2,6 +2,7 @@ package org.jooby.hbv;
 
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
+import static org.junit.Assert.assertEquals;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -132,26 +133,32 @@ public class HbvTest {
         });
   }
 
+  @Test
+  public void conf() throws Exception {
+    assertEquals(ConfigFactory.empty().withValue("err.javax.validation.ValidationException",
+        ConfigValueFactory.fromAnyRef(400)), new Hbv().config());
+  }
+
   @SuppressWarnings("unchecked")
   @Test
   public void defaultsWithConfigurer() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, HibernateValidatorConfiguration.class,
         Consumer.class)
-        .expect(hibernateValiConf)
-        .expect(noproperties)
-        .expect(validatorProvider)
-        .expect(hvparser)
-        .expect(unit -> {
-          Consumer<HibernateValidatorConfiguration> configurer = unit.get(Consumer.class);
+            .expect(hibernateValiConf)
+            .expect(noproperties)
+            .expect(validatorProvider)
+            .expect(hvparser)
+            .expect(unit -> {
+              Consumer<HibernateValidatorConfiguration> configurer = unit.get(Consumer.class);
 
-          configurer.accept(unit.get(HibernateValidatorConfiguration.class));
-        })
-        .expect(onStop)
-        .run(unit -> {
-          new Hbv()
-              .doWith(unit.get(Consumer.class))
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        });
+              configurer.accept(unit.get(HibernateValidatorConfiguration.class));
+            })
+            .expect(onStop)
+            .run(unit -> {
+              new Hbv()
+                  .doWith(unit.get(Consumer.class))
+                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            });
   }
 
   @SuppressWarnings("unchecked")
@@ -159,23 +166,23 @@ public class HbvTest {
   public void defaultsWithFulleConfigurer() throws Exception {
     new MockUnit(Env.class, Config.class, Binder.class, HibernateValidatorConfiguration.class,
         BiConsumer.class)
-        .expect(hibernateValiConf)
-        .expect(noproperties)
-        .expect(validatorProvider)
-        .expect(hvparser)
-        .expect(unit -> {
-          BiConsumer<HibernateValidatorConfiguration, Config> configurer = unit
-              .get(BiConsumer.class);
+            .expect(hibernateValiConf)
+            .expect(noproperties)
+            .expect(validatorProvider)
+            .expect(hvparser)
+            .expect(unit -> {
+              BiConsumer<HibernateValidatorConfiguration, Config> configurer = unit
+                  .get(BiConsumer.class);
 
-          configurer.accept(unit.get(HibernateValidatorConfiguration.class),
-              unit.get(Config.class));
-        })
-        .expect(onStop)
-        .run(unit -> {
-          new Hbv()
-              .doWith(unit.get(BiConsumer.class))
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        });
+              configurer.accept(unit.get(HibernateValidatorConfiguration.class),
+                  unit.get(Config.class));
+            })
+            .expect(onStop)
+            .run(unit -> {
+              new Hbv()
+                  .doWith(unit.get(BiConsumer.class))
+                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            });
   }
 
 }

@@ -86,8 +86,10 @@ public class UploadImplTest {
               List<String> headers = Arrays.asList("application/json");
               expect(upload.headers("Content-Type")).andReturn(headers);
 
-              StrParamReferenceImpl pref = unit.mockConstructor(StrParamReferenceImpl.class, new Class[]{
-                  String.class, List.class }, "Content-Type", headers);
+              StrParamReferenceImpl pref = unit.mockConstructor(StrParamReferenceImpl.class,
+                  new Class[]{
+                      String.class, String.class, List.class },
+                  "header", "Content-Type", headers);
 
               Mutant mutant = unit.mockConstructor(MutantImpl.class,
                   new Class[]{ParserExecutor.class, Object.class },
@@ -118,8 +120,10 @@ public class UploadImplTest {
           List<String> headers = Arrays.asList();
           expect(upload.headers("Content-Type")).andReturn(headers);
 
-          StrParamReferenceImpl pref = unit.mockConstructor(StrParamReferenceImpl.class, new Class[]{
-              String.class, List.class }, "Content-Type", headers);
+          StrParamReferenceImpl pref = unit.mockConstructor(StrParamReferenceImpl.class,
+              new Class[]{
+                  String.class, String.class, List.class },
+               "header", "Content-Type", headers);
 
           Mutant mutant = unit.mockConstructor(MutantImpl.class,
               new Class[]{ParserExecutor.class, Object.class },
@@ -150,8 +154,10 @@ public class UploadImplTest {
           List<String> headers = Arrays.asList();
           expect(upload.headers("Content-Type")).andReturn(headers);
 
-          StrParamReferenceImpl pref = unit.mockConstructor(StrParamReferenceImpl.class, new Class[]{
-              String.class, List.class }, "Content-Type", headers);
+          StrParamReferenceImpl pref = unit.mockConstructor(StrParamReferenceImpl.class,
+              new Class[]{
+                  String.class, String.class, List.class },
+              "header", "Content-Type", headers);
 
           Mutant mutant = unit.mockConstructor(MutantImpl.class,
               new Class[]{ParserExecutor.class, Object.class },

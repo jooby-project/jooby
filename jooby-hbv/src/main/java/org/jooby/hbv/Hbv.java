@@ -27,6 +27,7 @@ import java.util.function.Predicate;
 
 import javax.validation.ConstraintValidatorFactory;
 import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 import javax.validation.Validator;
 
 import org.hibernate.validator.HibernateValidator;
@@ -40,6 +41,8 @@ import com.google.inject.Binder;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 
 /**
  * Bean validation via Hibernate Validator.
@@ -239,6 +242,13 @@ public class Hbv implements Jooby.Module {
 
     Multibinder.newSetBinder(binder, Parser.class).addBinding()
         .toInstance(new HbvParser(predicate));
+  }
+
+  @Override
+  public Config config() {
+    return ConfigFactory.empty(Hbv.class.getName())
+        .withValue("err." + ValidationException.class.getName(),
+            ConfigValueFactory.fromAnyRef(400));
   }
 
   static Predicate<TypeLiteral<?>> typeIs(final Class<?>[] classes) {

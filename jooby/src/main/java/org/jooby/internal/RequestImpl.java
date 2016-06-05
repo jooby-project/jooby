@@ -202,7 +202,8 @@ public class RequestImpl implements Request {
           values.add(pathvar);
         }
         values.addAll(params(name));
-        StrParamReferenceImpl paramref = new StrParamReferenceImpl(name, values.build());
+        StrParamReferenceImpl paramref = new StrParamReferenceImpl("parameter", name,
+            values.build());
         param = new MutantImpl(require(ParserExecutor.class), paramref);
 
         if (paramref.size() > 0) {
@@ -217,7 +218,7 @@ public class RequestImpl implements Request {
   public Mutant header(final String name) {
     requireNonNull(name, "Header's name is missing.");
     return new MutantImpl(require(ParserExecutor.class),
-        new StrParamReferenceImpl(name, req.headers(name)));
+        new StrParamReferenceImpl("header", name, req.headers(name)));
   }
 
   @Override
@@ -234,7 +235,8 @@ public class RequestImpl implements Request {
         .map(cookie -> ImmutableList.of(cookie.value().get()))
         .orElse(ImmutableList.of());
 
-    return new MutantImpl(require(ParserExecutor.class), new StrParamReferenceImpl(name, values));
+    return new MutantImpl(require(ParserExecutor.class),
+        new StrParamReferenceImpl("cookie", name, values));
   }
 
   @Override
@@ -254,8 +256,7 @@ public class RequestImpl implements Request {
           Integer.toHexString(System.identityHashCode(this)));
       files.add(fbody);
       Parser.BodyReference body = new BodyReferenceImpl(length, charset(), fbody, req.in());
-      return new MutantImpl(require(ParserExecutor.class), type(), body,
-          Status.UNSUPPORTED_MEDIA_TYPE);
+      return new MutantImpl(require(ParserExecutor.class), type(), body);
     }
     return new MutantImpl(require(ParserExecutor.class), type(), new BodyReferenceImpl());
   }

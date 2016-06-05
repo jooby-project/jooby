@@ -3,7 +3,9 @@ package org.jooby.whoops;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +50,7 @@ public class WhoopsTest {
   public void locationOf() {
     assertEquals("config-1.3.0.jar", Whoops.locationOf(Config.class));
 
-    assertEquals("target/classes", Whoops.locationOf(Whoops.class));
+    assertTrue(new File(Whoops.locationOf(Whoops.class)).exists());
 
     assertEquals("rt.jar", Whoops.locationOf(Object.class));
   }

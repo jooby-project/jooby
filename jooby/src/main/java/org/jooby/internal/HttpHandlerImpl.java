@@ -173,6 +173,8 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private final Map<String, Renderer> rendererMap;
 
+  private StatusCodeProvider sc;
+
   @Inject
   public HttpHandlerImpl(final Injector injector,
       final RequestScope requestScope,
@@ -182,6 +184,7 @@ public class HttpHandlerImpl implements HttpHandler {
       final ParserExecutor parserExecutor,
       final Set<Renderer> renderers,
       final Set<Err.Handler> err,
+      final StatusCodeProvider sc,
       final Charset charset,
       final List<Locale> locale) {
     this.injector = requireNonNull(injector, "An injector is required.");
@@ -190,6 +193,7 @@ public class HttpHandlerImpl implements HttpHandler {
     this.hasSockets = socketDefs.size() > 0;
     this.applicationPath = normalizeURI(requireNonNull(path, "An application.path is required."));
     this.err = requireNonNull(err, "An err handler is required.");
+    this.sc = sc;
     this.config = injector.getInstance(Config.class);
     _method = Strings.emptyToNull(this.config.getString("server.http.Method").trim());
     this.port = config.getInt("application.port");
@@ -348,7 +352,7 @@ public class HttpHandlerImpl implements HttpHandler {
       rsp.reset();
 
       // execution failed, find status code
-      Status status = statusCode(ex);
+      Status status = sc.apply(ex);
 
       rsp.header("Cache-Control", NO_CACHE);
       rsp.status(status);
@@ -417,34 +421,6 @@ public class HttpHandlerImpl implements HttpHandler {
       }
     }
     return Optional.empty();
-  }
-
-  private Status statusCode(final Throwable ex) {
-    if (ex instanceof Err) {
-      return Status.valueOf(((Err) ex).statusCode());
-    }
-    /**
-     * usually a class name, except for inner classes where '$' is replaced it by '.'
-     */
-    Function<Class<?>, String> name = type -> Optional.ofNullable(type.getDeclaringClass())
-        .map(dc -> new StringBuilder(dc.getName())
-            .append('.')
-            .append(type.getSimpleName())
-            .toString())
-        .orElse(type.getName());
-
-    Config err = config.getConfig("err");
-    int status = -1;
-    Class<?> type = ex.getClass();
-    while (type != Throwable.class && status == -1) {
-      String classname = name.apply(type);
-      if (err.hasPath(classname)) {
-        status = err.getInt(classname);
-      } else {
-        type = type.getSuperclass();
-      }
-    }
-    return status == -1 ? Status.SERVER_ERROR : Status.valueOf(status);
   }
 
   private static Err handle405(final Set<Route.Definition> routeDefs, final String method,

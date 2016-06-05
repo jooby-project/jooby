@@ -27,6 +27,8 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Sets;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 
 public class MutantImplTest {
 
@@ -513,11 +515,12 @@ public class MutantImplTest {
   }
 
   private Mutant newMutant(final String... values) {
-    return new MutantImpl(newConverter(), new StrParamReferenceImpl("test", Arrays.asList(values)));
+    return new MutantImpl(newConverter(),
+        new StrParamReferenceImpl("parameter", "test", Arrays.asList(values)));
   }
 
   private Mutant newMutant(final String value) {
-    StrParamReferenceImpl reference = new StrParamReferenceImpl("test", value == null
+    StrParamReferenceImpl reference = new StrParamReferenceImpl("parameter", "test", value == null
         ? Collections.emptyList()
         : ImmutableList.of(value));
     return new MutantImpl(newConverter(), reference);
@@ -537,7 +540,8 @@ public class MutantImplTest {
                 new StaticMethodParser("valueOf"),
                 new StringConstructorParser(),
                 new StaticMethodParser("fromString"),
-                new StaticMethodParser("forName")
-                )));
+                new StaticMethodParser("forName"))),
+        new StatusCodeProvider(ConfigFactory.empty().withValue("err",
+            ConfigValueFactory.fromAnyRef(Collections.emptyMap()))));
   }
 }

@@ -32,7 +32,6 @@ import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Session;
-import org.jooby.Status;
 import org.jooby.mvc.Body;
 import org.jooby.mvc.Header;
 import org.jooby.mvc.Local;
@@ -175,7 +174,8 @@ public class RequestParam {
       try {
         return req.params().to(param.type);
       } catch (Err ex) {
-        throw new Err(Status.BAD_REQUEST, "Not found: " + param.name);
+        // force parsing
+        return mutant.to(param.type);
       }
     };
   }

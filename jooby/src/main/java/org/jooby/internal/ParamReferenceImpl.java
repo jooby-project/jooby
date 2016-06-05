@@ -21,19 +21,25 @@ package org.jooby.internal;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jooby.Err;
 import org.jooby.Parser;
-import org.jooby.Status;
+import org.jooby.internal.parser.ParamNotFound;
 
 public class ParamReferenceImpl<T> implements Parser.ParamReference<T> {
+
+  private String type;
 
   private String name;
 
   private List<T> values;
 
-  public ParamReferenceImpl(final String name, final List<T> values) {
+  public ParamReferenceImpl(final String type, final String name, final List<T> values) {
+    this.type = type;
     this.name = name;
     this.values = values;
+  }
+
+  public String type() {
+    return type;
   }
 
   @Override
@@ -56,7 +62,7 @@ public class ParamReferenceImpl<T> implements Parser.ParamReference<T> {
     if (index >= 0 && index < values.size()) {
       return values.get(index);
     }
-    throw new Err(Status.BAD_REQUEST, "Not found: " + name);
+    throw new ParamNotFound(name);
   }
 
   @Override

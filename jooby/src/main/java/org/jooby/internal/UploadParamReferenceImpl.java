@@ -25,7 +25,7 @@ import org.jooby.Upload;
 public class UploadParamReferenceImpl extends ParamReferenceImpl<Upload> {
 
   public UploadParamReferenceImpl(final String name, final List<Upload> values) {
-    super(name, values);
+    super("Upload", name, values);
   }
 
 }

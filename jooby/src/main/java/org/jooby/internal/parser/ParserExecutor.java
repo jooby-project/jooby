@@ -18,15 +18,12 @@
  */
 package org.jooby.internal.parser;
 
-import static java.util.Objects.requireNonNull;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Parser;
@@ -36,6 +33,7 @@ import org.jooby.Parser.Callback;
 import org.jooby.Parser.ParamReference;
 import org.jooby.Status;
 import org.jooby.Upload;
+import org.jooby.internal.StatusCodeProvider;
 import org.jooby.internal.StrParamReferenceImpl;
 import org.jooby.internal.UploadParamReferenceImpl;
 
@@ -46,40 +44,35 @@ import com.google.inject.TypeLiteral;
 
 public class ParserExecutor {
 
-  private static final Object NOT_FOUND = new Object();
+  public static final Object NO_PARSER = new Object();
 
   private List<Parser> parsers;
 
   private Injector injector;
 
+  private StatusCodeProvider sc;
+
   @Inject
-  public ParserExecutor(final Injector injector, final Set<Parser> parsers) {
-    this.injector = requireNonNull(injector, "An injector is required.");
+  public ParserExecutor(final Injector injector, final Set<Parser> parsers,
+      final StatusCodeProvider sc) {
+    this.injector = injector;
     this.parsers = ImmutableList.copyOf(parsers);
+    this.sc = sc;
   }
 
-  public <T> T convert(final TypeLiteral<?> type, final Object data) {
-    return convert(type, MediaType.plain, data, Status.BAD_REQUEST);
+  public Status statusCode(final Throwable cause) {
+    return sc.apply(cause);
+  }
+
+  public <T> T convert(final TypeLiteral<?> type, final Object data) throws Throwable {
+    return convert(type, MediaType.plain, data);
   }
 
   @SuppressWarnings("unchecked")
-  public <T> T convert(final TypeLiteral<?> type, final MediaType contentType, final Object data,
-      final Status status) {
-    try {
-      requireNonNull(type, "A type is required.");
-      Object result = ctx(injector, contentType, type, parsers, data).next(type, data);
-      if (result == NOT_FOUND) {
-        if (status == Status.BAD_REQUEST) {
-          throw new Err(status, "No parser for " + type);
-        }
-        throw new Err(status, contentType.toString());
-      }
-      return (T) result;
-    } catch (Err err) {
-      throw err;
-    } catch (Throwable ex) {
-      throw new Err(status, ex);
-    }
+  public <T> T convert(final TypeLiteral<?> type, final MediaType contentType, final Object data)
+      throws Throwable {
+    Object result = ctx(injector, contentType, type, parsers, data).next(type, data);
+    return (T) result;
   }
 
   private static Parser.Context ctx(final Injector injector,
@@ -151,7 +144,7 @@ public class ParserExecutor {
       public Object next(final TypeLiteral<?> nexttype, final Object nextval)
           throws Throwable {
         if (cursor == parsers.size()) {
-          return NOT_FOUND;
+          return NO_PARSER;
         }
         if (!type.equals(nexttype)) {
           // reset cursor on type changes.
@@ -176,7 +169,8 @@ public class ParserExecutor {
       private Object wrap(final Object nextval, final Object value) {
         if (nextval instanceof String) {
           ParamReference<?> pref = (ParamReference) value;
-          return new StrParamReferenceImpl(pref.name(), ImmutableList.of((String) nextval));
+          return new StrParamReferenceImpl(pref.type(), pref.name(),
+              ImmutableList.of((String) nextval));
         } else if (nextval instanceof Upload) {
           ParamReference<?> pref = (ParamReference) value;
           return new UploadParamReferenceImpl(pref.name(), ImmutableList.of((Upload) nextval));

@@ -153,7 +153,7 @@ public class WebSocketImpl implements WebSocket {
       try {
         messageCallback.invoke(
             new MutantImpl(injector.getInstance(ParserExecutor.class),
-                new StrParamReferenceImpl("message", ImmutableList.of(message)))
+                new StrParamReferenceImpl("body", "message", ImmutableList.of(message)))
             );
       } catch (Throwable ex) {
         handleErr(ex);

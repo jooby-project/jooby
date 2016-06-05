@@ -30,7 +30,7 @@ public class Issue177 extends ServerFeature {
     request()
         .get("/issue177")
         .expect(400)
-        .expect("Bad Request(400): Not found: x");
+        .expect("Bad Request(400): Required parameter 'x' is not present");
   }
 
 }

@@ -22,8 +22,8 @@ import java.util.List;
 
 public class StrParamReferenceImpl extends ParamReferenceImpl<String> {
 
-  public StrParamReferenceImpl(final String name, final List<String> values) {
-    super(name, values);
+  public StrParamReferenceImpl(final String type, final String name, final List<String> values) {
+    super(type, name, values);
   }
 
 }

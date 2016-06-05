@@ -18,18 +18,26 @@
  */
 package org.jooby.internal;
 
+import static javaslang.API.$;
+import static javaslang.API.Case;
+import static javaslang.API.Match;
+import static javaslang.Predicates.instanceOf;
+
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
-import org.jooby.Parser;
-import org.jooby.Parser.ParamReference;
 import org.jooby.Status;
+import org.jooby.internal.parser.ParamNotFound;
 import org.jooby.internal.parser.ParserExecutor;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.TypeLiteral;
+
+import javaslang.Tuple;
+import javaslang.Tuple3;
 
 /**
  * Default mutant implementation.
@@ -40,26 +48,22 @@ import com.google.inject.TypeLiteral;
  */
 public class MutantImpl implements Mutant {
 
+  private static final String REQUIRED = "Required %s is not present";
+
+  private static final String FAILURE = "Failed to parse %s to '%s'";
+
   private final Map<Object, Object> results = new HashMap<>(1);
 
   private final ParserExecutor parser;
 
   private Object data;
 
-  private Status errStatus;
-
   private MediaType type;
 
-  public MutantImpl(final ParserExecutor parser, final MediaType type, final Object data,
-      final Status errStatus) {
+  public MutantImpl(final ParserExecutor parser, final MediaType type, final Object data) {
     this.parser = parser;
     this.type = type;
     this.data = data;
-    this.errStatus = errStatus;
-  }
-
-  public MutantImpl(final ParserExecutor parser, final MediaType type, final Object data) {
-    this(parser, type, data, Status.BAD_REQUEST);
   }
 
   public MutantImpl(final ParserExecutor parser, final Object data) {
@@ -76,8 +80,22 @@ public class MutantImpl implements Mutant {
   public <T> T to(final TypeLiteral<T> type, final MediaType mtype) {
     T result = (T) results.get(type);
     if (result == null) {
-      result = parser.convert(type, mtype, data, errStatus);
-      results.put(type, result);
+      try {
+        result = parser.convert(type, mtype, data);
+        if (result == ParserExecutor.NO_PARSER) {
+          Tuple3<String, String, Status> md = md();
+          throw new Err(md._3, String.format(FAILURE, md._2, type));
+        }
+        results.put(type, result);
+      } catch (ParamNotFound ex) {
+        Tuple3<String, String, Status> md = md();
+        throw new Err(parser.statusCode(ex), String.format(REQUIRED, md._2));
+      } catch (Err ex) {
+        throw ex;
+      } catch (Throwable ex) {
+        Tuple3<String, String, Status> md = md();
+        throw new Err(parser.statusCode(ex), String.format(FAILURE, md._2, type), ex);
+      }
     }
     return result;
   }
@@ -88,11 +106,7 @@ public class MutantImpl implements Mutant {
     if (data instanceof Map) {
       return (Map<String, Mutant>) data;
     }
-    if (data instanceof Parser.ParamReference) {
-      Parser.ParamReference<?> param = (ParamReference<?>) data;
-      return ImmutableMap.of(param.name(), this);
-    }
-    return ImmutableMap.of("body", this);
+    return ImmutableMap.of(md()._1, this);
   }
 
   @SuppressWarnings("rawtypes")
@@ -105,6 +119,15 @@ public class MutantImpl implements Mutant {
       return ((BodyReferenceImpl) data).length() > 0;
     }
     return ((Map) data).size() > 0;
+  }
+
+  private Tuple3<String, String, Status> md() {
+    return Match(data).of(
+        Case(instanceOf(ParamReferenceImpl.class),
+            p -> Tuple.of(p.name(), p.type() + " '" + p.name() + "'", Status.BAD_REQUEST)),
+        Case(instanceOf(BodyReferenceImpl.class),
+            Tuple.of("body", "body", Status.UNSUPPORTED_MEDIA_TYPE)),
+        Case($(), Tuple.of("params", "parameters", Status.BAD_REQUEST)));
   }
 
   @Override
