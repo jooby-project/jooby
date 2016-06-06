@@ -46,7 +46,9 @@ public class Issue393 extends ServerFeature {
     use(Resource.class);
 
     err((req, rsp, err) -> {
-      log.error("issue 393 {}", req.route(), err);
+      log.error("execution of: {}{} resulted in exception\nRoute:\n{}\n\nStacktrace:",
+          req.method(), req.path(), req.route().print(6), err);
+
       rsp.send(err.getMessage());
     });
   }

@@ -54,6 +54,8 @@ public class RouteImpl implements Route, Route.Filter {
 
   private String method;
 
+  private Source source;
+
   public static RouteImpl notFound(final String method, final String path,
       final List<MediaType> produces) {
     return fromStatus((req, rsp, chain) -> {
@@ -66,7 +68,7 @@ public class RouteImpl implements Route, Route.Filter {
   public static RouteImpl fromStatus(final Filter filter, final String method,
       final String path, final String name, final List<MediaType> produces) {
     return new RouteImpl(filter, new Route.Definition(method, path, filter)
-        .name(name), method, path, produces, NO_VARS, null) {
+        .name(name), method, path, produces, NO_VARS, null, Source.UNKNOWN) {
       @Override
       public boolean apply(final String filter) {
         return true;
@@ -76,7 +78,7 @@ public class RouteImpl implements Route, Route.Filter {
 
   public RouteImpl(final Filter filter, final Definition route, final String method,
       final String path, final List<MediaType> produces, final Map<Object, String> vars,
-      final Mapper<?> mapper) {
+      final Mapper<?> mapper, final Source source) {
     this.filter = Option.of(mapper)
         .map(m -> Match(filter).of(
             Case(instanceOf(Route.OneArgHandler.class),
@@ -97,6 +99,7 @@ public class RouteImpl implements Route, Route.Filter {
     this.produces = produces;
     this.path = path;
     this.vars = vars;
+    this.source = source;
   }
 
   @Override
@@ -161,15 +164,13 @@ public class RouteImpl implements Route, Route.Filter {
   }
 
   @Override
+  public Source source() {
+    return source;
+  }
+
+  @Override
   public String toString() {
-    StringBuilder buffer = new StringBuilder();
-    buffer.append(method()).append(" ").append(path()).append("\n");
-    buffer.append("  pattern: ").append(pattern()).append("\n");
-    buffer.append("  name: ").append(name()).append("\n");
-    buffer.append("  vars: ").append(vars()).append("\n");
-    buffer.append("  consumes: ").append(consumes()).append("\n");
-    buffer.append("  produces: ").append(produces()).append("\n");
-    return buffer.toString();
+    return print();
   }
 
 }

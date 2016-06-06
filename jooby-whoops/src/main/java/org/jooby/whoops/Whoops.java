@@ -250,7 +250,8 @@ public class Whoops implements Jooby.Module {
 
         template.get().evaluate(writer, context);
 
-        log.error("execution of: " + req.method() + req.path() + " resulted in exception", err);
+        log.error("execution of: {}{} resulted in exception\nRoute:\n{}\n\nStacktrace:",
+            req.method(), req.path(), req.route().print(6), err);
         rsp.send(writer.toString());
       }
     };

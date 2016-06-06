@@ -133,6 +133,8 @@ public class MvcRoutes {
                       .produces(produces)
                       .consumes(consumes)
                       .excludes(excludes)
+                      .declaringClass(method.getDeclaringClass().getName())
+                      .line(classInfo.startAt(method) - 1)
                       .name(name);
 
               localAttrs.forEach((n, v) -> definition.attr(n, v));

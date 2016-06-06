@@ -31,18 +31,23 @@ public class DefaultErrHandlerTest {
     ex.printStackTrace(new PrintWriter(writer));
     String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
 
-    new MockUnit(Request.class, Response.class)
+    new MockUnit(Request.class, Response.class, Route.class)
         .expect(unit -> {
           Logger log = unit.mock(Logger.class);
-          log.error("execution of: GET/path resulted in exception", ex);
+          log.error("execution of: {}{} resulted in exception\nRoute:\n{}\n\nStacktrace:", "GET",
+              "/path", "route", ex);
 
           unit.mockStatic(LoggerFactory.class);
           expect(LoggerFactory.getLogger(Err.class)).andReturn(log);
+
+          Route route = unit.get(Route.class);
+          expect(route.print(6)).andReturn("route");
 
           Request req = unit.get(Request.class);
 
           expect(req.path()).andReturn("/path");
           expect(req.method()).andReturn("GET");
+          expect(req.route()).andReturn(route);
 
           Response rsp = unit.get(Response.class);
 
@@ -75,18 +80,23 @@ public class DefaultErrHandlerTest {
     ex.printStackTrace(new PrintWriter(writer));
     String[] stacktrace = writer.toString().replace("\r", "").split("\\n");
 
-    new MockUnit(Request.class, Response.class)
+    new MockUnit(Request.class, Response.class, Route.class)
         .expect(unit -> {
           Logger log = unit.mock(Logger.class);
-          log.error("execution of: GET/path resulted in exception", ex);
+          log.error("execution of: {}{} resulted in exception\nRoute:\n{}\n\nStacktrace:", "GET",
+              "/path", "route", ex);
 
           unit.mockStatic(LoggerFactory.class);
           expect(LoggerFactory.getLogger(Err.class)).andReturn(log);
+
+          Route route = unit.get(Route.class);
+          expect(route.print(6)).andReturn("route");
 
           Request req = unit.get(Request.class);
 
           expect(req.path()).andReturn("/path");
           expect(req.method()).andReturn("GET");
+          expect(req.route()).andReturn(route);
 
           Response rsp = unit.get(Response.class);
 

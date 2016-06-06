@@ -34,12 +34,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jooby.internal.DeferredExecution;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
+import org.jooby.internal.RouteSourceImpl;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Strings;
@@ -48,6 +51,7 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Primitives;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import com.google.inject.internal.util.SourceProvider;
 
 import javaslang.CheckedFunction1;
 
@@ -214,6 +218,43 @@ import javaslang.CheckedFunction1;
  * @since 0.1.0
  */
 public interface Route {
+
+  /**
+   * Provides useful information about where the route was defined.
+   *
+   * @author edgar
+   * @since 1.0.0.CR4
+   */
+  interface Source {
+
+    Source UNKNOWN = new Source() {
+
+      @Override
+      public int line() {
+        return -1;
+      }
+
+      @Override
+      public Optional<String> declaringClass() {
+        return Optional.empty();
+      }
+
+      @Override
+      public String toString() {
+        return "~unknown:" + line();
+      }
+    };
+
+    /**
+     * @return Line number where the route was defined or <code>-1</code> when not available.
+     */
+    int line();
+
+    /**
+     * @return Class where the route
+     */
+    Optional<String> declaringClass();
+  }
 
   /**
    * The map operator converts a route output to something else
@@ -966,6 +1007,9 @@ public interface Route {
    */
   class Definition implements Props<Definition> {
 
+    private static final SourceProvider SRC = SourceProvider.DEFAULT_INSTANCE
+        .plusSkippedClasses(Definition.class, Jooby.class, Collection.class, Group.class);
+
     /**
      * Route's name.
      */
@@ -1008,6 +1052,10 @@ public interface Route {
     private Map<String, Object> attributes = new HashMap<>();
 
     private Mapper<?> mapper;
+
+    private int line;
+
+    private String declaringClass;
 
     /**
      * Creates a new route definition.
@@ -1062,6 +1110,9 @@ public interface Route {
       // normalized pattern
       this.pattern = cpattern.pattern();
       this.filter = filter;
+      StackTraceElement source = SRC.get(new Throwable().getStackTrace());
+      this.line = source.getLineNumber();
+      this.declaringClass = source.getClassName();
     }
 
     /**
@@ -1201,7 +1252,8 @@ public interface Route {
           // keep accept when */*
           List<MediaType> produces = result.size() == 1 && result.get(0).name().equals("*/*")
               ? accept : this.produces;
-          return Optional.of(asRoute(method, matcher, produces));
+          return Optional
+              .of(asRoute(method, matcher, produces, new RouteSourceImpl(declaringClass, line)));
         }
       }
       return Optional.empty();
@@ -1364,6 +1416,28 @@ public interface Route {
       return this;
     }
 
+    /**
+     * Set the line where this route is defined.
+     *
+     * @param line Line number.
+     * @return This instance.
+     */
+    public Definition line(final int line) {
+      this.line = line;
+      return this;
+    }
+
+    /**
+     * Set the class where this route is defined.
+     *
+     * @param declaringClass A source class.
+     * @return This instance.
+     */
+    public Definition declaringClass(final String declaringClass) {
+      this.declaringClass = declaringClass;
+      return this;
+    }
+
     @Override
     public String toString() {
       StringBuilder buffer = new StringBuilder();
@@ -1381,12 +1455,13 @@ public interface Route {
      * @param method A HTTP verb.
      * @param matcher A route matcher.
      * @param produces List of produces types.
+     * @param source Route source.
      * @return A new route.
      */
     private Route asRoute(final String method, final RouteMatcher matcher,
-        final List<MediaType> produces) {
+        final List<MediaType> produces, final Route.Source source) {
       return new RouteImpl(filter, this, method, matcher.path(), produces,
-          matcher.vars(), mapper);
+          matcher.vars(), mapper, source);
     }
 
   }
@@ -1471,6 +1546,21 @@ public interface Route {
     @Override
     public String reverse(final Object... values) {
       return route.reverse(values);
+    }
+
+    @Override
+    public Source source() {
+      return route.source();
+    }
+
+    @Override
+    public String print() {
+      return route.print();
+    }
+
+    @Override
+    public String print(final int indent) {
+      return route.print(indent);
     }
 
     @Override
@@ -2147,5 +2237,49 @@ public interface Route {
    */
   static String normalize(final String path) {
     return RoutePattern.normalize(path);
+  }
+
+  /**
+   * @return Source information.
+   */
+  Route.Source source();
+
+  /**
+   * Print route information like: method, path, source, etc... Useful for debugging.
+   *
+   * @param indent Indent level
+   * @return Output.
+   */
+  default String print(final int indent) {
+    StringBuilder buff = new StringBuilder();
+    String[] header = {"Method", "Path", "Source", "Name", "Pattern", "Consumes", "Produces" };
+    String[] values = {method(), path(), source().toString(), name(), pattern(),
+        consumes().toString(), produces().toString() };
+
+    BiConsumer<Function<Integer, String>, Character> format = (v, s) -> {
+      buff.append(Strings.padEnd("", indent, ' '))
+          .append("|").append(s);
+      for (int i = 0; i < header.length; i++) {
+        buff
+            .append(Strings.padEnd(v.apply(i), Math.max(header[i].length(), values[i].length()), s))
+            .append(s).append("|").append(s);
+      }
+      buff.setLength(buff.length() - 1);
+    };
+    format.accept(i -> header[i], ' ');
+    buff.append("\n");
+    format.accept(i -> "-", '-');
+    buff.append("\n");
+    format.accept(i -> values[i], ' ');
+    return buff.toString();
+  }
+
+  /**
+   * Print route information like: method, path, source, etc... Useful for debugging.
+   *
+   * @return Output.
+   */
+  default String print() {
+    return print(0);
   }
 }

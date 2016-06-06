@@ -42,15 +42,15 @@ public class WebContextFeature extends ServerFeature {
     request()
         .get("/auth/ctx?p1=v1")
         .expect("{\n" +
-            "  \"fullRequestURL\" : \"http://localhost:" + port + "/auth/ctx\",\n" +
+            "  \"fullRequestURL\" : \"http://localhost:9999/auth/ctx\",\n" +
             "  \"requestMethod\" : \"GET\",\n" +
             "  \"requestParameters\" : {\n" +
             "    \"p1\" : [ \"v1\" ]\n" +
             "  },\n" +
             "  \"scheme\" : \"http\",\n" +
             "  \"serverName\" : \"localhost\",\n" +
-            "  \"serverPort\" : " + port + ",\n" +
-            "  \"toString\" : \"GET /auth/ctx\\n  pattern: /auth/ctx\\n  name: /anonymous\\n  vars: {}\\n  consumes: [*/*]\\n  produces: [*/*]\\n\"\n" +
+            "  \"serverPort\" : 9999,\n" +
+            "  \"toString\" : \"| Method | Path      | Source                               | Name       | Pattern   | Consumes | Produces |\\n|--------|-----------|--------------------------------------|------------|-----------|----------|----------|\\n| GET    | /auth/ctx | org.jooby.pac4j.WebContextFeature:18 | /anonymous | /auth/ctx | [*/*]    | [*/*]    |\"\n" +
             "}");
   }
 

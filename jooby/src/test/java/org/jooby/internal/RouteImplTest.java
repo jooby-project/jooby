@@ -11,6 +11,7 @@ import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.Route.Source;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 
@@ -51,14 +52,11 @@ public class RouteImplTest {
     Route route = new RouteImpl(f, new Route.Definition("GET", "/p?th", f)
         .name("path")
         .consumes("html", "json"), "GET", "/path", MediaType.valueOf("json", "html"),
-        Collections.emptyMap(), null);
+        Collections.emptyMap(), null, Source.UNKNOWN);
 
-    assertEquals("GET /path\n" +
-        "  pattern: /p?th\n" +
-        "  name: /path\n" +
-        "  vars: {}\n" +
-        "  consumes: [text/html, application/json]\n" +
-        "  produces: [application/json, text/html]\n", route.toString());
+    assertEquals("| Method | Path  | Source      | Name  | Pattern | Consumes                      | Produces                      |\n" +
+        "|--------|-------|-------------|-------|---------|-------------------------------|-------------------------------|\n" +
+        "| GET    | /path | ~unknown:-1 | /path | /p?th   | [text/html, application/json] | [application/json, text/html] |", route.toString());
   }
 
   @Test
@@ -66,7 +64,7 @@ public class RouteImplTest {
     Route.Filter f = (req, rsp, chain) -> {
     };
     Route route = new RouteImpl(f, new Route.Definition("GET", "/p?th", f).consumes("html", "json"),
-        "GET", "/path", Collections.emptyList(), Collections.emptyMap(), null);
+        "GET", "/path", Collections.emptyList(), Collections.emptyMap(), null, Source.UNKNOWN);
 
     assertEquals(MediaType.valueOf("html", "json"), route.consumes());
   }

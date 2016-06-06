@@ -17,8 +17,14 @@ public class MongoRxApp extends Jooby {
     use(new MongoRx("mongodb://localhost/pets.Pet")
         .observableAdapter(observable -> observable.observeOn(Schedulers.io())));
 
-    get("/list", req -> req.require(MongoCollection.class)
-        .find());
+    use("/")
+        .get("/x", req -> null)
+        .get("/x", req -> null);
+
+    get("/list", req -> {
+      return req.require(MongoCollection.class)
+          .find();
+    });
 
     get("/db", req -> req.require(MongoClient.class)
         .listDatabaseNames());

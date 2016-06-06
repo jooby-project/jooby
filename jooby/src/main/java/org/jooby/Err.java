@@ -58,7 +58,8 @@ public class Err extends RuntimeException {
 
     @Override
     public void handle(final Request req, final Response rsp, final Err ex) throws Throwable {
-      log.error("execution of: " + req.method() + req.path() + " resulted in exception", ex);
+      log.error("execution of: {}{} resulted in exception\nRoute:\n{}\n\nStacktrace:",
+          req.method(), req.path(), req.route().print(6), ex);
 
       rsp.send(
           Results

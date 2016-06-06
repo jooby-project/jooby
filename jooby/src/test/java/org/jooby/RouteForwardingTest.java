@@ -177,6 +177,44 @@ public class RouteForwardingTest {
         });
   }
 
+  @Test
+  public void source() throws Exception {
+    new MockUnit(Route.class, Route.Source.class)
+        .expect(unit -> {
+          Route route = unit.get(Route.class);
+          expect(route.source()).andReturn(unit.get(Route.Source.class));
+        })
+        .run(unit -> {
+          assertEquals(unit.get(Route.Source.class),
+              new Route.Forwarding(unit.get(Route.class)).source());
+        });
+  }
+
+  @Test
+  public void print() throws Exception {
+    new MockUnit(Route.class, Route.Source.class)
+        .expect(unit -> {
+          Route route = unit.get(Route.class);
+          expect(route.print()).andReturn("x");
+        })
+        .run(unit -> {
+          assertEquals("x",
+              new Route.Forwarding(unit.get(Route.class)).print());
+        });
+  }
+
+  @Test
+  public void printWithIndent() throws Exception {
+    new MockUnit(Route.class, Route.Source.class)
+        .expect(unit -> {
+          Route route = unit.get(Route.class);
+          expect(route.print(6)).andReturn("x");
+        })
+        .run(unit -> {
+          assertEquals("x",
+              new Route.Forwarding(unit.get(Route.class)).print(6));
+        });
+  }
 
   @Test
   public void unwrap() throws Exception {

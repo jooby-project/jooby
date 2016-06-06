@@ -31,6 +31,7 @@ import org.jooby.Err;
 import org.jooby.Mutant;
 import org.jooby.Request;
 import org.jooby.Response;
+import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.mvc.Body;
 import org.jooby.mvc.Header;
@@ -69,6 +70,10 @@ public class RequestParam {
      * Request
      */
     builder.put(TypeLiteral.get(Request.class), (req, rsp, param) -> req);
+    /**
+     * Route
+     */
+    builder.put(TypeLiteral.get(Route.class), (req, rsp, param) -> req.route());
     /**
      * Response
      */
