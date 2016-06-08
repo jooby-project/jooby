@@ -20,16 +20,28 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.jooby.internal.CookieImpl;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.io.BaseEncoding;
+
+import javaslang.Tuple;
+import javaslang.Tuple2;
+import javaslang.control.Try;
 
 /**
  * Creates a cookie, a small amount of information sent by a server to
@@ -65,6 +77,42 @@ import com.google.common.io.BaseEncoding;
  * @since 0.1.0
  */
 public interface Cookie {
+
+  /**
+   * Decode a cookie value using, like: <code>k=v</code>, multiple <code>k=v</code> pair are
+   * separated by <code>&amp;</code>. Also, <code>k</code> and <code>v</code> are decoded using
+   * {@link URLDecoder}.
+   */
+  public static final Function<String, Map<String, String>> URL_DECODER = value -> {
+    Function<String, String> decode = v -> Try
+        .of(() -> URLDecoder.decode(v, StandardCharsets.UTF_8.name())).get();
+    return Splitter.on('&').trimResults().omitEmptyStrings()
+        .splitToList(value)
+        .stream()
+        .map(v -> {
+          Iterator<String> it = Splitter.on('=').trimResults().omitEmptyStrings()
+              .split(v)
+              .iterator();
+          Tuple2<String, String> t2 = Tuple.of(decode.apply(it.next()), decode.apply(it.next()));
+          return t2;
+        }).collect(Collectors.toMap(it -> it._1, it -> it._2));
+  };
+
+  /**
+   * Encode a hash into cookie value, like: <code>k1=v1&amp;...&amp;kn=vn</code>. Also,
+   * <code>key</code> and <code>value</code> are encoded using {@link URLEncoder}.
+   */
+  public static final Function<Map<String, String>, String> URL_ENCODER = value -> {
+    Function<String, String> encode = v -> Try
+        .of(() -> URLEncoder.encode(v, StandardCharsets.UTF_8.name())).get();
+    return value.entrySet().stream()
+        .map(e -> new StringBuilder()
+            .append(encode.apply(e.getKey()))
+            .append('=')
+            .append(encode.apply(e.getValue())))
+        .collect(Collectors.joining("&"))
+        .toString();
+  };
 
   /**
    * Build a {@link Cookie}.
@@ -313,6 +361,7 @@ public interface Cookie {
      * A negative value means that the cookie is not stored persistently and will be deleted when
      * the Web browser exits. A zero value causes the cookie to be deleted.
      * </p>
+     *
      * @return Cookie's max age in seconds.
      */
     public Optional<Integer> maxAge() {

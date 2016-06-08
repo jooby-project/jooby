@@ -660,6 +660,57 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void flash() throws Exception {
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.flash()).andReturn(Collections.emptyMap());
+        })
+        .run(unit -> {
+          new Request.Forwarding(unit.get(Request.class)).flash();
+        });
+  }
+
+  @Test
+  public void setFlashAttr() throws Exception {
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.flash("foo", "bar")).andReturn(req);
+        })
+        .run(unit -> {
+          assertNotEquals(unit.get(Request.class),
+              new Request.Forwarding(unit.get(Request.class)).flash("foo", "bar"));
+        });
+  }
+
+  @Test
+  public void getFlashAttr() throws Exception {
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.flash("foo")).andReturn("bar");
+        })
+        .run(unit -> {
+          assertEquals("bar",
+              new Request.Forwarding(unit.get(Request.class)).flash("foo"));
+        });
+  }
+
+  @Test
+  public void getIfFlashAttr() throws Exception {
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.ifFlash("foo")).andReturn(Optional.of("bar"));
+        })
+        .run(unit -> {
+          assertEquals("bar",
+              new Request.Forwarding(unit.get(Request.class)).ifFlash("foo").get());
+        });
+  }
+
+  @Test
   public void toStringFwd() throws Exception {
     new MockUnit(Request.class, Map.class)
         .run(unit -> {

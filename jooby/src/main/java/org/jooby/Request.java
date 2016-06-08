@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Locale.LanguageRange;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
@@ -310,6 +311,27 @@ public interface Request extends Registry {
     @Override
     public <T> Optional<T> unset(final String name) {
       return req.unset(name);
+    }
+
+    @Override
+    public Map<String, String> flash() throws NoSuchElementException {
+      return req.flash();
+    }
+
+    @Override
+    public String flash(final String name) throws NoSuchElementException {
+      return req.flash(name);
+    }
+
+    @Override
+    public Request flash(final String name, final Object value) {
+      req.flash(name, value);
+      return this;
+    }
+
+    @Override
+    public Optional<String> ifFlash(final String name) {
+      return req.ifFlash(name);
     }
 
     @Override
@@ -752,6 +774,77 @@ public interface Request extends Registry {
   Request set(String name, Object value);
 
   /**
+   * Give you access to flash scope. Usage:
+   *
+   * <pre>{@code
+   * {
+   *   use(new FlashScope());
+   *
+   *   get("/", req -> {
+   *     Map<String, String> flash = req.flash();
+   *     return flash;
+   *   });
+   * }
+   * }</pre>
+   *
+   * As you can see in the example above, the {@link FlashScope} needs to be install it by calling
+   * {@link Jooby#use(org.jooby.Jooby.Module)} otherwise a call to this method ends in
+   * {@link Err BAD_REQUEST}.
+   *
+   * @return A mutable map with attributes from {@link FlashScope}.
+   * @throws Err Bad request error if the {@link FlashScope} was not installed it.
+   */
+  default Map<String, String> flash() throws Err {
+    Optional<Map<String, String>> flash = ifGet(FlashScope.NAME);
+    return flash.orElseThrow(() -> new Err(Status.BAD_REQUEST,
+        "Flash scope isn't available. Install via: use(new FlashScope());"));
+  }
+
+  /**
+   * Set a flash attribute. Flash scope attributes are accessible from template engines, by
+   * prefixing attributes with <code>flash.</code>. For example a call to
+   * <code>flash("success", "OK")</code> is accessible from template engines using
+   * <code>flash.success</code>
+   *
+   * @param name Attribute's name.
+   * @param value Attribute's value.
+   * @return This request.
+   */
+  default Request flash(final String name, final Object value) {
+    requireNonNull(name, "Attribute's name is required.");
+    Map<String, String> flash = flash();
+    if (value == null) {
+      flash.remove(name);
+    } else {
+      flash.put(name, value.toString());
+    }
+    return this;
+  }
+
+  /**
+   * Get an optional for the given flash attribute's name.
+   *
+   * @param name Attribute's name.
+   * @return Optional flash attribute.
+   */
+  default Optional<String> ifFlash(final String name) {
+    return Optional.ofNullable(flash().get(name));
+  }
+
+  /**
+   * Get a flash attribute value or throws {@link Err BAD_REQUEST error} if missing.
+   *
+   * @param name Attribute's name.
+   * @return Flash attribute.
+   * @throws Err Bad request error if flash attribute is missing.
+   */
+  default String flash(final String name) throws Err {
+    return ifFlash(name)
+        .orElseThrow(() -> new Err(Status.BAD_REQUEST,
+            "Required flash attribute: '" + name + "' is not present"));
+  }
+
+  /**
    * @param name Attribute's name.
    * @return True if the local attribute is set.
    */
@@ -791,7 +884,8 @@ public interface Request extends Registry {
    */
   default <T> T get(final String name) {
     Optional<T> opt = ifGet(name);
-    return opt.orElseThrow(() -> new Err(Status.BAD_REQUEST, "Not found: " + name));
+    return opt.orElseThrow(
+        () -> new Err(Status.BAD_REQUEST, "Required local attribute: " + name + " is not present"));
   }
 
   /**

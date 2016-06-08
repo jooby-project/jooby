@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -326,6 +327,56 @@ public class RequestTest {
             }
           }.locales());
         });
+  }
+
+  @Test
+  public void setFlashAttr() throws Exception {
+    Map<String, String> flash = new HashMap<>();
+    new RequestMock() {
+      @Override
+      public Map<String, String> flash() {
+        return flash;
+      }
+    }.flash("foo", "bar");
+    assertEquals("bar", flash.get("foo"));
+  }
+
+  @Test
+  public void removeFlashAttr() throws Exception {
+    Map<String, String> flash = new HashMap<>();
+    flash.put("foo", "bar");
+    new RequestMock() {
+      @Override
+      public Map<String, String> flash() {
+        return flash;
+      }
+    }.flash("foo", null);
+    assertEquals(null, flash.get("foo"));
+  }
+
+  @Test
+  public void getFlashAttr() throws Exception {
+    Map<String, String> flash = new HashMap<>();
+    flash.put("foo", "bar");
+    RequestMock req = new RequestMock() {
+      @Override
+      public Map<String, String> flash() {
+        return flash;
+      }
+    };
+    assertEquals("bar", req.flash("foo"));
+  }
+
+  @Test(expected = Err.class)
+  public void noSuchFlashAttr() throws Exception {
+    Map<String, String> flash = new HashMap<>();
+    RequestMock req = new RequestMock() {
+      @Override
+      public Map<String, String> flash() {
+        return flash;
+      }
+    };
+    req.flash("foo");
   }
 
 }

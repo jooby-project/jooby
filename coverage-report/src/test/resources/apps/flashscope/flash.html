@@ -1,0 +1,13 @@
+<html>
+<body>
+
+{{#if flash.success}}
+  {{flash.success}}!!
+{{else}}
+  Welcome
+  <form action="/" method="post">
+    <input name="message">
+  </form>
+{{/if}}
+</body>
+</html>

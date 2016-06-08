@@ -368,6 +368,73 @@ In ```mvc routes``` request locals can be injected via ```@Local``` annotation:
 
 ```
 
+## flash scope
+
+The flash scope is designed to transport success and error messages, between requests. The flash scope is similar to [Session](#session) but lifecycle is shorter: *data are kept for only one request*.
+
+The flash scope is implemented as client side cookie, so it helps to keep application stateless.
+
+### usage
+
+```java
+
+import org.jooby.FlashScope;
+
+...
+
+{
+  use(new FlashScope());
+
+  get("/", req -> {
+    return req.ifFlash("success").orElse("Welcome!");
+  });
+
+  post("/", req -> {
+    req.flash("success", "The item has been created");
+    return Results.redirect("/");
+  });
+
+}
+```
+
+[FlashScope]({{defdocs}}/FlashScope.html) is also available on mvc routes via [@Flash]({{defdocs}}/mvc/Flash.html) annotation:
+
+```java
+@Path("/")
+public class Controller {
+  
+  // Access to flashScope
+  @GET
+  public Object flashScope(@Flash Map<String, String> flash) {
+    ...
+  }
+
+  // Access to a required flash attribute
+  @GET
+  public Object flashAttr(@Flash String foo) {
+    ...
+  }
+
+  // Access to an optional flash attribute
+  @GET
+  public Object optionlFlashAttr(@Flash Optional<String> foo) {
+    ... 
+  }
+} 
+```
+
+Worth to mention that flash attributes are accessible from template engine of your choice by prefixing flash attributes with ```flash.```. Here is a (handlebars.java)[/doc/hbs] example:
+
+```html
+{{#if flash.success}}
+  {{flash.success}}
+
+{{else}}
+  Welcome!
+
+{{/if}}
+```
+
 ## require
 
 In previous section we learnt you can bind/wire your objects with [Guice](https://github.com/google/guice).

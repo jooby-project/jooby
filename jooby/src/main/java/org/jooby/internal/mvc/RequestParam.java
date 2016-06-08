@@ -34,6 +34,7 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.mvc.Body;
+import org.jooby.mvc.Flash;
 import org.jooby.mvc.Header;
 import org.jooby.mvc.Local;
 
@@ -57,6 +58,8 @@ public class RequestParam {
   private static final TypeLiteral<Body> bodyType = TypeLiteral.get(Body.class);
 
   private static final TypeLiteral<Local> localType = TypeLiteral.get(Local.class);
+
+  private static final TypeLiteral<Flash> flashType = TypeLiteral.get(Flash.class);
 
   private static final Map<Object, GetValue> injector;
 
@@ -112,6 +115,16 @@ public class RequestParam {
       return local.get();
     });
 
+    /**
+     * Flash
+     */
+    builder.put(flashType, (req, rsp, param) -> {
+      if (param.type.getRawType() == Map.class) {
+        return req.flash();
+      }
+      return param.optional? req.ifFlash(param.name) : req.flash(param.name);
+    });
+
     injector = builder.build();
   }
 
@@ -138,6 +151,8 @@ public class RequestParam {
       strategyType = bodyType;
     } else if (elem.getAnnotation(Local.class) != null) {
       strategyType = localType;
+    } else if (elem.getAnnotation(Flash.class) != null) {
+      strategyType = flashType;
     } else {
       strategyType = this.type;
     }
