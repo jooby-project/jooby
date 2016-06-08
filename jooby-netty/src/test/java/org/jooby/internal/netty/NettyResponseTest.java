@@ -55,6 +55,14 @@ import io.netty.util.Attribute;
     DefaultFileRegion.class })
 public class NettyResponseTest {
 
+  private Block channel = unit -> {
+    Channel channel = unit.mock(Channel.class);
+    unit.registerMock(Channel.class, channel);
+
+    ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+    expect(ctx.channel()).andReturn(channel).times(1, 2);
+  };
+
   byte[] bytes = "bytes".getBytes();
   ByteBuffer buffer = ByteBuffer.wrap(bytes);
   int bufferSize = 8192;
@@ -144,21 +152,20 @@ public class NettyResponseTest {
 
   @SuppressWarnings("unchecked")
   private Block async = unit -> {
-    ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+    Channel channel = unit.get(Channel.class);
 
     Attribute<Boolean> async = unit.mock(Attribute.class);
     expect(async.get()).andReturn(false);
-    expect(ctx.attr(NettyRequest.ASYNC)).andReturn(async);
+    expect(channel.attr(NettyRequest.ASYNC)).andReturn(async);
   };
 
   @SuppressWarnings("unchecked")
   private Block setNeedFlush = unit -> {
-    ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-
     Attribute<Boolean> needFlush = unit.mock(Attribute.class);
     needFlush.set(false);
 
-    expect(ctx.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
+    Channel channel = unit.get(Channel.class);
+    expect(channel.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
   };
 
   @Test
@@ -272,6 +279,7 @@ public class NettyResponseTest {
   public void sendBytesSetDefLenAndKeepAlive() throws Exception {
     boolean keepAlive = true;
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class)
+        .expect(channel)
         .expect(wrapBytes)
         .expect(headers)
         .expect(deflen)
@@ -295,6 +303,7 @@ public class NettyResponseTest {
   public void sendBufferSetDefLenAndKeepAlive() throws Exception {
     boolean keepAlive = true;
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class)
+        .expect(channel)
         .expect(wrapBuffer)
         .expect(headers)
         .expect(deflen)
@@ -318,6 +327,7 @@ public class NettyResponseTest {
   public void sendBytesKeepAlive() throws Exception {
     boolean keepAlive = true;
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class)
+        .expect(channel)
         .expect(wrapBytes)
         .expect(headers)
         .expect(len)
@@ -341,6 +351,7 @@ public class NettyResponseTest {
   public void sendBytesNoKeepAlive() throws Exception {
     boolean keepAlive = false;
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class)
+        .expect(channel)
         .expect(wrapBytes)
         .expect(headers)
         .expect(len)
@@ -363,6 +374,7 @@ public class NettyResponseTest {
   public void sendBytesKeepAliveOffNoLen() throws Exception {
     boolean keepAlive = false;
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class)
+        .expect(channel)
         .expect(wrapBytes)
         .expect(headers)
         .expect(len)
@@ -392,7 +404,7 @@ public class NettyResponseTest {
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
               .send(unit.get(InputStream.class));
-        } , unit -> {
+        }, unit -> {
           assertEquals(bufferSize, unit.captured(byte[].class).iterator().next().length);
         });
   }
@@ -401,6 +413,7 @@ public class NettyResponseTest {
   public void sendHeadChunk() throws Exception {
     boolean keepAlive = false;
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class, InputStream.class)
+        .expect(channel)
         .expect(
             unit -> {
               InputStream stream = unit.get(InputStream.class);
@@ -437,6 +450,7 @@ public class NettyResponseTest {
     boolean keepAlive = true;
     int bufferSize = 10;
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class, InputStream.class)
+        .expect(channel)
         .expect(unit -> {
           InputStream stream = unit.get(InputStream.class);
           expect(stream.read(unit.capture(byte[].class), eq(0), eq(bufferSize))).andReturn(
@@ -474,11 +488,8 @@ public class NettyResponseTest {
           EventLoop loop = unit.mock(EventLoop.class);
           loop.execute(unit.capture(Runnable.class));
 
-          Channel channel = unit.mock(Channel.class);
+          Channel channel = unit.get(Channel.class);
           expect(channel.eventLoop()).andReturn(loop);
-
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.channel()).andReturn(channel);
         })
         .expect(unit -> {
           ChannelFuture future = unit.get(ChannelFuture.class);
@@ -519,7 +530,7 @@ public class NettyResponseTest {
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
               .send(unit.get(InputStream.class));
-        } , unit -> {
+        }, unit -> {
           unit.captured(Runnable.class).iterator().next().run();
         });
   }
@@ -527,8 +538,9 @@ public class NettyResponseTest {
   @Test
   public void sendFileChannel() throws Exception {
     boolean keepAlive = false;
-    FileChannel channel = newFileChannel(8192);
+    FileChannel fchannel = newFileChannel(8192);
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class)
+        .expect(channel)
         .expect(headers)
         .expect(unit -> {
           DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
@@ -558,8 +570,8 @@ public class NettyResponseTest {
         .expect(
             unit -> {
               DefaultFileRegion region = unit.mockConstructor(DefaultFileRegion.class,
-                  new Class[]{FileChannel.class, long.class, long.class }, channel, 0L,
-                  channel.size());
+                  new Class[]{FileChannel.class, long.class, long.class }, fchannel, 0L,
+                  fchannel.size());
 
               unit.registerMock(DefaultFileRegion.class, region);
             })
@@ -580,17 +592,15 @@ public class NettyResponseTest {
           EventLoop loop = unit.mock(EventLoop.class);
           loop.execute(unit.capture(Runnable.class));
 
-          Channel chn = unit.mock(Channel.class);
+          Channel chn = unit.get(Channel.class);
           expect(chn.eventLoop()).andReturn(loop);
 
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.channel()).andReturn(chn);
         })
         .expect(noKeepAliveNoLen)
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
-              .send(channel);
-        } , unit -> {
+              .send(fchannel);
+        }, unit -> {
           unit.captured(Runnable.class).iterator().next().run();
         });
   }
@@ -598,8 +608,9 @@ public class NettyResponseTest {
   @Test
   public void sendFileChannelNoLen() throws Exception {
     boolean keepAlive = false;
-    FileChannel channel = newFileChannel(8192);
+    FileChannel fchannel = newFileChannel(8192);
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class)
+        .expect(channel)
         .expect(headers)
         .expect(unit -> {
           DefaultHttpHeaders headers = unit.get(DefaultHttpHeaders.class);
@@ -627,8 +638,8 @@ public class NettyResponseTest {
         .expect(
             unit -> {
               DefaultFileRegion region = unit.mockConstructor(DefaultFileRegion.class,
-                  new Class[]{FileChannel.class, long.class, long.class }, channel, 0L,
-                  channel.size());
+                  new Class[]{FileChannel.class, long.class, long.class }, fchannel, 0L,
+                  fchannel.size());
 
               unit.registerMock(DefaultFileRegion.class, region);
             })
@@ -650,16 +661,13 @@ public class NettyResponseTest {
           EventLoop loop = unit.mock(EventLoop.class);
           loop.execute(unit.capture(Runnable.class));
 
-          Channel chn = unit.mock(Channel.class);
+          Channel chn = unit.get(Channel.class);
           expect(chn.eventLoop()).andReturn(loop);
-
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.channel()).andReturn(chn);
         })
         .run(unit -> {
           new NettyResponse(unit.get(ChannelHandlerContext.class), bufferSize, keepAlive)
-              .send(channel);
-        } , unit -> {
+              .send(fchannel);
+        }, unit -> {
           unit.captured(Runnable.class).iterator().next().run();
         });
   }
@@ -680,9 +688,10 @@ public class NettyResponseTest {
   @Test
   public void end() throws Exception {
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class)
+        .expect(channel)
         .expect(headers)
         .expect(unit -> {
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          Channel ctx = unit.get(Channel.class);
           expect(ctx.attr(NettyWebSocket.KEY)).andReturn(null);
         })
         .expect(unit -> {
@@ -715,11 +724,12 @@ public class NettyResponseTest {
   public void end2() throws Exception {
     new MockUnit(ChannelHandlerContext.class, ByteBuf.class, ChannelFuture.class)
         .expect(headers)
+        .expect(channel)
         .expect(unit -> {
           Attribute<NettyWebSocket> attr = unit.mock(Attribute.class);
           expect(attr.get()).andReturn(null);
 
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          Channel ctx = unit.get(Channel.class);
           expect(ctx.attr(NettyWebSocket.KEY)).andReturn(attr);
         })
         .expect(unit -> {
@@ -798,7 +808,7 @@ public class NettyResponseTest {
       @Override
       public long transferTo(final long position, final long count,
           final WritableByteChannel target)
-              throws IOException {
+          throws IOException {
         return 0;
       }
 

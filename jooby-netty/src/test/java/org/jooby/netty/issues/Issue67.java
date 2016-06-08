@@ -14,6 +14,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -32,7 +33,7 @@ public class Issue67 {
   @Test
   public void shouldCloseChannelIfHttpKeepAliveIsOff() throws Exception {
     byte[] bytes = "Hello World!".getBytes();
-    new MockUnit(ChannelHandlerContext.class)
+    new MockUnit(ChannelHandlerContext.class, Channel.class)
         .expect(unit -> {
           ByteBuf buff = unit.mock(ByteBuf.class);
           expect(buff.readableBytes()).andReturn(bytes.length);
@@ -53,8 +54,12 @@ public class Issue67 {
 
           Attribute<Boolean> async = unit.mock(Attribute.class);
           expect(async.get()).andReturn(true);
+
+          Channel channel = unit.get(Channel.class);
+          expect(channel.attr(NettyRequest.ASYNC)).andReturn(async);
+
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.attr(NettyRequest.ASYNC)).andReturn(async);
+          expect(ctx.channel()).andReturn(channel);
           expect(ctx.writeAndFlush(rsp)).andReturn(rspfuture);
 
         })

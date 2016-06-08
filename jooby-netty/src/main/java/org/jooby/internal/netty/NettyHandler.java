@@ -69,10 +69,10 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
   @Override
   public void channelRead0(final ChannelHandlerContext ctx, final Object msg) {
     if (msg instanceof FullHttpRequest) {
-      ctx.attr(NettyRequest.NEED_FLUSH).set(true);
+      ctx.channel().attr(NettyRequest.NEED_FLUSH).set(true);
 
       FullHttpRequest req = (FullHttpRequest) msg;
-      ctx.attr(PATH).set(req.method().name() + " " + req.uri());
+      ctx.channel().attr(PATH).set(req.method().name() + " " + req.uri());
 
       if (HttpUtil.is100ContinueExpected(req)) {
         ctx.write(new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.CONTINUE));
@@ -89,14 +89,14 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
         exceptionCaught(ctx, ex);
       }
     } else if (msg instanceof WebSocketFrame) {
-      Attribute<NettyWebSocket> ws = ctx.attr(NettyWebSocket.KEY);
+      Attribute<NettyWebSocket> ws = ctx.channel().attr(NettyWebSocket.KEY);
       ws.get().handle(msg);
     }
   }
 
   @Override
   public void channelReadComplete(final ChannelHandlerContext ctx) throws Exception {
-    Attribute<Boolean> attr = ctx.attr(NettyRequest.NEED_FLUSH);
+    Attribute<Boolean> attr = ctx.channel().attr(NettyRequest.NEED_FLUSH);
     boolean needFlush = (attr == null || attr.get() == Boolean.TRUE);
     if (needFlush) {
       ctx.flush();
@@ -107,13 +107,13 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
   public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
     try {
       if (connectionResetByPeer(cause)) {
-        log.trace("execution of: " + ctx.attr(PATH).get() + " resulted in error", cause);
+        log.trace("execution of: " + ctx.channel().attr(PATH).get() + " resulted in error", cause);
       } else {
-        Attribute<NettyWebSocket> ws = ctx.attr(NettyWebSocket.KEY);
+        Attribute<NettyWebSocket> ws = ctx.channel().attr(NettyWebSocket.KEY);
         if (ws != null && ws.get() != null) {
           ws.get().handle(cause);
         } else {
-          log.error("execution of: " + ctx.attr(PATH).get() + " resulted in error", cause);
+          log.error("execution of: " + ctx.channel().attr(PATH).get() + " resulted in error", cause);
         }
       }
     } finally {

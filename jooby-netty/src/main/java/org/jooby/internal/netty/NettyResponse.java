@@ -130,7 +130,7 @@ public class NettyResponse implements NativeResponse {
       // dump headers
       rsp.headers().set(headers);
       ChannelHandlerContext ctx = this.ctx;
-      ctx.attr(NettyRequest.NEED_FLUSH).set(false);
+      ctx.channel().attr(NettyRequest.NEED_FLUSH).set(false);
 
       // add chunker
       ChannelPipeline pipeline = ctx.pipeline();
@@ -170,7 +170,7 @@ public class NettyResponse implements NativeResponse {
     // dump headers
     rsp.headers().set(headers);
     ChannelHandlerContext ctx = this.ctx;
-    ctx.attr(NettyRequest.NEED_FLUSH).set(false);
+    ctx.channel().attr(NettyRequest.NEED_FLUSH).set(false);
     ctx.channel().eventLoop().execute(() -> {
       // send headers
       ctx.write(rsp);
@@ -196,7 +196,7 @@ public class NettyResponse implements NativeResponse {
     // dump headers
     rsp.headers().set(headers);
 
-    Attribute<Boolean> async = ctx.attr(NettyRequest.ASYNC);
+    Attribute<Boolean> async = ctx.channel().attr(NettyRequest.ASYNC);
     boolean isAsync = async != null && async.get() == Boolean.TRUE;
     if (isAsync) {
       // we need flush, from async
@@ -237,7 +237,7 @@ public class NettyResponse implements NativeResponse {
   @Override
   public void end() {
     if (ctx != null) {
-      Attribute<NettyWebSocket> ws = ctx.attr(NettyWebSocket.KEY);
+      Attribute<NettyWebSocket> ws = ctx.channel().attr(NettyWebSocket.KEY);
       if (ws != null && ws.get() != null) {
         status = HttpResponseStatus.SWITCHING_PROTOCOLS;
         ws.get().hankshake();

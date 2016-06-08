@@ -97,7 +97,7 @@ public class NettyRequest implements NativeRequest {
     this.query = new QueryStringDecoder(req.uri());
     this.path = URLDecoder.decode(query.path(), "UTF-8");
     this.wsMaxMessageSize = wsMaxMessageSize;
-    ctx.attr(ASYNC).set(false);
+    ctx.channel().attr(ASYNC).set(false);
   }
 
   @Override
@@ -203,7 +203,7 @@ public class NettyRequest implements NativeRequest {
             .addListener(payload -> ws.connect())
             .addListener(FIRE_EXCEPTION_ON_FAILURE);
       });
-      ctx.attr(NettyWebSocket.KEY).set(result);
+      ctx.channel().attr(NettyWebSocket.KEY).set(result);
       return (T) result;
     } else if (type == Sse.class) {
       NettySse sse = new NettySse(ctx);
@@ -214,8 +214,8 @@ public class NettyRequest implements NativeRequest {
 
   @Override
   public void startAsync() {
-    ctx.attr(NEED_FLUSH).set(false);
-    ctx.attr(ASYNC).set(true);
+    ctx.channel().attr(NEED_FLUSH).set(false);
+    ctx.channel().attr(ASYNC).set(true);
   }
 
   private org.jooby.Cookie cookie(final Cookie c) {

@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import org.jooby.spi.HttpHandler;
 import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -14,6 +15,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.typesafe.config.Config;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -32,11 +34,20 @@ import io.netty.util.Attribute;
     DefaultFullHttpResponse.class, HttpUtil.class })
 public class NettyHandlerTest {
 
+  private Block channel = unit -> {
+    Channel channel = unit.mock(Channel.class);
+    unit.registerMock(Channel.class, channel);
+
+    ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+    expect(ctx.channel()).andReturn(channel).times(1, 4);
+  };
+
   @SuppressWarnings("unchecked")
   @Test
   public void channelReadCompleteRead0With100ContinueExpected() throws Exception {
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class,
         FullHttpRequest.class)
+            .expect(channel)
             .expect(unit -> {
 
               FullHttpRequest req = unit.get(FullHttpRequest.class);
@@ -51,8 +62,10 @@ public class NettyHandlerTest {
               Attribute<Boolean> needFlush = unit.mock(Attribute.class);
               needFlush.set(true);
 
+              Channel channel = unit.get(Channel.class);
+
               ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-              expect(ctx.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
+              expect(channel.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
 
               DefaultFullHttpResponse rsp = unit.mockConstructor(DefaultFullHttpResponse.class,
                   new Class[]{HttpVersion.class, HttpResponseStatus.class },
@@ -62,7 +75,7 @@ public class NettyHandlerTest {
               Attribute<String> attr = unit.mock(Attribute.class);
               attr.set("GET /");
 
-              expect(ctx.attr(NettyHandler.PATH)).andReturn(attr);
+              expect(channel.attr(NettyHandler.PATH)).andReturn(attr);
             })
             .expect(unit -> {
               Config config = unit.get(Config.class);
@@ -83,6 +96,7 @@ public class NettyHandlerTest {
   public void channelReadCompleteRead0WithKeepAlive() throws Exception {
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class,
         FullHttpRequest.class)
+            .expect(channel)
             .expect(unit -> {
 
               FullHttpRequest req = unit.get(FullHttpRequest.class);
@@ -97,8 +111,10 @@ public class NettyHandlerTest {
               Attribute<Boolean> needFlush = unit.mock(Attribute.class);
               needFlush.set(true);
 
+              Channel channel = unit.get(Channel.class);
+
               ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-              expect(ctx.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
+              expect(channel.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
 
               DefaultFullHttpResponse rsp = unit.mockConstructor(DefaultFullHttpResponse.class,
                   new Class[]{HttpVersion.class, HttpResponseStatus.class },
@@ -108,7 +124,7 @@ public class NettyHandlerTest {
               Attribute<String> attr = unit.mock(Attribute.class);
               attr.set("GET /");
 
-              expect(ctx.attr(NettyHandler.PATH)).andReturn(attr);
+              expect(channel.attr(NettyHandler.PATH)).andReturn(attr);
             })
             .expect(unit -> {
               Config config = unit.get(Config.class);
@@ -128,12 +144,15 @@ public class NettyHandlerTest {
   @Test
   public void channelReadCompleteFlush() throws Exception {
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(channel)
         .expect(unit -> {
           Attribute<Boolean> needFlush = unit.mock(Attribute.class);
           expect(needFlush.get()).andReturn(true);
 
+          Channel channel = unit.get(Channel.class);
+
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
+          expect(channel.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
 
           expect(ctx.flush()).andReturn(ctx);
         })
@@ -154,12 +173,14 @@ public class NettyHandlerTest {
   @Test
   public void channelReadCompleteNoFlush() throws Exception {
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(channel)
         .expect(unit -> {
           Attribute<Boolean> needFlush = unit.mock(Attribute.class);
           expect(needFlush.get()).andReturn(false);
 
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
+          Channel channel = unit.get(Channel.class);
+
+          expect(channel.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
         })
         .expect(unit -> {
           Config config = unit.get(Config.class);
@@ -177,9 +198,11 @@ public class NettyHandlerTest {
   @Test
   public void channelReadCompleteDefFlush() throws Exception {
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(channel)
         .expect(unit -> {
+          Channel channel = unit.get(Channel.class);
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.attr(NettyRequest.NEED_FLUSH)).andReturn(null);
+          expect(channel.attr(NettyRequest.NEED_FLUSH)).andReturn(null);
 
           expect(ctx.flush()).andReturn(ctx);
         })
@@ -200,6 +223,7 @@ public class NettyHandlerTest {
   @Test
   public void channelReadCompleteRead0WebSocket() throws Exception {
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class, WebSocketFrame.class)
+        .expect(channel)
         .expect(unit -> {
           Config config = unit.get(Config.class);
           expect(config.getString("application.tmpdir")).andReturn("target");
@@ -213,8 +237,8 @@ public class NettyHandlerTest {
           Attribute<NettyWebSocket> attr = unit.mock(Attribute.class);
           expect(attr.get()).andReturn(ws);
 
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.attr(NettyWebSocket.KEY)).andReturn(attr);
+          Channel channel = unit.get(Channel.class);
+          expect(channel.attr(NettyWebSocket.KEY)).andReturn(attr);
         })
         .run(unit -> {
           new NettyHandler(unit.get(HttpHandler.class), unit.get(Config.class))
@@ -228,6 +252,7 @@ public class NettyHandlerTest {
   public void channelReadCompleteRead0WithException() throws Exception {
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class,
         FullHttpRequest.class)
+            .expect(channel)
             .expect(unit -> {
               FullHttpRequest req = unit.get(FullHttpRequest.class);
               expect(req.uri()).andReturn("/");
@@ -240,14 +265,15 @@ public class NettyHandlerTest {
               Attribute<Boolean> needFlush = unit.mock(Attribute.class);
               needFlush.set(true);
 
-              ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-              expect(ctx.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
+              Channel channel = unit.get(Channel.class);
+
+              expect(channel.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
 
               Attribute<String> attr = unit.mock(Attribute.class);
               attr.set("GET /");
               expect(attr.get()).andReturn("GET /");
 
-              expect(ctx.attr(NettyHandler.PATH)).andReturn(attr).times(2);
+              expect(channel.attr(NettyHandler.PATH)).andReturn(attr).times(2);
             })
             .expect(unit -> {
               Config config = unit.get(Config.class);
@@ -273,8 +299,9 @@ public class NettyHandlerTest {
             .expect(unit -> {
               ChannelFuture future = unit.mock(ChannelFuture.class);
 
+              Channel channel = unit.get(Channel.class);
               ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-              expect(ctx.attr(NettyWebSocket.KEY)).andReturn(null);
+              expect(channel.attr(NettyWebSocket.KEY)).andReturn(null);
               expect(ctx.close()).andReturn(future);
             })
             .run(unit -> {
@@ -289,6 +316,7 @@ public class NettyHandlerTest {
   public void exceptionCaughtWebSocket() throws Exception {
     Exception cause = new Exception("intentional error");
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(channel)
         .expect(unit -> {
           Config config = unit.get(Config.class);
           expect(config.getString("application.tmpdir")).andReturn("target");
@@ -302,8 +330,8 @@ public class NettyHandlerTest {
           Attribute<NettyWebSocket> attr = unit.mock(Attribute.class);
           expect(attr.get()).andReturn(ws).times(2);
 
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.attr(NettyWebSocket.KEY)).andReturn(attr);
+          Channel channel = unit.get(Channel.class);
+          expect(channel.attr(NettyWebSocket.KEY)).andReturn(attr);
         })
         .expect(unit -> {
           ChannelFuture future = unit.mock(ChannelFuture.class);
@@ -322,6 +350,7 @@ public class NettyHandlerTest {
   public void exceptionCaughtNormalNullWsAttr() throws Exception {
     Exception cause = new Exception("intentional error");
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(channel)
         .expect(unit -> {
           Config config = unit.get(Config.class);
           expect(config.getString("application.tmpdir")).andReturn("target");
@@ -332,13 +361,14 @@ public class NettyHandlerTest {
           Attribute<NettyWebSocket> attr = unit.mock(Attribute.class);
           expect(attr.get()).andReturn(null);
 
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.attr(NettyWebSocket.KEY)).andReturn(attr);
+          Channel channel = unit.get(Channel.class);
+
+          expect(channel.attr(NettyWebSocket.KEY)).andReturn(attr);
 
           Attribute<String> attr1 = unit.mock(Attribute.class);
           expect(attr1.get()).andReturn("GET /");
 
-          expect(ctx.attr(NettyHandler.PATH)).andReturn(attr1);
+          expect(channel.attr(NettyHandler.PATH)).andReturn(attr1);
         })
         .expect(unit -> {
           ChannelFuture future = unit.mock(ChannelFuture.class);
@@ -357,6 +387,7 @@ public class NettyHandlerTest {
   public void exceptionCaughtNormalNullNullWsAttr() throws Exception {
     Exception cause = new Exception("intentional error");
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(channel)
         .expect(unit -> {
           Config config = unit.get(Config.class);
           expect(config.getString("application.tmpdir")).andReturn("target");
@@ -364,13 +395,14 @@ public class NettyHandlerTest {
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.attr(NettyWebSocket.KEY)).andReturn(null);
+          Channel channel = unit.get(Channel.class);
+
+          expect(channel.attr(NettyWebSocket.KEY)).andReturn(null);
 
           Attribute<String> attr = unit.mock(Attribute.class);
           expect(attr.get()).andReturn("GET /");
 
-          expect(ctx.attr(NettyHandler.PATH)).andReturn(attr);
+          expect(channel.attr(NettyHandler.PATH)).andReturn(attr);
         })
         .expect(unit -> {
           ChannelFuture future = unit.mock(ChannelFuture.class);
@@ -389,6 +421,7 @@ public class NettyHandlerTest {
   public void exceptionCaughtConnectionResetByPeerNoIOEx() throws Exception {
     Exception cause = new Exception("Connection reset by peer  (intentional error)");
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(channel)
         .expect(unit -> {
           Config config = unit.get(Config.class);
           expect(config.getString("application.tmpdir")).andReturn("target");
@@ -396,13 +429,14 @@ public class NettyHandlerTest {
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.attr(NettyWebSocket.KEY)).andReturn(null);
+          Channel channel = unit.get(Channel.class);
+
+          expect(channel.attr(NettyWebSocket.KEY)).andReturn(null);
 
           Attribute<String> attr = unit.mock(Attribute.class);
           expect(attr.get()).andReturn("GET /");
 
-          expect(ctx.attr(NettyHandler.PATH)).andReturn(attr);
+          expect(channel.attr(NettyHandler.PATH)).andReturn(attr);
         })
         .expect(unit -> {
           ChannelFuture future = unit.mock(ChannelFuture.class);
@@ -421,6 +455,7 @@ public class NettyHandlerTest {
   public void exceptionCaughtIOEx() throws Exception {
     Exception cause = new IOException("Connection reset by pexer");
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(channel)
         .expect(unit -> {
           Config config = unit.get(Config.class);
           expect(config.getString("application.tmpdir")).andReturn("target");
@@ -428,13 +463,13 @@ public class NettyHandlerTest {
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
-          expect(ctx.attr(NettyWebSocket.KEY)).andReturn(null);
+          Channel channel = unit.get(Channel.class);
+          expect(channel.attr(NettyWebSocket.KEY)).andReturn(null);
 
           Attribute<String> attr = unit.mock(Attribute.class);
           expect(attr.get()).andReturn("GET /");
 
-          expect(ctx.attr(NettyHandler.PATH)).andReturn(attr);
+          expect(channel.attr(NettyHandler.PATH)).andReturn(attr);
         })
         .expect(unit -> {
           ChannelFuture future = unit.mock(ChannelFuture.class);
@@ -453,6 +488,7 @@ public class NettyHandlerTest {
   public void exceptionCaughtConnectionResetByPeer() throws Exception {
     Exception cause = new IOException("Connection reset by peer (intentional error)");
     new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class)
+        .expect(channel)
         .expect(unit -> {
           Config config = unit.get(Config.class);
           expect(config.getString("application.tmpdir")).andReturn("target");
@@ -460,12 +496,12 @@ public class NettyHandlerTest {
           expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
           expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
 
-          ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
+          Channel channel = unit.get(Channel.class);
 
           Attribute<String> attr = unit.mock(Attribute.class);
           expect(attr.get()).andReturn("GET /");
 
-          expect(ctx.attr(NettyHandler.PATH)).andReturn(attr);
+          expect(channel.attr(NettyHandler.PATH)).andReturn(attr);
         })
         .expect(unit -> {
           ChannelFuture future = unit.mock(ChannelFuture.class);
