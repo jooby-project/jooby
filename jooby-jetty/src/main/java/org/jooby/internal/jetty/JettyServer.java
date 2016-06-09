@@ -107,7 +107,8 @@ public class JettyServer implements org.jooby.spi.Server {
     });
 
     server.setHandler(new JettyHandler(handler, webSocketServerFactory, config
-        .getString("application.tmpdir")));
+        .getString("application.tmpdir"),
+        config.getBytes("jetty.http.FileSizeThreshold").intValue()));
 
     return server;
   }

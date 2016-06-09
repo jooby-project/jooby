@@ -54,7 +54,7 @@ public class JettyHandlerTest {
         .expect(wsStopTimeout)
         .run(unit -> {
           new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target")
+              "target", -1)
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class));
@@ -84,7 +84,7 @@ public class JettyHandlerTest {
         .expect(wsStopTimeout)
         .run(unit -> {
           new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target")
+              "target", -1)
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class));
@@ -129,7 +129,7 @@ public class JettyHandlerTest {
         .expect(wsStopTimeout)
         .run(unit -> {
           new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target")
+              "target", -1)
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class));
@@ -175,7 +175,7 @@ public class JettyHandlerTest {
         .expect(wsStopTimeout)
         .run(unit -> {
           new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target")
+              "target", -1)
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class));
@@ -217,7 +217,7 @@ public class JettyHandlerTest {
         .expect(wsStopTimeout)
         .run(unit -> {
           new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target")
+              "target", -1)
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class));
@@ -261,7 +261,7 @@ public class JettyHandlerTest {
         .expect(wsStopTimeout)
         .run(unit -> {
           new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target")
+              "target", -1)
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class));
@@ -295,7 +295,7 @@ public class JettyHandlerTest {
         .expect(wsStopTimeout)
         .run(unit -> {
           new JettyHandler(unit.get(HttpHandler.class), unit.get(WebSocketServerFactory.class),
-              "target")
+              "target", -1)
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class));
@@ -332,7 +332,7 @@ public class JettyHandlerTest {
         .expect(wsStopTimeout)
         .run(unit -> {
           new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
-              "target")
+              "target", -1)
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class));
@@ -366,7 +366,7 @@ public class JettyHandlerTest {
         .expect(wsStopTimeout)
         .run(unit -> {
           new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
-              "target")
+              "target", -1)
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class));
@@ -400,7 +400,7 @@ public class JettyHandlerTest {
         .expect(wsStopTimeout)
         .run(unit -> {
           new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
-              "target")
+              "target", -1)
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class));
@@ -434,7 +434,7 @@ public class JettyHandlerTest {
         .expect(wsStopTimeout)
         .run(unit -> {
           new JettyHandler(dispatcher, unit.get(WebSocketServerFactory.class),
-              "target")
+              "target", -1)
               .handle("/", unit.get(Request.class),
                   unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class));

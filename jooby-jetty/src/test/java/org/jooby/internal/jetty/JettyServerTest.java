@@ -42,6 +42,7 @@ public class JettyServerTest {
       .put("HeaderCacheSize", "8k")
       .put("RequestHeaderSize", "8k")
       .put("ResponseHeaderSize", "8k")
+      .put("FileSizeThreshold", "16k")
       .put("SendServerVersion", false)
       .put("SendXPoweredBy", false)
       .put("SendDateHeader", false)

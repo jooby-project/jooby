@@ -52,11 +52,12 @@ public class JettyHandler extends AbstractHandler {
   private MultipartConfigElement multiPartConfig;
 
   public JettyHandler(final HttpHandler dispatcher,
-      final WebSocketServerFactory webSocketServerFactory, final String tmpdir) {
+      final WebSocketServerFactory webSocketServerFactory, final String tmpdir,
+      final int fileSizeThreshold) {
     this.dispatcher = dispatcher;
     this.webSocketServerFactory = webSocketServerFactory;
     this.tmpdir = tmpdir;
-    this.multiPartConfig = new MultipartConfigElement(tmpdir);
+    this.multiPartConfig = new MultipartConfigElement(tmpdir, -1L, -1L, fileSizeThreshold);
     this.addManaged(webSocketServerFactory);
   }
 
