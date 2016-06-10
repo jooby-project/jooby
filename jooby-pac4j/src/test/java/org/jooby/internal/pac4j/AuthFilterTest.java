@@ -33,6 +33,8 @@ import org.pac4j.http.profile.HttpProfile;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import javaslang.control.Try;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AuthFilter.class, Clients.class })
 public class AuthFilterTest {
@@ -67,8 +69,12 @@ public class AuthFilterTest {
   @SuppressWarnings("rawtypes")
   private <C extends Client> Block findClient(final Class<C> clientType, final String client) {
     return unit -> {
-      C c = unit.mock(clientType);
-      unit.registerMock(clientType, c);
+      C c = Try.of(() -> unit.get(clientType))
+          .getOrElse(() -> {
+            C m = unit.mock(clientType);
+            unit.registerMock(clientType, m);
+            return m;
+          });
 
       ClientFinder finder = unit.get(ClientFinder.class);
       expect(finder.find(unit.get(Clients.class), unit.get(WebContext.class), client))
@@ -201,6 +207,7 @@ public class AuthFilterTest {
             .expect(clientName("ParameterClient"))
             .expect(findClient(ParameterClient.class, "ParameterClient"))
             .expect(reqAuthID(profileId))
+            .expect(reqAuthCNAME(ParameterClient.class))
             .expect(authStore(profileId, null))
             .expect(creds(ParameterClient.class))
             .expect(userProfile(ParameterClient.class, profile))
@@ -217,6 +224,17 @@ public class AuthFilterTest {
             });
   }
 
+  @SuppressWarnings("rawtypes")
+  private Block reqAuthCNAME(final Class<? extends Client> client) {
+    return unit -> {
+      Client c = unit.get(client);
+      expect(c.getName()).andReturn(client.getSimpleName());
+
+      Request req = unit.get(Request.class);
+      expect(req.set(Auth.CNAME, client.getSimpleName())).andReturn(req);
+    };
+  }
+
   @Test
   public void handleDirectNoClient() throws Exception {
     String profileId = "123";
@@ -231,11 +249,11 @@ public class AuthFilterTest {
             .expect(clients)
             .expect(clientName("ParameterClient"))
             .expect(findNoClient(ParameterClient.class, "ParameterClient"))
+            .expect(findNoClient(ParameterClient.class, "ParameterClient"))
             .run(unit -> {
               try {
                 new AuthFilter(ParameterClient.class, HttpProfile.class)
-                    .handle(unit.get(Request.class), unit.get(Response.class),
-                        unit.get(Route.Chain.class));
+                    .handle(unit.get(Request.class), unit.get(Response.class));
                 fail("expecting 401");
               } catch (Err ex) {
                 assertEquals(401, ex.statusCode());
@@ -279,6 +297,7 @@ public class AuthFilterTest {
             .expect(astore)
             .expect(clients)
             .expect(clientName("ParameterClient"))
+            .expect(findClient(ParameterClient.class, "ParameterClient"))
             .expect(findClient(ParameterClient.class, "ParameterClient"))
             .expect(reqAuthID(profileId))
             .expect(authStore(profileId, null))

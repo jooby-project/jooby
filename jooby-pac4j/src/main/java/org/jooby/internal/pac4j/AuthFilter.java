@@ -21,6 +21,7 @@ package org.jooby.internal.pac4j;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.jooby.Err;
 import org.jooby.Request;
@@ -43,7 +44,12 @@ import org.pac4j.core.profile.UserProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javaslang.CheckedFunction1;
+
 public class AuthFilter implements Route.Handler {
+
+  @SuppressWarnings("rawtypes")
+  private static final Predicate<Client> useSession = c -> c instanceof IndirectClient;
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -67,9 +73,9 @@ public class AuthFilter implements Route.Handler {
     return clientName;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"unchecked" })
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Throwable {
     Clients clients = req.require(Clients.class);
     String clientName = req.param(clients.getClientNameParameter()).value(this.clientName);
 
@@ -77,44 +83,52 @@ public class AuthFilter implements Route.Handler {
     ClientFinder finder = req.require(ClientFinder.class);
     AuthStore<UserProfile> store = req.require(AuthStore.class);
 
-    Client client = find(finder, clients, ctx, null, clientName);
+    // stateless or previously authenticated stateful
+    UserProfile profile = find(finder, clients, ctx, null, clientName, client -> {
+      String profileId = profileID(useSession.test(client), req);
+      UserProfile identity = profileId == null ? null : store.get(profileId).orElse(null);
 
-    boolean useSession = client instanceof IndirectClient;
-
-    String profileId = profileID(useSession, req);
-    UserProfile profile = profileId == null ? null : store.get(profileId).orElse(null);
-
-    if (profile == null) {
-      if (client instanceof DirectClient) {
-        log.debug("Performing authentication for client: {}", client);
-        try {
-          Credentials credentials = client.getCredentials(ctx);
-          log.debug("credentials: {}", credentials);
-          profile = client.getUserProfile(credentials, ctx);
-          log.debug("profile: {}", profile);
-          if (profile != null) {
-            req.set(Auth.ID, profile.getId());
-            store.set(profile);
+      if (identity == null) {
+        if (client instanceof DirectClient) {
+          log.debug("Performing authentication for client: {}", client);
+          try {
+            Credentials credentials = client.getCredentials(ctx);
+            log.debug("credentials: {}", credentials);
+            identity = client.getUserProfile(credentials, ctx);
+            log.debug("profile: {}", identity);
+            if (identity != null) {
+              req.set(Auth.ID, identity.getId());
+              req.set(Auth.CNAME, client.getName());
+              store.set(identity);
+            }
+          } catch (RequiresHttpAction e) {
+            throw new TechnicalException("Unexpected HTTP action", e);
           }
-        } catch (RequiresHttpAction e) {
-          throw new TechnicalException("Unexpected HTTP action", e);
         }
       }
-    }
+      return identity;
+    });
 
     if (profile == null) {
-      if (useSession) {
-        // indirect client, start authentication
-        try {
-          final String requestedUrl = ctx.getFullRequestURL();
-          log.debug("requestedUrl: {}", requestedUrl);
-          ctx.setSessionAttribute(Pac4jConstants.REQUESTED_URL, requestedUrl);
-          client.redirect(ctx, true);
-          rsp.end();
-        } catch (RequiresHttpAction ex) {
-          new AuthResponse(rsp).handle(client, ex);
+      // try stateful auth
+      Boolean redirected = find(finder, clients, ctx, null, clientName, client -> {
+        if (useSession.test(client)) {
+          // indirect client, start authentication
+          try {
+            final String requestedUrl = ctx.getFullRequestURL();
+            log.debug("requestedUrl: {}", requestedUrl);
+            ctx.setSessionAttribute(Pac4jConstants.REQUESTED_URL, requestedUrl);
+            client.redirect(ctx, true);
+            rsp.end();
+          } catch (RequiresHttpAction ex) {
+            new AuthResponse(rsp).handle(client, ex);
+          }
+          return Boolean.TRUE;
+        } else {
+          return null;
         }
-      } else {
+      });
+      if (redirected != Boolean.TRUE) {
         throw new Err(Status.UNAUTHORIZED);
       }
     } else {
@@ -129,13 +143,19 @@ public class AuthFilter implements Route.Handler {
   }
 
   @SuppressWarnings("rawtypes")
-  private Client find(final ClientFinder finder, final Clients clients, final WebContext ctx,
-      final Class<? extends Client<?, ?>> clientType, final String clientName) {
+  private <T> T find(final ClientFinder finder, final Clients clients, final WebContext ctx,
+      final Class<? extends Client<?, ?>> clientType, final String clientName,
+      final CheckedFunction1<Client, T> fn) throws Throwable {
+
     List<Client> result = finder.find(clients, ctx, clientName);
-    if (result.size() > 0) {
-      return result.get(0);
+    for (Client client : result) {
+      T value = fn.apply(client);
+      if (value != null) {
+        return value;
+      }
     }
-    throw new Err(Status.UNAUTHORIZED);
+
+    return null;
   }
 
   @SuppressWarnings("rawtypes")

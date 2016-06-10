@@ -26,6 +26,8 @@ import java.io.ObjectOutputStream;
 import com.google.common.io.BaseEncoding;
 import com.google.common.primitives.Primitives;
 
+import javaslang.control.Try;
+
 public final class AuthSerializer {
 
   private static final String PREFIX = "b64~";
@@ -34,26 +36,24 @@ public final class AuthSerializer {
     if (value == null || !value.startsWith(PREFIX)) {
       return value;
     }
-    byte[] bytes = BaseEncoding.base64().decode(value.substring(PREFIX.length()));
-    try (ObjectInputStream stream = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
-      return stream.readObject();
-    } catch (Exception ex) {
-      throw new IllegalArgumentException("Can't de-serialize value " + value, ex);
-    }
+    return Try.of(() -> {
+      byte[] bytes = BaseEncoding.base64().decode(value.substring(PREFIX.length()));
+      return new ObjectInputStream(new ByteArrayInputStream(bytes)).readObject();
+    }).getOrElseThrow(
+        ex -> new IllegalArgumentException("Can't de-serialize value " + value, ex));
   }
 
   public static final String objToStr(final Object value) {
     if (value instanceof CharSequence || Primitives.isWrapperType(value.getClass())) {
       return value.toString();
     }
-    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-    try (ObjectOutputStream stream = new ObjectOutputStream(bytes)) {
+    return Try.of(() -> {
+      ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+      ObjectOutputStream stream = new ObjectOutputStream(bytes);
       stream.writeObject(value);
       stream.flush();
       return PREFIX + BaseEncoding.base64().encode(bytes.toByteArray());
-    } catch (Exception ex) {
-      throw new IllegalArgumentException("Can't serialize value " + value, ex);
-    }
+    }).getOrElseThrow(ex -> new IllegalArgumentException("Can't serialize value " + value, ex));
   }
 
 }

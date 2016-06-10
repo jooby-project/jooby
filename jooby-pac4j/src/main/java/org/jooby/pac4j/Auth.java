@@ -288,6 +288,8 @@ public class Auth implements Jooby.Module {
   /** Name of the local request variable that holds the username. */
   public static final String ID = Auth.class.getName() + ".id";
 
+  public static final String CNAME = Auth.class.getName() + ".client.id";
+
   private Multimap<String, BiFunction<Binder, Config, AuthFilter>> bindings = ArrayListMultimap
       .create();
 
