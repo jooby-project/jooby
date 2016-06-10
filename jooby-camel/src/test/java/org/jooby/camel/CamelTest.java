@@ -4,7 +4,6 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -862,7 +861,7 @@ public class CamelTest {
   }
 
   @SuppressWarnings("unchecked")
-  @Test
+  @Test(expected = IllegalStateException.class)
   public void withRoutesErr() throws Exception {
     Config camel = defConfig;
     new MockUnit(Env.class, Config.class, Binder.class)
@@ -917,6 +916,7 @@ public class CamelTest {
           ctx.addComponent("properties", properties);
           ctx.disableJMX();
           ctx.addRoutes(unit.capture(RouteBuilder.class));
+          expectLastCall().andThrow(new Exception("intentional error"));
 
           ProducerTemplate producer = unit.mock(ProducerTemplate.class);
           expect(ctx.createProducerTemplate()).andReturn(producer);
@@ -964,19 +964,9 @@ public class CamelTest {
         })
         .expect(onStop)
         .run(unit -> {
-          new Camel() {
-            @Override
-            public void configure(final Env env, final Config config, final Binder binder) {
-              super.configure(env, config, binder);
-              try {
-                unit.captured(RouteBuilder.class).iterator().next().configure();
-              } catch (Exception ex) {
-                assertTrue(ex instanceof IllegalStateException);
-              }
-            }
-          }.routes((router, config) -> {
-            throw new IllegalStateException("intentional err");
-          }).configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+          new Camel()
+              .routes((router, config) -> {
+              }).configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         });
   }
 

@@ -19,6 +19,9 @@
 package org.jooby.camel;
 
 import static java.util.Objects.requireNonNull;
+import static javaslang.API.$;
+import static javaslang.API.Case;
+import static javaslang.API.Match;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -49,6 +52,8 @@ import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+
+import javaslang.control.Try;
 
 /**
  * Camel for Jooby. Exposes a {@link CamelContext}, {@link ProducerTemplate} and
@@ -272,6 +277,12 @@ public class Camel implements Jooby.Module {
     return this;
   }
 
+  /**
+   * Hook to customize a {@link CamelContext}.
+   *
+   * @param configurer A configurer callback.
+   * @return This instance.
+   */
   public Camel doWith(final Configurer<CamelContext> configurer) {
     this.configurer = requireNonNull(configurer, "A configurer is required.");
     return this;
@@ -311,8 +322,7 @@ public class Camel implements Jooby.Module {
         .withoutPath("shutdown")
         .withoutPath("threads")
         .withoutPath("jmx")
-        .withoutPath("streamCaching")
-        );
+        .withoutPath("streamCaching"));
 
     if (!$camel.getBoolean("jmx")) {
       ctx.disableJMX();
@@ -356,7 +366,7 @@ public class Camel implements Jooby.Module {
       try {
         routes(routes, ctx, config);
       } catch (Exception ex) {
-        throw new IllegalStateException("Route builder resulted in error", ex);
+        throw new IllegalStateException("context.addRoutes(RouteBuilder) resulted in error", ex);
       }
     }
 
@@ -426,29 +436,26 @@ public class Camel implements Jooby.Module {
     config.entrySet().forEach(o -> {
       String key = o.getKey();
       String setter = "set" + CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_CAMEL, key);
-      Object value = o.getValue().unwrapped();
+      Object raw = o.getValue().unwrapped();
       Optional<Method> result = methods.stream()
           .filter(m -> m.getName().equals(setter))
           .findFirst();
       if (result.isPresent()) {
         Method method = result.get();
         Class type = method.getParameterTypes()[0];
-        if (Enum.class.isAssignableFrom(type)) {
-          value = Enum.valueOf(type, value.toString());
-        }
-        if (Long.class.isAssignableFrom(type)) {
-          value = ((Number) value).longValue();
-        }
-        if (File.class.isAssignableFrom(type)) {
-          value = new File(value.toString());
-        }
-        try {
-          method.invoke(source, value);
-        } catch (Exception ex) {
-          throw new IllegalArgumentException("Bad option: <" + value + "> for: " + method, ex);
-        }
+        Object value = Match(type).of(
+            Case(Enum.class::isAssignableFrom, () -> {
+              Object e = Enum.valueOf(type, raw.toString());
+              return e;
+            }),
+            Case(Long.class::isAssignableFrom, () -> ((Number) raw).longValue()),
+            Case(File.class::isAssignableFrom, () -> new File(raw.toString())),
+            Case($(), raw));
+        Try.of(() -> method.invoke(source, value)).onFailure(ex -> {
+          throw new IllegalArgumentException("Bad option: <" + raw + "> for: " + method, ex);
+        });
       } else {
-        log.error("Unknown option camel.{} = {}", key, value);
+        log.error("Unknown option camel.{} = {}", key, raw);
       }
     });
     return source;
