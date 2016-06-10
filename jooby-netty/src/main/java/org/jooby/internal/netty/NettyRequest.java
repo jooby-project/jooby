@@ -52,6 +52,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -244,26 +245,35 @@ public class NettyRequest implements NativeRequest {
             || contentType.startsWith(MediaType.form.name()));
       }
       if (hasBody && formLike) {
-        HttpPostRequestDecoder form = new HttpPostRequestDecoder(req);
-        Function<HttpPostRequestDecoder, Boolean> hasNext = it -> {
-          try {
-            return it.hasNext();
-          } catch (HttpPostRequestDecoder.EndOfDataDecoderException ex) {
-            return false;
+        HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(
+            new DefaultHttpDataFactory(), req);
+        try {
+          Function<HttpPostRequestDecoder, Boolean> hasNext = it -> {
+            try {
+              return it.hasNext();
+            } catch (HttpPostRequestDecoder.EndOfDataDecoderException ex) {
+              return false;
+            }
+          };
+          while (hasNext.apply(decoder)) {
+            HttpData field = (HttpData) decoder.next();
+            try {
+            String name = field.getName();
+            switch (field.getHttpDataType()) {
+              case FileUpload:
+                files.put(name, new NettyUpload((FileUpload) field, tmpdir));
+                // excludes upload from param names.
+                break;
+              default:
+                params.put(name, field.getString());
+                break;
+            }
+            } finally {
+              field.release();
+            }
           }
-        };
-        while (hasNext.apply(form)) {
-          HttpData field = (HttpData) form.next();
-          String name = field.getName();
-          switch (field.getHttpDataType()) {
-            case FileUpload:
-              files.put(name, new NettyUpload((FileUpload) field, tmpdir));
-              // excludes upload from param names.
-              break;
-            default:
-              params.put(name, field.getString());
-              break;
-          }
+        } finally {
+          decoder.destroy();
         }
       }
     }
