@@ -94,7 +94,7 @@ public class AssetHandler implements Route.Handler {
 
   private boolean etag = true;
 
-  private Optional<Duration> maxAgeOpt = Optional.empty();
+  private Optional<Duration> maxAge = Optional.empty();
 
   private boolean lastModified = true;
 
@@ -191,7 +191,7 @@ public class AssetHandler implements Route.Handler {
    * @return This handler.
    */
   public AssetHandler maxAge(final Duration maxAge) {
-    this.maxAgeOpt = Optional.of(maxAge);
+    this.maxAge = Optional.of(maxAge);
     return this;
   }
 
@@ -200,8 +200,7 @@ public class AssetHandler implements Route.Handler {
    * @return This handler.
    */
   public AssetHandler maxAge(final long maxAge) {
-    this.maxAgeOpt = Optional.of(Duration.ofSeconds(maxAge));
-    return this;
+    return maxAge(Duration.ofSeconds(maxAge));
   }
 
   @Override
@@ -264,7 +263,7 @@ public class AssetHandler implements Route.Handler {
     }
 
     // cache max-age
-    maxAgeOpt.ifPresent(d -> {
+    maxAge.ifPresent(d -> {
       rsp.header("Cache-Control", "max-age=" + d.getSeconds());
     });
 

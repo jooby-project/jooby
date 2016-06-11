@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 import org.jooby.handlers.AssetHandler;
 import org.jooby.test.ServerFeature;
@@ -13,7 +14,7 @@ import org.junit.Test;
 public class Issue356 extends ServerFeature {
   {
     assets("/assets/file.css", new AssetHandler("/")
-      .etag(false).lastModified(false).maxAge(Duration.ofDays(1)));
+      .etag(false).lastModified(false).maxAge(TimeUnit.HOURS.toSeconds(24)));
 
     assets("/assets/favicon.ico", new AssetHandler("/")
       .etag(false).lastModified(true).maxAge(Duration.ofDays(14)));
