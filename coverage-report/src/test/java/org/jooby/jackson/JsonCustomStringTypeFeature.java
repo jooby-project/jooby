@@ -17,7 +17,7 @@ public class JsonCustomStringTypeFeature extends ServerFeature {
 
   {
 
-    use(new Jackson().types("application/vnd.github.v3+json"));
+    use(new Jackson().type("application/vnd.github.v3+json"));
 
     get("/members",
         req -> Lists.newArrayList(ImmutableMap.<String, Object> of("id", 1, "name", "pablo")));

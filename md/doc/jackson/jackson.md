@@ -64,11 +64,10 @@ It is possible to wire Jackson modules too:
 ```java
 {
 
-  use(new Jackson());
+  use(new Jackson()
+    .module(MyJacksonModuleWiredByGuice.class)
+  );
 
-  use((mode, config, binder) -> {
-    Multibinder.newSetBinder(binder, Module.class).addBinding().to(MyJacksonModuleWiredByGuice.class);
-  });
 }
 ```
 

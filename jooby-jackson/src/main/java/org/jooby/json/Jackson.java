@@ -18,12 +18,13 @@
  */
 package org.jooby.json;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Objects.requireNonNull;
 
 import java.text.SimpleDateFormat;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.function.Consumer;
@@ -47,13 +48,15 @@ import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 
 /**
+ * <h1>jackson</h1>
+ *
  * JSON support from the excellent <a href="https://github.com/FasterXML/jackson">Jackson</a>
  * library.
  *
  * This module provides a JSON {@link Parser} and {@link Renderer}, but also an
  * {@link ObjectMapper}.
  *
- * <h1>usage</h1>
+ * <h2>usage</h2>
  *
  * <pre>
  * {
@@ -76,8 +79,10 @@ import com.typesafe.config.Config;
  * }
  * </pre>
  *
- * <h1>advanced configuration</h1> If you need a special setting or configuration for your
- * {@link ObjectMapper}:
+ * <h2>advanced configuration</h2>
+ * <p>
+ * If you need a special setting or configuration for your {@link ObjectMapper}:
+ * </p>
  *
  * <pre>
  * {
@@ -101,12 +106,9 @@ import com.typesafe.config.Config;
  * <pre>
  * {
  *
- *   use(new Jackson());
- *
- *   use((mode, config, binder) {@literal ->} {
- *     Multibinder.newSetBinder(binder, Module.class).addBinding()
- *       .to(MyJacksonModuleWiredByGuice.class);
- *   });
+ *   use(new Jackson()
+ *      .module(MyJacksonModuleWiredByGuice.class)
+ *   );
  * }
  * </pre>
  *
@@ -126,50 +128,113 @@ public class Jackson implements Jooby.Module {
 
   }
 
-  private final ObjectMapper mapper;
-
-  private final Set<Module> modules = new LinkedHashSet<>();
+  private final Optional<ObjectMapper> mapper;
 
   private MediaType type = MediaType.json;
 
+  private Consumer<ObjectMapper> configurer;
+
+  private List<Consumer<Multibinder<Module>>> modules = new ArrayList<>();
+
+  /**
+   * Creates a new {@link Jackson} module and use the provided {@link ObjectMapper} instance.
+   *
+   * @param mapper {@link ObjectMapper} to apply.
+   */
   public Jackson(final ObjectMapper mapper) {
-    this.mapper = checkNotNull(mapper, "ObjectMapper is required.");
-    this.modules.add(new Jdk8Module());
-    // Java 8 dates
-    this.modules.add(new JavaTimeModule());
+    this.mapper = Optional.of(requireNonNull(mapper, "The mapper is required."));
   }
 
+  /**
+   * Creates a new {@link Jackson} module.
+   */
   public Jackson() {
-    this(new ObjectMapper());
+    this.mapper = Optional.empty();
   }
 
+  /**
+   * Set the json type supported by this module, default is: <code>application/json</code>.
+   *
+   * @param type Media type.
+   * @return This module.
+   */
   public Jackson type(final MediaType type) {
     this.type = type;
     return this;
   }
 
-  public Jackson types(final String type) {
+  /**
+   * Set the json type supported by this module, default is: <code>application/json</code>.
+   *
+   * @param type Media type.
+   * @return This module.
+   */
+  public Jackson type(final String type) {
     return type(MediaType.valueOf(type));
   }
 
-  public Jackson doWith(final Consumer<ObjectMapper> block) {
-    requireNonNull(block, "A json block is required.").accept(mapper);
+  /**
+   * Apply advanced configuration over the provided {@link ObjectMapper}.
+   *
+   * @param configurer A configurer callback.
+   * @return This module.
+   */
+  public Jackson doWith(final Consumer<ObjectMapper> configurer) {
+    this.configurer = requireNonNull(configurer, "ObjectMapper configurer is required.");
+    return this;
+  }
+
+  /**
+   * Register the provided module.
+   *
+   * @param module A module instance.
+   * @return This module.
+   */
+  public Jackson module(final Module module) {
+    requireNonNull(module, "Jackson Module is required.");
+    modules.add(binder -> binder.addBinding().toInstance(module));
+    return this;
+  }
+
+  /**
+   * Register the provided {@link Module}. The module will be instantiated by Guice.
+   *
+   * @param module Module type.
+   * @return This module.
+   */
+  public Jackson module(final Class<? extends Module> module) {
+    requireNonNull(module, "Jackson Module is required.");
+    modules.add(binder -> binder.addBinding().to(module));
     return this;
   }
 
   @Override
-  public void configure(final Env mode, final Config config, final Binder binder) {
-    Locale locale = Locale.forLanguageTag(config.getString("application.lang").replace("_", "-"));
-    // Jackson clone the date format in order to make dateFormat thread-safe
-    mapper.setDateFormat(new SimpleDateFormat(config.getString("application.dateFormat"), locale));
-    mapper.setLocale(locale);
-    mapper.setTimeZone(TimeZone.getTimeZone(config.getString("application.tz")));
+  public void configure(final Env env, final Config config, final Binder binder) {
+    // provided or default mapper.
+    ObjectMapper mapper = this.mapper.orElseGet(() -> {
+      ObjectMapper m = new ObjectMapper();
+      Locale locale = env.locale();
+      // Jackson clone the date format in order to make dateFormat thread-safe
+      m.setDateFormat(new SimpleDateFormat(config.getString("application.dateFormat"), locale));
+      m.setLocale(locale);
+      m.setTimeZone(TimeZone.getTimeZone(config.getString("application.tz")));
+      return m;
+    });
+
+    // some java 8 modules
+    mapper.registerModule(new Jdk8Module());
+    mapper.registerModule(new JavaTimeModule());
+
+    if (configurer != null) {
+      configurer.accept(mapper);
+    }
+
+    // bind mapper
+    binder.bind(ObjectMapper.class).toInstance(mapper);
 
     // Jackson Modules from Guice
-    Multibinder<Module> moduleBinder = Multibinder.newSetBinder(binder, Module.class);
-    modules.forEach(m -> moduleBinder.addBinding().toInstance(m));
-
-    binder.bind(ObjectMapper.class).toInstance(mapper);
+    Multibinder<Module> mbinder = Multibinder.newSetBinder(binder, Module.class);
+    modules.forEach(m -> m.accept(mbinder));
 
     // Jackson Configurer (like a post construct)
     binder.bind(PostConfigurer.class).asEagerSingleton();
