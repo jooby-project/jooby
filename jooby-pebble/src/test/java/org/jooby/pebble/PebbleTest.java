@@ -1,7 +1,6 @@
 package org.jooby.pebble;
 
 import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Locale;
@@ -37,6 +36,7 @@ public class PebbleTest {
     PebbleEngine.Builder pebble = unit.constructor(PebbleEngine.Builder.class)
         .build();
 
+    expect(pebble.cacheActive(true)).andReturn(pebble);
     expect(pebble.loader(unit.get(ClasspathLoader.class))).andReturn(pebble);
 
     unit.registerMock(PebbleEngine.Builder.class, pebble);
@@ -47,16 +47,6 @@ public class PebbleTest {
     loader.setPrefix(null);
     loader.setSuffix(".html");
     unit.registerMock(ClasspathLoader.class, loader);
-  };
-
-  private Block noCache = unit -> {
-    PebbleEngine.Builder pebble = unit.get(PebbleEngine.Builder.class);
-    expect(pebble.templateCache(null)).andReturn(pebble);
-  };
-
-  private Block noTagCache = unit -> {
-    PebbleEngine.Builder pebble = unit.get(PebbleEngine.Builder.class);
-    expect(pebble.tagCache(null)).andReturn(pebble);
   };
 
   private Block build = unit -> {
@@ -89,6 +79,10 @@ public class PebbleTest {
     expect(Multibinder.newSetBinder(unit.get(Binder.class), Renderer.class)).andReturn(rmb);
   };
 
+  private Block cacheStatic = unit -> {
+    unit.mockStatic(CacheBuilder.class);
+  };
+
   @Test
   public void basic() throws Exception {
     Locale locale = Locale.getDefault();
@@ -96,8 +90,33 @@ public class PebbleTest {
         .expect(defLoader)
         .expect(newEngine)
         .expect(env("dev", locale))
-        .expect(noCache)
-        .expect(noTagCache)
+        .expect(cacheStatic)
+        .expect(cache("pebble.cache", null))
+        .expect(cache(0))
+        .expect(cache("pebble.tagCache", null))
+        .expect(tagCache(0))
+        .expect(locale(locale))
+        .expect(build)
+        .expect(bindEngine)
+        .expect(renderer)
+        .run(unit -> {
+          new Pebble()
+              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+        });
+  }
+
+  @Test
+  public void proddef() throws Exception {
+    Locale locale = Locale.getDefault();
+    new MockUnit(Env.class, Config.class, Binder.class, PebbleEngine.class)
+        .expect(defLoader)
+        .expect(newEngine)
+        .expect(env("prod", locale))
+        .expect(cacheStatic)
+        .expect(cache("pebble.cache", null))
+        .expect(cache(100))
+        .expect(cache("pebble.tagCache", null))
+        .expect(tagCache(100))
         .expect(locale(locale))
         .expect(build)
         .expect(bindEngine)
@@ -116,8 +135,11 @@ public class PebbleTest {
         .expect(defLoader)
         .expect(newEngine)
         .expect(env("dev", locale))
-        .expect(noCache)
-        .expect(noTagCache)
+        .expect(cacheStatic)
+        .expect(cache("pebble.cache", null))
+        .expect(cache(0))
+        .expect(cache("pebble.tagCache", null))
+        .expect(tagCache(0))
         .expect(locale(locale))
         .expect(build)
         .expect(bindEngine)
@@ -141,8 +163,11 @@ public class PebbleTest {
         .expect(defLoader)
         .expect(newEngine)
         .expect(env("dev", locale))
-        .expect(noCache)
-        .expect(noTagCache)
+        .expect(cacheStatic)
+        .expect(cache("pebble.cache", null))
+        .expect(cache(0))
+        .expect(cache("pebble.tagCache", null))
+        .expect(tagCache(0))
         .expect(locale(locale))
         .expect(build)
         .expect(bindEngine)
@@ -157,33 +182,6 @@ public class PebbleTest {
     latch.await();
   }
 
-  @Test
-  public void prodNoCache() throws Exception {
-    Locale locale = Locale.getDefault();
-    new MockUnit(Env.class, Config.class, Binder.class, PebbleEngine.class)
-        .expect(defLoader)
-        .expect(newEngine)
-        .expect(env("prod", locale))
-        .expect(unit -> {
-          Config conf = unit.get(Config.class);
-          expect(conf.getString("pebble.cache")).andReturn("");
-        })
-        .expect(noCache)
-        .expect(unit -> {
-          Config conf = unit.get(Config.class);
-          expect(conf.getString("pebble.tagCache")).andReturn("");
-        })
-        .expect(noTagCache)
-        .expect(locale(locale))
-        .expect(build)
-        .expect(bindEngine)
-        .expect(renderer)
-        .run(unit -> {
-          new Pebble()
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        });
-  }
-
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void prod() throws Exception {
@@ -192,26 +190,10 @@ public class PebbleTest {
         .expect(defLoader)
         .expect(newEngine)
         .expect(env("prod", locale))
-        .expect(unit -> {
-          Config conf = unit.get(Config.class);
-          expect(conf.getString("pebble.cache")).andReturn("maximumSize=200").times(2);
-        })
-        .expect(unit -> {
-          unit.mockStatic(CacheBuilder.class);
-        }).expect(unit -> {
-          Cache<Object, PebbleTemplate> cache = unit.mock(Cache.class);
-
-          CacheBuilder cachebuilder = unit.mock(CacheBuilder.class);
-          expect(CacheBuilder.from("maximumSize=200")).andReturn(cachebuilder);
-          expect(cachebuilder.build()).andReturn(cache);
-
-          PebbleEngine.Builder pebble = unit.get(PebbleEngine.Builder.class);
-          expect(pebble.templateCache(cache)).andReturn(pebble);
-        })
-        .expect(unit -> {
-          Config conf = unit.get(Config.class);
-          expect(conf.getString("pebble.tagCache")).andReturn("maximumSize=100").times(2);
-        })
+        .expect(cache("pebble.cache", "maximumSize=200"))
+        .expect(cacheStatic)
+        .expect(cacheBuilder(200))
+        .expect(cache("pebble.tagCache", "maximumSize=100"))
         .expect(unit -> {
           Cache<BaseTagCacheKey, Object> cache = unit.mock(Cache.class);
 
@@ -232,11 +214,19 @@ public class PebbleTest {
         });
   }
 
-  @Test
-  public void conf() throws Exception {
-    Config config = new Pebble().config();
-    assertEquals("maximumSize=200", config.getString("pebble.cache"));
-    assertEquals("maximumSize=200", config.getString("pebble.tagCache"));
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  private Block cacheBuilder(final int maxSize) {
+    return unit -> {
+      Cache<Object, PebbleTemplate> cache = unit.mock(Cache.class);
+      unit.registerMock(Cache.class, cache);
+
+      CacheBuilder cachebuilder = unit.mock(CacheBuilder.class);
+      expect(CacheBuilder.from("maximumSize=" + maxSize)).andReturn(cachebuilder);
+      expect(cachebuilder.build()).andReturn(cache);
+
+      PebbleEngine.Builder pebble = unit.get(PebbleEngine.Builder.class);
+      expect(pebble.templateCache(cache)).andReturn(pebble);
+    };
   }
 
   private Block locale(final Locale locale) {
@@ -246,11 +236,52 @@ public class PebbleTest {
     };
   }
 
+  private Block cache(final String path, final String value) {
+    return unit -> {
+      Config conf = unit.get(Config.class);
+      boolean has = value != null;
+      expect(conf.hasPath(path)).andReturn(has);
+      if (has) {
+        expect(conf.getString(path)).andReturn(value);
+      }
+    };
+  }
+
   private Block env(final String name, final Locale locale) {
     return unit -> {
       Env env = unit.get(Env.class);
       expect(env.name()).andReturn(name);
       expect(env.locale()).andReturn(locale);
+    };
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  private Block cache(final int size) {
+    return unit -> {
+      Cache<Object, PebbleTemplate> cache = unit.mock(Cache.class);
+
+      CacheBuilder cachebuilder = unit.mock(CacheBuilder.class);
+      expect(CacheBuilder.newBuilder()).andReturn(cachebuilder);
+      expect(cachebuilder.maximumSize(size)).andReturn(cachebuilder);
+      expect(cachebuilder.build()).andReturn(cache);
+
+      PebbleEngine.Builder pebble = unit.get(PebbleEngine.Builder.class);
+      expect(pebble.templateCache(cache)).andReturn(pebble);
+    };
+  }
+
+  @SuppressWarnings({"unchecked", "rawtypes" })
+  private Block tagCache(final int size) {
+    return unit -> {
+      Cache<BaseTagCacheKey, Object> cache = unit.mock(Cache.class);
+
+      CacheBuilder cachebuilder = unit.mock(CacheBuilder.class);
+      expect(CacheBuilder.newBuilder()).andReturn(cachebuilder);
+      expect(cachebuilder.maximumSize(size)).andReturn(cachebuilder);
+      expect(cachebuilder.build()).andReturn(cache);
+
+      PebbleEngine.Builder pebble = unit.get(PebbleEngine.Builder.class);
+      expect(pebble.tagCache(cache)).andReturn(pebble);
     };
   }
 }

@@ -22,11 +22,13 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Renderer;
 
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheBuilderSpec;
 import com.google.inject.Binder;
@@ -35,8 +37,6 @@ import com.mitchellbosecke.pebble.PebbleEngine;
 import com.mitchellbosecke.pebble.loader.ClasspathLoader;
 import com.mitchellbosecke.pebble.loader.Loader;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
 
 /**
  * <h1>pebble</h1>
@@ -127,6 +127,9 @@ import com.typesafe.config.ConfigValueFactory;
  */
 public class Pebble implements Jooby.Module {
 
+  /** Default cache size on prod . */
+  private static final int MAX_SIZE = 100;
+
   private BiConsumer<PebbleEngine.Builder, Config> callback;
 
   private PebbleEngine.Builder pebble;
@@ -182,23 +185,37 @@ public class Pebble implements Jooby.Module {
     return doWith((p, c) -> callback.accept(p));
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    /** Template cache. */
+    /**
+     * This control pebble caches: template and tags.
+     *
+     * It always on and we always set a template/tags cache, we don't let pebble to apply defaults.
+     *
+     * In development <code>env.name=dev</code> we set a Guava cache with maxSize=0. This allow us
+     * to reload templates without restarting the application.
+     */
+    pebble.cacheActive(true);
+
+    /**
+     * Cache builder:
+     * 1. if there is a custom cache, then use it (regardless of application env)
+     * 2. when missing, we set a default cache for dev or prod.
+     */
     String mode = env.name();
-	pebble.cacheActive(!mode.equals("dev"));
-    if (mode.equals("dev") || conf.getString("pebble.cache").isEmpty()) {
-      pebble.templateCache(null);
-    } else {
-      pebble.templateCache(CacheBuilder.from(conf.getString("pebble.cache")).build());
-    }
+    Function<String, Cache> cache = path -> {
+      if (conf.hasPath(path)) {
+        return CacheBuilder.from(conf.getString(path)).build();
+      }
+      // dev vs prod:
+      return CacheBuilder.newBuilder().maximumSize("dev".equals(mode) ? 0 : MAX_SIZE).build();
+    };
+    /** Template cache. */
+    pebble.templateCache(cache.apply("pebble.cache"));
 
     /** Tag cache. */
-    if (mode.equals("dev") || conf.getString("pebble.tagCache").isEmpty()) {
-      pebble.tagCache(null);
-    } else {
-      pebble.tagCache(CacheBuilder.from(conf.getString("pebble.tagCache")).build());
-    }
+    pebble.tagCache(cache.apply("pebble.tagCache"));
 
     /** locale. */
     pebble.defaultLocale(env.locale());
@@ -214,13 +231,6 @@ public class Pebble implements Jooby.Module {
     Multibinder.newSetBinder(binder, Renderer.class)
         .addBinding()
         .toInstance(new PebbleRenderer(pebble));
-  }
-
-  @Override
-  public Config config() {
-    return ConfigFactory.empty(Pebble.class.getName())
-        .withValue("pebble.cache", ConfigValueFactory.fromAnyRef("maximumSize=200"))
-        .withValue("pebble.tagCache", ConfigValueFactory.fromAnyRef("maximumSize=200"));
   }
 
   private static Loader<String> loader(final String prefix, final String suffix) {
