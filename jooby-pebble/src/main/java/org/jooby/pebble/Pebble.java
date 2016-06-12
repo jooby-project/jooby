@@ -186,6 +186,7 @@ public class Pebble implements Jooby.Module {
   public void configure(final Env env, final Config conf, final Binder binder) {
     /** Template cache. */
     String mode = env.name();
+	pebble.cacheActive(!mode.equals("dev"));
     if (mode.equals("dev") || conf.getString("pebble.cache").isEmpty()) {
       pebble.templateCache(null);
     } else {
