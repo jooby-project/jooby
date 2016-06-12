@@ -1,11 +1,12 @@
 [![Build Status](https://travis-ci.org/jooby-project/jooby.svg?branch=master)](https://travis-ci.org/jooby-project/jooby)
 [![Coverage Status](https://img.shields.io/coveralls/jooby-project/jooby.svg)](https://coveralls.io/r/jooby-project/jooby?branch=master)
 [![Issue Stats](http://issuestats.com/github/jooby-project/jooby/badge/issue?style=flat)](http://issuestats.com/github/jooby-project/jooby)
+[![Google Group](https://img.shields.io/badge/google-group-orange.svg)](https://groups.google.com/forum/#!forum/jooby-project)
+[![Join the chat at https://gitter.im/jooby-project/jooby](https://badges.gitter.im/jooby-project/jooby.svg)](https://gitter.im/jooby-project/jooby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.jooby/jooby)
 [![Dependency Status](https://www.versioneye.com/user/projects/56e6afbcdf573d00495abe4c/badge.svg?style=flat)](https://www.versioneye.com/user/projects/56e6afbcdf573d00495abe4c)
-[![Google Group](https://img.shields.io/badge/google-group-orange.svg)](https://groups.google.com/forum/#!forum/jooby-project)
 [![ASF2](http://img.shields.io/badge/license-ASF2-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
-[![Twitter](https://img.shields.io/badge/twitter--blue.svg)](https://twitter.com/joobyproject)
+[![Twitter @joobyproject](https://img.shields.io/badge/twitter--blue.svg)](https://twitter.com/joobyproject)
 
 {{jooby-pre.md}}
 

@@ -9,8 +9,6 @@
 
 # &infin; do more, more easily
 
-[![Join the chat at https://gitter.im/jooby-project/jooby](https://badges.gitter.im/jooby-project/jooby.svg)](https://gitter.im/jooby-project/jooby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 [Jooby](http://jooby.org) a scalable, fast and modular micro web framework for Java.
 
 * **Scalable**. Stateless application development.
