@@ -14,7 +14,7 @@ JSON support from the excellent [Jackson](https://github.com/FasterXML/jackson) 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jackson</artifactId>
-  <version>1.0.0.CR3</version>
+  <version>1.0.0.CR4</version>
 </dependency>
 ```
 
@@ -64,11 +64,10 @@ It is possible to wire Jackson modules too:
 ```java
 {
 
-  use(new Jackson());
+  use(new Jackson()
+    .module(MyJacksonModuleWiredByGuice.class)
+  );
 
-  use((mode, config, binder) -> {
-    Multibinder.newSetBinder(binder, Module.class).addBinding().to(MyJacksonModuleWiredByGuice.class);
-  });
 }
 ```
 

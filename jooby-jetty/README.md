@@ -12,7 +12,7 @@ NIO web server via: [Jetty](https://www.eclipse.org/jetty).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jetty</artifactId>
-  <version>1.0.0.CR3</version>
+  <version>1.0.0.CR4</version>
 </dependency>
 ```
 
@@ -52,6 +52,8 @@ jetty {
     ResponseHeaderSize = ${server.http.HeaderSize}
 
     OutputBufferSize = ${server.http.ResponseBufferSize}
+
+    FileSizeThreshold = 16k
 
     SendServerVersion = false
 

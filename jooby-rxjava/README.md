@@ -10,7 +10,7 @@ RxJava is a Java VM implementation of <a href="http://reactivex.io">Reactive Ext
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rxjava</artifactId>
- <version>1.0.0.CR3</version>
+ <version>1.0.0.CR4</version>
 </dependency>
 ```
 
@@ -18,7 +18,6 @@ RxJava is a Java VM implementation of <a href="http://reactivex.io">Reactive Ext
 
 * map route operator: [Rx.rx()](/apidocs/org/jooby/rx/Rx.html#rx--) that converts ```Observable``` (and family) into [Deferred API](/apidocs/org/jooby/Deferred.html).
 * manage the lifecycle of ```Schedulers``` and make sure they go down on application shutdown time.
-* set a default server thread pool with the number of available processors.
 
 ## usage
 
@@ -28,9 +27,6 @@ import org.jooby.rx.Rx;
 ...
 {
   use(new Rx());
-
-  /** Deal with Observable, Single and others .*/ 
-  mapper(Rx.rx());
 
   get("/", () -> Observable.from("reactive programming in jooby!"));
 
@@ -55,32 +51,26 @@ Previous example is translated to:
 }
 ```
 
-Translation is done with the [Rx.rx()](/apidocs/org/jooby/rx/Rx.html#rx--) route operator. If you are a <a href="https://github.com/ReactiveX/RxJava">RxJava</a> programmer then you don't need to worry for learning a new API and semantic. The [Rx.rx()](/apidocs/org/jooby/rx/Rx.html#rx--) route operator deal and take cares of the [Deferred API](/apidocs/org/jooby/Deferred.html).
+Translation is done via [Rx.rx()](/apidocs/org/jooby/rx/Rx.html#rx--) route operator. If you are a <a href="https://github.com/ReactiveX/RxJava">RxJava</a> programmer then you don't need to worry for learning a new API and semantic. The [Rx.rx()](/apidocs/org/jooby/rx/Rx.html#rx--) route operator deal and take cares of the [Deferred API](/apidocs/org/jooby/Deferred.html).
 
-## rx()+scheduler
+## rx mapper
 
-You can provide a ```Scheduler``` to the [Rx.rx()](/apidocs/org/jooby/rx/Rx.html#rx--) operator:
+Advanced observable configuration is allowed via adapter function:
 
 ```java
 ...
 import org.jooby.rx.Rx;
 ...
 {
-  use(new Rx());
+  use(new Rx()
+      .withObservable(observable -> observable.observeOn(Schedulers.io())));
 
-  with(() -> {
-
-    get("/1", req -> Observable...);
-    get("/2", req -> Observable...);
-    ....
-    get("/N", req -> Observable...);
-
-  }).map(Rx.rx(Schedulers::io));
+  get("/observable", req -> Observable...);
 
 }
 ```
 
-All the routes here will ```Observable#subscribeOn(Scheduler)``` the provided ```Scheduler```.
+The observable adapter function allow you to customize observables from routes.
 
 ## schedulers
 

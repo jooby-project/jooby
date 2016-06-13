@@ -8,7 +8,7 @@ Cron triggers, job scheduling and async processing via [Quartz](http://quartz-sc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>1.0.0.CR3</version>
+  <version>1.0.0.CR4</version>
 </dependency>
 ```
 ## usage
@@ -33,7 +33,7 @@ By default, job name is set the class name or to the method name. Default group 
 
 ### job methods
 
-A job method must follow this rules:
+A job method must follow these rules:
 
 * It must be a public method
 * Without a return value

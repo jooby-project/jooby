@@ -12,7 +12,7 @@ NIO web server via [Undertow](http://undertow.io/).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-undertow</artifactId>
-  <version>1.0.0.CR3</version>
+  <version>1.0.0.CR4</version>
 </dependency>
 ```
 
@@ -42,6 +42,8 @@ undertow {
   awaitShutdown = 1000
 
   server {
+
+    ALLOW_EQUALS_IN_COOKIE_VALUE = true
 
     ALWAYS_SET_KEEP_ALIVE = true
 

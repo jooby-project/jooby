@@ -8,14 +8,13 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-reactor</artifactId>
- <version>1.0.0.CR3</version>
+ <version>1.0.0.CR4</version>
 </dependency>
 ```
 
 ## exports
 
 * map route operator that converts ```Flux``` and ```Mono``` into [Deferred API](/apidocs/org/jooby/Deferred.html).
-* set a default server thread pool with the number of available processors.
 
 ## usage
 
@@ -25,9 +24,6 @@ import org.jooby.reactor.Reactor;
 ...
 {
   use(new Reactor());
-
-  /** Deal with Flux & Mono. */
-  mapper(Reactor.reactor());
 
   get("/", () -> Flux.just("reactive programming in jooby!"));
 }
@@ -54,26 +50,24 @@ Previous example is translated to:
 Translation is done with the [Reactor.reactor()](/apidocs/org/jooby/reactor/Reactor.html#reactor--) route operator. If you are a <a href="http://projectreactor.io">reactor</a> programmer then you don't need to worry for learning a new API and semantic. The [Reactor.reactor()](/apidocs/org/jooby/reactor/Reactor.html#reactor--) route operator deal and take cares of the [Deferred API](/apidocs/org/jooby/Deferred.html).
 
 
-## reactor()+scheduler
+## reactor mapper
 
-You can provide a ```Scheduler``` to the [Reactor.reactor(Supplier)](/apidocs/org/jooby/reactor/Reactor.html#reactor--) operator:
+Advanced flux/mono configuration is allowed via function adapters:
 
 ```java
 ...
 import org.jooby.reactor.Reactor;
 ...
 {
-  use(new Reactor());
+  use(new Reactor()
+    .withFlux(flux -> flux.pusblishOn(Computations.concurrent())
+    .withMono(mono -> mono.pusblishOn(Computations.concurrent()));
 
-  with(() -> {
+  get("/flux", () -> Flux...);
 
-    get("/1", () -> Flux...);
-    get("/2", () -> Flux...);
-    ....
-    get("/N", () -> Flux...);
-  }).map(Reactor.reactor(Computations::concurrent));
+  get("/mono", () -> Mono...);
 
 }
 ```
 
-All the routes here will ```Flux#subscribeOn(Scheduler)``` subscribe-on the provided ```Scheduler```.
+Here every Flux/Mono from a route handler will publish on the ```concurrent``` scheduler.

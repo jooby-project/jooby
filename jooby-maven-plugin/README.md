@@ -1,8 +1,6 @@
 # jooby:run
 
-Increase development productivity: run, debug, compile and auto-reload Jooby applications.
-
-A [Maven 3+](http://maven.apache.org/) plugin for running, debugging and reloading your application.
+```jooby:run``` is a [Maven 3+](http://maven.apache.org/) plugin for running, debugging and reloading your application.
 
 ## usage
 
@@ -34,7 +32,7 @@ The plugin bounces the application every time a change is detected on:
 
 Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled/cached it while running on ```application.env = dev```.
 
-Is it worth to mention that dynamic reload of classes is done via [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
+It's worth to mention that dynamic reload of classes is done via [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
 
 ## options
 
@@ -42,7 +40,7 @@ Is it worth to mention that dynamic reload of classes is done via [JBoss Modules
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR3</version>
+  <version>1.0.0.CR4</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -104,7 +102,7 @@ List of commands to execute before starting the ```application```. Useful for [n
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR3</version>
+  <version>1.0.0.CR4</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -125,7 +123,7 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR3</version>
+  <version>1.0.0.CR4</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <vmArgs>

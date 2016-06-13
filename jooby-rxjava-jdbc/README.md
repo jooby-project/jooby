@@ -2,7 +2,8 @@
 
 <a href="https://github.com/davidmoten/rxjava-jdbc">rxjava-jdbc</a> efficient execution, concise code, and functional composition of database calls using JDBC and RxJava Observable.
 
-This module depends on [jdbc module](/doc/jdbc), make sure you read the doc of the [jdbc module](/doc/jdbc) module.
+
+> This module depends on [jdbc module](/doc/jdbc) and [rx module](/doc/rxjava), please read the documentation of [jdbc module](/doc/jdbc) and [rx module](/doc/rxjava) before using ```rx-jdbc```.
 
 ## dependency
 
@@ -10,7 +11,7 @@ This module depends on [jdbc module](/doc/jdbc), make sure you read the doc of t
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rxjdbc</artifactId>
- <version>1.0.0.CR3</version>
+ <version>1.0.0.CR4</version>
 </dependency>
 ```
 
@@ -25,6 +26,9 @@ This module depends on [jdbc module](/doc/jdbc), make sure you read the doc of t
 import org.jooby.rx.RxJdbc;
 import org.jooby.rx.Rx;
 {
+  // required
+  use(new Rx());
+
   use(new RxJdbc());
 
   get("/reactive", req ->
@@ -32,7 +36,7 @@ import org.jooby.rx.Rx;
       .select("select name from something where id = :id")
       .parameter("id", 1)
       .getAs(String.class)
-  ).map(Rx.rx());
+  );
 
 }
 ```

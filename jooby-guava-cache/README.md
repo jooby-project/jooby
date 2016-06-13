@@ -12,7 +12,7 @@ Provides cache solution and session storage via: <a href="https://github.com/goo
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-guava-cache</artifactId>
- <version>1.0.0.CR3</version>
+ <version>1.0.0.CR4</version>
 </dependency>
 ```
 

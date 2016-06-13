@@ -10,8 +10,8 @@ Make sure you already setup the [assets module](https://github.com/jooby-project
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-requirejs</artifactId>
-  <version>1.0.0.CR3</version>
-  <scope>test</scope>
+  <version>1.0.0.CR4</version>
+  <scope>provided</scope>
 </dependency>
 ```
 
