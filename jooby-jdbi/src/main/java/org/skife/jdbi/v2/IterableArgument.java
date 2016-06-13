@@ -23,6 +23,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.jooby.jdbi.Jdbi;
 import org.skife.jdbi.v2.tweak.Argument;
 import org.skife.jdbi.v2.tweak.ArgumentFactory;
 
@@ -47,7 +48,7 @@ public class IterableArgument implements Argument {
       this.values = (Iterable<?>) value;
     }
     this.foreman = new Foreman();
-    List<ArgumentFactory> factories = (List<ArgumentFactory>) ctx.getAttribute(DBI2.ARG_FACTORIES);
+    List<ArgumentFactory> factories = (List<ArgumentFactory>) ctx.getAttribute(Jdbi.ARG_FACTORIES);
     factories.forEach(foreman::register);
   }
 
@@ -60,7 +61,7 @@ public class IterableArgument implements Argument {
       i+=1;
     }
 
-    ctx.setAttribute("position", i);
+    ctx.setAttribute("position", i - 1);
 
   }
 

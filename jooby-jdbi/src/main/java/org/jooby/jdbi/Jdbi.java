@@ -20,6 +20,7 @@ package org.jooby.jdbi;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -28,13 +29,14 @@ import javax.inject.Provider;
 import org.jooby.Env;
 import org.jooby.jdbc.Jdbc;
 import org.skife.jdbi.v2.DBI;
-import org.skife.jdbi.v2.DBI2;
 import org.skife.jdbi.v2.ExpandedStmtRewriter;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.IterableArgumentFactory;
 import org.skife.jdbi.v2.OptionalArgumentFactory;
 import org.skife.jdbi.v2.OptionalContainerFactory;
 import org.skife.jdbi.v2.logging.SLF4JLog;
+import org.skife.jdbi.v2.tweak.ArgumentFactory;
+import org.skife.jdbi.v2.tweak.ConnectionFactory;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Binder;
@@ -135,6 +137,25 @@ import com.typesafe.config.Config;
  * @since 0.5.0
  */
 public class Jdbi extends Jdbc {
+
+  public static final String ARG_FACTORIES = "__argumentFactories_";
+
+  static class DBI2 extends DBI {
+
+    private List<ArgumentFactory<?>> factories = new ArrayList<ArgumentFactory<?>>();
+
+    public DBI2(final ConnectionFactory connectionFactory) {
+      super(connectionFactory);
+      define(ARG_FACTORIES, factories);
+    }
+
+    @Override
+    public void registerArgumentFactory(final ArgumentFactory<?> argumentFactory) {
+      factories.add(argumentFactory);
+      super.registerArgumentFactory(argumentFactory);
+    }
+
+  }
 
   private BiConsumer<DBI, Config> configurer;
 

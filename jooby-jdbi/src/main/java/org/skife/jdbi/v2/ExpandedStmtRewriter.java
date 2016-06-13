@@ -156,14 +156,16 @@ public class ExpandedStmtRewriter implements StatementRewriter
       if (stmt.positionalOnly) {
         // no named params, is easy
         boolean finished = false;
-        int i = 0;
+        int i = 0, p = 0;
         while (!finished) {
-          final Argument a = params.forPosition(i);
+          final Argument a = params.forPosition(p);
           if (a != null) {
             try {
+              this.context.setAttribute("position", null);
               a.apply(i + 1, statement, this.context);
               Integer pos = (Integer) this.context.getAttribute("position");
               i += Optional.ofNullable(pos).orElse(1);
+              p += 1;
               this.context.setAttribute("position", null);
             } catch (SQLException e) {
               throw new UnableToExecuteStatementException(
@@ -198,13 +200,15 @@ public class ExpandedStmtRewriter implements StatementRewriter
           }
 
           try {
+            this.context.setAttribute("position", null);
             a.apply(i + 1, statement, this.context);
+            Integer pos = (Integer) this.context.getAttribute("position");
+            i += Optional.ofNullable(pos).orElse(1);
           } catch (SQLException e) {
             throw new UnableToCreateStatementException(String.format(
                 "Exception while binding '%s'",
                 named_param), e, context);
           }
-          i++;
         }
       }
     }
