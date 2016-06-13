@@ -135,6 +135,7 @@
         <li> <a href="#request-form-submit">form submit</a></li> 
         <li> <a href="#request-file-upload">file upload</a></li> 
         <li> <a href="#request-locals">locals</a></li> 
+        <li> <a href="#request-flash-scope">flash scope</a></li> 
         <li> <a href="#request-require">require</a></li>
        </ul></li> 
       <li class=""> <a href="#response">response</a>
@@ -2098,6 +2099,76 @@ GET /assets/css/style.css
 
 </code></pre> 
        </div> 
+       <h3 id="request-flash-scope">flash scope</h3> 
+       <p>The flash scope is designed to transport success and error messages, between requests. The flash scope is similar to <a href="#session">Session</a> but lifecycle is shorter: <em>data are kept for only one request</em>.</p> 
+       <p>The flash scope is implemented as client side cookie, so it helps to keep application stateless.</p> 
+       <h4 id="request-usage">usage</h4> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+<span class="kn">import</span> <span class="nn">org.jooby.FlashScope</span><span class="o">;</span>
+
+<span class="o">...</span>
+
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">FlashScope</span><span class="o">());</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">req</span><span class="o">.</span><span class="na">ifFlash</span><span class="o">(</span><span class="s">"success"</span><span class="o">).</span><span class="na">orElse</span><span class="o">(</span><span class="s">"Welcome!"</span><span class="o">);</span>
+  <span class="o">});</span>
+
+  <span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">req</span><span class="o">.</span><span class="na">flash</span><span class="o">(</span><span class="s">"success"</span><span class="o">,</span> <span class="s">"The item has been created"</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">Results</span><span class="o">.</span><span class="na">redirect</span><span class="o">(</span><span class="s">"/"</span><span class="o">);</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p><a href="/apidocs/org/jooby/FlashScope.html" target="_blank">FlashScope</a> is also available on mvc routes via <a href="/apidocs/org/jooby/mvc/Flash.html" target="_blank">@Flash</a> annotation:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@Path</span><span class="o">(</span><span class="s">"/"</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Controller</span> <span class="o">{</span>
+  
+  <span class="c1">// Access to flashScope</span>
+  <span class="nd">@GET</span>
+  <span class="kd">public</span> <span class="n">Object</span> <span class="n">flashScope</span><span class="o">(</span><span class="nd">@Flash</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">flash</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+  <span class="c1">// Access to a required flash attribute</span>
+  <span class="nd">@GET</span>
+  <span class="kd">public</span> <span class="n">Object</span> <span class="n">flashAttr</span><span class="o">(</span><span class="nd">@Flash</span> <span class="n">String</span> <span class="n">foo</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+  <span class="c1">// Access to an optional flash attribute</span>
+  <span class="nd">@GET</span>
+  <span class="kd">public</span> <span class="n">Object</span> <span class="n">optionlFlashAttr</span><span class="o">(</span><span class="nd">@Flash</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">foo</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span> 
+  <span class="o">}</span>
+<span class="o">}</span> 
+</code></pre> 
+       </div> 
+       <p>Worth to mention that flash attributes are accessible from template engine of your choice by prefixing flash attributes with <code class="highlighter-rouge codehilite">flash.</code>. Here is a (handlebars.java)[/doc/hbs] example:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>{{#if flash.success}}
+  {{flash.success}}
+
+{{else}}
+  Welcome!
+
+{{/if}}
+</code></pre> 
+       </div> 
        <h3 id="request-require">require</h3> 
        <p>In previous section we learnt you can bind/wire your objects with <a href="https://github.com/google/guice" target="_blank">Guice</a>.</p> 
        <p>You can ask <a href="https://github.com/google/guice" target="_blank">Guice</a> to wired an object from the <a href="/apidocs/org/jooby/Request.html#require-com.google.inject.Key-" target="_blank">request.require(type)</a></p> 
@@ -2319,7 +2390,7 @@ GET /assets/css/style.css
        <p>In both cases, the error model is the result of <code class="highlighter-rouge codehilite">err.toMap()</code> which creates a lightweight version of the exception.</p> 
        <p>HTTP status code will be set too.</p> 
        <h3 id="error-handling-custom-err-handler">custom err handler</h3> 
-       <p>If the default view resolution and/or err model isn’t enough, you can create your own err handler.</p> 
+       <p>If the default view resolution and/or err model isn’t enough, you can create your own err handler:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -2333,7 +2404,49 @@ GET /assets/css/style.css
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Err handler are executed in the order they were provided (like routes, parser and renderers). The first err handler that send an output wins!</p> 
+       <p>Err handler are executed in the order they were provided (like routes, parsers and renderers). The first err handler that send an output wins!</p> 
+       <h4 id="error-handling-catch-specific-exception-or-status-code">catch specific exception or status code</h4> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">err</span><span class="o">(</span><span class="n">MyException1</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">err</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">MyException1</span> <span class="n">cause</span> <span class="o">=</span> <span class="o">(</span><span class="n">MyException1</span><span class="o">)</span> <span class="n">err</span><span class="o">.</span><span class="na">getCause</span><span class="o">();</span>
+    <span class="c1">// handle MyException1</span>
+  <span class="o">});</span>
+
+  <span class="n">err</span><span class="o">(</span><span class="n">MyException2</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">err</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">MyException2</span> <span class="n">cause</span> <span class="o">=</span> <span class="o">(</span><span class="n">MyException2</span><span class="o">)</span> <span class="n">err</span><span class="o">.</span><span class="na">getCause</span><span class="o">();</span>
+    <span class="c1">// handle MyException2</span>
+  <span class="o">});</span>
+
+  <span class="n">err</span><span class="o">((</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">err</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// handle any other exception</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Or you can catch exception base on their response status code (see next section):</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">err</span><span class="o">(</span><span class="mi">404</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">err</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// handle 404</span>
+  <span class="o">});</span>
+
+  <span class="n">err</span><span class="o">(</span><span class="mi">503</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">err</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// handle 503</span>
+  <span class="o">});</span>
+
+  <span class="n">err</span><span class="o">((</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">,</span> <span class="n">err</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// handle any other exception</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
        <h3 id="error-handling-status-code">status code</h3> 
        <p>Default status code is <code class="highlighter-rouge codehilite">500</code>, except for:</p> 
        <div class="highlighter-rouge codehilite">
@@ -2366,13 +2479,7 @@ GET /assets/css/style.css
         <pre class="highlight"><code><span class="py">err.com.security.Forbidden</span> <span class="p">=</span> <span class="s">403</span>
 </code></pre> 
        </div> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="k">throw</span> <span class="k">new</span> <span class="nf">Forbidden</span><span class="p">(</span><span class="o">);</span>
-</code></pre> 
-       </div> 
+       <p>So, now if you throw a <code class="highlighter-rouge codehilite">com.security.Forbidden</code> exception the status code will be <code class="highlighter-rouge codehilite">403</code>.</p> 
       </div> 
      </div> 
      <div class="datalist" id="parser-and-renderer"> 
@@ -3317,8 +3424,8 @@ GET /assets/css/style.css
 
   <span class="py">charset</span> <span class="p">=</span> <span class="s">${application.charset}</span>
 
-  <span class="c"># Either null or a string in the ISO 8601 format according to `java.time.Duration.parse(CharSequence)`. </span>
-  <span class="py">cache.maxAge</span> <span class="p">=</span> <span class="s">null</span>
+  <span class="c"># -1 to disable or HOCON duration value </span>
+  <span class="py">cache.maxAge</span> <span class="p">=</span> <span class="s">-1</span>
 
 <span class="err">}</span>
 

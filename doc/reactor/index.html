@@ -102,7 +102,7 @@
         <li> <a href="#reactor-exports">exports</a></li> 
         <li> <a href="#reactor-usage">usage</a></li> 
         <li> <a href="#reactor-how-it-works-">how it works?</a></li> 
-        <li> <a href="#reactor-reactor-scheduler">reactor()+scheduler</a></li>
+        <li> <a href="#reactor-reactor-mapper">reactor mapper</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -121,14 +121,13 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-reactor<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.0.0.CR3<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0.CR4<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
        <h3 id="reactor-exports">exports</h3> 
        <ul> 
         <li>map route operator that converts <code class="highlighter-rouge codehilite">Flux</code> and <code class="highlighter-rouge codehilite">Mono</code> into <a href="/apidocs/org/jooby/Deferred.html" target="_blank">Deferred API</a>.</li> 
-        <li>set a default server thread pool with the number of available processors.</li> 
        </ul> 
        <h3 id="reactor-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
@@ -140,11 +139,6 @@
 <span class="o">...</span>
 <span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Reactor</span><span class="o">());</span>
-
-  <span class="cm">/**</span>
-   <span class="cm">* Deal with Flux &amp; Mono. </span>
-   <span class="cm">*/</span>
-  <span class="n">mapper</span><span class="o">(</span><span class="n">Reactor</span><span class="o">.</span><span class="na">reactor</span><span class="o">());</span>
 
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">Flux</span><span class="o">.</span><span class="na">just</span><span class="o">(</span><span class="s">"reactive programming in jooby!"</span><span class="o">));</span>
 <span class="o">}</span>
@@ -170,8 +164,8 @@
 </code></pre> 
        </div> 
        <p>Translation is done with the <a href="/apidocs/org/jooby/reactor/Reactor.html#reactor--" target="_blank">Reactor.reactor()</a> route operator. If you are a <a href="http://projectreactor.io" target="_blank">reactor</a> programmer then you don’t need to worry for learning a new API and semantic. The <a href="/apidocs/org/jooby/reactor/Reactor.html#reactor--" target="_blank">Reactor.reactor()</a> route operator deal and take cares of the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">Deferred API</a>.</p> 
-       <h3 id="reactor-reactor-scheduler">reactor()+scheduler</h3> 
-       <p>You can provide a <code class="highlighter-rouge codehilite">Scheduler</code> to the <a href="/apidocs/org/jooby/reactor/Reactor.html#reactor--" target="_blank">Reactor.reactor(Supplier)</a> operator:</p> 
+       <h3 id="reactor-reactor-mapper">reactor mapper</h3> 
+       <p>Advanced flux/mono configuration is allowed via function adapters:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -180,20 +174,18 @@
 <span class="kn">import</span> <span class="nn">org.jooby.reactor.Reactor</span><span class="o">;</span>
 <span class="o">...</span>
 <span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Reactor</span><span class="o">());</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Reactor</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">withFlux</span><span class="o">(</span><span class="n">flux</span> <span class="o">-&gt;</span> <span class="n">flux</span><span class="o">.</span><span class="na">pusblishOn</span><span class="o">(</span><span class="n">Computations</span><span class="o">.</span><span class="na">concurrent</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">withMono</span><span class="o">(</span><span class="n">mono</span> <span class="o">-&gt;</span> <span class="n">mono</span><span class="o">.</span><span class="na">pusblishOn</span><span class="o">(</span><span class="n">Computations</span><span class="o">.</span><span class="na">concurrent</span><span class="o">()));</span>
 
-  <span class="n">with</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/flux"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">Flux</span><span class="o">...);</span>
 
-    <span class="n">get</span><span class="o">(</span><span class="s">"/1"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">Flux</span><span class="o">...);</span>
-    <span class="n">get</span><span class="o">(</span><span class="s">"/2"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">Flux</span><span class="o">...);</span>
-    <span class="o">....</span>
-    <span class="n">get</span><span class="o">(</span><span class="s">"/N"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">Flux</span><span class="o">...);</span>
-  <span class="o">}).</span><span class="na">map</span><span class="o">(</span><span class="n">Reactor</span><span class="o">.</span><span class="na">reactor</span><span class="o">(</span><span class="nl">Computations:</span><span class="o">:</span><span class="n">concurrent</span><span class="o">));</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/mono"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">Mono</span><span class="o">...);</span>
 
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>All the routes here will <code class="highlighter-rouge codehilite">Flux#subscribeOn(Scheduler)</code> subscribe-on the provided <code class="highlighter-rouge codehilite">Scheduler</code>.</p> 
+       <p>Here every Flux/Mono from a route handler will publish on the <code class="highlighter-rouge codehilite">concurrent</code> scheduler.</p> 
       </div> 
      </div> 
     </div> 

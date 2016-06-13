@@ -124,7 +124,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-undertow<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR4<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -149,6 +149,8 @@
   <span class="py">awaitShutdown</span> <span class="p">=</span> <span class="s">1000</span>
 
   <span class="err">server</span> <span class="err">{</span>
+
+    <span class="py">ALLOW_EQUALS_IN_COOKIE_VALUE</span> <span class="p">=</span> <span class="s">true</span>
 
     <span class="py">ALWAYS_SET_KEEP_ALIVE</span> <span class="p">=</span> <span class="s">true</span>
 

@@ -102,7 +102,7 @@
         <li> <a href="#rxjava-exports">exports</a></li> 
         <li> <a href="#rxjava-usage">usage</a></li> 
         <li> <a href="#rxjava-how-it-works-">how it works?</a></li> 
-        <li> <a href="#rxjava-rx-scheduler">rx()+scheduler</a></li> 
+        <li> <a href="#rxjava-rx-mapper">rx mapper</a></li> 
         <li> <a href="#rxjava-schedulers">schedulers</a></li>
        </ul></li> 
      </ul> 
@@ -123,7 +123,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-rxjava<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.0.0.CR3<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0.CR4<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -131,7 +131,6 @@
        <ul> 
         <li>map route operator: <a href="/apidocs/org/jooby/rx/Rx.html#rx--" target="_blank">Rx.rx()</a> that converts <code class="highlighter-rouge codehilite">Observable</code> (and family) into <a href="/apidocs/org/jooby/Deferred.html" target="_blank">Deferred API</a>.</li> 
         <li>manage the lifecycle of <code class="highlighter-rouge codehilite">Schedulers</code> and make sure they go down on application shutdown time.</li> 
-        <li>set a default server thread pool with the number of available processors.</li> 
        </ul> 
        <h3 id="rxjava-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
@@ -143,11 +142,6 @@
 <span class="o">...</span>
 <span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Rx</span><span class="o">());</span>
-
-   <span class="cm">/**</span>
-    <span class="cm">* Deal with Observable, Single and others .</span>
-    <span class="cm">*/</span>
-  <span class="n">mapper</span><span class="o">(</span><span class="n">Rx</span><span class="o">.</span><span class="na">rx</span><span class="o">());</span>
 
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">Observable</span><span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="s">"reactive programming in jooby!"</span><span class="o">));</span>
 
@@ -173,9 +167,9 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Translation is done with the <a href="/apidocs/org/jooby/rx/Rx.html#rx--" target="_blank">Rx.rx()</a> route operator. If you are a <a href="https://github.com/ReactiveX/RxJava" target="_blank">RxJava</a> programmer then you don’t need to worry for learning a new API and semantic. The <a href="/apidocs/org/jooby/rx/Rx.html#rx--" target="_blank">Rx.rx()</a> route operator deal and take cares of the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">Deferred API</a>.</p> 
-       <h3 id="rxjava-rx-scheduler">rx()+scheduler</h3> 
-       <p>You can provide a <code class="highlighter-rouge codehilite">Scheduler</code> to the <a href="/apidocs/org/jooby/rx/Rx.html#rx--" target="_blank">Rx.rx()</a> operator:</p> 
+       <p>Translation is done via <a href="/apidocs/org/jooby/rx/Rx.html#rx--" target="_blank">Rx.rx()</a> route operator. If you are a <a href="https://github.com/ReactiveX/RxJava" target="_blank">RxJava</a> programmer then you don’t need to worry for learning a new API and semantic. The <a href="/apidocs/org/jooby/rx/Rx.html#rx--" target="_blank">Rx.rx()</a> route operator deal and take cares of the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">Deferred API</a>.</p> 
+       <h3 id="rxjava-rx-mapper">rx mapper</h3> 
+       <p>Advanced observable configuration is allowed via adapter function:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -184,21 +178,15 @@
 <span class="kn">import</span> <span class="nn">org.jooby.rx.Rx</span><span class="o">;</span>
 <span class="o">...</span>
 <span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Rx</span><span class="o">());</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Rx</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">withObservable</span><span class="o">(</span><span class="n">observable</span> <span class="o">-&gt;</span> <span class="n">observable</span><span class="o">.</span><span class="na">observeOn</span><span class="o">(</span><span class="n">Schedulers</span><span class="o">.</span><span class="na">io</span><span class="o">())));</span>
 
-  <span class="n">with</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-
-    <span class="n">get</span><span class="o">(</span><span class="s">"/1"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="n">Observable</span><span class="o">...);</span>
-    <span class="n">get</span><span class="o">(</span><span class="s">"/2"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="n">Observable</span><span class="o">...);</span>
-    <span class="o">....</span>
-    <span class="n">get</span><span class="o">(</span><span class="s">"/N"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="n">Observable</span><span class="o">...);</span>
-
-  <span class="o">}).</span><span class="na">map</span><span class="o">(</span><span class="n">Rx</span><span class="o">.</span><span class="na">rx</span><span class="o">(</span><span class="nl">Schedulers:</span><span class="o">:</span><span class="n">io</span><span class="o">));</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/observable"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="n">Observable</span><span class="o">...);</span>
 
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>All the routes here will <code class="highlighter-rouge codehilite">Observable#subscribeOn(Scheduler)</code> the provided <code class="highlighter-rouge codehilite">Scheduler</code>.</p> 
+       <p>The observable adapter function allow you to customize observables from routes.</p> 
        <h3 id="rxjava-schedulers">schedulers</h3> 
        <p>This module provides the default <code class="highlighter-rouge codehilite">Scheduler</code> from <a href="https://github.com/ReactiveX/RxJava" target="_blank">RxJava</a>. But also let you define your own <code class="highlighter-rouge codehilite">Scheduler</code> using the <a href="/doc/executor">executor module</a>.</p> 
        <div class="highlighter-rouge codehilite">

@@ -134,7 +134,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-assets<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR4<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -283,11 +283,11 @@
         <pre class="highlight"><code>  <span class="nt">&lt;dependency&gt;</span>
     <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
     <span class="nt">&lt;artifactId&gt;</span>jooby-assets-my-processor<span class="nt">&lt;/artifactId&gt;</span>
-    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
   <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
-       <p>Did you see the <strong>test</strong> scope? We just need the processor for development, because assets are processed on the fly. For <code class="highlighter-rouge codehilite">prod</code>, assets are processed at built-time via Maven plugin, at runtime we don’t need this. This also, helps to keep our dependencies and the jar size to minimum.</p> 
+       <p>Did you see the <strong>provided</strong> scope? We just need the processor for development, because assets are processed on the fly. For <code class="highlighter-rouge codehilite">prod</code>, assets are processed at built-time via Maven plugin, so we don’t need this library/dependency. This also, helps to keep our dependencies and the jar size to minimum.</p> 
        <p>Now we have the dependency all we have to do is to add it to our pipeline:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 

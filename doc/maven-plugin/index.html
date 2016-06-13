@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: mvn jooby:run"> 
-  <meta name="og:description" content="Increase development productivity: run, debug, compile and auto-reload Jooby applications"> 
+  <meta name="og:description" content="jooby:run is a Maven 3+ plugin for running, debugging and reloading your application"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Increase development productivity: run, debug, compile and auto-reload Jooby applications"> 
+  <meta name="twitter:description" content="jooby:run is a Maven 3+ plugin for running, debugging and reloading your application"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -110,8 +110,7 @@
        <h2>jooby:run</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Increase development productivity: run, debug, compile and auto-reload Jooby applications.</p> 
-       <p>A <a href="http://maven.apache.org/" target="_blank">Maven 3+</a> plugin for running, debugging and reloading your application.</p> 
+       <p><code class="highlighter-rouge codehilite">jooby:run</code> is a <a href="http://maven.apache.org/" target="_blank">Maven 3+</a> plugin for running, debugging and reloading your application.</p> 
        <h3 id="jooby-run-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -144,7 +143,7 @@ listening on:
         <li>config files (*.conf and *.properties)</li> 
        </ul> 
        <p>Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled/cached it while running on <code class="highlighter-rouge codehilite">application.env = dev</code>.</p> 
-       <p>Is it worth to mention that dynamic reload of classes is done via <a href="https://github.com/jboss-modules/jboss-modules" target="_blank">JBoss Modules</a>.</p> 
+       <p>It’s worth to mention that dynamic reload of classes is done via <a href="https://github.com/jboss-modules/jboss-modules" target="_blank">JBoss Modules</a>.</p> 
        <h3 id="jooby-run-options">options</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -153,7 +152,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR4<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
@@ -209,7 +208,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR4<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
@@ -230,7 +229,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR4<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;vmArgs&gt;</span>
@@ -251,8 +250,8 @@ listening on:
    <div class="row share-network"> 
     <div class="section-content"> 
      <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/maven-plugin" data-a2a-title="Increase development productivity: run, debug, compile and auto-reload Jooby applications"> 
-      <a class="a2a_button_twitter" data-text="Increase development productivity: run, debug, compile and auto-reload Jooby applications"></a> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/maven-plugin" data-a2a-title="jooby:run is a Maven 3+ plugin for running, debugging and reloading your application"> 
+      <a class="a2a_button_twitter" data-text="jooby:run is a Maven 3+ plugin for running, debugging and reloading your application"></a> 
       <a class="a2a_button_reddit a2a_counter"></a> 
       <a class="a2a_button_linkedin a2a_counter"></a> 
       <a class="a2a_button_facebook a2a_counter"></a> 

@@ -44,4 +44,5 @@ org.jooby.spec
 org.jooby.spi
 org.jooby.swagger
 org.jooby.undertow
+org.jooby.whoops
 org.skife.jdbi.v2
