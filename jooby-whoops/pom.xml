@@ -30,16 +30,27 @@
         <configuration>
           <overwrite>true</overwrite>
           <includes>
-            <include>org.ow2.asm:asm</include>
+            <include>com.mitchellbosecke:pebble</include>
+            <include>com.coverity.security:coverity-escapers</include>
           </includes>
           <rules>
+            <!-- pebble -->
             <rule>
-              <pattern>com.mitchellbosecke.pebble.*</pattern>
+              <pattern>com.mitchellbosecke.*</pattern>
               <result>org.jooby.internal.pebble.$@1</result>
             </rule>
             <rule>
-              <pattern>com.mitchellbosecke.pebble.**.*</pattern>
+              <pattern>com.mitchellbosecke.**.*</pattern>
               <result>org.jooby.internal.pebble.@1.$@2</result>
+            </rule>
+            <!-- coverity -->
+            <rule>
+              <pattern>com.coverity.*</pattern>
+              <result>org.jooby.internal.coverity.$@1</result>
+            </rule>
+            <rule>
+              <pattern>com.coverity.**.*</pattern>
+              <result>org.jooby.internal.coverity.@1.$@2</result>
             </rule>
             <keep>
               <pattern>org.jooby.**</pattern>
@@ -74,6 +85,7 @@
     <dependency>
       <groupId>com.mitchellbosecke</groupId>
       <artifactId>pebble</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <!-- Test dependencies -->

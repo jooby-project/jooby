@@ -128,7 +128,7 @@ import javaslang.control.Try;
  * <code>prod-like</code> environments:
  * </p>
  *
- *  <pre>{@code
+ * <pre>{@code
  * {
  *   on("dev", () -> {
  *     use(new Whoops());
@@ -155,6 +155,24 @@ public class Whoops implements Jooby.Module {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
+  private final int maxFrameSize;
+
+  /**
+   * Creates a new {@link Whoops} module.
+   *
+   * @param maxFrameSize Max number of frame to show in the pretty error page.
+   */
+  public Whoops(final int maxFrameSize) {
+    this.maxFrameSize = maxFrameSize;
+  }
+
+  /**
+   * Creates a new {@link Whoops} module with max frame size of 8.
+   */
+  public Whoops() {
+    this(8);
+  }
+
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     boolean whoops = conf.hasPath("whoops.enabled")
@@ -162,7 +180,7 @@ public class Whoops implements Jooby.Module {
         : "dev".equals(env.name());
     if (whoops) {
       ClassLoader loader = env.routes().getClass().getClassLoader();
-      Handler handler = prettyPage(loader, SourceLocator.local(), log);
+      Handler handler = prettyPage(loader, SourceLocator.local(), maxFrameSize, log);
       env.routes().err(tryPage(handler, log));
     }
   }
@@ -174,7 +192,7 @@ public class Whoops implements Jooby.Module {
   }
 
   private static Handler prettyPage(final ClassLoader loader, final SourceLocator locator,
-      final Logger log) {
+      final int maxStackSize, final Logger log) {
     String css = readString(loader, "css/whoops.base.css");
     String clipboard = readString(loader, "js/clipboard.min.js");
     String js = readString(loader, "js/whoops.base.js");
@@ -234,6 +252,9 @@ public class Whoops implements Jooby.Module {
 
         frames.addAll(frames(loader, locator, head));
 
+        // truncate frames
+        frames = frames.subList(0, Math.min(maxStackSize, frames.size()));
+
         Map<String, Object> context = ImmutableMap.<String, Object> builder()
             .put("stylesheet", css)
             .put("zepto", zepto)
@@ -252,7 +273,7 @@ public class Whoops implements Jooby.Module {
 
         log.error("execution of: {}{} resulted in exception\nRoute:\n{}\n\nStacktrace:",
             req.method(), req.path(), req.route().print(6), err);
-        rsp.send(writer.toString());
+        rsp.type(MediaType.html).send(writer.toString());
       }
     };
   }
@@ -334,8 +355,9 @@ public class Whoops implements Jooby.Module {
           }
           String cfile = clazz.getName().replace(".", "/") + ".class";
           String relativePath = path.replace(cfile, "");
-          return new File(System.getProperty("user.dir")).toPath()
-              .relativize(Paths.get(relativePath))
+          return new File(System.getProperty("user.dir"))
+              .toPath()
+              .relativize(Paths.get(relativePath).toFile().getCanonicalFile().toPath())
               .toString();
         }).getOrElse("~unknown"))
         .orElse("~unknown");
