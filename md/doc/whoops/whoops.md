@@ -39,7 +39,7 @@ The pretty error page handler is available in development mode: ```application.e
 
 ## custom err pages
 
-The pretty error page is implemented via [err(req, rsp, err)]({{defdocs}}/Routes.html#err-org.jooby.Err.Handler-). You might run into troubles if your application require custom error pages. On those cases you probably won't use this module or if apply one of the following options:
+The pretty error page is implemented via [err(req, rsp, err)]({{defdocs}}/Routes.html#err-org.jooby.Err.Handler-). You might run into troubles if your application require custom error pages. On those cases you probably won't use this module or apply one of the following options:
 
 ### whoops as last err handler
 

@@ -17,7 +17,7 @@ public class App extends Jooby { // 1.
     get("/", () -> "Hello");
   }
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws Throwable {
     // 3. run my app
     run(App::new, args);
   }
