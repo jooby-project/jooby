@@ -2,6 +2,7 @@ package org.jooby.assets;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 
@@ -34,6 +35,23 @@ public class PropsTest {
         new Props().set("delims", Arrays.asList("{{", "}}")).process("/j.s", "$.ajax({{app.url}});",
             ConfigFactory
                 .empty().withValue("app.url", ConfigValueFactory.fromAnyRef("http://foo.com"))));
+  }
+
+  @Test
+  public void missingProp() throws Exception {
+    try {
+      new Props().process("/j.s", "$.ajax(${cpath}/service);", ConfigFactory.empty());
+      fail();
+    } catch (AssetException ex) {
+      assertEquals("[/j.s:1:8: No configuration setting found for key 'cpath' at 1:8]", ex.getMessage());
+    }
+
+    try {
+      new Props().process("/j.s", "$.ajax(\n\n   ${cpath}/service);", ConfigFactory.empty());
+      fail();
+    } catch (AssetException ex) {
+      assertEquals("[/j.s:3:4: No configuration setting found for key 'cpath' at 3:4]", ex.getMessage());
+    }
   }
 
 }

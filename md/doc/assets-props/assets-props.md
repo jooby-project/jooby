@@ -4,17 +4,6 @@ Replace ```${expressions}``` with a value from ```application.conf```.
 
 {{assets-require.md}}
 
-## dependency
-
-```xml
-<dependency>
-  <groupId>org.jooby</groupId>
-  <artifactId>jooby-assets-props</artifactId>
-  <version>{{version}}</version>
-  <scope>provided</scope>
-</dependency>
-```
-
 ## usage
 
 ```

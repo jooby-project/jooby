@@ -3,6 +3,7 @@ package org.jooby;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -105,7 +106,7 @@ public class EnvTest {
       env.resolve(env.resolve("function ($) {$.ajax(\"${contextPath /api\")"));
       fail();
     } catch (IllegalArgumentException ex) {
-      assertEquals("Unclosed placeholder: ${contextPath", ex.getMessage());
+      assertEquals("found '${' expecting '}' at 1:23", ex.getMessage());
     }
   }
 
@@ -116,7 +117,46 @@ public class EnvTest {
       env.resolve(env.resolve("function ($) {$.ajax(\"${contextPath/api\")"));
       fail();
     } catch (IllegalArgumentException ex) {
-      assertEquals("Unclosed placeholder: ${contextPath/api\")", ex.getMessage());
+      assertEquals("found '${' expecting '}' at 1:23", ex.getMessage());
+    }
+  }
+
+  @Test
+  public void noSuchKey() {
+    Env env = Env.DEFAULT.build(ConfigFactory.empty());
+    try {
+      env.resolve(env.resolve("${key}"));
+      fail();
+    } catch (NoSuchElementException ex) {
+      assertEquals("No configuration setting found for key 'key' at 1:1", ex.getMessage());
+    }
+
+    try {
+      env.resolve(env.resolve("    ${key}"));
+      fail();
+    } catch (NoSuchElementException ex) {
+      assertEquals("No configuration setting found for key 'key' at 1:5", ex.getMessage());
+    }
+
+    try {
+      env.resolve(env.resolve("  \n  ${key}"));
+      fail();
+    } catch (NoSuchElementException ex) {
+      assertEquals("No configuration setting found for key 'key' at 2:3", ex.getMessage());
+    }
+
+    try {
+      env.resolve(env.resolve("  \n  ${key}"));
+      fail();
+    } catch (NoSuchElementException ex) {
+      assertEquals("No configuration setting found for key 'key' at 2:3", ex.getMessage());
+    }
+
+    try {
+      env.resolve(env.resolve("  \n \n ${key}"));
+      fail();
+    } catch (NoSuchElementException ex) {
+      assertEquals("No configuration setting found for key 'key' at 3:2", ex.getMessage());
     }
   }
 

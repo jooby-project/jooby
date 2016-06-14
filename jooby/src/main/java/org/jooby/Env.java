@@ -23,11 +23,12 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -242,24 +243,37 @@ public interface Env extends LifeCycle {
   default String resolve(final String text, final Config source,
       final String startDelimiter, final String endDelimiter) {
     requireNonNull(text, "Text is required.");
-    requireNonNull(source, "A config source is required.");
+    requireNonNull(source, "Config source is required.");
     checkArgument(!Strings.isNullOrEmpty(startDelimiter), "Start delimiter is required.");
     checkArgument(!Strings.isNullOrEmpty(endDelimiter), "End delimiter is required.");
     if (text.length() == 0) {
       return "";
     }
+
+    BiFunction<Integer, BiFunction<Integer, Integer, RuntimeException>, RuntimeException> err = (
+        start, ex) -> {
+      String snapshot = text.substring(0, start);
+      int line = Splitter.on('\n').splitToList(snapshot).size();
+      int column = start - snapshot.lastIndexOf('\n');
+      return ex.apply(line, column);
+    };
+
     StringBuilder buffer = new StringBuilder();
     int offset = 0;
     int start = text.indexOf(startDelimiter);
     while (start >= 0) {
       int end = text.indexOf(endDelimiter, start + startDelimiter.length());
       if (end == -1) {
-        throw new IllegalArgumentException("Unclosed placeholder: "
-            + Splitter.on(CharMatcher.WHITESPACE)
-                .split(text.subSequence(start, text.length())).iterator().next());
+        throw err.apply(start, (line, column) -> new IllegalArgumentException(
+            "found '" + startDelimiter + "' expecting '" + endDelimiter + "' at " + line + ":"
+                + column));
       }
       buffer.append(text.substring(offset, start));
       String key = text.substring(start + startDelimiter.length(), end);
+      if (!source.hasPath(key)) {
+        throw err.apply(start, (line, column) -> new NoSuchElementException(
+            "No configuration setting found for key '" + key + "' at " + line + ":" + column));
+      }
       buffer.append(source.getAnyRef(key));
       offset = end + endDelimiter.length();
       start = text.indexOf(startDelimiter, offset);
