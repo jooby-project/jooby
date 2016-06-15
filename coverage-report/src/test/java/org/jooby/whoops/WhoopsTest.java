@@ -101,7 +101,7 @@ public class WhoopsTest {
           assertEquals("WhoopsApp", frame.get("type"));
           assertEquals(
               Arrays.asList(ImmutableMap.of("context",
-                  unit.get(Throwable.class).getClass().getName(), "text", ": " + message)),
+                  unit.get(Throwable.class).getClass().getName(), "text", message)),
               frame.get("comments"));
         });
   }
@@ -158,7 +158,7 @@ public class WhoopsTest {
           assertEquals("WhoopsApp", frame.get("type"));
           assertEquals(
               Arrays.asList(ImmutableMap.of("context",
-                  unit.get(Throwable.class).getClass().getName(), "text", ": " + message)),
+                  unit.get(Throwable.class).getClass().getName(), "text", message)),
               frame.get("comments"));
         });
   }

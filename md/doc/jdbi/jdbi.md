@@ -2,7 +2,7 @@
 
 [JDBI](http://www.jdbi.org/) is a SQL convenience library for Java.
 
-This module extends the  [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module so all the services provided by the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc)  module are inherited.
+This module extends the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module so all the services provided by the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc)  module are inherited.
 
 Before start, make sure you already setup a database connection as described in the [jdbc](https://github.com/jooby-project/jooby/tree/master/jooby-jdbc) module.
 

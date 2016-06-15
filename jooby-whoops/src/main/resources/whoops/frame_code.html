@@ -41,7 +41,7 @@
         <div class="frame-comments {% if frame.comments.size == 0%}empty{%endif%}">
           {%for comment in frame.comments %}
             <div class="frame-comment" id="comment-{{loop.index}}">
-              <span class="frame-comment-context">{{comment.context}}</span>
+              <span class="frame-comment-context">{{comment.context}}</span>:
               {{comment.text}}
             </div>
           {%endfor%}

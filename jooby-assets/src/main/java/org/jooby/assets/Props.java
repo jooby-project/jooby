@@ -88,9 +88,9 @@ public class Props extends AssetProcessor {
   public String process(final String filename, final String source, final Config conf)
       throws Exception {
     try {
-    Env env = Env.DEFAULT.build(conf);
-    List<String> delims = get("delims");
-    return env.resolve(source, delims.get(0), delims.get(1));
+      Env env = Env.DEFAULT.build(conf);
+      List<String> delims = get("delims");
+      return env.resolve(source, delims.get(0), delims.get(1));
     } catch (Exception cause) {
       int line = -1;
       int column = -1;
@@ -99,7 +99,8 @@ public class Props extends AssetProcessor {
         line = Integer.parseInt(matcher.group(1));
         column = Integer.parseInt(matcher.group(2));
       }
-      throw new AssetException(name(), new AssetProblem(filename, line, column, cause.getMessage(), null));
+      throw new AssetException(name(),
+          new AssetProblem(filename, line, column, cause.getMessage(), null));
     }
   }
 

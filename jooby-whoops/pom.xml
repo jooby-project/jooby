@@ -83,6 +83,13 @@
     </dependency>
 
     <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-assets</artifactId>
+      <version>${project.version}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
       <groupId>com.mitchellbosecke</groupId>
       <artifactId>pebble</artifactId>
       <optional>true</optional>

@@ -2,7 +2,11 @@
   <div class="exc-title">
   {%for cause in chain %}
     {% if loop.index == chain.size - 1 %}
-    <span class="exc-title-primary">{{cause.class.simpleName}}</span>
+      {%if cause.id is empty%}
+      <span class="exc-title-primary">{{cause.class.simpleName}}</span>
+      {%else%}
+      {{cause.class.simpleName}} > <span class="exc-title-primary">{{cause.id}}</span>
+      {%endif%}
     {%else%}
     {{cause.class.simpleName}} > 
     {%endif%}

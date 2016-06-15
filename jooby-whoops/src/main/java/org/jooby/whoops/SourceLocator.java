@@ -19,14 +19,20 @@
 package org.jooby.whoops;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.Lists;
 
 import javaslang.control.Try;
 
@@ -83,26 +89,41 @@ interface SourceLocator {
   }
 
   static SourceLocator local(final Path path) {
-    return filename -> {
-      return Try.of(() -> {
-        // classname to path
-        List<String> files = Arrays.asList(filename,
-            filename.replace(".", File.separator) + ".java");
+    Path bin = path.resolve("bin");
+    Path target = path.resolve("target");
+    return filename -> Try.of(() -> {
+      List<String> files = Arrays.asList(filename,
+          filename.replace(".", File.separator) + ".java");
+      List<Path> source = Lists.newArrayList(Paths.get(filename));
+      Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+        @Override
+        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
+            throws IOException {
+          if (dir.toFile().isHidden()) {
+            return FileVisitResult.SKIP_SUBTREE;
+          }
+          if (dir.equals(bin) || dir.equals(target)) {
+            return FileVisitResult.SKIP_SUBTREE;
+          }
+          return FileVisitResult.CONTINUE;
+        }
 
-        // find classname
-        Path source = Files.walk(path)
-            .filter(p -> files.stream().filter(f -> p.endsWith(f)).findFirst().isPresent())
-            .findFirst()
-            .orElse(Paths.get(filename))
-            .toAbsolutePath();
-        File file = source.toFile();
-        List<String> lines = file.exists()
-            ? Files.readAllLines(source, StandardCharsets.UTF_8)
-            : Collections.emptyList();
-        return new Source(source, lines);
-      }).getOrElse(new Source(path, Collections.emptyList()));
-    };
-  }
+        @Override
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
+            throws IOException {
+          return files.stream()
+              .filter(f -> file.toString().endsWith(f))
+              .findFirst()
+              .map(f -> {
+                source.add(0, file.toAbsolutePath());
+                return FileVisitResult.TERMINATE;
+              })
+              .orElse(FileVisitResult.CONTINUE);
+        }
+      });
+      return new Source(source.get(0), Files.readAllLines(source.get(0), StandardCharsets.UTF_8));
+    }).getOrElse(new Source(Paths.get(filename), Collections.emptyList()));
+  };
 
   Source source(String filename);
 

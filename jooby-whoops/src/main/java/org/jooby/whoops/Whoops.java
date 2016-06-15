@@ -18,6 +18,11 @@
  */
 package org.jooby.whoops;
 
+import static javaslang.API.$;
+import static javaslang.API.Case;
+import static javaslang.API.Match;
+import static javaslang.Predicates.instanceOf;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -48,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
@@ -203,7 +209,7 @@ public class Whoops implements Jooby.Module {
     cpathloader.setSuffix(".html");
     PebbleEngine engine = new PebbleEngine.Builder()
         .loader(cpathloader)
-        .cacheActive(false)
+        .templateCache(CacheBuilder.newBuilder().maximumSize(10).build())
         .build();
 
     /** Lazy compile template and keep it */
@@ -219,7 +225,7 @@ public class Whoops implements Jooby.Module {
 
         // get the cause (initial exception)
         Throwable head = causal.get(causal.size() - 1);
-        String message = Optional.ofNullable(head.getMessage()).orElse("");
+        String message = message(head);
 
         Map<String, Object> envdata = new LinkedHashMap<>();
 
@@ -278,6 +284,12 @@ public class Whoops implements Jooby.Module {
     };
   }
 
+  private static String message(final Throwable cause) {
+    return Match(cause).of(
+        Case(instanceOf(Supplier.class), s -> s.get().toString()),
+        Case($(), () -> Optional.ofNullable(cause.getMessage()).orElse("")));
+  }
+
   private static <T> Map<String, String> dump(final Supplier<Map<String, T>> hash) {
     return dump(hash, v -> v.toString());
   }
@@ -325,20 +337,22 @@ public class Whoops implements Jooby.Module {
     int lineNth = line - lineStart;
     Path filePath = source.getPath();
     Optional<Class> clazz = findClass(loader, className);
+    String filename = Optional.ofNullable(e.getFileName()).orElse("~unknown");
     return ImmutableMap.<String, Object> builder()
-        .put("fileName", Optional.ofNullable(e.getFileName()).orElse("~unknown"))
+        .put("fileName", new File(filename).getName())
         .put("methodName", Optional.ofNullable(e.getMethodName()).orElse("~unknown"))
         .put("lineNumber", line)
         .put("lineStart", lineStart + 1)
         .put("lineNth", lineNth)
-        .put("location", clazz.map(Whoops::locationOf).orElse("~unknown"))
+        .put("location", clazz.map(Whoops::locationOf)
+            .orElse(new File(filename).getParent()))
         .put("source", source.source(range[0], range[1]))
         .put("open", openWith.apply(filePath, line))
-        .put("type", clazz.map(c -> c.getSimpleName()).orElse("~unknown"))
+        .put("type", clazz.map(c -> c.getSimpleName()).orElse(new File(filename).getName()))
         .put("comments", Arrays.asList(
             ImmutableMap.of(
                 "context", cause.getClass().getName(),
-                "text", Optional.ofNullable(cause.getMessage()).map(m -> ": " + m).orElse(""))))
+                "text", message(cause))))
         .build();
   }
 

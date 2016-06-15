@@ -5,13 +5,12 @@
   <div class="frame{% if loop.index == 0 %} active{%endif%}{%if frame.source.length > 0%} source{%endif%}" id="frame-line-{{loop.index}}">
       <div class="frame-method-info">
         <span class="frame-index">{{frames.size - loop.index - 1}}</span>
-        <span class="frame-class">{{frame.type}}</span>.<span class="frame-function">{{frame.methodName}}()</span>
+        <span class="frame-class">{{frame.type}}</span>{%if frame.methodName.length >0 %}.<span class="frame-function">{{frame.methodName}}()</span>{%endif%}
       </div>
 
     <span class="frame-file">
       {{frame.fileName}}:<!--
-   --><span class="frame-line">{{frame.lineNumber}}</span>
-     ~[{{frame.location}}]
+   --><span class="frame-line">{{frame.lineNumber}}</span> at {{frame.location}}
     </span>
   </div>
 {% endfor %}

@@ -25,27 +25,20 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.WatchEvent.Kind;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
-import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Response;
-import org.jooby.Results;
 import org.jooby.Route;
 import org.jooby.assets.AssetCompiler;
 import org.jooby.assets.AssetException;
 import org.jooby.assets.AssetProblem;
-import org.jooby.handlers.AssetHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
 
 public class LiveCompiler implements Route.Handler {
-
-  /** The logging system. */
-  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private final Config conf;
 
@@ -68,105 +61,35 @@ public class LiveCompiler implements Route.Handler {
       compiler.build(conf.getString("application.env"), outputdir);
       lastErr.set(null);
     } catch (AssetException ex) {
-      log.error("Found " + ex.getProblems().size() + " problem(s): \n" +
-          ex.getProblems().stream()
-              .map(AssetProblem::toString)
-              .collect(Collectors.joining("\n")));
-      lastErr.set(ex);
+      lastErr.set(rewrite(ex));
     } catch (Exception ex) {
-      log.error("Found 1 problem(s): \n", ex);
-      lastErr.set(new AssetException("compiler",
-          new AssetProblem("unknown", -1, -1, ex.getMessage(), null)));
+      lastErr.set(rewrite(new AssetException("compiler",
+          new AssetProblem(path.toString(), -1, -1, ex.getMessage(), null))));
     }
+  }
+
+  /**
+   * Add a virtual/fake stacktrace element with the offending file, useful for whoops.
+   *
+   * @param ex Stack trace to rewrite.
+   * @return Same exception with new stacktrace.
+   */
+  private AssetException rewrite(final AssetException ex) {
+    List<StackTraceElement> stacktrace = Lists.newArrayList(ex.getStackTrace());
+    List<AssetProblem> problems = ex.getProblems();
+    AssetProblem head = problems.get(0);
+    stacktrace.add(0,
+        new StackTraceElement(head.getFilename(), "", head.getFilename(), head.getLine()));
+    ex.setStackTrace(stacktrace.toArray(new StackTraceElement[stacktrace.size()]));
+    return ex;
   }
 
   @Override
   public void handle(final Request req, final Response rsp) throws Throwable {
-    String path = req.path();
-    if (path.startsWith("/org/jooby/assets/live")) {
-      new AssetHandler("/").handle(req, rsp);
-      return;
-    }
     AssetException ex = lastErr.get();
     if (ex != null) {
-      reportErr(req, rsp, ex);
+      throw ex;
     }
-  }
-
-  private void reportErr(final Request req, final Response rsp, final AssetException ex)
-      throws Throwable {
-    StringBuilder buff = new StringBuilder();
-    buff.append("<!doctype html>\n" +
-        "<html lang=\"en\">\n" +
-        " <head> \n" +
-        "  <meta charset=\"UTF-8\"> \n" +
-        "  <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \n" +
-        "  <title>jooby: assets compiler</title>\n" +
-        "  <link href=\"/org/jooby/assets/live/images/apps/favicon.ico\" rel=\"shortcut icon\"> \n"
-        +
-        "  <link href=\"/org/jooby/assets/live/images/apps/favicon.png\" rel=\"icon\" sizes=\"16x16\" type=\"image/png\"> \n"
-        +
-        "  <link href=\"/org/jooby/assets/live/images/apps/favicon32.png\" rel=\"icon\" sizes=\"32x32\" type=\"image/png\"> \n"
-        +
-        "  <link href=\"/org/jooby/assets/live/images/apps/favicon96.png\" rel=\"icon\" sizes=\"96x96\" type=\"image/png\"> \n"
-        +
-        "  <link href=\"/org/jooby/assets/live/images/apps/android-chrome.png\" rel=\"icon\" sizes=\"192x192\" type=\"image/png\"> \n"
-        +
-        "  <link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Raleway:400,300,500,700\"> \n"
-        +
-        "  <link rel=\"stylesheet\" href=\"/org/jooby/assets/live/styles/application.css\"> \n" +
-        "  <link rel=\"stylesheet\" href=\"/org/jooby/assets/live/styles/github.css\"> \n" +
-        " </head> \n" +
-        " <body class=\"page-section\"> \n" +
-        "  <header class=\"site-header\"> \n" +
-        "   <div class=\"row\">\n" +
-        "    <a href=\"/\" title=\"Home\" class=\"site-logo\"><img src=\"/org/jooby/assets/live/images/logo_jooby-2x.png\" alt=\"Logo Jooby\" width=\"76\" height=\"31\"></a>\n"
-        +
-        "   </div> \n" +
-        "  </header> \n" +
-        "  <main role=\"main\" class=\"site-content\"> \n" +
-        "   <div class=\"section-title\"> \n" +
-        "    <div class=\"row\"> \n" +
-        "     <h1>Asset compiler</h1> \n" +
-        "    </div> \n" +
-        "   </div> \n" +
-        "   <div class=\"row\"> \n" +
-        "   <div class=\"section-content\"> ")
-        .append("<h2> ").append(ex.getId()).append(" found ").append(ex.getProblems().size())
-        .append(" problem(s):</h2>\n")
-        .append("<ul>\n");
-
-    ex.getProblems().forEach(problem -> {
-      buff.append("  <li>").append("<pre><code class=\"nohighlight\">")
-          .append(problem.getFilename())
-          .append(":")
-          .append(problem.getLine())
-          .append(":")
-          .append(problem.getColumn())
-          .append(": ")
-          .append(problem.getMessage())
-          .append("</code></pre>");
-      String evidence = problem.getEvidence();
-      if (evidence.length() > 0) {
-        buff.append("<div class=\"highlighter-rouge\">");
-        buff.append("<pre class=\"highlight\"><code>").append(evidence.trim())
-            .append("</code></pre></div>\n");
-      }
-      buff.append("</li>\n");
-    });
-
-    buff.append("</ul>\n")
-        .append(
-            "<script type=\"text/javascript\" src=\"/org/jooby/assets/live/highlight.pack.js\"></script>\n")
-        .append("<script>hljs.initHighlightingOnLoad();</script>")
-        .append("</div> \n" +
-            "</div> \n" +
-            "  </main> \n" +
-            " </body>\n" +
-            "</html>");
-
-    rsp.send(Results.ok(buff.toString()).type(MediaType.html).status(200));
-
   }
 
   public void start() {
