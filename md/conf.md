@@ -48,18 +48,58 @@ Automatic type conversion is provided when a type:
 
 It is also possible to inject the root ```com.typesafe.config.Config``` object or a child of it.
 
-## special properties
-
-### application.env
+## application.env
 
 Jooby internals and also the module system rely on the ```application.env``` property. By defaults, this property is set to: ```dev```.
 
 This special property is represented at runtime with the [Env]({{apidocs}}/org/jooby/Env.html) class.
 
 For example, the [development stage](https://github.com/google/guice/wiki/Bootstrap) is set in [Guice](https://github.com/google/guice) when ```application.env == dev```.
+
 A module provider, might decided to create a connection pool, cache, etc when ```application.env != dev ```.
 
-#### application.secret
+## turn on/off features
+
+As described before the ```application.env``` property defines the environment where the application is being executed. It is possible to turn on/off specific features base on the application environment:
+
+```java
+{
+  on("dev", () -> {
+    use(new DevModule());
+  });
+
+  on("prod", () -> {
+    use(new ProdModule());
+  });
+}
+```
+
+There is a complement operator: ```.orElse``` too:
+
+```java
+{
+  on("dev", () -> {
+    use(new DevModule());
+  }).orElse(() -> {
+    use(new ProdModule());
+  });
+}
+```
+
+The ```env callback``` can access to ```config``` object, like:
+
+```java
+{
+  on("dev", conf -> {
+    use(new DevModule(conf.getString("myprop")));
+  });
+}
+```
+
+
+## special properties
+
+### application.secret
 
 If present, the session cookie will be signed with the ```application.secret```.
 

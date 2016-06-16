@@ -14,7 +14,7 @@ It also give you access to aws credentials (access and secret keys).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-aws</artifactId>
-  <version>1.0.0.CR4</version>
+  <version>1.0.0.CR5</version>
 </dependency>
 ```
 

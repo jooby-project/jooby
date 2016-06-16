@@ -11,7 +11,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rxjdbc</artifactId>
- <version>1.0.0.CR4</version>
+ <version>1.0.0.CR5</version>
 </dependency>
 ```
 

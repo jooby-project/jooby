@@ -8,7 +8,7 @@ Cron triggers, job scheduling and async processing via [Quartz](http://quartz-sc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>1.0.0.CR4</version>
+  <version>1.0.0.CR5</version>
 </dependency>
 ```
 ## usage

@@ -8,7 +8,7 @@ Prints out an ASCII art banner on startup using <a href="https://github.com/laly
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-banner</artifactId>
- <version>1.0.0.CR4</version>
+ <version>1.0.0.CR5</version>
 </dependency>
 ```
 

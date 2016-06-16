@@ -12,7 +12,7 @@ Pretty error page that helps you debug your web application.
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-whoops</artifactId>
- <version>1.0.0.CR4</version>
+ <version>1.0.0.CR5</version>
 </dependency>
 ```
 
@@ -39,7 +39,7 @@ The pretty error page handler is available in development mode: ```application.e
 
 ## custom err pages
 
-The pretty error page is implemented via [err(req, rsp, err)](/apidocs/org/jooby/Routes.html#err-org.jooby.Err.Handler-). You might run into troubles if your application require custom error pages. On those cases you probably won't use this module or if apply one of the following options:
+The pretty error page is implemented via [err(req, rsp, err)](/apidocs/org/jooby/Routes.html#err-org.jooby.Err.Handler-). You might run into troubles if your application require custom error pages. On those cases you probably won't use this module or apply one of the following options:
 
 ### whoops as last err handler
 
