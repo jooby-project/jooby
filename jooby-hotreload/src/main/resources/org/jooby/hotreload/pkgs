@@ -940,4 +940,3 @@ jdk.internal.dynalink
 jdk.internal.dynalink.beans
 jdk.internal.dynalink.linker
 jdk.internal.dynalink.support
-META-INF.services

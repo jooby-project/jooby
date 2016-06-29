@@ -18,40 +18,37 @@
  */
 package org.jooby.hotreload;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.nio.file.WatchEvent.Kind;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleClassLoader;
 import org.jboss.modules.ModuleIdentifier;
+import org.jboss.modules.log.StreamModuleLogger;
 
 public class AppModule {
 
+  public static boolean DEBUG;
+
+  public static boolean TRACE;
+
   private AppModuleLoader loader;
-  private File[] dirs;
-  private Path[] paths;
+  private Path[] paths = {new File(System.getProperty("user.dir")).toPath() };
   private ExecutorService executor;
   private Watcher scanner;
   private PathMatcher includes;
@@ -61,57 +58,65 @@ public class AppModule {
   private String mainClass;
   private volatile Module module;
 
-  public AppModule(final String mId, final String mainClass, final String repo, final File[] dirs)
-      throws IOException {
+  public AppModule(final String mId, final String mainClass, final File... cp)
+      throws Exception {
     this.mainClass = mainClass;
-    loader = new AppModuleLoader(new File(repo));
+    loader = AppModuleLoader.build(mId, mainClass, cp);
     this.mId = ModuleIdentifier.create(mId);
-    this.dirs = dirs;
-    this.paths = toPath(dirs);
     this.executor = Executors.newSingleThreadExecutor(task -> new Thread(task, "HotSwap"));
     this.scanner = new Watcher(this::onChange, paths);
   }
 
   public static void main(final String[] args) throws Exception {
-    setPkgs();
-    setSystemProperties(args[2]);
     List<File> cp = new ArrayList<File>();
     String includes = "**/*.class,**/*.conf,**/*.properties,*.js, src/*.js";
     String excludes = "";
-    for (int i = 3; i < args.length; i++) {
-      File dir = new File(args[i]);
-      if (dir.exists()) {
-        // cp option
-        cp.add(dir);
-      } else {
-        String[] option = args[i].split("=");
-        if (option.length < 2) {
+    for (int i = 2; i < args.length; i++) {
+      String[] option = args[i].split("=");
+      if (option.length < 2) {
+        throw new IllegalArgumentException("Unknown option: " + args[i]);
+      }
+      String name = option[0].toLowerCase();
+      switch (name) {
+        case "includes":
+          includes = option[1];
+          break;
+        case "excludes":
+          excludes = option[1];
+          break;
+        case "props":
+          setSystemProperties(new File(option[1]));
+          break;
+        case "deps":
+          String[] deps = option[1].split(":");
+          for (String dep : deps) {
+            cp.add(new File(dep));
+          }
+          break;
+        default:
           throw new IllegalArgumentException("Unknown option: " + args[i]);
-        }
-        String name = option[0].toLowerCase();
-        switch (name) {
-          case "includes":
-            includes = option[1];
-            break;
-          case "excludes":
-            excludes = option[1];
-            break;
-          default:
-            throw new IllegalArgumentException("Unknown option: " + args[i]);
-        }
       }
     }
+    // set log level, once we call setSystemProps
+    DEBUG = Integer.getInteger("logLevel", 2) == 1;
+    TRACE = Integer.getInteger("logLevel", 2) == 0;
+
     if (cp.isEmpty()) {
       cp.add(new File(System.getProperty("user.dir")));
     }
-    AppModule launcher = new AppModule(args[0], args[1], args[2], cp.toArray(new File[cp.size()]))
+
+    if (TRACE) {
+      Module.setModuleLogger(new StreamModuleLogger(System.out));
+    }
+
+    AppModule launcher = new AppModule(args[0], args[1], cp.toArray(new File[cp.size()]))
         .includes(includes)
         .excludes(excludes);
     launcher.run();
   }
 
-  private static void setSystemProperties(final String repo) throws IOException {
-    try (InputStream in = new FileInputStream(new File(repo, "sys.properties"))) {
+  private static void setSystemProperties(final File sysprops) throws IOException {
+    try (InputStream in = new FileInputStream(sysprops)) {
       Properties properties = new Properties();
       properties.load(in);
       for (Entry<Object, Object> prop : properties.entrySet()) {
@@ -126,46 +131,8 @@ public class AppModule {
     }
   }
 
-  private static void setPkgs() throws IOException {
-    Set<String> pkgs = pkgs(new InputStreamReader(AppModule.class.getResourceAsStream("pkgs")));
-
-    /**
-     * Hack to let users to configure system packages, javax.transaction cause issues with
-     * hibernate.
-     */
-    pkgs.addAll(pkgs(Paths.get("src", "etc", "jboss-modules", "pkgs.includes").toFile()));
-
-    pkgs.removeAll(pkgs(Paths.get("src", "etc", "jboss-modules", "pkgs.excludes").toFile()));
-
-    StringBuilder sb = new StringBuilder();
-    for (String pkg : pkgs) {
-      sb.append(pkg).append(',');
-    }
-    sb.setLength(sb.length() - 1);
-    System.setProperty("jboss.modules.system.pkgs", sb.toString());
-  }
-
-  private static Set<String> pkgs(final File file) throws IOException {
-    if (file.exists()) {
-      return pkgs(new FileReader(file));
-    }
-    return new LinkedHashSet<String>();
-  }
-
-  private static Set<String> pkgs(final Reader reader) throws IOException {
-    try (BufferedReader in = new BufferedReader(reader)) {
-      Set<String> pkgs = new LinkedHashSet<String>();
-      String line = in.readLine();
-      while (line != null) {
-        pkgs.add(line.trim());
-        line = in.readLine();
-      }
-      return pkgs;
-    }
-  }
-
   public void run() {
-    System.out.printf("Hotswap available on: %s%n", Arrays.toString(dirs));
+    System.out.printf("Hotswap available on: %s%n", Arrays.toString(paths));
     System.out.printf("  includes: %s%n", includes);
     System.out.printf("  excludes: %s%n", excludes);
 
@@ -257,14 +224,6 @@ public class AppModule {
     return null;
   }
 
-  private static Path[] toPath(final File[] cp) {
-    Path[] paths = new Path[cp.length];
-    for (int i = 0; i < paths.length; i++) {
-      paths[i] = cp[i].toPath();
-    }
-    return paths;
-  }
-
   private static PathMatcher pathMatcher(final String expressions) {
     List<PathMatcher> matchers = new ArrayList<PathMatcher>();
     for (String expression : expressions.split(",")) {
@@ -288,4 +247,5 @@ public class AppModule {
       }
     };
   }
+
 }

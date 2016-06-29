@@ -21,7 +21,6 @@ package org.jooby;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -51,8 +50,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.jooby.hotreload.Watcher;
-
-import com.google.common.io.Files;
 
 import javaslang.control.Try;
 
@@ -130,7 +127,8 @@ public class JoobyMojo extends AbstractMojo {
     if (js) {
       mainClass = "org.jooby.Jooby";
     }
-    Path jmodules = Paths.get(mavenProject.getBuild().getDirectory()).resolve("jboss-modules");
+
+    getLog().isDebugEnabled();
 
     Set<String> appcp = new LinkedHashSet<String>();
 
@@ -143,10 +141,16 @@ public class JoobyMojo extends AbstractMojo {
     // *.jar
     Set<Artifact> artifacts = new LinkedHashSet<Artifact>(mavenProject.getArtifacts());
 
-    doFlatMainModule(mavenProject, jmodules, appcp, artifacts);
+    artifacts.forEach(artifact -> {
+      if (!"pom".equals(artifact.getType())) {
+        appcp.add(artifact.getFile().getAbsolutePath());
+      }
+    });
 
     // allow to access command line system properties
-    dumpSysProps(jmodules.resolve("sys.properties"));
+    Path sysprops = Paths.get(mavenProject.getBuild().getDirectory())
+        .resolve("sys.properties");
+    dumpSysProps(sysprops);
 
     Set<String> classpath = new LinkedHashSet<String>();
 
@@ -169,14 +173,14 @@ public class JoobyMojo extends AbstractMojo {
     args.add("org.jooby.hotreload.AppModule");
     args.add(mavenProject.getGroupId() + "." + mavenProject.getArtifactId());
     args.add(mainClass);
-    args.add(jmodules.toString());
-    args.add(mavenProject.getBasedir().getAbsolutePath());
+    args.add(appcp.stream().collect(Collectors.joining(":", "deps=", "")).trim());
     if (includes != null && includes.size() > 0) {
-      args.add("includes=" + join(includes));
+      args.add("includes=" + includes.stream().collect(Collectors.joining(":")));
     }
     if (excludes != null && excludes.size() > 0) {
-      args.add("excludes=" + join(excludes));
+      args.add("excludes=" + excludes.stream().collect(Collectors.joining(":")));
     }
+    args.add("props=" + sysprops);
 
     cmds.add(new Command(mainClass, "java", args));
 
@@ -188,8 +192,8 @@ public class JoobyMojo extends AbstractMojo {
     Watcher watcher = setupCompiler(mavenProject, compiler, goal -> {
       maven.execute(DefaultMavenExecutionRequest.copy(session.getRequest())
           .setGoals(Arrays.asList(goal)));
-
     });
+
     ShutdownHook shutdownHook = new ShutdownHook(getLog(), cmds);
     shutdownHook.watcher = watcher;
     /**
@@ -251,115 +255,6 @@ public class JoobyMojo extends AbstractMojo {
     } catch (IOException ex) {
       throw new MojoFailureException("Can't dump system properties to: " + path, ex);
     }
-  }
-
-  private Path mpath(final String value) {
-    Path path = null;
-    for (String p : value.split("\\.")) {
-      if (path == null) {
-        path = Paths.get(p);
-      } else {
-        path = path.resolve(p);
-      }
-    }
-    return path;
-  }
-
-  /**
-   * Creates a module.
-   *
-   * @param project
-   * @param jmodules
-   * @param resources
-   * @param artifacts
-   * @throws MojoFailureException
-   */
-  private void doFlatMainModule(final MavenProject project, final Path jmodules,
-      final Set<String> resources, final Set<Artifact> artifacts) throws MojoFailureException {
-    try {
-      Path moddir = jmodules.resolve(mpath(project.getGroupId()))
-          .resolve(mpath(project.getArtifactId())).resolve("main");
-
-      // resources
-      StringBuilder rsb = new StringBuilder();
-      for (String resource : resources) {
-        Path resourceRoot = new File(resource).toPath();
-        rsb.append("    <resource-root path=\"").append(moddir.relativize(resourceRoot))
-            .append("\" />\n");
-      }
-      StringBuilder dsb = new StringBuilder();
-      // maven dependencies
-      for (Artifact artifact : artifacts) {
-        // not pom
-        if (!"pom".equals(artifact.getType())) {
-          if (artifact.getGroupId().equals("com.eclipsesource.j2v8")) {
-            dsb.append("    <module name=\"").append(artifact.getGroupId()).append(".")
-                .append(artifact.getArtifactId()).append("\" />\n");
-
-            StringBuilder arsb = new StringBuilder();
-
-            arsb.append("    <artifact name=\"").append(artifact.getGroupId()).append(":")
-                .append(artifact.getArtifactId()).append(":").append(artifact.getVersion());
-
-            String classifier = artifact.getClassifier();
-            if (classifier != null && classifier.length() > 0) {
-              arsb.append(":").append(classifier);
-            }
-            arsb.append("\" />\n");
-
-            String content = jbossModule(artifact.getGroupId(), artifact.getArtifactId(), arsb,
-                null);
-            Path artdir = jmodules.resolve(mpath(artifact.getGroupId()))
-                .resolve(mpath(artifact.getArtifactId())).resolve("main");
-            artdir.toFile().mkdirs();
-            Files.write(content, artdir.resolve("module.xml").toFile(), StandardCharsets.UTF_8);
-
-          } else {
-            rsb.append("    <artifact name=\"").append(artifact.getGroupId()).append(":")
-                .append(artifact.getArtifactId()).append(":").append(artifact.getVersion());
-            String classifier = artifact.getClassifier();
-            if (classifier != null && classifier.length() > 0) {
-              rsb.append(":").append(classifier);
-            }
-            rsb.append("\" />\n");
-          }
-        }
-      }
-
-      String content = jbossModule(project.getGroupId(), project.getArtifactId(), rsb, dsb);
-      moddir.toFile().mkdirs();
-      Files.write(content, moddir.resolve("module.xml").toFile(), StandardCharsets.UTF_8);
-    } catch (Exception ex) {
-      throw new MojoFailureException("Can't create repository", ex);
-    }
-  }
-
-  private String jbossModule(final String groupId, final String artifactId,
-      final StringBuilder resources, final StringBuilder deps) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    sb.append("<module xmlns=\"urn:jboss:module:1.3\" name=\"").append(groupId).append(".")
-        .append(artifactId).append("\">\n");
-    if (resources != null) {
-      sb.append("  <resources>\n");
-      sb.append(resources);
-      sb.append("  </resources>\n");
-    }
-    if (deps != null) {
-      sb.append("  <dependencies>\n");
-      sb.append(deps);
-      sb.append("  </dependencies>\n");
-    }
-    sb.append("</module>\n");
-    return sb.toString();
-  }
-
-  private String join(final List<String> includes) {
-    StringBuilder buff = new StringBuilder();
-    for (String include : includes) {
-      buff.append(include).append(":");
-    }
-    return buff.toString();
   }
 
   private List<String> vmArgs(final String agentpath, final List<String> vmArgs) {
