@@ -22,38 +22,48 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.WatchEvent.Kind;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleClassLoader;
 import org.jboss.modules.ModuleIdentifier;
-import org.jboss.modules.log.StreamModuleLogger;
+import org.jboss.modules.ModuleLoader;
+import org.jboss.modules.log.ModuleLogger;
 
 public class AppModule {
 
-  public static boolean DEBUG;
+  private static boolean DEBUG;
 
-  public static boolean TRACE;
+  private static boolean TRACE;
+
+  static {
+    logLevel();
+  }
 
   private AppModuleLoader loader;
-  private Path[] paths = {new File(System.getProperty("user.dir")).toPath() };
+  private File basedir = new File(System.getProperty("user.dir"));
   private ExecutorService executor;
   private Watcher scanner;
   private PathMatcher includes;
   private PathMatcher excludes;
   private volatile Object app;
+  private AtomicReference<String> hash = new AtomicReference<String>("");
   private ModuleIdentifier mId;
   private String mainClass;
   private volatile Module module;
@@ -64,7 +74,9 @@ public class AppModule {
     loader = AppModuleLoader.build(mId, mainClass, cp);
     this.mId = ModuleIdentifier.create(mId);
     this.executor = Executors.newSingleThreadExecutor(task -> new Thread(task, "HotSwap"));
-    this.scanner = new Watcher(this::onChange, paths);
+    this.scanner = new Watcher(this::onChange, new Path[]{basedir.toPath() });
+    includes("**/*.class,**/*.conf,**/*.properties,*.js, src/*.js");
+    excludes("");
   }
 
   public static void main(final String[] args) throws Exception {
@@ -98,15 +110,10 @@ public class AppModule {
       }
     }
     // set log level, once we call setSystemProps
-    DEBUG = Integer.getInteger("logLevel", 2) == 1;
-    TRACE = Integer.getInteger("logLevel", 2) == 0;
+    logLevel();
 
     if (cp.isEmpty()) {
       cp.add(new File(System.getProperty("user.dir")));
-    }
-
-    if (TRACE) {
-      Module.setModuleLogger(new StreamModuleLogger(System.out));
     }
 
     AppModule launcher = new AppModule(args[0], args[1], cp.toArray(new File[cp.size()]))
@@ -132,9 +139,9 @@ public class AppModule {
   }
 
   public void run() {
-    System.out.printf("Hotswap available on: %s%n", Arrays.toString(paths));
-    System.out.printf("  includes: %s%n", includes);
-    System.out.printf("  excludes: %s%n", excludes);
+    info("Hotswap available on: %s", basedir.getPath());
+    info("  includes: %s", includes);
+    info("  excludes: %s", excludes);
 
     this.scanner.start();
     this.startApp();
@@ -144,6 +151,7 @@ public class AppModule {
     if (app != null) {
       stopApp(app);
     }
+    debug("scheduling: %s", mainClass);
     executor.execute(() -> {
       ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
       try {
@@ -162,14 +170,14 @@ public class AppModule {
           this.app = mcloader.loadClass(mainClass)
               .getDeclaredConstructors()[0].newInstance();
         }
+        debug("starting: %s", mainClass);
         app.getClass().getMethod("start").invoke(app);
       } catch (Throwable ex) {
-        System.err.println(mainClass + ".start() resulted in error");
         Throwable cause = ex;
         if (ex instanceof InvocationTargetException) {
           cause = ((InvocationTargetException) ex).getTargetException();
         }
-        cause.printStackTrace();
+        error("%s.start() resulted in error", mainClass, cause);
       } finally {
         Thread.currentThread().setContextClassLoader(ctxLoader);
       }
@@ -178,12 +186,13 @@ public class AppModule {
 
   private void stopApp(final Object app) {
     try {
+      debug("stopping: %s", mainClass);
       app.getClass().getMethod("stop").invoke(app);
     } catch (Throwable ex) {
-      System.err.println(app.getClass().getName() + ".stop() resulted in error");
-      ex.printStackTrace();
+      error("%s.stop() resulted in error", mainClass, ex);
     } finally {
       try {
+        debug("unloading: %s", mainClass);
         loader.unload(module);
       } catch (Throwable ex) {
         // sshhhh
@@ -192,34 +201,43 @@ public class AppModule {
 
   }
 
-  private AppModule includes(final String includes) {
+  public AppModule includes(final String includes) {
     this.includes = pathMatcher(includes);
     return this;
   }
 
-  private AppModule excludes(final String excludes) {
+  public AppModule excludes(final String excludes) {
     this.excludes = pathMatcher(excludes);
     return this;
   }
 
   private void onChange(final Kind<?> kind, final Path path) {
     try {
+      debug("OnChange: %s(%s)", path, kind);
       Path candidate = relativePath(path);
       if (candidate == null || !includes.matches(candidate) || excludes.matches(candidate)) {
+        debug("Ignoring change: %s", path);
         return;
       }
-      // reload
-      startApp();
+      // weak hash check: avoid change on conf/* that are propagated to target/classs by maven.
+      File f = candidate.toFile();
+      String h = f.getName() + ":" + f.length();
+      if (!hash.getAndSet(h).equals(h)) {
+        debug("File change detected: %s", path);
+        // reload
+        startApp();
+      } else {
+        debug("Ignoring change: %s", path);
+      }
     } catch (Exception ex) {
       ex.printStackTrace();
     }
   }
 
   private Path relativePath(final Path path) {
-    for (Path root : paths) {
-      if (path.startsWith(root)) {
-        return root.relativize(path);
-      }
+    Path root = basedir.toPath();
+    if (path.startsWith(root)) {
+      return root.relativize(path);
     }
     return null;
   }
@@ -248,4 +266,138 @@ public class AppModule {
     };
   }
 
+  private static void logLevel() {
+    DEBUG = "debug".equalsIgnoreCase(System.getProperty("logLevel", ""));
+
+    TRACE = "trace".equalsIgnoreCase(System.getProperty("logLevel", ""));
+
+    if (TRACE) {
+      Module.setModuleLogger(new ModuleLogger() {
+
+        @Override
+        public void trace(final Throwable t, final String format, final Object arg1,
+            final Object arg2, final Object arg3) {
+          AppModule.trace(format, arg1, arg2, arg3, t);
+        }
+
+        @Override
+        public void trace(final Throwable t, final String format, final Object arg1,
+            final Object arg2) {
+          AppModule.trace(format, arg1, arg2, t);
+        }
+
+        @Override
+        public void trace(final String format, final Object arg1, final Object arg2,
+            final Object arg3) {
+          AppModule.trace(format, arg1, arg2, arg3);
+        }
+
+        @Override
+        public void trace(final Throwable t, final String format, final Object... args) {
+          Object[] values = new Object[args.length + 1];
+          System.arraycopy(args, 0, values, 0, args.length);
+          values[values.length - 1] = t;
+          AppModule.trace(format, values);
+        }
+
+        @Override
+        public void trace(final Throwable t, final String format, final Object arg1) {
+          AppModule.trace(format, arg1, t);
+        }
+
+        @Override
+        public void trace(final String format, final Object arg1, final Object arg2) {
+          AppModule.trace(format, arg1, arg2);
+
+        }
+
+        @Override
+        public void trace(final Throwable t, final String message) {
+          AppModule.trace(message, t);
+        }
+
+        @Override
+        public void trace(final String format, final Object... args) {
+          AppModule.trace(format, args);
+        }
+
+        @Override
+        public void trace(final String format, final Object arg1) {
+          AppModule.trace(format, arg1);
+        }
+
+        @Override
+        public void trace(final String message) {
+          AppModule.trace(message);
+        }
+
+        @Override
+        public void providerUnloadable(final String name, final ClassLoader loader) {
+        }
+
+        @Override
+        public void moduleDefined(final ModuleIdentifier identifier,
+            final ModuleLoader moduleLoader) {
+        }
+
+        @Override
+        public void greeting() {
+        }
+
+        @Override
+        public void classDefined(final String name, final Module module) {
+        }
+
+        @Override
+        public void classDefineFailed(final Throwable throwable, final String className,
+            final Module module) {
+        }
+      });
+    }
+  }
+
+  public static void info(final String message, final Object... args) {
+    System.out.println(format(message, args));
+  }
+
+  public static void error(final String message, final Object... args) {
+    System.err.println(format(message, args));
+  }
+
+  public static void debug(final String message, final Object... args) {
+    if (DEBUG) {
+      System.out.println(format(message, args));
+    }
+  }
+
+  public static void trace(final String message, final Object... args) {
+    if (TRACE) {
+      System.out.println(format(message, args));
+    }
+  }
+
+  private static String format(final String message, final Object... args) {
+    Object[] values = args;
+    Throwable x = null;
+    if (args.length > 0) {
+      if (args[args.length - 1] instanceof Throwable) {
+        x = (Throwable) args[args.length - 1];
+        values = new Object[args.length - 1];
+        System.arraycopy(args, 0, values, 0, values.length);
+      }
+    }
+    String msg = String.format(message, values);
+    StringBuilder buff = new StringBuilder();
+    buff.append("[HotSwap|")
+        .append(Thread.currentThread().getName()).append("|")
+        .append(LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss")))
+        .append("]: ").append(msg);
+    if (x != null) {
+      buff.append("\n");
+      StringWriter writer = new StringWriter();
+      x.printStackTrace(new PrintWriter(writer));
+      buff.append(writer);
+    }
+    return buff.toString();
+  }
 }

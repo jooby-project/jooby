@@ -8,12 +8,12 @@
 mvn jooby:run
 ```
 
-You should see something similar:
+Prints something similar to:
 
 ```bash
-Hotswap available on: [myapp/public, myapp/conf, myapp/target/classes]
-  includes: [**/*.class,**/*.conf,**/*.properties]
-  excludes: []
+[HotSwap|main|12:14:46]: Hotswap available on: [/my-app]
+[HotSwap|main|12:14:46]:   includes: [**/*.class,**/*.conf,**/*.properties,*.js, src/*.js]
+[HotSwap|main|12:14:46]:   excludes: []
 INFO  [2015-03-31 17:47:33,000] [dev@netty]: App server started in 401ms
 
   GET /assets/**           [*/*]     [*/*]    (anonymous)
@@ -25,12 +25,12 @@ listening on:
 
 ## hot reload
 
-The plugin bounces the application every time a change is detected on:
+The ```jooby:run``` tool restart the application every time a change is detected on:
 
 - classes (*.class)
 - config files (*.conf and *.properties)
 
-Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled/cached it while running on ```application.env = dev```.
+Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled or cached while running on ```application.env = dev```.
 
 It's worth to mention that dynamic reload of classes is done via {{jboss-modules}}.
 
@@ -46,6 +46,7 @@ It's worth to mention that dynamic reload of classes is done via {{jboss-modules
     <commands>
     </commands>
     <compiler>on</compiler>
+    <fork>false</fork>
     <vmArgs></vmArgs>
     <debug>true</debug>
     <includes>
@@ -113,7 +114,11 @@ List of commands to execute before starting the ```application```. Useful for {{
 </plugin>
 ```
 
-Processes will be stopped it on ```CTRL+C```
+All processes are stopped it on ```CTRL+C```
+
+### fork
+
+Allows running the application in a separate JVM. If false it uses the JVM started by {{maven}}, while if true it will use a new JVM. Default is: ```false```.
 
 ### vmArgs
 
@@ -126,6 +131,7 @@ Set one or more ```JVM args```:
   <version>{{version}}</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
+    <fork>true</fork>
     <vmArgs>
       <vmArg>-Xms512m</vmArg>
       <vmArg>-Xmx1024m</vmArg>
@@ -134,7 +140,8 @@ Set one or more ```JVM args```:
 </plugin>
 ```
 
+Make sure to enable the ```fork``` option too, otherwise ```vmArgs``` are ignored.
+
 ### includes / excludes
 
-List of file patterns to change for file changes.
-
+List of file patterns to listen for file changes.

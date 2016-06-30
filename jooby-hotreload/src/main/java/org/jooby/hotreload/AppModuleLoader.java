@@ -70,27 +70,32 @@ public class AppModuleLoader extends ModuleLoader {
    */
   public static AppModuleLoader build(final String name, final String mainClass, final File... cp)
       throws Exception {
-    Map<ModuleIdentifier, ModuleSpec> modules = newModule(name, mainClass, cp);
+    Map<ModuleIdentifier, ModuleSpec> modules = newModule(name, mainClass, 0, "", cp);
     return new AppModuleLoader(modules);
   }
 
   private static Map<ModuleIdentifier, ModuleSpec> newModule(final String name,
-      final String mainClass, final File... cp)
+      final String mainClass, final int level, final String prefix, final File... cp)
       throws Exception {
     Map<ModuleIdentifier, ModuleSpec> modules = new HashMap<>();
 
-    ModuleSpec.Builder builder = ModuleSpec.build(ModuleIdentifier.fromString(name));
+    String mId = name.replace(".jar", "");
+    ModuleSpec.Builder builder = ModuleSpec.build(ModuleIdentifier.fromString(mId));
 
+    int l = (prefix.length() + mId.length() + level);
+    AppModule.debug("%1$" + l + "s", prefix + mId);
     for (File file : cp) {
-      if (AppModule.DEBUG) {
-        System.out.println("adding " + file);
-      }
+      String fname = "└── " + file.getAbsolutePath();
       if (file.getName().startsWith("j2v8") && !name.equals(file.getName())) {
-        ModuleSpec dependency = newModule(file.getName(), null, file).values().iterator().next();
+        ModuleSpec dependency = newModule(file.getName(), null, level + 2, "└── ", file)
+            .values()
+            .iterator()
+            .next();
         builder.addDependency(
             DependencySpec.createModuleDependencySpec(dependency.getModuleIdentifier()));
         modules.put(dependency.getModuleIdentifier(), dependency);
       } else {
+        AppModule.debug("%1$" + (fname.length() + level + 2) + "s", fname);
         if (file.getName().endsWith(".jar")) {
           builder.addResourceRoot(ResourceLoaderSpec
               .createResourceLoaderSpec(ResourceLoaders
@@ -157,4 +162,5 @@ public class AppModuleLoader extends ModuleLoader {
       return pkgs;
     }
   }
+
 }

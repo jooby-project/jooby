@@ -19,16 +19,12 @@
 package org.jooby;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -96,7 +92,7 @@ public class JoobyMojo extends AbstractMojo {
   private String buildOutputDirectory;
 
   @Parameter(property = "jooby.commands")
-  private List<Command> commands;
+  private List<ExternalCommand> commands;
 
   @Parameter(property = "jooby.vmArgs")
   private List<String> vmArgs;
@@ -119,6 +115,9 @@ public class JoobyMojo extends AbstractMojo {
   @Component
   protected Maven maven;
 
+  @Parameter(property = "application.fork", defaultValue = "false")
+  private boolean fork = false;
+
   @SuppressWarnings("unchecked")
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -128,61 +127,60 @@ public class JoobyMojo extends AbstractMojo {
       mainClass = "org.jooby.Jooby";
     }
 
-    getLog().isDebugEnabled();
-
-    Set<String> appcp = new LinkedHashSet<String>();
+    Set<File> appcp = new LinkedHashSet<File>();
 
     // public / config, etc..
     appcp.addAll(resources(mavenProject.getResources()));
 
     // target/classes
-    appcp.add(buildOutputDirectory);
+    appcp.add(new File(buildOutputDirectory));
 
     // *.jar
     Set<Artifact> artifacts = new LinkedHashSet<Artifact>(mavenProject.getArtifacts());
 
     artifacts.forEach(artifact -> {
       if (!"pom".equals(artifact.getType())) {
-        appcp.add(artifact.getFile().getAbsolutePath());
+        appcp.add(new File(artifact.getFile().getAbsolutePath()));
       }
     });
 
-    // allow to access command line system properties
-    Path sysprops = Paths.get(mavenProject.getBuild().getDirectory())
-        .resolve("sys.properties");
-    dumpSysProps(sysprops);
+    Set<File> classpath = new LinkedHashSet<>();
 
-    Set<String> classpath = new LinkedHashSet<String>();
-
-    String hotreload = extra(pluginArtifacts, "jooby-hotreload").get().getFile().getAbsolutePath();
-    String jbossModules = extra(pluginArtifacts, "jboss-modules").get().getFile().getAbsolutePath();
+    File hotreload = extra(pluginArtifacts, "jooby-hotreload").get();
+    File jbossModules = extra(pluginArtifacts, "jboss-modules").get();
     classpath.add(hotreload);
     classpath.add(jbossModules);
 
-    String cp = classpath.stream().collect(Collectors.joining(File.pathSeparator));
-
     // prepare commands
-    List<Command> cmds = new ArrayList<Command>();
+    List<Command> cmds = new ArrayList<>();
     if (commands != null && commands.size() > 0) {
-      cmds.addAll(0, this.commands);
+      cmds.addAll(this.commands);
     }
-    List<String> args = new ArrayList<String>();
-    args.addAll(vmArgs(hotreload, vmArgs));
-    args.add("-cp");
-    args.add(cp);
-    args.add("org.jooby.hotreload.AppModule");
-    args.add(mavenProject.getGroupId() + "." + mavenProject.getArtifactId());
-    args.add(mainClass);
-    args.add(appcp.stream().collect(Collectors.joining(":", "deps=", "")).trim());
-    if (includes != null && includes.size() > 0) {
-      args.add("includes=" + includes.stream().collect(Collectors.joining(":")));
-    }
-    if (excludes != null && excludes.size() > 0) {
-      args.add("excludes=" + excludes.stream().collect(Collectors.joining(":")));
-    }
-    args.add("props=" + sysprops);
 
-    cmds.add(new Command(mainClass, "java", args));
+    // includes/excludes pattern
+    String includes = null;
+    if (this.includes != null && this.includes.size() > 0) {
+      includes = this.includes.stream().collect(Collectors.joining(":"));
+    }
+    String excludes = null;
+    if (this.excludes != null && this.excludes.size() > 0) {
+      excludes = this.excludes.stream().collect(Collectors.joining(":"));
+    }
+    // moduleId
+    String mId = mavenProject.getGroupId() + "." + mavenProject.getArtifactId();
+
+    // logback and application.version
+    setLogback();
+    System.setProperty("application.version", mavenProject.getVersion());
+
+    // fork?
+    Command runapp = fork
+        ? new RunForkedApp(mavenProject.getBasedir(), debug, vmArgs, classpath, mId, mainClass,
+            appcp, includes, excludes)
+        : new RunApp(mId, mainClass, appcp, includes, excludes);
+
+    // run app at the end
+    cmds.add(runapp);
 
     for (Command cmd : cmds) {
       cmd.setWorkdir(mavenProject.getBasedir());
@@ -210,7 +208,7 @@ public class JoobyMojo extends AbstractMojo {
      */
     for (Command cmd : cmds) {
       try {
-        getLog().debug("Starting process: " + cmd);
+        getLog().debug("Starting process: " + cmd.debug());
         cmd.execute();
       } catch (Exception ex) {
         throw new MojoFailureException("Execution of " + cmd + " resulted in error", ex);
@@ -226,11 +224,11 @@ public class JoobyMojo extends AbstractMojo {
     if ("off".equalsIgnoreCase(compiler) || eclipseClasspath.exists()) {
       return null;
     }
-    List<String> resources = resources(project.getResources());
-    resources.add(0, project.getBuild().getSourceDirectory());
+    List<File> resources = resources(project.getResources());
+    resources.add(0, new File(project.getBuild().getSourceDirectory()));
     Path[] paths = new Path[resources.size()];
     for (int i = 0; i < paths.length; i++) {
-      paths[i] = Paths.get(resources.get(i));
+      paths[i] = resources.get(i).toPath();
     }
     try {
       return new Watcher((kind, path) -> {
@@ -246,61 +244,16 @@ public class JoobyMojo extends AbstractMojo {
     }
   }
 
-  private void dumpSysProps(final Path path) throws MojoFailureException {
-    try {
-      FileOutputStream output = new FileOutputStream(path.toFile());
-      Properties properties = System.getProperties();
-      properties.setProperty("application.version", mavenProject.getVersion());
-      properties.store(output, "system properties");
-    } catch (IOException ex) {
-      throw new MojoFailureException("Can't dump system properties to: " + path, ex);
-    }
-  }
-
-  private List<String> vmArgs(final String agentpath, final List<String> vmArgs) {
-    List<String> results = new ArrayList<String>();
-    if (vmArgs != null) {
-      results.addAll(vmArgs);
-    }
-    if (!"false".equals(debug)) {
-      // true, number, debug line
-      if ("true".equals(debug)) {
-        // default debug
-        results.add("-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n");
-      } else {
-        try {
-          int port = Integer.parseInt(debug);
-          results.add("-agentlib:jdwp=transport=dt_socket,address=" + port + ",server=y,suspend=n");
-        } catch (NumberFormatException ex) {
-          // assume it is a debug line
-          results.add(debug);
-        }
-      }
-    }
+  private void setLogback() {
     // logback
     File[] logbackFiles = {localFile("conf", "logback-test.xml"),
         localFile("conf", "logback.xml") };
     for (File logback : logbackFiles) {
       if (logback.exists()) {
-        results.add("-Dlogback.configurationFile=" + logback.getAbsolutePath());
+        System.setProperty("logback.configurationFile", logback.getAbsolutePath());
         break;
       }
     }
-    // dcevm? OFF
-    // String altjvm = null;
-    // for (String boot : System.getProperty("sun.boot.library.path", "").split(File.pathSeparator))
-    // {
-    // File dcevm = new File(boot, "dcevm");
-    // if (dcevm.exists()) {
-    // altjvm = dcevm.getName();
-    // }
-    // }
-    // if (altjvm == null) {
-    // getLog().error("dcevm not found, please install it: https://github.com/dcevm/dcevm");
-    // } else {
-    // results.add("-XXaltjvm=" + altjvm);
-    // }
-    return results;
   }
 
   private File localFile(final String... paths) {
@@ -311,22 +264,23 @@ public class JoobyMojo extends AbstractMojo {
     return result;
   }
 
-  private static List<String> resources(final Iterable<Resource> resources) {
-    List<String> result = new ArrayList<String>();
+  private static List<File> resources(final Iterable<Resource> resources) {
+    List<File> result = new ArrayList<>();
     for (Resource resource : resources) {
       String dir = resource.getDirectory();
-      if (new File(dir).exists()) {
-        result.add(dir);
+      File file = new File(dir);
+      if (file.exists()) {
+        result.add(file);
       }
     }
     return result;
   }
 
-  private Optional<Artifact> extra(final List<Artifact> artifacts, final String name) {
+  private Optional<File> extra(final List<Artifact> artifacts, final String name) {
     for (Artifact artifact : artifacts) {
       for (String tail : artifact.getDependencyTrail()) {
         if (tail.contains(name)) {
-          return Optional.of(artifact);
+          return Optional.of(artifact.getFile());
         }
       }
     }
