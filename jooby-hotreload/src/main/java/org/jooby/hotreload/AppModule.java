@@ -30,8 +30,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.WatchEvent.Kind;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -39,6 +37,7 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleClassLoader;
@@ -147,6 +146,7 @@ public class AppModule {
     this.startApp();
   }
 
+  @SuppressWarnings("rawtypes")
   private void startApp() {
     if (app != null) {
       stopApp(app);
@@ -160,18 +160,20 @@ public class AppModule {
 
         Thread.currentThread().setContextClassLoader(mcloader);
 
-        if (mainClass.equals("org.jooby.Jooby")) {
+        Class<?> joobyClass = mcloader.loadClass("org.jooby.Jooby");
+        if (mainClass.equals(joobyClass.getName())) {
           // js version
           Object js = mcloader.loadClass("org.jooby.internal.js.JsJooby")
               .newInstance();
           Method runjs = js.getClass().getDeclaredMethod("run", File.class);
-          this.app = runjs.invoke(js, new File("app.js"));
+          this.app = ((Supplier) runjs.invoke(js, new File("app.js"))).get();
         } else {
-          this.app = mcloader.loadClass(mainClass)
+          this.app = joobyClass
               .getDeclaredConstructors()[0].newInstance();
         }
         debug("starting: %s", mainClass);
-        app.getClass().getMethod("start").invoke(app);
+        Method joobyRun = joobyClass.getMethod("start");
+        joobyRun.invoke(this.app);
       } catch (Throwable ex) {
         Throwable cause = ex;
         if (ex instanceof InvocationTargetException) {
@@ -272,6 +274,7 @@ public class AppModule {
     TRACE = "trace".equalsIgnoreCase(System.getProperty("logLevel", ""));
 
     if (TRACE) {
+      DEBUG = true;
       Module.setModuleLogger(new ModuleLogger() {
 
         @Override
@@ -357,26 +360,26 @@ public class AppModule {
   }
 
   public static void info(final String message, final Object... args) {
-    System.out.println(format(message, args));
+    System.out.println(format("info", message, args));
   }
 
   public static void error(final String message, final Object... args) {
-    System.err.println(format(message, args));
+    System.err.println(format("error", message, args));
   }
 
   public static void debug(final String message, final Object... args) {
     if (DEBUG) {
-      System.out.println(format(message, args));
+      System.out.println(format("debug", message, args));
     }
   }
 
   public static void trace(final String message, final Object... args) {
     if (TRACE) {
-      System.out.println(format(message, args));
+      System.out.println(format("trace", message, args));
     }
   }
 
-  private static String format(final String message, final Object... args) {
+  private static String format(final String level, final String message, final Object... args) {
     Object[] values = args;
     Throwable x = null;
     if (args.length > 0) {
@@ -388,10 +391,12 @@ public class AppModule {
     }
     String msg = String.format(message, values);
     StringBuilder buff = new StringBuilder();
-    buff.append("[HotSwap|")
-        .append(Thread.currentThread().getName()).append("|")
-        .append(LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss")))
-        .append("]: ").append(msg);
+    buff.append(">>> jooby:run[")
+        .append(level)
+        .append("|")
+        .append(Thread.currentThread().getName())
+        .append("]: ")
+        .append(msg);
     if (x != null) {
       buff.append("\n");
       StringWriter writer = new StringWriter();

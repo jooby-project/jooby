@@ -226,10 +226,10 @@ public class JoobyMojo extends AbstractMojo {
     }
     List<File> resources = resources(project.getResources());
     resources.add(0, new File(project.getBuild().getSourceDirectory()));
-    Path[] paths = new Path[resources.size()];
-    for (int i = 0; i < paths.length; i++) {
-      paths[i] = resources.get(i).toPath();
-    }
+    List<Path> paths = resources.stream()
+        .filter(File::exists)
+        .map(File::toPath)
+        .collect(Collectors.toList());
     try {
       return new Watcher((kind, path) -> {
         if (path.toString().endsWith(".java")) {
@@ -238,7 +238,7 @@ public class JoobyMojo extends AbstractMojo {
             || path.toString().endsWith(".properties")) {
           task.accept("compile");
         }
-      }, paths);
+      }, paths.toArray(new Path[paths.size()]));
     } catch (Exception ex) {
       throw new MojoFailureException("Can't compile source code", ex);
     }

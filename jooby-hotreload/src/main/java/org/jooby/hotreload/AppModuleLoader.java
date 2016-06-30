@@ -107,8 +107,12 @@ public class AppModuleLoader extends ModuleLoader {
         }
       }
     }
-    Set<String> jdkPaths = sysPaths();
-    builder.addDependency(DependencySpec.createSystemDependencySpec(jdkPaths));
+    Set<String> sysPaths = sysPaths();
+
+    AppModule.trace("system packages:");
+    sysPaths.forEach(p -> AppModule.trace("  %s", p));
+
+    builder.addDependency(DependencySpec.createSystemDependencySpec(sysPaths));
     builder.addDependency(DependencySpec.createLocalDependencySpec());
 
     if (mainClass != null) {
