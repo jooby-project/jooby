@@ -195,9 +195,9 @@ public enum BuiltinParser implements Parser {
       if (Enum.class.isAssignableFrom(rawType)) {
         return ctx
             .param(values ->
-                java.lang.Enum.valueOf(rawType, values.get(0))
+                java.lang.Enum.valueOf(rawType, values.get(0).toUpperCase())
             ).body(body ->
-                java.lang.Enum.valueOf(rawType, body.text())
+                java.lang.Enum.valueOf(rawType, body.text().toUpperCase())
             );
       } else {
         return ctx.next();
