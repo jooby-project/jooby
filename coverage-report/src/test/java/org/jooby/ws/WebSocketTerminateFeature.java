@@ -2,10 +2,7 @@ package org.jooby.ws;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jooby.test.ServerFeature;
 import org.junit.After;
@@ -18,15 +15,14 @@ import com.ning.http.client.ws.WebSocket;
 import com.ning.http.client.ws.WebSocketTextListener;
 import com.ning.http.client.ws.WebSocketUpgradeHandler;
 
-
 public class WebSocketTerminateFeature extends ServerFeature {
 
-  private static final List<Integer> statusList = new ArrayList<>();
+  private static AtomicInteger state = new AtomicInteger(0);
   {
     ws("/ws", ws -> {
 
       ws.onClose(status -> {
-        statusList.add(status.code());
+        state.set(status.code());
       });
 
       ws.terminate();
@@ -38,6 +34,7 @@ public class WebSocketTerminateFeature extends ServerFeature {
 
   @Before
   public void before() {
+    state.set(0);
     client = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().build());
   }
 
@@ -48,7 +45,8 @@ public class WebSocketTerminateFeature extends ServerFeature {
 
   @Test
   public void terminate() throws Exception {
-    CountDownLatch latch = new CountDownLatch(1);
+
+    assertEquals(0, state.get());
 
     client.prepareGet(ws("ws").toString())
         .execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(
@@ -64,16 +62,16 @@ public class WebSocketTerminateFeature extends ServerFeature {
 
               @Override
               public void onClose(final WebSocket websocket) {
-                latch.countDown();
               }
 
               @Override
               public void onError(final Throwable t) {
               }
-            }).build()).get();
-    if (latch.await(1L, TimeUnit.SECONDS)) {
-      assertEquals(new Integer(1006), statusList.get(0));
+            }).build())
+        .get();
+    while (1006 != state.get()) {
+      Thread.sleep(300L);
     }
-    statusList.clear();
+    assertEquals(1006, state.get());
   }
 }
