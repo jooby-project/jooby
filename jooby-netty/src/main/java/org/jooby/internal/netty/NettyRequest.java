@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.jooby.MediaType;
@@ -37,6 +38,7 @@ import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.spi.NativeWebSocket;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
@@ -232,8 +234,10 @@ public class NettyRequest implements NativeRequest {
       params = ArrayListMultimap.create();
       files = ArrayListMultimap.create();
 
+      Predicate<String> notEmpty = s -> !Strings.isNullOrEmpty(s);
       query.parameters()
-          .forEach((name, values) -> values.forEach(value -> params.put(name, value)));
+          .forEach((name, values) -> values.stream().filter(notEmpty)
+              .forEach(value -> params.put(name, value)));
 
       HttpMethod method = req.method();
       boolean hasBody = method.equals(HttpMethod.POST) || method.equals(HttpMethod.PUT)
@@ -258,16 +262,19 @@ public class NettyRequest implements NativeRequest {
           while (hasNext.apply(decoder)) {
             HttpData field = (HttpData) decoder.next();
             try {
-            String name = field.getName();
-            switch (field.getHttpDataType()) {
-              case FileUpload:
-                files.put(name, new NettyUpload((FileUpload) field, tmpdir));
-                // excludes upload from param names.
-                break;
-              default:
-                params.put(name, field.getString());
-                break;
-            }
+              String name = field.getName();
+              switch (field.getHttpDataType()) {
+                case FileUpload:
+                  files.put(name, new NettyUpload((FileUpload) field, tmpdir));
+                  // excludes upload from param names.
+                  break;
+                default:
+                  String value = field.getString();
+                  if (notEmpty.test(value)) {
+                    params.put(name, value);
+                  }
+                  break;
+              }
             } finally {
               field.release();
             }

@@ -388,7 +388,7 @@ public class RequestImpl implements Request {
     try {
       return req.params(name);
     } catch (Exception ex) {
-      throw new Err(Status.BAD_REQUEST, "Param " + name + " resulted in error", ex);
+      throw new Err(Status.BAD_REQUEST, "Parameter '" + name + "' resulted in error", ex);
     }
   }
 
