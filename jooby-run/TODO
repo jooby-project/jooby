@@ -1,6 +1,3 @@
-compile on the fly?
-http://search.maven.org/#artifactdetails%7Corg.eclipse.jdt.core.compiler%7Cecj%7C4.4.2%7Cjar
-
 how do I detect a hotswap? and only then bounce the app?
 
 ideal implementation?

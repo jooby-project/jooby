@@ -35,7 +35,7 @@
     <module>jooby-netty</module>
     <module>jooby-quartz</module>
     <module>jooby-jdbi</module>
-    <module>jooby-hotreload</module>
+    <module>jooby-run</module>
     <module>jooby-jedis</module>
     <module>jooby-mongodb</module>
     <module>jooby-mongodb-rx</module>
@@ -269,7 +269,7 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
-        <artifactId>jooby-hotreload</artifactId>
+        <artifactId>jooby-run</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 

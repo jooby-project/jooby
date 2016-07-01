@@ -29,7 +29,7 @@
 
     <dependency>
       <groupId>org.jooby</groupId>
-      <artifactId>jooby-hotreload</artifactId>
+      <artifactId>jooby-run</artifactId>
       <version>${project.version}</version>
     </dependency>
 

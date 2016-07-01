@@ -146,7 +146,7 @@ public class JoobyMojo extends AbstractMojo {
 
     Set<File> classpath = new LinkedHashSet<>();
 
-    File hotreload = extra(pluginArtifacts, "jooby-hotreload").get();
+    File hotreload = extra(pluginArtifacts, "jooby-run").get();
     File jbossModules = extra(pluginArtifacts, "jboss-modules").get();
     classpath.add(hotreload);
     classpath.add(jbossModules);

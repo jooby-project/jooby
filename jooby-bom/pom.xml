@@ -152,7 +152,7 @@
   </dependency>
   <dependency>
     <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-hotreload</artifactId>
+    <artifactId>jooby-run</artifactId>
     <version>${jooby.version}</version>
   </dependency>
   <dependency>
