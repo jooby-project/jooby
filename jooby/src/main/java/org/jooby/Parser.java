@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jooby.internal.parser.BeanParser;
+
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
@@ -416,5 +418,45 @@ public interface Parser {
    * @throws Throwable If conversion fails.
    */
   Object parse(TypeLiteral<?> type, Context ctx) throws Throwable;
+
+  /**
+   * Overwrite the default bean parser with <code>null</code> supports. The default bean parser
+   * doesn't allow <code>null</code>, so if a parameter is optional you must declare it as
+   * {@link Optional} otherwise parsing fails with a <code>404</code> status code.
+   *
+   * For example:
+   * <pre>{@code
+   *
+   * public class Book {
+   *
+   *   public String title;
+   *
+   *   public Date releaseDate;
+   *
+   *   public String toString() {
+   *     return title + ":" + releaseDate;
+   *   }
+   * }
+   *
+   * {
+   *   parser(Parser.bean(true));
+   *
+   *   post("/", req -> {
+   *     return req.params(Book.class).toString();
+   *   });
+   * }
+   * }</pre>
+   *
+   * With <code>/?title=Title&releaseDate=</code> prints <code>Title:null</code>.
+   *
+   * Now, same call with <code>allowNulls=false</code> results in <code>Bad Request: 400</code>
+   * because <code>releaseDate</code> if required and isn't present in the HTTP request.
+   *
+   * @param allowNulls Enabled null supports while parsing HTTP params as Java Beans.
+   * @return A new parser.
+   */
+  static Parser bean(final boolean allowNulls) {
+    return new BeanParser(allowNulls);
+  }
 
 }

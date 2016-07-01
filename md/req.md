@@ -235,7 +235,7 @@ public class Contact {
 ```java
 {
   post("/save", req -> {
-    Contact contact = req.body().to(Contact.class);
+    Contact contact = req.params().to(Contact.class);
     // save contact...
   });
 }

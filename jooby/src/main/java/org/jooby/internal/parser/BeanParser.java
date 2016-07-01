@@ -25,10 +25,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.jooby.Err;
 import org.jooby.Mutant;
 import org.jooby.Parser;
 import org.jooby.Request;
@@ -46,7 +48,21 @@ import com.google.common.primitives.Primitives;
 import com.google.common.reflect.Reflection;
 import com.google.inject.TypeLiteral;
 
+import javaslang.control.Try;
+
 public class BeanParser implements Parser {
+
+  private Function<? super Throwable, Try<? extends Object>> MISSING = x -> {
+    return x instanceof Err.Missing ? Try.success(null) : Try.failure(x);
+  };
+
+  private Function<? super Throwable, Try<? extends Object>> RETHROW = Try::failure;
+
+  private Function<? super Throwable, Try<? extends Object>> recoverMissing;
+
+  public BeanParser(final boolean allowNulls) {
+    this.recoverMissing = allowNulls ? MISSING : RETHROW;
+  }
 
   @Override
   public Object parse(final TypeLiteral<?> type, final Context ctx) throws Throwable {
@@ -58,7 +74,7 @@ public class BeanParser implements Parser {
     return ctx.ifparams(map -> {
       final Object bean;
       if (beanType.isInterface()) {
-        bean = newBeanInterface(ctx.require(Request.class), beanType);
+        bean = newBeanInterface(ctx.require(Request.class), ctx.require(Response.class), beanType);
       } else {
         bean = newBean(ctx.require(Request.class), ctx.require(Response.class), map, beanType);
       }
@@ -85,17 +101,16 @@ public class BeanParser implements Parser {
     if (constructors.size() > 1) {
       return null;
     }
-    final Object bean;
     Constructor<?> constructor = constructors.get(0);
     RequestParamProvider provider = new RequestParamProviderImpl(
         new RequestParamNameProviderImpl(classInfo));
     List<RequestParam> parameters = provider.parameters(constructor);
     Object[] args = new Object[parameters.size()];
     for (int i = 0; i < args.length; i++) {
-      args[i] = parameters.get(i).value(req, rsp);
+      args[i] = value(parameters.get(i), req, rsp);
     }
     // inject args
-    bean = constructor.newInstance(args);
+    final Object bean = constructor.newInstance(args);
 
     // inject fields
     for (Entry<String, Mutant> param : params.entrySet()) {
@@ -109,9 +124,7 @@ public class BeanParser implements Parser {
         int mods = field.getModifiers();
         if (!Modifier.isFinal(mods) && !Modifier.isStatic(mods) && !Modifier.isTransient(mods)) {
           // get
-          RequestParam fparam = new RequestParam(field, pname, field.getGenericType());
-          Object value = fparam.value(req, rsp);
-
+          Object value = value(new RequestParam(field, pname, field.getGenericType()), req, rsp);
           // set
           field.setAccessible(true);
           field.set(root, value);
@@ -148,15 +161,22 @@ public class BeanParser implements Parser {
     return it;
   }
 
-  private Object newBeanInterface(final Request req, final Class<?> beanType) {
-
+  private Object newBeanInterface(final Request req, final Response rsp, final Class<?> beanType) {
     return Reflection.newProxy(beanType, (proxy, method, args) -> {
       StringBuilder name = new StringBuilder(method.getName()
           .replace("get", "")
           .replace("is", ""));
       name.setCharAt(0, Character.toLowerCase(name.charAt(0)));
-      return req.param(name.toString()).to(TypeLiteral.get(method.getGenericReturnType()));
+      return value(new RequestParam(method, name.toString(), method.getGenericReturnType()), req,
+          rsp);
     });
+  }
+
+  private Object value(final RequestParam param, final Request req, final Response rsp)
+      throws Throwable {
+    return Try.of(() -> param.value(req, rsp))
+        .recoverWith(recoverMissing)
+        .getOrElseThrow(Function.identity());
   }
 
   private static List<String> name(final String name) {

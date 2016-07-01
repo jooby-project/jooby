@@ -9,6 +9,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
 
+import org.jooby.Parser;
 import org.jooby.hbm.data.Car;
 import org.jooby.json.Jackson;
 import org.jooby.test.ServerFeature;
@@ -17,6 +18,8 @@ import org.junit.Test;
 public class BeanValidationFeature extends ServerFeature {
 
   {
+    parser(Parser.bean(true));
+
     use(new Jackson());
 
     use(new Hbv(Car.class));

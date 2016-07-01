@@ -89,7 +89,7 @@ public class MutantImpl implements Mutant {
         results.put(type, result);
       } catch (ParamNotFound ex) {
         Tuple3<String, String, Status> md = md();
-        throw new Err(parser.statusCode(ex), String.format(REQUIRED, md._2));
+        throw new Err.Missing(String.format(REQUIRED, md._2));
       } catch (Err ex) {
         throw ex;
       } catch (Throwable ex) {

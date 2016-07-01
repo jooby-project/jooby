@@ -41,6 +41,14 @@ import com.google.common.base.Throwables;
 @SuppressWarnings("serial")
 public class Err extends RuntimeException {
 
+  public static class Missing extends Err {
+
+    public Missing(final String name) {
+      super(Status.BAD_REQUEST, name);
+    }
+
+  }
+
   /**
    * Default err handler it does content negotation. On <code>text/html</code> requests the err
    * handler creates an <code>err</code> view and set as model the {@link Err#toMap()}.

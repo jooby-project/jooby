@@ -640,6 +640,9 @@ public class Jooby implements Routes, LifeCycle, Registry {
   /** Don't add same mapper twice . */
   private Set<String> mappers = new HashSet<>();
 
+  /** Bean parser . */
+  private Optional<Parser> beanParser = Optional.empty();
+
   public Jooby() {
     this(null);
   }
@@ -1120,7 +1123,11 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * @return This jooby instance.
    */
   public Jooby parser(final Parser parser) {
-    bag.add(requireNonNull(parser, "A parser is required."));
+    if (parser instanceof BeanParser) {
+      beanParser = Optional.of(parser);
+    } else {
+      bag.add(requireNonNull(parser, "A parser is required."));
+    }
     return this;
   }
 
@@ -3919,7 +3926,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
       parsers.addBinding().toInstance(new DateParser(dateFormat));
       parsers.addBinding().toInstance(new LocalDateParser(dateTimeFormatter));
       parsers.addBinding().toInstance(new LocaleParser());
-      parsers.addBinding().toInstance(new BeanParser());
+      parsers.addBinding().toInstance(beanParser.orElseGet(() -> new BeanParser(false)));
       parsers.addBinding().toInstance(new StaticMethodParser("valueOf"));
       parsers.addBinding().toInstance(new StaticMethodParser("fromString"));
       parsers.addBinding().toInstance(new StaticMethodParser("forName"));
