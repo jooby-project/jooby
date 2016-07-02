@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.MojoFailureException;
-import org.jooby.hotreload.AppModule;
+import org.jooby.run.Main;
 
 public class RunForkedApp implements Command {
 
@@ -49,7 +49,7 @@ public class RunForkedApp implements Command {
     args.add("-cp");
     args.add(
         cp.stream().map(File::getAbsolutePath).collect(Collectors.joining(File.pathSeparator)));
-    args.add(AppModule.class.getName());
+    args.add(Main.class.getName());
     args.add(mId);
     args.add(mainClass);
     args.add(appcp.stream().map(File::getAbsolutePath).collect(Collectors.joining(":", "deps=", ""))

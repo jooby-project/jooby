@@ -45,7 +45,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.jooby.hotreload.Watcher;
+import org.jooby.run.Watcher;
 
 import javaslang.control.Try;
 

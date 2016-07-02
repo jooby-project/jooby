@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.hotreload;
+package org.jooby.run;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,7 +45,7 @@ import org.jboss.modules.ModuleIdentifier;
 import org.jboss.modules.ModuleLoader;
 import org.jboss.modules.log.ModuleLogger;
 
-public class AppModule {
+public class Main {
 
   private static boolean DEBUG;
 
@@ -67,7 +67,7 @@ public class AppModule {
   private String mainClass;
   private volatile Module module;
 
-  public AppModule(final String mId, final String mainClass, final File... cp)
+  public Main(final String mId, final String mainClass, final File... cp)
       throws Exception {
     this.mainClass = mainClass;
     loader = AppModuleLoader.build(mId, mainClass, cp);
@@ -115,7 +115,7 @@ public class AppModule {
       cp.add(new File(System.getProperty("user.dir")));
     }
 
-    AppModule launcher = new AppModule(args[0], args[1], cp.toArray(new File[cp.size()]))
+    Main launcher = new Main(args[0], args[1], cp.toArray(new File[cp.size()]))
         .includes(includes)
         .excludes(excludes);
     launcher.run();
@@ -203,12 +203,12 @@ public class AppModule {
 
   }
 
-  public AppModule includes(final String includes) {
+  public Main includes(final String includes) {
     this.includes = pathMatcher(includes);
     return this;
   }
 
-  public AppModule excludes(final String excludes) {
+  public Main excludes(final String excludes) {
     this.excludes = pathMatcher(excludes);
     return this;
   }
@@ -280,19 +280,19 @@ public class AppModule {
         @Override
         public void trace(final Throwable t, final String format, final Object arg1,
             final Object arg2, final Object arg3) {
-          AppModule.trace(format, arg1, arg2, arg3, t);
+          Main.trace(format, arg1, arg2, arg3, t);
         }
 
         @Override
         public void trace(final Throwable t, final String format, final Object arg1,
             final Object arg2) {
-          AppModule.trace(format, arg1, arg2, t);
+          Main.trace(format, arg1, arg2, t);
         }
 
         @Override
         public void trace(final String format, final Object arg1, final Object arg2,
             final Object arg3) {
-          AppModule.trace(format, arg1, arg2, arg3);
+          Main.trace(format, arg1, arg2, arg3);
         }
 
         @Override
@@ -300,38 +300,38 @@ public class AppModule {
           Object[] values = new Object[args.length + 1];
           System.arraycopy(args, 0, values, 0, args.length);
           values[values.length - 1] = t;
-          AppModule.trace(format, values);
+          Main.trace(format, values);
         }
 
         @Override
         public void trace(final Throwable t, final String format, final Object arg1) {
-          AppModule.trace(format, arg1, t);
+          Main.trace(format, arg1, t);
         }
 
         @Override
         public void trace(final String format, final Object arg1, final Object arg2) {
-          AppModule.trace(format, arg1, arg2);
+          Main.trace(format, arg1, arg2);
 
         }
 
         @Override
         public void trace(final Throwable t, final String message) {
-          AppModule.trace(message, t);
+          Main.trace(message, t);
         }
 
         @Override
         public void trace(final String format, final Object... args) {
-          AppModule.trace(format, args);
+          Main.trace(format, args);
         }
 
         @Override
         public void trace(final String format, final Object arg1) {
-          AppModule.trace(format, arg1);
+          Main.trace(format, arg1);
         }
 
         @Override
         public void trace(final String message) {
-          AppModule.trace(message);
+          Main.trace(message);
         }
 
         @Override

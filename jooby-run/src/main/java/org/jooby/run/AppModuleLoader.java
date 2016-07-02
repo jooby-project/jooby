@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.jooby.hotreload;
+package org.jooby.run;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -83,7 +83,7 @@ public class AppModuleLoader extends ModuleLoader {
     ModuleSpec.Builder builder = ModuleSpec.build(ModuleIdentifier.fromString(mId));
 
     int l = (prefix.length() + mId.length() + level);
-    AppModule.debug("%1$" + l + "s", prefix + mId);
+    Main.debug("%1$" + l + "s", prefix + mId);
     for (File file : cp) {
       String fname = "└── " + file.getAbsolutePath();
       if (file.getName().startsWith("j2v8") && !name.equals(file.getName())) {
@@ -95,7 +95,7 @@ public class AppModuleLoader extends ModuleLoader {
             DependencySpec.createModuleDependencySpec(dependency.getModuleIdentifier()));
         modules.put(dependency.getModuleIdentifier(), dependency);
       } else {
-        AppModule.debug("%1$" + (fname.length() + level + 2) + "s", fname);
+        Main.debug("%1$" + (fname.length() + level + 2) + "s", fname);
         if (file.getName().endsWith(".jar")) {
           builder.addResourceRoot(ResourceLoaderSpec
               .createResourceLoaderSpec(ResourceLoaders
@@ -109,8 +109,8 @@ public class AppModuleLoader extends ModuleLoader {
     }
     Set<String> sysPaths = sysPaths();
 
-    AppModule.trace("system packages:");
-    sysPaths.forEach(p -> AppModule.trace("  %s", p));
+    Main.trace("system packages:");
+    sysPaths.forEach(p -> Main.trace("  %s", p));
 
     builder.addDependency(DependencySpec.createSystemDependencySpec(sysPaths));
     builder.addDependency(DependencySpec.createLocalDependencySpec());
@@ -136,7 +136,7 @@ public class AppModuleLoader extends ModuleLoader {
     Set<String> pkgs = new LinkedHashSet<>();
 
     pkgs.addAll(jdkPaths());
-    pkgs.addAll(pkgs(new InputStreamReader(AppModule.class.getResourceAsStream("pkgs"))));
+    pkgs.addAll(pkgs(new InputStreamReader(Main.class.getResourceAsStream("pkgs"))));
 
     /**
      * Hack to let users to configure system packages, javax.transaction cause issues with

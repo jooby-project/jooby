@@ -21,7 +21,7 @@ package org.jooby;
 import java.io.File;
 import java.util.Set;
 
-import org.jooby.hotreload.AppModule;
+import org.jooby.run.Main;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import edu.emory.mathcs.backport.java.util.concurrent.CountDownLatch;
@@ -53,14 +53,14 @@ public class RunApp implements Command {
 
   @Override
   public void execute() throws Exception {
-    AppModule module = new AppModule(mId, mainClass, cp);
+    Main launcher = new Main(mId, mainClass, cp);
     if (includes != null) {
-      module.includes(includes);
+      launcher.includes(includes);
     }
     if (excludes != null) {
-      module.excludes(excludes);
+      launcher.excludes(excludes);
     }
-    module.run();
+    launcher.run();
     latch.await();
   }
 
