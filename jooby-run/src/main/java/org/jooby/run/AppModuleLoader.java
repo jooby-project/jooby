@@ -63,20 +63,17 @@ public class AppModuleLoader extends ModuleLoader {
    * Build a flat jboss module, with some minor exceptions (like j2v8).
    *
    * @param name module name.
-   * @param mainClass
    * @param cp
    * @return
    * @throws Exception
    */
-  public static AppModuleLoader build(final String name, final String mainClass, final File... cp)
-      throws Exception {
-    Map<ModuleIdentifier, ModuleSpec> modules = newModule(name, mainClass, 0, "", cp);
+  public static AppModuleLoader build(final String name, final File... cp) throws Exception {
+    Map<ModuleIdentifier, ModuleSpec> modules = newModule(name, 0, "", cp);
     return new AppModuleLoader(modules);
   }
 
   private static Map<ModuleIdentifier, ModuleSpec> newModule(final String name,
-      final String mainClass, final int level, final String prefix, final File... cp)
-      throws Exception {
+      final int level, final String prefix, final File... cp) throws Exception {
     Map<ModuleIdentifier, ModuleSpec> modules = new HashMap<>();
 
     String mId = name.replace(".jar", "");
@@ -87,7 +84,7 @@ public class AppModuleLoader extends ModuleLoader {
     for (File file : cp) {
       String fname = "└── " + file.getAbsolutePath();
       if (file.getName().startsWith("j2v8") && !name.equals(file.getName())) {
-        ModuleSpec dependency = newModule(file.getName(), null, level + 2, "└── ", file)
+        ModuleSpec dependency = newModule(file.getName(), level + 2, "└── ", file)
             .values()
             .iterator()
             .next();
@@ -114,10 +111,6 @@ public class AppModuleLoader extends ModuleLoader {
 
     builder.addDependency(DependencySpec.createSystemDependencySpec(sysPaths));
     builder.addDependency(DependencySpec.createLocalDependencySpec());
-
-    if (mainClass != null) {
-      builder.setMainClass(mainClass);
-    }
 
     ModuleSpec module = builder.create();
     modules.put(module.getModuleIdentifier(), builder.create());

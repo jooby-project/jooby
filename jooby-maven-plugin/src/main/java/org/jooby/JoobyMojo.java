@@ -122,11 +122,6 @@ public class JoobyMojo extends AbstractMojo {
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
 
-    boolean js = new File("app.js").exists();
-    if (js) {
-      mainClass = "org.jooby.Jooby";
-    }
-
     Set<File> appcp = new LinkedHashSet<File>();
 
     // public / config, etc..

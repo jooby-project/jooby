@@ -29,10 +29,13 @@ import java.lang.reflect.Method;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.nio.file.WatchEvent.Kind;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -70,7 +73,7 @@ public class Main {
   public Main(final String mId, final String mainClass, final File... cp)
       throws Exception {
     this.mainClass = mainClass;
-    loader = AppModuleLoader.build(mId, mainClass, cp);
+    loader = AppModuleLoader.build(mId, cp);
     this.mId = ModuleIdentifier.create(mId);
     this.executor = Executors.newSingleThreadExecutor(task -> new Thread(task, "HotSwap"));
     this.scanner = new Watcher(this::onChange, new Path[]{basedir.toPath() });
@@ -160,19 +163,18 @@ public class Main {
 
         Thread.currentThread().setContextClassLoader(mcloader);
 
-        Class<?> joobyClass = mcloader.loadClass("org.jooby.Jooby");
-        if (mainClass.equals(joobyClass.getName())) {
+        if (mainClass.endsWith(".js")) {
           // js version
           Object js = mcloader.loadClass("org.jooby.internal.js.JsJooby")
               .newInstance();
           Method runjs = js.getClass().getDeclaredMethod("run", File.class);
-          this.app = ((Supplier) runjs.invoke(js, new File("app.js"))).get();
+          this.app = ((Supplier) runjs.invoke(js, new File(mainClass))).get();
         } else {
-          this.app = joobyClass
+          this.app = mcloader.loadClass(mainClass)
               .getDeclaredConstructors()[0].newInstance();
         }
         debug("starting: %s", mainClass);
-        Method joobyRun = joobyClass.getMethod("start");
+        Method joobyRun = app.getClass().getMethod("start");
         joobyRun.invoke(this.app);
       } catch (Throwable ex) {
         Throwable cause = ex;
@@ -357,6 +359,18 @@ public class Main {
         }
       });
     }
+
+    // set logback
+    String logback = Optional.ofNullable(System.getProperty("logback.configurationFile"))
+        .orElseGet(() -> Arrays
+            .asList(Paths.get("conf", "logback-test.xml"), Paths.get("conf", "logback.xml"))
+            .stream()
+            .filter(p -> p.toFile().exists())
+            .map(Path::toString)
+            .findFirst()
+            .orElse(Paths.get("conf", "logback.xml").toString()));
+    debug("logback: %s", logback);
+    System.setProperty("logback.configurationFile", logback);
   }
 
   public static void info(final String message, final Object... args) {
