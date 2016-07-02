@@ -155,11 +155,11 @@ public class JoobyMojo extends AbstractMojo {
     // includes/excludes pattern
     String includes = null;
     if (this.includes != null && this.includes.size() > 0) {
-      includes = this.includes.stream().collect(Collectors.joining(":"));
+      includes = this.includes.stream().collect(Collectors.joining(File.pathSeparator));
     }
     String excludes = null;
     if (this.excludes != null && this.excludes.size() > 0) {
-      excludes = this.excludes.stream().collect(Collectors.joining(":"));
+      excludes = this.excludes.stream().collect(Collectors.joining(File.pathSeparator));
     }
     // moduleId
     String mId = mavenProject.getGroupId() + "." + mavenProject.getArtifactId();

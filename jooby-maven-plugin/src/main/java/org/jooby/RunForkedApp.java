@@ -40,9 +40,8 @@ public class RunForkedApp implements Command {
   private String mainClass;
 
   public RunForkedApp(final File basedir, final String debug, final List<String> vmArgs,
-      final Set<File> cp,
-      final String mId, final String mainClass, final Set<File> appcp, final String includes,
-      final String excludes) throws MojoFailureException {
+      final Set<File> cp, final String mId, final String mainClass, final Set<File> appcp,
+      final String includes, final String excludes) throws MojoFailureException {
     this.basedir = basedir;
     List<String> args = new ArrayList<String>();
     args.addAll(vmArgs(debug, vmArgs));
@@ -52,7 +51,8 @@ public class RunForkedApp implements Command {
     args.add(Main.class.getName());
     args.add(mId);
     args.add(mainClass);
-    args.add(appcp.stream().map(File::getAbsolutePath).collect(Collectors.joining(":", "deps=", ""))
+    args.add(appcp.stream().map(File::getAbsolutePath)
+        .collect(Collectors.joining(File.pathSeparator, "deps=", ""))
         .trim());
     if (includes != null) {
       args.add("includes=" + includes);

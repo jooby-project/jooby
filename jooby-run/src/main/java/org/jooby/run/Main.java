@@ -77,14 +77,15 @@ public class Main {
     this.mId = ModuleIdentifier.create(mId);
     this.executor = Executors.newSingleThreadExecutor(task -> new Thread(task, "HotSwap"));
     this.scanner = new Watcher(this::onChange, new Path[]{basedir.toPath() });
-    includes("**/*.class,**/*.conf,**/*.properties,*.js, src/*.js");
+    includes("**/*.class" + File.pathSeparator + "**/*.conf" + File.pathSeparator
+        + "**/*.properties" + File.pathSeparator + "*.js" + File.pathSeparator + "src/*.js");
     excludes("");
   }
 
   public static void main(final String[] args) throws Exception {
     List<File> cp = new ArrayList<File>();
-    String includes = "**/*.class,**/*.conf,**/*.properties,*.js, src/*.js";
-    String excludes = "";
+    String includes = null;
+    String excludes = null;
     for (int i = 2; i < args.length; i++) {
       String[] option = args[i].split("=");
       if (option.length < 2) {
@@ -102,7 +103,7 @@ public class Main {
           setSystemProperties(new File(option[1]));
           break;
         case "deps":
-          String[] deps = option[1].split(":");
+          String[] deps = option[1].split(File.pathSeparator);
           for (String dep : deps) {
             cp.add(new File(dep));
           }
@@ -118,9 +119,13 @@ public class Main {
       cp.add(new File(System.getProperty("user.dir")));
     }
 
-    Main launcher = new Main(args[0], args[1], cp.toArray(new File[cp.size()]))
-        .includes(includes)
-        .excludes(excludes);
+    Main launcher = new Main(args[0], args[1], cp.toArray(new File[cp.size()]));
+    if (includes != null) {
+      launcher.includes(includes);
+    }
+    if (excludes != null) {
+      launcher.excludes(excludes);
+    }
     launcher.run();
   }
 
@@ -248,7 +253,7 @@ public class Main {
 
   private static PathMatcher pathMatcher(final String expressions) {
     List<PathMatcher> matchers = new ArrayList<PathMatcher>();
-    for (String expression : expressions.split(",")) {
+    for (String expression : expressions.split(File.pathSeparator)) {
       matchers.add(FileSystems.getDefault().getPathMatcher("glob:" + expression.trim()));
     }
     return new PathMatcher() {
