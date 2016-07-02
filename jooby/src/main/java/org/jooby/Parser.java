@@ -447,10 +447,13 @@ public interface Parser {
    * }
    * }</pre>
    *
-   * With <code>/?title=Title&releaseDate=</code> prints <code>Title:null</code>.
-   *
+   * <p>
+   * With <code>/?title=Title&amp;releaseDate=</code> prints <code>Title:null</code>.
+   * </p>
+   * <p>
    * Now, same call with <code>allowNulls=false</code> results in <code>Bad Request: 400</code>
    * because <code>releaseDate</code> if required and isn't present in the HTTP request.
+   * </p>
    *
    * @param allowNulls Enabled null supports while parsing HTTP params as Java Beans.
    * @return A new parser.

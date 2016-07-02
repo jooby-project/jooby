@@ -2,7 +2,7 @@
 
 Pretty error page that helps you debug your web application.
 
-<img alt="whoops!" width="75%" src="/resources/images/whoops.png">
+<img alt="whoops!" width="75%" src="http://jooby.org/resources/images/whoops.png">
 
 **NOTE**: This module is base on <a href="https://github.com/filp/whoops">whoops</a> and uses the same front end resources.
 
