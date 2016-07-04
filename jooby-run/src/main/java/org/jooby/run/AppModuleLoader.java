@@ -82,6 +82,14 @@ public class AppModuleLoader extends ModuleLoader {
     int l = (prefix.length() + mId.length() + level);
     Main.debug("%1$" + l + "s", prefix + mId);
     for (File file : cp) {
+      if (file.getName().endsWith(".pom")) {
+        // skip pom(s)
+        continue;
+      }
+      if (!file.exists()) {
+        // skip missing file/dir
+        continue;
+      }
       String fname = "└── " + file.getAbsolutePath();
       if (file.getName().startsWith("j2v8") && !name.equals(file.getName())) {
         ModuleSpec dependency = newModule(file.getName(), level + 2, "└── ", file)

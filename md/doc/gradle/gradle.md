@@ -11,11 +11,24 @@ duplicate a Maven development environment to Gradle.
 ## A minimal `build.gradle`
 
 ```js
+buildscript {
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    /** jooby:run */
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '{{version}}'
+  }
+}
+
 /*
  * We are writing a standalone application.
- *
  */
 apply plugin: 'application'
+
+apply plugin: 'jooby'
 
 /*
  * Some classic project configuration.
@@ -28,7 +41,7 @@ sourceCompatibility = 1.8
  * Dependencies will be downloaded from the Maven repository.
  */
 repositories {
-    mavenCentral()
+  mavenCentral()
 }
 
 /*
@@ -43,7 +56,7 @@ dependencies {
  * We diverge from the default resources structure to adopt the Jooby standard.
  */
 sourceSets.main.resources {
-    srcDirs = ["conf", "public"]
+  srcDirs = ["conf", "public"]
 }
 ```
 
@@ -51,9 +64,7 @@ sourceSets.main.resources {
 
 - **Compiling the application** can be done as usual with `gradle build`.
 
-- **Running the application** can be done as usual with `gradle run` but the
-  automatic reloading of resources or java classes does not work.
-
+- **Running the application** can be done as usual with `gradle joobyRun`.
 
 ## What does not work
 

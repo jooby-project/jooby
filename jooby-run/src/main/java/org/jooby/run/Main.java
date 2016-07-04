@@ -146,12 +146,28 @@ public class Main {
   }
 
   public void run() {
+    run(false);
+  }
+
+  public void run(final boolean block) {
     info("Hotswap available on: %s", basedir.getPath());
     info("  includes: %s", includes);
     info("  excludes: %s", excludes);
 
     this.scanner.start();
     this.startApp();
+
+    if (block) {
+      Object lock = new Object();
+      synchronized (lock) {
+        // until Ctrl+C
+        try {
+          lock.wait();
+        } catch (InterruptedException ex) {
+          Thread.currentThread().interrupt();
+        }
+      }
+    }
   }
 
   @SuppressWarnings("rawtypes")
