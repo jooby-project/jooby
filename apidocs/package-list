@@ -16,7 +16,6 @@ org.jooby.hazelcast
 org.jooby.hbm
 org.jooby.hbs
 org.jooby.hbv
-org.jooby.hotreload
 org.jooby.jade
 org.jooby.jdbc
 org.jooby.jdbi
@@ -36,6 +35,7 @@ org.jooby.quartz
 org.jooby.querydsl
 org.jooby.raml
 org.jooby.reactor
+org.jooby.run
 org.jooby.rx
 org.jooby.scope
 org.jooby.servlet

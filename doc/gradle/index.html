@@ -117,8 +117,24 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="cm">/* * We are writing a standalone application. * */</span>
+        <pre class="highlight"><code><span class="nx">buildscript</span> <span class="p">{</span>
+
+  <span class="nx">repositories</span> <span class="p">{</span>
+    <span class="nx">mavenCentral</span><span class="p">()</span>
+  <span class="p">}</span>
+
+  <span class="nx">dependencies</span> <span class="p">{</span>
+    <span class="cm">/**</span>
+     <span class="cm">* jooby:run </span>
+     <span class="cm">*/</span>
+    <span class="nx">classpath</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-gradle-plugin'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.0.0.CR6'</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/* * We are writing a standalone application. */</span>
 <span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s1">'application'</span>
+
+<span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s1">'jooby'</span>
 
 <span class="cm">/* * Some classic project configuration. */</span>
 <span class="nx">version</span> <span class="o">=</span> <span class="mf">0.1</span>
@@ -127,25 +143,25 @@
 
 <span class="cm">/* * Dependencies will be downloaded from the Maven repository. */</span>
 <span class="nx">repositories</span> <span class="p">{</span>
-    <span class="nx">mavenCentral</span><span class="p">()</span>
+  <span class="nx">mavenCentral</span><span class="p">()</span>
 <span class="p">}</span>
 
 <span class="cm">/* * A minimal project needs the framework and a webserver. */</span>
 <span class="nx">dependencies</span> <span class="p">{</span>
-  <span class="nx">compile</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.0.0.CR5'</span>
-  <span class="nx">compile</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-netty'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.0.0.CR5'</span>
+  <span class="nx">compile</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.0.0.CR6'</span>
+  <span class="nx">compile</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-netty'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.0.0.CR6'</span>
 <span class="p">}</span>
 
 <span class="cm">/* * We diverge from the default resources structure to adopt the Jooby standard. */</span>
 <span class="nx">sourceSets</span><span class="p">.</span><span class="nx">main</span><span class="p">.</span><span class="nx">resources</span> <span class="p">{</span>
-    <span class="nx">srcDirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"conf"</span><span class="p">,</span> <span class="s2">"public"</span><span class="p">]</span>
+  <span class="nx">srcDirs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"conf"</span><span class="p">,</span> <span class="s2">"public"</span><span class="p">]</span>
 <span class="p">}</span>
 </code></pre> 
        </div> 
        <h3 id="Gradle-What-works">What works</h3> 
        <ul> 
         <li> <p><strong>Compiling the application</strong> can be done as usual with <code class="highlighter-rouge codehilite">gradle build</code>.</p> </li> 
-        <li> <p><strong>Running the application</strong> can be done as usual with <code class="highlighter-rouge codehilite">gradle run</code> but the automatic reloading of resources or java classes does not work.</p> </li> 
+        <li> <p><strong>Running the application</strong> can be done as usual with <code class="highlighter-rouge codehilite">gradle joobyRun</code>.</p> </li> 
        </ul> 
        <h3 id="Gradle-What-does-not-work">What does not work</h3> 
        <ul> 

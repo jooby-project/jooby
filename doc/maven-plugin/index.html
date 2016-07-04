@@ -100,7 +100,8 @@
        <ul> 
         <li> <a href="#jooby-run-usage">usage</a></li> 
         <li> <a href="#jooby-run-hot-reload">hot reload</a></li> 
-        <li> <a href="#jooby-run-options">options</a></li>
+        <li> <a href="#jooby-run-options">options</a></li> 
+        <li> <a href="#jooby-run-eclipse">eclipse</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -119,14 +120,14 @@
         <pre class="highlight"><code>mvn jooby:run
 </code></pre> 
        </div> 
-       <p>You should see something similar:</p> 
+       <p>Prints something similar to:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>Hotswap available on: <span class="o">[</span>myapp/public, myapp/conf, myapp/target/classes]
-  includes: <span class="o">[</span><span class="k">**</span>/<span class="k">*</span>.class,<span class="k">**</span>/<span class="k">*</span>.conf,<span class="k">**</span>/<span class="k">*</span>.properties]
-  excludes: <span class="o">[]</span>
+        <pre class="highlight"><code><span class="gp">&gt;&gt;&gt; </span>jooby:run[info|main]: Hotswap available on: /my-app
+<span class="gp">&gt;&gt;&gt; </span>jooby:run[info|main]:   includes: <span class="o">[</span><span class="k">**</span>/<span class="k">*</span>.class,<span class="k">**</span>/<span class="k">*</span>.conf,<span class="k">**</span>/<span class="k">*</span>.properties,<span class="k">*</span>.js, src/<span class="k">*</span>.js]
+<span class="gp">&gt;&gt;&gt; </span>jooby:run[info|main]:   excludes: <span class="o">[]</span>
 INFO  <span class="o">[</span>2015-03-31 17:47:33,000] <span class="o">[</span>dev@netty]: App server started <span class="k">in </span>401ms
 
   GET /assets/<span class="k">**</span>           <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>     <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>    <span class="o">(</span>anonymous<span class="o">)</span>
@@ -137,12 +138,12 @@ listening on:
 </code></pre> 
        </div> 
        <h3 id="jooby-run-hot-reload">hot reload</h3> 
-       <p>The plugin bounces the application every time a change is detected on:</p> 
+       <p>The <code class="highlighter-rouge codehilite">jooby:run</code> tool restart the application every time a change is detected on:</p> 
        <ul> 
         <li>classes (*.class)</li> 
         <li>config files (*.conf and *.properties)</li> 
        </ul> 
-       <p>Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled/cached it while running on <code class="highlighter-rouge codehilite">application.env = dev</code>.</p> 
+       <p>Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled or cached while running on <code class="highlighter-rouge codehilite">application.env = dev</code>.</p> 
        <p>It’s worth to mention that dynamic reload of classes is done via <a href="https://github.com/jboss-modules/jboss-modules" target="_blank">JBoss Modules</a>.</p> 
        <h3 id="jooby-run-options">options</h3> 
        <div class="highlighter-rouge codehilite">
@@ -152,12 +153,13 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR5<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR6<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
     <span class="nt">&lt;/commands&gt;</span>
     <span class="nt">&lt;compiler&gt;</span>on<span class="nt">&lt;/compiler&gt;</span>
+    <span class="nt">&lt;fork&gt;</span>false<span class="nt">&lt;/fork&gt;</span>
     <span class="nt">&lt;vmArgs&gt;&lt;/vmArgs&gt;</span>
     <span class="nt">&lt;debug&gt;</span>true<span class="nt">&lt;/debug&gt;</span>
     <span class="nt">&lt;includes&gt;</span>
@@ -208,7 +210,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR5<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR6<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
@@ -219,7 +221,9 @@ listening on:
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre> 
        </div> 
-       <p>Processes will be stopped it on <code class="highlighter-rouge codehilite">CTRL+C</code></p> 
+       <p>All processes are stopped it on <code class="highlighter-rouge codehilite">CTRL+C</code></p> 
+       <h4 id="jooby-run-fork">fork</h4> 
+       <p>Allows running the application in a separate JVM. If false it uses the JVM started by <a href="http://maven.apache.org/" target="_blank">Maven 3+</a>, while if true it will use a new JVM. Default is: <code class="highlighter-rouge codehilite">false</code>.</p> 
        <h4 id="jooby-run-vmArgs">vmArgs</h4> 
        <p>Set one or more <code class="highlighter-rouge codehilite">JVM args</code>:</p> 
        <div class="highlighter-rouge codehilite">
@@ -229,9 +233,10 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR5<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR6<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
+    <span class="nt">&lt;fork&gt;</span>true<span class="nt">&lt;/fork&gt;</span>
     <span class="nt">&lt;vmArgs&gt;</span>
       <span class="nt">&lt;vmArg&gt;</span>-Xms512m<span class="nt">&lt;/vmArg&gt;</span>
       <span class="nt">&lt;vmArg&gt;</span>-Xmx1024m<span class="nt">&lt;/vmArg&gt;</span>
@@ -240,8 +245,45 @@ listening on:
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre> 
        </div> 
+       <p>Make sure to enable the <code class="highlighter-rouge codehilite">fork</code> option too, otherwise <code class="highlighter-rouge codehilite">vmArgs</code> are ignored.</p> 
        <h4 id="jooby-run-includes-excludes">includes / excludes</h4> 
-       <p>List of file patterns to change for file changes.</p> 
+       <p>List of file patterns to listen for file changes.</p> 
+       <h3 id="jooby-run-eclipse">eclipse</h3> 
+       <p>In order to run <code class="highlighter-rouge codehilite">jooby:run</code> from Eclipse follows these steps (no plugin required):</p> 
+       <ul> 
+        <li>Open your pom.xml, go to dependencies section and add:</li> 
+       </ul> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-run<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
+       <p>Make sure to set the <code class="highlighter-rouge codehilite">scope</code> to <code class="highlighter-rouge codehilite">provided</code>, once you add the dependency you need to (re)generate Eclipse metadata with: <code class="highlighter-rouge codehilite">mvn eclipse:clean eclipse:eclipse</code> unless you have the <code class="highlighter-rouge codehilite">m2 eclipse plugin</code> installed.</p> 
+       <ul> 
+        <li> <p>Create a new <code class="highlighter-rouge codehilite">Java Run Configuration</code></p> </li> 
+        <li> <p>Go to <strong>Main</strong> tab and set the <em>Main class</em> to: <code class="highlighter-rouge codehilite">org.jooby.run.Main</code></p> </li> 
+       </ul> 
+       <p><img alt="Eclipse jooby:run" width="75%" src="http://jooby.org/resources/images/eclipse-jooby-run1.png"></p> 
+       <ul> 
+        <li>Go to the <strong>Arguments</strong> tab and set the <em>Program Arguments</em> to:</li> 
+       </ul> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>${project_name} dmox.App deps=${project_classpath}
+</code></pre> 
+       </div> 
+       <p><img alt="Eclipse jooby:run" width="75%" src="http://jooby.org/resources/images/eclipse-jooby-run2.png"></p> 
+       <ul> 
+        <li>That’s all! now run your application as usual and <strong>hotswap</strong> will be available.</li> 
+       </ul> 
       </div> 
      </div> 
     </div> 
