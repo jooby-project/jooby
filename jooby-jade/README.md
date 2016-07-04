@@ -13,7 +13,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-jade</artifactId>
- <version>1.0.0.CR5</version>
+ <version>1.0.0.CR6</version>
 </dependency>
 ```
 

@@ -15,7 +15,7 @@ Provides a client/local API but also a RESTFul API.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-elasticsearch</artifactId>
-  <version>1.0.0.CR5</version>
+  <version>1.0.0.CR6</version>
 </dependency>
 ```
 

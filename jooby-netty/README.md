@@ -12,7 +12,7 @@ NIO web server via [Netty](http://netty.io).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-netty</artifactId>
-  <version>1.0.0.CR5</version>
+  <version>1.0.0.CR6</version>
 </dependency>
 ```
 

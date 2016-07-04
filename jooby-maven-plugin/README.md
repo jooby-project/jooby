@@ -8,12 +8,12 @@
 mvn jooby:run
 ```
 
-You should see something similar:
+Prints something similar to:
 
 ```bash
-Hotswap available on: [myapp/public, myapp/conf, myapp/target/classes]
-  includes: [**/*.class,**/*.conf,**/*.properties]
-  excludes: []
+>>> jooby:run[info|main]: Hotswap available on: /my-app
+>>> jooby:run[info|main]:   includes: [**/*.class,**/*.conf,**/*.properties,*.js, src/*.js]
+>>> jooby:run[info|main]:   excludes: []
 INFO  [2015-03-31 17:47:33,000] [dev@netty]: App server started in 401ms
 
   GET /assets/**           [*/*]     [*/*]    (anonymous)
@@ -25,12 +25,12 @@ listening on:
 
 ## hot reload
 
-The plugin bounces the application every time a change is detected on:
+The ```jooby:run``` tool restart the application every time a change is detected on:
 
 - classes (*.class)
 - config files (*.conf and *.properties)
 
-Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled/cached it while running on ```application.env = dev```.
+Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled or cached while running on ```application.env = dev```.
 
 It's worth to mention that dynamic reload of classes is done via [JBoss Modules](https://github.com/jboss-modules/jboss-modules).
 
@@ -40,12 +40,13 @@ It's worth to mention that dynamic reload of classes is done via [JBoss Modules]
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR5</version>
+  <version>1.0.0.CR6</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
     </commands>
     <compiler>on</compiler>
+    <fork>false</fork>
     <vmArgs></vmArgs>
     <debug>true</debug>
     <includes>
@@ -102,7 +103,7 @@ List of commands to execute before starting the ```application```. Useful for [n
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR5</version>
+  <version>1.0.0.CR6</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -113,7 +114,11 @@ List of commands to execute before starting the ```application```. Useful for [n
 </plugin>
 ```
 
-Processes will be stopped it on ```CTRL+C```
+All processes are stopped it on ```CTRL+C```
+
+### fork
+
+Allows running the application in a separate JVM. If false it uses the JVM started by [Maven 3+](http://maven.apache.org/), while if true it will use a new JVM. Default is: ```false```.
 
 ### vmArgs
 
@@ -123,9 +128,10 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR5</version>
+  <version>1.0.0.CR6</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
+    <fork>true</fork>
     <vmArgs>
       <vmArg>-Xms512m</vmArg>
       <vmArg>-Xmx1024m</vmArg>
@@ -134,6 +140,40 @@ Set one or more ```JVM args```:
 </plugin>
 ```
 
+Make sure to enable the ```fork``` option too, otherwise ```vmArgs``` are ignored.
+
 ### includes / excludes
 
-List of file patterns to change for file changes.
+List of file patterns to listen for file changes.
+
+## eclipse
+
+In order to run ```jooby:run``` from Eclipse follows these steps (no plugin required):
+
+* Open your pom.xml, go to dependencies section and add:
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-run</artifactId>
+  <scope>provided</scope>
+</dependency>
+```
+
+Make sure to set the ```scope``` to ```provided```, once you add the dependency you need to (re)generate Eclipse metadata with: ```mvn eclipse:clean eclipse:eclipse``` unless you have the ```m2 eclipse plugin``` installed.
+
+* Create a new ```Java Run Configuration```
+
+* Go to **Main** tab and set the *Main class* to: ```org.jooby.run.Main```
+
+<img alt="Eclipse jooby:run" width="75%" src="http://jooby.org/resources/images/eclipse-jooby-run1.png">
+
+* Go to the **Arguments** tab and set the *Program Arguments* to:
+
+```
+${project_name} dmox.App deps=${project_classpath}
+```
+
+<img alt="Eclipse jooby:run" width="75%" src="http://jooby.org/resources/images/eclipse-jooby-run2.png">
+
+* That's all! now run your application as usual and **hotswap** will be available.
