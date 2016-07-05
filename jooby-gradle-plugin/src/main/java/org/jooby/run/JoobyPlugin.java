@@ -19,6 +19,7 @@
 package org.jooby.run;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -37,29 +38,27 @@ public class JoobyPlugin implements Plugin<Project> {
 
   @Override
   public void apply(final Project project) {
-    JoobyPluginConvention jettyConvention = new JoobyPluginConvention();
+    Map<String, Object> options = new HashMap<>();
     Convention convention = project.getConvention();
-    convention.getPlugins().put("jooby", jettyConvention);
+    convention.getPlugins().put("joobyRun", options);
 
-    configureJoobyRun(project);
+    try {
+      configureJoobyRun(project, options);
+    } catch (IOException ex) {
+      throw new IllegalStateException("Unable to configure joobyRun", ex);
+    }
   }
 
-  private void configureJoobyRun(final Project project) {
+  private void configureJoobyRun(final Project project, final Map<String, Object> conf)
+      throws IOException {
+
     project.getTasks()
         .withType(JoobyTask.class, joobyRun -> {
           ConventionMapping mapping = joobyRun.getConventionMapping();
-          mapping.map("classpath", () -> {
-            SourceSet sourceSet = getJavaConvention(project).getSourceSets()
-                .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
 
-            Set<File> cp = new LinkedHashSet<>();
-            // conf & public
-            sourceSet.getResources().getSrcDirs().forEach(cp::add);
-            // classes/main, resources/main + jars
-            sourceSet.getRuntimeClasspath().getFiles().forEach(cp::add);
+          mapping.map("classpath", () -> classpath(project));
 
-            return cp;
-          });
+          mapping.map("watchDirs", () -> watchDirs(project));
 
           mapping.map("mainClassName", () -> project.getProperties().get("mainClassName"));
 
@@ -70,10 +69,38 @@ public class JoobyPlugin implements Plugin<Project> {
 
     Map<String, Object> options = new HashMap<>();
     options.put(Task.TASK_TYPE, JoobyTask.class);
-    options.put(Task.TASK_DEPENDS_ON, new String[]{"processResources", "compileJava" });
+    options.put(Task.TASK_DEPENDS_ON, "classes");
     options.put(Task.TASK_NAME, "joobyRun");
     options.put(Task.TASK_GROUP, "jooby");
     project.getTasks().create(options);
+  }
+
+  private Set<File> classpath(final Project project) {
+    SourceSet sourceSet = sourceSet(project);
+
+    Set<File> cp = new LinkedHashSet<>();
+    // conf & public
+    sourceSet.getResources().getSrcDirs().forEach(cp::add);
+    // classes/main, resources/main + jars
+    sourceSet.getRuntimeClasspath().getFiles().forEach(cp::add);
+    return cp;
+  }
+
+  private Set<File> watchDirs(final Project project) {
+    SourceSet sourceSet = sourceSet(project);
+
+    Set<File> cp = new LinkedHashSet<>();
+    // conf & public
+    sourceSet.getResources().getSrcDirs().forEach(cp::add);
+    // source java
+    sourceSet.getJava().getSrcDirs().forEach(cp::add);
+    return cp;
+  }
+
+  private SourceSet sourceSet(final Project project) {
+    SourceSet sourceSet = getJavaConvention(project).getSourceSets()
+        .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    return sourceSet;
   }
 
   public JavaPluginConvention getJavaConvention(final Project project) {

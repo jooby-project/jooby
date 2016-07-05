@@ -51,8 +51,8 @@ public class AppModuleLoader extends ModuleLoader {
 
   @Override
   protected ModuleSpec findModule(final ModuleIdentifier moduleId) throws ModuleLoadException {
-    ModuleSpec mod = modules.get(moduleId);
-    return mod == null ? super.findModule(moduleId) : mod;
+    ModuleSpec spec = modules.get(moduleId);
+    return spec == null ? super.findModule(moduleId) : spec;
   }
 
   public void unload(final Module module) {
@@ -62,12 +62,15 @@ public class AppModuleLoader extends ModuleLoader {
   /**
    * Build a flat jboss module, with some minor exceptions (like j2v8).
    *
+   * @param envLoader
+   *
    * @param name module name.
    * @param cp
    * @return
    * @throws Exception
    */
-  public static AppModuleLoader build(final String name, final File... cp) throws Exception {
+  public static AppModuleLoader build(final String name,
+      final File... cp) throws Exception {
     Map<ModuleIdentifier, ModuleSpec> modules = newModule(name, 0, "", cp);
     return new AppModuleLoader(modules);
   }

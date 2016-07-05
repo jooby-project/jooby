@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -69,6 +70,8 @@ public class Main {
   private ModuleIdentifier mId;
   private String mainClass;
   private volatile Module module;
+  private List<String> args;
+  private AtomicBoolean starting = new AtomicBoolean(false);
 
   public Main(final String mId, final String mainClass, final File... cp)
       throws Exception {
@@ -145,17 +148,19 @@ public class Main {
     }
   }
 
-  public void run() {
-    run(false);
+  public void run(final String... args) {
+    run(false, args);
   }
 
-  public void run(final boolean block) {
+  public void run(final boolean block, final String... args) {
     info("Hotswap available on: %s", basedir.getPath());
     info("  includes: %s", includes);
     info("  excludes: %s", excludes);
 
     this.scanner.start();
-    this.startApp();
+    this.args = new ArrayList<>(Arrays.asList(args));
+    this.args.add("server.join=false");
+    this.startApp(this.args);
 
     if (block) {
       Object lock = new Object();
@@ -171,12 +176,16 @@ public class Main {
   }
 
   @SuppressWarnings("rawtypes")
-  private void startApp() {
+  private void startApp(final List<String> args) {
+    if (starting.get()) {
+      return;
+    }
     if (app != null) {
       stopApp(app);
     }
+    starting.set(true);
     debug("scheduling: %s", mainClass);
-    executor.execute(() -> {
+    executor.submit(() -> {
       ClassLoader ctxLoader = Thread.currentThread().getContextClassLoader();
       try {
         module = loader.loadModule(mId);
@@ -195,8 +204,10 @@ public class Main {
               .getDeclaredConstructors()[0].newInstance();
         }
         debug("starting: %s", mainClass);
-        Method joobyRun = app.getClass().getMethod("start");
-        joobyRun.invoke(this.app);
+        Method joobyRun = app.getClass().getMethod("start", String[].class);
+        Object p = args.toArray(new String[args.size()]);
+        joobyRun.invoke(this.app, p);
+        debug("started: %s", mainClass);
       } catch (Throwable ex) {
         Throwable cause = ex;
         if (ex instanceof InvocationTargetException) {
@@ -204,6 +215,7 @@ public class Main {
         }
         error("%s.start() resulted in error", mainClass, cause);
       } finally {
+        starting.set(false);
         Thread.currentThread().setContextClassLoader(ctxLoader);
       }
     });
@@ -250,7 +262,7 @@ public class Main {
       if (!hash.getAndSet(h).equals(h)) {
         debug("File change detected: %s", path);
         // reload
-        startApp();
+        startApp(args);
       } else {
         debug("Ignoring change: %s", path);
       }

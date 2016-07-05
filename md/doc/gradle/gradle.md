@@ -64,7 +64,7 @@ sourceSets.main.resources {
 
 - **Compiling the application** can be done as usual with `gradle build`.
 
-- **Running the application** can be done as usual with `gradle joobyRun`.
+- **Running the application** can be done with `gradle joobyRun`.
 
 ## What does not work
 
