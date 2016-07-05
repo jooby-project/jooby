@@ -163,13 +163,19 @@ public class AssetCompiler {
       log.info("compiling {}:", fset);
 
       String css = compile(pipeline, files.stream().filter(styles).iterator(), MediaType.css, "");
-      Path pcss = Paths.get(patterns(styles).findFirst().get(), fset + "." + sha1(css) + ".css");
+      Path cssSha1 = Paths.get(fset + "." + sha1(css) + ".css");
+      Path pcss = patterns(styles).findFirst()
+          .map(p -> Paths.get(p).resolve(cssSha1))
+          .orElse(cssSha1);
       File fcss = dir.toPath().resolve(pcss).toFile();
       fcss.getParentFile().mkdirs();
       Files.write(css, fcss, charset);
 
       String js = compile(pipeline, files.stream().filter(scripts).iterator(), MediaType.js, ";");
-      Path pjs = Paths.get(patterns(scripts).findFirst().get(), fset + "." + sha1(js) + ".js");
+      Path jsSha1 = Paths.get(fset + "." + sha1(js) + ".css");
+      Path pjs = patterns(styles).findFirst()
+          .map(p -> Paths.get(p).resolve(jsSha1))
+          .orElse(jsSha1);
       File fjs = dir.toPath().resolve(pjs).toFile();
       fjs.getParentFile().mkdirs();
       Files.write(js, fjs, charset);

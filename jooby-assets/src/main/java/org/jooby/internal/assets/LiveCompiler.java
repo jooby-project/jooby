@@ -63,8 +63,9 @@ public class LiveCompiler implements Route.Handler {
     } catch (AssetException ex) {
       lastErr.set(rewrite(ex));
     } catch (Exception ex) {
-      lastErr.set(rewrite(new AssetException("compiler",
-          new AssetProblem(path.toString(), -1, -1, ex.getMessage(), null))));
+      AssetException assetEx = rewrite(new AssetException("compiler",
+          new AssetProblem(path.toString(), -1, -1, ex.getMessage(), null), ex));
+      lastErr.set(assetEx);
     }
   }
 

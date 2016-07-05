@@ -46,7 +46,18 @@ public class AssetException extends RuntimeException implements Supplier<String>
    * @param problem Asset problem.
    */
   public AssetException(final String id, final AssetProblem problem) {
-    this(id, ImmutableList.of(problem));
+    this(id, problem, null);
+  }
+
+  /**
+   * Creates a new {@link AssetException}.
+   *
+   * @param id Processor id.
+   * @param problem Asset problem.
+   * @param cause Cause (might be null).
+   */
+  public AssetException(final String id, final AssetProblem problem, final Throwable cause) {
+    this(id, ImmutableList.of(problem), cause);
   }
 
   /**
@@ -56,8 +67,20 @@ public class AssetException extends RuntimeException implements Supplier<String>
    * @param problems Asset problems.
    */
   public AssetException(final String id, final List<AssetProblem> problems) {
-    super(requireNonNull(problems, "The problems is required.").stream().map(AssetProblem::toString)
-        .collect(Collectors.joining("\n", "\t", "")));
+    this(id, problems, null);
+  }
+
+  /**
+   * Creates a new {@link AssetException}.
+   *
+   * @param id Processor id.
+   * @param problems Asset problems.
+   * @param cause Cause (might be null).
+   */
+  public AssetException(final String id, final List<AssetProblem> problems, final Throwable cause) {
+    super(requireNonNull(problems, "Problems is required.").stream()
+        .map(AssetProblem::toString)
+        .collect(Collectors.joining("\n", "\t", "")), cause);
     this.id = id;
     this.problems = problems;
   }
