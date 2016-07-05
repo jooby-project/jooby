@@ -32,6 +32,18 @@
   </build>
 
   <dependencies>
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-assets</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-spec</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- jooby:run -->
     <dependency>
       <groupId>org.jooby</groupId>

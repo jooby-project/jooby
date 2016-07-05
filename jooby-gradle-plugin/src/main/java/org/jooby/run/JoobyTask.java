@@ -59,7 +59,7 @@ public class JoobyTask extends ConventionTask {
 
   private Set<File> classpath;
 
-  private Set<File> watchDirs;
+  private Set<File> src;
 
   private String mainClassName;
 
@@ -85,7 +85,7 @@ public class JoobyTask extends ConventionTask {
       app.excludes(excludes.stream().collect(Collectors.joining(File.pathSeparator)));
     }
 
-    Path[] watchDirs = getWatchDirs().stream()
+    Path[] watchDirs = getSrc().stream()
         .map(File::toPath)
         .collect(Collectors.toList())
         .toArray(new Path[0]);
@@ -189,11 +189,11 @@ public class JoobyTask extends ConventionTask {
     this.mainClassName = mainClassName;
   }
 
-  public Set<File> getWatchDirs() {
-    return watchDirs;
+  public Set<File> getSrc() {
+    return src;
   }
 
-  public void setWatchDirs(final Set<File> watchDirs) {
-    this.watchDirs = watchDirs;
+  public void setSrc(final Set<File> watchDirs) {
+    this.src = watchDirs;
   }
 }

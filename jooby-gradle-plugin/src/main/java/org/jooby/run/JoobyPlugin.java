@@ -21,9 +21,7 @@ package org.jooby.run;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -31,10 +29,16 @@ import org.gradle.api.Task;
 import org.gradle.api.internal.ConventionMapping;
 import org.gradle.api.invocation.Gradle;
 import org.gradle.api.plugins.Convention;
-import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.tasks.SourceSet;
 
 public class JoobyPlugin implements Plugin<Project> {
+
+  static {
+    // Gradle hack: OS j2v8 dependency
+    String family = os(System.getProperty("os.name", "").toLowerCase());
+    String arch = osarch(System.getProperty("os.arch", "").toLowerCase());
+    Object j2v8 = "j2v8_" + family + "_" + arch;
+    System.getProperties().put("j2v8", j2v8);
+  }
 
   @Override
   public void apply(final Project project) {
@@ -47,18 +51,43 @@ public class JoobyPlugin implements Plugin<Project> {
     } catch (IOException ex) {
       throw new IllegalStateException("Unable to configure joobyRun", ex);
     }
+
+    configureJoobyAssets(project, options);
+
+  }
+
+  private static String os(final String os) {
+    if (os.contains("windows")) {
+      return "win32";
+    } else if (os.contains("linux")) {
+
+      return "linux";
+    } else if (os.contains("mac")) {
+      return "macosx";
+    }
+    return os;
+  }
+
+  private static String osarch(final String arch) {
+    if (arch.contains("x86_64")) {
+      return "x86_64";
+    } else if (arch.contains("x86")) {
+      return "x86";
+    } else if (arch.contains("amd64")) {
+      return "amd64";
+    }
+    return arch;
   }
 
   private void configureJoobyRun(final Project project, final Map<String, Object> conf)
       throws IOException {
-
     project.getTasks()
         .withType(JoobyTask.class, joobyRun -> {
           ConventionMapping mapping = joobyRun.getConventionMapping();
 
-          mapping.map("classpath", () -> classpath(project));
+          mapping.map("classpath", () -> new JoobyProject(project).classpath());
 
-          mapping.map("watchDirs", () -> watchDirs(project));
+          mapping.map("src", () -> new JoobyProject(project).sources());
 
           mapping.map("mainClassName", () -> project.getProperties().get("mainClassName"));
 
@@ -71,39 +100,33 @@ public class JoobyPlugin implements Plugin<Project> {
     options.put(Task.TASK_TYPE, JoobyTask.class);
     options.put(Task.TASK_DEPENDS_ON, "classes");
     options.put(Task.TASK_NAME, "joobyRun");
+    options.put(Task.TASK_DESCRIPTION, "Run, debug and hot reload applications");
     options.put(Task.TASK_GROUP, "jooby");
     project.getTasks().create(options);
   }
 
-  private Set<File> classpath(final Project project) {
-    SourceSet sourceSet = sourceSet(project);
+  private void configureJoobyAssets(final Project project, final Map<String, Object> conf) {
+    project.getTasks()
+        .withType(AssetTask.class, task -> {
+          ConventionMapping mapping = task.getConventionMapping();
 
-    Set<File> cp = new LinkedHashSet<>();
-    // conf & public
-    sourceSet.getResources().getSrcDirs().forEach(cp::add);
-    // classes/main, resources/main + jars
-    sourceSet.getRuntimeClasspath().getFiles().forEach(cp::add);
-    return cp;
-  }
+          mapping.map("env", () -> "dist");
 
-  private Set<File> watchDirs(final Project project) {
-    SourceSet sourceSet = sourceSet(project);
+          mapping.map("maxAge", () -> "365d");
 
-    Set<File> cp = new LinkedHashSet<>();
-    // conf & public
-    sourceSet.getResources().getSrcDirs().forEach(cp::add);
-    // source java
-    sourceSet.getJava().getSrcDirs().forEach(cp::add);
-    return cp;
-  }
+          mapping.map("mainClassName", () -> project.getProperties().get("mainClassName"));
 
-  private SourceSet sourceSet(final Project project) {
-    SourceSet sourceSet = getJavaConvention(project).getSourceSets()
-        .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    return sourceSet;
-  }
+          mapping.map("output", () -> new JoobyProject(project).buildResources());
 
-  public JavaPluginConvention getJavaConvention(final Project project) {
-    return project.getConvention().getPlugin(JavaPluginConvention.class);
+          mapping.map("assemblyOutput", () -> new File(project.getBuildDir(), "__public_"));
+        });
+
+    Map<String, Object> options = new HashMap<>();
+    options.put(Task.TASK_TYPE, AssetTask.class);
+    options.put(Task.TASK_DEPENDS_ON, "classes");
+    options.put(Task.TASK_NAME, "joobyAssets");
+    options.put(Task.TASK_DESCRIPTION, "Process, optimize and compress static files");
+    options.put(Task.TASK_GROUP, "jooby");
+    project.getTasks().create(options);
   }
 }
