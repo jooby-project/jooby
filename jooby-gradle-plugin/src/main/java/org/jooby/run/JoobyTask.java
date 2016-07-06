@@ -63,6 +63,8 @@ public class JoobyTask extends ConventionTask {
 
   private String mainClassName;
 
+  private String compiler;
+
   @TaskAction
   public void run() throws Exception {
     System.setProperty("logLevel", getLogLevel());
@@ -85,19 +87,23 @@ public class JoobyTask extends ConventionTask {
       app.excludes(excludes.stream().collect(Collectors.joining(File.pathSeparator)));
     }
 
-    Path[] watchDirs = getSrc().stream()
-        .map(File::toPath)
-        .collect(Collectors.toList())
-        .toArray(new Path[0]);
-    // don't start watcher if continuous is ON
-    new Watcher((k, path) -> {
-      if (path.toString().endsWith(".java")) {
-        runTask(project, path, "classes");
-      } else if (path.toString().endsWith(".conf")
-          || path.toString().endsWith(".properties")) {
-        runTask(project, path, "classes");
-      }
-    }, watchDirs).start();
+    String compiler = getCompiler();
+    getLogger().info("compiler is {}", compiler);
+    if ("on".equalsIgnoreCase(compiler)) {
+      Path[] watchDirs = getSrc().stream()
+          .map(File::toPath)
+          .collect(Collectors.toList())
+          .toArray(new Path[0]);
+      // don't start watcher if continuous is ON
+      new Watcher((k, path) -> {
+        if (path.toString().endsWith(".java")) {
+          runTask(project, path, "classes");
+        } else if (path.toString().endsWith(".conf")
+            || path.toString().endsWith(".properties")) {
+          runTask(project, path, "classes");
+        }
+      }, watchDirs).start();
+    }
 
     String[] args = project.getGradle().getStartParameter().getProjectProperties()
         .entrySet().stream().map(e -> e.toString()).collect(Collectors.toList())
@@ -113,18 +119,20 @@ public class JoobyTask extends ConventionTask {
         // clean jaxp
         XML_PROPS.forEach(p -> xml.put(p, (String) System.getProperties().remove(p)));
 
-        System.out.printf("Change detected: %s%n", path);
         connection = GradleConnector.newConnector()
             .useInstallation(project.getGradle().getGradleHomeDir())
-            .useGradleUserHomeDir(project.getGradle().getGradleUserHomeDir())
             .forProjectDirectory(project.getRootDir())
             .connect();
 
-        connection.newBuild()
-            .forTasks(task)
-            .setStandardError(System.err)
-            .setStandardOutput(System.out)
-            .run();
+        try {
+          connection.newBuild()
+              .setStandardError(System.err)
+              .setStandardOutput(System.out)
+              .forTasks(task)
+              .run();
+        } catch (Exception ex) {
+          getLogger().debug("Execution of " + task + " resulted in exception", ex);
+        }
 
       } finally {
         // restore jaxp
@@ -195,5 +203,13 @@ public class JoobyTask extends ConventionTask {
 
   public void setSrc(final Set<File> watchDirs) {
     this.src = watchDirs;
+  }
+
+  public String getCompiler() {
+    return compiler;
+  }
+
+  public void setCompiler(final String compiler) {
+    this.compiler = compiler;
   }
 }

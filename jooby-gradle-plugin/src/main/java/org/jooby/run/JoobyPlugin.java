@@ -64,6 +64,11 @@ public class JoobyPlugin implements Plugin<Project> {
 
           mapping.map("mainClassName", () -> project.getProperties().get("mainClassName"));
 
+          mapping.map("compiler", () -> {
+            File eclipseClasspath = new File(project.getProjectDir(), ".classpath");
+            return eclipseClasspath.exists() ? "off" : "on";
+          });
+
           Gradle gradle = project.getGradle();
           mapping.map("block", () -> !gradle.getStartParameter().isContinuous());
           mapping.map("logLevel", () -> gradle.getStartParameter().getLogLevel().name());
