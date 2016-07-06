@@ -64,7 +64,13 @@ sourceSets.main.resources {
 
 - **Compiling the application** can be done as usual with `gradle build`.
 
-- **Running the application** can be done with `gradle joobyRun`.
+- **Running/Hotreload the application** can be done with `gradle joobyRun`.
+
+- **Asset processing** can be done with `gradle joobyAssets`. See [assets module](https://github.com/jooby-project/jooby/tree/master/jooby-assets)
+
+- **Route Spec** can be done with `gradle joobySpec`. See [route spec](https://github.com/jooby-project/jooby/tree/master/jooby-spec) 
+
+For more details please read the [gradle-plugin](https://github.com/jooby-project/jooby/tree/master/jooby-gradle-plugin) documentation
 
 ## What does not work
 
