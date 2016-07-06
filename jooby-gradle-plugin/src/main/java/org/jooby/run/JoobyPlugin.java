@@ -28,7 +28,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.internal.ConventionMapping;
 import org.gradle.api.invocation.Gradle;
-import org.gradle.api.plugins.Convention;
 
 public class JoobyPlugin implements Plugin<Project> {
 
@@ -42,45 +41,19 @@ public class JoobyPlugin implements Plugin<Project> {
 
   @Override
   public void apply(final Project project) {
-    Map<String, Object> options = new HashMap<>();
-    Convention convention = project.getConvention();
-    convention.getPlugins().put("joobyRun", options);
-
     try {
-      configureJoobyRun(project, options);
+      configureJoobyRun(project);
     } catch (IOException ex) {
       throw new IllegalStateException("Unable to configure joobyRun", ex);
     }
 
-    configureJoobyAssets(project, options);
+    configureJoobyAssets(project);
+
+    configureJoobySpec(project);
 
   }
 
-  private static String os(final String os) {
-    if (os.contains("windows")) {
-      return "win32";
-    } else if (os.contains("linux")) {
-
-      return "linux";
-    } else if (os.contains("mac")) {
-      return "macosx";
-    }
-    return os;
-  }
-
-  private static String osarch(final String arch) {
-    if (arch.contains("x86_64")) {
-      return "x86_64";
-    } else if (arch.contains("x86")) {
-      return "x86";
-    } else if (arch.contains("amd64")) {
-      return "amd64";
-    }
-    return arch;
-  }
-
-  private void configureJoobyRun(final Project project, final Map<String, Object> conf)
-      throws IOException {
+  private void configureJoobyRun(final Project project) throws IOException {
     project.getTasks()
         .withType(JoobyTask.class, joobyRun -> {
           ConventionMapping mapping = joobyRun.getConventionMapping();
@@ -105,7 +78,7 @@ public class JoobyPlugin implements Plugin<Project> {
     project.getTasks().create(options);
   }
 
-  private void configureJoobyAssets(final Project project, final Map<String, Object> conf) {
+  private void configureJoobyAssets(final Project project) {
     project.getTasks()
         .withType(AssetTask.class, task -> {
           ConventionMapping mapping = task.getConventionMapping();
@@ -128,5 +101,47 @@ public class JoobyPlugin implements Plugin<Project> {
     options.put(Task.TASK_DESCRIPTION, "Process, optimize and compress static files");
     options.put(Task.TASK_GROUP, "jooby");
     project.getTasks().create(options);
+  }
+
+  private void configureJoobySpec(final Project project) {
+    project.getTasks()
+        .withType(SpecTask.class, task -> {
+          ConventionMapping mapping = task.getConventionMapping();
+
+          mapping.map("mainClassName", () -> project.getProperties().get("mainClassName"));
+
+          mapping.map("source", () -> new JoobyProject(project).javaSrc());
+        });
+
+    Map<String, Object> options = new HashMap<>();
+    options.put(Task.TASK_TYPE, SpecTask.class);
+    options.put(Task.TASK_DEPENDS_ON, "classes");
+    options.put(Task.TASK_NAME, "joobySpec");
+    options.put(Task.TASK_DESCRIPTION, "Export your API/microservices outside a Jooby application");
+    options.put(Task.TASK_GROUP, "jooby");
+    project.getTasks().create(options);
+  }
+
+  private static String os(final String os) {
+    if (os.contains("windows")) {
+      return "win32";
+    } else if (os.contains("linux")) {
+
+      return "linux";
+    } else if (os.contains("mac")) {
+      return "macosx";
+    }
+    return os;
+  }
+
+  private static String osarch(final String arch) {
+    if (arch.contains("x86_64")) {
+      return "x86_64";
+    } else if (arch.contains("x86")) {
+      return "x86";
+    } else if (arch.contains("amd64")) {
+      return "amd64";
+    }
+    return arch;
   }
 }

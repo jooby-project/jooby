@@ -33,26 +33,22 @@
 package org.jooby.run;
 
 import java.net.URLClassLoader;
-import java.util.List;
 import java.util.function.Consumer;
 
 import org.gradle.api.Project;
 import org.jooby.Jooby;
-import org.jooby.Route;
 
-public class JoobyRunner {
+/**
+ * Run a jooby app using a custom class loader.
+ *
+ * @author edgar
+ */
+public class JoobyContainer {
 
   private JoobyProject project;
 
-  private Consumer<List<Route.Definition>> routes;
-
-  public JoobyRunner(final Project project) {
+  public JoobyContainer(final Project project) {
     this.project = new JoobyProject(project);
-  }
-
-  public JoobyRunner with(final Consumer<List<Route.Definition>> callback) {
-    this.routes = callback;
-    return this;
   }
 
   public void run(final String mainClass, final Consumer<Jooby> callback, final String... args)
@@ -62,7 +58,7 @@ public class JoobyRunner {
       Thread.currentThread().setContextClassLoader(local);
       Jooby app = (Jooby) local.loadClass(mainClass).newInstance();
       callback.accept(app);
-      app.start(args, routes);
+      app.start(args);
     } finally {
       Thread.currentThread().setContextClassLoader(global);
     }

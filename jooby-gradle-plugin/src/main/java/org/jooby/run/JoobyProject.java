@@ -96,6 +96,13 @@ public class JoobyProject {
     return src;
   }
 
+  public File javaSrc() {
+    SourceSet sourceSet = sourceSet(project);
+
+    // source java
+    return sourceSet.getJava().getSrcDirs().iterator().next();
+  }
+
   private SourceSet sourceSet(final Project project) {
     SourceSet sourceSet = getJavaConvention(project).getSourceSets()
         .getByName(SourceSet.MAIN_SOURCE_SET_NAME);

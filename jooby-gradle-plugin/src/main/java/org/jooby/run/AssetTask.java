@@ -81,7 +81,7 @@ public class AssetTask extends ConventionTask {
       // Hack and bind jooby env.
       String env = getEnv();
       this.assetFile = new File(getOutput(), "assets." + env + ".conf");
-      new JoobyRunner(getProject())
+      new JoobyContainer(getProject())
           .run(getMainClassName(), app -> {
             app.on("*",
                 compile(getLogger(), app.getClass().getClassLoader(), env, getMaxAge(), getOutput(),
