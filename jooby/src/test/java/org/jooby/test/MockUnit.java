@@ -8,15 +8,19 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.powermock.api.easymock.PowerMock;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 @SuppressWarnings({"rawtypes", "unchecked" })
 public class MockUnit {
@@ -61,11 +65,11 @@ public class MockUnit {
 
   private List<Object> partialMocks = new LinkedList<>();
 
-  private Map<Class, Object> globalMock = new LinkedHashMap<>();
+  private Multimap<Class, Object> globalMock = ArrayListMultimap.create();
 
   private Map<Class, List<Capture<Object>>> captures = new LinkedHashMap<>();
 
-  private List<Class> mockClasses = new LinkedList<>();
+  private Set<Class> mockClasses = new LinkedHashSet<>();
 
   private List<Block> blocks = new LinkedList<>();
 
@@ -167,7 +171,19 @@ public class MockUnit {
   }
 
   public <T> T get(final Class<T> type) {
-    return (T) requireNonNull(globalMock.get(type), "Mock not found: " + type);
+    try {
+      List<Object> collection = (List<Object>) requireNonNull(globalMock.get(type));
+      T m = (T) collection.get(collection.size() - 1);
+      return m;
+    } catch (ArrayIndexOutOfBoundsException ex) {
+      throw new IllegalStateException("Not found: " + type);
+    }
+  }
+
+  public <T> T first(final Class<T> type) {
+    List<Object> collection = (List<Object>) requireNonNull(globalMock.get(type),
+        "Mock not found: " + type);
+    return (T) collection.get(0);
   }
 
   public MockUnit expect(final Block block) {

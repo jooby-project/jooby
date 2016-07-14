@@ -23,16 +23,21 @@ The ```name``` attribute and value will be stored in a {{mongodb}}.
 By default, a mongodb session will expire after ```30 minutes```. Changing the default timeout is as simple as:
 
 ```properties
+
 # 8 hours
+
 session.timeout = 8h
 
 # 15 seconds
+
 session.timeout = 15
 
 # 120 minutes
+
 session.timeout = 120m
 
 # no timeout
+
 session.timeout = -1
 ```
 

@@ -8,40 +8,60 @@ Let's see what modules are available:
 
 # jdbc
 
+## hikari connection pool
+
 The [jdbc](/doc/jdbc) module provides a high performance connection pool for jdbc via {{hikari}}.
 
-## mapping tools
+## Ebean
 
-* [ebean](/doc/ebean): object relational mapping via {{ebean}}.
+The [ebean](/doc/ebean) module provides object relational mapping via {{ebean}}.
 
-* [hibernate](/doc/hbm): object relational mapping via {{hibernate}}.
+## Hibernate
 
-* [hibernate validator](/doc/hbv): bean validation.
+The [hibernate](/doc/hbm) module provides object relational mapping via {{hibernate}}.
 
-* [jdbi](/doc/jdbi): is fluent and lightweight SQL library for *jdbc*.
+The [hibernate validator](/doc/hbv) provides bean validation.
 
-* [jOOQ](/doc/jooq): lets you build type safe SQL queries through its fluent API.
+## jdbi
 
-* [querydsl](/doc/querydsl): unified Queries for SQL. [Querydsl](http://www.querydsl.com/) is compact, safe and easy to learn.
+The [jdbi](/doc/jdbi) module provides a fluent and lightweight SQL library for *jdbc*.
 
-* [querydsl-jpa](/doc/querydsl-jpa): unified Queries for JPA. [Querydsl](http://www.querydsl.com/) is compact, safe and easy to learn.
+## jooq
 
-* [rxjdbc](/doc/rxjava-jdbc): efficient execution, concise code, and functional composition of database calls using JDBC and RxJava Observable
+The [jOOQ](/doc/jooq) module lets you build type safe SQL queries through its fluent API.
 
-## migrations
+## querydsl
 
-* [flyway](/doc/flyway): provides database migrations via {{flyway}}.
+The [querydsl](/doc/querydsl) module provides unified Queries for SQL. [Querydsl](http://www.querydsl.com/) is compact, safe and easy to learn.
 
-# mongodb
+The [querydsl-jpa](/doc/querydsl-jpa) provides unified Queries for JPA. [Querydsl](http://www.querydsl.com/) is compact, safe and easy to learn.
 
-The [mongodb](/doc/mongodb) provides access to {{mongodb}} instances.
+## rxjdbc
 
-## mapping tools
+The [rxjdbc](/doc/rxjava-jdbc) provides efficient execution, concise code, and functional composition of database calls using JDBC and RxJava Observable
 
-* [jongo](/doc/jongo): Query in Java as in Mongo Shell.
+## flyway (database migration)
 
-* [morphia](/doc/morphia): object to document mapper via {{morphia}}.
+The [flyway](/doc/flyway) module provides database migrations via {{flyway}}.
 
-## async / reactive
+# NoSQL
 
-* [mongodb-rx](/doc/mongodb-rx): provides composable asynchronous and event-based observable sequences for {{mongodb}}.
+## couchbase
+
+The [couchbase](/doc/couchbase) module provides access to {{couchbase}} instances.
+
+## mongodb
+
+The [mongodb](/doc/mongodb) module provides access to {{mongodb}} instances.
+
+## jongo
+
+The [jongo](/doc/jongo) module provides query in Java as in Mongo Shell.
+
+## morphia
+
+The [morphia](/doc/morphia) module provides object to document mapper via {{morphia}}.
+
+## mongodb-rx
+
+The [mongodb-rx](/doc/mongodb-rx) module provides composable asynchronous and event-based observable sequences for {{mongodb}}.

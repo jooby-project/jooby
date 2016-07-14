@@ -82,6 +82,7 @@
     <module>jooby-reactor</module>
     <module>jooby-whoops</module>
     <module>jooby-gradle-plugin</module>
+    <module>jooby-couchbase</module>
     <module>coverage-report</module>
   </modules>
 
@@ -502,11 +503,23 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-couchbase</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
       <!-- bson4jackon -->
       <dependency>
         <groupId>de.undercouch</groupId>
         <artifactId>bson4jackson</artifactId>
         <version>${bson4jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.couchbase.client</groupId>
+        <artifactId>java-client</artifactId>
+        <version>${couchbase-client.version}</version>
       </dependency>
 
       <!-- Logging System -->
@@ -2349,6 +2362,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <jsitemapgenerator.version>2.1</jsitemapgenerator.version>
 
     <jfiglet.version>0.0.7</jfiglet.version>
+    <couchbase-client.version>2.3.1</couchbase-client.version>
 
     <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
 

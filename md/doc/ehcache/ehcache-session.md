@@ -8,6 +8,7 @@ you have to do is define a ```session``` cache:
 ```properties
 ehcache.cache.session {
   # cache will expire after 30 minutes of inactivity
+
   timeToIdle = 30m
 }
 ```

@@ -62,12 +62,10 @@ public class AppModuleLoader extends ModuleLoader {
   /**
    * Build a flat jboss module, with some minor exceptions (like j2v8).
    *
-   * @param envLoader
-   *
    * @param name module name.
-   * @param cp
-   * @return
-   * @throws Exception
+   * @param cp Classpath.
+   * @return A new app module loader.
+   * @throws Exception If something goes wrong.
    */
   public static AppModuleLoader build(final String name,
       final File... cp) throws Exception {
