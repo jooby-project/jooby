@@ -45,7 +45,7 @@ public class AuthLogout implements Route.Handler {
 
   @SuppressWarnings("unchecked")
   @Override
-  public void handle(final Request req, final Response rsp) throws Exception {
+  public void handle(final Request req, final Response rsp) throws Throwable {
     // DON'T create a session for JWT/param/header auth (a.k.a stateless)
     Optional<Session> ifSession = req.ifSession();
     if (ifSession.isPresent()) {

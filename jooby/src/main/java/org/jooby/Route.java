@@ -38,7 +38,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.jooby.internal.DeferredExecution;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMatcher;
 import org.jooby.internal.RoutePattern;
@@ -1906,13 +1905,8 @@ public interface Route {
   interface After extends Filter {
     @Override
     default void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
-      chain.next(req, new Response.Forwarding(rsp) {
-
-        @Override
-        public void send(final Result result) throws Throwable {
-          super.send(handle(req, rsp, result));
-        }
-      });
+      rsp.push(this);
+      chain.next(req, rsp);
     }
 
     /**
@@ -2034,18 +2028,8 @@ public interface Route {
 
     @Override
     default void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
-      Optional<Throwable> err = Optional.empty();
-      try {
-        chain.next(req, rsp);
-      } catch (DeferredExecution ex) {
-        // try it as success
-        throw ex;
-      } catch (Throwable cause) {
-        err = Optional.of(cause);
-        throw cause;
-      } finally {
-        handle(req, rsp, err);
-      }
+      rsp.push(this);
+      chain.next(req, rsp);
     }
 
     /**

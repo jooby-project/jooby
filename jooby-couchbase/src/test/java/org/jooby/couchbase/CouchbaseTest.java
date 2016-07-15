@@ -149,13 +149,10 @@ public class CouchbaseTest {
     Config conf = ConfigFactory.empty()
         .withValue("couchbase.env.kvEndpoints", ConfigValueFactory.fromAnyRef(5));
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(setProperty(bucket))
         .expect(unit -> {
           Config mock = unit.get(Config.class);
           expect(mock.hasPath("couchbase.env")).andReturn(true);
           expect(mock.getConfig("couchbase.env")).andReturn(conf.getConfig("couchbase.env"));
-
-          expect(System.setProperty("com.couchbase.kvEndpoints", "5")).andReturn(null);
         })
         .expect(createEnv)
         .expect(bindEnv)
@@ -194,6 +191,7 @@ public class CouchbaseTest {
         .run(unit -> {
           new Couchbase("couchbase://localhost/" + bucket)
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+          assertEquals("5", System.getProperty("com.couchbase.kvEndpoints"));
         });
   }
 

@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,8 @@ import org.jooby.Response;
 import org.jooby.Result;
 import org.jooby.Results;
 import org.jooby.Route;
+import org.jooby.Route.After;
+import org.jooby.Route.Complete;
 import org.jooby.Status;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeResponse;
@@ -79,10 +82,17 @@ public class ResponseImpl implements Response {
 
   private Map<String, Renderer> rendererMap;
 
-  public ResponseImpl(final ParserExecutor parserExecutor,
+  private List<Route.After> after = new ArrayList<>();
+
+  private List<Route.Complete> complete = new ArrayList<>();
+
+  private RequestImpl req;
+
+  public ResponseImpl(final RequestImpl req, final ParserExecutor parserExecutor,
       final NativeResponse rsp, final Route route, final List<Renderer> renderers,
       final Map<String, Renderer> rendererMap, final Map<String, Object> locals,
       final Charset charset, final Optional<String> referer) {
+    this.req = req;
     this.parserExecutor = parserExecutor;
     this.rsp = rsp;
     this.route = route;
@@ -94,7 +104,7 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public void download(final String filename, final InputStream stream) throws Exception {
+  public void download(final String filename, final InputStream stream) throws Throwable {
     requireNonNull(filename, "A file's name is required.");
     requireNonNull(stream, "A stream is required.");
 
@@ -107,7 +117,7 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public void download(final String filename, final String location) throws Exception {
+  public void download(final String filename, final String location) throws Throwable {
     URL url = getClass().getResource(location.startsWith("/") ? location : "/" + location);
     if (url == null) {
       throw new FileNotFoundException(location);
@@ -199,7 +209,7 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public void redirect(final Status status, final String location) throws Exception {
+  public void redirect(final Status status, final String location) throws Throwable {
     requireNonNull(status, "A status is required.");
     requireNonNull(location, "A location is required.");
 
@@ -221,6 +231,14 @@ public class ResponseImpl implements Response {
   @Override
   public boolean committed() {
     return rsp.committed();
+  }
+
+  public void done(final Optional<Throwable> cause) {
+    for (Route.Complete h : complete) {
+      h.handle(req, this, cause);
+    }
+    complete.clear();
+    end();
   }
 
   @Override
@@ -254,19 +272,26 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public void send(final Result result) throws Exception {
+  public void send(final Result result) throws Throwable {
     if (result instanceof Deferred) {
       throw new DeferredExecution((Deferred) result);
     }
 
-    Optional<MediaType> rtype = result.type();
+    Result finalResult = result;
+
+    // after filter
+    for (int i = after.size() - 1; i >= 0; i--) {
+      finalResult = after.get(i).handle(req, this, finalResult);
+    }
+
+    Optional<MediaType> rtype = finalResult.type();
     if (rtype.isPresent()) {
       type(rtype.get());
     }
 
-    status(result.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
+    status(finalResult.status().orElseGet(() -> status().orElseGet(() -> Status.OK)));
 
-    result.headers().forEach((name, value) -> {
+    finalResult.headers().forEach((name, value) -> {
       setHeader(name, value);
     });
 
@@ -281,7 +306,7 @@ public class ResponseImpl implements Response {
      * Do we need to figure it out Content-Length?
      */
     List<MediaType> produces = this.type == null ? route.produces() : ImmutableList.of(type);
-    Object value = result.get(produces);
+    Object value = finalResult.get(produces);
 
     if (value != null) {
       if (value instanceof Status) {
@@ -319,6 +344,16 @@ public class ResponseImpl implements Response {
     }
     // end response
     end();
+  }
+
+  @Override
+  public void push(final After handler) {
+    after.add(handler);
+  }
+
+  @Override
+  public void push(final Complete handler) {
+    complete.add(handler);
   }
 
   private void writeCookies() {

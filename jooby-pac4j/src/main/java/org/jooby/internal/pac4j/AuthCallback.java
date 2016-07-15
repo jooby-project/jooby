@@ -64,7 +64,7 @@ public class AuthCallback implements Route.Filter {
 
   @SuppressWarnings("unchecked")
   @Override
-  public void handle(final Request req, final Response rsp, final Chain chain) throws Exception {
+  public void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
     WebContext ctx = req.require(WebContext.class);
 
     List<Client> clientList = clients.findAllClients();

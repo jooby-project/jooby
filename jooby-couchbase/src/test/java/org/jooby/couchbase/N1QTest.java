@@ -9,6 +9,7 @@ public class N1QTest {
   @Test
   public void from() {
     new N1Q();
+    System.getProperties().remove(N1Q.COUCHBASE_DEFBUCKET);
     assertEquals("SELECT N.* FROM `default` N WHERE N._class = \"org.jooby.couchbase.N1QTest\"",
         N1Q.from(N1QTest.class).toString());
   }

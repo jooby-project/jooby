@@ -242,7 +242,7 @@ public class HttpHandlerImpl implements HttpHandler {
     RequestImpl req = new RequestImpl(injector, request, contextPath, port, notFound, charset,
         locale, scope, locals);
 
-    ResponseImpl rsp = new ResponseImpl(parserExecutor, response, notFound, renderers,
+    ResponseImpl rsp = new ResponseImpl(req, parserExecutor, response, notFound, renderers,
         rendererMap, locals, req.charset(), request.header(REFERER));
 
     MediaType type = req.type();
@@ -261,6 +261,7 @@ public class HttpHandlerImpl implements HttpHandler {
     scope.put(SESS, session);
 
     boolean deferred = false;
+    Throwable x = null;
     try {
 
       requestScope.enter(scope);
@@ -295,12 +296,9 @@ public class HttpHandlerImpl implements HttpHandler {
       deferred = true;
       onDeferred(scope, request, req, rsp, ex.deferred);
     } catch (Throwable ex) {
-      handleErr(req, rsp, ex);
+      x = ex;
     } finally {
-      requestScope.exit();
-      if (!deferred) {
-        done(req, rsp, true);
-      }
+      cleanup(req, rsp, true, x, !deferred);
     }
   }
 
@@ -309,11 +307,12 @@ public class HttpHandlerImpl implements HttpHandler {
     return upgrade.isPresent() && upgrade.get().equalsIgnoreCase(WEB_SOCKET);
   }
 
-  private void done(final RequestImpl req, final ResponseImpl rsp, final boolean close) {
+  private void done(final RequestImpl req, final ResponseImpl rsp, final Throwable x,
+      final boolean close) {
     // mark request/response as done.
     req.done();
     if (close) {
-      rsp.end();
+      rsp.done(Optional.ofNullable(x));
     }
   }
 
@@ -324,6 +323,7 @@ public class HttpHandlerImpl implements HttpHandler {
 
       deferred.handler((result, ex) -> {
         boolean close = false;
+        Throwable x = null;
         try {
           requestScope.enter(scope);
           if (result != null) {
@@ -334,14 +334,24 @@ public class HttpHandlerImpl implements HttpHandler {
             handleErr(req, rsp, ex);
           }
         } catch (Throwable exerr) {
-          handleErr(req, rsp, exerr);
+          x = exerr;
         } finally {
-          requestScope.exit();
-          done(req, rsp, close);
+          cleanup(req, rsp, close, x, true);
         }
       });
     } catch (Exception ex) {
       handleErr(req, rsp, ex);
+    }
+  }
+
+  private void cleanup(final RequestImpl req, final ResponseImpl rsp, final boolean close,
+      final Throwable x, final boolean done) {
+    if (x != null) {
+      handleErr(req, rsp, x);
+    }
+    requestScope.exit();
+    if (done) {
+      done(req, rsp, x, close);
     }
   }
 

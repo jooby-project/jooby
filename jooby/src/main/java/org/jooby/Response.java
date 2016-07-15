@@ -59,27 +59,27 @@ public interface Response {
     }
 
     @Override
-    public void download(final String filename, final InputStream stream) throws Exception {
+    public void download(final String filename, final InputStream stream) throws Throwable {
       rsp.download(filename, stream);
     }
 
     @Override
-    public void download(final File file) throws Exception {
+    public void download(final File file) throws Throwable {
       rsp.download(file);
     }
 
     @Override
-    public void download(final String filename, final File file) throws Exception {
+    public void download(final String filename, final File file) throws Throwable {
       rsp.download(filename, file);
     }
 
     @Override
-    public void download(final String filename) throws Exception {
+    public void download(final String filename) throws Throwable {
       rsp.download(filename);
     }
 
     @Override
-    public void download(final String filename, final String location) throws Exception {
+    public void download(final String filename, final String location) throws Throwable {
       rsp.download(filename, location);
     }
 
@@ -182,12 +182,12 @@ public interface Response {
     }
 
     @Override
-    public void redirect(final String location) throws Exception {
+    public void redirect(final String location) throws Throwable {
       rsp.redirect(location);
     }
 
     @Override
-    public void redirect(final Status status, final String location) throws Exception {
+    public void redirect(final Status status, final String location) throws Throwable {
       rsp.redirect(status, location);
     }
 
@@ -211,6 +211,16 @@ public interface Response {
     @Override
     public boolean committed() {
       return rsp.committed();
+    }
+
+    @Override
+    public void push(final Route.After handler) {
+      rsp.push(handler);
+    }
+
+    @Override
+    public void push(final Route.Complete handler) {
+      rsp.push(handler);
     }
 
     @Override
@@ -243,7 +253,7 @@ public interface Response {
    * @param stream A stream to attach.
    * @throws Exception If something goes wrong.
    */
-  void download(String filename, InputStream stream) throws Exception;
+  void download(String filename, InputStream stream) throws Throwable;
 
   /**
    * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
@@ -253,7 +263,7 @@ public interface Response {
    * @param location Classpath location of the file.
    * @throws Exception If something goes wrong.
    */
-  default void download(final String location) throws Exception {
+  default void download(final String location) throws Throwable {
     download(location, location);
   }
 
@@ -266,7 +276,7 @@ public interface Response {
    * @param location classpath location of the file.
    * @throws Exception If something goes wrong.
    */
-  void download(final String filename, final String location) throws Exception;
+  void download(final String filename, final String location) throws Throwable;
 
   /**
    * Transfer the file at path as an "attachment". Typically, browsers will prompt the user for
@@ -276,7 +286,7 @@ public interface Response {
    * @param file A file to use.
    * @throws Exception If something goes wrong.
    */
-  default void download(final File file) throws Exception {
+  default void download(final File file) throws Throwable {
     download(file.getName(), file);
   }
 
@@ -289,7 +299,7 @@ public interface Response {
    * @param file A file to use.
    * @throws Exception If something goes wrong.
    */
-  default void download(final String filename, final File file) throws Exception {
+  default void download(final String filename, final File file) throws Throwable {
     length(file.length());
     download(filename, new FileInputStream(file));
   }
@@ -504,9 +514,9 @@ public interface Response {
    * </pre>
    *
    * @param location Either a relative or absolute location.
-   * @throws Exception If redirection fails.
+   * @throws Throwable If redirection fails.
    */
-  default void redirect(final String location) throws Exception {
+  default void redirect(final String location) throws Throwable {
     redirect(Status.FOUND, location);
   }
 
@@ -567,9 +577,9 @@ public interface Response {
    *
    * @param status A redirect status.
    * @param location Either a relative or absolute location.
-   * @throws Exception If redirection fails.
+   * @throws Throwable If redirection fails.
    */
-  void redirect(Status status, String location) throws Exception;
+  void redirect(Status status, String location) throws Throwable;
 
   /**
    * @return A HTTP status or empty if status was not set yet.
@@ -620,4 +630,7 @@ public interface Response {
    */
   void end();
 
+  void push(Route.After handler);
+
+  void push(Route.Complete handler);
 }

@@ -9,6 +9,8 @@ import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.Optional;
 
+import org.jooby.Route.After;
+import org.jooby.Route.Complete;
 import org.junit.Test;
 
 public class ResponseTest {
@@ -103,6 +105,15 @@ public class ResponseTest {
       throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void push(final After handler) {
+      throw new UnsupportedOperationException();
+    }
+
+     @Override
+    public void push(final Complete handler) {
+       throw new UnsupportedOperationException();
+    }
   }
 
   @Test
@@ -173,7 +184,7 @@ public class ResponseTest {
   }
 
   @Test
-  public void redirect() throws Exception {
+  public void redirect() throws Throwable {
     LinkedList<Object> dataList = new LinkedList<>();
     new ResponseMock() {
       @Override
@@ -199,7 +210,7 @@ public class ResponseTest {
   }
 
   @Test
-  public void downloadFileWithName() throws Exception {
+  public void downloadFileWithName() throws Throwable {
     LinkedList<Object> dataList = new LinkedList<>();
     File resource = file("src/test/resources/org/jooby/ResponseTest.js");
     new ResponseMock() {
