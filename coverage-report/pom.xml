@@ -33,7 +33,7 @@
                 <configuration>
                   <sources>
                     <source>${project.parent.basedir}/jooby/src/main/java</source>
-                    <source>${project.parent.basedir}/jooby-hbm/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-hbm4/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-hbs/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-jackson/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-jdbc/src/main/java</source>
@@ -87,7 +87,7 @@
                 <configuration>
                   <sources>
                     <source>${project.parent.basedir}/jooby/src/test/java</source>
-                    <source>${project.parent.basedir}/jooby-hbm/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-hbm4/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-hbs/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-jackson/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-jdbc/src/test/java</source>
@@ -150,7 +150,7 @@
                       <directory>${project.parent.basedir}/jooby-hbs/src/test/resources</directory>
                     </resource>
                     <resource>
-                      <directory>${project.parent.basedir}/jooby-hbm/src/test/resources</directory>
+                      <directory>${project.parent.basedir}/jooby-hbm4/src/test/resources</directory>
                     </resource>
                     <resource>
                       <directory>${project.parent.basedir}/jooby-whoops/src/test/resources</directory>
@@ -276,7 +276,7 @@
 
     <dependency>
       <groupId>org.jooby</groupId>
-      <artifactId>jooby-hbm</artifactId>
+      <artifactId>jooby-hbm4</artifactId>
       <version>${project.version}</version>
     </dependency>
 

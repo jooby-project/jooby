@@ -27,7 +27,7 @@
     <module>jooby-guava-cache</module>
     <module>jooby-jdbc</module>
     <module>jooby-jooq</module>
-    <module>jooby-hbm</module>
+    <module>jooby-hbm4</module>
     <module>jooby-dist</module>
     <module>jooby-undertow</module>
     <module>jooby-servlet</module>
@@ -139,7 +139,7 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
-        <artifactId>jooby-hbm</artifactId>
+        <artifactId>jooby-hbm4</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
