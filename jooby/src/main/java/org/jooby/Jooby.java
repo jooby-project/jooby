@@ -659,11 +659,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   /**
-   * Import ALL the direct routes from the given app.
-   *
-   * <p>
-   * PLEASE NOTE: that ONLY routes are imported.
-   * </p>
+   * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
+   * etc.).
    *
    * @param app Routes provider.
    * @return This jooby instance.
@@ -673,11 +670,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   /**
-   * Import ALL the direct routes from the given app, under the given path.
-   *
-   * <p>
-   * PLEASE NOTE: that ONLY routes are imported.
-   * </p>
+   * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
+   * etc.). Routes will be mounted at the provided path.
    *
    * @param path Path to mount the given app.
    * @param app Routes provider.
@@ -719,10 +713,18 @@ public class Jooby implements Routes, LifeCycle, Registry {
         Object routes = path.<Object> map(p -> new MvcClass(((MvcClass) it).routeClass, p))
             .orElse(it);
         this.bag.add(routes);
-      } else if (it instanceof EnvDep) {
+      } else {
+        // everything else
         this.bag.add(it);
       }
     });
+    // start/stop callback
+    app.onStart.forEach(this.onStart::add);
+    app.onStop.forEach(this.onStop::add);
+    // mapper
+    if (app.mapper != null) {
+      this.map(app.mapper);
+    }
     return this;
   }
 
