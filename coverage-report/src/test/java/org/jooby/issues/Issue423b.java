@@ -2,6 +2,7 @@ package org.jooby.issues;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,6 +17,9 @@ import org.junit.Test;
 public class Issue423b extends ServerFeature {
 
   private static final AtomicReference<String> T = new AtomicReference<>(null);
+
+  private static final CountDownLatch latch = new CountDownLatch(1);
+
   {
     ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
       Thread t = new Thread(r, "deferred");
@@ -29,6 +33,7 @@ public class Issue423b extends ServerFeature {
     complete((req, rsp, err) -> {
       Thread thread = Thread.currentThread();
       T.set(thread.getName() + ":" + err.get().getMessage());
+      latch.countDown();
     });
 
     get("/423", promise(deferred -> {
@@ -46,7 +51,8 @@ public class Issue423b extends ServerFeature {
   }
 
   @After
-  public void after() {
+  public void after() throws InterruptedException {
+    latch.await();
     assertEquals("deferred:renderer-err", T.getAndSet(null));
   }
 

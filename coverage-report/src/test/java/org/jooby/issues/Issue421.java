@@ -19,7 +19,7 @@ import org.junit.Test;
 @OnServer(Netty.class)
 public class Issue421 extends ServerFeature {
 
-  private static CountDownLatch latch = new CountDownLatch(4);
+  private static CountDownLatch latch = new CountDownLatch(6);
 
   private static List<String> values = new ArrayList<>();
 
