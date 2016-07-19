@@ -1,5 +1,6 @@
 package org.jooby.assets;
 
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertTrue;
@@ -10,8 +11,10 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.Route.Filter;
+import org.jooby.Routes;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.assets.AssetHandlerWithCompiler;
+import org.jooby.internal.assets.AssetVars;
 import org.jooby.internal.assets.LiveCompiler;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
@@ -34,7 +37,6 @@ import javaslang.control.Try.CheckedRunnable;
 @PrepareForTest({Assets.class, AssetCompiler.class, Multibinder.class, LiveCompiler.class })
 public class AssetsTest {
 
-  @SuppressWarnings("unchecked")
   @Test
   public void configure() throws Exception {
     Config conf = ConfigFactory.empty()
@@ -48,20 +50,17 @@ public class AssetsTest {
           expect(compiler.patterns()).andReturn(Sets.newHashSet("/assets/**"));
           unit.registerMock(AssetCompiler.class, compiler);
         }).expect(unit -> {
-          Binder binder = unit.get(Binder.class);
+          Definition assetVars = unit.mock(Definition.class);
+          expect(assetVars.name("/assets/vars")).andReturn(assetVars);
+          Routes routes = unit.mock(Routes.class);
+          expect(routes.use(eq("*"), eq("*"), unit.capture(AssetVars.class))).andReturn(assetVars);
 
-          LinkedBindingBuilder<Definition> varsLBB = unit.mock(LinkedBindingBuilder.class);
-          varsLBB.toInstance(unit.capture(Route.Definition.class));
+          Definition assetHandlerWithCompiler = unit.mock(Definition.class);
+          expect(routes.get(eq("/assets/**"), isA(AssetHandlerWithCompiler.class)))
+              .andReturn(assetHandlerWithCompiler);
 
-          LinkedBindingBuilder<Definition> handlerLBB = unit.mock(LinkedBindingBuilder.class);
-          handlerLBB.toInstance(unit.capture(Route.Definition.class));
-
-          Multibinder<Definition> mb = unit.mock(Multibinder.class);
-          expect(mb.addBinding()).andReturn(varsLBB);
-          expect(mb.addBinding()).andReturn(handlerLBB);
-
-          unit.mockStatic(Multibinder.class);
-          expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(mb);
+          Env env = unit.get(Env.class);
+          expect(env.routes()).andReturn(routes);
         }).expect(unit -> {
           Env env = unit.get(Env.class);
 
@@ -86,17 +85,12 @@ public class AssetsTest {
         }).run(unit -> {
           new Assets()
               .configure(unit.get(Env.class), conf, unit.get(Binder.class));
-        } , unit -> {
-          Filter handler = unit.captured(Route.Definition.class).iterator().next().filter();
-          handler.handle(unit.get(Request.class), unit.get(Response.class),
-              unit.get(Route.Chain.class));
-        } , unit -> {
-          Filter handler = unit.captured(Route.Definition.class).get(1).filter();
-          assertTrue(handler instanceof AssetHandlerWithCompiler);
+        }, unit -> {
+          unit.captured(AssetVars.class).iterator().next().handle(unit.get(Request.class),
+              unit.get(Response.class), unit.get(Route.Chain.class));
         });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void configureWithWatch() throws Exception {
     Config conf = ConfigFactory.empty()
@@ -110,42 +104,35 @@ public class AssetsTest {
           expect(compiler.patterns()).andReturn(Sets.newHashSet("/assets/**"));
           unit.registerMock(AssetCompiler.class, compiler);
         }).expect(unit -> {
-          Binder binder = unit.get(Binder.class);
+          AssetCompiler compiler = unit.get(AssetCompiler.class);
 
-          LinkedBindingBuilder<Definition> varsLBB = unit.mock(LinkedBindingBuilder.class);
-          varsLBB.toInstance(unit.capture(Route.Definition.class));
+          Definition assetVars = unit.mock(Definition.class);
+          expect(assetVars.name("/assets/vars")).andReturn(assetVars);
+          Routes routes = unit.mock(Routes.class);
+          expect(routes.use(eq("*"), eq("*"), unit.capture(AssetVars.class))).andReturn(assetVars);
 
-          LinkedBindingBuilder<Definition> handlerLBB = unit.mock(LinkedBindingBuilder.class);
-          handlerLBB.toInstance(unit.capture(Route.Definition.class));
+          Definition assetHandlerWithCompiler = unit.mock(Definition.class);
+          expect(routes.get(eq("/assets/**"), isA(AssetHandlerWithCompiler.class)))
+              .andReturn(assetHandlerWithCompiler);
 
-          Multibinder<Definition> mb = unit.mock(Multibinder.class);
-          expect(mb.addBinding()).andReturn(varsLBB);
-          expect(mb.addBinding()).andReturn(handlerLBB);
-          unit.registerMock(Multibinder.class, mb);
+          Definition liveCompilerRoute = unit.mock(Definition.class);
+          expect(liveCompilerRoute.name("/assets/compiler")).andReturn(liveCompilerRoute);
 
-          unit.mockStatic(Multibinder.class);
-          expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(mb);
+          LiveCompiler liveCompiler = unit.constructor(LiveCompiler.class)
+              .args(Config.class, AssetCompiler.class)
+              .build(conf, compiler);
+          expect(routes.use(eq("*"), eq("*"), eq(liveCompiler))).andReturn(liveCompilerRoute);
+
+          Env env = unit.get(Env.class);
+          expect(env.routes()).andReturn(routes);
         }).expect(unit -> {
           Env env = unit.get(Env.class);
 
           expect(env.name()).andReturn("dev");
         }).expect(unit -> {
-          AssetCompiler compiler = unit.get(AssetCompiler.class);
-
-          unit.constructor(LiveCompiler.class)
-              .args(Config.class, AssetCompiler.class)
-              .build(conf, compiler);
-
           Env env = unit.get(Env.class);
           expect(env.onStart(isA(CheckedRunnable.class))).andReturn(env);
           expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
-
-          LinkedBindingBuilder<Definition> lbblc = unit.mock(LinkedBindingBuilder.class);
-          lbblc.toInstance(unit.capture(Route.Definition.class));
-
-          Multibinder<Definition> mbr = unit.get(Multibinder.class);
-          expect(mbr.addBinding()).andReturn(lbblc);
-
         }).expect(unit -> {
           AssetCompiler compiler = unit.get(AssetCompiler.class);
           expect(compiler.keySet()).andReturn(Sets.newHashSet("home"));
@@ -164,17 +151,12 @@ public class AssetsTest {
         }).run(unit -> {
           new Assets()
               .configure(unit.get(Env.class), conf, unit.get(Binder.class));
-        } , unit -> {
-          Filter handler = unit.captured(Route.Definition.class).iterator().next().filter();
-          handler.handle(unit.get(Request.class), unit.get(Response.class),
-              unit.get(Route.Chain.class));
-        } , unit -> {
-          Filter handler = unit.captured(Route.Definition.class).get(1).filter();
-          assertTrue(handler instanceof LiveCompiler);
+        }, unit -> {
+          unit.captured(AssetVars.class).iterator().next().handle(unit.get(Request.class),
+              unit.get(Response.class), unit.get(Route.Chain.class));
         });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void configuredist() throws Exception {
     Config conf = ConfigFactory.empty()
@@ -193,20 +175,17 @@ public class AssetsTest {
           expect(compiler.patterns()).andReturn(Sets.newHashSet("/assets/**"));
           unit.registerMock(AssetCompiler.class, compiler);
         }).expect(unit -> {
-          Binder binder = unit.get(Binder.class);
+          Definition assetVars = unit.mock(Definition.class);
+          expect(assetVars.name("/assets/vars")).andReturn(assetVars);
+          Routes routes = unit.mock(Routes.class);
+          expect(routes.use(eq("*"), eq("*"), unit.capture(AssetVars.class))).andReturn(assetVars);
 
-          LinkedBindingBuilder<Definition> varsLBB = unit.mock(LinkedBindingBuilder.class);
-          varsLBB.toInstance(unit.capture(Route.Definition.class));
+          Definition assetHandlerWithCompiler = unit.mock(Definition.class);
+          expect(routes.get(eq("/assets/**"), isA(AssetHandler.class)))
+              .andReturn(assetHandlerWithCompiler);
 
-          LinkedBindingBuilder<Definition> handlerLBB = unit.mock(LinkedBindingBuilder.class);
-          handlerLBB.toInstance(unit.capture(Route.Definition.class));
-
-          Multibinder<Definition> mb = unit.mock(Multibinder.class);
-          expect(mb.addBinding()).andReturn(varsLBB);
-          expect(mb.addBinding()).andReturn(handlerLBB);
-
-          unit.mockStatic(Multibinder.class);
-          expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(mb);
+          Env env = unit.get(Env.class);
+          expect(env.routes()).andReturn(routes);
         }).expect(unit -> {
           Env env = unit.get(Env.class);
 
@@ -230,13 +209,9 @@ public class AssetsTest {
         }).run(unit -> {
           new Assets()
               .configure(unit.get(Env.class), conf, unit.get(Binder.class));
-        } , unit -> {
-          Filter handler = unit.captured(Route.Definition.class).iterator().next().filter();
-          handler.handle(unit.get(Request.class), unit.get(Response.class),
-              unit.get(Route.Chain.class));
-        } , unit -> {
-          Filter handler = unit.captured(Route.Definition.class).get(1).filter();
-          assertTrue(handler instanceof AssetHandler);
+        }, unit -> {
+          unit.captured(AssetVars.class).iterator().next().handle(unit.get(Request.class),
+              unit.get(Response.class), unit.get(Route.Chain.class));
         });
   }
 
@@ -289,11 +264,11 @@ public class AssetsTest {
         }).run(unit -> {
           new Assets()
               .configure(unit.get(Env.class), conf, unit.get(Binder.class));
-        } , unit -> {
+        }, unit -> {
           Filter handler = unit.captured(Route.Definition.class).iterator().next().filter();
           handler.handle(unit.get(Request.class), unit.get(Response.class),
               unit.get(Route.Chain.class));
-        } , unit -> {
+        }, unit -> {
           Filter handler = unit.captured(Route.Definition.class).get(1).filter();
           assertTrue(handler instanceof AssetHandlerWithCompiler);
         });

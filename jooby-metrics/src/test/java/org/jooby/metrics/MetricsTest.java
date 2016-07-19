@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Route;
-import org.jooby.Route.Definition;
+import org.jooby.Routes;
 import org.jooby.internal.metrics.HealthCheckRegistryProvider;
 import org.jooby.internal.metrics.MetricRegistryInitializer;
 import org.jooby.test.MockUnit;
@@ -25,7 +25,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Reporter;
 import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
-import com.google.common.base.Throwables;
 import com.google.inject.Binder;
 import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.binder.LinkedBindingBuilder;
@@ -89,21 +88,22 @@ public class MetricsTest {
     unit.mockStatic(Multibinder.class);
   };
 
-  private Block routes = setbinder(Route.Definition.class, (unit, binder) -> {
-    try {
-      MetricHandler handler = unit.constructor(MetricHandler.class).build();
+  private Block routes = unit -> {
+    Routes routes = unit.mock(Routes.class);
+    unit.registerMock(Routes.class, routes);
 
-      route(unit, binder, "/sys/metrics", handler);
+    Env env = unit.get(Env.class);
+    expect(env.routes()).andReturn(routes);
+    MetricHandler handler = unit.constructor(MetricHandler.class).build();
 
-      route(unit, binder, "/sys/metrics/:type", handler);
+    route(unit, routes, "/sys/metrics", handler);
 
-      route(unit, binder, "/sys/healthcheck",
-          unit.constructor(HealthCheckHandler.class).build());
+    route(unit, routes, "/sys/metrics/:type", handler);
 
-    } catch (Exception ex) {
-      Throwables.propagate(ex);
-    }
-  });
+    route(unit, routes, "/sys/healthcheck",
+        unit.constructor(HealthCheckHandler.class).build());
+
+  };
 
   @SuppressWarnings("unchecked")
   private Block onStop = unit -> {
@@ -114,35 +114,36 @@ public class MetricsTest {
   @SuppressWarnings("unchecked")
   @Test
   public void basic() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Jooby.class, MetricRegistryInitializer.class)
-        .expect(newRegistry)
-        .expect(mapBinderStatic)
-        .expect(mapbinder(Metric.class, (unit, binder) -> {
-        }))
-        .expect(mapbinder(HealthCheck.class, (unit, binder) -> {
-        }))
-        .expect(multibinderStatic)
-        .expect(routes)
-        .expect(setbinder(Reporter.class, (unit, binder) -> {
+    new MockUnit(Env.class, Config.class, Binder.class, Jooby.class,
+        MetricRegistryInitializer.class)
+            .expect(newRegistry)
+            .expect(mapBinderStatic)
+            .expect(mapbinder(Metric.class, (unit, binder) -> {
+            }))
+            .expect(mapbinder(HealthCheck.class, (unit, binder) -> {
+            }))
+            .expect(multibinderStatic)
+            .expect(routes)
+            .expect(setbinder(Reporter.class, (unit, binder) -> {
 
-        }))
-        .expect(bindRegistry)
-        .expect(bindRegistryInitializer)
-        .expect(bindHealthCheckRegistry)
-        .expect(onStop)
-        .expect(unit -> {
-          MetricRegistryInitializer closer = unit.get(MetricRegistryInitializer.class);
-          closer.close();
+            }))
+            .expect(bindRegistry)
+            .expect(bindRegistryInitializer)
+            .expect(bindHealthCheckRegistry)
+            .expect(onStop)
+            .expect(unit -> {
+              MetricRegistryInitializer closer = unit.get(MetricRegistryInitializer.class);
+              closer.close();
 
-          Jooby app = unit.get(Jooby.class);
-          expect(app.require(MetricRegistryInitializer.class)).andReturn(closer);
-        })
-        .run(unit -> {
-          new Metrics()
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, unit -> {
-          unit.captured(CheckedConsumer.class).get(0).accept(unit.get(Jooby.class));
-        });
+              Jooby app = unit.get(Jooby.class);
+              expect(app.require(MetricRegistryInitializer.class)).andReturn(closer);
+            })
+            .run(unit -> {
+              new Metrics()
+                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, unit -> {
+              unit.captured(CheckedConsumer.class).get(0).accept(unit.get(Jooby.class));
+            });
   }
 
   @Test
@@ -183,24 +184,22 @@ public class MetricsTest {
         .expect(mapbinder(HealthCheck.class, (unit, binder) -> {
         }))
         .expect(multibinderStatic)
-        .expect(setbinder(Route.Definition.class, (unit, binder) -> {
-          try {
-            MetricHandler handler = unit.constructor(MetricHandler.class).build();
+        .expect(unit -> {
+          Routes routes = unit.mock(Routes.class);
+          Env env = unit.get(Env.class);
+          expect(env.routes()).andReturn(routes);
+          MetricHandler handler = unit.constructor(MetricHandler.class).build();
 
-            route(unit, binder, "/sys/metrics", handler);
+          route(unit, routes, "/sys/metrics", handler);
 
-            route(unit, binder, "/sys/metrics/:type", handler);
+          route(unit, routes, "/sys/metrics/:type", handler);
 
-            route(unit, binder, "/sys/healthcheck",
-                unit.constructor(HealthCheckHandler.class).build());
+          route(unit, routes, "/sys/healthcheck",
+              unit.constructor(HealthCheckHandler.class).build());
 
-            filter(unit, binder, "*",
-                unit.constructor(InstrumentedHandler.class).build());
-
-          } catch (Exception ex) {
-            Throwables.propagate(ex);
-          }
-        }))
+          route(unit, routes, "*",
+              unit.constructor(InstrumentedHandler.class).build());
+        })
         .expect(setbinder(Reporter.class, (unit, binder) -> {
 
         }))
@@ -225,15 +224,11 @@ public class MetricsTest {
         }))
         .expect(multibinderStatic)
         .expect(routes)
-        .expect(setbinder(Route.Definition.class, (unit, binder) -> {
-          try {
-            route(unit, binder, "/sys/ping",
-                unit.constructor(PingHandler.class).build());
+        .expect(unit -> {
+          Routes routes = unit.get(Routes.class);
 
-          } catch (Exception ex) {
-            Throwables.propagate(ex);
-          }
-        }))
+          route(unit, routes, "/sys/ping", unit.constructor(PingHandler.class).build());
+        })
         .expect(setbinder(Reporter.class, (unit, binder) -> {
 
         }))
@@ -258,15 +253,11 @@ public class MetricsTest {
         }))
         .expect(multibinderStatic)
         .expect(routes)
-        .expect(setbinder(Route.Definition.class, (unit, binder) -> {
-          try {
-            route(unit, binder, "/sys/threadDump",
-                unit.constructor(ThreadDumpHandler.class).build());
+        .expect(unit -> {
+          Routes routes = unit.get(Routes.class);
 
-          } catch (Exception ex) {
-            Throwables.propagate(ex);
-          }
-        }))
+          route(unit, routes, "/sys/thread-dump", unit.constructor(ThreadDumpHandler.class).build());
+        })
         .expect(setbinder(Reporter.class, (unit, binder) -> {
 
         }))
@@ -435,28 +426,14 @@ public class MetricsTest {
         });
   }
 
-  @SuppressWarnings("unchecked")
-  private void route(final MockUnit unit, final Multibinder<Definition> binder,
-      final String pattern, final Route.Handler handler)
-          throws Exception {
-    Route.Definition r1 = unit.constructor(Route.Definition.class)
-        .args(String.class, String.class, Route.Handler.class)
-        .build("GET", pattern, handler);
-    LinkedBindingBuilder<Definition> r1lbb = unit.mock(LinkedBindingBuilder.class);
-    r1lbb.toInstance(r1);
-    expect(binder.addBinding()).andReturn(r1lbb);
+  private void route(final MockUnit unit, final Routes route,
+      final String pattern, final Route.Handler handler) throws Exception {
+    expect(route.use("GET", pattern, handler)).andReturn(null);
   }
 
-  @SuppressWarnings("unchecked")
-  private void filter(final MockUnit unit, final Multibinder<Definition> binder,
-      final String pattern, final Route.Filter handler)
-          throws Exception {
-    Route.Definition r1 = unit.constructor(Route.Definition.class)
-        .args(String.class, String.class, Route.Filter.class)
-        .build("GET", pattern, handler);
-    LinkedBindingBuilder<Definition> r1lbb = unit.mock(LinkedBindingBuilder.class);
-    r1lbb.toInstance(r1);
-    expect(binder.addBinding()).andReturn(r1lbb);
+  private void route(final MockUnit unit, final Routes route,
+      final String pattern, final Route.Filter handler) throws Exception {
+    expect(route.use("GET", pattern, handler)).andReturn(null);
   }
 
   @SuppressWarnings("unchecked")

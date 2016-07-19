@@ -17,7 +17,7 @@ import javax.sql.DataSource;
 
 import org.jooby.Env;
 import org.jooby.Route;
-import org.jooby.Route.Definition;
+import org.jooby.Routes;
 import org.jooby.internal.hbm.HbmProvider;
 import org.jooby.internal.hbm.HbmUnitDescriptor;
 import org.jooby.jdbc.Jdbc;
@@ -112,20 +112,14 @@ public class HbmTest {
                   new Class[]{Provider.class, List.class }, isA(HbmProvider.class),
                   isA(List.class));
 
-          Route.Definition route = unit.mockConstructor(
-              Route.Definition.class,
-              new Class[]{String.class, String.class, Route.Filter.class },
-              "*", "*", osiv);
+          Route.Definition route = unit.mock(Route.Definition.class);
           expect(route.name("hbm")).andReturn(route);
 
-          LinkedBindingBuilder<Definition> rdLBB = unit.mock(LinkedBindingBuilder.class);
-          rdLBB.toInstance(route);
+          Routes routes = unit.mock(Routes.class);
+          expect(routes.use("*", "*", osiv)).andReturn(route);
 
-          Multibinder<Definition> mbrd = unit.mock(Multibinder.class);
-          expect(mbrd.addBinding()).andReturn(rdLBB);
-
-          unit.mockStatic(Multibinder.class);
-          expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(mbrd);
+          Env env = unit.get(Env.class);
+          expect(env.routes()).andReturn(routes);
         })
         .expect(onStop)
         .run(unit -> {
@@ -182,20 +176,14 @@ public class HbmTest {
                   new Class[]{Provider.class, List.class }, isA(HbmProvider.class),
                   isA(List.class));
 
-          Route.Definition route = unit.mockConstructor(
-              Route.Definition.class,
-              new Class[]{String.class, String.class, Route.Filter.class },
-              "*", "*", osiv);
+          Route.Definition route = unit.mock(Route.Definition.class);
           expect(route.name("hbm")).andReturn(route);
 
-          LinkedBindingBuilder<Definition> rdLBB = unit.mock(LinkedBindingBuilder.class);
-          rdLBB.toInstance(route);
+          Routes routes = unit.mock(Routes.class);
+          expect(routes.use("*", "*", osiv)).andReturn(route);
 
-          Multibinder<Definition> mbrd = unit.mock(Multibinder.class);
-          expect(mbrd.addBinding()).andReturn(rdLBB);
-
-          unit.mockStatic(Multibinder.class);
-          expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(mbrd);
+          Env env = unit.get(Env.class);
+          expect(env.routes()).andReturn(routes);
         })
         .expect(onStop)
         .run(unit -> {
@@ -266,20 +254,14 @@ public class HbmTest {
                   new Class[]{Provider.class, List.class }, isA(HbmProvider.class),
                   isA(List.class));
 
-          Route.Definition route = unit.mockConstructor(
-              Route.Definition.class,
-              new Class[]{String.class, String.class, Route.Filter.class },
-              "*", "*", osiv);
+          Route.Definition route = unit.mock(Route.Definition.class);
           expect(route.name("hbm")).andReturn(route);
 
-          LinkedBindingBuilder<Definition> rdLBB = unit.mock(LinkedBindingBuilder.class);
-          rdLBB.toInstance(route);
+          Routes routes = unit.mock(Routes.class);
+          expect(routes.use("*", "*", osiv)).andReturn(route);
 
-          Multibinder<Definition> mbrd = unit.mock(Multibinder.class);
-          expect(mbrd.addBinding()).andReturn(rdLBB);
-
-          unit.mockStatic(Multibinder.class);
-          expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(mbrd);
+          Env env = unit.get(Env.class);
+          expect(env.routes()).andReturn(routes);
         })
         .expect(onStop)
         .run(unit -> {

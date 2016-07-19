@@ -17,6 +17,7 @@ import org.elasticsearch.node.NodeBuilder;
 import org.jooby.Env;
 import org.jooby.Renderer;
 import org.jooby.Route;
+import org.jooby.Routes;
 import org.jooby.internal.elasticsearch.BytesReferenceRenderer;
 import org.jooby.internal.elasticsearch.EmbeddedHandler;
 import org.jooby.test.MockUnit;
@@ -127,20 +128,17 @@ public class ElasticSearchTest {
     EmbeddedHandler handler = unit.mockConstructor(EmbeddedHandler.class, new Class[]{String.class,
         Node.class, boolean.class }, eq("/es"), eq(unit.get(Node.class)), eq(true));
 
-    Route.Definition rh = unit.mockConstructor(Route.Definition.class, new Class[]{String.class,
-        String.class, Route.Handler.class }, "*", "/es/**", handler);
+    Routes routes = unit.mock(Routes.class);
+    Route.Definition rh = unit.mock(Route.Definition.class);
     expect(rh.name("elasticsearch")).andReturn(rh);
 
-    LinkedBindingBuilder<Route.Definition> lbbr = unit.mock(LinkedBindingBuilder.class);
-    lbbr.toInstance(rh);
-
-    Multibinder<Route.Definition> routes = unit.mock(Multibinder.class);
-    expect(routes.addBinding()).andReturn(lbbr);
+    expect(routes.use("*", "/es/**", handler)).andReturn(rh);
 
     unit.mockStatic(Multibinder.class);
     expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(formatters);
-    expect(Multibinder.newSetBinder(binder, Route.Definition.class)).andReturn(routes);
 
+    Env env = unit.get(Env.class);
+    expect(env.routes()).andReturn(routes);
   };
 
   @Test

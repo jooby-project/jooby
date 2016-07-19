@@ -23,8 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.Route;
-import org.jooby.Route.Definition;
+import org.jooby.Routes;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.assets.AssetHandlerWithCompiler;
 import org.jooby.internal.assets.AssetVars;
@@ -32,7 +31,6 @@ import org.jooby.internal.assets.LiveCompiler;
 
 import com.google.common.base.Throwables;
 import com.google.inject.Binder;
-import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -243,10 +241,8 @@ public class Assets implements Jooby.Module {
       String cpath = config.getString("application.path");
       AssetCompiler compiler = new AssetCompiler(loader, conf);
 
-      Multibinder<Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
-      routes.addBinding()
-          .toInstance(new Route.Definition("*", "*", new AssetVars(compiler, cpath))
-              .name("/assets/vars"));
+      Routes routes = env.routes();
+      routes.use("*", "*", new AssetVars(compiler, cpath)).name("/assets/vars");
       // live compiler?
       boolean watch = dev;
       if (watch && conf.hasPath("assets.watch")) {
@@ -256,8 +252,7 @@ public class Assets implements Jooby.Module {
         LiveCompiler liveCompiler = new LiveCompiler(conf, compiler);
         env.onStart(liveCompiler::start);
         env.onStop(liveCompiler::stop);
-        routes.addBinding()
-            .toInstance(new Route.Definition("*", "*", liveCompiler).name("/assets/compiler"));
+        routes.use("*", "*", liveCompiler).name("/assets/compiler");
       }
 
       AssetHandler handler = dev
@@ -274,9 +269,7 @@ public class Assets implements Jooby.Module {
             .ofSeconds(conf.getDuration("assets.cache.maxAge", TimeUnit.SECONDS)));
       }
 
-      compiler.patterns().forEach(
-          pattern -> routes.addBinding()
-              .toInstance(new Route.Definition("GET", pattern, handler)));
+      compiler.patterns().forEach(pattern -> routes.get(pattern, handler));
 
     } catch (Exception ex) {
       throw Throwables.propagate(ex);

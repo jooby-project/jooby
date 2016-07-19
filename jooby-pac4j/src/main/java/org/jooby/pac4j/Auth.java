@@ -29,13 +29,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Route;
-import org.jooby.Route.Definition;
+import org.jooby.Routes;
 import org.jooby.Session;
 import org.jooby.internal.pac4j.AuthCallback;
 import org.jooby.internal.pac4j.AuthContext;
@@ -648,22 +647,19 @@ public class Auth implements Jooby.Module {
     String fullcallback = config.getString("auth.callback");
     String callback = URI.create(fullcallback).getPath();
 
-    Multibinder<Definition> routes = Multibinder
-        .newSetBinder(binder, Route.Definition.class);
+    Routes routes = env.routes();
 
     MapBinder<String, Authorizer> authorizers = MapBinder
         .newMapBinder(binder, String.class, Authorizer.class);
 
-    routes.addBinding()
-        .toInstance(new Route.Definition("*", callback, (req, rsp, chain) -> req
-            .require(AuthCallback.class).handle(req, rsp, chain))
-                .excludes("/favicon.ico")
-                .name("auth(Callback)"));
+    routes.use("*", callback, (req, rsp, chain) -> req
+        .require(AuthCallback.class).handle(req, rsp, chain))
+        .excludes("/favicon.ico")
+        .name("auth(Callback)");
 
-    routes.addBinding()
-        .toInstance(new Route.Definition("*", logoutUrl.orElse(config.getString("auth.logout.url")),
-            new AuthLogout(redirecTo.orElse(config.getString("auth.logout.redirectTo"))))
-                .name("auth(Logout)"));
+    routes.use("*", logoutUrl.orElse(config.getString("auth.logout.url")),
+        new AuthLogout(redirecTo.orElse(config.getString("auth.logout.redirectTo"))))
+        .name("auth(Logout)");
 
     if (bindings.size() == 0) {
       // no auth client, go dev friendly and add a form auth
@@ -684,7 +680,7 @@ public class Auth implements Jooby.Module {
         }
       });
       AuthFilter head = filters.get(0);
-      this.filter(binder, pattern, head.getName(), () -> head);
+      routes.use("*", pattern, head).name("auth(" + head.getName() + ")").excludes("/favicon.ico");
     });
 
     binder.bind(AuthCallback.class);
@@ -699,8 +695,8 @@ public class Auth implements Jooby.Module {
           .map(Map.Entry::getKey)
           .collect(Collectors.joining(Pac4jConstants.ELEMENT_SEPRATOR));
       // bind route
-      routes.addBinding().toInstance(new Route.Definition("*", pattern, new AuthorizerFilter(names))
-          .name("auth(" + names + ")"));
+      routes.use("*", pattern, new AuthorizerFilter(names))
+          .name("auth(" + names + ")");
 
       // bind authorizers
       e.getValue().forEach(v -> {
@@ -718,15 +714,6 @@ public class Auth implements Jooby.Module {
   @Override
   public Config config() {
     return ConfigFactory.parseResources(getClass(), "auth.conf");
-  }
-
-  private void filter(final Binder binder, final String pattern, final String name,
-      final Supplier<Route.Filter> filter) {
-
-    Multibinder.newSetBinder(binder, Route.Definition.class)
-        .addBinding()
-        .toInstance(new Route.Definition("*", pattern, filter.get()).name("auth(" + name + ")")
-            .excludes("/favicon.ico"));
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })

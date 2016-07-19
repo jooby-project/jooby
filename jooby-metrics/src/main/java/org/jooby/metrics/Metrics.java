@@ -25,14 +25,13 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.Route;
-import org.jooby.Route.Definition;
+import org.jooby.Routes;
 import org.jooby.internal.metrics.HealthCheckRegistryProvider;
 import org.jooby.internal.metrics.MetricRegistryInitializer;
 
@@ -149,11 +148,15 @@ import com.typesafe.config.Config;
  */
 public class Metrics implements Jooby.Module {
 
+  static interface Bindings {
+    void bind(Binder binder, Routes routes, Config conf);
+  }
+
   private String pattern;
 
-  private List<BiConsumer<Binder, Config>> bindings = new ArrayList<>();
+  private List<Bindings> bindings = new ArrayList<>();
 
-  private List<Route.Definition> routes = new ArrayList<>();
+  private List<Consumer<Routes>> routes = new ArrayList<>();
 
   private Set<BiFunction<MetricRegistry, Config, Reporter>> reporters = new LinkedHashSet<>();
 
@@ -203,8 +206,7 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public Metrics request(final String method, final String pattern) {
-    routes.add(
-        new Route.Definition(method, pattern, new InstrumentedHandler()));
+    routes.add(r -> r.use(method, pattern, new InstrumentedHandler()));
     return this;
   }
 
@@ -235,9 +237,8 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public Metrics ping() {
-    bindings.add((binder, conf) -> {
-      Multibinder.newSetBinder(binder, Route.Definition.class).addBinding()
-          .toInstance(new Route.Definition("GET", this.pattern + "/ping", new PingHandler()));
+    bindings.add((binder, routes, conf) -> {
+      routes.use("GET", this.pattern + "/ping", new PingHandler());
     });
     return this;
   }
@@ -248,10 +249,8 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public Metrics threadDump() {
-    bindings.add((binder, conf) -> {
-      Multibinder<Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
-      routes.addBinding().toInstance(
-          new Route.Definition("GET", this.pattern + "/threadDump", new ThreadDumpHandler()));
+    bindings.add((binder, routes, conf) -> {
+      routes.use("GET", this.pattern + "/thread-dump", new ThreadDumpHandler());
     });
     return this;
   }
@@ -265,7 +264,7 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public Metrics metric(final String name, final Metric metric) {
-    bindings.add((binder, conf) -> {
+    bindings.add((binder, routes, conf) -> {
       MapBinder.newMapBinder(binder, String.class, Metric.class).addBinding(name)
           .toInstance(metric);
     });
@@ -282,7 +281,7 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public <M extends Metric> Metrics metric(final String name, final Class<M> metric) {
-    bindings.add((binder, conf) -> {
+    bindings.add((binder, routes, conf) -> {
       MapBinder.newMapBinder(binder, String.class, Metric.class).addBinding(name)
           .to(metric);
     });
@@ -298,7 +297,7 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public Metrics healthCheck(final String name, final HealthCheck check) {
-    bindings.add((binder, conf) -> {
+    bindings.add((binder, routes, conf) -> {
       MapBinder.newMapBinder(binder, String.class, HealthCheck.class).addBinding(name)
           .toInstance(check);
     });
@@ -315,7 +314,7 @@ public class Metrics implements Jooby.Module {
    * @return This metrics module.
    */
   public <H extends HealthCheck> Metrics healthCheck(final String name, final Class<H> check) {
-    bindings.add((binder, conf) -> {
+    bindings.add((binder, routes, conf) -> {
       MapBinder.newMapBinder(binder, String.class, HealthCheck.class)
           .addBinding(name)
           .to(check);
@@ -350,16 +349,12 @@ public class Metrics implements Jooby.Module {
     MapBinder.newMapBinder(binder, String.class, Metric.class);
     MapBinder.newMapBinder(binder, String.class, HealthCheck.class);
 
-    Multibinder<Route.Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
+    Routes routes = env.routes();
 
     MetricHandler mhandler = new MetricHandler();
-    routes.addBinding()
-        .toInstance(new Route.Definition("GET", this.pattern + "/metrics", mhandler));
-    routes.addBinding()
-        .toInstance(new Route.Definition("GET", this.pattern + "/metrics/:type", mhandler));
-
-    routes.addBinding().toInstance(
-        new Route.Definition("GET", this.pattern + "/healthcheck", new HealthCheckHandler()));
+    routes.use("GET", this.pattern + "/metrics", mhandler);
+    routes.use("GET", this.pattern + "/metrics/:type", mhandler);
+    routes.use("GET", this.pattern + "/healthcheck", new HealthCheckHandler());
 
     Multibinder<Reporter> reporters = Multibinder.newSetBinder(binder, Reporter.class);
 
@@ -375,9 +370,9 @@ public class Metrics implements Jooby.Module {
         .toProvider(HealthCheckRegistryProvider.class)
         .asEagerSingleton();
 
-    bindings.forEach(it -> it.accept(binder, conf));
+    bindings.forEach(it -> it.bind(binder, routes, conf));
 
-    this.routes.forEach(it -> routes.addBinding().toInstance(it));
+    this.routes.forEach(it -> it.accept(routes));
   }
 
 }

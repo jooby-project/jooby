@@ -35,7 +35,6 @@ import javax.persistence.EntityManagerFactory;
 import org.hibernate.Session;
 import org.hibernate.jpa.AvailableSettings;
 import org.jooby.Env;
-import org.jooby.Route;
 import org.jooby.internal.hbm.HbmProvider;
 import org.jooby.internal.hbm.HbmUnitDescriptor;
 import org.jooby.jdbc.Jdbc;
@@ -44,7 +43,6 @@ import org.jooby.scope.RequestScoped;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
-import com.google.inject.multibindings.Multibinder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -226,9 +224,7 @@ public class Hbm extends Jdbc {
       emkeys.add(key);
     });
 
-    Multibinder<Route.Definition> routes = Multibinder.newSetBinder(binder, Route.Definition.class);
-    routes.addBinding().toInstance(
-        new Route.Definition("*", "*", new OpenSessionInView(emf, emkeys)).name("hbm"));
+    env.routes().use("*", "*", new OpenSessionInView(emf, emkeys)).name("hbm");
   }
 
   private static Map<Object, Object> config(final Env env, final Config config,
