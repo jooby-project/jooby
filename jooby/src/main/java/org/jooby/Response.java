@@ -630,7 +630,19 @@ public interface Response {
    */
   void end();
 
+  /**
+   * Append an after handler, will be execute before sending response.
+   *
+   * @param handler A handler
+   * @see Route.After
+   */
   void push(Route.After handler);
 
+  /**
+   * Append complete handler, will be execute after sending response.
+   *
+   * @param handler A handler
+   * @see Route.After
+   */
   void push(Route.Complete handler);
 }

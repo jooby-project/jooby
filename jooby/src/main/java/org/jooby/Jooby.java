@@ -4070,13 +4070,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
   private static void fireStop(final Injector injector, final Jooby app, final Logger log,
       final List<CheckedConsumer<Registry>> onStop) {
     // stop services
-    onStop.forEach(c -> {
-      try {
-        c.accept(app);
-      } catch (Throwable x) {
-        log.error("shutdown of {} resulted in error", c, x);
-      }
-    });
+    onStop.forEach(c -> Try.run(() -> c.accept(app))
+        .onFailure(x -> log.error("shutdown of {} resulted in error", c, x)));
   }
 
   /**

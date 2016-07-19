@@ -687,6 +687,53 @@ public class JoobyTest {
         }, boot);
   }
 
+  @Test(expected = IllegalStateException.class)
+  public void appDidnStart() throws Exception {
+    new Jooby().require(Object.class);
+  }
+
+  @Test
+  public void onStopCallbackLogError() throws Exception {
+
+    new MockUnit(Binder.class, CheckedRunnable.class)
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(routes)
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(err)
+        .expect(unit -> {
+          unit.get(CheckedRunnable.class).run();
+          unit.get(CheckedRunnable.class).run();
+          expectLastCall().andThrow(new IllegalStateException("intentional err"));
+        })
+        .run(unit -> {
+
+          Jooby app = new Jooby()
+              .onStart(unit.get(CheckedRunnable.class))
+              .onStop(unit.get(CheckedRunnable.class));
+          app.start();
+          app.stop();
+
+        }, boot);
+  }
+
   @Test
   public void defaultsWithCallback() throws Exception {
 
