@@ -46,6 +46,10 @@ The [flyway](/doc/flyway) module provides database migrations via {{flyway}}.
 
 # NoSQL
 
+## cassandra
+
+The [cassandra](/doc/cassandra) module provides access to {{cassandra}} instances.
+
 ## couchbase
 
 The [couchbase](/doc/couchbase) module provides access to {{couchbase}} instances.

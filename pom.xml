@@ -83,6 +83,7 @@
     <module>jooby-whoops</module>
     <module>jooby-gradle-plugin</module>
     <module>jooby-couchbase</module>
+    <module>jooby-cassandra</module>
     <module>coverage-report</module>
   </modules>
 
@@ -509,6 +510,12 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-cassandra</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
       <!-- bson4jackon -->
       <dependency>
         <groupId>de.undercouch</groupId>
@@ -516,10 +523,30 @@
         <version>${bson4jackson.version}</version>
       </dependency>
 
+      <!-- couchbase -->
       <dependency>
         <groupId>com.couchbase.client</groupId>
         <artifactId>java-client</artifactId>
         <version>${couchbase-client.version}</version>
+      </dependency>
+
+      <!-- cassandra -->
+      <dependency>
+        <groupId>com.datastax.cassandra</groupId>
+        <artifactId>cassandra-driver-core</artifactId>
+        <version>${cassandra.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.datastax.cassandra</groupId>
+        <artifactId>cassandra-driver-mapping</artifactId>
+        <version>${cassandra.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.datastax.cassandra</groupId>
+        <artifactId>cassandra-driver-extras</artifactId>
+        <version>${cassandra.version}</version>
       </dependency>
 
       <!-- Logging System -->
@@ -2363,6 +2390,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
 
     <jfiglet.version>0.0.7</jfiglet.version>
     <couchbase-client.version>2.3.1</couchbase-client.version>
+    <cassandra.version>3.0.3</cassandra.version>
 
     <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
 
