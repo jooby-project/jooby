@@ -1023,7 +1023,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    */
   public Route.OneArgHandler promise(final Deferred.Initializer initializer) {
     return req -> {
-      return new Deferred(req, initializer);
+      return new Deferred(initializer);
     };
   }
 

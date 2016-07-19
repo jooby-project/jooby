@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 import org.jooby.Deferred;
 import org.jooby.Env;
+import org.jooby.Request;
 import org.jooby.Route;
 import org.jooby.Routes;
 import org.jooby.test.MockUnit;
@@ -79,7 +80,7 @@ public class ReactorTest {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void fluxMapper() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Request.class)
         .expect(map)
         .expect(flux)
         .run(unit -> {
@@ -88,7 +89,7 @@ public class ReactorTest {
         }, unit -> {
           Route.Mapper mapper = unit.captured(Route.Mapper.class).iterator().next();
           Deferred deferred = (Deferred) mapper.map(unit.get(Flux.class));
-          deferred.handler((r, x) -> {
+          deferred.handler(unit.get(Request.class), (r, x) -> {
           });
         });
   }
@@ -96,29 +97,30 @@ public class ReactorTest {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void fluxMapperWithAdapter() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Scheduler.class)
-        .expect(map)
-        .expect(flux)
-        .expect(unit -> {
-          Flux flux = unit.get(Flux.class);
-          expect(flux.publishOn(unit.get(Scheduler.class))).andReturn(flux);
-        })
-        .run(unit -> {
-          new Reactor()
-              .withFlux(f -> f.publishOn(unit.get(Scheduler.class)))
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, unit -> {
-          Route.Mapper mapper = unit.captured(Route.Mapper.class).iterator().next();
-          Deferred deferred = (Deferred) mapper.map(unit.get(Flux.class));
-          deferred.handler((r, x) -> {
-          });
-        });
+    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Scheduler.class,
+        Request.class)
+            .expect(map)
+            .expect(flux)
+            .expect(unit -> {
+              Flux flux = unit.get(Flux.class);
+              expect(flux.publishOn(unit.get(Scheduler.class))).andReturn(flux);
+            })
+            .run(unit -> {
+              new Reactor()
+                  .withFlux(f -> f.publishOn(unit.get(Scheduler.class)))
+                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, unit -> {
+              Route.Mapper mapper = unit.captured(Route.Mapper.class).iterator().next();
+              Deferred deferred = (Deferred) mapper.map(unit.get(Flux.class));
+              deferred.handler(unit.get(Request.class), (r, x) -> {
+              });
+            });
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void mono() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Request.class)
         .expect(map)
         .expect(mono)
         .run(unit -> {
@@ -127,7 +129,7 @@ public class ReactorTest {
         }, unit -> {
           Route.Mapper mapper = unit.captured(Route.Mapper.class).iterator().next();
           Deferred deferred = (Deferred) mapper.map(unit.get(Mono.class));
-          deferred.handler((r, x) -> {
+          deferred.handler(unit.get(Request.class), (r, x) -> {
           });
         });
   }
@@ -135,23 +137,24 @@ public class ReactorTest {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void monoMapperWithAdapter() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Scheduler.class)
-        .expect(map)
-        .expect(mono)
-        .expect(unit -> {
-          Mono mono = unit.get(Mono.class);
-          expect(mono.publishOn(unit.get(Scheduler.class))).andReturn(mono);
-        })
-        .run(unit -> {
-          new Reactor()
-              .withMono(f -> f.publishOn(unit.get(Scheduler.class)))
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        }, unit -> {
-          Route.Mapper mapper = unit.captured(Route.Mapper.class).iterator().next();
-          Deferred deferred = (Deferred) mapper.map(unit.get(Mono.class));
-          deferred.handler((r, x) -> {
-          });
-        });
+    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Scheduler.class,
+        Request.class)
+            .expect(map)
+            .expect(mono)
+            .expect(unit -> {
+              Mono mono = unit.get(Mono.class);
+              expect(mono.publishOn(unit.get(Scheduler.class))).andReturn(mono);
+            })
+            .run(unit -> {
+              new Reactor()
+                  .withMono(f -> f.publishOn(unit.get(Scheduler.class)))
+                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
+            }, unit -> {
+              Route.Mapper mapper = unit.captured(Route.Mapper.class).iterator().next();
+              Deferred deferred = (Deferred) mapper.map(unit.get(Mono.class));
+              deferred.handler(unit.get(Request.class), (r, x) -> {
+              });
+            });
   }
 
 }

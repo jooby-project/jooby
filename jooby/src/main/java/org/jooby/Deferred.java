@@ -148,9 +148,6 @@ public class Deferred extends Result {
     void handle(Result result, Throwable exception);
   }
 
-  /** Current req. Optional. */
-  private Request req;
-
   /** Deferred initializer. Optional. */
   private Initializer initializer;
 
@@ -170,11 +167,9 @@ public class Deferred extends Result {
   /**
    * Creates a new {@link Deferred} with an initializer.
    *
-   * @param req Current request.
    * @param initializer An initializer.
    */
-  public Deferred(final Request req, final Initializer initializer) {
-    this.req = requireNonNull(req, "Request is required.");
+  public Deferred(final Initializer initializer) {
     this.initializer = requireNonNull(initializer, "Initializer is required.");
   }
 
@@ -264,12 +259,11 @@ public class Deferred extends Result {
    * @param handler A response handler.
    * @throws Exception If initializer fails to start.
    */
-  public void handler(final Handler handler) throws Exception {
+  public void handler(final Request req, final Handler handler) throws Exception {
     this.handler = requireNonNull(handler, "Handler is required.");
     if (initializer != null) {
-      initializer.run(this.req, this);
+      initializer.run(req, this);
     }
-    this.req = null;
   }
 
 }

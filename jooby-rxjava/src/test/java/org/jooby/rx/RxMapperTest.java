@@ -87,7 +87,7 @@ public class RxMapperTest {
         .expect(obsSubscribe)
         .run(unit -> {
           Deferred deferred = (Deferred) Rx.rx().map(unit.get(Observable.class));
-          deferred.handler((r, x) -> {
+          deferred.handler(null, (r, x) -> {
           });
         });
   }
@@ -108,7 +108,7 @@ public class RxMapperTest {
           Deferred deferred = (Deferred) Rx
               .rx(o -> o.observeOn(unit.get(Scheduler.class)), Function.identity())
               .map(unit.get(Observable.class));
-          deferred.handler((r, x) -> {
+          deferred.handler(null, (r, x) -> {
           });
         });
   }
@@ -121,7 +121,7 @@ public class RxMapperTest {
         .expect(sSubscribe)
         .run(unit -> {
           Deferred deferred = (Deferred) Rx.rx().map(unit.get(Single.class));
-          deferred.handler((r, x) -> {
+          deferred.handler(null, (r, x) -> {
           });
         });
   }
@@ -134,7 +134,7 @@ public class RxMapperTest {
         .expect(cSubscribe)
         .run(unit -> {
           Deferred deferred = (Deferred) Rx.rx().map(unit.get(Completable.class));
-          deferred.handler((r, x) -> {
+          deferred.handler(null, (r, x) -> {
           });
         });
   }

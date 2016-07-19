@@ -122,7 +122,7 @@ public class RxTest {
           unit.captured(CheckedRunnable.class).get(1).run();
 
           Deferred deferred = (Deferred) unit.captured(Route.Mapper.class).get(0).map(value);
-          deferred.handler((r, x) -> {
+          deferred.handler(null, (r, x) -> {
           });
         });
   }
@@ -170,7 +170,7 @@ public class RxTest {
           unit.captured(CheckedRunnable.class).get(1).run();
 
           Deferred deferred = (Deferred) unit.captured(Route.Mapper.class).get(0).map(value);
-          deferred.handler((r, x) -> {
+          deferred.handler(null, (r, x) -> {
           });
         });
   }
@@ -218,7 +218,7 @@ public class RxTest {
           unit.captured(CheckedRunnable.class).get(1).run();
 
           Deferred deferred = (Deferred) unit.captured(Route.Mapper.class).get(0).map(value);
-          deferred.handler((r, x) -> {
+          deferred.handler(null, (r, x) -> {
           });
         });
   }

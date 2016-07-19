@@ -14,7 +14,7 @@ public class DeferredTest {
 
   @Test
   public void newWithNoInit() throws Exception {
-    new Deferred().handler((r, ex) -> {
+    new Deferred().handler(null, (r, ex) -> {
     });
   }
 
@@ -24,7 +24,7 @@ public class DeferredTest {
     new Deferred(deferred -> {
       assertNotNull(deferred);
       latch.countDown();
-    }).handler((r, ex) -> {
+    }).handler(null, (r, ex) -> {
     });
     latch.await();
   }
@@ -34,11 +34,11 @@ public class DeferredTest {
     new MockUnit(Request.class)
         .run(unit -> {
           CountDownLatch latch = new CountDownLatch(1);
-          new Deferred(unit.get(Request.class), (req, deferred) -> {
+          new Deferred((req, deferred) -> {
             assertNotNull(deferred);
             assertEquals(unit.get(Request.class), req);
             latch.countDown();
-          }).handler((r, ex) -> {
+          }).handler(unit.get(Request.class), (r, ex) -> {
           });
           latch.await();
         });
@@ -49,7 +49,7 @@ public class DeferredTest {
     Object value = new Object();
     CountDownLatch latch = new CountDownLatch(1);
     Deferred deferred = new Deferred();
-    deferred.handler((result, ex) -> {
+    deferred.handler(null, (result, ex) -> {
       assertFalse(result instanceof Deferred);
       assertEquals(value, result.ifGet().get());
       assertNull(ex);
@@ -64,7 +64,7 @@ public class DeferredTest {
     Object value = new Object();
     CountDownLatch latch = new CountDownLatch(1);
     Deferred deferred = new Deferred();
-    deferred.handler((result, ex) -> {
+    deferred.handler(null, (result, ex) -> {
       assertFalse(result instanceof Deferred);
       assertEquals(value, result.ifGet().get());
       latch.countDown();
@@ -78,7 +78,7 @@ public class DeferredTest {
     Exception cause = new Exception();
     CountDownLatch latch = new CountDownLatch(1);
     Deferred deferred = new Deferred();
-    deferred.handler((result, ex) -> {
+    deferred.handler(null, (result, ex) -> {
       assertEquals(cause, ex);
       assertNull(result);
       latch.countDown();
@@ -92,7 +92,7 @@ public class DeferredTest {
     Exception cause = new Exception();
     CountDownLatch latch = new CountDownLatch(1);
     Deferred deferred = new Deferred();
-    deferred.handler((result, ex) -> {
+    deferred.handler(null, (result, ex) -> {
       assertEquals(cause, ex);
       assertNull(result);
       latch.countDown();
@@ -106,7 +106,7 @@ public class DeferredTest {
     Object value = new Object();
     CountDownLatch latch = new CountDownLatch(1);
     Deferred deferred = new Deferred();
-    deferred.handler((result, ex) -> {
+    deferred.handler(null, (result, ex) -> {
       assertFalse(result instanceof Deferred);
       assertEquals(value, result.ifGet().get());
       latch.countDown();
@@ -120,7 +120,7 @@ public class DeferredTest {
     Exception cause = new Exception();
     CountDownLatch latch = new CountDownLatch(1);
     Deferred deferred = new Deferred();
-    deferred.handler((result, ex) -> {
+    deferred.handler(null, (result, ex) -> {
       assertEquals(cause, ex);
       assertNull(result);
       latch.countDown();
@@ -136,7 +136,7 @@ public class DeferredTest {
     Object value = new Object();
     CountDownLatch latch = new CountDownLatch(1);
     Deferred deferred = new Deferred();
-    deferred.handler((result, ex) -> {
+    deferred.handler(null, (result, ex) -> {
       assertFalse(result instanceof Deferred);
       assertEquals(value, result.ifGet().get());
       latch.countDown();
@@ -150,7 +150,7 @@ public class DeferredTest {
     Exception cause = new Exception();
     CountDownLatch latch = new CountDownLatch(1);
     Deferred deferred = new Deferred();
-    deferred.handler((result, ex) -> {
+    deferred.handler(null, (result, ex) -> {
       assertEquals(cause, ex);
       assertNull(result);
       latch.countDown();

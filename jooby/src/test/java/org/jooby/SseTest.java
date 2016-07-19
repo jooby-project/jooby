@@ -327,7 +327,7 @@ public class SseTest {
               unit.get(Route.Chain.class));
         }, unit -> {
           Deferred deferred = unit.captured(Deferred.class).iterator().next();
-          deferred.handler((value, ex) -> {
+          deferred.handler(null, (value, ex) -> {
           });
 
           unit.captured(Runnable.class).iterator().next().run();
@@ -360,7 +360,7 @@ public class SseTest {
               unit.get(Route.Chain.class));
         }, unit -> {
           Deferred deferred = unit.captured(Deferred.class).iterator().next();
-          deferred.handler((value, ex) -> {
+          deferred.handler(null, (value, ex) -> {
           });
 
           unit.captured(Runnable.class).iterator().next().run();
@@ -391,7 +391,7 @@ public class SseTest {
               unit.get(Route.Chain.class));
         }, unit -> {
           Deferred deferred = unit.captured(Deferred.class).iterator().next();
-          deferred.handler((value, ex) -> {
+          deferred.handler(null, (value, ex) -> {
           });
         });
   }

@@ -321,7 +321,7 @@ public class HttpHandlerImpl implements HttpHandler {
     try {
       request.startAsync();
 
-      deferred.handler((result, ex) -> {
+      deferred.handler(req, (result, ex) -> {
         boolean close = false;
         Throwable x = null;
         try {
