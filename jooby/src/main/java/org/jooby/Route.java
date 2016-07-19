@@ -1056,6 +1056,8 @@ public interface Route {
 
     private String declaringClass;
 
+    String prefix;
+
     /**
      * Creates a new route definition.
      *
@@ -1293,7 +1295,7 @@ public interface Route {
     @Override
     public Definition name(final String name) {
       checkArgument(!Strings.isNullOrEmpty(name), "A route's name is required.");
-      this.name = normalize(name);
+      this.name = normalize(prefix != null ? prefix + "/" + name : name);
       return this;
     }
 

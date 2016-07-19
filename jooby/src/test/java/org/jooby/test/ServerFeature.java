@@ -30,6 +30,13 @@ public abstract class ServerFeature extends Jooby {
 
   private Client server = null;
 
+  public ServerFeature(final String prefix) {
+    super(prefix);
+  }
+
+  public ServerFeature() {
+  }
+
   @Before
   public void debug() {
     if (DEBUG) {

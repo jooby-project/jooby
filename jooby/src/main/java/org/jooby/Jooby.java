@@ -524,9 +524,12 @@ public class Jooby implements Routes, LifeCycle, Registry {
 
     private Mapper<?> mapper;
 
-    public MvcClass(final Class<?> routeClass, final String path) {
+    private String prefix;
+
+    public MvcClass(final Class<?> routeClass, final String path, final String prefix) {
       this.routeClass = routeClass;
       this.path = path;
+      this.prefix = prefix;
     }
 
     @Override
@@ -569,6 +572,9 @@ public class Jooby implements Routes, LifeCycle, Registry {
       attrs.build().forEach(route::attr);
       if (name != null) {
         route.name(name);
+      }
+      if (prefix != null) {
+        route.name(prefix + "/" + route.name());
       }
       if (consumes != null) {
         route.consumes(consumes);
@@ -710,7 +716,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
       } else if (it instanceof Route.Group) {
         ((Route.Group) it).routes().forEach(r -> this.bag.add(rewrite.apply(r)));
       } else if (it instanceof MvcClass) {
-        Object routes = path.<Object> map(p -> new MvcClass(((MvcClass) it).routeClass, p))
+        Object routes = path.<Object> map(p -> new MvcClass(((MvcClass) it).routeClass, p, prefix))
             .orElse(it);
         this.bag.add(routes);
       } else {
@@ -3235,7 +3241,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
   @Override
   public Route.Collection use(final Class<?> routeClass) {
     requireNonNull(routeClass, "Route class is required.");
-    MvcClass mvc = new MvcClass(routeClass, "");
+    MvcClass mvc = new MvcClass(routeClass, "", prefix);
     bag.add(mvc);
     return new Route.Collection(mvc);
   }
@@ -3247,9 +3253,9 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * @return The same route definition.
    */
   private Route.Definition appendDefinition(final Route.Definition route) {
-    if (prefix != null) {
-      route.name(prefix + "/" + route.name());
-    }
+    route.prefix = prefix;
+    // reset name will update the name if prefix != null
+    route.name(route.name());
     bag.add(route);
     return route;
   }
@@ -3745,13 +3751,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
         MvcClass mvcRoute = ((MvcClass) candidate);
         Class<?> mvcClass = mvcRoute.routeClass;
         String path = ((MvcClass) candidate).path;
-        MvcRoutes.routes(env, classInfo, path, mvcClass).forEach(route -> {
-          mvcRoute.apply(route);
-          if (prefix != null) {
-            route.name(prefix + "/" + route.name());
-          }
-          result.add(route);
-        });
+        MvcRoutes.routes(env, classInfo, path, mvcClass)
+            .forEach(route -> result.add(mvcRoute.apply(route)));
       } else {
         result.add(candidate);
       }
