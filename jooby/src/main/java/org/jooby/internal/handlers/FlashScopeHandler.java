@@ -27,7 +27,6 @@ import org.jooby.Cookie;
 import org.jooby.FlashScope;
 import org.jooby.Request;
 import org.jooby.Response;
-import org.jooby.Result;
 import org.jooby.Route;
 
 public class FlashScopeHandler implements Route.Filter {
@@ -56,30 +55,32 @@ public class FlashScopeHandler implements Route.Filter {
     req.set(FlashScope.NAME, flashScope);
 
     // wrap & proceed
-    chain.next(req, new Response.Forwarding(rsp) {
-      @Override
-      public void send(final Result result) throws Throwable {
-        // 1. no change detect
-        if (flashScope.equals(copy)) {
-          // 1.a. existing data available, discard
-          if (flashScope.size() > 0) {
-            rsp.cookie(new Cookie.Definition(name, "").maxAge(0));
-          }
-        } else {
-          // 2. change detected
-          if (flashScope.size() == 0) {
-            // 2.a everything was removed from app logic
-            rsp.cookie(new Cookie.Definition(name, "").maxAge(0));
-          } else {
-            // 2.b there is something to see in the next request
-            rsp.cookie(name, encoder.apply(flashScope));
-          }
-        }
-        // send
-        super.send(result);
-      }
-    });
+    rsp.push(finalizeFlash(copy, flashScope));
 
+    chain.next(req, rsp);
+  }
+
+  private Route.After finalizeFlash(final Map<String, String> initialScope,
+      final Map<String, String> scope) {
+    return (req, rsp, result) -> {
+      // 1. no change detect
+      if (scope.equals(initialScope)) {
+        // 1.a. existing data available, discard
+        if (scope.size() > 0) {
+          rsp.cookie(new Cookie.Definition(name, "").maxAge(0));
+        }
+      } else {
+        // 2. change detected
+        if (scope.size() == 0) {
+          // 2.a everything was removed from app logic
+          rsp.cookie(new Cookie.Definition(name, "").maxAge(0));
+        } else {
+          // 2.b there is something to see in the next request
+          rsp.cookie(name, encoder.apply(scope));
+        }
+      }
+      return result;
+    };
   }
 
 }
