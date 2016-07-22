@@ -123,7 +123,7 @@ public class SessionImpl implements Session {
     this.resolver = resolver;
     this.isNew = isNew;
     this.sessionId = sessionId;
-    long now = System.currentTimeMillis();
+    long now = COOKIE_SESSION.equals(sessionId) ? -1 : System.currentTimeMillis();
     this.createdAt = now;
     this.accessedAt = now;
     this.savedAt = -1;

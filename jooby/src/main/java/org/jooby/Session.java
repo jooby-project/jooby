@@ -107,6 +107,9 @@ import com.google.common.io.BaseEncoding;
  */
 public interface Session {
 
+  /** Global/Shared id of cookie sessions. */
+  String COOKIE_SESSION = "cookieSession";
+
   /**
    * Hold session related configuration parameters.
    *
@@ -131,6 +134,13 @@ public interface Session {
      */
     public Definition(final Class<? extends Store> store) {
       this.store = requireNonNull(store, "A session store is required.");
+      cookie = new Cookie.Definition();
+    }
+
+    /**
+     * Creates a new session definition with a client store.
+     */
+    Definition() {
       cookie = new Cookie.Definition();
     }
 
@@ -320,38 +330,55 @@ public interface Session {
   }
 
   /**
+   * A session ID for server side sessions. Otherwise {@link #COOKIE_SESSION} for client side sessions.
+   *
+   * Session ID on client sessions doesn't make sense because resolution of session is done via
+   * cookie name.
+   *
+   * Another reason of not saving the session ID inside the cookie, is the cookie size (up to 4kb).
+   * If the session ID is persisted then users lost space to save business data.
+   *
    * @return Session ID.
    */
   String id();
 
   /**
+   * The time when this session was created, measured in milliseconds since midnight January 1, 1970
+   * GMT for server side sessions. Or <code>-1</code> for client side sessions.
+   *
    * @return The time when this session was created, measured in milliseconds since midnight January
-   *         1, 1970 GMT.
+   *         1, 1970 GMT for server side sessions. Or <code>-1</code> for client side sessions.
    */
   long createdAt();
 
   /**
-   * @return Last time the session was save it.
+   * Last time the session was save it as epoch millis or <code>-1</code> for client side sessions.
+   *
+   * @return Last time the session was save it as epoch millis or <code>-1</code> for client side
+   *         sessions.
    */
   long savedAt();
 
   /**
    * The last time the client sent a request associated with this session, as the number of
    * milliseconds since midnight January 1, 1970 GMT, and marked by the time the container
-   * received the request.
+   * received the request. Or <code>-1</code> for client side sessions.
    *
    * <p>
    * Actions that your application takes, such as getting or setting a value associated with the
    * session, do not affect the access time.
    * </p>
    *
-   * @return Last time the client sent a request.
+   * @return Last time the client sent a request. Or <code>-1</code> for client side sessions.
    */
   long accessedAt();
 
   /**
+   * The time when this session is going to expire, measured in milliseconds since midnight
+   * January 1, 1970 GMT. Or <code>-1</code> for client side sessions.
+   *
    * @return The time when this session is going to expire, measured in milliseconds since midnight
-   *         January 1, 1970 GMT.
+   *         January 1, 1970 GMT. Or <code>-1</code> for client side sessions.
    */
   long expiryAt();
 
@@ -359,8 +386,8 @@ public interface Session {
    * Get a object from this session. If the object isn't found this method returns an empty
    * optional.
    *
-   * @param name A local var's name.
-   * @return A value or empty optional.
+   * @param name Attribute's name.
+   * @return Value as mutant.
    */
   Mutant get(final String name);
 
@@ -381,8 +408,8 @@ public interface Session {
    * Set a session local using a the given name. If a local already exists, it will be replaced
    * with the new value. Keep in mind that null values are NOT allowed.
    *
-   * @param name A local's name.
-   * @param value A local's value.
+   * @param name Attribute's name.
+   * @param value Attribute's value.
    * @return This session.
    */
   default Session set(final String name, final byte value) {
@@ -393,8 +420,8 @@ public interface Session {
    * Set a session local using a the given name. If a local already exists, it will be replaced
    * with the new value. Keep in mind that null values are NOT allowed.
    *
-   * @param name A local's name.
-   * @param value A local's value.
+   * @param name Attribute's name.
+   * @param value Attribute's value.
    * @return This session.
    */
   default Session set(final String name, final char value) {
@@ -405,8 +432,8 @@ public interface Session {
    * Set a session local using a the given name. If a local already exists, it will be replaced
    * with the new value. Keep in mind that null values are NOT allowed.
    *
-   * @param name A local's name.
-   * @param value A local's value.
+   * @param name Attribute's name.
+   * @param value Attribute's value.
    * @return This session.
    */
   default Session set(final String name, final boolean value) {
@@ -417,8 +444,8 @@ public interface Session {
    * Set a session local using a the given name. If a local already exists, it will be replaced
    * with the new value. Keep in mind that null values are NOT allowed.
    *
-   * @param name A local's name.
-   * @param value A local's value.
+   * @param name Attribute's name.
+   * @param value Attribute's value.
    * @return This session.
    */
   default Session set(final String name, final short value) {
@@ -429,8 +456,8 @@ public interface Session {
    * Set a session local using a the given name. If a local already exists, it will be replaced
    * with the new value. Keep in mind that null values are NOT allowed.
    *
-   * @param name A local's name.
-   * @param value A local's value.
+   * @param name Attribute's name.
+   * @param value Attribute's value.
    * @return This session.
    */
   default Session set(final String name, final int value) {
@@ -441,8 +468,8 @@ public interface Session {
    * Set a session local using a the given name. If a local already exists, it will be replaced
    * with the new value. Keep in mind that null values are NOT allowed.
    *
-   * @param name A local's name.
-   * @param value A local's value.
+   * @param name Attribute's name.
+   * @param value Attribute's value.
    * @return This session.
    */
   default Session set(final String name, final long value) {
@@ -453,8 +480,8 @@ public interface Session {
    * Set a session local using a the given name. If a local already exists, it will be replaced
    * with the new value. Keep in mind that null values are NOT allowed.
    *
-   * @param name A local's name.
-   * @param value A local's value.
+   * @param name Attribute's name.
+   * @param value Attribute's value.
    * @return This session.
    */
   default Session set(final String name, final float value) {
@@ -465,8 +492,8 @@ public interface Session {
    * Set a session local using a the given name. If a local already exists, it will be replaced
    * with the new value. Keep in mind that null values are NOT allowed.
    *
-   * @param name A local's name.
-   * @param value A local's value.
+   * @param name Attribute's name.
+   * @param value Attribute's value.
    * @return This session.
    */
   default Session set(final String name, final double value) {
@@ -477,8 +504,8 @@ public interface Session {
    * Set a session local using a the given name. If a local already exists, it will be replaced
    * with the new value. Keep in mind that null values are NOT allowed.
    *
-   * @param name A local's name.
-   * @param value A local's value.
+   * @param name Attribute's name.
+   * @param value Attribute's value.
    * @return This session.
    */
   default Session set(final String name, final CharSequence value) {
@@ -489,8 +516,8 @@ public interface Session {
    * Set a session local using a the given name. If a local already exists, it will be replaced
    * with the new value. Keep in mind that null values are NOT allowed.
    *
-   * @param name A local's name.
-   * @param value A local's value.
+   * @param name Attribute's name.
+   * @param value Attribute's value.
    * @return This session.
    */
   Session set(final String name, final String value);
@@ -498,7 +525,7 @@ public interface Session {
   /**
    * Remove a local value (if any) from session locals.
    *
-   * @param name A local var's name.
+   * @param name Attribute's name.
    * @return Existing value or empty optional.
    */
   Mutant unset(final String name);

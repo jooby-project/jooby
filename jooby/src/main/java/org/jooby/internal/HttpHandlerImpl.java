@@ -349,10 +349,10 @@ public class HttpHandlerImpl implements HttpHandler {
     if (x != null) {
       handleErr(req, rsp, x);
     }
-    requestScope.exit();
     if (done) {
       done(req, rsp, x, close);
     }
+    requestScope.exit();
   }
 
   private void handleErr(final RequestImpl req, final ResponseImpl rsp, final Throwable ex) {

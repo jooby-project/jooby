@@ -21,6 +21,7 @@ import org.powermock.api.easymock.PowerMock;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.primitives.Primitives;
 
 @SuppressWarnings({"rawtypes", "unchecked" })
 public class MockUnit {
@@ -38,10 +39,23 @@ public class MockUnit {
     public T build(final Object... args) throws Exception {
       mockClasses.add(type);
       if (types == null) {
-        types = new Class[args.length];
-        for (int i = 0; i < types.length; i++) {
-          types[i] = args[i].getClass();
-        }
+        types = Arrays.asList(type.getDeclaredConstructors())
+            .stream()
+            .filter(c -> {
+              Class<?>[] types = c.getParameterTypes();
+              if (types.length == args.length) {
+                for (int i = 0; i < types.length; i++) {
+                  if (!types[i].isInstance(args[i])
+                      && !Primitives.wrap(types[i]).isInstance(args[i])) {
+                    return false;
+                  }
+                }
+                return true;
+              }
+              return false;
+            }).map(c -> c.getParameterTypes())
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Unable to find parameter types"));
       }
       T mock = PowerMock.createMockAndExpectNew(type, types, args);
       partialMocks.add(mock);

@@ -32,12 +32,14 @@ import org.jooby.Session.Store;
 import org.jooby.internal.AppPrinter;
 import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
+import org.jooby.internal.CookieSessionManager;
 import org.jooby.internal.DefaulErrRenderer;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.ParameterNameProvider;
 import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteImpl;
 import org.jooby.internal.RouteMetadata;
+import org.jooby.internal.ServerSessionManager;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.parser.BeanParser;
@@ -363,6 +365,7 @@ public class JoobyTest {
     Binder binder = unit.get(Binder.class);
 
     AnnotatedBindingBuilder<SessionManager> smABB = unit.mock(AnnotatedBindingBuilder.class);
+    expect(smABB.to(ServerSessionManager.class)).andReturn(smABB);
     smABB.asEagerSingleton();
 
     ScopedBindingBuilder ssSBB = unit.mock(ScopedBindingBuilder.class);
@@ -375,7 +378,8 @@ public class JoobyTest {
     expect(binder.bind(Session.Store.class)).andReturn(ssABB);
 
     AnnotatedBindingBuilder<Session.Definition> sdABB = unit.mock(AnnotatedBindingBuilder.class);
-    sdABB.toInstance(isA(Session.Definition.class));
+    expect(sdABB.toProvider(isA(com.google.inject.Provider.class))).andReturn(sdABB);
+    sdABB.asEagerSingleton();
 
     expect(binder.bind(Session.Definition.class)).andReturn(sdABB);
   };
@@ -644,6 +648,77 @@ public class JoobyTest {
           jooby.start();
 
         }, boot);
+  }
+
+  @Test
+  public void cookieSession() throws Exception {
+
+    new MockUnit(Binder.class)
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(unit -> {
+          Binder binder = unit.get(Binder.class);
+
+          AnnotatedBindingBuilder<SessionManager> smABB = unit.mock(AnnotatedBindingBuilder.class);
+          expect(smABB.to(CookieSessionManager.class)).andReturn(smABB);
+          smABB.asEagerSingleton();
+
+          expect(binder.bind(SessionManager.class)).andReturn(smABB);
+
+          AnnotatedBindingBuilder<Session.Definition> sdABB = unit
+              .mock(AnnotatedBindingBuilder.class);
+          expect(sdABB.toProvider(isA(com.google.inject.Provider.class))).andReturn(sdABB);
+          sdABB.asEagerSingleton();
+
+          expect(binder.bind(Session.Definition.class)).andReturn(sdABB);
+        })
+        .expect(routes)
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(err)
+        .run(unit -> {
+
+          Jooby jooby = new Jooby();
+
+          jooby.use(ConfigFactory.empty()
+              .withValue("application.secret", ConfigValueFactory.fromAnyRef("234")));
+
+          jooby.cookieSession();
+
+          jooby.start();
+
+        }, boot);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void cookieSessionShouldFailWhenApplicationSecretIsnotPresent() throws Throwable {
+
+    try {
+      Jooby jooby = new Jooby();
+
+      jooby.cookieSession();
+
+      jooby.start();
+
+    } catch (IllegalStateException ex) {
+      assertEquals("Required property 'application.secret' is missing", ex.getMessage());
+      throw ex;
+    }
   }
 
   @Test
@@ -2301,6 +2376,7 @@ public class JoobyTest {
 
               AnnotatedBindingBuilder<SessionManager> smABB = unit
                   .mock(AnnotatedBindingBuilder.class);
+              expect(smABB.to(ServerSessionManager.class)).andReturn(smABB);
               smABB.asEagerSingleton();
 
               ScopedBindingBuilder ssSBB = unit.mock(ScopedBindingBuilder.class);
@@ -2314,7 +2390,9 @@ public class JoobyTest {
 
               AnnotatedBindingBuilder<Session.Definition> sdABB = unit
                   .mock(AnnotatedBindingBuilder.class);
-              sdABB.toInstance(unit.capture(Session.Definition.class));
+              expect(sdABB.toProvider(unit.capture(com.google.inject.Provider.class)))
+                  .andReturn(sdABB);
+              sdABB.asEagerSingleton();
 
               expect(binder.bind(Session.Definition.class)).andReturn(sdABB);
             })
@@ -2332,11 +2410,11 @@ public class JoobyTest {
 
           jooby.start();
 
-        }, boot,
-            unit -> {
-              Definition def = unit.captured(Session.Definition.class).iterator().next();
-              assertEquals(unit.get(Store.class).getClass(), def.store());
-            });
+        }, boot, unit -> {
+          Definition def = (Definition) unit.captured(com.google.inject.Provider.class)
+              .iterator().next().get();
+          assertEquals(unit.get(Store.class).getClass(), def.store());
+        });
   }
 
   @Test

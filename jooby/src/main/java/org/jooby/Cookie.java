@@ -401,7 +401,7 @@ public interface Cookie {
      * Signed value looks like:
      *
      * <pre>
-     *    [raw value] '|' [signed value]
+     *   [signed value] '|' [raw value]
      * </pre>
      *
      * @param value A value to sign.
@@ -416,7 +416,7 @@ public interface Cookie {
         Mac mac = Mac.getInstance(HMAC_SHA256);
         mac.init(new SecretKeySpec(secret.getBytes(), HMAC_SHA256));
         byte[] bytes = mac.doFinal(value.getBytes());
-        return value + SEP + EQ.matcher(BaseEncoding.base64().encode(bytes)).replaceAll("");
+        return EQ.matcher(BaseEncoding.base64().encode(bytes)).replaceAll("") + SEP + value;
       } catch (Exception ex) {
         throw new IllegalArgumentException("Can't sing value", ex);
       }
@@ -437,7 +437,7 @@ public interface Cookie {
       if (sep <= 0) {
         return null;
       }
-      String str = value.substring(0, sep);
+      String str = value.substring(sep + 1);
       String mac = sign(str, secret);
 
       return mac.equals(value) ? str : null;

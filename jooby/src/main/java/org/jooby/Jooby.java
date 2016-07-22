@@ -76,6 +76,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -93,6 +94,7 @@ import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.AppPrinter;
 import org.jooby.internal.BuiltinParser;
 import org.jooby.internal.BuiltinRenderer;
+import org.jooby.internal.CookieSessionManager;
 import org.jooby.internal.DefaulErrRenderer;
 import org.jooby.internal.HttpHandlerImpl;
 import org.jooby.internal.JvmInfo;
@@ -101,6 +103,7 @@ import org.jooby.internal.ParameterNameProvider;
 import org.jooby.internal.RequestScope;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.ServerLookup;
+import org.jooby.internal.ServerSessionManager;
 import org.jooby.internal.SessionManager;
 import org.jooby.internal.TypeConverters;
 import org.jooby.internal.handlers.HeadHandler;
@@ -131,6 +134,7 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.Provider;
 import com.google.inject.Stage;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
@@ -1101,8 +1105,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   /**
-   * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns.
-   * Sessions are not persisted by defaults.
+   * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns, or
+   * save data in redis, memcached, mongodb, couchbase, etc..
    *
    * @param store A session store.
    * @return A session store definition.
@@ -1113,8 +1117,28 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   /**
-   * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns.
-   * Sessions are not persisted by defaults.
+   * Setup a session store that saves data in a the session cookie. It makes the application
+   * stateless, which help to scale easily. Keep in mind that a cookie has a limited size (up to
+   * 4kb) so you must pay attention to what you put in the session object (don't use as cache).
+   *
+   * Cookie session signed data using the <code>application.secret</code> property, so you must
+   * provide an <code>application.secret</code> value. On dev environment you can set it in your
+   * <code>.conf</code> file. In prod is probably better to provide as command line argument and/or
+   * environment variable. Just make sure to keep it private.
+   *
+   * Please note {@link Session#id()}, {@link Session#accessedAt()}, etc.. make no sense for cookie
+   * sessions, just the {@link Session#attributes()}.
+   *
+   * @return A session definition/configuration object.
+   */
+  public Session.Definition cookieSession() {
+    this.session = new Session.Definition();
+    return this.session;
+  }
+
+  /**
+   * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns, or
+   * save data in redis, memcached, mongodb, couchbase, etc..
    *
    * @param store A session store.
    * @return A session store definition.
@@ -3830,6 +3854,11 @@ public class Jooby implements Routes, LifeCycle, Registry {
       finalEnv = env;
     }
 
+    boolean cookieSession = session.store() == null;
+    if (cookieSession && !finalConfig.hasPath("application.secret")) {
+      throw new IllegalStateException("Required property 'application.secret' is missing");
+    }
+
     /** dependency injection */
     @SuppressWarnings("unchecked")
     Injector injector = Guice.createInjector(stage, binder -> {
@@ -3951,14 +3980,21 @@ public class Jooby implements Routes, LifeCycle, Registry {
       binder.bindScope(RequestScoped.class, requestScope);
 
       /** session manager */
-      binder.bind(SessionManager.class).asEagerSingleton();
-      binder.bind(Session.Definition.class).toInstance(session);
+      binder.bind(Session.Definition.class)
+          .toProvider(session(finalConfig.getConfig("session"), session))
+          .asEagerSingleton();
       Object sstore = session.store();
-      if (sstore instanceof Class) {
-        binder.bind(Session.Store.class).to((Class<? extends Store>) sstore)
+      if (cookieSession) {
+        binder.bind(SessionManager.class).to(CookieSessionManager.class)
             .asEagerSingleton();
       } else {
-        binder.bind(Session.Store.class).toInstance((Store) sstore);
+        binder.bind(SessionManager.class).to(ServerSessionManager.class).asEagerSingleton();
+        if (sstore instanceof Class) {
+          binder.bind(Session.Store.class).to((Class<? extends Store>) sstore)
+              .asEagerSingleton();
+        } else {
+          binder.bind(Session.Store.class).toInstance((Store) sstore);
+        }
       }
 
       binder.bind(Request.class).toProvider(Providers.outOfScope(Request.class))
@@ -3984,6 +4020,45 @@ public class Jooby implements Routes, LifeCycle, Registry {
     this.bag = ImmutableSet.of();
 
     return injector;
+  }
+
+  private static Provider<Session.Definition> session(final Config $session,
+      final Session.Definition session) {
+    return () -> {
+      // save interval
+      session.saveInterval(session.saveInterval()
+          .orElse($session.getDuration("saveInterval", TimeUnit.MILLISECONDS)));
+
+      // build cookie
+      Cookie.Definition source = session.cookie();
+
+      source.name(source.name()
+          .orElse($session.getString("cookie.name")));
+
+      if (!source.comment().isPresent() && $session.hasPath("cookie.comment")) {
+        source.comment($session.getString("cookie.comment"));
+      }
+      if (!source.domain().isPresent() && $session.hasPath("cookie.domain")) {
+        source.domain($session.getString("cookie.domain"));
+      }
+      source.httpOnly(source.httpOnly()
+          .orElse($session.getBoolean("cookie.httpOnly")));
+
+      Object maxAge = $session.getAnyRef("cookie.maxAge");
+      if (maxAge instanceof String) {
+        maxAge = $session.getDuration("cookie.maxAge", TimeUnit.SECONDS);
+      }
+      source.maxAge(source.maxAge()
+          .orElse(((Number) maxAge).intValue()));
+
+      source.path(source.path()
+          .orElse($session.getString("cookie.path")));
+
+      source.secure(source.secure()
+          .orElse($session.getBoolean("cookie.secure")));
+
+      return session;
+    };
   }
 
   private static Consumer<? super Object> bindService(final Set<Object> src,

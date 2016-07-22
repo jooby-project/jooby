@@ -26,7 +26,7 @@ public class CookieSignatureTest {
 
   @Test
   public void sign() throws Exception {
-    assertEquals("jooby|qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA",
+    assertEquals("qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA|jooby",
         Signature.sign("jooby", "124Qwerty"));
   }
 
@@ -46,25 +46,25 @@ public class CookieSignatureTest {
   @Test
   public void unsign() throws Exception {
     assertEquals("jooby",
-        Signature.unsign("jooby|qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA", "124Qwerty"));
+        Signature.unsign("qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA|jooby", "124Qwerty"));
   }
 
   @Test
   public void valid() throws Exception {
     assertEquals(true,
-        Signature.valid("jooby|qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA", "124Qwerty"));
+        Signature.valid("qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA|jooby", "124Qwerty"));
   }
 
   @Test
   public void invalid() throws Exception {
     assertEquals(false,
-        Signature.valid("jooby|QAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA", "124Qwerty"));
+        Signature.valid("QAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA|jooby", "124Qwerty"));
 
     assertEquals(false,
-        Signature.valid("joobi|qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA", "124Qwerty"));
+        Signature.valid("qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA|joobi", "124Qwerty"));
 
     assertEquals(false,
-        Signature.valid("joobi#qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA", "124Qwerty"));
+        Signature.valid("#qAlLNkSRVE4aZb+tz6avvkVIEmmR30BH8cpr3x9ZdFA#joobi", "124Qwerty"));
   }
 
 }
