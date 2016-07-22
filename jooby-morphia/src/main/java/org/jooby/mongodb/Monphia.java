@@ -23,9 +23,8 @@ import static java.util.Objects.requireNonNull;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import javax.inject.Provider;
-
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.internal.mongodb.AutoIncID;
 import org.jooby.internal.mongodb.GuiceObjectFactory;
 import org.mongodb.morphia.Datastore;
@@ -49,7 +48,7 @@ import com.typesafe.config.Config;
  * </p>
  *
  * <pre>
- * db = "mongo://localhost/mydb"
+ * db = "mongodb://localhost/mydb"
  * </pre>
  *
  * <pre>
@@ -252,20 +251,21 @@ public class Monphia extends Mongodb {
         this.morphiaCbck.accept(morphia, conf);
       }
 
-      Provider<Datastore> ds = () -> {
-        Datastore datastore = morphia.createDatastore(client.get(), mapper, db);
-        if (gen != null) {
-          mapper.addInterceptor(new AutoIncID(datastore, gen));
-        }
-        if (callback != null) {
-          callback.accept(datastore);
-        }
-        return datastore;
-      };
+      Datastore datastore = morphia.createDatastore(client, mapper, db);
+      if (gen != null) {
+        mapper.addInterceptor(new AutoIncID(datastore, gen));
+      }
+      if (callback != null) {
+        callback.accept(datastore);
+      }
 
-      binder.bind(key(Morphia.class, db)).toInstance(morphia);
-      binder.bind(key(GuiceObjectFactory.class, db)).asEagerSingleton();
-      binder.bind(key(Datastore.class, db)).toProvider(ds).asEagerSingleton();
+      ServiceKey serviceKey = env.serviceKey();
+      serviceKey.generate(Morphia.class, db,
+          k -> binder.bind(k).toInstance(morphia));
+      serviceKey.generate(Datastore.class, db,
+          k -> binder.bind(k).toInstance(datastore));
+
+      env.onStart(registry -> new GuiceObjectFactory(registry, morphia));
     });
   }
 

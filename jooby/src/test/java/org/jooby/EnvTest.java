@@ -1,8 +1,11 @@
 package org.jooby;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -12,6 +15,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+import javaslang.control.Try.CheckedConsumer;
 import javaslang.control.Try.CheckedRunnable;
 
 public class EnvTest {
@@ -79,6 +83,59 @@ public class EnvTest {
 
     Env env = Env.DEFAULT.build(config);
     assertEquals("var", env.resolve("var"));
+  }
+
+  @Test
+  public void serviceKey() {
+    Config config = ConfigFactory.empty()
+        .withValue("var", ConfigValueFactory.fromAnyRef("foo.bar"));
+
+    Env env = Env.DEFAULT.build(config);
+    assertNotNull(env.serviceKey());
+
+    assertNotNull(new Env() {
+
+      @Override
+      public LifeCycle onStart(final CheckedConsumer<Registry> task) {
+        return null;
+      }
+
+      @Override
+      public LifeCycle onStop(final CheckedConsumer<Registry> task) {
+        return null;
+      }
+
+      @Override
+      public String name() {
+        return null;
+      }
+
+      @Override
+      public Routes routes() throws UnsupportedOperationException {
+        return null;
+      }
+
+      @Override
+      public Config config() {
+        return null;
+      }
+
+      @Override
+      public Locale locale() {
+        return null;
+      }
+
+      @Override
+      public List<CheckedConsumer<Registry>> startTasks() {
+        return null;
+      }
+
+      @Override
+      public List<CheckedConsumer<Registry>> stopTasks() {
+        return null;
+      }
+
+    }.serviceKey());
   }
 
   @Test(expected = NullPointerException.class)

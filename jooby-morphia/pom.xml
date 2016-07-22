@@ -90,6 +90,18 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-jackson</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-netty</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 </project>

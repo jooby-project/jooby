@@ -27,23 +27,22 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.jooby.Registry;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.ObjectFactory;
 import org.mongodb.morphia.mapping.MappedField;
 import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.mapping.MapperOptions;
 
-import com.google.inject.Injector;
 import com.mongodb.DBObject;
 
 public class GuiceObjectFactory implements ObjectFactory {
 
-  private Injector injector;
+  private Registry injector;
 
   private ObjectFactory delegate;
 
-  @Inject
-  public GuiceObjectFactory(final Injector injector, final Morphia morphia) {
+  public GuiceObjectFactory(final Registry injector, final Morphia morphia) {
     this.injector = requireNonNull(injector, "Injector is required.");
     MapperOptions options = morphia.getMapper().getOptions();
     this.delegate = options.getObjectFactory();
@@ -53,7 +52,7 @@ public class GuiceObjectFactory implements ObjectFactory {
   @Override
   public <T> T createInstance(final Class<T> clazz) {
     if (shouldInject(clazz)) {
-      return injector.getInstance(clazz);
+      return injector.require(clazz);
     }
     return delegate.createInstance(clazz);
   }
@@ -61,7 +60,7 @@ public class GuiceObjectFactory implements ObjectFactory {
   @Override
   public <T> T createInstance(final Class<T> clazz, final DBObject dbObj) {
     if (shouldInject(clazz)) {
-      return injector.getInstance(clazz);
+      return injector.require(clazz);
     }
     return delegate.createInstance(clazz, dbObj);
   }
@@ -70,7 +69,7 @@ public class GuiceObjectFactory implements ObjectFactory {
   public Object createInstance(final Mapper mapper, final MappedField mf, final DBObject dbObj) {
     Class<?> clazz = mf.getType();
     if (shouldInject(clazz)) {
-      return injector.getInstance(clazz);
+      return injector.require(clazz);
     }
     return delegate.createInstance(mapper, mf, dbObj);
   }

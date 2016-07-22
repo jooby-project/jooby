@@ -32,44 +32,22 @@ public class AkkaTest {
               .andReturn(unit.get(ActorSystem.class));
         })
         .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.serviceKey()).andReturn(new Env.ServiceKey());
+
           ActorSystem sys = unit.get(ActorSystem.class);
 
           LinkedBindingBuilder<ActorSystem> lbbSys = unit.mock(LinkedBindingBuilder.class);
           lbbSys.toInstance(sys);
+          lbbSys.toInstance(sys);
 
           Binder binder = unit.get(Binder.class);
 
+          expect(binder.bind(Key.get(ActorSystem.class, Names.named("default")))).andReturn(lbbSys);
           expect(binder.bind(Key.get(ActorSystem.class))).andReturn(lbbSys);
         })
         .run(unit -> {
           new Akka().configure(unit.get(Env.class), unit.get(Config.class),
-              unit.get(Binder.class));
-        });
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  public void named() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, ActorSystem.class)
-        .expect(unit -> {
-          unit.mockStatic(ActorSystem.class);
-          expect(ActorSystem.create("default", unit.get(Config.class)))
-              .andReturn(unit.get(ActorSystem.class));
-        })
-        .expect(unit -> {
-
-          ActorSystem sys = unit.get(ActorSystem.class);
-
-          LinkedBindingBuilder<ActorSystem> lbbSys = unit.mock(LinkedBindingBuilder.class);
-          lbbSys.toInstance(sys);
-
-          Binder binder = unit.get(Binder.class);
-
-          expect(binder.bind(Key.get(ActorSystem.class, Names.named("default"))))
-              .andReturn(lbbSys);
-        })
-        .run(unit -> {
-          new Akka().named().configure(unit.get(Env.class), unit.get(Config.class),
               unit.get(Binder.class));
         });
   }

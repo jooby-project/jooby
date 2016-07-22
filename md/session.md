@@ -45,6 +45,22 @@ The cookie session store depends on the `application.secret` property. We sign t
 
 If `memory` or `cookie` store are not an option, then you can choose one of the [high performance session store](/doc/session) provided by {{jooby}}. We provide session stores for `redis`, `memcached`, `mongodb`, `cassandra`, `couchbase`, `hazelcast` and [lot more](/doc/session).
 
+```java
+{
+  cookieSession();
+
+  get("/", req -> {
+    Session session = req.session();
+
+    // set attribute
+    session.set("foo", "bar");
+
+    // get attribute
+    return session.get("foo").value();
+  });
+}
+```
+
 ## no timeout
 
 There is no timeout for sessions from server perspective. By default, a session will expire when

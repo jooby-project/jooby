@@ -94,8 +94,8 @@ Use [named]({{defdocs}}/mongodb/Mongodb.html#-named) when you need two or more `
 
 ```java
 {
-  use(new Mongodb("db1").named());
-  use(new Mongodb("db2").named());
+  use(new Mongodb("db1"));
+  use(new Mongodb("db2"));
 
   get("/", req -> {
     MongoClient client1 = req.require("db1", MongoClient.class);

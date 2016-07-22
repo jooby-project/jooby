@@ -24,8 +24,6 @@ import org.jooby.Env;
 import org.jooby.Jooby.Module;
 
 import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -62,8 +60,6 @@ import akka.actor.ActorSystem;
  */
 public class Akka implements Module {
 
-  private boolean named;
-
   private String name;
 
   /**
@@ -82,25 +78,13 @@ public class Akka implements Module {
     this("default");
   }
 
-  /**
-   * Bind the {@link ActorSystem} system using it's name.
-   *
-   * @return This module.
-   */
-  public Akka named() {
-    named = true;
-    return this;
-  }
-
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     ActorSystem sys = ActorSystem.create(name, conf);
 
-    Key<ActorSystem> syskey = Key.get(ActorSystem.class);
-    if (named) {
-      syskey = Key.get(ActorSystem.class, Names.named(name));
-    }
-    binder.bind(syskey).toInstance(sys);
+    env.serviceKey().generate(ActorSystem.class, name, syskey -> {
+      binder.bind(syskey).toInstance(sys);
+    });
   }
 
   @Override

@@ -3,11 +3,9 @@ package org.jooby.mongodb;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import javax.inject.Provider;
 
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
@@ -18,7 +16,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.name.Names;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -30,65 +27,46 @@ import com.typesafe.config.ConfigValueFactory;
 import javaslang.control.Try.CheckedRunnable;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Mongodb.class, MongodbManaged.class, MongoClient.class })
+@PrepareForTest({Mongodb.class, MongoClient.class })
 public class MongodbTest {
 
   private Config $mongodb = ConfigFactory.parseResources(getClass(), "mongodb.conf");
 
   @SuppressWarnings("unchecked")
   MockUnit.Block mongodb = unit -> {
-    ScopedBindingBuilder mcSBB = unit.mock(ScopedBindingBuilder.class);
-    mcSBB.asEagerSingleton();
-
     AnnotatedBindingBuilder<MongoClientURI> mcuABB = unit.mock(AnnotatedBindingBuilder.class);
     mcuABB.toInstance(isA(MongoClientURI.class));
+    mcuABB.toInstance(isA(MongoClientURI.class));
+
+    MongoClient client = unit.constructor(MongoClient.class)
+        .args(MongoClientURI.class)
+        .build(isA(MongoClientURI.class));
+
+    MongoDatabase db = unit.mock(MongoDatabase.class);
+    expect(client.getDatabase("mydb")).andReturn(db);
+
+    unit.registerMock(MongoClient.class, client);
 
     AnnotatedBindingBuilder<MongoClient> mcABB = unit.mock(AnnotatedBindingBuilder.class);
-    expect(mcABB.toProvider(unit.capture(MongodbManaged.class))).andReturn(mcSBB);
-
-    ScopedBindingBuilder dbSBB = unit.mock(ScopedBindingBuilder.class);
-    dbSBB.asEagerSingleton();
+    mcABB.toInstance(client);
+    mcABB.toInstance(client);
 
     AnnotatedBindingBuilder<MongoDatabase> dbABB = unit.mock(AnnotatedBindingBuilder.class);
-    expect(dbABB.toProvider(unit.capture(Provider.class))).andReturn(dbSBB);
+    dbABB.toInstance(db);
+    dbABB.toInstance(db);
 
     Binder binder = unit.get(Binder.class);
     expect(binder.bind(Key.get(MongoClientURI.class))).andReturn(mcuABB);
-
-    expect(binder.bind(Key.get(MongoClient.class))).andReturn(mcABB);
-
-    expect(binder.bind(Key.get(MongoDatabase.class))).andReturn(dbABB);
-  };
-
-  @SuppressWarnings("unchecked")
-  MockUnit.Block mongodbNamed = unit -> {
-    ScopedBindingBuilder mcSBB = unit.mock(ScopedBindingBuilder.class);
-    mcSBB.asEagerSingleton();
-
-    AnnotatedBindingBuilder<MongoClientURI> mcuABB = unit.mock(AnnotatedBindingBuilder.class);
-    mcuABB.toInstance(isA(MongoClientURI.class));
-
-    AnnotatedBindingBuilder<MongoClient> mcABB = unit.mock(AnnotatedBindingBuilder.class);
-    expect(mcABB.toProvider(unit.capture(MongodbManaged.class))).andReturn(mcSBB);
-
-    ScopedBindingBuilder dbSBB = unit.mock(ScopedBindingBuilder.class);
-    dbSBB.asEagerSingleton();
-
-    AnnotatedBindingBuilder<MongoDatabase> dbABB = unit.mock(AnnotatedBindingBuilder.class);
-    expect(dbABB.toProvider(unit.capture(Provider.class))).andReturn(dbSBB);
-
-    Binder binder = unit.get(Binder.class);
     expect(binder.bind(Key.get(MongoClientURI.class, Names.named("mydb")))).andReturn(mcuABB);
 
+    expect(binder.bind(Key.get(MongoClient.class))).andReturn(mcABB);
     expect(binder.bind(Key.get(MongoClient.class, Names.named("mydb")))).andReturn(mcABB);
 
+    expect(binder.bind(Key.get(MongoDatabase.class))).andReturn(dbABB);
     expect(binder.bind(Key.get(MongoDatabase.class, Names.named("mydb")))).andReturn(dbABB);
-  };
 
-  private Block onManaged = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.onStart(isA(CheckedRunnable.class))).andReturn(env);
-    expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
+    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
   };
 
   @Test
@@ -100,21 +78,17 @@ public class MongodbTest {
           expect(config.hasPath("mongodb.db")).andReturn(false);
           expect(config.getString("db")).andReturn("mongodb://127.0.0.1/mydb");
         })
+        .expect(serviceKey(new ServiceKey()))
         .expect(mongodb)
-        .expect(unit -> {
-          MongoClient client = unit.mockConstructor(MongoClient.class,
-              new Class[]{MongoClientURI.class }, isA(MongoClientURI.class));
-
-          MongoDatabase db = unit.mock(MongoDatabase.class);
-          expect(client.getDatabase("mydb")).andReturn(db);
+        .expect(unit-> {
+          MongoClient client = unit.get(MongoClient.class);
+          client.close();
         })
-        .expect(onManaged)
         .run(unit -> {
           Mongodb mongodb = new Mongodb();
           mongodb.configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
         }, unit -> {
-          unit.captured(MongodbManaged.class).iterator().next().start();
-          assertNotNull(unit.captured(Provider.class).iterator().next().get());
+          unit.captured(CheckedRunnable.class).iterator().next().run();
         });
   }
 
@@ -147,8 +121,8 @@ public class MongodbTest {
               .withValue("connectionsPerHost", ConfigValueFactory.fromAnyRef(50)));
           expect(config.getString("db")).andReturn("mongodb://127.0.0.1/mydb");
         })
+        .expect(serviceKey(new ServiceKey()))
         .expect(mongodb)
-        .expect(onManaged)
         .run(unit -> {
           new Mongodb()
               .options((options, config) -> {
@@ -175,8 +149,8 @@ public class MongodbTest {
           expect(config.hasPath("mongodb.db")).andReturn(false);
           expect(config.getString("db")).andReturn("mongodb://127.0.0.1/mydb");
         })
+        .expect(serviceKey(new ServiceKey()))
         .expect(mongodb)
-        .expect(onManaged)
         .run(unit -> {
           new Mongodb()
               .options((options, config) -> {
@@ -186,40 +160,11 @@ public class MongodbTest {
         });
   }
 
-  @Test
-  public void defaultsNamed() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(unit -> {
-          Config config = unit.get(Config.class);
-          expect(config.getConfig("mongodb")).andReturn($mongodb.getConfig("mongodb"));
-          expect(config.hasPath("mongodb.db")).andReturn(false);
-          expect(config.getString("db")).andReturn("mongodb://127.0.0.1/mydb");
-        })
-        .expect(mongodbNamed)
-        .expect(onManaged)
-        .run(unit -> {
-          new Mongodb()
-              .named()
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        });
-  }
-
-  @Test
-  public void defaultsWithName() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(unit -> {
-          Config config = unit.get(Config.class);
-          expect(config.getConfig("mongodb")).andReturn($mongodb.getConfig("mongodb"));
-          expect(config.hasPath("mongodb.xdb")).andReturn(false);
-          expect(config.getString("xdb")).andReturn("mongodb://127.0.0.1/mydb");
-        })
-        .expect(mongodbNamed)
-        .expect(onManaged)
-        .run(unit -> {
-          new Mongodb("xdb")
-              .named()
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        });
+  private Block serviceKey(final ServiceKey serviceKey) {
+    return unit -> {
+      Env env = unit.get(Env.class);
+      expect(env.serviceKey()).andReturn(serviceKey);
+    };
   }
 
 }

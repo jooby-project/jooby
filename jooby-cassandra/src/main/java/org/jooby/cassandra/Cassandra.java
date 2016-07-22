@@ -22,11 +22,11 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +42,6 @@ import com.datastax.driver.mapping.Mapper;
 import com.datastax.driver.mapping.MappingManager;
 import com.datastax.driver.mapping.annotations.Accessor;
 import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 
 import javaslang.Function3;
@@ -268,8 +266,6 @@ import javaslang.control.Try;
  */
 public class Cassandra implements Module {
 
-  static final AtomicInteger COUNTER = new AtomicInteger(0);
-
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -377,12 +373,12 @@ public class Cassandra implements Module {
     ConnectionString cstr = Try.of(() -> ConnectionString.parse(db))
         .getOrElse(() -> ConnectionString.parse(conf.getString(db)));
 
-    boolean first = COUNTER.getAndIncrement() == 0;
+    ServiceKey serviceKey = env.serviceKey();
+
     Function3<Class, String, Object, Void> bind = (type, name, value) -> {
-      binder.bind(Key.get(type, Names.named(name))).toInstance(value);
-      if (first) {
-        binder.bind(Key.get(type)).toInstance(value);
-      }
+      serviceKey.generate(type, name, k -> {
+        binder.bind(k).toInstance(value);
+      });
       return null;
     };
 

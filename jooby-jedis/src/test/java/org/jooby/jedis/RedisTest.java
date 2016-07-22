@@ -18,9 +18,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.inject.Binder;
+import com.google.inject.Key;
 import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -46,6 +45,10 @@ public class RedisTest {
     Config config = jedisConfig()
         .withValue("db", ConfigValueFactory.fromAnyRef("redis://localhost:6780"));
     new MockUnit(Env.class, Binder.class)
+        .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.serviceKey()).andReturn(new Env.ServiceKey());
+        })
         .expect(unit -> {
           GenericObjectPoolConfig poolConfig = unit
               .mockConstructor(GenericObjectPoolConfig.class);
@@ -74,16 +77,19 @@ public class RedisTest {
 
           AnnotatedBindingBuilder<JedisPool> jpABB = unit.mock(AnnotatedBindingBuilder.class);
           jpABB.toInstance(pool);
-
-          ScopedBindingBuilder sbbJABB = unit.mock(ScopedBindingBuilder.class);
-          sbbJABB.asEagerSingleton();
+          jpABB.toInstance(pool);
 
           AnnotatedBindingBuilder<Jedis> jABB = unit.mock(AnnotatedBindingBuilder.class);
-          expect(jABB.toProvider(isA(Provider.class))).andReturn(sbbJABB);
+          expect(jABB.toProvider(isA(Provider.class))).andReturn(jABB);
+          expect(jABB.toProvider(isA(Provider.class))).andReturn(jABB);
+          jABB.asEagerSingleton();
+          jABB.asEagerSingleton();
 
           Binder binder = unit.get(Binder.class);
-          expect(binder.bind(JedisPool.class)).andReturn(jpABB);
-          expect(binder.bind(Jedis.class)).andReturn(jABB);
+          expect(binder.bind(Key.get(JedisPool.class))).andReturn(jpABB);
+          expect(binder.bind(Key.get(Jedis.class))).andReturn(jABB);
+          expect(binder.bind(Key.get(JedisPool.class, Names.named("db")))).andReturn(jpABB);
+          expect(binder.bind(Key.get(Jedis.class, Names.named("db")))).andReturn(jABB);
         })
         .expect(onManaged)
         .run(unit -> {
@@ -97,49 +103,55 @@ public class RedisTest {
     Config config = jedisConfig()
         .withValue("db", ConfigValueFactory.fromAnyRef("redis://localhost:6780"));
     new MockUnit(Env.class, Binder.class, Jedis.class)
-        .expect(
-            unit -> {
-              GenericObjectPoolConfig poolConfig = unit
-                  .mockConstructor(GenericObjectPoolConfig.class);
-              poolConfig.setBlockWhenExhausted(true);
-              poolConfig
-                  .setEvictionPolicyClassName(
-                      "org.apache.commons.pool2.impl.DefaultEvictionPolicy");
-              poolConfig.setJmxEnabled(false);
-              poolConfig.setJmxNamePrefix("redis-pool");
-              poolConfig.setLifo(true);
-              poolConfig.setMaxIdle(10);
-              poolConfig.setMaxTotal(128);
-              poolConfig.setMaxWaitMillis(-1);
-              poolConfig.setMinEvictableIdleTimeMillis(1800000L);
-              poolConfig.setMinIdle(10);
-              poolConfig.setNumTestsPerEvictionRun(3);
-              poolConfig.setSoftMinEvictableIdleTimeMillis(1800000L);
-              poolConfig.setTestOnBorrow(false);
-              poolConfig.setTestOnReturn(false);
-              poolConfig.setTestWhileIdle(false);
-              poolConfig.setTimeBetweenEvictionRunsMillis(-1);
+        .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.serviceKey()).andReturn(new Env.ServiceKey());
+        })
+        .expect(unit -> {
+          GenericObjectPoolConfig poolConfig = unit
+              .mockConstructor(GenericObjectPoolConfig.class);
+          poolConfig.setBlockWhenExhausted(true);
+          poolConfig
+              .setEvictionPolicyClassName(
+                  "org.apache.commons.pool2.impl.DefaultEvictionPolicy");
+          poolConfig.setJmxEnabled(false);
+          poolConfig.setJmxNamePrefix("redis-pool");
+          poolConfig.setLifo(true);
+          poolConfig.setMaxIdle(10);
+          poolConfig.setMaxTotal(128);
+          poolConfig.setMaxWaitMillis(-1);
+          poolConfig.setMinEvictableIdleTimeMillis(1800000L);
+          poolConfig.setMinIdle(10);
+          poolConfig.setNumTestsPerEvictionRun(3);
+          poolConfig.setSoftMinEvictableIdleTimeMillis(1800000L);
+          poolConfig.setTestOnBorrow(false);
+          poolConfig.setTestOnReturn(false);
+          poolConfig.setTestWhileIdle(false);
+          poolConfig.setTimeBetweenEvictionRunsMillis(-1);
 
-              JedisPool pool = unit.mockConstructor(
-                  JedisPool.class,
-                  new Class[]{GenericObjectPoolConfig.class, URI.class, int.class },
-                  poolConfig, URI.create("redis://localhost:6780"), 2000);
+          JedisPool pool = unit.mockConstructor(
+              JedisPool.class,
+              new Class[]{GenericObjectPoolConfig.class, URI.class, int.class },
+              poolConfig, URI.create("redis://localhost:6780"), 2000);
 
-              expect(pool.getResource()).andReturn(unit.get(Jedis.class));
+          expect(pool.getResource()).andReturn(unit.get(Jedis.class));
 
-              AnnotatedBindingBuilder<JedisPool> jpABB = unit.mock(AnnotatedBindingBuilder.class);
-              jpABB.toInstance(pool);
+          AnnotatedBindingBuilder<JedisPool> jpABB = unit.mock(AnnotatedBindingBuilder.class);
+          jpABB.toInstance(pool);
+          jpABB.toInstance(pool);
 
-              ScopedBindingBuilder sbbJABB = unit.mock(ScopedBindingBuilder.class);
-              sbbJABB.asEagerSingleton();
+          AnnotatedBindingBuilder<Jedis> jABB = unit.mock(AnnotatedBindingBuilder.class);
+          expect(jABB.toProvider(isA(Provider.class))).andReturn(jABB);
+          expect(jABB.toProvider(unit.capture(Provider.class))).andReturn(jABB);
+          jABB.asEagerSingleton();
+          jABB.asEagerSingleton();
 
-              AnnotatedBindingBuilder<Jedis> jABB = unit.mock(AnnotatedBindingBuilder.class);
-              expect(jABB.toProvider(unit.capture(Provider.class))).andReturn(sbbJABB);
-
-              Binder binder = unit.get(Binder.class);
-              expect(binder.bind(JedisPool.class)).andReturn(jpABB);
-              expect(binder.bind(Jedis.class)).andReturn(jABB);
-            })
+          Binder binder = unit.get(Binder.class);
+          expect(binder.bind(Key.get(JedisPool.class))).andReturn(jpABB);
+          expect(binder.bind(Key.get(Jedis.class))).andReturn(jABB);
+          expect(binder.bind(Key.get(JedisPool.class, Names.named("db")))).andReturn(jpABB);
+          expect(binder.bind(Key.get(Jedis.class, Names.named("db")))).andReturn(jABB);
+        })
         .expect(onManaged)
         .run(unit -> {
           new Redis().configure(unit.get(Env.class), config, unit.get(Binder.class));
@@ -151,165 +163,58 @@ public class RedisTest {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void named() throws Exception {
-    Config config = jedisConfig()
-        .withValue("db", ConfigValueFactory.fromAnyRef("redis://localhost:6780"));
-    new MockUnit(Env.class, Binder.class)
-        .expect(
-            unit -> {
-              GenericObjectPoolConfig poolConfig = unit
-                  .mockConstructor(GenericObjectPoolConfig.class);
-              poolConfig.setBlockWhenExhausted(true);
-              poolConfig
-                  .setEvictionPolicyClassName(
-                      "org.apache.commons.pool2.impl.DefaultEvictionPolicy");
-              poolConfig.setJmxEnabled(false);
-              poolConfig.setJmxNamePrefix("redis-pool");
-              poolConfig.setLifo(true);
-              poolConfig.setMaxIdle(10);
-              poolConfig.setMaxTotal(128);
-              poolConfig.setMaxWaitMillis(-1);
-              poolConfig.setMinEvictableIdleTimeMillis(1800000L);
-              poolConfig.setMinIdle(10);
-              poolConfig.setNumTestsPerEvictionRun(3);
-              poolConfig.setSoftMinEvictableIdleTimeMillis(1800000L);
-              poolConfig.setTestOnBorrow(false);
-              poolConfig.setTestOnReturn(false);
-              poolConfig.setTestWhileIdle(false);
-              poolConfig.setTimeBetweenEvictionRunsMillis(-1);
-
-              JedisPool pool = unit.mockConstructor(
-                  JedisPool.class,
-                  new Class[]{GenericObjectPoolConfig.class, URI.class, int.class },
-                  poolConfig, URI.create("redis://localhost:6780"), 2000);
-
-              LinkedBindingBuilder<JedisPool> jpLBB = unit.mock(LinkedBindingBuilder.class);
-              jpLBB.toInstance(pool);
-
-              AnnotatedBindingBuilder<JedisPool> jpABB = unit.mock(AnnotatedBindingBuilder.class);
-              expect(jpABB.annotatedWith(Names.named("db"))).andReturn(jpLBB);
-
-              ScopedBindingBuilder sbbJABB = unit.mock(ScopedBindingBuilder.class);
-              sbbJABB.asEagerSingleton();
-
-              LinkedBindingBuilder<Jedis> jLBB = unit.mock(LinkedBindingBuilder.class);
-              expect(jLBB.toProvider(isA(Provider.class))).andReturn(sbbJABB);
-
-              AnnotatedBindingBuilder<Jedis> jABB = unit.mock(AnnotatedBindingBuilder.class);
-              expect(jABB.annotatedWith(Names.named("db"))).andReturn(jLBB);
-
-              Binder binder = unit.get(Binder.class);
-              expect(binder.bind(JedisPool.class)).andReturn(jpABB);
-              expect(binder.bind(Jedis.class)).andReturn(jABB);
-            })
-        .expect(onManaged)
-        .run(unit -> {
-          new Redis().named().configure(unit.get(Env.class), config, unit.get(Binder.class));
-        });
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  public void unnamed() throws Exception {
-    Config config = jedisConfig()
-        .withValue("db1", ConfigValueFactory.fromAnyRef("redis://localhost:6780"));
-    new MockUnit(Env.class, Binder.class)
-        .expect(
-            unit -> {
-              GenericObjectPoolConfig poolConfig = unit
-                  .mockConstructor(GenericObjectPoolConfig.class);
-              poolConfig.setBlockWhenExhausted(true);
-              poolConfig
-                  .setEvictionPolicyClassName(
-                      "org.apache.commons.pool2.impl.DefaultEvictionPolicy");
-              poolConfig.setJmxEnabled(false);
-              poolConfig.setJmxNamePrefix("redis-pool");
-              poolConfig.setLifo(true);
-              poolConfig.setMaxIdle(10);
-              poolConfig.setMaxTotal(128);
-              poolConfig.setMaxWaitMillis(-1);
-              poolConfig.setMinEvictableIdleTimeMillis(1800000L);
-              poolConfig.setMinIdle(10);
-              poolConfig.setNumTestsPerEvictionRun(3);
-              poolConfig.setSoftMinEvictableIdleTimeMillis(1800000L);
-              poolConfig.setTestOnBorrow(false);
-              poolConfig.setTestOnReturn(false);
-              poolConfig.setTestWhileIdle(false);
-              poolConfig.setTimeBetweenEvictionRunsMillis(-1);
-
-              JedisPool pool = unit.mockConstructor(
-                  JedisPool.class,
-                  new Class[]{GenericObjectPoolConfig.class, URI.class, int.class },
-                  poolConfig, URI.create("redis://localhost:6780"), 2000);
-
-              AnnotatedBindingBuilder<JedisPool> jpABB = unit.mock(AnnotatedBindingBuilder.class);
-              jpABB.toInstance(pool);
-
-              ScopedBindingBuilder sbbJABB = unit.mock(ScopedBindingBuilder.class);
-              sbbJABB.asEagerSingleton();
-
-              AnnotatedBindingBuilder<Jedis> jABB = unit.mock(AnnotatedBindingBuilder.class);
-              expect(jABB.toProvider(isA(Provider.class))).andReturn(sbbJABB);
-
-              Binder binder = unit.get(Binder.class);
-              expect(binder.bind(JedisPool.class)).andReturn(jpABB);
-              expect(binder.bind(Jedis.class)).andReturn(jABB);
-            })
-        .expect(onManaged)
-        .run(unit -> {
-          new Redis("db1").unnamed().configure(unit.get(Env.class), config,
-              unit.get(Binder.class));
-        });
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
   public void jedisConfigOverride() throws Exception {
     Config config = jedisConfig()
         .withValue("db", ConfigValueFactory.fromAnyRef("redis://localhost:6780"))
         .withValue("jedis.db.maxTotal", ConfigValueFactory.fromAnyRef(8));
     new MockUnit(Env.class, Binder.class)
-        .expect(
-            unit -> {
-              GenericObjectPoolConfig poolConfig = unit
-                  .mockConstructor(GenericObjectPoolConfig.class);
-              poolConfig.setBlockWhenExhausted(true);
-              poolConfig
-                  .setEvictionPolicyClassName(
-                      "org.apache.commons.pool2.impl.DefaultEvictionPolicy");
-              poolConfig.setJmxEnabled(false);
-              poolConfig.setJmxNamePrefix("redis-pool");
-              poolConfig.setLifo(true);
-              poolConfig.setMaxIdle(10);
-              poolConfig.setMaxTotal(8);
-              poolConfig.setMaxWaitMillis(-1);
-              poolConfig.setMinEvictableIdleTimeMillis(1800000L);
-              poolConfig.setMinIdle(10);
-              poolConfig.setNumTestsPerEvictionRun(3);
-              poolConfig.setSoftMinEvictableIdleTimeMillis(1800000L);
-              poolConfig.setTestOnBorrow(false);
-              poolConfig.setTestOnReturn(false);
-              poolConfig.setTestWhileIdle(false);
-              poolConfig.setTimeBetweenEvictionRunsMillis(-1);
+        .expect(unit -> {
+          Env env = unit.get(Env.class);
+          expect(env.serviceKey()).andReturn(new Env.ServiceKey());
+        })
+        .expect(unit -> {
+          GenericObjectPoolConfig poolConfig = unit
+              .mockConstructor(GenericObjectPoolConfig.class);
+          poolConfig.setBlockWhenExhausted(true);
+          poolConfig
+              .setEvictionPolicyClassName(
+                  "org.apache.commons.pool2.impl.DefaultEvictionPolicy");
+          poolConfig.setJmxEnabled(false);
+          poolConfig.setJmxNamePrefix("redis-pool");
+          poolConfig.setLifo(true);
+          poolConfig.setMaxIdle(10);
+          poolConfig.setMaxTotal(8);
+          poolConfig.setMaxWaitMillis(-1);
+          poolConfig.setMinEvictableIdleTimeMillis(1800000L);
+          poolConfig.setMinIdle(10);
+          poolConfig.setNumTestsPerEvictionRun(3);
+          poolConfig.setSoftMinEvictableIdleTimeMillis(1800000L);
+          poolConfig.setTestOnBorrow(false);
+          poolConfig.setTestOnReturn(false);
+          poolConfig.setTestWhileIdle(false);
+          poolConfig.setTimeBetweenEvictionRunsMillis(-1);
 
-              JedisPool pool = unit.mockConstructor(
-                  JedisPool.class,
-                  new Class[]{GenericObjectPoolConfig.class, URI.class, int.class },
-                  poolConfig, URI.create("redis://localhost:6780"), 2000);
+          JedisPool pool = unit.mockConstructor(
+              JedisPool.class,
+              new Class[]{GenericObjectPoolConfig.class, URI.class, int.class },
+              poolConfig, URI.create("redis://localhost:6780"), 2000);
 
-              AnnotatedBindingBuilder<JedisPool> jpABB = unit.mock(AnnotatedBindingBuilder.class);
-              jpABB.toInstance(pool);
+          AnnotatedBindingBuilder<JedisPool> jpABB = unit.mock(AnnotatedBindingBuilder.class);
+          jpABB.toInstance(pool);
+          jpABB.toInstance(pool);
 
-              ScopedBindingBuilder sbbJABB = unit.mock(ScopedBindingBuilder.class);
-              sbbJABB.asEagerSingleton();
+          AnnotatedBindingBuilder<Jedis> jABB = unit.mock(AnnotatedBindingBuilder.class);
+          expect(jABB.toProvider(isA(Provider.class))).andReturn(jABB);
+          expect(jABB.toProvider(isA(Provider.class))).andReturn(jABB);
+          jABB.asEagerSingleton();
+          jABB.asEagerSingleton();
 
-              AnnotatedBindingBuilder<Jedis> jABB = unit.mock(AnnotatedBindingBuilder.class);
-              expect(jABB.toProvider(isA(Provider.class))).andReturn(sbbJABB);
-
-              Binder binder = unit.get(Binder.class);
-              expect(binder.bind(JedisPool.class)).andReturn(jpABB);
-              expect(binder.bind(Jedis.class)).andReturn(jABB);
-            })
+          Binder binder = unit.get(Binder.class);
+          expect(binder.bind(Key.get(JedisPool.class))).andReturn(jpABB);
+          expect(binder.bind(Key.get(Jedis.class))).andReturn(jABB);
+          expect(binder.bind(Key.get(JedisPool.class, Names.named("db")))).andReturn(jpABB);
+          expect(binder.bind(Key.get(Jedis.class, Names.named("db")))).andReturn(jABB);
+        })
         .expect(onManaged)
         .run(unit -> {
           new Redis().configure(unit.get(Env.class), config, unit.get(Binder.class));

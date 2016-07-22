@@ -24,15 +24,11 @@ import static java.util.Objects.requireNonNull;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
-import javax.inject.Named;
-import javax.inject.Provider;
-
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby;
 
 import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -135,8 +131,8 @@ import com.typesafe.config.ConfigFactory;
  *
  * <pre>
  * {
- *   use(new Mongodb("db1").named());
- *   use(new Mongodb("db2").named());
+ *   use(new Mongodb("db1"));
+ *   use(new Mongodb("db2"));
  *
  *   get("/", req {@literal ->} {
  *     MongoClient client1 = req.require("mydb1", MongoClient.class);
@@ -153,8 +149,6 @@ import com.typesafe.config.ConfigFactory;
 public class Mongodb implements Jooby.Module {
 
   private final String db;
-
-  private boolean named;
 
   private BiConsumer<Builder, Config> options;
 
@@ -181,7 +175,7 @@ public class Mongodb implements Jooby.Module {
   }
 
   protected void configure(final Env env, final Config config, final Binder binder,
-      final BiConsumer<MongoClientURI, Provider<MongoClient>> callback) {
+      final BiConsumer<MongoClientURI, MongoClient> callback) {
     MongoClientOptions.Builder options = options(mongodb(config));
 
     if (this.options != null) {
@@ -189,36 +183,23 @@ public class Mongodb implements Jooby.Module {
     }
 
     MongoClientURI uri = new MongoClientURI(config.getString(db), options);
-    MongodbManaged mongodb = new MongodbManaged(uri);
     String database = uri.getDatabase();
     checkArgument(database != null, "Database not found: " + uri);
+    MongoClient client = new MongoClient(uri);
 
-    binder.bind(key(MongoClientURI.class, database))
-      .toInstance(uri);
+    ServiceKey serviceKey = env.serviceKey();
+    serviceKey.generate(MongoClientURI.class, database, k -> binder.bind(k).toInstance(uri));
 
-    binder.bind(key(MongoClient.class, database))
-        .toProvider(mongodb)
-        .asEagerSingleton();
+    serviceKey.generate(MongoClient.class, database,
+        k -> binder.bind(k).toInstance(client));
 
-    Provider<MongoDatabase> dbprovider = () -> mongodb.get().getDatabase(database);
-    binder.bind(key(MongoDatabase.class, database))
-        .toProvider(dbprovider)
-        .asEagerSingleton();
+    MongoDatabase mongodb = client.getDatabase(database);
+    serviceKey.generate(MongoDatabase.class, database,
+        k -> binder.bind(k).toInstance(mongodb));
 
-    env.onStart(mongodb::start);
-    env.onStop(mongodb::stop);
+    env.onStop(client::close);
 
-    callback.accept(uri, mongodb);
-  }
-
-  /**
-   * Exposes services with {@link Named} annotation.
-   *
-   * @return This module.
-   */
-  public Mongodb named() {
-    named = true;
-    return this;
+    callback.accept(uri, client);
   }
 
   /**
@@ -247,17 +228,12 @@ public class Mongodb implements Jooby.Module {
     return ConfigFactory.parseResources(Mongodb.class, "mongodb.conf");
   }
 
-  protected <T> Key<T> key(final Class<T> type, final String db) {
-    return named ? Key.get(type, Names.named(db)) : Key.get(type);
-  }
-
   private MongoClientOptions.Builder options(final Config config) {
     MongoClientOptions.Builder builder = MongoClientOptions.builder();
 
     builder.connectionsPerHost(config.getInt("connectionsPerHost"));
     builder.threadsAllowedToBlockForConnectionMultiplier(
-        config.getInt("threadsAllowedToBlockForConnectionMultiplier")
-        );
+        config.getInt("threadsAllowedToBlockForConnectionMultiplier"));
     builder.maxWaitTime((int) config.getDuration("maxWaitTime", TimeUnit.MILLISECONDS));
     builder.connectTimeout((int) config.getDuration("connectTimeout", TimeUnit.MILLISECONDS));
     builder.socketTimeout((int) config.getDuration("socketTimeout", TimeUnit.MILLISECONDS));
@@ -267,11 +243,9 @@ public class Mongodb implements Jooby.Module {
     builder.heartbeatFrequency(config.getInt("heartbeatFrequency"));
     builder.minHeartbeatFrequency(config.getInt("minHeartbeatFrequency"));
     builder.heartbeatConnectTimeout(
-        (int) config.getDuration("heartbeatConnectTimeout", TimeUnit.MILLISECONDS)
-        );
+        (int) config.getDuration("heartbeatConnectTimeout", TimeUnit.MILLISECONDS));
     builder.heartbeatSocketTimeout(
-        (int) config.getDuration("heartbeatSocketTimeout", TimeUnit.MILLISECONDS)
-        );
+        (int) config.getDuration("heartbeatSocketTimeout", TimeUnit.MILLISECONDS));
 
     return builder;
   }

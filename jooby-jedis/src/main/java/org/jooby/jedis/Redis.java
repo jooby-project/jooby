@@ -23,15 +23,14 @@ import static java.util.Objects.requireNonNull;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Named;
 import javax.inject.Provider;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby;
 
 import com.google.inject.Binder;
-import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -140,11 +139,6 @@ public class Redis implements Jooby.Module {
   private String name;
 
   /**
-   * True, if the Guice binding require a name.
-   */
-  private boolean named;
-
-  /**
    * <p>
    * Creates a new {@link Redis} instance and connect to the provided database. Please note, the
    * name is a property in your <code>application.conf</code> file with Redis URI.
@@ -168,7 +162,6 @@ public class Redis implements Jooby.Module {
    */
   public Redis(final String name) {
     this.name = requireNonNull(name, "A db property is required.");
-    this.named = !"db".equals(name);
   }
 
   /**
@@ -176,26 +169,6 @@ public class Redis implements Jooby.Module {
    */
   public Redis() {
     this("db");
-  }
-
-  /**
-   * Bind {@link JedisPool} and {@link Jedis} services with a {@link Named} annotation.
-   *
-   * @return This module.
-   */
-  public Redis named() {
-    this.named = true;
-    return this;
-  }
-
-  /**
-   * Bind {@link JedisPool} and {@link Jedis} services without a {@link Named} annotation.
-   *
-   * @return This module.
-   */
-  public Redis unnamed() {
-    this.named = false;
-    return this;
   }
 
   @Override
@@ -214,22 +187,10 @@ public class Redis implements Jooby.Module {
 
     Provider<Jedis> jedis = (Provider<Jedis>) () -> pool.getResource();
 
-    /**
-     * Guice
-     */
-    if (named) {
-      binder.bind(JedisPool.class)
-          .annotatedWith(Names.named(name))
-          .toInstance(pool);
-
-      binder.bind(Jedis.class).annotatedWith(Names.named(name)).toProvider(jedis)
-          .asEagerSingleton();
-    } else {
-      binder.bind(JedisPool.class).toInstance(pool);
-
-      binder.bind(Jedis.class).toProvider(jedis)
-          .asEagerSingleton();
-    }
+    ServiceKey serviceKey = env.serviceKey();
+    serviceKey.generate(JedisPool.class, name, k -> binder.bind(k).toInstance(pool));
+    serviceKey.generate(Jedis.class, name,
+        k -> binder.bind(k).toProvider(jedis).asEagerSingleton());
   }
 
   private GenericObjectPoolConfig poolConfig(final Config config, final String name) {

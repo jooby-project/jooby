@@ -26,6 +26,7 @@ import org.apache.commons.mail.ImageHtmlEmail;
 import org.apache.commons.mail.MultiPartEmail;
 import org.apache.commons.mail.SimpleEmail;
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby;
 import org.jooby.internal.mail.HtmlEmailProvider;
 import org.jooby.internal.mail.ImageHtmlEmailProvider;
@@ -33,8 +34,6 @@ import org.jooby.internal.mail.MultiPartEmailProvider;
 import org.jooby.internal.mail.SimpleEmailProvider;
 
 import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -83,8 +82,6 @@ public class CommonsEmail implements Jooby.Module {
 
   private String name;
 
-  private boolean named;
-
   /**
    * Creates a {@link CommonsEmail}.
    *
@@ -101,29 +98,23 @@ public class CommonsEmail implements Jooby.Module {
     this("mail");
   }
 
-  /**
-   * Call this method if you need two or more mail configuration. This method will bind email
-   * instances using the provided name.
-   *
-   * @return This module.
-   */
-  public CommonsEmail named() {
-    named = true;
-    return this;
-  }
-
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
     Config mail = config.getConfig(name).withFallback(config.getConfig("mail"));
 
-    binder.bind(key(SimpleEmail.class)).toProvider(new SimpleEmailProvider(mail));
-    binder.bind(key(HtmlEmail.class)).toProvider(new HtmlEmailProvider(mail));
-    binder.bind(key(MultiPartEmail.class)).toProvider(new MultiPartEmailProvider(mail));
-    binder.bind(key(ImageHtmlEmail.class)).toProvider(new ImageHtmlEmailProvider(mail));
-  }
-
-  private <T> Key<T> key(final Class<T> type) {
-    return named ? Key.get(type, Names.named(name)) : Key.get(type);
+    ServiceKey serviceKey = env.serviceKey();
+    serviceKey.generate(SimpleEmail.class, name, k -> {
+      binder.bind(k).toProvider(new SimpleEmailProvider(mail));
+    });
+    serviceKey.generate(HtmlEmail.class, name, k -> {
+      binder.bind(k).toProvider(new HtmlEmailProvider(mail));
+    });
+    serviceKey.generate(MultiPartEmail.class, name, k -> {
+      binder.bind(k).toProvider(new MultiPartEmailProvider(mail));
+    });
+    serviceKey.generate(ImageHtmlEmail.class, name, k -> {
+      binder.bind(k).toProvider(new ImageHtmlEmailProvider(mail));
+    });
   }
 
   @Override

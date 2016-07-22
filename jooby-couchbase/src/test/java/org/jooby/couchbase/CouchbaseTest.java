@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.Registry;
 import org.jooby.internal.couchbase.AsyncDatastoreImpl;
 import org.jooby.internal.couchbase.DatastoreImpl;
@@ -60,17 +61,6 @@ public class CouchbaseTest {
     expect(conf.hasPath("couchbase.env")).andReturn(false);
   };
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
-  private Block bindEnv = unit -> {
-    CouchbaseEnvironment env = unit.get(CouchbaseEnvironment.class);
-
-    AnnotatedBindingBuilder abbce = unit.mock(AnnotatedBindingBuilder.class);
-    abbce.toInstance(env);
-
-    Binder binder = unit.get(Binder.class);
-    expect(binder.bind(CouchbaseEnvironment.class)).andReturn(abbce);
-  };
-
   private Block noClusterManager = unit -> {
     Config conf = unit.get(Config.class);
     expect(conf.hasPath("couchbase.cluster.username")).andReturn(false);
@@ -97,12 +87,11 @@ public class CouchbaseTest {
 
   @Test
   public void boot() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(noenvprops)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
@@ -144,7 +133,6 @@ public class CouchbaseTest {
 
   @Test
   public void envproperty() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     Config conf = ConfigFactory.empty()
         .withValue("couchbase.env.kvEndpoints", ConfigValueFactory.fromAnyRef(5));
@@ -154,8 +142,8 @@ public class CouchbaseTest {
           expect(mock.hasPath("couchbase.env")).andReturn(true);
           expect(mock.getConfig("couchbase.env")).andReturn(conf.getConfig("couchbase.env"));
         })
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
         .expect(bind(null, CouchbaseCluster.class))
@@ -196,53 +184,12 @@ public class CouchbaseTest {
   }
 
   @Test
-  public void twoOrMoreClusterShouldNotBindEnv() throws Exception {
-    Couchbase.COUNTER.set(1);
-    String bucket = "beers";
-    new MockUnit(Env.class, Config.class, Binder.class, CouchbaseEnvironment.class)
-        .expect(noenvprops)
-        .expect(setProperty(bucket))
-        .expect(cluster("couchbase://localhost"))
-        .expect(bind(bucket, CouchbaseCluster.class))
-        .expect(noClusterManager)
-        // buckets
-        .expect(bucketPassword(bucket, null))
-        .expect(openBucket(bucket, null))
-        .expect(bind(bucket, Bucket.class))
-        .expect(bind(bucket, AsyncBucket.class))
-        // repository
-        .expect(repository(bucket))
-        .expect(bind(bucket, Repository.class))
-        .expect(bind(bucket, AsyncRepository.class))
-        // converter hack
-        .expect(converterHack)
-        // datastore
-        .expect(asyncds())
-        .expect(bind(bucket, AsyncDatastore.class))
-        .expect(ds())
-        .expect(bind(bucket, Datastore.class))
-        // session
-        .expect(openBucket(bucket, null, false))
-        .expect(bucketPassword(bucket, null))
-        .expect(bind("session", Bucket.class))
-        // onStop
-        .expect(onStop)
-        .run(unit -> {
-          new Couchbase("couchbase://localhost/" + bucket)
-              .environment(unit.get(CouchbaseEnvironment.class))
-              .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-        });
-
-  }
-
-  @Test
   public void withDbProperty() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(noenvprops)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind("db", CouchbaseCluster.class))
@@ -288,12 +235,11 @@ public class CouchbaseTest {
 
   @Test
   public void sessionBucket() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(noenvprops)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
@@ -336,11 +282,10 @@ public class CouchbaseTest {
 
   @Test
   public void customEnv() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     new MockUnit(Env.class, Config.class, Binder.class, CouchbaseEnvironment.class)
         .expect(noenvprops)
-        .expect(bindEnv)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
@@ -384,13 +329,12 @@ public class CouchbaseTest {
   @SuppressWarnings("unchecked")
   @Test
   public void bootIdGen() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     Object bean = new Object();
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(noenvprops)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
@@ -445,12 +389,11 @@ public class CouchbaseTest {
   @SuppressWarnings("unchecked")
   @Test
   public void onStopNormal() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     new MockUnit(Env.class, Config.class, Binder.class, Registry.class)
         .expect(noenvprops)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
@@ -508,12 +451,11 @@ public class CouchbaseTest {
   @SuppressWarnings("unchecked")
   @Test
   public void onStopBucketErr() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     new MockUnit(Env.class, Config.class, Binder.class, Registry.class)
         .expect(noenvprops)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
@@ -571,12 +513,11 @@ public class CouchbaseTest {
   @SuppressWarnings("unchecked")
   @Test
   public void onStopClusterErr() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     new MockUnit(Env.class, Config.class, Binder.class, Registry.class)
         .expect(noenvprops)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
@@ -634,12 +575,11 @@ public class CouchbaseTest {
   @SuppressWarnings("unchecked")
   @Test
   public void onStopEnvErr() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     new MockUnit(Env.class, Config.class, Binder.class, Registry.class)
         .expect(noenvprops)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
@@ -696,12 +636,11 @@ public class CouchbaseTest {
 
   @Test
   public void multipleBuckets() throws Exception {
-    Couchbase.COUNTER.set(0);
     String b1 = "beers";
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(noenvprops)
         .expect(createEnv)
-        .expect(bindEnv)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(setProperty(b1))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(b1, CouchbaseCluster.class))
@@ -760,12 +699,11 @@ public class CouchbaseTest {
 
   @Test
   public void bucketWithPassword() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(noenvprops)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
@@ -807,12 +745,11 @@ public class CouchbaseTest {
 
   @Test
   public void defaultcluster() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "default";
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(noenvprops)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
@@ -854,12 +791,11 @@ public class CouchbaseTest {
 
   @Test
   public void clusterManger() throws Exception {
-    Couchbase.COUNTER.set(0);
     String bucket = "beers";
     new MockUnit(Env.class, Config.class, Binder.class)
         .expect(noenvprops)
+        .expect(serviceKey(new Env.ServiceKey()))
         .expect(createEnv)
-        .expect(bindEnv)
         .expect(setProperty(bucket))
         .expect(cluster("couchbase://localhost"))
         .expect(bind(bucket, CouchbaseCluster.class))
@@ -1014,6 +950,13 @@ public class CouchbaseTest {
       unit.registerMock(CouchbaseCluster.class, cluster);
 
       expect(CouchbaseCluster.fromConnectionString(env, string)).andReturn(cluster);
+    };
+  }
+
+  private Block serviceKey(final ServiceKey serviceKey) {
+    return unit -> {
+      Env env = unit.get(Env.class);
+      expect(env.serviceKey()).andReturn(serviceKey);
     };
   }
 }

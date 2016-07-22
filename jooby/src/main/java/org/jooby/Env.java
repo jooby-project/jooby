@@ -21,17 +21,22 @@ package org.jooby;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 
 import javaslang.API;
@@ -59,6 +64,34 @@ import javaslang.control.Try.CheckedConsumer;
  * @since 0.1.0
  */
 public interface Env extends LifeCycle {
+
+  /**
+   * Utility class for generated {@link Key} for named services.
+   *
+   * @author edgar
+   */
+  class ServiceKey {
+    private Map<Object, Integer> instances = new HashMap<>();
+
+    /**
+     * Generate at least one named key for the provided type. If this is the first call for the
+     * provided type then it generates an unnamed key.
+     *
+     * @param type Service type.
+     * @param name Service name.
+     * @param keys Key callback. Invoked once with a named key, and optionally again with an unamed
+     *        key.
+     * @param <T> Service type.
+     */
+    public <T> void generate(final Class<T> type, final String name, final Consumer<Key<T>> keys) {
+      Integer c = instances.put(type, instances.getOrDefault(type, 0) + 1);
+      if (c == null) {
+        // def key
+        keys.accept(Key.get(type));
+      }
+      keys.accept(Key.get(type, Names.named(name)));
+    }
+  }
 
   /**
    * Build an jooby environment.
@@ -98,7 +131,7 @@ public interface Env extends LifeCycle {
    * Default builder.
    */
   Env.Builder DEFAULT = (config, router, locale) -> {
-    requireNonNull(config, "A config is required.");
+    requireNonNull(config, "Config required.");
     String name = config.hasPath("application.env") ? config.getString("application.env") : "dev";
     return new Env() {
 
@@ -106,9 +139,16 @@ public interface Env extends LifeCycle {
 
       private ImmutableList.Builder<CheckedConsumer<Registry>> shutdown = ImmutableList.builder();
 
+      private ServiceKey key = new ServiceKey();
+
       @Override
       public String name() {
         return name;
+      }
+
+      @Override
+      public ServiceKey serviceKey() {
+        return key;
       }
 
       @Override
@@ -180,6 +220,14 @@ public interface Env extends LifeCycle {
    * @return Default locale from <code>application.lang</code>.
    */
   Locale locale();
+
+  /**
+   * @return Utility method for generating keys for named services.
+   */
+  default ServiceKey serviceKey() {
+    return new ServiceKey();
+  }
+
 
   /**
    * Returns a string with all substitutions (the <code>${foo.bar}</code> syntax,

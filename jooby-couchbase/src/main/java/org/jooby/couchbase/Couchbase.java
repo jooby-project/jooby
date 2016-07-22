@@ -25,10 +25,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.Jooby.Module;
 import org.jooby.Session;
 import org.jooby.internal.couchbase.AsyncDatastoreImpl;
@@ -56,8 +56,6 @@ import com.couchbase.client.java.repository.mapping.EntityConverter;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
 import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -401,8 +399,6 @@ public class Couchbase implements Module {
   // FIXME: converter hack
   static final JacksonMapper CONVERTER = new JacksonMapper();
 
-  static final AtomicInteger COUNTER = new AtomicInteger(0);
-
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -504,23 +500,20 @@ public class Couchbase implements Module {
 
     log.debug("Starting {}", cstr);
 
+    ServiceKey serviceKey = env.serviceKey();
     Function3<Class, String, Object, Void> bind = (type, name, value) -> {
-      binder.bind(Key.get(type, Names.named(name))).toInstance(value);
-      if (COUNTER.get() == 0) {
-        binder.bind(Key.get(type)).toInstance(value);
-      }
+      serviceKey.generate(type, name, k -> {
+        binder.bind(k).toInstance(value);
+      });
       return null;
     };
 
     CouchbaseEnvironment cenv = this.env.apply(conf);
-    if (COUNTER.get() == 0) {
-      binder.bind(CouchbaseEnvironment.class).toInstance(cenv);
-    }
 
     // FIXME: ConnectionString doesn't work with bucket in the url
     String cstrworkaround = cstr.replace("/" + defbucket, "");
     CouchbaseCluster cluster = CouchbaseCluster.fromConnectionString(cenv, cstrworkaround);
-    bind.apply(CouchbaseCluster.class, dbname, cluster);
+    serviceKey.generate(CouchbaseCluster.class, dbname, k -> binder.bind(k).toInstance(cluster));
 
     // start cluster manager?
     if (conf.hasPath("couchbase.cluster.username")) {
@@ -567,8 +560,6 @@ public class Couchbase implements Module {
       bind.apply(Datastore.class, name, new DatastoreImpl(asyncds));
 
       buckets.add(name);
-
-      COUNTER.incrementAndGet();
     });
 
     // special binding for session bucket: either the default bucket or custom

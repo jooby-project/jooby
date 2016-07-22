@@ -139,7 +139,7 @@ public class CassandraSessionStoreTest {
     new MockUnit(Session.class, org.jooby.Session.class)
         .expect(createTable)
         .expect(session("sid", 5, 6, 7, ImmutableMap.of("foo", "bar")))
-        .expect(insertInto(30))
+        .expect(insertInto(0))
         .expect(boundStatement)
         .expect(unit -> {
           BoundStatement statement = unit.get(BoundStatement.class);
@@ -151,8 +151,8 @@ public class CassandraSessionStoreTest {
           expect(session.execute(statement)).andReturn(null);
         })
         .run(unit -> {
-          new CassandraSessionStore(unit.get(Session.class), "30")
-              .save(unit.get(org.jooby.Session.class));
+          new CassandraSessionStore(unit.get(Session.class), 0)
+              .create(unit.get(org.jooby.Session.class));
         });
   }
 
@@ -307,9 +307,10 @@ public class CassandraSessionStoreTest {
       unit.registerMock(PreparedStatement.class, statement);
 
       Session session = unit.get(Session.class);
+      String suffix = ttl > 0 ? " USING TTL " + ttl : "";
       expect(session.prepare(
-          "INSERT INTO session (id,createdAt,accessedAt,savedAt,attributes) VALUES (?,?,?,?,?) USING TTL "
-              + ttl + ";"))
+          "INSERT INTO session (id,createdAt,accessedAt,savedAt,attributes) VALUES (?,?,?,?,?)"
+              + suffix + ";"))
                   .andReturn(statement);
     };
   }

@@ -4,6 +4,7 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.Routes;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
@@ -94,13 +95,13 @@ public class CassandraTest {
 
   @Test
   public void connectViaProperty() throws Exception {
-    Cassandra.COUNTER.set(0);
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
             .expect(unit -> {
               Config conf = unit.get(Config.class);
               expect(conf.getString("db")).andReturn("cassandra://localhost/beers");
             })
+            .expect(serviceKey(new Env.ServiceKey()))
             .expect(clusterBuilder)
             .expect(contactPoints("localhost"))
             .expect(port(9042))
@@ -123,12 +124,19 @@ public class CassandraTest {
             });
   }
 
+  private Block serviceKey(final ServiceKey serviceKey) {
+    return unit -> {
+      Env env = unit.get(Env.class);
+      expect(env.serviceKey()).andReturn(serviceKey);
+    };
+  }
+
   @Test
   public void connectViaConnectionString() throws Exception {
-    Cassandra.COUNTER.set(0);
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
             .expect(clusterBuilder)
+            .expect(serviceKey(new Env.ServiceKey()))
             .expect(contactPoints("localhost"))
             .expect(port(9042))
             .expect(codecRegistry)
@@ -152,10 +160,10 @@ public class CassandraTest {
 
   @Test
   public void onStop() throws Exception {
-    Cassandra.COUNTER.set(0);
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
             .expect(clusterBuilder)
+            .expect(serviceKey(new Env.ServiceKey()))
             .expect(contactPoints("localhost"))
             .expect(port(9042))
             .expect(codecRegistry)
@@ -188,10 +196,10 @@ public class CassandraTest {
 
   @Test
   public void onStopSessionerr() throws Exception {
-    Cassandra.COUNTER.set(0);
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
             .expect(clusterBuilder)
+            .expect(serviceKey(new Env.ServiceKey()))
             .expect(contactPoints("localhost"))
             .expect(port(9042))
             .expect(codecRegistry)
@@ -226,11 +234,11 @@ public class CassandraTest {
   @SuppressWarnings("unchecked")
   @Test
   public void withAccessor() throws Exception {
-    Cassandra.COUNTER.set(0);
     Object value = new Object();
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
             .expect(clusterBuilder)
+            .expect(serviceKey(new Env.ServiceKey()))
             .expect(contactPoints("localhost"))
             .expect(port(9042))
             .expect(codecRegistry)
@@ -265,10 +273,10 @@ public class CassandraTest {
 
   @Test
   public void doWithCluster() throws Exception {
-    Cassandra.COUNTER.set(0);
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class, StateListener.class)
             .expect(clusterBuilder)
+            .expect(serviceKey(new Env.ServiceKey()))
             .expect(contactPoints("localhost"))
             .expect(port(9042))
             .expect(codecRegistry)
@@ -297,10 +305,10 @@ public class CassandraTest {
 
   @Test
   public void doWithClusterBuilder() throws Exception {
-    Cassandra.COUNTER.set(0);
     new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
         Configuration.class, Session.class)
             .expect(clusterBuilder)
+            .expect(serviceKey(new Env.ServiceKey()))
             .expect(contactPoints("localhost"))
             .expect(port(9042))
             .expect(codecRegistry)
@@ -325,29 +333,6 @@ public class CassandraTest {
                   .doWithClusterBuilder(b -> {
                     b.withClusterName("mycluster");
                   })
-                  .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
-            });
-  }
-
-  @Test
-  public void secondInstance() throws Exception {
-    Cassandra.COUNTER.set(1);
-    new MockUnit(Env.class, Config.class, Binder.class, Cluster.class, Cluster.Builder.class,
-        Configuration.class, Session.class)
-            .expect(clusterBuilder)
-            .expect(contactPoints("localhost"))
-            .expect(port(9042))
-            .expect(codecRegistry)
-            .expect(bind("beers", Cluster.class))
-            .expect(bind("beers", Session.class))
-            .expect(connect("beers"))
-            .expect(mapper)
-            .expect(bind("beers", MappingManager.class))
-            .expect(datastore)
-            .expect(bind("beers", Datastore.class))
-            .expect(routeMapper).expect(onStop)
-            .run(unit -> {
-              new Cassandra("cassandra://localhost/beers")
                   .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
             });
   }

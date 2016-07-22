@@ -11,7 +11,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.jooby.internal.mongodb.GuiceObjectFactory;
+import org.jooby.Registry;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.mongodb.morphia.Morphia;
@@ -20,7 +20,6 @@ import org.mongodb.morphia.mapping.MappedField;
 import org.mongodb.morphia.mapping.Mapper;
 import org.mongodb.morphia.mapping.MapperOptions;
 
-import com.google.inject.Injector;
 import com.mongodb.DBObject;
 
 public class GuiceObjectFactoryTest {
@@ -50,15 +49,15 @@ public class GuiceObjectFactoryTest {
   public void createInstanceFromClazz() throws Exception {
     Injectable injectable = new Injectable();
 
-    new MockUnit(Injector.class, Morphia.class, Mapper.class, ObjectFactory.class)
+    new MockUnit(Registry.class, Morphia.class, Mapper.class, ObjectFactory.class)
         .expect(boot)
         .expect(unit -> {
-          Injector injector = unit.get(Injector.class);
-          expect(injector.getInstance(Injectable.class)).andReturn(injectable);
+          Registry injector = unit.get(Registry.class);
+          expect(injector.require(Injectable.class)).andReturn(injectable);
         })
         .run(unit -> {
           assertEquals(injectable,
-              new GuiceObjectFactory(unit.get(Injector.class), unit.get(Morphia.class))
+              new GuiceObjectFactory(unit.get(Registry.class), unit.get(Morphia.class))
                   .createInstance(Injectable.class));
 
         });
@@ -68,7 +67,7 @@ public class GuiceObjectFactoryTest {
   public void createInstanceFromClazzNoInjectable() throws Exception {
     GuiceObjectFactoryTest expected = new GuiceObjectFactoryTest();
 
-    new MockUnit(Injector.class, Morphia.class, Mapper.class, ObjectFactory.class)
+    new MockUnit(Registry.class, Morphia.class, Mapper.class, ObjectFactory.class)
         .expect(boot)
         .expect(unit -> {
           ObjectFactory injector = unit.get(ObjectFactory.class);
@@ -76,7 +75,7 @@ public class GuiceObjectFactoryTest {
         })
         .run(unit -> {
           assertEquals(expected,
-              new GuiceObjectFactory(unit.get(Injector.class), unit.get(Morphia.class))
+              new GuiceObjectFactory(unit.get(Registry.class), unit.get(Morphia.class))
                   .createInstance(GuiceObjectFactoryTest.class));
 
         });
@@ -86,15 +85,15 @@ public class GuiceObjectFactoryTest {
   public void createInstanceFromClazzWithDBObject() throws Exception {
     Injectable injectable = new Injectable();
 
-    new MockUnit(Injector.class, Morphia.class, Mapper.class, ObjectFactory.class, DBObject.class)
+    new MockUnit(Registry.class, Morphia.class, Mapper.class, ObjectFactory.class, DBObject.class)
         .expect(boot)
         .expect(unit -> {
-          Injector injector = unit.get(Injector.class);
-          expect(injector.getInstance(Injectable.class)).andReturn(injectable);
+          Registry injector = unit.get(Registry.class);
+          expect(injector.require(Injectable.class)).andReturn(injectable);
         })
         .run(unit -> {
           assertEquals(injectable,
-              new GuiceObjectFactory(unit.get(Injector.class), unit.get(Morphia.class))
+              new GuiceObjectFactory(unit.get(Registry.class), unit.get(Morphia.class))
                   .createInstance(Injectable.class, unit.get(DBObject.class)));
 
         });
@@ -104,7 +103,7 @@ public class GuiceObjectFactoryTest {
   public void createInstanceFromClazzWithDBObjectNoInjectable() throws Exception {
     GuiceObjectFactoryTest expected = new GuiceObjectFactoryTest();
 
-    new MockUnit(Injector.class, Morphia.class, Mapper.class, ObjectFactory.class, DBObject.class)
+    new MockUnit(Registry.class, Morphia.class, Mapper.class, ObjectFactory.class, DBObject.class)
         .expect(boot)
         .expect(unit -> {
           ObjectFactory factory = unit.get(ObjectFactory.class);
@@ -113,7 +112,7 @@ public class GuiceObjectFactoryTest {
         })
         .run(unit -> {
           assertEquals(expected,
-              new GuiceObjectFactory(unit.get(Injector.class), unit.get(Morphia.class))
+              new GuiceObjectFactory(unit.get(Registry.class), unit.get(Morphia.class))
                   .createInstance(GuiceObjectFactoryTest.class, unit.get(DBObject.class)));
 
         });
@@ -123,21 +122,21 @@ public class GuiceObjectFactoryTest {
   public void createInstanceFully() throws Exception {
     Injectable injectable = new Injectable();
 
-    new MockUnit(Injector.class, Morphia.class, Mapper.class, ObjectFactory.class, DBObject.class,
+    new MockUnit(Registry.class, Morphia.class, Mapper.class, ObjectFactory.class, DBObject.class,
         MappedField.class)
         .expect(boot)
         .expect(unit -> {
           MappedField mf = unit.get(MappedField.class);
           expect(mf.getType()).andReturn(Injectable.class);
 
-          Injector injector = unit.get(Injector.class);
-          expect(injector.getInstance(Injectable.class)).andReturn(injectable);
+          Registry injector = unit.get(Registry.class);
+          expect(injector.require(Injectable.class)).andReturn(injectable);
         })
         .run(
             unit -> {
               assertEquals(
                   injectable,
-                  new GuiceObjectFactory(unit.get(Injector.class), unit.get(Morphia.class))
+                  new GuiceObjectFactory(unit.get(Registry.class), unit.get(Morphia.class))
                       .createInstance(unit.get(Mapper.class), unit.get(MappedField.class),
                           unit.get(DBObject.class)));
 
@@ -148,7 +147,7 @@ public class GuiceObjectFactoryTest {
   public void createInstanceFullyNoInjectable() throws Exception {
     GuiceObjectFactoryTest expected = new GuiceObjectFactoryTest();
 
-    new MockUnit(Injector.class, Morphia.class, Mapper.class, ObjectFactory.class, DBObject.class,
+    new MockUnit(Registry.class, Morphia.class, Mapper.class, ObjectFactory.class, DBObject.class,
         MappedField.class)
         .expect(boot)
         .expect(unit -> {
@@ -162,7 +161,7 @@ public class GuiceObjectFactoryTest {
         .run(unit -> {
           assertEquals(
               expected,
-              new GuiceObjectFactory(unit.get(Injector.class), unit.get(Morphia.class))
+              new GuiceObjectFactory(unit.get(Registry.class), unit.get(Morphia.class))
                   .createInstance(unit.get(Mapper.class), unit.get(MappedField.class),
                       unit.get(DBObject.class)));
 
@@ -173,7 +172,7 @@ public class GuiceObjectFactoryTest {
   public void createMap() throws Exception {
     Map<String, Object> expected = Collections.emptyMap();
 
-    new MockUnit(Injector.class, Morphia.class, Mapper.class, ObjectFactory.class,
+    new MockUnit(Registry.class, Morphia.class, Mapper.class, ObjectFactory.class,
         MappedField.class)
         .expect(boot)
         .expect(unit -> {
@@ -183,7 +182,7 @@ public class GuiceObjectFactoryTest {
         .run(unit -> {
           assertEquals(
               expected,
-              new GuiceObjectFactory(unit.get(Injector.class), unit.get(Morphia.class))
+              new GuiceObjectFactory(unit.get(Registry.class), unit.get(Morphia.class))
                   .createMap(unit.get(MappedField.class)));
 
         });
@@ -193,7 +192,7 @@ public class GuiceObjectFactoryTest {
   public void createSet() throws Exception {
     Set<String> expected = Collections.emptySet();
 
-    new MockUnit(Injector.class, Morphia.class, Mapper.class, ObjectFactory.class,
+    new MockUnit(Registry.class, Morphia.class, Mapper.class, ObjectFactory.class,
         MappedField.class)
         .expect(boot)
         .expect(unit -> {
@@ -203,7 +202,7 @@ public class GuiceObjectFactoryTest {
         .run(unit -> {
           assertEquals(
               expected,
-              new GuiceObjectFactory(unit.get(Injector.class), unit.get(Morphia.class))
+              new GuiceObjectFactory(unit.get(Registry.class), unit.get(Morphia.class))
                   .createSet(unit.get(MappedField.class)));
 
         });
@@ -213,7 +212,7 @@ public class GuiceObjectFactoryTest {
   public void createList() throws Exception {
     List<String> expected = Collections.emptyList();
 
-    new MockUnit(Injector.class, Morphia.class, Mapper.class, ObjectFactory.class,
+    new MockUnit(Registry.class, Morphia.class, Mapper.class, ObjectFactory.class,
         MappedField.class)
         .expect(boot)
         .expect(unit -> {
@@ -223,7 +222,7 @@ public class GuiceObjectFactoryTest {
         .run(unit -> {
           assertEquals(
               expected,
-              new GuiceObjectFactory(unit.get(Injector.class), unit.get(Morphia.class))
+              new GuiceObjectFactory(unit.get(Registry.class), unit.get(Morphia.class))
                   .createList(unit.get(MappedField.class)));
 
         });
