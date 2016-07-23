@@ -653,6 +653,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
   /** Bean parser . */
   private Optional<Parser> beanParser = Optional.empty();
 
+  private ServerLookup server = new ServerLookup();
+
   public Jooby() {
     this(null);
   }
@@ -665,7 +667,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    */
   public Jooby(final String prefix) {
     this.prefix = prefix;
-    use(new ServerLookup());
+    use(server);
   }
 
   /**
@@ -677,6 +679,25 @@ public class Jooby implements Routes, LifeCycle, Registry {
    */
   public Jooby use(final Jooby app) {
     return use(Optional.empty(), app);
+  }
+
+  /**
+   * Use the provided HTTP server.
+   *
+   * @param server Server.
+   * @return This jooby instance.
+   */
+  public Jooby server(final Class<? extends Server> server) {
+    requireNonNull(server, "Server required.");
+    // remove server lookup
+    List<Object> tmp = bag.stream()
+        .skip(1)
+        .collect(Collectors.toList());
+    tmp.add(0,
+        (Module) (env, conf, binder) -> binder.bind(Server.class).to(server).asEagerSingleton());
+    bag.clear();
+    bag.addAll(tmp);
+    return this;
   }
 
   /**
