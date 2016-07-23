@@ -2704,22 +2704,95 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(err)
-        .expect(
-            unit -> {
-              AnnotatedBindingBuilder<List<Integer>> listAnnotatedBinding = unit
-                  .mock(AnnotatedBindingBuilder.class);
-              listAnnotatedBinding.toInstance(Arrays.asList(1, 2, 3));
+        .expect(unit -> {
+          AnnotatedBindingBuilder<List<Integer>> listAnnotatedBinding = unit
+              .mock(AnnotatedBindingBuilder.class);
+          listAnnotatedBinding.toInstance(Arrays.asList(1, 2, 3));
 
-              Binder binder = unit.get(Binder.class);
-              Key<List<Integer>> key = (Key<List<Integer>>) Key.get(Types.listOf(Integer.class),
-                  Names.named("list"));
-              expect(binder.bind(key)).andReturn(listAnnotatedBinding);
-            })
+          Binder binder = unit.get(Binder.class);
+          Key<List<Integer>> key = (Key<List<Integer>>) Key.get(Types.listOf(Integer.class),
+              Names.named("list"));
+          expect(binder.bind(key)).andReturn(listAnnotatedBinding);
+        })
         .run(unit -> {
 
           Jooby jooby = new Jooby();
 
           jooby.use(ConfigFactory.parseResources(getClass(), "JoobyTest.conf"));
+
+          jooby.start();
+
+        }, boot);
+  }
+
+  @Test
+  public void customConf() throws Exception {
+
+    new MockUnit(Binder.class)
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(routes)
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(err)
+        .run(unit -> {
+
+          Jooby jooby = new Jooby();
+
+          jooby.conf("JoobyTest.conf");
+
+          jooby.start();
+
+        }, boot);
+  }
+
+  @Test
+  public void customConfFile() throws Exception {
+
+    new MockUnit(Binder.class)
+        .expect(guice)
+        .expect(shutdown)
+        .expect(config)
+        .expect(env)
+        .expect(classInfo)
+        .expect(ssl)
+        .expect(charset)
+        .expect(locale)
+        .expect(zoneId)
+        .expect(timeZone)
+        .expect(dateTimeFormatter)
+        .expect(numberFormat)
+        .expect(decimalFormat)
+        .expect(renderers)
+        .expect(session)
+        .expect(routes)
+        .expect(routeHandler)
+        .expect(params)
+        .expect(requestScope)
+        .expect(webSockets)
+        .expect(tmpdir)
+        .expect(err)
+        .run(unit -> {
+
+          Jooby jooby = new Jooby();
+
+          jooby.conf(new File("JoobyTest.conf"));
 
           jooby.start();
 

@@ -3298,6 +3298,30 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   /**
+   * Set/specify a custom .conf file, useful when you don't want a <code>application.conf</code>
+   * file.
+   *
+   * @param path Classpath location.
+   * @return This jooby instance.
+   */
+  public Jooby conf(final String path) {
+    use(ConfigFactory.parseResources(path));
+    return this;
+  }
+
+  /**
+   * Set/specify a custom .conf file, useful when you don't want a <code>application.conf</code>
+   * file.
+   *
+   * @param path File system location.
+   * @return This jooby instance.
+   */
+  public Jooby conf(final File path) {
+    use(ConfigFactory.parseFile(path));
+    return this;
+  }
+
+  /**
    * Set the application configuration object. You must call this method when the default file
    * name: <code>application.conf</code> doesn't work for you or when you need/want to register two
    * or more files.
@@ -3307,7 +3331,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * @see Config
    */
   public Jooby use(final Config config) {
-    this.srcconf = requireNonNull(config, "A config is required.");
+    this.srcconf = requireNonNull(config, "Config required.");
     return this;
   }
 
