@@ -26,10 +26,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import javax.inject.Provider;
-import javax.sql.DataSource;
-
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.jdbc.Jdbc;
 
 import com.google.inject.Binder;
@@ -151,25 +149,25 @@ public class QueryDSL extends Jdbc {
    * Creates a new {@link QueryDSL} module
    */
   public QueryDSL() {
-    this(DEFAULT_DB);
   }
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    super.configure(env, conf, binder);
-    SQLTemplates templates = this.templates.apply(dbtype.orElse("unknown"));
+    super.configure(env, conf, binder, (name, ds) -> {
+      SQLTemplates templates = this.templates.apply(dbtype.orElse("unknown"));
 
-    Configuration querydslconf = new Configuration(templates);
+      Configuration querydslconf = new Configuration(templates);
 
-    if (callback != null) {
-      callback.accept(querydslconf, conf);
-    }
-    DataSource ds = dataSource().get();
-    Provider<SQLQueryFactory> sqfp = () -> new SQLQueryFactory(querydslconf, ds);
+      if (callback != null) {
+        callback.accept(querydslconf, conf);
+      }
+      SQLQueryFactory sqfp = new SQLQueryFactory(querydslconf, ds);
 
-    keys(SQLTemplates.class, k -> binder.bind(k).toInstance(templates));
-    keys(Configuration.class, k -> binder.bind(k).toInstance(querydslconf));
-    keys(SQLQueryFactory.class, k -> binder.bind(k).toProvider(sqfp));
+      ServiceKey serviceKey = env.serviceKey();
+      serviceKey.generate(SQLTemplates.class, name, k -> binder.bind(k).toInstance(templates));
+      serviceKey.generate(Configuration.class, name, k -> binder.bind(k).toInstance(querydslconf));
+      serviceKey.generate(SQLQueryFactory.class, name, k -> binder.bind(k).toInstance(sqfp));
+    });
   }
 
   /**

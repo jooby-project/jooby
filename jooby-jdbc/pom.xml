@@ -65,6 +65,14 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <classifier>tests</classifier>
+    </dependency>
+
   </dependencies>
 
 </project>

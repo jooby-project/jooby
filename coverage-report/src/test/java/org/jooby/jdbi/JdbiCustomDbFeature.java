@@ -17,7 +17,7 @@ public class JdbiCustomDbFeature extends ServerFeature {
     use(new Jdbi("db1"));
 
     get("/jdbi-handle", req -> {
-      try (Handle h = req.require("db1", Handle.class)) {
+      try (Handle h = req.require(Handle.class)) {
         h.execute("create table something (id int primary key, name varchar(100))");
 
         h.execute("insert into something (id, name) values (?, ?)", 1, "Jooby");

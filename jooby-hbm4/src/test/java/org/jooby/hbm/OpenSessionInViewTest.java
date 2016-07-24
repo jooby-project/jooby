@@ -5,7 +5,6 @@ import static org.easymock.EasyMock.expectLastCall;
 
 import java.util.List;
 
-import javax.inject.Provider;
 import javax.persistence.EntityManager;
 
 import org.hibernate.FlushMode;
@@ -36,148 +35,142 @@ public class OpenSessionInViewTest {
   @Test
   public void defaults() throws Exception {
     List<Key<EntityManager>> keys = Lists.newArrayList(Key.get(EntityManager.class));
-    new MockUnit(Provider.class, Request.class, Response.class, Route.Chain.class,
+    new MockUnit(HibernateEntityManagerFactory.class, Request.class, Response.class,
+        Route.Chain.class,
         EntityManager.class)
-        .expect(unit -> {
-          Request req = unit.get(Request.class);
-          expect(req.set(keys.get(0), unit.get(EntityManager.class))).andReturn(req);
+            .expect(unit -> {
+              Request req = unit.get(Request.class);
+              expect(req.set(keys.get(0), unit.get(EntityManager.class))).andReturn(req);
 
-          TrxResponse rsp = unit.mockConstructor(TrxResponse.class, new Class[]{Response.class,
-              EntityManager.class }, unit.get(Response.class), unit.get(EntityManager.class));
-          expect(rsp.begin()).andReturn(rsp);
-          rsp.done();
+              TrxResponse rsp = unit.mockConstructor(TrxResponse.class, new Class[]{Response.class,
+                  EntityManager.class }, unit.get(Response.class), unit.get(EntityManager.class));
+              expect(rsp.begin()).andReturn(rsp);
+              rsp.done();
 
-          Route.Chain chain = unit.get(Route.Chain.class);
-          chain.next(req, rsp);
-        })
-        .expect(unit -> {
-          SessionFactory sf = unit.mock(SessionFactory.class);
+              Route.Chain chain = unit.get(Route.Chain.class);
+              chain.next(req, rsp);
+            })
+            .expect(unit -> {
+              SessionFactory sf = unit.mock(SessionFactory.class);
 
-          Session session = unit.mock(Session.class);
-          session.setFlushMode(FlushMode.AUTO);
+              Session session = unit.mock(Session.class);
+              session.setFlushMode(FlushMode.AUTO);
 
-          unit.mockStatic(ManagedSessionContext.class);
-          expect(ManagedSessionContext.bind(session)).andReturn(session);
-          expect(ManagedSessionContext.unbind(sf)).andReturn(session);
+              unit.mockStatic(ManagedSessionContext.class);
+              expect(ManagedSessionContext.bind(session)).andReturn(session);
+              expect(ManagedSessionContext.unbind(sf)).andReturn(session);
 
-          EntityManager em = unit.get(EntityManager.class);
-          expect(em.getDelegate()).andReturn(session);
+              EntityManager em = unit.get(EntityManager.class);
+              expect(em.getDelegate()).andReturn(session);
 
-          HibernateEntityManagerFactory hemf = unit.mock(HibernateEntityManagerFactory.class);
-          expect(hemf.getSessionFactory()).andReturn(sf);
-          expect(hemf.createEntityManager()).andReturn(em);
+              HibernateEntityManagerFactory hemf = unit.get(HibernateEntityManagerFactory.class);
+              expect(hemf.getSessionFactory()).andReturn(sf);
+              expect(hemf.createEntityManager()).andReturn(em);
 
-          Provider<HibernateEntityManagerFactory> provider = unit.get(Provider.class);
-          expect(provider.get()).andReturn(hemf);
-        })
-        .run(unit -> {
-          new OpenSessionInView(unit.get(Provider.class), keys)
-              .handle(
-                  unit.get(Request.class),
-                  unit.get(Response.class),
-                  unit.get(Route.Chain.class)
-              );
-        });
+            })
+            .run(unit -> {
+              new OpenSessionInView(unit.get(HibernateEntityManagerFactory.class), keys)
+                  .handle(
+                      unit.get(Request.class),
+                      unit.get(Response.class),
+                      unit.get(Route.Chain.class));
+            });
   }
 
   @SuppressWarnings("unchecked")
   @Test(expected = HibernateException.class)
   public void shouldAlwaysUnbindSession2() throws Exception {
     List<Key<EntityManager>> keys = Lists.newArrayList(Key.get(EntityManager.class));
-    new MockUnit(Provider.class, Request.class, Response.class, Route.Chain.class,
+    new MockUnit(HibernateEntityManagerFactory.class, Request.class, Response.class,
+        Route.Chain.class,
         EntityManager.class)
-        .expect(unit -> {
-          Request req = unit.get(Request.class);
-          expect(req.set(keys.get(0), unit.get(EntityManager.class))).andReturn(req);
+            .expect(unit -> {
+              Request req = unit.get(Request.class);
+              expect(req.set(keys.get(0), unit.get(EntityManager.class))).andReturn(req);
 
-          TrxResponse rsp = unit.mockConstructor(TrxResponse.class, new Class[]{Response.class,
-              EntityManager.class }, unit.get(Response.class), unit.get(EntityManager.class));
+              TrxResponse rsp = unit.mockConstructor(TrxResponse.class, new Class[]{Response.class,
+                  EntityManager.class }, unit.get(Response.class), unit.get(EntityManager.class));
 
-          expect(rsp.begin()).andReturn(rsp);
-          rsp.done();
+              expect(rsp.begin()).andReturn(rsp);
+              rsp.done();
 
-          expectLastCall().andThrow(new HibernateException("intentional err"));
+              expectLastCall().andThrow(new HibernateException("intentional err"));
 
-          Route.Chain chain = unit.get(Route.Chain.class);
-          chain.next(req, rsp);
-        })
-        .expect(unit -> {
-          SessionFactory sf = unit.mock(SessionFactory.class);
+              Route.Chain chain = unit.get(Route.Chain.class);
+              chain.next(req, rsp);
+            })
+            .expect(unit -> {
+              SessionFactory sf = unit.mock(SessionFactory.class);
 
-          Session session = unit.mock(Session.class);
-          session.setFlushMode(FlushMode.AUTO);
+              Session session = unit.mock(Session.class);
+              session.setFlushMode(FlushMode.AUTO);
 
-          unit.mockStatic(ManagedSessionContext.class);
-          expect(ManagedSessionContext.bind(session)).andReturn(session);
-          expect(ManagedSessionContext.unbind(sf)).andReturn(session);
+              unit.mockStatic(ManagedSessionContext.class);
+              expect(ManagedSessionContext.bind(session)).andReturn(session);
+              expect(ManagedSessionContext.unbind(sf)).andReturn(session);
 
-          EntityManager em = unit.get(EntityManager.class);
-          expect(em.getDelegate()).andReturn(session);
+              EntityManager em = unit.get(EntityManager.class);
+              expect(em.getDelegate()).andReturn(session);
 
-          HibernateEntityManagerFactory hemf = unit.mock(HibernateEntityManagerFactory.class);
-          expect(hemf.getSessionFactory()).andReturn(sf);
-          expect(hemf.createEntityManager()).andReturn(em);
+              HibernateEntityManagerFactory hemf = unit.get(HibernateEntityManagerFactory.class);
+              expect(hemf.getSessionFactory()).andReturn(sf);
+              expect(hemf.createEntityManager()).andReturn(em);
 
-          Provider<HibernateEntityManagerFactory> provider = unit.get(Provider.class);
-          expect(provider.get()).andReturn(hemf);
-        })
-        .run(unit -> {
-          new OpenSessionInView(unit.get(Provider.class), keys)
-              .handle(
-                  unit.get(Request.class),
-                  unit.get(Response.class),
-                  unit.get(Route.Chain.class)
-              );
-        });
+            })
+            .run(unit -> {
+              new OpenSessionInView(unit.get(HibernateEntityManagerFactory.class), keys)
+                  .handle(
+                      unit.get(Request.class),
+                      unit.get(Response.class),
+                      unit.get(Route.Chain.class));
+            });
   }
 
   @SuppressWarnings("unchecked")
   @Test(expected = HibernateException.class)
   public void shouldAlwaysUnbindSession3() throws Exception {
     List<Key<EntityManager>> keys = Lists.newArrayList(Key.get(EntityManager.class));
-    new MockUnit(Provider.class, Request.class, Response.class, Route.Chain.class,
+    new MockUnit(HibernateEntityManagerFactory.class, Request.class, Response.class,
+        Route.Chain.class,
         EntityManager.class)
-        .expect(unit -> {
-          Request req = unit.get(Request.class);
-          expect(req.set(keys.get(0), unit.get(EntityManager.class))).andReturn(req);
+            .expect(unit -> {
+              Request req = unit.get(Request.class);
+              expect(req.set(keys.get(0), unit.get(EntityManager.class))).andReturn(req);
 
-          TrxResponse rsp = unit.mockConstructor(TrxResponse.class, new Class[]{Response.class,
-              EntityManager.class }, unit.get(Response.class), unit.get(EntityManager.class));
+              TrxResponse rsp = unit.mockConstructor(TrxResponse.class, new Class[]{Response.class,
+                  EntityManager.class }, unit.get(Response.class), unit.get(EntityManager.class));
 
-          expect(rsp.begin()).andReturn(rsp);
-          rsp.done();
+              expect(rsp.begin()).andReturn(rsp);
+              rsp.done();
 
-          Route.Chain chain = unit.get(Route.Chain.class);
-          chain.next(req, rsp);
-        })
-        .expect(unit -> {
-          SessionFactory sf = unit.mock(SessionFactory.class);
+              Route.Chain chain = unit.get(Route.Chain.class);
+              chain.next(req, rsp);
+            })
+            .expect(unit -> {
+              SessionFactory sf = unit.mock(SessionFactory.class);
 
-          Session session = unit.mock(Session.class);
-          session.setFlushMode(FlushMode.AUTO);
+              Session session = unit.mock(Session.class);
+              session.setFlushMode(FlushMode.AUTO);
 
-          unit.mockStatic(ManagedSessionContext.class);
-          expect(ManagedSessionContext.bind(session)).andReturn(session);
-          expect(ManagedSessionContext.unbind(sf)).andThrow(new HibernateException("intentional err"));
+              unit.mockStatic(ManagedSessionContext.class);
+              expect(ManagedSessionContext.bind(session)).andReturn(session);
+              expect(ManagedSessionContext.unbind(sf))
+                  .andThrow(new HibernateException("intentional err"));
 
-          EntityManager em = unit.get(EntityManager.class);
-          expect(em.getDelegate()).andReturn(session);
+              EntityManager em = unit.get(EntityManager.class);
+              expect(em.getDelegate()).andReturn(session);
 
-          HibernateEntityManagerFactory hemf = unit.mock(HibernateEntityManagerFactory.class);
-          expect(hemf.getSessionFactory()).andReturn(sf);
-          expect(hemf.createEntityManager()).andReturn(em);
-
-          Provider<HibernateEntityManagerFactory> provider = unit.get(Provider.class);
-          expect(provider.get()).andReturn(hemf);
-        })
-        .run(unit -> {
-          new OpenSessionInView(unit.get(Provider.class), keys)
-              .handle(
-                  unit.get(Request.class),
-                  unit.get(Response.class),
-                  unit.get(Route.Chain.class)
-              );
-        });
+              HibernateEntityManagerFactory hemf = unit.get(HibernateEntityManagerFactory.class);
+              expect(hemf.getSessionFactory()).andReturn(sf);
+              expect(hemf.createEntityManager()).andReturn(em);
+            })
+            .run(unit -> {
+              new OpenSessionInView(unit.get(HibernateEntityManagerFactory.class), keys)
+                  .handle(
+                      unit.get(Request.class),
+                      unit.get(Response.class),
+                      unit.get(Route.Chain.class));
+            });
   }
 
 }

@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.inject.Provider;
 import javax.persistence.SharedCacheMode;
 import javax.persistence.ValidationMode;
 import javax.persistence.spi.PersistenceUnitTransactionType;
@@ -48,7 +47,7 @@ public class HbmUnitDescriptor implements PersistenceUnitDescriptor {
 
   private ClassLoader loader;
 
-  private Provider<DataSource> dataSourceHolder;
+  private DataSource dataSource;
 
   private Config config;
 
@@ -56,10 +55,10 @@ public class HbmUnitDescriptor implements PersistenceUnitDescriptor {
 
   private URL unitRoot;
 
-  public HbmUnitDescriptor(final ClassLoader loader, final Provider<DataSource> dataSourceHolder,
+  public HbmUnitDescriptor(final ClassLoader loader, final DataSource dataSource,
       final Config config, final Set<String> pkgs) {
     this.loader = loader;
-    this.dataSourceHolder = dataSourceHolder;
+    this.dataSource = dataSource;
     this.config = config;
     List<URL> pkgList = packageToScan(loader, pkgs);
     if (pkgList.size() > 0) {
@@ -128,12 +127,12 @@ public class HbmUnitDescriptor implements PersistenceUnitDescriptor {
 
   @Override
   public Object getNonJtaDataSource() {
-    return dataSourceHolder.get();
+    return dataSource;
   }
 
   @Override
   public String getName() {
-    return dataSourceHolder.toString();
+    return dataSource.toString();
   }
 
   @Override

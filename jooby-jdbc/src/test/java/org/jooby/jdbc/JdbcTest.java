@@ -1,44 +1,50 @@
 package org.jooby.jdbc;
 
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
-import static org.easymock.EasyMock.capture;
-import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
-import java.util.function.BiConsumer;
-import java.util.regex.Pattern;
 
-import javax.inject.Provider;
 import javax.sql.DataSource;
 
-import org.easymock.Capture;
 import org.jooby.Env;
-import org.jooby.Registry;
-import org.jooby.Routes;
+import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
-import com.google.inject.binder.LinkedBindingBuilder;
-import com.google.inject.binder.ScopedBindingBuilder;
+import com.google.inject.binder.AnnotatedBindingBuilder;
 import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
-import javaslang.control.Try.CheckedConsumer;
+import javaslang.control.Try.CheckedRunnable;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Jdbc.class, Properties.class, HikariConfig.class, HikariDataSource.class,
+    System.class })
 public class JdbcTest {
+
+  private Block onStop = unit -> {
+    Env env = unit.get(Env.class);
+    expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
+  };
+
+  private Block mysql = unit -> {
+    Properties props = unit.get(Properties.class);
+    expect(props.setProperty("dataSource.useServerPrepStmts", "true")).andReturn(null);
+    expect(props.setProperty("dataSource.prepStmtCacheSqlLimit", "2048")).andReturn(null);
+    expect(props.setProperty("dataSource.cachePrepStmts", "true")).andReturn(null);
+    expect(props.setProperty("dataSource.prepStmtCacheSize", "250")).andReturn(null);
+    expect(props.setProperty("dataSource.encoding", "UTF-8")).andReturn(null);
+  };
 
   @Test(expected = IllegalArgumentException.class)
   public void nullname() throws Exception {
@@ -50,1048 +56,565 @@ public class JdbcTest {
     new Jdbc("");
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void nods() throws Exception {
-    new Jdbc().dataSource();
-  }
-
-  @SuppressWarnings("unchecked")
   @Test
   public void memdb() throws Exception {
-    Env env = env("dev");
-
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("mem"));
 
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    // config
-    config = config.withValue("db", fromAnyRef("mem"));
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(env, config, binder);
-
-    withHikariConfig(provider, (hikariConfig, properties) -> {
-      assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());
-
-      // datasource properties
-      assertTrue(Pattern.matches("jdbc:h2:mem:\\d+;DB_CLOSE_DELAY=-1", properties.get("url")
-          .toString()));
-      assertEquals("sa", properties.get("user"));
-      assertEquals("", properties.get("password"));
-    });
-
-    verify(mocks);
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(currentTimeMillis(123))
+        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:mem:123;DB_CLOSE_DELAY=-1", "h2.123",
+            "sa", "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("123"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void fsdb() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
-
-    // config
-    String dbname = "test";
-    String tmpdir = System.getProperty("java.io.tmpdir");
-    if (tmpdir.endsWith(File.separator)) {
-      tmpdir = tmpdir.substring(0, tmpdir.length() - File.separator.length());
-    }
-    String apptmpdir = tmpdir;
-    config = config.withValue("db", fromAnyRef("fs"))
-        .withValue("application.name", fromAnyRef(dbname))
-        .withValue("application.tmpdir", fromAnyRef(apptmpdir))
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("fs"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
         .resolve();
 
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(provider, (hikariConfig, properties) -> {
-      assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());
-
-      // datasource properties
-      assertEquals("jdbc:h2:" + apptmpdir + File.separator + dbname, properties.get("url"));
-      assertEquals("sa", properties.get("user"));
-      assertEquals("", properties.get("password"));
-    });
-
-    verify(mocks);
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
+            "sa", "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("jdbctest"))
+        .expect(onStop)
+        .expect(unit -> {
+          unit.get(HikariDataSource.class).close();
+        })
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(CheckedRunnable.class).iterator().next().run();
+        });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
-  public void dbPropertyCanBeJustURL() throws Exception {
-    Env mode = env("dev");
+  public void dbWithCallback() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("fs"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .resolve();
 
-    // config
-    config = config.withValue("db", fromAnyRef("jdbc:h2:testdb"));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(provider, (hikariConfig, properties) -> {
-      assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());
-
-      // datasource properties
-      assertEquals("jdbc:h2:testdb", properties.get("url"));
-      assertEquals(null, properties.get("user"));
-      assertEquals(null, properties.get("password"));
-    });
-
-    verify(mocks);
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
+            "sa", "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("jdbctest"))
+        .expect(onStop)
+        .expect(unit -> {
+          HikariConfig h = unit.get(HikariConfig.class);
+          h.setAllowPoolSuspension(true);
+        })
+        .run(unit -> {
+          new Jdbc()
+              .doWithHikari(h -> {
+                h.setAllowPoolSuspension(true);
+              })
+              .configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
-  public void dbHashMustHaveURLwhenMoreDetailsAreProvided() throws Exception {
-    Env mode = env("dev");
+  public void databaseWithCredentials() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db.url",
+        ConfigValueFactory.fromAnyRef("jdbc:mysql://localhost/db"))
+        .withValue("db.user", fromAnyRef("foo"))
+        .withValue("db.password", fromAnyRef("bar"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .resolve();
 
-    // config
-    config = config.withValue("db.url", fromAnyRef("jdbc:h2:testdb"))
-        .withValue("db.user", fromAnyRef("test"));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(provider, (hikariConfig, properties) -> {
-      assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());
-
-      // datasource properties
-      assertEquals("jdbc:h2:testdb", properties.get("url"));
-      assertEquals("test", properties.get("user"));
-      assertEquals(null, properties.get("password"));
-    });
-
-    verify(mocks);
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost/db",
+            "mysql.db", "foo", "bar", false))
+        .expect(mysql)
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("db"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void derby() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("jdbc:derby:testdb"));
 
-    // config
-    config = config.withValue("db", fromAnyRef("jdbc:derby:testdb"));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("org.apache.derby.jdbc.ClientDataSource",
-              hikariConfig.getDataSourceClassName());
-
-          // datasource properties
-          assertEquals("jdbc:derby:testdb", properties.get("url"));
-          assertEquals(null, properties.get("user"));
-          assertEquals(null, properties.get("password"));
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.apache.derby.jdbc.ClientDataSource", "jdbc:derby:testdb", "derby.testdb",
+            null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("testdb"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
-
-    verify(mocks);
   }
 
-  @SuppressWarnings("unchecked")
+  @Test
+  public void connectionString() throws Exception {
+    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
+
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.apache.derby.jdbc.ClientDataSource", null, "derby.testdb",
+            null, "", false))
+        .expect(hikariConfig())
+        .expect(unit -> {
+          Properties props = unit.mock(Properties.class);
+          expect(props.setProperty("url", "jdbc:derby:testdb")).andReturn(null);
+
+          HikariConfig hconf = unit.get(HikariConfig.class);
+          expect(hconf.getDataSourceProperties()).andReturn(props);
+        })
+        .expect(hikariDataSource())
+        .expect(serviceKey("testdb"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc("jdbc:derby:testdb").configure(unit.get(Env.class), config,
+              unit.get(Binder.class));
+        });
+  }
+
   @Test
   public void db2() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db",
+        ConfigValueFactory.fromAnyRef("jdbc:db2://127.0.0.1:50000/SAMPLE"));
 
-    // config
-    String dburl = "jdbc:db2://127.0.0.1:50000/SAMPLE";
-    config = config.withValue("db", fromAnyRef(dburl));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(provider, (hikariConfig, properties) -> {
-      assertEquals("com.ibm.db2.jcc.DB2SimpleDataSource", hikariConfig.getDataSourceClassName());
-
-      // datasource properties
-      assertEquals(dburl, properties.get("url"));
-      assertEquals(null, properties.get("user"));
-      assertEquals(null, properties.get("password"));
-    });
-
-    verify(mocks);
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("com.ibm.db2.jcc.DB2SimpleDataSource", "jdbc:db2://127.0.0.1:50000/SAMPLE",
+            "db2.SAMPLE", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("SAMPLE"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void hsql() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db",
+        ConfigValueFactory.fromAnyRef("jdbc:hsqldb:file"));
 
-    // config
-    String dburl = "jdbc:hsqldb:file";
-    config = config.withValue("db", fromAnyRef(dburl));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(provider, (hikariConfig, properties) -> {
-      assertEquals("org.hsqldb.jdbc.JDBCDataSource", hikariConfig.getDataSourceClassName());
-
-      // datasource properties
-      assertEquals(dburl, properties.get("url"));
-      assertEquals(null, properties.get("user"));
-      assertEquals(null, properties.get("password"));
-    });
-
-    verify(mocks);
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.hsqldb.jdbc.JDBCDataSource", "jdbc:hsqldb:file",
+            "hsqldb.file", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("file"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void mariadb() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db",
+        ConfigValueFactory.fromAnyRef("jdbc:mariadb://localhost/db"));
 
-    // config
-    String dburl = "jdbc:mariadb://localhost/db";
-    config = config.withValue("db", fromAnyRef(dburl));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(provider, (hikariConfig, properties) -> {
-      assertEquals("org.mariadb.jdbc.MySQLDataSource", hikariConfig.getDataSourceClassName());
-
-      // datasource properties
-      assertEquals(dburl, properties.get("url"));
-      assertEquals(null, properties.get("user"));
-      assertEquals(null, properties.get("password"));
-    });
-
-    verify(mocks);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  public void mysql() throws Exception {
-    Env mode = env("dev");
-    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
-
-    // config
-    String dburl = "jdbc:mysql://localhost/db";
-    config = config.withValue("db", fromAnyRef(dburl))
-        .withValue("application.name", fromAnyRef("test"))
-        .withValue("application.tmpdir", fromAnyRef(System.getProperty("java.io.tmpdir")))
-        .withValue("application.charset", fromAnyRef("UTF-8"))
-        .resolve();
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("com.mysql.jdbc.jdbc2.optional.MysqlDataSource",
-              hikariConfig.getDataSourceClassName());
-
-          // datasource properties
-          assertEquals(dburl, properties.get("url"));
-          assertEquals("UTF-8", properties.get("encoding"));
-          assertEquals("true", properties.get("cachePrepStmts"));
-          assertEquals("250", properties.get("prepStmtCacheSize"));
-          assertEquals("2048", properties.get("prepStmtCacheSqlLimit"));
-          assertEquals("true", properties.get("useServerPrepStmts"));
-          assertEquals(null, properties.get("user"));
-          assertEquals(null, properties.get("password"));
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.mariadb.jdbc.MySQLDataSource", "jdbc:mariadb://localhost/db",
+            "mariadb.db", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("db"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
 
-    verify(mocks);
   }
 
-  @SuppressWarnings("unchecked")
+  @Test
+  public void mysql() throws Exception {
+    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
+    Config dbconf = config.withValue("db",
+        ConfigValueFactory.fromAnyRef("jdbc:mysql://localhost/db"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .resolve();
+
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost/db",
+            "mysql.db", null, "", false))
+        .expect(mysql)
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("db"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        });
+  }
+
   @Test
   public void dbspecific() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
-
-    // config
-    String dburl = "jdbc:mysql://localhost/db";
-    config = config.withValue("db.url", fromAnyRef(dburl))
-        .withValue("db.user", fromAnyRef("test"))
-        .withValue("db.password", fromAnyRef("pass"))
-        .withValue("application.name", fromAnyRef("test"))
-        .withValue("application.tmpdir", fromAnyRef(System.getProperty("java.io.tmpdir")))
+    Config dbconf = config.withValue("db.url",
+        ConfigValueFactory.fromAnyRef("jdbc:mysql://localhost/db"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
         // override defaults
         .withValue("db.cachePrepStmts", fromAnyRef(false))
         .resolve();
 
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("com.mysql.jdbc.jdbc2.optional.MysqlDataSource",
-              hikariConfig.getDataSourceClassName());
-
-          // datasource properties
-          assertEquals(dburl, properties.get("url"));
-          assertEquals("UTF-8", properties.get("encoding"));
-          assertEquals("false", properties.get("cachePrepStmts"));
-          assertEquals("250", properties.get("prepStmtCacheSize"));
-          assertEquals("2048", properties.get("prepStmtCacheSqlLimit"));
-          assertEquals("true", properties.get("useServerPrepStmts"));
-          assertEquals("test", properties.get("user"));
-          assertEquals("pass", properties.get("password"));
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost/db",
+            "mysql.db", null, "", false))
+        .expect(mysql)
+        .expect(unit -> {
+          Properties props = unit.get(Properties.class);
+          expect(props.setProperty("dataSource.cachePrepStmts", "false")).andReturn(null);
+        })
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("db"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
-
-    verify(mocks);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
-  public void hikariDefaultsDev() throws Exception {
-    Env mode = env("dev");
-    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
-
-    // config
-    config = config.withValue("db", fromAnyRef("mem"));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals(null, hikariConfig.getCatalog());
-          assertEquals(null, hikariConfig.getConnectionTestQuery());
-          assertEquals(null, hikariConfig.getConnectionInitSql());
-          assertEquals(30000, hikariConfig.getConnectionTimeout());
-          assertEquals(600000, hikariConfig.getIdleTimeout());
-          assertEquals(true, hikariConfig.isAutoCommit());
-          assertEquals(true, hikariConfig.isInitializationFailFast());
-          assertEquals(false, hikariConfig.isIsolateInternalQueries());
-          assertEquals(false, hikariConfig.isReadOnly());
-          assertEquals(false, hikariConfig.isRegisterMbeans());
-          assertEquals(0, hikariConfig.getLeakDetectionThreshold());
-          assertEquals(1800000, hikariConfig.getMaxLifetime());
-          assertEquals(10, hikariConfig.getMaximumPoolSize());
-          assertEquals(10, hikariConfig.getMinimumIdle());
-          assertEquals("h2.db", hikariConfig.getPoolName());
-          assertEquals(null, hikariConfig.getTransactionIsolation());
-        });
-
-    verify(mocks);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test
-  public void hikariOverrideDefaults() throws Exception {
-    Env mode = env("dev");
-    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
-
+  public void setHikariOptions() throws Exception {
     long connectionTimeout = 1000;
     int maximumPoolSize = 10;
     long idleTimeout = 800000;
-    // config
-    config = config.withValue("db", fromAnyRef("mem"))
-        // hikari override
+
+    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("fs"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
         .withValue("hikari.connectionTimeout", fromAnyRef(connectionTimeout))
         .withValue("hikari.maximumPoolSize", fromAnyRef(maximumPoolSize))
         .withValue("hikari.idleTimeout", fromAnyRef(idleTimeout))
-        .withValue("hikari.autoCommit", fromAnyRef(false));
+        .withValue("hikari.autoCommit", fromAnyRef(false))
+        .resolve();
 
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals(null, hikariConfig.getCatalog());
-          assertEquals(null, hikariConfig.getConnectionTestQuery());
-          assertEquals(null, hikariConfig.getConnectionInitSql());
-          assertEquals(connectionTimeout, hikariConfig.getConnectionTimeout());
-          assertEquals(idleTimeout, hikariConfig.getIdleTimeout());
-          assertEquals(false, hikariConfig.isAutoCommit());
-          assertEquals(true, hikariConfig.isInitializationFailFast());
-          assertEquals(false, hikariConfig.isIsolateInternalQueries());
-          assertEquals(false, hikariConfig.isReadOnly());
-          assertEquals(false, hikariConfig.isRegisterMbeans());
-          assertEquals(0, hikariConfig.getLeakDetectionThreshold());
-          assertEquals(1800000, hikariConfig.getMaxLifetime());
-          assertEquals(maximumPoolSize, hikariConfig.getMaximumPoolSize());
-          assertEquals(10, hikariConfig.getMinimumIdle());
-          assertEquals("h2.db", hikariConfig.getPoolName());
-          assertEquals(null, hikariConfig.getTransactionIsolation());
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
+            "sa", "", false))
+        .expect(unit -> {
+          Properties props = unit.get(Properties.class);
+          expect(props.setProperty("maximumPoolSize", "10")).andReturn(null);
+          expect(props.setProperty("connectionTimeout", "1000")).andReturn(null);
+          expect(props.setProperty("idleTimeout", "800000")).andReturn(null);
+          expect(props.setProperty("autoCommit", "false")).andReturn(null);
+        })
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("jdbctest"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
-
-    verify(mocks);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void overrideDataSource() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("fs"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("hikari.dataSourceClassName", fromAnyRef("test.MyDataSource"))
+        .resolve();
 
-    // config
-    config = config.withValue("db", fromAnyRef("mem"))
-        .withValue("hikari.dataSourceClassName", fromAnyRef("test.MyDataSource"));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("test.MyDataSource", hikariConfig.getDataSourceClassName());
-
-          assertTrue(Pattern.matches("jdbc:h2:mem:\\d+;DB_CLOSE_DELAY=-1", properties.get("url")
-              .toString()));
-          assertEquals("sa", properties.get("user"));
-          assertEquals("", properties.get("password"));
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
+            "sa", "", true))
+        .expect(unit -> {
+          Properties properties = unit.get(Properties.class);
+          expect(properties.setProperty("dataSourceClassName", "test.MyDataSource"))
+              .andReturn(null);
+        })
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("jdbctest"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
-
-    verify(mocks);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void twoDatabases() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db.audit", ConfigValueFactory.fromAnyRef("fs"))
+        .withValue("application.name", fromAnyRef("jdbctest"))
+        .withValue("application.tmpdir", fromAnyRef("target"))
+        .withValue("application.charset", fromAnyRef("UTF-8"))
+        .withValue("hikari.audit.dataSourceClassName", fromAnyRef("test.MyDataSource"))
+        .resolve();
 
-    // config
-    config = config.withValue("db.audit", fromAnyRef("mem"))
-        .withValue("hikari.audit.maximumPoolSize", fromAnyRef(1));
-
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db.audit")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc("db.audit").configure(mode, config, binder);
-
-    withHikariConfig(provider, (hikariConfig, properties) -> {
-      assertEquals("org.h2.jdbcx.JdbcDataSource", hikariConfig.getDataSourceClassName());
-      assertEquals(1, hikariConfig.getMaximumPoolSize());
-
-      // datasource properties
-      assertTrue(Pattern.matches("jdbc:h2:mem:\\d+;DB_CLOSE_DELAY=-1", properties.get("url")
-          .toString()));
-      assertEquals("h2.db.audit", hikariConfig.getPoolName());
-      assertEquals("sa", properties.get("user"));
-      assertEquals("", properties.get("password"));
-    });
-
-    verify(mocks);
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.h2.jdbcx.JdbcDataSource", "jdbc:h2:target/jdbctest", "h2.jdbctest",
+            "sa", "", true))
+        .expect(unit -> {
+          Properties properties = unit.get(Properties.class);
+          expect(properties.setProperty("dataSourceClassName", "test.MyDataSource"))
+              .andReturn(null);
+        })
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("jdbctest"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc("db.audit").configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void sqlserver() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db",
+        ConfigValueFactory.fromAnyRef(
+            "jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;"));
 
-    // config
-    String dburl = "jdbc:sqlserver://serverName";
-    config = config.withValue("db", fromAnyRef(dburl));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("com.microsoft.sqlserver.jdbc.SQLServerDataSource",
-              hikariConfig.getDataSourceClassName());
-
-          // datasource properties
-          assertEquals(dburl, properties.get("url"));
-          assertEquals(null, properties.get("user"));
-          assertEquals(null, properties.get("password"));
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(
+            props("com.microsoft.sqlserver.jdbc.SQLServerDataSource",
+                "jdbc:sqlserver://localhost:1433;databaseName=AdventureWorks;integratedSecurity=true;",
+                "sqlserver.AdventureWorks", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("AdventureWorks"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
-
-    verify(mocks);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void oracle() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db",
+        ConfigValueFactory.fromAnyRef("jdbc:oracle:thin:@myhost:1521:orcl"));
 
-    // config
-    String dburl = "jdbc:oracle:thin:@//<host>:<port>/<service_name>";
-    config = config.withValue("db", fromAnyRef(dburl));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("oracle.jdbc.pool.OracleDataSource",
-              hikariConfig.getDataSourceClassName());
-
-          // datasource properties
-          assertEquals(dburl, properties.get("url"));
-          assertEquals(null, properties.get("user"));
-          assertEquals(null, properties.get("password"));
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("oracle.jdbc.pool.OracleDataSource", "jdbc:oracle:thin:@myhost:1521:orcl",
+            "oracle.orcl", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("orcl"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
-
-    verify(mocks);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void pgsql() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db",
+        ConfigValueFactory.fromAnyRef("jdbc:pgsql://server/database"));
 
-    // config
-    String dburl = "jdbc:pgsql://<server>[:<port>]/<database>";
-    config = config.withValue("db", fromAnyRef(dburl));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("com.impossibl.postgres.jdbc.PGDataSource",
-              hikariConfig.getDataSourceClassName());
-
-          // datasource properties
-          assertEquals(dburl, properties.get("url"));
-          assertEquals(null, properties.get("user"));
-          assertEquals(null, properties.get("password"));
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("com.impossibl.postgres.jdbc.PGDataSource", "jdbc:pgsql://server/database",
+            "pgsql.database", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("database"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
-
-    verify(mocks);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void postgresql() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db",
+        ConfigValueFactory.fromAnyRef("jdbc:postgresql://server/database"));
 
-    // config
-    String dburl = "jdbc:postgresql://host:port/database";
-    config = config.withValue("db", fromAnyRef(dburl));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("org.postgresql.ds.PGSimpleDataSource",
-              hikariConfig.getDataSourceClassName());
-
-          // datasource properties
-          assertEquals(dburl, properties.get("url"));
-          assertEquals(null, properties.get("user"));
-          assertEquals(null, properties.get("password"));
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.postgresql.ds.PGSimpleDataSource", "jdbc:postgresql://server/database",
+            "postgresql.database", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("database"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
-
-    verify(mocks);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void sybase() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db",
+        ConfigValueFactory.fromAnyRef("jdbc:jtds:sybase://server/database"));
 
-    // config
-    String dburl = "jdbc:jtds:sybase://<host>[:<port>][/<database_name>]";
-    config = config.withValue("db", fromAnyRef(dburl));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("com.sybase.jdbcx.SybDataSource",
-              hikariConfig.getDataSourceClassName());
-
-          // datasource properties
-          assertEquals(dburl, properties.get("url"));
-          assertEquals(null, properties.get("user"));
-          assertEquals(null, properties.get("password"));
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("com.sybase.jdbcx.SybDataSource", "jdbc:jtds:sybase://server/database",
+            "sybase.database", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("database"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
-
-    verify(mocks);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void firebirdsql() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db",
+        ConfigValueFactory.fromAnyRef("jdbc:firebirdsql:host:mydb"));
 
-    // config
-    String dburl = "jdbc:firebirdsql:host[/port]:<database>";
-    config = config.withValue("db", fromAnyRef(dburl));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("org.firebirdsql.pool.FBSimpleDataSource",
-              hikariConfig.getDataSourceClassName());
-
-          // datasource properties
-          assertEquals(dburl, properties.get("url"));
-          assertEquals(null, properties.get("user"));
-          assertEquals(null, properties.get("password"));
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.firebirdsql.pool.FBSimpleDataSource", "jdbc:firebirdsql:host:mydb",
+            "firebirdsql.mydb", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("mydb"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
-
-    verify(mocks);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void sqlite() throws Exception {
-    Env mode = env("dev");
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
-    Binder binder = createMock(Binder.class);
+    Config dbconf = config.withValue("db",
+        ConfigValueFactory.fromAnyRef("jdbc:sqlite:testdb"));
 
-    // config
-    String dburl = "jdbc:sqlite:testdb";
-    config = config.withValue("db", fromAnyRef(dburl));
-
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("org.sqlite.SQLiteDataSource",
-              hikariConfig.getDataSourceClassName());
-
-          // datasource properties
-          assertEquals(dburl, properties.get("url"));
-          assertEquals(null, properties.get("user"));
-          assertEquals(null, properties.get("password"));
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("org.sqlite.SQLiteDataSource", "jdbc:sqlite:testdb",
+            "sqlite.testdb", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("testdb"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
         });
+  }
 
-    verify(mocks);
+  @Test
+  public void unknownDb() throws Exception {
+    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
+    Config dbconf = config
+        .withValue("db", ConfigValueFactory.fromAnyRef("jdbc:custom:testdb"))
+        .withValue("databases.custom.dataSourceClassName",
+            ConfigValueFactory.fromAnyRef("custom.DS"));
+
+    new MockUnit(Env.class, Config.class, Binder.class)
+        .expect(props("custom.DS", "jdbc:custom:testdb",
+            "custom.testdb", null, "", false))
+        .expect(hikariConfig())
+        .expect(hikariDataSource())
+        .expect(serviceKey("testdb"))
+        .expect(onStop)
+        .run(unit -> {
+          new Jdbc().configure(unit.get(Env.class), dbconf, unit.get(Binder.class));
+        });
   }
 
   @SuppressWarnings("unchecked")
-  @Test
-  public void unknownDb() throws Exception {
-    Env mode = env("dev");
-    Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf")
-        .withValue("databases.custom.dataSourceClassName",
-            ConfigValueFactory.fromAnyRef("org.h2.jdbcx.JdbcDataSource"));
-    Binder binder = createMock(Binder.class);
+  private Block serviceKey(final String db) {
+    return unit -> {
+      Env env = unit.get(Env.class);
+      expect(env.serviceKey()).andReturn(new Env.ServiceKey());
 
-    // config
-    String dburl = "jdbc:custom:testdb";
-    config = config.withValue("db", fromAnyRef(dburl));
+      AnnotatedBindingBuilder<DataSource> binding = unit.mock(AnnotatedBindingBuilder.class);
+      binding.toInstance(unit.get(HikariDataSource.class));
+      binding.toInstance(unit.get(HikariDataSource.class));
 
-    // binder
-    ScopedBindingBuilder scope = createMock(ScopedBindingBuilder.class);
-    scope.asEagerSingleton();
-    scope.asEagerSingleton();
-
-    Capture<Provider<DataSource>> provider = new Capture<>();
-    LinkedBindingBuilder<DataSource> binding = createMock(LinkedBindingBuilder.class);
-    expect(binding.toProvider(capture(provider))).andReturn(scope).times(2);
-    expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
-    expect(binder.bind(Key.get(DataSource.class, Names.named("db")))).andReturn(binding);
-
-    Object[] mocks = {binder, binding, scope };
-
-    replay(mocks);
-
-    new Jdbc().configure(mode, config, binder);
-
-    withHikariConfig(
-        provider,
-        (hikariConfig, properties) -> {
-          assertEquals("org.h2.jdbcx.JdbcDataSource",
-              hikariConfig.getDataSourceClassName());
-
-          // datasource properties
-          assertEquals(dburl, properties.get("url"));
-          assertEquals(null, properties.get("user"));
-          assertEquals(null, properties.get("password"));
-        });
-
-    verify(mocks);
+      Binder binder = unit.get(Binder.class);
+      expect(binder.bind(Key.get(DataSource.class))).andReturn(binding);
+      expect(binder.bind(Key.get(DataSource.class, Names.named(db)))).andReturn(binding);
+    };
   }
 
-  private static void withHikariConfig(final Capture<Provider<DataSource>> provider,
-      final BiConsumer<HikariConfig, Properties> asserts) {
-    assertNotNull(provider);
-    withHikariConfig(provider.getValue(), asserts);
+  private Block hikariConfig() {
+    return unit -> {
+      Properties properties = unit.get(Properties.class);
+      HikariConfig hikari = unit.constructor(HikariConfig.class)
+          .build(properties);
+      unit.registerMock(HikariConfig.class, hikari);
+    };
   }
 
-  private static void withHikariConfig(final Provider<DataSource> provider,
-      final BiConsumer<HikariConfig, Properties> asserts) {
-    assertNotNull(provider);
-    assertTrue(provider instanceof HikariDataSourceProvider);
-    HikariDataSourceProvider hikariProvider = (HikariDataSourceProvider) provider;
-
-    HikariConfig hikariConfig = hikariProvider.config();
-    hikariConfig.validate();
-    assertNotNull(hikariConfig);
-
-    asserts.accept(hikariConfig, hikariConfig.getDataSourceProperties());
+  private Block hikariDataSource() {
+    return unit -> {
+      HikariConfig properties = unit.get(HikariConfig.class);
+      HikariDataSource hikari = unit.constructor(HikariDataSource.class)
+          .build(properties);
+      unit.registerMock(HikariDataSource.class, hikari);
+    };
   }
 
-  private static Env env(final String name) {
-    return new Env() {
+  private Block currentTimeMillis(final long millis) {
+    return unit -> {
+      unit.mockStatic(System.class);
+      expect(System.currentTimeMillis()).andReturn(millis);
+    };
+  }
 
-      @Override
-      public Routes routes() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException();
+  private Block props(final String dataSourceClassName, final String url, final String name,
+      final String username, final String password, final boolean hasDataSourceClassName) {
+    return unit -> {
+      Properties properties = unit.constructor(Properties.class)
+          .build();
+
+      expect(properties
+          .setProperty("dataSource.dataSourceClassName", dataSourceClassName))
+              .andReturn(null);
+      if (username != null) {
+        expect(properties
+            .setProperty("dataSource.user", username))
+                .andReturn(null);
+        expect(properties
+            .setProperty("dataSource.password", password))
+                .andReturn(null);
+      }
+      if (url != null) {
+        expect(properties
+            .setProperty("dataSource.url", url))
+                .andReturn(null);
       }
 
-      @Override
-      public Env onStop(final CheckedConsumer<Registry> shutdownTask) {
-        return this;
+      expect(properties.containsKey("dataSourceClassName")).andReturn(hasDataSourceClassName);
+      if (!hasDataSourceClassName) {
+        expect(properties.getProperty("dataSource.dataSourceClassName"))
+            .andReturn(dataSourceClassName);
+        expect(properties.setProperty("dataSourceClassName", dataSourceClassName)).andReturn(null);
       }
+      expect(properties.remove("dataSource.dataSourceClassName")).andReturn(dataSourceClassName);
+      expect(properties.setProperty("poolName", name)).andReturn(null);
 
-      @Override
-      public List<CheckedConsumer<Registry>> stopTasks() {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public Env onStart(final CheckedConsumer<Registry> task) {
-        return this;
-      }
-
-      @Override
-      public List<CheckedConsumer<Registry>> startTasks() {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public Config config() {
-        return ConfigFactory.empty();
-      }
-
-      @Override
-      public Locale locale() {
-        return Locale.getDefault();
-      }
-
-      @Override
-      public String name() {
-        return name;
-      }
+      unit.registerMock(Properties.class, properties);
     };
   }
 }

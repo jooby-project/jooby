@@ -20,7 +20,6 @@ package org.jooby.hbm;
 
 import java.util.List;
 
-import javax.inject.Provider;
 import javax.persistence.EntityManager;
 
 import org.hibernate.FlushMode;
@@ -43,11 +42,11 @@ public class OpenSessionInView implements Route.Filter {
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private Provider<HibernateEntityManagerFactory> emf;
+  private HibernateEntityManagerFactory emf;
 
   private List<Key<EntityManager>> keys;
 
-  public OpenSessionInView(final Provider<HibernateEntityManagerFactory> emf,
+  public OpenSessionInView(final HibernateEntityManagerFactory emf,
       final List<Key<EntityManager>> keys) {
     this.emf = emf;
     this.keys = keys;
@@ -55,10 +54,9 @@ public class OpenSessionInView implements Route.Filter {
 
   @Override
   public void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
-    HibernateEntityManagerFactory hemf = emf.get();
-    SessionFactory sf = hemf.getSessionFactory();
+    SessionFactory sf = emf.getSessionFactory();
 
-    EntityManager em = hemf.createEntityManager();
+    EntityManager em = emf.createEntityManager();
     Session session = (Session) em.getDelegate();
     String sessionId = Integer.toHexString(System.identityHashCode(session));
     keys.forEach(key -> req.set(key, em));

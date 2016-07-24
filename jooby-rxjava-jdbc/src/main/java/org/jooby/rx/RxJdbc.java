@@ -18,7 +18,6 @@
  */
 package org.jooby.rx;
 
-import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.jooby.Env;
@@ -36,7 +35,8 @@ import com.typesafe.config.Config;
  * </p>
  *
  * <p>
- * This module depends on {@link Jdbc} and {@link Rx} modules, make sure you read the doc of the {@link Jdbc}
+ * This module depends on {@link Jdbc} and {@link Rx} modules, make sure you read the doc of the
+ * {@link Jdbc}
  * and {@link Rx} modules before using {@link RxJdbc}.
  * </p>
  *
@@ -122,23 +122,17 @@ public class RxJdbc extends Jdbc {
    * Creates a new {@link RxJdbc} module.
    */
   public RxJdbc() {
-    this(DEFAULT_DB);
   }
 
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
-    super.configure(env, config, binder);
+    super.configure(env, config, binder, (name, ds) -> {
+      Database db = Database.fromDataSource(ds);
 
-    Provider<Database> p = () -> {
-      DataSource ds = dataSource().get();
-      return Database.fromDataSource(ds);
-    };
-
-    keys(Database.class, k -> {
-      binder.bind(k).toProvider(p).asEagerSingleton();
+      env.serviceKey().generate(Database.class, name, k -> binder.bind(k).toInstance(db));
 
       // close on shutdown
-      env.onStop(r -> r.require(k).close());
+      env.onStop(db::close);
     });
   }
 }

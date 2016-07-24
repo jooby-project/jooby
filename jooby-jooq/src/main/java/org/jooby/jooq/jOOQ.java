@@ -27,10 +27,13 @@ import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.jdbc.Jdbc;
 import org.jooq.Configuration;
 import org.jooq.ConnectionProvider;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
+import org.jooq.impl.DataSourceConnectionProvider;
 import org.jooq.impl.DefaultConfiguration;
 import org.jooq.impl.DefaultTransactionProvider;
 import org.jooq.tools.jdbc.JDBCUtils;
@@ -131,7 +134,6 @@ public class jOOQ extends Jdbc {
    * Creates a new {@link jOOQ} module.
    */
   public jOOQ() {
-    this(DEFAULT_DB);
   }
 
   /**
@@ -158,23 +160,22 @@ public class jOOQ extends Jdbc {
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    super.configure(env, conf, binder);
+    super.configure(env, conf, binder, (name, ds) -> {
+      Configuration jooqconf = new DefaultConfiguration();
+      ConnectionProvider dscp = new DataSourceConnectionProvider(ds);
+      jooqconf.set(JDBCUtils.dialect(ds.getDataSourceProperties().getProperty("url")));
+      jooqconf.set(dscp);
+      jooqconf.set(new DefaultTransactionProvider(dscp));
 
-    Provider<DataSource> ds = dataSource();
-    Configuration jooqconf = new DefaultConfiguration();
-    ConnectionProvider dscp = new DSConnectionProvider(ds);
-    jooqconf.set(JDBCUtils.dialect(ds.toString()));
-    jooqconf.set(dscp);
-    jooqconf.set(new DefaultTransactionProvider(dscp));
+      if (callback != null) {
+        callback.accept(jooqconf, conf);
+      }
 
-    if (callback != null) {
-      callback.accept(jooqconf, conf);
-    }
+      ServiceKey serviceKey = env.serviceKey();
+      serviceKey.generate(Configuration.class, name, k -> binder.bind(k).toInstance(jooqconf));
 
-    keys(Configuration.class, k -> binder.bind(k).toInstance(jooqconf));
-
-    DSLCtxProvider provider = new DSLCtxProvider(jooqconf);
-    keys(DSLContext.class, k -> binder.bind(k).toProvider(provider));
+      Provider<DSLContext> dsl = () -> DSL.using(jooqconf);
+      serviceKey.generate(DSLContext.class, name, k -> binder.bind(k).toProvider(dsl));
+    });
   }
-
 }

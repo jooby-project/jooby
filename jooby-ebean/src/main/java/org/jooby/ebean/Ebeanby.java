@@ -30,7 +30,6 @@ import java.util.function.Consumer;
 import org.jooby.Env;
 import org.jooby.internal.ebean.EbeanEnhancer;
 import org.jooby.internal.ebean.EbeanManaged;
-import org.jooby.internal.ebean.ForwardingDataSource;
 import org.jooby.jdbc.Jdbc;
 
 import com.avaje.ebean.EbeanServer;
@@ -209,43 +208,45 @@ public class Ebeanby extends Jdbc {
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    super.configure(env, conf, binder);
+    configure(env, conf, binder, (name, ds) -> {
+      ServerConfig config = new ServerConfig();
 
-    ServerConfig config = new ServerConfig();
+      this.packages.add(conf.getString("application.ns"));
 
-    this.packages.add(conf.getString("application.ns"));
+      EbeanEnhancer.newEnhancer().run(packages);
 
-    EbeanEnhancer.newEnhancer().run(packages);
+      config.setName(name);
 
-    config.setName(dbName);
+      packages.forEach(config::addPackage);
 
-    packages.forEach(config::addPackage);
+      Config cprops = conf.getConfig("ebean");
+      if (conf.hasPath("ebean." + name)) {
+        cprops = conf.getConfig("ebean." + name)
+            .withFallback(cprops)
+            .withoutPath(name);
+      }
 
-    Config cprops = conf.getConfig("ebean");
-    if (conf.hasPath("ebean." + dbName)) {
-      cprops = conf.getConfig("ebean." + dbName)
-          .withFallback(cprops);
-    }
+      Properties props = props(cprops);
 
-    Properties props = props(cprops);
+      ContainerConfig container = new ContainerConfig();
+      container.loadFromProperties(props);
 
-    ContainerConfig container = new ContainerConfig();
-    container.loadFromProperties(props);
+      config.setContainerConfig(container);
+      config.setDataSource(ds);
+      config.loadFromProperties(props);
+      config.setDefaultServer(cprops.getBoolean("defaultServer"));
+      config.setRegister(cprops.getBoolean("register"));
 
-    config.setContainerConfig(container);
-    config.setDataSource(new ForwardingDataSource(dataSource()));
-    config.loadFromProperties(props);
-    config.setDefaultServer(cprops.getBoolean("defaultServer"));
-    config.setRegister(cprops.getBoolean("register"));
+      if (configurer != null) {
+        configurer.accept(config, conf);
+      }
 
-    if (configurer != null) {
-      configurer.accept(config, conf);
-    }
-
-    EbeanManaged server = new EbeanManaged(conf, config);
-    env.onStart(server::start);
-    env.onStop(server::stop);
-    keys(EbeanServer.class, key -> binder.bind(key).toProvider(server).asEagerSingleton());
+      EbeanManaged server = new EbeanManaged(conf, config);
+      env.onStart(server::start);
+      env.onStop(server::stop);
+      env.serviceKey().generate(EbeanServer.class, name,
+          k -> binder.bind(k).toProvider(server).asEagerSingleton());
+    });
   }
 
   @Override

@@ -11,7 +11,6 @@ import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
@@ -24,14 +23,14 @@ public class HbmCustomFeature extends ServerFeature {
     use(new Hbm("db.audit", Member.class));
 
     get("/members", req -> {
-      EntityManager em = req.require(Key.get(EntityManager.class, Names.named("db.audit")));
+      EntityManager em = req.require(Key.get(EntityManager.class));
       Query query = em.createQuery("from Member");
       return query.getResultList();
     });
 
     post("/members", (req, rsp, chain) -> {
       Member member = req.params().to(Member.class);
-      EntityManager em = req.require(Key.get(EntityManager.class, Names.named("db.audit")));
+      EntityManager em = req.require(Key.get(EntityManager.class));
       em.persist(member);
       if (req.param("err").toOptional(Boolean.class).orElse(false)) {
         throw new IllegalArgumentException("Rollback on err");

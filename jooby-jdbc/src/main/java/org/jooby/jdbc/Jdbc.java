@@ -19,29 +19,38 @@
 package org.jooby.jdbc;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
-import javax.inject.Provider;
 import javax.sql.DataSource;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
 import com.google.inject.Binder;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import javaslang.Tuple;
+import javaslang.Tuple2;
+import javaslang.control.Try;
 
 /**
  * <h1>jdbc</h1>
@@ -52,12 +61,23 @@ import com.zaxxer.hikari.HikariConfig;
  *
  * <h2>usage</h2>
  *
+ * Via connection string:
  * <pre>
- * import org.jooby.jdbc.Jdbc;
- * import javax.sql.DataSource;
- *
  * {
- *   use(new Jdbc());
+ *   use(new Jdbc("jdbc:mysql://localhost/db"));
+ *
+ *   // accessing to the data source
+ *   get("/my-api", (req, rsp) {@literal ->} {
+ *     DataSource db = req.getInstance(DataSource.class);
+ *     // do something with datasource
+ *   });
+ * }
+ * </pre>
+ *
+ * Via <code>db</code> property:
+ * <pre>
+ * {
+ *   use(new Jdbc("db"));
  *
  *   // accessing to the data source
  *   get("/my-api", (req, rsp) {@literal ->} {
@@ -178,10 +198,10 @@ import com.zaxxer.hikari.HikariConfig;
  *
  * <pre>
  * # max pool size for main db
- * hikari.db.main.maximumPoolSize = 100
+ * hikari.main.maximumPoolSize = 100
  *
  * # max pool size for audit db
- * hikari.db.audit.maximumPoolSize = 20
+ * hikari.audit.maximumPoolSize = 20
  * </pre>
  *
  * <p>
@@ -197,30 +217,118 @@ import com.zaxxer.hikari.HikariConfig;
  */
 public class Jdbc implements Jooby.Module {
 
-  protected static final String DEFAULT_DB = "db";
+  public static Function<String, String> DB_NAME = url -> {
+    BiFunction<String, String, Tuple2<String, Map<String, String>>> indexOf = (str, token) -> {
+      int i = str.indexOf(token);
+      int len = i >= 0 ? i : str.length();
+      Map<String, String> params = Splitter.on(token)
+          .trimResults()
+          .omitEmptyStrings()
+          .withKeyValueSeparator('=')
+          .split(str.substring(len));
+      return Tuple.of(str.substring(0, len), params);
+    };
+    // strip ; or ?
+    Tuple2<String, Map<String, String>> result = indexOf.apply(url, "?");
+    Map<String, String> params = new HashMap<>(result._2);
+    result = indexOf.apply(result._1, ";");
+    params.putAll(result._2);
+    List<String> parts = Splitter.on(CharMatcher.JAVA_LETTER_OR_DIGIT.negate())
+        .splitToList(result._1);
+    return Optional.ofNullable(params.get("database"))
+        .orElse(Optional.ofNullable(params.get("databaseName"))
+            .orElse(parts.get(parts.size() - 1)));
+  };
 
-  protected final String dbName;
+  private BiConsumer<HikariConfig, Config> conf;
 
-  private HikariDataSourceProvider ds;
+  private final String dbref;
 
   protected Optional<String> dbtype;
 
+  /**
+   * Creates a new {@link Jdbc} module.
+   *
+   * @param name A connection string or property with a connection string.
+   */
   public Jdbc(final String name) {
-    checkArgument(name != null && name.length() > 0, "Database name is required.");
-    this.dbName = name;
+    checkArgument(name != null && name.length() > 0,
+        "Connection String/Database property required.");
+    this.dbref = name;
   }
 
+  /**
+   * Creates a new {@link Jdbc} module. The <code>db</code> property must be present in your
+   * <code>.conf</code> file.
+   */
   public Jdbc() {
-    this(DEFAULT_DB);
+    this("db");
+  }
+
+  /**
+   * Programmatically configure a {@link HikariConfig}.
+   *
+   * @param conf Configurer callback.
+   * @return This module.
+   */
+  public Jdbc doWithHikari(final BiConsumer<HikariConfig, Config> conf) {
+    this.conf = requireNonNull(conf, "Configurer required.");
+    return this;
+  }
+
+  /**
+   * Programmatically configure a {@link HikariConfig}.
+   *
+   * @param conf Configurer callback.
+   * @return This module.
+   */
+  public Jdbc doWithHikari(final Consumer<HikariConfig> conf) {
+    requireNonNull(conf, "Configurer required.");
+    return doWithHikari((h, c) -> conf.accept(h));
   }
 
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
-    this.ds = newDataSource(dbName, dbConfig(dbName, config));
+    configure(env, config, binder, (name, ds) -> {
+    });
+  }
 
-    env.onStop(ds::stop);
+  protected void configure(final Env env, final Config config, final Binder binder,
+      final BiConsumer<String, HikariDataSource> callback) {
+    Config dbconf;
+    String url, dbname, dbkey;
+    boolean seturl = false;
+    if (dbref.startsWith("jdbc:")) {
+      dbconf = config;
+      url = dbref;
+      dbname = DB_NAME.apply(url);
+      dbkey = dbname;
+      seturl = true;
+    } else {
+      dbconf = dbConfig(dbref, config);
+      url = dbconf.getString(dbref + ".url");
+      dbname = DB_NAME.apply(url);
+      dbkey = dbref;
+    }
 
-    keys(DataSource.class, key -> binder.bind(key).toProvider(ds).asEagerSingleton());
+    HikariConfig hikariConf = hikariConfig(url, dbkey, dbname, dbconf);
+
+    if (seturl) {
+      Properties props = hikariConf.getDataSourceProperties();
+      props.setProperty("url", url);
+    }
+
+    if (conf != null) {
+      conf.accept(hikariConf, config);
+    }
+
+    HikariDataSource ds = new HikariDataSource(hikariConf);
+    callback.accept(dbname, ds);
+
+    env.serviceKey()
+        .generate(DataSource.class, dbname, k -> binder.bind(k).toInstance(ds));
+
+    env.onStop(ds::close);
   }
 
   @Override
@@ -252,7 +360,8 @@ public class Jdbc implements Jooby.Module {
     }
   }
 
-  private HikariDataSourceProvider newDataSource(final String key, final Config config) {
+  private HikariConfig hikariConfig(final String url, final String key, final String db,
+      final Config config) {
     Properties props = new Properties();
 
     BiConsumer<String, Entry<String, ConfigValue>> dumper = (prefix, entry) -> {
@@ -265,12 +374,18 @@ public class Jdbc implements Jooby.Module {
       }
     };
 
-    String hikaryKey = "hikari" + (DEFAULT_DB.equals(key) ? "" : key.replace(DEFAULT_DB, ""));
-    Config $hikari = config.hasPath(hikaryKey) ? config.getConfig(hikaryKey) : ConfigFactory
-        .empty();
+    Function<String, Config> hikari = path -> Try.of(() -> config.getConfig(path))
+        .getOrElse(ConfigFactory.empty());
+
+    String dbkey = key.replace("db.", "");
+    Config $hikari = hikari.apply("hikari." + dbkey)
+        .withFallback(hikari.apply("hikari." + db))
+        .withFallback(hikari.apply("hikari"))
+        .withoutPath(dbkey)
+        .withoutPath(db);
 
     // figure it out db type.
-    dbtype = dbtype(key, config);
+    dbtype = dbtype(url, config);
 
     /**
      * dump properties from less to higher precedence
@@ -282,7 +397,9 @@ public class Jdbc implements Jooby.Module {
     dbtype.ifPresent(type -> config.getConfig("databases." + type)
         .entrySet().forEach(entry -> dumper.accept("dataSource.", entry)));
 
-    config.getConfig(key).entrySet().forEach(entry -> dumper.accept("dataSource.", entry));
+    Try.of(() -> config.getConfig(key))
+        .getOrElse(ConfigFactory.empty())
+        .entrySet().forEach(entry -> dumper.accept("dataSource.", entry));
 
     $hikari.entrySet().forEach(entry -> dumper.accept("", entry));
 
@@ -293,13 +410,12 @@ public class Jdbc implements Jooby.Module {
     // remove dataSourceClassName under dataSource
     props.remove("dataSource.dataSourceClassName");
     // set pool name
-    props.setProperty("poolName", dbtype.map(type -> type + "." + dbName).orElse(dbName));
+    props.setProperty("poolName", dbtype.map(type -> type + "." + db).orElse(db));
 
-    return new HikariDataSourceProvider(new HikariConfig(props));
+    return new HikariConfig(props);
   }
 
-  private Optional<String> dbtype(final String key, final Config config) {
-    String url = config.getString(key + ".url");
+  private Optional<String> dbtype(final String url, final Config config) {
     String type = Arrays.stream(url.toLowerCase().split(":"))
         .filter(token -> !(token.equals("jdbc") || token.equals("jtds")))
         .findFirst()
@@ -308,24 +424,4 @@ public class Jdbc implements Jooby.Module {
     return Optional.of(type);
   }
 
-  /**
-   * Build keys for the given resource type. When database name is: <code>db</code> two keys
-   * (binding) are generated, once without a name and other with a name. A database: <code>db</code>
-   * is considered the default database.
-   *
-   * @param type A type to bind.
-   * @param callback A generated key.
-   * @param <T> Consumer type.
-   */
-  protected final <T> void keys(final Class<T> type, final Consumer<Key<T>> callback) {
-    if (DEFAULT_DB.equals(dbName)) {
-      callback.accept(Key.get(type));
-    }
-    callback.accept(Key.get(type, Names.named(dbName)));
-  }
-
-  protected final Provider<DataSource> dataSource() {
-    checkState(ds != null, "Data source isn't ready yet");
-    return ds;
-  }
 }

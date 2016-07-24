@@ -34,8 +34,11 @@ import javax.persistence.EntityManagerFactory;
 
 import org.hibernate.Session;
 import org.hibernate.jpa.AvailableSettings;
+import org.hibernate.jpa.HibernateEntityManagerFactory;
+import org.hibernate.jpa.boot.spi.Bootstrap;
+import org.hibernate.jpa.boot.spi.EntityManagerFactoryBuilder;
 import org.jooby.Env;
-import org.jooby.internal.hbm.HbmProvider;
+import org.jooby.Env.ServiceKey;
 import org.jooby.internal.hbm.HbmUnitDescriptor;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.scope.Providers;
@@ -170,8 +173,6 @@ public class Hbm extends Jdbc {
 
   private Set<String> pkgs = new LinkedHashSet<>();
 
-  private HbmProvider emf;
-
   private boolean scan;
 
   public Hbm(final String name, final Class<?>... classes) {
@@ -203,28 +204,34 @@ public class Hbm extends Jdbc {
 
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
-    super.configure(env, config, binder);
+    configure(env, config, binder, (name, ds) -> {
+      if (scan) {
+        pkgs.add(config.getString("application.ns"));
+      }
 
-    if (scan) {
-      pkgs.add(config.getString("application.ns"));
-    }
+      HbmUnitDescriptor descriptor = new HbmUnitDescriptor(getClass().getClassLoader(), ds,
+          config, pkgs);
 
-    HbmUnitDescriptor descriptor = new HbmUnitDescriptor(getClass().getClassLoader(), dataSource(),
-        config, pkgs);
+      Map<Object, Object> integration = config(env, config, classes);
+      EntityManagerFactoryBuilder builder = Bootstrap
+          .getEntityManagerFactoryBuilder(descriptor, integration);
+      HibernateEntityManagerFactory emf = (HibernateEntityManagerFactory) builder.build();
 
-    Map<Object, Object> integration = config(env, config, classes);
-    emf = new HbmProvider(descriptor, integration);
-    env.onStop(emf::stop);
-    keys(EntityManagerFactory.class, key -> binder.bind(key).toProvider(emf).asEagerSingleton());
+      ServiceKey serviceKey = env.serviceKey();
+      serviceKey.generate(EntityManagerFactory.class, name,
+          k -> binder.bind(k).toInstance(emf));
 
-    List<Key<EntityManager>> emkeys = new ArrayList<>();
+      List<Key<EntityManager>> emkeys = new ArrayList<>();
 
-    keys(EntityManager.class, key -> {
-      binder.bind(key).toProvider(Providers.outOfScope(key)).in(RequestScoped.class);
-      emkeys.add(key);
+      serviceKey.generate(EntityManager.class, name, key -> {
+        binder.bind(key).toProvider(Providers.outOfScope(key)).in(RequestScoped.class);
+        emkeys.add(key);
+      });
+
+      env.routes().use("*", "*", new OpenSessionInView(emf, emkeys)).name("hbm");
+
+      env.onStop(emf::close);
     });
-
-    env.routes().use("*", "*", new OpenSessionInView(emf, emkeys)).name("hbm");
   }
 
   private static Map<Object, Object> config(final Env env, final Config config,

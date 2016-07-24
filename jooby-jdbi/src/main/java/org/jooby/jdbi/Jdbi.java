@@ -27,6 +27,7 @@ import java.util.function.BiConsumer;
 import javax.inject.Provider;
 
 import org.jooby.Env;
+import org.jooby.Env.ServiceKey;
 import org.jooby.jdbc.Jdbc;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.ExpandedStmtRewriter;
@@ -178,26 +179,25 @@ public class Jdbi extends Jdbc {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public void configure(final Env env, final Config config, final Binder binder) {
-    super.configure(env, config, binder);
+    configure(env, config, binder, (name, ds) -> {
+      DBI dbi = new DBI2(() -> ds.getConnection());
+      dbi.setSQLLog(new SLF4JLog());
+      dbi.registerArgumentFactory(new OptionalArgumentFactory());
+      dbi.registerArgumentFactory(new IterableArgumentFactory());
+      dbi.registerContainerFactory(new OptionalContainerFactory());
+      dbi.setStatementRewriter(new ExpandedStmtRewriter());
 
-    DBI dbi = new DBI2(() -> dataSource().get().getConnection());
-    dbi.setSQLLog(new SLF4JLog());
-    dbi.registerArgumentFactory(new OptionalArgumentFactory());
-    dbi.registerArgumentFactory(new IterableArgumentFactory());
-    dbi.registerContainerFactory(new OptionalContainerFactory());
-    dbi.setStatementRewriter(new ExpandedStmtRewriter());
+      ServiceKey serviceKey = env.serviceKey();
+      serviceKey.generate(DBI.class, name, k -> binder.bind(k).toInstance(dbi));
+      serviceKey.generate(Handle.class, name, k -> binder.bind(k).toProvider(() -> dbi.open()));
 
-    keys(DBI.class, key -> binder.bind(key).toInstance(dbi));
+      sqlObjects.forEach(sqlObject -> binder.bind(sqlObject)
+          .toProvider((Provider) () -> dbi.open(sqlObject)));
 
-    keys(Handle.class, key -> binder.bind(key).toProvider(() -> dbi.open()));
-
-    sqlObjects.forEach(sqlObject -> binder.bind(sqlObject)
-        .toProvider((Provider) () -> dbi.open(sqlObject))
-        );
-
-    if (configurer != null) {
-      configurer.accept(dbi, config);
-    }
+      if (configurer != null) {
+        configurer.accept(dbi, config);
+      }
+    });
   }
 
 }
