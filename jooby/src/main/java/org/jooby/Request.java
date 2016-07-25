@@ -134,6 +134,11 @@ public interface Request extends Registry {
     }
 
     @Override
+    public <T> T params(final Class<T> type) {
+      return req.params(type);
+    }
+
+    @Override
     public Mutant param(final String name) {
       return req.param(name);
     }
@@ -171,6 +176,11 @@ public interface Request extends Registry {
     @Override
     public Mutant body() throws Exception {
       return req.body();
+    }
+
+    @Override
+    public <T> T body(final Class<T> type) throws Exception {
+      return req.body(type);
     }
 
     @Override
@@ -551,6 +561,16 @@ public interface Request extends Registry {
   Mutant params();
 
   /**
+   * Short version of <code>params().to(type)</code>.
+   *
+   * @param type Object type.
+   * @return Instance of object.
+   */
+  default <T> T params(final Class<T> type) {
+    return params().to(type);
+  }
+
+  /**
    * Get a HTTP request parameter under the given name. A HTTP parameter can be provided in any of
    * these forms:
    * <ul>
@@ -634,6 +654,17 @@ public interface Request extends Registry {
    * @throws Exception If body can't be converted or there is no HTTP body.
    */
   Mutant body() throws Exception;
+
+  /**
+   * Short version of <code>body().to(type)</code>.
+   *
+   * @param type Object type.
+   * @return Instance of object.
+   * @throws Exception If body can't be converted or there is no HTTP body.
+   */
+  default <T> T body(final Class<T> type) throws Exception {
+    return body().to(type);
+  }
 
   /**
    * The charset defined in the request body. If the request doesn't specify a character

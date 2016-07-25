@@ -739,4 +739,37 @@ public class RequestForwardingTest {
             });
   }
 
+  @Test
+  public void bodyWithType() throws Exception {
+    RequestForwardingTest v = new RequestForwardingTest();
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+
+          expect(req.body(RequestForwardingTest.class)).andReturn(v);
+        })
+        .run(unit -> {
+          assertEquals(
+              v,
+              new Request.Forwarding(unit.get(Request.class)).body(
+                  RequestForwardingTest.class));
+        });
+  }
+
+  @Test
+  public void paramsWithType() throws Exception {
+    RequestForwardingTest v = new RequestForwardingTest();
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+
+          expect(req.params(RequestForwardingTest.class)).andReturn(v);
+        })
+        .run(unit -> {
+          assertEquals(
+              v,
+              new Request.Forwarding(unit.get(Request.class)).params(
+                  RequestForwardingTest.class));
+        });
+  }
 }
