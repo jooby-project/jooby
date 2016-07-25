@@ -6,8 +6,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
-import org.jooby.internal.parser.ParamNotFound;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 
@@ -52,7 +52,7 @@ public class ParamReferenceImplTest {
         });
   }
 
-  @Test(expected = ParamNotFound.class)
+  @Test(expected = NoSuchElementException.class)
   public void missing() throws Exception {
     new MockUnit()
         .run(unit -> {
@@ -60,7 +60,7 @@ public class ParamReferenceImplTest {
         });
   }
 
-  @Test(expected = ParamNotFound.class)
+  @Test(expected = NoSuchElementException.class)
   public void missingLowIndex() throws Exception {
     new MockUnit()
         .run(unit -> {

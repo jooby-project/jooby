@@ -30,8 +30,9 @@ public class LocaleParser implements Parser {
   @Override
   public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Throwable {
     if (Locale.class == type.getRawType()) {
-      return ctx.param(values -> LocaleUtils.parse(values.get(0)))
-          .body(body -> LocaleUtils.parseOne(body.text()));
+      return ctx
+          .param(values -> LocaleUtils.parse(NOT_EMPTY.apply(values.get(0))))
+          .body(body -> LocaleUtils.parseOne(NOT_EMPTY.apply(body.text())));
     } else {
       return ctx.next();
     }

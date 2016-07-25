@@ -10,14 +10,18 @@ public class Issue407 extends ServerFeature {
   }
 
   @Test
-  public void shouldIgnoreEmptyValues() throws Exception {
+  public void shouldNotIgnoreEmptyParams() throws Exception {
     request()
         .get("/407")
         .expect("Optional.empty");
 
     request()
+        .get("/407?foo")
+        .expect("Optional[]");
+
+    request()
         .get("/407?foo=")
-        .expect("Optional.empty");
+        .expect("Optional[]");
   }
 
 }

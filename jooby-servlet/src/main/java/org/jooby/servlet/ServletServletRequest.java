@@ -38,7 +38,6 @@ import org.jooby.MediaType;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
@@ -105,9 +104,7 @@ public class ServletServletRequest implements NativeRequest {
     if (values == null) {
       return Collections.emptyList();
     }
-    return Arrays.asList(values).stream()
-        .filter(s -> !Strings.isNullOrEmpty(s))
-        .collect(Collectors.toList());
+    return Arrays.asList(values);
   }
 
   @Override

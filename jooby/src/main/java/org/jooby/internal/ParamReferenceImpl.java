@@ -20,9 +20,9 @@ package org.jooby.internal;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.jooby.Parser;
-import org.jooby.internal.parser.ParamNotFound;
 
 public class ParamReferenceImpl<T> implements Parser.ParamReference<T> {
 
@@ -38,6 +38,7 @@ public class ParamReferenceImpl<T> implements Parser.ParamReference<T> {
     this.values = values;
   }
 
+  @Override
   public String type() {
     return type;
   }
@@ -62,7 +63,7 @@ public class ParamReferenceImpl<T> implements Parser.ParamReference<T> {
     if (index >= 0 && index < values.size()) {
       return values.get(index);
     }
-    throw new ParamNotFound(name);
+    throw new NoSuchElementException(name);
   }
 
   @Override

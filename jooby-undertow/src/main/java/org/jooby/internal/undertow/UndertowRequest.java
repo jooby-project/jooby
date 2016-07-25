@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.jooby.Cookie;
@@ -37,7 +36,6 @@ import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.spi.NativeWebSocket;
 
-import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
@@ -107,14 +105,13 @@ public class UndertowRequest implements NativeRequest {
     Builder<String> builder = ImmutableList.builder();
     // query params
     Deque<String> query = exchange.getQueryParameters().get(name);
-    Predicate<String> notEmpty = s -> !Strings.isNullOrEmpty(s);
     if (query != null) {
-      query.stream().filter(notEmpty).forEach(builder::add);
+      query.stream().forEach(builder::add);
     }
     // form params
     Optional.ofNullable(form.get(name)).ifPresent(values -> {
       values.stream().forEach(value -> {
-        if (!value.isFile() && notEmpty.test(value.getValue())) {
+        if (!value.isFile()) {
           builder.add(value.getValue());
         }
       });

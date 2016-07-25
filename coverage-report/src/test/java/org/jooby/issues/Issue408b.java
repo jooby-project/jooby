@@ -2,11 +2,10 @@ package org.jooby.issues;
 
 import java.util.Date;
 
-import org.jooby.Parser;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
-public class Issue408 extends ServerFeature {
+public class Issue408b extends ServerFeature {
 
   public static class Bean408 {
     public Integer id;
@@ -22,24 +21,18 @@ public class Issue408 extends ServerFeature {
   }
 
   {
-    parser(Parser.bean(true));
-
-    get("/408", req -> req.params().to(Bean408.class).toString());
+    get("/408", req -> req.params(Bean408.class).toString());
   }
 
   @Test
   public void shouldIgnoreEmptyValues() throws Exception {
     request()
-        .get("/408?id=1&title=Title&releaseDate=")
+        .get("/408?id=1&title=Title")
         .expect("1:Title:null");
 
     request()
-        .get("/408?id=&title=Title&releaseDate")
+        .get("/408?title=Title")
         .expect("null:Title:null");
-
-    request()
-        .get("/408?id&title=&releaseDate=")
-        .expect("null::null");
 
     request()
         .get("/408")

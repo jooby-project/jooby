@@ -46,8 +46,8 @@ public class LocalDateParser implements Parser {
   public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Throwable {
     if (type.getRawType() == LocalDate.class) {
       return ctx
-          .param(values -> parse(formatter, values.get(0)))
-          .body(body -> parse(formatter, body.text()));
+          .param(values -> parse(formatter, NOT_EMPTY.apply(values.get(0))))
+          .body(body -> parse(formatter, NOT_EMPTY.apply(body.text())));
     } else {
       return ctx.next();
     }

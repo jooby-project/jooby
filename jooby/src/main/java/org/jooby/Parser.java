@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.jooby.internal.parser.BeanParser;
 
@@ -373,6 +375,14 @@ public interface Parser {
 
   }
 
+  /** Utility function to handle empty values as {@link NoSuchElementException}. */
+  static Function<String, String> NOT_EMPTY = v -> {
+    if (v.length() == 0) {
+      throw new NoSuchElementException();
+    }
+    return v;
+  };
+
   /**
    * <p>
    * Parse one or more values to the required type. If the parser doesn't support the required type
@@ -420,9 +430,9 @@ public interface Parser {
   Object parse(TypeLiteral<?> type, Context ctx) throws Throwable;
 
   /**
-   * Overwrite the default bean parser with <code>null</code> supports. The default bean parser
-   * doesn't allow <code>null</code>, so if a parameter is optional you must declare it as
-   * {@link Optional} otherwise parsing fails with a <code>404</code> status code.
+   * Overwrite the default bean parser with <code>empty/null</code> supports. The default bean
+   * parser doesn't allow <code>null</code>, so if a parameter is optional you must declare it as
+   * {@link Optional} otherwise parsing fails with a <code>404/500</code> status code.
    *
    * For example:
    * <pre>{@code
@@ -451,15 +461,18 @@ public interface Parser {
    * With <code>/?title=Title&amp;releaseDate=</code> prints <code>Title:null</code>.
    * </p>
    * <p>
-   * Now, same call with <code>allowNulls=false</code> results in <code>Bad Request: 400</code>
+   * Now, same call with <code>lenient=false</code> results in <code>Bad Request: 400</code>
    * because <code>releaseDate</code> if required and isn't present in the HTTP request.
    * </p>
    *
-   * @param allowNulls Enabled null supports while parsing HTTP params as Java Beans.
-   * @return A new parser.
+   * <p>
+   * This feature is useful while submitting forms.
+   * </p>
+   *
+   * @param lenient Enabled null/empty supports while parsing HTTP params as Java Beans.
+   * @return A new bean parser.
    */
-  static Parser bean(final boolean allowNulls) {
-    return new BeanParser(allowNulls);
+  static Parser bean(final boolean lenient) {
+    return new BeanParser(lenient);
   }
-
 }

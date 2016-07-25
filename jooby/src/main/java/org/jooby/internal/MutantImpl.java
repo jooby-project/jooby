@@ -25,12 +25,12 @@ import static javaslang.Predicates.instanceOf;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Status;
-import org.jooby.internal.parser.ParamNotFound;
 import org.jooby.internal.parser.ParserExecutor;
 
 import com.google.common.collect.ImmutableMap;
@@ -87,7 +87,7 @@ public class MutantImpl implements Mutant {
           throw new Err(md._3, String.format(FAILURE, md._2, type));
         }
         results.put(type, result);
-      } catch (ParamNotFound ex) {
+      } catch (NoSuchElementException ex) {
         Tuple3<String, String, Status> md = md();
         throw new Err.Missing(String.format(REQUIRED, md._2));
       } catch (Err ex) {

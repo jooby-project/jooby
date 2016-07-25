@@ -39,8 +39,8 @@ public class DateParser implements Parser {
   public Object parse(final TypeLiteral<?> type, final Parser.Context ctx) throws Throwable {
     if (type.getRawType() == Date.class) {
       return ctx
-          .param(values -> parse(dateFormat, values.get(0)))
-          .body(body -> parse(dateFormat, body.text()));
+          .param(values -> parse(dateFormat, NOT_EMPTY.apply(values.get(0))))
+          .body(body -> parse(dateFormat, NOT_EMPTY.apply(body.text())));
     } else {
       return ctx.next();
     }
