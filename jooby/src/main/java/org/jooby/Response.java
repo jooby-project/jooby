@@ -214,13 +214,13 @@ public interface Response {
     }
 
     @Override
-    public void push(final Route.After handler) {
-      rsp.push(handler);
+    public void after(final Route.After handler) {
+      rsp.after(handler);
     }
 
     @Override
-    public void push(final Route.Complete handler) {
-      rsp.push(handler);
+    public void complete(final Route.Complete handler) {
+      rsp.complete(handler);
     }
 
     @Override
@@ -636,7 +636,7 @@ public interface Response {
    * @param handler A handler
    * @see Route.After
    */
-  void push(Route.After handler);
+  void after(Route.After handler);
 
   /**
    * Append complete handler, will be execute after sending response.
@@ -644,5 +644,5 @@ public interface Response {
    * @param handler A handler
    * @see Route.After
    */
-  void push(Route.Complete handler);
+  void complete(Route.Complete handler);
 }

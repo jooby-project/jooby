@@ -350,12 +350,12 @@ public class ResponseForwardingTest {
     new MockUnit(Response.class, Route.After.class)
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
-          rsp.push(unit.get(Route.After.class));
+          rsp.after(unit.get(Route.After.class));
         })
         .run(unit -> {
           Response rsp = new Response.Forwarding(unit.get(Response.class));
 
-          rsp.push(unit.get(Route.After.class));
+          rsp.after(unit.get(Route.After.class));
         });
   }
 
@@ -364,12 +364,11 @@ public class ResponseForwardingTest {
     new MockUnit(Response.class, Route.Complete.class)
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
-          rsp.push(unit.get(Route.Complete.class));
+          rsp.complete(unit.get(Route.Complete.class));
         })
         .run(unit -> {
           Response rsp = new Response.Forwarding(unit.get(Response.class));
-
-          rsp.push(unit.get(Route.Complete.class));
+          rsp.complete(unit.get(Route.Complete.class));
         });
   }
 

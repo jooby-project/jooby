@@ -1907,7 +1907,7 @@ public interface Route {
   interface After extends Filter {
     @Override
     default void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
-      rsp.push(this);
+      rsp.after(this);
       chain.next(req, rsp);
     }
 
@@ -2030,7 +2030,7 @@ public interface Route {
 
     @Override
     default void handle(final Request req, final Response rsp, final Chain chain) throws Throwable {
-      rsp.push(this);
+      rsp.complete(this);
       chain.next(req, rsp);
     }
 

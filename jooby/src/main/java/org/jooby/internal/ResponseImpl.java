@@ -88,6 +88,8 @@ public class ResponseImpl implements Response {
 
   private RequestImpl req;
 
+  private boolean failure;
+
   public ResponseImpl(final RequestImpl req, final ParserExecutor parserExecutor,
       final NativeResponse rsp, final Route route, final List<Renderer> renderers,
       final Map<String, Renderer> rendererMap, final Map<String, Object> locals,
@@ -223,8 +225,9 @@ public class ResponseImpl implements Response {
 
   @Override
   public Response status(final Status status) {
-    this.status = requireNonNull(status, "A status is required.");
+    this.status = requireNonNull(status, "Statusrequired.");
     rsp.statusCode(status.value());
+    failure = status.isError();
     return this;
   }
 
@@ -279,9 +282,11 @@ public class ResponseImpl implements Response {
 
     Result finalResult = result;
 
-    // after filter
-    for (int i = after.size() - 1; i >= 0; i--) {
-      finalResult = after.get(i).handle(req, this, finalResult);
+    if (!failure) {
+      // after filter
+      for (int i = after.size() - 1; i >= 0; i--) {
+        finalResult = after.get(i).handle(req, this, finalResult);
+      }
     }
 
     Optional<MediaType> rtype = finalResult.type();
@@ -347,12 +352,12 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public void push(final After handler) {
+  public void after(final After handler) {
     after.add(handler);
   }
 
   @Override
-  public void push(final Complete handler) {
+  public void complete(final Complete handler) {
     complete.add(handler);
   }
 

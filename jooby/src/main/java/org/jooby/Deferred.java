@@ -22,6 +22,8 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.concurrent.Callable;
 
+import javaslang.CheckedFunction0;
+
 /**
  * <h1>async request processing</h1>
  * A Deferred result, useful for async request processing. Application can produces a result from a
@@ -94,8 +96,8 @@ import java.util.concurrent.Callable;
  * error.
  * </p>
  * <p>
- * Checkout the utility method {@link #resolve(Callable)} and/or {@link #run(Callable)}. Both of
- * them catch and handle exceptions for you.
+ * Checkout the utility method {@link #resolve(CheckedFunction0)} and/or
+ * {@link #run(CheckedFunction0)}. Both of them catch and handle exceptions for you.
  * </p>
  *
  * @author edgar
@@ -160,8 +162,7 @@ public class Deferred extends Result {
    * @param initializer An initializer.
    */
   public Deferred(final Initializer0 initializer) {
-    requireNonNull(initializer, "Initializer is required.");
-    this.initializer = (req, deferred) -> initializer.run(deferred);
+    this((req, deferred) -> initializer.run(deferred));
   }
 
   /**
@@ -220,8 +221,8 @@ public class Deferred extends Result {
   }
 
   /**
-   * Produces a {@link Runnable} that runs the given {@link Callable} and {@link #resolve(Callable)}
-   * or {@link #reject(Throwable)} the deferred.
+   * Produces a {@link Runnable} that runs the given {@link Callable} and
+   * {@link #resolve(CheckedFunction0)} or {@link #reject(Throwable)} the deferred.
    *
    * Please note, the given {@link Callable} runs in the caller thread.
    *
@@ -229,14 +230,15 @@ public class Deferred extends Result {
    * @param <T> Resulting type.
    * @return This deferred as {@link Runnable}.
    */
-  public <T> Runnable run(final Callable<T> block) {
+  public <T> Runnable run(final CheckedFunction0<T> block) {
     return () -> {
       resolve(block);
     };
   }
 
   /**
-   * Run the given {@link Callable} and {@link #resolve(Callable)} or {@link #reject(Throwable)} the
+   * Run the given {@link Callable} and {@link #resolve(CheckedFunction0)} or
+   * {@link #reject(Throwable)} the
    * deferred.
    *
    * Please note, the given {@link Callable} runs in the caller thread.
@@ -244,11 +246,11 @@ public class Deferred extends Result {
    * @param block Callable that produces a result.
    * @param <T> Resulting type.
    */
-  public <T> void resolve(final Callable<T> block) {
+  public <T> void resolve(final CheckedFunction0<T> block) {
     try {
-      resolve(block.call());
-    } catch (Exception ex) {
-      reject(ex);
+      resolve(block.apply());
+    } catch (Throwable x) {
+      reject(x);
     }
   }
 
@@ -256,6 +258,7 @@ public class Deferred extends Result {
    * Setup a handler for this deferred. Application code should never call this method: INTERNAL USE
    * ONLY.
    *
+   * @param req Current request.
    * @param handler A response handler.
    * @throws Exception If initializer fails to start.
    */

@@ -36,7 +36,7 @@ public class CookieSessionManagerTest {
 
   private Block push = unit -> {
     Response rsp = unit.get(Response.class);
-    rsp.push(unit.capture(Route.After.class));
+    rsp.after(unit.capture(Route.After.class));
   };
 
   @Test

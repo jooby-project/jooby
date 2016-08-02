@@ -55,7 +55,7 @@ public class FlashScopeHandler implements Route.Filter {
     req.set(FlashScope.NAME, flashScope);
 
     // wrap & proceed
-    rsp.push(finalizeFlash(copy, flashScope));
+    rsp.after(finalizeFlash(copy, flashScope));
 
     chain.next(req, rsp);
   }

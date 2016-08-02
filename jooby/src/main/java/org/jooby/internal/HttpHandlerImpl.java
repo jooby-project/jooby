@@ -321,22 +321,24 @@ public class HttpHandlerImpl implements HttpHandler {
     try {
       request.startAsync();
 
-      deferred.handler(req, (result, ex) -> {
+      deferred.handler(req, (success, x) -> {
         boolean close = false;
-        Throwable x = null;
+        Optional<Throwable> failure = Optional.ofNullable(x);
         try {
           requestScope.enter(scope);
-          if (result != null) {
+          if (success != null) {
             close = true;
-            rsp.send(result);
-          } else if (ex != null) {
-            close = true;
-            handleErr(req, rsp, ex);
+            rsp.send(success);
           }
         } catch (Throwable exerr) {
-          x = exerr;
+          failure = Optional.of(failure.orElse(exerr));
         } finally {
-          cleanup(req, rsp, close, x, true);
+          Throwable cause = failure.orElse(null);
+          if (cause != null) {
+            close = true;
+            handleErr(req, rsp, cause);
+          }
+          cleanup(req, rsp, close, cause, true);
         }
       });
     } catch (Exception ex) {

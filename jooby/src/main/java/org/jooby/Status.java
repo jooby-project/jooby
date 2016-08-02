@@ -427,6 +427,13 @@ public enum Status {
   }
 
   /**
+   * @return True, for status code &gt;= 400.
+   */
+  public boolean isError() {
+    return this.value >= 400;
+  }
+
+  /**
    * @return the reason phrase of this status code.
    */
   public String reason() {

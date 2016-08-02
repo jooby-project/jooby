@@ -106,12 +106,12 @@ public class ResponseTest {
     }
 
     @Override
-    public void push(final After handler) {
+    public void after(final After handler) {
       throw new UnsupportedOperationException();
     }
 
      @Override
-    public void push(final Complete handler) {
+    public void complete(final Complete handler) {
        throw new UnsupportedOperationException();
     }
   }
