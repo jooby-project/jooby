@@ -57,6 +57,8 @@ public class BuiltinBodyParserFeature extends ServerFeature {
 
   {
 
+    dateFormat("dd-MM-yy");
+
     use(Resource.class);
 
     post("/optional/int", req -> {
