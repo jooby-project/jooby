@@ -120,9 +120,6 @@ import com.typesafe.config.ConfigFactory;
  * For more detailed information please check: {@link MongoClientURI}.
  *
  * <h1>two or more connections</h1>
- * <p>
- * Use {@link #named()} when you need two or more <code>mongodb</code> connections:
- * </p>
  *
  * <pre>
  * db1 = "mongodb://localhost/mydb1"
