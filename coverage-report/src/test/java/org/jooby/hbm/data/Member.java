@@ -3,10 +3,12 @@ package org.jooby.hbm.data;
 import java.util.Optional;
 
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
 @Entity
+@EntityListeners(MemberListener.class)
 public class Member {
 
   @Id
@@ -15,7 +17,18 @@ public class Member {
   private String name;
 
   @Transient
+  private String alias;
+
+  @Transient
   public Optional<Boolean> viewErr = Optional.empty();
+
+  public String getAlias() {
+    return alias;
+  }
+
+  public void setAlias(final String alias) {
+    this.alias = alias;
+  }
 
   public int getId() {
     return id;

@@ -20,8 +20,6 @@ The [ebean](/doc/ebean) module provides object relational mapping via {{ebean}}.
 
 The [hibernate](/doc/hbm) module provides object relational mapping via {{hibernate}}.
 
-The [hibernate validator](/doc/hbv) provides bean validation.
-
 ## jdbi
 
 The [jdbi](/doc/jdbi) module provides a fluent and lightweight SQL library for *jdbc*.

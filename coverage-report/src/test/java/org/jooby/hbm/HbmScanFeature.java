@@ -21,6 +21,8 @@ public class HbmScanFeature extends ServerFeature {
 
     use(new Hbm().scan());
 
+    use("*", Hbm.openSessionInView());
+
     get("/members", req -> {
       EntityManager em = req.require(EntityManager.class);
       Query query = em.createQuery("from Member");

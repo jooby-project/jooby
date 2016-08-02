@@ -17,7 +17,9 @@ public class HbmParamConverterFeature extends ServerFeature {
     use(ConfigFactory.empty()
         .withValue("db", ConfigValueFactory.fromAnyRef("mem")));
 
-    use(new Hbm(Member.class));
+    use(new Hbm().classes(Member.class));
+
+    use("*", Hbm.openSessionInView());
 
     parser((type, ctx) -> {
       if (type.getRawType() == Member.class) {

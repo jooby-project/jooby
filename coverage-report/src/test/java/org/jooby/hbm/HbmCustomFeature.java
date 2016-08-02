@@ -20,7 +20,9 @@ public class HbmCustomFeature extends ServerFeature {
     use(ConfigFactory.empty()
         .withValue("db.audit", ConfigValueFactory.fromAnyRef("mem")));
 
-    use(new Hbm("db.audit", Member.class));
+    use(new Hbm("db.audit").classes(Member.class));
+
+    use("*", Hbm.openSessionInView());
 
     get("/members", req -> {
       EntityManager em = req.require(Key.get(EntityManager.class));

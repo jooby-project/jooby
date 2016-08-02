@@ -21,7 +21,9 @@ public class HbmProdEnvFeature extends ServerFeature {
         .withValue("db", ConfigValueFactory.fromAnyRef("mem"))
         .withValue("hibernate.hbm2ddl.auto", ConfigValueFactory.fromAnyRef("update")));
 
-    use(new Hbm(Member.class));
+    use(new Hbm().classes(Member.class));
+
+    use("*", Hbm.openSessionInView());
 
     get("/members", req -> {
       EntityManager em = req.require(EntityManager.class);

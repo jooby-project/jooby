@@ -27,6 +27,7 @@
     <module>jooby-guava-cache</module>
     <module>jooby-jdbc</module>
     <module>jooby-jooq</module>
+    <module>jooby-hbm</module>
     <module>jooby-hbm4</module>
     <module>jooby-dist</module>
     <module>jooby-undertow</module>
@@ -513,6 +514,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-cassandra</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-hbm</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -2320,7 +2327,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <h2.version>1.4.190</h2.version>
     <mysql-connector-java.version>5.1.38</mysql-connector-java.version>
     <hikariCP.version>2.4.5</hikariCP.version>
-    <hibernate.version>4.3.9.Final</hibernate.version>
+    <hibernate.version>5.2.1.Final</hibernate.version>
+    <hibernate4.version>4.3.9.Final</hibernate4.version>
     <jsr305.version>3.0.0</jsr305.version>
     <http-client.version>4.3.6</http-client.version>
     <async-http-client.version>1.9.36</async-http-client.version>
