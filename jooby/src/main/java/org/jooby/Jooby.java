@@ -126,6 +126,7 @@ import org.jooby.spi.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -654,6 +655,20 @@ public class Jooby implements Routes, LifeCycle, Registry {
   private Optional<Parser> beanParser = Optional.empty();
 
   private ServerLookup server = new ServerLookup();
+
+  private String dateFormat;
+
+  private Charset charset;
+
+  private String[] languages;
+
+  private ZoneId zoneId;
+
+  private Integer port;
+
+  private Integer securePort;
+
+  private String numberFormat;
 
   public Jooby() {
     this(null);
@@ -3774,6 +3789,83 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   /**
+   * Set application date format.
+   *
+   * @param dateFormat A date format.
+   * @return This instance.
+   */
+  public Jooby dateFormat(final String dateFormat) {
+    this.dateFormat = requireNonNull(dateFormat, "DateFormat required.");
+    return this;
+  }
+
+  /**
+   * Set application number format.
+   *
+   * @param numberFormat A number format.
+   * @return This instance.
+   */
+  public Jooby numberFormat(final String numberFormat) {
+    this.numberFormat = requireNonNull(numberFormat, "NumberFormat required.");
+    return this;
+  }
+
+  /**
+   * Set application/default charset.
+   *
+   * @param charset A charset.
+   * @return This instance.
+   */
+  public Jooby charset(final Charset charset) {
+    this.charset = requireNonNull(charset, "Charset required.");
+    return this;
+  }
+
+  /**
+   * Set application locale (first listed are higher priority).
+   *
+   * @param Languages list of locale using the language tag format.
+   * @return This instance.
+   */
+  public Jooby lang(final String... languages) {
+    this.languages = languages;
+    return this;
+  }
+
+  /**
+   * Set application time zone.
+   *
+   * @param zoneId ZoneId.
+   * @return This instance.
+   */
+  public Jooby timezone(final ZoneId zoneId) {
+    this.zoneId = requireNonNull(zoneId, "ZoneId required.");
+    return this;
+  }
+
+  /**
+   * Set the HTTP port.
+   *
+   * @param port HTTP port.
+   * @return This instance.
+   */
+  public Jooby port(final int port) {
+    this.port = port;
+    return this;
+  }
+
+  /**
+   * Set the HTTPS port.
+   *
+   * @param port HTTPS port.
+   * @return This instance.
+   */
+  public Jooby securePort(final int port) {
+    this.securePort = port;
+    return this;
+  }
+
+  /**
    * Run app in javascript.
    *
    * @param jsargs Arguments, first arg must be the name of the javascript file.
@@ -4337,7 +4429,9 @@ public class Jooby implements Routes, LifeCycle, Registry {
     // locale
     final List<Locale> locales;
     if (!config.hasPath("application.lang")) {
-      locales = ImmutableList.of(Locale.getDefault());
+      locales = Optional.ofNullable(this.languages)
+          .map(langs -> LocaleUtils.parse(Joiner.on(",").join(langs)))
+          .orElse(ImmutableList.of(Locale.getDefault()));
     } else {
       locales = LocaleUtils.parse(config.getString("application.lang"));
     }
@@ -4347,7 +4441,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
     // time zone
     final String tz;
     if (!config.hasPath("application.tz")) {
-      tz = ZoneId.systemDefault().getId();
+      tz = Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault()).getId();
     } else {
       tz = config.getString("application.tz");
     }
@@ -4355,7 +4449,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
     // number format
     final String nf;
     if (!config.hasPath("application.numberFormat")) {
-      nf = ((DecimalFormat) DecimalFormat.getInstance(locale)).toPattern();
+      nf = Optional.ofNullable(numberFormat)
+          .orElseGet(() -> ((DecimalFormat) DecimalFormat.getInstance(locale)).toPattern());
     } else {
       nf = config.getString("application.numberFormat");
     }
@@ -4377,6 +4472,20 @@ public class Jooby implements Routes, LifeCycle, Registry {
         .withValue("runtime.processors-x2", ConfigValueFactory.fromAnyRef(processors * 2))
         .withValue("runtime.concurrencyLevel", ConfigValueFactory
             .fromAnyRef(Math.max(4, processors)));
+
+    if (charset != null) {
+      defs = defs.withValue("application.charset", ConfigValueFactory.fromAnyRef(charset.name()));
+    }
+    if (port != null) {
+      defs = defs.withValue("application.port", ConfigValueFactory.fromAnyRef(port.intValue()));
+    }
+    if (securePort != null) {
+      defs = defs.withValue("application.securePort",
+          ConfigValueFactory.fromAnyRef(securePort.intValue()));
+    }
+    if (dateFormat != null) {
+      defs = defs.withValue("application.dateFormat", ConfigValueFactory.fromAnyRef(dateFormat));
+    }
 
     return defs;
   }

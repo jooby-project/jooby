@@ -18,7 +18,6 @@
  */
 package org.jooby.test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +41,9 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
 
   private Jooby app;
 
-  private int port;
+  private int port = 9999;
+
+  private int securePort = 9943;
 
   private Class<?> server;
 
@@ -76,7 +77,6 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
     try {
       this.server = server;
       Class<?> appClass = klass;
-      port = freePort();
       if (!Jooby.class.isAssignableFrom(appClass)) {
         throw new InitializationError("Invalid jooby app: " + appClass);
       }
@@ -98,9 +98,22 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
             .withValue("server.module", ConfigValueFactory.fromAnyRef(server.getName())));
       }
 
-      Config testConfig = config;
-
       app = (Jooby) appClass.newInstance();
+      if (app instanceof ServerFeature) {
+        int appport = ((ServerFeature) app).port;
+        if (appport > 0) {
+          config = config.withValue("application.port", ConfigValueFactory.fromAnyRef(appport));
+          this.port = appport;
+        }
+
+        int sappport = ((ServerFeature) app).securePort;
+        if (sappport > 0) {
+          config = config.withValue("application.securePort",
+              ConfigValueFactory.fromAnyRef(sappport));
+          this.securePort = sappport;
+        }
+      }
+      Config testConfig = config;
       app.use(new Jooby.Module() {
         @Override
         public void configure(final Env mode, final Config config, final Binder binder) {
@@ -135,7 +148,7 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
     Object test = super.createTest();
     Guice.createInjector(binder -> {
       binder.bind(Integer.class).annotatedWith(Names.named("port")).toInstance(port);
-      binder.bind(Integer.class).annotatedWith(Names.named("securePort")).toInstance(9943);
+      binder.bind(Integer.class).annotatedWith(Names.named("securePort")).toInstance(securePort);
     }).injectMembers(test);
 
     return test;
@@ -171,10 +184,4 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
     };
   }
 
-  private int freePort() throws IOException {
-    // try (ServerSocket socket = new ServerSocket(0)) {
-    // return socket.getLocalPort();
-    // }
-    return 9999;
-  }
 }

@@ -74,4 +74,16 @@ public abstract class ServerFeature extends Jooby {
     return builder;
   }
 
+  @Override
+  public Jooby securePort(final int port) {
+    this.securePort = port;
+    return super.securePort(port);
+  }
+
+  @Override
+  public Jooby port(final int port) {
+    this.port = port;
+    return super.port(port);
+  }
+
 }
