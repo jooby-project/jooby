@@ -2,6 +2,7 @@ package org.jooby.jdbc;
 
 import static com.typesafe.config.ConfigValueFactory.fromAnyRef;
 import static org.easymock.EasyMock.expect;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Properties;
 
@@ -101,6 +102,22 @@ public class JdbcTest {
   }
 
   @Test
+  public void cceExceptionInSource() throws Exception {
+    ClassCastException cce = new ClassCastException();
+    StackTraceElement e = new StackTraceElement(Jdbc.class.getName(), "accept", null, 0);
+    cce.setStackTrace(new StackTraceElement[]{e });
+    assertEquals(true, Jdbc.CCE.apply(cce).isSuccess());
+  }
+
+  @Test
+  public void cceExceptionWithoutSource() throws Exception {
+    ClassCastException cce = new ClassCastException();
+    StackTraceElement e = new StackTraceElement(JdbcTest.class.getName(), "accept", null, 0);
+    cce.setStackTrace(new StackTraceElement[]{e });
+    assertEquals(true, Jdbc.CCE.apply(cce).isSuccess());
+  }
+
+  @Test
   public void dbWithCallback() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Config dbconf = config.withValue("db", ConfigValueFactory.fromAnyRef("fs"))
@@ -117,12 +134,12 @@ public class JdbcTest {
         .expect(serviceKey("jdbctest"))
         .expect(onStop)
         .expect(unit -> {
-          HikariConfig h = unit.get(HikariConfig.class);
+          HikariDataSource h = unit.get(HikariDataSource.class);
           h.setAllowPoolSuspension(true);
         })
         .run(unit -> {
           new Jdbc()
-              .doWithHikari(h -> {
+              .doWith((final HikariConfig h) -> {
                 h.setAllowPoolSuspension(true);
               })
               .configure(unit.get(Env.class), dbconf, unit.get(Binder.class));

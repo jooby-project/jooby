@@ -18,11 +18,8 @@
  */
 package org.jooby.jdbi;
 
-import static java.util.Objects.requireNonNull;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 import javax.inject.Provider;
 
@@ -158,8 +155,6 @@ public class Jdbi extends Jdbc {
 
   }
 
-  private BiConsumer<DBI, Config> configurer;
-
   private List<Class<?>> sqlObjects;
 
   public Jdbi(final Class<?>... sqlObjects) {
@@ -169,11 +164,6 @@ public class Jdbi extends Jdbc {
   public Jdbi(final String db, final Class<?>... sqlObjects) {
     super(db);
     this.sqlObjects = Lists.newArrayList(sqlObjects);
-  }
-
-  public Jdbi doWith(final BiConsumer<DBI, Config> configurer) {
-    this.configurer = requireNonNull(configurer, "Configurer is required.");
-    return this;
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
@@ -194,9 +184,7 @@ public class Jdbi extends Jdbc {
       sqlObjects.forEach(sqlObject -> binder.bind(sqlObject)
           .toProvider((Provider) () -> dbi.open(sqlObject)));
 
-      if (configurer != null) {
-        configurer.accept(dbi, config);
-      }
+      callback(dbi, config);
     });
   }
 

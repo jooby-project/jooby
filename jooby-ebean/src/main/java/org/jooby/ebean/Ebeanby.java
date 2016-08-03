@@ -18,14 +18,10 @@
  */
 package org.jooby.ebean;
 
-import static java.util.Objects.requireNonNull;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import org.jooby.Env;
 import org.jooby.internal.ebean.EbeanEnhancer;
@@ -151,8 +147,6 @@ import com.typesafe.config.ConfigFactory;
  */
 public class Ebeanby extends Jdbc {
 
-  private BiConsumer<ServerConfig, Config> configurer;
-
   private Set<String> packages = new HashSet<>();
 
   /**
@@ -181,28 +175,6 @@ public class Ebeanby extends Jdbc {
    */
   public Ebeanby packages(final String... packages) {
     Arrays.stream(packages).forEach(this.packages::add);
-    return this;
-  }
-
-  /**
-   * Callback to programmatically configure a {@link ServerConfig}.
-   *
-   * @param configurer Callback.
-   * @return This module.
-   */
-  public Ebeanby doWith(final Consumer<ServerConfig> configurer) {
-    requireNonNull(configurer, "Configurer callback is required.");
-    return doWith((config, conf) -> configurer.accept(config));
-  }
-
-  /**
-   * Callback to programmatically configure a {@link ServerConfig}.
-   *
-   * @param configurer Callback.
-   * @return This module.
-   */
-  public Ebeanby doWith(final BiConsumer<ServerConfig, Config> configurer) {
-    this.configurer = requireNonNull(configurer, "Configurer callback is required.");
     return this;
   }
 
@@ -237,9 +209,7 @@ public class Ebeanby extends Jdbc {
       config.setDefaultServer(cprops.getBoolean("defaultServer"));
       config.setRegister(cprops.getBoolean("register"));
 
-      if (configurer != null) {
-        configurer.accept(config, conf);
-      }
+      callback(config, conf);
 
       EbeanManaged server = new EbeanManaged(conf, config);
       env.onStart(server::start);

@@ -155,7 +155,7 @@ public class QueryDSLTest {
         .expect(managed)
         .run(unit -> {
           new QueryDSL()
-              .doWith(conf -> {
+              .doWith((final Configuration conf) -> {
                 conf.addListener(SQLCloseListener.DEFAULT);
               })
               .configure(unit.get(Env.class), config("fs"), unit.get(Binder.class));

@@ -135,7 +135,7 @@ public class EbeanbyTest {
         .expect(onStop)
         .run(unit -> {
           new Ebeanby()
-              .doWith(conf -> {
+              .doWith((final ServerConfig conf) -> {
                 conf.setName("xx");
               })
               .configure(unit.get(Env.class), config(), unit.get(Binder.class));

@@ -142,7 +142,7 @@ public class jOOQTest {
         .expect(onStop)
         .run(unit -> {
           new jOOQ()
-              .doWith(c -> assertEquals(unit.get(Configuration.class), c))
+              .doWith((final Configuration c) -> assertEquals(unit.get(Configuration.class), c))
               .configure(unit.get(Env.class), config(), unit.get(Binder.class));
         }, unit -> {
           unit.captured(Provider.class).iterator().next().get();

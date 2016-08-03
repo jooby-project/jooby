@@ -306,7 +306,7 @@ public class HbmTest {
           SessionFactoryImplementor sf = unit.get(SessionFactoryImplementor.class);
           expect(sf.getServiceRegistry()).andReturn(sri);
         })
-        .expect(unit-> {
+        .expect(unit -> {
           AnnotatedBindingBuilder abb = unit.mock(AnnotatedBindingBuilder.class);
           abb.asEagerSingleton();
 

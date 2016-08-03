@@ -18,8 +18,6 @@
  */
 package org.jooby.hbm;
 
-import static java.util.Objects.requireNonNull;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Provider;
@@ -63,13 +60,11 @@ import org.jooby.internal.hbm.SessionProvider;
 import org.jooby.internal.hbm.UnitOfWorkProvider;
 import org.jooby.jdbc.Jdbc;
 
-import com.google.common.base.Throwables;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import javaslang.concurrent.Promise;
-import javaslang.control.Try;
 
 /**
  * <h1>hibernate</h1>
@@ -335,24 +330,11 @@ import javaslang.control.Try;
  */
 public class Hbm extends Jdbc {
 
-  private static final Function<? super Throwable, ? extends Try<? extends Void>> CCE = x -> {
-    if (x instanceof ClassCastException) {
-      StackTraceElement src = x.getStackTrace()[0];
-      if (src.getClassName().equals(Hbm.class.getName())) {
-        return Try.success(null);
-      }
-    }
-    return Try.failure(x);
-  };
-
   private List<BiConsumer<SessionFactoryImplementor, Registry>> listeners = new ArrayList<>();
 
   private List<Consumer<Binder>> bindings = new ArrayList<>();
 
   private List<BiConsumer<MetadataSources, Config>> sources = new ArrayList<>();
-
-  @SuppressWarnings("rawtypes")
-  private List<BiConsumer> callback = new ArrayList<>();
 
   /**
    * Creates a new {@link Hbm} module.
@@ -466,8 +448,9 @@ public class Hbm extends Jdbc {
    * @param configurer Configurer callback.
    * @return This module
    */
+  @Override
   public <T> Hbm doWith(final BiConsumer<T, Config> configurer) {
-    this.callback.add(requireNonNull(configurer, "Configurer required."));
+    super.doWith(configurer);
     return this;
   }
 
@@ -490,9 +473,10 @@ public class Hbm extends Jdbc {
    * @param configurer Configurer callback.
    * @return This module
    */
+  @Override
   public <T> Hbm doWith(final Consumer<T> configurer) {
-    requireNonNull(configurer, "Configurer required.");
-    return doWith((final T b, final Config c) -> configurer.accept(b));
+    super.doWith(configurer);
+    return this;
   }
 
   @Override
@@ -576,13 +560,6 @@ public class Hbm extends Jdbc {
   @Override
   public Config config() {
     return ConfigFactory.parseResources(getClass(), "hbm.conf").withFallback(super.config());
-  }
-
-  @SuppressWarnings("unchecked")
-  protected void callback(final Object value, final Config conf) {
-    this.callback.forEach(it -> Try.run(() -> it.accept(value, conf))
-        .recoverWith(CCE)
-        .getOrElseThrow(Throwables::propagate));
   }
 
   private static Map<Object, Object> settings(final Env env, final Config config) {

@@ -21,6 +21,7 @@ package org.jooby.jdbc;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.jooby.Jooby;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
+import com.google.common.base.Throwables;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -217,6 +219,16 @@ import javaslang.control.Try;
  */
 public class Jdbc implements Jooby.Module {
 
+  static final Function<? super Throwable, ? extends Try<? extends Void>> CCE = x -> {
+    if (x instanceof ClassCastException) {
+      StackTraceElement src = x.getStackTrace()[0];
+      if (src.getFileName() == null || src.getClassName().equals(Jdbc.class.getName())) {
+        return Try.success(null);
+      }
+    }
+    return Try.failure(x);
+  };
+
   public static Function<String, String> DB_NAME = url -> {
     BiFunction<String, String, Tuple2<String, Map<String, String>>> indexOf = (str, token) -> {
       int i = str.indexOf(token);
@@ -240,7 +252,8 @@ public class Jdbc implements Jooby.Module {
             .orElse(parts.get(parts.size() - 1)));
   };
 
-  private BiConsumer<HikariConfig, Config> conf;
+  @SuppressWarnings("rawtypes")
+  private final List<BiConsumer> callback = new ArrayList<>();
 
   private final String dbref;
 
@@ -266,25 +279,51 @@ public class Jdbc implements Jooby.Module {
   }
 
   /**
-   * Programmatically configure a {@link HikariConfig}.
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
    *
-   * @param conf Configurer callback.
-   * @return This module.
+   * <pre>{@code
+   * {
+   *   use(new Jdbc()
+   *       .doWith((HikariConfig conf) -> {
+   *         // do with conf
+   *       })
+   *       .doWith((HikariDataSource ds) -> {
+   *         // do with ds
+   *       })
+   *   );
+   * }
+   * }</pre>
+   *
+   * @param configurer Configurer callback.
+   * @return This module
    */
-  public Jdbc doWithHikari(final BiConsumer<HikariConfig, Config> conf) {
-    this.conf = requireNonNull(conf, "Configurer required.");
+  public <T> Jdbc doWith(final BiConsumer<T, Config> configurer) {
+    this.callback.add(requireNonNull(configurer, "Configurer required."));
     return this;
   }
 
   /**
-   * Programmatically configure a {@link HikariConfig}.
+   * Configurer callback to apply advanced configuration while bootstrapping hibernate:
    *
-   * @param conf Configurer callback.
-   * @return This module.
+   * <pre>{@code
+   * {
+   *   use(new Jdbc()
+   *       .doWith((HikariConfig conf) -> {
+   *         // do with conf
+   *       })
+   *       .doWith((HikariDataSource ds) -> {
+   *         // do with ds
+   *       })
+   *   );
+   * }
+   * }</pre>
+   *
+   * @param configurer Configurer callback.
+   * @return This module
    */
-  public Jdbc doWithHikari(final Consumer<HikariConfig> conf) {
-    requireNonNull(conf, "Configurer required.");
-    return doWithHikari((h, c) -> conf.accept(h));
+  public <T> Jdbc doWith(final Consumer<T> configurer) {
+    requireNonNull(configurer, "Configurer required.");
+    return doWith((final T b, final Config c) -> configurer.accept(b));
   }
 
   @Override
@@ -294,7 +333,7 @@ public class Jdbc implements Jooby.Module {
   }
 
   protected void configure(final Env env, final Config config, final Binder binder,
-      final BiConsumer<String, HikariDataSource> callback) {
+      final BiConsumer<String, HikariDataSource> extensions) {
     Config dbconf;
     String url, dbname, dbkey;
     boolean seturl = false;
@@ -318,12 +357,10 @@ public class Jdbc implements Jooby.Module {
       props.setProperty("url", url);
     }
 
-    if (conf != null) {
-      conf.accept(hikariConf, config);
-    }
-
     HikariDataSource ds = new HikariDataSource(hikariConf);
-    callback.accept(dbname, ds);
+    callback(ds, config);
+
+    extensions.accept(dbname, ds);
 
     env.serviceKey()
         .generate(DataSource.class, dbname, k -> binder.bind(k).toInstance(ds));
@@ -413,6 +450,13 @@ public class Jdbc implements Jooby.Module {
     props.setProperty("poolName", dbtype.map(type -> type + "." + db).orElse(db));
 
     return new HikariConfig(props);
+  }
+
+  @SuppressWarnings("unchecked")
+  protected void callback(final Object value, final Config conf) {
+    this.callback.forEach(it -> Try.run(() -> it.accept(value, conf))
+        .recoverWith(CCE)
+        .getOrElseThrow(Throwables::propagate));
   }
 
   private Optional<String> dbtype(final String url, final Config config) {

@@ -18,10 +18,7 @@
  */
 package org.jooby.jooq;
 
-import static java.util.Objects.requireNonNull;
-
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import javax.inject.Provider;
 import javax.sql.DataSource;
@@ -119,8 +116,6 @@ import com.typesafe.config.Config;
  */
 public class jOOQ extends Jdbc {
 
-  private BiConsumer<Configuration, Config> callback;
-
   /**
    * Creates a new {@link jOOQ} module.
    *
@@ -136,28 +131,6 @@ public class jOOQ extends Jdbc {
   public jOOQ() {
   }
 
-  /**
-   * Apply advanced configuration.
-   *
-   * @param callback A configuration callback.
-   * @return This module.
-   */
-  public jOOQ doWith(final BiConsumer<Configuration, Config> callback) {
-    this.callback = requireNonNull(callback, "Configurer callback is required.");
-    return this;
-  }
-
-  /**
-   * Apply advanced configuration.
-   *
-   * @param callback A configuration callback.
-   * @return This module.
-   */
-  public jOOQ doWith(final Consumer<Configuration> callback) {
-    requireNonNull(callback, "Configurer callback is required.");
-    return doWith((configuration, conf) -> callback.accept(configuration));
-  }
-
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
     super.configure(env, conf, binder, (name, ds) -> {
@@ -167,9 +140,7 @@ public class jOOQ extends Jdbc {
       jooqconf.set(dscp);
       jooqconf.set(new DefaultTransactionProvider(dscp));
 
-      if (callback != null) {
-        callback.accept(jooqconf, conf);
-      }
+      callback(jooqconf, conf);
 
       ServiceKey serviceKey = env.serviceKey();
       serviceKey.generate(Configuration.class, name, k -> binder.bind(k).toInstance(jooqconf));

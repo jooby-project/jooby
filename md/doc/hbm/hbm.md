@@ -17,7 +17,7 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-hbm5</artifactId>
+ <artifactId>jooby-hbm</artifactId>
  <version>{{version}}</version>
 </dependency>
 ```
@@ -183,10 +183,10 @@ Or via ```hibernate.*``` property from your ```.conf``` file:
 ```
 hibernate.hbm2ddl.auto = update
 ```
-* 
+
 ## life-cycle
 
-You are free to inject a `SessionFactory` or `EntityManagerFactory` create a new `EntityManagerFactory#createEntityManager()`, start transactions and do everything you need.
+You are free to inject a `SessionFactory` or `EntityManagerFactory` and create a new `EntityManagerFactory#createEntityManager()`, start transactions and do everything you need.
 
 For the time being, this doesn't work for a `Session` or `EntityManager`. A `Session` and/or `EntityManager` is bound to the current request, which means you can't freely access from every single thread (like manually started thread, started by an executor service, quartz, etc...).
 

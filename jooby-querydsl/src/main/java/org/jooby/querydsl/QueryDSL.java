@@ -23,7 +23,6 @@ import static javaslang.API.Case;
 import static javaslang.API.Match;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.jooby.Env;
@@ -132,8 +131,6 @@ import com.typesafe.config.Config;
  */
 public class QueryDSL extends Jdbc {
 
-  private BiConsumer<Configuration, Config> callback;
-
   private Function<String, SQLTemplates> templates = QueryDSL::toSQLTemplates;
 
   /**
@@ -158,9 +155,8 @@ public class QueryDSL extends Jdbc {
 
       Configuration querydslconf = new Configuration(templates);
 
-      if (callback != null) {
-        callback.accept(querydslconf, conf);
-      }
+      callback(querydslconf, conf);
+
       SQLQueryFactory sqfp = new SQLQueryFactory(querydslconf, ds);
 
       ServiceKey serviceKey = env.serviceKey();
@@ -168,28 +164,6 @@ public class QueryDSL extends Jdbc {
       serviceKey.generate(Configuration.class, name, k -> binder.bind(k).toInstance(querydslconf));
       serviceKey.generate(SQLQueryFactory.class, name, k -> binder.bind(k).toInstance(sqfp));
     });
-  }
-
-  /**
-   * Apply advanced configuration
-   *
-   * @param callback a configuration callback.
-   * @return This module.
-   */
-  public QueryDSL doWith(final Consumer<Configuration> callback) {
-    requireNonNull(callback, "Callback needs to be defined");
-    return doWith((configuration, conf) -> callback.accept(configuration));
-  }
-
-  /**
-   * Apply advanced configuration
-   *
-   * @param callback a configuration callback.
-   * @return This module.
-   */
-  public QueryDSL doWith(final BiConsumer<Configuration, Config> callback) {
-    this.callback = requireNonNull(callback, "Callback needs to be defined");
-    return this;
   }
 
   public QueryDSL with(final SQLTemplates templates) {
