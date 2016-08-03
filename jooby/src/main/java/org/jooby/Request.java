@@ -564,6 +564,7 @@ public interface Request extends Registry {
    * Short version of <code>params().to(type)</code>.
    *
    * @param type Object type.
+   * @param <T> Value type.
    * @return Instance of object.
    */
   default <T> T params(final Class<T> type) {
@@ -659,6 +660,7 @@ public interface Request extends Registry {
    * Short version of <code>body().to(type)</code>.
    *
    * @param type Object type.
+   * @param <T> Value type.
    * @return Instance of object.
    * @throws Exception If body can't be converted or there is no HTTP body.
    */

@@ -201,6 +201,7 @@ public class Result {
   /**
    * Get a result value.
    *
+   * @param <T> Value type.
    * @return Value or <code>null</code>
    */
   public <T> T get() {
@@ -221,6 +222,7 @@ public class Result {
    * Get a result value for the given types (accept header).
    *
    * @param types Accept header.
+   * @param <T> Value type.
    * @return Result content or <code>null</code>.
    */
   @SuppressWarnings("unchecked")

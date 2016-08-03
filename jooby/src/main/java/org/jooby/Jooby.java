@@ -3824,7 +3824,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
   /**
    * Set application locale (first listed are higher priority).
    *
-   * @param Languages list of locale using the language tag format.
+   * @param languages List of locale using the language tag format.
    * @return This instance.
    */
   public Jooby lang(final String... languages) {

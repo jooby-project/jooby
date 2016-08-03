@@ -333,6 +333,7 @@ public interface Route {
      *
      * @param name Mapper's name.
      * @param fn Map function.
+     * @param <T> Value type.
      * @return A new mapper.
      */
     static <T> Mapper<T> create(final String name, final CheckedFunction1<T, Object> fn) {
@@ -1216,6 +1217,7 @@ public interface Route {
      * Get an attribute by name.
      *
      * @param name Attribute's name.
+     * @param <T> Attribute's type.
      * @return Attribute's value or <code>null</code>.
      */
     @SuppressWarnings("unchecked")
@@ -2183,6 +2185,7 @@ public interface Route {
    * Attribute by name.
    *
    * @param name Attribute's name.
+   * @param <T> Attribute's type.
    * @return Attribute value.
    */
   @SuppressWarnings("unchecked")
