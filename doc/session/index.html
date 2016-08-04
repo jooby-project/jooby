@@ -4,8 +4,8 @@
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
   <title>jooby: session module</title> 
-  <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, session"> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, session"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -110,6 +110,16 @@
         <li> <a href="#hazelcast-session-store-usage">usage</a></li> 
         <li> <a href="#hazelcast-session-store-options">options</a></li>
        </ul></li> 
+      <li class=""> <a href="#cassandra-session-store">cassandra session store</a>
+       <ul> 
+        <li> <a href="#cassandra-session-store-usage">usage</a></li> 
+        <li> <a href="#cassandra-session-store-options">options</a></li>
+       </ul></li> 
+      <li class=""> <a href="#couchbase-session-store">couchbase session store</a>
+       <ul> 
+        <li> <a href="#couchbase-session-store-usage">usage</a></li> 
+        <li> <a href="#couchbase-session-store-options">options</a></li>
+       </ul></li> 
       <li class=""> <a href="#redis-session-store">redis session store</a>
        <ul> 
         <li> <a href="#redis-session-store-usage">usage</a></li> 
@@ -148,7 +158,8 @@
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="err">ehcache.cache.session</span> <span class="err">{</span>
-  <span class="c"># cache will expire after 30 minutes of inactivity </span>  <span class="py">timeToIdle</span> <span class="p">=</span> <span class="s">30m</span>
+  <span class="c"># cache will expire after 30 minutes of inactivity </span>
+  <span class="py">timeToIdle</span> <span class="p">=</span> <span class="s">30m</span>
 <span class="err">}</span>
 </code></pre> 
        </div> 
@@ -235,17 +246,133 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
+        <pre class="highlight"><code><span class="c"># 8 hours </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
 
-<span class="c"># 15 seconds </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
+<span class="c"># 15 seconds </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
 
-<span class="c"># 120 minutes </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
+<span class="c"># 120 minutes </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
 
-<span class="c"># no timeout </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
+<span class="c"># no timeout </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
 </code></pre> 
        </div> 
        <h4 id="hazelcast-session-store-name">name</h4> 
        <p>Default session’s name is <code class="highlighter-rouge codehilite">sessions</code>. It’s possible to change the default name by setting the property: <code class="highlighter-rouge codehilite">hazelcast.sesssion.name</code>.</p> 
+      </div> 
+     </div> 
+     <div class="datalist" id="cassandra-session-store"> 
+      <div class="datalist-title "> 
+       <h2>cassandra session store</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>A <a href="/apidocs/org/jooby/cassandra/CassandraSessionStore.html" target="_blank">Session.Store</a> powered by <a href="http://cassandra.apache.org" target="_blank">Cassandra</a>.</p> 
+       <h3 id="cassandra-session-store-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Cassandra</span><span class="o">(</span><span class="s">"cassandra://localhost/db"</span><span class="o">));</span>
+
+  <span class="n">session</span><span class="o">(</span><span class="n">CassandraSessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">session</span><span class="o">();</span>
+    <span class="n">session</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"foo"</span><span class="o">,</span> <span class="s">"bar"</span><span class="o">);</span>
+    <span class="o">..</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Session data is persisted in Cassandra using a <code class="highlighter-rouge codehilite">session</code> table.</p> 
+       <h3 id="cassandra-session-store-options">options</h3> 
+       <h4 id="cassandra-session-store-timeout">timeout</h4> 
+       <p>By default, a session will expire after <code class="highlighter-rouge codehilite">30 minutes</code>. Changing the default timeout is as simple as:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code># 8 hours
+session.timeout = 8h
+# 15 seconds
+session.timeout = 15
+# 120 minutes
+session.timeout = 120m
+</code></pre> 
+       </div> 
+       <p>Expiration is done via Cassandra ttl option.</p> 
+       <p>If no timeout is required, use <code class="highlighter-rouge codehilite">-1</code>.</p> 
+      </div> 
+     </div> 
+     <div class="datalist" id="couchbase-session-store"> 
+      <div class="datalist-title "> 
+       <h2>couchbase session store</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>A <a href="/apidocs/org/jooby/couchbase/CouchbaseSessionStore" target="_blank">Session.Store</a> powered by <a href="http://www.couchbase.com" target="_blank">Couchbase</a>.</p> 
+       <h3 id="couchbase-session-store-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Couchbase</span><span class="o">(</span><span class="s">"couchbase://localhost/bucket"</span><span class="o">));</span>
+
+  <span class="n">session</span><span class="o">(</span><span class="n">CouchbaseSessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">session</span><span class="o">();</span>
+    <span class="n">session</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"foo"</span><span class="o">,</span> <span class="s">"bar"</span><span class="o">);</span>
+    <span class="o">..</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Session data is persisted in Couchbase and document looks like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nt">"session::{SESSION_ID}"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"foo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bar"</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w"> </span></code></pre> 
+       </div> 
+       <h3 id="couchbase-session-store-options">options</h3> 
+       <h4 id="couchbase-session-store-timeout">timeout</h4> 
+       <p>By default, a session will expire after <code class="highlighter-rouge codehilite">30 minutes</code>. Changing the default timeout is as simple as:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="c"># 8 hours </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
+
+<span class="c"># 15 seconds </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
+
+<span class="c"># 120 minutes </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
+</code></pre> 
+       </div> 
+       <p>Expiration is done via Couchbase expiry/ttl option.</p> 
+       <p>If no timeout is required, use <code class="highlighter-rouge codehilite">-1</code>.</p> 
+       <h4 id="couchbase-session-store-custom-bucket">custom bucket</h4> 
+       <p>The session document are persisted in the application/default bucket, if you need/want a different bucket then use {@link Couchbase#sessionBucket(String)}, like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span>
+      <span class="k">new</span> <span class="n">Couchbase</span><span class="o">(</span><span class="s">"couchbase://localhost/myapp"</span><span class="o">)</span>
+          <span class="o">.</span><span class="na">sessionBucket</span><span class="o">(</span><span class="s">"session"</span><span class="o">)</span>
+  <span class="o">);</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
       </div> 
      </div> 
      <div class="datalist" id="redis-session-store"> 
@@ -277,13 +404,17 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
+        <pre class="highlight"><code>
+<span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
 
-<span class="c"># 15 seconds </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
+<span class="c"># 15 seconds </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
 
-<span class="c"># 120 minutes </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
+<span class="c"># 120 minutes </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
 
-<span class="c"># no timeout </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
+<span class="c"># no timeout </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
 </code></pre> 
        </div> 
        <h4 id="redis-session-store-key-prefix">key prefix</h4> 
@@ -320,13 +451,18 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
+        <pre class="highlight"><code>
+<span class="c"># 8 hours </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
 
-<span class="c"># 15 seconds </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
+<span class="c"># 15 seconds </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
 
-<span class="c"># 120 minutes </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
+<span class="c"># 120 minutes </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
 
-<span class="c"># no timeout </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
+<span class="c"># no timeout </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
 </code></pre> 
        </div> 
        <p>It uses <a href="docs.mongodb.org/manual/core/index-ttl">MongoDB’s TTL</a> collection feature (2.2+) to have <code class="highlighter-rouge codehilite">mongod</code> automatically remove expired sessions.</p> 
@@ -365,13 +501,18 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
+        <pre class="highlight"><code>
+<span class="c"># 8 hours </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
 
-<span class="c"># 15 seconds </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
+<span class="c"># 15 seconds </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
 
-<span class="c"># 120 minutes </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
+<span class="c"># 120 minutes </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
 
-<span class="c"># no timeout </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
+<span class="c"># no timeout </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
 </code></pre> 
        </div> 
        <h4 id="spymemcached-session-store-key-prefix">key prefix</h4> 

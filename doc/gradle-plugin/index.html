@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: gradle plugin module</title> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, gradle plugin"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby: gradle-plugin module"> 
+  <meta name="og:description" content="Collection of Gradle plugins for Jooby applications"> 
+  <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    --> 
+  <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby: gradle-plugin module"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:title" content="jooby: gradle-plugin module"> 
+  <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    --> 
+  <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg"> 
+  <meta name="twitter:site" content="@joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="Collection of Gradle plugins for Jooby applications"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <link rel="stylesheet" href="/resources/styles/github.css"> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
+      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
+   </div> 
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>gradle plugin</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open">
+      gradle plugin
+     </div> 
+     <ul> 
+      <li class="active"> <a href="#gradle-plugin">gradle plugin</a>
+       <ul> 
+        <li> <a href="#gradle-plugin-joobyRun">joobyRun</a></li> 
+        <li> <a href="#gradle-plugin-hot-reload">hot reload</a></li> 
+        <li> <a href="#gradle-plugin-joobyAssets">joobyAssets</a></li> 
+        <li> <a href="#gradle-plugin-joobySpec">joobySpec</a></li>
+       </ul></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+     <div class="datalist" id="gradle-plugin"> 
+      <div class="datalist-title active"> 
+       <h2>gradle plugin</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Collection of <a href="http://gradle.org" target="_blank">Gradle</a> plugins for <a href="http://jooby.org">Jooby</a> applications.</p> 
+       <h3 id="gradle-plugin-joobyRun">joobyRun</h3> 
+       <p>Run, debug and reload applications.</p> 
+       <h4 id="gradle-plugin-usage">usage</h4> 
+       <pre><code class="language-gradle">buildscript {
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    /** jooby:run */
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0.CR7'
+  }
+}
+
+apply plugin: 'jooby'
+
+}
+</code></pre> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>gradle joobyRun
+</code></pre> 
+       </div> 
+       <p>Prints something similar to:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="gp">&gt;&gt;&gt; </span>jooby:run[info|main]: Hotswap available on: /my-app
+<span class="gp">&gt;&gt;&gt; </span>jooby:run[info|main]:   includes: <span class="o">[</span><span class="k">**</span>/<span class="k">*</span>.class,<span class="k">**</span>/<span class="k">*</span>.conf,<span class="k">**</span>/<span class="k">*</span>.properties,<span class="k">*</span>.js, src/<span class="k">*</span>.js]
+<span class="gp">&gt;&gt;&gt; </span>jooby:run[info|main]:   excludes: <span class="o">[]</span>
+INFO  <span class="o">[</span>2015-03-31 17:47:33,000] <span class="o">[</span>dev@netty]: App server started <span class="k">in </span>401ms
+
+  GET /assets/<span class="k">**</span>           <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>     <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>    <span class="o">(</span>anonymous<span class="o">)</span>
+  GET /                    <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>     <span class="o">[</span><span class="k">*</span>/<span class="k">*</span><span class="o">]</span>    <span class="o">(</span>anonymous<span class="o">)</span>
+
+listening on:
+  http://localhost:8080/
+</code></pre> 
+       </div> 
+       <h3 id="gradle-plugin-hot-reload">hot reload</h3> 
+       <p>The <code class="highlighter-rouge codehilite">jooby:run</code> tool restart the application every time a change is detected on:</p> 
+       <ul> 
+        <li>classes (*.class)</li> 
+        <li>config files (*.conf and *.properties)</li> 
+       </ul> 
+       <p>Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled or cached while running on <code class="highlighter-rouge codehilite">application.env = dev</code>.</p> 
+       <p>It’s worth to mention that dynamic reload of classes is done via <a href="https://github.com/jboss-modules/jboss-modules" target="_blank">JBoss Modules</a>.</p> 
+       <h4 id="gradle-plugin-options">options</h4> 
+       <pre><code class="language-gradle">joobyRun {
+  mainClassName = 'com.mycompany.App'
+  compiler = 'on'
+  includes = ['**/*.class', '**/*.conf', '**/*.properties']
+  excludes = []
+  logLevel = 'info'
+}
+
+</code></pre> 
+       <h5>mainClassName</h5> 
+       <p>A <a href="http://gradle.org" target="_blank">Gradle</a> property that contains the fully qualified name of the <code class="highlighter-rouge codehilite">main class</code>. <strong>Required</strong>.</p> 
+       <h5>compiler</h5> 
+       <p>The compiler is <code class="highlighter-rouge codehilite">on</code> by default, unless:</p> 
+       <ul> 
+        <li> <p>A <code class="highlighter-rouge codehilite">.classpath</code> file is present in the project directory. If present, means you’re a Eclipse user and we turn off the compiler and let Eclipse recompiles the code on save.</p> </li> 
+        <li> <p>The compiler is set to <code class="highlighter-rouge codehilite">off</code>.</p> </li> 
+       </ul> 
+       <p>On compilation success, the application is effectively reloaded.</p> 
+       <p>On compilation error, the application won’t reload.</p> 
+       <p>Compilation success or error messages are displayed in the console (not at the browser).</p> 
+       <h5>includes / excludes</h5> 
+       <p>List of file patterns to listen for file changes.</p> 
+       <h3 id="gradle-plugin-joobyAssets">joobyAssets</h3> 
+       <p>This is a <a href="http://gradle.org" target="_blank">Gradle</a> task for the <a href="[assets module](/doc/assets)">asset module</a>. The <a href="[assets module](/doc/assets)">asset module</a> validate, concatenate, minify or compress JavaScript and CSS assets.</p> 
+       <h4 id="gradle-plugin-usage">usage</h4> 
+       <pre><code class="language-gradle">buildscript {
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    /** jooby:run */
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0.CR7'
+  }
+}
+
+apply plugin: 'jooby'
+
+}
+</code></pre> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>gradle joobyAssets
+</code></pre> 
+       </div> 
+       <h4 id="gradle-plugin-options">options</h4> 
+       <pre><code class="language-gradle">joobyAssets {
+  maxAge = '365d'
+}
+
+</code></pre> 
+       <h5>maxAge</h5> 
+       <p>Specify the max age cache header, default is: <code class="highlighter-rouge codehilite">365d</code>``</p> 
+       <h3 id="gradle-plugin-joobySpec">joobySpec</h3> 
+       <p>This is a <a href="http://gradle.org" target="_blank">Gradle</a> task for the <a href="/doc/spec">route spec</a> module. The <a href="/doc/spec">route spec</a> module allows you to export your API/microservices outside a <a href="http://jooby.org">Jooby</a> application.</p> 
+       <h4 id="gradle-plugin-usage">usage</h4> 
+       <pre><code class="language-gradle">buildscript {
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    /** jooby:run */
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0.CR7'
+  }
+}
+
+apply plugin: 'jooby'
+
+</code></pre> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>gradle joobySpec
+</code></pre> 
+       </div> 
+       <p>This task has no options, the <code class="highlighter-rouge codehilite">.spec</code> file can found at the <code class="highlighter-rouge codehilite">build/classes/main</code></p> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+   <!-- AddToAny BEGIN --> 
+   <div class="row share-network"> 
+    <div class="section-content"> 
+     <h3>Share</h3> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/gradle-plugin" data-a2a-title="Collection of Gradle plugins for Jooby applications"> 
+      <a class="a2a_button_twitter" data-text="Collection of Gradle plugins for Jooby applications"></a> 
+      <a class="a2a_button_reddit a2a_counter"></a> 
+      <a class="a2a_button_linkedin a2a_counter"></a> 
+      <a class="a2a_button_facebook a2a_counter"></a> 
+      <a class="a2a_button_google_plus a2a_counter"></a> 
+     </div> 
+    </div> 
+   </div> 
+   <script async src="https://static.addtoany.com/menu/page.js"></script> 
+   <!-- AddToAny END --> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left">©2014-2016 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <div class="altquimia">
+     DG 
+     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
+    </div> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>  
+ </body>
+</html>

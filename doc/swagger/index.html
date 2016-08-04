@@ -3,15 +3,15 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: swagger module</title> 
-  <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, swagger"> 
+  <title>jooby:  module</title> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, "> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: swagger module"> 
-  <meta name="og:description" content="Swagger is a simple yet powerful representation of your RESTful API"> 
+  <meta name="og:description" content="Scalable, fast and modular micro web framework for Java"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Swagger is a simple yet powerful representation of your RESTful API"> 
+  <meta name="twitter:description" content="Scalable, fast and modular micro web framework for Java"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -87,60 +87,40 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>swagger</h1> 
+     <h1></h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
-     <div class="show-mobile menu-open">
-      swagger
-     </div> 
+     <div class="show-mobile menu-open"></div> 
      <ul> 
-      <li class="active"> <a href="#swagger">swagger</a>
-       <ul> 
-        <li> <a href="#swagger-exports">exports</a></li> 
-        <li> <a href="#swagger-dependency">dependency</a></li> 
-        <li> <a href="#swagger-usage">usage</a></li> 
-        <li> <a href="#swagger-options">options</a></li> 
-        <li> <a href="#swagger-live-demo">live demo</a></li> 
-        <li> <a href="#swagger-swagger-conf">swagger.conf</a></li>
-       </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
-     <div class="datalist" id="swagger"> 
-      <div class="datalist-title active"> 
-       <h2>swagger</h2> 
+     <h3>exports</h3> 
+     <ul> 
+      <li><code class="highlighter-rouge codehilite">/swagger</code> rout with SwaggerUI</li> 
+      <li><code class="highlighter-rouge codehilite">/swagger/swagger.json</code> route</li> 
+      <li><code class="highlighter-rouge codehilite">/swagger/swagger.yml</code> route</li> 
+     </ul> 
+     <h3>dependency</h3> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
       </div> 
-      <div class="datalist-content"> 
-       <p><a href="http://swagger.io" target="_blank">Swagger</a> is a simple yet powerful representation of your RESTful API. With the largest ecosystem of API tooling on the planet, thousands of developers are supporting Swagger in almost every modern programming language and deployment environment. With a Swagger-enabled API, you get interactive documentation, client SDK generation and discoverability. More at <a href="http://swagger.io" target="_blank">http://swagger.io</a></p> 
-       <blockquote> 
-        <p>NOTE: This module depends on <a href="/doc/spec/spec.html">route spec</a>, please read the <a href="/doc/spec/spec.html">route spec</a> documentation to learn how to write powerful APIs.</p> 
-       </blockquote> 
-       <h3 id="swagger-exports">exports</h3> 
-       <ul> 
-        <li><code class="highlighter-rouge codehilite">/swagger</code> rout with SwaggerUI</li> 
-        <li><code class="highlighter-rouge codehilite">/swagger/swagger.json</code> route</li> 
-        <li><code class="highlighter-rouge codehilite">/swagger/swagger.yml</code> route</li> 
-       </ul> 
-       <h3 id="swagger-dependency">dependency</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+      <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-swagger<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR6<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR7<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
-       </div> 
-       <h3 id="swagger-usage">usage</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
+     </div> 
+     <h3>usage</h3> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="o">{</span>
   <span class="c1">// define your API... via script or MVC:</span>
   <span class="cm">/**</span>
    <span class="cm">* </span>
@@ -164,13 +144,13 @@
 
 <span class="o">}</span>
 </code></pre> 
-       </div> 
-       <p>Now the <code class="highlighter-rouge codehilite">jooby:spec</code> maven plugin:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
+     </div> 
+     <p>Now the <code class="highlighter-rouge codehilite">jooby:spec</code> maven plugin:</p> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;executions&gt;</span>
@@ -182,37 +162,37 @@
   <span class="nt">&lt;/executions&gt;</span>
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre> 
-       </div> 
-       <p>Start your app and try:</p> 
-       <ul> 
-        <li>The Swagger-UI at <code class="highlighter-rouge codehilite">/swagger</code></li> 
-        <li>The <code class="highlighter-rouge codehilite">swagger.json</code> at <code class="highlighter-rouge codehilite">/swagger/swagger.json</code></li> 
-        <li>The <code class="highlighter-rouge codehilite">swagger.yml</code> at <code class="highlighter-rouge codehilite">/swagger/swagger.yml</code></li> 
-       </ul> 
-       <h3 id="swagger-options">options</h3> 
-       <p>There are a few options available, let’s see what they are:</p> 
-       <h4 id="swagger-path">path</h4> 
-       <p>The <code class="highlighter-rouge codehilite">path</code> option controls where to mount the <a href="http://swagger.io" target="_blank">Swagger</a> routes:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
+     </div> 
+     <p>Start your app and try:</p> 
+     <ul> 
+      <li>The Swagger-UI at <code class="highlighter-rouge codehilite">/swagger</code></li> 
+      <li>The <code class="highlighter-rouge codehilite">swagger.json</code> at <code class="highlighter-rouge codehilite">/swagger/swagger.json</code></li> 
+      <li>The <code class="highlighter-rouge codehilite">swagger.yml</code> at <code class="highlighter-rouge codehilite">/swagger/swagger.yml</code></li> 
+     </ul> 
+     <h3>options</h3> 
+     <p>There are a few options available, let’s see what they are:</p> 
+     <h4>path</h4> 
+     <p>The <code class="highlighter-rouge codehilite">path</code> option controls where to mount the <a href="http://swagger.io" target="_blank">Swagger</a> routes:</p> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
   <span class="k">new</span> <span class="n">Swagger</span><span class="o">(</span><span class="s">"docs"</span><span class="o">).</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 
 <span class="o">}</span>
 </code></pre> 
-       </div> 
-       <p>Produces: <code class="highlighter-rouge codehilite">/docs</code> for swagger-ui, <code class="highlighter-rouge codehilite">/docs/swagger.json</code> and <code class="highlighter-rouge codehilite">/docs/swagger.yml</code>. Default path is: <code class="highlighter-rouge codehilite">/swagger</code>.</p> 
-       <h4 id="swagger-filter">filter</h4> 
-       <p>The <code class="highlighter-rouge codehilite">filter</code> option controls what is exported to <a href="http://swagger.io" target="_blank">Swagger</a>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
+     </div> 
+     <p>Produces: <code class="highlighter-rouge codehilite">/docs</code> for swagger-ui, <code class="highlighter-rouge codehilite">/docs/swagger.json</code> and <code class="highlighter-rouge codehilite">/docs/swagger.yml</code>. Default path is: <code class="highlighter-rouge codehilite">/swagger</code>.</p> 
+     <h4>filter</h4> 
+     <p>The <code class="highlighter-rouge codehilite">filter</code> option controls what is exported to <a href="http://swagger.io" target="_blank">Swagger</a>:</p> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
   <span class="k">new</span> <span class="n">Swagger</span><span class="o">()</span>
@@ -222,28 +202,28 @@
     <span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 <span class="o">}</span>
 </code></pre> 
-       </div> 
-       <p>Default filter keeps <code class="highlighter-rouge codehilite">/api/*</code> routes.</p> 
-       <h4 id="swagger-tags">tags</h4> 
-       <p>One ore more routes are grouped by a tag. The default tag provider produces <code class="highlighter-rouge codehilite">pets</code> for a route at <code class="highlighter-rouge codehilite">/api/pets</code> or <code class="highlighter-rouge codehilite">/pets</code>. You can specify your own tag provider via:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
+     </div> 
+     <p>Default filter keeps <code class="highlighter-rouge codehilite">/api/*</code> routes.</p> 
+     <h4>tags</h4> 
+     <p>One ore more routes are grouped by a tag. The default tag provider produces <code class="highlighter-rouge codehilite">pets</code> for a route at <code class="highlighter-rouge codehilite">/api/pets</code> or <code class="highlighter-rouge codehilite">/pets</code>. You can specify your own tag provider via:</p> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="o">{</span>
   <span class="k">new</span> <span class="n">Swagger</span><span class="o">()</span>
     <span class="o">.</span><span class="na">tag</span><span class="o">(</span><span class="n">route</span> <span class="o">-&gt;</span> <span class="n">route</span><span class="o">.</span><span class="na">name</span><span class="o">())</span>
     <span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 <span class="o">}</span>
 </code></pre> 
-       </div> 
-       <h4 id="swagger-noUI">noUI</h4> 
-       <p>This option turn off the swagger-ui:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
+     </div> 
+     <h4>noUI</h4> 
+     <p>This option turn off the swagger-ui:</p> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
   <span class="k">new</span> <span class="n">Swagger</span><span class="o">()</span>
@@ -251,16 +231,16 @@
     <span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 <span class="o">}</span>
 </code></pre> 
-       </div> 
-       <h3 id="swagger-live-demo">live demo</h3> 
-       <p>Check out the a live demo for <a href="https://jooby-spec.herokuapp.com/swagger" target="_blank">Swagger</a>.</p> 
-       <p>Source code available at <a href="https://github.com/jooby-guides/route-spec" target="_blank">github</a></p> 
-       <h3 id="swagger-swagger-conf">swagger.conf</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="err">swagger</span> <span class="err">{</span>
+     </div> 
+     <h3>live demo</h3> 
+     <p>Check out the a live demo for <a href="https://jooby-spec.herokuapp.com/swagger" target="_blank">Swagger</a>.</p> 
+     <p>Source code available at <a href="https://github.com/jooby-guides/route-spec" target="_blank">github</a></p> 
+     <h3>swagger.conf</h3> 
+     <div class="highlighter-rouge codehilite">
+      <div class="copy-bar"> 
+       <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+      </div> 
+      <pre class="highlight"><code><span class="err">swagger</span> <span class="err">{</span>
 
   <span class="py">swagger</span><span class="p">:</span> <span class="s">"2.0"</span>
 
@@ -282,8 +262,6 @@
 
 <span class="err">}</span>
 </code></pre> 
-       </div> 
-      </div> 
      </div> 
     </div> 
    </div> 
@@ -291,8 +269,8 @@
    <div class="row share-network"> 
     <div class="section-content"> 
      <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/swagger" data-a2a-title="Swagger is a simple yet powerful representation of your RESTful API"> 
-      <a class="a2a_button_twitter" data-text="Swagger is a simple yet powerful representation of your RESTful API"></a> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/swagger" data-a2a-title=""> 
+      <a class="a2a_button_twitter" data-text=""></a> 
       <a class="a2a_button_reddit a2a_counter"></a> 
       <a class="a2a_button_linkedin a2a_counter"></a> 
       <a class="a2a_button_facebook a2a_counter"></a> 

@@ -4,8 +4,8 @@
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
   <title>jooby: documentation</title> 
-  <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, do more, more easily"> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, do more, more easily"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -30,7 +30,7 @@
   <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
   <meta name="og:site_name" content="jooby"> 
   <meta name="twitter:card" content="summary"> 
-  <meta name="twitter:title" content="jooby"> 
+  <meta name="twitter:title" content="jooby - do more! more easily!!"> 
   <!--
     twitter:image
     SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
@@ -149,8 +149,8 @@
        </ul></li> 
       <li class=""> <a href="#session">session</a>
        <ul> 
+        <li> <a href="#session-usage">usage</a></li> 
         <li> <a href="#session-no-timeout">no timeout</a></li> 
-        <li> <a href="#session-session-store">session store</a></li> 
         <li> <a href="#session-cookie">cookie</a></li>
        </ul></li> 
       <li class=""> <a href="#error-handling">error handling</a>
@@ -2358,16 +2358,68 @@ GET /assets/css/style.css
        <p>Sessions are created on demand via: <a href="/apidocs/org/jooby/Request.html#ifSession--" target="_blank">req.ifSession()</a> or <a href="/apidocs/org/jooby/Request.html#session--" target="_blank">req.session()</a>.</p> 
        <p>Sessions have a lot of uses cases but most commons are: auth, store information about current user, etc.</p> 
        <p>A session attribute must be <code class="highlighter-rouge codehilite">String</code> or a primitive. Session doesn’t allow to store arbitrary objects. It is a simple mechanism to store basic data.</p> 
+       <h3 id="session-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">session</span><span class="o">();</span>
+
+    <span class="c1">// set attribute</span>
+    <span class="n">session</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"foo"</span><span class="o">,</span> <span class="s">"bar"</span><span class="o">);</span>
+
+    <span class="c1">// get attribute</span>
+    <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"foo"</span><span class="o">).</span><span class="na">value</span><span class="o">();</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Previous example will use an <code class="highlighter-rouge codehilite">in-memory</code> session. The next example uses a cookie:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">cookieSession</span><span class="o">();</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">session</span><span class="o">();</span>
+
+    <span class="c1">// set attribute</span>
+    <span class="n">session</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"foo"</span><span class="o">,</span> <span class="s">"bar"</span><span class="o">);</span>
+
+    <span class="c1">// get attribute</span>
+    <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"foo"</span><span class="o">).</span><span class="na">value</span><span class="o">();</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>The cookie session store depends on the <code class="highlighter-rouge codehilite">application.secret</code> property. We sign the cookie with the <code class="highlighter-rouge codehilite">application.secret</code> property.</p> 
+       <p>If <code class="highlighter-rouge codehilite">memory</code> or <code class="highlighter-rouge codehilite">cookie</code> store are not an option, then you can choose one of the <a href="/doc/session">high performance session store</a> provided by <a href="http://jooby.org">Jooby</a>. We provide session stores for <code class="highlighter-rouge codehilite">redis</code>, <code class="highlighter-rouge codehilite">memcached</code>, <code class="highlighter-rouge codehilite">mongodb</code>, <code class="highlighter-rouge codehilite">cassandra</code>, <code class="highlighter-rouge codehilite">couchbase</code>, <code class="highlighter-rouge codehilite">hazelcast</code> and <a href="/doc/session">lot more</a>.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">cookieSession</span><span class="o">();</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">session</span><span class="o">();</span>
+
+    <span class="c1">// set attribute</span>
+    <span class="n">session</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"foo"</span><span class="o">,</span> <span class="s">"bar"</span><span class="o">);</span>
+
+    <span class="c1">// get attribute</span>
+    <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"foo"</span><span class="o">).</span><span class="na">value</span><span class="o">();</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
        <h3 id="session-no-timeout">no timeout</h3> 
-       <p>There is no timeout for sessions from server perspective. By default, a session will expire when the user close the browser (a.k.a session cookie).</p> 
-       <h3 id="session-session-store">session store</h3> 
-       <p>A <a href="/apidocs/org/jooby/Session.Store.html" target="_blank">Session.Store</a> is responsible for saving session data. Sessions are kept in memory, by default using the <a href="/apidocs/org/jooby/Session.Mem.html" target="_blank">Session.Mem</a> store, which is useful for development, but wont scale well on production environments. A <a href="/doc/session/#redis-session-store">redis</a>, <a href="/doc/session/#spymemcached-session-store">memcached</a>, <a href="/doc/session/#ehcache-session-store">ehcache</a> store will be a better option. Checkout the available <a href="/doc/session">session storage</a>.</p> 
-       <h4 id="session-store-life-cycle">store life-cycle</h4> 
-       <p>Sessions are persisted every time a request exit, if they are dirty. A session get dirty if an attribute is added or removed from it.</p> 
-       <p>The <code>session.saveInterval</code> property indicates how frequently a session will be persisted (in millis).</p> 
-       <p>In short, a session is persisted when:</p> 
-       <p>1) it is dirty; or</p> 
-       <p>2) save interval has expired it.</p> 
+       <p>There is no timeout for sessions from server perspective. By default, a session will expire when the user close the browser (a.k.a session cookie) or the cookie session has expired via <code class="highlighter-rouge codehilite">maxAge</code> attribute.</p> 
+       <p>Session store implementation might or might not implemented a server <code class="highlighter-rouge codehilite">timeout</code>.</p> 
        <h3 id="session-cookie">cookie</h3> 
        <h4 id="session-max-age">max-age</h4> 
        <p>The <code>session.cookie.maxAge</code> sets the maximum age in seconds. A positive value indicates that the cookie will expire after that many seconds have passed. Note that the value is the <i>maximum</i> age when the cookie will expire, not the cookie’s current age.</p> 
@@ -3335,7 +3387,7 @@ GET /assets/css/style.css
   <span class="py">charset</span> <span class="p">=</span> <span class="s">UTF-8</span>
 
   <span class="c"># date format </span>
-  <span class="py">dateFormat</span> <span class="p">=</span> <span class="s">dd-MM-yy</span>
+  <span class="py">dateFormat</span> <span class="p">=</span> <span class="s">dd-MMM-yyyy</span>
 
   <span class="c"># number format, system default. set it at runtime </span>
   <span class="c"># numberFormat = DecimalFormat.getInstance(${application.lang})).toPattern() </span>

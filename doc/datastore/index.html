@@ -4,8 +4,8 @@
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
   <title>jooby: data store module</title> 
-  <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, data store"> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, data store"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -99,13 +99,23 @@
       <li class="active"> <a href="#data-store">data store</a></li> 
       <li class=""> <a href="#jdbc">jdbc</a>
        <ul> 
-        <li> <a href="#jdbc-mapping-tools">mapping tools</a></li> 
-        <li> <a href="#jdbc-migrations">migrations</a></li>
+        <li> <a href="#jdbc-hikari-connection-pool">hikari connection pool</a></li> 
+        <li> <a href="#jdbc-Ebean">Ebean</a></li> 
+        <li> <a href="#jdbc-Hibernate">Hibernate</a></li> 
+        <li> <a href="#jdbc-jdbi">jdbi</a></li> 
+        <li> <a href="#jdbc-jooq">jooq</a></li> 
+        <li> <a href="#jdbc-querydsl">querydsl</a></li> 
+        <li> <a href="#jdbc-rxjdbc">rxjdbc</a></li> 
+        <li> <a href="#jdbc-flyway-database-migration-">flyway (database migration)</a></li>
        </ul></li> 
-      <li class=""> <a href="#mongodb">mongodb</a>
+      <li class=""> <a href="#NoSQL">NoSQL</a>
        <ul> 
-        <li> <a href="#mongodb-mapping-tools">mapping tools</a></li> 
-        <li> <a href="#mongodb-async-reactive">async / reactive</a></li>
+        <li> <a href="#NoSQL-cassandra">cassandra</a></li> 
+        <li> <a href="#NoSQL-couchbase">couchbase</a></li> 
+        <li> <a href="#NoSQL-mongodb">mongodb</a></li> 
+        <li> <a href="#NoSQL-jongo">jongo</a></li> 
+        <li> <a href="#NoSQL-morphia">morphia</a></li> 
+        <li> <a href="#NoSQL-mongodb-rx">mongodb-rx</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -125,39 +135,42 @@
        <h2>jdbc</h2> 
       </div> 
       <div class="datalist-content"> 
+       <h3 id="jdbc-hikari-connection-pool">hikari connection pool</h3> 
        <p>The <a href="/doc/jdbc">jdbc</a> module provides a high performance connection pool for jdbc via <a href="https://github.com/brettwooldridge/HikariCP" target="_blank">Hikari</a>.</p> 
-       <h3 id="jdbc-mapping-tools">mapping tools</h3> 
-       <ul> 
-        <li> <p><a href="/doc/ebean">ebean</a>: object relational mapping via <a href="http://ebean-orm.github.io" target="_blank">Ebean ORM</a>.</p> </li> 
-        <li> <p><a href="/doc/hbm">hibernate</a>: object relational mapping via <a href="http://hibernate.org" target="_blank">Hibernate</a>.</p> </li> 
-        <li> <p><a href="/doc/hbv">hibernate validator</a>: bean validation.</p> </li> 
-        <li> <p><a href="/doc/jdbi">jdbi</a>: is fluent and lightweight SQL library for <em>jdbc</em>.</p> </li> 
-        <li> <p><a href="/doc/jooq">jOOQ</a>: lets you build type safe SQL queries through its fluent API.</p> </li> 
-        <li> <p><a href="/doc/querydsl">querydsl</a>: unified Queries for SQL. <a href="http://www.querydsl.com/" target="_blank">Querydsl</a> is compact, safe and easy to learn.</p> </li> 
-        <li> <p><a href="/doc/querydsl-jpa">querydsl-jpa</a>: unified Queries for JPA. <a href="http://www.querydsl.com/" target="_blank">Querydsl</a> is compact, safe and easy to learn.</p> </li> 
-        <li> <p><a href="/doc/rxjava-jdbc">rxjdbc</a>: efficient execution, concise code, and functional composition of database calls using JDBC and RxJava Observable</p> </li> 
-       </ul> 
-       <h3 id="jdbc-migrations">migrations</h3> 
-       <ul> 
-        <li><a href="/doc/flyway">flyway</a>: provides database migrations via <a href="http://flywaydb.org" target="_blank">Flyway</a>.</li> 
-       </ul> 
+       <h3 id="jdbc-Ebean">Ebean</h3> 
+       <p>The <a href="/doc/ebean">ebean</a> module provides object relational mapping via <a href="http://ebean-orm.github.io" target="_blank">Ebean ORM</a>.</p> 
+       <h3 id="jdbc-Hibernate">Hibernate</h3> 
+       <p>The <a href="/doc/hbm">hibernate</a> module provides object relational mapping via <a href="http://hibernate.org" target="_blank">Hibernate</a>.</p> 
+       <h3 id="jdbc-jdbi">jdbi</h3> 
+       <p>The <a href="/doc/jdbi">jdbi</a> module provides a fluent and lightweight SQL library for <em>jdbc</em>.</p> 
+       <h3 id="jdbc-jooq">jooq</h3> 
+       <p>The <a href="/doc/jooq">jOOQ</a> module lets you build type safe SQL queries through its fluent API.</p> 
+       <h3 id="jdbc-querydsl">querydsl</h3> 
+       <p>The <a href="/doc/querydsl">querydsl</a> module provides unified Queries for SQL. <a href="http://www.querydsl.com/" target="_blank">Querydsl</a> is compact, safe and easy to learn.</p> 
+       <p>The <a href="/doc/querydsl-jpa">querydsl-jpa</a> provides unified Queries for JPA. <a href="http://www.querydsl.com/" target="_blank">Querydsl</a> is compact, safe and easy to learn.</p> 
+       <h3 id="jdbc-rxjdbc">rxjdbc</h3> 
+       <p>The <a href="/doc/rxjava-jdbc">rxjdbc</a> provides efficient execution, concise code, and functional composition of database calls using JDBC and RxJava Observable</p> 
+       <h3 id="jdbc-flyway-database-migration-">flyway (database migration)</h3> 
+       <p>The <a href="/doc/flyway">flyway</a> module provides database migrations via <a href="http://flywaydb.org" target="_blank">Flyway</a>.</p> 
       </div> 
      </div> 
-     <div class="datalist" id="mongodb"> 
+     <div class="datalist" id="NoSQL"> 
       <div class="datalist-title "> 
-       <h2>mongodb</h2> 
+       <h2>NoSQL</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>The <a href="/doc/mongodb">mongodb</a> provides access to <a href="http://mongodb.github.io/mongo-java-driver/" target="_blank">MongoDB</a> instances.</p> 
-       <h3 id="mongodb-mapping-tools">mapping tools</h3> 
-       <ul> 
-        <li> <p><a href="/doc/jongo">jongo</a>: Query in Java as in Mongo Shell.</p> </li> 
-        <li> <p><a href="/doc/morphia">morphia</a>: object to document mapper via <a href="https://github.com/mongodb/morphia" target="_blank">Morphia</a>.</p> </li> 
-       </ul> 
-       <h3 id="mongodb-async-reactive">async / reactive</h3> 
-       <ul> 
-        <li><a href="/doc/mongodb-rx">mongodb-rx</a>: provides composable asynchronous and event-based observable sequences for <a href="http://mongodb.github.io/mongo-java-driver/" target="_blank">MongoDB</a>.</li> 
-       </ul> 
+       <h3 id="NoSQL-cassandra">cassandra</h3> 
+       <p>The <a href="/doc/cassandra">cassandra</a> module provides access to <a href="http://cassandra.apache.org" target="_blank">Cassandra</a> instances.</p> 
+       <h3 id="NoSQL-couchbase">couchbase</h3> 
+       <p>The <a href="/doc/couchbase">couchbase</a> module provides access to <a href="http://www.couchbase.com" target="_blank">Couchbase</a> instances.</p> 
+       <h3 id="NoSQL-mongodb">mongodb</h3> 
+       <p>The <a href="/doc/mongodb">mongodb</a> module provides access to <a href="http://mongodb.github.io/mongo-java-driver/" target="_blank">MongoDB</a> instances.</p> 
+       <h3 id="NoSQL-jongo">jongo</h3> 
+       <p>The <a href="/doc/jongo">jongo</a> module provides query in Java as in Mongo Shell.</p> 
+       <h3 id="NoSQL-morphia">morphia</h3> 
+       <p>The <a href="/doc/morphia">morphia</a> module provides object to document mapper via <a href="https://github.com/mongodb/morphia" target="_blank">Morphia</a>.</p> 
+       <h3 id="NoSQL-mongodb-rx">mongodb-rx</h3> 
+       <p>The <a href="/doc/mongodb-rx">mongodb-rx</a> module provides composable asynchronous and event-based observable sequences for <a href="http://mongodb.github.io/mongo-java-driver/" target="_blank">MongoDB</a>.</p> 
       </div> 
      </div> 
     </div> 

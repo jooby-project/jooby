@@ -4,8 +4,8 @@
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
   <title>jooby: jdbc module</title> 
-  <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, jdbc"> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, jdbc"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -127,24 +127,36 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jdbc<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR6<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR7<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
        <h3 id="jdbc-usage">usage</h3> 
+       <p>Via <code class="highlighter-rouge codehilite">connection string</code> property:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code>
-<span class="kn">import</span> <span class="nn">org.jooby.jdbc.Jdbc</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">javax.sql.DataSource</span><span class="o">;</span>
-
 <span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">());</span>
- 
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">(</span><span class="s">"jdbc:mysql://localhost/db"</span><span class="o">));</span>
+
   <span class="c1">// accessing to the data source</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/my-api"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">DataSource</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="c1">// do something with datasource</span>
+  <span class="o">});</span> 
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Via <code class="highlighter-rouge codehilite">db</code> property:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">(</span><span class="s">"db)); // accessing to the data source get("</span><span class="o">/</span><span class="n">my</span><span class="o">-</span><span class="n">api</span><span class="err">"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="n">DataSource</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="c1">// do something with datasource</span>
   <span class="o">});</span> 
@@ -277,9 +289,9 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># max pool size for main db </span><span class="py">hikari.db.main.maximumPoolSize</span> <span class="p">=</span> <span class="s">100</span>
+        <pre class="highlight"><code><span class="c"># max pool size for main db </span><span class="py">hikari.main.maximumPoolSize</span> <span class="p">=</span> <span class="s">100</span>
 
-<span class="c"># max pool size for audit db </span><span class="py">hikari.db.audit.maximumPoolSize</span> <span class="p">=</span> <span class="s">20</span>
+<span class="c"># max pool size for audit db </span><span class="py">hikari.audit.maximumPoolSize</span> <span class="p">=</span> <span class="s">20</span>
 </code></pre> 
        </div> 
        <p>Finally, if you need to inject the audit data source, all you have to do is to use the <em>Name</em> annotation, like <code class="highlighter-rouge codehilite">@Name("db.audit")</code></p> 

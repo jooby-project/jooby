@@ -4,8 +4,8 @@
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
   <title>jooby: mongodb driver module</title> 
-  <meta name="description" content="Scalable, fast and modular micro web framework for Java"> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, mongodb driver"> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, mongodb driver"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
@@ -133,7 +133,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-mongodb<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR6<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR7<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -225,8 +225,8 @@
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Mongodb</span><span class="o">(</span><span class="s">"db1"</span><span class="o">).</span><span class="na">named</span><span class="o">());</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Mongodb</span><span class="o">(</span><span class="s">"db2"</span><span class="o">).</span><span class="na">named</span><span class="o">());</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Mongodb</span><span class="o">(</span><span class="s">"db1"</span><span class="o">));</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Mongodb</span><span class="o">(</span><span class="s">"db2"</span><span class="o">));</span>
 
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="n">MongoClient</span> <span class="n">client1</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="s">"db1"</span><span class="o">,</span> <span class="n">MongoClient</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
@@ -268,13 +268,18 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># 8 hours </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
+        <pre class="highlight"><code>
+<span class="c"># 8 hours </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">8h</span>
 
-<span class="c"># 15 seconds </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
+<span class="c"># 15 seconds </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">15</span>
 
-<span class="c"># 120 minutes </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
+<span class="c"># 120 minutes </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">120m</span>
 
-<span class="c"># no timeout </span><span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
+<span class="c"># no timeout </span>
+<span class="py">session.timeout</span> <span class="p">=</span> <span class="s">-1</span>
 </code></pre> 
        </div> 
        <p>It uses <a href="docs.mongodb.org/manual/core/index-ttl">MongoDB’s TTL</a> collection feature (2.2+) to have <code class="highlighter-rouge codehilite">mongod</code> automatically remove expired sessions.</p> 

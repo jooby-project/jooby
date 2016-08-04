@@ -4,6 +4,8 @@ org.jooby.assets
 org.jooby.aws
 org.jooby.banner
 org.jooby.camel
+org.jooby.cassandra
+org.jooby.couchbase
 org.jooby.ebean
 org.jooby.ehcache
 org.jooby.elasticsearch
