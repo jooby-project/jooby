@@ -36,6 +36,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
@@ -82,9 +83,10 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
       boolean keepAlive = HttpUtil.isKeepAlive(req);
 
       try {
+        String streamId = req.headers().get(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
         handler.handle(
             new NettyRequest(ctx, req, tmpdir, wsMaxMessageSize),
-            new NettyResponse(ctx, bufferSize, keepAlive));
+            new NettyResponse(ctx, bufferSize, keepAlive, streamId));
       } catch (Throwable ex) {
         exceptionCaught(ctx, ex);
       }
@@ -113,7 +115,8 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
         if (ws != null && ws.get() != null) {
           ws.get().handle(cause);
         } else {
-          log.error("execution of: " + ctx.channel().attr(PATH).get() + " resulted in error", cause);
+          log.debug("execution of: " + ctx.channel().attr(PATH).get() + " resulted in error",
+              cause);
         }
       }
     } finally {

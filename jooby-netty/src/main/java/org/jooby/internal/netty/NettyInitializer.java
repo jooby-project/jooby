@@ -48,14 +48,16 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
 
   private int maxChunkSize;
 
-  private int maxContentLength;
+  int maxContentLength;
 
   private long idleTimeOut;
 
   private SslContext sslCtx;
 
+  private boolean http2;
+
   public NettyInitializer(final EventExecutorGroup executor, final HttpHandler handler,
-      final Config config, final SslContext sslCtx) {
+      final Config config, final SslContext sslCtx, final boolean http2) {
     this.executor = executor;
     this.handler = handler;
     this.config = config;
@@ -66,28 +68,38 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
     maxContentLength = config.getBytes("netty.http.MaxContentLength").intValue();
     idleTimeOut = config.getDuration("netty.http.IdleTimeout", TimeUnit.MILLISECONDS);
     this.sslCtx = sslCtx;
+    this.http2 = http2;
   }
 
   @Override
   protected void initChannel(final SocketChannel ch) throws Exception {
-    ChannelPipeline pipeline = ch.pipeline();
+    if (http2) {
+      ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()), new NettyHttpAPN(this));
+    } else {
+      if (sslCtx != null) {
+        ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()));
+      }
+      pipeline(ch.pipeline(), true);
+    }
+  }
 
-    if (sslCtx != null) {
-      pipeline.addLast(sslCtx.newHandler(ch.alloc()));
+  public void pipeline(final ChannelPipeline pipeline, final boolean http1) {
+
+    if (http1) {
+      pipeline
+          .addLast("decoder",
+              new HttpRequestDecoder(maxInitialLineLength, maxHeaderSize, maxChunkSize, false))
+          .addLast("encoder", new HttpResponseEncoder());
+
+      if (idleTimeOut > 0) {
+        pipeline.addLast("timeout", new IdleStateHandler(0, 0, idleTimeOut, TimeUnit.MILLISECONDS));
+      }
+
+      pipeline
+          .addLast("aggregator", new HttpObjectAggregator(maxContentLength));
     }
 
-    pipeline
-        .addLast("decoder",
-            new HttpRequestDecoder(maxInitialLineLength, maxHeaderSize, maxChunkSize, false))
-        .addLast("encoder", new HttpResponseEncoder());
-
-    if (idleTimeOut > 0) {
-      pipeline.addLast("timeout", new IdleStateHandler(0, 0, idleTimeOut, TimeUnit.MILLISECONDS));
-    }
-
-    pipeline
-        .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
-        .addLast(executor, "handler", new NettyHandler(handler, config));
+    pipeline.addLast(executor, "handler", new NettyHandler(handler, config));
   }
 
 }

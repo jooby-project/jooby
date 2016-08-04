@@ -46,6 +46,24 @@
 
     <dependency>
       <groupId>io.netty</groupId>
+      <artifactId>netty-codec-http2</artifactId>
+      <version>${netty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty.npn</groupId>
+      <artifactId>npn-api</artifactId>
+      <version>8.1.2.v20120308</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mortbay.jetty.alpn</groupId>
+      <artifactId>alpn-boot</artifactId>
+      <version>8.1.9.v20160720</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.netty</groupId>
       <artifactId>netty-handler</artifactId>
     </dependency>
 
@@ -118,7 +136,7 @@
 
   <profiles>
     <profile>
-      <id>linux-epoll</id>
+      <id>linux</id>
       <activation>
         <os>
           <family>linux</family>
@@ -130,6 +148,44 @@
           <artifactId>netty-transport-native-epoll</artifactId>
           <version>${netty.version}</version>
           <classifier>linux-x86_64</classifier>
+        </dependency>
+        <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-tcnative-boringssl-static</artifactId>
+          <version>1.1.33.Fork19</version>
+          <classifier>linux-x86_64</classifier>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>windows_x86</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-tcnative-boringssl-static</artifactId>
+          <version>1.1.33.Fork19</version>
+          <classifier>windows-x86_64</classifier>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>mac_x86_64</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-tcnative-boringssl-static</artifactId>
+          <version>1.1.33.Fork19</version>
+          <classifier>osx-x86_64</classifier>
         </dependency>
       </dependencies>
     </profile>

@@ -47,6 +47,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.stream.ChunkedStream;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.Attribute;
@@ -67,10 +68,18 @@ public class NettyResponse implements NativeResponse {
 
   public NettyResponse(final ChannelHandlerContext ctx, final int bufferSize,
       final boolean keepAlive) {
+    this(ctx, bufferSize, keepAlive, null);
+  }
+
+  public NettyResponse(final ChannelHandlerContext ctx, final int bufferSize,
+      final boolean keepAlive, final String streamId) {
     this.ctx = ctx;
     this.bufferSize = bufferSize;
     this.keepAlive = keepAlive;
     this.headers = new DefaultHttpHeaders();
+    if (streamId != null) {
+      headers.set(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text(), streamId);
+    }
     this.status = HttpResponseStatus.OK;
   }
 

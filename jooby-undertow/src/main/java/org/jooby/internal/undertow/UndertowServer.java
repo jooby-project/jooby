@@ -73,9 +73,6 @@ public class UndertowServer implements org.jooby.spi.Server {
     ubuilder.setServerOption(UndertowOptions.ENABLE_HTTP2, http2);
 
     boolean securePort = conf.hasPath("application.securePort");
-    if (http2 && !securePort) {
-      throw new IllegalStateException("HTTP2 requires 'aplication.securePort'");
-    }
 
     if (securePort) {
       ubuilder.addHttpsListener(conf.getInt("application.securePort"),

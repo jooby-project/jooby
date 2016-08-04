@@ -57,10 +57,19 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.ApplicationProtocolConfig;
+import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
+import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
+import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
+import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -81,56 +90,60 @@ public class NettyServer implements Server {
 
   private Channel ch;
 
-  private Config config;
+  private Config conf;
 
   private HttpHandler dispatcher;
 
   @Inject
   public NettyServer(final HttpHandler dispatcher, final Config config) {
     this.dispatcher = dispatcher;
-    this.config = config;
+    this.conf = config;
   }
 
   @Override
   public void start() throws Exception {
-    int parentThreads = config.getInt("netty.threads.Parent");
+    int parentThreads = conf.getInt("netty.threads.Parent");
     bossLoop = eventLoop(parentThreads, "parent");
-    if (config.hasPath("netty.threads.Child")) {
-      int childThreads = config.getInt("netty.threads.Child");
+    if (conf.hasPath("netty.threads.Child")) {
+      int childThreads = conf.getInt("netty.threads.Child");
       workerLoop = eventLoop(childThreads, "child");
     } else {
       workerLoop = bossLoop;
     }
 
-    ThreadFactory threadFactory = new DefaultThreadFactory(config.getString("netty.threads.Name"));
+    ThreadFactory threadFactory = new DefaultThreadFactory(conf.getString("netty.threads.Name"));
     DefaultEventExecutorGroup executor = new DefaultEventExecutorGroup(
-        config.getInt("netty.threads.Max"), threadFactory);
+        conf.getInt("netty.threads.Max"), threadFactory);
 
-    this.ch = bootstrap(executor, null, config.getInt("application.port"));
+    boolean http2 = conf.getBoolean("server.http2.enabled");
 
-    if (config.hasPath("application.securePort")) {
-      bootstrap(executor, sslCtx(config), config.getInt("application.securePort"));
+    this.ch = bootstrap(executor, null, conf.getInt("application.port"), false);
+
+    boolean securePort = conf.hasPath("application.securePort");
+
+    if (securePort) {
+      bootstrap(executor, sslCtx(conf, http2), conf.getInt("application.securePort"), http2);
     }
   }
 
   private Channel bootstrap(final EventExecutorGroup executor, final SslContext sslCtx,
-      final int port) throws InterruptedException {
+      final int port, final boolean http2) throws InterruptedException {
     ServerBootstrap bootstrap = new ServerBootstrap();
 
     boolean epoll = bossLoop instanceof EpollEventLoopGroup;
     bootstrap.group(bossLoop, workerLoop)
         .channel(epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
         .handler(new LoggingHandler(Server.class, LogLevel.DEBUG))
-        .childHandler(new NettyInitializer(executor, dispatcher, config, sslCtx));
+        .childHandler(new NettyInitializer(executor, dispatcher, conf, sslCtx, http2));
 
-    configure(config.getConfig("netty.options"), "netty.options",
+    configure(conf.getConfig("netty.options"), "netty.options",
         (option, value) -> bootstrap.option(option, value));
 
-    configure(config.getConfig("netty.child.options"), "netty.child.options",
+    configure(conf.getConfig("netty.child.options"), "netty.child.options",
         (option, value) -> bootstrap.childOption(option, value));
 
     return bootstrap
-        .bind(host(config.getString("application.host")), port)
+        .bind(host(conf.getString("application.host")), port)
         .sync()
         .channel();
   }
@@ -196,7 +209,8 @@ public class NettyServer implements Server {
     return new NioEventLoopGroup(threads, threadFactory);
   }
 
-  private SslContext sslCtx(final Config config) throws IOException, CertificateException {
+  private SslContext sslCtx(final Config config, final boolean http2)
+      throws IOException, CertificateException {
     String tmpdir = config.getString("application.tmpdir");
     File keyStoreCert = toFile(config.getString("ssl.keystore.cert"), tmpdir);
     File keyStoreKey = toFile(config.getString("ssl.keystore.key"), tmpdir);
@@ -205,6 +219,21 @@ public class NettyServer implements Server {
     SslContextBuilder scb = SslContextBuilder.forServer(keyStoreCert, keyStoreKey, keyStorePass);
     if (config.hasPath("ssl.trust.cert")) {
       scb.trustManager(toFile(config.getString("ssl.trust.cert"), tmpdir));
+    }
+    if (http2) {
+      SslProvider provider = OpenSsl.isAlpnSupported() ? SslProvider.OPENSSL : SslProvider.JDK;
+      return scb.sslProvider(provider)
+          .ciphers(Http2SecurityUtil.CIPHERS, SupportedCipherSuiteFilter.INSTANCE)
+          .applicationProtocolConfig(new ApplicationProtocolConfig(
+              Protocol.ALPN,
+              // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK
+              // providers.
+              SelectorFailureBehavior.NO_ADVERTISE,
+              // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
+              SelectedListenerFailureBehavior.ACCEPT,
+              ApplicationProtocolNames.HTTP_2,
+              ApplicationProtocolNames.HTTP_1_1))
+          .build();
     }
     return scb.build();
   }

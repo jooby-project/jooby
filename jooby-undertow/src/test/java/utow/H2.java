@@ -2,18 +2,19 @@ package utow;
 
 import org.jooby.Jooby;
 
-public class UtowHttp2 extends Jooby {
+public class H2 extends Jooby {
 
   {
 
     http2();
     securePort(8443);
 
-    get("/http2", () -> "OK");
+    assets("/assets/**");
+    assets("/", "index.html");
 
   }
 
   public static void main(final String[] args) throws Throwable {
-    run(UtowHttp2::new, args);
+    run(H2::new, args);
   }
 }
