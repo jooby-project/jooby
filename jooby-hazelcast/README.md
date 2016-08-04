@@ -13,7 +13,7 @@ Provides cache solution and session storage via [Hazelcast](http://hazelcast.org
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hazelcast</artifactId>
-  <version>1.0.0.CR6</version>
+  <version>1.0.0.CR7</version>
 </dependency>
 ```
 
@@ -70,15 +70,19 @@ By default, a [Hazelcast](http://hazelcast.org) session will expire after ```30 
 
 ```properties
 # 8 hours
+
 session.timeout = 8h
 
 # 15 seconds
+
 session.timeout = 15
 
 # 120 minutes
+
 session.timeout = 120m
 
 # no timeout
+
 session.timeout = -1
 ```
 

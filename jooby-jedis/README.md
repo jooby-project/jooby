@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>1.0.0.CR6</version>
+  <version>1.0.0.CR7</version>
 </dependency>
 ```
 
@@ -113,16 +113,20 @@ The ```name``` attribute and value will be stored in a [Redis](http://redis.io).
 By default, a [Redis](http://redis.io) session will expire after ```30 minutes```. Changing the default timeout is as simple as:
 
 ```properties
+
 # 8 hours
 session.timeout = 8h
 
 # 15 seconds
+
 session.timeout = 15
 
 # 120 minutes
+
 session.timeout = 120m
 
 # no timeout
+
 session.timeout = -1
 ```
 

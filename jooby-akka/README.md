@@ -11,7 +11,7 @@ Small module to build concurrent & distributed applications via [Akka](http://ak
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-akka</artifactId>
-  <version>1.0.0.CR6</version>
+  <version>1.0.0.CR7</version>
 </dependency>
 ```
 

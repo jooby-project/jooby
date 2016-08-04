@@ -23,7 +23,7 @@ depend on [camel-guice](http://camel.apache.org/guice.html), but it provides sim
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-camel</artifactId>
-  <version>1.0.0.CR6</version>
+  <version>1.0.0.CR7</version>
 </dependency>
 ```
 

@@ -24,7 +24,7 @@ pattern, which basically keeps the ```Session``` opened until the view is render
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbm</artifactId>
-  <version>1.0.0.CR6</version>
+  <version>1.0.0.CR7</version>
 </dependency>
 ```
 

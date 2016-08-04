@@ -1,11 +1,3 @@
-# swagger
-
-[Swagger](http://swagger.io) is a simple yet powerful representation of your RESTful API. With the largest ecosystem of API tooling on the planet, thousands of developers are supporting Swagger in almost every modern programming language and deployment environment. With a Swagger-enabled API, you get interactive documentation, client SDK generation and discoverability. More at [http://swagger.io](http://swagger.io)
-
-
-> NOTE: This module depends on [route spec](/doc/spec/spec.html), please read the [route spec](/doc/spec/spec.html) documentation to learn how to write powerful APIs.
-
-
 ## exports
 
 * ```/swagger``` rout with SwaggerUI
@@ -18,7 +10,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-swagger</artifactId>
-  <version>1.0.0.CR6</version>
+  <version>1.0.0.CR7</version>
 </dependency>
 ```
 

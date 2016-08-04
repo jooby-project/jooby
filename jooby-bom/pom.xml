@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
-  <version>1.0.0.CR6</version>
+  <version>1.0.0.CR7</version>
   <packaging>pom</packaging>
   <name>jooby-bom</name>
   <description>Jooby (Bill of Materials)</description>
   <url>https://github.com/jooby-project/jooby</url>
   <properties>
-    <jooby.version>1.0.0.CR6</jooby.version>
+    <jooby.version>1.0.0.CR7</jooby.version>
 
     <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
@@ -113,6 +113,11 @@
   <dependency>
     <groupId>${project.groupId}</groupId>
     <artifactId>jooby-hbm</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-hbm4</artifactId>
     <version>${jooby.version}</version>
   </dependency>
   <dependency>
@@ -383,6 +388,16 @@
   <dependency>
     <groupId>${project.groupId}</groupId>
     <artifactId>jooby-gradle-plugin</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-couchbase</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-cassandra</artifactId>
     <version>${jooby.version}</version>
   </dependency>
 </dependencies>

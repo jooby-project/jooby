@@ -13,7 +13,7 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>1.0.0.CR6</version>
+  <version>1.0.0.CR7</version>
 </dependency>
 ```
 
@@ -119,6 +119,7 @@ you have to do is define a ```session``` cache:
 ```properties
 ehcache.cache.session {
   # cache will expire after 30 minutes of inactivity
+
   timeToIdle = 30m
 }
 ```

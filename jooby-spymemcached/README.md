@@ -11,7 +11,7 @@ Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-spymemcached</artifactId>
-  <version>1.0.0.CR6</version>
+  <version>1.0.0.CR7</version>
 </dependency>
 ```
 
@@ -79,16 +79,21 @@ Session are persisted using the default ```Transcoder```.
 By default, a [Memcached](http://memcached.org) session will expire after ```30 minutes```. Changing the default timeout is as simple as:
 
 ```properties
+
 # 8 hours
+
 session.timeout = 8h
 
 # 15 seconds
+
 session.timeout = 15
 
 # 120 minutes
+
 session.timeout = 120m
 
 # no timeout
+
 session.timeout = -1
 ```
 

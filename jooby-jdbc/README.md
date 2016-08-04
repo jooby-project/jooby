@@ -12,20 +12,34 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>1.0.0.CR6</version>
+  <version>1.0.0.CR7</version>
 </dependency>
 ```
 
 ## usage
 
+Via `connection string` property:
+
 ```java
 
-import org.jooby.jdbc.Jdbc;
-import javax.sql.DataSource;
+{
+  use(new Jdbc("jdbc:mysql://localhost/db"));
+
+  // accessing to the data source
+  get("/my-api", req -> {
+    DataSource db = req.require(DataSource.class);
+    // do something with datasource
+  }); 
+}
+```
+
+Via `db` property:
+
+```java
 
 {
-  use(new Jdbc());
- 
+  use(new Jdbc("db));
+
   // accessing to the data source
   get("/my-api", req -> {
     DataSource db = req.require(DataSource.class);
@@ -151,10 +165,10 @@ Same principle applies if you need to tweak [hikari](https://github.com/brettwoo
 
 ```properties
 # max pool size for main db
-hikari.db.main.maximumPoolSize = 100
+hikari.main.maximumPoolSize = 100
 
 # max pool size for audit db
-hikari.db.audit.maximumPoolSize = 20
+hikari.audit.maximumPoolSize = 20
 ```
 
 Finally, if you need to inject the audit data source, all you have to do is to use the *Name* annotation, like ```@Name("db.audit")```
