@@ -37,7 +37,7 @@
       <artifactId>jooby</artifactId>
       <version>${project.version}</version>
     </dependency>
-
+    
     <!-- Undertow -->
     <dependency>
       <groupId>io.undertow</groupId>

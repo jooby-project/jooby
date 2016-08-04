@@ -59,19 +59,27 @@ public class UndertowServer implements org.jooby.spi.Server {
   private long awaitShutdown;
 
   @Inject
-  public UndertowServer(final org.jooby.spi.HttpHandler dispatcher, final Config config,
+  public UndertowServer(final org.jooby.spi.HttpHandler dispatcher, final Config conf,
       final Provider<SSLContext> sslContext)
           throws Exception {
 
-    awaitShutdown = config.getDuration("undertow.awaitShutdown", TimeUnit.MILLISECONDS);
-    shutdown = new GracefulShutdownHandler(doHandler(dispatcher, config));
-    Undertow.Builder ubuilder = configure(config, io.undertow.Undertow.builder())
-        .addHttpListener(config.getInt("application.port"),
-            host(config.getString("application.host")));
+    awaitShutdown = conf.getDuration("undertow.awaitShutdown", TimeUnit.MILLISECONDS);
+    shutdown = new GracefulShutdownHandler(doHandler(dispatcher, conf));
+    Undertow.Builder ubuilder = configure(conf, io.undertow.Undertow.builder())
+        .addHttpListener(conf.getInt("application.port"),
+            host(conf.getString("application.host")));
 
-    if (config.hasPath("application.securePort")) {
-      ubuilder.addHttpsListener(config.getInt("application.securePort"),
-          host(config.getString("application.host")), sslContext.get());
+    boolean http2 = conf.getBoolean("server.http2.enabled");
+    ubuilder.setServerOption(UndertowOptions.ENABLE_HTTP2, http2);
+
+    boolean securePort = conf.hasPath("application.securePort");
+    if (http2 && !securePort) {
+      throw new IllegalStateException("HTTP2 requires 'aplication.securePort'");
+    }
+
+    if (securePort) {
+      ubuilder.addHttpsListener(conf.getInt("application.securePort"),
+          host(conf.getString("application.host")), sslContext.get());
     }
 
     this.server = ubuilder.setHandler(shutdown)
@@ -90,12 +98,6 @@ public class UndertowServer implements org.jooby.spi.Server {
       int value = $undertow.getBytes(name).intValue();
       log.debug("undertow.bufferSize({})", value);
       builder.setBufferSize(value);
-    });
-
-    set($undertow, "buffersPerRegion", name -> {
-      int value = $undertow.getInt(name);
-      log.debug("undertow.buffersPerRegion({})", value);
-      builder.setBuffersPerRegion(value);
     });
 
     set($undertow, "directBuffers", name -> {
