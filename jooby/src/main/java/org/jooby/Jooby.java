@@ -3855,7 +3855,57 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   /**
-   * Set the HTTPS port.
+   * <p>
+   * Set the HTTPS port to use.
+   * </p>
+   * <p>
+   * Jooby comes with a self-signed certificate, useful for development and test. But of course, you
+   * should NEVER use it in the real world.
+   * </p>
+   *
+   * <p>
+   * In order to setup HTTPS with a secure certificate, you need to set these properties:
+   * </p>
+   *
+   * <ul>
+   * <li>
+   * <code>ssl.keystore.cert</code>: An X.509 certificate chain file in PEM format. It can be an
+   * absolute path or a classpath resource.
+   * </li>
+   * <li>
+   * <code>ssl.keystore.key</code>: A PKCS#8 private key file in PEM format. It can be an absolute
+   * path or a classpath resource.
+   * </li>
+   * </ul>
+   *
+   * <p>
+   * Optionally, you can set these too:
+   * </p>
+   *
+   * <ul>
+   * <li>
+   * <code>ssl.keystore.password</code>: Password of the keystore.key (if any). Default is:
+   * null/empty.
+   * </li>
+   * <li>
+   * <code>ssl.trust.cert</code>: Trusted certificates for verifying the remote endpoint’s
+   * certificate. The file should contain an X.509 certificate chain in PEM format. Default uses the
+   * system default.
+   * </li>
+   * <li>
+   * <code>ssl.session.cacheSize</code>: Set the size of the cache used for storing SSL session
+   * objects. 0 to use the default value.
+   * </li>
+   * <li>
+   * <code>ssl.session.timeout</code>: Timeout for the cached SSL session objects, in seconds. 0 to
+   * use the default value.
+   * </li>
+   * </ul>
+   *
+   * <p>
+   * As you can see setup is very simple. All you need is your <code>.crt</code> and
+   * <code>.key</code> files.
+   * </p>
    *
    * @param port HTTPS port.
    * @return This instance.
