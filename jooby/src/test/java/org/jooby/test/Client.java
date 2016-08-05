@@ -4,10 +4,12 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +29,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -111,7 +114,13 @@ public class Client extends ExternalResource {
     }
 
     public Request body(final String body, final String type) {
-      req.bodyString(body, ContentType.parse(type));
+      if (type == null) {
+        byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+        HttpEntity entity = new InputStreamEntity(new ByteArrayInputStream(bytes), bytes.length);
+        req.body(entity);
+      } else {
+        req.bodyString(body, ContentType.parse(type));
+      }
       return this;
     }
 
@@ -253,9 +262,9 @@ public class Client extends ExternalResource {
 
     public Response header(final String headerName, final Callback callback) throws Exception {
       callback.execute(
-        Optional.ofNullable(rsp.getFirstHeader(headerName))
-          .map(Header::getValue)
-          .orElse(null));
+          Optional.ofNullable(rsp.getFirstHeader(headerName))
+              .map(Header::getValue)
+              .orElse(null));
       return this;
     }
 

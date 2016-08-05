@@ -248,7 +248,8 @@ public class RequestImpl implements Request {
   public Mutant body() throws Exception {
     long length = length();
     if (length > 0) {
-      if (MediaType.form.matches(type()) || MediaType.multipart.matches(type())) {
+      MediaType type = type();
+      if (!type.isAny() && (MediaType.form.matches(type) || MediaType.multipart.matches(type))) {
         return params();
       }
       File fbody = new File(
