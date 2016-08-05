@@ -39,6 +39,8 @@ public class AppPrinter {
 
   private String[] urls;
 
+  private boolean http2;
+
   public AppPrinter(final Set<Route.Definition> routes,
       final Set<WebSocket.Definition> sockets,
       final Config conf) {
@@ -52,6 +54,7 @@ public class AppPrinter {
     if (conf.hasPath("application.securePort")) {
       this.urls[1] = "https://" + host + ":" + conf.getString("application.securePort") + path;
     }
+    http2 = conf.getBoolean("server.http2.enabled");
   }
 
   @Override
@@ -65,6 +68,9 @@ public class AppPrinter {
       if (url != null) {
         buffer.append("\n  ").append(url);
       }
+    }
+    if (http2) {
+      buffer.append(" +h2");
     }
     return buffer.toString();
   }

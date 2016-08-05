@@ -30,6 +30,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.net.ssl.SSLContext;
 
+import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
+import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
@@ -54,43 +56,50 @@ import javaslang.control.Try;
 
 public class JettyServer implements org.jooby.spi.Server {
 
+  private static final String H2 = "h2";
+  private static final String H2_17 = "h2-17";
+  private static final String HTTP_1_1 = "http/1.1";
+
   private static final String JETTY_HTTP = "jetty.http";
   private static final String CONNECTOR = "connector";
+
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(org.jooby.spi.Server.class);
 
   private Server server;
 
   @Inject
-  public JettyServer(final HttpHandler handler, final Config config,
+  public JettyServer(final HttpHandler handler, final Config conf,
       final Provider<SSLContext> sslCtx) {
-    this.server = server(handler, config, sslCtx);
+    this.server = server(handler, conf, sslCtx);
   }
 
-  private Server server(final HttpHandler handler, final Config config,
-      final Provider<SSLContext> sslCtx) {
+  private Server server(final HttpHandler handler, final Config conf,
+final Provider<SSLContext> sslCtx) {
     System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset",
-        config.getString("jetty.url.charset"));
+        conf.getString("jetty.url.charset"));
 
     System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize",
-        config.getBytes("server.http.MaxRequestSize").toString());
+        conf.getBytes("server.http.MaxRequestSize").toString());
 
-    QueuedThreadPool pool = conf(new QueuedThreadPool(), config.getConfig("jetty.threads"),
+    QueuedThreadPool pool = conf(new QueuedThreadPool(), conf.getConfig("jetty.threads"),
         "jetty.threads");
 
     Server server = new Server(pool);
     server.setStopAtShutdown(false);
 
     // HTTP connector
-    ServerConnector http = http(server, config.getConfig(JETTY_HTTP), JETTY_HTTP);
-    http.setPort(config.getInt("application.port"));
-    http.setHost(config.getString("application.host"));
+    ServerConnector http = http(server, conf.getConfig(JETTY_HTTP), JETTY_HTTP);
+    http.setPort(conf.getInt("application.port"));
+    http.setHost(conf.getString("application.host"));
 
-    if (config.hasPath("application.securePort")) {
+    boolean http2 = conf.getBoolean("server.http2.enabled");
 
-      ServerConnector https = https(server, config.getConfig(JETTY_HTTP), JETTY_HTTP,
-          sslCtx.get());
-      https.setPort(config.getInt("application.securePort"));
+    if (conf.hasPath("application.securePort")) {
+
+      ServerConnector https = https(server, conf.getConfig(JETTY_HTTP), JETTY_HTTP,
+          sslCtx.get(), http2);
+      https.setPort(conf.getInt("application.securePort"));
 
       server.addConnector(https);
     }
@@ -98,7 +107,7 @@ public class JettyServer implements org.jooby.spi.Server {
     server.addConnector(http);
 
     WebSocketPolicy wsConfig = conf(new WebSocketPolicy(WebSocketBehavior.SERVER),
-        config.getConfig("jetty.ws"), "jetty.ws");
+        conf.getConfig("jetty.ws"), "jetty.ws");
     WebSocketServerFactory webSocketServerFactory = new WebSocketServerFactory(wsConfig);
     webSocketServerFactory.setCreator((req, rsp) -> {
       JettyWebSocket ws = new JettyWebSocket();
@@ -106,9 +115,8 @@ public class JettyServer implements org.jooby.spi.Server {
       return ws;
     });
 
-    server.setHandler(new JettyHandler(handler, webSocketServerFactory, config
-        .getString("application.tmpdir"),
-        config.getBytes("jetty.http.FileSizeThreshold").intValue()));
+    server.setHandler(new JettyHandler(handler, webSocketServerFactory, conf
+        .getString("application.tmpdir"), conf.getBytes("jetty.FileSizeThreshold").intValue()));
 
     return server;
   }
@@ -121,11 +129,12 @@ public class JettyServer implements org.jooby.spi.Server {
 
     ServerConnector connector = new ServerConnector(server, httpFactory);
 
-    return conf(connector, conf.getConfig(CONNECTOR), path + ".connector");
+    return conf(connector, conf.getConfig(CONNECTOR), path + "." + CONNECTOR);
   }
 
   private ServerConnector https(final Server server, final Config conf, final String path,
-      final SSLContext sslContext) {
+      final SSLContext sslContext, final boolean http2) {
+
     HttpConfiguration httpConf = conf(new HttpConfiguration(), conf.withoutPath(CONNECTOR),
         path);
 
@@ -135,12 +144,24 @@ public class JettyServer implements org.jooby.spi.Server {
     HttpConfiguration httpsConf = new HttpConfiguration(httpConf);
     httpsConf.addCustomizer(new SecureRequestCustomizer());
 
-    HttpConnectionFactory httpsFactory = new HttpConnectionFactory(httpsConf);
+    if (http2) {
+      ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory(H2, H2_17);
+      alpn.setDefaultProtocol(HTTP_1_1);
 
-    ServerConnector connector = new ServerConnector(server,
-        new SslConnectionFactory(sslContextFactory, "HTTP/1.1"), httpsFactory);
+      HTTP2ServerConnectionFactory http2Factory = new HTTP2ServerConnectionFactory(httpsConf);
 
-    return conf(connector, conf.getConfig(CONNECTOR), path + ".connector");
+      ServerConnector connector = new ServerConnector(server,
+          new SslConnectionFactory(sslContextFactory, "alpn"), alpn, http2Factory);
+
+      return conf(connector, conf.getConfig(CONNECTOR), path + ".connector");
+    } else {
+      HttpConnectionFactory httpsFactory = new HttpConnectionFactory(httpsConf);
+
+      ServerConnector connector = new ServerConnector(server,
+          new SslConnectionFactory(sslContextFactory, HTTP_1_1), httpsFactory);
+
+      return conf(connector, conf.getConfig(CONNECTOR), path + ".connector");
+    }
   }
 
   @Override

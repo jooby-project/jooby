@@ -6,8 +6,6 @@
     </encoder>
   </appender>
 
-  <logger name="org.jooby.spi.Server" level="DEBUG" />
-
   <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
