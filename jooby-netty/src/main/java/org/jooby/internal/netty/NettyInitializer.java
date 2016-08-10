@@ -74,7 +74,7 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
   @Override
   protected void initChannel(final SocketChannel ch) throws Exception {
     if (http2) {
-      ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()), new NettyHttpAPN(this));
+      ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()), new NettyHttp2Handler(this));
     } else {
       if (sslCtx != null) {
         ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()));

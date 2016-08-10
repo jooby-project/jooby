@@ -133,7 +133,7 @@ public class NettyServer implements Server {
     boolean epoll = bossLoop instanceof EpollEventLoopGroup;
     bootstrap.group(bossLoop, workerLoop)
         .channel(epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
-        .handler(new LoggingHandler(Server.class, LogLevel.DEBUG))
+        .handler(new LoggingHandler(Server.class, LogLevel.INFO))
         .childHandler(new NettyInitializer(executor, dispatcher, conf, sslCtx, http2));
 
     configure(conf.getConfig("netty.options"), "netty.options",

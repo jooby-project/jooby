@@ -50,8 +50,11 @@ import org.jooby.Route.Complete;
 import org.jooby.Status;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeResponse;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+
+import javaslang.control.Try;
 
 public class ResponseImpl implements Response {
 
@@ -238,7 +241,9 @@ public class ResponseImpl implements Response {
 
   public void done(final Optional<Throwable> cause) {
     for (Route.Complete h : complete) {
-      h.handle(req, this, cause);
+      Try.run(() -> h.handle(req, this, cause))
+          .onFailure(x -> LoggerFactory.getLogger(Response.class)
+              .error("complete listener resulted in error", x));
     }
     complete.clear();
     end();

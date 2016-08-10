@@ -76,7 +76,7 @@ public class JettyHandler extends AbstractHandler {
         multipart = true;
       }
 
-      ServletServletRequest nreq = new ServletServletRequest(request, tmpdir, multipart)
+      ServletServletRequest nreq = new JettyRequest(request, tmpdir, multipart)
           .with(new ServletUpgrade() {
 
             @SuppressWarnings("unchecked")

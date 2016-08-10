@@ -3,17 +3,20 @@ package org.jooby.internal.netty;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http2.DefaultHttp2Connection;
+import io.netty.handler.codec.http2.Http2FrameLogger;
+import io.netty.handler.codec.http2.HttpToHttp2ConnectionHandler;
 import io.netty.handler.codec.http2.HttpToHttp2ConnectionHandlerBuilder;
 import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapter;
 import io.netty.handler.codec.http2.InboundHttp2ToHttpAdapterBuilder;
+import io.netty.handler.logging.LogLevel;
 import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
 
-public class NettyHttpAPN extends ApplicationProtocolNegotiationHandler {
+public class NettyHttp2Handler extends ApplicationProtocolNegotiationHandler {
 
   private NettyInitializer initializer;
 
-  public NettyHttpAPN(final NettyInitializer initializer) {
+  public NettyHttp2Handler(final NettyInitializer initializer) {
     super(ApplicationProtocolNames.HTTP_1_1);
     this.initializer = initializer;
   }
@@ -31,9 +34,13 @@ public class NettyHttpAPN extends ApplicationProtocolNegotiationHandler {
           .build();
 
       ChannelPipeline pipeline = ctx.pipeline();
-      pipeline.addLast(new HttpToHttp2ConnectionHandlerBuilder()
+      HttpToHttp2ConnectionHandler http2handler = new HttpToHttp2ConnectionHandlerBuilder()
           .frameListener(listener)
-          .connection(connection).build());
+          .frameLogger(new Http2FrameLogger(LogLevel.DEBUG))
+          .connection(connection)
+          .build();
+      ctx.channel().attr(NettyRequest.HTT2).set(http2handler.encoder());
+      pipeline.addLast(http2handler);
       initializer.pipeline(pipeline, false);
     } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
       initializer.pipeline(ctx.pipeline(), true);

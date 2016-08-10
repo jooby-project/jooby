@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
+<configuration scan="true" scanPeriod="5 seconds" debug="false">
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%-5p [%d{ISO8601}] [%thread] %msg%n</pattern>
+      <pattern>[%d{ISO8601}]-[%thread] %-5level %logger - %msg%n</pattern>
     </encoder>
   </appender>
 
-  <root level="INFO">
+  <logger name="org.eclipse.jetty.http2" level="trace" />
+
+  <root level="info">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>

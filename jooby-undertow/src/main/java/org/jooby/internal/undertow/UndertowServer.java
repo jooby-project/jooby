@@ -60,8 +60,7 @@ public class UndertowServer implements org.jooby.spi.Server {
 
   @Inject
   public UndertowServer(final org.jooby.spi.HttpHandler dispatcher, final Config conf,
-      final Provider<SSLContext> sslContext)
-          throws Exception {
+      final Provider<SSLContext> sslContext) throws Exception {
 
     awaitShutdown = conf.getDuration("undertow.awaitShutdown", TimeUnit.MILLISECONDS);
     shutdown = new GracefulShutdownHandler(doHandler(dispatcher, conf));

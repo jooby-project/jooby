@@ -3848,6 +3848,11 @@ public class Jooby implements Routes, LifeCycle, Registry {
   /**
    * Set the HTTP port.
    *
+   * <p>
+   * Keep in mind this work as a default port and can be reset via <code>application.port</code>
+   * property.
+   * </p>
+   *
    * @param port HTTP port.
    * @return This instance.
    */
@@ -3860,6 +3865,13 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * <p>
    * Set the HTTPS port to use.
    * </p>
+   *
+   * <p>
+   * Keep in mind this work as a default port and can be reset via <code>application.port</code>
+   * property.
+   * </p>
+   *
+   * <h2>HTTPS</h2>
    * <p>
    * Jooby comes with a self-signed certificate, useful for development and test. But of course, you
    * should NEVER use it in the real world.
@@ -3917,9 +3929,43 @@ public class Jooby implements Routes, LifeCycle, Registry {
     return this;
   }
 
+  /**
+   * <p>
+   * Enable <code>HTTP/2</code> protocol. Some servers required extra configuration steps while some
+   * others just works. It is a good idea to check the server documentation about
+   * <a href="http://jooby.org/doc/servers">HTTP/2</a>.
+   * </p>
+   *
+   * <p>
+   * It is required to configure <code>HTTPS</code> too please refer to {@link #securePort(int)}
+   * documentation.
+   * </p>
+   *
+   * @return This instance.
+   */
   public Jooby http2() {
     this.http2 = true;
     return this;
+  }
+
+  /**
+   * <p>
+   * Enable <code>HTTP/2</code> protocol. Some servers required extra configuration steps while some
+   * others just works. It is a good idea to check the server documentation about
+   * <a href="http://jooby.org/doc/servers">HTTP/2</a>.
+   * </p>
+   *
+   * <p>
+   * It is required to configure <code>HTTPS</code> too please refer to {@link #securePort(int)}
+   * documentation.
+   * </p>
+   *
+   * @param securePort HTTPS port.
+   * @return This instance.
+   */
+  public Jooby http2(final int securePort) {
+    securePort(securePort);
+    return http2();
   }
 
   /**
@@ -4046,6 +4092,11 @@ public class Jooby implements Routes, LifeCycle, Registry {
     } else {
       finalConfig = conf;
       finalEnv = env;
+    }
+
+    boolean h2 = finalConfig.getBoolean("server.http2.enabled");
+    if (h2 && !finalConfig.hasPath("application.securePort")) {
+      throw new IllegalStateException("HTTP/2: requires 'application.securePort'");
     }
 
     boolean cookieSession = session.store() == null;

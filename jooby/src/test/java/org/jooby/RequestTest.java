@@ -150,6 +150,11 @@ public class RequestTest {
     }
 
     @Override
+    public void push(final String method, final String path, final Map<String, String> headers) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean secure() {
       throw new UnsupportedOperationException();
     }

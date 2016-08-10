@@ -21,9 +21,12 @@ package org.jooby.spi;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.jooby.Cookie;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Minimal/basic implementation of HTTP request. A server implementor must provide an implementation
@@ -137,4 +140,15 @@ public interface NativeRequest {
    */
   void startAsync();
 
+  default void push(final String path) {
+    push(path, ImmutableMap.of());
+  }
+
+  default void push(final String path, final Map<String, String> headers) {
+    push("GET", path, headers);
+  }
+
+  default void push(final String method, final String path, final Map<String, String> headers) {
+    throw new UnsupportedOperationException();
+  }
 }

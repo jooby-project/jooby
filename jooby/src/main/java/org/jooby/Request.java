@@ -32,6 +32,7 @@ import java.util.function.BiFunction;
 import org.jooby.scope.RequestScoped;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
@@ -342,6 +343,21 @@ public interface Request extends Registry {
     @Override
     public Optional<String> ifFlash(final String name) {
       return req.ifFlash(name);
+    }
+
+    @Override
+    public void push(final String path) {
+      req.push(path);
+    }
+
+    @Override
+    public void push(final String path, final Map<String, String> headers) {
+      req.push(path, headers);
+    }
+
+    @Override
+    public void push(final String method, final String path, final Map<String, String> headers) {
+      req.push(method, path, headers);
     }
 
     @Override
@@ -968,4 +984,13 @@ public interface Request extends Registry {
    */
   Request set(Key<?> key, Object value);
 
+  default void push(final String path) {
+    push(path, ImmutableMap.of());
+  }
+
+  default void push(final String path, final Map<String, String> headers) {
+    push("GET", path, headers);
+  }
+
+  void push(final String method, final String path, final Map<String, String> headers);
 }
