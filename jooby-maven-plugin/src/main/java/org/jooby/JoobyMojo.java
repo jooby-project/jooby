@@ -22,6 +22,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -79,7 +80,7 @@ public class JoobyMojo extends AbstractMojo {
     }
   }
 
-  @Component
+  @Parameter(defaultValue = "${project}", required = true, readonly = true)
   private MavenProject mavenProject;
 
   @Parameter(defaultValue = "${session}", required = true, readonly = true)
@@ -99,6 +100,9 @@ public class JoobyMojo extends AbstractMojo {
 
   @Parameter(property = "jooby.includes")
   private List<String> includes;
+
+  @Parameter(property = "jooby.watchDirs")
+  private List<String> watchDirs;
 
   @Parameter(property = "jooby.excludes")
   private List<String> excludes;
@@ -130,11 +134,18 @@ public class JoobyMojo extends AbstractMojo {
     // target/classes
     appcp.add(new File(buildOutputDirectory));
 
+    // references project
+    Set<Artifact> references = references(mavenProject);
+    Set<File> refbasedir = refbasedir(mavenProject, references);
+    Set<File> refcp = refcp(refbasedir);
+    appcp.addAll(refcp);
+
     // *.jar
     Set<Artifact> artifacts = new LinkedHashSet<Artifact>(mavenProject.getArtifacts());
 
     artifacts.forEach(artifact -> {
       if (!"pom".equals(artifact.getType())) {
+        // ignore self reference
         appcp.add(new File(artifact.getFile().getAbsolutePath()));
       }
     });
@@ -152,6 +163,14 @@ public class JoobyMojo extends AbstractMojo {
       cmds.addAll(this.commands);
     }
 
+    // watch dir
+    List<File> watchDirs = new ArrayList<>();
+    watchDirs.add(mavenProject.getBasedir());
+    watchDirs.addAll(refbasedir);
+    if (this.watchDirs != null) {
+      this.watchDirs.forEach(f -> watchDirs.add(new File(f)));
+    }
+
     // includes/excludes pattern
     String includes = null;
     if (this.includes != null && this.includes.size() > 0) {
@@ -161,6 +180,9 @@ public class JoobyMojo extends AbstractMojo {
     if (this.excludes != null && this.excludes.size() > 0) {
       excludes = this.excludes.stream().collect(Collectors.joining(File.pathSeparator));
     }
+    String watchDirStr = watchDirs.stream().filter(File::exists)
+        .map(File::getAbsolutePath)
+        .collect(Collectors.joining(File.pathSeparator));
     // moduleId
     String mId = mavenProject.getGroupId() + "." + mavenProject.getArtifactId();
 
@@ -171,8 +193,8 @@ public class JoobyMojo extends AbstractMojo {
     // fork?
     Command runapp = fork
         ? new RunForkedApp(mavenProject.getBasedir(), debug, vmArgs, classpath, mId, mainClass,
-            appcp, includes, excludes)
-        : new RunApp(mId, mainClass, appcp, includes, excludes);
+            appcp, includes, excludes, watchDirStr)
+        : new RunApp(mId, mainClass, appcp, includes, excludes, watchDirs);
 
     // run app at the end
     cmds.add(runapp);
@@ -210,6 +232,41 @@ public class JoobyMojo extends AbstractMojo {
       }
     }
 
+  }
+
+  @SuppressWarnings("unchecked")
+  private Set<Artifact> references(final MavenProject project) {
+    MavenProject parent = project.getParent();
+    if (parent != null) {
+      List<String> modules = parent.getModules();
+      if (modules != null) {
+        Set<Artifact> artifacts = new LinkedHashSet<Artifact>(mavenProject.getArtifacts());
+        String groupId = project.getGroupId();
+        String version = project.getVersion();
+        return artifacts.stream()
+            .filter(a -> a.getGroupId().equals(groupId) && a.getVersion().equals(version)
+                && modules.contains(a.getArtifactId()))
+            .collect(Collectors.toSet());
+      }
+    }
+    return Collections.emptySet();
+  }
+
+  private Set<File> refbasedir(final MavenProject project, final Set<Artifact> references) {
+    Set<File> cp = new LinkedHashSet<>();
+    for (Artifact reference : references) {
+      File basedir = project.getParent().getBasedir();
+      cp.add(new File(basedir, reference.getArtifactId()));
+    }
+    return cp;
+  }
+
+  private Set<File> refcp(final Set<File> files) {
+    Set<File> cp = new LinkedHashSet<>();
+    for (File basedir : files) {
+      cp.add(new File(new File(basedir, "target"), "classes"));
+    }
+    return cp;
   }
 
   @SuppressWarnings("unchecked")

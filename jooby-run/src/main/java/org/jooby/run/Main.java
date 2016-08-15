@@ -33,10 +33,12 @@ import java.nio.file.Paths;
 import java.nio.file.WatchEvent.Kind;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -60,7 +62,6 @@ public class Main {
   }
 
   private AppModuleLoader loader;
-  private File basedir = new File(System.getProperty("user.dir"));
   private ExecutorService executor;
   private Watcher scanner;
   private PathMatcher includes;
@@ -73,22 +74,42 @@ public class Main {
   private List<String> args;
   private AtomicBoolean starting = new AtomicBoolean(false);
 
-  public Main(final String mId, final String mainClass, final File... cp)
-      throws Exception {
+  private Path[] watchDirs;
+
+  public Main(final String mId, final String mainClass, final List<File> watchDirs,
+      final File... cp) throws Exception {
     this.mainClass = mainClass;
     loader = AppModuleLoader.build(mId, cp);
     this.mId = ModuleIdentifier.create(mId);
+    this.watchDirs = toPath(watchDirs);
     this.executor = Executors.newSingleThreadExecutor(task -> new Thread(task, "HotSwap"));
-    this.scanner = new Watcher(this::onChange, new Path[]{basedir.toPath() });
+    this.scanner = new Watcher(this::onChange, this.watchDirs);
     includes("**/*.class" + File.pathSeparator + "**/*.conf" + File.pathSeparator
         + "**/*.properties" + File.pathSeparator + "*.js" + File.pathSeparator + "src/*.js");
     excludes("");
   }
 
+  private Path[] toPath(final List<File> watchDir) throws IOException {
+    Set<File> files = new LinkedHashSet<>();
+    files.add(new File(System.getProperty("user.dir")));
+    if (watchDir != null) {
+      files.addAll(watchDir);
+    }
+    List<Path> paths = new ArrayList<>();
+    for (File file : files) {
+      if (file.exists()) {
+        paths.add(file.getCanonicalFile().toPath());
+      }
+    }
+    return paths.toArray(new Path[paths.size()]);
+  }
+
   public static void main(final String[] args) throws Exception {
     List<File> cp = new ArrayList<File>();
+    List<File> watch = new ArrayList<File>();
     String includes = null;
     String excludes = null;
+
     for (int i = 2; i < args.length; i++) {
       String[] option = args[i].split("=");
       if (option.length < 2) {
@@ -111,6 +132,12 @@ public class Main {
             cp.add(new File(dep));
           }
           break;
+        case "watchdirs":
+          String[] dirs = option[1].split(File.pathSeparator);
+          for (String dir : dirs) {
+            watch.add(new File(dir));
+          }
+          break;
         default:
           throw new IllegalArgumentException("Unknown option: " + args[i]);
       }
@@ -122,7 +149,7 @@ public class Main {
       cp.add(new File(System.getProperty("user.dir")));
     }
 
-    Main launcher = new Main(args[0], args[1], cp.toArray(new File[cp.size()]));
+    Main launcher = new Main(args[0], args[1], watch, cp.toArray(new File[cp.size()]));
     if (includes != null) {
       launcher.includes(includes);
     }
@@ -153,7 +180,7 @@ public class Main {
   }
 
   public void run(final boolean block, final String... args) {
-    info("Hotswap available on: %s", basedir.getPath());
+    info("Hotswap available on: %s", Arrays.toString(watchDirs));
     info("  includes: %s", includes);
     info("  excludes: %s", excludes);
 
@@ -272,9 +299,10 @@ public class Main {
   }
 
   private Path relativePath(final Path path) {
-    Path root = basedir.toPath();
-    if (path.startsWith(root)) {
-      return root.relativize(path);
+    for (Path root : watchDirs) {
+      if (path.startsWith(root)) {
+        return root.relativize(path);
+      }
     }
     return null;
   }

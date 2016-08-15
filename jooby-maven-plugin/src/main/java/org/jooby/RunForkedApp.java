@@ -41,7 +41,8 @@ public class RunForkedApp implements Command {
 
   public RunForkedApp(final File basedir, final String debug, final List<String> vmArgs,
       final Set<File> cp, final String mId, final String mainClass, final Set<File> appcp,
-      final String includes, final String excludes) throws MojoFailureException {
+      final String includes, final String excludes, final String watchDirs)
+      throws MojoFailureException {
     this.basedir = basedir;
     List<String> args = new ArrayList<String>();
     args.addAll(vmArgs(debug, vmArgs));
@@ -59,6 +60,9 @@ public class RunForkedApp implements Command {
     }
     if (excludes != null) {
       args.add("excludes=" + excludes);
+    }
+    if (watchDirs != null) {
+      args.add("watchDirs=" + watchDirs);
     }
     args.add(
         "props=" + dumpSysProps(basedir.toPath().resolve("target")

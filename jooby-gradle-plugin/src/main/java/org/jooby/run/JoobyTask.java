@@ -61,6 +61,8 @@ public class JoobyTask extends ConventionTask {
 
   private Set<File> src;
 
+  private List<String> watchDirs;
+
   private String mainClassName;
 
   private String compiler;
@@ -78,7 +80,8 @@ public class JoobyTask extends ConventionTask {
     // conf & public
     getClasspath().forEach(cp::add);
 
-    Main app = new Main(mId, getMainClassName(), cp.toArray(new File[cp.size()]));
+    Main app = new Main(mId, getMainClassName(), toFiles(watchDirs),
+        cp.toArray(new File[cp.size()]));
     if (includes != null) {
       app.includes(includes.stream().collect(Collectors.joining(File.pathSeparator)));
     }
@@ -109,6 +112,14 @@ public class JoobyTask extends ConventionTask {
         .entrySet().stream().map(e -> e.toString()).collect(Collectors.toList())
         .toArray(new String[0]);
     app.run(isBlock(), args);
+  }
+
+  private List<File> toFiles(final List<String> watchDirs) {
+    List<File> files = new ArrayList<>();
+    if (watchDirs != null) {
+      watchDirs.forEach(f -> files.add(new File(f)));
+    }
+    return files;
   }
 
   private void runTask(final Project project, final Path path, final String task) {
@@ -203,6 +214,14 @@ public class JoobyTask extends ConventionTask {
 
   public void setSrc(final Set<File> watchDirs) {
     this.src = watchDirs;
+  }
+
+  public List<String> getWatchDirs() {
+    return watchDirs;
+  }
+
+  public void setWatchDirs(final List<String> watchDirs) {
+    this.watchDirs = watchDirs;
   }
 
   public String getCompiler() {

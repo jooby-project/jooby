@@ -19,6 +19,7 @@
 package org.jooby;
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 import org.jooby.run.Main;
@@ -34,14 +35,16 @@ public class RunApp implements Command {
   private CountDownLatch latch;
   private String includes;
   private String excludes;
+  private List<File> watchDirs;
 
   public RunApp(final String mId, final String mainClass, final Set<File> cp, final String includes,
-      final String excludes) {
+      final String excludes, final List<File> watchDirs) {
     this.mId = mId;
     this.mainClass = mainClass;
     this.cp = cp.toArray(new File[cp.size()]);
     this.includes = includes;
     this.excludes = excludes;
+    this.watchDirs = watchDirs;
     latch = new CountDownLatch(1);
 
   }
@@ -53,7 +56,7 @@ public class RunApp implements Command {
 
   @Override
   public void execute() throws Exception {
-    Main launcher = new Main(mId, mainClass, cp);
+    Main launcher = new Main(mId, mainClass, watchDirs, cp);
     if (includes != null) {
       launcher.includes(includes);
     }
