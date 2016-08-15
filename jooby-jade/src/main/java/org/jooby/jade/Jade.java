@@ -20,6 +20,9 @@ package org.jooby.jade;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -35,6 +38,7 @@ import com.typesafe.config.Config;
 
 import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.template.ClasspathTemplateLoader;
+import de.neuland.jade4j.template.TemplateLoader;
 
 /**
  * <h1>jade</h1>
@@ -124,6 +128,30 @@ import de.neuland.jade4j.template.ClasspathTemplateLoader;
  */
 public class Jade implements Jooby.Module {
 
+  static class IOTemplateLoader implements TemplateLoader {
+
+    private TemplateLoader loader;
+
+    public IOTemplateLoader(final TemplateLoader loader) {
+      this.loader = loader;
+    }
+
+    @Override
+    public long getLastModified(final String name) throws IOException {
+      return loader.getLastModified(name);
+    }
+
+    @Override
+    public Reader getReader(final String name) throws IOException {
+      try {
+        return loader.getReader(name);
+      } catch (NullPointerException ex) {
+        throw new FileNotFoundException(name);
+      }
+    }
+
+  }
+
   private BiConsumer<JadeConfiguration, Config> callback;
 
   private String suffix;
@@ -190,6 +218,9 @@ public class Jade implements Jooby.Module {
     if (callback != null) {
       callback.accept(jadeconf, conf);
     }
+
+    // rewrite template loader avoid NPE
+    jadeconf.setTemplateLoader(new IOTemplateLoader(jadeconf.getTemplateLoader()));
 
     binder.bind(JadeConfiguration.class)
         .toInstance(jadeconf);

@@ -1,8 +1,12 @@
 package org.jooby.jade;
 
 import static org.easymock.EasyMock.expect;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
+import java.io.FileNotFoundException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +27,7 @@ import com.typesafe.config.Config;
 
 import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.template.ClasspathTemplateLoader;
+import de.neuland.jade4j.template.TemplateLoader;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Jade.class, JadeConfiguration.class, Multibinder.class })
@@ -105,6 +110,29 @@ public class JadeTest {
         });
   }
 
+  @Test
+  public void safeTemplateLoader() throws Exception {
+    new MockUnit(TemplateLoader.class, Reader.class)
+        .expect(unit -> {
+          TemplateLoader tl = unit.get(TemplateLoader.class);
+          expect(tl.getLastModified("x")).andReturn(678L);
+          expect(tl.getReader("foo")).andReturn(unit.get(Reader.class));
+          expect(tl.getReader("fnf")).andThrow(new NullPointerException());
+        })
+        .run(unit -> {
+          TemplateLoader tl = new Jade.IOTemplateLoader(unit.get(TemplateLoader.class));
+          assertEquals(678L, tl.getLastModified("x"));
+          assertEquals(unit.get(Reader.class), tl.getReader("foo"));
+
+          try {
+            assertEquals(unit.get(Reader.class), tl.getReader("fnf"));
+            fail("expecting fnf");
+          } catch (FileNotFoundException x) {
+
+          }
+        });
+  }
+
   @SuppressWarnings("unchecked")
   private Block jade(final String suffix, final boolean caching, final boolean prettyPrint) {
     return unit -> {
@@ -120,6 +148,12 @@ public class JadeTest {
       ClasspathTemplateLoader classpathTemplateLoader = unit
           .mockConstructor(ClasspathTemplateLoader.class);
       jadeConfiguration.setTemplateLoader(classpathTemplateLoader);
+      expect(jadeConfiguration.getTemplateLoader()).andReturn(classpathTemplateLoader);
+
+      Jade.IOTemplateLoader safetl = unit
+          .constructor(Jade.IOTemplateLoader.class)
+          .build(classpathTemplateLoader);
+      jadeConfiguration.setTemplateLoader(safetl);
 
       AnnotatedBindingBuilder<JadeConfiguration> configBB = unit
           .mock(AnnotatedBindingBuilder.class);
