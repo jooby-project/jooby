@@ -44,6 +44,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+import java.util.stream.LongStream;
 
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleClassLoader;
@@ -285,7 +286,13 @@ public class Main {
       }
       // weak hash check: avoid change on conf/* that are propagated to target/classs by maven.
       File f = candidate.toFile();
-      String h = f.getName() + ":" + f.length();
+      // len and lastModified reports 0 on external paths, we hack and use now as millis
+      long l = LongStream.of(f.length(), f.lastModified(), System.currentTimeMillis())
+          .filter(it -> it > 0)
+          .findFirst()
+          .getAsLong();
+      String h = f.getName() + ":" + l;
+      debug("hash %s > new hash %s", hash.get(), h);
       if (!hash.getAndSet(h).equals(h)) {
         debug("File change detected: %s", path);
         // reload
