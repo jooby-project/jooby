@@ -232,7 +232,7 @@ public interface LifeCycle {
    * You should ONLY call this method while the application is been initialized or while
    * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
    *
-   * The behaviour of this method once application has been initialized is <code>undefined</code>.
+   * The behavior of this method once application has been initialized is <code>undefined</code>.
    *
    * @param service Service type. Must be a singleton object.
    * @return This instance.
@@ -252,7 +252,7 @@ public interface LifeCycle {
    * You should ONLY call this method while the application is been initialized or while
    * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
    *
-   * The behaviour of this method once application has been initialized is <code>undefined</code>.
+   * The behavior of this method once application has been initialized is <code>undefined</code>.
    *
    * @param task Task to run.
    * @return This env.
@@ -265,7 +265,7 @@ public interface LifeCycle {
    * You should ONLY call this method while the application is been initialized or while
    * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
    *
-   * The behaviour of this method once application has been initialized is <code>undefined</code>.
+   * The behavior of this method once application has been initialized is <code>undefined</code>.
    *
    * @param task Task to run.
    * @return This env.
@@ -280,7 +280,7 @@ public interface LifeCycle {
    * You should ONLY call this method while the application is been initialized or while
    * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
    *
-   * The behaviour of this method once application has been initialized is <code>undefined</code>.
+   * The behavior of this method once application has been initialized is <code>undefined</code>.
    *
    * @param task Task to run.
    * @return This env.

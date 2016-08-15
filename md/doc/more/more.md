@@ -4,11 +4,13 @@
 
 # utils
 
+* [banner](/doc/banner): prints out ascii char art at startup.
+
 * [commons-email](/doc/commons-email): Email supports via {{commons-email}}.
 
 * [hibernate validator](/doc/hbv): bean validation.
 
-* [banner](/doc/banner): prints out ascii char art at startup.
+* [scanner](/doc/scanner): scan the application class-path and register `routes`, `modules`, `services` and `applications`.
 
 # amazon web services
 

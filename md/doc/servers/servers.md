@@ -2,11 +2,10 @@
 
 Run your application on top of your favorite server! Just change one line and switch between {{netty}}, {{jetty}} or {{undertow}}!!
 
+{{doc/netty/netty.md}}
 
-{{doc/netty/README.md}}
+{{doc/undertow/undertow.md}}
 
-{{doc/jetty/README.md}}
+{{doc/jetty/jetty.md}}
 
-{{doc/undertow/README.md}}
-
-{{doc/servlet/README.md}}
+{{doc/servlet/servlet.md}}

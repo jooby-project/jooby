@@ -32,6 +32,25 @@ import org.jooby.handlers.AssetHandler;
 public interface Routes {
 
   /**
+   * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
+   * etc.).
+   *
+   * @param app Routes provider.
+   * @return This jooby instance.
+   */
+  Routes use(final Jooby app);
+
+  /**
+   * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
+   * etc.). Routes will be mounted at the provided path.
+   *
+   * @param path Path to mount the given app.
+   * @param app Routes provider.
+   * @return This jooby instance.
+   */
+  Routes use(final String path, final Jooby app);
+
+  /**
    * Define one or more routes under the same namespace:
    *
    * <pre>

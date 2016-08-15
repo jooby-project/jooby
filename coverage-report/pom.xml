@@ -76,6 +76,7 @@
                     <source>${project.parent.basedir}/jooby-mongodb-rx/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-couchbase/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-cassandra/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-scanner/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -131,6 +132,7 @@
                     <source>${project.parent.basedir}/jooby-mongodb-rx/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-couchbase/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-cassandra/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-scanner/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -387,6 +389,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-cassandra</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-scanner</artifactId>
       <version>${project.version}</version>
     </dependency>
 

@@ -85,6 +85,7 @@
     <module>jooby-gradle-plugin</module>
     <module>jooby-couchbase</module>
     <module>jooby-cassandra</module>
+    <module>jooby-scanner</module>
     <module>coverage-report</module>
   </modules>
 
@@ -521,6 +522,19 @@
         <groupId>org.jooby</groupId>
         <artifactId>jooby-hbm</artifactId>
         <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-scanner</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <!-- fast-classpath-scanner -->
+      <dependency>
+        <groupId>io.github.lukehutch</groupId>
+        <artifactId>fast-classpath-scanner</artifactId>
+        <version>${fast-classpath-scanner.version}</version>
       </dependency>
 
       <!-- bson4jackon -->
@@ -2401,6 +2415,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <cassandra.version>3.0.3</cassandra.version>
 
     <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
+    <fast-classpath-scanner.version>1.99.0</fast-classpath-scanner.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
