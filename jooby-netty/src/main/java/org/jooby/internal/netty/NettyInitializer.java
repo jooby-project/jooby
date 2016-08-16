@@ -36,6 +36,25 @@ import io.netty.util.concurrent.EventExecutorGroup;
 
 public class NettyInitializer extends ChannelInitializer<SocketChannel> {
 
+  // private static class H2 implements UpgradeCodecFactory {
+  //
+  // private NettyInitializer initializer;
+  //
+  // public H2(final NettyInitializer initializer) {
+  // this.initializer = initializer;
+  // }
+  //
+  // @Override
+  // public UpgradeCodec newUpgradeCodec(final CharSequence protocol) {
+  // if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
+  // return new Http2ServerUpgradeCodec(new Http2Codec(true, new HelloWorldHttp2Handler()));
+  // } else {
+  // return null;
+  // }
+  // }
+  //
+  // }
+
   private EventExecutorGroup executor;
 
   private HttpHandler handler;
@@ -73,13 +92,21 @@ public class NettyInitializer extends ChannelInitializer<SocketChannel> {
 
   @Override
   protected void initChannel(final SocketChannel ch) throws Exception {
-    if (http2) {
-      ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()), new NettyHttp2Handler(this));
-    } else {
-      if (sslCtx != null) {
+    if (sslCtx != null) {
+      if (http2) {
+        ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()), new NettyHttp2Handler(this));
+      } else {
         ch.pipeline().addLast(sslCtx.newHandler(ch.alloc()));
       }
+    } else {
+      // if (http2) {
+      // HttpServerCodec sourceCodec = new HttpServerCodec();
+      // ch.pipeline().addLast(sourceCodec);
+      // ch.pipeline()
+      // .addLast(new HttpServerUpgradeHandler(sourceCodec, new H2(this), Integer.MAX_VALUE));
+      // } else {
       pipeline(ch.pipeline(), true);
+      // }
     }
   }
 

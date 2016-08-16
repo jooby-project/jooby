@@ -27,13 +27,13 @@ import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jooby.MediaType;
 import org.jooby.Sse;
+import org.jooby.spi.NativePushPromise;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.spi.NativeWebSocket;
@@ -59,10 +59,7 @@ import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import io.netty.handler.codec.http2.DefaultHttp2Headers;
-import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
-import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.AttributeKey;
@@ -99,7 +96,8 @@ public class NettyRequest implements NativeRequest {
 
   private int wsMaxMessageSize;
 
-  public NettyRequest(final ChannelHandlerContext ctx, final HttpRequest req, final String tmpdir,
+  public NettyRequest(final ChannelHandlerContext ctx,
+      final HttpRequest req, final String tmpdir,
       final int wsMaxMessageSize) throws IOException {
     this.ctx = ctx;
     this.req = req;
@@ -218,6 +216,11 @@ public class NettyRequest implements NativeRequest {
     } else if (type == Sse.class) {
       NettySse sse = new NettySse(ctx);
       return (T) sse;
+    } else if (type == NativePushPromise.class) {
+      Http2ConnectionEncoder encoder = ctx.channel().attr(HTT2).get();
+      return (T) new NettyPush(ctx, encoder,
+          req.headers().getInt(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text()),
+          header("host").orElse(ip()), secure() ? "https" : "http");
     }
     throw new UnsupportedOperationException("Not Supported: " + type);
   }
@@ -226,24 +229,6 @@ public class NettyRequest implements NativeRequest {
   public void startAsync() {
     ctx.channel().attr(NEED_FLUSH).set(false);
     ctx.channel().attr(ASYNC).set(true);
-  }
-
-  @Override
-  public void push(final String method, final String path, final Map<String, String> headers) {
-    Http2ConnectionEncoder encoder = ctx.channel().attr(HTT2).get();
-    Http2Connection connection = encoder.connection();
-    int nextStreamId = connection.local().incrementAndGetNextStreamId();
-    int streamId = req.headers().getInt(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
-    String autority = header("host").orElse(ip());
-    String scheme = secure() ? "https" : "http";
-    Http2Headers h2headers = new DefaultHttp2Headers()
-        .path(path)
-        .method(method)
-        .authority(autority)
-        .scheme(scheme);
-    headers.forEach(h2headers::set);
-    encoder.writePushPromise(ctx, streamId, nextStreamId, h2headers, 0, ctx.newPromise());
-    ctx.flush();
   }
 
   private org.jooby.Cookie cookie(final Cookie c) {

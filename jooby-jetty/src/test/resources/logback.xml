@@ -6,8 +6,6 @@
     </encoder>
   </appender>
 
-  <logger name="org.eclipse.jetty.http2" level="trace" />
-
   <root level="info">
     <appender-ref ref="STDOUT" />
   </root>

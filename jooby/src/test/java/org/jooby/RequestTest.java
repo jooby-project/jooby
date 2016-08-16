@@ -150,7 +150,7 @@ public class RequestTest {
     }
 
     @Override
-    public void push(final String method, final String path, final Map<String, String> headers) {
+    public void push(final String path, final Map<String, String> headers) {
       throw new UnsupportedOperationException();
     }
 

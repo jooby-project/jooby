@@ -356,11 +356,6 @@ public interface Request extends Registry {
     }
 
     @Override
-    public void push(final String method, final String path, final Map<String, String> headers) {
-      req.push(method, path, headers);
-    }
-
-    @Override
     public String toString() {
       return req.toString();
     }
@@ -988,9 +983,5 @@ public interface Request extends Registry {
     push(path, ImmutableMap.of());
   }
 
-  default void push(final String path, final Map<String, String> headers) {
-    push("GET", path, headers);
-  }
-
-  void push(final String method, final String path, final Map<String, String> headers);
+  void push(final String path, final Map<String, String> headers);
 }

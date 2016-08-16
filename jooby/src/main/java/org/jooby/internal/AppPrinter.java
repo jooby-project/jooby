@@ -41,6 +41,8 @@ public class AppPrinter {
 
   private boolean http2;
 
+  private boolean h2cleartext;
+
   public AppPrinter(final Set<Route.Definition> routes,
       final Set<WebSocket.Definition> sockets,
       final Config conf) {
@@ -55,6 +57,7 @@ public class AppPrinter {
       this.urls[1] = "https://" + host + ":" + conf.getString("application.securePort") + path;
     }
     http2 = conf.getBoolean("server.http2.enabled");
+    h2cleartext = conf.getBoolean("server.http2.cleartext");
   }
 
   @Override
@@ -62,17 +65,18 @@ public class AppPrinter {
     StringBuilder buffer = new StringBuilder();
 
     routes(buffer);
-
+    String[] h2 = {h2(" ", http2 && h2cleartext), h2("", http2) };
     buffer.append("\nlistening on:");
-    for (String url : urls) {
-      if (url != null) {
-        buffer.append("\n  ").append(url);
+    for (int i = 0; i < urls.length; i++) {
+      if (urls[i] != null) {
+        buffer.append("\n  ").append(urls[i]).append(h2[i]);
       }
     }
-    if (http2) {
-      buffer.append(" +h2");
-    }
     return buffer.toString();
+  }
+
+  private String h2(final String prefix, final boolean h2) {
+    return h2 ? prefix + " +h2" : "";
   }
 
   private void routes(final StringBuilder buffer) {

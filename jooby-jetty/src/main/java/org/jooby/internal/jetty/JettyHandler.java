@@ -34,6 +34,7 @@ import org.jooby.Sse;
 import org.jooby.servlet.ServletServletRequest;
 import org.jooby.servlet.ServletUpgrade;
 import org.jooby.spi.HttpHandler;
+import org.jooby.spi.NativePushPromise;
 import org.jooby.spi.NativeWebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public class JettyHandler extends AbstractHandler {
         multipart = true;
       }
 
-      ServletServletRequest nreq = new JettyRequest(request, tmpdir, multipart)
+      ServletServletRequest nreq = new ServletServletRequest(request, tmpdir, multipart)
           .with(new ServletUpgrade() {
 
             @SuppressWarnings("unchecked")
@@ -93,6 +94,8 @@ public class JettyHandler extends AbstractHandler {
                 }
               } else if (type == Sse.class) {
                 return (T) new JettySse(baseRequest, (Response) response);
+              } else if (type == NativePushPromise.class) {
+                return (T) new JettyPush(baseRequest);
               }
               throw new UnsupportedOperationException("Not Supported: " + type);
             }

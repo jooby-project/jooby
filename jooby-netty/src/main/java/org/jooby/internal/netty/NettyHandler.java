@@ -83,10 +83,13 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
       boolean keepAlive = HttpUtil.isKeepAlive(req);
 
       try {
-        String streamId = req.headers().get(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
+        String streamId = req.headers()
+            .get(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
+
         handler.handle(
             new NettyRequest(ctx, req, tmpdir, wsMaxMessageSize),
             new NettyResponse(ctx, bufferSize, keepAlive, streamId));
+
       } catch (Throwable ex) {
         exceptionCaught(ctx, ex);
       }

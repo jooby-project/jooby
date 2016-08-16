@@ -64,15 +64,53 @@ public class AppPrinterTest {
         "  WS  /ws      [*/*]     [*/*]\n" +
         "\n" +
         "listening on:" +
+        "\n  http://localhost:8080/  +h2" +
+        "\n  https://localhost:8443/ +h2", setup);
+  }
+
+  @Test
+  public void printHttp2Https() {
+    String setup = new AppPrinter(
+        Sets.newLinkedHashSet(Arrays.asList(route("/"), route("/home"))),
+        Sets.newLinkedHashSet(Arrays.asList(socket("/ws"))),
+        config("/")
+            .withValue("server.http2.cleartext", ConfigValueFactory.fromAnyRef(false))
+            .withValue("server.http2.enabled", ConfigValueFactory.fromAnyRef(true))
+            .withValue("application.securePort", ConfigValueFactory.fromAnyRef(8443)))
+                .toString();
+    assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
+        "  WS  /ws      [*/*]     [*/*]\n" +
+        "\n" +
+        "listening on:" +
         "\n  http://localhost:8080/" +
         "\n  https://localhost:8443/ +h2", setup);
   }
+
+  @Test
+  public void printHttp2ClearText() {
+    String setup = new AppPrinter(
+        Sets.newLinkedHashSet(Arrays.asList(route("/"), route("/home"))),
+        Sets.newLinkedHashSet(Arrays.asList(socket("/ws"))),
+        config("/")
+            .withValue("server.http2.cleartext", ConfigValueFactory.fromAnyRef(true))
+            .withValue("server.http2.enabled", ConfigValueFactory.fromAnyRef(true)))
+                .toString();
+    assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
+        "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
+        "  WS  /ws      [*/*]     [*/*]\n" +
+        "\n" +
+        "listening on:" +
+        "\n  http://localhost:8080/  +h2", setup);
+  }
+
 
   private Config config(final String path) {
     return ConfigFactory.empty()
         .withValue("application.host", ConfigValueFactory.fromAnyRef("localhost"))
         .withValue("application.port", ConfigValueFactory.fromAnyRef("8080"))
         .withValue("server.http2.enabled", ConfigValueFactory.fromAnyRef(false))
+        .withValue("server.http2.cleartext", ConfigValueFactory.fromAnyRef(true))
         .withValue("application.path", ConfigValueFactory.fromAnyRef(path));
   }
 

@@ -117,7 +117,7 @@ public class NettyServer implements Server {
 
     boolean http2 = conf.getBoolean("server.http2.enabled");
 
-    this.ch = bootstrap(executor, null, conf.getInt("application.port"), false);
+    this.ch = bootstrap(executor, null, conf.getInt("application.port"), http2);
 
     boolean securePort = conf.hasPath("application.securePort");
 

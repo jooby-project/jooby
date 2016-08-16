@@ -30,7 +30,7 @@ public class H2Netty extends Jooby {
     securePort(8443);
 
     use("*", (req, rsp) -> {
-      log.info("{}\n{}", req.protocol(), req.toString());
+      log.info("************ {} ************", req.path());
     });
 
     assets("/assets/**");

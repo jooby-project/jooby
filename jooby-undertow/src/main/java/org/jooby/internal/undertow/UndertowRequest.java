@@ -26,13 +26,13 @@ import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.jooby.Cookie;
 import org.jooby.MediaType;
 import org.jooby.Sse;
+import org.jooby.spi.NativePushPromise;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 import org.jooby.spi.NativeWebSocket;
@@ -50,7 +50,6 @@ import io.undertow.server.handlers.form.FormData.FormValue;
 import io.undertow.server.handlers.form.FormEncodedDataDefinition;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.AttachmentKey;
-import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
 
@@ -197,19 +196,15 @@ public class UndertowRequest implements NativeRequest {
     if (type == Sse.class) {
       return (T) new UndertowSse(exchange);
     }
+    if (type == NativePushPromise.class) {
+      return (T) new UndertowPush(exchange);
+    }
     throw new UnsupportedOperationException("Not Supported: " + type);
   }
 
   @Override
   public void startAsync() {
     exchange.dispatch();
-  }
-
-  @Override
-  public void push(final String method, final String path, final Map<String, String> headers) {
-    HeaderMap h2headers = new HeaderMap();
-    headers.forEach((h, v) -> h2headers.put(HttpString.tryFromString(h), v));
-    exchange.getConnection().pushResource(path, HttpString.tryFromString(method), h2headers);
   }
 
   private FormData parseForm(final HttpServerExchange exchange, final String tmpdir,

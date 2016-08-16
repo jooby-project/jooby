@@ -694,6 +694,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * @param app Routes provider.
    * @return This jooby instance.
    */
+  @Override
   public Jooby use(final Jooby app) {
     return use(Optional.empty(), app);
   }
@@ -725,6 +726,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * @param app Routes provider.
    * @return This jooby instance.
    */
+  @Override
   public Jooby use(final String path, final Jooby app) {
     return use(Optional.of(path), app);
   }
@@ -3937,8 +3939,13 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * </p>
    *
    * <p>
-   * It is required to configure <code>HTTPS</code> too please refer to {@link #securePort(int)}
+   * In order to use HTTP/2 with browser you must configure HTTPS, see {@link #securePort(int)}
    * documentation.
+   * </p>
+   *
+   * <p>
+   * If HTTP/2 clear text is supported then you may skip the HTTPS setup, but of course you won't be
+   * able to use HTTP/2 with browsers, just with HTTP/2 clients with supports for HTTP/2 clear text.
    * </p>
    *
    * @return This instance.
@@ -3946,26 +3953,6 @@ public class Jooby implements Routes, LifeCycle, Registry {
   public Jooby http2() {
     this.http2 = true;
     return this;
-  }
-
-  /**
-   * <p>
-   * Enable <code>HTTP/2</code> protocol. Some servers required extra configuration steps while some
-   * others just works. It is a good idea to check the server documentation about
-   * <a href="http://jooby.org/doc/servers">HTTP/2</a>.
-   * </p>
-   *
-   * <p>
-   * It is required to configure <code>HTTPS</code> too please refer to {@link #securePort(int)}
-   * documentation.
-   * </p>
-   *
-   * @param securePort HTTPS port.
-   * @return This instance.
-   */
-  public Jooby http2(final int securePort) {
-    securePort(securePort);
-    return http2();
   }
 
   /**
@@ -4092,11 +4079,6 @@ public class Jooby implements Routes, LifeCycle, Registry {
     } else {
       finalConfig = conf;
       finalEnv = env;
-    }
-
-    boolean h2 = finalConfig.getBoolean("server.http2.enabled");
-    if (h2 && !finalConfig.hasPath("application.securePort")) {
-      throw new IllegalStateException("HTTP/2: requires 'application.securePort'");
     }
 
     boolean cookieSession = session.store() == null;

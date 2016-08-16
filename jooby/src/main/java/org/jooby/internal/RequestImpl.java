@@ -373,9 +373,9 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public void push(final String method, final String path, final Map<String, String> headers) {
+  public void push(final String path, final Map<String, String> headers) {
     require(Response.class).after((req, rsp, value) -> {
-      this.req.push(method, path, headers);
+      this.req.push("GET", path, headers);
       return value;
     });
   }

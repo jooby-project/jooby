@@ -31,6 +31,7 @@ import javax.inject.Provider;
 import javax.net.ssl.SSLContext;
 
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
+import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -75,7 +76,7 @@ public class JettyServer implements org.jooby.spi.Server {
   }
 
   private Server server(final HttpHandler handler, final Config conf,
-final Provider<SSLContext> sslCtx) {
+      final Provider<SSLContext> sslCtx) {
     System.setProperty("org.eclipse.jetty.util.UrlEncoded.charset",
         conf.getString("jetty.url.charset"));
 
@@ -89,11 +90,11 @@ final Provider<SSLContext> sslCtx) {
     server.setStopAtShutdown(false);
 
     // HTTP connector
-    ServerConnector http = http(server, conf.getConfig(JETTY_HTTP), JETTY_HTTP);
+    boolean http2 = conf.getBoolean("server.http2.enabled");
+
+    ServerConnector http = http(server, conf.getConfig(JETTY_HTTP), JETTY_HTTP, http2);
     http.setPort(conf.getInt("application.port"));
     http.setHost(conf.getString("application.host"));
-
-    boolean http2 = conf.getBoolean("server.http2.enabled");
 
     if (conf.hasPath("application.securePort")) {
 
@@ -121,13 +122,18 @@ final Provider<SSLContext> sslCtx) {
     return server;
   }
 
-  private ServerConnector http(final Server server, final Config conf, final String path) {
+  private ServerConnector http(final Server server, final Config conf, final String path,
+      final boolean http2) {
     HttpConfiguration httpConfig = conf(new HttpConfiguration(), conf.withoutPath(CONNECTOR),
         path);
 
-    HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfig);
-
-    ServerConnector connector = new ServerConnector(server, httpFactory);
+    ServerConnector connector;
+    if (http2) {
+      connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig),
+          new HTTP2CServerConnectionFactory(httpConfig));
+    } else {
+      connector = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+    }
 
     return conf(connector, conf.getConfig(CONNECTOR), path + "." + CONNECTOR);
   }
@@ -140,25 +146,28 @@ final Provider<SSLContext> sslCtx) {
 
     SslContextFactory sslContextFactory = new SslContextFactory();
     sslContextFactory.setSslContext(sslContext);
+    sslContextFactory.setIncludeProtocols("TLSv1.2");
+    sslContextFactory.setIncludeCipherSuites("TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
 
     HttpConfiguration httpsConf = new HttpConfiguration(httpConf);
     httpsConf.addCustomizer(new SecureRequestCustomizer());
 
+    HttpConnectionFactory https11 = new HttpConnectionFactory(httpsConf);
+
     if (http2) {
-      ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory(H2, H2_17);
+      ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory(H2, H2_17, HTTP_1_1);
       alpn.setDefaultProtocol(HTTP_1_1);
 
-      HTTP2ServerConnectionFactory http2Factory = new HTTP2ServerConnectionFactory(httpsConf);
+      HTTP2ServerConnectionFactory https2 = new HTTP2ServerConnectionFactory(httpsConf);
 
       ServerConnector connector = new ServerConnector(server,
-          new SslConnectionFactory(sslContextFactory, "alpn"), alpn, http2Factory);
+          new SslConnectionFactory(sslContextFactory, "alpn"), alpn, https2, https11);
 
       return conf(connector, conf.getConfig(CONNECTOR), path + ".connector");
     } else {
-      HttpConnectionFactory httpsFactory = new HttpConnectionFactory(httpsConf);
 
       ServerConnector connector = new ServerConnector(server,
-          new SslConnectionFactory(sslContextFactory, HTTP_1_1), httpsFactory);
+          new SslConnectionFactory(sslContextFactory, HTTP_1_1), https11);
 
       return conf(connector, conf.getConfig(CONNECTOR), path + ".connector");
     }
