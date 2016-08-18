@@ -1,6 +1,9 @@
 # Name of application (make sure it has no spaces)
 name: "${project.artifactId}"
 
+# Display name of application (can have spaces)
+display_name: "${project.name}"
+
 # Type of launcher (CONSOLE or DAEMON)
 type: DAEMON
 
