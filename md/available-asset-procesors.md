@@ -4,7 +4,9 @@
 
 * [csslint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-csslint): check and validate css rules.
 
-* [sass](https://github.com/jooby-project/jooby/tree/master/jooby-assets-sass): Sass support from <a href="https://github.com/sass/sass">Sass (ruby)</a>.
+* [sass/libsass](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jsass): Sass support from <a href="https://github.com/bit3/jsass">Java Sass Compiler (libsass)</a>.
+
+* [sass ruby](https://github.com/jooby-project/jooby/tree/master/jooby-assets-sass): Sass support from <a href="https://github.com/sass/sass">Sass (ruby)</a>.
 
 * [less4j](https://github.com/jooby-project/jooby/tree/master/jooby-assets-less4j): Less support from [less4j](https://github.com/SomMeri/less4j)
 

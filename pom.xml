@@ -74,6 +74,7 @@
     <module>jooby-assets-requirejs</module>
     <module>jooby-assets-babel</module>
     <module>jooby-assets-rollup</module>
+    <module>jooby-assets-jsass</module>
     <module>jooby-metrics</module>
     <module>jooby-querydsl</module>
     <module>jooby-sitemap</module>

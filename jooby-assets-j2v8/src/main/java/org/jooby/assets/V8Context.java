@@ -219,11 +219,11 @@ public class V8Context {
     v8.registerJavaMethod((JavaCallback) (receiver, args) -> {
       byte[] bytes = args.get(0).toString().getBytes(StandardCharsets.UTF_8);
       return BaseEncoding.base64().encode(bytes);
-    } , "btoa");
+    }, "btoa");
     v8.registerJavaMethod((JavaCallback) (receiver, args) -> {
       byte[] atob = BaseEncoding.base64().decode(args.get(0).toString());
       return new String(atob, StandardCharsets.UTF_8);
-    } , "atob");
+    }, "atob");
   }
 
   private void assets(final V8 v8) {
@@ -237,7 +237,7 @@ public class V8Context {
         // we can't fire exceptions from Java :S
         return V8.getUndefined();
       }
-    } , "readFile");
+    }, "readFile");
 
     assets.registerJavaMethod((JavaCallback) (receiver, args) -> exists(args.get(0).toString()),
         "exists");
@@ -249,7 +249,7 @@ public class V8Context {
         // we can't fire exceptions from Java :S
         return V8.getUndefined();
       }
-    } , "load");
+    }, "load");
   }
 
 }
