@@ -7,10 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.jooby.Asset;
 import org.jooby.MediaType;
@@ -182,10 +179,16 @@ public class AssetCompilerTest {
 
   @Test
   public void humandReadableBytes() throws Exception {
-    assertEquals("1.0kb", AssetCompiler.humanReadableByteCount(1024));
-    assertEquals("1.0mb", AssetCompiler.humanReadableByteCount(1024 * 1024));
-
-    assertEquals("100.0mb", AssetCompiler.humanReadableByteCount(1024 * 1024 * 100));
+    withLocale(Locale.US, () -> {
+      assertEquals("1.0kb", AssetCompiler.humanReadableByteCount(1024));
+      assertEquals("1.0mb", AssetCompiler.humanReadableByteCount(1024 * 1024));
+      assertEquals("100.0mb", AssetCompiler.humanReadableByteCount(1024 * 1024 * 100));
+    });
+    withLocale(Locale.GERMAN, () -> {
+      assertEquals("1,0kb", AssetCompiler.humanReadableByteCount(1024));
+      assertEquals("1,0mb", AssetCompiler.humanReadableByteCount(1024 * 1024));
+      assertEquals("100,0mb", AssetCompiler.humanReadableByteCount(1024 * 1024 * 100));
+    });
   }
 
   private String compile(final AssetCompiler compiler, final String path) throws Exception {
@@ -202,5 +205,15 @@ public class AssetCompilerTest {
     return ConfigFactory.parseResources(path)
         .withValue("assets.env", ConfigValueFactory.fromAnyRef(env))
         .withValue("assets.charset", ConfigValueFactory.fromAnyRef("UTF-8"));
+  }
+
+  private void withLocale(Locale locale, Runnable block) {
+    Locale systemDefault = Locale.getDefault();
+    try {
+      Locale.setDefault(locale);
+      block.run();
+    } finally {
+      Locale.setDefault(systemDefault);
+    }
   }
 }
