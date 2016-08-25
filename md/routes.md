@@ -86,6 +86,9 @@ get("/user/:id", req -> "hey " + req.param("id").value());
 // alternative syntax
 get("/user/{id}", req -> "hey " + req.param("id").value());
 
+// matches path element with prefix "uid"
+get("/user/uid{id}", req -> "hey " + req.param("id").value());
+
 // regex
 get("/user/{id:\\d+}", req -> "hey " + req.param("id").intValue());
 ```
@@ -103,6 +106,8 @@ Request params are covered later, for now all you need to know is that you can a
   ```**``` - matches any path at any level
 
   ```*``` - matches any path at any level, shortcut for ```**```
+  
+  ```**:name``` or ```{name:**}``` - matches any path at any level and binds the match to the request parameter ```name```
 
 ## static files
 

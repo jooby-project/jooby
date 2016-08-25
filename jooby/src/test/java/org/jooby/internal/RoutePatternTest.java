@@ -139,6 +139,104 @@ public class RoutePatternTest {
   }
 
   @Test
+  public void anyNamed() {
+    new RoutePathAssert("GET", "com/**:rest")
+        .matches("GET/com/test.jsp", vars -> assertEquals("test.jsp", vars.get("rest")))
+        .matches("GET/com/a/test.jsp", vars -> assertEquals("a/test.jsp", vars.get("rest")))
+        .matches("GET/com/", vars -> assertEquals("", vars.get("rest")))
+        .butNot("GET/com")
+        .butNot("GET/test.jsp");
+  }
+
+  @Test
+  public void anyNamedSpring() {
+    new RoutePathAssert("GET", "com/{rest:**}")
+        .matches("GET/com/test.jsp", vars -> assertEquals("test.jsp", vars.get("rest")))
+        .matches("GET/com/a/test.jsp", vars -> assertEquals("a/test.jsp", vars.get("rest")))
+        .matches("GET/com/", vars -> assertEquals("", vars.get("rest")))
+        .butNot("GET/com")
+        .butNot("GET/test.jsp");
+  }
+
+  @Test
+  public void anyNamedInner() {
+    new RoutePathAssert("GET", "com/**:rest/bar")
+        .matches("GET/com/foo/bar", (vars) -> assertEquals("foo", vars.get("rest")))
+        .matches("GET/com/a/foo/bar", (vars) -> assertEquals("a/foo", vars.get("rest")))
+        .butNot("GET/com/foo/baz")
+        .butNot("GET/test.jsp");
+  }
+
+  @Test
+  public void anyNamedInnerSpring() {
+    new RoutePathAssert("GET", "com/{rest:**}/bar")
+        .matches("GET/com/foo/bar", (vars) -> assertEquals("foo", vars.get("rest")))
+        .matches("GET/com/a/foo/bar", (vars) -> assertEquals("a/foo", vars.get("rest")))
+        .butNot("GET/com/foo/baz")
+        .butNot("GET/test.jsp");
+  }
+
+  @Test
+  public void anyNamedMulti() {
+    new RoutePathAssert("GET", "com/**:first/bar/**:second")
+        .matches("GET/com/foo/bar/moo", (vars) -> {
+          assertEquals("foo", vars.get("first"));
+          assertEquals("moo", vars.get("second"));
+        })
+        .matches("GET/com/a/foo/bar/moo/baz", (vars) -> {
+          assertEquals("a/foo", vars.get("first"));
+          assertEquals("moo/baz", vars.get("second"));
+        })
+        .butNot("GET/com/foo/baz")
+        .butNot("GET/test.jsp");
+  }
+
+  @Test
+  public void anyNamedMultiSpring() {
+    new RoutePathAssert("GET", "com/{first:**}/bar/{second:**}")
+        .matches("GET/com/foo/bar/moo", (vars) -> {
+          assertEquals("foo", vars.get("first"));
+          assertEquals("moo", vars.get("second"));
+        })
+        .matches("GET/com/a/foo/bar/moo/baz", (vars) -> {
+          assertEquals("a/foo", vars.get("first"));
+          assertEquals("moo/baz", vars.get("second"));
+        })
+        .butNot("GET/com/foo/baz")
+        .butNot("GET/test.jsp");
+  }
+
+  @Test
+  public void anyNamedMultiMixed() {
+    new RoutePathAssert("GET", "com/**:first/bar/{second:**}")
+        .matches("GET/com/foo/bar/moo", (vars) -> {
+          assertEquals("foo", vars.get("first"));
+          assertEquals("moo", vars.get("second"));
+        })
+        .matches("GET/com/a/foo/bar/moo/baz", (vars) -> {
+          assertEquals("a/foo", vars.get("first"));
+          assertEquals("moo/baz", vars.get("second"));
+        })
+        .butNot("GET/com/foo/baz")
+        .butNot("GET/test.jsp");
+  }
+
+  @Test
+  public void anyNamedMultiMixed2() {
+    new RoutePathAssert("GET", "com/{first:**}/bar/**:second")
+        .matches("GET/com/foo/bar/moo", (vars) -> {
+          assertEquals("foo", vars.get("first"));
+          assertEquals("moo", vars.get("second"));
+        })
+        .matches("GET/com/a/foo/bar/moo/baz", (vars) -> {
+          assertEquals("a/foo", vars.get("first"));
+          assertEquals("moo/baz", vars.get("second"));
+        })
+        .butNot("GET/com/foo/baz")
+        .butNot("GET/test.jsp");
+  }
+
+  @Test
   public void rootVar() {
     new RoutePathAssert("GET", "{id}/list")
         .matches("GET/xqi/list")
