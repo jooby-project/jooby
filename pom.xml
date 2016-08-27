@@ -24,6 +24,7 @@
     <module>jooby-ftl</module>
     <module>jooby-pebble</module>
     <module>jooby-jade</module>
+    <module>jooby-caffeine</module>
     <module>jooby-guava-cache</module>
     <module>jooby-jdbc</module>
     <module>jooby-jooq</module>
@@ -620,6 +621,13 @@
         <groupId>com.typesafe</groupId>
         <artifactId>config</artifactId>
         <version>${config.version}</version>
+      </dependency>
+
+      <!-- Caffeine -->
+      <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        <version>${caffeine.version}</version>
       </dependency>
 
       <!-- Guava -->
@@ -1609,15 +1617,15 @@
               <compilerArgs>
                 <arg>-parameters</arg>
               </compilerArgs>
-              <!-- eclipse compiler <debuglevel>lines,vars,source</debuglevel> <compilerId>eclipse</compilerId> 
-                <compilerArguments> <org.eclipse.jdt.core.compiler.codegen.methodParameters>generate</org.eclipse.jdt.core.compiler.codegen.methodParameters> 
-                <org.eclipse.jdt.core.compiler.debug.lineNumber>generate</org.eclipse.jdt.core.compiler.debug.lineNumber> 
-                <org.eclipse.jdt.core.compiler.debug.localVariable>generate</org.eclipse.jdt.core.compiler.debug.localVariable> 
-                <org.eclipse.jdt.core.compiler.debug.sourceFile>generate</org.eclipse.jdt.core.compiler.debug.sourceFile> 
-                <org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>enabled</org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode> 
-                <org.eclipse.jdt.core.compiler.codegen.unusedLocal>preserve</org.eclipse.jdt.core.compiler.codegen.unusedLocal> 
-                <org.eclipse.jdt.core.compiler.compliance>1.8</org.eclipse.jdt.core.compiler.compliance> <org.eclipse.jdt.core.compiler.source>1.8</org.eclipse.jdt.core.compiler.source> 
-                <org.eclipse.jdt.core.compiler.codegen.targetPlatform>1.8</org.eclipse.jdt.core.compiler.codegen.targetPlatform> 
+              <!-- eclipse compiler <debuglevel>lines,vars,source</debuglevel> <compilerId>eclipse</compilerId>
+                <compilerArguments> <org.eclipse.jdt.core.compiler.codegen.methodParameters>generate</org.eclipse.jdt.core.compiler.codegen.methodParameters>
+                <org.eclipse.jdt.core.compiler.debug.lineNumber>generate</org.eclipse.jdt.core.compiler.debug.lineNumber>
+                <org.eclipse.jdt.core.compiler.debug.localVariable>generate</org.eclipse.jdt.core.compiler.debug.localVariable>
+                <org.eclipse.jdt.core.compiler.debug.sourceFile>generate</org.eclipse.jdt.core.compiler.debug.sourceFile>
+                <org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>enabled</org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>
+                <org.eclipse.jdt.core.compiler.codegen.unusedLocal>preserve</org.eclipse.jdt.core.compiler.codegen.unusedLocal>
+                <org.eclipse.jdt.core.compiler.compliance>1.8</org.eclipse.jdt.core.compiler.compliance> <org.eclipse.jdt.core.compiler.source>1.8</org.eclipse.jdt.core.compiler.source>
+                <org.eclipse.jdt.core.compiler.codegen.targetPlatform>1.8</org.eclipse.jdt.core.compiler.codegen.targetPlatform>
                 <encoding>UTF-8</encoding> </compilerArguments> -->
             </configuration>
             <dependencies>
@@ -2334,6 +2342,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
     <logback-classic.version>1.1.2</logback-classic.version>
+    <caffeine.version>2.3.3</caffeine.version>
     <guava.version>19.0</guava.version>
     <guice.version>4.0</guice.version>
     <config.version>1.3.0</config.version>
