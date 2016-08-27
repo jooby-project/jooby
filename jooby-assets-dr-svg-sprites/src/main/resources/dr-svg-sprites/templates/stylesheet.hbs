@@ -1,0 +1,63 @@
+{{#sizes}}
+{{#items}}
+{{{selector}}} {
+{{#if ../../config/cssIncludeElementSizes}}
+	width: {{unit width ../../../config/cssUnit ../../../config/cssBaseFontSize}};
+	height: {{unit height ../../../config/cssUnit ../../../config/cssBaseFontSize}};
+{{/if}}
+	background-position: {{unit x ../../config/cssUnit ../../config/cssBaseFontSize -1}} {{unit y ../../config/cssUnit ../../config/cssBaseFontSize -1}};
+}
+
+{{/items}}
+{{#if ../config/cssPngPrefix}}
+{{{prefix items ""}}} {
+	background-size: {{unit width ../../config/cssUnit ../../config/cssBaseFontSize}} {{unit height ../../config/cssUnit ../../config/cssBaseFontSize}};
+}
+
+{{{prefix items ../../config/cssPngPrefix}}} {
+	background-image: url("{{url pngPath ../../cssPath}}");
+}
+
+{{else}}
+{{{prefix items ""}}} {
+	background-size: {{unit width ../../config/cssUnit ../../config/cssBaseFontSize}} {{unit height ../../config/cssUnit ../../config/cssBaseFontSize}};
+	background-repeat: no-repeat;
+	background-image: url("{{url pngPath ../../cssPath}}");
+	{{#unless ../../config/cssSvgPrefix}}
+	background-image: url("{{url ../../../svgPath ../../../cssPath}}"), none;
+	{{/unless}}
+}
+
+{{/if}}
+{{#breakpoints}}
+{{query}} {
+	{{#items}}
+	
+	{{{selector}}} {
+	{{#if ../../../config/cssIncludeElementSizes}}
+		width: {{unit width ../../../../config/cssUnit ../../../../config/cssBaseFontSize}};
+		height: {{unit height ../../../../config/cssUnit ../../../../config/cssBaseFontSize}};
+	{{/if}}
+		background-position: {{unit x ../../../config/cssUnit ../../../config/cssBaseFontSize -1}} {{unit y ../../../config/cssUnit ../../../config/cssBaseFontSize -1}};
+	}
+	{{/items}}
+	
+	{{{prefix items ""}}} {
+		background-size: {{unit width ../../config/cssUnit ../../config/cssBaseFontSize}} {{unit height ../../config/cssUnit ../../config/cssBaseFontSize}};
+	}
+
+}
+
+{{/breakpoints}}
+{{/sizes}}
+{{#if config/cssPngPrefix}}
+{{{prefixAll ../sizes ../config/cssSvgPrefix}}} {
+	background-image: url("{{url ../svgPath ../cssPath}}");
+}
+{{else}}
+{{#if config/cssSvgPrefix}}
+{{{prefixAll ../../sizes ../config/cssSvgPrefix}}} {
+	background-image: url("{{url ../svgPath ../cssPath}}");
+}
+{{/if}}
+{{/if}}

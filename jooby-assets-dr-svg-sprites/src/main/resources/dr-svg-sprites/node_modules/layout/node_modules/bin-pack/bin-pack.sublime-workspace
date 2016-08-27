@@ -1,0 +1,591 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"slideinst",
+				"slideinstagram-imagelink"
+			],
+			[
+				"social",
+				"socialicon-twitter"
+			],
+			[
+				"prot",
+				"prototype"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 242.0,
+		"selected_items":
+		[
+			[
+				"markdown",
+				"Markdown Preview: Python Markdown: Preview in Browser"
+			],
+			[
+				"markdo",
+				"Markdown Preview: Python Markdown: Preview in Browser"
+			],
+			[
+				"markd",
+				"Markdown Preview: Python Markdown: Preview in Browser"
+			],
+			[
+				"diff",
+				"Git: Diff All"
+			],
+			[
+				"status",
+				"Git: Status"
+			],
+			[
+				"git log",
+				"Git: Log All"
+			],
+			[
+				"commit",
+				"Git: Commit"
+			],
+			[
+				"git add",
+				"Git: Add Current File"
+			],
+			[
+				"git status",
+				"Git: Status"
+			],
+			[
+				"Package Control: install",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: install package",
+				"Package Control: Install Package"
+			],
+			[
+				"package",
+				"Package Control: Remove Package"
+			],
+			[
+				"format",
+				"Tag: Auto-Format Tags on Document"
+			],
+			[
+				"lint",
+				"SublimeLinter: Show Error List"
+			],
+			[
+				"tag",
+				"Tag: Auto-Format Tags on Document"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"",
+				"File: Revert"
+			],
+			[
+				"linter",
+				"SublimeLinter: Show Error List"
+			],
+			[
+				"package con",
+				"Package Control: List Packages"
+			],
+			[
+				"Package Control: in",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: insta",
+				"Package Control: Install Package"
+			],
+			[
+				"git commit",
+				"Git: Commit"
+			]
+		],
+		"width": 576.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/D/Projects/personal/bin-pack/.gitignore",
+		"/D/Projects/personal/bin-pack/LICENSE.md",
+		"/D/Projects/personal/bin-pack/README.md",
+		"/D/Projects/personal/bin-pack/packer.growing.js",
+		"/D/Projects/personal/bin-pack/test/test.js",
+		"/D/Projects/personal/bin-pack/index.js",
+		"/D/Projects/personal/bin-pack/package.json",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/src/components/_header.scss",
+		"/C/Users/bryan/AppData/Roaming/Sublime Text 2/Packages/User/Preferences.sublime-settings",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/temp.svg",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/downarrow.svg",
+		"/D/Projects/journeygroup.com/dev/Gruntfile.js",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/arrow.svg",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/verticals/sports.svg",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/verticals/religious.svg",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/verticals/industrial.svg",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/verticals/highway.svg",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/verticals/healthcare.svg",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/verticals/government.svg",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/verticals/education.svg",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/verticals/commercial.svg",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/verticals/asphalt.svg",
+		"/D/Projects/journeygroup.com/dev/nimbus-local/templates/ee/default_site/slices.group/index.html",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/src/_homepage.scss",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/src/modules/_mq.scss",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/src/style.scss",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/src/modules/_common.scss",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/src/_base.scss",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/src/modules/_text.scss",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/src/modules/_color.scss",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/style.css",
+		"/D/Projects/journeygroup.com/dev/README.md",
+		"/D/Projects/journeygroup.com/dev/nimbus-local/config/config.env.php.sample",
+		"/D/Projects/journeygroup.com/dev/package.json",
+		"/D/Projects/journeygroup.com/dev/nimbus-local/config/config.env.php",
+		"/C/Users/bryan/AppData/Roaming/Sublime Text 2/Packages/User/Distraction Free.sublime-settings",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/logo-footer.svg",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/images/logo.svg",
+		"/D/Projects/journeygroup.com/dev/nimbus-local/config/config.master.php",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/src/_utilities.scss",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/src/style-old-ie.scss",
+		"/D/Projects/journeygroup.com/dev/httpdocs/assets/css/src/homepage.scss",
+		"/D/Projects/projectstatus.clickrain.com/.lpcurl",
+		"/D/Projects/personal/blog-app/baby-fox-goes-camping.html",
+		"/D/Projects/personal/blog-app/public/assets/style/style.css",
+		"/D/Projects/personal/blog-app/test.js",
+		"/D/Projects/personal/blog-app/archive-template.html",
+		"/D/Projects/personal/blog-app/page.js",
+		"/D/Projects/personal/blog-app/article-template.html",
+		"/D/Projects/personal/blog-app/robots-template.txt",
+		"/D/Projects/ravenprecision.com/IcoMoon Session.json",
+		"/D/Projects/uc88.com/dev/nimbus-local/snippets/default_site/scripts.html",
+		"/D/Projects/uc88.com/dev/httpdocs/assets/images/.gitignore",
+		"/D/Projects/uc88.com/dev/httpdocs/assets/images/tmp/.gitignore",
+		"/D/Projects/uc88.com/dev/httpdocs/assets/css/src/style.scss",
+		"/D/Projects/uc88.com/dev/Gruntfile.js",
+		"/D/Projects/uc88.com/dev/nimbus-local/templates/stash/head-content.html",
+		"/D/Projects/uc88.com/dev/nimbus-local/templates/stash/html-head.html",
+		"/D/Projects/uc88.com/dev/nimbus-local/config/config.master.php",
+		"/D/Projects/uc88.com/dev/nimbus-local/config/config.env.php.sample.html",
+		"/D/Projects/uc88.com/dev/nimbus-local/config/config.env.php",
+		"/D/Projects/uc88.com/dev/nimbus-local/config/env.prod.php",
+		"/D/Projects/uc88.com/dev/nimbus-local/config/.gitignore",
+		"/D/Projects/uc88.com/dev/nimbus-local/config/env.override.php",
+		"/D/Projects/applecaredoctors.com/dev/nimbus-local/config-overrides.php",
+		"/D/Projects/applecaredoctors.com/dev/nimbus-core/expressionengine/config/config.php.bak",
+		"/D/Projects/applecaredoctors.com/dev/nimbus-core/expressionengine/config/database.php.bak",
+		"/D/Projects/Peppermint/dev/httpdocs/cr/php/order.php",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/embeds.group/.ordering.html",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/embeds.group/.shipping-date.html",
+		"/D/Projects/Peppermint/dev/httpdocs/cr/php/coupon.php",
+		"/D/Projects/Peppermint/dev/httpdocs/cr/php/couponmanager.php",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/lp.group/diy.html",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/lp.group/emergency-preparedness.html",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/lp.group/green.html",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/lp.group/tailgate.html",
+		"/D/Projects/Peppermint/dev/httpdocs/cr/js/script.js",
+		"/D/Projects/Peppermint/dev/httpdocs/cr/css/lp.css",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/embeds.group/.form-order-now.html",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/order.group/index.html",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/lp.group/.common-sidebar.html",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/lp.group/.sidebar-content.html",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/lp.group/camping.html",
+		"/D/Projects/Peppermint/dev/httpdocs/cr/css/style.css",
+		"/C/Users/bryan/AppData/Roaming/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/templates/default_site/peppermint.group/page.html",
+		"/D/Projects/Peppermint/dev/httpdocs/cr/js/lp.js",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/config/database.php",
+		"/D/Projects/Peppermint/dev/httpdocs/.htaccess",
+		"/D/Projects/Peppermint/dev/config/config.master.php",
+		"/D/Projects/Peppermint/dev/config/env.staging.php",
+		"/D/Projects/Peppermint/dev/config/env.prod.php",
+		"/D/Projects/Peppermint/dev/config/env.dev.php",
+		"/D/Projects/Peppermint/dev/config/env.local-bb.php",
+		"/D/Projects/Peppermint/dev/config/config.env.php",
+		"/D/Projects/Peppermint/dev/httpdocs/manager/expressionengine/config/config.php",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/home.group/subpage.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/home.group/subpage-product.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/home.group/subpage-product-category.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/home.group/subpage-newspost.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/home.group/subpage-findadealer.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/home.group/subpage-event.html",
+		"/D/Projects/ravenprecision.com/dev/httpdocs/assets/nimbus/themes/cp_themes/nimbus/js/cp.js",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/embeds.group/.events.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/embeds.group/.find-a-dealer-search.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/embeds.group/.news.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/snippets/default_site/page-head.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/snippets/default_site/html-head.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/home.group/index.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/snippets/default_site/html-foot.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/embeds.group/.hp-rotators.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/snippets/default_site/page-foot.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/embeds.group/.bg.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/embeds.group/.find-a-dealer-search2.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/third-party/mx_google_map/mod.mx_google_map.php",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/maps.group/world.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/maps.group/canada.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/embeds.group/.find-a-dealer.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/embeds.group/.find-a-dealer-region.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/maps.group/oceania.svg",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/maps.group/oceania.html",
+		"/D/Projects/ravenprecision.com/dev/httpdocs/assets/images/product-bg-hover.svg",
+		"/D/Projects/ravenprecision.com/dev/httpdocs/assets/processor/config.processor.php",
+		"/D/Projects/ravenprecision.com/dev/httpdocs/assets/js/script.js",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/forms.group/index.html",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/forms.group/.contact.html",
+		"/D/Projects/ravenprecision.com/dev/httpdocs/assets/processor/prext.contact.php",
+		"/D/Projects/ravenprecision.com/dev/nimbus-local/templates/default_site/home.group/404.html"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"w:",
+			"w,",
+			" h:",
+			"h:",
+			"w:",
+			"0",
+			"Result",
+			"height",
+			"width",
+			"height",
+			"width",
+			"height",
+			"width",
+			".height",
+			".width",
+			".w",
+			"h",
+			"w",
+			"width",
+			"^(\\s*)  ",
+			"/ffc82e/ffffff",
+			"px",
+			"blue",
+			"100%",
+			"transform(",
+			"transform",
+			"logo",
+			"ffc82e",
+			"5a7e92",
+			"ffc82e",
+			"0.4s",
+			"touchstart",
+			"background",
+			"videocontainer",
+			"<h3>",
+			"black",
+			"mq-pixles",
+			"mq-pizels",
+			"mq-helper",
+			"bluebar",
+			"<div class=\"bluebars-interior\">\n					</div>",
+			"28px",
+			"<div class=\"bluebar1\"></div>",
+			"400",
+			"none",
+			"8px",
+			"adwrapper",
+			"ad",
+			"px",
+			":hover",
+			"asphalt",
+			".links",
+			"links",
+			"px",
+			"@keyframes ",
+			"background-image",
+			"baseheight",
+			"homepage",
+			"break-large",
+			"large",
+			"href",
+			"section",
+			"_output",
+			"req",
+			"cache",
+			"'Content-Type'",
+			"createArchiveIndex",
+			"marked",
+			"blog",
+			"writeDefault",
+			"Roboto Slab",
+			"itemprop",
+			"previous",
+			"q",
+			"static",
+			"console.log",
+			"code",
+			"request",
+			"font-size",
+			"font",
+			"  ",
+			"ENV_DEBUG",
+			"console.log",
+			"couponcode",
+			"coupon",
+			"couponcode",
+			"models",
+			"order",
+			"lp",
+			"html",
+			"validate",
+			"couponcode",
+			"ruler",
+			"—",
+			"http://staging.peppermintenergy.clickrain.com",
+			"http://staging.peppermintenergy.com",
+			"name",
+			"how-it-works",
+			"stripeResponseHandler",
+			"Stripe",
+			"font-family",
+			"page-content",
+			"template",
+			"www",
+			"peppermint.org",
+			"Peppermint.",
+			"frhs",
+			"FRHS",
+			"frhs",
+			"FRHS",
+			"clean_input_keys",
+			"distance",
+			"address",
+			"dealer",
+			"form",
+			"dealer-map",
+			"getLatLong",
+			"get_zip_info",
+			"subpage-background",
+			"pagemain-hp",
+			".wrapper",
+			"wrapper",
+			"dealersearch-map",
+			"#00929f",
+			"215",
+			"mobileheaderwrapper",
+			"secondarynav",
+			"map.png"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+			"\\1\\t",
+			"\\t",
+			" &mdash; ",
+			"",
+			"@color_menucyan",
+			"headerwrapperwrapper",
+			"@color_orange",
+			"@color_linkcyan",
+			"#626254",
+			"",
+			"assets/libs",
+			"@brown",
+			"\\t",
+			"password_reset",
+			"url('/assets/css/lato-fontfacekit/",
+			"page-lightbox",
+			"#compare",
+			"fname",
+			"rgba(239,237,231,0)",
+			"rgba(239,237,231,1)",
+			"/compare/images/check.png",
+			"div class=\"note\"",
+			"static.justsaytheword.com",
+			"currentElement",
+			"@green",
+			"slide",
+			"  "
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 30.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.git":
+	{
+		"height": 100.0
+	},
+	"output.jslint_result_view":
+	{
+		"height": 100.0
+	},
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"package",
+				"nimbus-local/third-party/profile/libraries/Package_installer.php"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+			[
+				"siouxfallsprayer",
+				"/D/Projects/siouxfallsprayerbreakfast.com/dev/siouxfallsprayerbreakfast.sublime-project"
+			],
+			[
+				"koch",
+				"/D/Projects/kochhazard.com/dev/kochhazard.sublime-project"
+			],
+			[
+				"siouxfall",
+				"/D/Projects/siouxfallsprayerbreakfast.com/dev/siouxfallsprayerbreakfast.sublime-project"
+			],
+			[
+				"siouxfalls",
+				"/D/Projects/siouxfallsprayerbreakfast.com/dev/siouxfallsprayerbreakfast.sublime-project"
+			],
+			[
+				"armscor",
+				"/D/Projects/Armscor/armscor.sublime-project"
+			],
+			[
+				"",
+				"/D/Projects/internal/analytics-graph/analytics-graph.sublime-project"
+			],
+			[
+				"analytics",
+				"/D/Projects/internal/analytics-fetch/analytics-fetch.sublime-project"
+			],
+			[
+				"twitter",
+				"/D/Projects/addons/twitter/twitter.sublime-project"
+			],
+			[
+				"usioux",
+				"/D/Projects/usiouxfalls.com/mobile/usiouxfalls.sublime-project"
+			],
+			[
+				"scorelab",
+				"/D/Projects/personal/scorelab/scorelab.sublime-project"
+			],
+			[
+				"proam",
+				"/D/Projects/proamjam.com/dev/proamjam.sublime-project"
+			],
+			[
+				"spot",
+				"/D/Projects/spotviewer/dev/spotviewer.sublime-project"
+			],
+			[
+				"raven",
+				"/D/Projects/ravenprecision.com/dev/ravenprecision.sublime-project"
+			],
+			[
+				"epic",
+				"/D/Projects/epicosity.com/dev/epicosity.sublime-project"
+			],
+			[
+				"rounds",
+				"/D/Projects/Rounds for Senate/dev/rounds-for-senate.sublime-project"
+			],
+			[
+				"spotviewer",
+				"/D/Projects/spotviewer/dev/spotviewer.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 318.0,
+	"status_bar_visible": true
+}

@@ -76,6 +76,7 @@
     <module>jooby-assets-babel</module>
     <module>jooby-assets-rollup</module>
     <module>jooby-assets-jsass</module>
+    <module>jooby-assets-dr-svg-sprites</module>
     <module>jooby-metrics</module>
     <module>jooby-querydsl</module>
     <module>jooby-sitemap</module>
@@ -463,6 +464,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-assets-rollup</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-dr-svg-sprites</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1219,6 +1226,19 @@
         <groupId>io.projectreactor</groupId>
         <artifactId>reactor-core</artifactId>
         <version>${reactor.version}</version>
+      </dependency>
+
+      <!-- zt-zip -->
+      <dependency>
+        <groupId>org.zeroturnaround</groupId>
+        <artifactId>zt-zip</artifactId>
+        <version>${zt-zip.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-transcoder</artifactId>
+        <version>${batik.version}</version>
       </dependency>
 
       <!-- Maven -->
@@ -2430,6 +2450,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
 
     <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
     <fast-classpath-scanner.version>1.99.0</fast-classpath-scanner.version>
+    <zt-zip.version>1.9</zt-zip.version>
+    <batik.version>1.8</batik.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>
