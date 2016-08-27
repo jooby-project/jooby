@@ -60,6 +60,7 @@
     <module>jooby-akka</module>
     <module>jooby-assets</module>
     <module>jooby-assets-j2v8</module>
+    <module>jooby-assets-nodejs</module>
     <module>jooby-assets-jshint</module>
     <module>jooby-assets-jscs</module>
     <module>jooby-assets-less</module>
@@ -389,6 +390,12 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-nodejs</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
         <artifactId>jooby-assets-jscs</artifactId>
         <version>${jooby.version}</version>
       </dependency>
@@ -426,6 +433,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-assets-sass</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-jsass</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 

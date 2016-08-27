@@ -118,18 +118,6 @@
       <artifactId>jooby-assets</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
-     <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-transcoder</artifactId>
-            <version>1.7</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-codec</artifactId>
-            <version>1.7</version>
-        </dependency>
 
     <!-- Test dependencies -->
     <dependency>
