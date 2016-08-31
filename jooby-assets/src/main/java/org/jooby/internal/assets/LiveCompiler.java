@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.WatchEvent.Kind;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jooby.Request;
@@ -48,6 +49,8 @@ public class LiveCompiler implements Route.Handler {
 
   private final Watcher watcher;
 
+  private final AtomicBoolean firstRun = new AtomicBoolean(true);
+
   public LiveCompiler(final Config conf, final AssetCompiler compiler) throws IOException {
     this.conf = requireNonNull(conf, "Config is required.");
     this.compiler = requireNonNull(compiler, "Asset compiler is required.");
@@ -58,11 +61,18 @@ public class LiveCompiler implements Route.Handler {
     File outputdir = new File(conf.getString("application.tmpdir"), "__public_");
     outputdir.mkdirs();
     try {
+      boolean firstRun = this.firstRun.compareAndSet(true, false);
+      if (!firstRun) {
+        if (!compiler.contains(path.toString())) {
+          return;
+        }
+      }
       compiler.build(conf.getString("application.env"), outputdir);
       lastErr.set(null);
     } catch (AssetException ex) {
       lastErr.set(rewrite(ex));
     } catch (Exception ex) {
+      ex.printStackTrace();
       AssetException assetEx = rewrite(new AssetException("compiler",
           new AssetProblem(path.toString(), -1, -1, ex.getMessage(), null), ex));
       lastErr.set(assetEx);

@@ -6,8 +6,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jooby.Asset;
 import org.jooby.MediaType;
@@ -21,6 +28,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
+import javaslang.control.Try;
+
 public class AssetCompilerTest {
 
   @Test
@@ -32,12 +41,39 @@ public class AssetCompilerTest {
   @Test
   public void fileSet() throws Exception {
     assertEquals(Sets.newHashSet("home"),
-        new AssetCompiler(conf("assets-test.conf", "dev")).keySet());
+        new AssetCompiler(conf("assets-test.conf", "dev")).fileset());
 
-    assertEquals(Sets.newHashSet(), new AssetCompiler(conf("empty.conf", "dev")).keySet());
+    assertEquals(Sets.newHashSet(), new AssetCompiler(conf("empty.conf", "dev")).fileset());
 
     assertEquals(Sets.newHashSet("home", "home1", "home2", "home3", "base", "lib", "lib2", "tjs"),
-        new AssetCompiler(conf("assets-fileset.conf", "dev")).keySet());
+        new AssetCompiler(conf("assets-fileset.conf", "dev")).fileset());
+  }
+
+  @Test
+  public void fileSetAggregator() throws Exception {
+    assertEquals(Lists.newArrayList("/assets/dyn.css", "/assets/index.js", "/assets/index.css"),
+        new AssetCompiler(conf("assets-aggregator.conf", "dev")).assets("mypage"));
+
+    assertEquals(Lists.newArrayList("/aggregator-missing", "/assets/index.js", "/assets/index.css"),
+        new AssetCompiler(conf("assets-missing-aggregator.conf", "dev")).assets("mypage"));
+  }
+
+  @Test
+  public void listAggregators() throws Exception {
+    assertEquals("[aggregator-test]",
+        new AssetCompiler(conf("assets-aggregator.conf", "dev")).aggregators().toString());
+  }
+
+  @Test
+  public void fileSetContains() throws Exception {
+    assertEquals(true,
+        new AssetCompiler(conf("assets-aggregator.conf", "dev")).contains("/assets/index.js"));
+  }
+
+  @Test
+  public void fileSetContainsShouldReturnsFalseForAggregatorFileSet() throws Exception {
+    assertEquals(false,
+        new AssetCompiler(conf("assets-aggregator.conf", "dev")).contains("/assets/dyn.css"));
   }
 
   @Test
@@ -111,9 +147,33 @@ public class AssetCompilerTest {
     File dir = Paths.get("target", "public").toFile();
     Map<String, List<File>> files = new AssetCompiler(conf("assets-compile-all.conf", "dev"))
         .build("dev", dir);
+    Set<File> expected = Sets.newHashSet(
+        Paths.get("target", "public", "assets", "all.0a36d8bd.css").toFile(),
+        Paths.get("target", "public", "assets", "all.9a92930a.js").toFile());
     files.values()
         .forEach(file -> file
-            .forEach(it -> assertTrue(it.exists())));
+            .forEach(it -> {
+              assertTrue(it.exists());
+              expected.remove(it);
+            }));
+    assertEquals(0, expected.size());
+  }
+
+  @Test
+  public void bundleWithAggregator() throws Exception {
+    File dir = Paths.get("target", "public").toFile();
+    Map<String, List<File>> files = new AssetCompiler(conf("assets-aggregator.conf", "dev"))
+        .build("dev", dir);
+    files.values()
+        .forEach(file -> file
+            .forEach(it -> {
+              assertTrue(it.exists());
+              if (it.getName().endsWith(".css")) {
+                String css = Try.of(() -> Files.readAllLines(it.toPath()).stream()
+                    .collect(Collectors.joining("\n"))).get();
+                assertTrue(css.contains(".dyn"));
+              }
+            }));
   }
 
   @Test(expected = FileNotFoundException.class)
@@ -207,7 +267,7 @@ public class AssetCompilerTest {
         .withValue("assets.charset", ConfigValueFactory.fromAnyRef("UTF-8"));
   }
 
-  private void withLocale(Locale locale, Runnable block) {
+  private void withLocale(final Locale locale, final Runnable block) {
     Locale systemDefault = Locale.getDefault();
     try {
       Locale.setDefault(locale);

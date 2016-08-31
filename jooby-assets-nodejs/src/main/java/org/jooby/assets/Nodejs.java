@@ -223,7 +223,7 @@ public class Nodejs {
               boolean copy = !fout.exists()
                   || coptions.contains(StandardCopyOption.REPLACE_EXISTING);
               if (copy) {
-                log.info("copying {} to {}", it, fout);
+                log.debug("copying {} to {}", it, fout);
                 fout.getParentFile().mkdirs();
                 StandardCopyOption[] coptions = this.coptions
                     .toArray(new StandardCopyOption[this.coptions.size()]);

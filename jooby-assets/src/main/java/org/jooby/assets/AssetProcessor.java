@@ -18,16 +18,10 @@
  */
 package org.jooby.assets;
 
-import static java.util.Objects.requireNonNull;
-
-import java.util.Map;
-
 import org.jooby.MediaType;
 
 import com.google.common.base.CaseFormat;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValueFactory;
 
 /**
  * <h2>asset processor</h2>
@@ -51,8 +45,8 @@ import com.typesafe.config.ConfigValueFactory;
  * <p>
  * Did you see the <strong>provided</strong> scope? We just need the processor for development,
  * because assets are processed on the fly. For <code>prod</code>, assets are processed at
- * built-time via Maven plugin, at runtime we don't need this. This also, helps to keep our
- * dependencies and the jar size to minimum.
+ * built-time via Maven/Gradle plugin, at runtime we don't need this. This also, helps to keep our
+ * dependencies and the jar size small.
  * </p>
  *
  * <p>
@@ -140,36 +134,22 @@ import com.typesafe.config.ConfigValueFactory;
  * @author edgar
  * @since 0.11.0
  */
-public abstract class AssetProcessor {
+public abstract class AssetProcessor extends AssetOptions {
 
-  private Config options = ConfigFactory.empty();;
-
-  public AssetProcessor set(final String name, final Object value) {
-    requireNonNull(name, "Option's name is required.");
-    options = options.withValue(name, ConfigValueFactory.fromAnyRef(value));
-    return this;
-  }
-
-  public AssetProcessor set(final Config options) {
-    this.options = requireNonNull(options, "Options are required.").withFallback(this.options);
-    return this;
-  }
-
-  public Map<String, Object> options() {
-    return options.withoutPath("excludes").root().unwrapped();
-  }
-
-  @SuppressWarnings("unchecked")
-  public <T> T get(final String name) {
-    requireNonNull(name, "Option's name is required.");
-    if (options.hasPath(name)) {
-      return (T) options.getAnyRef(name);
-    }
-    return null;
-  }
-
-  public final String name() {
+  public String name() {
     return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, getClass().getSimpleName());
+  }
+
+  @Override
+  public AssetProcessor set(final String name, final Object value) {
+    super.set(name, value);
+    return this;
+  }
+
+  @Override
+  public AssetProcessor set(final Config options) {
+    super.set(options);
+    return this;
   }
 
   public abstract boolean matches(final MediaType type);

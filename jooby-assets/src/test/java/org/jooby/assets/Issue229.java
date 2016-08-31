@@ -16,7 +16,7 @@ public class Issue229 {
   public void wrongVars() throws Exception {
     AssetCompiler compiler = new AssetCompiler(ConfigFactory.parseResources("issue.229.conf"));
     Set<String> vars = new HashSet<>();
-    compiler.keySet().forEach(asset -> {
+    compiler.fileset().forEach(asset -> {
       vars.add(asset);
     });
 

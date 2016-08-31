@@ -39,7 +39,7 @@ public class AssetVars implements Route.Handler {
 
   @Override
   public void handle(final Request req, final Response rsp) throws Exception {
-    compiler.keySet().forEach(asset -> {
+    compiler.fileset().forEach(asset -> {
       /** Styles */
       List<String> styles = compiler.styles(asset);
       req.set(asset + "_css", styles);

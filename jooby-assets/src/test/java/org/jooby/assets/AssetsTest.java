@@ -68,7 +68,7 @@ public class AssetsTest {
         }).expect(unit -> {
 
           AssetCompiler compiler = unit.get(AssetCompiler.class);
-          expect(compiler.keySet()).andReturn(Sets.newHashSet("home"));
+          expect(compiler.fileset()).andReturn(Sets.newHashSet("home"));
           expect(compiler.styles("home")).andReturn(Lists.newArrayList("/home.css"));
           expect(compiler.scripts("home")).andReturn(Lists.newArrayList("/home.js"));
 
@@ -135,7 +135,60 @@ public class AssetsTest {
           expect(env.onStop(isA(CheckedRunnable.class))).andReturn(env);
         }).expect(unit -> {
           AssetCompiler compiler = unit.get(AssetCompiler.class);
-          expect(compiler.keySet()).andReturn(Sets.newHashSet("home"));
+          expect(compiler.fileset()).andReturn(Sets.newHashSet("home"));
+          expect(compiler.styles("home")).andReturn(Lists.newArrayList("/home.css"));
+          expect(compiler.scripts("home")).andReturn(Lists.newArrayList("/home.js"));
+
+          Request req = unit.get(Request.class);
+          expect(req.set("home_css", Lists.newArrayList("/home.css"))).andReturn(req);
+          expect(req.set("home_styles", "<link href=\"/home.css\" rel=\"stylesheet\">\n"))
+              .andReturn(req);
+
+          expect(req.set("home_js", Lists.newArrayList("/home.js"))).andReturn(req);
+          expect(req.set("home_scripts", "<script src=\"/home.js\"></script>\n")).andReturn(req);
+
+          unit.get(Route.Chain.class).next(req, unit.get(Response.class));
+        }).run(unit -> {
+          new Assets()
+              .configure(unit.get(Env.class), conf, unit.get(Binder.class));
+        }, unit -> {
+          unit.captured(AssetVars.class).iterator().next().handle(unit.get(Request.class),
+              unit.get(Response.class), unit.get(Route.Chain.class));
+        });
+  }
+
+  @Test
+  public void configureWithoutWatch() throws Exception {
+    Config conf = ConfigFactory.empty()
+        .withValue("application.path", ConfigValueFactory.fromAnyRef("/"))
+        .withValue("assets.watch", ConfigValueFactory.fromAnyRef(false));
+    new MockUnit(Env.class, Binder.class, Request.class, Response.class,
+        Route.Chain.class).expect(unit -> {
+          AssetCompiler compiler = unit.constructor(AssetCompiler.class)
+              .args(ClassLoader.class, Config.class)
+              .build(Assets.class.getClassLoader(), conf);
+          expect(compiler.patterns()).andReturn(Sets.newHashSet("/assets/**"));
+          unit.registerMock(AssetCompiler.class, compiler);
+        }).expect(unit -> {
+          Definition assetVars = unit.mock(Definition.class);
+          expect(assetVars.name("/assets/vars")).andReturn(assetVars);
+          Routes routes = unit.mock(Routes.class);
+          expect(routes.use(eq("*"), eq("*"), unit.capture(AssetVars.class))).andReturn(assetVars);
+
+          Definition assetHandlerWithCompiler = unit.mock(Definition.class);
+          expect(routes.get(eq("/assets/**"), isA(AssetHandlerWithCompiler.class)))
+              .andReturn(assetHandlerWithCompiler);
+
+
+          Env env = unit.get(Env.class);
+          expect(env.routes()).andReturn(routes);
+        }).expect(unit -> {
+          Env env = unit.get(Env.class);
+
+          expect(env.name()).andReturn("dev");
+        }).expect(unit -> {
+          AssetCompiler compiler = unit.get(AssetCompiler.class);
+          expect(compiler.fileset()).andReturn(Sets.newHashSet("home"));
           expect(compiler.styles("home")).andReturn(Lists.newArrayList("/home.css"));
           expect(compiler.scripts("home")).andReturn(Lists.newArrayList("/home.js"));
 
@@ -193,7 +246,7 @@ public class AssetsTest {
         }).expect(unit -> {
 
           AssetCompiler compiler = unit.get(AssetCompiler.class);
-          expect(compiler.keySet()).andReturn(Sets.newHashSet("home"));
+          expect(compiler.fileset()).andReturn(Sets.newHashSet("home"));
           expect(compiler.styles("home")).andReturn(Lists.newArrayList("/home.css"));
           expect(compiler.scripts("home")).andReturn(Lists.newArrayList("/home.js"));
 
@@ -248,7 +301,7 @@ public class AssetsTest {
         }).expect(unit -> {
 
           AssetCompiler compiler = unit.get(AssetCompiler.class);
-          expect(compiler.keySet()).andReturn(Sets.newHashSet("home"));
+          expect(compiler.fileset()).andReturn(Sets.newHashSet("home"));
           expect(compiler.styles("home")).andReturn(Lists.newArrayList("/home.css"));
           expect(compiler.scripts("home")).andReturn(Lists.newArrayList("/home.js"));
 

@@ -19,12 +19,12 @@
 package org.jooby.assets;
 
 import static java.util.Objects.requireNonNull;
+import static javaslang.Predicates.instanceOf;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -54,6 +55,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
@@ -62,6 +64,8 @@ import com.google.common.io.Files;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValue;
+
+import javaslang.control.Try;
 
 /**
  * <h1>Asset compiler</h1>
@@ -81,6 +85,8 @@ public class AssetCompiler {
 
   private final Map<String, List<AssetProcessor>> pipeline;
 
+  private final List<AssetAggregator> aggregators = new ArrayList<>();
+
   private final Map<String, List<String>> fileset;
 
   private final Predicate<String> scripts;
@@ -98,17 +104,17 @@ public class AssetCompiler {
   }
 
   public AssetCompiler(final ClassLoader loader, final Config conf) throws Exception {
-    this.loader = requireNonNull(loader, "Class loader is required.");
+    this.loader = AssetClassLoader.classLoader(loader);
     this.conf = requireNonNull(conf, "Assets conf is required.");
     String basedir = conf.hasPath("assets.basedir") ? spath(conf.getString("assets.basedir")) : "";
     this.charset = Charset.forName(this.conf.getString("assets.charset"));
     if (this.conf.hasPath("assets.fileset")) {
-      this.fileset = fileset(basedir, this.conf.getConfig("assets.fileset"));
+      this.fileset = fileset(loader, basedir, this.conf, aggregators::add);
     } else {
-      this.fileset = Collections.emptyMap();
+      this.fileset = new HashMap<>();
     }
     this.scripts = predicate(this.conf, ".js", ".coffee", ".ts");
-    this.styles = predicate(this.conf, ".css", ".scss", ".less");
+    this.styles = predicate(this.conf, ".css", ".scss", ".sass", ".less");
     if (this.fileset.size() > 0) {
       this.pipeline = pipeline(loader, this.conf.getConfig("assets"));
     } else {
@@ -116,48 +122,185 @@ public class AssetCompiler {
     }
   }
 
+  /**
+   * Get all the assets for the provided file set. Example:
+   *
+   * <pre>
+   * assets {
+   *   fileset {
+   *     home: [home.css, home.js]
+   *   }
+   * }
+   * </pre>
+   *
+   * This method returns <code>home.css</code> and <code>home.js</code> for <code>home</code> file
+   * set. If there is no fileset under that name then it returns an empty list.
+   *
+   * @param name Fileset name.
+   * @return List of files or empty list.
+   */
   public List<String> assets(final String name) {
     return fileset.getOrDefault(name, Collections.emptyList());
   }
 
-  public Set<String> keySet() {
+  /**
+   * @return Returns all the fileset.
+   */
+  public Set<String> fileset() {
     return fileset.keySet();
   }
 
+  /**
+   * Iterate over fileset and common path pattern for them. Example:
+   *
+   * <pre>
+   * {
+   *   assets {
+   *     fileset {
+   *       lib: [js/lib/jquery.js],
+   *       home: [css/style.css, js/home.js]
+   *     }
+   *   }
+   * }
+   * </pre>
+   *
+   * This method returns a set with <code>/css/**</code> and <code>/js/**</code> pattern.
+   *
+   * @return Path pattern of the entire fileset.
+   */
   public Set<String> patterns() {
-    return patterns(file -> true)
-        .map(v -> "/" + v + "/**")
-        .collect(Collectors.toCollection(LinkedHashSet::new));
+    return patterns(file -> !aggregators.stream()
+        .filter(it -> it.fileset().contains(file))
+        .findFirst().isPresent())
+            .map(v -> "/" + v + "/**")
+            .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
-  public List<String> scripts(final String name) {
-    return assets(name)
+  /**
+   * Test if the provided path is part of the fileset.
+   *
+   * @param path Test to test.
+   * @return True, if the path belong to the filset.
+   */
+  public boolean contains(final String path) {
+    Predicate<List<String>> filter = fs -> fs.stream()
+        .filter(it -> path.endsWith(it))
+        .findFirst()
+        .isPresent();
+
+    boolean generated = aggregators.stream()
+        .map(AssetAggregator::fileset)
+        .filter(filter)
+        .findFirst()
+        .isPresent();
+    if (!generated) {
+      return fileset.values().stream()
+          .filter(filter)
+          .findFirst()
+          .isPresent();
+    }
+    return false;
+  }
+
+  /**
+   * Get all the javascript (or derived) for the provided fileset. Example:
+   *
+   * <pre>
+   * {
+   *   assets {
+   *     fileset {
+   *       mypage: [mypage.js, mypage.css]
+   *     }
+   *   }
+   * }
+   * </pre>
+   *
+   * <p>
+   * This method returns <code>mypage.js</code> for <code>mypage</code> fileset.
+   * </p>
+   *
+   * @param fileset Fileset name.
+   * @return All the scripts for a fileset.
+   */
+  public List<String> scripts(final String fileset) {
+    return assets(fileset)
         .stream()
         .filter(scripts)
         .collect(Collectors.toList());
   }
 
-  public List<String> styles(final String name) {
-    return assets(name)
+  /**
+   * Get all the css files (or derived) for the provided fileset. Example:
+   *
+   * <pre>
+   * {
+   *   assets {
+   *     fileset {
+   *       mypage: [mypage.js, mypage.css]
+   *     }
+   *   }
+   * }
+   * </pre>
+   *
+   * <p>
+   * This method returns <code>mypage.js</code> for <code>mypage</code> fileset.
+   * </p>
+   *
+   * @param fileset Fileset name.
+   * @return All the scripts for a fileset.
+   */
+  public List<String> styles(final String fileset) {
+    return assets(fileset)
         .stream()
         .filter(styles)
         .collect(Collectors.toList());
   }
 
+  /**
+   * List all the {@link AssetProcessor} for a distribution (a.k.a. environment).
+   *
+   * @param dist Distribution's name.
+   * @return A readonly list of available {@link AssetProcessor}.
+   */
   public List<AssetProcessor> pipeline(final String dist) {
     List<AssetProcessor> chain = this.pipeline.get(dist);
     if (chain == null) {
       log.debug("no pipeline for: {}", dist);
       return Collections.emptyList();
     }
-    return chain;
+    return Collections.unmodifiableList(chain);
   }
 
+  /**
+   * @return Readonly list of available {@link AssetAggregator}.
+   */
+  public List<AssetAggregator> aggregators() {
+    return Collections.unmodifiableList(aggregators);
+  }
+
+  /**
+   * Build assets using the given distribution and write output to the provided directory.
+   *
+   * Build process is defined as follow:
+   *
+   * 1. First, it runs all the aggregators (if any)
+   * 2. Then iterates each fileset and per each file in the fileset it apply the processor pipeline.
+   * 3. Finally, it merge all the files into one file and compressed/optimized if need it.
+   *
+   * @param dist Distribution's name (usually dev or dist).
+   * @param dir Output directory.
+   * @return Map with fileset name as key and list of generated assets.
+   * @throws Exception If something goes wrong.
+   */
   public Map<String, List<File>> build(final String dist, final File dir) throws Exception {
     Map<String, List<File>> output = new LinkedHashMap<>();
+
+    log.info("{} aggregators: {}", dist, aggregators);
+    aggregators(aggregators, conf);
+
     List<AssetProcessor> pipeline = pipeline(dist);
     log.info("{} pipeline: {}", dist, pipeline);
-    for (String fset : keySet()) {
+    for (String fset : fileset()) {
       List<String> files = assets(fset);
 
       log.info("compiling {}:", fset);
@@ -172,7 +315,7 @@ public class AssetCompiler {
       Files.write(css, fcss, charset);
 
       String js = compile(pipeline, files.stream().filter(scripts).iterator(), MediaType.js, ";");
-      Path jsSha1 = Paths.get(fset + "." + sha1(js) + ".css");
+      Path jsSha1 = Paths.get(fset + "." + sha1(js) + ".js");
       Path pjs = patterns(styles).findFirst()
           .map(p -> Paths.get(p).resolve(jsSha1))
           .orElse(jsSha1);
@@ -188,6 +331,23 @@ public class AssetCompiler {
     return output;
   }
 
+  private void aggregators(final List<AssetAggregator> aggregators, final Config conf)
+      throws Exception {
+    for (AssetAggregator it : aggregators) {
+      log.info("applying {}", it);
+      it.run(conf);
+    }
+
+  }
+
+  /**
+   * Apply the processor pipeline to the given asset. Like {@link #build(String, File)} but for a
+   * single file or asset.
+   *
+   * @param asset Asset to build.
+   * @return Processed asset.
+   * @throws Exception If something goes wrong.
+   */
   public Asset build(final Asset asset) throws Exception {
 
     if (pipeline.size() == 0) {
@@ -289,11 +449,11 @@ public class AssetCompiler {
   private static String readFile(final ClassLoader loader, final String path, final Charset charset)
       throws IOException {
     String spath = path.startsWith("/") ? path.substring(1) : path;
-    URL res = loader.getResource(spath);
-    if (res == null) {
-      throw new FileNotFoundException(spath);
+    InputStream resource = loader.getResourceAsStream(spath);
+    if (resource == null) {
+      throw new FileNotFoundException(path);
     }
-    return toString(res.openStream(), charset);
+    return toString(resource, charset);
   }
 
   private static String toString(final InputStream in, final Charset charset) throws IOException {
@@ -321,12 +481,28 @@ public class AssetCompiler {
     };
   }
 
-  private static Map<String, List<String>> fileset(final String basedir, final Config fileset) {
+  private static Map<String, List<String>> fileset(final ClassLoader loader, final String basedir,
+      final Config conf, final Consumer<AssetAggregator> aggregators) {
     Map<String, List<String>> result = new HashMap<>();
+    Config assetconf = conf.getConfig("assets");
+    Config fileset = assetconf.getConfig("fileset");
     // 1st pass, collect single resources (no merge)
     fileset.entrySet().forEach(e -> {
       String[] key = unquote(e.getKey()).split("\\s*<\\s*");
-      result.put(key[0], strlist(e.getValue().unwrapped(), v -> basedir + spath(v)));
+      List<String> candidates = strlist(e.getValue().unwrapped(), v -> basedir + spath(v));
+      List<String> values = new ArrayList<>();
+      candidates.forEach(it -> {
+        Try.run(() -> {
+          processors(assetconf, loader, null, ImmutableList.of(it.substring(1)), ImmutableSet.of())
+              .stream().filter(instanceOf(AssetAggregator.class))
+              .forEach(p -> {
+                AssetAggregator a = (AssetAggregator) p;
+                aggregators.accept(a);
+                a.fileset().forEach(f -> values.add(spath(f)));
+              });
+        }).onFailure(x -> values.add(it));
+      });
+      result.put(key[0], values);
     });
     // 2nd pass, merge resources
     fileset.entrySet().forEach(e -> {
@@ -367,41 +543,39 @@ public class AssetCompiler {
   }
 
   @SuppressWarnings("unchecked")
-  private static List<AssetProcessor> processors(final Config conf, final ClassLoader loader,
-      final String env, final List<String> names, final Set<String> filter) throws Exception {
-    try {
-      Map<String, Class<AssetProcessor>> classes = new LinkedHashMap<>();
-      for (Entry<String, String> entry : bind(conf, names).entrySet()) {
-        classes.put(entry.getKey(), (Class<AssetProcessor>) loader.loadClass(entry.getValue()));
-      }
-      return processors(conf, env, filter, classes);
-    } catch (Exception ex) {
-      throw ex;
+  private static <T extends AssetOptions> List<T> processors(final Config conf,
+      final ClassLoader loader, final String env, final List<String> names,
+      final Set<String> filter) throws Exception {
+    Map<String, Class<AssetOptions>> classes = new LinkedHashMap<>();
+    for (Entry<String, String> entry : bind(conf, names).entrySet()) {
+      classes.put(entry.getKey(), (Class<AssetOptions>) loader.loadClass(entry.getValue()));
     }
+    return (List<T>) processors(conf, env, filter, classes);
   }
 
-  private static List<AssetProcessor> processors(final Config conf, final String env,
-      final Set<String> filter, final Map<String, Class<AssetProcessor>> classes) throws Exception {
-    List<AssetProcessor> processors = new ArrayList<>();
+  @SuppressWarnings("unchecked")
+  private static <T extends AssetOptions> List<T> processors(final Config conf, final String env,
+      final Set<String> filter, final Map<String, Class<T>> classes) throws Exception {
+    List<T> processors = new ArrayList<>();
     Function<Config, Config> without = options -> {
       for (String path : filter) {
         options = options.withoutPath(path);
       }
       return options;
     };
-    for (Entry<String, Class<AssetProcessor>> entry : classes.entrySet()) {
+    for (Entry<String, Class<T>> entry : classes.entrySet()) {
       String name = entry.getKey();
-      Class<AssetProcessor> clazz = entry.getValue();
+      Class<T> clazz = entry.getValue();
       Config options = ConfigFactory.empty();
       if (conf.hasPath(name)) {
         options = conf.getConfig(name);
-        if (options.hasPath(env)) {
+        if (env != null && options.hasPath(env)) {
           options = options.getConfig(env).withFallback(options);
         }
       }
-      AssetProcessor processor = clazz.newInstance();
+      AssetOptions processor = clazz.newInstance();
       processor.set(without.apply(options));
-      processors.add(processor);
+      processors.add((T) processor);
     }
     return processors;
   }
@@ -436,7 +610,7 @@ public class AssetCompiler {
   }
 
   private static String spath(final String path) {
-    return path.startsWith("/") ? path : "/" + path;
+    return path.charAt(0) == '/' ? path : "/" + path;
   }
 
   // http://stackoverflow.com/questions/3758606/how-to-convert-byte-size-into-human-readable-format-in-java
