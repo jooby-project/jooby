@@ -11,7 +11,7 @@ public class App extends Jooby {
     get("/", () -> "Hey Jooby!");
   }
 
-  public static void main(final String[] args) throws Throwable {
+  public static void main(final String[] args) {
     run(App::new, args);
   }
 }

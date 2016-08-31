@@ -705,20 +705,14 @@ public class JoobyTest {
         }, boot);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void cookieSessionShouldFailWhenApplicationSecretIsnotPresent() throws Throwable {
 
-    try {
-      Jooby jooby = new Jooby();
+    Jooby jooby = new Jooby();
 
-      jooby.cookieSession();
+    jooby.cookieSession();
 
-      jooby.start();
-
-    } catch (IllegalStateException ex) {
-      assertEquals("Required property 'application.secret' is missing", ex.getMessage());
-      throw ex;
-    }
+    jooby.start();
   }
 
   @Test

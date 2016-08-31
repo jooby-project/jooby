@@ -10,7 +10,6 @@ public class Issue430 {
 
     @Override
     public void start() throws Exception {
-      throw new UnsupportedOperationException();
     }
 
     @Override
@@ -23,7 +22,7 @@ public class Issue430 {
 
   }
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test
   public void customServer() throws Throwable {
     new Jooby().server(NOOP.class).start();
   }

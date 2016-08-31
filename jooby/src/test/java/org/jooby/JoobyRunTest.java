@@ -2,9 +2,8 @@ package org.jooby;
 
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import org.jooby.test.MockUnit;
@@ -14,29 +13,27 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Jooby.class })
+@PrepareForTest({Jooby.class, System.class })
 public class JoobyRunTest {
 
   @SuppressWarnings("serial")
-  public static class ArgEx extends Exception {
-
-    private String[] args;
+  public static class ArgEx extends RuntimeException {
 
     public ArgEx(final String[] args) {
-      this.args = args;
+      super(Arrays.toString(args));
     }
 
   }
 
   public static class NoopApp extends Jooby {
     @Override
-    public void start(final String[] args) throws Exception {
+    public void start(final String[] args) {
     }
   }
 
   public static class NoopAppEx extends Jooby {
     @Override
-    public void start(final String[] args) throws Exception {
+    public void start(final String[] args) {
       throw new ArgEx(args);
     }
   }
@@ -82,14 +79,4 @@ public class JoobyRunTest {
     Jooby.run(NoopApp.class);
   }
 
-  @Test
-  public void runClassArg() throws Throwable {
-    String[] args = {"foo" };
-    try {
-      Jooby.run(NoopAppEx.class, args);
-      fail();
-    } catch (ArgEx ex) {
-      assertArrayEquals(args, ex.args);
-    }
-  }
 }

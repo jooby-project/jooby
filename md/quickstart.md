@@ -98,7 +98,7 @@ public class App extends Jooby { // 1
     get("/", () -> "Hello World!");
   }
 
-  public static void main(final String[] args) throws Throwable {
+  public static void main(final String[] args) {
     run(App::new, args); // 3. start the application.
   }
 

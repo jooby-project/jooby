@@ -46,7 +46,7 @@ useful links
 
 * [jooby.org](http://jooby.org)
 * [twitter](https://twitter.com/joobyproject)
-* [slack](https://jooby.slack.com)
+* [gitter](https://gitter.im/jooby-project/jooby)
 * [group](https://groups.google.com/forum/#!forum/jooby-project)
 * [issues](https://github.com/jooby-project/jooby/issues)
 

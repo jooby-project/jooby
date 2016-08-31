@@ -131,6 +131,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -3460,10 +3461,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
    *
    * @param app App creator.
    * @param args App arguments.
-   * @throws Throwable If something fails to start.
    */
-  public static void run(final Supplier<? extends Jooby> app, final String... args)
-      throws Throwable {
+  public static void run(final Supplier<? extends Jooby> app, final String... args) {
     Config conf = ConfigFactory.systemProperties()
         .withFallback(args(args));
     System.setProperty("logback.configurationFile", logback(conf));
@@ -3492,10 +3491,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
    *
    * @param app App creator.
    * @param args App arguments.
-   * @throws Throwable If something fails to start.
    */
-  public static void run(final Class<? extends Jooby> app, final String... args)
-      throws Throwable {
+  public static void run(final Class<? extends Jooby> app, final String... args) {
     run(() -> Try.of(() -> app.newInstance()).get(), args);
   }
 
@@ -3518,10 +3515,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * <li>At this point Guice is ready and all the services has been binded.</li>
    * <li>A web server is started</li>
    * </ol>
-   *
-   * @throws Throwable If something fails to start.
    */
-  public void start() throws Throwable {
+  public void start() {
     start(new String[0]);
   }
 
@@ -3574,9 +3569,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
    *
    * @param args Application arguments. Using the <code>name=value</code> format, except for
    *        application.env where can be just: <code>myenv</code>.
-   * @throws Throwable If something fails to start.
    */
-  public void start(final String[] args) throws Throwable {
+  public void start(final String[] args) {
     start(args, null);
   }
 
@@ -3603,52 +3597,54 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * @param args Application arguments. Using the <code>name=value</code> format, except for
    *        application.env where can be just: <code>myenv</code>.
    * @param routes Routes callback. Invoked once all app routes has been collected.
-   * @throws Throwable If something fails to start.
    */
-  public void start(final String[] args, final Consumer<List<Route.Definition>> routes)
-      throws Throwable {
-    long start = System.currentTimeMillis();
+  public void start(final String[] args, final Consumer<List<Route.Definition>> routes) {
+    try {
+      long start = System.currentTimeMillis();
 
-    // shutdown hook
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
+      started.set(true);
 
-    this.injector = bootstrap(args(args), routes);
+      // shutdown hook
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
 
-    started.set(true);
+      this.injector = bootstrap(args(args), routes);
 
-    Config conf = injector.getInstance(Config.class);
+      Config conf = injector.getInstance(Config.class);
 
-    Logger log = LoggerFactory.getLogger(getClass());
-    log.debug("config tree:\n{}", configTree(conf.origin().description()));
+      Logger log = LoggerFactory.getLogger(getClass());
+      log.debug("config tree:\n{}", configTree(conf.origin().description()));
 
-    // start services
-    for (CheckedConsumer<Registry> onStart : this.onStart) {
-      onStart.accept(this);
-    }
+      // start services
+      for (CheckedConsumer<Registry> onStart : this.onStart) {
+        onStart.accept(this);
+      }
 
-    // route mapper
-    Set<Route.Definition> routeDefs = injector.getInstance(Route.KEY);
-    Set<WebSocket.Definition> sockets = injector.getInstance(WebSocket.KEY);
-    if (mapper != null) {
-      routeDefs.forEach(it -> it.map(mapper));
-    }
+      // route mapper
+      Set<Route.Definition> routeDefs = injector.getInstance(Route.KEY);
+      Set<WebSocket.Definition> sockets = injector.getInstance(WebSocket.KEY);
+      if (mapper != null) {
+        routeDefs.forEach(it -> it.map(mapper));
+      }
 
-    // Start server
-    Server server = injector.getInstance(Server.class);
-    String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
+      // Start server
+      Server server = injector.getInstance(Server.class);
+      String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
 
-    server.start();
-    long end = System.currentTimeMillis();
+      server.start();
+      long end = System.currentTimeMillis();
 
-    log.info("[{}@{}]: Server started in {}ms\n\n{}\n",
-        conf.getString("application.env"),
-        serverName,
-        end - start,
-        new AppPrinter(routeDefs, sockets, conf));
+      log.info("[{}@{}]: Server started in {}ms\n\n{}\n",
+          conf.getString("application.env"),
+          serverName,
+          end - start,
+          new AppPrinter(routeDefs, sockets, conf));
 
-    boolean join = conf.hasPath("server.join") ? conf.getBoolean("server.join") : true;
-    if (join) {
-      server.join();
+      boolean join = conf.hasPath("server.join") ? conf.getBoolean("server.join") : true;
+      if (join) {
+        server.join();
+      }
+    } catch (Throwable x) {
+      stop(Optional.of(x));
     }
   }
 
@@ -4353,17 +4349,25 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * Stop the application, close all the modules and stop the web server.
    */
   public void stop() {
+    stop(Optional.empty());
+  }
+
+  private void stop(final Optional<Throwable> x) {
     if (started.compareAndSet(true, false)) {
       Logger log = LoggerFactory.getLogger(getClass());
       fireStop(injector, this, log, onStop);
 
+      List<Throwable> cause = Lists.newArrayList();
+      x.ifPresent(cause::add);
       try {
-        Server server = injector.getInstance(Server.class);
-        String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
-        server.stop();
-        log.info("[{}] Server stopped", serverName);
+        injector.getInstance(Server.class).stop();
       } catch (Throwable ex) {
-        log.error("Web server didn't stop normally", ex);
+        cause.add(ex);
+      }
+      if (cause.size() > 0) {
+        log.error("Shutdown after error", cause.get(0));
+      } else {
+        log.info("Shutdown successfully");
       }
       injector = null;
     }
