@@ -2,17 +2,19 @@
 
 * [props](https://github.com/jooby-project/jooby/tree/master/jooby-assets-props): replace application properties in CSS files.
 
+* [clean-css](https://github.com/jooby-project/jooby/tree/master/jooby-assets-clean-css): minify css.
+
 * [csslint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-csslint): check and validate css rules.
 
 * [sass/libsass](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jsass): Sass support from <a href="https://github.com/bit3/jsass">Java Sass Compiler (libsass)</a>.
 
 * [sass ruby](https://github.com/jooby-project/jooby/tree/master/jooby-assets-sass): Sass support from <a href="https://github.com/sass/sass">Sass (ruby)</a>.
 
-* [less4j](https://github.com/jooby-project/jooby/tree/master/jooby-assets-less4j): Less support from [less4j](https://github.com/SomMeri/less4j)
+* [less4j](https://github.com/jooby-project/jooby/tree/master/jooby-assets-less4j): Less support from [less4j](https://github.com/SomMeri/less4j).
 
-* [less](https://github.com/jooby-project/jooby/tree/master/jooby-assets-less): Less support from [less.js](http://lesscss.org)
+* [less](https://github.com/jooby-project/jooby/tree/master/jooby-assets-less): Less support from [less.js](http://lesscss.org).
 
-* [clean-css](https://github.com/jooby-project/jooby/tree/master/jooby-assets-clean-css): minify css.
+* [svg-sprites](https://github.com/jooby-project/jooby/tree/master/jooby-assets-svg-sprites): Generates SVG sprites with PNG fallbacks via [dr-svg-sprites](https://github.com/drdk/dr-svg-sprites).
 
 * [yui-css](https://github.com/jooby-project/jooby/tree/master/jooby-assets-yui-compressor): YUI CSS optimizer.
 
@@ -26,7 +28,7 @@
 
 * [babel](https://github.com/jooby-project/jooby/tree/master/jooby-assets-babel): Ecma6 now via <a href="http://babeljs.io/">Babel</a>.
 
-* [rollup](https://github.com/jooby-project/jooby/tree/master/jooby-assets-rollup): <a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler..
+* [rollup](https://github.com/jooby-project/jooby/tree/master/jooby-assets-rollup): <a href="http://rollupjs.org/">rollup.js</a> the next-generation ES6 module bundler.
 
 * [ng-annotate](https://github.com/jooby-project/jooby/tree/master/jooby-assets-ng-annotate): Add, remove and rebuild AngularJS dependency injection annotations.
 

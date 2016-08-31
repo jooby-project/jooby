@@ -248,8 +248,6 @@ public class Nodejs {
    * Execute the given nodejs callback and automatically release v8 and nodejs resources.
    *
    * @param callback Nodejs callback.
-   * @return This nodejs instance.
-   * @throws Throwable If something goes wrong.
    */
   public static void run(final CheckedConsumer<Nodejs> callback) {
     Nodejs node = new Nodejs();

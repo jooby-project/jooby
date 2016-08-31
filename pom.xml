@@ -76,7 +76,7 @@
     <module>jooby-assets-babel</module>
     <module>jooby-assets-rollup</module>
     <module>jooby-assets-jsass</module>
-    <module>jooby-assets-dr-svg-sprites</module>
+    <module>jooby-assets-svg-sprites</module>
     <module>jooby-metrics</module>
     <module>jooby-querydsl</module>
     <module>jooby-sitemap</module>
@@ -469,7 +469,7 @@
 
       <dependency>
         <groupId>org.jooby</groupId>
-        <artifactId>jooby-assets-dr-svg-sprites</artifactId>
+        <artifactId>jooby-assets-svg-sprites</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 

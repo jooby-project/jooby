@@ -295,7 +295,8 @@ import javaslang.control.Try;
  * }
  * </pre>
  * <p>
- * Replaces the aggregator name with one or more files from {@link #fileset()} method.
+ * Replaces the aggregator name with one or more files from {@link AssetAggregator#fileset()}
+ * method.
  * </p>
  *
  * @author edgar

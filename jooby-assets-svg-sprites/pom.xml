@@ -9,9 +9,9 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-assets-dr-svg-sprites</artifactId>
+  <artifactId>jooby-assets-svg-sprites</artifactId>
 
-  <name>dr-svg-sprites module</name>
+  <name>svg-sprites module</name>
 
   <build>
     <plugins>

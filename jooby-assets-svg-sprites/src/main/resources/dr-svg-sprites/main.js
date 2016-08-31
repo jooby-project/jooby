@@ -1,5 +1,5 @@
 var builder = require("./index.js");
 
-builder($options, function (x) {
+builder($options, function () {
   // sprite was built
 });
