@@ -1,10 +1,18 @@
 language: java
-sudo: required
-dist: trusty
+
+script:
+  - mvn -Dlogback.configurationFile=logback-travis.xml clean package coveralls:report -P coverage
+
+jdk:
+  - oraclejdk8
+
 branches:
   only:
     - master
-jdk:
-  - oraclejdk8
-script:
-  - mvn -Dlogback.configurationFile=logback-travis.xml clean package coveralls:report -P coverage
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
