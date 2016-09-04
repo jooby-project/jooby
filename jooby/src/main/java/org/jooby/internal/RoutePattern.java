@@ -20,11 +20,7 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,7 +32,7 @@ import javaslang.Tuple4;
 public class RoutePattern {
 
   private static final Pattern GLOB = Pattern
-      .compile("\\?|/\\*\\*|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
+      .compile("\\?|/\\*\\*(:(?:[^/]+)+?)?+|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?(?:[^/]+?\\*\\*)\\}|[^/{}]|\\\\[{}])+?)\\}");
 
   private static final Pattern SLASH = Pattern.compile("//+");
 
@@ -124,6 +120,13 @@ public class RoutePattern {
         patternBuilder.append("($|/.*)");
         regex = true;
         glob = true;
+      } else if (match.startsWith("/**:")) {
+        reverse.add(match.substring(1));
+        String varName = match.substring(4);
+        patternBuilder.append("/(?<v").append(vars.size()).append(">($|.*))");
+        vars.add(varName);
+        regex = true;
+        glob = true;
       } else if (match.startsWith(":")) {
         regex = true;
         String varName = match.substring(1);
@@ -142,7 +145,7 @@ public class RoutePattern {
           String varName = match.substring(1, colonIdx);
           String regexpr = match.substring(colonIdx + 1, match.length() - 1);
           patternBuilder.append("(?<v").append(vars.size()).append(">");
-          patternBuilder.append(regexpr);
+          patternBuilder.append("**".equals(regexpr) ? "($|.*)" : regexpr);
           patternBuilder.append(')');
           vars.add(varName);
           reverse.add(varName);
