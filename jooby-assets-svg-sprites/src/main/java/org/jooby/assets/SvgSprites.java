@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -140,8 +141,9 @@ public class SvgSprites extends AssetAggregator {
       throw new FileNotFoundException(spriteElementPath.toString());
     }
 
-    String sha1 = spritePath().replace(".svg", "-" + sha1(spriteElementPath) + ".sha1");
-    File uptodate = new File(System.getProperty("java.io.tmpdir"), sha1);
+    String sha1 = new File(spritePath()).getName()
+        .replace(".svg", "-" + sha1(spriteElementPath) + ".sha1");
+    File uptodate = Paths.get(System.getProperty("java.io.tmpdir"), "svg-sprites", sha1).toFile();
 
     if (uptodate.exists()) {
       log.debug("svg-sprites is up-to-date: {}", uptodate);
