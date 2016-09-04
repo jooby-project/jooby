@@ -68,6 +68,7 @@
                     <source>${project.parent.basedir}/jooby-pebble/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-jade/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-jooq/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-caffeine/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-guava-cache/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-executor/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-querydsl/src/main/java</source>
@@ -124,6 +125,7 @@
                     <source>${project.parent.basedir}/jooby-pebble/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-jade/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-jooq/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-caffeine/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-guava-cache/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-executor/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-querydsl/src/test/java</source>
@@ -333,6 +335,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-commons-email</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-caffeine</artifactId>
       <version>${project.version}</version>
     </dependency>
 
