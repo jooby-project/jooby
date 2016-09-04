@@ -6,7 +6,7 @@
 
 * **Fast!**. Thanks to the most popular [NIO web servers](http://jooby.org/doc/servers).
 
-* **Modular**. Make it a **full stack** with <a href="/modules" title="Modules">modules</a>
+* **Modular**. Make it **full-stack** via the extensive [module eco-system](http://jooby.org/doc/servers).
 
 * **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
 

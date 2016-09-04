@@ -4,6 +4,9 @@
 * **Scripting programming model**. Like {{expressjs}}, {{sinatra}}, etc.. but also
 * **MVC programming model**. Like {{spring}} controllers or {{jersey}} resources
 * **Multi-server**. Including {{netty}}, {{jetty}} and {{undertow}}
+* **HTTPS**
+* **HTTP/2**
+* **Server-Sent Events**
 * **Web-Socket**
 * **Dependency Injection**
 * **Hot reload** for development

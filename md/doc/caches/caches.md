@@ -16,6 +16,7 @@ Let's see what modules are available:
 
 # pure java
 
-* [ehcache](/doc/ehcache): provides access to a {{ehcache}}.
-* [guava](/doc/guava-cache): caches via [Guava](https://github.com/google/guava).
-* [hazelcast](/doc/hazelcast): provides access to a {{hazelcast}}.
+* [caffeine](/doc/caffeine): [Caffeine](https://github.com/ben-manes/caffeine) caches.
+* [ehcache](/doc/ehcache): {{ehcache}} caches.
+* [guava](/doc/guava-cache): [Guava](https://github.com/google/guava) caches.
+* [hazelcast](/doc/hazelcast): {{hazelcast}} caches.
