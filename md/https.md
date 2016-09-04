@@ -1,15 +1,22 @@
 # https
 
-{{jooby}} supports ```HTTPS```. To enable this, you need to set:
+`HTTPS` is supported too across the available [server implementations](/doc/servers). To enable `HTTPS`, you need to set:
 
 ```properties
 application.securePort = 8443
 ```
 
+Or programmatically like:
+
+```java
+{
+  securePort(8443);
+}
+```
+
 ## certificates
 
-{{jooby}} comes with a self-signed certificate, useful for development and test. But of course, you
-should NEVER use it in the real world.
+{{jooby}} comes with a self-signed certificate, useful for development and test. But of course, you should NEVER use it in the real world.
 
 In order to setup HTTPS with a secure certificate, you need to set these properties:
 

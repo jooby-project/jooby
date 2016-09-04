@@ -346,13 +346,15 @@ public interface Request extends Registry {
     }
 
     @Override
-    public void push(final String path) {
+    public Request push(final String path) {
       req.push(path);
+      return this;
     }
 
     @Override
-    public void push(final String path, final Map<String, String> headers) {
+    public Request push(final String path, final Map<String, Object> headers) {
       req.push(path, headers);
+      return this;
     }
 
     @Override
@@ -979,9 +981,22 @@ public interface Request extends Registry {
    */
   Request set(Key<?> key, Object value);
 
-  default void push(final String path) {
-    push(path, ImmutableMap.of());
+  /**
+   * Send a push promise frame to the client and push the resource identified by the given path.
+   *
+   * @param path Path of the resource to push.
+   * @return This request.
+   */
+  default Request push(final String path) {
+    return push(path, ImmutableMap.of());
   }
 
-  void push(final String path, final Map<String, String> headers);
+  /**
+   * Send a push promise frame to the client and push the resource identified by the given path.
+   *
+   * @param path Path of the resource to push.
+   * @param headers Headers to send.
+   * @return This request.
+   */
+  Request push(final String path, final Map<String, Object> headers);
 }

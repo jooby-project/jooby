@@ -20,12 +20,14 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.Attribute;
 
@@ -284,13 +286,20 @@ public class NettyHandlerTest {
 
               ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
 
-              NettyRequest req = unit.mockConstructor(NettyRequest.class,
-                  new Class[]{ChannelHandlerContext.class, HttpRequest.class, String.class,
-                      int.class },
-                  ctx, unit.get(FullHttpRequest.class), "target", 3000);
-              NettyResponse rsp = unit.mockConstructor(NettyResponse.class,
-                  new Class[]{ChannelHandlerContext.class, int.class, boolean.class }, ctx, 8192,
-                  true);
+              HttpHeaders headers = unit.mock(HttpHeaders.class);
+              expect(headers.get(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text()))
+                  .andReturn(null);
+
+              FullHttpRequest request = unit.get(FullHttpRequest.class);
+              expect(request.headers()).andReturn(headers);
+
+              NettyRequest req = unit.constructor(NettyRequest.class)
+                  .args(ChannelHandlerContext.class, HttpRequest.class, String.class, int.class)
+                  .build(ctx, request, "target", 3000);
+
+              NettyResponse rsp = unit.constructor(NettyResponse.class)
+                  .args(ChannelHandlerContext.class, int.class, boolean.class, String.class)
+                  .build(ctx, 8192, true, null);
 
               HttpHandler dispatcher = unit.get(HttpHandler.class);
               dispatcher.handle(req, rsp);

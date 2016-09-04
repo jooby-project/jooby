@@ -26,8 +26,6 @@ import java.util.Optional;
 
 import org.jooby.Cookie;
 
-import com.google.common.collect.ImmutableMap;
-
 /**
  * Minimal/basic implementation of HTTP request. A server implementor must provide an implementation
  * of {@link NativeRequest}.
@@ -140,15 +138,7 @@ public interface NativeRequest {
    */
   void startAsync();
 
-  default void push(final String path) throws Exception {
-    push(path, ImmutableMap.of());
-  }
-
-  default void push(final String path, final Map<String, String> headers) throws Exception {
-    push("GET", path, headers);
-  }
-
-  default void push(final String method, final String path, final Map<String, String> headers)
+  default void push(final String method, final String path, final Map<String, Object> headers)
       throws Exception {
     upgrade(NativePushPromise.class).push(method, path, headers);
   }

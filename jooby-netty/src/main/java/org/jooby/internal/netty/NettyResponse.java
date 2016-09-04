@@ -144,7 +144,7 @@ public class NettyResponse implements NativeResponse {
       // add chunker
       ChannelPipeline pipeline = ctx.pipeline();
       if (pipeline.get("chunker") == null) {
-        pipeline.addAfter("encoder", "chunker", new ChunkedWriteHandler());
+        pipeline.addAfter("codec", "chunker", new ChunkedWriteHandler());
       }
 
       // group all write

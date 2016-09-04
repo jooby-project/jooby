@@ -2,6 +2,8 @@ package org.jooby.test;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -65,6 +67,13 @@ public abstract class ServerFeature extends Jooby {
 
   public Client request() {
     checkState(server != null, "Server wasn't started");
+    return server;
+  }
+
+  public Client https() throws IOException {
+    server.stop();
+    server = new Client("https://localhost:" + securePort);
+    server.start();
     return server;
   }
 

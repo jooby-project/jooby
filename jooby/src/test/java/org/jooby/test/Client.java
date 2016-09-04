@@ -322,7 +322,7 @@ public class Client extends ExternalResource {
     this("http://localhost:8080");
   }
 
-  private void start() {
+  public void start() {
     this.cookieStore = new BasicCookieStore();
     this.builder = HttpClientBuilder.create()
         .setMaxConnTotal(1)

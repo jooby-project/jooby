@@ -50,6 +50,7 @@ import io.netty.util.concurrent.Future;
 public class NettyServerTest {
 
   Config config = ConfigFactory.empty()
+      .withValue("server.http2.enabled", ConfigValueFactory.fromAnyRef(false))
       .withValue("netty.threads.Parent", ConfigValueFactory.fromAnyRef(1))
       .withValue("netty.threads.Max", ConfigValueFactory.fromAnyRef(2))
       .withValue("netty.threads.Name", ConfigValueFactory.fromAnyRef("netty task"))
@@ -397,7 +398,7 @@ public class NettyServerTest {
 
       expect(bootstrap.channel(channelClass)).andReturn(bootstrap);
       expect(bootstrap.handler(handler)).andReturn(bootstrap);
-      expect(bootstrap.childHandler(isA(NettyInitializer.class))).andReturn(bootstrap);
+      expect(bootstrap.childHandler(isA(NettyPipeline.class))).andReturn(bootstrap);
 
       expect(bootstrap.option(ChannelOption.SO_BACKLOG, 1024)).andReturn(bootstrap);
       expect(bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)).andReturn(bootstrap);

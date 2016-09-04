@@ -115,26 +115,24 @@ public class NettyServer implements Server {
     DefaultEventExecutorGroup executor = new DefaultEventExecutorGroup(
         conf.getInt("netty.threads.Max"), threadFactory);
 
-    boolean http2 = conf.getBoolean("server.http2.enabled");
-
-    this.ch = bootstrap(executor, null, conf.getInt("application.port"), http2);
+    this.ch = bootstrap(executor, null, conf.getInt("application.port"));
 
     boolean securePort = conf.hasPath("application.securePort");
 
     if (securePort) {
-      bootstrap(executor, sslCtx(conf, http2), conf.getInt("application.securePort"), http2);
+      bootstrap(executor, sslCtx(conf), conf.getInt("application.securePort"));
     }
   }
 
   private Channel bootstrap(final EventExecutorGroup executor, final SslContext sslCtx,
-      final int port, final boolean http2) throws InterruptedException {
+      final int port) throws InterruptedException {
     ServerBootstrap bootstrap = new ServerBootstrap();
 
     boolean epoll = bossLoop instanceof EpollEventLoopGroup;
     bootstrap.group(bossLoop, workerLoop)
         .channel(epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
-        .handler(new LoggingHandler(Server.class, LogLevel.INFO))
-        .childHandler(new NettyInitializer(executor, dispatcher, conf, sslCtx, http2));
+        .handler(new LoggingHandler(Server.class, LogLevel.DEBUG))
+        .childHandler(new NettyPipeline(executor, dispatcher, conf, sslCtx));
 
     configure(conf.getConfig("netty.options"), "netty.options",
         (option, value) -> bootstrap.option(option, value));
@@ -209,9 +207,10 @@ public class NettyServer implements Server {
     return new NioEventLoopGroup(threads, threadFactory);
   }
 
-  private SslContext sslCtx(final Config config, final boolean http2)
+  private SslContext sslCtx(final Config config)
       throws IOException, CertificateException {
     String tmpdir = config.getString("application.tmpdir");
+    boolean http2 = conf.getBoolean("server.http2.enabled");
     File keyStoreCert = toFile(config.getString("ssl.keystore.cert"), tmpdir);
     File keyStoreKey = toFile(config.getString("ssl.keystore.key"), tmpdir);
     String keyStorePass = config.hasPath("ssl.keystore.password")
@@ -226,10 +225,7 @@ public class NettyServer implements Server {
           .ciphers(Http2SecurityUtil.CIPHERS, SupportedCipherSuiteFilter.INSTANCE)
           .applicationProtocolConfig(new ApplicationProtocolConfig(
               Protocol.ALPN,
-              // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK
-              // providers.
               SelectorFailureBehavior.NO_ADVERTISE,
-              // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
               SelectedListenerFailureBehavior.ACCEPT,
               ApplicationProtocolNames.HTTP_2,
               ApplicationProtocolNames.HTTP_1_1))

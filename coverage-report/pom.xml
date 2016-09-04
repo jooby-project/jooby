@@ -13,6 +13,10 @@
 
   <name>coverage report</name>
 
+  <properties>
+    <alpn-boot.version>8.1.9.v20160720</alpn-boot.version>
+  </properties>
+
   <profiles>
     <profile>
       <id>coverage</id>
@@ -210,7 +214,7 @@
                 <include>**/*Feature.java</include>
                 <include>**/*Issue*.java</include>
               </includes>
-              <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+              <argLine>-Xmx1024m -XX:MaxPermSize=256m -Xbootclasspath/p:${settings.localRepository}/org/mortbay/jetty/alpn/alpn-boot/${alpn-boot.version}/alpn-boot-${alpn-boot.version}.jar</argLine>
               <systemPropertyVariables>
                 <!-- JaCoCo runtime must know where to dump coverage: -->
                 <jacoco-agent.destfile>target${file.separator}jacoco.exec</jacoco-agent.destfile>
@@ -708,6 +712,19 @@
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
       <version>1.8.2</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty.http2</groupId>
+      <artifactId>http2-client</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mortbay.jetty.alpn</groupId>
+      <artifactId>alpn-boot</artifactId>
+      <version>${alpn-boot.version}</version>
       <scope>test</scope>
     </dependency>
 

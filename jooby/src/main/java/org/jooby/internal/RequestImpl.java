@@ -373,11 +373,16 @@ public class RequestImpl implements Request {
   }
 
   @Override
-  public void push(final String path, final Map<String, String> headers) {
-    require(Response.class).after((req, rsp, value) -> {
-      this.req.push("GET", path, headers);
-      return value;
-    });
+  public Request push(final String path, final Map<String, Object> headers) {
+    if (protocol().equalsIgnoreCase("HTTP/2.0")) {
+      require(Response.class).after((req, rsp, value) -> {
+        this.req.push("GET", contextPath + path, headers);
+        return value;
+      });
+      return this;
+    } else {
+      throw new UnsupportedOperationException("Push promise not available");
+    }
   }
 
   @Override

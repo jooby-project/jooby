@@ -16,6 +16,6 @@ public interface NativePushPromise {
    * @param path Resource path.
    * @param headers Resource headers.
    */
-  void push(String method, String path, Map<String, String> headers);
+  void push(String method, String path, Map<String, Object> headers);
 
 }

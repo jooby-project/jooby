@@ -16,27 +16,33 @@ import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Headers;
 import io.netty.handler.codec.http2.HttpConversionUtil;
+import io.netty.handler.codec.http2.HttpToHttp2ConnectionHandler;
 import io.netty.util.AsciiString;
 
 public class NettyPush implements NativePushPromise {
 
   private ChannelHandlerContext ctx;
+
   private Http2ConnectionEncoder encoder;
+
   private int streamId;
+
   private String authority;
+
   private String scheme;
 
-  public NettyPush(final ChannelHandlerContext ctx, final Http2ConnectionEncoder encoder,
-      final int streamId, final String authority, final String scheme) {
+  public NettyPush(final ChannelHandlerContext ctx, final int streamId, final String authority,
+      final String scheme) {
     this.ctx = ctx;
-    this.encoder = encoder;
+    HttpToHttp2ConnectionHandler handler = ctx.pipeline().get(HttpToHttp2ConnectionHandler.class);
+    this.encoder = handler.encoder();
     this.streamId = streamId;
     this.authority = authority;
     this.scheme = scheme;
   }
 
   @Override
-  public void push(final String method, final String path, final Map<String, String> headers) {
+  public void push(final String method, final String path, final Map<String, Object> headers) {
     ctx.channel().eventLoop().execute(() -> {
       AsciiString streamIdHeader = HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text();
       Http2Connection connection = encoder.connection();
@@ -46,7 +52,7 @@ public class NettyPush implements NativePushPromise {
           .method(method)
           .authority(authority)
           .scheme(scheme);
-      headers.forEach(h2headers::set);
+      headers.forEach((n, v) -> h2headers.add(n, v.toString()));
       encoder.writePushPromise(ctx, streamId, nextStreamId, h2headers, 0, ctx.newPromise());
 
       // TODO: Is there another way of handling a push promise?

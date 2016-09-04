@@ -3929,19 +3929,19 @@ public class Jooby implements Routes, LifeCycle, Registry {
 
   /**
    * <p>
-   * Enable <code>HTTP/2</code> protocol. Some servers required extra configuration steps while some
-   * others just works. It is a good idea to check the server documentation about
+   * Enable <code>HTTP/2</code> protocol. Some servers require special configuration, others just
+   * works. It is a good idea to check the server documentation about
    * <a href="http://jooby.org/doc/servers">HTTP/2</a>.
    * </p>
    *
    * <p>
-   * In order to use HTTP/2 with browser you must configure HTTPS, see {@link #securePort(int)}
+   * In order to use HTTP/2 from a browser you must configure HTTPS, see {@link #securePort(int)}
    * documentation.
    * </p>
    *
    * <p>
    * If HTTP/2 clear text is supported then you may skip the HTTPS setup, but of course you won't be
-   * able to use HTTP/2 with browsers, just with HTTP/2 clients with supports for HTTP/2 clear text.
+   * able to use HTTP/2 with browsers.
    * </p>
    *
    * @return This instance.

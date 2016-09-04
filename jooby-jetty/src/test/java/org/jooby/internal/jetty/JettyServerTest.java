@@ -71,10 +71,12 @@ public class JettyServerTest {
       .withValue("jetty.threads.MaxThreads", ConfigValueFactory.fromAnyRef("10"))
       .withValue("jetty.threads.IdleTimeout", ConfigValueFactory.fromAnyRef("3s"))
       .withValue("jetty.threads.Name", ConfigValueFactory.fromAnyRef("jetty task"))
+      .withValue("jetty.FileSizeThreshold", ConfigValueFactory.fromAnyRef(1024))
       .withValue("jetty.url.charset", ConfigValueFactory.fromAnyRef("UTF-8"))
       .withValue("jetty.http", ConfigValueFactory.fromAnyRef(httpConfig))
       .withValue("jetty.ws", ConfigValueFactory.fromAnyRef(ws))
       .withValue("server.http.MaxRequestSize", ConfigValueFactory.fromAnyRef("200k"))
+      .withValue("server.http2.enabled", ConfigValueFactory.fromAnyRef(false))
       .withValue("application.port", ConfigValueFactory.fromAnyRef(6789))
       .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"))
       .withValue("application.tmpdir", ConfigValueFactory.fromAnyRef("target"));

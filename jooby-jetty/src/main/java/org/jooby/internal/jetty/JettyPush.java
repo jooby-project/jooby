@@ -15,11 +15,11 @@ public class JettyPush implements NativePushPromise {
   }
 
   @Override
-  public void push(final String method, final String path, final Map<String, String> headers) {
+  public void push(final String method, final String path, final Map<String, Object> headers) {
     PushBuilder pb = req.getPushBuilder()
         .path(path)
         .method(method);
-    headers.forEach(pb::addHeader);
+    headers.forEach((n, v) -> pb.addHeader(n, v.toString()));
     pb.push();
   }
 

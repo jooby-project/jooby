@@ -87,7 +87,7 @@ public class NettyWebSocket implements NativeWebSocket {
         .addListener(FIRE_EXCEPTION_ON_FAILURE);
     Attribute<NettyWebSocket> ws = ctx.channel().attr(KEY);
     if (ws != null) {
-      ws.remove();
+      ws.set(null);
     }
   }
 

@@ -26,6 +26,7 @@ public class H2Utow extends Jooby {
   });
 
   {
+    securePort(8443);
     http2();
 
     use("*", (req, rsp) -> {

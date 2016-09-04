@@ -29,7 +29,8 @@ public class UndertowServerTest {
         .withValue("undertow.server.IGNORE_INVALID", ConfigValueFactory.fromAnyRef("bad option"))
         .withValue("undertow.awaitShutdown", ConfigValueFactory.fromAnyRef(1000))
         .withValue("application.port", ConfigValueFactory.fromAnyRef(6789))
-        .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"));
+        .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"))
+        .withValue("server.http2.enabled", ConfigValueFactory.fromAnyRef(false));
 
     new MockUnit(HttpHandler.class, Provider.class)
         .run(unit -> {

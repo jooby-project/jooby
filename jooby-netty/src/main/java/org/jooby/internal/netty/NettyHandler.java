@@ -34,6 +34,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http2.HttpConversionUtil;
@@ -140,6 +141,11 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
     if (evt instanceof IdleStateEvent) {
       log.debug("idle timeout: {}", ctx);
       ctx.close();
+    } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
+      // Write an HTTP/2 response to the upgrade request
+      FullHttpRequest req = ((HttpServerUpgradeHandler.UpgradeEvent) evt).upgradeRequest();
+      req.headers().set(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text(), 1);
+      channelRead0(ctx, req);
     } else {
       super.userEventTriggered(ctx, evt);
     }

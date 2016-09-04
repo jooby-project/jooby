@@ -17,9 +17,9 @@ public class UndertowPush implements NativePushPromise {
   }
 
   @Override
-  public void push(final String method, final String path, final Map<String, String> headers) {
+  public void push(final String method, final String path, final Map<String, Object> headers) {
     HeaderMap h2headers = new HeaderMap();
-    headers.forEach((h, v) -> h2headers.put(HttpString.tryFromString(h), v));
+    headers.forEach((n, v) -> h2headers.add(HttpString.tryFromString(n), v.toString()));
     exchange.getConnection().pushResource(path, HttpString.tryFromString(method), h2headers);
   }
 

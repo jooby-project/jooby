@@ -520,7 +520,7 @@ public class NettyResponseTest {
         .expect(unit -> {
           ChannelPipeline pipeline = unit.mock(ChannelPipeline.class);
           expect(pipeline.get("chunker")).andReturn(null);
-          expect(pipeline.addAfter(eq("encoder"), eq("chunker"), isA(ChunkedWriteHandler.class)))
+          expect(pipeline.addAfter(eq("codec"), eq("chunker"), isA(ChunkedWriteHandler.class)))
               .andReturn(pipeline);
 
           ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);

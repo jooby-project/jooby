@@ -71,7 +71,7 @@ public class NettyWebSocketTest {
         .expect(close)
         .expect(unit -> {
           Attribute<NettyWebSocket> attr = unit.mock(Attribute.class);
-          attr.remove();
+          attr.set(null);
 
           Channel ctx = unit.get(Channel.class);
           expect(ctx.attr(NettyWebSocket.KEY)).andReturn(attr);

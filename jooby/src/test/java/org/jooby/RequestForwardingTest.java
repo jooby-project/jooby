@@ -12,10 +12,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
+import org.jooby.Request.Forwarding;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
@@ -576,6 +578,29 @@ public class RequestForwardingTest {
         .run(unit -> {
           assertEquals("value",
               new Request.Forwarding(unit.get(Request.class)).get("name"));
+        });
+  }
+
+  @Test
+  public void push() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.push("/path")).andReturn(req);
+        })
+        .run(unit -> {
+          Forwarding req = new Request.Forwarding(unit.get(Request.class));
+          assertEquals(req, req.push("/path"));
+        });
+
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.push("/path", ImmutableMap.of("k", "v"))).andReturn(req);
+        })
+        .run(unit -> {
+          Forwarding req = new Request.Forwarding(unit.get(Request.class));
+          assertEquals(req, req.push("/path", ImmutableMap.of("k", "v")));
         });
   }
 

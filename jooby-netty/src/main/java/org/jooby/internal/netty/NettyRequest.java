@@ -44,6 +44,7 @@ import com.google.common.collect.Multimap;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
@@ -59,15 +60,14 @@ import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.AttributeKey;
 
 public class NettyRequest implements NativeRequest {
 
-  public static final AttributeKey<Http2ConnectionEncoder> HTT2 = AttributeKey
-      .newInstance(NettyRequest.class.getName() + ".http2");
+  public static final AttributeKey<String> PROTOCOL = AttributeKey
+      .newInstance(NettyRequest.class.getName() + ".protol");
 
   public static final AttributeKey<Boolean> NEED_FLUSH = AttributeKey
       .newInstance(NettyRequest.class.getName() + ".needFlush");
@@ -105,7 +105,8 @@ public class NettyRequest implements NativeRequest {
     this.query = new QueryStringDecoder(req.uri());
     this.path = URLDecoder.decode(query.path(), "UTF-8");
     this.wsMaxMessageSize = wsMaxMessageSize;
-    ctx.channel().attr(ASYNC).set(false);
+    Channel channel = ctx.channel();
+    channel.attr(ASYNC).set(false);
   }
 
   @Override
@@ -186,7 +187,9 @@ public class NettyRequest implements NativeRequest {
 
   @Override
   public String protocol() {
-    return req.protocolVersion().text();
+    return ctx.pipeline().get("h2") == null
+        ? req.protocolVersion().text()
+        : "HTTP/2.0";
   }
 
   @Override
@@ -217,8 +220,7 @@ public class NettyRequest implements NativeRequest {
       NettySse sse = new NettySse(ctx);
       return (T) sse;
     } else if (type == NativePushPromise.class) {
-      Http2ConnectionEncoder encoder = ctx.channel().attr(HTT2).get();
-      return (T) new NettyPush(ctx, encoder,
+      return (T) new NettyPush(ctx,
           req.headers().getInt(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text()),
           header("host").orElse(ip()), secure() ? "https" : "http");
     }

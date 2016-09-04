@@ -40,6 +40,8 @@ documentation
 
 {{async.md}}
 
+{{h2.md}}
+
 {{sse.md}}
 
 {{web-sockets.md}}
