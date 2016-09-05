@@ -806,38 +806,8 @@ public class JoobyTest {
   @Test
   public void defaultsWithCallback() throws Exception {
 
-    new MockUnit(Binder.class)
-        .expect(guice)
-        .expect(shutdown)
-        .expect(config)
-        .expect(env)
-        .expect(classInfo)
-        .expect(ssl)
-        .expect(charset)
-        .expect(locale)
-        .expect(zoneId)
-        .expect(timeZone)
-        .expect(dateTimeFormatter)
-        .expect(numberFormat)
-        .expect(decimalFormat)
-        .expect(renderers)
-        .expect(session)
-        .expect(routes)
-        .expect(routeHandler)
-        .expect(params)
-        .expect(requestScope)
-        .expect(webSockets)
-        .expect(tmpdir)
-        .expect(err)
-        .run(unit -> {
-
-          Jooby jooby = new Jooby();
-
-          jooby.start(routes -> {
-            assertNotNull(routes);
-          });
-
-        }, boot);
+    Jooby jooby = new Jooby();
+    assertNotNull(Jooby.exportRoutes(jooby));
   }
 
   @Test
@@ -894,78 +864,24 @@ public class JoobyTest {
   }
 
   @Test
-  public void noInjector() throws Exception {
+  public void exportRoutes() {
+    Jooby app = new Jooby();
+    app.get("/export", () -> "OK");
+    List<Route.Definition> routes = Jooby.exportRoutes(app);
+    assertEquals(1, routes.size());
+    assertEquals("/export", routes.get(0).pattern());
+    assertEquals("GET", routes.get(0).method());
+  }
 
-    new MockUnit(Binder.class, Jooby.Module.class)
-        .expect(
-            unit -> {
-              ScopedBindingBuilder serverScope = unit.mock(ScopedBindingBuilder.class);
-              serverScope.in(Singleton.class);
-              expectLastCall().times(0, 1);
+  @Test
+  public void exportRoutesFailure() {
+    Jooby app = new Jooby();
+    // generate an error on bootstrap
+    app.use(ConfigFactory.empty().withValue("application.lang", ConfigValueFactory.fromAnyRef("")));
 
-              AnnotatedBindingBuilder<Server> serverBinding = unit
-                  .mock(AnnotatedBindingBuilder.class);
-              expect(serverBinding.to(isA(Class.class))).andReturn(serverScope).times(0, 1);
-
-              Binder binder = unit.get(Binder.class);
-              expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
-
-            })
-        .expect(
-            unit -> {
-              unit.mockStatic(Guice.class);
-              expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
-                  .andThrow(new RuntimeException());
-
-              unit.mockStatic(OptionalBinder.class);
-
-              TypeConverters tc = unit.mockConstructor(TypeConverters.class);
-              tc.configure(unit.get(Binder.class));
-            })
-        .expect(shutdown)
-        .expect(config)
-        .expect(env)
-        .expect(classInfo)
-        .expect(ssl)
-        .expect(charset)
-        .expect(locale)
-        .expect(zoneId)
-        .expect(timeZone)
-        .expect(dateTimeFormatter)
-        .expect(numberFormat)
-        .expect(decimalFormat)
-        .expect(renderers)
-        .expect(session)
-        .expect(routes)
-        .expect(routeHandler)
-        .expect(params)
-        .expect(requestScope)
-        .expect(webSockets)
-        .expect(tmpdir)
-        .expect(err)
-        .expect(unit -> {
-          Binder binder = unit.get(Binder.class);
-          Jooby.Module module = unit.get(Jooby.Module.class);
-
-          Config config = ConfigFactory.empty();
-
-          expect(module.config()).andReturn(config).times(2);
-
-          module.configure(isA(Env.class), isA(Config.class), eq(binder));
-        })
-        .run(unit -> {
-
-          Jooby jooby = new Jooby();
-
-          jooby.use(unit.get(Jooby.Module.class));
-
-          try {
-            jooby.start();
-          } catch (RuntimeException ex) {
-            // we are OK
-          }
-
-        }, boot);
+    app.get("/export", () -> "OK");
+    List<Route.Definition> routes = Jooby.exportRoutes(app);
+    assertEquals(0, routes.size());
   }
 
   @Test

@@ -1,6 +1,5 @@
 package org.jooby;
 
-import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.expect;
 
 import java.util.Arrays;
@@ -27,13 +26,13 @@ public class JoobyRunTest {
 
   public static class NoopApp extends Jooby {
     @Override
-    public void start(final String[] args) {
+    public void start(final String... args) {
     }
   }
 
   public static class NoopAppEx extends Jooby {
     @Override
-    public void start(final String[] args) {
+    public void start(final String... args) {
       throw new ArgEx(args);
     }
   }
@@ -49,7 +48,7 @@ public class JoobyRunTest {
         })
         .expect(unit -> {
           Jooby jooby = unit.get(Jooby.class);
-          jooby.start(aryEq(args));
+          jooby.start(args);
         })
         .run(unit -> {
           Jooby.run(unit.get(Supplier.class), args);
@@ -67,7 +66,7 @@ public class JoobyRunTest {
         })
         .expect(unit -> {
           Jooby jooby = unit.get(Jooby.class);
-          jooby.start(aryEq(args));
+          jooby.start(args);
         })
         .run(unit -> {
           Jooby.run(unit.get(Supplier.class), args);

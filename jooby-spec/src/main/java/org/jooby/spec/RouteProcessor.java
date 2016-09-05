@@ -77,13 +77,6 @@ import com.typesafe.config.ConfigFactory;
  */
 public class RouteProcessor {
 
-  /**
-   * Force cancellation of startup. Internal use.
-   */
-  @SuppressWarnings("serial")
-  private static class StopEx extends RuntimeException {
-  }
-
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -184,19 +177,7 @@ public class RouteProcessor {
    * @return List of route specs.
    */
   private List<RouteSpec> processInternal(final Jooby app, final Path srcdir, final Path outdir) {
-    List<Route.Definition> routes = new ArrayList<>();
-    try {
-      app.start(r -> {
-        routes.addAll(r);
-        throw new StopEx();
-      });
-    } catch (StopEx cause) {
-      log.trace("routes were collected successfully");
-    } catch (Throwable cause) {
-      log.error("Unable to get routes from {}", app, cause);
-      return Collections.emptyList();
-    }
-
+    List<Route.Definition> routes = Jooby.exportRoutes(app);
     return processInternal(app.getClass(), routes, srcdir, outdir);
   }
 

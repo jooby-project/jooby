@@ -1,6 +1,5 @@
 package org.jooby;
 
-import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.expect;
 
 import java.io.File;
@@ -51,7 +50,7 @@ public class JsBootTest {
         })
         .expect(unit -> {
           Jooby jooby = unit.get(Jooby.class);
-          jooby.start(aryEq(args));
+          jooby.start(args);
         })
         .run(unit -> {
           Jooby.main(args);
@@ -81,7 +80,7 @@ public class JsBootTest {
         })
         .expect(unit -> {
           Jooby jooby = unit.get(Jooby.class);
-          jooby.start(aryEq(new String[]{"foo" }));
+          jooby.start("foo");
         })
         .run(unit -> {
           Jooby.main(args);
@@ -110,7 +109,7 @@ public class JsBootTest {
         })
         .expect(unit -> {
           Jooby jooby = unit.get(Jooby.class);
-          jooby.start(aryEq(new String[]{"foo", "bar" }));
+          jooby.start("foo", "bar");
         })
         .run(unit -> {
           Jooby.main(args);

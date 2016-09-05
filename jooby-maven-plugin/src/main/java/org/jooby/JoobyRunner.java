@@ -60,7 +60,9 @@ public class JoobyRunner {
       Thread.currentThread().setContextClassLoader(local);
       Jooby app = (Jooby) local.loadClass(mainClass).newInstance();
       callback.accept(app);
-      app.start(routes);
+      if (routes != null) {
+        routes.accept(Jooby.exportRoutes(app));
+      }
     } finally {
       Thread.currentThread().setContextClassLoader(global);
     }

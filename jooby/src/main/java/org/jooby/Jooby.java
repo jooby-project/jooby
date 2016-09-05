@@ -66,6 +66,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -131,7 +132,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -3497,6 +3497,34 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   /**
+   * Export routes from an application. Useful for route analysis, testing, debugging, etc...
+   *
+   * @param app Application to extract/collect routes.
+   * @return Application routes.
+   */
+  public static List<Definition> exportRoutes(final Jooby app) {
+    @SuppressWarnings("serial")
+    class Success extends RuntimeException {
+      List<Definition> routes;
+
+      Success(final List<Route.Definition> routes) {
+        this.routes = routes;
+      }
+    }
+    List<Definition> routes = Collections.emptyList();
+    try {
+      app.start(new String[0], r -> {
+        throw new Success(r);
+      });
+    } catch (Success success) {
+      routes = success.routes;
+    } catch (Throwable x) {
+      logger(app).error("Unable to get routes from {}", app, x);
+    }
+    return routes;
+  }
+
+  /**
    * <h1>Bootstrap</h1>
    * <p>
    * The bootstrap process is defined as follows:
@@ -3540,111 +3568,61 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * <li>A web server is started</li>
    * </ol>
    *
-   * @param routes Routes callback. Invoked once all app routes has been collected.
-   * @throws Throwable If something fails to start.
-   */
-  public void start(final Consumer<List<Route.Definition>> routes) throws Throwable {
-    start(new String[0], routes);
-  }
-
-  /**
-   * <h1>Bootstrap</h1>
-   * <p>
-   * The bootstrap process is defined as follows:
-   * </p>
-   * <h2>1. Configuration files (first-listed are higher priority)</h2>
-   * <ol>
-   * <li>System properties</li>
-   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
-   * <li>{@link Jooby.Module Modules} properties</li>
-   * </ol>
-   *
-   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
-   * <ol>
-   * <li>An {@link Injector Guice Injector} is created.</li>
-   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
-   * <li>At this point Guice is ready and all the services has been binded.</li>
-   * <li>A web server is started</li>
-   * </ol>
-   *
    * @param args Application arguments. Using the <code>name=value</code> format, except for
    *        application.env where can be just: <code>myenv</code>.
    */
-  public void start(final String[] args) {
-    start(args, null);
-  }
-
-  /**
-   * <h1>Bootstrap</h1>
-   * <p>
-   * The bootstrap process is defined as follows:
-   * </p>
-   * <h2>1. Configuration files (first-listed are higher priority)</h2>
-   * <ol>
-   * <li>System properties</li>
-   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
-   * <li>{@link Jooby.Module Modules} properties</li>
-   * </ol>
-   *
-   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
-   * <ol>
-   * <li>An {@link Injector Guice Injector} is created.</li>
-   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
-   * <li>At this point Guice is ready and all the services has been binded.</li>
-   * <li>A web server is started</li>
-   * </ol>
-   *
-   * @param args Application arguments. Using the <code>name=value</code> format, except for
-   *        application.env where can be just: <code>myenv</code>.
-   * @param routes Routes callback. Invoked once all app routes has been collected.
-   */
-  public void start(final String[] args, final Consumer<List<Route.Definition>> routes) {
+  public void start(final String... args) {
     try {
-      long start = System.currentTimeMillis();
-
-      started.set(true);
-
-      // shutdown hook
-      Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
-
-      this.injector = bootstrap(args(args), routes);
-
-      Config conf = injector.getInstance(Config.class);
-
-      Logger log = LoggerFactory.getLogger(getClass());
-      log.debug("config tree:\n{}", configTree(conf.origin().description()));
-
-      // start services
-      for (CheckedConsumer<Registry> onStart : this.onStart) {
-        onStart.accept(this);
-      }
-
-      // route mapper
-      Set<Route.Definition> routeDefs = injector.getInstance(Route.KEY);
-      Set<WebSocket.Definition> sockets = injector.getInstance(WebSocket.KEY);
-      if (mapper != null) {
-        routeDefs.forEach(it -> it.map(mapper));
-      }
-
-      // Start server
-      Server server = injector.getInstance(Server.class);
-      String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
-
-      server.start();
-      long end = System.currentTimeMillis();
-
-      log.info("[{}@{}]: Server started in {}ms\n\n{}\n",
-          conf.getString("application.env"),
-          serverName,
-          end - start,
-          new AppPrinter(routeDefs, sockets, conf));
-
-      boolean join = conf.hasPath("server.join") ? conf.getBoolean("server.join") : true;
-      if (join) {
-        server.join();
-      }
+      start(args, null);
     } catch (Throwable x) {
       stop(Optional.of(x));
+    }
+  }
+
+  private void start(final String[] args, final Consumer<List<Route.Definition>> routes)
+      throws Throwable {
+    long start = System.currentTimeMillis();
+
+    started.set(true);
+
+    this.injector = bootstrap(args(args), routes);
+
+    // shutdown hook
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> stop()));
+
+    Config conf = injector.getInstance(Config.class);
+
+    Logger log = LoggerFactory.getLogger(getClass());
+    log.debug("config tree:\n{}", configTree(conf.origin().description()));
+
+    // start services
+    for (CheckedConsumer<Registry> onStart : this.onStart) {
+      onStart.accept(this);
+    }
+
+    // route mapper
+    Set<Route.Definition> routeDefs = injector.getInstance(Route.KEY);
+    Set<WebSocket.Definition> sockets = injector.getInstance(WebSocket.KEY);
+    if (mapper != null) {
+      routeDefs.forEach(it -> it.map(mapper));
+    }
+
+    // Start server
+    Server server = injector.getInstance(Server.class);
+    String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
+
+    server.start();
+    long end = System.currentTimeMillis();
+
+    log.info("[{}@{}]: Server started in {}ms\n\n{}\n",
+        conf.getString("application.env"),
+        serverName,
+        end - start,
+        new AppPrinter(routeDefs, sockets, conf));
+
+    boolean join = conf.hasPath("server.join") ? conf.getBoolean("server.join") : true;
+    if (join) {
+      server.join();
     }
   }
 
@@ -4058,11 +4036,11 @@ public class Jooby implements Routes, LifeCycle, Registry {
     List<Object> bag = normalize(realbag, env, rm, prefix);
 
     // collect routes and fire route callback
-    List<Route.Definition> routes = bag.stream()
-        .filter(it -> it instanceof Route.Definition)
-        .map(it -> (Route.Definition) it)
-        .collect(Collectors.<Route.Definition> toList());
     if (rcallback != null) {
+      List<Route.Definition> routes = bag.stream()
+          .filter(it -> it instanceof Route.Definition)
+          .map(it -> (Route.Definition) it)
+          .collect(Collectors.<Route.Definition> toList());
       rcallback.accept(routes);
     }
 
@@ -4354,22 +4332,20 @@ public class Jooby implements Routes, LifeCycle, Registry {
 
   private void stop(final Optional<Throwable> x) {
     if (started.compareAndSet(true, false)) {
-      Logger log = LoggerFactory.getLogger(getClass());
-      fireStop(injector, this, log, onStop);
+      Logger log = logger(this);
 
-      List<Throwable> cause = Lists.newArrayList();
-      x.ifPresent(cause::add);
-      try {
-        injector.getInstance(Server.class).stop();
-      } catch (Throwable ex) {
-        cause.add(ex);
-      }
-      if (cause.size() > 0) {
-        log.error("Shutdown after error", cause.get(0));
-      } else {
-        log.info("Shutdown successfully");
+      x.ifPresent(c -> log.error("An error occurred while starting the application:", c));
+      fireStop(injector, this, log, onStop);
+      if (injector != null) {
+        try {
+          injector.getInstance(Server.class).stop();
+        } catch (Throwable ex) {
+          log.debug("server.stop() resulted in exception", ex);
+        }
       }
       injector = null;
+
+      log.info("Stopped");
     }
   }
 
@@ -4674,6 +4650,10 @@ public class Jooby implements Routes, LifeCycle, Registry {
           .orElse("logback.xml");
     }
     return logback;
+  }
+
+  private static Logger logger(final Jooby app) {
+    return LoggerFactory.getLogger(app.getClass());
   }
 
 }
