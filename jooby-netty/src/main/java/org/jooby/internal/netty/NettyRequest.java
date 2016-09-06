@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -58,10 +57,10 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpData;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import io.netty.handler.codec.http.multipart.InterfaceHttpData.HttpDataType;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.codec.http2.HttpConversionUtil;
-import io.netty.handler.ssl.SslHandler;
 import io.netty.util.AttributeKey;
 
 public class NettyRequest implements NativeRequest {
@@ -166,11 +165,7 @@ public class NettyRequest implements NativeRequest {
   @Override
   public List<NativeUpload> files(final String name) throws IOException {
     decodeParams();
-    if (files.size() == 0) {
-      return Collections.emptyList();
-    }
-    Collection<NativeUpload> files = this.files.get(name);
-    return files == null ? Collections.emptyList() : ImmutableList.copyOf(files);
+    return ImmutableList.copyOf(this.files.get(name));
   }
 
   @Override
@@ -194,19 +189,18 @@ public class NettyRequest implements NativeRequest {
 
   @Override
   public boolean secure() {
-    return ctx.pipeline().get(SslHandler.class) != null;
+    return ifSecure(Boolean.TRUE, Boolean.FALSE).booleanValue();
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public <T> T upgrade(final Class<T> type) throws Exception {
     if (type == NativeWebSocket.class) {
-      String protocol = secure() ? "wss" : "ws";
+      String protocol = ifSecure("wss", "ws");
       String webSocketURL = protocol + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
 
       WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
-          webSocketURL,
-          null, true, wsMaxMessageSize);
+          webSocketURL, null, true, wsMaxMessageSize);
       WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(req);
       NettyWebSocket result = new NettyWebSocket(ctx, handshaker, (ws) -> {
         handshaker.handshake(ctx.channel(), (FullHttpRequest) req)
@@ -222,7 +216,7 @@ public class NettyRequest implements NativeRequest {
     } else if (type == NativePushPromise.class) {
       return (T) new NettyPush(ctx,
           req.headers().getInt(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text()),
-          header("host").orElse(ip()), secure() ? "https" : "http");
+          header("host").orElse(ip()), ifSecure("https", "http"));
     }
     throw new UnsupportedOperationException("Not Supported: " + type);
   }
@@ -273,15 +267,10 @@ public class NettyRequest implements NativeRequest {
             HttpData field = (HttpData) decoder.next();
             try {
               String name = field.getName();
-              switch (field.getHttpDataType()) {
-                case FileUpload:
-                  files.put(name, new NettyUpload((FileUpload) field, tmpdir));
-                  // excludes upload from param names.
-                  break;
-                default:
-                  String value = field.getString();
-                  params.put(name, value);
-                  break;
+              if (field.getHttpDataType() == HttpDataType.FileUpload) {
+                files.put(name, new NettyUpload((FileUpload) field, tmpdir));
+              } else {
+                params.put(name, field.getString());
               }
             } finally {
               field.release();
@@ -293,5 +282,9 @@ public class NettyRequest implements NativeRequest {
       }
     }
     return params;
+  }
+
+  private <T> T ifSecure(final T then, final T otherwise) {
+    return ctx.pipeline().get("ssl") != null ? then : otherwise;
   }
 }

@@ -18,11 +18,8 @@
  */
 package org.jooby.internal.netty;
 
-import io.netty.handler.codec.http.multipart.FileUpload;
-
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +27,8 @@ import java.util.Optional;
 import org.jooby.spi.NativeUpload;
 
 import com.google.common.collect.ImmutableList;
+
+import io.netty.handler.codec.http.multipart.FileUpload;
 
 public class NettyUpload implements NativeUpload {
 
@@ -56,20 +55,19 @@ public class NettyUpload implements NativeUpload {
   }
 
   private Optional<String> header(final String name) {
-    switch (name.toLowerCase()) {
-      case "content-transfer-encoding":
-        return Optional.of(data.getContentTransferEncoding());
-      case "content-disposition":
-        return Optional.of("form-data; name=\"" + data.getName() + "\"; filename=\""
-            + data.getFilename() + "\"");
-      case "content-type":
-        Charset charset = data.getCharset();
-        if (charset == null) {
-          return Optional.ofNullable(data.getContentType());
-        }
-        return Optional.ofNullable(data.getContentType() + "; charset=" + charset.name());
-      default:
-        return Optional.empty();
+    if (name.equalsIgnoreCase("content-transfer-encoding")) {
+      return Optional.of(data.getContentTransferEncoding());
+    } else if (name.equalsIgnoreCase("content-disposition")) {
+      return Optional.of("form-data; name=\"" + data.getName() + "\"; filename=\""
+          + data.getFilename() + "\"");
+    } else if (name.equalsIgnoreCase("content-type")) {
+      String cs = Optional.ofNullable(data.getCharset())
+          .map(it -> "; charset=" + it.name())
+          .orElse("");
+      return Optional.ofNullable(data.getContentType())
+          .flatMap(it -> Optional.of(it + cs));
+    } else {
+      return Optional.empty();
     }
   }
 

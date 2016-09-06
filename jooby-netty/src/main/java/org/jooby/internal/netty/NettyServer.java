@@ -22,16 +22,8 @@ import static javaslang.API.Case;
 import static javaslang.API.Match;
 import static javaslang.Predicates.is;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.security.cert.CertificateException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ThreadFactory;
@@ -57,19 +49,9 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.handler.ssl.ApplicationProtocolConfig;
-import io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
-import io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
-import io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
-import io.netty.handler.ssl.ApplicationProtocolNames;
-import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
-import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -102,11 +84,11 @@ public class NettyServer implements Server {
 
   @Override
   public void start() throws Exception {
-    int parentThreads = conf.getInt("netty.threads.Parent");
-    bossLoop = eventLoop(parentThreads, "parent");
-    if (conf.hasPath("netty.threads.Child")) {
-      int childThreads = conf.getInt("netty.threads.Child");
-      workerLoop = eventLoop(childThreads, "child");
+    int parentThreads = conf.getInt("netty.threads.Boss");
+    bossLoop = eventLoop(parentThreads, "boss");
+    if (conf.hasPath("netty.threads.Worker")) {
+      int childThreads = conf.getInt("netty.threads.Worker");
+      workerLoop = eventLoop(childThreads, "worker");
     } else {
       workerLoop = bossLoop;
     }
@@ -120,7 +102,7 @@ public class NettyServer implements Server {
     boolean securePort = conf.hasPath("application.securePort");
 
     if (securePort) {
-      bootstrap(executor, sslCtx(conf), conf.getInt("application.securePort"));
+      bootstrap(executor, NettySslContext.build(conf), conf.getInt("application.securePort"));
     }
   }
 
@@ -137,7 +119,7 @@ public class NettyServer implements Server {
     configure(conf.getConfig("netty.options"), "netty.options",
         (option, value) -> bootstrap.option(option, value));
 
-    configure(conf.getConfig("netty.child.options"), "netty.child.options",
+    configure(conf.getConfig("netty.worker.options"), "netty.child.options",
         (option, value) -> bootstrap.childOption(option, value));
 
     return bootstrap
@@ -207,48 +189,5 @@ public class NettyServer implements Server {
     return new NioEventLoopGroup(threads, threadFactory);
   }
 
-  private SslContext sslCtx(final Config config)
-      throws IOException, CertificateException {
-    String tmpdir = config.getString("application.tmpdir");
-    boolean http2 = conf.getBoolean("server.http2.enabled");
-    File keyStoreCert = toFile(config.getString("ssl.keystore.cert"), tmpdir);
-    File keyStoreKey = toFile(config.getString("ssl.keystore.key"), tmpdir);
-    String keyStorePass = config.hasPath("ssl.keystore.password")
-        ? config.getString("ssl.keystore.password") : null;
-    SslContextBuilder scb = SslContextBuilder.forServer(keyStoreCert, keyStoreKey, keyStorePass);
-    if (config.hasPath("ssl.trust.cert")) {
-      scb.trustManager(toFile(config.getString("ssl.trust.cert"), tmpdir));
-    }
-    if (http2) {
-      SslProvider provider = OpenSsl.isAlpnSupported() ? SslProvider.OPENSSL : SslProvider.JDK;
-      return scb.sslProvider(provider)
-          .ciphers(Http2SecurityUtil.CIPHERS, SupportedCipherSuiteFilter.INSTANCE)
-          .applicationProtocolConfig(new ApplicationProtocolConfig(
-              Protocol.ALPN,
-              SelectorFailureBehavior.NO_ADVERTISE,
-              SelectedListenerFailureBehavior.ACCEPT,
-              ApplicationProtocolNames.HTTP_2,
-              ApplicationProtocolNames.HTTP_1_1))
-          .build();
-    }
-    return scb.build();
-  }
-
-  static File toFile(final String path, final String tmpdir) throws IOException {
-    File file = new File(path);
-    if (file.exists()) {
-      return file;
-    }
-    file = new File(tmpdir, Paths.get(path).getFileName().toString());
-    // classpath resource?
-    try (InputStream in = NettyServer.class.getClassLoader().getResourceAsStream(path)) {
-      if (in == null) {
-        throw new FileNotFoundException(path);
-      }
-      Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-    }
-    file.deleteOnExit();
-    return file;
-  }
 
 }

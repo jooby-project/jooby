@@ -56,4 +56,5 @@ public class NettyRequestTest {
                   .upgrade(Object.class);
         });
   }
+
 }

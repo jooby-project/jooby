@@ -33,16 +33,20 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.AsciiString;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 
 public class NettyHandler extends SimpleChannelInboundHandler<Object> {
+
+  private static AsciiString STREAM_ID = HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text();
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -70,22 +74,20 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
 
   @Override
   public void channelRead0(final ChannelHandlerContext ctx, final Object msg) {
-    if (msg instanceof FullHttpRequest) {
+    if (msg instanceof HttpRequest) {
       ctx.channel().attr(NettyRequest.NEED_FLUSH).set(true);
 
-      FullHttpRequest req = (FullHttpRequest) msg;
+      HttpRequest req = (HttpRequest) msg;
       ctx.channel().attr(PATH).set(req.method().name() + " " + req.uri());
 
       if (HttpUtil.is100ContinueExpected(req)) {
         ctx.write(new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.CONTINUE));
-        return;
       }
 
       boolean keepAlive = HttpUtil.isKeepAlive(req);
 
       try {
-        String streamId = req.headers()
-            .get(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text());
+        String streamId = req.headers().get(STREAM_ID);
 
         handler.handle(
             new NettyRequest(ctx, req, tmpdir, wsMaxMessageSize),
@@ -144,7 +146,7 @@ public class NettyHandler extends SimpleChannelInboundHandler<Object> {
     } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
       // Write an HTTP/2 response to the upgrade request
       FullHttpRequest req = ((HttpServerUpgradeHandler.UpgradeEvent) evt).upgradeRequest();
-      req.headers().set(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text(), 1);
+      req.headers().set(STREAM_ID, req.headers().get(STREAM_ID, "1"));
       channelRead0(ctx, req);
     } else {
       super.userEventTriggered(ctx, evt);

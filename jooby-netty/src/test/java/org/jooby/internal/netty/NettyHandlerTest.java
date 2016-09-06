@@ -51,33 +51,45 @@ public class NettyHandlerTest {
         FullHttpRequest.class)
             .expect(channel)
             .expect(unit -> {
+              HttpHeaders headers = unit.mock(HttpHeaders.class);
+              expect(headers.get(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text())).andReturn(null);
 
               FullHttpRequest req = unit.get(FullHttpRequest.class);
               expect(req.uri()).andReturn("/");
               expect(req.method()).andReturn(HttpMethod.GET);
-
-              ChannelFuture future = unit.mock(ChannelFuture.class);
+              expect(req.headers()).andReturn(headers);
 
               unit.mockStatic(HttpUtil.class);
               expect(HttpUtil.is100ContinueExpected(req)).andReturn(true);
+              ChannelFuture future = unit.mock(ChannelFuture.class);
+              DefaultFullHttpResponse rsp = unit.mockConstructor(DefaultFullHttpResponse.class,
+                  new Class[]{HttpVersion.class, HttpResponseStatus.class },
+                  HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE);
+              expect(unit.get(ChannelHandlerContext.class).write(rsp)).andReturn(future);
+
+              expect(HttpUtil.isKeepAlive(req)).andReturn(true);
 
               Attribute<Boolean> needFlush = unit.mock(Attribute.class);
               needFlush.set(true);
 
               Channel channel = unit.get(Channel.class);
 
-              ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
               expect(channel.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
-
-              DefaultFullHttpResponse rsp = unit.mockConstructor(DefaultFullHttpResponse.class,
-                  new Class[]{HttpVersion.class, HttpResponseStatus.class },
-                  HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE);
-              expect(ctx.write(rsp)).andReturn(future);
 
               Attribute<String> attr = unit.mock(Attribute.class);
               attr.set("GET /");
 
               expect(channel.attr(NettyHandler.PATH)).andReturn(attr);
+
+              NettyRequest nreq = unit.constructor(NettyRequest.class)
+                  .args(ChannelHandlerContext.class, HttpRequest.class, String.class, int.class)
+                  .build(unit.get(ChannelHandlerContext.class), req, "target", 3000);
+
+              NettyResponse nrsp = unit.constructor(NettyResponse.class)
+                  .args(ChannelHandlerContext.class, int.class, boolean.class, String.class)
+                  .build(unit.get(ChannelHandlerContext.class), 8192, true, null);
+
+              unit.get(HttpHandler.class).handle(nreq, nrsp);
             })
             .expect(unit -> {
               Config config = unit.get(Config.class);
@@ -93,6 +105,24 @@ public class NettyHandlerTest {
             });
   }
 
+  @Test
+  public void channelRead0Ignored() throws Exception {
+    new MockUnit(HttpHandler.class, Config.class, ChannelHandlerContext.class,
+        FullHttpRequest.class)
+            .expect(unit -> {
+              Config config = unit.get(Config.class);
+              expect(config.getString("application.tmpdir")).andReturn("target");
+              expect(config.getBytes("server.ws.MaxTextMessageSize")).andReturn(3000L);
+              expect(config.getBytes("server.ws.MaxBinaryMessageSize")).andReturn(3000L);
+              expect(config.getBytes("server.http.ResponseBufferSize")).andReturn(8192L);
+            })
+            .run(unit -> {
+              new NettyHandler(unit.get(HttpHandler.class), unit.get(Config.class))
+                  .channelRead0(unit.get(ChannelHandlerContext.class),
+                      new Object());
+            });
+  }
+
   @SuppressWarnings("unchecked")
   @Test
   public void channelReadCompleteRead0WithKeepAlive() throws Exception {
@@ -101,32 +131,39 @@ public class NettyHandlerTest {
             .expect(channel)
             .expect(unit -> {
 
+              HttpHeaders headers = unit.mock(HttpHeaders.class);
+              expect(headers.get(HttpConversionUtil.ExtensionHeaderNames.STREAM_ID.text())).andReturn(null);
+
               FullHttpRequest req = unit.get(FullHttpRequest.class);
               expect(req.uri()).andReturn("/");
               expect(req.method()).andReturn(HttpMethod.GET);
+              expect(req.headers()).andReturn(headers);
 
               unit.mockStatic(HttpUtil.class);
-              expect(HttpUtil.is100ContinueExpected(req)).andReturn(true);
-
-              ChannelFuture future = unit.mock(ChannelFuture.class);
+              expect(HttpUtil.is100ContinueExpected(req)).andReturn(false);
+              expect(HttpUtil.isKeepAlive(req)).andReturn(true);
 
               Attribute<Boolean> needFlush = unit.mock(Attribute.class);
               needFlush.set(true);
 
               Channel channel = unit.get(Channel.class);
 
-              ChannelHandlerContext ctx = unit.get(ChannelHandlerContext.class);
               expect(channel.attr(NettyRequest.NEED_FLUSH)).andReturn(needFlush);
-
-              DefaultFullHttpResponse rsp = unit.mockConstructor(DefaultFullHttpResponse.class,
-                  new Class[]{HttpVersion.class, HttpResponseStatus.class },
-                  HttpVersion.HTTP_1_1, HttpResponseStatus.CONTINUE);
-              expect(ctx.write(rsp)).andReturn(future);
 
               Attribute<String> attr = unit.mock(Attribute.class);
               attr.set("GET /");
 
               expect(channel.attr(NettyHandler.PATH)).andReturn(attr);
+
+              NettyRequest nreq = unit.constructor(NettyRequest.class)
+                  .args(ChannelHandlerContext.class, HttpRequest.class, String.class, int.class)
+                  .build(unit.get(ChannelHandlerContext.class), req, "target", 3000);
+
+              NettyResponse nrsp = unit.constructor(NettyResponse.class)
+                  .args(ChannelHandlerContext.class, int.class, boolean.class, String.class)
+                  .build(unit.get(ChannelHandlerContext.class), 8192, true, null);
+
+              unit.get(HttpHandler.class).handle(nreq, nrsp);
             })
             .expect(unit -> {
               Config config = unit.get(Config.class);

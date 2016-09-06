@@ -10,8 +10,10 @@ import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 
 import org.jooby.Err;
+import org.jooby.Mutant;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -151,8 +153,16 @@ public class WsBinaryMessageTest {
     new WsBinaryMessage(ByteBuffer.wrap("bytes".getBytes())).toOptional(String.class);
   }
 
+  @Test
   public void isSet() throws Exception {
     assertEquals(true, new WsBinaryMessage(ByteBuffer.wrap("bytes".getBytes())).isSet());
+  }
+
+  @Test
+  public void toMap() throws Exception {
+    WsBinaryMessage msg = new WsBinaryMessage(ByteBuffer.wrap("bytes".getBytes()));
+    Map<String, Mutant> map = msg.toMap();
+    assertEquals(msg, map.get("message"));
   }
 
 }
