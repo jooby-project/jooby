@@ -22,8 +22,8 @@ public class FlashScopeApp extends Jooby {
 
     get("/", () -> Results.html("flash"));
 
-    post("/", req -> {
-      req.flash("success", req.param("message").value());
+    get("/send", req -> {
+      req.flash("success", req.param("message").value("It works"));
       return Results.redirect("/");
     });
 

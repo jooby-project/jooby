@@ -55,12 +55,12 @@ public class Issue397b extends ServerFeature {
         .get("/397/flash")
         .expect("{foo=bar}")
         .header("Set-Cookie", setCookie -> {
-          assertEquals("flash=foo=bar;Version=1", setCookie);
+          assertEquals("jooby.flash=foo=bar;Version=1;Path=/;HttpOnly", setCookie);
           request()
               .get("/397/flash/attr")
               .expect("bar")
               .header("Set-Cookie", clearCookie -> {
-                assertTrue(clearCookie.startsWith("flash=;Version=1;Max-Age=0;"));
+                assertTrue(clearCookie.startsWith("jooby.flash=;Version=1;Path=/;HttpOnly;Max-Age=0;"));
               });
         });
   }

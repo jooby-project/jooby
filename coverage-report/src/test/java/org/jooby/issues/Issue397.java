@@ -49,13 +49,13 @@ public class Issue397 extends ServerFeature {
         .post("/397/flash")
         .expect(302)
         .header("Set-Cookie", setCookie -> {
-          assertEquals("flash=success=Thank+you%21;Version=1", setCookie);
+          assertEquals("jooby.flash=success=Thank+you%21;Version=1;Path=/;HttpOnly", setCookie);
           request()
               .get("/397/flash")
               .header("Cookie", setCookie)
               .expect("{success=Thank you!}")
               .header("Set-Cookie", clearCookie -> {
-                assertTrue(clearCookie.startsWith("flash=;Version=1;Max-Age=0;"));
+                assertTrue(clearCookie.startsWith("jooby.flash=;Version=1;Path=/;HttpOnly;Max-Age=0;"));
               });
         });
   }
@@ -76,19 +76,19 @@ public class Issue397 extends ServerFeature {
         .post("/397/flash")
         .expect(302)
         .header("Set-Cookie", setCookie1 -> {
-          assertEquals("flash=success=Thank+you%21;Version=1", setCookie1);
+          assertEquals("jooby.flash=success=Thank+you%21;Version=1;Path=/;HttpOnly", setCookie1);
           request()
               .post("/397/reset")
               .header("Cookie", setCookie1)
               .expect(302)
               .header("Set-Cookie", setCookie2 -> {
-                assertEquals("flash=success=Thank+you%21&foo=bar;Version=1", setCookie2);
+                assertEquals("jooby.flash=success=Thank+you%21&foo=bar;Version=1;Path=/;HttpOnly", setCookie2);
                 request()
                     .get("/397/flash")
                     .header("Cookie", setCookie2)
                     .expect("{success=Thank you!, foo=bar}")
                     .header("Set-Cookie", clearCookie -> {
-                      assertTrue(clearCookie.startsWith("flash=;Version=1;Max-Age=0;"));
+                      assertTrue(clearCookie.startsWith("jooby.flash=;Version=1;Path=/;HttpOnly;Max-Age=0;"));
                     });
               });
         });
@@ -98,10 +98,10 @@ public class Issue397 extends ServerFeature {
   public void shouldClearFlashCookieWhenEmpty() throws Exception {
     request()
         .get("/397/discard")
-        .header("Cookie", "flash=success=OK;Version=1")
+        .header("Cookie", "jooby.flash=success=OK;Version=1")
         .expect(200)
         .header("Set-Cookie", setCookie -> {
-          assertTrue(setCookie.startsWith("flash=;Version=1;Max-Age=0;"));
+          assertTrue(setCookie.startsWith("jooby.flash=;Version=1;Path=/;HttpOnly;Max-Age=0;"));
         });
   }
 }

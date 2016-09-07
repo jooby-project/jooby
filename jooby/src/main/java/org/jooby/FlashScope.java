@@ -18,7 +18,10 @@
  */
 package org.jooby;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.jooby.internal.handlers.FlashScopeHandler;
@@ -101,14 +104,41 @@ public class FlashScope implements Jooby.Module {
 
   private Function<Map<String, String>, String> encoder = Cookie.URL_ENCODER;
 
-  private String cookie = "flash";
+  private Optional<Cookie.Definition> cookie = Optional.empty();
 
   private String method = "*";
 
   private String path = "*";
 
+  /**
+   * Creates a new {@link FlashScope} and customize the flash cookie.
+   *
+   * @param cookie Cookie template for flash scope.
+   */
+  public FlashScope(final Cookie.Definition cookie) {
+    this.cookie = Optional.of(requireNonNull(cookie, "Cookie required."));
+  }
+
+  /**
+   * Creates a new {@link FlashScope}.
+   */
+  public FlashScope() {
+  }
+
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
+    Config $cookie = conf.getConfig("flash.cookie");
+    String cpath = $cookie.getString("path");
+    boolean chttp = $cookie.getBoolean("httpOnly");
+    boolean csecure = $cookie.getBoolean("secure");
+    Cookie.Definition cookie = this.cookie
+        .orElseGet(() -> new Cookie.Definition($cookie.getString("name")));
+
+    // uses user provided or fallback to defaults
+    cookie.path(cookie.path().orElse(cpath))
+        .httpOnly(cookie.httpOnly().orElse(chttp))
+        .secure(cookie.secure().orElse(csecure));
+
     env.routes().use(method, path, new FlashScopeHandler(cookie, decoder, encoder))
         .name("flash-scope");
   }

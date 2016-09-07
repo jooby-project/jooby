@@ -183,6 +183,15 @@ public interface Cookie {
     }
 
     /**
+     * Creates a new {@link Definition cookie's definition}.
+     *
+     * @param name Cookie's name.
+     */
+    public Definition(final String name) {
+      name(name);
+    }
+
+    /**
      * Produces a cookie from current definition.
      *
      * @return A new cookie.

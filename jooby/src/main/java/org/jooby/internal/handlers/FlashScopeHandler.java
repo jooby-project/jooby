@@ -31,15 +31,18 @@ import org.jooby.Route;
 
 public class FlashScopeHandler implements Route.Filter {
 
-  private String name;
+  private Cookie.Definition template;
+
+  private String cname;
 
   private Function<String, Map<String, String>> decoder;
 
   private Function<Map<String, String>, String> encoder;
 
-  public FlashScopeHandler(final String cname, final Function<String, Map<String, String>> decoder,
+  public FlashScopeHandler(final Cookie.Definition cookie, final Function<String, Map<String, String>> decoder,
       final Function<Map<String, String>, String> encoder) {
-    this.name = cname;
+    this.template = cookie;
+    this.cname = cookie.name().get();
     this.decoder = decoder;
     this.encoder = encoder;
   }
@@ -47,7 +50,7 @@ public class FlashScopeHandler implements Route.Filter {
   @Override
   public void handle(final Request req, final Response rsp, final Route.Chain chain)
       throws Throwable {
-    Optional<String> value = req.cookie(name).toOptional();
+    Optional<String> value = req.cookie(cname).toOptional();
     Map<String, String> flashScope = value.map(decoder::apply)
         .orElseGet(HashMap::new);
     Map<String, String> copy = new HashMap<>(flashScope);
@@ -67,16 +70,16 @@ public class FlashScopeHandler implements Route.Filter {
       if (scope.equals(initialScope)) {
         // 1.a. existing data available, discard
         if (scope.size() > 0) {
-          rsp.cookie(new Cookie.Definition(name, "").maxAge(0));
+          rsp.cookie(new Cookie.Definition(template).maxAge(0));
         }
       } else {
         // 2. change detected
         if (scope.size() == 0) {
           // 2.a everything was removed from app logic
-          rsp.cookie(new Cookie.Definition(name, "").maxAge(0));
+          rsp.cookie(new Cookie.Definition(template).maxAge(0));
         } else {
           // 2.b there is something to see in the next request
-          rsp.cookie(name, encoder.apply(scope));
+          rsp.cookie(new Cookie.Definition(template).value(encoder.apply(scope)));
         }
       }
       return result;
