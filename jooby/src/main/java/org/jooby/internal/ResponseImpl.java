@@ -58,6 +58,8 @@ import javaslang.control.Try;
 
 public class ResponseImpl implements Response {
 
+  private static final String LOCATION = "Location";
+
   /** Char encoded content disposition. */
   private static final String CONTENT_DISPOSITION = "attachment; filename=\"%s\"; filename*=%s''%s";
 
@@ -215,10 +217,10 @@ public class ResponseImpl implements Response {
 
   @Override
   public void redirect(final Status status, final String location) throws Throwable {
-    requireNonNull(status, "A status is required.");
-    requireNonNull(location, "A location is required.");
+    requireNonNull(status, "Status required.");
+    requireNonNull(location, "Location required.");
 
-    send(Results.with(status).header("Location", location));
+    send(Results.with(status).header(LOCATION, location));
   }
 
   @Override
@@ -228,7 +230,7 @@ public class ResponseImpl implements Response {
 
   @Override
   public Response status(final Status status) {
-    this.status = requireNonNull(status, "Statusrequired.");
+    this.status = requireNonNull(status, "Status required.");
     rsp.statusCode(status.value());
     failure = status.isError();
     return this;
@@ -408,8 +410,15 @@ public class ResponseImpl implements Response {
             .collect(Collectors.toList());
         rsp.header(name, values);
       } else {
-        if ("location".equalsIgnoreCase(name) && "back".equalsIgnoreCase(value.toString())) {
-          rsp.header(name, referer.orElse("/"));
+        if (LOCATION.equalsIgnoreCase(name)) {
+          String location = value.toString();
+          String cpath = req.contextPath();
+          if ("back".equalsIgnoreCase(location)) {
+            location = referer.orElse(cpath + "/");
+          } else if (location.startsWith("/") && !location.startsWith(cpath)) {
+            location = cpath + location;
+          }
+          rsp.header(LOCATION, location);
         } else {
           rsp.header(name, Headers.encode(value));
         }
