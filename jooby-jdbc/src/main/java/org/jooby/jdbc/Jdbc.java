@@ -30,7 +30,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -50,6 +49,7 @@ import com.typesafe.config.ConfigValueFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import javaslang.Function3;
 import javaslang.Tuple;
 import javaslang.Tuple2;
 import javaslang.control.Try;
@@ -230,22 +230,25 @@ public class Jdbc implements Jooby.Module {
   };
 
   public static Function<String, String> DB_NAME = url -> {
-    BiFunction<String, String, Tuple2<String, Map<String, String>>> indexOf = (str, token) -> {
-      int i = str.indexOf(token);
-      int len = i >= 0 ? i : str.length();
-      Map<String, String> params = Splitter.on(token)
+    Function3<String, String, String, Tuple2<String, Map<String, String>>> indexOf = (str, t1,
+        t2) -> {
+      int i = str.indexOf(t1);
+      int len = i >= 0 ? i : str.length() - 1;
+      Map<String, String> params = Splitter.on(t2)
           .trimResults()
           .omitEmptyStrings()
           .withKeyValueSeparator('=')
-          .split(str.substring(len));
-      return Tuple.of(str.substring(0, len), params);
+          .split(str.substring(len + 1));
+      return Tuple.of(str.substring(0, len + 1), params);
     };
     // strip ; or ?
-    Tuple2<String, Map<String, String>> result = indexOf.apply(url, "?");
+    Tuple2<String, Map<String, String>> result = indexOf.apply(url, "?", "&");
     Map<String, String> params = new HashMap<>(result._2);
-    result = indexOf.apply(result._1, ";");
+    result = indexOf.apply(result._1, ";", ";");
     params.putAll(result._2);
     List<String> parts = Splitter.on(CharMatcher.JAVA_LETTER_OR_DIGIT.negate())
+        .trimResults()
+        .omitEmptyStrings()
         .splitToList(result._1);
     return Optional.ofNullable(params.get("database"))
         .orElse(Optional.ofNullable(params.get("databaseName"))
@@ -377,21 +380,22 @@ public class Jdbc implements Jooby.Module {
     Object db = source.getAnyRef(key);
 
     if (db instanceof String) {
-      String embeddeddb = "databases." + db;
-      if (db.toString().indexOf(':') == -1 && source.hasPath(embeddeddb)) {
-        Config dbtree = source.getConfig(embeddeddb);
-        dbtree = dbtree.withValue("url", ConfigValueFactory.fromAnyRef(
-            dbtree.getString("url").replace("{mem.seed}", System.currentTimeMillis() + "")));
-        // write embedded with current key
-        return ConfigFactory.empty()
-            .withValue(key, dbtree.root())
-            .withFallback(source);
-      } else {
-        // assume it is a just the url
-        return ConfigFactory.empty()
-            .withValue(key + ".url", ConfigValueFactory.fromAnyRef(db.toString()))
-            .withFallback(source);
-      }
+      // embedded db?
+      return Try.of(() -> source.getConfig("databases." + db))
+          .map(it -> {
+            // Rewrite embedded db
+            Config dbtree = it.withValue("url", ConfigValueFactory.fromAnyRef(
+                it.getString("url").replace("{mem.seed}", System.currentTimeMillis() + "")));
+            // write embedded with current key
+            return ConfigFactory.empty()
+                .withValue(key, dbtree.root())
+                .withFallback(source);
+          }).getOrElse(() -> {
+            // assume it is a just the url
+            return ConfigFactory.empty()
+                .withValue(key + ".url", ConfigValueFactory.fromAnyRef(db.toString()))
+                .withFallback(source);
+          });
     } else {
       return source;
     }
@@ -403,12 +407,8 @@ public class Jdbc implements Jooby.Module {
 
     BiConsumer<String, Entry<String, ConfigValue>> dumper = (prefix, entry) -> {
       String propertyName = prefix + entry.getKey();
-      String[] path = propertyName.split("\\.");
-
-      if (path.length <= 2) {
-        String propertyValue = entry.getValue().unwrapped().toString();
-        props.setProperty(propertyName, propertyValue);
-      }
+      String propertyValue = entry.getValue().unwrapped().toString();
+      props.setProperty(propertyName, propertyValue);
     };
 
     Function<String, Config> hikari = path -> Try.of(() -> config.getConfig(path))

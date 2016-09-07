@@ -294,7 +294,7 @@ public class JdbcTest {
   public void dbspecific() throws Exception {
     Config config = ConfigFactory.parseResources(getClass(), "jdbc.conf");
     Config dbconf = config.withValue("db.url",
-        ConfigValueFactory.fromAnyRef("jdbc:mysql://localhost/db"))
+        ConfigValueFactory.fromAnyRef("jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8"))
         .withValue("application.charset", fromAnyRef("UTF-8"))
         .withValue("application.name", fromAnyRef("jdbctest"))
         .withValue("application.tmpdir", fromAnyRef("target"))
@@ -303,7 +303,7 @@ public class JdbcTest {
         .resolve();
 
     new MockUnit(Env.class, Config.class, Binder.class)
-        .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost/db",
+        .expect(props("com.mysql.jdbc.jdbc2.optional.MysqlDataSource", "jdbc:mysql://localhost/db?useEncoding=true&characterEncoding=UTF-8",
             "mysql.db", null, "", false))
         .expect(mysql)
         .expect(unit -> {
