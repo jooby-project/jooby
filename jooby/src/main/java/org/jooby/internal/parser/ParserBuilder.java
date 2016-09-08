@@ -27,6 +27,7 @@ import org.jooby.Parser.Builder;
 import org.jooby.Parser.Callback;
 import org.jooby.Upload;
 import org.jooby.internal.BodyReferenceImpl;
+import org.jooby.internal.EmptyBodyReference;
 import org.jooby.internal.StrParamReferenceImpl;
 import org.jooby.internal.UploadParamReferenceImpl;
 
@@ -64,6 +65,7 @@ public class ParserBuilder implements Parser.Builder {
   @Override
   public Builder body(final Callback<Parser.BodyReference> callback) {
     strategies.put(TypeLiteral.get(BodyReferenceImpl.class), callback);
+    strategies.put(TypeLiteral.get(EmptyBodyReference.class), callback);
     return this;
   }
 

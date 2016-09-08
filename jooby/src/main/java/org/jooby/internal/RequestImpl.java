@@ -56,6 +56,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.typesafe.config.Config;
 
 import javaslang.control.Try;
 
@@ -252,14 +253,17 @@ public class RequestImpl implements Request {
       if (!type.isAny() && (MediaType.form.matches(type) || MediaType.multipart.matches(type))) {
         return params();
       }
-      File fbody = new File(
-          require("application.tmpdir", File.class),
+      Config conf = require(Config.class);
+
+      File fbody = new File(conf.getString("application.tmpdir"),
           Integer.toHexString(System.identityHashCode(this)));
       files.add(fbody);
-      Parser.BodyReference body = new BodyReferenceImpl(length, charset(), fbody, req.in());
+      int bufferSize = conf.getBytes("server.http.RequestBufferSize").intValue();
+      Parser.BodyReference body = new BodyReferenceImpl(length, charset(), fbody, req.in(),
+          bufferSize);
       return new MutantImpl(require(ParserExecutor.class), type(), body);
     }
-    return new MutantImpl(require(ParserExecutor.class), type(), new BodyReferenceImpl());
+    return new MutantImpl(require(ParserExecutor.class), type(), new EmptyBodyReference());
   }
 
   @Override

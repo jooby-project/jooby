@@ -4557,7 +4557,6 @@ public class Jooby implements Routes, LifeCycle, Registry {
     if (dateFormat != null) {
       defs = defs.withValue("application.dateFormat", ConfigValueFactory.fromAnyRef(dateFormat));
     }
-
     return defs;
   }
 

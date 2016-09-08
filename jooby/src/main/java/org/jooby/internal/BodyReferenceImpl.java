@@ -18,18 +18,18 @@
  */
 package org.jooby.internal;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 
-import org.jooby.Err;
 import org.jooby.Parser;
-import org.jooby.Status;
 
-import com.google.common.io.Closeables;
+import com.google.common.io.ByteStreams;
 
 public class BodyReferenceImpl implements Parser.BodyReference {
 
@@ -39,16 +39,17 @@ public class BodyReferenceImpl implements Parser.BodyReference {
 
   private File file;
 
+  private byte[] bytes;
+
   public BodyReferenceImpl(final long length, final Charset charset, final File file,
-      final InputStream in) throws IOException {
+      final InputStream in, final long bufferSize) throws IOException {
     this.length = length;
     this.charset = charset;
-    if (length > 0) {
-      this.file = writeTo(file, in);
+    if (length < bufferSize) {
+      bytes = toByteArray(in);
+    } else {
+      this.file = copy(file, in);
     }
-  }
-
-  public BodyReferenceImpl() {
   }
 
   @Override
@@ -58,35 +59,43 @@ public class BodyReferenceImpl implements Parser.BodyReference {
 
   @Override
   public byte[] bytes() throws IOException {
-    checkContent();
-    return Files.readAllBytes(file.toPath());
+    if (bytes == null) {
+      return Files.readAllBytes(file.toPath());
+    } else {
+      return bytes;
+    }
   }
 
   @Override
   public String text() throws IOException {
-    checkContent();
     return new String(bytes(), charset);
   }
 
   @Override
   public void writeTo(final OutputStream output) throws IOException {
-    Files.copy(file.toPath(), output);
+    if (bytes == null) {
+      Files.copy(file.toPath(), output);
+    } else {
+      output.write(bytes);
+    }
+
   }
 
-  private File writeTo(final File file, InputStream in) throws IOException {
-    try {
-      file.getParentFile().mkdirs();
-      Files.copy(in, file.toPath());
-    } finally {
-      Closeables.closeQuietly(in);
-      in = null;
-    }
+  private static byte[] toByteArray(final InputStream in) throws IOException {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    copy(in, out);
+    return out.toByteArray();
+  }
+
+  private static File copy(final File file, final InputStream in) throws IOException {
+    file.getParentFile().mkdirs();
+    copy(in, new FileOutputStream(file));
     return file;
   }
 
-  private void checkContent() {
-    if (file == null) {
-      throw new Err(Status.BAD_REQUEST);
+  private static void copy(final InputStream in, final OutputStream out) throws IOException {
+    try (InputStream src = in; OutputStream dest = out) {
+      ByteStreams.copy(src, dest);
     }
   }
 
