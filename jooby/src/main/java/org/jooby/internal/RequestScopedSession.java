@@ -129,7 +129,7 @@ public class RequestScopedSession implements Session {
       // clear cookie
       org.jooby.Cookie.Definition cookie = sm.cookie();
       log.debug("  removing cookie: {}", cookie);
-      rsp.clearCookie(cookie.name().get());
+      rsp.cookie(cookie.maxAge(0));
       // destroy session from storage
       sm.destroy(session);
 

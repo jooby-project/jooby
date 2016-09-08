@@ -95,7 +95,7 @@ public class CookieSessionManager implements SessionManager {
 
   @Override
   public Definition cookie() {
-    return cookie;
+    return new Definition(cookie);
   }
 
   private Map<String, String> attributes(final String raw) {
@@ -105,24 +105,25 @@ public class CookieSessionManager implements SessionManager {
 
   private Route.After saveCookie() {
     return (req, rsp, result) -> {
-      Session session = req.session();
-      Optional<String> value = req.cookie(cookie.name().get()).toOptional();
-      Map<String, String> initial = value
-          .map(this::attributes)
-          .orElse(Collections.emptyMap());
-      Map<String, String> attributes = session.attributes();
-      // is dirty?
-      boolean dirty = !initial.equals(attributes);
-      log.debug("session dirty: {}", dirty);
-      if (dirty) {
-        log.debug("saving session cookie");
-        String encoded = Cookie.URL_ENCODER.apply(attributes);
-        String signed = Cookie.Signature.sign(encoded, secret);
-        rsp.cookie(new Cookie.Definition(cookie).value(signed));
-      } else if (timeout > 0) {
-        // touch session
-        value.ifPresent(raw -> rsp.cookie(new Cookie.Definition(cookie).value(raw)));
-      }
+      req.ifSession().ifPresent(session -> {
+        Optional<String> value = req.cookie(cookie.name().get()).toOptional();
+        Map<String, String> initial = value
+            .map(this::attributes)
+            .orElse(Collections.emptyMap());
+        Map<String, String> attributes = session.attributes();
+        // is dirty?
+        boolean dirty = !initial.equals(attributes);
+        log.debug("session dirty: {}", dirty);
+        if (dirty) {
+          log.debug("saving session cookie");
+          String encoded = Cookie.URL_ENCODER.apply(attributes);
+          String signed = Cookie.Signature.sign(encoded, secret);
+          rsp.cookie(new Cookie.Definition(cookie).value(signed));
+        } else if (timeout > 0) {
+          // touch session
+          value.ifPresent(raw -> rsp.cookie(new Cookie.Definition(cookie).value(raw)));
+        }
+      });
       return result;
     };
   }

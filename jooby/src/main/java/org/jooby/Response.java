@@ -312,7 +312,7 @@ public interface Response {
    * @return This response.
    */
   default Response cookie(final String name, final String value) {
-    return cookie(new Cookie.Definition(name, value).toCookie());
+    return cookie(new Cookie.Definition(name, value));
   }
 
   /**
@@ -321,10 +321,7 @@ public interface Response {
    * @param cookie A cookie definition.
    * @return This response.
    */
-  default Response cookie(final Cookie.Definition cookie) {
-    requireNonNull(cookie, "A cookie is required.");
-    return cookie(cookie.toCookie());
-  }
+  Response cookie(final Cookie.Definition cookie);
 
   /**
    * Adds the specified cookie to the response.

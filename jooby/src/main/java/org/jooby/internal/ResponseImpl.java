@@ -37,6 +37,7 @@ import java.util.stream.StreamSupport;
 
 import org.jooby.Asset;
 import org.jooby.Cookie;
+import org.jooby.Cookie.Definition;
 import org.jooby.Deferred;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
@@ -141,18 +142,32 @@ public class ResponseImpl implements Response {
   }
 
   @Override
-  public Response cookie(final Cookie cookie) {
-    requireNonNull(cookie, "A cookie is required.");
-    cookies.put(cookie.name(), cookie);
-    return this;
+  public Response clearCookie(final String name) {
+    requireNonNull(name, "Cookie's name required.");
+    return cookie(new Cookie.Definition(name).maxAge(0));
   }
 
   @Override
-  public Response clearCookie(final String name) {
-    requireNonNull(name, "A cookie's name is required.");
-    if (cookies.remove(name) == null) {
-      // cookie was set in a previous req, we must send a expire header.
-      cookies.put(name, new Cookie.Definition(name, "").maxAge(0).toCookie());
+  public Response cookie(final Definition cookie) {
+    requireNonNull(cookie, "Cookie required.");
+    // use default path if none-set
+    cookie.path(cookie.path().orElse(Route.normalize(req.contextPath() + "/")));
+    return cookie(cookie.toCookie());
+  }
+
+  @Override
+  public Response cookie(final Cookie cookie) {
+    requireNonNull(cookie, "Cookie required.");
+    String name = cookie.name();
+    // clear cookie?
+    if (cookie.maxAge() == 0) {
+      // clear previously set cookie, otherwise ignore them
+      if (cookies.remove(name) == null) {
+        // cookie was set in a previous req, we must send a expire header.
+        cookies.put(name, cookie);
+      }
+    } else {
+      cookies.put(name, cookie);
     }
     return this;
   }
@@ -370,8 +385,10 @@ public class ResponseImpl implements Response {
 
   private void writeCookies() {
     if (cookies.size() > 0) {
-      rsp.header("Set-Cookie",
-          cookies.values().stream().map(Cookie::encode).collect(Collectors.toList()));
+      List<String> setCookie = cookies.values().stream()
+          .map(Cookie::encode)
+          .collect(Collectors.toList());
+      rsp.header("Set-Cookie", setCookie);
       cookies.clear();
     }
   }

@@ -81,7 +81,7 @@ public class Issue427 extends ServerFeature {
         .get("/427/destroy")
         .expect(200)
         .header("Set-Cookie",
-            "jooby.sid=;Version=1;Max-Age=0;Expires=Thu, 01-Jan-1970 00:00:00 GMT");
+            "jooby.sid=;Version=1;Path=/;HttpOnly;Max-Age=0;Expires=Thu, 01-Jan-1970 00:00:00 GMT");
   }
 
 }

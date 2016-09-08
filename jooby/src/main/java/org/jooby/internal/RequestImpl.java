@@ -422,10 +422,13 @@ public class RequestImpl implements Request {
   }
 
   private Session setSession(final SessionManager sm, final Response rsp, final Session gsession) {
-    Session rsession = new RequestScopedSession(sm, rsp, gsession,
-        () -> this.reqSession = null);
+    Session rsession = new RequestScopedSession(sm, rsp, gsession, this::destroySession);
     reqSession = Optional.of(rsession);
     return rsession;
+  }
+
+  private void destroySession() {
+    this.reqSession = Optional.empty();
   }
 
 }

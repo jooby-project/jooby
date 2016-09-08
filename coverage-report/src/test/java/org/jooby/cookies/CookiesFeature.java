@@ -86,7 +86,7 @@ public class CookiesFeature extends ServerFeature {
                   .header("Cookie", "X=x; $Path=/clear; $Version=1")
                   .expect(200)
                   .header("Set-Cookie",
-                      "X=;Version=1;Max-Age=0;Expires=Thu, 01-Jan-1970 00:00:00 GMT");
+                      "X=;Version=1;Path=/;Max-Age=0;Expires=Thu, 01-Jan-1970 00:00:00 GMT");
             });
 
   }

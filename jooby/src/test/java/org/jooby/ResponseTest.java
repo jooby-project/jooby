@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.Optional;
 
+import org.jooby.Cookie.Definition;
 import org.jooby.Route.After;
 import org.jooby.Route.Complete;
 import org.junit.Test;
@@ -23,6 +24,11 @@ public class ResponseTest {
 
     @Override
     public void download(final String filename, final String location) throws Exception {
+    }
+
+    @Override
+    public Response cookie(final Definition cookie) {
+      throw new UnsupportedOperationException();
     }
 
     @Override
@@ -232,31 +238,16 @@ public class ResponseTest {
 
   @Test
   public void cookieWithNameAndValue() throws Exception {
-    LinkedList<Cookie> dataList = new LinkedList<>();
+    LinkedList<Cookie.Definition> dataList = new LinkedList<>();
     new ResponseMock() {
       @Override
-      public Response cookie(final Cookie cookie) {
+      public Response cookie(final Cookie.Definition cookie) {
         dataList.add(cookie);
         return this;
       }
     }.cookie("name", "value");
 
-    assertEquals("name", dataList.getFirst().name());
-    assertEquals("value", dataList.getFirst().value().get());
-  }
-
-  @Test
-  public void cookieWith() throws Exception {
-    LinkedList<Cookie> dataList = new LinkedList<>();
-    new ResponseMock() {
-      @Override
-      public Response cookie(final Cookie cookie) {
-        dataList.add(cookie);
-        return this;
-      }
-    }.cookie(new Cookie.Definition("name", "value"));
-
-    assertEquals("name", dataList.getFirst().name());
+    assertEquals("name", dataList.getFirst().name().get());
     assertEquals("value", dataList.getFirst().value().get());
   }
 

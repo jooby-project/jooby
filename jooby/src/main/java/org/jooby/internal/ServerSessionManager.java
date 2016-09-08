@@ -124,7 +124,7 @@ public class ServerSessionManager implements SessionManager {
 
   @Override
   public Cookie.Definition cookie() {
-    return template;
+    return new Cookie.Definition(template);
   }
 
   private void createOrUpdate(final SessionImpl session) {

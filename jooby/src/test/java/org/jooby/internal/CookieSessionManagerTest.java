@@ -122,7 +122,7 @@ public class CookieSessionManagerTest {
               expect(session.attributes()).andReturn(ImmutableMap.of("foo", "2"));
 
               Request req = unit.get(Request.class);
-              expect(req.session()).andReturn(session);
+              expect(req.ifSession()).andReturn(Optional.of(session));
             })
             .expect(unit -> {
               unit.mockStatic(Cookie.Signature.class);
@@ -130,6 +130,32 @@ public class CookieSessionManagerTest {
             })
             .expect(signCookie(secret, "foo=2", "sss"))
             .expect(sendCookie())
+            .run(unit -> {
+              Session session = new CookieSessionManager(unit.get(ParserExecutor.class),
+                  unit.get(Session.Definition.class), secret)
+                      .create(unit.get(Request.class), unit.get(Response.class));
+              assertEquals(unit.get(SessionImpl.class), session);
+            }, unit -> {
+              After next = unit.captured(Route.After.class).iterator().next();
+              Result ok = next.handle(unit.get(Request.class), unit.get(Response.class),
+                  org.jooby.Results.ok());
+              assertNotNull(ok);
+            });
+  }
+
+  @Test
+  public void ignoreSaveAfterIfNoSession() throws Exception {
+    String secret = "shhh";
+    new MockUnit(Session.Definition.class, ParserExecutor.class, Cookie.Definition.class,
+        Request.class, Response.class, SessionImpl.class)
+            .expect(cookie)
+            .expect(maxAge(-1))
+            .expect(sessionBuilder(Session.COOKIE_SESSION, true, -1))
+            .expect(push)
+            .expect(unit -> {
+              Request req = unit.get(Request.class);
+              expect(req.ifSession()).andReturn(Optional.empty());
+            })
             .run(unit -> {
               Session session = new CookieSessionManager(unit.get(ParserExecutor.class),
                   unit.get(Session.Definition.class), secret)
@@ -169,7 +195,7 @@ public class CookieSessionManagerTest {
               expect(session.attributes()).andReturn(ImmutableMap.of("foo", "1"));
 
               Request req = unit.get(Request.class);
-              expect(req.session()).andReturn(session);
+              expect(req.ifSession()).andReturn(Optional.of(session));
             })
             .expect(unit -> {
               unit.mockStatic(Cookie.Signature.class);
