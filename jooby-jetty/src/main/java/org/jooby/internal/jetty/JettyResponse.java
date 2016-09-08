@@ -40,6 +40,8 @@ public class JettyResponse extends ServletServletResponse implements Callback {
 
   private ServletServletRequest nreq;
 
+  private volatile boolean endRequest = true;
+
   public JettyResponse(final ServletServletRequest nreq, final HttpServletResponse rsp) {
     super(nreq.servletRequest(), rsp);
     this.nreq = nreq;
@@ -57,6 +59,7 @@ public class JettyResponse extends ServletServletResponse implements Callback {
 
   @Override
   public void send(final InputStream stream) throws Exception {
+    endRequest = false;
     nreq.startAsync();
     sender().sendContent(Channels.newChannel(stream), this);
   }
@@ -68,29 +71,30 @@ public class JettyResponse extends ServletServletResponse implements Callback {
       // sync version, file size is smaller than bufferSize
       sender().sendContent(channel);
     } else {
+      endRequest = false;
       nreq.startAsync();
       sender().sendContent(channel, this);
     }
   }
 
-  private HttpOutput sender() {
-    return ((Response) rsp).getHttpOutput();
-  }
-
   @Override
   public void succeeded() {
+    endRequest = true;
     end();
   }
 
   @Override
   public void failed(final Throwable cause) {
+    endRequest = true;
     log.error("execution of " + nreq.path() + " resulted in exception", cause);
     end();
   }
 
   @Override
   public void end() {
-    super.end();
+    if (endRequest) {
+      super.end();
+    }
     nreq = null;
   }
 
@@ -98,4 +102,9 @@ public class JettyResponse extends ServletServletResponse implements Callback {
   protected void close() {
     sender().close();
   }
+
+  private HttpOutput sender() {
+    return ((Response) rsp).getHttpOutput();
+  }
+
 }

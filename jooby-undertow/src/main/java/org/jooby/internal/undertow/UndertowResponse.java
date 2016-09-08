@@ -49,7 +49,7 @@ public class UndertowResponse implements NativeResponse {
 
   private HttpServerExchange exchange;
 
-  private boolean endExchange = true;
+  private volatile boolean endExchange = true;
 
   public UndertowResponse(final HttpServerExchange exchange) {
     this.exchange = exchange;
