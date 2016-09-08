@@ -49,6 +49,8 @@ public class UndertowResponse implements NativeResponse {
 
   private HttpServerExchange exchange;
 
+  private boolean endExchange = true;
+
   public UndertowResponse(final HttpServerExchange exchange) {
     this.exchange = exchange;
   }
@@ -89,12 +91,15 @@ public class UndertowResponse implements NativeResponse {
 
   @Override
   public void send(final InputStream stream) throws Exception {
-    new ChunkedStream().send(Channels.newChannel(stream), exchange, IoCallback.END_EXCHANGE);
+    endExchange = false;
+    new ChunkedStream().send(Channels.newChannel(stream), exchange,
+        new LogIoCallback(IoCallback.END_EXCHANGE));
   }
 
   @Override
   public void send(final FileChannel channel) throws Exception {
-    new ChunkedStream().send(channel, exchange, IoCallback.END_EXCHANGE);
+    endExchange = false;
+    new ChunkedStream().send(channel, exchange, new LogIoCallback(IoCallback.END_EXCHANGE));
   }
 
   @Override
@@ -109,7 +114,7 @@ public class UndertowResponse implements NativeResponse {
 
   @Override
   public boolean committed() {
-    return exchange.isResponseStarted();
+    return exchange.isComplete();
   }
 
   @Override
@@ -131,8 +136,9 @@ public class UndertowResponse implements NativeResponse {
         exchange.removeAttachment(UndertowRequest.SOCKET);
       }
     }
-    // this is a noop when response has been set, still call it...
-    exchange.endExchange();
+    if (endExchange) {
+      exchange.endExchange();
+    }
   }
 
 }
