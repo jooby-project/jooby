@@ -6,8 +6,10 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.junit.Test;
 
@@ -102,6 +104,16 @@ public class EnvTest {
 
       @Override
       public LifeCycle onStop(final CheckedConsumer<Registry> task) {
+        return null;
+      }
+
+      @Override
+      public Map<String, Function<String, String>> xss() {
+        return null;
+      }
+
+      @Override
+      public Env xss(final String name, final Function<String, String> escaper) {
         return null;
       }
 

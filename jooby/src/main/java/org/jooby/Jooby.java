@@ -132,6 +132,9 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.escape.Escaper;
+import com.google.common.html.HtmlEscapers;
+import com.google.common.net.UrlEscapers;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -4060,6 +4063,9 @@ public class Jooby implements Routes, LifeCycle, Registry {
       throw new IllegalStateException("Required property 'application.secret' is missing");
     }
 
+    /** Some basic xss functions. */
+    xss(finalEnv);
+
     /** dependency injection */
     @SuppressWarnings("unchecked")
     Injector injector = Guice.createInjector(stage, binder -> {
@@ -4221,6 +4227,18 @@ public class Jooby implements Routes, LifeCycle, Registry {
     this.bag = ImmutableSet.of();
 
     return injector;
+  }
+
+  private void xss(final Env env) {
+    Escaper ufe = UrlEscapers.urlFragmentEscaper();
+    Escaper fpe = UrlEscapers.urlFormParameterEscaper();
+    Escaper pse = UrlEscapers.urlPathSegmentEscaper();
+    Escaper html = HtmlEscapers.htmlEscaper();
+
+    env.xss("urlFragment", ufe::escape)
+        .xss("formParam", fpe::escape)
+        .xss("pathSegment", pse::escape)
+        .xss("html", html::escape);
   }
 
   private static Provider<Session.Definition> session(final Config $session,

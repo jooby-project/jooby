@@ -404,7 +404,7 @@ public class HttpHandlerImpl implements HttpHandler {
         if (ex != null) {
           throw ex;
         }
-        throw new Err(Status.NOT_FOUND, path);
+        throw new Err(Status.NOT_FOUND, req.path(true));
       }
     }, method, path, "err", accept));
 
@@ -436,10 +436,10 @@ public class HttpHandlerImpl implements HttpHandler {
   }
 
   private static Err handle405(final Set<Route.Definition> routeDefs, final String method,
-      final String uri, final MediaType type, final List<MediaType> accept) {
+      final String path, final MediaType type, final List<MediaType> accept) {
 
-    if (alternative(routeDefs, method, uri).size() > 0) {
-      return new Err(Status.METHOD_NOT_ALLOWED, method + uri);
+    if (alternative(routeDefs, method, path).size() > 0) {
+      return new Err(Status.METHOD_NOT_ALLOWED, method);
     }
 
     return null;

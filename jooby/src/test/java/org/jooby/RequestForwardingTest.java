@@ -52,6 +52,15 @@ public class RequestForwardingTest {
         .run(unit -> {
           assertEquals("/path", new Request.Forwarding(unit.get(Request.class)).path());
         });
+
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.path(true)).andReturn("/path");
+        })
+        .run(unit -> {
+          assertEquals("/path", new Request.Forwarding(unit.get(Request.class)).path(true));
+        });
   }
 
   @Test
@@ -192,6 +201,16 @@ public class RequestForwardingTest {
           assertEquals(unit.get(Mutant.class),
               new Request.Forwarding(unit.get(Request.class)).params());
         });
+
+    new MockUnit(Request.class, Mutant.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.params("xss")).andReturn(unit.get(Mutant.class));
+        })
+        .run(unit -> {
+          assertEquals(unit.get(Mutant.class),
+              new Request.Forwarding(unit.get(Request.class)).params("xss"));
+        });
   }
 
   @Test
@@ -229,6 +248,16 @@ public class RequestForwardingTest {
           assertEquals(unit.get(Mutant.class),
               new Request.Forwarding(unit.get(Request.class)).param("p"));
         });
+
+    new MockUnit(Request.class, Mutant.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.param("p", "xss")).andReturn(unit.get(Mutant.class));
+        })
+        .run(unit -> {
+          assertEquals(unit.get(Mutant.class),
+              new Request.Forwarding(unit.get(Request.class)).param("p", "xss"));
+        });
   }
 
   @Test
@@ -241,6 +270,16 @@ public class RequestForwardingTest {
         .run(unit -> {
           assertEquals(unit.get(Mutant.class),
               new Request.Forwarding(unit.get(Request.class)).header("h"));
+        });
+
+    new MockUnit(Request.class, Mutant.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.header("h", "xss")).andReturn(unit.get(Mutant.class));
+        })
+        .run(unit -> {
+          assertEquals(unit.get(Mutant.class),
+              new Request.Forwarding(unit.get(Request.class)).header("h", "xss"));
         });
   }
 
@@ -795,6 +834,19 @@ public class RequestForwardingTest {
               v,
               new Request.Forwarding(unit.get(Request.class)).params(
                   RequestForwardingTest.class));
+        });
+
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+
+          expect(req.params(RequestForwardingTest.class, "xss")).andReturn(v);
+        })
+        .run(unit -> {
+          assertEquals(
+              v,
+              new Request.Forwarding(unit.get(Request.class)).params(
+                  RequestForwardingTest.class, "xss"));
         });
   }
 }

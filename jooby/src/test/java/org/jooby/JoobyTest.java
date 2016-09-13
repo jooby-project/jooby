@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Function;
 
 import javax.inject.Provider;
 import javax.inject.Singleton;
@@ -62,6 +63,9 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.google.common.escape.Escaper;
+import com.google.common.html.HtmlEscapers;
+import com.google.common.net.UrlEscapers;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -88,7 +92,7 @@ import javaslang.control.Try.CheckedRunnable;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Jooby.class, Guice.class, TypeConverters.class, Multibinder.class,
-    OptionalBinder.class, Runtime.class, Thread.class })
+    OptionalBinder.class, Runtime.class, Thread.class, UrlEscapers.class, HtmlEscapers.class })
 @SuppressWarnings("unchecked")
 public class JoobyTest {
 
@@ -826,6 +830,20 @@ public class JoobyTest {
           Env.Builder builder = unit.get(Env.Builder.class);
           expect(builder.build(isA(Config.class), isA(Jooby.class), isA(Locale.class)))
               .andReturn(env);
+
+          unit.mockStatic(UrlEscapers.class);
+          unit.mockStatic(HtmlEscapers.class);
+          Escaper escaper = unit.mock(Escaper.class);
+
+          expect(UrlEscapers.urlFragmentEscaper()).andReturn(escaper);
+          expect(UrlEscapers.urlFormParameterEscaper()).andReturn(escaper);
+          expect(UrlEscapers.urlPathSegmentEscaper()).andReturn(escaper);
+          expect(HtmlEscapers.htmlEscaper()).andReturn(escaper);
+
+          expect(env.xss(eq("urlFragment"), unit.capture(Function.class))).andReturn(env);
+          expect(env.xss(eq("formParam"), unit.capture(Function.class))).andReturn(env);
+          expect(env.xss(eq("pathSegment"), unit.capture(Function.class))).andReturn(env);
+          expect(env.xss(eq("html"), unit.capture(Function.class))).andReturn(env);
 
           Binder binder = unit.get(Binder.class);
 

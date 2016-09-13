@@ -21,6 +21,7 @@ package org.jooby;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -29,6 +30,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -66,7 +68,7 @@ import javaslang.control.Try.CheckedConsumer;
 public interface Env extends LifeCycle {
 
   /**
-   * Utility class for generated {@link Key} for named services.
+   * Utility class for generating {@link Key} for named services.
    *
    * @author edgar
    */
@@ -139,6 +141,8 @@ public interface Env extends LifeCycle {
 
       private ImmutableList.Builder<CheckedConsumer<Registry>> shutdown = ImmutableList.builder();
 
+      private Map<String, Function<String, String>> xss = new HashMap<>();
+
       private ServiceKey key = new ServiceKey();
 
       @Override
@@ -195,6 +199,18 @@ public interface Env extends LifeCycle {
       public List<CheckedConsumer<Registry>> startTasks() {
         return this.start.build();
       }
+
+      @Override
+      public Map<String, Function<String, String>> xss() {
+        return Collections.unmodifiableMap(xss);
+      }
+
+      @Override
+      public Env xss(final String name, final Function<String, String> escaper) {
+        xss.put(requireNonNull(name, "Name required."),
+            requireNonNull(escaper, "Function required."));
+        return this;
+      }
     };
   };
 
@@ -227,7 +243,6 @@ public interface Env extends LifeCycle {
   default ServiceKey serviceKey() {
     return new ServiceKey();
   }
-
 
   /**
    * Returns a string with all substitutions (the <code>${foo.bar}</code> syntax,
@@ -422,6 +437,20 @@ public interface Env extends LifeCycle {
   default <T> Option<T> when(final Predicate<String> predicate, final T result) {
     return match().option(API.Case(predicate, result));
   }
+
+  /**
+   * @return XSS escape functions.
+   */
+  Map<String, Function<String, String>> xss();
+
+  /**
+   * Set/override a XSS escape function.
+   *
+   * @param name Escape's name.
+   * @param escaper Escape function.
+   * @return This environment.
+   */
+  Env xss(String name, Function<String, String> escaper);
 
   /**
    * @return List of start tasks.

@@ -54,12 +54,27 @@ public class RequestTest {
     }
 
     @Override
+    public Mutant params(final String... xss) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Mutant param(final String name) {
       throw new UnsupportedOperationException();
     }
 
     @Override
+    public Mutant param(final String name, final String... xss) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Mutant header(final String name) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Mutant header(final String name, final String... xss) {
       throw new UnsupportedOperationException();
     }
 
