@@ -90,6 +90,7 @@
     <module>jooby-couchbase</module>
     <module>jooby-cassandra</module>
     <module>jooby-scanner</module>
+    <module>jooby-csl</module>
     <module>coverage-report</module>
   </modules>
 
@@ -552,6 +553,19 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-csl</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <!-- coverity escapers -->
+      <dependency>
+        <groupId>com.coverity.security</groupId>
+        <artifactId>coverity-escapers</artifactId>
+        <version>${coverity-escapers.version}</version>
+      </dependency>
+
       <!-- fast-classpath-scanner -->
       <dependency>
         <groupId>io.github.lukehutch</groupId>
@@ -596,6 +610,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
+        <version>${slf4j-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
         <version>${slf4j-api.version}</version>
       </dependency>
 
@@ -1651,15 +1671,15 @@
               <compilerArgs>
                 <arg>-parameters</arg>
               </compilerArgs>
-              <!-- eclipse compiler <debuglevel>lines,vars,source</debuglevel> <compilerId>eclipse</compilerId>
-                <compilerArguments> <org.eclipse.jdt.core.compiler.codegen.methodParameters>generate</org.eclipse.jdt.core.compiler.codegen.methodParameters>
-                <org.eclipse.jdt.core.compiler.debug.lineNumber>generate</org.eclipse.jdt.core.compiler.debug.lineNumber>
-                <org.eclipse.jdt.core.compiler.debug.localVariable>generate</org.eclipse.jdt.core.compiler.debug.localVariable>
-                <org.eclipse.jdt.core.compiler.debug.sourceFile>generate</org.eclipse.jdt.core.compiler.debug.sourceFile>
-                <org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>enabled</org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>
-                <org.eclipse.jdt.core.compiler.codegen.unusedLocal>preserve</org.eclipse.jdt.core.compiler.codegen.unusedLocal>
-                <org.eclipse.jdt.core.compiler.compliance>1.8</org.eclipse.jdt.core.compiler.compliance> <org.eclipse.jdt.core.compiler.source>1.8</org.eclipse.jdt.core.compiler.source>
-                <org.eclipse.jdt.core.compiler.codegen.targetPlatform>1.8</org.eclipse.jdt.core.compiler.codegen.targetPlatform>
+              <!-- eclipse compiler <debuglevel>lines,vars,source</debuglevel> <compilerId>eclipse</compilerId> 
+                <compilerArguments> <org.eclipse.jdt.core.compiler.codegen.methodParameters>generate</org.eclipse.jdt.core.compiler.codegen.methodParameters> 
+                <org.eclipse.jdt.core.compiler.debug.lineNumber>generate</org.eclipse.jdt.core.compiler.debug.lineNumber> 
+                <org.eclipse.jdt.core.compiler.debug.localVariable>generate</org.eclipse.jdt.core.compiler.debug.localVariable> 
+                <org.eclipse.jdt.core.compiler.debug.sourceFile>generate</org.eclipse.jdt.core.compiler.debug.sourceFile> 
+                <org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>enabled</org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode> 
+                <org.eclipse.jdt.core.compiler.codegen.unusedLocal>preserve</org.eclipse.jdt.core.compiler.codegen.unusedLocal> 
+                <org.eclipse.jdt.core.compiler.compliance>1.8</org.eclipse.jdt.core.compiler.compliance> <org.eclipse.jdt.core.compiler.source>1.8</org.eclipse.jdt.core.compiler.source> 
+                <org.eclipse.jdt.core.compiler.codegen.targetPlatform>1.8</org.eclipse.jdt.core.compiler.codegen.targetPlatform> 
                 <encoding>UTF-8</encoding> </compilerArguments> -->
             </configuration>
             <dependencies>
@@ -2461,6 +2481,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <fast-classpath-scanner.version>1.99.0</fast-classpath-scanner.version>
     <zt-zip.version>1.9</zt-zip.version>
     <batik.version>1.8</batik.version>
+    <coverity-escapers.version>1.1.1</coverity-escapers.version>
+    <esapi.version>2.1.0.1</esapi.version>
 
     <!-- Test dependencies -->
     <junit.version>4.11</junit.version>

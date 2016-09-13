@@ -82,6 +82,7 @@
                     <source>${project.parent.basedir}/jooby-couchbase/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-cassandra/src/main/java</source>
                     <source>${project.parent.basedir}/jooby-scanner/src/main/java</source>
+                    <source>${project.parent.basedir}/jooby-csl/src/main/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -139,6 +140,7 @@
                     <source>${project.parent.basedir}/jooby-couchbase/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-cassandra/src/test/java</source>
                     <source>${project.parent.basedir}/jooby-scanner/src/test/java</source>
+                    <source>${project.parent.basedir}/jooby-csl/src/test/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -216,7 +218,8 @@
                 <include>**/*Feature.java</include>
                 <include>**/*Issue*.java</include>
               </includes>
-              <argLine>-Xmx1024m -XX:MaxPermSize=256m -Xbootclasspath/p:${settings.localRepository}/org/mortbay/jetty/alpn/alpn-boot/${alpn-boot.version}/alpn-boot-${alpn-boot.version}.jar</argLine>
+              <argLine>-Xmx1024m -XX:MaxPermSize=256m
+                -Xbootclasspath/p:${settings.localRepository}/org/mortbay/jetty/alpn/alpn-boot/${alpn-boot.version}/alpn-boot-${alpn-boot.version}.jar</argLine>
               <systemPropertyVariables>
                 <!-- JaCoCo runtime must know where to dump coverage: -->
                 <jacoco-agent.destfile>target${file.separator}jacoco.exec</jacoco-agent.destfile>
@@ -407,6 +410,12 @@
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-scanner</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooby</groupId>
+      <artifactId>jooby-csl</artifactId>
       <version>${project.version}</version>
     </dependency>
 

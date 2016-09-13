@@ -7,9 +7,7 @@ Cross-origin resource sharing (CORS) is a mechanism that allows restricted resou
 
 ```java
 {
-
   use("*", new CorsHandler());
-
 }
 ```
 
