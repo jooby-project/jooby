@@ -12,14 +12,14 @@ import org.jooby.pac4j.Auth;
 import org.jooby.pac4j.AuthStore;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.CommonProfile;
 
 public class AuthLogoutTest {
 
   @SuppressWarnings("rawtypes")
   @Test
   public void unset() throws Exception {
-    new MockUnit(Request.class, Response.class, Session.class, AuthStore.class, UserProfile.class)
+    new MockUnit(Request.class, Response.class, Session.class, AuthStore.class, CommonProfile.class)
         .expect(unit -> {
           Session session = unit.get(Session.class);
 
@@ -31,7 +31,7 @@ public class AuthLogoutTest {
         .expect(unit -> {
           Optional<String> id = Optional.of("1");
 
-          UserProfile profile = unit.get(UserProfile.class);
+            CommonProfile profile = unit.get(CommonProfile.class);
 
           AuthStore store = unit.get(AuthStore.class);
           expect(store.unset("1")).andReturn(Optional.of(profile));

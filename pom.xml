@@ -1067,6 +1067,36 @@
         <version>${pac4j.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-jwt</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-ldap</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-sql</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-mongo</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-stormpath</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
       <!-- AWS -->
       <dependency>
         <groupId>com.amazonaws</groupId>
@@ -2407,7 +2437,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <javax.el-ref.version>2.2.6</javax.el-ref.version>
     <gson.version>2.6.2</gson.version>
     <ehcache.version>2.10.0</ehcache.version>
-    <pac4j.version>1.8.7</pac4j.version>
+    <pac4j.version>1.9.1</pac4j.version>
     <swagger.version>1.5.8</swagger.version>
     <swagger-ui.version>2.1.8-M1</swagger-ui.version>
     <commons-lang3.version>3.4</commons-lang3.version>

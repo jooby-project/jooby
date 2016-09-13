@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import org.pac4j.core.authorization.Authorizer;
+import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 

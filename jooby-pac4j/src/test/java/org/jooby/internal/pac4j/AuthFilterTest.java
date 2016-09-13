@@ -20,16 +20,14 @@ import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pac4j.core.client.Client;
-import org.pac4j.core.client.ClientFinder;
 import org.pac4j.core.client.Clients;
+import org.pac4j.core.client.finder.ClientFinder;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.exception.RequiresHttpAction;
+import org.pac4j.core.exception.HttpAction;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.profile.CommonProfile;
-import org.pac4j.core.profile.UserProfile;
 import org.pac4j.http.client.direct.ParameterClient;
-import org.pac4j.http.profile.HttpProfile;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -100,7 +98,7 @@ public class AuthFilterTest {
   }
 
   @SuppressWarnings("rawtypes")
-  private Block authStore(final String id, final UserProfile profile) {
+  private Block authStore(final String id, final CommonProfile profile) {
     return unit -> {
       AuthStore store = unit.get(AuthStore.class);
       expect(store.get(id)).andReturn(Optional.ofNullable(profile));
@@ -125,13 +123,13 @@ public class AuthFilterTest {
       WebContext ctx = unit.get(WebContext.class);
       C client = unit.get(clientType);
       expect(client.getCredentials(ctx))
-          .andThrow(RequiresHttpAction.forbidden("intentional err", ctx));
+          .andThrow(HttpAction.forbidden("intentional err", ctx));
     };
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })
   private <C extends Client> Block userProfile(final Class<C> clientType,
-      final UserProfile profile) {
+      final CommonProfile profile) {
     return unit -> {
       Credentials creds = unit.get(Credentials.class);
 
@@ -149,7 +147,7 @@ public class AuthFilterTest {
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  private Block setProfile(final UserProfile profile) {
+  private Block setProfile(final CommonProfile profile) {
     return unit -> {
       AuthStore store = unit.get(AuthStore.class);
       store.set(profile);
@@ -157,7 +155,7 @@ public class AuthFilterTest {
   }
 
   @SuppressWarnings("rawtypes")
-  private Block seed(final Class type, final UserProfile profile) {
+  private Block seed(final Class type, final CommonProfile profile) {
     return unit -> {
       Request req = unit.get(Request.class);
       expect(req.set(type, profile)).andReturn(req);
@@ -180,12 +178,12 @@ public class AuthFilterTest {
   @Test
   public void name() throws Exception {
     String profileId = "123";
-    UserProfile profile = new HttpProfile();
+    CommonProfile profile = new CommonProfile();
     profile.setId(profileId);
 
     new MockUnit(Request.class, Response.class, Route.Chain.class, WebContext.class,
         ClientFinder.class, AuthStore.class, Clients.class).run(unit -> {
-          AuthFilter filter = new AuthFilter(ParameterClient.class, HttpProfile.class);
+          AuthFilter filter = new AuthFilter(ParameterClient.class, CommonProfile.class);
           assertEquals("ParameterClient", filter.getName());
           filter.setName("Basic");
           assertEquals("ParameterClient,Basic", filter.getName());
@@ -195,7 +193,7 @@ public class AuthFilterTest {
   @Test
   public void handleDirect() throws Exception {
     String profileId = "123";
-    UserProfile profile = new HttpProfile();
+    CommonProfile profile = new CommonProfile();
     profile.setId(profileId);
 
     new MockUnit(Request.class, Response.class, Route.Chain.class, WebContext.class,
@@ -213,12 +211,12 @@ public class AuthFilterTest {
             .expect(userProfile(ParameterClient.class, profile))
             .expect(setProfileId(profileId))
             .expect(setProfile(profile))
-            .expect(seed(HttpProfile.class, profile))
             .expect(seed(CommonProfile.class, profile))
-            .expect(seed(UserProfile.class, profile))
+            .expect(seed(CommonProfile.class, profile))
+            .expect(seed(CommonProfile.class, profile))
             .expect(chainNext)
             .run(unit -> {
-              new AuthFilter(ParameterClient.class, HttpProfile.class)
+              new AuthFilter(ParameterClient.class, CommonProfile.class)
                   .handle(unit.get(Request.class), unit.get(Response.class),
                       unit.get(Route.Chain.class));
             });
@@ -238,7 +236,7 @@ public class AuthFilterTest {
   @Test
   public void handleDirectNoClient() throws Exception {
     String profileId = "123";
-    UserProfile profile = new HttpProfile();
+    CommonProfile profile = new CommonProfile();
     profile.setId(profileId);
 
     new MockUnit(Request.class, Response.class, Route.Chain.class, WebContext.class,
@@ -252,7 +250,7 @@ public class AuthFilterTest {
             .expect(findNoClient(ParameterClient.class, "ParameterClient"))
             .run(unit -> {
               try {
-                new AuthFilter(ParameterClient.class, HttpProfile.class)
+                new AuthFilter(ParameterClient.class, CommonProfile.class)
                     .handle(unit.get(Request.class), unit.get(Response.class));
                 fail("expecting 401");
               } catch (Err ex) {
@@ -264,7 +262,7 @@ public class AuthFilterTest {
   @Test(expected = TechnicalException.class)
   public void handleDirectNoCredentials() throws Exception {
     String profileId = "123";
-    UserProfile profile = new HttpProfile();
+    CommonProfile profile = new CommonProfile();
     profile.setId(profileId);
 
     new MockUnit(Request.class, Response.class, Route.Chain.class, WebContext.class,
@@ -279,7 +277,7 @@ public class AuthFilterTest {
             .expect(authStore(profileId, null))
             .expect(noCreds(ParameterClient.class))
             .run(unit -> {
-              new AuthFilter(ParameterClient.class, HttpProfile.class)
+              new AuthFilter(ParameterClient.class, CommonProfile.class)
                   .handle(unit.get(Request.class), unit.get(Response.class),
                       unit.get(Route.Chain.class));
             });
@@ -288,7 +286,7 @@ public class AuthFilterTest {
   @Test(expected = Err.class)
   public void handleDirectNoProfile() throws Exception {
     String profileId = "123";
-    UserProfile profile = null;
+    CommonProfile profile = null;
 
     new MockUnit(Request.class, Response.class, Route.Chain.class, WebContext.class,
         ClientFinder.class, AuthStore.class, Clients.class)
@@ -306,7 +304,7 @@ public class AuthFilterTest {
             .expect(setProfileId(profileId))
             .expect(setProfile(profile))
             .run(unit -> {
-              new AuthFilter(ParameterClient.class, HttpProfile.class)
+              new AuthFilter(ParameterClient.class, CommonProfile.class)
                   .handle(unit.get(Request.class), unit.get(Response.class),
                       unit.get(Route.Chain.class));
             });

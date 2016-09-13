@@ -21,8 +21,8 @@ package org.jooby.internal.pac4j;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.pac4j.core.credentials.authenticator.UsernamePasswordAuthenticator;
 import org.pac4j.http.client.indirect.FormClient;
-import org.pac4j.http.credentials.authenticator.UsernamePasswordAuthenticator;
 
 public class FormAuth extends ClientProvider<FormClient> {
 
