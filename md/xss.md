@@ -66,6 +66,7 @@ Template engines usually provide a way to escape `HTML` (mainly) ... still {{joo
 
     p= xss.apply(input, "js", "html")
 
-## xss modules
+## modules
 
+* [unbescape](/doc/unbescape): XSS escapers via [unbescape](https://github.com/unbescape/unbescape)
 * [csl](/doc/csl): XSS escapers via [coverity-security-library](https://github.com/coverity/coverity-security-library)
