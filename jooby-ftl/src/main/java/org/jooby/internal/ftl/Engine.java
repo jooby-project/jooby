@@ -42,9 +42,12 @@ public class Engine implements View.Engine {
 
   private String suffix;
 
-  public Engine(final Configuration freemarker, final String suffix) {
+  private XssDirective xss;
+
+  public Engine(final Configuration freemarker, final String suffix, final XssDirective xss) {
     this.freemarker = requireNonNull(freemarker, "Freemarker config is required.");
     this.suffix = suffix;
+    this.xss = xss;
   }
 
   @Override
@@ -57,6 +60,7 @@ public class Engine implements View.Engine {
 
     hash.put("_vname", view.name());
     hash.put("_vpath", template.getName());
+    hash.put("xss", xss);
 
     // locals
     hash.putAll(ctx.locals());

@@ -12,7 +12,9 @@ import org.jooby.Env;
 import org.jooby.Renderer;
 import org.jooby.internal.ftl.Engine;
 import org.jooby.internal.ftl.GuavaCacheStorage;
+import org.jooby.internal.ftl.XssDirective;
 import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -33,8 +35,16 @@ import freemarker.template.TemplateException;
 import freemarker.template.Version;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Ftl.class, Configuration.class, ClassTemplateLoader.class, Multibinder.class })
+@PrepareForTest({Ftl.class, Configuration.class, ClassTemplateLoader.class, Multibinder.class,
+    XssDirective.class })
 public class FtlTest {
+
+  private Block xss = unit -> {
+    Env env = unit.get(Env.class);
+    XssDirective xss = unit.constructor(XssDirective.class)
+        .build(env);
+    unit.registerMock(XssDirective.class, xss);
+  };
 
   @SuppressWarnings("unchecked")
   @Test
@@ -53,6 +63,7 @@ public class FtlTest {
           Config config = unit.get(Config.class);
           expect(config.getConfig("freemarker")).andReturn(freemarker);
         })
+        .expect(xss)
         .expect(unit -> {
           ClassTemplateLoader loader = unit.mockConstructor(ClassTemplateLoader.class,
               new Class[]{ClassLoader.class, String.class }, Ftl.class.getClassLoader(), prefix);
@@ -64,16 +75,17 @@ public class FtlTest {
           config.setTemplateLoader(loader);
           config.setCacheStorage(NullCacheStorage.INSTANCE);
 
-          AnnotatedBindingBuilder<Configuration> configBB =
-              unit.mock(AnnotatedBindingBuilder.class);
+          AnnotatedBindingBuilder<Configuration> configBB = unit
+              .mock(AnnotatedBindingBuilder.class);
           configBB.toInstance(config);
 
           Binder binder = unit.get(Binder.class);
           expect(binder.bind(Configuration.class)).andReturn(configBB);
 
+          XssDirective xss = unit.get(XssDirective.class);
           Engine engine = unit.mockConstructor(
-              Engine.class, new Class[]{Configuration.class, String.class },
-              config, suffix);
+              Engine.class, new Class[]{Configuration.class, String.class, XssDirective.class },
+              config, suffix, xss);
 
           LinkedBindingBuilder<Renderer> ffLBB = unit.mock(LinkedBindingBuilder.class);
           ffLBB.toInstance(engine);
@@ -114,6 +126,7 @@ public class FtlTest {
           expect(config.getConfig("freemarker")).andReturn(freemarker);
           expect(config.getString("freemarker.cache")).andReturn("maximumSize=100").times(2);
         })
+        .expect(xss)
         .expect(unit -> {
           ClassTemplateLoader loader = unit.mockConstructor(ClassTemplateLoader.class,
               new Class[]{ClassLoader.class, String.class }, Ftl.class.getClassLoader(), prefix);
@@ -125,16 +138,17 @@ public class FtlTest {
           config.setTemplateLoader(loader);
           config.setCacheStorage(isA(GuavaCacheStorage.class));
 
-          AnnotatedBindingBuilder<Configuration> configBB =
-              unit.mock(AnnotatedBindingBuilder.class);
+          AnnotatedBindingBuilder<Configuration> configBB = unit
+              .mock(AnnotatedBindingBuilder.class);
           configBB.toInstance(config);
 
           Binder binder = unit.get(Binder.class);
           expect(binder.bind(Configuration.class)).andReturn(configBB);
 
+          XssDirective xss = unit.get(XssDirective.class);
           Engine engine = unit.mockConstructor(
-              Engine.class, new Class[]{Configuration.class, String.class },
-              config, suffix);
+              Engine.class, new Class[]{Configuration.class, String.class, XssDirective.class },
+              config, suffix, xss);
 
           LinkedBindingBuilder<Renderer> ffLBB = unit.mock(LinkedBindingBuilder.class);
           ffLBB.toInstance(engine);
@@ -205,6 +219,7 @@ public class FtlTest {
           Config config = unit.get(Config.class);
           expect(config.getConfig("freemarker")).andReturn(freemarker);
         })
+        .expect(xss)
         .expect(unit -> {
           ClassTemplateLoader loader = unit.mockConstructor(ClassTemplateLoader.class,
               new Class[]{ClassLoader.class, String.class }, Ftl.class.getClassLoader(), prefix);
@@ -216,16 +231,17 @@ public class FtlTest {
           config.setTemplateLoader(loader);
           config.setCacheStorage(NullCacheStorage.INSTANCE);
 
-          AnnotatedBindingBuilder<Configuration> configBB =
-              unit.mock(AnnotatedBindingBuilder.class);
+          AnnotatedBindingBuilder<Configuration> configBB = unit
+              .mock(AnnotatedBindingBuilder.class);
           configBB.toInstance(config);
 
           Binder binder = unit.get(Binder.class);
           expect(binder.bind(Configuration.class)).andReturn(configBB);
 
+          XssDirective xss = unit.get(XssDirective.class);
           Engine engine = unit.mockConstructor(
-              Engine.class, new Class[]{Configuration.class, String.class },
-              config, suffix);
+              Engine.class, new Class[]{Configuration.class, String.class, XssDirective.class },
+              config, suffix, xss);
 
           LinkedBindingBuilder<Renderer> ffLBB = unit.mock(LinkedBindingBuilder.class);
           ffLBB.toInstance(engine);
@@ -264,6 +280,7 @@ public class FtlTest {
           Config config = unit.get(Config.class);
           expect(config.getConfig("freemarker")).andReturn(freemarker);
         })
+        .expect(xss)
         .expect(unit -> {
           ClassTemplateLoader loader = unit.mockConstructor(ClassTemplateLoader.class,
               new Class[]{ClassLoader.class, String.class }, Ftl.class.getClassLoader(), prefix);
@@ -275,16 +292,17 @@ public class FtlTest {
           config.setTemplateLoader(loader);
           config.setCacheStorage(NullCacheStorage.INSTANCE);
 
-          AnnotatedBindingBuilder<Configuration> configBB =
-              unit.mock(AnnotatedBindingBuilder.class);
+          AnnotatedBindingBuilder<Configuration> configBB = unit
+              .mock(AnnotatedBindingBuilder.class);
           configBB.toInstance(config);
 
           Binder binder = unit.get(Binder.class);
           expect(binder.bind(Configuration.class)).andReturn(configBB);
 
+          XssDirective xss = unit.get(XssDirective.class);
           Engine engine = unit.mockConstructor(
-              Engine.class, new Class[]{Configuration.class, String.class },
-              config, suffix);
+              Engine.class, new Class[]{Configuration.class, String.class, XssDirective.class },
+              config, suffix, xss);
 
           LinkedBindingBuilder<Renderer> ffLBB = unit.mock(LinkedBindingBuilder.class);
           ffLBB.toInstance(engine);
@@ -323,6 +341,7 @@ public class FtlTest {
           Config config = unit.get(Config.class);
           expect(config.getConfig("freemarker")).andReturn(freemarker);
         })
+        .expect(xss)
         .expect(unit -> {
           ClassTemplateLoader loader = unit.mockConstructor(ClassTemplateLoader.class,
               new Class[]{ClassLoader.class, String.class }, Ftl.class.getClassLoader(), prefix);
@@ -336,16 +355,17 @@ public class FtlTest {
           config.setTemplateLoader(loader);
           config.setCacheStorage(NullCacheStorage.INSTANCE);
 
-          AnnotatedBindingBuilder<Configuration> configBB =
-              unit.mock(AnnotatedBindingBuilder.class);
+          AnnotatedBindingBuilder<Configuration> configBB = unit
+              .mock(AnnotatedBindingBuilder.class);
           configBB.toInstance(config);
 
           Binder binder = unit.get(Binder.class);
           expect(binder.bind(Configuration.class)).andReturn(configBB);
 
+          XssDirective xss = unit.get(XssDirective.class);
           Engine engine = unit.mockConstructor(
-              Engine.class, new Class[]{Configuration.class, String.class },
-              config, suffix);
+              Engine.class, new Class[]{Configuration.class, String.class, XssDirective.class },
+              config, suffix, xss);
 
           LinkedBindingBuilder<Renderer> ffLBB = unit.mock(LinkedBindingBuilder.class);
           ffLBB.toInstance(engine);

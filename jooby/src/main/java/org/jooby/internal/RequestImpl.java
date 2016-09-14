@@ -23,7 +23,6 @@ import static java.util.Objects.requireNonNull;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,10 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Locale.LanguageRange;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -431,14 +428,7 @@ public class RequestImpl implements Request {
   }
 
   private Function<String, String> xss(final String... xss) {
-    Map<String, Function<String, String>> fn = require(Env.class).xss();
-    BinaryOperator<Function<String, String>> reduce = Function::andThen;
-    return Arrays.asList(xss)
-        .stream()
-        .map(fn::get)
-        .filter(Objects::nonNull)
-        .reduce(Function.identity(), reduce);
-
+    return require(Env.class).xss(xss);
   }
 
   private List<String> params(final String name, final Function<String, String> xss) {

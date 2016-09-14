@@ -28,6 +28,7 @@ import org.jooby.Jooby;
 import org.jooby.Renderer;
 import org.jooby.internal.ftl.Engine;
 import org.jooby.internal.ftl.GuavaCacheStorage;
+import org.jooby.internal.ftl.XssDirective;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,7 +195,7 @@ public class Ftl implements Jooby.Module {
 
       binder.bind(Configuration.class).toInstance(freemarker);
 
-      Engine engine = new Engine(freemarker, suffix);
+      Engine engine = new Engine(freemarker, suffix, new XssDirective(env));
 
       Multibinder.newSetBinder(binder, Renderer.class)
           .addBinding().toInstance(engine);

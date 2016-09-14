@@ -210,13 +210,19 @@ public class Hbs implements Jooby.Module {
       hbs.with(new GuavaTemplateCache(
           CacheBuilder
               .from(config.getString("hbs.cache"))
-              .build()
-          ));
+              .build()));
     }
 
     if (configurer != null) {
       configurer.accept(hbs, config);
     }
+
+    /** XSS */
+    hbs.registerHelper("xss", (value, opts) -> {
+      String[] xss = new String[opts.params.length];
+      System.arraycopy(opts.params, 0, xss, 0, opts.params.length);
+      return new Handlebars.SafeString(env.xss(xss).apply(value.toString()));
+    });
 
     binder.bind(Handlebars.class).toInstance(hbs);
 

@@ -1,13 +1,13 @@
-# xss
+# csl
 
-Lightweight set of escaping routines for fixing cross-site scripting (XSS) via <a href="https://github.com/coverity/coverity-security-library">coverity-security-library</a>
+<a href="https://github.com/coverity/coverity-security-library">Coverity Security Library (CSL)</a> is a lightweight set of escaping routines for fixing cross-site scripting (XSS), SQL injection, and other security defects in Java web applications
 
 ## dependency
 
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-xss</artifactId>
+ <artifactId>jooby-csl</artifactId>
  <version>{{version}}</version>
 </dependency>
 ```

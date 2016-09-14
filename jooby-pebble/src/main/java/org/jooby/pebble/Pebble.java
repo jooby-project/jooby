@@ -224,7 +224,7 @@ public class Pebble implements Jooby.Module {
     if (callback != null) {
       callback.accept(pebble, conf);
     }
-
+    this.pebble.extension(new XssExt(env));
     PebbleEngine pebble = this.pebble.build();
     binder.bind(PebbleEngine.class).toInstance(pebble);
 

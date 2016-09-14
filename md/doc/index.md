@@ -48,6 +48,8 @@ documentation
 
 {{cors.md}}
 
+{{xss.md}}
+
 {{https.md}}
 
 {{javascript.md}}

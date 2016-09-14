@@ -1,6 +1,7 @@
 package org.jooby.pebble;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Locale;
@@ -38,6 +39,7 @@ public class PebbleTest {
 
     expect(pebble.cacheActive(true)).andReturn(pebble);
     expect(pebble.loader(unit.get(ClasspathLoader.class))).andReturn(pebble);
+    expect(pebble.extension(isA(XssExt.class))).andReturn(pebble);
 
     unit.registerMock(PebbleEngine.Builder.class, pebble);
   };

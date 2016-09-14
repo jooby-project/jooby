@@ -57,7 +57,7 @@ import com.typesafe.config.Config;
  * If you want to learn more about nested context and why they are important have a look at this
  * <a href=
  * "http://security.coverity.com/document/2013/Mar/fixing-xss-a-practical-guide-for-developers.html">nice
- * guide</code> from
+ * guide</a> from
  * <a href="https://github.com/coverity/coverity-security-library">coverity-security-library</a>.
  * </p>
  *

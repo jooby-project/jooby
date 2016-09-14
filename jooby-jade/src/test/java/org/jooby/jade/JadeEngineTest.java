@@ -1,9 +1,10 @@
 package org.jooby.jade;
 
-import de.neuland.jade4j.JadeConfiguration;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import de.neuland.jade4j.JadeConfiguration;
 
 public class JadeEngineTest {
 

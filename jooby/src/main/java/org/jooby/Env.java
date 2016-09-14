@@ -21,14 +21,17 @@ package org.jooby;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -442,6 +445,21 @@ public interface Env extends LifeCycle {
    * @return XSS escape functions.
    */
   Map<String, Function<String, String>> xss();
+
+  /**
+   * Get or chain the required xss functions.
+   *
+   * @return Chain of required xss functions.
+   */
+  default Function<String, String> xss(final String... xss) {
+    Map<String, Function<String, String>> fn = xss();
+    BinaryOperator<Function<String, String>> reduce = Function::andThen;
+    return Arrays.asList(xss)
+        .stream()
+        .map(fn::get)
+        .filter(Objects::nonNull)
+        .reduce(Function.identity(), reduce);
+  }
 
   /**
    * Set/override a XSS escape function.
