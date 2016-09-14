@@ -6,22 +6,23 @@ import org.jooby.test.ServerFeature;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
-import org.pac4j.core.authorization.RequireAnyPermissionAuthorizer;
+import org.pac4j.core.authorization.authorizer.RequireAnyPermissionAuthorizer;
+import org.pac4j.core.context.Pac4jConstants;
+import org.pac4j.core.context.WebContext;
+import org.pac4j.core.credentials.UsernamePasswordCredentials;
+import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.profile.CommonProfile;
-import org.pac4j.http.credentials.UsernamePasswordCredentials;
-import org.pac4j.http.credentials.authenticator.UsernamePasswordAuthenticator;
-import org.pac4j.http.profile.HttpProfile;
 
 public class RequireAdminAuthFeature extends ServerFeature {
 
-  public static class AdminRole implements UsernamePasswordAuthenticator {
+  public static class AdminRole implements Authenticator<UsernamePasswordCredentials> {
 
     @Override
-    public void validate(final UsernamePasswordCredentials credentials) {
-      final HttpProfile profile = new HttpProfile();
+    public void validate(final UsernamePasswordCredentials credentials, final WebContext context) {
+      final CommonProfile profile = new CommonProfile();
       String username = credentials.getUsername();
       profile.setId(username);
-      profile.addAttribute(CommonProfile.USERNAME, username);
+      profile.addAttribute(Pac4jConstants.USERNAME, username);
       credentials.setUserProfile(profile);
       profile.addPermission("admin");
     }

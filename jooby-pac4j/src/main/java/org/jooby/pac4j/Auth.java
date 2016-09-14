@@ -480,7 +480,7 @@ public class Auth implements Jooby.Module {
    *
    * @param client Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   public <C extends Credentials, U extends CommonProfile> Auth client(final Client<C, U> client) {
@@ -493,7 +493,7 @@ public class Auth implements Jooby.Module {
    *
    * @param client Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   public <C extends Credentials, U extends CommonProfile> Auth client(
@@ -508,7 +508,7 @@ public class Auth implements Jooby.Module {
    * @param pattern URL pattern to protect.
    * @param client Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   public <C extends Credentials, U extends CommonProfile> Auth client(final String pattern,
@@ -522,7 +522,7 @@ public class Auth implements Jooby.Module {
    *
    * @param provider Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   public <C extends Credentials, U extends CommonProfile> Auth client(
@@ -537,7 +537,7 @@ public class Auth implements Jooby.Module {
    * @param pattern URL pattern to protect.
    * @param provider Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   @SuppressWarnings({"unchecked", "rawtypes" })
@@ -565,7 +565,7 @@ public class Auth implements Jooby.Module {
    * @param pattern URL pattern to protect.
    * @param client Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   @SuppressWarnings({"rawtypes", "unchecked" })

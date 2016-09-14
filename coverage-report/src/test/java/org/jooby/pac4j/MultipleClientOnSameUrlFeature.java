@@ -2,16 +2,15 @@ package org.jooby.pac4j;
 
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
+import org.pac4j.core.context.WebContext;
+import org.pac4j.core.credentials.TokenCredentials;
+import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.CredentialsException;
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.core.profile.creator.AuthenticatorProfileCreator;
 import org.pac4j.http.client.direct.DirectBasicAuthClient;
 import org.pac4j.http.client.direct.HeaderClient;
-import org.pac4j.http.credentials.HttpCredentials;
-import org.pac4j.http.credentials.TokenCredentials;
-import org.pac4j.http.credentials.authenticator.Authenticator;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
-import org.pac4j.http.profile.HttpProfile;
-import org.pac4j.http.profile.creator.AuthenticatorProfileCreator;
 
 import com.google.common.io.BaseEncoding;
 
@@ -20,7 +19,7 @@ public class MultipleClientOnSameUrlFeature extends ServerFeature {
   public static class HeaderAuthenticator implements Authenticator<TokenCredentials> {
 
     @Override
-    public void validate(final TokenCredentials credentials) {
+    public void validate(final TokenCredentials credentials, final WebContext context) {
       if (credentials == null || !credentials.getToken().equals("1234")) {
         throw new CredentialsException("Bad token");
       }
@@ -33,8 +32,8 @@ public class MultipleClientOnSameUrlFeature extends ServerFeature {
     HeaderClient client = new HeaderClient();
     client.setHeaderName("X-Token");
     client.setAuthenticator(new HeaderAuthenticator());
-    client.setProfileCreator(credentials -> {
-      HttpProfile profile = new HttpProfile();
+    client.setProfileCreator((credentials, ctx) -> {
+      CommonProfile profile = new CommonProfile();
       profile.setId(credentials.getToken());
       return profile;
     });
@@ -42,7 +41,7 @@ public class MultipleClientOnSameUrlFeature extends ServerFeature {
         .client("/multi-client/**", client)
         .client("/multi-client/**", new DirectBasicAuthClient(
             new SimpleTestUsernamePasswordAuthenticator(),
-            new AuthenticatorProfileCreator<HttpCredentials, UserProfile>())));
+            new AuthenticatorProfileCreator())));
 
     get("/multi-client", req -> req.get(Auth.CNAME));
   }
