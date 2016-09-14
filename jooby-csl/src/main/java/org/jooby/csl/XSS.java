@@ -1,4 +1,4 @@
-package org.jooby.xss;
+package org.jooby.csl;
 
 import org.jooby.Env;
 import org.jooby.Jooby.Module;

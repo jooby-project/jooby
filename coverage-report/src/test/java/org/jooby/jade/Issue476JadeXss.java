@@ -1,8 +1,8 @@
 package org.jooby.jade;
 
 import org.jooby.Results;
+import org.jooby.csl.XSS;
 import org.jooby.test.ServerFeature;
-import org.jooby.xss.XSS;
 import org.junit.Test;
 
 public class Issue476JadeXss extends ServerFeature {

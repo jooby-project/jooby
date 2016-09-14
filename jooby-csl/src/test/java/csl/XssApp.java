@@ -1,7 +1,7 @@
 package csl;
 
 import org.jooby.Jooby;
-import org.jooby.xss.XSS;
+import org.jooby.csl.XSS;
 
 public class XssApp extends Jooby {
 
