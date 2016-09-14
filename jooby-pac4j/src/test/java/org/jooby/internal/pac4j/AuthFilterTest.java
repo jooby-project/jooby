@@ -70,6 +70,7 @@ public class AuthFilterTest {
       C c = Try.of(() -> unit.get(clientType))
           .getOrElse(() -> {
             C m = unit.mock(clientType);
+            //C m = (C) new ParameterClient("token", new SimpleTestUsernamePasswordAuthenticator());
             unit.registerMock(clientType, m);
             return m;
           });

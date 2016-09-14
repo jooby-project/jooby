@@ -31,22 +31,13 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.google.inject.TypeLiteral;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Route;
 import org.jooby.Routes;
 import org.jooby.Session;
-import org.jooby.internal.pac4j.AuthCallback;
-import org.jooby.internal.pac4j.AuthContext;
-import org.jooby.internal.pac4j.AuthFilter;
-import org.jooby.internal.pac4j.AuthLogout;
-import org.jooby.internal.pac4j.AuthorizerFilter;
-import org.jooby.internal.pac4j.BasicAuth;
-import org.jooby.internal.pac4j.ClientType;
-import org.jooby.internal.pac4j.ClientsProvider;
-import org.jooby.internal.pac4j.ConfigProvider;
-import org.jooby.internal.pac4j.FormAuth;
-import org.jooby.internal.pac4j.FormFilter;
+import org.jooby.internal.pac4j.*;
 import org.jooby.scope.Providers;
 import org.jooby.scope.RequestScoped;
 import org.pac4j.core.authorization.authorizer.Authorizer;
@@ -59,7 +50,8 @@ import org.pac4j.core.client.finder.DefaultClientFinder;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.credentials.authenticator.UsernamePasswordAuthenticator;
+import org.pac4j.core.credentials.UsernamePasswordCredentials;
+import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
@@ -125,10 +117,10 @@ import com.typesafe.config.ConfigFactory;
  * </pre>
  *
  * <p>
- * A {@link IndirectBasicAuthClient} depends on {@link UsernamePasswordAuthenticator}, default is
+ * A {@link IndirectBasicAuthClient} depends on {@link Authenticator<UsernamePasswordCredentials>}, default is
  * {@link SimpleTestUsernamePasswordAuthenticator} which is great for development, but nothing good
  * for other environments. Next example setup a basic auth with a custom:
- * {@link UsernamePasswordAuthenticator}:
+ * {@link Authenticator<UsernamePasswordCredentials>}:
  * </p>
  *
  * <pre>
@@ -159,7 +151,7 @@ import com.typesafe.config.ConfigFactory;
  * </pre>
  *
  * <p>
- * Like basic auth, form auth depends on a {@link UsernamePasswordAuthenticator}.
+ * Like basic auth, form auth depends on a {@link Authenticator<UsernamePasswordCredentials>}.
  * </p>
  *
  * <p>
@@ -401,9 +393,10 @@ public class Auth implements Jooby.Module {
    * @return This module.
    */
   public Auth form(final String pattern,
-      final Class<? extends UsernamePasswordAuthenticator> authenticator) {
+      final Class<? extends Authenticator<UsernamePasswordCredentials>> authenticator) {
     bindings.put(pattern, (binder, conf) -> {
-      binder.bind(UsernamePasswordAuthenticator.class).to(authenticator);
+      TypeLiteral<Authenticator<UsernamePasswordCredentials>> usernamePasswordAuthenticator = new TypeLiteral<Authenticator<UsernamePasswordCredentials>>() {};
+      binder.bind(usernamePasswordAuthenticator.getRawType()).to(authenticator);
 
       bindProfile(binder, CommonProfile.class);
 
@@ -445,9 +438,10 @@ public class Auth implements Jooby.Module {
    * @return This module.
    */
   public Auth basic(final String pattern,
-      final Class<? extends UsernamePasswordAuthenticator> authenticator) {
+      final Class<? extends Authenticator<UsernamePasswordCredentials>> authenticator) {
     bindings.put(pattern, (binder, config) -> {
-      binder.bind(UsernamePasswordAuthenticator.class).to(authenticator);
+      TypeLiteral<Authenticator<UsernamePasswordCredentials>> usernamePasswordAuthenticator = new TypeLiteral<Authenticator<UsernamePasswordCredentials>>() {};
+      binder.bind(usernamePasswordAuthenticator.getRawType()).to(authenticator);
 
       bindProfile(binder, CommonProfile.class);
 
