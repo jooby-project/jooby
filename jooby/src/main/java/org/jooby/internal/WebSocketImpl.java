@@ -40,6 +40,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 
+import javaslang.control.Try;
+
 public class WebSocketImpl implements WebSocket {
 
   @SuppressWarnings({"rawtypes" })
@@ -143,34 +145,26 @@ public class WebSocketImpl implements WebSocket {
     /**
      * Bind callbacks
      */
-    ws.onBinaryMessage(buffer -> {
-      try {
-        messageCallback.invoke(new WsBinaryMessage(buffer));
-      } catch (Throwable ex) {
-        handleErr(ex);
-      }
-    });
-    ws.onTextMessage(message -> {
-      try {
-        messageCallback.invoke(
+    ws.onBinaryMessage(buffer -> Try
+        .run(() -> messageCallback.invoke(new WsBinaryMessage(buffer)))
+        .onFailure(this::handleErr));
+
+    ws.onTextMessage(message -> Try
+        .run(() -> messageCallback.invoke(
             new MutantImpl(injector.getInstance(ParserExecutor.class),
-                new StrParamReferenceImpl("body", "message", ImmutableList.of(message))));
-      } catch (Throwable ex) {
-        handleErr(ex);
-      }
-    });
-    ws.onCloseMessage((code, reason) -> {
-      try {
-        if (closeCallback != null) {
-          closeCallback.invoke(reason.map(r -> WebSocket.CloseStatus.of(code, r)).orElse(
-              WebSocket.CloseStatus.of(code)));
-          closeCallback = null;
-        }
-      } catch (Throwable ex) {
-        handleErr(ex);
-      }
-    });
-    ws.onErrorMessage(cause -> handleErr(cause));
+                new StrParamReferenceImpl("body", "message", ImmutableList.of(message)))))
+        .onFailure(this::handleErr));
+
+    ws.onCloseMessage((code, reason) -> Try
+        .run(() -> {
+          if (closeCallback != null) {
+            closeCallback.invoke(reason.map(r -> WebSocket.CloseStatus.of(code, r)).orElse(
+                WebSocket.CloseStatus.of(code)));
+            closeCallback = null;
+          }
+        }).onFailure(this::handleErr));
+
+    ws.onErrorMessage(this::handleErr);
 
     // connect now
     try {

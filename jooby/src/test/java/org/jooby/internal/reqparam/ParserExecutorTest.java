@@ -48,4 +48,18 @@ public class ParserExecutorTest {
         });
   }
 
+  @Test
+  public void ctxStr() throws Exception {
+    new MockUnit(Injector.class, Upload.class)
+        .run(unit -> {
+          Set<Parser> parsers = Sets
+              .newHashSet((Parser) (type, ctx) -> ctx.toString());
+          Object converted = new ParserExecutor(unit.get(Injector.class), parsers,
+              new StatusCodeProvider(ConfigFactory.empty()))
+                  .convert(TypeLiteral.get(Upload.class),
+                      new UploadParamReferenceImpl("x", Lists.newArrayList()));
+          assertEquals(parsers.toString(), converted);
+        });
+  }
+
 }

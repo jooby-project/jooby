@@ -1,12 +1,14 @@
 package org.jooby.internal;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -50,6 +52,77 @@ public class BodyReferenceImplTest {
     new MockUnit(File.class, InputStream.class)
         .expect(baos(bytes))
         .expect(copy(ByteArrayOutputStream.class))
+        .run(unit -> {
+          new BodyReferenceImpl(len, StandardCharsets.UTF_8, unit.get(File.class),
+              unit.get(InputStream.class), bsize);
+        });
+  }
+
+  @Test(expected = IOException.class)
+  public void inErr() throws Exception {
+    long len = 1;
+    long bsize = 2;
+    byte[] bytes = "bytes".getBytes();
+    new MockUnit(File.class, InputStream.class)
+        .expect(baos(bytes))
+        .expect(unit -> {
+          InputStream in = unit.get(InputStream.class);
+
+          expect(in.read(unit.capture(byte[].class))).andThrow(new IOException());
+
+          OutputStream out = unit.get(ByteArrayOutputStream.class);
+
+          in.close();
+          out.close();
+        })
+        .run(unit -> {
+          new BodyReferenceImpl(len, StandardCharsets.UTF_8, unit.get(File.class),
+              unit.get(InputStream.class), bsize);
+        });
+  }
+
+  @Test(expected = IOException.class)
+  public void outErr() throws Exception {
+    long len = 1;
+    long bsize = 2;
+    byte[] bytes = "bytes".getBytes();
+    new MockUnit(File.class, InputStream.class)
+        .expect(baos(bytes))
+        .expect(unit -> {
+          InputStream in = unit.get(InputStream.class);
+          in.close();
+
+          OutputStream out = unit.get(ByteArrayOutputStream.class);
+          out.close();
+          expectLastCall().andThrow(new IOException());
+
+          unit.mockStatic(ByteStreams.class);
+          expect(ByteStreams.copy(in, out)).andReturn(1L);
+        })
+        .run(unit -> {
+          new BodyReferenceImpl(len, StandardCharsets.UTF_8, unit.get(File.class),
+              unit.get(InputStream.class), bsize);
+        });
+  }
+
+  @Test(expected = IOException.class)
+  public void inErrOnClose() throws Exception {
+    long len = 1;
+    long bsize = 2;
+    byte[] bytes = "bytes".getBytes();
+    new MockUnit(File.class, InputStream.class)
+        .expect(baos(bytes))
+        .expect(unit -> {
+          InputStream in = unit.get(InputStream.class);
+          in.close();
+          expectLastCall().andThrow(new IOException());
+
+          OutputStream out = unit.get(ByteArrayOutputStream.class);
+          out.close();
+
+          unit.mockStatic(ByteStreams.class);
+          expect(ByteStreams.copy(in, out)).andReturn(1L);
+        })
         .run(unit -> {
           new BodyReferenceImpl(len, StandardCharsets.UTF_8, unit.get(File.class),
               unit.get(InputStream.class), bsize);
