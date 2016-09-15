@@ -3409,9 +3409,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
-  @Override
-  public WebSocket.Definition ws(final String path,
-      final WebSocket.Handler handler) {
+  public WebSocket.Definition ws(final String path, final WebSocket.FullHandler handler) {
     WebSocket.Definition ws = new WebSocket.Definition(path, handler);
     checkArgument(bag.add(ws), "Path is in use: '%s'", path);
     return ws;

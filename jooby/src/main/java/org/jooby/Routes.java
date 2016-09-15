@@ -2419,7 +2419,28 @@ public interface Routes {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
-  WebSocket.Definition ws(String path, WebSocket.Handler handler);
+  default WebSocket.Definition ws(final String path, final WebSocket.Handler handler) {
+    return ws(path, (WebSocket.FullHandler) handler);
+  }
+
+  /**
+   * Append a new WebSocket handler under the given path.
+   *
+   * <pre>
+   *   ws("/ws", (req, socket) {@literal ->} {
+   *     // connected
+   *     socket.onMessage(message {@literal ->} {
+   *       System.out.println(message);
+   *     });
+   *     socket.send("Connected"):
+   *   });
+   * </pre>
+   *
+   * @param path A path pattern.
+   * @param handler A connect callback.
+   * @return A new WebSocket definition.
+   */
+  WebSocket.Definition ws(String path, WebSocket.FullHandler handler);
 
   /**
    * Add a server-sent event handler.

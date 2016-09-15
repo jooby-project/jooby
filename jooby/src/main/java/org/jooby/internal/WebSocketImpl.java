@@ -29,6 +29,7 @@ import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Renderer;
+import org.jooby.Request;
 import org.jooby.WebSocket;
 import org.jooby.internal.parser.ParserExecutor;
 import org.jooby.spi.NativeWebSocket;
@@ -58,7 +59,7 @@ public class WebSocketImpl implements WebSocket {
 
   private MediaType produces;
 
-  private Handler handler;
+  private FullHandler handler;
 
   private Callback<Mutant> messageCallback = noop();
 
@@ -76,7 +77,7 @@ public class WebSocketImpl implements WebSocket {
 
   private List<Renderer> renderers;
 
-  public WebSocketImpl(final Handler handler, final String path,
+  public WebSocketImpl(final FullHandler handler, final String path,
       final String pattern, final Map<Object, String> vars,
       final MediaType consumes, final MediaType produces) {
     this.handler = handler;
@@ -116,9 +117,9 @@ public class WebSocketImpl implements WebSocket {
   @Override
   public void send(final Object data, final SuccessCallback success, final ErrCallback err)
       throws Exception {
-    requireNonNull(data, "A data message is required.");
-    requireNonNull(success, "A success callback is required.");
-    requireNonNull(err, "An error callback is required.");
+    requireNonNull(data, "Message required.");
+    requireNonNull(success, "Success callback required.");
+    requireNonNull(err, "Error callback required.");
 
     new WebSocketRendererContext(
         renderers,
@@ -131,12 +132,12 @@ public class WebSocketImpl implements WebSocket {
 
   @Override
   public void onMessage(final Callback<Mutant> callback) throws Exception {
-    this.messageCallback = requireNonNull(callback, "Message callback is required.");
+    this.messageCallback = requireNonNull(callback, "Message callback required.");
   }
 
-  public void connect(final Injector injector, final NativeWebSocket ws) {
-    this.injector = requireNonNull(injector, "An injector is required.");
-    this.ws = requireNonNull(ws, "Web socket is required.");
+  public void connect(final Injector injector, final Request req, final NativeWebSocket ws) {
+    this.injector = requireNonNull(injector, "Injector required.");
+    this.ws = requireNonNull(ws, "WebSocket is required.");
     renderers = ImmutableList.copyOf(injector.getInstance(Renderer.KEY));
 
     /**
@@ -153,8 +154,7 @@ public class WebSocketImpl implements WebSocket {
       try {
         messageCallback.invoke(
             new MutantImpl(injector.getInstance(ParserExecutor.class),
-                new StrParamReferenceImpl("body", "message", ImmutableList.of(message)))
-            );
+                new StrParamReferenceImpl("body", "message", ImmutableList.of(message))));
       } catch (Throwable ex) {
         handleErr(ex);
       }
@@ -174,7 +174,7 @@ public class WebSocketImpl implements WebSocket {
 
     // connect now
     try {
-      handler.connect(this);
+      handler.connect(req, this);
     } catch (Throwable ex) {
       handleErr(ex);
     }

@@ -163,7 +163,7 @@ public class AppPrinterTest {
   }
 
   private WebSocket.Definition socket(final String pattern) {
-    return new WebSocket.Definition(pattern, (ws) -> {
+    return new WebSocket.Definition(pattern, (req, ws) -> {
     });
   }
 }

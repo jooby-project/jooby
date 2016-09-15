@@ -280,7 +280,7 @@ public class HttpHandlerImpl implements HttpHandler {
           Optional<WebSocket> sockets = findSockets(socketDefs, requestPath);
           if (sockets.isPresent()) {
             NativeWebSocket ws = request.upgrade(NativeWebSocket.class);
-            ws.onConnect(() -> ((WebSocketImpl) sockets.get()).connect(injector, ws));
+            ws.onConnect(() -> ((WebSocketImpl) sockets.get()).connect(injector, req, ws));
             return;
           }
         }

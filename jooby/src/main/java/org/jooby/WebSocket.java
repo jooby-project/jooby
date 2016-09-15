@@ -82,7 +82,7 @@ import com.google.inject.TypeLiteral;
  * @author edgar
  * @since 0.1.0
  */
-public interface WebSocket extends Closeable {
+public interface WebSocket extends Closeable, Registry {
 
   /** Websocket key. */
   Key<Set<WebSocket.Definition>> KEY = Key.get(new TypeLiteral<Set<WebSocket.Definition>>() {
@@ -94,7 +94,34 @@ public interface WebSocket extends Closeable {
    * @author edgar
    * @since 0.1.0
    */
-  interface Handler {
+  interface FullHandler {
+    /**
+     * Inside a connect event, you can listen for {@link WebSocket#onMessage(Callback)},
+     * {@link WebSocket#onClose(Callback)} or {@link WebSocket#onError(ErrCallback)} events.
+     *
+     * Also, you can send text and binary message.
+     *
+     * @param req Current request.
+     * @param ws A web socket.
+     * @throws Exception If something goes wrong while connecting.
+     */
+    void connect(Request req, WebSocket ws) throws Exception;
+  }
+
+
+  /**
+   * A web socket connect handler. Executed every time a new client connect to the socket.
+   *
+   * @author edgar
+   * @since 0.1.0
+   */
+  interface Handler extends FullHandler {
+
+    @Override
+    default void connect(final Request req, final WebSocket ws) throws Exception {
+      connect(ws);
+    }
+
     /**
      * Inside a connect event, you can listen for {@link WebSocket#onMessage(Callback)},
      * {@link WebSocket#onClose(Callback)} or {@link WebSocket#onError(ErrCallback)} events.
@@ -264,7 +291,7 @@ public interface WebSocket extends Closeable {
     private String pattern;
 
     /** A ws handler. */
-    private Handler handler;
+    private FullHandler handler;
 
     /**
      * Creates a new {@link Definition}.
@@ -272,7 +299,7 @@ public interface WebSocket extends Closeable {
      * @param pattern A path pattern.
      * @param handler A ws handler.
      */
-    public Definition(final String pattern, final Handler handler) {
+    public Definition(final String pattern, final FullHandler handler) {
       requireNonNull(pattern, "A route path is required.");
       requireNonNull(handler, "A handler is required.");
 
@@ -620,36 +647,5 @@ public interface WebSocket extends Closeable {
    */
   void send(Object data, SuccessCallback success, ErrCallback err)
       throws Exception;
-
-  /**
-   * Find and return a service using the provided type.
-   *
-   * @param type A service type.
-   * @param <T> Service type.
-   * @return Binded service.
-   */
-  default <T> T require(final Class<T> type) {
-    return require(Key.get(type));
-  }
-
-  /**
-   * Find and return a service using the provided type.
-   *
-   * @param type A service type.
-   * @param <T> Service type.
-   * @return Binded service.
-   */
-  default <T> T require(final TypeLiteral<T> type) {
-    return require(Key.get(type));
-  }
-
-  /**
-   * Find and return a service using the provided key.
-   *
-   * @param key A key for a service.
-   * @param <T> Service type.
-   * @return Binded service.
-   */
-  <T> T require(Key<T> key);
 
 }

@@ -176,6 +176,10 @@ public abstract class AbstractRendererContext implements Renderer.Context {
     committed = true;
   }
 
+  protected void setCommitted() {
+    committed = true;
+  }
+
   @Override
   public String toString() {
     return renderers.stream().map(Renderer::name).collect(Collectors.joining(", "));

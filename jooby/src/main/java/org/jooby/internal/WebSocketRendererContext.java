@@ -56,6 +56,7 @@ public class WebSocketRendererContext extends AbstractRendererContext {
   @Override
   public void send(final String text) throws Exception {
     ws.sendText(text, success, err);
+    setCommitted();
   }
 
   @Override

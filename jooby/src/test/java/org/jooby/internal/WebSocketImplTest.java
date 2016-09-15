@@ -1,5 +1,6 @@
 package org.jooby.internal;
 
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
@@ -18,6 +19,7 @@ import java.util.function.Consumer;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
 import org.jooby.Renderer;
+import org.jooby.Request;
 import org.jooby.WebSocket;
 import org.jooby.WebSocket.Callback;
 import org.jooby.WebSocket.CloseStatus;
@@ -40,7 +42,7 @@ public class WebSocketImplTest {
 
   private Block connect = unit -> {
     WebSocket.Handler handler = unit.get(WebSocket.Handler.class);
-    handler.connect(isA(WebSocketImpl.class));
+    handler.connect(eq(unit.get(Request.class)), isA(WebSocketImpl.class));
 
     Injector injector = unit.get(Injector.class);
 
@@ -68,7 +70,7 @@ public class WebSocketImplTest {
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
     new MockUnit(WebSocket.Handler.class, WebSocket.SuccessCallback.class,
-        WebSocket.ErrCallback.class, Injector.class, NativeWebSocket.class)
+        WebSocket.ErrCallback.class, Injector.class, Request.class, NativeWebSocket.class)
             .expect(connect)
             .expect(callbacks)
             .expect(unit -> {
@@ -86,7 +88,8 @@ public class WebSocketImplTest {
             .run(unit -> {
               WebSocketImpl ws = new WebSocketImpl(
                   unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-              ws.connect(unit.get(Injector.class), unit.get(NativeWebSocket.class));
+              ws.connect(unit.get(Injector.class), unit.get(Request.class),
+                  unit.get(NativeWebSocket.class));
 
               ws.send(data, unit.get(WebSocket.SuccessCallback.class),
                   unit.get(WebSocket.ErrCallback.class));
@@ -124,7 +127,7 @@ public class WebSocketImplTest {
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
 
-    new MockUnit(WebSocket.Handler.class, Injector.class, NativeWebSocket.class)
+    new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class)
         .expect(connect)
         .expect(callbacks)
         .expect(unit -> {
@@ -136,7 +139,8 @@ public class WebSocketImplTest {
         .run(unit -> {
           WebSocketImpl ws = new WebSocketImpl(
               unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-          ws.connect(unit.get(Injector.class), unit.get(NativeWebSocket.class));
+          ws.connect(unit.get(Injector.class), unit.get(Request.class),
+              unit.get(NativeWebSocket.class));
           ws.pause();
 
           ws.pause();
@@ -155,7 +159,7 @@ public class WebSocketImplTest {
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
 
-    new MockUnit(WebSocket.Handler.class, Injector.class, NativeWebSocket.class)
+    new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class)
         .expect(connect)
         .expect(callbacks)
         .expect(unit -> {
@@ -164,7 +168,8 @@ public class WebSocketImplTest {
         }).run(unit -> {
           WebSocketImpl ws = new WebSocketImpl(
               unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-          ws.connect(unit.get(Injector.class), unit.get(NativeWebSocket.class));
+          ws.connect(unit.get(Injector.class), unit.get(Request.class),
+              unit.get(NativeWebSocket.class));
           ws.close(WebSocket.NORMAL);
         });
   }
@@ -178,7 +183,7 @@ public class WebSocketImplTest {
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
 
-    new MockUnit(WebSocket.Handler.class, Injector.class, NativeWebSocket.class)
+    new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class)
         .expect(connect)
         .expect(callbacks)
         .expect(unit -> {
@@ -188,7 +193,8 @@ public class WebSocketImplTest {
         .run(unit -> {
           WebSocketImpl ws = new WebSocketImpl(
               unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-          ws.connect(unit.get(Injector.class), unit.get(NativeWebSocket.class));
+          ws.connect(unit.get(Injector.class), unit.get(Request.class),
+              unit.get(NativeWebSocket.class));
           ws.terminate();
         });
   }
@@ -223,7 +229,7 @@ public class WebSocketImplTest {
     MediaType produces = MediaType.all;
     Object instance = new Object();
 
-    new MockUnit(WebSocket.Handler.class, Injector.class, NativeWebSocket.class)
+    new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class)
         .expect(connect)
         .expect(unit -> {
           NativeWebSocket nws = unit.get(NativeWebSocket.class);
@@ -239,7 +245,8 @@ public class WebSocketImplTest {
         .run(unit -> {
           WebSocketImpl ws = new WebSocketImpl(
               unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-          ws.connect(unit.get(Injector.class), unit.get(NativeWebSocket.class));
+          ws.connect(unit.get(Injector.class), unit.get(Request.class),
+              unit.get(NativeWebSocket.class));
           assertEquals(instance, ws.require(Object.class));
         });
   }
@@ -253,7 +260,8 @@ public class WebSocketImplTest {
     MediaType consumes = MediaType.all;
     MediaType produces = MediaType.all;
 
-    new MockUnit(WebSocket.Handler.class, Injector.class, Callback.class, NativeWebSocket.class,
+    new MockUnit(WebSocket.Handler.class, Injector.class, Callback.class, Request.class,
+        NativeWebSocket.class,
         Mutant.class)
             .expect(connect)
             .expect(unit -> {
@@ -275,9 +283,10 @@ public class WebSocketImplTest {
             .run(unit -> {
               WebSocketImpl ws = new WebSocketImpl(
                   unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-              ws.connect(unit.get(Injector.class), unit.get(NativeWebSocket.class));
+              ws.connect(unit.get(Injector.class), unit.get(Request.class),
+                  unit.get(NativeWebSocket.class));
               ws.onMessage(unit.get(Callback.class));
-            } , unit -> {
+            }, unit -> {
               unit.captured(Consumer.class).iterator().next().accept("something");
             });
   }
@@ -292,7 +301,7 @@ public class WebSocketImplTest {
     MediaType produces = MediaType.all;
     Exception ex = new Exception();
 
-    new MockUnit(WebSocket.Handler.class, Injector.class, NativeWebSocket.class,
+    new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class,
         WebSocket.ErrCallback.class)
             .expect(connect)
             .expect(unit -> {
@@ -311,9 +320,10 @@ public class WebSocketImplTest {
             .run(unit -> {
               WebSocketImpl ws = new WebSocketImpl(
                   unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-              ws.connect(unit.get(Injector.class), unit.get(NativeWebSocket.class));
+              ws.connect(unit.get(Injector.class), unit.get(Request.class),
+                  unit.get(NativeWebSocket.class));
               ws.onError(unit.get(WebSocket.ErrCallback.class));
-            } , unit -> {
+            }, unit -> {
               unit.captured(Consumer.class).iterator().next().accept(ex);
             });
   }
@@ -328,7 +338,7 @@ public class WebSocketImplTest {
     MediaType produces = MediaType.all;
     Exception ex = new Exception();
 
-    new MockUnit(WebSocket.Handler.class, Injector.class, NativeWebSocket.class,
+    new MockUnit(WebSocket.Handler.class, Injector.class, Request.class, NativeWebSocket.class,
         WebSocket.ErrCallback.class)
             .expect(connect)
             .expect(unit -> {
@@ -348,9 +358,10 @@ public class WebSocketImplTest {
             .run(unit -> {
               WebSocketImpl ws = new WebSocketImpl(
                   unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-              ws.connect(unit.get(Injector.class), unit.get(NativeWebSocket.class));
+              ws.connect(unit.get(Injector.class), unit.get(Request.class),
+                  unit.get(NativeWebSocket.class));
               ws.onError(unit.get(WebSocket.ErrCallback.class));
-            } , unit -> {
+            }, unit -> {
               unit.captured(Consumer.class).iterator().next().accept(ex);
             });
   }
@@ -365,32 +376,34 @@ public class WebSocketImplTest {
     MediaType produces = MediaType.all;
     WebSocket.CloseStatus status = WebSocket.NORMAL;
 
-    new MockUnit(WebSocket.Handler.class, Callback.class, NativeWebSocket.class, Injector.class)
-        .expect(connect)
-        .expect(unit -> {
-          NativeWebSocket nws = unit.get(NativeWebSocket.class);
-          nws.onBinaryMessage(isA(Consumer.class));
-          nws.onTextMessage(isA(Consumer.class));
-          nws.onErrorMessage(isA(Consumer.class));
-          nws.onCloseMessage(unit.capture(BiConsumer.class));
-        })
-        .expect(unit -> {
-          Callback<WebSocket.CloseStatus> callback = unit.get(Callback.class);
-          callback.invoke(unit.capture(WebSocket.CloseStatus.class));
-        })
-        .run(unit -> {
-          WebSocketImpl ws = new WebSocketImpl(
-              unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-          ws.connect(unit.get(Injector.class), unit.get(NativeWebSocket.class));
-          ws.onClose(unit.get(Callback.class));
-        } , unit -> {
-          unit.captured(BiConsumer.class).iterator().next()
-              .accept(status.code(), Optional.of(status.reason()));
-        } , unit -> {
-          CloseStatus captured = unit.captured(WebSocket.CloseStatus.class).iterator().next();
-          assertEquals(status.code(), captured.code());
-          assertEquals(status.reason(), captured.reason());
-        });
+    new MockUnit(WebSocket.Handler.class, Callback.class, Request.class, NativeWebSocket.class,
+        Injector.class)
+            .expect(connect)
+            .expect(unit -> {
+              NativeWebSocket nws = unit.get(NativeWebSocket.class);
+              nws.onBinaryMessage(isA(Consumer.class));
+              nws.onTextMessage(isA(Consumer.class));
+              nws.onErrorMessage(isA(Consumer.class));
+              nws.onCloseMessage(unit.capture(BiConsumer.class));
+            })
+            .expect(unit -> {
+              Callback<WebSocket.CloseStatus> callback = unit.get(Callback.class);
+              callback.invoke(unit.capture(WebSocket.CloseStatus.class));
+            })
+            .run(unit -> {
+              WebSocketImpl ws = new WebSocketImpl(
+                  unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
+              ws.connect(unit.get(Injector.class), unit.get(Request.class),
+                  unit.get(NativeWebSocket.class));
+              ws.onClose(unit.get(Callback.class));
+            }, unit -> {
+              unit.captured(BiConsumer.class).iterator().next()
+                  .accept(status.code(), Optional.of(status.reason()));
+            }, unit -> {
+              CloseStatus captured = unit.captured(WebSocket.CloseStatus.class).iterator().next();
+              assertEquals(status.code(), captured.code());
+              assertEquals(status.reason(), captured.reason());
+            });
   }
 
   @SuppressWarnings({"resource", "unchecked" })
@@ -403,32 +416,34 @@ public class WebSocketImplTest {
     MediaType produces = MediaType.all;
     WebSocket.CloseStatus status = WebSocket.CloseStatus.of(1000);
 
-    new MockUnit(WebSocket.Handler.class, Callback.class, NativeWebSocket.class, Injector.class)
-        .expect(connect)
-        .expect(unit -> {
-          NativeWebSocket nws = unit.get(NativeWebSocket.class);
-          nws.onBinaryMessage(isA(Consumer.class));
-          nws.onTextMessage(isA(Consumer.class));
-          nws.onErrorMessage(isA(Consumer.class));
-          nws.onCloseMessage(unit.capture(BiConsumer.class));
-        })
-        .expect(unit -> {
-          Callback<WebSocket.CloseStatus> callback = unit.get(Callback.class);
-          callback.invoke(unit.capture(WebSocket.CloseStatus.class));
-        })
-        .run(unit -> {
-          WebSocketImpl ws = new WebSocketImpl(
-              unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-          ws.connect(unit.get(Injector.class), unit.get(NativeWebSocket.class));
-          ws.onClose(unit.get(Callback.class));
-        } , unit -> {
-          unit.captured(BiConsumer.class).iterator().next()
-              .accept(status.code(), Optional.empty());
-        } , unit -> {
-          CloseStatus captured = unit.captured(WebSocket.CloseStatus.class).iterator().next();
-          assertEquals(status.code(), captured.code());
-          assertEquals(null, captured.reason());
-        });
+    new MockUnit(WebSocket.Handler.class, Callback.class, NativeWebSocket.class, Request.class,
+        Injector.class)
+            .expect(connect)
+            .expect(unit -> {
+              NativeWebSocket nws = unit.get(NativeWebSocket.class);
+              nws.onBinaryMessage(isA(Consumer.class));
+              nws.onTextMessage(isA(Consumer.class));
+              nws.onErrorMessage(isA(Consumer.class));
+              nws.onCloseMessage(unit.capture(BiConsumer.class));
+            })
+            .expect(unit -> {
+              Callback<WebSocket.CloseStatus> callback = unit.get(Callback.class);
+              callback.invoke(unit.capture(WebSocket.CloseStatus.class));
+            })
+            .run(unit -> {
+              WebSocketImpl ws = new WebSocketImpl(
+                  unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
+              ws.connect(unit.get(Injector.class), unit.get(Request.class),
+                  unit.get(NativeWebSocket.class));
+              ws.onClose(unit.get(Callback.class));
+            }, unit -> {
+              unit.captured(BiConsumer.class).iterator().next()
+                  .accept(status.code(), Optional.empty());
+            }, unit -> {
+              CloseStatus captured = unit.captured(WebSocket.CloseStatus.class).iterator().next();
+              assertEquals(status.code(), captured.code());
+              assertEquals(null, captured.reason());
+            });
   }
 
   @SuppressWarnings({"resource", "unchecked" })
@@ -441,32 +456,34 @@ public class WebSocketImplTest {
     MediaType produces = MediaType.all;
     WebSocket.CloseStatus status = WebSocket.CloseStatus.of(1000, "");
 
-    new MockUnit(WebSocket.Handler.class, Callback.class, NativeWebSocket.class, Injector.class)
-        .expect(connect)
-        .expect(unit -> {
-          NativeWebSocket nws = unit.get(NativeWebSocket.class);
-          nws.onBinaryMessage(isA(Consumer.class));
-          nws.onTextMessage(isA(Consumer.class));
-          nws.onErrorMessage(isA(Consumer.class));
-          nws.onCloseMessage(unit.capture(BiConsumer.class));
-        })
-        .expect(unit -> {
-          Callback<WebSocket.CloseStatus> callback = unit.get(Callback.class);
-          callback.invoke(unit.capture(WebSocket.CloseStatus.class));
-        })
-        .run(unit -> {
-          WebSocketImpl ws = new WebSocketImpl(
-              unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
-          ws.connect(unit.get(Injector.class), unit.get(NativeWebSocket.class));
-          ws.onClose(unit.get(Callback.class));
-        } , unit -> {
-          unit.captured(BiConsumer.class).iterator().next()
-              .accept(status.code(), Optional.of(""));
-        } , unit -> {
-          CloseStatus captured = unit.captured(WebSocket.CloseStatus.class).iterator().next();
-          assertEquals(status.code(), captured.code());
-          assertEquals(null, captured.reason());
-        });
+    new MockUnit(WebSocket.Handler.class, Callback.class, NativeWebSocket.class, Request.class,
+        Injector.class)
+            .expect(connect)
+            .expect(unit -> {
+              NativeWebSocket nws = unit.get(NativeWebSocket.class);
+              nws.onBinaryMessage(isA(Consumer.class));
+              nws.onTextMessage(isA(Consumer.class));
+              nws.onErrorMessage(isA(Consumer.class));
+              nws.onCloseMessage(unit.capture(BiConsumer.class));
+            })
+            .expect(unit -> {
+              Callback<WebSocket.CloseStatus> callback = unit.get(Callback.class);
+              callback.invoke(unit.capture(WebSocket.CloseStatus.class));
+            })
+            .run(unit -> {
+              WebSocketImpl ws = new WebSocketImpl(
+                  unit.get(WebSocket.Handler.class), path, pattern, vars, consumes, produces);
+              ws.connect(unit.get(Injector.class), unit.get(Request.class),
+                  unit.get(NativeWebSocket.class));
+              ws.onClose(unit.get(Callback.class));
+            }, unit -> {
+              unit.captured(BiConsumer.class).iterator().next()
+                  .accept(status.code(), Optional.of(""));
+            }, unit -> {
+              CloseStatus captured = unit.captured(WebSocket.CloseStatus.class).iterator().next();
+              assertEquals(status.code(), captured.code());
+              assertEquals(null, captured.reason());
+            });
   }
 
 }
