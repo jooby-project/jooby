@@ -6,35 +6,36 @@ import org.jooby.test.ServerFeature;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
-import org.pac4j.core.authorization.Authorizer;
+import org.pac4j.core.authorization.authorizer.Authorizer;
+import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.credentials.UsernamePasswordCredentials;
+import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.profile.CommonProfile;
-import org.pac4j.core.profile.UserProfile;
-import org.pac4j.http.credentials.UsernamePasswordCredentials;
-import org.pac4j.http.credentials.authenticator.UsernamePasswordAuthenticator;
-import org.pac4j.http.profile.HttpProfile;
+
+import java.util.List;
 
 public class RequireAdminAuthWithClassFeature extends ServerFeature {
 
-  public static class AdminRole implements UsernamePasswordAuthenticator {
+  public static class AdminRole implements Authenticator<UsernamePasswordCredentials> {
 
     @Override
-    public void validate(final UsernamePasswordCredentials credentials) {
-      final HttpProfile profile = new HttpProfile();
+    public void validate(final UsernamePasswordCredentials credentials, final WebContext context) {
+      final CommonProfile profile = new CommonProfile();
       String username = credentials.getUsername();
       profile.setId(username);
-      profile.addAttribute(CommonProfile.USERNAME, username);
+      profile.addAttribute(Pac4jConstants.USERNAME, username);
       credentials.setUserProfile(profile);
       profile.addPermission("admin");
     }
 
   }
 
-  public static class RequireAdmin<U extends UserProfile> implements Authorizer<U> {
+  public static class RequireAdmin<U extends CommonProfile> implements Authorizer<U> {
 
     @Override
-    public boolean isAuthorized(final WebContext context, final U profile) {
-      return profile.getPermissions().contains("admin");
+    public boolean isAuthorized(final WebContext context, final List<U> profiles) {
+      return profiles.get(0).getPermissions().contains("admin");
     }
 
   }

@@ -27,8 +27,7 @@ import javax.inject.Provider;
 
 import org.jooby.Session;
 import org.jooby.internal.pac4j.AuthSerializer;
-import org.pac4j.core.context.Pac4jConstants;
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.CommonProfile;
 
 /**
  * An {@link AuthStore} on top of the {@link Session}. This is the default {@link AuthStore}.
@@ -37,7 +36,9 @@ import org.pac4j.core.profile.UserProfile;
  * @since 0.6.0
  * @param <U> User profile to work with.
  */
-public class AuthSessionStore<U extends UserProfile> implements AuthStore<U> {
+public class AuthSessionStore<U extends CommonProfile> implements AuthStore<U> {
+
+  public final static String USER_PROFILE = "pac4jUserProfile";
 
   private Provider<Session> session;
 
@@ -73,7 +74,7 @@ public class AuthSessionStore<U extends UserProfile> implements AuthStore<U> {
   }
 
   private static String key(final String property) {
-    return key(Pac4jConstants.USER_PROFILE, property);
+    return key(USER_PROFILE, property);
   }
 
   private static String key(final String prefix, final String property) {

@@ -8,28 +8,28 @@ import javax.inject.Singleton;
 
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
-import org.pac4j.http.profile.HttpProfile;
+import org.pac4j.core.profile.CommonProfile;
 
 public class AuthWithStoreFeature extends ServerFeature {
 
   @Singleton
-  public static class InMemory implements AuthStore<HttpProfile> {
+  public static class InMemory implements AuthStore<CommonProfile> {
 
-    private Map<String, HttpProfile> profiles = new HashMap<>();
+    private Map<String, CommonProfile> profiles = new HashMap<>();
 
     @Override
-    public Optional<HttpProfile> get(final String id) throws Exception {
+    public Optional<CommonProfile> get(final String id) throws Exception {
       return Optional.of(profiles.get(id));
     }
 
     @Override
-    public void set(final HttpProfile profile) throws Exception {
+    public void set(final CommonProfile profile) throws Exception {
       profiles.put(profile.getId(), profile);
 
     }
 
     @Override
-    public Optional<HttpProfile> unset(final String id) throws Exception {
+    public Optional<CommonProfile> unset(final String id) throws Exception {
       return Optional.ofNullable(profiles.remove(id));
     }
 
@@ -39,7 +39,7 @@ public class AuthWithStoreFeature extends ServerFeature {
 
     use(new Auth().form().store(InMemory.class));
 
-    get("/", req -> req.require(HttpProfile.class).getId());
+    get("/", req -> req.require(CommonProfile.class).getId());
   }
 
   @Test
