@@ -50,11 +50,11 @@ public class BeanParserFeature extends ServerFeature {
 
   }
 
-  public static class InvalidBean {
-    public InvalidBean(final String arg) {
+  public static class DefConstBean {
+    public DefConstBean(final String arg) {
     }
 
-    public InvalidBean() {
+    public DefConstBean() {
     }
   }
 
@@ -114,8 +114,8 @@ public class BeanParserFeature extends ServerFeature {
     }
 
     @org.jooby.mvc.GET
-    @Path("/invalidbean")
-    public String invalidbean(final InvalidBean bean) throws Exception {
+    @Path("/defaultConstructor")
+    public String invalidbean(final DefConstBean bean) throws Exception {
       return "OK";
     }
 
@@ -145,8 +145,8 @@ public class BeanParserFeature extends ServerFeature {
       return "OK";
     });
 
-    get("/invalidbean", req -> {
-      req.params().to(InvalidBean.class);
+    get("/defaultConstructor", req -> {
+      req.params().to(DefConstBean.class);
       return "OK";
     });
 
@@ -211,14 +211,14 @@ public class BeanParserFeature extends ServerFeature {
   }
 
   @Test
-  public void invalidbean() throws Exception {
+  public void defaultConstructor() throws Exception {
     request()
-        .get("/invalidbean?name=edgar&age=17")
-        .expect(400);
+        .get("/defaultConstructor?name=edgar&age=17")
+        .expect(200);
 
     request()
-        .get("/r/invalidbean?name=edgar&age=17")
-        .expect(400);
+        .get("/r/defaultConstructor?name=edgar&age=17")
+        .expect(200);
 
   }
 

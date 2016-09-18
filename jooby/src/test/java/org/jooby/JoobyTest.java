@@ -459,11 +459,11 @@ public class JoobyTest {
         DateParser.class,
         LocalDateParser.class,
         LocaleParser.class,
-        BeanParser.class,
         StaticMethodParser.class,
         StaticMethodParser.class,
         StaticMethodParser.class,
-        StringConstructorParser.class
+        StringConstructorParser.class,
+        BeanParser.class
     };
 
     for (Class<? extends Parser> converter : parserClasses) {
@@ -2479,11 +2479,11 @@ public class JoobyTest {
               DateParser.class,
               LocalDateParser.class,
               LocaleParser.class,
-              BeanParser.class,
               StaticMethodParser.class,
               StaticMethodParser.class,
               StaticMethodParser.class,
-              StringConstructorParser.class
+              StringConstructorParser.class,
+              BeanParser.class
           };
 
           for (Class<? extends Parser> converter : parserClasses) {

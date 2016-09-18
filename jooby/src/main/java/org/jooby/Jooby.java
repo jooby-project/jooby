@@ -3409,6 +3409,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
+  @Override
   public WebSocket.Definition ws(final String path, final WebSocket.FullHandler handler) {
     WebSocket.Definition ws = new WebSocket.Definition(path, handler);
     checkArgument(bag.add(ws), "Path is in use: '%s'", path);
@@ -4163,11 +4164,11 @@ public class Jooby implements Routes, LifeCycle, Registry {
       parsers.addBinding().toInstance(new DateParser(dateFormat));
       parsers.addBinding().toInstance(new LocalDateParser(dateTimeFormatter));
       parsers.addBinding().toInstance(new LocaleParser());
-      parsers.addBinding().toInstance(beanParser.orElseGet(() -> new BeanParser(false)));
       parsers.addBinding().toInstance(new StaticMethodParser("valueOf"));
       parsers.addBinding().toInstance(new StaticMethodParser("fromString"));
       parsers.addBinding().toInstance(new StaticMethodParser("forName"));
       parsers.addBinding().toInstance(new StringConstructorParser());
+      parsers.addBinding().toInstance(beanParser.orElseGet(() -> new BeanParser(false)));
 
       binder.bind(ParserExecutor.class).in(Singleton.class);
 

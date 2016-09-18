@@ -19,7 +19,6 @@
 package org.jooby.internal.parser;
 
 import java.util.Map;
-import java.util.Optional;
 
 import org.jooby.Mutant;
 import org.jooby.Parser;
@@ -71,7 +70,7 @@ public class ParserBuilder implements Parser.Builder {
 
   @Override
   public Builder ifbody(final Callback<Parser.BodyReference> callback) {
-    return body(ifcallback(callback));
+    return body(callback);
   }
 
   @Override
@@ -82,7 +81,7 @@ public class ParserBuilder implements Parser.Builder {
 
   @Override
   public Builder ifparam(final Callback<Parser.ParamReference<String>> callback) {
-    return param(ifcallback(callback));
+    return param(callback);
   }
 
   @Override
@@ -93,7 +92,7 @@ public class ParserBuilder implements Parser.Builder {
 
   @Override
   public Builder ifparams(final Callback<Map<String, Mutant>> callback) {
-    return params(ifcallback(callback));
+    return params(callback);
   }
 
   @Override
@@ -104,7 +103,7 @@ public class ParserBuilder implements Parser.Builder {
 
   @Override
   public Builder ifupload(final Callback<Parser.ParamReference<Upload>> callback) {
-    return upload(ifcallback(callback));
+    return upload(callback);
   }
 
   @SuppressWarnings("unchecked")
@@ -117,12 +116,4 @@ public class ParserBuilder implements Parser.Builder {
     return callback.invoke(value);
   }
 
-  private <T> Callback<T> ifcallback(final Callback<T> callback) {
-    return value -> {
-      if (toType.getRawType() == Optional.class) {
-        return ctx.next(toType, value);
-      }
-      return callback.invoke(value);
-    };
-  }
 }
