@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import javax.inject.Inject;
 
 import org.jooby.internal.ParameterNameProvider;
+import org.jooby.internal.parser.bean.BeanPlan;
 import org.jooby.test.MockUnit;
 import org.junit.Test;
 

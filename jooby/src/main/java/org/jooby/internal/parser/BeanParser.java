@@ -18,6 +18,7 @@
  */
 package org.jooby.internal.parser;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -29,6 +30,7 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.internal.ParameterNameProvider;
 import org.jooby.internal.mvc.RequestParam;
+import org.jooby.internal.parser.bean.BeanPlan;
 
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.Reflection;
@@ -47,11 +49,11 @@ public class BeanParser implements Parser {
   private Function<? super Throwable, Try<? extends Object>> recoverMissing;
 
   @SuppressWarnings("rawtypes")
-  private final Map<Class, BeanPlan> beans;
+  private final Map<TypeLiteral, BeanPlan> forms;
 
   public BeanParser(final boolean allowNulls) {
     this.recoverMissing = allowNulls ? MISSING : RETHROW;
-    this.beans = new ConcurrentHashMap<>();
+    this.forms = new ConcurrentHashMap<>();
   }
 
   @Override
@@ -63,10 +65,12 @@ public class BeanParser implements Parser {
     }
     return ctx.ifparams(map -> {
       final Object bean;
-      if (beanType.isInterface()) {
+      if (List.class.isAssignableFrom(beanType)) {
+        bean = newBean(ctx.require(Request.class), ctx.require(Response.class), map, type);
+      } else if (beanType.isInterface()) {
         bean = newBeanInterface(ctx.require(Request.class), ctx.require(Response.class), beanType);
       } else {
-        bean = newBean(ctx.require(Request.class), ctx.require(Response.class), map, beanType);
+        bean = newBean(ctx.require(Request.class), ctx.require(Response.class), map, type);
       }
 
       return bean;
@@ -78,15 +82,15 @@ public class BeanParser implements Parser {
     return "bean";
   }
 
+  @SuppressWarnings("rawtypes")
   private Object newBean(final Request req, final Response rsp,
-      final Map<String, Mutant> params, final Class<?> beanType) throws Throwable {
-    BeanPlan plan = beans.get(beanType);
-    if (plan == null) {
-      ParameterNameProvider classInfo = req.require(ParameterNameProvider.class);
-      plan = new BeanPlan(classInfo, beanType);
-      beans.put(beanType, plan);
+      final Map<String, Mutant> params, final TypeLiteral type) throws Throwable {
+    BeanPlan form = forms.get(type);
+    if (form == null) {
+      form = new BeanPlan(req.require(ParameterNameProvider.class), type);
+      forms.put(type, form);
     }
-    return plan.newBean(p -> value(p, req, rsp), params);
+    return form.newBean(p -> value(p, req, rsp), params.keySet());
   }
 
   private Object newBeanInterface(final Request req, final Response rsp, final Class<?> beanType) {
