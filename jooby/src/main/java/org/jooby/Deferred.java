@@ -205,8 +205,14 @@ public class Deferred extends Result {
     if (value == null) {
       handler.handle(null, null);
     } else {
-      super.set(value);
-      handler.handle(clone(), null);
+      Result result;
+      if (value instanceof Result) {
+        result = (Result) value;
+      } else {
+        super.set(value);
+        result = clone();
+      }
+      handler.handle(result, null);
     }
   }
 
