@@ -186,7 +186,7 @@ public class BeanPlan {
   }
 
   private List<Tuple2<String, Integer>> segments(final String path) {
-    List<String> segments = Splitter.on(CharMatcher.anyOf("[]")).trimResults()
+    List<String> segments = Splitter.on(CharMatcher.anyOf("[].")).trimResults()
         .omitEmptyStrings()
         .splitToList(path);
     List<Tuple2<String, Integer>> result = new ArrayList<>(segments.size());
