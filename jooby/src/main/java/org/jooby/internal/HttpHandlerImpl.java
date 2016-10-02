@@ -327,44 +327,40 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private void onDeferred(final Map<Object, Object> scope, final NativeRequest request,
       final RequestImpl req, final ResponseImpl rsp, final Deferred deferred) {
-    try {
-      /** Deferred executor. */
-      Key<Executor> execKey = deferred.executor()
-          .map(it -> Key.get(Executor.class, Names.named(it)))
-          .orElse(gexec);
+    /** Deferred executor. */
+    Key<Executor> execKey = deferred.executor()
+        .map(it -> Key.get(Executor.class, Names.named(it)))
+        .orElse(gexec);
 
-      /** Get executor. */
-      Executor executor = injector.getInstance(execKey);
+    /** Get executor. */
+    Executor executor = injector.getInstance(execKey);
 
-      request.startAsync(executor, () -> {
-        try {
-          deferred.handler(req, (success, x) -> {
-            boolean close = false;
-            Optional<Throwable> failure = Optional.ofNullable(x);
-            try {
-              requestScope.enter(scope);
-              if (success != null) {
-                close = true;
-                rsp.send(success);
-              }
-            } catch (Throwable exerr) {
-              failure = Optional.of(failure.orElse(exerr));
-            } finally {
-              Throwable cause = failure.orElse(null);
-              if (cause != null) {
-                close = true;
-                handleErr(req, rsp, cause);
-              }
-              cleanup(req, rsp, close, cause, true);
+    request.startAsync(executor, () -> {
+      try {
+        deferred.handler(req, (success, x) -> {
+          boolean close = false;
+          Optional<Throwable> failure = Optional.ofNullable(x);
+          try {
+            requestScope.enter(scope);
+            if (success != null) {
+              close = true;
+              rsp.send(success);
             }
-          });
-        } catch (Exception ex) {
-          handleErr(req, rsp, ex);
-        }
-      });
-    } catch (Exception ex) {
-      handleErr(req, rsp, ex);
-    }
+          } catch (Throwable exerr) {
+            failure = Optional.of(failure.orElse(exerr));
+          } finally {
+            Throwable cause = failure.orElse(null);
+            if (cause != null) {
+              close = true;
+              handleErr(req, rsp, cause);
+            }
+            cleanup(req, rsp, close, cause, true);
+          }
+        });
+      } catch (Exception ex) {
+        handleErr(req, rsp, ex);
+      }
+    });
   }
 
   private void cleanup(final RequestImpl req, final ResponseImpl rsp, final boolean close,
