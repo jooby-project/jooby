@@ -20,6 +20,7 @@ package org.jooby;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import javaslang.CheckedFunction0;
@@ -156,13 +157,27 @@ public class Deferred extends Result {
   /** Deferred handler. Internal. */
   private Handler handler;
 
+  private String executor;
+
+  private String callerThread;
+
+  /**
+   * Creates a new {@link Deferred} with an initializer.
+   *
+   * @param executor Executor to use.
+   * @param initializer An initializer.
+   */
+  public Deferred(final String executor, final Initializer0 initializer) {
+    this(executor, (req, deferred) -> initializer.run(deferred));
+  }
+
   /**
    * Creates a new {@link Deferred} with an initializer.
    *
    * @param initializer An initializer.
    */
   public Deferred(final Initializer0 initializer) {
-    this((req, deferred) -> initializer.run(deferred));
+    this(null, initializer);
   }
 
   /**
@@ -171,7 +186,19 @@ public class Deferred extends Result {
    * @param initializer An initializer.
    */
   public Deferred(final Initializer initializer) {
+    this(null, initializer);
+  }
+
+  /**
+   * Creates a new {@link Deferred} with an initializer.
+   *
+   * @param executor Executor to use.
+   * @param initializer An initializer.
+   */
+  public Deferred(final String executor, final Initializer initializer) {
+    this.executor = executor;
     this.initializer = requireNonNull(initializer, "Initializer is required.");
+    this.callerThread = Thread.currentThread().getName();
   }
 
   /**
@@ -193,6 +220,25 @@ public class Deferred extends Result {
       resolve(value);
     }
     return this;
+  }
+
+  /**
+   * Get an executor to run this deferred result. If the executor is present, then it will be use it
+   * to execute the deferred object. Otherwise it will use the global/application executor.
+   *
+   * @return Executor to use or fallback to global/application executor.
+   */
+  public Optional<String> executor() {
+    return Optional.ofNullable(executor);
+  }
+
+  /**
+   * Name of the caller thread (thread that creates this deferred object).
+   *
+   * @return Name of the caller thread (thread that creates this deferred object).
+   */
+  public String callerThread() {
+    return callerThread;
   }
 
   /**

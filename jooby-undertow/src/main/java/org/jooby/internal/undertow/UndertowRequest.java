@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import org.jooby.Cookie;
@@ -203,8 +204,8 @@ public class UndertowRequest implements NativeRequest {
   }
 
   @Override
-  public void startAsync() {
-    exchange.dispatch();
+  public void startAsync(final Executor executor, final Runnable runnable) {
+    exchange.dispatch(executor, runnable);
   }
 
   private FormData parseForm(final HttpServerExchange exchange, final String tmpdir,

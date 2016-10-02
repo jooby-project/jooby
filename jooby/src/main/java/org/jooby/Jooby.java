@@ -77,6 +77,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -135,6 +137,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.escape.Escaper;
 import com.google.common.html.HtmlEscapers;
 import com.google.common.net.UrlEscapers;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -676,6 +679,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
 
   private boolean http2;
 
+  private List<Consumer<Binder>> executors = new ArrayList<>();
+
   public Jooby() {
     this(null);
   }
@@ -1088,6 +1093,30 @@ public class Jooby implements Routes, LifeCycle, Registry {
    *
    * <pre>
    * {
+   *    get("/async", promise("myexec", deferred {@literal ->} {
+   *      // resolve a success value
+   *      deferred.resolve(...);
+   *    }));
+   *  }
+   * </pre>
+   *
+   * @param executor Executor to run the deferred.
+   * @param initializer Deferred initializer.
+   * @return A new deferred handler.
+   * @see Deferred
+   */
+  public Route.OneArgHandler promise(final String executor,
+      final Deferred.Initializer initializer) {
+    return req -> new Deferred(executor, initializer);
+  }
+
+  /**
+   * Produces a deferred response, useful for async request processing.
+   *
+   * <h2>usage</h2>
+   *
+   * <pre>
+   * {
    *    ExecutorService executor = ...;
    *
    *    get("/async", promise(deferred {@literal ->} {
@@ -1146,6 +1175,30 @@ public class Jooby implements Routes, LifeCycle, Registry {
     return req -> {
       return new Deferred(initializer);
     };
+  }
+
+  /**
+   * Produces a deferred response, useful for async request processing.
+   *
+   * <h2>usage</h2>
+   *
+   * <pre>
+   * {
+   *    get("/async", promise("myexec", deferred {@literal ->} {
+   *      // resolve a success value
+   *      deferred.resolve(...);
+   *    }));
+   *  }
+   * </pre>
+   *
+   * @param executor Executor to run the deferred.
+   * @param initializer Deferred initializer.
+   * @return A new deferred handler.
+   * @see Deferred
+   */
+  public Route.OneArgHandler promise(final String executor,
+      final Deferred.Initializer0 initializer) {
+    return req -> new Deferred(executor, initializer);
   }
 
   /**
@@ -3594,8 +3647,11 @@ public class Jooby implements Routes, LifeCycle, Registry {
 
     Config conf = injector.getInstance(Config.class);
 
-    Logger log = LoggerFactory.getLogger(getClass());
-    log.debug("config tree:\n{}", configTree(conf.origin().description()));
+    Logger log = logger(this);
+    if (log.isDebugEnabled()) {
+      String desc = configTree(conf.origin().description());
+      log.debug("config tree:\n{}", desc);
+    }
 
     // start services
     for (CheckedConsumer<Registry> onStart : this.onStart) {
@@ -3932,6 +3988,63 @@ public class Jooby implements Routes, LifeCycle, Registry {
   }
 
   /**
+   * Set the default executor to use from {@link Deferred Deferred API}.
+   *
+   * Default executor runs each task in the thread that invokes {@link Executor#execute execute},
+   * that's a Jooby worker thread. A worker thread in Jooby can block.
+   *
+   * The {@link ExecutorService} will automatically shutdown.
+   *
+   * @param executor Executor to use.
+   * @return This jooby instance.
+   */
+  public Jooby executor(final ExecutorService executor) {
+    this.executors.add(binder -> {
+      binder.bind(Key.get(String.class, Names.named("deferred"))).toInstance("deferred");
+      binder.bind(Key.get(Executor.class, Names.named("deferred"))).toInstance(executor);
+    });
+    onStop(r -> executor.shutdown());
+    return this;
+  }
+
+  /**
+   * Set a named executor to use from {@link Deferred Deferred API}. Useful for override the
+   * default/global executor.
+   *
+   * Default executor runs each task in the thread that invokes {@link Executor#execute execute},
+   * that's a Jooby worker thread. A worker thread in Jooby can block.
+   *
+   * The {@link ExecutorService} will automatically shutdown.
+   *
+   * @param executor Executor to use.
+   * @return This jooby instance.
+   */
+  public Jooby executor(final String name, final ExecutorService executor) {
+    this.executors.add(binder -> {
+      binder.bind(Key.get(Executor.class, Names.named(name))).toInstance(executor);
+    });
+    onStop(r -> executor.shutdown());
+    return this;
+  }
+
+  /**
+   * Set the default executor to use from {@link Deferred Deferred API}. This works as reference to
+   * an executor, application directly or via module must provide an named executor.
+   *
+   * Default executor runs each task in the thread that invokes {@link Executor#execute execute},
+   * that's a Jooby worker thread. A worker thread in Jooby can block.
+   *
+   * @param name Executor to use.
+   * @return This jooby instance.
+   */
+  public Jooby executor(final String name) {
+    this.executors.add(binder -> {
+      binder.bind(Key.get(String.class, Names.named("deferred"))).toInstance(name);
+    });
+    return this;
+  }
+
+  /**
    * Run app in javascript.
    *
    * @param jsargs Arguments, first arg must be the name of the javascript file.
@@ -4060,6 +4173,12 @@ public class Jooby implements Routes, LifeCycle, Registry {
     boolean cookieSession = session.store() == null;
     if (cookieSession && !finalConfig.hasPath("application.secret")) {
       throw new IllegalStateException("Required property 'application.secret' is missing");
+    }
+
+    /** executors .*/
+    if (executors.isEmpty()) {
+      // default executor
+      executor(MoreExecutors.newDirectExecutorService());
     }
 
     /** Some basic xss functions. */
@@ -4216,6 +4335,9 @@ public class Jooby implements Routes, LifeCycle, Registry {
 
       /** def err */
       ehandlers.addBinding().toInstance(new Err.DefHandler());
+
+      /** executors. */
+      executors.forEach(it -> it.accept(binder));
     });
 
     onStart.addAll(0, finalEnv.startTasks());
@@ -4224,6 +4346,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
     // clear bag and freeze it
     this.bag.clear();
     this.bag = ImmutableSet.of();
+    this.executors.clear();
+    this.executors = ImmutableList.of();
 
     return injector;
   }

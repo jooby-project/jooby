@@ -31,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -69,6 +70,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 
 import javaslang.control.Try;
@@ -134,6 +136,8 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private static final Key<Session> SESS = Key.get(Session.class);
 
+  private static final Key<String> DEF_EXEC = Key.get(String.class, Names.named("deferred"));
+
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(HttpHandler.class);
 
@@ -174,6 +178,9 @@ public class HttpHandlerImpl implements HttpHandler {
   private final Map<String, Renderer> rendererMap;
 
   private StatusCodeProvider sc;
+
+  /** Global deferred executor. */
+  private Key<Executor> gexec;
 
   @Inject
   public HttpHandlerImpl(final Injector injector,
@@ -217,6 +224,8 @@ public class HttpHandlerImpl implements HttpHandler {
       this.contextPath = applicationPath;
       this.rpath = rootpath(applicationPath);
     }
+    // global deferred executor
+    this.gexec = Key.get(Executor.class, Names.named(injector.getInstance(DEF_EXEC)));
   }
 
   @Override
@@ -319,26 +328,38 @@ public class HttpHandlerImpl implements HttpHandler {
   private void onDeferred(final Map<Object, Object> scope, final NativeRequest request,
       final RequestImpl req, final ResponseImpl rsp, final Deferred deferred) {
     try {
-      request.startAsync();
+      /** Deferred executor. */
+      Key<Executor> execKey = deferred.executor()
+          .map(it -> Key.get(Executor.class, Names.named(it)))
+          .orElse(gexec);
 
-      deferred.handler(req, (success, x) -> {
-        boolean close = false;
-        Optional<Throwable> failure = Optional.ofNullable(x);
+      /** Get executor. */
+      Executor executor = injector.getInstance(execKey);
+
+      request.startAsync(executor, () -> {
         try {
-          requestScope.enter(scope);
-          if (success != null) {
-            close = true;
-            rsp.send(success);
-          }
-        } catch (Throwable exerr) {
-          failure = Optional.of(failure.orElse(exerr));
-        } finally {
-          Throwable cause = failure.orElse(null);
-          if (cause != null) {
-            close = true;
-            handleErr(req, rsp, cause);
-          }
-          cleanup(req, rsp, close, cause, true);
+          deferred.handler(req, (success, x) -> {
+            boolean close = false;
+            Optional<Throwable> failure = Optional.ofNullable(x);
+            try {
+              requestScope.enter(scope);
+              if (success != null) {
+                close = true;
+                rsp.send(success);
+              }
+            } catch (Throwable exerr) {
+              failure = Optional.of(failure.orElse(exerr));
+            } finally {
+              Throwable cause = failure.orElse(null);
+              if (cause != null) {
+                close = true;
+                handleErr(req, rsp, cause);
+              }
+              cleanup(req, rsp, close, cause, true);
+            }
+          });
+        } catch (Exception ex) {
+          handleErr(req, rsp, ex);
         }
       });
     } catch (Exception ex) {

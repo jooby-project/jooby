@@ -12,6 +12,7 @@ import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
@@ -96,8 +97,13 @@ public class JettyServerTest {
         .args(ThreadPool.class)
         .build(unit.get(QueuedThreadPool.class));
 
+    ContextHandler ctx = unit.constructor(ContextHandler.class)
+        .build();
+    ctx.setContextPath("/");
+    ctx.setHandler(isA(JettyHandler.class));
+
     server.setStopAtShutdown(false);
-    server.setHandler(isA(JettyHandler.class));
+    server.setHandler(ctx);
     server.start();
     server.join();
     server.stop();
@@ -185,7 +191,8 @@ public class JettyServerTest {
         .expect(wsPolicy)
         .expect(wsFactory)
         .run(unit -> {
-          JettyServer server = new JettyServer(unit.get(HttpHandler.class), config, unit.get(Provider.class));
+          JettyServer server = new JettyServer(unit.get(HttpHandler.class), config,
+              unit.get(Provider.class));
 
           server.start();
           server.join();

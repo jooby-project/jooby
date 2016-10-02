@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -181,8 +182,9 @@ public class ServletServletRequest implements NativeRequest {
   }
 
   @Override
-  public void startAsync() {
+  public void startAsync(final Executor executor, final Runnable runnable) {
     req.startAsync();
+    executor.execute(runnable);
   }
 
   private static boolean multipart(final HttpServletRequest req) {

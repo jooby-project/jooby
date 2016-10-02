@@ -27,6 +27,7 @@ import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -222,9 +223,12 @@ public class NettyRequest implements NativeRequest {
   }
 
   @Override
-  public void startAsync() {
-    ctx.channel().attr(NEED_FLUSH).set(false);
-    ctx.channel().attr(ASYNC).set(true);
+  public void startAsync(final Executor executor, final Runnable runnable) {
+    Channel channel = ctx.channel();
+    channel.attr(NEED_FLUSH).set(false);
+    channel.attr(ASYNC).set(true);
+
+    executor.execute(runnable);
   }
 
   private org.jooby.Cookie cookie(final Cookie c) {

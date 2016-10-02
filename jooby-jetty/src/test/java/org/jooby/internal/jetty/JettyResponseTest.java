@@ -16,6 +16,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
 import javax.servlet.AsyncContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.jetty.server.HttpOutput;
 import org.eclipse.jetty.server.Request;
@@ -41,7 +42,10 @@ public class JettyResponseTest {
 
   private MockUnit.Block startAsync = unit -> {
     ServletServletRequest request = unit.get(ServletServletRequest.class);
-    request.startAsync();
+    HttpServletRequest req = unit.mock(HttpServletRequest.class);
+    expect(req.isAsyncStarted()).andReturn(false);
+    expect(req.startAsync()).andReturn(unit.get(AsyncContext.class));
+    expect(request.servletRequest()).andReturn(req);
   };
 
   private MockUnit.Block asyncStarted = unit -> {
@@ -78,7 +82,7 @@ public class JettyResponseTest {
         .run(unit -> {
           new JettyResponse(unit.get(ServletServletRequest.class), unit.get(Response.class))
               .send(bytes);
-        } , unit -> {
+        }, unit -> {
           assertArrayEquals(bytes, unit.captured(ByteBuffer.class).iterator().next().array());
         });
   }
@@ -122,6 +126,36 @@ public class JettyResponseTest {
             .run(unit -> {
               new JettyResponse(unit.get(ServletServletRequest.class), unit.get(Response.class))
                   .send(unit.get(InputStream.class));
+            });
+  }
+
+  @Test
+  public void sendInputStreamAsyncStarted() throws Exception {
+    new MockUnit(ServletServletRequest.class, Request.class, Response.class, HttpOutput.class,
+        InputStream.class, AsyncContext.class)
+            .expect(servletRequest)
+            .expect(unit -> {
+              unit.mockStatic(Channels.class);
+              ReadableByteChannel channel = unit.mock(ReadableByteChannel.class);
+              expect(Channels.newChannel(unit.get(InputStream.class))).andReturn(channel);
+
+              HttpOutput output = unit.get(HttpOutput.class);
+              output.sendContent(eq(channel), isA(JettyResponse.class));
+
+              Response rsp = unit.get(Response.class);
+              expect(rsp.getHttpOutput()).andReturn(output);
+            })
+            .expect(unit -> {
+              ServletServletRequest request = unit.get(ServletServletRequest.class);
+              HttpServletRequest req = unit.mock(HttpServletRequest.class);
+              expect(req.isAsyncStarted()).andReturn(true);
+              expect(request.servletRequest()).andReturn(req);
+            })
+            .run(unit -> {
+              JettyResponse rsp = new JettyResponse(unit.get(ServletServletRequest.class),
+                  unit.get(Response.class));
+              rsp.send(unit.get(InputStream.class));
+              rsp.end();
             });
   }
 
@@ -320,7 +354,7 @@ public class JettyResponseTest {
       @Override
       public long transferTo(final long position, final long count,
           final WritableByteChannel target)
-              throws IOException {
+          throws IOException {
         return 0;
       }
 

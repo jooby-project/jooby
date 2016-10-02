@@ -39,6 +39,7 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.websocket.api.WebSocketBehavior;
@@ -116,8 +117,13 @@ public class JettyServer implements org.jooby.spi.Server {
       return ws;
     });
 
-    server.setHandler(new JettyHandler(handler, webSocketServerFactory, conf
+    ContextHandler sch = new ContextHandler();
+    // always '/' context path is internally handle by jooby
+    sch.setContextPath("/");
+    sch.setHandler(new JettyHandler(handler, webSocketServerFactory, conf
         .getString("application.tmpdir"), conf.getBytes("jetty.FileSizeThreshold").intValue()));
+
+    server.setHandler(sch);
 
     return server;
   }

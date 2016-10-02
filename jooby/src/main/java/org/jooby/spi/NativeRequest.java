@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 
 import org.jooby.Cookie;
 
@@ -136,7 +137,7 @@ public interface NativeRequest {
   /**
    * Put the request in async mode.
    */
-  void startAsync();
+  void startAsync(Executor executor, Runnable runnable);
 
   default void push(final String method, final String path, final Map<String, Object> headers)
       throws Exception {
