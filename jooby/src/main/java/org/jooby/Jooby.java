@@ -3648,6 +3648,9 @@ public class Jooby implements Routes, LifeCycle, Registry {
 
     Logger log = logger(this);
 
+    // inject class
+    injector.injectMembers(this);
+
     // start services
     for (CheckedConsumer<Registry> onStart : this.onStart) {
       onStart.accept(this);

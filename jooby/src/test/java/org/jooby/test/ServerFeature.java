@@ -4,9 +4,6 @@ import static com.google.common.base.Preconditions.checkState;
 
 import java.io.IOException;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.apache.http.client.utils.URIBuilder;
 import org.jooby.Jooby;
 import org.junit.Before;
@@ -20,12 +17,8 @@ public abstract class ServerFeature extends Jooby {
 
   public static boolean DEBUG = false;
 
-  @Named("port")
-  @Inject
   protected int port;
 
-  @Named("securePort")
-  @Inject
   protected int securePort;
 
   public static String protocol = "http";

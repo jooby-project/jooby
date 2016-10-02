@@ -523,6 +523,7 @@ public class JoobyTest {
     expect(injector.getInstance(Config.class)).andReturn(config);
     expect(injector.getInstance(Route.KEY)).andReturn(Collections.emptySet());
     expect(injector.getInstance(WebSocket.KEY)).andReturn(Collections.emptySet());
+    injector.injectMembers(isA(Jooby.class));
 
     AppPrinter printer = unit.constructor(AppPrinter.class)
         .args(Set.class, Set.class, Config.class)
@@ -580,6 +581,7 @@ public class JoobyTest {
               expect(injector.getInstance(Config.class)).andReturn(config);
               expect(injector.getInstance(Route.KEY)).andReturn(Collections.emptySet());
               expect(injector.getInstance(WebSocket.KEY)).andReturn(Collections.emptySet());
+              injector.injectMembers(isA(Jooby.class));
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.PRODUCTION), unit.capture(Module.class)))
@@ -988,6 +990,7 @@ public class JoobyTest {
               expect(injector.getInstance(Config.class)).andReturn(config);
               expect(injector.getInstance(Route.KEY)).andReturn(Collections.emptySet());
               expect(injector.getInstance(WebSocket.KEY)).andReturn(Collections.emptySet());
+              injector.injectMembers(isA(Jooby.class));
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
