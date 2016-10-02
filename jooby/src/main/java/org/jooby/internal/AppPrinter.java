@@ -28,7 +28,9 @@ import java.util.function.Function;
 
 import org.jooby.Route;
 import org.jooby.WebSocket;
+import org.slf4j.Logger;
 
+import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 
 public class AppPrinter {
@@ -58,6 +60,30 @@ public class AppPrinter {
     }
     http2 = conf.getBoolean("server.http2.enabled");
     h2cleartext = conf.getBoolean("server.http2.cleartext");
+  }
+
+  public void printConf(final Logger log, final Config conf) {
+    if (log.isDebugEnabled()) {
+      String desc = configTree(conf.origin().description());
+      log.debug("config tree:\n{}", desc);
+    }
+  }
+
+  private String configTree(final String description) {
+    return configTree(description.split(":\\s+\\d+,|,"), 0);
+  }
+
+  private String configTree(final String[] sources, final int i) {
+    if (i < sources.length) {
+      return new StringBuilder()
+          .append(Strings.padStart("", i, ' '))
+          .append("└── ")
+          .append(sources[i])
+          .append("\n")
+          .append(configTree(sources, i + 1))
+          .toString();
+    }
+    return "";
   }
 
   @Override

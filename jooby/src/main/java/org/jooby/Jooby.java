@@ -130,7 +130,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -3648,10 +3647,6 @@ public class Jooby implements Routes, LifeCycle, Registry {
     Config conf = injector.getInstance(Config.class);
 
     Logger log = logger(this);
-    if (log.isDebugEnabled()) {
-      String desc = configTree(conf.origin().description());
-      log.debug("config tree:\n{}", desc);
-    }
 
     // start services
     for (CheckedConsumer<Registry> onStart : this.onStart) {
@@ -3665,6 +3660,9 @@ public class Jooby implements Routes, LifeCycle, Registry {
       routeDefs.forEach(it -> it.map(mapper));
     }
 
+    AppPrinter printer = new AppPrinter(routeDefs, sockets, conf);
+    printer.printConf(log, conf);
+
     // Start server
     Server server = injector.getInstance(Server.class);
     String serverName = server.getClass().getSimpleName().replace("Server", "").toLowerCase();
@@ -3676,7 +3674,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
         conf.getString("application.env"),
         serverName,
         end - start,
-        new AppPrinter(routeDefs, sockets, conf));
+        printer);
 
     boolean join = conf.hasPath("server.join") ? conf.getBoolean("server.join") : true;
     if (join) {
@@ -4057,23 +4055,6 @@ public class Jooby implements Routes, LifeCycle, Registry {
     }
     String filename = jsargs.length > 0 ? jsargs[0] : "app.js";
     run(new JsJooby().run(new File(filename)), args);
-  }
-
-  private String configTree(final String description) {
-    return configTree(description.split(":\\s+\\d+,|,"), 0);
-  }
-
-  private String configTree(final String[] sources, final int i) {
-    if (i < sources.length) {
-      return new StringBuilder()
-          .append(Strings.padStart("", i, ' '))
-          .append("└── ")
-          .append(sources[i])
-          .append("\n")
-          .append(configTree(sources, i + 1))
-          .toString();
-    }
-    return "";
   }
 
   private static List<Object> normalize(final List<Object> services, final Env env,

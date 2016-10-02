@@ -88,7 +88,6 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigOrigin;
 import com.typesafe.config.ConfigValueFactory;
 
 import javaslang.control.Try.CheckedRunnable;
@@ -510,24 +509,25 @@ public class JoobyTest {
     expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
     // ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
-    // expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+    // expect(configOrigin.description()).andReturn("test.conf, mock.conf").times(0, 1);
 
     Config config = unit.mock(Config.class);
     expect(config.getString("application.env")).andReturn("dev");
     expect(config.hasPath("server.join")).andReturn(true);
     expect(config.getBoolean("server.join")).andReturn(true);
     unit.registerMock(Config.class, config);
-    // expect(config.origin()).andReturn(configOrigin);
-
-    unit.constructor(AppPrinter.class)
-        .args(Set.class, Set.class, Config.class)
-        .build(isA(Set.class), isA(Set.class), isA(Config.class));
+    // expect(config.origin()).andReturn(configOrigin).times(0, 1);
 
     Injector injector = unit.mock(Injector.class);
     expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
     expect(injector.getInstance(Config.class)).andReturn(config);
     expect(injector.getInstance(Route.KEY)).andReturn(Collections.emptySet());
     expect(injector.getInstance(WebSocket.KEY)).andReturn(Collections.emptySet());
+
+    AppPrinter printer = unit.constructor(AppPrinter.class)
+        .args(Set.class, Set.class, Config.class)
+        .build(isA(Set.class), isA(Set.class), isA(Config.class));
+    printer.printConf(isA(Logger.class), eq(config));
 
     unit.mockStatic(Guice.class);
     expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class))).andReturn(
@@ -561,18 +561,19 @@ public class JoobyTest {
               Binder binder = unit.get(Binder.class);
               expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
-              unit.constructor(AppPrinter.class)
-                  .args(Set.class, Set.class, Config.class)
-                  .build(isA(Set.class), isA(Set.class), isA(Config.class));
-
               // ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
-              // expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+              // expect(configOrigin.description()).andReturn("test.conf, mock.conf").times(0, 1);
 
               Config config = unit.mock(Config.class);
               expect(config.getString("application.env")).andReturn("dev");
               expect(config.hasPath("server.join")).andReturn(true);
               expect(config.getBoolean("server.join")).andReturn(true);
-              // expect(config.origin()).andReturn(configOrigin);
+              // expect(config.origin()).andReturn(configOrigin).times(0, 1);
+
+              AppPrinter printer = unit.constructor(AppPrinter.class)
+                  .args(Set.class, Set.class, Config.class)
+                  .build(isA(Set.class), isA(Set.class), isA(Config.class));
+              printer.printConf(isA(Logger.class), eq(config));
 
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
@@ -650,59 +651,6 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(err).expect(executor("deferred"))
-        .run(unit -> {
-
-          Jooby jooby = new Jooby();
-
-          jooby.start();
-
-        }, boot);
-  }
-
-  @Test
-  public void logConfigTree() throws Exception {
-
-    new MockUnit(Binder.class)
-        .expect(guice)
-        .expect(shutdown)
-        .expect(config)
-        .expect(env)
-        .expect(classInfo)
-        .expect(ssl)
-        .expect(charset)
-        .expect(locale)
-        .expect(zoneId)
-        .expect(timeZone)
-        .expect(dateTimeFormatter)
-        .expect(numberFormat)
-        .expect(decimalFormat)
-        .expect(renderers)
-        .expect(session)
-        .expect(routes)
-        .expect(routeHandler)
-        .expect(params)
-        .expect(requestScope)
-        .expect(webSockets)
-        .expect(tmpdir)
-        .expect(err).expect(executor("deferred"))
-        .expect(unit -> {
-          Logger logger = unit.mock(Logger.class);
-          expect(logger.isDebugEnabled()).andReturn(true);
-          logger.debug("config tree:\n{}", "└── test.conf\n └──  mock.conf\n");
-          logger.info(isA(String.class), isA(Object.class), isA(Object.class), isA(Object.class),
-              isA(Object.class));
-          logger.info("Stopped");
-
-          unit.mockStatic(LoggerFactory.class);
-          expect(LoggerFactory.getLogger(Jooby.class)).andReturn(logger).times(2);
-          expect(LoggerFactory.getLogger(Err.class)).andReturn(logger);
-
-          ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
-          expect(configOrigin.description()).andReturn("test.conf, mock.conf");
-
-          Config config = unit.get(Config.class);
-          expect(config.origin()).andReturn(configOrigin);
-        })
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -1021,18 +969,19 @@ public class JoobyTest {
               Binder binder = unit.get(Binder.class);
               expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
-              unit.constructor(AppPrinter.class)
-                  .args(Set.class, Set.class, Config.class)
-                  .build(isA(Set.class), isA(Set.class), isA(Config.class));
-
               // ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
-              // expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+              // expect(configOrigin.description()).andReturn("test.conf, mock.conf").times(0, 1);
 
               Config config = unit.mock(Config.class);
               expect(config.getString("application.env")).andReturn("dev");
               expect(config.hasPath("server.join")).andReturn(true);
               expect(config.getBoolean("server.join")).andReturn(true);
-              // expect(config.origin()).andReturn(configOrigin);
+              // expect(config.origin()).andReturn(configOrigin).times(0, 1);
+
+              AppPrinter printer = unit.constructor(AppPrinter.class)
+                  .args(Set.class, Set.class, Config.class)
+                  .build(isA(Set.class), isA(Set.class), isA(Config.class));
+              printer.printConf(isA(Logger.class), eq(config));
 
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
