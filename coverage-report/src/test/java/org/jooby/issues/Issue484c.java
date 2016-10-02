@@ -38,7 +38,6 @@ public class Issue484c extends ServerFeature {
     request()
         .get("/484")
         .expect(rsp -> {
-          System.out.println(rsp);
           String[] threads = rsp.split(":");
           assertNotEquals(threads[0], threads[1]);
         });
@@ -46,7 +45,6 @@ public class Issue484c extends ServerFeature {
     request()
         .get("/484/promise")
         .expect(rsp -> {
-          System.out.println(rsp);
           String[] threads = rsp.split(":");
           assertNotEquals(threads[0], threads[1]);
         });
