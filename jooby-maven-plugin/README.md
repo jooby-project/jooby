@@ -40,7 +40,7 @@ It's worth to mention that dynamic reload of classes is done via [JBoss Modules]
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR7</version>
+  <version>1.0.0.CR8</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -64,6 +64,16 @@ It's worth to mention that dynamic reload of classes is done via [JBoss Modules]
 
 A [Maven 3+](http://maven.apache.org/) property that contains the fully qualified name of the ```main class```. **Required**.
 
+### fork
+
+Allows running the application in a separate JVM. If false it uses the JVM started by [Maven 3+](http://maven.apache.org/), while if true it will use a new JVM. Default is: ```false```.
+
+This property can be set from command line using the ```application.fork``` system property:
+
+```
+mvn jooby:run -Dapplication.fork=true
+```
+
 ### compiler
 
 The compiler is ```on``` by default, unless:
@@ -80,7 +90,7 @@ Compilation success or error messages are displayed in the console (not at the b
 
 ### debug
 
-The JVM is started in **debug mode by default**. You can attach a remote debugger at the ```8000``` port.
+Start the `JVM` in debug mode so you can attach a remote debugger at the ```8000``` port. Available when `fork = true`, otherwise is ignored. 
 
 This property can be one of these:
 
@@ -89,7 +99,7 @@ This property can be one of these:
 * ```int```: Turn on debug mode using the given number as debug port: ```<debug>8000</debug>```
 * ```string```: Turn on debug via ```string``` value, something like: **-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n**
 
-Finally this property can be set from command line using the ```application.debug``` system property:
+This property can be set from command line using the ```application.debug``` system property:
 
 ```
 mvn jooby:run -Dapplication.debug=9999
@@ -103,7 +113,7 @@ List of commands to execute before starting the ```application```. Useful for [n
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR7</version>
+  <version>1.0.0.CR8</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -116,10 +126,6 @@ List of commands to execute before starting the ```application```. Useful for [n
 
 All processes are stopped it on ```CTRL+C```
 
-### fork
-
-Allows running the application in a separate JVM. If false it uses the JVM started by [Maven 3+](http://maven.apache.org/), while if true it will use a new JVM. Default is: ```false```.
-
 ### vmArgs
 
 Set one or more ```JVM args```:
@@ -128,7 +134,7 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR7</version>
+  <version>1.0.0.CR8</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <fork>true</fork>

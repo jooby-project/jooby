@@ -18,7 +18,7 @@ Before start, make sure you already setup a database connection as described in 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbi</artifactId>
-  <version>1.0.0.CR7</version>
+  <version>1.0.0.CR8</version>
 </dependency>
 ```
 

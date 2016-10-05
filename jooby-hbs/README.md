@@ -13,7 +13,7 @@ Mustache/Handlebars templates for [Jooby](/).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-hbs</artifactId>
-  <version>1.0.0.CR7</version>
+  <version>1.0.0.CR8</version>
 </dependency>
 ```
 

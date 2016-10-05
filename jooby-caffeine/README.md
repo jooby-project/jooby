@@ -1,6 +1,6 @@
-# guava-cache
+# caffeine
 
-Provides cache solution and session storage via: <a href="https://github.com/google/guava">Guava</a>.
+Provides cache solution and session storage via: <a href="https://github.com/ben-manes/caffeine">Caffeine</a>.
 
 ## exports
 
@@ -11,7 +11,7 @@ Provides cache solution and session storage via: <a href="https://github.com/goo
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-guava-cache</artifactId>
+ <artifactId>jooby-caffeine-cache</artifactId>
  <version>1.0.0.CR8</version>
 </dependency>
 ```
@@ -21,10 +21,10 @@ Provides cache solution and session storage via: <a href="https://github.com/goo
 App.java:
 
 ```java
-import org.jooby.guava.GuavaCache;
+import org.jooby.caffeine.CaffeineCache;
 
 {
-  use(GuavaCache.newCache());
+  use(CaffeineCache.newCache());
 
   get("/", req -> {
 
@@ -35,35 +35,33 @@ import org.jooby.guava.GuavaCache;
 }
 ```
 
-## options 
+## options
 
 ### cache configuration
 
-A default cache will be created, if you need to control the number of entries, expire policy, etc... set the ```guava.cache``` property in ```application.conf```, like:
+A default cache will be created, if you need to control the number of entries, expire policy, etc... set the ```caffeine.cache``` property in ```application.conf```, like:
 
 ```
-guava.cache {
+caffeine.cache {
   maximumSize = 10
-
-  concurrencyLevel = 2
 }
 ```
 
-or via ```com.google.common.cache.CacheBuilderSpec``` syntax: 
+or via ```com.github.benmanes.caffeine.cache.CaffeineSpec``` syntax:
 
 ```
-guava.cache = "maximumSize=10,concurrencyLevel=2"
+caffeine.cache = "maximumSize=10"
 ```
 
 ### multiple caches
 
-Just add entries to: ```guava.```, like:
+Just add entries to: ```caffeine.```, like:
 
 ```
 # default cache (don't need a name on require calls)
-guava.cache = "maximumSize=10"
-guava.cache1 = "maximumSize=1"
-guava.cacheX = "maximumSize=100"
+caffeine.cache = "maximumSize=10"
+caffeine.cache1 = "maximumSize=1"
+caffeine.cacheX = "maximumSize=100"
 ```
 
 ```java
@@ -78,12 +76,12 @@ guava.cacheX = "maximumSize=100"
 
 ### type-safe caches
 
-Type safe caches are provided by calling and creating a new ```GuavaCache``` subclass:
+Type safe caches are provided by calling and creating a new ```CaffeineCache``` subclass:
 
 ```java
 {
   // please notes the {} at the line of the next line
-  use(new GuavaCache<Integer, String>() {});
+  use(new CaffeineCache<Integer, String>() {});
 }
 ```
 
@@ -96,26 +94,26 @@ public MyService(Cache<Integer, String> cache) {
 }
 ```
 
-# guava session store
+# caffeine session store
 
 ## usage
 
 This module comes with a ```Session.Store``` implementation. In order to use it you need to define a cache named ```session``` in your ```application.conf``` file:
 
 ```
-guava.session = "maximumSize=10"
+caffeine.session = "maximumSize=10"
 ```
 
-And set the ```GuavaSessionStore```: 
+And set the ```CaffeineSessionStore```:
 
 ```java
-import org.jooby.guava.GuavaCache;
-import org.jooby.guava.GuavaSessionStore;
+import org.jooby.caffeine.CaffeineCache;
+import org.jooby.caffeine.CaffeineSessionStore;
 
 {
-  use(GuavaCache.newCache());
+  use(CaffeineCache.newCache());
 
-  session(GuavaSessionStore.class);
+  session(CaffeineSessionStore.class);
 }
 ```
 
