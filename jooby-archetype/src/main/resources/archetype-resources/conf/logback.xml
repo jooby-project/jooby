@@ -11,6 +11,7 @@
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>logs/app.%d{yyyy-MM-dd}.log</fileNamePattern>
       <totalSizeCap>1mb</totalSizeCap>
+      <maxHistory>7</maxHistory>
     </rollingPolicy>
 
     <encoder>
@@ -23,6 +24,7 @@
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
       <fileNamePattern>log/access.%d{yyyy-MM-dd}.log</fileNamePattern>
       <totalSizeCap>1mb</totalSizeCap>
+      <maxHistory>7</maxHistory>
     </rollingPolicy>
 
     <encoder>
@@ -34,7 +36,7 @@
     <appender-ref ref="ACCESS" />
   </logger>
 
-  <root level="info">
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
   </root>
 </configuration>
