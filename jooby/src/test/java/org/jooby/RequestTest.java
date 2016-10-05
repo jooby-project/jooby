@@ -219,6 +219,11 @@ public class RequestTest {
       throw new UnsupportedOperationException();
     }
 
+    @Override
+    public long timestamp() {
+      throw new UnsupportedOperationException();
+    }
+
   }
 
   @Test

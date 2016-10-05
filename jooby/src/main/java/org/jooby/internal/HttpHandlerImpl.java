@@ -230,6 +230,8 @@ public class HttpHandlerImpl implements HttpHandler {
 
   @Override
   public void handle(final NativeRequest request, final NativeResponse response) throws Exception {
+    long start = System.currentTimeMillis();
+
     Map<String, Object> locals = new HashMap<>(16);
 
     Map<Object, Object> scope = new HashMap<>(16);
@@ -249,7 +251,7 @@ public class HttpHandlerImpl implements HttpHandler {
     Route notFound = RouteImpl.notFound(verb, path, MediaType.ALL);
 
     RequestImpl req = new RequestImpl(injector, request, contextPath, port, notFound, charset,
-        locale, scope, locals);
+        locale, scope, locals, start);
 
     ResponseImpl rsp = new ResponseImpl(req, parserExecutor, response, notFound, renderers,
         rendererMap, locals, req.charset(), request.header(REFERER));

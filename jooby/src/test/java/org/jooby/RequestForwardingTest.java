@@ -724,6 +724,19 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void timestamp() throws Exception {
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.timestamp()).andReturn(1L);
+        })
+        .run(unit -> {
+          assertEquals(1L,
+              new Request.Forwarding(unit.get(Request.class)).timestamp());
+        });
+  }
+
+  @Test
   public void flash() throws Exception {
     new MockUnit(Request.class, Map.class)
         .expect(unit -> {

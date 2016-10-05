@@ -136,9 +136,20 @@ public interface NativeRequest {
 
   /**
    * Put the request in async mode.
+   *
+   * @param executor Executor to use.
+   * @param runnable Task to run.
    */
   void startAsync(Executor executor, Runnable runnable);
 
+  /**
+   * Send push promise to the client.
+   *
+   * @param method HTTP method.
+   * @param path HTTP path.
+   * @param headers HTTP headers.
+   * @throws Exception If something goes wrong.
+   */
   default void push(final String method, final String path, final Map<String, Object> headers)
       throws Exception {
     upgrade(NativePushPromise.class).push(method, path, headers);

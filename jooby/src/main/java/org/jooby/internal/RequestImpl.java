@@ -91,9 +91,11 @@ public class RequestImpl implements Request {
 
   private List<Locale> locales;
 
+  private long timestamp;
+
   public RequestImpl(final Injector injector, final NativeRequest req, final String contextPath,
       final int port, final Route route, final Charset charset, final List<Locale> locale,
-      final Map<Object, Object> scope, final Map<String, Object> locals) {
+      final Map<Object, Object> scope, final Map<String, Object> locals, final long timestamp) {
     this.injector = injector;
     this.req = req;
     this.route = route;
@@ -117,6 +119,7 @@ public class RequestImpl implements Request {
     this.charset = cs != null ? Charset.forName(cs) : charset;
 
     this.files = new ArrayList<>();
+    this.timestamp = timestamp;
   }
 
   @Override
@@ -464,6 +467,11 @@ public class RequestImpl implements Request {
         file.delete();
       }
     }
+  }
+
+  @Override
+  public long timestamp() {
+    return timestamp;
   }
 
   private Session setSession(final SessionManager sm, final Response rsp, final Session gsession) {

@@ -449,6 +449,7 @@ public interface Env extends LifeCycle {
   /**
    * Get or chain the required xss functions.
    *
+   * @param xss XSS to combine.
    * @return Chain of required xss functions.
    */
   default Function<String, String> xss(final String... xss) {

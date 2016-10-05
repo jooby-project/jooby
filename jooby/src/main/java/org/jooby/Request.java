@@ -384,6 +384,11 @@ public interface Request extends Registry {
     }
 
     @Override
+    public long timestamp() {
+      return req.timestamp();
+    }
+
+    @Override
     public String toString() {
       return req.toString();
     }
@@ -427,6 +432,7 @@ public interface Request extends Registry {
    *  http://domain.com/404<h1>X</h1> {@literal ->} /404%3Ch1%3EX%3C/h1%3E
    * }</pre>
    *
+   * @param escape True if we want to escape this path.
    * @return The request URL pathname.
    */
   default String path(final boolean escape) {
@@ -1108,4 +1114,12 @@ public interface Request extends Registry {
    * @return This request.
    */
   Request push(final String path, final Map<String, Object> headers);
+
+  /**
+   * Request timestamp.
+   *
+   * @return The time that the request was received.
+   */
+  long timestamp();
+
 }

@@ -4017,6 +4017,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
    *
    * The {@link ExecutorService} will automatically shutdown.
    *
+   * @param name Name of the executor.
    * @param executor Executor to use.
    * @return This jooby instance.
    */

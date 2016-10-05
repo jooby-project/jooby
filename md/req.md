@@ -446,3 +446,120 @@ get("/", req -> {
   A a = req.require(A.class);
 });
 ```
+
+## access log
+
+Log all the matched incoming requested using the <a href="https://en.wikipedia.org/wiki/Common_Log_Format">NCSA format</a> (a.k.a common log format).
+
+### usage
+
+```java
+{
+  use("*", new RequestLog());
+
+  ...
+}
+```
+
+Output looks like:
+
+```
+127.0.0.1 - - [04/Oct/2016:17:51:42 +0000] "GET / HTTP/1.1" 200 2
+```
+
+You probably want to configure the ```RequestLog``` logger to save output into a new file:
+
+```xml
+<appender name="ACCESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+  <file>access.log</file>
+
+  <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+    <fileNamePattern>access.%d{yyyy-MM-dd}.log</fileNamePattern>
+  </rollingPolicy>
+
+  <encoder>
+    <pattern>%msg%n</pattern>
+  </encoder>
+</appender>
+
+<logger name="org.jooby.RequestLogger" additivity="false">
+  <appender-ref ref="ACCESS" />
+
+</logger>
+```
+
+Due that authentication is provided via module or custom filter, there is no concept of logged/authenticated user. Still you can log the current user by setting an user id provider at construction time:
+
+```java
+{
+  use("*", (req, rsp) -> {
+
+    // authenticate user and set local attribute
+    String userId = ...;
+    req.set("userId", userId);
+  });
+
+  use("*", new RequestLogger(req -> {
+    return req.get("userId");
+  }));
+
+}
+```
+
+Here an application filter set an ```userId``` request attribute and then we provide that ```userId``` to {@link RequestLogger}.
+
+### custom log function
+
+By default it uses the underlying logging system: <a href="http://logback.qos.ch">logback</a>. That's why we previously show how to configure the ```org.jooby.RequestLogger``` in ```logback.xml```.
+
+If you want to log somewhere else and/or use a different technology then:
+
+```java
+{
+  use("*", new ResponseLogger()
+    .log(line -> {
+      System.out.println(line);
+    }));
+}
+```
+
+This is just an example but of course you can log the ```NCSA``` line to database, jms queue, etc...
+
+### latency
+
+```java
+{
+  use("*", new RequestLogger()
+      .latency());
+}
+```
+
+It add a new entry at the last of the ```NCSA``` output that represents the number of ```ms``` it took to process the incoming release.
+
+### extended
+
+Extend the ```NCSA``` by adding the ```Referer``` and ```User-Agent``` headers to the output.
+
+### dateFormatter
+
+```java
+{
+  use("*", new RequestLogger()
+      .dateFormatter(ts -> ...));
+
+  // OR
+  use("*", new RequestLogger()
+      .dateFormatter(DateTimeFormatter...));
+}
+```
+
+Override, the default formatter for the request arrival time defined by: [Request#timestamp()]({{defdocs}}/Request.html#timestamp----). You can provide a function or an instance of `DateTimeFormatter`.
+
+The default formatter use the default server time zone, provided by `ZoneId#systemDefault()`. It's possible to just override the time zone (not the entirely formatter) too:
+
+```java
+{
+  use("*", new RequestLogger()
+     .dateFormatter(ZoneId.of("UTC"));
+}
+```
