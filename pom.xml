@@ -2438,7 +2438,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <javassist.version>3.20.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
     <slf4j-api.version>1.7.7</slf4j-api.version>
-    <logback-classic.version>1.1.2</logback-classic.version>
+    <logback-classic.version>1.1.7</logback-classic.version>
     <caffeine.version>2.3.3</caffeine.version>
     <guava.version>19.0</guava.version>
     <guice.version>4.1.0</guice.version>
