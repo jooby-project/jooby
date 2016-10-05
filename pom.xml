@@ -2446,7 +2446,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <handlebars.version>4.0.5</handlebars.version>
     <h2.version>1.4.190</h2.version>
     <mysql-connector-java.version>5.1.38</mysql-connector-java.version>
-    <hikariCP.version>2.4.5</hikariCP.version>
+    <hikariCP.version>2.5.1</hikariCP.version>
     <hibernate.version>5.2.1.Final</hibernate.version>
     <hibernate4.version>4.3.9.Final</hibernate4.version>
     <jsr305.version>3.0.0</jsr305.version>
