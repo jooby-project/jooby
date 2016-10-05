@@ -4160,7 +4160,7 @@ public class Jooby implements Routes, LifeCycle, Registry {
       throw new IllegalStateException("Required property 'application.secret' is missing");
     }
 
-    /** executors .*/
+    /** executors . */
     if (executors.isEmpty()) {
       // default executor
       executor(MoreExecutors.newDirectExecutorService());
@@ -4454,6 +4454,15 @@ public class Jooby implements Routes, LifeCycle, Registry {
    */
   public void stop() {
     stop(Optional.empty());
+  }
+
+  /**
+   * Test if the application is up and running.
+   *
+   * @return True if the application is up and running.
+   */
+  public boolean isStarted() {
+    return started.get();
   }
 
   private void stop(final Optional<Throwable> x) {
