@@ -101,6 +101,7 @@
         <li> <a href="#jetty-exports">exports</a></li> 
         <li> <a href="#jetty-dependency">dependency</a></li> 
         <li> <a href="#jetty-usage">usage</a></li> 
+        <li> <a href="#jetty-http-">http/2</a></li> 
         <li> <a href="#jetty-server-conf">server.conf</a></li>
        </ul></li> 
      </ul> 
@@ -124,12 +125,24 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jetty<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR7<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
        <h3 id="jetty-usage">usage</h3> 
        <p>In order to use a web server all you have to do is add the dependency to your build system. <a href="http://jooby.org">Jooby</a> will find the server and start it.</p> 
+       <h3 id="jetty-http-">http/2</h3> 
+       <p><code class="highlighter-rouge codehilite">HTTP/2</code> is fully supported:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>| H2        | H2C           | PUSH  |
+| --------- | ------------- | ----- |
+| Yes       | Yes           | Yes   |
+</code></pre> 
+       </div> 
+       <p>You need to add <code class="highlighter-rouge codehilite">alpn-boot</code> to the <code class="highlighter-rouge codehilite">JVM bootstrap</code> path. See <a href="https://www.eclipse.org/jetty/documentation/9.3.x/http2.html" target="_blank">Jetty HTTP2</a> documentation.</p> 
        <h3 id="jetty-server-conf">server.conf</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -137,6 +150,8 @@
         </div> 
         <pre class="highlight"><code><span class="c"># jetty defaults </span>
 <span class="py">server.module</span> <span class="p">=</span> <span class="s">org.jooby.jetty.Jetty</span>
+
+<span class="py">server.http2.cleartext</span> <span class="p">=</span> <span class="s">true</span>
 
 <span class="err">jetty</span> <span class="err">{</span>
 
@@ -152,6 +167,8 @@
 
   <span class="err">}</span>
 
+  <span class="py">FileSizeThreshold</span> <span class="p">=</span> <span class="s">16k</span>
+
   <span class="err">http</span> <span class="err">{</span>
 
     <span class="py">HeaderCacheSize</span> <span class="p">=</span> <span class="s">${server.http.HeaderSize}</span>
@@ -161,8 +178,6 @@
     <span class="py">ResponseHeaderSize</span> <span class="p">=</span> <span class="s">${server.http.HeaderSize}</span>
 
     <span class="py">OutputBufferSize</span> <span class="p">=</span> <span class="s">${server.http.ResponseBufferSize}</span>
-
-    <span class="py">FileSizeThreshold</span> <span class="p">=</span> <span class="s">16k</span>
 
     <span class="py">SendServerVersion</span> <span class="p">=</span> <span class="s">false</span>
 

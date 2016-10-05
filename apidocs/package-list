@@ -3,9 +3,11 @@ org.jooby.akka
 org.jooby.assets
 org.jooby.aws
 org.jooby.banner
+org.jooby.caffeine
 org.jooby.camel
 org.jooby.cassandra
 org.jooby.couchbase
+org.jooby.csl
 org.jooby.ebean
 org.jooby.ehcache
 org.jooby.elasticsearch
@@ -39,12 +41,14 @@ org.jooby.raml
 org.jooby.reactor
 org.jooby.run
 org.jooby.rx
+org.jooby.scanner
 org.jooby.scope
 org.jooby.servlet
 org.jooby.sitemap
 org.jooby.spec
 org.jooby.spi
 org.jooby.swagger
+org.jooby.unbescape
 org.jooby.undertow
 org.jooby.whoops
 org.skife.jdbi.v2

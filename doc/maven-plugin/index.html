@@ -153,7 +153,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR7<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
@@ -175,6 +175,16 @@ listening on:
        </div> 
        <h4 id="jooby-run--application-class-">${application.class}</h4> 
        <p>A <a href="http://maven.apache.org/" target="_blank">Maven 3+</a> property that contains the fully qualified name of the <code class="highlighter-rouge codehilite">main class</code>. <strong>Required</strong>.</p> 
+       <h4 id="jooby-run-fork">fork</h4> 
+       <p>Allows running the application in a separate JVM. If false it uses the JVM started by <a href="http://maven.apache.org/" target="_blank">Maven 3+</a>, while if true it will use a new JVM. Default is: <code class="highlighter-rouge codehilite">false</code>.</p> 
+       <p>This property can be set from command line using the <code class="highlighter-rouge codehilite">application.fork</code> system property:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>mvn jooby:run -Dapplication.fork=true
+</code></pre> 
+       </div> 
        <h4 id="jooby-run-compiler">compiler</h4> 
        <p>The compiler is <code class="highlighter-rouge codehilite">on</code> by default, unless:</p> 
        <ul> 
@@ -185,7 +195,7 @@ listening on:
        <p>On compilation error, the application won’t reload.</p> 
        <p>Compilation success or error messages are displayed in the console (not at the browser).</p> 
        <h4 id="jooby-run-debug">debug</h4> 
-       <p>The JVM is started in <strong>debug mode by default</strong>. You can attach a remote debugger at the <code class="highlighter-rouge codehilite">8000</code> port.</p> 
+       <p>Start the <code class="highlighter-rouge codehilite">JVM</code> in debug mode so you can attach a remote debugger at the <code class="highlighter-rouge codehilite">8000</code> port. Available when <code class="highlighter-rouge codehilite">fork = true</code>, otherwise is ignored.</p> 
        <p>This property can be one of these:</p> 
        <ul> 
         <li><code class="highlighter-rouge codehilite">true</code>: Turn on debug mode using: <strong>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</strong></li> 
@@ -193,7 +203,7 @@ listening on:
         <li><code class="highlighter-rouge codehilite">int</code>: Turn on debug mode using the given number as debug port: <code class="highlighter-rouge codehilite">&lt;debug&gt;8000&lt;/debug&gt;</code></li> 
         <li><code class="highlighter-rouge codehilite">string</code>: Turn on debug via <code class="highlighter-rouge codehilite">string</code> value, something like: <strong>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</strong></li> 
        </ul> 
-       <p>Finally this property can be set from command line using the <code class="highlighter-rouge codehilite">application.debug</code> system property:</p> 
+       <p>This property can be set from command line using the <code class="highlighter-rouge codehilite">application.debug</code> system property:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -210,7 +220,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR7<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
@@ -222,8 +232,6 @@ listening on:
 </code></pre> 
        </div> 
        <p>All processes are stopped it on <code class="highlighter-rouge codehilite">CTRL+C</code></p> 
-       <h4 id="jooby-run-fork">fork</h4> 
-       <p>Allows running the application in a separate JVM. If false it uses the JVM started by <a href="http://maven.apache.org/" target="_blank">Maven 3+</a>, while if true it will use a new JVM. Default is: <code class="highlighter-rouge codehilite">false</code>.</p> 
        <h4 id="jooby-run-vmArgs">vmArgs</h4> 
        <p>Set one or more <code class="highlighter-rouge codehilite">JVM args</code>:</p> 
        <div class="highlighter-rouge codehilite">
@@ -233,7 +241,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR7<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;fork&gt;</span>true<span class="nt">&lt;/fork&gt;</span>

@@ -101,6 +101,7 @@
         <li> <a href="#netty-exports">exports</a></li> 
         <li> <a href="#netty-dependency">dependency</a></li> 
         <li> <a href="#netty-usage">usage</a></li> 
+        <li> <a href="#netty-http-">http/2</a></li> 
         <li> <a href="#netty-server-conf">server.conf</a></li>
        </ul></li> 
      </ul> 
@@ -124,12 +125,23 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-netty<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR7<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
        <h3 id="netty-usage">usage</h3> 
        <p>In order to use a web server all you have to do is add the dependency to your build system. <a href="http://jooby.org">Jooby</a> will find the server and start it.</p> 
+       <h3 id="netty-http-">http/2</h3> 
+       <p><code class="highlighter-rouge codehilite">HTTP/2</code> is fully supported:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>| H2        | H2C           | PUSH  |
+| --------- | ------------- | ----- |
+| Yes       | Yes           | Yes   |
+</code></pre> 
+       </div> 
        <h3 id="netty-server-conf">server.conf</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -137,6 +149,8 @@
         </div> 
         <pre class="highlight"><code><span class="c"># netty defaults </span>
 <span class="py">server.module</span> <span class="p">=</span> <span class="s">org.jooby.netty.Netty</span>
+
+<span class="py">server.http2.cleartext</span> <span class="p">=</span> <span class="s">true</span>
 
 <span class="err">netty</span> <span class="err">{</span>
 
@@ -162,7 +176,9 @@
 
     <span class="py">Name</span> <span class="p">=</span> <span class="s">netty task</span>
 
-    <span class="py">Parent</span> <span class="p">=</span> <span class="s">${runtime.processors-x2}</span>
+    <span class="py">Boss</span> <span class="p">=</span> <span class="s">1</span>
+
+    <span class="py">Worker</span> <span class="p">=</span> <span class="s">${runtime.processors-x2}</span>
 
   <span class="err">}</span>
 
@@ -172,7 +188,7 @@
 
   <span class="err">}</span>
 
-  <span class="err">child</span> <span class="err">{</span>
+  <span class="err">worker</span> <span class="err">{</span>
 
     <span class="err">options</span> <span class="err">{</span>
 

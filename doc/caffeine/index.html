@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>jooby: caffeine module</title> 
+  <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, caffeine"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <link rel="canonical" href="#"> 
+  <link rel="publisher" href="#"> 
+  <meta name="robots" content="robots.txt"> 
+  <meta name="og:title" content="jooby: caffeine module"> 
+  <meta name="og:description" content="Provides cache solution and session storage via: Caffeine"> 
+  <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    --> 
+  <meta name="og:type" content="website"> 
+  <meta name="og:url" content="http://jooby.org"> 
+  <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    --> 
+  <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg"> 
+  <meta name="og:site_name" content="jooby: caffeine module"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:title" content="jooby: caffeine module"> 
+  <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    --> 
+  <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg"> 
+  <meta name="twitter:site" content="@joobyproject"> 
+  <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
+  <meta name="twitter:domain" content="http://jooby.org"> 
+  <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
+  <meta name="twitter:description" content="Provides cache solution and session storage via: Caffeine"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180"> 
+  <link href="/resources/images/apps/favicon.ico" rel="shortcut icon"> 
+  <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png"> 
+  <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png"> 
+  <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png"> 
+  <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png"> 
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700"> 
+  <link rel="stylesheet" href="/resources/styles/application.css"> 
+  <link rel="stylesheet" href="/resources/styles/github.css"> 
+  <link rel="stylesheet" href="/resources/styles/devices.css"> 
+  <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+ </head> 
+ <body class="page-section page-sidebar"> 
+  <header class="site-header"> 
+   <div class="row">
+    <a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a>
+    <a class="show-mobile open-menu"><span></span></a> 
+    <nav class="site-nav"> 
+     <ul> 
+      <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
+      <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/modules" title="Modules">MODULES</a></li> 
+      <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
+      <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
+      <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li> 
+     </ul> 
+    </nav> 
+   </div> 
+  </header> 
+  <main role="main" class="site-content"> 
+   <div class="section-title"> 
+    <div class="row"> 
+     <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
+     <h1>caffeine</h1> 
+    </div> 
+   </div> 
+   <div class="row"> 
+    <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
+     <div class="show-mobile menu-open">
+      caffeine
+     </div> 
+     <ul> 
+      <li class="active"> <a href="#caffeine">caffeine</a>
+       <ul> 
+        <li> <a href="#caffeine-exports">exports</a></li> 
+        <li> <a href="#caffeine-dependency">dependency</a></li> 
+        <li> <a href="#caffeine-usage">usage</a></li> 
+        <li> <a href="#caffeine-options">options</a></li>
+       </ul></li> 
+      <li class=""> <a href="#caffeine-session-store">caffeine session store</a>
+       <ul> 
+        <li> <a href="#caffeine-session-store-usage">usage</a></li>
+       </ul></li> 
+     </ul> 
+    </div> 
+    <div class="section-content"> 
+     <div class="datalist" id="caffeine"> 
+      <div class="datalist-title active"> 
+       <h2>caffeine</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Provides cache solution and session storage via: <a href="https://github.com/ben-manes/caffeine" target="_blank">Caffeine</a>.</p> 
+       <h3 id="caffeine-exports">exports</h3> 
+       <ul> 
+        <li><code class="highlighter-rouge codehilite">Cache</code></li> 
+       </ul> 
+       <h3 id="caffeine-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-caffeine-cache<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
+       <h3 id="caffeine-usage">usage</h3> 
+       <p>App.java:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.caffeine.CaffeineCache</span><span class="o">;</span>
+
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="n">CaffeineCache</span><span class="o">.</span><span class="na">newCache</span><span class="o">());</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">Cache</span> <span class="n">cache</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Cache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="c1">// do with cache...</span>
+  <span class="o">});</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="caffeine-options">options</h3> 
+       <h4 id="caffeine-cache-configuration">cache configuration</h4> 
+       <p>A default cache will be created, if you need to control the number of entries, expire policy, etc… set the <code class="highlighter-rouge codehilite">caffeine.cache</code> property in <code class="highlighter-rouge codehilite">application.conf</code>, like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>caffeine.cache {
+  maximumSize = 10
+}
+</code></pre> 
+       </div> 
+       <p>or via <code class="highlighter-rouge codehilite">com.github.benmanes.caffeine.cache.CaffeineSpec</code> syntax:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>caffeine.cache = "maximumSize=10"
+</code></pre> 
+       </div> 
+       <h4 id="caffeine-multiple-caches">multiple caches</h4> 
+       <p>Just add entries to: <code class="highlighter-rouge codehilite">caffeine.</code>, like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code># default cache (don't need a name on require calls)
+caffeine.cache = "maximumSize=10"
+caffeine.cache1 = "maximumSize=1"
+caffeine.cacheX = "maximumSize=100"
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Cache</span> <span class="n">defcache</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Cache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Cache</span> <span class="n">cache1</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="s">"cache1"</span><span class="o">,</span> <span class="n">Cache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Cache</span> <span class="n">cacheX</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="s">"cacheX"</span><span class="o">,</span> <span class="n">Cache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="caffeine-type-safe-caches">type-safe caches</h4> 
+       <p>Type safe caches are provided by calling and creating a new <code class="highlighter-rouge codehilite">CaffeineCache</code> subclass:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="c1">// please notes the {} at the line of the next line</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">CaffeineCache</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;()</span> <span class="o">{});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Later, you can inject this cache in a type-safe manner:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@Inject</span>
+<span class="kd">public</span> <span class="nf">MyService</span><span class="p">(</span><span class="n">Cache</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">cache</span><span class="o">)</span> <span class="o">{</span>
+ <span class="o">...</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+      </div> 
+     </div> 
+     <div class="datalist" id="caffeine-session-store"> 
+      <div class="datalist-title "> 
+       <h2>caffeine session store</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <h3 id="caffeine-session-store-usage">usage</h3> 
+       <p>This module comes with a <code class="highlighter-rouge codehilite">Session.Store</code> implementation. In order to use it you need to define a cache named <code class="highlighter-rouge codehilite">session</code> in your <code class="highlighter-rouge codehilite">application.conf</code> file:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>caffeine.session = "maximumSize=10"
+</code></pre> 
+       </div> 
+       <p>And set the <code class="highlighter-rouge codehilite">CaffeineSessionStore</code>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.caffeine.CaffeineCache</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jooby.caffeine.CaffeineSessionStore</span><span class="o">;</span>
+
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="n">CaffeineCache</span><span class="o">.</span><span class="na">newCache</span><span class="o">());</span>
+
+  <span class="n">session</span><span class="o">(</span><span class="n">CaffeineSessionStore</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>You can access to the <code class="highlighter-rouge codehilite">session</code> via name:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Cache</span> <span class="n">cache</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="s">"session"</span><span class="o">,</span> <span class="n">Cache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+      </div> 
+     </div> 
+    </div> 
+   </div> 
+   <!-- AddToAny BEGIN --> 
+   <div class="row share-network"> 
+    <div class="section-content"> 
+     <h3>Share</h3> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/caffeine" data-a2a-title="Provides cache solution and session storage via: Caffeine"> 
+      <a class="a2a_button_twitter" data-text="Provides cache solution and session storage via: Caffeine"></a> 
+      <a class="a2a_button_reddit a2a_counter"></a> 
+      <a class="a2a_button_linkedin a2a_counter"></a> 
+      <a class="a2a_button_facebook a2a_counter"></a> 
+      <a class="a2a_button_google_plus a2a_counter"></a> 
+     </div> 
+    </div> 
+   </div> 
+   <script async src="https://static.addtoany.com/menu/page.js"></script> 
+   <!-- AddToAny END --> 
+  </main> 
+  <footer class="site-footer"> 
+   <div class="row"> 
+    <p class="pull-left">©2014-2016 <a href="https://twitter.com/joobyproject" target="_blank">The Jooby Project</a>, all rights reserved.</p> 
+    <div class="altquimia">
+     DG 
+     <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio
+    </div> 
+    <div class="follow-us pull-right"> 
+     <p>Follow us</p>
+     <a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a>
+     <a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a> 
+    </div> 
+   </div> 
+  </footer> 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
+  <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script> 
+  <script src="/resources/scripts/libs/swiper.min.js"></script> 
+  <script src="/resources/scripts/application.js"></script> 
+  <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script> 
+  <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>  
+ </body>
+</html>

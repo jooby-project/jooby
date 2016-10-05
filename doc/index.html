@@ -138,7 +138,8 @@
         <li> <a href="#request-file-upload">file upload</a></li> 
         <li> <a href="#request-locals">locals</a></li> 
         <li> <a href="#request-flash-scope">flash scope</a></li> 
-        <li> <a href="#request-require">require</a></li>
+        <li> <a href="#request-require">require</a></li> 
+        <li> <a href="#request-access-log">access log</a></li>
        </ul></li> 
       <li class=""> <a href="#response">response</a>
        <ul> 
@@ -171,6 +172,10 @@
         <li> <a href="#async-deferred">deferred</a></li> 
         <li> <a href="#async-RxJava-example">RxJava example</a></li>
        </ul></li> 
+      <li class=""> <a href="#http-">http/2</a>
+       <ul> 
+        <li> <a href="#http--server-push">server push</a></li>
+       </ul></li> 
       <li class=""> <a href="#server-sent-events">server-sent events</a>
        <ul> 
         <li> <a href="#server-sent-events-usage">usage</a></li> 
@@ -191,16 +196,21 @@
        <ul> 
         <li> <a href="#cors-usage">usage</a></li>
        </ul></li> 
+      <li class=""> <a href="#xss">xss</a>
+       <ul> 
+        <li> <a href="#xss-usage">usage</a></li> 
+        <li> <a href="#xss-modules">modules</a></li>
+       </ul></li> 
+      <li class=""> <a href="#https">https</a>
+       <ul> 
+        <li> <a href="#https-certificates">certificates</a></li>
+       </ul></li> 
       <li class=""> <a href="#javascript">javascript</a>
        <ul> 
         <li> <a href="#javascript-hello-world">hello world</a></li> 
         <li> <a href="#javascript-jooby-function">jooby function</a></li> 
         <li> <a href="#javascript-routes">routes</a></li> 
         <li> <a href="#javascript-running-a-javascript-app">running a javascript app</a></li>
-       </ul></li> 
-      <li class=""> <a href="#https">https</a>
-       <ul> 
-        <li> <a href="#https-certificates">certificates</a></li>
        </ul></li> 
       <li class=""> <a href="#jooby-conf">jooby.conf</a></li> 
       <li class=""> <a href="#mime-properties">mime.properties</a></li> 
@@ -754,6 +764,9 @@
 <span class="c1">// alternative syntax</span>
 <span class="n">get</span><span class="o">(</span><span class="s">"/user/{id}"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="s">"hey "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">value</span><span class="o">());</span>
 
+<span class="c1">// matches path element with prefix "uid"</span>
+<span class="n">get</span><span class="o">(</span><span class="s">"/user/uid{id}"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="s">"hey "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">value</span><span class="o">());</span>
+
 <span class="c1">// regex</span>
 <span class="n">get</span><span class="o">(</span><span class="s">"/user/{id:\\d+}"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="s">"hey "</span> <span class="o">+</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">());</span>
 </code></pre> 
@@ -765,6 +778,7 @@
        <p><code class="highlighter-rouge codehilite">com/**/test.html</code> - matches all <code class="highlighter-rouge codehilite">test.html</code> files underneath the <code class="highlighter-rouge codehilite">com</code> path</p> 
        <p><code class="highlighter-rouge codehilite">**</code> - matches any path at any level</p> 
        <p><code class="highlighter-rouge codehilite">*</code> - matches any path at any level, shortcut for <code class="highlighter-rouge codehilite">**</code></p> 
+       <p><code class="highlighter-rouge codehilite">**:name</code> or <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">name:**</span><span class="p">}</span></code> - matches any path at any level and binds the match to the request parameter <code class="highlighter-rouge codehilite">name</code></p> 
        <h3 id="routes-static-files">static files</h3> 
        <p>Static files are located inside the <code class="highlighter-rouge codehilite">public</code> directory.</p> 
        <div class="highlighter-rouge codehilite">
@@ -2227,6 +2241,129 @@ GET /assets/css/style.css
 <span class="o">});</span>
 </code></pre> 
        </div> 
+       <h3 id="request-access-log">access log</h3> 
+       <p>Log all the matched incoming requested using the <a href="https://en.wikipedia.org/wiki/Common_Log_Format" target="_blank">NCSA format</a> (a.k.a common log format).</p> 
+       <h4 id="request-usage">usage</h4> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="k">new</span> <span class="n">RequestLog</span><span class="o">());</span>
+
+  <span class="o">...</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Output looks like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>127.0.0.1 - - [04/Oct/2016:17:51:42 +0000] "GET / HTTP/1.1" 200 2
+</code></pre> 
+       </div> 
+       <p>You probably want to configure the <code class="highlighter-rouge codehilite">RequestLog</code> logger to save output into a new file:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">"ACCESS"</span> <span class="na">class=</span><span class="s">"ch.qos.logback.core.rolling.RollingFileAppender"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;file&gt;</span>access.log<span class="nt">&lt;/file&gt;</span>
+
+  <span class="nt">&lt;rollingPolicy</span> <span class="na">class=</span><span class="s">"ch.qos.logback.core.rolling.TimeBasedRollingPolicy"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;fileNamePattern&gt;</span>access.%d{yyyy-MM-dd}.log<span class="nt">&lt;/fileNamePattern&gt;</span>
+  <span class="nt">&lt;/rollingPolicy&gt;</span>
+
+  <span class="nt">&lt;encoder&gt;</span>
+    <span class="nt">&lt;pattern&gt;</span>%msg%n<span class="nt">&lt;/pattern&gt;</span>
+  <span class="nt">&lt;/encoder&gt;</span>
+<span class="nt">&lt;/appender&gt;</span>
+
+<span class="nt">&lt;logger</span> <span class="na">name=</span><span class="s">"org.jooby.RequestLogger"</span> <span class="na">additivity=</span><span class="s">"false"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">"ACCESS"</span> <span class="nt">/&gt;</span>
+
+<span class="nt">&lt;/logger&gt;</span>
+</code></pre> 
+       </div> 
+       <p>Due that authentication is provided via module or custom filter, there is no concept of logged/authenticated user. Still you can log the current user by setting an user id provider at construction time:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="c1">// authenticate user and set local attribute</span>
+    <span class="n">String</span> <span class="n">userId</span> <span class="o">=</span> <span class="o">...;</span>
+    <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"userId"</span><span class="o">,</span> <span class="n">userId</span><span class="o">);</span>
+  <span class="o">});</span>
+
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="k">new</span> <span class="n">RequestLogger</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">req</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"userId"</span><span class="o">);</span>
+  <span class="o">}));</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Here an application filter set an <code class="highlighter-rouge codehilite">userId</code> request attribute and then we provide that <code class="highlighter-rouge codehilite">userId</code> to {@link RequestLogger}.</p> 
+       <h4 id="request-custom-log-function">custom log function</h4> 
+       <p>By default it uses the underlying logging system: <a href="http://logback.qos.ch" target="_blank">logback</a>. That’s why we previously show how to configure the <code class="highlighter-rouge codehilite">org.jooby.RequestLogger</code> in <code class="highlighter-rouge codehilite">logback.xml</code>.</p> 
+       <p>If you want to log somewhere else and/or use a different technology then:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="k">new</span> <span class="n">ResponseLogger</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="n">line</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">line</span><span class="o">);</span>
+    <span class="o">}));</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>This is just an example but of course you can log the <code class="highlighter-rouge codehilite">NCSA</code> line to database, jms queue, etc…</p> 
+       <h4 id="request-latency">latency</h4> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="k">new</span> <span class="n">RequestLogger</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">latency</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>It add a new entry at the last of the <code class="highlighter-rouge codehilite">NCSA</code> output that represents the number of <code class="highlighter-rouge codehilite">ms</code> it took to process the incoming release.</p> 
+       <h4 id="request-extended">extended</h4> 
+       <p>Extend the <code class="highlighter-rouge codehilite">NCSA</code> by adding the <code class="highlighter-rouge codehilite">Referer</code> and <code class="highlighter-rouge codehilite">User-Agent</code> headers to the output.</p> 
+       <h4 id="request-dateFormatter">dateFormatter</h4> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="k">new</span> <span class="n">RequestLogger</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">dateFormatter</span><span class="o">(</span><span class="n">ts</span> <span class="o">-&gt;</span> <span class="o">...));</span>
+
+  <span class="c1">// OR</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="k">new</span> <span class="n">RequestLogger</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">dateFormatter</span><span class="o">(</span><span class="n">DateTimeFormatter</span><span class="o">...));</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Override, the default formatter for the request arrival time defined by: <a href="/apidocs/org/jooby/Request.html#timestamp----" target="_blank">Request#timestamp()</a>. You can provide a function or an instance of <code class="highlighter-rouge codehilite">DateTimeFormatter</code>.</p> 
+       <p>The default formatter use the default server time zone, provided by <code class="highlighter-rouge codehilite">ZoneId#systemDefault()</code>. It’s possible to just override the time zone (not the entirely formatter) too:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="k">new</span> <span class="n">RequestLogger</span><span class="o">()</span>
+     <span class="o">.</span><span class="na">dateFormatter</span><span class="o">(</span><span class="n">ZoneId</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">"UTC"</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
       </div> 
      </div> 
      <div class="datalist" id="response"> 
@@ -2902,6 +3039,75 @@ GET /assets/css/style.css
        </div> 
       </div> 
      </div> 
+     <div class="datalist" id="http-"> 
+      <div class="datalist-title "> 
+       <h2>http/2</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p><code class="highlighter-rouge codehilite">HTTP/2.0</code> is supported across the available <a href="/doc/servers">server implementations</a>. To enabled <code class="highlighter-rouge codehilite">HTTP/2.0</code> you need to set these properties:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>server.http2.enabled = true
+
+application.securePort = 8443
+</code></pre> 
+       </div> 
+       <p>Or programmatically like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="c1">// HTTP/2.0 clear text (a.k.a h2c)</span>
+  <span class="n">http2</span><span class="o">();</span>
+
+  <span class="c1">// HTTP/2.0 over TLS</span>
+  <span class="n">securePort</span><span class="o">(</span><span class="mi">8443</span><span class="o">);</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="n">req</span><span class="o">.</span><span class="na">protocol</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Browsers don’t support <code class="highlighter-rouge codehilite">H2C</code> (H2 clear text) so that’s why you might need to configure <a href="/doc/#https">HTTPS</a> too.</p> 
+       <p>At <code class="highlighter-rouge codehilite">bootstrap time</code> you will see a <code class="highlighter-rouge codehilite">+h2</code> flag that indicates that <code class="highlighter-rouge codehilite">HTTP/2.0</code> is enabled:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>   http://localhost:8080/ +h2
+   https://localhost:8443/ +h2
+</code></pre> 
+       </div> 
+       <p>Some servers require special configuration (beside <a href="/doc/#https">HTTPS</a>). So it’s always a good practice to check the <code class="highlighter-rouge codehilite">HTTP/2.0</code> section of the server implementation to learn more about current support, limitation and/or configuration steps.</p> 
+       <h3 id="http--server-push">server push</h3> 
+       <p>Server push is supported via <a href="/apidocs/org/jooby/Request.html#push-java.lang.String-" target="_blank">Request.push</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="c1">// HTTP/2.0 clear text (a.k.a h2c)</span>
+  <span class="n">http2</span><span class="o">();</span>
+
+  <span class="c1">// HTTP/2.0 over TLS</span>
+  <span class="n">securePort</span><span class="o">(</span><span class="mi">8443</span><span class="o">);</span>
+
+  <span class="n">assets</span><span class="o">(</span><span class="s">"/js/**"</span><span class="o">);</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+    <span class="n">req</span><span class="o">.</span><span class="na">push</span><span class="o">(</span><span class="s">"/js/home.js"</span><span class="o">);</span>
+
+    <span class="k">return</span> <span class="n">Results</span><span class="o">.</span><span class="na">html</span><span class="o">(</span><span class="s">"home"</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>When the <em>browser</em> request the <code class="highlighter-rouge codehilite">home</code> page, we will also send the <code class="highlighter-rouge codehilite">/js/home.js</code> resource too!!</p> 
+      </div> 
+     </div> 
      <div class="datalist" id="server-sent-events"> 
       <div class="datalist-title "> 
        <h2>server-sent events</h2> 
@@ -3163,9 +3369,7 @@ GET /assets/css/style.css
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-
   <span class="n">use</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="k">new</span> <span class="n">CorsHandler</span><span class="o">());</span>
-
 <span class="o">}</span>
 </code></pre> 
        </div> 
@@ -3206,6 +3410,135 @@ GET /assets/css/style.css
 </code></pre> 
        </div> 
        <p><code class="highlighter-rouge codehilite">CORS</code> options are represented at runtime by <a href="/apidocs/org/jooby/handlers/Cors.html" target="_blank">Cors</a>.</p> 
+      </div> 
+     </div> 
+     <div class="datalist" id="xss"> 
+      <div class="datalist-title "> 
+       <h2>xss</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p><a href="https://en.wikipedia.org/wiki/Cross-site_scripting" target="_blank">Cross-site scripting (XSS)</a> is a type of computer security vulnerability typically found in web applications. XSS enables attackers to inject client-side scripts into web pages viewed by other users.</p> 
+       <p><a href="http://jooby.org">Jooby</a> provides a few XSS escapers and a simple and flexible way to provide custom and/or more featured XSS escapers.</p> 
+       <p>Default XSS escapers are <code class="highlighter-rouge codehilite">urlFragment</code>, <code class="highlighter-rouge codehilite">formParam</code>, <code class="highlighter-rouge codehilite">pathSegment</code> and <code class="highlighter-rouge codehilite">html</code> all them from <a href="https://github.com/google/guava" target="_blank">Guava</a>.</p> 
+       <p>More advanced/featured escapers like <code class="highlighter-rouge codehilite">js</code>, <code class="highlighter-rouge codehilite">css</code>, <code class="highlighter-rouge codehilite">sql</code> are provided via <a href="/doc/security">modules</a>.</p> 
+       <h3 id="xss-usage">usage</h3> 
+       <p>There are a few way of using XSS escape functions:</p> 
+       <h4 id="xss-Applying-a-XSS-escaper-to-param-or-header-">Applying a XSS escaper to param or header:</h4> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">safeParam</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"input"</span><span class="o">,</span> <span class="s">"html"</span><span class="o">).</span><span class="na">value</span><span class="o">();</span>
+
+    <span class="n">String</span> <span class="n">safeHeader</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">"input"</span><span class="o">,</span> <span class="s">"html"</span><span class="o">).</span><span class="na">value</span><span class="o">();</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Here <code class="highlighter-rouge codehilite">input</code> is the <code class="highlighter-rouge codehilite">param/header</code> that you want to escape with the <code class="highlighter-rouge codehilite">html</code> escaper.</p> 
+       <h4 id="xss-Applying-multiple-XSS-escapers-">Applying multiple XSS escapers:</h4> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">safeInput</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"input"</span><span class="o">,</span> <span class="s">"urlFragment"</span><span class="o">,</span> <span class="s">"html"</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="xss-Applying-a-XSS-escaper-to-form-bean-">Applying a XSS escaper to form/bean:</h4> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">post</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">MyForm</span> <span class="n">form</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">params</span><span class="o">(</span><span class="s">"input"</span><span class="o">,</span> <span class="s">"html"</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h4 id="xss-Applying-a-XSS-escaper-from-template-engines">Applying a XSS escaper from template engines</h4> 
+       <p>Template engines usually provide a way to escape <code class="highlighter-rouge codehilite">HTML</code> (mainly) … still <a href="http://jooby.org">Jooby</a> integrates XSS escapers with the template engine of your choice:</p> 
+       <p><a href="/doc/hbs">handlebars</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="p">{</span><span class="err">{xss</span><span class="w"> </span><span class="err">input</span><span class="w"> </span><span class="nt">"js"</span><span class="w"> </span><span class="nt">"html"</span><span class="err">}}</span><span class="w"> </span></code></pre> 
+       </div> 
+       <p><a href="/doc/pebble">pebble</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="p">{</span><span class="err">{xss</span><span class="w"> </span><span class="err">(input,</span><span class="w"> </span><span class="nt">"js"</span><span class="err">,</span><span class="w"> </span><span class="nt">"html"</span><span class="err">)}}</span><span class="w"> </span></code></pre> 
+       </div> 
+       <p><a href="/doc/ftl">freemarker</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>${xss (input, "js", "html")}
+</code></pre> 
+       </div> 
+       <p><a href="/doc/jade">jade</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>p= xss.apply(input, "js", "html")
+</code></pre> 
+       </div> 
+       <h3 id="xss-modules">modules</h3> 
+       <ul> 
+        <li><a href="/doc/unbescape">unbescape</a>: XSS escapers via <a href="https://github.com/unbescape/unbescape" target="_blank">unbescape</a></li> 
+        <li><a href="/doc/csl">csl</a>: XSS escapers via <a href="https://github.com/coverity/coverity-security-library" target="_blank">coverity-security-library</a></li> 
+       </ul> 
+      </div> 
+     </div> 
+     <div class="datalist" id="https"> 
+      <div class="datalist-title "> 
+       <h2>https</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p><code class="highlighter-rouge codehilite">HTTPS</code> is supported too across the available <a href="/doc/servers">server implementations</a>. To enable <code class="highlighter-rouge codehilite">HTTPS</code>, you need to set:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="py">application.securePort</span> <span class="p">=</span> <span class="s">8443</span>
+</code></pre> 
+       </div> 
+       <p>Or programmatically like:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">securePort</span><span class="o">(</span><span class="mi">8443</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <h3 id="https-certificates">certificates</h3> 
+       <p><a href="http://jooby.org">Jooby</a> comes with a self-signed certificate, useful for development and test. But of course, you should NEVER use it in the real world.</p> 
+       <p>In order to setup HTTPS with a secure certificate, you need to set these properties:</p> 
+       <ul> 
+        <li><code class="highlighter-rouge codehilite">ssl.keystore.cert</code>: An X.509 certificate chain file in PEM format. It can be an absolute path or a classpath resource.</li> 
+        <li><code class="highlighter-rouge codehilite">ssl.keystore.key</code>: A PKCS#8 private key file in PEM format. It can be an absolute path or a classpath resource.</li> 
+       </ul> 
+       <p>Optionally, you can set these too:</p> 
+       <ul> 
+        <li><code class="highlighter-rouge codehilite">ssl.keystore.password</code>: Password of the keystore.key (if any). Default is: null/empty.</li> 
+        <li><code class="highlighter-rouge codehilite">ssl.trust.cert</code>: Trusted certificates for verifying the remote endpoint’s certificate. The file should contain an X.509 certificate chain in PEM format. Default uses the system default.</li> 
+        <li><code class="highlighter-rouge codehilite">ssl.session.cacheSize</code>: Set the size of the cache used for storing SSL session objects. 0 to use the default value.</li> 
+        <li><code class="highlighter-rouge codehilite">ssl.session.timeout</code>: Timeout for the cached SSL session objects, in seconds. 0 to use the default value.</li> 
+       </ul> 
+       <p>As you can see setup is very simple. All you need is your <code class="highlighter-rouge codehilite">.crt</code> and <code class="highlighter-rouge codehilite">.key</code> files.</p> 
       </div> 
      </div> 
      <div class="datalist" id="javascript"> 
@@ -3318,36 +3651,6 @@ GET /assets/css/style.css
        </ul> 
       </div> 
      </div> 
-     <div class="datalist" id="https"> 
-      <div class="datalist-title "> 
-       <h2>https</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <p><a href="http://jooby.org">Jooby</a> supports <code class="highlighter-rouge codehilite">HTTPS</code>. To enable this, you need to set:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="py">application.securePort</span> <span class="p">=</span> <span class="s">8443</span>
-</code></pre> 
-       </div> 
-       <h3 id="https-certificates">certificates</h3> 
-       <p><a href="http://jooby.org">Jooby</a> comes with a self-signed certificate, useful for development and test. But of course, you should NEVER use it in the real world.</p> 
-       <p>In order to setup HTTPS with a secure certificate, you need to set these properties:</p> 
-       <ul> 
-        <li><code class="highlighter-rouge codehilite">ssl.keystore.cert</code>: An X.509 certificate chain file in PEM format. It can be an absolute path or a classpath resource.</li> 
-        <li><code class="highlighter-rouge codehilite">ssl.keystore.key</code>: A PKCS#8 private key file in PEM format. It can be an absolute path or a classpath resource.</li> 
-       </ul> 
-       <p>Optionally, you can set these too:</p> 
-       <ul> 
-        <li><code class="highlighter-rouge codehilite">ssl.keystore.password</code>: Password of the keystore.key (if any). Default is: null/empty.</li> 
-        <li><code class="highlighter-rouge codehilite">ssl.trust.cert</code>: Trusted certificates for verifying the remote endpoint’s certificate. The file should contain an X.509 certificate chain in PEM format. Default uses the system default.</li> 
-        <li><code class="highlighter-rouge codehilite">ssl.session.cacheSize</code>: Set the size of the cache used for storing SSL session objects. 0 to use the default value.</li> 
-        <li><code class="highlighter-rouge codehilite">ssl.session.timeout</code>: Timeout for the cached SSL session objects, in seconds. 0 to use the default value.</li> 
-       </ul> 
-       <p>As you can see setup is very simple. All you need is your <code class="highlighter-rouge codehilite">.crt</code> and <code class="highlighter-rouge codehilite">.key</code> files.</p> 
-      </div> 
-     </div> 
      <div class="datalist" id="jooby-conf"> 
       <div class="datalist-title "> 
        <h2>jooby.conf</h2> 
@@ -3454,6 +3757,25 @@ GET /assets/css/style.css
 <span class="err">}</span>
 
 <span class="c">################################################################################################### </span>
+<span class="c">#! flash scope defaults </span>
+<span class="c">################################################################################################### </span>
+<span class="err">flash</span> <span class="err">{</span>
+
+  <span class="err">cookie</span> <span class="err">{</span>
+
+    <span class="py">name</span> <span class="p">=</span> <span class="s">jooby.flash</span>
+
+    <span class="py">path</span> <span class="p">=</span> <span class="s">${application.path}</span>
+
+    <span class="py">httpOnly</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">secure</span> <span class="p">=</span> <span class="s">false</span>
+
+  <span class="err">}</span>
+
+<span class="err">}</span>
+
+<span class="c">################################################################################################### </span>
 <span class="c">#! server defaults </span>
 <span class="c">################################################################################################### </span>
 <span class="err">server</span> <span class="err">{</span>
@@ -3465,6 +3787,10 @@ GET /assets/css/style.css
     <span class="c"># Max response buffer size </span>
     <span class="py">ResponseBufferSize</span> <span class="p">=</span> <span class="s">16k</span>
 
+    <span class="c"># Max request body size to keep in memory </span>
+    <span class="py">RequestBufferSize</span> <span class="p">=</span> <span class="s">1m</span>
+
+    <span class="c"># Max request size total (body + header) </span>
     <span class="py">MaxRequestSize</span> <span class="p">=</span> <span class="s">200k</span>
 
     <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">0</span>
@@ -3500,6 +3826,14 @@ GET /assets/css/style.css
 
     <span class="c"># The time in ms (milliseconds) that a websocket may be idle before closing. </span>
     <span class="py">IdleTimeout</span> <span class="p">=</span> <span class="s">5minutes</span>
+
+  <span class="err">}</span>
+
+  <span class="err">http2</span> <span class="err">{</span>
+
+    <span class="py">cleartext</span> <span class="p">=</span> <span class="s">true</span>
+
+    <span class="py">enabled</span> <span class="p">=</span> <span class="s">false</span>
 
   <span class="err">}</span>
 
