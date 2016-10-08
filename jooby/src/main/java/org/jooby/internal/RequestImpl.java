@@ -278,9 +278,6 @@ public class RequestImpl implements Request {
     long length = length();
     if (length > 0) {
       MediaType type = type();
-      if (!type.isAny() && (MediaType.form.matches(type) || MediaType.multipart.matches(type))) {
-        return params();
-      }
       Config conf = require(Config.class);
 
       File fbody = new File(conf.getString("application.tmpdir"),
@@ -289,9 +286,9 @@ public class RequestImpl implements Request {
       int bufferSize = conf.getBytes("server.http.RequestBufferSize").intValue();
       Parser.BodyReference body = new BodyReferenceImpl(length, charset(), fbody, req.in(),
           bufferSize);
-      return new MutantImpl(require(ParserExecutor.class), type(), body);
+      return new MutantImpl(require(ParserExecutor.class), type, body);
     }
-    return new MutantImpl(require(ParserExecutor.class), type(), new EmptyBodyReference());
+    return new MutantImpl(require(ParserExecutor.class), type, new EmptyBodyReference());
   }
 
   @Override

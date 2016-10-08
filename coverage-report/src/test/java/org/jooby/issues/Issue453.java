@@ -18,8 +18,12 @@ public class Issue453 extends ServerFeature {
       return req.header("text", "html").value();
     });
 
-    get("/453/escape-form", req -> {
+    get("/453/escape-params", req -> {
       return req.params(Form.class, req.param("xss").value("html")).text;
+    });
+
+    get("/453/escape-form", req -> {
+      return req.form(Form.class, req.param("xss").value("html")).text;
     });
 
     get("/453/to-escape-form", req -> {
@@ -47,6 +51,10 @@ public class Issue453 extends ServerFeature {
   public void escapeForm() throws Exception {
     request()
         .get("/453/escape-form?text=%3Ch1%3EX%3C/h1%3E")
+        .expect("&lt;h1&gt;X&lt;/h1&gt;");
+
+    request()
+        .get("/453/escape-params?text=%3Ch1%3EX%3C/h1%3E")
         .expect("&lt;h1&gt;X&lt;/h1&gt;");
 
     request()

@@ -649,6 +649,17 @@ public interface Request extends Registry {
   }
 
   /**
+   * Short version of <code>params().to(type)</code>.
+   *
+   * @param type Object type.
+   * @param <T> Value type.
+   * @return Instance of object.
+   */
+  default <T> T form(final Class<T> type) {
+    return params().to(type);
+  }
+
+  /**
    * Short version of <code>params(xss).to(type)</code>.
    *
    * @param type Object type.
@@ -657,6 +668,18 @@ public interface Request extends Registry {
    * @return Instance of object.
    */
   default <T> T params(final Class<T> type, final String... xss) {
+    return params(xss).to(type);
+  }
+
+  /**
+   * Short version of <code>params(xss).to(type)</code>.
+   *
+   * @param type Object type.
+   * @param xss Xss filter to apply.
+   * @param <T> Value type.
+   * @return Instance of object.
+   */
+  default <T> T form(final Class<T> type, final String... xss) {
     return params(xss).to(type);
   }
 
@@ -777,7 +800,8 @@ public interface Request extends Registry {
   List<Cookie> cookies();
 
   /**
-   * HTTP body.
+   * HTTP body. Please don't use this method for form submits. This method is used for getting
+   * <code>raw</code> data or a data like json, xml, etc...
    *
    * @return The HTTP body.
    * @throws Exception If body can't be converted or there is no HTTP body.
@@ -786,6 +810,9 @@ public interface Request extends Registry {
 
   /**
    * Short version of <code>body().to(type)</code>.
+   *
+   * HTTP body. Please don't use this method for form submits. This method is used for getting
+   * <code>raw</code> or a parsed data like json, xml, etc...
    *
    * @param type Object type.
    * @param <T> Value type.
