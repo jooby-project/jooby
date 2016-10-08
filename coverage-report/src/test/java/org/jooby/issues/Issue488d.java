@@ -10,7 +10,7 @@ import org.junit.Test;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
-public class Issue484d extends ServerFeature {
+public class Issue488d extends ServerFeature {
 
   {
     use(ConfigFactory.empty()
@@ -21,23 +21,23 @@ public class Issue484d extends ServerFeature {
 
     use(new Exec());
 
-    get("/484", req -> new Deferred(deferred -> {
+    get("/488", req -> new Deferred(deferred -> {
       deferred.resolve(Thread.currentThread().getName());
     }));
 
-    get("/484/cached", req -> new Deferred("cached", deferred -> {
+    get("/488/cached", req -> new Deferred("cached", deferred -> {
       deferred.resolve(Thread.currentThread().getName());
     }));
 
-    get("/484/fj", promise(deferred -> {
+    get("/488/fj", promise(deferred -> {
       deferred.resolve(Thread.currentThread().getName());
     }));
 
-    get("/484/local/cached", promise("cached", (req, deferred) -> {
+    get("/488/local/cached", promise("cached", (req, deferred) -> {
       deferred.resolve(Thread.currentThread().getName());
     }));
 
-    get("/484/local/fj", promise("fj", deferred -> {
+    get("/488/local/fj", promise("fj", deferred -> {
       deferred.resolve(Thread.currentThread().getName());
     }));
   }
@@ -45,31 +45,31 @@ public class Issue484d extends ServerFeature {
   @Test
   public void deferredOnGloablOrLocalExecutor() throws Exception {
     request()
-        .get("/484")
+        .get("/488")
         .expect(rsp -> {
           assertTrue(rsp.startsWith("forkjoin"));
         });
 
     request()
-        .get("/484/cached")
+        .get("/488/cached")
         .expect(rsp -> {
           assertTrue(rsp.startsWith("cached"));
         });
 
     request()
-        .get("/484/fj")
+        .get("/488/fj")
         .expect(rsp -> {
           assertTrue(rsp.startsWith("forkjoin"));
         });
 
     request()
-        .get("/484/local/cached")
+        .get("/488/local/cached")
         .expect(rsp -> {
           assertTrue(rsp.startsWith("cached"));
         });
 
     request()
-        .get("/484/local/fj")
+        .get("/488/local/fj")
         .expect(rsp -> {
           assertTrue(rsp.startsWith("forkjoin"));
         });
