@@ -354,7 +354,6 @@ public class HttpHandlerImpl implements HttpHandler {
             Throwable cause = failure.orElse(null);
             if (cause != null) {
               close = true;
-              handleErr(req, rsp, cause);
             }
             cleanup(req, rsp, close, cause, true);
           }

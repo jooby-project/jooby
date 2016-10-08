@@ -92,6 +92,7 @@ import javax.net.ssl.SSLContext;
 
 import org.jooby.Route.Definition;
 import org.jooby.Route.Mapper;
+import org.jooby.Route.OneArgHandler;
 import org.jooby.Session.Store;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.AppPrinter;
@@ -1018,186 +1019,43 @@ public class Jooby implements Routes, LifeCycle, Registry {
     return injector.getInstance(type);
   }
 
-  /**
-   * Produces a deferred response, useful for async request processing.
-   *
-   * <h2>usage</h2>
-   *
-   * <pre>
-   * {
-   *    ExecutorService executor = ...;
-   *
-   *    get("/async", promise(deferred {@literal ->} {
-   *      executor.execute(() {@literal ->} {
-   *        try {
-   *          deferred.resolve(...); // success value
-   *        } catch (Exception ex) {
-   *          deferred.reject(ex); // error value
-   *        }
-   *      });
-   *    }));
-   *  }
-   * </pre>
-   *
-   * <p>
-   * Or with automatic error handler:
-   * </p>
-   *
-   * <pre>
-   * {
-   *    ExecutorService executor = ...;
-   *
-   *    get("/async", promise(deferred {@literal ->} {
-   *      executor.execute(() {@literal ->} {
-   *        deferred.resolve(() {@literal ->} {
-   *          Object value = ...
-   *          return value;
-   *        }); // success value
-   *      });
-   *    }));
-   *  }
-   * </pre>
-   *
-   * <p>
-   * Or as {@link Runnable} with automatic error handler:
-   * </p>
-   *
-   * <pre>
-   * {
-   *    ExecutorService executor = ...;
-   *
-   *    get("/async", promise(deferred {@literal ->} {
-   *      executor.execute(deferred.run(() {@literal ->} {
-   *        Object value = ...
-   *        return value;
-   *      }); // success value
-   *    }));
-   *  }
-   * </pre>
-   *
-   * @param initializer Deferred initializer.
-   * @return A new deferred handler.
-   * @see Deferred
-   */
+  @Override
   public Route.OneArgHandler promise(final Deferred.Initializer initializer) {
     return req -> {
       return new Deferred(initializer);
     };
   }
 
-  /**
-   * Produces a deferred response, useful for async request processing.
-   *
-   * <h2>usage</h2>
-   *
-   * <pre>
-   * {
-   *    get("/async", promise("myexec", deferred {@literal ->} {
-   *      // resolve a success value
-   *      deferred.resolve(...);
-   *    }));
-   *  }
-   * </pre>
-   *
-   * @param executor Executor to run the deferred.
-   * @param initializer Deferred initializer.
-   * @return A new deferred handler.
-   * @see Deferred
-   */
+  @Override
   public Route.OneArgHandler promise(final String executor,
       final Deferred.Initializer initializer) {
     return req -> new Deferred(executor, initializer);
   }
 
-  /**
-   * Produces a deferred response, useful for async request processing.
-   *
-   * <h2>usage</h2>
-   *
-   * <pre>
-   * {
-   *    ExecutorService executor = ...;
-   *
-   *    get("/async", promise(deferred {@literal ->} {
-   *      executor.execute(() {@literal ->} {
-   *        try {
-   *          deferred.resolve(...); // success value
-   *        } catch (Exception ex) {
-   *          deferred.reject(ex); // error value
-   *        }
-   *      });
-   *    }));
-   *  }
-   * </pre>
-   *
-   * <p>
-   * Or with automatic error handler:
-   * </p>
-   *
-   * <pre>
-   * {
-   *    ExecutorService executor = ...;
-   *
-   *    get("/async", promise(deferred {@literal ->} {
-   *      executor.execute(() {@literal ->} {
-   *        deferred.resolve(() {@literal ->} {
-   *          Object value = ...
-   *          return value;
-   *        }); // success value
-   *      });
-   *    }));
-   *  }
-   * </pre>
-   *
-   * <p>
-   * Or as {@link Runnable} with automatic error handler:
-   * </p>
-   *
-   * <pre>
-   * {
-   *    ExecutorService executor = ...;
-   *
-   *    get("/async", promise(deferred {@literal ->} {
-   *      executor.execute(deferred.run(() {@literal ->} {
-   *        Object value = ...
-   *        return value;
-   *      }); // success value
-   *    }));
-   *  }
-   * </pre>
-   *
-   * @param initializer Deferred initializer.
-   * @return A new deferred handler.
-   * @see Deferred
-   */
+  @Override
   public Route.OneArgHandler promise(final Deferred.Initializer0 initializer) {
     return req -> {
       return new Deferred(initializer);
     };
   }
 
-  /**
-   * Produces a deferred response, useful for async request processing.
-   *
-   * <h2>usage</h2>
-   *
-   * <pre>
-   * {
-   *    get("/async", promise("myexec", deferred {@literal ->} {
-   *      // resolve a success value
-   *      deferred.resolve(...);
-   *    }));
-   *  }
-   * </pre>
-   *
-   * @param executor Executor to run the deferred.
-   * @param initializer Deferred initializer.
-   * @return A new deferred handler.
-   * @see Deferred
-   */
+  @Override
   public Route.OneArgHandler promise(final String executor,
       final Deferred.Initializer0 initializer) {
     return req -> new Deferred(executor, initializer);
+  }
+
+  @Override
+  public OneArgHandler deferred(final String executor, final OneArgHandler handler) {
+    return req -> {
+      return new Deferred(executor, deferred -> {
+        try {
+          deferred.resolve(handler.handle(req));
+        } catch (Throwable x) {
+          deferred.reject(x);
+        }
+      });
+    };
   }
 
   /**
