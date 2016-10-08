@@ -657,7 +657,11 @@ public class JoobyTest {
 
           Jooby jooby = new Jooby();
 
+          assertEquals(false, jooby.isStarted());
+
           jooby.start();
+
+          assertEquals(true, jooby.isStarted());
 
         }, boot);
   }
