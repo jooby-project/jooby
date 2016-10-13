@@ -70,7 +70,7 @@ import javaslang.Function2;
  * </p>
  *
  * <pre>
- * assets.cdn = "http://http://d7471vfo50fqt.cloudfront.net"
+ * assets.cdn = "http://d7471vfo50fqt.cloudfront.net"
  * </pre>
  *
  * <p>

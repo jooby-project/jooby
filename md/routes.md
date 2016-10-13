@@ -183,7 +183,7 @@ All you have to do is to define a ```assets.cdn``` property:
 ```properties
 # application.prod.properties
 
-assets.cdn = "http://http://d7471vfo50fqt.cloudfront.net"
+assets.cdn = "http://d7471vfo50fqt.cloudfront.net"
 ```
 
 ```java
@@ -192,7 +192,7 @@ assets.cdn = "http://http://d7471vfo50fqt.cloudfront.net"
 }
 ```
 
-A ```GET``` to ```/assets/js/index.js``` will be redirected to: ```http://http://d7471vfo50fqt.cloudfront.net/assets/js/index.js```
+A ```GET``` to ```/assets/js/index.js``` will be redirected to: ```http://d7471vfo50fqt.cloudfront.net/assets/js/index.js```
 
 Of course, you usually set a ```cdn``` in your ```application.prod.conf``` file only.
 
