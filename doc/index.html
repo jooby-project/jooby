@@ -224,10 +224,10 @@
       <div class="datalist-content"> 
        <ul> 
         <li><strong>Simple</strong> and <strong>effective</strong> programming model for building small and large scale web applications</li> 
-        <li>Build with <strong>developer productive</strong> in mind</li> 
-        <li>Plain <strong>Java DSL</strong> for routes (no xml, or similar)</li> 
-        <li><strong>Reflection</strong>, <strong>annotations</strong> and <strong>dependency injection</strong> are keep to <strong>minimum</strong> and in some cases it is completely optional</li> 
-        <li><strong>No classpath hell</strong>, default deployment model uses a normal JVM bootstrap</li> 
+        <li>Build with <strong>developer productivity</strong> in mind</li> 
+        <li>Plain <strong>Java DSL</strong> for routes (no XML, or similar)</li> 
+        <li><strong>Reflection</strong>, <strong>annotations</strong> and <strong>dependency injection</strong> are kept to a <strong>minimum</strong> and in some cases it is completely optional</li> 
+        <li><strong>No classpath hell</strong>, the default deployment model uses a normal JVM bootstrap</li> 
         <li>Modules are easy to use and do as less as possible</li> 
        </ul> 
        <p><a href="http://jooby.org">Jooby</a> keeps it <strong>simple</strong> but yet <strong>powerful</strong>.</p> 
@@ -264,8 +264,8 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>1) You create a new App by extending Jooby</p> 
-       <p>2) From the instance initializer you can use modules, define routes add life cycle callbacks</p> 
+       <p>1) You create a new App by extending Jooby.</p> 
+       <p>2) From the instance initializer you can use modules, define routes add life cycle callbacks.</p> 
        <p>3) Finally run the application.</p> 
        <h3 id="application-life-cycle">life cycle</h3> 
        <p>Application provides start and stop events. These events are useful for starting/stopping services.</p> 
@@ -305,7 +305,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>Modules are covered later all you need to know now is that you can start/stop module as you usually do with your application.</p> 
+       <p>Modules are covered later, all you need to know now is that you can start/stop module as you usually do with your application.</p> 
        <h4 id="application-callbacks-order">callbacks order</h4> 
        <p>Callback order is preserved:</p> 
        <div class="highlighter-rouge codehilite">
@@ -333,7 +333,7 @@
        </div> 
        <p>Order is useful for service dependencies, like ServiceB should be started after ServiceA.</p> 
        <h4 id="application-service-registry">service registry</h4> 
-       <p>You have access to the the service registry and start or stop too:</p> 
+       <p>You have access to the the service registry, and are able to start or stop too:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -355,7 +355,7 @@
 </code></pre> 
        </div> 
        <h4 id="application-PostConstruct-PreDestroy-annotations">PostConstruct/PreDestroy annotations</h4> 
-       <p>If you prefer the annotation way… you can too:</p> 
+       <p>If you prefer the annotation way… you can use annotations too:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -380,7 +380,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>It works as expected just make sure <code class="highlighter-rouge codehilite">MyService</code> is a <strong>Singleton</strong> object.</p> 
+       <p>It works as expected, just make sure <code class="highlighter-rouge codehilite">MyService</code> is a <strong>Singleton</strong> object.</p> 
        <h3 id="application-logging">logging</h3> 
        <p>Logging is done via <a href="http://logback.qos.ch" target="_blank">logback</a>. Logback bootstrap and configuration is described here <a href="http://logback.qos.ch/manual/configuration.html" target="_blank">logback configuration</a></p> 
        <p>It is useful that we can bundle logging configuration files inside our <em>fat</em> jar, it works very well for small/simple apps.</p> 
@@ -447,7 +447,7 @@
        <p>For example, the <a href="https://github.com/google/guice/wiki/Bootstrap" target="_blank">development stage</a> is set in <a href="https://github.com/google/guice" target="_blank">Guice</a> when <code class="highlighter-rouge codehilite">application.env == dev</code>.</p> 
        <p>A module provider, might decided to create a connection pool, cache, etc when <code class="highlighter-rouge codehilite">application.env != dev</code>.</p> 
        <h3 id="conf-env-and-logging-turn-on-off-features">turn on/off features</h3> 
-       <p>As described before the <code class="highlighter-rouge codehilite">application.env</code> property defines the environment where the application is being executed. It is possible to turn on/off specific features base on the application environment:</p> 
+       <p>As described before, the <code class="highlighter-rouge codehilite">application.env</code> property defines the environment where the application is being executed. It is possible to turn on/off specific features based on the application environment:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
