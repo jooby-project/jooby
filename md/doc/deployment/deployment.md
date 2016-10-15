@@ -94,6 +94,8 @@ It works for ```logback.xml``` too, if ```logback.[env].xml``` is present, then 
 
 {{war.md}}
 
+{{doc/crash/crash.md}}
+
 # conclusion
 
 * **jar/capsule deployment** makes perfect sense for PaaS like Heroku, AppEngine, etc...
