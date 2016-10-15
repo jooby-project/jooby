@@ -524,6 +524,7 @@ public class JoobyTest {
     expect(injector.getInstance(Route.KEY)).andReturn(Collections.emptySet());
     expect(injector.getInstance(WebSocket.KEY)).andReturn(Collections.emptySet());
     injector.injectMembers(isA(Jooby.class));
+    unit.registerMock(Injector.class, injector);
 
     AppPrinter printer = unit.constructor(AppPrinter.class)
         .args(Set.class, Set.class, Config.class)
@@ -2062,7 +2063,8 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
+        .expect(executor("deferred"))
         .expect(unit -> {
           Mutant ifModifiedSince = unit.mock(Mutant.class);
           expect(ifModifiedSince.toOptional(Long.class)).andReturn(Optional.empty());
@@ -2083,6 +2085,15 @@ public class JoobyTest {
 
           Route.Chain chain = unit.get(Route.Chain.class);
           chain.next(req, rsp);
+        })
+        .expect(unit -> {
+          Config conf = unit.get(Config.class);
+          expect(conf.getString("assets.cdn")).andReturn("").times(2);
+          expect(conf.getBoolean("assets.lastModified")).andReturn(true).times(2);
+          expect(conf.getBoolean("assets.etag")).andReturn(true).times(2);
+
+          Injector injector = unit.get(Injector.class);
+          expect(injector.getInstance(Key.get(Config.class))).andReturn(conf).times(2);
         })
         .run(unit -> {
           Jooby jooby = new Jooby();
@@ -2259,23 +2270,23 @@ public class JoobyTest {
         .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
-        .expect(
-            unit -> {
-              Multibinder<WebSocket.Definition> multibinder = unit.mock(Multibinder.class);
+        .expect(unit -> {
+          Multibinder<WebSocket.Definition> multibinder = unit.mock(Multibinder.class);
 
-              LinkedBindingBuilder<WebSocket.Definition> binding = unit
-                  .mock(LinkedBindingBuilder.class);
-              binding.toInstance(unit.capture(WebSocket.Definition.class));
+          LinkedBindingBuilder<WebSocket.Definition> binding = unit
+              .mock(LinkedBindingBuilder.class);
+          binding.toInstance(unit.capture(WebSocket.Definition.class));
 
-              expect(multibinder.addBinding()).andReturn(binding);
+          expect(multibinder.addBinding()).andReturn(binding);
 
-              Binder binder = unit.get(Binder.class);
+          Binder binder = unit.get(Binder.class);
 
-              expect(Multibinder.newSetBinder(binder, WebSocket.Definition.class)).andReturn(
-                  multibinder);
-            })
+          expect(Multibinder.newSetBinder(binder, WebSocket.Definition.class)).andReturn(
+              multibinder);
+        })
         .expect(tmpdir)
-        .expect(err).expect(executor("deferred"))
+        .expect(err)
+        .expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2283,8 +2294,8 @@ public class JoobyTest {
           WebSocket.Definition ws = jooby.ws("/", (socket) -> {
           });
           assertEquals("/", ws.pattern());
-          assertEquals(MediaType.all, ws.consumes());
-          assertEquals(MediaType.all, ws.produces());
+          assertEquals(MediaType.plain, ws.consumes());
+          assertEquals(MediaType.plain, ws.produces());
           defs.add(ws);
 
           jooby.start();

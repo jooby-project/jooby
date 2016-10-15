@@ -3129,7 +3129,8 @@ public class Jooby implements Routes, LifeCycle, Registry {
   @Override
   public Route.Definition assets(final String path, final String location) {
     AssetHandler handler = new AssetHandler(location);
-    on("*", conf -> {
+    onStart(r -> {
+      Config conf = r.require(Config.class);
       handler
           .cdn(conf.getString("assets.cdn"))
           .lastModified(conf.getBoolean("assets.lastModified"))
