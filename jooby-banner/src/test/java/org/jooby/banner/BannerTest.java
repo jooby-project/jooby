@@ -1,6 +1,9 @@
 package org.jooby.banner;
 
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
+
+import javax.inject.Provider;
 
 import org.jooby.Env;
 import org.jooby.test.MockUnit;
@@ -14,6 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import com.github.lalyos.jfiglet.FigletFont;
 import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.binder.LinkedBindingBuilder;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 
 import javaslang.control.Try.CheckedRunnable;
@@ -34,6 +40,7 @@ public class BannerTest {
     new MockUnit(Env.class, Config.class, Binder.class, Logger.class)
         .expect(conf("app", "1.0.0"))
         .expect(log("app"))
+        .expect(banner())
         .expect(onStart)
         .run(unit -> {
           new Banner(banner)
@@ -50,6 +57,7 @@ public class BannerTest {
         .expect(onStart)
         .expect(convertOnLine(banner, "speed"))
         .expect(print(banner, "1.0.0"))
+        .expect(banner())
         .run(unit -> {
           new Banner(banner)
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -67,6 +75,7 @@ public class BannerTest {
         .expect(onStart)
         .expect(convertOnLine(banner, "myfont"))
         .expect(print(banner, "1.0.0"))
+        .expect(banner())
         .run(unit -> {
           new Banner(banner)
               .font("myfont")
@@ -85,6 +94,7 @@ public class BannerTest {
         .expect(onStart)
         .expect(convertOnLine(banner, "speed"))
         .expect(print(banner, "1.0.0"))
+        .expect(banner())
         .run(unit -> {
           new Banner()
               .configure(unit.get(Env.class), unit.get(Config.class), unit.get(Binder.class));
@@ -119,6 +129,18 @@ public class BannerTest {
       Config conf = unit.get(Config.class);
       expect(conf.getString("application.name")).andReturn(name);
       expect(conf.getString("application.version")).andReturn(v);
+    };
+  }
+
+  @SuppressWarnings("unchecked")
+  private Block banner() {
+    return unit -> {
+
+      LinkedBindingBuilder<String> lbb = unit.mock(LinkedBindingBuilder.class);
+      expect(lbb.toProvider(isA(Provider.class))).andReturn(lbb);
+
+      Binder binder = unit.get(Binder.class);
+      expect(binder.bind(Key.get(String.class, Names.named("application.banner")))).andReturn(lbb);
     };
   }
 }

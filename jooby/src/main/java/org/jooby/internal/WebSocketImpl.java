@@ -151,7 +151,7 @@ public class WebSocketImpl implements WebSocket {
 
     ws.onTextMessage(message -> Try
         .run(() -> messageCallback.invoke(
-            new MutantImpl(injector.getInstance(ParserExecutor.class),
+            new MutantImpl(injector.getInstance(ParserExecutor.class), consumes,
                 new StrParamReferenceImpl("body", "message", ImmutableList.of(message)))))
         .onFailure(this::handleErr));
 

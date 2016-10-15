@@ -279,13 +279,13 @@ public interface WebSocket extends Closeable, Registry {
      * Defines the media types that the methods of a resource class or can consumes. Default is:
      * {@literal *}/{@literal *}.
      */
-    private MediaType consumes = MediaType.all;
+    private MediaType consumes = MediaType.plain;
 
     /**
      * Defines the media types that the methods of a resource class or can produces. Default is:
      * {@literal *}/{@literal *}.
      */
-    private MediaType produces = MediaType.all;
+    private MediaType produces = MediaType.plain;
 
     /** A path pattern. */
     private String pattern;
