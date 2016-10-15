@@ -425,7 +425,7 @@ public class Cassandra implements Module {
       binder.bind(c).toInstance(accessor);
     });
 
-    env.routes()
+    env.router()
         .map(new CassandraMapper());
 
     env.onStop(() -> {

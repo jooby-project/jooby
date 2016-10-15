@@ -5,7 +5,7 @@ import static org.easymock.EasyMock.expectLastCall;
 
 import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
@@ -86,11 +86,11 @@ public class CassandraTest {
     CassandraMapper mapper = unit.constructor(CassandraMapper.class)
         .build();
 
-    Routes routes = unit.mock(Routes.class);
+    Router routes = unit.mock(Router.class);
     expect(routes.map(mapper)).andReturn(routes);
 
     Env env = unit.get(Env.class);
-    expect(env.routes()).andReturn(routes);
+    expect(env.router()).andReturn(routes);
   };
 
   @Test

@@ -139,7 +139,7 @@ public class FlashScope implements Jooby.Module {
         .httpOnly(cookie.httpOnly().orElse(chttp))
         .secure(cookie.secure().orElse(csecure));
 
-    env.routes().use(method, path, new FlashScopeHandler(cookie, decoder, encoder))
+    env.router().use(method, path, new FlashScopeHandler(cookie, decoder, encoder))
         .name("flash-scope");
   }
 

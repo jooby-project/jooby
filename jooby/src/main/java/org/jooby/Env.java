@@ -110,7 +110,7 @@ public interface Env extends LifeCycle {
      * <code>application.env</code> property. If such property is missing, env's name must be:
      * <code>dev</code>.
      *
-     * Please note an environment created with this method won't have a {@link Env#routes()}.
+     * Please note an environment created with this method won't have a {@link Env#router()}.
      *
      * @param config A config instance.
      * @return A new environment.
@@ -129,7 +129,7 @@ public interface Env extends LifeCycle {
      * @param locale App locale.
      * @return A new environment.
      */
-    Env build(Config config, Routes router, Locale locale);
+    Env build(Config config, Router router, Locale locale);
   }
 
   /**
@@ -159,7 +159,7 @@ public interface Env extends LifeCycle {
       }
 
       @Override
-      public Routes routes() {
+      public Router router() {
         if (router == null) {
           throw new UnsupportedOperationException();
         }
@@ -225,10 +225,10 @@ public interface Env extends LifeCycle {
   /**
    * Application router.
    *
-   * @return Available {@link Routes}.
+   * @return Available {@link Router}.
    * @throws UnsupportedOperationException if router isn't available.
    */
-  Routes routes() throws UnsupportedOperationException;
+  Router router() throws UnsupportedOperationException;
 
   /**
    * @return environment properties.

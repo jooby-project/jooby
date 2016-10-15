@@ -29,7 +29,7 @@ import org.jooby.handlers.AssetHandler;
  * @author edgar
  * @since 0.16.0
  */
-public interface Routes {
+public interface Router {
 
   /**
    * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
@@ -38,7 +38,7 @@ public interface Routes {
    * @param app Routes provider.
    * @return This jooby instance.
    */
-  Routes use(final Jooby app);
+  Router use(final Jooby app);
 
   /**
    * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
@@ -48,7 +48,7 @@ public interface Routes {
    * @param app Routes provider.
    * @return This jooby instance.
    */
-  Routes use(final String path, final Jooby app);
+  Router use(final String path, final Jooby app);
 
   /**
    * Define one or more routes under the same namespace:
@@ -2522,7 +2522,7 @@ public interface Routes {
    * @param mapper Route mapper to append.
    * @return This instance.
    */
-  Routes map(final Mapper<?> mapper);
+  Router map(final Mapper<?> mapper);
 
   /**
    * Setup a route error handler. Default error handler {@link Err.DefHandler} does content
@@ -2531,7 +2531,7 @@ public interface Routes {
    * @param err A route error handler.
    * @return This jooby instance.
    */
-  Routes err(Err.Handler err);
+  Router err(Err.Handler err);
 
   /**
    * Setup a route error handler.The error handler will be executed if the current exception is an
@@ -2542,7 +2542,7 @@ public interface Routes {
    * @param handler A route error handler.
    * @return This jooby instance.
    */
-  default Routes err(final Class<? extends Throwable> type, final Err.Handler handler) {
+  default Router err(final Class<? extends Throwable> type, final Err.Handler handler) {
     return err((req, rsp, err) -> {
       Throwable cause = err.getCause();
       if (type.isInstance(cause)) {
@@ -2559,7 +2559,7 @@ public interface Routes {
    * @param handler A route error handler.
    * @return This jooby instance.
    */
-  default Routes err(final int statusCode, final Err.Handler handler) {
+  default Router err(final int statusCode, final Err.Handler handler) {
     return err((req, rsp, err) -> {
       if (statusCode == err.statusCode()) {
         handler.handle(req, rsp, err);
