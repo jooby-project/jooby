@@ -24,9 +24,9 @@ import org.crsh.shell.Shell;
 import org.crsh.shell.ShellFactory;
 import org.crsh.shell.ShellProcess;
 import org.crsh.shell.ShellProcessContext;
-import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.MediaType;
+import org.jooby.Router;
 
 import com.typesafe.config.Config;
 
@@ -39,21 +39,21 @@ public class HttpShellPlugin extends CRaSHPlugin<HttpShellPlugin> {
 
   static void install(final Env env, final Config conf) {
     String path = conf.getString("crash.httpshell.path");
-    env.router().get(path + "/{cmd:.*}", req -> {
-      MediaType type = req.accepts(MediaType.json).map(it -> MediaType.json)
-          .orElse(MediaType.plain);
+    Router router = env.router();
+    router.get(path + "/{cmd:.*}", router.promise("direct", (req, deferred) -> {
+      MediaType type = req.accepts(MediaType.json)
+          .map(it -> MediaType.json)
+          .orElse(MediaType.html);
 
-      return new Deferred(deferred -> {
-        PluginContext ctx = req.require(PluginContext.class);
-        ShellFactory shellFactory = ctx.getPlugin(ShellFactory.class);
-        Shell shell = shellFactory.create(null);
-        String cmd = req.param("cmd").value().replaceAll("/", " ");
-        ShellProcess process = shell.createProcess(cmd);
-        ShellProcessContext spc = new SimpleProcessContext(
-            result -> deferred.resolve(result.type(type)));
-        process.execute(spc);
-      });
-    });
+      PluginContext ctx = req.require(PluginContext.class);
+      ShellFactory shellFactory = ctx.getPlugin(ShellFactory.class);
+      Shell shell = shellFactory.create(null);
+      String cmd = req.param("cmd").value().replaceAll("/", " ");
+      ShellProcess process = shell.createProcess(cmd);
+      ShellProcessContext spc = new SimpleProcessContext(
+          result -> deferred.resolve(result.type(type)));
+      process.execute(spc);
+    }));
   }
 
 }

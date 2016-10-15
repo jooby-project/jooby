@@ -3859,11 +3859,27 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This jooby instance.
    */
   public Jooby executor(final ExecutorService executor) {
+    executor((Executor) executor);
+    onStop(r -> executor.shutdown());
+    return this;
+  }
+
+  /**
+   * Set the default executor to use from {@link Deferred Deferred API}.
+   *
+   * Default executor runs each task in the thread that invokes {@link Executor#execute execute},
+   * that's a Jooby worker thread. A worker thread in Jooby can block.
+   *
+   * The {@link ExecutorService} will automatically shutdown.
+   *
+   * @param executor Executor to use.
+   * @return This jooby instance.
+   */
+  public Jooby executor(final Executor executor) {
     this.executors.add(binder -> {
       binder.bind(Key.get(String.class, Names.named("deferred"))).toInstance("deferred");
       binder.bind(Key.get(Executor.class, Names.named("deferred"))).toInstance(executor);
     });
-    onStop(r -> executor.shutdown());
     return this;
   }
 
@@ -3881,10 +3897,28 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This jooby instance.
    */
   public Jooby executor(final String name, final ExecutorService executor) {
+    executor(name, (Executor) executor);
+    onStop(r -> executor.shutdown());
+    return this;
+  }
+
+  /**
+   * Set a named executor to use from {@link Deferred Deferred API}. Useful for override the
+   * default/global executor.
+   *
+   * Default executor runs each task in the thread that invokes {@link Executor#execute execute},
+   * that's a Jooby worker thread. A worker thread in Jooby can block.
+   *
+   * The {@link ExecutorService} will automatically shutdown.
+   *
+   * @param name Name of the executor.
+   * @param executor Executor to use.
+   * @return This jooby instance.
+   */
+  public Jooby executor(final String name, final Executor executor) {
     this.executors.add(binder -> {
       binder.bind(Key.get(Executor.class, Names.named(name))).toInstance(executor);
     });
-    onStop(r -> executor.shutdown());
     return this;
   }
 
@@ -4022,8 +4056,9 @@ public class Jooby implements Router, LifeCycle, Registry {
     /** executors . */
     if (executors.isEmpty()) {
       // default executor
-      executor(MoreExecutors.newDirectExecutorService());
+      executor(MoreExecutors.directExecutor());
     }
+    executor("direct", MoreExecutors.directExecutor());
 
     /** Some basic xss functions. */
     xss(finalEnv);
