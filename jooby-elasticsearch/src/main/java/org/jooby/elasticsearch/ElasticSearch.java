@@ -272,7 +272,7 @@ public class ElasticSearch implements Jooby.Module {
         .toInstance(new BytesReferenceRenderer());
 
     EmbeddedHandler handler = new EmbeddedHandler(path, node, detailedErrors);
-    env.routes().use("*", path + "/**", handler).name("elasticsearch");
+    env.router().use("*", path + "/**", handler).name("elasticsearch");
   }
 
   @Override

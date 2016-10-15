@@ -48,7 +48,7 @@ import org.jooby.Err.Handler;
 import org.jooby.Jooby;
 import org.jooby.MediaType;
 import org.jooby.Route;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +100,7 @@ import javaslang.control.Try;
  *
  * <h2>custom err pages</h2>
  * <p>
- * The pretty error page is implemented via {@link Routes#err(Handler)}. You might run into troubles
+ * The pretty error page is implemented via {@link Router#err(Handler)}. You might run into troubles
  * if your application require custom error pages. On those cases you probably won't use this module
  * or if apply one of the following options:
  * </p>
@@ -185,9 +185,9 @@ public class Whoops implements Jooby.Module {
         ? conf.getBoolean("whoops.enabled")
         : "dev".equals(env.name());
     if (whoops) {
-      ClassLoader loader = env.routes().getClass().getClassLoader();
+      ClassLoader loader = env.router().getClass().getClassLoader();
       Handler handler = prettyPage(loader, SourceLocator.local(), maxFrameSize, log);
-      env.routes().err(tryPage(handler, log));
+      env.router().err(tryPage(handler, log));
     }
   }
 

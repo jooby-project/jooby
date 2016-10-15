@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.jooby.Env;
 import org.jooby.Route;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.rx.Rx;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
@@ -101,11 +101,11 @@ public class MongodbRxTest {
   };
 
   private Block env = unit -> {
-    Routes routes = unit.mock(Routes.class);
+    Router routes = unit.mock(Router.class);
     expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
     Env env = unit.get(Env.class);
-    expect(env.routes()).andReturn(routes);
+    expect(env.router()).andReturn(routes);
     expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
   };
 

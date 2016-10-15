@@ -409,7 +409,7 @@ import javaslang.control.Try.CheckedRunnable;
  * @since 0.1.0
  * @see Jooby.Module
  */
-public class Jooby implements Routes, LifeCycle, Registry {
+public class Jooby implements Router, LifeCycle, Registry {
 
   /**
    * <pre>{@code

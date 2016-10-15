@@ -123,7 +123,7 @@ public class EnvTest {
       }
 
       @Override
-      public Routes routes() throws UnsupportedOperationException {
+      public Router router() throws UnsupportedOperationException {
         return null;
       }
 
@@ -269,7 +269,7 @@ public class EnvTest {
 
   @Test(expected = UnsupportedOperationException.class)
   public void noRouter() {
-    Env.DEFAULT.build(ConfigFactory.empty()).routes();
+    Env.DEFAULT.build(ConfigFactory.empty()).router();
   }
 
   @Test

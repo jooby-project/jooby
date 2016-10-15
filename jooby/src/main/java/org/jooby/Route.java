@@ -1009,7 +1009,7 @@ public interface Route {
 
     private static final SourceProvider SRC = SourceProvider.DEFAULT_INSTANCE
         .plusSkippedClasses(Definition.class, Jooby.class, Collection.class, Group.class,
-            javaslang.collection.List.class, Routes.class);
+            javaslang.collection.List.class, Router.class);
 
     /**
      * Route's name.

@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Route;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.internal.metrics.HealthCheckRegistryProvider;
 import org.jooby.internal.metrics.MetricRegistryInitializer;
 import org.jooby.test.MockUnit;
@@ -89,11 +89,11 @@ public class MetricsTest {
   };
 
   private Block routes = unit -> {
-    Routes routes = unit.mock(Routes.class);
-    unit.registerMock(Routes.class, routes);
+    Router routes = unit.mock(Router.class);
+    unit.registerMock(Router.class, routes);
 
     Env env = unit.get(Env.class);
-    expect(env.routes()).andReturn(routes);
+    expect(env.router()).andReturn(routes);
     MetricHandler handler = unit.constructor(MetricHandler.class).build();
 
     route(unit, routes, "/sys/metrics", handler);
@@ -185,9 +185,9 @@ public class MetricsTest {
         }))
         .expect(multibinderStatic)
         .expect(unit -> {
-          Routes routes = unit.mock(Routes.class);
+          Router routes = unit.mock(Router.class);
           Env env = unit.get(Env.class);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
           MetricHandler handler = unit.constructor(MetricHandler.class).build();
 
           route(unit, routes, "/sys/metrics", handler);
@@ -225,7 +225,7 @@ public class MetricsTest {
         .expect(multibinderStatic)
         .expect(routes)
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
 
           route(unit, routes, "/sys/ping", unit.constructor(PingHandler.class).build());
         })
@@ -254,7 +254,7 @@ public class MetricsTest {
         .expect(multibinderStatic)
         .expect(routes)
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
 
           route(unit, routes, "/sys/thread-dump", unit.constructor(ThreadDumpHandler.class).build());
         })
@@ -426,12 +426,12 @@ public class MetricsTest {
         });
   }
 
-  private void route(final MockUnit unit, final Routes route,
+  private void route(final MockUnit unit, final Router route,
       final String pattern, final Route.Handler handler) throws Exception {
     expect(route.use("GET", pattern, handler)).andReturn(null);
   }
 
-  private void route(final MockUnit unit, final Routes route,
+  private void route(final MockUnit unit, final Router route,
       final String pattern, final Route.Filter handler) throws Exception {
     expect(route.use("GET", pattern, handler)).andReturn(null);
   }

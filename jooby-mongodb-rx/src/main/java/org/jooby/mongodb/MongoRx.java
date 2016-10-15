@@ -438,7 +438,7 @@ public class MongoRx implements Module {
     });
 
     /** mapper */
-    env.routes()
+    env.router()
         .map(mapper());
 
     log.info("Started {}", cstr);

@@ -210,7 +210,7 @@ public class Reactor implements Jooby.Module {
 
   @Override
   public void configure(final Env env, final Config conf, final Binder binder) {
-    env.routes()
+    env.router()
         .map(reactor(flux, mono));
   }
 

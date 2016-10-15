@@ -11,7 +11,7 @@ import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
 import org.jooby.Route.Filter;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.assets.AssetHandlerWithCompiler;
 import org.jooby.internal.assets.AssetVars;
@@ -52,7 +52,7 @@ public class AssetsTest {
         }).expect(unit -> {
           Definition assetVars = unit.mock(Definition.class);
           expect(assetVars.name("/assets/vars")).andReturn(assetVars);
-          Routes routes = unit.mock(Routes.class);
+          Router routes = unit.mock(Router.class);
           expect(routes.use(eq("*"), eq("*"), unit.capture(AssetVars.class))).andReturn(assetVars);
 
           Definition assetHandlerWithCompiler = unit.mock(Definition.class);
@@ -60,7 +60,7 @@ public class AssetsTest {
               .andReturn(assetHandlerWithCompiler);
 
           Env env = unit.get(Env.class);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
         }).expect(unit -> {
           Env env = unit.get(Env.class);
 
@@ -108,7 +108,7 @@ public class AssetsTest {
 
           Definition assetVars = unit.mock(Definition.class);
           expect(assetVars.name("/assets/vars")).andReturn(assetVars);
-          Routes routes = unit.mock(Routes.class);
+          Router routes = unit.mock(Router.class);
           expect(routes.use(eq("*"), eq("*"), unit.capture(AssetVars.class))).andReturn(assetVars);
 
           Definition assetHandlerWithCompiler = unit.mock(Definition.class);
@@ -124,7 +124,7 @@ public class AssetsTest {
           expect(routes.use(eq("*"), eq("*"), eq(liveCompiler))).andReturn(liveCompilerRoute);
 
           Env env = unit.get(Env.class);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
         }).expect(unit -> {
           Env env = unit.get(Env.class);
 
@@ -172,7 +172,7 @@ public class AssetsTest {
         }).expect(unit -> {
           Definition assetVars = unit.mock(Definition.class);
           expect(assetVars.name("/assets/vars")).andReturn(assetVars);
-          Routes routes = unit.mock(Routes.class);
+          Router routes = unit.mock(Router.class);
           expect(routes.use(eq("*"), eq("*"), unit.capture(AssetVars.class))).andReturn(assetVars);
 
           Definition assetHandlerWithCompiler = unit.mock(Definition.class);
@@ -181,7 +181,7 @@ public class AssetsTest {
 
 
           Env env = unit.get(Env.class);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
         }).expect(unit -> {
           Env env = unit.get(Env.class);
 
@@ -230,7 +230,7 @@ public class AssetsTest {
         }).expect(unit -> {
           Definition assetVars = unit.mock(Definition.class);
           expect(assetVars.name("/assets/vars")).andReturn(assetVars);
-          Routes routes = unit.mock(Routes.class);
+          Router routes = unit.mock(Router.class);
           expect(routes.use(eq("*"), eq("*"), unit.capture(AssetVars.class))).andReturn(assetVars);
 
           Definition assetHandlerWithCompiler = unit.mock(Definition.class);
@@ -238,7 +238,7 @@ public class AssetsTest {
               .andReturn(assetHandlerWithCompiler);
 
           Env env = unit.get(Env.class);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
         }).expect(unit -> {
           Env env = unit.get(Env.class);
 

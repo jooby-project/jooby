@@ -39,7 +39,7 @@ public class HttpShellPlugin extends CRaSHPlugin<HttpShellPlugin> {
 
   static void install(final Env env, final Config conf) {
     String path = conf.getString("crash.httpshell.path");
-    env.routes().get(path + "/{cmd:.*}", req -> {
+    env.router().get(path + "/{cmd:.*}", req -> {
       MediaType type = req.accepts(MediaType.json).map(it -> MediaType.json)
           .orElse(MediaType.plain);
 

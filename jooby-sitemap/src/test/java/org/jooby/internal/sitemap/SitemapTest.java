@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import org.jooby.Env;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.sitemap.Sitemap;
 import org.jooby.sitemap.WebPageProvider;
 import org.jooby.test.MockUnit;
@@ -49,11 +49,11 @@ public class SitemapTest {
 
   private Block route = unit -> {
 
-    Routes routes = unit.mock(Routes.class);
+    Router routes = unit.mock(Router.class);
     expect(routes.get("/sitemap.xml", unit.get(SitemapHandler.class))).andReturn(null);
 
     Env env = unit.get(Env.class);
-    expect(env.routes()).andReturn(routes);
+    expect(env.router()).andReturn(routes);
   };
 
   private Block handler = unit -> {

@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.assets.AssetHandlerWithCompiler;
 import org.jooby.internal.assets.AssetVars;
@@ -313,7 +313,7 @@ public class Assets implements Jooby.Module {
       String cpath = config.getString("application.path");
       AssetCompiler compiler = new AssetCompiler(loader, conf);
 
-      Routes routes = env.routes();
+      Router routes = env.router();
       routes.use("*", "*", new AssetVars(compiler, cpath)).name("/assets/vars");
       // live compiler?
       boolean watch = conf.hasPath("assets.watch") ? conf.getBoolean("assets.watch") : dev;

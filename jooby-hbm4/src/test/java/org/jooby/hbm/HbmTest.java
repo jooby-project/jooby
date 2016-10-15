@@ -23,7 +23,7 @@ import org.jooby.Env;
 import org.jooby.Env.ServiceKey;
 import org.jooby.Route;
 import org.jooby.Route.Definition;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.internal.hbm.HbmUnitDescriptor;
 import org.jooby.jdbc.Jdbc;
 import org.jooby.scope.Providers;
@@ -187,11 +187,11 @@ public class HbmTest {
 
       Definition route = unit.mock(Route.Definition.class);
       expect(route.name("hbm")).andReturn(route);
-      Routes routes = unit.mock(Routes.class);
+      Router routes = unit.mock(Router.class);
       expect(routes.use("*", "*", osiv)).andReturn(route);
 
       Env env = unit.get(Env.class);
-      expect(env.routes()).andReturn(routes);
+      expect(env.router()).andReturn(routes);
     };
   }
 

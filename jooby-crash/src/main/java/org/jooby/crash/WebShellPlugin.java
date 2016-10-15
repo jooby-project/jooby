@@ -23,7 +23,7 @@ import org.jooby.Env;
 import org.jooby.MediaType;
 import org.jooby.Results;
 import org.jooby.Route;
-import org.jooby.Routes;
+import org.jooby.Router;
 
 import com.typesafe.config.Config;
 
@@ -35,7 +35,7 @@ class WebShellPlugin extends CRaSHPlugin<WebShellPlugin> {
   }
 
   static void install(final Env env, final Config conf) {
-    Routes routes = env.routes();
+    Router routes = env.router();
     String path = conf.getString("crash.webshell.path");
     String title = conf.getString("application.name") + " shell";
     routes.assets(path + "/css/**", "META-INF/resources/css/{0}");

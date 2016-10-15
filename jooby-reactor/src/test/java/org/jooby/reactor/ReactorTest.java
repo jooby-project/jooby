@@ -10,7 +10,7 @@ import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.Request;
 import org.jooby.Route;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
@@ -30,10 +30,10 @@ import reactor.core.scheduler.Scheduler;
 public class ReactorTest {
 
   private Block map = unit -> {
-    Routes routes = unit.get(Routes.class);
+    Router routes = unit.get(Router.class);
     expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
     Env env = unit.get(Env.class);
-    expect(env.routes()).andReturn(routes);
+    expect(env.router()).andReturn(routes);
   };
 
   @SuppressWarnings({"rawtypes", "unchecked" })
@@ -54,7 +54,7 @@ public class ReactorTest {
 
   @Test
   public void configure() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(map)
         .run(unit -> {
           new Reactor()
@@ -65,7 +65,7 @@ public class ReactorTest {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void skipMapper() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(map)
         .run(unit -> {
           new Reactor()
@@ -80,7 +80,7 @@ public class ReactorTest {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void fluxMapper() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Request.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class, Request.class)
         .expect(map)
         .expect(flux)
         .run(unit -> {
@@ -97,7 +97,7 @@ public class ReactorTest {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void fluxMapperWithAdapter() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Scheduler.class,
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class, Scheduler.class,
         Request.class)
             .expect(map)
             .expect(flux)
@@ -120,7 +120,7 @@ public class ReactorTest {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void mono() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Request.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class, Request.class)
         .expect(map)
         .expect(mono)
         .run(unit -> {
@@ -137,7 +137,7 @@ public class ReactorTest {
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void monoMapperWithAdapter() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Scheduler.class,
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class, Scheduler.class,
         Request.class)
             .expect(map)
             .expect(mono)

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Route;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.Session;
 import org.jooby.internal.pac4j.AuthCallback;
 import org.jooby.internal.pac4j.AuthContext;
@@ -649,7 +649,7 @@ public class Auth implements Jooby.Module {
     String fullcallback = config.getString("auth.callback");
     String callback = URI.create(fullcallback).getPath();
 
-    Routes routes = env.routes();
+    Router routes = env.router();
 
     MapBinder<String, Authorizer> authorizers = MapBinder
         .newMapBinder(binder, String.class, Authorizer.class);
