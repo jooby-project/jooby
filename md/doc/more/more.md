@@ -1,5 +1,6 @@
-# metrics
+# monitor
 
+* [crash](/doc/crash): [CRaSH](http://www.crashub.org/) remote shell integration.
 * [metrics](/doc/metrics): application metrics from the excellent [metrics](http://metrics.dropwizard.io) library.
 
 # utils

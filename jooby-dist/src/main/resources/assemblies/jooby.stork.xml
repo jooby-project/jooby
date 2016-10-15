@@ -57,6 +57,17 @@
 
     <fileSet>
       <directory>
+        ${project.basedir}${file.separator}cmd
+      </directory>
+      <outputDirectory>cmd</outputDirectory>
+      <filtered>true</filtered>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
+
+    <fileSet>
+      <directory>
         ${project.basedir}${file.separator}conf
       </directory>
       <outputDirectory>conf</outputDirectory>
@@ -92,16 +103,6 @@
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
       <scope>runtime</scope>
-      <includes>
-        <include>*:*</include>
-      </includes>
-    </dependencySet>
-    <dependencySet>
-      <outputDirectory>lib</outputDirectory>
-      <scope>compile</scope>
-      <includes>
-        <include>*:*</include>
-      </includes>
     </dependencySet>
   </dependencySets>
 

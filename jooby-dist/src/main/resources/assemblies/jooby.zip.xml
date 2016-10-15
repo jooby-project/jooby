@@ -60,6 +60,16 @@
 
     <fileSet>
       <directory>
+        ${project.basedir}${file.separator}cmd
+      </directory>
+      <outputDirectory>cmd</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
+
+    <fileSet>
+      <directory>
         ${project.basedir}${file.separator}public
       </directory>
       <outputDirectory>public</outputDirectory>

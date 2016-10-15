@@ -23,13 +23,19 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
 
+import javax.inject.Provider;
+
 import org.jooby.Env;
 import org.jooby.Jooby.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
+
+import javaslang.control.Try;
 
 /**
  * <h1>banner</h1>
@@ -105,8 +111,15 @@ public class Banner implements Module {
     String v = conf.getString("application.version");
     String text = this.text.orElse(name);
 
-    env.onStart(
-        () -> log.info("\n{} v{}\n", convertOneLine(String.format(FONT, font), text).trim(), v));
+    Provider<String> ascii = () -> Try
+        .of(() -> convertOneLine(String.format(FONT, font), text).trim())
+        .getOrElse(text);
+
+    binder.bind(Key.get(String.class, Names.named("application.banner"))).toProvider(ascii);
+
+    env.onStart(() -> {
+      log.info("\n{} v{}\n", ascii.get(), v);
+    });
   }
 
   public Banner font(final String font) {

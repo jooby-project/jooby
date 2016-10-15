@@ -92,6 +92,7 @@
     <module>jooby-scanner</module>
     <module>jooby-csl</module>
     <module>jooby-unbescape</module>
+    <module>jooby-crash</module>
     <module>coverage-report</module>
   </modules>
 
@@ -563,6 +564,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-unbescape</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-crash</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
@@ -1386,6 +1393,82 @@
         <groupId>com.github.lalyos</groupId>
         <artifactId>jfiglet</artifactId>
         <version>${jfiglet.version}</version>
+      </dependency>
+
+      <!-- groovy -->
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+
+      <!-- crash -->
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.shell</artifactId>
+        <version>${crash.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.connectors.telnet</artifactId>
+        <version>${crash.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.connectors.web</artifactId>
+        <version>${crash.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.connectors.ssh</artifactId>
+        <version>${crash.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.plugins.mail</artifactId>
+        <version>${crash.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.plugins.cron</artifactId>
+        <version>${crash.version}</version>
       </dependency>
 
       <!-- Test dependencies -->
@@ -2500,6 +2583,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <rxjava-math.version>1.0.0</rxjava-math.version>
     <rxjava-jdbc.version>0.7</rxjava-jdbc.version>
     <reactor.version>2.5.0.M3</reactor.version>
+    <crash.version>1.3.1</crash.version>
+    <groovy.version>2.4.7</groovy.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>
