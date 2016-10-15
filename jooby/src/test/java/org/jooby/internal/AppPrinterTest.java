@@ -32,7 +32,7 @@ public class AppPrinterTest {
         "  GET {complete}/    [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /              [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home          [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws            [*/*]     [*/*]\n" +
+        "  WS  /ws            [text/plain]     [text/plain]\n" +
         "\n" +
         "listening on:\n" +
         "  http://localhost:8080/", setup);
@@ -58,11 +58,11 @@ public class AppPrinterTest {
             .toString();
     assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws      [*/*]     [*/*]\n" +
+        "  WS  /ws      [text/plain]     [text/plain]\n" +
         "\n" +
-        "listening on:" +
-        "\n  http://localhost:8080/" +
-        "\n  https://localhost:8443/", setup);
+        "listening on:\n" +
+        "  http://localhost:8080/\n" +
+        "  https://localhost:8443/", setup);
   }
 
   @Test
@@ -76,11 +76,11 @@ public class AppPrinterTest {
                 .toString();
     assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws      [*/*]     [*/*]\n" +
+        "  WS  /ws      [text/plain]     [text/plain]\n" +
         "\n" +
-        "listening on:" +
-        "\n  http://localhost:8080/  +h2" +
-        "\n  https://localhost:8443/ +h2", setup);
+        "listening on:\n" +
+        "  http://localhost:8080/  +h2\n" +
+        "  https://localhost:8443/ +h2", setup);
   }
 
   @Test
@@ -95,11 +95,11 @@ public class AppPrinterTest {
                 .toString();
     assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws      [*/*]     [*/*]\n" +
+        "  WS  /ws      [text/plain]     [text/plain]\n" +
         "\n" +
-        "listening on:" +
-        "\n  http://localhost:8080/" +
-        "\n  https://localhost:8443/ +h2", setup);
+        "listening on:\n" +
+        "  http://localhost:8080/\n" +
+        "  https://localhost:8443/ +h2", setup);
   }
 
   @Test
@@ -113,10 +113,10 @@ public class AppPrinterTest {
                 .toString();
     assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws      [*/*]     [*/*]\n" +
+        "  WS  /ws      [text/plain]     [text/plain]\n" +
         "\n" +
-        "listening on:" +
-        "\n  http://localhost:8080/  +h2", setup);
+        "listening on:\n" +
+        "  http://localhost:8080/  +h2", setup);
   }
 
   private Config config(final String path) {
@@ -136,7 +136,7 @@ public class AppPrinterTest {
             .toString();
     assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws      [*/*]     [*/*]\n" +
+        "  WS  /ws      [text/plain]     [text/plain]\n" +
         "\n" +
         "listening on:\n" +
         "  http://localhost:8080/app", setup);

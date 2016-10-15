@@ -13,8 +13,8 @@ public class WebSocketDefinitionTest {
     });
 
     assertEquals("WS /pattern\n" +
-        "  consume: */*\n" +
-        "  produces: */*\n", def.toString());
+        "  consume: text/plain\n" +
+        "  produces: text/plain\n", def.toString());
   }
 
   @Test

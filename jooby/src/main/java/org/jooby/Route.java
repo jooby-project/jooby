@@ -1008,7 +1008,8 @@ public interface Route {
   class Definition implements Props<Definition> {
 
     private static final SourceProvider SRC = SourceProvider.DEFAULT_INSTANCE
-        .plusSkippedClasses(Definition.class, Jooby.class, Collection.class, Group.class);
+        .plusSkippedClasses(Definition.class, Jooby.class, Collection.class, Group.class,
+            javaslang.collection.List.class, Routes.class);
 
     /**
      * Route's name.
@@ -1171,6 +1172,15 @@ public interface Route {
      */
     public boolean glob() {
       return cpattern.glob();
+    }
+
+    /**
+     * Source information (where the route was defined).
+     *
+     * @return Source information (where the route was defined).
+     */
+    public Route.Source source() {
+      return new RouteSourceImpl(declaringClass, line);
     }
 
     /**
@@ -2229,7 +2239,9 @@ public interface Route {
   }
 
   /**
-   * @return Source information.
+   * Source information (where the route was defined).
+   *
+   * @return Source information (where the route was defined).
    */
   Route.Source source();
 
