@@ -437,7 +437,7 @@ public interface Request extends Registry {
    */
   default String path(final boolean escape) {
     String path = route().path();
-    return escape ? UrlEscapers.urlFragmentEscaper().escape(path) : path;
+    return escape? UrlEscapers.urlFragmentEscaper().escape(path) : path;
   }
 
   /**
