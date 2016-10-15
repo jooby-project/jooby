@@ -97,9 +97,14 @@ public class RouteImpl implements Route, Route.Filter {
     this.route = route;
     this.method = method;
     this.produces = produces;
-    this.path = path;
     this.vars = vars;
     this.source = source;
+    /** Clean up out of path char. */
+    if (path.charAt(path.length() - 1) == OUT_OF_PATH) {
+      this.path = path.substring(0, path.length() - 1);
+    } else {
+      this.path = path;
+    }
   }
 
   @Override

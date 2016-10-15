@@ -2089,6 +2089,8 @@ public interface Route {
   Key<Set<Route.Definition>> KEY = Key.get(new TypeLiteral<Set<Route.Definition>>() {
   });
 
+  char OUT_OF_PATH = '\u200B';
+
   String GET = "GET";
 
   String POST = "POST";

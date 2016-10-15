@@ -524,7 +524,7 @@ public class HttpHandlerImpl implements HttpHandler {
         return p.substring(applicationPath.length());
       } else {
         // mark as failure
-        return p + '\u200B';
+        return p + Route.OUT_OF_PATH;
       }
     };
   }
