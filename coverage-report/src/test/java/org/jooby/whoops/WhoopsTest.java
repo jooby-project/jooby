@@ -25,7 +25,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.slf4j.Logger;
 
 import com.google.common.collect.ImmutableMap;
-import com.typesafe.config.Config;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Whoops.class, Throwable.class, StackTraceElement.class })
@@ -48,8 +47,6 @@ public class WhoopsTest {
 
   @Test
   public void locationOf() {
-    assertEquals("config-1.3.0.jar", Whoops.locationOf(Config.class));
-
     assertTrue(new File(Whoops.locationOf(Whoops.class)).exists());
 
     assertEquals("rt.jar", Whoops.locationOf(Object.class));
