@@ -2569,7 +2569,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <ebean.version>7.5.1</ebean.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
     <avaje-ebeanorm-agent.version>4.9.2</avaje-ebeanorm-agent.version>
-    <akka.version>2.4.3</akka.version>
+    <akka.version>2.4.11</akka.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
     <closure-compiler.version>v20150901</closure-compiler.version>
     <jruby.version>9.0.1.0</jruby.version>
