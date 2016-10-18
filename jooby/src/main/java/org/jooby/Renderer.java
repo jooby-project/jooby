@@ -54,7 +54,7 @@ import com.google.inject.TypeLiteral;
  *   use((env, conf, binder) {@literal ->} {
  *     Multibinder.newSetBinder(binder, Renderer.class)
  *        .addBinding()
- *        .toInstance(renderer((value, ctx) {@literal ->} {
+ *        .toInstance((value, ctx) {@literal ->} {
  *          ...
  *        }));
  *   });
@@ -67,23 +67,22 @@ import com.google.inject.TypeLiteral;
  * <pre>
  *   renderer((value, ctx) {@literal ->} {
  *     if (value instanceof MyObject) {
- *       ctx.text(value.toString());
+ *       ctx.send(value.toString());
  *     }
  *   });
  * </pre>
  *
- * For check for the <code>Accept</code> header:
+ * Or check for the <code>Accept</code> header:
  *
  * <pre>
  *   renderer((value, ctx) {@literal ->} {
  *     if (ctx.accepts("json")) {
- *       ctx.text(toJson(value));
+ *       ctx.send(toJson(value));
  *     }
  *   });
  * </pre>
  *
- * API is simply and powerful! It is so powerful that you can override any of the existing built-in
- * renderers, because application specific renderers has precedence over built-in renderers.
+ * API is simple and powerful!
  *
  * @author edgar
  * @since 0.6.0

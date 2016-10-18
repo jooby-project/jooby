@@ -53,10 +53,13 @@ import com.google.inject.TypeLiteral;
  * Parsers are executed in the order they were registered. The first converter that resolved the
  * type: wins!.
  *
- * <h1>Built-in parsers</h1> These are the built-in parsers:
+ * <h2>Built-in parsers</h2>
+ * <p>
+ * These are the built-in parsers:
+ * </p>
  * <ol>
  * <li>Primitives and String: convert to int, double, char, string, etc...</li>
- * <li>Enums</li>
+ * <li>Enums (case-sensitive)</li>
  * <li>{@link java.util.Date}: It parses a date using the <code>application.dateFormat</code>
  * property.</li>
  * <li>{@link java.time.LocalDate}: It parses a date using the <code>application.dateFormat</code>
@@ -395,7 +398,7 @@ public interface Parser {
    *  Parser converter = (type, ctx) {@literal ->} {
    *    if (type.getRawType() == MyType.class) {
    *      // convert to MyType
-   *      return ...;
+   *      return ctx.param(values {@literal ->} new MyType(values.get(0)));
    *    }
    *    // no luck! move next
    *    return next.next();

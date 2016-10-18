@@ -30,7 +30,7 @@ import com.google.inject.util.Types;
 
 /**
  * <p>
- * A type safe {@link Mutant} useful for reading parameters and headers.
+ * A type safe {@link Mutant} useful for reading parameters/headers/session attributes, etc..
  * </p>
  *
  * <pre>
@@ -38,7 +38,7 @@ import com.google.inject.util.Types;
  *   String value = request.param("str").value();
  *
  *   // optional str
- *   String value = request.param("str").toOptional().orElse("defs");
+ *   String value = request.param("str").value("defs");
  *
  *   // int param
  *   int value = request.param("some").intValue();

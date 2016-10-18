@@ -92,7 +92,6 @@ import javax.net.ssl.SSLContext;
 
 import org.jooby.Route.Definition;
 import org.jooby.Route.Mapper;
-import org.jooby.Route.OneArgHandler;
 import org.jooby.Session.Store;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.AppPrinter;
@@ -162,16 +161,13 @@ import javaslang.control.Try.CheckedRunnable;
 
 /**
  * <h1>jooby</h1>
- * <p>
- * A new application must extends Jooby, register one ore more {@link Renderer} and some
- * {@link Route routes}. It sounds like a lot of work to do, but it isn't.
- * </p>
+ * <h2>getting started</h2>
  *
  * <pre>
  * public class MyApp extends Jooby {
  *
  *   {
- *      renderer(new Json()); // 1. JSON serializer.
+ *      use(new Jackson()); // 1. JSON serializer.
  *
  *      // 2. Define a route
  *      get("/", req {@literal ->} {
@@ -180,7 +176,7 @@ import javaslang.control.Try.CheckedRunnable;
  *      }
  *   }
  *
- *  public static void main(String[] args) throws Exception {
+ *  public static void main(String[] args) {
  *    run(MyApp::new, args); // 3. Done!
  *  }
  * }
@@ -189,14 +185,12 @@ import javaslang.control.Try.CheckedRunnable;
  * <h2>application.conf</h2>
  * <p>
  * Jooby delegate configuration management to <a
- * href="https://github.com/typesafehub/config">TypeSafe Config</a>. If you are unfamiliar with <a
- * href="https://github.com/typesafehub/config">TypeSafe Config</a> please take a few minutes to
- * discover what <a href="https://github.com/typesafehub/config">TypeSafe Config</a> can do for you.
+ * href="https://github.com/typesafehub/config">TypeSafe Config</a>.
  * </p>
  *
  * <p>
- * By default Jooby looks for an <code>application.conf</code> file at the root of the classpath. If
- * you want to specify a different file or location, you can do it with {@link #use(Config)}.
+ * By default Jooby looks for an <code>application.conf</code>. If
+ * you want to specify a different file or location, you can do it with {@link #conf(String)}.
  * </p>
  *
  * <p>
@@ -217,6 +211,7 @@ import javaslang.control.Try.CheckedRunnable;
  *
  * Previous example had the following order (first-listed are higher priority):
  * <ul>
+ * <li>arguments properties</li>
  * <li>System properties</li>
  * <li>application.conf</li>
  * <li>M3 properties</li>
@@ -224,23 +219,24 @@ import javaslang.control.Try.CheckedRunnable;
  * <li>M1 properties</li>
  * </ul>
  * <p>
- * System properties takes precedence over any application specific property.
+ * Command line argmuents or system properties takes precedence over any application specific
+ * property.
  * </p>
  *
  * <h2>env</h2>
  * <p>
- * Jooby defines two modes: <strong>dev</strong> or something else. In Jooby, <strong>dev</strong>
+ * Jooby defines one mode or environment: <strong>dev</strong>. In Jooby, <strong>dev</strong>
  * is special and some modules could apply special settings while running in <strong>dev</strong>.
  * Any other env is usually considered a <code>prod</code> like env. But that depends on module
  * implementor.
  * </p>
  * <p>
- * A env can be defined in your <code>application.conf</code> file using the
- * <code>application.env</code> property. If missing, Jooby set the env for you to
+ * An <code>environment</code> can be defined in your <code>.conf</code> file using the
+ * <code>application.env</code> property. If missing, Jooby set the <code>env</code> for you to
  * <strong>dev</strong>.
  * </p>
  * <p>
- * There is more at {@link Env} so take a few minutes to discover what a {@link Env} can do for you.
+ * There is more at {@link Env} please read the {@link Env} javadoc.
  * </p>
  *
  * <h2>modules: the jump to full-stack framework</h2>
@@ -251,15 +247,14 @@ import javaslang.control.Try.CheckedRunnable;
  *
  * <pre>
  *   public class MyModule implements Jooby.Module {
- *     public void configure(env env, Config config, Binder binder) {
+ *     public void configure(Env env, Config config, Binder binder) {
  *     }
  *   }
  * </pre>
  *
  * From the configure callback you can bind your services as you usually do in a Guice app.
  * <p>
- * There is more at {@link Jooby.Module} so take a few minutes to discover what a
- * {@link Jooby.Module} can do for you.
+ * There is more at {@link Jooby.Module} so please read the {@link Jooby.Module} javadoc.
  * </p>
  *
  * <h2>path patterns</h2>
@@ -295,11 +290,11 @@ import javaslang.control.Try.CheckedRunnable;
  *
  * <h2>routes</h2>
  * <p>
- * Routes perform actions in response to a server HTTP request. There are two types of routes
- * callback: {@link Route.Handler} and {@link Route.Filter}.
+ * Routes perform actions in response to a server HTTP request.
  * </p>
  * <p>
  * Routes are executed in the order they are defined, for example:
+ * </p>
  *
  * <pre>
  *   get("/", (req, rsp) {@literal ->} {
@@ -315,8 +310,7 @@ import javaslang.control.Try.CheckedRunnable;
  *   });
  * </pre>
  *
- * Please note first and second routes are converted to a filter, so previous example is the same
- * as:
+ * Previous example can be rewritten using {@link Route.Filter}:
  *
  * <pre>
  *   get("/", (req, rsp, chain) {@literal ->} {
@@ -354,6 +348,7 @@ import javaslang.control.Try.CheckedRunnable;
  * <pre>
  *   use(MyRoute.class);
  *   ...
+ *
  *   // MyRoute.java
  *   {@literal @}Path("/")
  *   public class MyRoute {
@@ -371,7 +366,7 @@ import javaslang.control.Try.CheckedRunnable;
  *
  * <p>
  * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
- * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes} .
+ * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes} javadoc.
  * </p>
  *
  * <h2>static files</h2>
@@ -386,24 +381,37 @@ import javaslang.control.Try.CheckedRunnable;
  * Classpath resources under the <code>/assets</code> folder will be accessible from client/browser.
  * </p>
  *
- * <h2>bootstrap</h2>
+ * <h2>lifecyle</h2>
  * <p>
- * The bootstrap process is defined as follows:
+ * We do provide {@link #onStart(CheckedConsumer)} and {@link #onStop(CheckedConsumer)} callbacks.
+ * These callbacks are executed are application startup or shutdown time:
  * </p>
- * <h2>1. Configuration files are loaded in this order:</h2>
- * <ol>
- * <li>System properties</li>
- * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
- * <li>Configuration properties from {@link Jooby.Module modules}</li>
- * </ol>
  *
- * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
- * <ol>
- * <li>An {@link Injector Guice Injector} is created.</li>
- * <li>It configures each registered {@link Jooby.Module module}</li>
- * <li>At this point Guice is ready and all the services has been binded.</li>
- * <li>Finally, Jooby starts the web server</li>
- * </ol>
+ * <pre>{@code
+ * {
+ *   onStart(() -> {
+ *     log.info("Welcome!");
+ *   });
+ *
+ *   onStop(() -> {
+ *     log.info("Bye!");
+ *   });
+ * }
+ * }</pre>
+ *
+ * <p>
+ * From life cycle callbacks you can access to application services:
+ * </p>
+ *
+ * <pre>{@code
+ * {
+ *   onStart(registry -> {
+ *     MyDatabase db = registry.require(MyDatabase.class);
+ *     // do something with databse:
+ *   });
+ * }
+ * }</pre>
+ *
  *
  * @author edgar
  * @since 0.1.0
@@ -681,6 +689,9 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   private List<Consumer<Binder>> executors = new ArrayList<>();
 
+  /**
+   * Creates a new {@link Jooby} application.
+   */
   public Jooby() {
     this(null);
   }
@@ -696,16 +707,14 @@ public class Jooby implements Router, LifeCycle, Registry {
     use(server);
   }
 
-  /**
-   * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
-   * etc.).
-   *
-   * @param app Routes provider.
-   * @return This jooby instance.
-   */
   @Override
   public Jooby use(final Jooby app) {
     return use(Optional.empty(), app);
+  }
+
+  @Override
+  public Jooby use(final String path, final Jooby app) {
+    return use(Optional.of(path), app);
   }
 
   /**
@@ -727,29 +736,6 @@ public class Jooby implements Router, LifeCycle, Registry {
     return this;
   }
 
-  /**
-   * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
-   * etc.). Routes will be mounted at the provided path.
-   *
-   * @param path Path to mount the given app.
-   * @param app Routes provider.
-   * @return This jooby instance.
-   */
-  @Override
-  public Jooby use(final String path, final Jooby app) {
-    return use(Optional.of(path), app);
-  }
-
-  /**
-   * Import ALL the direct routes from the given app.
-   *
-   * <p>
-   * PLEASE NOTE: that ONLY routes are imported.
-   * </p>
-   *
-   * @param app Routes provider.
-   * @return This jooby instance.
-   */
   private Jooby use(final Optional<String> path, final Jooby app) {
     requireNonNull(app, "App is required.");
 
@@ -787,20 +773,6 @@ public class Jooby implements Router, LifeCycle, Registry {
     return this;
   }
 
-  /**
-   * Define one or more routes under the same namespace:
-   *
-   * <pre>
-   * {
-   *   use("/pets")
-   *     .get("/{id}", req {@literal ->} db.get(req.param("id").value()))
-   *     .get(() {@literal ->} db.values());
-   * }
-   * </pre>
-   *
-   * @param pattern Global pattern to use.
-   * @return A route namespace.
-   */
   @Override
   public Route.Group use(final String pattern) {
     Route.Group group = new Route.Group(pattern, prefix);
@@ -819,24 +791,12 @@ public class Jooby implements Router, LifeCycle, Registry {
     return this;
   }
 
-  /**
-   * Run code at application startup time.
-   *
-   * @param callback A callback to run.
-   * @return This instance.
-   */
   @Override
   public Jooby onStart(final CheckedRunnable callback) {
     requireNonNull(callback, "Callback is required.");
     return onStart(a -> callback.run());
   }
 
-  /**
-   * Run code at application startup time.
-   *
-   * @param callback A callback to run.
-   * @return This instance.
-   */
   @Override
   public Jooby onStart(final CheckedConsumer<Registry> callback) {
     requireNonNull(callback, "Callback is required.");
@@ -844,24 +804,12 @@ public class Jooby implements Router, LifeCycle, Registry {
     return this;
   }
 
-  /**
-   * Run code at application shutdown time.
-   *
-   * @param callback A callback to run.
-   * @return This instance.
-   */
   @Override
   public Jooby onStop(final CheckedRunnable callback) {
     requireNonNull(callback, "Callback is required.");
     return onStop(e -> callback.run());
   }
 
-  /**
-   * Run code at application shutdown time.
-   *
-   * @param callback A callback to run.
-   * @return This instance.
-   */
   @Override
   public Jooby onStop(final CheckedConsumer<Registry> callback) {
     requireNonNull(callback, "Callback is required.");
@@ -870,7 +818,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Run the given callback if and only if, app runs in the given enviroment.
+   * Run the given callback if and only if, application runs in the given environment.
    *
    * <pre>
    * {
@@ -902,7 +850,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Run the given callback if and only if, app runs in the given enviroment.
+   * Run the given callback if and only if, application runs in the given environment.
    *
    * <pre>
    * {
@@ -934,7 +882,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Run the given callback if and only if, app runs in the given enviroment.
+   * Run the given callback if and only if, application runs in the given envirobment.
    *
    * <pre>
    * {
@@ -968,7 +916,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Run the given callback if and only if, app runs in the given enviroment.
+   * Run the given callback if and only if, application runs in the given environment.
    *
    * <pre>
    * {
@@ -991,7 +939,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Run the given callback if and only if, app runs in the given enviroment.
+   * Run the given callback if and only if, application runs in the given environment.
    *
    * <pre>
    * {
@@ -1045,22 +993,15 @@ public class Jooby implements Router, LifeCycle, Registry {
     return req -> new Deferred(executor, initializer);
   }
 
-  @Override
-  public OneArgHandler deferred(final String executor, final OneArgHandler handler) {
-    return req -> {
-      return new Deferred(executor, deferred -> {
-        try {
-          deferred.resolve(handler.handle(req));
-        } catch (Throwable x) {
-          deferred.reject(x);
-        }
-      });
-    };
-  }
-
   /**
-   * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns, or
-   * save data in redis, memcached, mongodb, couchbase, etc..
+   * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns,
+   * apply timeout policies, etc...
+   *
+   * Jooby comes with a dozen of {@link Session.Store}, checkout the
+   * <a href="http://jooby.org/doc/session">session modules</a>.
+   *
+   * This method returns a {@link Session.Definition} objects that let you customize the session
+   * cookie.
    *
    * @param store A session store.
    * @return A session store definition.
@@ -1083,6 +1024,9 @@ public class Jooby implements Router, LifeCycle, Registry {
    * Please note {@link Session#id()}, {@link Session#accessedAt()}, etc.. make no sense for cookie
    * sessions, just the {@link Session#attributes()}.
    *
+   * This method returns a {@link Session.Definition} objects that let you customize the session
+   * cookie.
+   *
    * @return A session definition/configuration object.
    */
   public Session.Definition cookieSession() {
@@ -1091,8 +1035,14 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns, or
-   * save data in redis, memcached, mongodb, couchbase, etc..
+   * Setup a session store to use. Useful if you want/need to persist sessions between shutdowns,
+   * apply timeout policies, etc...
+   *
+   * Jooby comes with a dozen of {@link Session.Store}, checkout the
+   * <a href="http://jooby.org/doc/session">session modules</a>.
+   *
+   * This method returns a {@link Session.Definition} objects that let you customize the session
+   * cookie.
    *
    * @param store A session store.
    * @return A session store definition.
@@ -1103,7 +1053,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Register a new param converter. See {@link Parser} for more details.
+   * Register a new param/body converter. See {@link Parser} for more details.
    *
    * @param parser A parser.
    * @return This jooby instance.
@@ -1158,134 +1108,42 @@ public class Jooby implements Router, LifeCycle, Registry {
     return new Route.Collection(routes);
   }
 
-  /**
-   * Append a new filter that matches any method under the given path.
-   *
-   * @param path A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition use(final String path,
-      final Route.Filter filter) {
+  public Route.Definition use(final String path, final Route.Filter filter) {
     return appendDefinition(new Route.Definition("*", path, filter));
   }
 
-  /**
-   * Append a new filter that matches any method under the given path.
-   *
-   * @param verb A HTTP verb.
-   * @param path A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition use(final String verb, final String path,
-      final Route.Filter filter) {
+  public Route.Definition use(final String verb, final String path, final Route.Filter filter) {
     return appendDefinition(new Route.Definition(verb, path, filter));
   }
 
-  /**
-   * Append a new route handler that matches any method under the given path.
-   *
-   * @param verb A HTTP verb.
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition use(final String verb, final String path,
-      final Route.Handler handler) {
+  public Route.Definition use(final String verb, final String path, final Route.Handler handler) {
     return appendDefinition(new Route.Definition(verb, path, handler));
   }
 
-  /**
-   * Append a new route handler that matches any method under the given path.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition use(final String path,
-      final Route.Handler handler) {
+  public Route.Definition use(final String path, final Route.Handler handler) {
     return appendDefinition(new Route.Definition("*", path, handler));
   }
 
-  /**
-   * Append a new route handler that matches any method under the given path.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition use(final String path,
-      final Route.OneArgHandler handler) {
+  public Route.Definition use(final String path, final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("*", path, handler));
   }
 
-  /**
-   * Append a route that supports HTTP GET method:
-   *
-   * <pre>
-   *   get("/", (req, rsp) {@literal ->} {
-   *     rsp.send(something);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition get(final String path,
-      final Route.Handler handler) {
+  public Route.Definition get(final String path, final Route.Handler handler) {
     return appendDefinition(new Route.Definition("GET", path, handler));
   }
 
-  /**
-   * Append two routes that supports HTTP GET method on the same handler:
-   *
-   * <pre>
-   *   get("/model", "/mode/:id", req {@literal ->} {
-   *     return req.param("id").toOptional(String.class);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Collection get(final String path1, final String path2,
-      final Route.Handler handler) {
+  public Route.Collection get(final String path1, final String path2, final Route.Handler handler) {
     return new Route.Collection(
         new Route.Definition[]{get(path1, handler), get(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP GET method on the same handler:
-   *
-   * <pre>
-   *   get("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection get(final String path1, final String path2, final String path3,
       final Route.Handler handler) {
@@ -1293,43 +1151,11 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP GET method:
-   *
-   * <pre>
-   *   get("/", (req) {@literal ->}
-   *     "hello"
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition get(final String path,
-      final Route.OneArgHandler handler) {
+  public Route.Definition get(final String path, final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("GET", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP GET method on the same handler:
-   *
-   * <pre>
-   *   get("/model", "/model/:id", req {@literal ->} {
-   *     return req.param("id").toOptional(String.class);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection get(final String path1, final String path2,
       final Route.OneArgHandler handler) {
@@ -1337,23 +1163,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{get(path1, handler), get(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP GET method on the same handler:
-   *
-   * <pre>
-   *   get("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
@@ -1361,43 +1170,11 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP GET method:
-   *
-   * <pre>
-   *   get("/", () {@literal ->}
-   *     "hello"
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition get(final String path,
-      final Route.ZeroArgHandler handler) {
+  public Route.Definition get(final String path, final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("GET", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP GET method on the same handler:
-   *
-   * <pre>
-   *   get("/model", "/model/:id", req {@literal ->} {
-   *     return req.param("id").toOptional(String.class);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection get(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
@@ -1405,23 +1182,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{get(path1, handler), get(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP GET method on the same handler:
-   *
-   * <pre>
-   *   get("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
@@ -1429,67 +1189,16 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{get(path1, handler), get(path2, handler), get(path3, handler) });
   }
 
-  /**
-   * Append a filter that supports HTTP GET method:
-   *
-   * <pre>
-   *   get("/", (req, rsp, chain) {@literal ->} {
-   *     chain.next(req, rsp);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition get(final String path,
-      final Route.Filter filter) {
+  public Route.Definition get(final String path, final Route.Filter filter) {
     return appendDefinition(new Route.Definition("GET", path, filter));
   }
 
-  /**
-   * Append three routes that supports HTTP GET method on the same handler:
-   *
-   * <pre>
-   *   get("/model", "/model/:id", req {@literal ->} {
-   *     return req.param("id").toOptional(String.class);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Collection get(final String path1, final String path2,
-      final Route.Filter filter) {
-    return new Route.Collection(
-        new Route.Definition[]{get(path1, filter), get(path2, filter) });
+  public Route.Collection get(final String path1, final String path2, final Route.Filter filter) {
+    return new Route.Collection(new Route.Definition[]{get(path1, filter), get(path2, filter) });
   }
 
-  /**
-   * Append three routes that supports HTTP GET method on the same handler:
-   *
-   * <pre>
-   *   get("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection get(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
@@ -1497,43 +1206,11 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{get(path1, filter), get(path2, filter), get(path3, filter) });
   }
 
-  /**
-   * Append a route that supports HTTP POST method:
-   *
-   * <pre>
-   *   post("/", (req, rsp) {@literal ->} {
-   *     rsp.send(something);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition post(final String path,
-      final Route.Handler handler) {
+  public Route.Definition post(final String path, final Route.Handler handler) {
     return appendDefinition(new Route.Definition("POST", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP POST method on the same handler:
-   *
-   * <pre>
-   *   post("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection post(final String path1, final String path2,
       final Route.Handler handler) {
@@ -1541,23 +1218,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{post(path1, handler), post(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP POST method on the same handler:
-   *
-   * <pre>
-   *   post("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.Handler handler) {
@@ -1565,43 +1225,11 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP POST method:
-   *
-   * <pre>
-   *   post("/", (req) {@literal ->}
-   *     "hello"
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition post(final String path,
-      final Route.OneArgHandler handler) {
+  public Route.Definition post(final String path, final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("POST", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP POST method on the same handler:
-   *
-   * <pre>
-   *   post("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection post(final String path1, final String path2,
       final Route.OneArgHandler handler) {
@@ -1609,23 +1237,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{post(path1, handler), post(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP POST method on the same handler:
-   *
-   * <pre>
-   *   post("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
@@ -1633,43 +1244,11 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP POST method:
-   *
-   * <pre>
-   *   post("/", () {@literal ->}
-   *     "hello"
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition post(final String path,
-      final Route.ZeroArgHandler handler) {
+  public Route.Definition post(final String path, final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("POST", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP POST method on the same handler:
-   *
-   * <pre>
-   *   post("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection post(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
@@ -1677,23 +1256,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{post(path1, handler), post(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP POST method on the same handler:
-   *
-   * <pre>
-   *   post("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
@@ -1701,43 +1263,11 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{post(path1, handler), post(path2, handler), post(path3, handler) });
   }
 
-  /**
-   * Append a route that supports HTTP POST method:
-   *
-   * <pre>
-   *   post("/", (req, rsp, chain) {@literal ->} {
-   *     chain.next(req, rsp);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition post(final String path,
-      final Route.Filter filter) {
+  public Route.Definition post(final String path, final Route.Filter filter) {
     return appendDefinition(new Route.Definition("POST", path, filter));
   }
 
-  /**
-   * Append three routes that supports HTTP POST method on the same handler:
-   *
-   * <pre>
-   *   post("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection post(final String path1, final String path2,
       final Route.Filter filter) {
@@ -1745,23 +1275,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{post(path1, filter), post(path2, filter) });
   }
 
-  /**
-   * Append three routes that supports HTTP POST method on the same handler:
-   *
-   * <pre>
-   *   post("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection post(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
@@ -1769,251 +1282,68 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{post(path1, filter), post(path2, filter), post(path3, filter) });
   }
 
-  /**
-   * Append a route that supports HTTP HEAD method:
-   *
-   * <pre>
-   *   post("/", (req, rsp) {@literal ->} {
-   *     rsp.send(something);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition head(final String path, final Route.Handler handler) {
     return appendDefinition(new Route.Definition("HEAD", path, handler));
   }
 
-  /**
-   * Append route that supports HTTP HEAD method:
-   *
-   * <pre>
-   *   head("/", (req) {@literal ->}
-   *     "hello"
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition head(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("HEAD", path, handler));
   }
 
-  /**
-   * Append route that supports HTTP HEAD method:
-   *
-   * <pre>
-   *   head("/", () {@literal ->}
-   *     "hello"
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition head(final String path,
-      final Route.ZeroArgHandler handler) {
+  public Route.Definition head(final String path, final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("HEAD", path, handler));
   }
 
-  /**
-   * Append a route that supports HTTP HEAD method:
-   *
-   * <pre>
-   *   post("/", (req, rsp, chain) {@literal ->} {
-   *     chain.next(req, rsp);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition head(final String path,
-      final Route.Filter filter) {
+  public Route.Definition head(final String path, final Route.Filter filter) {
     return appendDefinition(new Route.Definition("HEAD", path, filter));
   }
 
-  /**
-   * Append a new route that automatically handles HEAD request from existing GET routes.
-   *
-   * <pre>
-   *   get("/", (req, rsp) {@literal ->} {
-   *     rsp.send(something); // This route provides default HEAD for this GET route.
-   *   });
-   * </pre>
-   *
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition head() {
     return appendDefinition(new Route.Definition("HEAD", "*", filter(HeadHandler.class))
         .name("*.head"));
   }
 
-  /**
-   * Append a route that supports HTTP OPTIONS method:
-   *
-   * <pre>
-   *   options("/", (req, rsp) {@literal ->} {
-   *     rsp.header("Allow", "GET, POST");
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition options(final String path,
-      final Route.Handler handler) {
+  public Route.Definition options(final String path, final Route.Handler handler) {
     return appendDefinition(new Route.Definition("OPTIONS", path, handler));
   }
 
-  /**
-   * Append route that supports HTTP OPTIONS method:
-   *
-   * <pre>
-   *   options("/", (req) {@literal ->}
-   *     Body.status(200).header("Allow", "GET, POST")
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition options(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("OPTIONS", path, handler));
   }
 
-  /**
-   * Append route that supports HTTP OPTIONS method:
-   *
-   * <pre>
-   *   options("/", () {@literal ->}
-   *     Body.status(200).header("Allow", "GET, POST")
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition options(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("OPTIONS", path, handler));
   }
 
-  /**
-   * Append a route that supports HTTP OPTIONS method:
-   *
-   * <pre>
-   *   options("/", (req, rsp, chain) {@literal ->} {
-   *     rsp.header("Allow", "GET, POST");
-   *     chain.next(req, rsp);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param filter A callback to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition options(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("OPTIONS", path, filter));
   }
 
-  /**
-   * Append a new route that automatically handles OPTIONS requests.
-   *
-   * <pre>
-   *   get("/", (req, rsp) {@literal ->} {
-   *     rsp.send(something);
-   *   });
-   *
-   *   post("/", (req, rsp) {@literal ->} {
-   *     rsp.send(something);
-   *   });
-   * </pre>
-   *
-   * OPTINOS / produces a response with a Allow header set to: GET, POST.
-   *
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition options() {
     return appendDefinition(new Route.Definition("OPTIONS", "*", handler(OptionsHandler.class))
         .name("*.options"));
   }
 
-  /**
-   * Append route that supports HTTP PUT method:
-   *
-   * <pre>
-   *   put("/", (req, rsp) {@literal ->} {
-   *     rsp.send(something);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A route to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition put(final String path,
       final Route.Handler handler) {
     return appendDefinition(new Route.Definition("PUT", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP PUT method on the same handler:
-   *
-   * <pre>
-   *   put("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection put(final String path1, final String path2,
       final Route.Handler handler) {
@@ -2021,23 +1351,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{put(path1, handler), put(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP PUT method on the same handler:
-   *
-   * <pre>
-   *   put("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.Handler handler) {
@@ -2045,43 +1358,12 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP PUT method:
-   *
-   * <pre>
-   *   put("/", (req) {@literal ->}
-   *    Body.status(202)
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition put(final String path,
       final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("PUT", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP PUT method on the same handler:
-   *
-   * <pre>
-   *   put("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection put(final String path1, final String path2,
       final Route.OneArgHandler handler) {
@@ -2089,23 +1371,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{put(path1, handler), put(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP PUT method on the same handler:
-   *
-   * <pre>
-   *   put("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
@@ -2113,43 +1378,12 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP PUT method:
-   *
-   * <pre>
-   *   put("/", () {@literal ->} {
-   *     Body.status(202)
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition put(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("PUT", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP PUT method on the same handler:
-   *
-   * <pre>
-   *   put("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection put(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
@@ -2157,23 +1391,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{put(path1, handler), put(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP PUT method on the same handler:
-   *
-   * <pre>
-   *   put("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
@@ -2181,43 +1398,12 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{put(path1, handler), put(path2, handler), put(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP PUT method:
-   *
-   * <pre>
-   *   put("/", (req, rsp, chain) {@literal ->} {
-   *     chain.next(req, rsp);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param filter A callback to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition put(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("PUT", path, filter));
   }
 
-  /**
-   * Append three routes that supports HTTP PUT method on the same handler:
-   *
-   * <pre>
-   *   put("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection put(final String path1, final String path2,
       final Route.Filter filter) {
@@ -2225,23 +1411,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{put(path1, filter), put(path2, filter) });
   }
 
-  /**
-   * Append three routes that supports HTTP PUT method on the same handler:
-   *
-   * <pre>
-   *   put("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection put(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
@@ -2249,43 +1418,11 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{put(path1, filter), put(path2, filter), put(path3, filter) });
   }
 
-  /**
-   * Append route that supports HTTP PATCH method:
-   *
-   * <pre>
-   *   patch("/", (req, rsp) {@literal ->} {
-   *     rsp.send(something);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A route to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition patch(final String path,
-      final Route.Handler handler) {
+  public Route.Definition patch(final String path, final Route.Handler handler) {
     return appendDefinition(new Route.Definition("PATCH", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP PATCH method on the same handler:
-   *
-   * <pre>
-   *   patch("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection patch(final String path1, final String path2,
       final Route.Handler handler) {
@@ -2293,23 +1430,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{patch(path1, handler), patch(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP PATCH method on the same handler:
-   *
-   * <pre>
-   *   patch("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.Handler handler) {
@@ -2318,43 +1438,11 @@ public class Jooby implements Router, LifeCycle, Registry {
             patch(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP PATCH method:
-   *
-   * <pre>
-   *   patch("/", (req) {@literal ->}
-   *    Body.status(202)
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition patch(final String path,
-      final Route.OneArgHandler handler) {
+  public Route.Definition patch(final String path, final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("PATCH", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP PATCH method on the same handler:
-   *
-   * <pre>
-   *   patch("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection patch(final String path1, final String path2,
       final Route.OneArgHandler handler) {
@@ -2362,23 +1450,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{patch(path1, handler), patch(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP PATCH method on the same handler:
-   *
-   * <pre>
-   *   patch("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.OneArgHandler handler) {
@@ -2387,43 +1458,11 @@ public class Jooby implements Router, LifeCycle, Registry {
             patch(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP PATCH method:
-   *
-   * <pre>
-   *   patch("/", () {@literal ->} {
-   *     Body.status(202)
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition patch(final String path,
-      final Route.ZeroArgHandler handler) {
+  public Route.Definition patch(final String path, final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("PATCH", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP PATCH method on the same handler:
-   *
-   * <pre>
-   *   patch("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection patch(final String path1, final String path2,
       final Route.ZeroArgHandler handler) {
@@ -2431,23 +1470,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{patch(path1, handler), patch(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP PATCH method on the same handler:
-   *
-   * <pre>
-   *   patch("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.ZeroArgHandler handler) {
@@ -2456,43 +1478,12 @@ public class Jooby implements Router, LifeCycle, Registry {
             patch(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP PATCH method:
-   *
-   * <pre>
-   *   patch("/", (req, rsp, chain) {@literal ->} {
-   *     chain.next(req, rsp);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param filter A callback to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition patch(final String path,
       final Route.Filter filter) {
     return appendDefinition(new Route.Definition("PATCH", path, filter));
   }
 
-  /**
-   * Append three routes that supports HTTP PATCH method on the same handler:
-   *
-   * <pre>
-   *   patch("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection patch(final String path1, final String path2,
       final Route.Filter filter) {
@@ -2500,23 +1491,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{patch(path1, filter), patch(path2, filter) });
   }
 
-  /**
-   * Append three routes that supports HTTP PATCH method on the same handler:
-   *
-   * <pre>
-   *   patch("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection patch(final String path1, final String path2,
       final String path3, final Route.Filter filter) {
@@ -2525,184 +1499,52 @@ public class Jooby implements Router, LifeCycle, Registry {
             patch(path3, filter) });
   }
 
-  /**
-   * Append a route that supports HTTP DELETE method:
-   *
-   * <pre>
-   *   delete("/", (req, rsp) {@literal ->} {
-   *     rsp.status(304);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition delete(final String path,
-      final Route.Handler handler) {
+  public Route.Definition delete(final String path, final Route.Handler handler) {
     return appendDefinition(new Route.Definition("DELETE", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP DELETE method on the same handler:
-   *
-   * <pre>
-   *   delete("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Collection delete(final String path1,
-      final String path2,
+  public Route.Collection delete(final String path1, final String path2,
       final Route.Handler handler) {
     return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP DELETE method on the same handler:
-   *
-   * <pre>
-   *   delete("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Collection delete(final String path1,
-      final String path2,
-      final String path3, final Route.Handler handler) {
+  public Route.Collection delete(final String path1, final String path2, final String path3,
+      final Route.Handler handler) {
     return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler),
             delete(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP DELETE method:
-   *
-   * <pre>
-   *   delete("/", (req) {@literal ->}
-   *     Body.status(204)
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition delete(final String path,
-      final Route.OneArgHandler handler) {
+  public Route.Definition delete(final String path, final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("DELETE", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP DELETE method on the same handler:
-   *
-   * <pre>
-   *   delete("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Collection delete(final String path1,
-      final String path2, final Route.OneArgHandler handler) {
+  public Route.Collection delete(final String path1, final String path2,
+      final Route.OneArgHandler handler) {
     return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP DELETE method on the same handler:
-   *
-   * <pre>
-   *   delete("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Collection delete(final String path1,
-      final String path2, final String path3,
+  public Route.Collection delete(final String path1, final String path2, final String path3,
       final Route.OneArgHandler handler) {
     return new Route.Collection(
         new Route.Definition[]{delete(path1, handler), delete(path2, handler),
             delete(path3, handler) });
   }
 
-  /**
-   * Append route that supports HTTP DELETE method:
-   *
-   * <pre>
-   *   delete("/", () {@literal ->}
-   *     Body.status(204)
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition delete(final String path,
       final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("DELETE", path, handler));
   }
 
-  /**
-   * Append three routes that supports HTTP DELETE method on the same handler:
-   *
-   * <pre>
-   *   delete("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection delete(final String path1,
       final String path2, final Route.ZeroArgHandler handler) {
@@ -2710,23 +1552,6 @@ public class Jooby implements Router, LifeCycle, Registry {
         new Route.Definition[]{delete(path1, handler), delete(path2, handler) });
   }
 
-  /**
-   * Append three routes that supports HTTP DELETE method on the same handler:
-   *
-   * <pre>
-   *   delete("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
   public Route.Collection delete(final String path1,
       final String path2, final String path3,
@@ -2736,261 +1561,69 @@ public class Jooby implements Router, LifeCycle, Registry {
             delete(path3, handler) });
   }
 
-  /**
-   * Append a route that supports HTTP DELETE method:
-   *
-   * <pre>
-   *   delete("/", (req, rsp, chain) {@literal ->} {
-   *     rsp.status(304);
-   *     chain.next(req, rsp);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param filter A callback to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition delete(final String path,
-      final Route.Filter filter) {
+  public Route.Definition delete(final String path, final Route.Filter filter) {
     return appendDefinition(new Route.Definition("DELETE", path, filter));
   }
 
-  /**
-   * Append three routes that supports HTTP DELETE method on the same handler:
-   *
-   * <pre>
-   *   delete("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Collection delete(final String path1,
-      final String path2, final Route.Filter filter) {
+  public Route.Collection delete(final String path1, final String path2,
+      final Route.Filter filter) {
     return new Route.Collection(
         new Route.Definition[]{delete(path1, filter), delete(path2, filter) });
   }
 
-  /**
-   * Append three routes that supports HTTP DELETE method on the same handler:
-   *
-   * <pre>
-   *   delete("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path1 A path pattern.
-   * @param path2 A path pattern.
-   * @param path3 A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Collection delete(final String path1,
-      final String path2, final String path3,
+  public Route.Collection delete(final String path1, final String path2, final String path3,
       final Route.Filter filter) {
     return new Route.Collection(
         new Route.Definition[]{delete(path1, filter), delete(path2, filter),
             delete(path3, filter) });
   }
 
-  /**
-   * Append a route that supports HTTP TRACE method:
-   *
-   * <pre>
-   *   trace("/", (req, rsp) {@literal ->} {
-   *     rsp.send(...);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A callback to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition trace(final String path,
-      final Route.Handler handler) {
+  public Route.Definition trace(final String path, final Route.Handler handler) {
     return appendDefinition(new Route.Definition("TRACE", path, handler));
   }
 
-  /**
-   * Append route that supports HTTP TRACE method:
-   *
-   * <pre>
-   *   trace("/", (req) {@literal ->}
-   *     "trace"
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition trace(final String path,
-      final Route.OneArgHandler handler) {
+  public Route.Definition trace(final String path, final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("TRACE", path, handler));
   }
 
-  /**
-   * Append route that supports HTTP TRACE method:
-   *
-   * <pre>
-   *   trace("/", () {@literal ->}
-   *     "trace"
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition trace(final String path,
-      final Route.ZeroArgHandler handler) {
+  public Route.Definition trace(final String path, final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("TRACE", path, handler));
   }
 
-  /**
-   * Append a route that supports HTTP TRACE method:
-   *
-   * <pre>
-   *   trace("/", (req, rsp, chain) {@literal ->} {
-   *     chain.next(req, rsp);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param filter A callback to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition trace(final String path,
-      final Route.Filter filter) {
+  public Route.Definition trace(final String path, final Route.Filter filter) {
     return appendDefinition(new Route.Definition("TRACE", path, filter));
   }
 
-  /**
-   * Append a default trace implementation under the given path. Default trace response, looks
-   * like:
-   *
-   * <pre>
-   *  TRACE /path
-   *     header1: value
-   *     header2: value
-   *
-   * </pre>
-   *
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition trace() {
     return appendDefinition(new Route.Definition("TRACE", "*", handler(TraceHandler.class))
         .name("*.trace"));
   }
 
-  /**
-   * Append a route that supports HTTP CONNECT method:
-   *
-   * <pre>
-   *   connect("/", (req, rsp, chain) {@literal ->} {
-   *     chain.next(req, rsp);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition connect(final String path,
-      final Route.Handler handler) {
+  public Route.Definition connect(final String path, final Route.Handler handler) {
     return appendDefinition(new Route.Definition("CONNECT", path, handler));
   }
 
-  /**
-   * Append route that supports HTTP CONNECT method:
-   *
-   * <pre>
-   *   connect("/", (req) {@literal ->}
-   *     "hello"
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition connect(final String path,
-      final Route.OneArgHandler handler) {
+  public Route.Definition connect(final String path, final Route.OneArgHandler handler) {
     return appendDefinition(new Route.Definition("CONNECT", path, handler));
   }
 
-  /**
-   * Append route that supports HTTP CONNECT method:
-   *
-   * <pre>
-   *   connect("/", () {@literal ->}
-   *     "connected"
-   *   );
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param handler A handler to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition connect(final String path,
-      final Route.ZeroArgHandler handler) {
+  public Route.Definition connect(final String path, final Route.ZeroArgHandler handler) {
     return appendDefinition(new Route.Definition("CONNECT", path, handler));
   }
 
-  /**
-   * Append a route that supports HTTP CONNECT method:
-   *
-   * <pre>
-   *   connect("/", (req, rsp, chain) {@literal ->} {
-   *     chain.next(req, rsp);
-   *   });
-   * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
-   * @param path A path pattern.
-   * @param filter A filter to execute.
-   * @return A new route definition.
-   */
   @Override
-  public Route.Definition connect(final String path,
-      final Route.Filter filter) {
+  public Route.Definition connect(final String path, final Route.Filter filter) {
     return appendDefinition(new Route.Definition("CONNECT", path, filter));
   }
 
@@ -3066,66 +1699,11 @@ public class Jooby implements Router, LifeCycle, Registry {
     return (req, rsp, chain) -> req.require(filter).handle(req, rsp, chain);
   }
 
-  /**
-   * Send a static file.
-   *
-   * <pre>
-   *   assets("/assets/**");
-   * </pre>
-   *
-   * Resources are served from root of classpath, for example <code>GET /assets/file.js</code> will
-   * be resolve as classpath resource at the same location.
-   *
-   * @param path The path to publish.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition assets(final String path) {
     return assets(path, "/");
   }
 
-  /**
-   * Send a static file.
-   *
-   * <p>
-   * Basic example
-   * </p>
-   *
-   * <pre>
-   *   assets("/js/**", "/");
-   * </pre>
-   *
-   * A request for: <code>/js/jquery.js</code> will be translated to: <code>/lib/jquery.js</code>.
-   *
-   * <p>
-   * Webjars example:
-   * </p>
-   *
-   * <pre>
-   *   assets("/js/**", "/resources/webjars/{0}");
-   * </pre>
-   *
-   * A request for: <code>/js/jquery/2.1.3/jquery.js</code> will be translated to:
-   * <code>/resources/webjars/jquery/2.1.3/jquery.js</code>.
-   * The <code>{0}</code> represent the <code>**</code> capturing group.
-   *
-   * <p>
-   * Another webjars example:
-   * </p>
-   *
-   * <pre>
-   *   assets("/js/*-*.js", "/resources/webjars/{0}/{1}/{0}.js");
-   * </pre>
-   *
-   * <p>
-   * A request for: <code>/js/jquery-2.1.3.js</code> will be translated to:
-   * <code>/resources/webjars/jquery/2.1.3/jquery.js</code>.
-   * </p>
-   *
-   * @param path The path to publish.
-   * @param location A resource location.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition assets(final String path, final String location) {
     AssetHandler handler = new AssetHandler(location);
@@ -3139,84 +1717,11 @@ public class Jooby implements Router, LifeCycle, Registry {
     return assets(path, handler);
   }
 
-  /**
-   * Send a static file.
-   *
-   * <p>
-   * Basic example
-   * </p>
-   *
-   * <pre>
-   *   assets("/js/**", "/");
-   * </pre>
-   *
-   * A request for: <code>/js/jquery.js</code> will be translated to: <code>/lib/jquery.js</code>.
-   *
-   * <p>
-   * Webjars example:
-   * </p>
-   *
-   * <pre>
-   *   assets("/js/**", "/resources/webjars/{0}");
-   * </pre>
-   *
-   * A request for: <code>/js/jquery/2.1.3/jquery.js</code> will be translated to:
-   * <code>/resources/webjars/jquery/2.1.3/jquery.js</code>.
-   * The <code>{0}</code> represent the <code>**</code> capturing group.
-   *
-   * <p>
-   * Another webjars example:
-   * </p>
-   *
-   * <pre>
-   *   assets("/js/*-*.js", "/resources/webjars/{0}/{1}/{0}.js");
-   * </pre>
-   *
-   * <p>
-   * A request for: <code>/js/jquery-2.1.3.js</code> will be translated to:
-   * <code>/resources/webjars/jquery/2.1.3/jquery.js</code>.
-   * </p>
-   *
-   * @param path The path to publish.
-   * @param handler Asset handler.
-   * @return A new route definition.
-   */
   @Override
   public Route.Definition assets(final String path, final AssetHandler handler) {
     return appendDefinition(new Route.Definition("GET", path, handler));
   }
 
-  /**
-   * <p>
-   * Append one or more routes defined in the given class.
-   * </p>
-   *
-   * <pre>
-   *   use(MyRoute.class);
-   *   ...
-   *   // MyRoute.java
-   *   {@literal @}Path("/")
-   *   public class MyRoute {
-   *
-   *    {@literal @}GET
-   *    public String hello() {
-   *      return "Hello Jooby";
-   *    }
-   *   }
-   * </pre>
-   * <p>
-   * Programming model is quite similar to JAX-RS/Jersey with some minor differences and/or
-   * simplifications.
-   * </p>
-   *
-   * <p>
-   * To learn more about Mvc Routes, please check {@link org.jooby.mvc.Path},
-   * {@link org.jooby.mvc.Produces} {@link org.jooby.mvc.Consumes}.
-   * </p>
-   *
-   * @param routeClass A route(s) class.
-   * @return This jooby instance.
-   */
   @Override
   public Route.Collection use(final Class<?> routeClass) {
     requireNonNull(routeClass, "Route class is required.");
@@ -3240,9 +1745,9 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * Register a application module.
+   * Import an application {@link Module}.
    *
-   * @param module The module to register.
+   * @param module The module to import.
    * @return This jooby instance.
    * @see Jooby.Module
    */
@@ -3290,36 +1795,12 @@ public class Jooby implements Router, LifeCycle, Registry {
     return this;
   }
 
-  /**
-   * Setup a route error handler. Default error handler {@link Err.DefHandler} does content
-   * negotation and this method allow to override/complement default handler.
-   *
-   * @param err A route error handler.
-   * @return This jooby instance.
-   */
   @Override
   public Jooby err(final Err.Handler err) {
     this.bag.add(requireNonNull(err, "An err handler is required."));
     return this;
   }
 
-  /**
-   * Append a new WebSocket handler under the given path.
-   *
-   * <pre>
-   *   ws("/ws", (socket) {@literal ->} {
-   *     // connected
-   *     socket.onMessage(message {@literal ->} {
-   *       System.out.println(message);
-   *     });
-   *     socket.send("Connected"):
-   *   });
-   * </pre>
-   *
-   * @param path A path pattern.
-   * @param handler A connect callback.
-   * @return A new WebSocket definition.
-   */
   @Override
   public WebSocket.Definition ws(final String path, final WebSocket.FullHandler handler) {
     WebSocket.Definition ws = new WebSocket.Definition(path, handler);
@@ -3353,27 +1834,10 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * <h1>Bootstrap</h1>
-   * <p>
-   * The bootstrap process is defined as follows:
-   * </p>
-   * <h2>1. Configuration files (first-listed are higher priority)</h2>
-   * <ol>
-   * <li>System properties</li>
-   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
-   * <li>{@link Jooby.Module Modules} properties</li>
-   * </ol>
+   * Prepare and startup a {@link Jooby} application.
    *
-   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
-   * <ol>
-   * <li>An {@link Injector Guice Injector} is created.</li>
-   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
-   * <li>At this point Guice is ready and all the services has been binded.</li>
-   * <li>A web server is started</li>
-   * </ol>
-   *
-   * @param app App creator.
-   * @param args App arguments.
+   * @param app Application supplier.
+   * @param args Application arguments.
    */
   public static void run(final Supplier<? extends Jooby> app, final String... args) {
     Config conf = ConfigFactory.systemProperties()
@@ -3383,27 +1847,10 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * <h1>Bootstrap</h1>
-   * <p>
-   * The bootstrap process is defined as follows:
-   * </p>
-   * <h2>1. Configuration files (first-listed are higher priority)</h2>
-   * <ol>
-   * <li>System properties</li>
-   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
-   * <li>{@link Jooby.Module Modules} properties</li>
-   * </ol>
+   * Prepare and startup a {@link Jooby} application.
    *
-   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
-   * <ol>
-   * <li>An {@link Injector Guice Injector} is created.</li>
-   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
-   * <li>At this point Guice is ready and all the services has been binded.</li>
-   * <li>A web server is started</li>
-   * </ol>
-   *
-   * @param app App creator.
-   * @param args App arguments.
+   * @param app Application supplier.
+   * @param args Application arguments.
    */
   public static void run(final Class<? extends Jooby> app, final String... args) {
     run(() -> Try.of(() -> app.newInstance()).get(), args);
@@ -3438,51 +1885,16 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
-   * <h1>Bootstrap</h1>
-   * <p>
-   * The bootstrap process is defined as follows:
-   * </p>
-   * <h2>1. Configuration files (first-listed are higher priority)</h2>
-   * <ol>
-   * <li>System properties</li>
-   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
-   * <li>{@link Jooby.Module Modules} properties</li>
-   * </ol>
-   *
-   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
-   * <ol>
-   * <li>An {@link Injector Guice Injector} is created.</li>
-   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
-   * <li>At this point Guice is ready and all the services has been binded.</li>
-   * <li>A web server is started</li>
-   * </ol>
+   * Start an application.
    */
   public void start() {
     start(new String[0]);
   }
 
   /**
-   * <h1>Bootstrap</h1>
-   * <p>
-   * The bootstrap process is defined as follows:
-   * </p>
-   * <h2>1. Configuration files (first-listed are higher priority)</h2>
-   * <ol>
-   * <li>System properties</li>
-   * <li>Application properties: {@code application.conf} or custom, see {@link #use(Config)}</li>
-   * <li>{@link Jooby.Module Modules} properties</li>
-   * </ol>
+   * Start an application.
    *
-   * <h2>2. Dependency Injection and {@link Jooby.Module modules}</h2>
-   * <ol>
-   * <li>An {@link Injector Guice Injector} is created.</li>
-   * <li>It calls to {@link Jooby.Module#configure(Env, Config, Binder)} for each module.</li>
-   * <li>At this point Guice is ready and all the services has been binded.</li>
-   * <li>A web server is started</li>
-   * </ol>
-   *
-   * @param args Application arguments. Using the <code>name=value</code> format, except for
-   *        application.env where can be just: <code>myenv</code>.
+   * @param args Application arguments.
    */
   public void start(final String... args) {
     try {

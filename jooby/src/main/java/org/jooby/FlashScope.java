@@ -64,7 +64,7 @@ import com.typesafe.config.Config;
  * public class Controller {
  *
  *   &#64;GET
- *   public Object flashScope(@Flash Map<String, String> flash) {
+ *   public Object flashScope(@Flash Map&lt;String, String&gt; flash) {
  *     ...
  *   }
  *
@@ -74,7 +74,7 @@ import com.typesafe.config.Config;
  *   }
  *
  *   &#64;GET
- *   public Object optionlFlashAttr(@Flash Optional<String> foo) {
+ *   public Object optionlFlashAttr(@Flash Optional&lt;String&gt; foo) {
  *     ...
  *   }
  * }
@@ -139,7 +139,8 @@ public class FlashScope implements Jooby.Module {
         .httpOnly(cookie.httpOnly().orElse(chttp))
         .secure(cookie.secure().orElse(csecure));
 
-    env.router().use(method, path, new FlashScopeHandler(cookie, decoder, encoder))
+    env.router()
+        .use(method, path, new FlashScopeHandler(cookie, decoder, encoder))
         .name("flash-scope");
   }
 

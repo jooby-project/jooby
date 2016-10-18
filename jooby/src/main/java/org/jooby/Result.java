@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * Utility class for HTTP responses. Usually you start with a result builder {@link Results} and
+ * Utility class for HTTP responses. Usually you start with a result {@link Results builder} and
  * then you customize (or not) one or more HTTP attribute.
  *
  * <p>
@@ -54,7 +54,8 @@ import com.google.common.collect.ImmutableMap;
  * {
  *   get("/", () {@literal ->} {
  *     Object model = ...;
- *     return Results.when("text/html", () {@literal ->} Viewable.of("view", "model", model))
+ *     return Results
+ *       .when("text/html", () {@literal ->} Results.html("view").put("model", model))
  *       .when("application/json", () {@literal ->} model);
  *   });
  * }
