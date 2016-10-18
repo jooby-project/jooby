@@ -66,7 +66,7 @@ public class Issue315 extends ServerFeature {
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
     get("/async", promise(deferred -> {
-      executor.execute(deferred.run(() -> "async"));
+      executor.execute(() -> deferred.resolve("async"));
     }));
 
     before((req, rsp) -> {

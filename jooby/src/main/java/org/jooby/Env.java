@@ -49,7 +49,7 @@ import javaslang.control.Option;
 import javaslang.control.Try.CheckedConsumer;
 
 /**
- * Allows to optimize, customize or apply defaults values for services.
+ * Allows to optimize, customize or apply defaults values for application services.
  *
  * <p>
  * A env is represented by it's name. For example: <code>dev</code>, <code>prod</code>, etc... A
@@ -61,8 +61,8 @@ import javaslang.control.Try.CheckedConsumer;
  * create a high performance connection pool, caches, etc.
  * </p>
  * <p>
- * By default env is set to dev, but you can change it by setting the <code>application.env</code>
- * property to anything else.
+ * By default env is set to <code>dev</code>, but you can change it by setting the
+ * <code>application.env</code> property to anything else.
  * </p>
  *
  * @author edgar
@@ -372,7 +372,8 @@ public interface Env extends LifeCycle {
    * Produces a {@link API.Match} of the current {@link Env}.
    *
    * <pre>
-   *   String accessKey = env.match()"dev", () {@literal ->} "1234")
+   *   String accessKey = env.match()
+   *                          .when("dev", () {@literal ->} "1234")
    *                          .when("stage", () {@literal ->} "4321")
    *                          .when("prod", () {@literal ->} "abc")
    *                          .get();

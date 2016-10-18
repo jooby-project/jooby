@@ -22,84 +22,118 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
-
-import javaslang.CheckedFunction0;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * <h1>async request processing</h1>
- * A Deferred result, useful for async request processing. Application can produces a result from a
- * thread of its choice.
+ * <p>
+ * A Deferred result, useful for async request processing.
+ * </p>
+ * <p>
+ * Application can produces a result from a different thread. Once result is ready, a call to
+ * {@link #resolve(Object)} is required. Please note, a call to {@link #reject(Throwable)} is
+ * required in case of errors.
+ * </p>
  *
  * <h2>usage</h2>
  *
  * <pre>
  * {
- *    ExecutorService executor = ...;
- *
- *    get("/async", promise(deferred {@literal ->} {
- *      executor.execute(() {@literal ->} {
- *        try {
- *          deferred.resolve(...); // success value
- *        } catch (Exception ex) {
- *          deferred.reject(ex); // error value
- *        }
- *      });
+ *    get("/async", deferred(() {@literal ->} {
+ *      return "Success";
  *    }));
  *  }
  * </pre>
  *
- * <p>
- * Or with automatic error handler:
- * </p>
+ * From MVC route:
+ *
+ * <pre>{@code
+ *
+ *  public class Controller {
+ *    &#64;GET
+ *    &#64;Path("/async")
+ *    public Deferred async() {
+ *      return Deferred.deferred(() -> "Success");
+ *    }
+ *  }
+ * }</pre>
+ *
+ * If you add the {@link AsyncMapper} then your controller method can return a {@link Callable}.
+ *
+ * Previous example runs in the default executor, which always run deferred results in the
+ * same/caller thread.
+ *
+ * To effectively run a deferred result in new/different thread you need to provide an
+ * {@link Executor}:
+ *
+ * <pre>{@code
+ * {
+ *   executor(new ForkJoinPool());
+ * }
+ * }</pre>
+ *
+ * This line override the default executor with a {@link ForkJoinPool}. You can add two or more
+ * named executor:
+ *
+ * <pre>{@code
+ * {
+ *   executor(new ForkJoinPool());
+ *
+ *   executor("cached", Executors.newCachedExecutor());
+ *
+ *   get("/async", deferred("cached", () -> "Success"));
+ * }
+ * }</pre>
+ *
+ * A {@link Deferred} object works as a promise too, given you {@link #resolve(Object)} and
+ * {@link #reject(Throwable)} methods. Examples:
+ *
+ * As promise using the default executor (execute promise in same/caller thread):
+ * <pre>
+ * {
+ *    get("/async", promise(deferred {@literal ->} {
+ *      try {
+ *        deferred.resolve(...); // success value
+ *      } catch (Throwable ex) {
+ *        deferred.reject(ex); // error value
+ *      }
+ *    }));
+ *  }
+ * </pre>
+ *
+ * As promise using a custom executor:
+ * <pre>
+ * {
+ *    executor(new ForkJoinPool());
+ *
+ *    get("/async", promise(deferred {@literal ->} {
+ *      try {
+ *        deferred.resolve(...); // success value
+ *      } catch (Throwable ex) {
+ *        deferred.reject(ex); // error value
+ *      }
+ *    }));
+ *  }
+ * </pre>
+ *
+ * As promise using an alternative executor:
  *
  * <pre>
  * {
- *    ExecutorService executor = ...;
+ *    executor(new ForkJoinPool());
  *
- *    get("/async", promise(deferred {@literal ->} {
- *      executor.execute(() {@literal ->} {
- *        deferred.resolve(() {@literal ->} {
- *          Object value = ...
- *          return value;
- *        }); // success value
- *      });
+ *    executor("cached", Executors.newCachedExecutor());
+ *
+ *    get("/async", promise("cached", deferred {@literal ->} {
+ *      try {
+ *        deferred.resolve(...); // success value
+ *      } catch (Throwable ex) {
+ *        deferred.reject(ex); // error value
+ *      }
  *    }));
  *  }
  * </pre>
- *
- * <p>
- * Or as {@link Runnable} with automatic error handler:
- * </p>
- *
- * <pre>
- * {
- *    ExecutorService executor = ...;
- *
- *    get("/async", promise(deferred {@literal ->} {
- *      executor.execute(deferred.run(() {@literal ->} {
- *        Object value = ...
- *        return value;
- *      }); // success value
- *    }));
- *  }
- * </pre>
- *
- * <p>
- * Application can produces a result from a different thread. Once result is ready, a call to
- * {@link #set(Object)} is required. Please note, a call to {@link #set(Object)} is required in case
- * of errors.
- * </p>
- *
- * <h2>error handling</h2>
- * <p>
- * Due the code will be handle by an external/new thread, you MUST be ready to handle errors,
- * usually with a try/catch statement. A call to {@link #set(Object)} is required too in case of an
- * error.
- * </p>
- * <p>
- * Checkout the utility method {@link #resolve(CheckedFunction0)} and/or
- * {@link #run(CheckedFunction0)}. Both of them catch and handle exceptions for you.
- * </p>
  *
  * @author edgar
  * @since 0.10.0
@@ -273,40 +307,6 @@ public class Deferred extends Result {
   }
 
   /**
-   * Produces a {@link Runnable} that runs the given {@link Callable} and
-   * {@link #resolve(CheckedFunction0)} or {@link #reject(Throwable)} the deferred.
-   *
-   * Please note, the given {@link Callable} runs in the caller thread.
-   *
-   * @param block Callable that produces a result.
-   * @param <T> Resulting type.
-   * @return This deferred as {@link Runnable}.
-   */
-  public <T> Runnable run(final CheckedFunction0<T> block) {
-    return () -> {
-      resolve(block);
-    };
-  }
-
-  /**
-   * Run the given {@link Callable} and {@link #resolve(CheckedFunction0)} or
-   * {@link #reject(Throwable)} the
-   * deferred.
-   *
-   * Please note, the given {@link Callable} runs in the caller thread.
-   *
-   * @param block Callable that produces a result.
-   * @param <T> Resulting type.
-   */
-  public <T> void resolve(final CheckedFunction0<T> block) {
-    try {
-      resolve(block.apply());
-    } catch (Throwable x) {
-      reject(x);
-    }
-  }
-
-  /**
    * Setup a handler for this deferred. Application code should never call this method: INTERNAL USE
    * ONLY.
    *
@@ -319,6 +319,132 @@ public class Deferred extends Result {
     if (initializer != null) {
       initializer.run(req, this);
     }
+  }
+
+  /**
+   * Functional version of {@link Deferred#Deferred(Initializer)}.
+   *
+   * Using the default executor (current thread):
+   *
+   * <pre>{@code
+   * {
+   *   get("/fork", deferred(req -> {
+   *     return req.param("value").value();
+   *   }));
+   * }
+   * }</pre>
+   *
+   * Using a custom executor:
+   *
+   * <pre>{@code
+   * {
+   *   executor(new ForkJoinPool());
+   *
+   *   get("/fork", deferred(req -> {
+   *     return req.param("value").value();
+   *   }));
+   * }
+   * }</pre>
+   *
+   * This handler automatically {@link Deferred#resolve(Object)} or
+   * {@link Deferred#reject(Throwable)} a route handler response.
+   *
+   * @param handler Application block.
+   * @return A new deferred handler.
+   */
+  public static Deferred deferred(final Route.OneArgHandler handler) {
+    return deferred(null, handler);
+  }
+
+  /**
+   * Functional version of {@link Deferred#Deferred(Initializer)}.
+   *
+   * Using the default executor (current thread):
+   *
+   * <pre>{@code
+   * {
+   *   get("/fork", deferred(() -> {
+   *     return req.param("value").value();
+   *   }));
+   * }
+   * }</pre>
+   *
+   * Using a custom executor:
+   *
+   * <pre>{@code
+   * {
+   *   executor(new ForkJoinPool());
+   *
+   *   get("/fork", deferred(() -> {
+   *     return req.param("value").value();
+   *   }));
+   * }
+   * }</pre>
+   *
+   * This handler automatically {@link Deferred#resolve(Object)} or
+   * {@link Deferred#reject(Throwable)} a route handler response.
+   *
+   * @param handler Application block.
+   * @return A new deferred.
+   */
+  public static Deferred deferred(final Route.ZeroArgHandler handler) {
+    return deferred(null, handler);
+  }
+
+  /**
+   * Functional version of {@link Deferred#Deferred(Initializer)}. To use ideally with one
+   * or more {@link Executor}:
+   *
+   * <pre>{@code
+   * {
+   *   executor("cached", Executors.newCachedExecutor());
+   *
+   *   get("/fork", deferred("cached", () -> {
+   *     return "OK";
+   *   }));
+   * }
+   * }</pre>
+   *
+   * This handler automatically {@link Deferred#resolve(Object)} or
+   * {@link Deferred#reject(Throwable)} a route handler response.
+   *
+   * @param executor Executor to run the deferred.
+   * @param handler Application block.
+   * @return A new deferred handler.
+   */
+  public static Deferred deferred(final String executor, final Route.ZeroArgHandler handler) {
+    return deferred(executor, req -> handler.handle());
+  }
+
+  /**
+   * Functional version of {@link Deferred#Deferred(Initializer)}. To use ideally with one
+   * or more {@link Executor}:
+   *
+   * <pre>{@code
+   * {
+   *   executor("cached", Executors.newCachedExecutor());
+   *
+   *   get("/fork", deferred("cached", req -> {
+   *     return req.param("value").value();
+   *   }));
+   * }
+   * }</pre>
+   *
+   * This handler automatically {@link Deferred#resolve(Object)} or
+   * {@link Deferred#reject(Throwable)} a route handler response.
+   *
+   * @param executor Executor to run the deferred.
+   * @param handler Application block.
+   * @return A new deferred handler.
+   */
+  public static Deferred deferred(final String executor, final Route.OneArgHandler handler) {
+    return new Deferred(executor, (req, deferred) -> {
+      try {
+        deferred.resolve(handler.handle(req));
+      } catch (Throwable x) {
+        deferred.reject(x);
+      }
+    });
   }
 
 }

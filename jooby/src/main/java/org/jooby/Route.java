@@ -55,14 +55,13 @@ import com.google.inject.internal.util.SourceProvider;
 import javaslang.CheckedFunction1;
 
 /**
- * Routes are a key concept in Jooby. Routes are executed in the same order they are defined
- * (even for Mvc Routes).
+ * Routes are a key concept in Jooby. Routes are executed in the same order they are defined.
  *
- * <h1>Handlers</h1>
+ * <h1>handlers</h1>
  * <p>
- * There are two types of handlers: {@link Route.Handler} and {@link Route.Filter}. They behave very
- * similar, except that a {@link Route.Filter} can decide if the next route handler can be executed
- * or not. For example:
+ * There are few type of handlers: {@link Route.Handler}, {@link Route.OneArgHandler}
+ * {@link Route.ZeroArgHandler} and {@link Route.Filter}. They behave very similar, except that a
+ * {@link Route.Filter} can decide if the next route handler can be executed or not. For example:
  * </p>
  *
  * <pre>
@@ -89,7 +88,20 @@ import javaslang.CheckedFunction1;
  *   });
  * </pre>
  *
- * <h1>Path Patterns</h1>
+ * The {@link Route.OneArgHandler} and {@link Route.ZeroArgHandler} offers a functional version of
+ * generating a response:
+ *
+ * <pre>{@code
+ * {
+ *   get("/path", req -> "handler");
+ *
+ *   get("/path", () -> "handler");
+ * }
+ * }</pre>
+ *
+ * There is no need to call {@link Response#send(Object)}.
+ *
+ * <h1>path patterns</h1>
  * <p>
  * Jooby supports Ant-style path patterns:
  * </p>
@@ -106,7 +118,7 @@ import javaslang.CheckedFunction1;
  * <li>{@code *} - matches any path at any level, shorthand for {@code **}/{@code *}.</li>
  * </ul>
  *
- * <h2>Variables</h2>
+ * <h2>variables</h2>
  * <p>
  * Jooby supports path parameters too:
  * </p>
@@ -120,7 +132,7 @@ import javaslang.CheckedFunction1;
  * <code>id</code> var.</li>
  * </ul>
  *
- * <h1>Routes</h1>
+ * <h1>routes semantic</h1>
  * <p>
  * Routes are executed in the order they are defined, for example:
  * </p>
@@ -158,9 +170,9 @@ import javaslang.CheckedFunction1;
  *   });
  * </pre>
  *
- * <h2>Inline route</h2>
+ * <h2>script route</h2>
  * <p>
- * An inline route can be defined using Lambda expressions, like:
+ * A script route can be defined using Lambda expressions, like:
  * </p>
  *
  * <pre>
@@ -181,7 +193,7 @@ import javaslang.CheckedFunction1;
  *   });
  * </pre>
  *
- * <h2>Mvc Route</h2>
+ * <h2>mvc Route</h2>
  * <p>
  * A Mvc Route use annotations to define routes:
  * </p>
@@ -1009,7 +1021,7 @@ public interface Route {
 
     private static final SourceProvider SRC = SourceProvider.DEFAULT_INSTANCE
         .plusSkippedClasses(Definition.class, Jooby.class, Collection.class, Group.class,
-            javaslang.collection.List.class, Router.class);
+            javaslang.collection.List.class, Router.class, Forwarding.class, Deferred.class);
 
     /**
      * Route's name.

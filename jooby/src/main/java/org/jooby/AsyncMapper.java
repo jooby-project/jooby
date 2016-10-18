@@ -31,6 +31,8 @@ import org.jooby.internal.mapper.CompletableFutureMapper;
  * </p>
  *
  * <h2>usage</h2>
+ *
+ * Script route:
  * <pre>{@code
  * {
  *   map(new AsyncMapper());
@@ -47,6 +49,19 @@ import org.jooby.internal.mapper.CompletableFutureMapper;
  *     return CompletableFuture.supplyAsync(() -> "OK");
  *   });
  * }
+ * }</pre>
+ *
+ * From Mvc route you can return a callable:
+ *
+ * <pre>{@code
+ *
+ *  public class Controller {
+ *    &#64;GET
+ *    &#64;Path("/async")
+ *    public Callable<String> async() {
+ *      return "Success";
+ *    }
+ *  }
  * }</pre>
  *
  * @author edgar

@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.function.Supplier;
 
 /**
- * A {@link Result} builder with some utility static methods (nothing more).
+ * A {@link Result} builder with some utility static methods.
  *
  * @author edgar
  * @since 0.5.0

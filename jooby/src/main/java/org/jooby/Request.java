@@ -40,6 +40,62 @@ import com.google.inject.TypeLiteral;
 /**
  * Give you access at the current HTTP request in order to read parameters, headers and body.
  *
+ * <h2>HTTP parameter and headers</h2>
+ * <p>
+ * Access to HTTP parameter/header is available via {@link #param(String)} and
+ * {@link #header(String)} methods. See some examples:
+ * </p>
+ *
+ * <pre>
+ *   // str param
+ *   String value = request.param("str").value();
+ *
+ *   // optional str
+ *   String value = request.param("str").value("defs");
+ *
+ *   // int param
+ *   int value = request.param("some").intValue();
+ *
+ *   // optional int param
+ *   Optional{@literal <}Integer{@literal >} value = request.param("some").toOptional(Integer.class);
+
+ *   // list param
+ *   List{@literal <}String{@literal >} values = request.param("some").toList(String.class);
+ * </pre>
+ *
+ * <h2>form post/multi-param request</h2>
+ * <p>
+ * Due that form post are treated as HTTP params you can collect all them into a Java Object via
+ * {@link #params(Class)} or {@link #form(Class)} methods:
+ * </p>
+ *
+ * <pre>{@code
+ * {
+ *   get("/search", req -> {
+ *     Query q = req.params(Query.class);
+ *   });
+ *
+ *   post("/person", req -> {
+ *     Person person = req.form(Person.class);
+ *   });
+ * }
+ * }</pre>
+ *
+ * <h2>form file upload</h2>
+ * <p>
+ * Form post file upload are available via {@link #files(String)} or {@link #file(String)} methods:
+ * </p>
+ * <pre>{@code
+ * {
+ *   post("/upload", req  -> {
+ *     try(Upload upload = req.file("myfile")) {
+ *       File file = upload.file();
+ *       // work with file.
+ *     }
+ *   });
+ * }
+ * }</pre>
+ *
  * @author edgar
  * @since 0.1.0
  */
@@ -437,7 +493,7 @@ public interface Request extends Registry {
    */
   default String path(final boolean escape) {
     String path = route().path();
-    return escape? UrlEscapers.urlFragmentEscaper().escape(path) : path;
+    return escape ? UrlEscapers.urlFragmentEscaper().escape(path) : path;
   }
 
   /**

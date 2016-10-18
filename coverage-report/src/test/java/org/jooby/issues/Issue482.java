@@ -1,6 +1,5 @@
 package org.jooby.issues;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.jooby.MediaType;
@@ -31,10 +30,10 @@ public class Issue482 extends ServerFeature {
 
     use(new Jackson());
 
-    Executor exec = Executors.newSingleThreadExecutor();
+    executor(Executors.newSingleThreadExecutor());
 
-    get("/482/raw", promise(deferred -> {
-      exec.execute(deferred.run(() -> Results.json("{\"status\":\"success\"}")));
+    get("/482/raw", deferred(() -> {
+      return Results.json("{\"status\":\"success\"}");
     }));
 
   }

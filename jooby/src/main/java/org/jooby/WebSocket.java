@@ -35,7 +35,10 @@ import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
- * <h1>WebSockets</h1> Creating web sockets is pretty straightforward:
+ * <h1>WebSockets</h1>
+ * <p>
+ * Creating web sockets is pretty straightforward:
+ * </p>
  *
  * <pre>
  *  {
@@ -61,8 +64,11 @@ import com.google.inject.TypeLiteral;
  *
  * Inside a handler you can send text or binary message.
  *
- * <h2>Data types</h2> If your web socket is suppose to send/received a specific data type, like:
+ * <h2>Data types</h2>
+ * <p>
+ * If your web socket is suppose to send/received a specific data type, like:
  * <code>json</code> it is nice to define a consumes and produces types:
+ * </p>
  *
  * <pre>
  *   ws("/", (ws) {@literal ->} {
@@ -107,7 +113,6 @@ public interface WebSocket extends Closeable, Registry {
      */
     void connect(Request req, WebSocket ws) throws Exception;
   }
-
 
   /**
    * A web socket connect handler. Executed every time a new client connect to the socket.
