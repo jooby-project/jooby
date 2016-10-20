@@ -12,8 +12,6 @@ documentation
 
 {{app.md}}
 
-{{logging.md}}
-
 {{conf.md}}
 
 {{modules.md}}
