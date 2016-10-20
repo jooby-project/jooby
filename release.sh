@@ -1,4 +1,4 @@
-mvn clean deploy -P sonatype-oss-release
+mvn -pl '!coverage-report' clean deploy -P sonatype-oss-release
 
 cd jooby-bom
 
