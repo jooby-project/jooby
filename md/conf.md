@@ -1,8 +1,10 @@
 # conf, env and logging
 
-Jooby delegates configuration management to [config](https://github.com/typesafehub/config). By defaults Jooby will attempt to load an ```application.conf``` file from root of classpath. Inside the file you can add/override any property you want.
+Jooby delegates configuration management to [config](https://github.com/typesafehub/config).
 
-## property access
+By defaults Jooby expect to find an ```application.conf``` file at the root of classpath.
+
+## getting properties
 
 via script:
 
@@ -16,13 +18,26 @@ via script:
 }
 ```
 
-or via ```@Named``` annotation:
+via ```@Named``` annotation:
 
 ```java
 public class Controller {
 
   @Inject
   public Controller(@Named("myprop") String myprop) {
+    ...
+  }
+}
+```
+
+via [Module]({{defdocs}}/Jooby.Module.html):
+
+```java
+
+public class MyModule implements Jooby.Module {
+
+  public void configure(Env env, Config conf, Binder binder) {
+    String myprop = conf.getString("myprop");
     ...
   }
 }
@@ -44,19 +59,26 @@ Automatic type conversion is provided when a type:
 
 6) Has a static method **forName** that accepts a single **String** argument. Like ```java.nio.charset.Charset```
 
-7) There is custom [Guice](https://github.com/google/guice) type converter for the type
+You're free to inject the entirely ```com.typesafe.config.Config``` object or `sub-path/tree` of it.
 
-It is also possible to inject the root ```com.typesafe.config.Config``` object or a child of it.
+## environment
 
-## application.env
-
-Jooby internals and also the module system rely on the ```application.env``` property. By defaults, this property is set to: ```dev```.
+Jooby internals and the module system rely on the ```application.env``` property. By defaults, this property is set to: ```dev```.
 
 This special property is represented at runtime with the [Env]({{apidocs}}/org/jooby/Env.html) class.
 
-For example, the [development stage](https://github.com/google/guice/wiki/Bootstrap) is set in [Guice](https://github.com/google/guice) when ```application.env == dev```.
+For example: a module might decided to create a connection pool, cache, etc when ```application.env``` isn't set to `dev`.
 
-A module provider, might decided to create a connection pool, cache, etc when ```application.env != dev ```.
+The `application.env` property can be set as command line argument too:
+
+Using a `fat jar`:
+
+    java -jar myfat.jar prod
+
+
+Using [stork](/doc/stork):
+
+    bin/myapp --start prod
 
 ## turn on/off features
 
@@ -74,7 +96,7 @@ As described before the ```application.env``` property defines the environment w
 }
 ```
 
-There is a complement operator: ```.orElse``` too:
+There is a `~` (complement) operator:
 
 ```java
 {
@@ -86,7 +108,7 @@ There is a complement operator: ```.orElse``` too:
 }
 ```
 
-The ```env callback``` can access to ```config``` object, like:
+The ```environment callback``` has access to ```config``` object, see:
 
 ```java
 {
@@ -99,99 +121,142 @@ The ```env callback``` can access to ```config``` object, like:
 
 ## special properties
 
-### application.secret
+Here is the list of special properties available in Jooby:
 
-If present, the session cookie will be signed with the ```application.secret```.
-
-### default properties
-
-Here is the list of default properties provided by  Jooby:
-
-* **application.name**: describes the name of your application. Default is: *app.getClass().getSimpleName()*
-* **application.tmpdir**: location of the temporary directory. Default is: *${java.io.tmpdir}/${application.name}*
-* **application.charset**: charset to use. Default is: *UTF-8*
-* **application.lang**: locale to use. Default is: *Locale.getDefault()*. A ```java.util.Locale``` can be injected.
-* **application.dateFormat**: date format to use. Default is: *dd-MM-yyyy*. A ```java.time.format.DateTimeFormatter``` can be injected.
-* **application.numberFormat**: number format to use. Default is: *DecimalFormat.getInstance("application.lang")*
-* **application.tz**: time zone to use. Default is: *ZoneId.systemDefault().getId()*. A ```java.time.ZoneId``` can be injected.
+* **pid**: application process ID.
+* **application.name**: describes the name of your application. Default is: `single package name` of where you define your bootstrap class, for example for `com.foo.App` application's name is `foo`.
+* **application.version**: application version. Default is: `getClass().getPackage().getImplementationVersion()` (automatically set by Maven).
+* **application.class**: fully qualified name of the bootstrap class.
+* **application.secret**: If present, the session cookie will be signed with the `application.secret`.
+* **application.tmpdir**: location of the application temporary directory. Default is: `${java.io.tmpdir}/${application.name}`.
+* **application.charset**: charset to use. Default is: `UTF-8`.
+* **application.lang**: locale to use. Default is: `Locale.getDefault()`.
+* **application.dateFormat**: date format to use. Default is: `dd-MM-yyyy`.
+* **application.numberFormat**: number format to use. Default is: `DecimalFormat.getInstance("application.lang")`.
+* **application.tz**: time zone to use. Default is: `ZoneId.systemDefault().getId()`.
+* **runtime.processors**: number of available processors.
+* **runtime.processors-plus1**: number of processors.
+* **runtime.processors-plus2**: number of processors + 2.
+* **runtime.processors-x2**: number of processors * 2.
 
 ## precedence
 
-Config files are loaded in the following order (first-listed are higher priority)
+Configuration files are loaded in the following order (first-listed are higher priority)
 
 * system properties
 * arguments properties
-* (file://[application].[mode].[conf])?
-* (cp://[application].[mode].[conf])?
+* (file://[application].[env].[conf])?
+* (cp://[application].[env].[conf])?
 * ([application].[conf])?
-* [modules in reverse].[conf]*
-
-
-It looks kind of complex, right?
-It does, but at the same time it is very intuitive and makes a lot of sense. Let's review why.
+* [module].[conf]*
 
 ### system properties
 
-System properties can override any other property. A sys property is set at startup time, like: 
+System properties can override any other property. A system property is set at startup time, like: 
 
     java -Dapplication.env=prod -jar myapp.jar
 
 ### arguments properties
 
-Arguments properties can override any other property. A argument property is set at startup time, like: 
+Command line arguments has precedence over `file system` or `classpath` configuration files:
 
     java -jar myapp.jar application.env=prod
 
-### file://[application].[mode].[conf] 
-
-The use of this conf file is optional, because Jooby recommend to deploy your application as a **fat jar** and all the properties files should be bundled inside the jar.
-
-If you find this impractical, then this option is for you.
-
-Let's say your app includes a default property file: ```application.conf``` bundled with your **fat jar**. Now if you want/need to override two or more properties, just do this:
-
-* find a directory to deploy your app
-* inside that directory create a file: ```application.conf```
-* start the app from same directory
-
-That's all. The file system conf file will take precedence over the classpath config file, overriding any property.
-
-A good practice is to start up your app with a **env**, like:
+Or using the shortcut for `application.env`:
 
     java -jar myapp.jar prod
 
-The process is the same, except this time you can name your file as:
+Unqualified properties are bound to `application`, so:
 
-    application.prod.conf
+    java -jar myapp.jar port=8888 path=/myapp
 
-### cp://[application].[mode].[conf]
+automatically translate to:
 
-Again, the use of this conf file is optional and works like previous config option, except here the **fat jar** was bundled with all your config files (dev, stage, prod, etc.)
+    java -jar myapp.jar application.port=8888 application.path=/myapp
 
-Example: you have two config files: ```application.conf``` and ```application.prod.conf````. Both files were bundled inside the **fat jar**, starting the app in **prod** env:
+### file://[application].[env].[conf]
 
-    java -jar myapp.jar application.env=prod
+A `file system` configuration file has precedence over `classpath` configuration file. Usefult to override a `classpath` configuration file.
 
-So here the ```application.prod.conf``` will takes precedence over the ```application.conf``` conf file.
+### cp://[application].[env].[conf]
 
-This is the recommended option from Jooby, because your app doesn't have an external dependency. If you need to deploy the app in a new server all you need is your **fat jar**
+A `classpath system conf` file has precedence over `default conf` file.
 
-### [application].[conf]
+### application.conf
 
-This is the default config file and it should be bundle inside the **fat jar**. As mentioned early, the default name is: **application.conf**
+The default `classpath conf` file: `application.conf`
 
-### [modules in reverse].[conf]
+### [module].[conf]
 
-As mentioned in the [modules](#modules) section a module might define his own set of properties.
+A [Module]({{defdocs}}/Jooby.Module.html) might have define his own set of (default) properties via [Module.config]({{defdocs}}/Jooby.Module.html#config--) method.
 
-```
+```java
 {
-   use(new M1());
-   use(new M2());
+  use(new Jdbc());
 }
 ```
 
-In the previous example the M2 modules properties will take precedence over M1 properties.
+### custom .conf
 
-The config system is very powerful and allow you to create a single distribution with different configuration per environment.
- 
+As we said before, the default `conf` file is `application.conf`, but you can use any other name you want:
+
+```java
+{
+  conf("myapp.conf");
+}
+```
+
+### example
+
+```
+.
+└── conf
+    ├── application.conf
+    ├── application.uat.conf
+    ├── application.prod.conf
+    ├── logback.xml
+    ├── logback.uat.xml
+    └── logback.prod.xml
+```
+
+```java
+{
+  // import Foo and Bar modules:
+  use(new Foo());
+
+  use(new Bar());
+}
+```
+
+* Starting the application in `dev` produces `conf` tree similar to:
+
+```
+.
+└── system properties
+    ├── command line
+    ├── application.conf
+    ├── foo.conf
+    ├── bar.conf
+    ├── ...
+    └── ...
+```
+
+* Starting the application in `prod` produces `conf` tree similar to:
+
+```
+.
+└── system properties
+    ├── command line
+    ├── application.prod.conf
+    ├── application.conf
+    ├── foo.conf
+    ├── bar.conf
+    ├── ...
+    └── ...
+```
+
+First-listed are higher priority.
+
+For more details, please refer to the [config documentation](https://github.com/typesafehub/config).
+
+{{logging.md}}

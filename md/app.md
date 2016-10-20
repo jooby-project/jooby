@@ -6,13 +6,6 @@ A Jooby app looks like:
 public class App extends Jooby { // 1.
 
   {
-    // 2. use a module
-    use(new MyModule());
-
-    // 2. listen for application start and stop events.
-    onStart(() -> log.info("starting app"));
-    onStop(() -> log.info("stopping app"));
-
     // 2. add a route
     get("/", () -> "Hello");
   }
@@ -24,12 +17,11 @@ public class App extends Jooby { // 1.
 }
 ```
 
-1) You create a new App by extending Jooby
+1) Create a new App extending Jooby
 
-2) From the instance initializer you can use modules, define routes add life cycle callbacks
+2) Define your application in the `instance initializer`
 
-3) Finally run the application.
-
+3) Run the application.
 
 ## life cycle
 
@@ -68,52 +60,46 @@ public class MyModule implements Jooby.Module {
 }
 ```
 
-Modules are covered later all you need to know now is that you can start/stop module as you usually do with your application. 
+Modules are covered later all you need to know now is that you can start/stop module as you usually do from your application. 
 
-### callbacks order
+### order
 
 Callback order is preserved:
 
 ```java
 {
   onStart(() -> {
-
     log.info("first");
   });
 
   onStart(() -> {
-
     log.info("second");
   });
 
   onStart(() -> {
-
     log.info("third");
   });
 
 }
 ```
 
-Order is useful for service dependencies, like ServiceB should be started after ServiceA.
+Order is useful for service dependencies, like `ServiceB` should be started after `ServiceA`.
 
 ### service registry
 
-You have access to the the service registry and start or stop too:
+You have access to the the service registry from start/stop events:
 
 ```java
 {
   onStart(registry -> {
-
     MyService service = registry.require(MyService.class);
     service.start();
   });
 
   onStop(registry -> {
-
     MyService service = registry.require(MyService.class);
     service.stop();
   });
-
 }
 ```
 
@@ -136,6 +122,7 @@ public class MyService {
   }
 
 }
+
 App.java:
 {
   lifeCycle(MyService.class);
