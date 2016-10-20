@@ -23,7 +23,7 @@ public class Issue356 extends ServerFeature {
       .etag(true).lastModified(false).maxAge(Duration.ofDays(2)));
 
     assets("/assets/empty.css", new AssetHandler("/")
-      .etag(true).lastModified(true).maxAge(Duration.ofDays(7)));
+      .etag(true).lastModified(true).maxAge("7d"));
   }
 
   @Test

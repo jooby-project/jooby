@@ -2091,6 +2091,7 @@ public class JoobyTest {
           expect(conf.getString("assets.cdn")).andReturn("").times(2);
           expect(conf.getBoolean("assets.lastModified")).andReturn(true).times(2);
           expect(conf.getBoolean("assets.etag")).andReturn(true).times(2);
+          expect(conf.getString("assets.cache.maxAge")).andReturn("-1").times(2);
 
           Injector injector = unit.get(Injector.class);
           expect(injector.getInstance(Key.get(Config.class))).andReturn(conf).times(2);

@@ -41,7 +41,8 @@ public class AssetsTest {
   public void configure() throws Exception {
     Config conf = ConfigFactory.empty()
         .withValue("application.path", ConfigValueFactory.fromAnyRef("/path"))
-        .withValue("assets.watch", ConfigValueFactory.fromAnyRef(false));
+        .withValue("assets.watch", ConfigValueFactory.fromAnyRef(false))
+        .withValue("assets.cache.maxAge", ConfigValueFactory.fromAnyRef(-1));
     new MockUnit(Env.class, Binder.class, Request.class, Response.class,
         Route.Chain.class).expect(unit -> {
           AssetCompiler compiler = unit.constructor(AssetCompiler.class)
@@ -95,7 +96,8 @@ public class AssetsTest {
   public void configureWithWatch() throws Exception {
     Config conf = ConfigFactory.empty()
         .withValue("application.path", ConfigValueFactory.fromAnyRef("/"))
-        .withValue("assets.watch", ConfigValueFactory.fromAnyRef(true));
+        .withValue("assets.watch", ConfigValueFactory.fromAnyRef(true))
+        .withValue("assets.cache.maxAge", ConfigValueFactory.fromAnyRef(-1));
     new MockUnit(Env.class, Binder.class, Request.class, Response.class,
         Route.Chain.class).expect(unit -> {
           AssetCompiler compiler = unit.constructor(AssetCompiler.class)
@@ -161,7 +163,8 @@ public class AssetsTest {
   public void configureWithoutWatch() throws Exception {
     Config conf = ConfigFactory.empty()
         .withValue("application.path", ConfigValueFactory.fromAnyRef("/"))
-        .withValue("assets.watch", ConfigValueFactory.fromAnyRef(false));
+        .withValue("assets.watch", ConfigValueFactory.fromAnyRef(false))
+        .withValue("assets.cache.maxAge", ConfigValueFactory.fromAnyRef(-1));
     new MockUnit(Env.class, Binder.class, Request.class, Response.class,
         Route.Chain.class).expect(unit -> {
           AssetCompiler compiler = unit.constructor(AssetCompiler.class)

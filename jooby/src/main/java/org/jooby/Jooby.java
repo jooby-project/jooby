@@ -1712,7 +1712,8 @@ public class Jooby implements Router, LifeCycle, Registry {
       handler
           .cdn(conf.getString("assets.cdn"))
           .lastModified(conf.getBoolean("assets.lastModified"))
-          .etag(conf.getBoolean("assets.etag"));
+          .etag(conf.getBoolean("assets.etag"))
+          .maxAge(conf.getString("assets.cache.maxAge"));
     });
     return assets(path, handler);
   }
