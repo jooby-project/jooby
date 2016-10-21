@@ -29,6 +29,11 @@ public class RequestTest {
     }
 
     @Override
+    public Optional<String> queryString() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean matches(final String pattern) {
       throw new UnsupportedOperationException();
     }

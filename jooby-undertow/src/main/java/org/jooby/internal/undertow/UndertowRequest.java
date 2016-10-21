@@ -82,6 +82,12 @@ public class UndertowRequest implements NativeRequest {
   }
 
   @Override
+  public Optional<String> queryString() {
+    String q = exchange.getQueryString();
+    return q.length() == 0 ? Optional.empty() : Optional.of(q);
+  }
+
+  @Override
   public String method() {
     return exchange.getRequestMethod().toString();
   }

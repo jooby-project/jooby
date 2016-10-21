@@ -127,6 +127,11 @@ public class RequestImpl implements Request {
     return contextPath;
   }
 
+  @Override
+  public Optional<String> queryString() {
+    return req.queryString();
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public <T> Optional<T> ifGet(final String name) {

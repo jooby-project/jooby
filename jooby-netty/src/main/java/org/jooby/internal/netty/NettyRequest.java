@@ -110,6 +110,13 @@ public class NettyRequest implements NativeRequest {
   }
 
   @Override
+  public Optional<String> queryString() {
+    String uri = req.uri();
+    int at = uri.indexOf('?') + 1;
+    return at > 0 && at < uri.length() ? Optional.of(uri.substring(at)) : Optional.empty();
+  }
+
+  @Override
   public String method() {
     return req.method().name();
   }

@@ -112,6 +112,19 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void queryString() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.queryString()).andReturn(Optional.empty());
+        })
+        .run(unit -> {
+          assertEquals(Optional.empty(),
+              new Request.Forwarding(unit.get(Request.class)).queryString());
+        });
+  }
+
+  @Test
   public void type() throws Exception {
     new MockUnit(Request.class)
         .expect(unit -> {
