@@ -16,9 +16,6 @@ public class SvgSpritesTest {
         .set("spritePath", "../target/sprites/")
         .set("name", "n")
         .set("prefix", "p")
-        // .set("cssPath", "target/sprites/sprites.css")
-        // .set("sizes", ImmutableMap.of("large", 39, "small", 13))
-        // .set("refSize", "large")
         .run(config());
   }
 
