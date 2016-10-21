@@ -160,6 +160,38 @@ public class AssetCompilerTest {
   }
 
   @Test
+  public void bundlenojs() throws Exception {
+    File dir = Paths.get("target", "public", "nojs").toFile();
+    Map<String, List<File>> files = new AssetCompiler(conf("assets-nojs.conf", "dev"))
+        .build("dev", dir);
+    Set<File> expected = Sets.newHashSet(
+        Paths.get("target", "public", "nojs", "css", "home.9a0e50cb.css").toFile());
+    files.values()
+        .forEach(file -> file
+            .forEach(it -> {
+              assertTrue(it.exists());
+              expected.remove(it);
+            }));
+    assertEquals(0, expected.size());
+  }
+
+  @Test
+  public void bundlenocss() throws Exception {
+    File dir = Paths.get("target", "public", "nojs").toFile();
+    Map<String, List<File>> files = new AssetCompiler(conf("assets-nocss.conf", "dev"))
+        .build("dev", dir);
+    Set<File> expected = Sets.newHashSet(
+        Paths.get("target", "public", "nojs", "js", "home.a6c392cb.js").toFile());
+    files.values()
+        .forEach(file -> file
+            .forEach(it -> {
+              assertTrue(it.exists());
+              expected.remove(it);
+            }));
+    assertEquals(0, expected.size());
+  }
+
+  @Test
   public void bundleWithAggregator() throws Exception {
     File dir = Paths.get("target", "public").toFile();
     Map<String, List<File>> files = new AssetCompiler(conf("assets-aggregator.conf", "dev"))

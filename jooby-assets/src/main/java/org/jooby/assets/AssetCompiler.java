@@ -313,21 +313,28 @@ public class AssetCompiler {
           .orElse(cssSha1);
       File fcss = dir.toPath().resolve(pcss).toFile();
       fcss.getParentFile().mkdirs();
-      Files.write(css, fcss, charset);
+      ImmutableList.Builder<File> outputbuilder = ImmutableList.builder();
+      if (css.length() > 0) {
+        Files.write(css, fcss, charset);
+        outputbuilder.add(fcss);
+      }
 
       String js = compile(pipeline, files.stream().filter(scripts).iterator(), MediaType.js, ";");
       Path jsSha1 = Paths.get(fset + "." + sha1(js) + ".js");
-      Path pjs = patterns(styles).findFirst()
+      Path pjs = patterns(scripts).findFirst()
           .map(p -> Paths.get(p).resolve(jsSha1))
           .orElse(jsSha1);
       File fjs = dir.toPath().resolve(pjs).toFile();
       fjs.getParentFile().mkdirs();
-      Files.write(js, fjs, charset);
+      if (js.length() > 0) {
+        Files.write(js, fjs, charset);
+        outputbuilder.add(fjs);
+      }
 
-      log.info("{}.css {} ({})", fset, humanReadableByteCount(fcss.length()), fcss);
-      log.info("{}.js  {} ({})", fset, humanReadableByteCount(fjs.length()), fjs);
-
-      output.put(fset, Arrays.asList(fcss, fjs));
+      List<File> fsoutput = outputbuilder.build();
+      fsoutput.forEach(
+          it -> log.info("{} {} ({})", it.getName(), humanReadableByteCount(it.length()), it));
+      output.put(fset, fsoutput);
     }
     return output;
   }
@@ -488,7 +495,6 @@ public class AssetCompiler {
     Map<String, List<String>> graph = new HashMap<>();
     Config assetconf = conf.getConfig("assets");
     Config fileset = assetconf.getConfig("fileset");
-    new ArrayList<>();
     // 1st pass, collect single resources (no merge)
     fileset.entrySet().forEach(e -> {
       List<String> key = Splitter.on('<')
@@ -509,9 +515,7 @@ public class AssetCompiler {
         }).onFailure(x -> values.add(it));
       });
       raw.put(key.get(0), values);
-      graph.put(key.get(0), key.size() == 1
-          ? Collections.emptyList()
-          : key.subList(1, key.size()));
+      graph.put(key.get(0), key);
     });
 
     Map<String, List<String>> resolved = new HashMap<>();
@@ -528,7 +532,7 @@ public class AssetCompiler {
     if (result == null) {
       result = new ArrayList<>();
       resolved.put(fs, result);
-      for (int i = deps.size() - 1; i >= 0; i--) {
+      for (int i = deps.size() - 1; i > 0; i--) {
         result.addAll(resolve(deps.get(i), graph.get(deps.get(i)), raw, graph, resolved));
       }
       result.addAll(raw.get(fs));
