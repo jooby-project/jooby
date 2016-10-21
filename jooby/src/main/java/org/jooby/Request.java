@@ -127,6 +127,11 @@ public interface Request extends Registry {
     }
 
     @Override
+    public Optional<String> queryString() {
+      return req.queryString();
+    }
+
+    @Override
     public String path(final boolean escape) {
       return req.path(escape);
     }
@@ -478,6 +483,13 @@ public interface Request extends Registry {
   default String path() {
     return path(false);
   }
+
+  /**
+   * The query string, without the leading <code>?</code>.
+   *
+   * @return The query string, without the leading <code>?</code>.
+   */
+  Optional<String> queryString();
 
   /**
    * Escape the path using {@link UrlEscapers#urlFragmentEscaper()}.

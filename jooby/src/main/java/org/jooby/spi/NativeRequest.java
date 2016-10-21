@@ -48,6 +48,13 @@ public interface NativeRequest {
   String path();
 
   /**
+   * Returns the query string that is contained in the request URL after the path.
+   *
+   * @return Query string or <code>empty</code>
+   */
+  Optional<String> queryString();
+
+  /**
    * @return List with all the parameter names from query string plus any other form/multipart param
    *         names (excluding file uploads). This method should NOT returns null, absence of params
    *         is represented by an empty list.
