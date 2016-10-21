@@ -54,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.hash.Hashing;
@@ -483,12 +484,17 @@ public class AssetCompiler {
 
   private static Map<String, List<String>> fileset(final ClassLoader loader, final String basedir,
       final Config conf, final Consumer<AssetAggregator> aggregators) {
-    Map<String, List<String>> result = new HashMap<>();
+    Map<String, List<String>> raw = new HashMap<>();
+    Map<String, List<String>> graph = new HashMap<>();
     Config assetconf = conf.getConfig("assets");
     Config fileset = assetconf.getConfig("fileset");
+    new ArrayList<>();
     // 1st pass, collect single resources (no merge)
     fileset.entrySet().forEach(e -> {
-      String[] key = unquote(e.getKey()).split("\\s*<\\s*");
+      List<String> key = Splitter.on('<')
+          .trimResults()
+          .omitEmptyStrings()
+          .splitToList(unquote(e.getKey()));
       List<String> candidates = strlist(e.getValue().unwrapped(), v -> basedir + spath(v));
       List<String> values = new ArrayList<>();
       candidates.forEach(it -> {
@@ -502,20 +508,31 @@ public class AssetCompiler {
               });
         }).onFailure(x -> values.add(it));
       });
-      result.put(key[0], values);
+      raw.put(key.get(0), values);
+      graph.put(key.get(0), key.size() == 1
+          ? Collections.emptyList()
+          : key.subList(1, key.size()));
     });
-    // 2nd pass, merge resources
-    fileset.entrySet().forEach(e -> {
-      String[] key = unquote(e.getKey()).split("\\s*<\\s*");
-      if (key.length > 1) {
-        ImmutableList.Builder<String> resources = ImmutableList.builder();
-        for (int i = key.length - 1; i >= 0; i--) {
-          resources.addAll(result.get(key[i]));
-        }
-        // overwrite
-        result.put(key[0], resources.build());
+
+    Map<String, List<String>> resolved = new HashMap<>();
+    graph.forEach((fs, deps) -> {
+      resolve(fs, deps, raw, graph, resolved);
+    });
+    return resolved;
+  }
+
+  private static List<String> resolve(final String fs, final List<String> deps,
+      final Map<String, List<String>> raw, final Map<String, List<String>> graph,
+      final Map<String, List<String>> resolved) {
+    List<String> result = resolved.get(fs);
+    if (result == null) {
+      result = new ArrayList<>();
+      resolved.put(fs, result);
+      for (int i = deps.size() - 1; i >= 0; i--) {
+        result.addAll(resolve(deps.get(i), graph.get(deps.get(i)), raw, graph, resolved));
       }
-    });
+      result.addAll(raw.get(fs));
+    }
     return result;
   }
 
