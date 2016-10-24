@@ -234,13 +234,13 @@ public class AssetHandler implements Route.Handler {
         localpath = localpath.substring(jarEntry + 2);
       }
 
-      URLAsset asset = new URLAsset(resource, req.path(),
+      URLAsset asset = new URLAsset(resource, path,
           MediaType.byPath(localpath).orElse(MediaType.octetstream));
 
       if (asset.exists()) {
         // cdn?
         if (cdn != null) {
-          String absUrl = cdn + req.path();
+          String absUrl = cdn + path;
           rsp.redirect(absUrl);
           rsp.end();
         } else {
