@@ -15,7 +15,7 @@ Server-Sent Events (SSE) is a mechanism that allows server to push the data from
 }
 ```
 
-Simple, effective and easy to use. The callback will be executed once when a new client is connected. Inside the callback we can send data, listen for connection close events, etc.
+Simple, effective and easy to use. The callback will be executed when a new client is connected. Inside the callback we can send data, listen for connection close events, etc.
 
 There is a factory method [sse.event(Object)]({{apidocs}}/org/jooby/Sse.html#event-java.lang.Object-) that let you set event attributes:
 
@@ -62,13 +62,13 @@ Or if your need only one format, just:
 
     MyObject object = ...
     sse.send(object);
-  }).produces("json"); // by json by default
+  }).produces("json"); // json by default
 }
 ```
 
-## request params
+## request parameters
 
-We provide request access via two arguments callback:
+We provide request access via **two arguments** callback:
 
 ```java
 {

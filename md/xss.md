@@ -1,4 +1,4 @@
-# xss
+## xss
 
 [Cross-site scripting (XSS)](https://en.wikipedia.org/wiki/Cross-site_scripting) is a type of computer security vulnerability typically found in web applications. XSS enables attackers to inject client-side scripts into web pages viewed by other users.
 
@@ -8,11 +8,11 @@ Default XSS escapers are `urlFragment`, `formParam`, `pathSegment` and `html` al
 
 More advanced/featured escapers like `js`, `css`, `sql` are provided via [modules](/doc/security).
 
-## usage
+### usage
 
 There are a few way of using XSS escape functions:
 
-### Applying a XSS escaper to `param` or `header`:
+#### Applying a XSS escaper to `param` or `header`:
 
 ```java
 {
@@ -26,7 +26,7 @@ There are a few way of using XSS escape functions:
 
 Here `input` is the `param/header` that you want to escape with the `html` escaper.
 
-### Applying multiple XSS escapers:
+#### Applying multiple XSS escapers:
 
 ```java
 {
@@ -36,7 +36,7 @@ Here `input` is the `param/header` that you want to escape with the `html` escap
 }
 ```
 
-### Applying a XSS escaper to form/bean:
+#### Applying a XSS escaper to form/bean:
 
 ```java
 {
@@ -46,7 +46,7 @@ Here `input` is the `param/header` that you want to escape with the `html` escap
 }
 ```
 
-### Applying a XSS escaper from template engines
+#### Applying a XSS escaper from template engines
 
 Template engines usually provide a way to escape `HTML` (mainly) ... still {{jooby}} integrates XSS escapers with the template engine of your choice:
 
@@ -66,7 +66,7 @@ Template engines usually provide a way to escape `HTML` (mainly) ... still {{joo
 
     p= xss.apply(input, "js", "html")
 
-## modules
+### modules
 
 * [unbescape](/doc/unbescape): XSS escapers via [unbescape](https://github.com/unbescape/unbescape)
 * [csl](/doc/csl): XSS escapers via [coverity-security-library](https://github.com/coverity/coverity-security-library)

@@ -83,7 +83,7 @@ The ```download``` method sets all these headers:
 
 * ```Content-Type```
 
-The next example we explicitly set some of these headers:
+In the next example we explicitly set some of these headers:
 
 ```java
 {
@@ -95,18 +95,3 @@ The next example we explicitly set some of these headers:
   });
 }
 ```
-
-## content negotiation
-
-A route can produces different results based on the ```Accept``` header: 
-
-```java
-get("/", () ->
-  Results
-    .when("text/html", ()  -> Results.html("viewname").put("model", model))
-    .when("application/json", ()  -> model)
-    .when("*", ()  -> Status.NOT_ACCEPTABLE)
-);
-```
-
-Performs content-negotiation on the Accept HTTP header of the request object. It select a handler for the request, based on the acceptable types ordered by their quality values. If the header is not specified, the first callback is invoked. When no match is found, the server responds with ```406 Not Acceptable```, or invokes the default callback: ```**/*```.

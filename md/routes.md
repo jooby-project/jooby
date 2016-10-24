@@ -303,9 +303,9 @@ get("/", (req, rsp) -> rsp.send("third"));
 
 Will the server print all of them? "first"? "third"?
 
-It prints "first". The act of doing a ```rsp.send()``` terminates the flow of the request then and there; the request is not passed on to any other route handler.
+It prints "first". The act of doing a {{rsp_send}} terminates the flow of the request then and there; the request is not passed on to any other route handler.
 
-So, how do we specify multiple handlers for a route, and use them all at the same time? Call the **chain.next()** function from the callback, without calling **send** because it terminates the request flow. Here is an example:
+So, how do we specify multiple handlers for a route, and use them all at the same time? Call the {{chain_next}} function from the callback, without calling {{rsp_send}} because it terminates the request flow. Here is an example:
 
 ```java
 get("/", (req, rsp, chain) -> {
@@ -325,7 +325,7 @@ get("/", (req, rsp) -> {
 
 ```
 
-Alternative, if you *always* call **chain.next** just use the `(req, rsp` handler:
+Alternative, if you **always** call {{chain_next}} just use the `(req, rsp` handler:
 
 ```java
 get("/", (req, rsp) -> {
@@ -343,7 +343,7 @@ get("/", (req, rsp) -> {
 
 ```
 
-The 3rd arg is required if you need to decide if the next route need to be executed or not. If you always call **chain.next** the 3rd arg isn't required and does exactly what the 2arg handler does: **always call chain.next**
+The 3rd arg is required if you need to decide if the next route need to be executed or not. If you always call {{chain_next}} the 3rd arg isn't required and does exactly what the 2arg handler does: **always** call {{chain_next}}.
 
 A good example for a filter is to handle for example authentication:
 
@@ -358,3 +358,17 @@ get("/", (req, rsp, chain) -> {
 });
 ```
 
+## content negotiation
+
+A route can produces different results based on the ```Accept``` header: 
+
+```java
+get("/", () ->
+  Results
+    .when("text/html", ()  -> Results.html("viewname").put("model", model))
+    .when("application/json", ()  -> model)
+    .when("*", ()  -> Status.NOT_ACCEPTABLE)
+);
+```
+
+Performs content-negotiation on the Accept HTTP header of the request object. It select a handler for the request, based on the acceptable types ordered by their quality values. If the header is not specified, the first callback is invoked. When no match is found, the server responds with ```406 Not Acceptable```, or invokes the default callback: ```**/*```.

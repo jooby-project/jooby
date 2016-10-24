@@ -9,7 +9,7 @@ The [default error handler]({{defdocs}}/Err.DefHandler.html) does content negoti
 ```java
 {
   use(new TemplateEngine()); // Hbs, Ftl, etc...
-  use(new Json()); // A json body formatter
+  use(new Json()); // A json renderer
 
   get("/", () -> {
     ...

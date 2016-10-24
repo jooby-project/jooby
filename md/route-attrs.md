@@ -4,7 +4,7 @@ Routes have a few properties that let you extend basic functionality in one way 
 
 * attributes
 * with, map and excludes operators
-* consumes/produces types.
+* consumes/produces types
 
 ### attributes
 
@@ -17,7 +17,7 @@ Attributes let you annotated a route at application bootstrap time. It is like s
 }
 ```
 
-An attribute consist of a name and value. Allowed values are ```primitives```, ```String```, ```enum```, ```class``` or an ```array``` of previous types.
+An attribute consist of a `name` and `value`. Allowed values are ```primitives```, ```String```, ```enum```, ```class``` or an ```array``` of previous types.
 
 Attributes can be accessed at runtime in a request/response cycle. For example, a security module might check for ```role``` attribute, a sitemap generator might check for ```priority``` attribute, etc...
 
@@ -31,7 +31,6 @@ Attributes can be accessed at runtime in a request/response cycle. For example, 
     }
     throw new Err(403);
   });
-
 }
 ```
 
@@ -74,7 +73,7 @@ public class AdminResource {
 
 The previous example will print: ```{role = admin}```.
 
-Any runtime annotations are automatically added as route attributes. Following these rules:
+Any runtime annotation is automatically added it as route attribute. Following these rules:
 
 * If the annotation has a ```value``` method, then we use the annotation's name as attribute name.
 * Otherwise, we use the method name as attribute name.
@@ -87,7 +86,7 @@ Any runtime annotations are automatically added as route attributes. Following t
 
 ### with operator
 
-The with operator set attributes, consumes and produces types, exclusions, etc.. to one or more routes:
+The {{route_with}} operator set attributes, consumes/produces types, exclusions, etc.. to one or more routes:
 
 ```java
 {
@@ -103,7 +102,7 @@ The with operator set attributes, consumes and produces types, exclusions, etc..
 
 ### map operator
 
-The map operator converts a route output to something else
+The {{route_map}} operator converts a route output to something else:
 
 ```java
 {
@@ -117,7 +116,7 @@ The map operator converts a route output to something else
 }
 ```
 
-If you want to apply a single map to several routes:
+If you want to apply a single {{route_map}} to several routes:
 
 ```java
 {
@@ -145,9 +144,9 @@ You can apply a [Mapper]({{defdocs}}/Route.Mapper.html) to specific types:
 
 A call to ```/str``` produces ```{str}```, while ```/int``` just ```1```.
 
-> **NOTE**: You can apply the map operator to routes that produces an output.
+> **NOTE**: You can apply the map operator to routes that produces an output (a.k.a function routes).
 
-For example, the map operator will be silently ignored here:
+For example, the {{route_map}} operator will be silently ignored here:
 
 ```java
 {
@@ -159,7 +158,7 @@ For example, the map operator will be silently ignored here:
 
 ### excludes
 
-The excludes operator skip/ignore a route path match:
+The {{route_excludes}} operator skip/ignore a route path match:
 
 ```java
 {
@@ -171,7 +170,7 @@ The excludes operator skip/ignore a route path match:
 
 ### consumes
 
-The consumes operator indicates the expected input the route can handle. It is used will accepting requests.
+The {{route_consumes}} operator indicates the expected input the route can handle. It is used will accepting requests.
 
 ```java
 {
@@ -184,7 +183,7 @@ The consumes operator indicates the expected input the route can handle. It is u
 
 ### produces
 
-The produces operator indicates the expected output the route can produces.
+The {{route_produces}} operator indicates the expected output the route can produces.
 
 ```java
 {

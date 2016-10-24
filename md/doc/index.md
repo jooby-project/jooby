@@ -38,18 +38,18 @@ documentation
 
 {{async.md}}
 
+{{https.md}}
+
 {{h2.md}}
+
+{{web-sockets.md}}
 
 {{sse.md}}
 
-{{web-sockets.md}}
+# misc
 
 {{cors.md}}
 
 {{xss.md}}
-
-{{https.md}}
-
-{{javascript.md}}
 
 {{appendix}}

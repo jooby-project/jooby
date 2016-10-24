@@ -44,13 +44,13 @@ In addition to the **configure** callback, a module in {{Jooby}} has one additio
 
 ```java
 public class M1 implements Jooby.Module {
-    public void configure(Env env, Config config, Binder binder) {
-      binder.bind(...).to(...);
-    }
+  public void configure(Env env, Config config, Binder binder) {
+    binder.bind(...).to(...);
+  }
 
-   public Config config() {
-     return Config.parseResources(getClass(), "m1.properties");
-   }
+  public Config config() {
+    return Config.parseResources(getClass(), "m1.properties");
+  }
 }
 ```
 

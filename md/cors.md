@@ -1,9 +1,9 @@
-# cors
+## cors
 
 Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources
 (e.g. fonts, JavaScript, etc.) on a web page to be requested from another domain outside the domain from which the resource originated.
 
-## usage
+### usage
 
 ```java
 {

@@ -18,7 +18,7 @@
  
 ## where are the default properties?
 
-* Default properties can be found [here](/doc/#appendix:-jooby.conf)
+* Default properties can be found [here](/doc/#misc-jooby-conf)
 
 ## how do I deploy my application?
 
@@ -36,7 +36,7 @@ Documentation for [lyfeCycle]({{defdocs}}/LyfeCycle.html) events is available [h
 
 ## what mime types are supported?
 
-* Full list of mime types can be found [here](/doc/#appendix:-mime.properties)
+* Full list of mime types can be found [here](/doc/#misc-mime-properties)
 
 ## how do I add a new/override mime type?
 

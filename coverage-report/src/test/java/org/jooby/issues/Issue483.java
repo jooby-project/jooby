@@ -70,6 +70,10 @@ public class Issue483 extends ServerFeature {
         .get("/483/nested?members.0.firstname=Pedro&members.0.lastname=PicaPiedra")
         .expect("[Pedro PicaPiedra]");
 
+    request()
+    .get("/483/nested?members[0]firstname=Pedro&members[0]lastname=PicaPiedra")
+    .expect("[Pedro PicaPiedra]");
+
   }
 
   @Test

@@ -119,7 +119,7 @@ There are a few built-in renderers:
 * stream: copy an inputstream to the HTTP response and set a default type of: ```application/octet-stream```
 * bytes: copy bytes to the HTTP response and set a default type of: ```application/octet-stream```
 * byteBuffer: copy bytes to the HTTP response and set a default type of: ```application/octet-stream```
-* readble: copy a readable object to the HTTP response and a default type of: ```text/html```
+* readable: copy a readable object to the HTTP response and a default type of: ```text/html```
 * text: copy the toString() result to the HTTP response and set a default type of: ```text/html```
 
 ### custom renderer
@@ -139,15 +139,15 @@ get("/", req -> {
 });
 ```
 
-Easy right?
-
 A generic JSON renderer will looks like:
 
 ```java
 
 render((value, ctx) -> {
   if (ctx.accepts("json")) {
-     ctx.text(toJson(value));
+     ctx
+       .type("json")
+       .text(toJson(value));
   }
 });
 
@@ -162,6 +162,8 @@ Renderer API is simple and powerful. Renderers are executed in the order they we
 
 A [view engine]({{defdocs}}/View.Engine.html) is a specialized [renderer]({{defdocs}}/Renderer.html) that ONLY accept instances of a [view]({{defdocs}}/View.html).
 
+A [view]({{defdocs}}/View.html) carry the template name + model data:
+
 ```java
 {
   use(new MyTemplateEngine());
@@ -173,4 +175,4 @@ A [view engine]({{defdocs}}/View.Engine.html) is a specialized [renderer]({{defd
 
 In order to support multiples view engine, a view engine is allowed to throw a ```java.io.FileNotFoundException``` when a template can't be resolved it. This gives the chance to the next view resolver to load the template.
 
-There is no much to say about views & engines, any other detail or documentation should be provided in the specific [module](/doc/parser-and-renderer)
+There is no much to say about views and template engines, any other detail or documentation should be provided in the specific [module](/doc/parser-and-renderer)
