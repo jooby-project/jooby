@@ -2073,7 +2073,7 @@ public class JoobyTest {
           expect(ifnm.toOptional()).andReturn(Optional.empty());
 
           Request req = unit.get(Request.class);
-          expect(req.path()).andReturn(path).times(2);
+          expect(req.path()).andReturn(path);
           expect(req.header("If-Modified-Since")).andReturn(ifModifiedSince);
           expect(req.header("If-None-Match")).andReturn(ifnm);
 
