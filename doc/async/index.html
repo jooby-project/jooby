@@ -3,15 +3,15 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: async module</title> 
+  <title>jooby: thread model module</title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, async"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, thread model"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: async module"> 
-  <meta name="og:description" content="In Jooby all the IO operations are performed in async &amp; non blocking fashion across servers: Netty, Jetty and Undertow"> 
+  <meta name="og:description" content="You can see Jooby as an event loop server thanks to the supported web servers: Netty, Jetty and Undertow"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="In Jooby all the IO operations are performed in async &amp; non blocking fashion across servers: Netty, Jetty and Undertow"> 
+  <meta name="twitter:description" content="You can see Jooby as an event loop server thanks to the supported web servers: Netty, Jetty and Undertow"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -87,20 +87,22 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>async</h1> 
+     <h1>thread model</h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
      <div class="show-mobile menu-open">
-      async
+      thread model
      </div> 
      <ul> 
-      <li class="active"> <a href="#async">async</a>
+      <li class="active"> <a href="#thread-model">thread model</a>
        <ul> 
-        <li> <a href="#async-threads">threads</a></li> 
-        <li> <a href="#async-deferred">deferred</a></li> 
-        <li> <a href="#async-RxJava-example">RxJava example</a></li>
+        <li> <a href="#thread-model-worker-threads">worker threads</a></li> 
+        <li> <a href="#thread-model-deferred">deferred</a></li> 
+        <li> <a href="#thread-model-executor">executor</a></li> 
+        <li> <a href="#thread-model-promise">promise</a></li> 
+        <li> <a href="#thread-model-advanced-configuration">advanced configuration</a></li>
        </ul></li> 
       <li class=""> <a href="#modules">modules</a>
        <ul> 
@@ -113,137 +115,343 @@
      </ul> 
     </div> 
     <div class="section-content"> 
-     <div class="datalist" id="async"> 
+     <div class="datalist" id="thread-model"> 
       <div class="datalist-title active"> 
-       <h2>async</h2> 
+       <h2>thread model</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>In <a href="http://jooby.org">Jooby</a> all the IO operations are performed in async &amp; non blocking fashion across servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>.</p> 
-       <p>All IO operations run in an IO thread while application logic <strong>always run in a worker thread</strong>. Worker threads can block at any time.</p> 
-       <p>Having said that let see what tools are available for reactive/async programming.</p> 
-       <h3 id="async-threads">threads</h3> 
-       <p>Default worker thread pool is 20/100. You can change this setup via <code class="highlighter-rouge codehilite">.conf</code> file:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="py">server.threads.Min</span><span class="p">=</span><span class="s">20</span>
-<span class="py">server.threads.Max</span><span class="p">=</span><span class="s">20</span>
-</code></pre> 
-       </div> 
-       <p>You can set them to the <code class="highlighter-rouge codehilite">available processors</code>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="py">server.threads.Min</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
-<span class="py">server.threads.Max</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
-</code></pre> 
-       </div> 
-       <p>Or pick one variant: <code class="highlighter-rouge codehilite">runtime.processors-plus1</code>, <code class="highlighter-rouge codehilite">runtime.processors-plus2</code> or <code class="highlighter-rouge codehilite">runtime.processors-x2</code>.</p> 
-       <p>This is a typical setup if you want to build your application using <strong>reactive</strong> programming.</p> 
-       <h3 id="async-deferred">deferred</h3> 
-       <p>Async processing is achieved via: <a href="/apidocs/org/jooby/Deferred.html" target="_blank">Deferred API</a>. Application can produces a result from a thread of its choice.</p> 
+       <p>You can see <a href="http://jooby.org">Jooby</a> as an <code class="highlighter-rouge codehilite">event loop server</code> thanks to the supported web servers: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>. Being <a href="/doc/netty">Netty</a> the default web server.</p> 
+       <p><a href="http://jooby.org">Jooby</a> isn’t a traditional <code class="highlighter-rouge codehilite">thread server</code> where a HTTP request is bound to a thread.</p> 
+       <p>In <a href="http://jooby.org">Jooby</a> all the HTTP IO operations are performed in async &amp; non blocking fashion. HTTP IO operations run in an IO thread (a.k.a event loop) while the application logic (your code) <strong>always run in a worker thread</strong>.</p> 
+       <h3 id="thread-model-worker-threads">worker threads</h3> 
+       <p>The <strong>worker thread</strong> pool is provided by the web server: <a href="/doc/netty">Netty</a>, <a href="/doc/jetty">Jetty</a> and <a href="/doc/undertow">Undertow</a>. To simplify application programming you can <strong>block a worker thread</strong>, for example you can safely run a <strong>jdbc</strong> query in a <strong>worker thread</strong>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/search-db"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">try</span><span class="o">(</span><span class="n">Connection</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">Connection</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
+      <span class="k">try</span><span class="o">(</span><span class="n">Statement</span> <span class="n">stt</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">createStatement</span><span class="o">())</span> <span class="o">{</span>
+        <span class="o">...</span>
+      <span class="o">}</span> 
+    <span class="o">}</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Here the web server can accept as many connection it can (as its on non blocking) while the worker thread might blocks.</p> 
+       <p>Default worker thread pool is <code class="highlighter-rouge codehilite">20/100</code>. The correct/right size depends on your <strong>business</strong> and <strong>work load</strong> your application is suppose to handle. We suggest you to start with default setup and see how it goes, later you can reduce or increase the thread pool.</p> 
+       <p>In <a href="http://jooby.org">Jooby</a> we favor simplicity over complexity that is why your <strong>code</strong> can block, still there are more advanced setup that allow you to build async and reactive applications.</p> 
+       <h3 id="thread-model-deferred">deferred</h3> 
+       <p>Async processing is achieved via: <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> result, with a <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> result an application can produces a result from a <strong>thread of its choice</strong>:</p> 
+       <p>Script API:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="n">deferred</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="o">...;</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>MVC API:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>  <span class="nd">@GET</span>
+  <span class="nd">@Path</span><span class="o">(</span><span class="s">"/async"</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">Deferred</span> <span class="n">async</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">Deferred</span><span class="o">.</span><span class="na">deferred</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="o">...;</span>
+    <span class="o">});</span>
+  <span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Previous examples are just <code class="highlighter-rouge codehilite">syntax sugar</code> for:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>  return new Deferred(deferred -&gt; {
+     try {
+       deferred.resolve(...);
+     } catch (Throwable x) {
+       deferred.reject(x);
+     }
+  });
+</code></pre> 
+       </div> 
+       <p>There is more <code class="highlighter-rouge codehilite">syntax sugar</code> if you add the <a href="/apidocs/org/jooby/AsyncMapper.html" target="_blank">AsyncMapper</a> to your application:</p> 
+       <p>Script API:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">map</span><span class="o">(</span><span class="k">new</span> <span class="n">AsyncMapper</span><span class="o">());</span>
+  
+   <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+     <span class="n">Callable</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">callable</span> <span class="o">=</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+       <span class="k">return</span> <span class="o">...;</span>
+     <span class="o">};</span> 
+    <span class="k">return</span> <span class="n">callable</span><span class="o">;</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>MVC API:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nd">@GET</span>
+  <span class="nd">@Path</span><span class="o">(</span><span class="s">"/async"</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">async</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="o">...;</span>
+    <span class="o">};</span>
+  <span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>The <a href="/apidocs/org/jooby/AsyncMapper.html" target="_blank">AsyncMapper</a> convert <code class="highlighter-rouge codehilite">java.util.concurrent.Callable</code> and <code class="highlighter-rouge codehilite">java.util.concurrent.CompletableFuture</code> objects to <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> objects.</p> 
+       <p>Another important thing to notice is that the deferred run in the <strong>caller thread</strong> (i.e. worker thread), so by default there is <strong>no context switch</strong> involve while running a <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> result:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">Deferred</span> <span class="n">deferred</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Deferred</span><span class="o">();</span>
-    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-      <span class="k">try</span> <span class="o">{</span>
-        <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(...);</span> <span class="c1">// success</span>
-      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
-        <span class="n">deferred</span><span class="o">.</span><span class="na">reject</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span> <span class="c1">// errr</span>
-      <span class="o">}</span>
-    <span class="o">});</span>
-    <span class="k">return</span> <span class="n">deferred</span><span class="o">;</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>Too verbose? Let’s rewrite it a bit with: <code class="highlighter-rouge codehilite">Jooby.promise</code></p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-      <span class="k">try</span> <span class="o">{</span>
-        <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(...);</span> <span class="c1">// success</span>
-      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
-        <span class="n">deferred</span><span class="o">.</span><span class="na">reject</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span> <span class="c1">// errr</span>
-      <span class="o">}</span>
-    <span class="o">});</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>A bit better, let’s try it again with automatic error handler:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-        <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-           <span class="k">return</span> <span class="o">...;</span>
-        <span class="o">});</span>
-    <span class="o">});</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>Better, hugh? but we can make it just a bit better:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">Executor</span> <span class="n">executor</span> <span class="o">=</span> <span class="o">...;</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">deferred</span><span class="o">.</span><span class="na">run</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">callerThread</span> <span class="o">=</span> <span class="n">Thread</span><span class="o">.</span><span class="na">current</span><span class="o">().</span><span class="na">getName</span><span class="o">();</span>
+    <span class="k">return</span> <span class="n">Deferred</span><span class="o">.</span><span class="na">deferred</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">assertEquals</span><span class="o">(</span><span class="n">callerThread</span><span class="o">,</span> <span class="n">Thread</span><span class="o">.</span><span class="na">current</span><span class="o">().</span><span class="na">getName</span><span class="o">());</span>
       <span class="k">return</span> <span class="o">...;</span>
     <span class="o">});</span>
   <span class="o">});</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>All the examples work in the same way, you can choose which programming model makes <strong>more sense to you</strong>.</p> 
-       <p>The last two examples, will <code class="highlighter-rouge codehilite">resolve</code> the deferred. But also, catch any error and call <code class="highlighter-rouge codehilite">reject</code> for you.</p> 
-       <p><a href="/apidocs/org/jooby/Deferred.html" target="_blank">Deferred API</a> is pretty simple and the main goal of is to detach the request, or put it in async mode then you can produces a result from a thread of its choice.</p> 
-       <h3 id="async-RxJava-example">RxJava example</h3> 
-       <p>Here is an example of deferred with <a href="https://github.com/ReactiveX/RxJava" target="_blank">RxJava</a>:</p> 
+       <p>You might first see this as a bad thing, but is actually a good decision, because:</p> 
+       <ul> 
+        <li> <p>It is super easy to setup a default executor (we will see how soon)</p> </li> 
+        <li> <p>Provides better integration with async &amp; reactive libraries. A <code class="highlighter-rouge codehilite">direct</code> executor avoid the need of switching to a new thread and then probably dispatch (again) to a different thread provided by a library.</p> </li> 
+       </ul> 
+       <h3 id="thread-model-executor">executor</h3> 
+       <p>As we said before, the default executor run in the caller thread (a.k.a direct executor). Let’s see how to override the default executor:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/rx"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">Observable</span><span class="o">.&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="o">{</span>
-      <span class="n">s</span><span class="o">.</span><span class="na">onNext</span><span class="o">(...);</span>
-      <span class="n">s</span><span class="o">.</span><span class="na">onCompleted</span><span class="o">();</span>
-    <span class="o">}).</span><span class="na">subscribeOn</span><span class="o">(</span><span class="n">Schedulers</span><span class="o">.</span><span class="na">computation</span><span class="o">())</span>
-      <span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="nl">deferred:</span><span class="o">:</span><span class="n">resolve</span><span class="o">,</span> <span class="nl">deferred:</span><span class="o">:</span><span class="n">reject</span><span class="o">);</span>
-    <span class="o">}));</span>
+  <span class="n">executor</span><span class="o">(</span><span class="k">new</span> <span class="n">ForkJoinPool</span><span class="o">());</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/async"</span><span class="o">,</span> <span class="n">deferred</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="o">...;</span>
+  <span class="o">});</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>And of course the threads setup:</p> 
+       <p>Done! Now all our <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> result run in a <code class="highlighter-rouge codehilite">ForkJoinPool</code>. It also possible to specify an alternative executor:</p> 
+       <p>Script API:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="py">server.threads.Min</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
-<span class="py">server.threads.Max</span> <span class="p">=</span> <span class="s">${runtime.processors}</span>
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">executor</span><span class="o">(</span><span class="k">new</span> <span class="n">ForkJoinPool</span><span class="o">());</span>
+
+  <span class="n">executor</span><span class="o">(</span><span class="s">"jdbc"</span><span class="o">,</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newFixedThreadPool</span><span class="o">(</span><span class="mi">10</span><span class="o">));</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">deferred</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="o">...;</span>
+  <span class="o">});</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/db"</span><span class="o">,</span> <span class="n">deferred</span><span class="o">(</span><span class="s">"jdbc"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="o">...;</span>
+  <span class="o">});</span>
+<span class="o">}</span>
 </code></pre> 
        </div> 
+       <p>MVC API:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+<span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">jooby</span><span class="o">.</span><span class="na">Deferred</span><span class="o">.</span><span class="na">deferred</span><span class="o">;</span>
+<span class="o">...</span>
+
+  <span class="nd">@GET</span>
+  <span class="nd">@Path</span><span class="o">(</span><span class="s">"/"</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">Deferred</span> <span class="n">home</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">deferred</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="o">...;</span>
+    <span class="o">});</span>
+  <span class="o">}</span>
+
+  <span class="nd">@GET</span>
+  <span class="nd">@Path</span><span class="o">(</span><span class="s">"/db"</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">Deferred</span> <span class="n">db</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">deferred</span><span class="o">(</span><span class="s">"jdbc"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="o">...;</span>
+    <span class="o">});</span>
+  <span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Worth mention the <a href="/apidocs/org/jooby/Jooby.html#executor-java.util.concurrent.ExecutorService-" target="_blank">executor(ExecutorService)</a> methods automatically <code class="highlighter-rouge codehilite">shutdown</code> at application shutdown time.</p> 
+       <h3 id="thread-model-promise">promise</h3> 
+       <p>The <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> contains two useful methods:</p> 
+       <ul> 
+        <li><a href="/apidocs/org/jooby/Deferred.html#resolve-java.lang.Object-" target="_blank">deferred#resolve</a></li> 
+        <li><a href="/apidocs/org/jooby/Deferred.html#reject-java.lang.Throwable-" target="_blank">deferred#reject</a></li> 
+       </ul> 
+       <p>These two methods allow you to use a <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object as a <code class="highlighter-rouge codehilite">promise</code>:</p> 
+       <p>Script API:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">promise</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(...);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">deferred</span><span class="o">.</span><span class="na">reject</span><span class="o">(</span><span class="n">x</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>MVC API:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>  <span class="nd">@Path</span><span class="o">(</span><span class="s">"/"</span><span class="o">)</span>
+  <span class="nd">@GET</span>
+  <span class="kd">public</span> <span class="n">Deferred</span> <span class="n">promise</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Deferred</span><span class="o">(</span><span class="n">deferred</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">try</span> <span class="o">{</span>
+        <span class="n">deferred</span><span class="o">.</span><span class="na">resolve</span><span class="o">(...);</span>
+      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">deferred</span><span class="o">.</span><span class="na">reject</span><span class="o">(</span><span class="n">x</span><span class="o">);</span>
+      <span class="o">}</span>
+    <span class="o">});</span>
+  <span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>The <strong>“promise”</strong> version of <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object is a key concept for integrating with external libraries.</p> 
+       <h3 id="thread-model-advanced-configuration">advanced configuration</h3> 
+       <p>Suppose you want to build a truly async application and after a <strong>deep analysis</strong> of your business you realize your application need to:</p> 
+       <ul> 
+        <li>Access a database</li> 
+        <li>Call a remote service</li> 
+        <li>Make a CPU intensive computation</li> 
+       </ul> 
+       <p>These are the 3 points where your application is suppose to block and wait for a result.</p> 
+       <p>Let’s start by reducing the <strong>worker thread pool</strong> to the number of <strong>available processors</strong>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>server.threads.Min = ${runtime.processors}
+server.threads.Max = ${runtime.processors}
+</code></pre> 
+       </div> 
+       <p>With this change, you need to be careful and <strong>don’t run blocking code</strong> on routes anymore. Otherwise performance will be affected.</p> 
+       <p>Let’s create a custom thread pool for each blocking access:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">executor</span><span class="o">(</span><span class="s">"db"</span><span class="o">,</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newCachedThreadPool</span><span class="o">());</span>
+  <span class="n">executor</span><span class="o">(</span><span class="s">"remote"</span><span class="o">,</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newFixedThreadPool</span><span class="o">(</span><span class="mi">32</span><span class="o">));</span>
+  <span class="n">executor</span><span class="o">(</span><span class="s">"intensive"</span><span class="o">,</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadExecutor</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>For <code class="highlighter-rouge codehilite">database</code> access, we use a <code class="highlighter-rouge codehilite">cached</code> executor that will grow without a limit but free and release thread that are idle after <code class="highlighter-rouge codehilite">60s</code>.</p> 
+       <p>For <code class="highlighter-rouge codehilite">remote</code> service, we use a <code class="highlighter-rouge codehilite">fixed</code> executor of <code class="highlighter-rouge codehilite">32</code> thread. The number here: <code class="highlighter-rouge codehilite">32</code> is just a random number for the purpose of the example.</p> 
+       <p>For <code class="highlighter-rouge codehilite">intensive</code> computation, we use a <code class="highlighter-rouge codehilite">single</code> thread executor. Computation is too expensive and we want <strong>one and only one</strong> running at any time.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">executor</span><span class="o">(</span><span class="s">"db"</span><span class="o">,</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newCachedThreadPool</span><span class="o">());</span>
+  <span class="n">executor</span><span class="o">(</span><span class="s">"remote"</span><span class="o">,</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newFixedThreadPool</span><span class="o">(</span><span class="mi">32</span><span class="o">));</span>
+  <span class="n">executor</span><span class="o">(</span><span class="s">"intensive"</span><span class="o">,</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadExecutor</span><span class="o">());</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/nonblocking"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"I'm nonblocking"</span><span class="o">);</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/list"</span><span class="o">,</span> <span class="n">deferred</span><span class="o">(</span><span class="s">"db"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Database</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">Database</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="na">fetch</span><span class="o">();</span>
+  <span class="o">});</span>
+  
+  <span class="n">get</span><span class="o">(</span><span class="s">"/remote"</span><span class="o">,</span> <span class="n">deferred</span><span class="o">(</span><span class="s">"remote"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">RemoteService</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">RemoteService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">rs</span><span class="o">.</span><span class="na">call</span><span class="o">();</span>
+  <span class="o">});</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/compute"</span><span class="o">,</span> <span class="n">deferred</span><span class="o">(</span><span class="s">"intensive"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">someCPUIntensiveTask</span><span class="o">();</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Here is the same example with <a href="https://github.com/ReactiveX/RxJava" target="_blank">rx java</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/nonblocking"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"I'm nonblocking"</span><span class="o">);</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/list"</span><span class="o">,</span> <span class="n">deferred</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Database</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">Database</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Observable</span><span class="o">.&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">s</span><span class="o">.</span><span class="na">onNext</span><span class="o">(</span><span class="n">db</span><span class="o">.</span><span class="na">fetch</span><span class="o">());</span>
+      <span class="n">s</span><span class="o">.</span><span class="na">onCompleted</span><span class="o">();</span>
+    <span class="o">}).</span><span class="na">subscribeOn</span><span class="o">(</span><span class="n">Schedulers</span><span class="o">.</span><span class="na">io</span><span class="o">())</span>
+      <span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="nl">deferred:</span><span class="o">:</span><span class="n">resolve</span><span class="o">,</span> <span class="nl">deferred:</span><span class="o">:</span><span class="n">reject</span><span class="o">);</span>
+    <span class="o">}));</span>
+  <span class="o">});</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/remote"</span><span class="o">,</span> <span class="n">deferred</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">RemoteService</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">RemoteService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Observable</span><span class="o">.&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">s</span><span class="o">.</span><span class="na">onNext</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">call</span><span class="o">());</span>
+      <span class="n">s</span><span class="o">.</span><span class="na">onCompleted</span><span class="o">();</span>
+    <span class="o">}).</span><span class="na">subscribeOn</span><span class="o">(</span><span class="n">Schedulers</span><span class="o">.</span><span class="na">io</span><span class="o">())</span>
+      <span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="nl">deferred:</span><span class="o">:</span><span class="n">resolve</span><span class="o">,</span> <span class="nl">deferred:</span><span class="o">:</span><span class="n">reject</span><span class="o">);</span>
+    <span class="o">}));</span>
+  <span class="o">});</span>
+  
+  <span class="n">get</span><span class="o">(</span><span class="s">"/compute"</span><span class="o">,</span> <span class="n">deferred</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">Observable</span><span class="o">.&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">s</span><span class="o">.</span><span class="na">onNext</span><span class="o">(</span><span class="n">someCPUIntensiveTask</span><span class="o">());</span>
+      <span class="n">s</span><span class="o">.</span><span class="na">onCompleted</span><span class="o">();</span>
+    <span class="o">}).</span><span class="na">subscribeOn</span><span class="o">(</span><span class="n">Schedulers</span><span class="o">.</span><span class="na">computation</span><span class="o">())</span>
+      <span class="o">.</span><span class="na">subscribe</span><span class="o">(</span><span class="nl">deferred:</span><span class="o">:</span><span class="n">resolve</span><span class="o">,</span> <span class="nl">deferred:</span><span class="o">:</span><span class="n">reject</span><span class="o">);</span>
+    <span class="o">}));</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Main difference are:</p> 
+       <ul> 
+        <li>we keep the default executor: <code class="highlighter-rouge codehilite">direct</code>. So we don’t create a new thread and avoid context switching.</li> 
+        <li>we use <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object as <code class="highlighter-rouge codehilite">promise</code> and integrate with <a href="https://github.com/ReactiveX/RxJava" target="_blank">rx java</a>.</li> 
+        <li>different thread pool semantic is done via <a href="http://reactivex.io/documentation/scheduler.html" target="_blank">rx schedulers</a>.</li> 
+       </ul> 
+       <p>This is just one more example to demonstrate the value of the <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object, because we provide an <a href="/doc/rxjava">rxjava</a> module which takes care of binding <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object into <code class="highlighter-rouge codehilite">Observables</code>.</p> 
+       <p>That’s all about <a href="/apidocs/org/jooby/Deferred.html" target="_blank">deferred</a> object, it allows you to build async and reactive applications and at the same time: <strong>keep it simple</strong> (Jooby design goal).</p> 
+       <p>Also, we invite you to checkout the available <a href="/doc/async">async/reactive modules</a>.</p> 
       </div> 
      </div> 
      <div class="datalist" id="modules"> 
@@ -280,8 +488,8 @@
    <div class="row share-network"> 
     <div class="section-content"> 
      <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/async" data-a2a-title="In Jooby all the IO operations are performed in async &amp; non blocking fashion across servers: Netty, Jetty and Undertow"> 
-      <a class="a2a_button_twitter" data-text="In Jooby all the IO operations are performed in async &amp; non blocking fashion across servers: Netty, Jetty and Undertow"></a> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/async" data-a2a-title="You can see Jooby as an event loop server thanks to the supported web servers: Netty, Jetty and Undertow"> 
+      <a class="a2a_button_twitter" data-text="You can see Jooby as an event loop server thanks to the supported web servers: Netty, Jetty and Undertow"></a> 
       <a class="a2a_button_reddit a2a_counter"></a> 
       <a class="a2a_button_linkedin a2a_counter"></a> 
       <a class="a2a_button_facebook a2a_counter"></a> 

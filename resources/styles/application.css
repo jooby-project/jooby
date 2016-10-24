@@ -108,10 +108,10 @@ code {
 
 p > code.highlighter-rouge,
 li > code.highlighter-rouge {
-  border: 1px solid #e3e3e3;
+  border: none;
   border-radius: 5px;
   font-size: 14px !important;
-  padding: 2px 4px;
+  padding: 2px 0;
   word-wrap: break-word;
 }
 
@@ -1333,10 +1333,10 @@ blockquote {
   background-color: #f9b334;
 }
 .section-content ul code {
-  border: 1px solid #e3e3e3;
+  border: none;
   border-radius: 5px;
   font-size: 14px !important;
-  padding: 2px 4px;
+  padding: 2px 0;
   word-wrap: break-word;
 }
 .section-content ul p {

@@ -130,6 +130,14 @@
         <li> <a href="#war--limitations">limitations</a></li> 
         <li> <a href="#war--how-it-works-">how it works?</a></li>
        </ul></li> 
+      <li class=""> <a href="#crash">crash</a>
+       <ul> 
+        <li> <a href="#crash-dependency">dependency</a></li> 
+        <li> <a href="#crash-usage">usage</a></li> 
+        <li> <a href="#crash-connectors">connectors</a></li> 
+        <li> <a href="#crash-commands">commands</a></li> 
+        <li> <a href="#crash-fancy-banner">fancy banner</a></li>
+       </ul></li> 
       <li class=""> <a href="#conclusion">conclusion</a></li> 
      </ul> 
     </div> 
@@ -509,6 +517,141 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
         <li>save a <code class="highlighter-rouge codehilite">web.xml</code> file inside that dir</li> 
         <li>run: <code class="highlighter-rouge codehilite">mvn clean package</code></li> 
        </ol> 
+      </div> 
+     </div> 
+     <div class="datalist" id="crash"> 
+      <div class="datalist-title "> 
+       <h2>crash</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p><a href="http://www.crashub.org" target="_blank">CRaSH</a> remote shell: connect and monitor JVM resources via HTTP, SSH or telnet.&lt;/a&gt;</p> 
+       <h3 id="crash-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-crash<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
+       <h3 id="crash-usage">usage</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+<span class="kn">import</span> <span class="nn">org.jooby.crash</span><span class="o">;</span>
+
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Crash</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Just drop your commands in the <code class="highlighter-rouge codehilite">cmd</code> folder and <a href="http://www.crashub.org" target="_blank">CRaSH</a> will pick up all them.</p> 
+       <p>Now let’s see how to connect and interact with the <a href="http://www.crashub.org" target="_blank">CRaSH shell</a>.</p> 
+       <h3 id="crash-connectors">connectors</h3> 
+       <h4 id="crash-HTTP-connector">HTTP connector</h4> 
+       <p>The HTTP connector is a simple yet powerful collection of HTTP endpoints where you can run a <a href="http://www.crashub.org/1.3/reference.html#developping_commands" target="_blank">CRaSH command</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Crash</span><span class="o">()</span>
+     <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">HttpShellPlugin</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+  <span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Try it:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>GET /api/shell/thread/ls
+</code></pre> 
+       </div> 
+       <p>OR:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>GET /api/shell/thread ls
+</code></pre> 
+       </div> 
+       <p>The connector is listening at <code class="highlighter-rouge codehilite">/api/shell</code>. If you want to mount the connector some where else just set the property: <code class="highlighter-rouge codehilite">crash.httpshell.path</code>.</p> 
+       <h4 id="crash-SSH-connector">SSH connector</h4> 
+       <p>Just add the <a href="https://mvnrepository.com/artifact/org.crashub/crash.connectors.ssh/latest" target="_blank">crash.connectors.ssh</a> dependency to your project.</p> 
+       <p>Try it:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>ssh -p 2000 admin@localhost
+</code></pre> 
+       </div> 
+       <p>Default user and password is: <code class="highlighter-rouge codehilite">admin</code>. See how to provide a custom <a href="http://www.crashub.org/1.3/reference.html#pluggable_auth" target="_blank">authentication plugin</a>.</p> 
+       <h4 id="crash-telnet-connector">telnet connector</h4> 
+       <p>Just add the <a href="https://mvnrepository.com/artifact/org.crashub/crash.connectors.telnet/latest" target="_blank">crash.connectors.telnet</a> dependency to your project.</p> 
+       <p>Try it:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>telnet localhost 5000
+</code></pre> 
+       </div> 
+       <p>Checkout complete <a href="http://www.crashub.org/1.3/reference.html#_telnet_connector" target="_blank">telnet connector</a> configuration.</p> 
+       <h4 id="crash-web-connector">web connector</h4> 
+       <p>Just add the <a href="https://mvnrepository.com/artifact/org.crashub/crash.connectors.web/latest" target="_blank">crash.connectors.web</a> dependency to your project.</p> 
+       <p>Try it:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>GET /shell
+</code></pre> 
+       </div> 
+       <p>A web shell console will be ready to go at <code class="highlighter-rouge codehilite">/shell</code>. If you want to mount the connector some where else just set the property: <code class="highlighter-rouge codehilite">crash.webshell.path</code>.</p> 
+       <h3 id="crash-commands">commands</h3> 
+       <p>You can write additional shell commands using Groovy or Java, see the <a href="http://www.crashub.org/1.3/reference.html#developping_commands" target="_blank">CRaSH documentation for details</a>. CRaSH search for commands in the <code class="highlighter-rouge codehilite">cmd</code> folder.</p> 
+       <p>Here is a simple ‘hello’ command that could be loaded from <code class="highlighter-rouge codehilite">cmd/hello.groovy</code> folder:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kn">package</span> <span class="n">commands</span>
+
+<span class="kn">import</span> <span class="nn">org.crsh.cli.Command</span>
+<span class="kn">import</span> <span class="nn">org.crsh.cli.Usage</span>
+<span class="kn">import</span> <span class="nn">org.crsh.command.InvocationContext</span>
+
+<span class="kd">class</span> <span class="nc">hello</span> <span class="o">{</span>
+
+ <span class="nd">@Usage</span><span class="o">(</span><span class="s">"Say Hello"</span><span class="o">)</span>
+ <span class="nd">@Command</span>
+ <span class="n">def</span> <span class="n">main</span><span class="o">(</span><span class="n">InvocationContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+     <span class="k">return</span> <span class="s">"Hello"</span>
+ <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Jooby adds some additional attributes and commands to <code class="highlighter-rouge codehilite">InvocationContext</code> that you can access from your command:</p> 
+       <ul> 
+        <li>registry: Access to <a href="/apidocs/org/jooby/Registry.html" target="_blank">Registry</a>.</li> 
+        <li>conf: Access to <code class="highlighter-rouge codehilite">Config</code>.</li> 
+       </ul> 
+       <h4 id="crash-routes-command">routes command</h4> 
+       <p>The <code class="highlighter-rouge codehilite">routes</code> print all the application routes.</p> 
+       <h4 id="crash-conf-command">conf command</h4> 
+       <p>The <code class="highlighter-rouge codehilite">conf tree</code> print the application configuration tree (configuration precedence).</p> 
+       <p>The <code class="highlighter-rouge codehilite">conf props [path]</code> print all the application properties, sub-tree or a single property if <code class="highlighter-rouge codehilite">path</code> argument is present.</p> 
+       <h3 id="crash-fancy-banner">fancy banner</h3> 
+       <p>Just add the <a href="/doc/banner">jooby-banner</a> to your project and all the <code class="highlighter-rouge codehilite">CRaSH</code> shell will use it. Simple and easy!!</p> 
       </div> 
      </div> 
      <div class="datalist" id="conclusion"> 

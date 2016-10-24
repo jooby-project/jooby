@@ -25,15 +25,13 @@
 .codehilite .kt { color: #445588; font-weight: bold } /* Keyword.Type */
 .codehilite .m { color: #009999 } /* Literal.Number */
 .codehilite .s { color: #d01040 } /* Literal.String */
-.codehilite .na { color: #008080 } /* Name.Attribute */
+.codehilite .na { color: #008080; font-weight: normal; } /* Name.Attribute */
 .codehilite .nb { color: #0086B3 } /* Name.Builtin */
 .codehilite .nc { color: #445588; font-weight: bold } /* Name.Class */
 .codehilite .no { color: #008080 } /* Name.Constant */
 .codehilite .nd { color: #3c5d5d; font-weight: bold } /* Name.Decorator */
 .codehilite .ni { color: #800080 } /* Name.Entity */
 .codehilite .ne { color: #990000; font-weight: bold } /* Name.Exception */
-.codehilite .nf { color: #990000; font-weight: bold } /* Name.Function */
-.codehilite .nl { color: #990000; font-weight: bold } /* Name.Label */
 .codehilite .nn { color: #555555 } /* Name.Namespace */
 .codehilite .nt { color: #63a35c } /* Name.Tag */
 .codehilite .nv { color: #008080 } /* Name.Variable */

@@ -7,6 +7,7 @@ org.jooby.caffeine
 org.jooby.camel
 org.jooby.cassandra
 org.jooby.couchbase
+org.jooby.crash
 org.jooby.csl
 org.jooby.ebean
 org.jooby.ehcache
