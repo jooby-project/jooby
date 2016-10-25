@@ -233,11 +233,16 @@ public interface Route {
   /**
    * Provides useful information about where the route was defined.
    *
+   * See {@link Definition#source()} and {@link Route#source()}.
+   *
    * @author edgar
    * @since 1.0.0.CR4
    */
   interface Source {
 
+    /**
+     * There is no source information.
+     */
     Source UNKNOWN = new Source() {
 
       @Override
@@ -268,7 +273,7 @@ public interface Route {
   }
 
   /**
-   * The map operator converts a route output to something else
+   * Converts a route output to something else, see {@link Router#map(Mapper)}.
    *
    * <pre>{@code
    * {
@@ -521,6 +526,11 @@ public interface Route {
     T map(Mapper<?> mapper);
   }
 
+  /**
+   * Group one ore more routes under a base path, see {@link Router#use(String)}.
+   *
+   * @author edgar
+   */
   class Group implements Props<Group> {
 
     /** List of definitions. */
@@ -892,6 +902,8 @@ public interface Route {
   /**
    * Collection of {@link Route.Props} useful for registering/setting route options at once.
    *
+   * See {@link Router#get(String, String, String, OneArgHandler)} and variants.
+   *
    * @author edgar
    * @since 0.5.0
    */
@@ -962,21 +974,18 @@ public interface Route {
   /**
    * DSL for customize routes.
    *
-   * <h1>Defining a new route</h1>
    * <p>
-   * It's pretty straight forward:
+   * Some examples:
    * </p>
    *
    * <pre>
    *   public class MyApp extends Jooby {
    *     {
-   *        get("/", (req, rsp) {@literal ->} rsp.send("GET"));
+   *        get("/", () {@literal ->} "GET");
    *
-   *        post("/", (req, rsp) {@literal ->} rsp.send("POST"));
+   *        post("/", req {@literal ->} "POST");
    *
    *        put("/", (req, rsp) {@literal ->} rsp.send("PUT"));
-   *
-   *        delete("/", (req, rsp) {@literal ->} rsp.status(Response.Status.NO_CONTENT));
    *     }
    *   }
    * </pre>
@@ -1611,10 +1620,10 @@ public interface Route {
   }
 
   /**
-   * Filter is like a {@link Route.Handler} but it decided if the next route handler in the chain
+   * The most advanced route handler which let you decided if the next route handler in the chain
    * can be executed or not. Example of filters are:
    *
-   * <h3>Auth handler example</h3>
+   * <p>Auth handler example:</p>
    *
    * <pre>
    *   String token = req.header("token").value();
@@ -1628,7 +1637,7 @@ public interface Route {
    *   }
    * </pre>
    *
-   * <h3>Logging/Around handler example</h3>
+   * <p>Logging/Around handler example:</p>
    *
    * <pre>
    *   long start = System.currentTimeMillis();
@@ -1682,7 +1691,7 @@ public interface Route {
   }
 
   /**
-   * A route handler/callback.
+   * A route handler that always call {@link Chain#next(Request, Response)}.
    *
    * <pre>
    * public class MyApp extends Jooby {
@@ -1716,7 +1725,7 @@ public interface Route {
   }
 
   /**
-   * A handler from a MVC route, it extends {@link Handler} by adding a reference to the method
+   * A handler for a MVC route, it extends {@link Handler} by adding a reference to the method
    * behind this route.
    *
    * @author edgar
@@ -1727,15 +1736,12 @@ public interface Route {
   }
 
   /**
-   * A route handler/callback that doesn't require a {@link Response} object. This handler expect a
-   * return type to send as response.
+   * A functional route handler that use the return value as HTTP response.
    *
    * <pre>
-   * public class MyApp extends Jooby {
    *   {
-   *      get("/", (req) {@literal ->} "Hello");
+   *      get("/",(req {@literal ->} "Hello");
    *   }
-   * }
    * </pre>
    *
    * @author edgar
@@ -1762,8 +1768,7 @@ public interface Route {
   }
 
   /**
-   * A route handler/callback that doesn't require a {@link Request} or {@link Response} objects.
-   * This handler expect a return type to send as response.
+   * A functional handler that use the return value as HTTP response.
    *
    * <pre>
    * public class MyApp extends Jooby {
