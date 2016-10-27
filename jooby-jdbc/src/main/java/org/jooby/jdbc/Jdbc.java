@@ -360,8 +360,8 @@ public class Jdbc implements Jooby.Module {
       props.setProperty("url", url);
     }
 
+    callback(hikariConf, config);
     HikariDataSource ds = new HikariDataSource(hikariConf);
-    callback(ds, config);
 
     extensions.accept(dbname, ds);
 
