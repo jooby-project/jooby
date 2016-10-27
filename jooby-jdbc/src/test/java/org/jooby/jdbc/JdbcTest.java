@@ -134,7 +134,7 @@ public class JdbcTest {
         .expect(serviceKey("jdbctest"))
         .expect(onStop)
         .expect(unit -> {
-          HikariDataSource h = unit.get(HikariDataSource.class);
+          HikariConfig h = unit.get(HikariConfig.class);
           h.setAllowPoolSuspension(true);
         })
         .run(unit -> {
