@@ -24,7 +24,7 @@ public class ServletServletRequestTest {
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
           expect(req.getContentType()).andReturn("text/html");
-          expect(req.getRequestURI()).andReturn("/");
+          expect(req.getPathInfo()).andReturn("/");
         })
         .run(unit -> {
           new ServletServletRequest(unit.get(HttpServletRequest.class), tmpdir);
@@ -38,7 +38,7 @@ public class ServletServletRequestTest {
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
           expect(req.getContentType()).andReturn(null);
-          expect(req.getRequestURI()).andReturn("/");
+          expect(req.getPathInfo()).andReturn("/");
         })
         .run(unit -> {
           new ServletServletRequest(unit.get(HttpServletRequest.class), tmpdir);
@@ -53,7 +53,7 @@ public class ServletServletRequestTest {
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
           expect(req.getContentType()).andReturn(MediaType.multipart.name());
-          expect(req.getRequestURI()).andReturn("/");
+          expect(req.getPathInfo()).andReturn("/");
         })
         .run(unit -> {
           new ServletServletRequest(unit.get(HttpServletRequest.class), tmpdir);
@@ -67,7 +67,7 @@ public class ServletServletRequestTest {
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
           expect(req.getContentType()).andReturn("text/html");
-          expect(req.getRequestURI()).andReturn("/");
+          expect(req.getPathInfo()).andReturn("/");
           expect(req.getMethod()).andReturn("GET");
         })
         .run(unit -> {
@@ -84,7 +84,7 @@ public class ServletServletRequestTest {
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
           expect(req.getContentType()).andReturn("text/html");
-          expect(req.getRequestURI()).andReturn("/spaces%20in%20it");
+          expect(req.getPathInfo()).andReturn("/spaces%20in%20it");
         })
         .run(unit -> {
           assertEquals("/spaces in it",
@@ -100,7 +100,7 @@ public class ServletServletRequestTest {
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
           expect(req.getContentType()).andReturn("text/html");
-          expect(req.getRequestURI()).andReturn("/");
+          expect(req.getPathInfo()).andReturn("/");
           expect(req.getParameterNames()).andReturn(
               Iterators.asEnumeration(Lists.newArrayList("p1", "p2").iterator()));
         })
@@ -119,7 +119,7 @@ public class ServletServletRequestTest {
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
           expect(req.getContentType()).andReturn("text/html");
-          expect(req.getRequestURI()).andReturn("/");
+          expect(req.getPathInfo()).andReturn("/");
           expect(req.getParameterValues("x")).andReturn(new String[]{"a", "b" });
         })
         .run(unit -> {
@@ -137,7 +137,7 @@ public class ServletServletRequestTest {
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
           expect(req.getContentType()).andReturn("text/html");
-          expect(req.getRequestURI()).andReturn("/");
+          expect(req.getPathInfo()).andReturn("/");
           expect(req.getParameterValues("x")).andReturn(null);
         })
         .run(unit -> {
@@ -155,7 +155,7 @@ public class ServletServletRequestTest {
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
           expect(req.getContentType()).andReturn(MediaType.multipart.name());
-          expect(req.getRequestURI()).andReturn("/");
+          expect(req.getPathInfo()).andReturn("/");
           expect(req.getParts()).andThrow(new ServletException("intentional err"));
         })
         .run(unit -> {
@@ -172,7 +172,7 @@ public class ServletServletRequestTest {
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
           expect(req.getContentType()).andReturn(MediaType.multipart.name());
-          expect(req.getRequestURI()).andReturn("/");
+          expect(req.getPathInfo()).andReturn("/");
         })
         .run(unit -> {
           assertEquals(Lists.newArrayList(),

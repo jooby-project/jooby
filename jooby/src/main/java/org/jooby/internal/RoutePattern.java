@@ -20,7 +20,11 @@ package org.jooby.internal;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +36,10 @@ import javaslang.Tuple4;
 public class RoutePattern {
 
   private static final Pattern GLOB = Pattern
-      .compile("\\?|/\\*\\*(:(?:[^/]+)+?)?+|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?(?:[^/]+?\\*\\*)\\}|[^/{}]|\\\\[{}])+?)\\}");
+      /**            ?| **    | * | :var           | {var(:.*)} */
+     //.compile("\\?|/\\*\\*|\\*|\\:((?:[^/]+)+?)              |\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
+      /**           ? | **:name            | * | :var           | */
+      .compile("\\?|/\\*\\*(\\:(?:[^/]+))?|\\*|\\:((?:[^/]+)+?)|\\{((?:\\{[^/]+?\\}|[^/{}]|\\\\[{}])+?)\\}");
 
   private static final Pattern SLASH = Pattern.compile("//+");
 

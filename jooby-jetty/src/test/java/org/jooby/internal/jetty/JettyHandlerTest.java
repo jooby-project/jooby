@@ -45,7 +45,7 @@ public class JettyHandlerTest {
         .expect(unit -> {
           HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getRequestURI()).andReturn("/");
+          expect(request.getPathInfo()).andReturn("/");
         })
         .expect(unit -> {
           HttpHandler dispatcher = unit.get(HttpHandler.class);
@@ -75,7 +75,7 @@ public class JettyHandlerTest {
         .expect(unit -> {
           HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getRequestURI()).andReturn("/");
+          expect(request.getPathInfo()).andReturn("/");
         })
         .expect(unit -> {
           HttpHandler dispatcher = unit.get(HttpHandler.class);
@@ -105,7 +105,7 @@ public class JettyHandlerTest {
         .expect(unit -> {
           HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getRequestURI()).andReturn("/");
+          expect(request.getPathInfo()).andReturn("/");
         })
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
@@ -153,7 +153,7 @@ public class JettyHandlerTest {
         .expect(unit -> {
           HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getRequestURI()).andReturn("/");
+          expect(request.getPathInfo()).andReturn("/");
         })
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
@@ -199,7 +199,7 @@ public class JettyHandlerTest {
         .expect(unit -> {
           HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getRequestURI()).andReturn("/");
+          expect(request.getPathInfo()).andReturn("/");
         })
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
@@ -241,7 +241,7 @@ public class JettyHandlerTest {
         .expect(unit -> {
           HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getRequestURI()).andReturn("/");
+          expect(request.getPathInfo()).andReturn("/");
         })
         .expect(unit -> {
           HttpServletRequest req = unit.get(HttpServletRequest.class);
@@ -285,7 +285,7 @@ public class JettyHandlerTest {
         .expect(unit -> {
           HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getRequestURI()).andReturn("/");
+          expect(request.getPathInfo()).andReturn("/");
         })
         .expect(unit -> {
           HttpHandler dispatcher = unit.get(HttpHandler.class);
@@ -322,7 +322,7 @@ public class JettyHandlerTest {
         .expect(unit -> {
           HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getRequestURI()).andReturn("/");
+          expect(request.getPathInfo()).andReturn("/");
         })
         .expect(unit -> {
           Request request = unit.get(Request.class);
@@ -356,7 +356,7 @@ public class JettyHandlerTest {
         .expect(unit -> {
           HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getRequestURI()).andReturn("/");
+          expect(request.getPathInfo()).andReturn("/");
         })
         .expect(unit -> {
           Request request = unit.get(Request.class);
@@ -390,7 +390,7 @@ public class JettyHandlerTest {
         .expect(unit -> {
           HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getRequestURI()).andReturn("/");
+          expect(request.getPathInfo()).andReturn("/");
         })
         .expect(unit -> {
           Request request = unit.get(Request.class);
@@ -424,7 +424,7 @@ public class JettyHandlerTest {
         .expect(unit -> {
           HttpServletRequest request = unit.get(HttpServletRequest.class);
 
-          expect(request.getRequestURI()).andReturn("/");
+          expect(request.getPathInfo()).andReturn("/");
         })
         .expect(unit -> {
           Request request = unit.get(Request.class);
