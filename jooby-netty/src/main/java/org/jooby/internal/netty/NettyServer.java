@@ -84,11 +84,11 @@ public class NettyServer implements Server {
 
   @Override
   public void start() throws Exception {
-    int parentThreads = conf.getInt("netty.threads.Boss");
-    bossLoop = eventLoop(parentThreads, "boss");
-    if (conf.hasPath("netty.threads.Worker")) {
-      int childThreads = conf.getInt("netty.threads.Worker");
-      workerLoop = eventLoop(childThreads, "worker");
+    int bossThreads = conf.getInt("netty.threads.Boss");
+    bossLoop = eventLoop(bossThreads, "boss");
+    int workerThreads = conf.getInt("netty.threads.Worker");
+    if (workerThreads > 0) {
+      workerLoop = eventLoop(workerThreads, "worker");
     } else {
       workerLoop = bossLoop;
     }
@@ -119,7 +119,7 @@ public class NettyServer implements Server {
     configure(conf.getConfig("netty.options"), "netty.options",
         (option, value) -> bootstrap.option(option, value));
 
-    configure(conf.getConfig("netty.worker.options"), "netty.child.options",
+    configure(conf.getConfig("netty.worker.options"), "netty.worker.options",
         (option, value) -> bootstrap.childOption(option, value));
 
     return bootstrap
@@ -161,7 +161,7 @@ public class NettyServer implements Server {
         log.debug("{}.{}({})", path, option, value);
         setter.accept(option, value);
       } else {
-        log.error("Unknown option: netty.channel.{}", entry.getKey());
+        log.error("Unknown option: {}.{}", path, entry.getKey());
       }
     });
 
@@ -182,12 +182,10 @@ public class NettyServer implements Server {
 
   private EventLoopGroup eventLoop(final int threads, final String name) {
     log.debug("netty.threads.{}({})", name, threads);
-    DefaultThreadFactory threadFactory = new DefaultThreadFactory(name, Thread.MAX_PRIORITY);
     if (Epoll.isAvailable()) {
-      return new EpollEventLoopGroup(threads, threadFactory);
+      return new EpollEventLoopGroup(threads, new DefaultThreadFactory("epoll-" + name, false));
     }
-    return new NioEventLoopGroup(threads, threadFactory);
+    return new NioEventLoopGroup(threads, new DefaultThreadFactory("nio-" + name, false));
   }
-
 
 }

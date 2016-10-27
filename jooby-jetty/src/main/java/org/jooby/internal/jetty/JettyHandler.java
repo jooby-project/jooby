@@ -78,28 +78,7 @@ public class JettyHandler extends AbstractHandler {
       }
 
       ServletServletRequest nreq = new ServletServletRequest(request, tmpdir, multipart)
-          .with(new ServletUpgrade() {
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public <T> T upgrade(final Class<T> type) throws Exception {
-              if (type == NativeWebSocket.class
-                  && webSocketServerFactory.isUpgradeRequest(request, response)
-                  && webSocketServerFactory.acceptWebSocket(request, response)) {
-                String key = JettyWebSocket.class.getName();
-                NativeWebSocket ws = (NativeWebSocket) request.getAttribute(key);
-                if (ws != null) {
-                  request.removeAttribute(key);
-                  return (T) ws;
-                }
-              } else if (type == Sse.class) {
-                return (T) new JettySse(baseRequest, (Response) response);
-              } else if (type == NativePushPromise.class) {
-                return (T) new JettyPush(baseRequest);
-              }
-              throw new UnsupportedOperationException("Not Supported: " + type);
-            }
-          });
+          .with(upgrade(baseRequest, request, response, webSocketServerFactory));
       dispatcher.handle(nreq, new JettyResponse(nreq, response));
     } catch (IOException | ServletException | RuntimeException ex) {
       baseRequest.setHandled(false);
@@ -110,6 +89,31 @@ public class JettyHandler extends AbstractHandler {
       log.error("execution of: " + target + " resulted in error", ex);
       throw new IllegalStateException(ex);
     }
+  }
+
+  private static ServletUpgrade upgrade(final Request baseRequest, final HttpServletRequest request,
+      final HttpServletResponse response, final WebSocketServerFactory webSocketServerFactory) {
+    return new ServletUpgrade() {
+      @SuppressWarnings("unchecked")
+      @Override
+      public <T> T upgrade(final Class<T> type) throws Exception {
+        if (type == NativeWebSocket.class
+            && webSocketServerFactory.isUpgradeRequest(request, response)
+            && webSocketServerFactory.acceptWebSocket(request, response)) {
+          String key = JettyWebSocket.class.getName();
+          NativeWebSocket ws = (NativeWebSocket) request.getAttribute(key);
+          if (ws != null) {
+            request.removeAttribute(key);
+            return (T) ws;
+          }
+        } else if (type == Sse.class) {
+          return (T) new JettySse(baseRequest, (Response) response);
+        } else if (type == NativePushPromise.class) {
+          return (T) new JettyPush(baseRequest);
+        }
+        throw new UnsupportedOperationException("Not Supported: " + type);
+      }
+    };
   }
 
 }

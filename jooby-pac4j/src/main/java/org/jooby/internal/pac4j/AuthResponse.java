@@ -21,7 +21,7 @@ package org.jooby.internal.pac4j;
 import org.jooby.Err;
 import org.jooby.Response;
 import org.pac4j.core.client.Client;
-import org.pac4j.core.exception.RequiresHttpAction;
+import org.pac4j.core.exception.HttpAction;
 import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
 
 public class AuthResponse {
@@ -32,7 +32,7 @@ public class AuthResponse {
     this.rsp = rsp;
   }
 
-  public void handle(final Client<?, ?> client, final RequiresHttpAction action) {
+  public void handle(final Client<?, ?> client, final HttpAction action) {
     if (!rsp.committed()) {
       int statusCode = action.getCode();
       // on error, let jooby handle it

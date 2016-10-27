@@ -28,7 +28,7 @@ import com.google.common.primitives.Longs;
 
 /**
  * Usually a public file/resource like javascript, css, images files, etc...
- * An asset consist of content type, stream and last modified since, between others.
+ * An asset consist of content type, stream and last modified since attributes, between others.
  *
  * @author edgar
  * @since 0.1.0
@@ -36,6 +36,11 @@ import com.google.common.primitives.Longs;
  */
 public interface Asset {
 
+  /**
+   * Forwarding asset.
+   *
+   * @author edgar
+   */
   public class Forwarding implements Asset {
 
     private Asset asset;

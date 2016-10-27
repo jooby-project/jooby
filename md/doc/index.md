@@ -12,8 +12,6 @@ documentation
 
 {{app.md}}
 
-{{logging.md}}
-
 {{conf.md}}
 
 {{modules.md}}
@@ -40,16 +38,18 @@ documentation
 
 {{async.md}}
 
-{{h2.md}}
+{{https.md}}
 
-{{sse.md}}
+{{h2.md}}
 
 {{web-sockets.md}}
 
+{{sse.md}}
+
+# misc
+
 {{cors.md}}
 
-{{javascript.md}}
-
-{{https.md}}
+{{xss.md}}
 
 {{appendix}}

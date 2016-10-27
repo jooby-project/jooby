@@ -19,6 +19,8 @@
 package org.jooby;
 
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.function.Predicate;
 
 import org.jooby.Route.Mapper;
 import org.jooby.handlers.AssetHandler;
@@ -29,7 +31,7 @@ import org.jooby.handlers.AssetHandler;
  * @author edgar
  * @since 0.16.0
  */
-public interface Routes {
+public interface Router {
 
   /**
    * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
@@ -38,7 +40,7 @@ public interface Routes {
    * @param app Routes provider.
    * @return This jooby instance.
    */
-  Routes use(final Jooby app);
+  Router use(final Jooby app);
 
   /**
    * Import content from provide application (routes, parsers/renderers, start/stop callbacks, ...
@@ -48,7 +50,7 @@ public interface Routes {
    * @param app Routes provider.
    * @return This jooby instance.
    */
-  Routes use(final String path, final Jooby app);
+  Router use(final String path, final Jooby app);
 
   /**
    * Define one or more routes under the same namespace:
@@ -56,7 +58,7 @@ public interface Routes {
    * <pre>
    * {
    *   use("/pets")
-   *     .get("/{id}", req {@literal ->} db.get(req.param("id").value()))
+   *     .get("/:id", req {@literal ->} db.get(req.param("id").value()))
    *     .get(() {@literal ->} db.values());
    * }
    * </pre>
@@ -76,27 +78,31 @@ public interface Routes {
   Route.Definition use(String path, Route.Filter filter);
 
   /**
-   * Append a new filter that matches any method under the given path.
+   * Append a new filter that matches the given method and path.
    *
-   * @param verb A HTTP verb.
+   * @param method A HTTP method.
    * @param path A path pattern.
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  Route.Definition use(String verb, String path, Route.Filter filter);
+  Route.Definition use(String method, String path, Route.Filter filter);
 
   /**
-   * Append a new route handler that matches any method under the given path.
+   * Append a new route handler that matches the given method and path. Like
+   * {@link #use(String, String, org.jooby.Route.Filter)} but you don't have to explicitly call
+   * {@link Route.Chain#next(Request, Response)}.
    *
-   * @param verb A HTTP verb.
+   * @param method A HTTP method.
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition use(String verb, String path, Route.Handler handler);
+  Route.Definition use(String method, String path, Route.Handler handler);
 
   /**
-   * Append a new route handler that matches any method under the given path.
+   * Append a new route handler that matches any method under the given path. Like
+   * {@link #use(String, org.jooby.Route.Filter)} but you don't have to explicitly call
+   * {@link Route.Chain#next(Request, Response)}.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
@@ -114,15 +120,13 @@ public interface Routes {
   Route.Definition use(String path, Route.OneArgHandler handler);
 
   /**
-   * Append a route that supports HTTP GET method:
+   * Append a route that matches the HTTP GET method:
    *
    * <pre>
    *   get("/", (req, rsp) {@literal ->} {
    *     rsp.send(something);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
@@ -131,15 +135,13 @@ public interface Routes {
   Route.Definition get(String path, Route.Handler handler);
 
   /**
-   * Append two routes that supports HTTP GET method on the same handler:
+   * Append two routes that matches the HTTP GET method on the same handler:
    *
    * <pre>
-   *   get("/model", "/mode/:id", req {@literal ->} {
-   *     return req.param("id").toOptional(String.class);
+   *   get("/model", "/mode/:id", (req, rsp) {@literal ->} {
+   *     rsp.send(req.param("id").toOptional(String.class));
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -149,15 +151,13 @@ public interface Routes {
   Route.Collection get(String path1, String path2, Route.Handler handler);
 
   /**
-   * Append three routes that supports HTTP GET method on the same handler:
+   * Append three routes that matches the HTTP GET method on the same handler:
    *
    * <pre>
-   *   get("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   get("/p1", "/p2", "/p3", (req, rsp) {@literal ->} {
+   *     rsp.send(req.path());
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -168,15 +168,13 @@ public interface Routes {
   Route.Collection get(String path1, String path2, String path3, Route.Handler handler);
 
   /**
-   * Append route that supports HTTP GET method:
+   * Append route that matches the HTTP GET method:
    *
    * <pre>
-   *   get("/", (req) {@literal ->}
-   *     "hello"
-   *   );
+   *   get("/", req {@literal ->} {
+   *     return "hello";
+   *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
@@ -185,15 +183,13 @@ public interface Routes {
   Route.Definition get(String path, Route.OneArgHandler handler);
 
   /**
-   * Append three routes that supports HTTP GET method on the same handler:
+   * Append three routes that matches the HTTP GET method on the same handler:
    *
    * <pre>
    *   get("/model", "/model/:id", req {@literal ->} {
    *     return req.param("id").toOptional(String.class);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -203,15 +199,13 @@ public interface Routes {
   Route.Collection get(String path1, String path2, Route.OneArgHandler handler);
 
   /**
-   * Append three routes that supports HTTP GET method on the same handler:
+   * Append three routes that matches the HTTP GET method on the same handler:
    *
    * <pre>
    *   get("/p1", "/p2", "/p3", req {@literal ->} {
    *     return req.path();
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -222,15 +216,13 @@ public interface Routes {
   Route.Collection get(String path1, String path2, String path3, Route.OneArgHandler handler);
 
   /**
-   * Append route that supports HTTP GET method:
+   * Append route that matches HTTP GET method:
    *
    * <pre>
    *   get("/", () {@literal ->}
    *     "hello"
    *   );
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
@@ -239,15 +231,13 @@ public interface Routes {
   Route.Definition get(String path, Route.ZeroArgHandler handler);
 
   /**
-   * Append three routes that supports HTTP GET method on the same handler:
+   * Append three routes that matches the HTTP GET method on the same handler:
    *
    * <pre>
-   *   get("/model", "/model/:id", req {@literal ->} {
-   *     return req.param("id").toOptional(String.class);
+   *   get("/p1", "/p2", () {@literal ->} {
+   *     return "OK";
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -257,15 +247,13 @@ public interface Routes {
   Route.Collection get(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
-   * Append three routes that supports HTTP GET method on the same handler:
+   * Append three routes that matches HTTP GET method on the same handler:
    *
    * <pre>
-   *   get("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   get("/p1", "/p2", "/p3", () {@literal ->} {
+   *     return "OK";
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -276,15 +264,13 @@ public interface Routes {
   Route.Collection get(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
-   * Append a filter that supports HTTP GET method:
+   * Append a filter that matches HTTP GET method:
    *
    * <pre>
    *   get("/", (req, rsp, chain) {@literal ->} {
    *     chain.next(req, rsp);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param filter A filter to execute.
@@ -293,15 +279,14 @@ public interface Routes {
   Route.Definition get(String path, Route.Filter filter);
 
   /**
-   * Append three routes that supports HTTP GET method on the same handler:
+   * Append three routes that matches the HTTP GET method on the same handler:
    *
    * <pre>
-   *   get("/model", "/model/:id", req {@literal ->} {
-   *     return req.param("id").toOptional(String.class);
+   *   get("/model", "/model/:id", (req, rsp, chain) {@literal ->} {
+   *     req.param("id").toOptional(String.class);
+   *     chain.next(req, rsp);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -314,12 +299,10 @@ public interface Routes {
    * Append three routes that supports HTTP GET method on the same handler:
    *
    * <pre>
-   *   get("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   get("/p1", "/p2", "/p3", (req, rsp, chain) {@literal ->} {
+   *     chain.next(req, rsp);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -338,8 +321,6 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
@@ -350,12 +331,10 @@ public interface Routes {
    * Append three routes that supports HTTP POST method on the same handler:
    *
    * <pre>
-   *   post("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *   post("/p1", "/p2", (req, rsp) {@literal ->} {
+   *     rsp.send(req.path());
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -368,12 +347,10 @@ public interface Routes {
    * Append three routes that supports HTTP POST method on the same handler:
    *
    * <pre>
-   *   post("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   post("/p1", "/p2", "/p3", (req, rsp) {@literal ->} {
+   *     rsp.send(req.path());
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -387,12 +364,10 @@ public interface Routes {
    * Append route that supports HTTP POST method:
    *
    * <pre>
-   *   post("/", (req) {@literal ->}
+   *   post("/", req {@literal ->}
    *     "hello"
    *   );
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
@@ -409,8 +384,6 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param handler A handler to execute.
@@ -426,8 +399,6 @@ public interface Routes {
    *     return req.path();
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -446,8 +417,6 @@ public interface Routes {
    *   );
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
@@ -458,12 +427,10 @@ public interface Routes {
    * Append three routes that supports HTTP POST method on the same handler:
    *
    * <pre>
-   *   post("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *   post("/p1", "/p2", {@literal ->} {
+   *     return "OK";
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -476,12 +443,10 @@ public interface Routes {
    * Append three routes that supports HTTP POST method on the same handler:
    *
    * <pre>
-   *   post("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   post("/p1", "/p2", "/p3", () {@literal ->} {
+   *     return "OK";
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -500,8 +465,6 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param filter A filter to execute.
    * @return A new route definition.
@@ -512,31 +475,26 @@ public interface Routes {
    * Append three routes that supports HTTP POST method on the same handler:
    *
    * <pre>
-   *   post("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *   post("/p1", "/p2",(req, rsp, chain) {@literal ->} {
+   *     chain.next(req, rsp);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  Route.Collection post(String path1, String path2,
-      Route.Filter filter);
+  Route.Collection post(String path1, String path2, Route.Filter filter);
 
   /**
    * Append three routes that supports HTTP POST method on the same handler:
    *
    * <pre>
-   *   post("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   post("/p1", "/p2", "/p3", (req, rsp, chain) {@literal ->} {
+   *     chain.next(req, rsp);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -544,8 +502,7 @@ public interface Routes {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  Route.Collection post(String path1, String path2,
-      String path3, Route.Filter filter);
+  Route.Collection post(String path1, String path2, String path3, Route.Filter filter);
 
   /**
    * Append a route that supports HTTP HEAD method:
@@ -555,8 +512,6 @@ public interface Routes {
    *     rsp.send(something);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
@@ -568,19 +523,16 @@ public interface Routes {
    * Append route that supports HTTP HEAD method:
    *
    * <pre>
-   *   head("/", (req) {@literal ->}
+   *   head("/", req {@literal ->}
    *     "hello"
    *   );
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition head(String path,
-      Route.OneArgHandler handler);
+  Route.Definition head(String path, Route.OneArgHandler handler);
 
   /**
    * Append route that supports HTTP HEAD method:
@@ -591,14 +543,11 @@ public interface Routes {
    *   );
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition head(String path,
-      Route.ZeroArgHandler handler);
+  Route.Definition head(String path, Route.ZeroArgHandler handler);
 
   /**
    * Append a route that supports HTTP HEAD method:
@@ -609,22 +558,19 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  Route.Definition head(String path,
-      Route.Filter filter);
+  Route.Definition head(String path, Route.Filter filter);
 
   /**
    * Append a new route that automatically handles HEAD request from existing GET routes.
    *
    * <pre>
-   *   get("/", (req, rsp) {@literal ->} {
-   *     rsp.send(something); // This route provides default HEAD for this GET route.
-   *   });
+   * {
+   *   head();
+   * }
    * </pre>
    *
    * @return A new route definition.
@@ -640,50 +586,41 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition options(String path,
-      Route.Handler handler);
+  Route.Definition options(String path, Route.Handler handler);
 
   /**
    * Append route that supports HTTP OPTIONS method:
    *
    * <pre>
-   *   options("/", (req) {@literal ->}
-   *     Body.status(200).header("Allow", "GET, POST")
+   *   options("/", req {@literal ->}
+   *     return Results.with(200).header("Allow", "GET, POST")
    *   );
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition options(String path,
-      Route.OneArgHandler handler);
+  Route.Definition options(String path, Route.OneArgHandler handler);
 
   /**
    * Append route that supports HTTP OPTIONS method:
    *
    * <pre>
    *   options("/", () {@literal ->}
-   *     Body.status(200).header("Allow", "GET, POST")
+   *     return Results.with(200).header("Allow", "GET, POST")
    *   );
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition options(String path,
-      Route.ZeroArgHandler handler);
+  Route.Definition options(String path, Route.ZeroArgHandler handler);
 
   /**
    * Append a route that supports HTTP OPTIONS method:
@@ -695,14 +632,11 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param filter A callback to execute.
    * @return A new route definition.
    */
-  Route.Definition options(String path,
-      Route.Filter filter);
+  Route.Definition options(String path, Route.Filter filter);
 
   /**
    * Append a new route that automatically handles OPTIONS requests.
@@ -715,9 +649,11 @@ public interface Routes {
    *   post("/", (req, rsp) {@literal ->} {
    *     rsp.send(something);
    *   });
+   *
+   *   options("/");
    * </pre>
    *
-   * OPTINOS / produces a response with a Allow header set to: GET, POST.
+   * <code>OPTIONS /</code> produces a response with a Allow header set to: GET, POST.
    *
    * @return A new route definition.
    */
@@ -732,44 +668,36 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param handler A route to execute.
    * @return A new route definition.
    */
-  Route.Definition put(String path,
-      Route.Handler handler);
+  Route.Definition put(String path, Route.Handler handler);
 
   /**
    * Append three routes that supports HTTP PUT method on the same handler:
    *
    * <pre>
-   *   put("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *   put("/p1", "/p2", (req, rsp) {@literal ->} {
+   *     rsp.send(req.path());
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection put(String path1, String path2,
-      Route.Handler handler);
+  Route.Collection put(String path1, String path2, Route.Handler handler);
 
   /**
    * Append three routes that supports HTTP PUT method on the same handler:
    *
    * <pre>
-   *   put("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   put("/p1", "/p2", "/p3", (req, rsp) {@literal ->} {
+   *     rsp.send(req.path());
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -777,26 +705,22 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection put(String path1, String path2,
-      String path3, Route.Handler handler);
+  Route.Collection put(String path1, String path2, String path3, Route.Handler handler);
 
   /**
    * Append route that supports HTTP PUT method:
    *
    * <pre>
-   *   put("/", (req) {@literal ->}
-   *    Body.status(202)
+   *   put("/", req {@literal ->}
+   *    return Results.accepted();
    *   );
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition put(String path,
-      Route.OneArgHandler handler);
+  Route.Definition put(String path, Route.OneArgHandler handler);
 
   /**
    * Append three routes that supports HTTP PUT method on the same handler:
@@ -806,8 +730,6 @@ public interface Routes {
    *     return req.path();
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -834,26 +756,22 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection put(String path1, String path2,
-      String path3, Route.OneArgHandler handler);
+  Route.Collection put(String path1, String path2, String path3, Route.OneArgHandler handler);
 
   /**
    * Append route that supports HTTP PUT method:
    *
    * <pre>
    *   put("/", () {@literal ->} {
-   *     Body.status(202)
+   *     return Results.accepted()
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition put(String path,
-      Route.ZeroArgHandler handler);
+  Route.Definition put(String path, Route.ZeroArgHandler handler);
 
   /**
    * Append three routes that supports HTTP PUT method on the same handler:
@@ -871,8 +789,7 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection put(String path1, String path2,
-      Route.ZeroArgHandler handler);
+  Route.Collection put(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
    * Append three routes that supports HTTP PUT method on the same handler:
@@ -891,8 +808,7 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection put(String path1, String path2,
-      String path3, Route.ZeroArgHandler handler);
+  Route.Collection put(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
    * Append route that supports HTTP PUT method:
@@ -903,40 +819,34 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param filter A callback to execute.
    * @return A new route definition.
    */
-  Route.Definition put(String path,
-      Route.Filter filter);
+  Route.Definition put(String path, Route.Filter filter);
 
   /**
    * Append three routes that supports HTTP PUT method on the same handler:
    *
    * <pre>
-   *   put("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *   put("/p1", "/p2", (req, rsp, chain) {@literal ->} {
+   *     chain.next(req, rsp);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  Route.Collection put(String path1, String path2,
-      Route.Filter filter);
+  Route.Collection put(String path1, String path2, Route.Filter filter);
 
   /**
    * Append three routes that supports HTTP PUT method on the same handler:
    *
    * <pre>
-   *   put("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   put("/p1", "/p2", "/p3", (req, rsp, chain) {@literal ->} {
+   *     chain.next(req, rsp);
    *   });
    * </pre>
    *
@@ -948,8 +858,7 @@ public interface Routes {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  Route.Collection put(String path1, String path2,
-      String path3, Route.Filter filter);
+  Route.Collection put(String path1, String path2, String path3, Route.Filter filter);
 
   /**
    * Append route that supports HTTP PATCH method:
@@ -960,44 +869,36 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param handler A route to execute.
    * @return A new route definition.
    */
-  Route.Definition patch(String path,
-      Route.Handler handler);
+  Route.Definition patch(String path, Route.Handler handler);
 
   /**
    * Append three routes that supports HTTP PATCH method on the same handler:
    *
    * <pre>
-   *   patch("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *   patch("/p1", "/p2", (req, rsp) {@literal ->} {
+   *     rsp.send(something);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection patch(String path1, String path2,
-      Route.Handler handler);
+  Route.Collection patch(String path1, String path2, Route.Handler handler);
 
   /**
    * Append three routes that supports HTTP PATCH method on the same handler:
    *
    * <pre>
-   *   patch("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   patch("/p1", "/p2", "/p3", (req, rsp) {@literal ->} {
+   *     rsp.send(something);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -1005,15 +906,14 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection patch(String path1, String path2,
-      String path3, Route.Handler handler);
+  Route.Collection patch(String path1, String path2, String path3, Route.Handler handler);
 
   /**
    * Append route that supports HTTP PATCH method:
    *
    * <pre>
-   *   patch("/", (req) {@literal ->}
-   *    Body.status(202)
+   *   patch("/", req {@literal ->}
+   *    Results.ok()
    *   );
    * </pre>
    *
@@ -1023,8 +923,7 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition patch(String path,
-      Route.OneArgHandler handler);
+  Route.Definition patch(String path, Route.OneArgHandler handler);
 
   /**
    * Append three routes that supports HTTP PATCH method on the same handler:
@@ -1042,8 +941,7 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection patch(String path1, String path2,
-      Route.OneArgHandler handler);
+  Route.Collection patch(String path1, String path2, Route.OneArgHandler handler);
 
   /**
    * Append three routes that supports HTTP PATCH method on the same handler:
@@ -1062,15 +960,14 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection patch(String path1, String path2,
-      String path3, Route.OneArgHandler handler);
+  Route.Collection patch(String path1, String path2, String path3, Route.OneArgHandler handler);
 
   /**
    * Append route that supports HTTP PATCH method:
    *
    * <pre>
    *   patch("/", () {@literal ->} {
-   *     Body.status(202)
+   *     return Results.ok();
    *   });
    * </pre>
    *
@@ -1080,15 +977,14 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition patch(String path,
-      Route.ZeroArgHandler handler);
+  Route.Definition patch(String path, Route.ZeroArgHandler handler);
 
   /**
    * Append three routes that supports HTTP PATCH method on the same handler:
    *
    * <pre>
-   *   patch("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *   patch("/p1", "/p2", () {@literal ->} {
+   *     return Results.ok();
    *   });
    * </pre>
    *
@@ -1099,15 +995,14 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection patch(String path1, String path2,
-      Route.ZeroArgHandler handler);
+  Route.Collection patch(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
    * Append three routes that supports HTTP PATCH method on the same handler:
    *
    * <pre>
-   *   patch("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   patch("/p1", "/p2", "/p3", () {@literal ->} {
+   *     return Results.ok();
    *   });
    * </pre>
    *
@@ -1119,8 +1014,7 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection patch(String path1, String path2,
-      String path3, Route.ZeroArgHandler handler);
+  Route.Collection patch(String path1, String path2, String path3, Route.ZeroArgHandler handler);
 
   /**
    * Append route that supports HTTP PATCH method:
@@ -1131,44 +1025,36 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param filter A callback to execute.
    * @return A new route definition.
    */
-  Route.Definition patch(String path,
-      Route.Filter filter);
+  Route.Definition patch(String path, Route.Filter filter);
 
   /**
    * Append three routes that supports HTTP PATCH method on the same handler:
    *
    * <pre>
-   *   patch("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *   patch("/p1", "/p2", (req, rsp, chain) {@literal ->} {
+   *     chain.next(req, rsp);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  Route.Collection patch(String path1, String path2,
-      Route.Filter filter);
+  Route.Collection patch(String path1, String path2, Route.Filter filter);
 
   /**
    * Append three routes that supports HTTP PATCH method on the same handler:
    *
    * <pre>
-   *   patch("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   patch("/p1", "/p2", "/p3", (req, rsp, chain) {@literal ->} {
+   *     chain.next(req, rsp);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -1176,15 +1062,14 @@ public interface Routes {
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  Route.Collection patch(String path1, String path2,
-      String path3, Route.Filter filter);
+  Route.Collection patch(String path1, String path2, String path3, Route.Filter filter);
 
   /**
    * Append a route that supports HTTP DELETE method:
    *
    * <pre>
    *   delete("/", (req, rsp) {@literal ->} {
-   *     rsp.status(304);
+   *     rsp.status(204);
    *   });
    * </pre>
    *
@@ -1194,15 +1079,14 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition delete(String path,
-      Route.Handler handler);
+  Route.Definition delete(String path, Route.Handler handler);
 
   /**
    * Append three routes that supports HTTP DELETE method on the same handler:
    *
    * <pre>
-   *   delete("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *   delete("/p1", "/p2", (req, rsp) {@literal ->} {
+   *     rsp.status(204);
    *   });
    * </pre>
    *
@@ -1213,16 +1097,14 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection delete(String path1,
-      String path2,
-      Route.Handler handler);
+  Route.Collection delete(String path1, String path2, Route.Handler handler);
 
   /**
    * Append three routes that supports HTTP DELETE method on the same handler:
    *
    * <pre>
-   *   delete("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   delete("/p1", "/p2", "/p3", (req, rsp) {@literal ->} {
+   *     rsp.status(204);
    *   });
    * </pre>
    *
@@ -1240,8 +1122,8 @@ public interface Routes {
    * Append route that supports HTTP DELETE method:
    *
    * <pre>
-   *   delete("/", (req) {@literal ->}
-   *     Body.status(204)
+   *   delete("/", req {@literal ->}
+   *     return Results.noContent();
    *   );
    * </pre>
    *
@@ -1251,15 +1133,14 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition delete(String path,
-      Route.OneArgHandler handler);
+  Route.Definition delete(String path, Route.OneArgHandler handler);
 
   /**
    * Append three routes that supports HTTP DELETE method on the same handler:
    *
    * <pre>
    *   delete("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *     return Results.noContent();
    *   });
    * </pre>
    *
@@ -1276,8 +1157,8 @@ public interface Routes {
    * Append three routes that supports HTTP DELETE method on the same handler:
    *
    * <pre>
-   *   delete("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   delete("/p1", "/p2", "/p3",req {@literal ->} {
+   *     return Results.noContent();
    *   });
    * </pre>
    *
@@ -1296,7 +1177,7 @@ public interface Routes {
    *
    * <pre>
    *   delete("/", () {@literal ->}
-   *     Body.status(204)
+   *     return Results.noContent();
    *   );
    * </pre>
    *
@@ -1306,38 +1187,32 @@ public interface Routes {
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition delete(String path,
-      Route.ZeroArgHandler handler);
+  Route.Definition delete(String path, Route.ZeroArgHandler handler);
 
   /**
    * Append three routes that supports HTTP DELETE method on the same handler:
    *
    * <pre>
-   *   delete("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *   delete("/p1", "/p2", () {@literal ->} {
+   *     return Results.noContent();
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Collection delete(String path1,
-      String path2, Route.ZeroArgHandler handler);
+  Route.Collection delete(String path1, String path2, Route.ZeroArgHandler handler);
 
   /**
    * Append three routes that supports HTTP DELETE method on the same handler:
    *
    * <pre>
    *   delete("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *     return Results.noContent();
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -1357,44 +1232,38 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param filter A callback to execute.
    * @return A new route definition.
    */
-  Route.Definition delete(String path,
-      Route.Filter filter);
+  Route.Definition delete(String path, Route.Filter filter);
 
   /**
    * Append three routes that supports HTTP DELETE method on the same handler:
    *
    * <pre>
-   *   delete("/p1", "/p2", req {@literal ->} {
-   *     return req.path();
+   *   delete("/p1", "/p2", (req, rsp, chain) {@literal ->} {
+   *     rsp.status(304);
+   *     chain.next(req, rsp);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  Route.Collection delete(String path1,
-      String path2, Route.Filter filter);
+  Route.Collection delete(String path1, String path2, Route.Filter filter);
 
   /**
    * Append three routes that supports HTTP DELETE method on the same handler:
    *
    * <pre>
-   *   delete("/p1", "/p2", "/p3", req {@literal ->} {
-   *     return req.path();
+   *   delete("/p1", "/p2", "/p3", (req, rsp, chain) {@literal ->} {
+   *     rsp.status(304);
+   *     chain.next(req, rsp);
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path1 A path pattern.
    * @param path2 A path pattern.
@@ -1415,32 +1284,26 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param handler A callback to execute.
    * @return A new route definition.
    */
-  Route.Definition trace(String path,
-      Route.Handler handler);
+  Route.Definition trace(String path, Route.Handler handler);
 
   /**
    * Append route that supports HTTP TRACE method:
    *
    * <pre>
-   *   trace("/", (req) {@literal ->}
+   *   trace("/", req {@literal ->}
    *     "trace"
    *   );
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition trace(String path,
-      Route.OneArgHandler handler);
+  Route.Definition trace(String path, Route.OneArgHandler handler);
 
   /**
    * Append route that supports HTTP TRACE method:
@@ -1451,14 +1314,11 @@ public interface Routes {
    *   );
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition trace(String path,
-      Route.ZeroArgHandler handler);
+  Route.Definition trace(String path, Route.ZeroArgHandler handler);
 
   /**
    * Append a route that supports HTTP TRACE method:
@@ -1469,14 +1329,11 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param filter A callback to execute.
    * @return A new route definition.
    */
-  Route.Definition trace(String path,
-      Route.Filter filter);
+  Route.Definition trace(String path, Route.Filter filter);
 
   /**
    * Append a default trace implementation under the given path. Default trace response, looks
@@ -1486,7 +1343,6 @@ public interface Routes {
    *  TRACE /path
    *     header1: value
    *     header2: value
-   *
    * </pre>
    *
    * @return A new route definition.
@@ -1497,37 +1353,30 @@ public interface Routes {
    * Append a route that supports HTTP CONNECT method:
    *
    * <pre>
-   *   connect("/", (req, rsp, chain) {@literal ->} {
-   *     chain.next(req, rsp);
+   *   connect("/", (req, rsp) {@literal ->} {
    *   });
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition connect(String path,
-      Route.Handler handler);
+  Route.Definition connect(String path, Route.Handler handler);
 
   /**
    * Append route that supports HTTP CONNECT method:
    *
    * <pre>
-   *   connect("/", (req) {@literal ->}
+   *   connect("/", req {@literal ->}
    *     "hello"
    *   );
    * </pre>
-   *
-   * This is a singleton route so make sure you don't share or use global variables.
    *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition connect(String path,
-      Route.OneArgHandler handler);
+  Route.Definition connect(String path, Route.OneArgHandler handler);
 
   /**
    * Append route that supports HTTP CONNECT method:
@@ -1538,14 +1387,11 @@ public interface Routes {
    *   );
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param handler A handler to execute.
    * @return A new route definition.
    */
-  Route.Definition connect(String path,
-      Route.ZeroArgHandler handler);
+  Route.Definition connect(String path, Route.ZeroArgHandler handler);
 
   /**
    * Append a route that supports HTTP CONNECT method:
@@ -1556,17 +1402,14 @@ public interface Routes {
    *   });
    * </pre>
    *
-   * This is a singleton route so make sure you don't share or use global variables.
-   *
    * @param path A path pattern.
    * @param filter A filter to execute.
    * @return A new route definition.
    */
-  Route.Definition connect(String path,
-      Route.Filter filter);
+  Route.Definition connect(String path, Route.Filter filter);
 
   /**
-   * Send a static file.
+   * Static files handler.
    *
    * <pre>
    *   assets("/assets/**");
@@ -1575,13 +1418,28 @@ public interface Routes {
    * Resources are served from root of classpath, for example <code>GET /assets/file.js</code> will
    * be resolve as classpath resource at the same location.
    *
+   * The {@link AssetHandler} one step forward and add support for serving files from a CDN out of
+   * the box. All you have to do is to define a <code>assets.cdn</code> property:
+   *
+   * <pre>
+   * assets.cdn = "http://d7471vfo50fqt.cloudfront.net"
+   * </pre>
+   *
+   * A GET to <code>/assets/js/index.js</code> will be redirected to:
+   * <code>http://d7471vfo50fqt.cloudfront.net/assets/js/index.js</code>.
+   *
+   * You can turn on/off <code>ETag</code> and <code>Last-Modified</code> headers too using
+   * <code>assets.etag</code> and <code>assets.lastModified</code>. These two properties are enabled
+   * by default.
+   *
    * @param path The path to publish.
    * @return A new route definition.
    */
   Route.Definition assets(String path);
 
   /**
-   * Send a static file.
+   * Static files handler. Like {@link #assets(String)} but let you specify a different classpath
+   * location.
    *
    * <p>
    * Basic example
@@ -1625,42 +1483,8 @@ public interface Routes {
   Route.Definition assets(String path, String location);
 
   /**
-   * Send a static file.
-   *
-   * <p>
-   * Basic example
-   * </p>
-   *
-   * <pre>
-   *   assets("/js/**", "/");
-   * </pre>
-   *
-   * A request for: <code>/js/jquery.js</code> will be translated to: <code>/lib/jquery.js</code>.
-   *
-   * <p>
-   * Webjars example:
-   * </p>
-   *
-   * <pre>
-   *   assets("/js/**", "/resources/webjars/{0}");
-   * </pre>
-   *
-   * A request for: <code>/js/jquery/2.1.3/jquery.js</code> will be translated to:
-   * <code>/resources/webjars/jquery/2.1.3/jquery.js</code>.
-   * The <code>{0}</code> represent the <code>**</code> capturing group.
-   *
-   * <p>
-   * Another webjars example:
-   * </p>
-   *
-   * <pre>
-   *   assets("/js/*-*.js", "/resources/webjars/{0}/{1}/{0}.js");
-   * </pre>
-   *
-   * <p>
-   * A request for: <code>/js/jquery-2.1.3.js</code> will be translated to:
-   * <code>/resources/webjars/jquery/2.1.3/jquery.js</code>.
-   * </p>
+   * Send static files, like {@link #assets(String)} but let you specify a custom
+   * {@link AssetHandler}.
    *
    * @param path The path to publish.
    * @param handler Asset handler.
@@ -1670,13 +1494,16 @@ public interface Routes {
 
   /**
    * <p>
-   * Append one or more routes defined in the given class.
+   * Append MVC routes from a controller like class:
    * </p>
    *
    * <pre>
    *   use(MyRoute.class);
-   *   ...
-   *   // MyRoute.java
+   * </pre>
+   *
+   * Where MyRoute.java is:
+   *
+   * <pre>
    *   {@literal @}Path("/")
    *   public class MyRoute {
    *
@@ -2419,7 +2246,28 @@ public interface Routes {
    * @param handler A connect callback.
    * @return A new WebSocket definition.
    */
-  WebSocket.Definition ws(String path, WebSocket.Handler handler);
+  default WebSocket.Definition ws(final String path, final WebSocket.Handler handler) {
+    return ws(path, (WebSocket.FullHandler) handler);
+  }
+
+  /**
+   * Append a new WebSocket handler under the given path.
+   *
+   * <pre>
+   *   ws("/ws", (req, socket) {@literal ->} {
+   *     // connected
+   *     socket.onMessage(message {@literal ->} {
+   *       System.out.println(message);
+   *     });
+   *     socket.send("Connected"):
+   *   });
+   * </pre>
+   *
+   * @param path A path pattern.
+   * @param handler A connect callback.
+   * @return A new WebSocket definition.
+   */
+  WebSocket.Definition ws(String path, WebSocket.FullHandler handler);
 
   /**
    * Add a server-sent event handler.
@@ -2496,32 +2344,59 @@ public interface Routes {
    * }
    * }</pre>
    *
-   * A call to <code>/four</code> outputs <code>4</code>.
+   * A call to <code>/four</code> outputs <code>4</code>. Mapper are applied in reverse order.
    *
    * @param mapper Route mapper to append.
    * @return This instance.
    */
-  Routes map(final Mapper<?> mapper);
+  Router map(final Mapper<?> mapper);
 
   /**
    * Setup a route error handler. Default error handler {@link Err.DefHandler} does content
    * negotation and this method allow to override/complement default handler.
    *
+   * This is a catch all error handler.
+   *
+   * <h2>html</h2>
+   *
+   * If a request has an Accept: <code>text/html</code> header. Then, the default err handler will
+   * ask to a {@link View.Engine} to render the <code>err</code> view.
+   *
+   * The default model has these attributes:
+   * <pre>
+   * message: exception string
+   * stacktrace: exception stack-trace as an array of string
+   * status: status code, like 400
+   * reason: status code reason, like BAD REQUEST
+   * </pre>
+   *
+   * Here is a simply <code>public/err.html</code> error page:
+   *
+   * <pre>
+   * &lt;html&gt;
+   * &lt;body&gt;
+   * {{ "{{status" }}}}:{{ "{{reason" }}}}
+   * &lt;/body&gt;
+   * &lt;/html&gt;
+   * </pre>
+   *
+   * HTTP status code will be set too.
+   *
    * @param err A route error handler.
    * @return This jooby instance.
    */
-  Routes err(Err.Handler err);
+  Router err(Err.Handler err);
 
   /**
-   * Setup a route error handler.The error handler will be executed if the current exception is an
-   * instance of this type.
+   * Setup a custom error handler.The error handler will be executed if the current exception is an
+   * instance of given type type.
    *
    * @param type Exception type. The error handler will be executed if the current exception is an
    *        instance of this type.
    * @param handler A route error handler.
    * @return This jooby instance.
    */
-  default Routes err(final Class<? extends Throwable> type, final Err.Handler handler) {
+  default Router err(final Class<? extends Throwable> type, final Err.Handler handler) {
     return err((req, rsp, err) -> {
       Throwable cause = err.getCause();
       if (type.isInstance(cause)) {
@@ -2538,7 +2413,7 @@ public interface Routes {
    * @param handler A route error handler.
    * @return This jooby instance.
    */
-  default Routes err(final int statusCode, final Err.Handler handler) {
+  default Router err(final int statusCode, final Err.Handler handler) {
     return err((req, rsp, err) -> {
       if (statusCode == err.statusCode()) {
         handler.handle(req, rsp, err);
@@ -2546,4 +2421,299 @@ public interface Routes {
     });
   }
 
+  /**
+   * Setup a route error handler. The error handler will be executed if current status code matches
+   * the one provided.
+   *
+   * @param code The status code to match.
+   * @param handler A route error handler.
+   * @return This jooby instance.
+   */
+  default Router err(final Status code, final Err.Handler handler) {
+    return err((req, rsp, err) -> {
+      if (code.value() == err.statusCode()) {
+        handler.handle(req, rsp, err);
+      }
+    });
+  }
+
+  /**
+   * Setup a route error handler. The error handler will be executed if current status code matches
+   * the one provided.
+   *
+   * @param predicate Apply the error handler if the predicate evaluates to <code>true</code>.
+   * @param handler A route error handler.
+   * @return This jooby instance.
+   */
+  default Router err(final Predicate<Status> predicate, final Err.Handler handler) {
+    return err((req, rsp, err) -> {
+      if (predicate.test(Status.valueOf(err.statusCode()))) {
+        handler.handle(req, rsp, err);
+      }
+    });
+  }
+
+  /**
+   * Produces a deferred response, useful for async request processing. By default a
+   * {@link Deferred} results run in the current thread.
+   *
+   * This is intentional because application code (your code) always run in a worker thread. There
+   * is a thread pool of <code>100</code> worker threads, defined by the property:
+   * <code>server.threads.Max</code>.
+   *
+   * That's why a {@link Deferred} result runs in the current thread (no need to use a new thread),
+   * unless you want to apply a different thread model and or use a reactive/async library.
+   *
+   * As a final thought you might want to reduce the number of worker thread if you are going to a
+   * build a full reactive/async application.
+   *
+   * <h2>usage</h2>
+   *
+   * <pre>
+   * {
+   *    get("/async", promise(deferred {@literal ->} {
+   *      try {
+   *        deferred.resolve(...); // success value
+   *      } catch (Exception ex) {
+   *        deferred.reject(ex); // error value
+   *      }
+   *    }));
+   *  }
+   * </pre>
+   *
+   * <p>
+   * This method is useful for integrating reactive/async libraries. Here is an example on how to
+   * use <a href="https://github.com/ReactiveX/RxJava">RxJava</a>:
+   * </p>
+   *
+   * <pre>{@code
+   * {
+   *    get("/rx", promise(deferred -> {
+   *      Observable.create(s -> {
+   *      s.onNext(...);
+   *      s.onCompleted();
+   *    }).subscribeOn(Schedulers.computation())
+   *      .subscribe(deferred::resolve, deferred::reject);
+   *   }));
+   * }
+   * }</pre>
+   *
+   * <p>
+   * This is just an example because there is a <a href="http://jooby.org/doc/rxjava">Rx module</a>.
+   * </p>
+   *
+   * <p>
+   * Checkout the {@link #deferred(org.jooby.Route.ZeroArgHandler)} methods to see how to use a
+   * plain {@link Executor}.
+   * </p>
+   *
+   * @param initializer Deferred initializer.
+   * @return A new deferred handler.
+   * @see Deferred
+   */
+  Route.OneArgHandler promise(Deferred.Initializer initializer);
+
+  /**
+   * Produces a deferred response, useful for async request processing. Like
+   * {@link #promise(org.jooby.Deferred.Initializer)} but allow you to specify an {@link Executor}
+   * to use. See {@link Jooby#executor(Executor)} and {@link Jooby#executor(String, Executor)}.
+   *
+   * <h2>usage</h2>
+   *
+   * <pre>
+   * {
+   *    executor("forkjoin", new ForkJoinPool());
+   *
+   *    get("/async", promise("forkjoin", deferred {@literal ->} {
+   *      try {
+   *        deferred.resolve(...); // success value
+   *      } catch (Exception ex) {
+   *        deferred.reject(ex); // error value
+   *      }
+   *    }));
+   *  }
+   * </pre>
+   *
+   * <p>
+   * Checkout the {@link #deferred(org.jooby.Route.ZeroArgHandler)} methods to see how to use a
+   * plain {@link Executor}.
+   * </p>
+   *
+   * @param executor Executor to run the deferred.
+   * @param initializer Deferred initializer.
+   * @return A new deferred handler.
+   * @see Deferred
+   */
+  Route.OneArgHandler promise(String executor, Deferred.Initializer initializer);
+
+  /**
+   * Produces a deferred response, useful for async request processing. Like
+   * {@link #promise(org.jooby.Deferred.Initializer)} but give you access to {@link Request}.
+   *
+   * <h2>usage</h2>
+   *
+   * <pre>
+   * {
+   *    ExecutorService executor = ...;
+   *
+   *    get("/async", promise((req, deferred) {@literal ->} {
+   *      executor.execute(() {@literal ->} {
+   *        try {
+   *          deferred.resolve(req.param("param").value()); // success value
+   *        } catch (Exception ex) {
+   *          deferred.reject(ex); // error value
+   *        }
+   *      });
+   *    }));
+   *  }
+   * </pre>
+   *
+   * @param initializer Deferred initializer.
+   * @return A new deferred handler.
+   * @see Deferred
+   */
+  Route.OneArgHandler promise(Deferred.Initializer0 initializer);
+
+  /**
+   * Produces a deferred response, useful for async request processing. Like
+   * {@link #promise(String, org.jooby.Deferred.Initializer)} but give you access to
+   * {@link Request}.
+   *
+   * <h2>usage</h2>
+   *
+   * <pre>
+   * {
+   *    get("/async", promise("myexec", (req, deferred) {@literal ->} {
+   *      // resolve a success value
+   *      deferred.resolve(req.param("param").value());
+   *    }));
+   *  }
+   * </pre>
+   *
+   * @param executor Executor to run the deferred.
+   * @param initializer Deferred initializer.
+   * @return A new deferred handler.
+   * @see Deferred
+   */
+  Route.OneArgHandler promise(String executor, Deferred.Initializer0 initializer);
+
+  /**
+   * Functional version of {@link #promise(org.jooby.Deferred.Initializer)}. To use ideally with one
+   * or more {@link Executor}:
+   *
+   * <pre>{@code
+   * {
+   *   executor("cached", Executors.newCachedExecutor());
+   *
+   *   get("/fork", deferred("cached", req -> {
+   *     return req.param("value").value();
+   *   }));
+   * }
+   * }</pre>
+   *
+   * This handler automatically {@link Deferred#resolve(Object)} or
+   * {@link Deferred#reject(Throwable)} a route handler response.
+   *
+   * @param executor Executor to run the deferred.
+   * @param handler Application block.
+   * @return A new deferred handler.
+   */
+  default Route.ZeroArgHandler deferred(final String executor, final Route.OneArgHandler handler) {
+    return () -> Deferred.deferred(executor, handler);
+  }
+
+  /**
+   * Functional version of {@link #promise(org.jooby.Deferred.Initializer)}.
+   *
+   * Using the default executor (current thread):
+   *
+   * <pre>{@code
+   * {
+   *   get("/fork", deferred(req -> {
+   *     return req.param("value").value();
+   *   }));
+   * }
+   * }</pre>
+   *
+   * Using a custom executor:
+   *
+   * <pre>{@code
+   * {
+   *   executor(new ForkJoinPool());
+   *
+   *   get("/fork", deferred(req -> {
+   *     return req.param("value").value();
+   *   }));
+   * }
+   * }</pre>
+   *
+   * This handler automatically {@link Deferred#resolve(Object)} or
+   * {@link Deferred#reject(Throwable)} a route handler response.
+   *
+   * @param handler Application block.
+   * @return A new deferred handler.
+   */
+  default Route.ZeroArgHandler deferred(final Route.OneArgHandler handler) {
+    return () -> Deferred.deferred(handler);
+  }
+
+  /**
+   * Functional version of {@link #promise(org.jooby.Deferred.Initializer)}. To use ideally with one
+   * or more {@link Executor}:
+   *
+   * <pre>{@code
+   * {
+   *   executor("cached", Executors.newCachedExecutor());
+   *
+   *   get("/fork", deferred("cached", () -> {
+   *     return "OK";
+   *   }));
+   * }
+   * }</pre>
+   *
+   * This handler automatically {@link Deferred#resolve(Object)} or
+   * {@link Deferred#reject(Throwable)} a route handler response.
+   *
+   * @param executor Executor to run the deferred.
+   * @param handler Application block.
+   * @return A new deferred handler.
+   */
+  default Route.ZeroArgHandler deferred(final String executor, final Route.ZeroArgHandler handler) {
+    return () -> Deferred.deferred(executor, handler);
+  }
+
+  /**
+   * Functional version of {@link #promise(org.jooby.Deferred.Initializer)}.
+   *
+   * Using the default executor (current thread):
+   *
+   * <pre>{@code
+   * {
+   *   get("/fork", deferred(() -> {
+   *     return req.param("value").value();
+   *   }));
+   * }
+   * }</pre>
+   *
+   * Using a custom executor:
+   *
+   * <pre>{@code
+   * {
+   *   executor(new ForkJoinPool());
+   *
+   *   get("/fork", deferred(() -> {
+   *     return req.param("value").value();
+   *   }));
+   * }
+   * }</pre>
+   *
+   * This handler automatically {@link Deferred#resolve(Object)} or
+   * {@link Deferred#reject(Throwable)} a route handler response.
+   *
+   * @param handler Application block.
+   * @return A new deferred handler.
+   */
+  default Route.ZeroArgHandler deferred(final Route.ZeroArgHandler handler) {
+    return () -> Deferred.deferred(handler);
+  }
 }

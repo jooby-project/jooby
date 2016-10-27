@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.server.HttpOutput;
@@ -60,7 +61,7 @@ public class JettyResponse extends ServletServletResponse implements Callback {
   @Override
   public void send(final InputStream stream) throws Exception {
     endRequest = false;
-    nreq.startAsync();
+    startAsyncIfNeedIt();
     sender().sendContent(Channels.newChannel(stream), this);
   }
 
@@ -72,7 +73,7 @@ public class JettyResponse extends ServletServletResponse implements Callback {
       sender().sendContent(channel);
     } else {
       endRequest = false;
-      nreq.startAsync();
+      startAsyncIfNeedIt();
       sender().sendContent(channel, this);
     }
   }
@@ -107,4 +108,10 @@ public class JettyResponse extends ServletServletResponse implements Callback {
     return ((Response) rsp).getHttpOutput();
   }
 
+  private void startAsyncIfNeedIt() {
+    HttpServletRequest req = nreq.servletRequest();
+    if (!req.isAsyncStarted()) {
+      req.startAsync();
+    }
+  }
 }

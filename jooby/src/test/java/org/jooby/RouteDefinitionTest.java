@@ -317,6 +317,14 @@ public class RouteDefinitionTest {
   }
 
   @Test
+  public void src() throws Exception {
+    Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
+    Route.Definition r = route.apply("/");
+
+    assertEquals("org.jooby.RouteDefinitionTest:321", r.source().toString());
+  }
+
+  @Test
   public void glob() throws Exception {
     Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
 

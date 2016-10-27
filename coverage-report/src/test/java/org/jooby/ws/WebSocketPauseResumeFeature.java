@@ -21,7 +21,6 @@ import com.ning.http.client.ws.WebSocket;
 import com.ning.http.client.ws.WebSocketTextListener;
 import com.ning.http.client.ws.WebSocketUpgradeHandler;
 
-
 public class WebSocketPauseResumeFeature extends ServerFeature {
 
   static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -31,25 +30,25 @@ public class WebSocketPauseResumeFeature extends ServerFeature {
 
       ws.pause();
       // 2nd ignored
-        ws.pause();
+      ws.pause();
 
-        executor.schedule(() -> {
-          ws.resume();
-          // 2nd call ignored
-            ws.resume();
-            latch.countDown();
-          }, 1, TimeUnit.SECONDS);
+      executor.schedule(() -> {
+        ws.resume();
+        // 2nd call ignored
+        ws.resume();
+        latch.countDown();
+      }, 1, TimeUnit.SECONDS);
 
-        ws.onMessage(message -> {
+      ws.onMessage(message -> {
 
-          ws.send("=" + message.value(), () -> {
-            latch.await();
-            ws.close();
-          });
-
+        ws.send("=" + message.value(), () -> {
+          latch.await();
+          ws.close();
         });
 
       });
+
+    });
 
   }
 
@@ -94,7 +93,8 @@ public class WebSocketPauseResumeFeature extends ServerFeature {
               @Override
               public void onError(final Throwable t) {
               }
-            }).build()).get();
+            }).build())
+        .get();
 
     if (latch.await(1L, TimeUnit.SECONDS)) {
       assertEquals(Sets.newHashSet("=hey!"), messages);

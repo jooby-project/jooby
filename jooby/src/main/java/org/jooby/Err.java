@@ -41,8 +41,18 @@ import com.google.common.base.Throwables;
 @SuppressWarnings("serial")
 public class Err extends RuntimeException {
 
+  /**
+   * Missing parameter/header or request attribute.
+   *
+   * @author edgar
+   */
   public static class Missing extends Err {
 
+    /**
+     * Creates a new {@link Missing} error.
+     *
+     * @param name Name of the missing parameter/header or request attribute.
+     */
     public Missing(final String name) {
       super(Status.BAD_REQUEST, name);
     }
@@ -50,8 +60,10 @@ public class Err extends RuntimeException {
   }
 
   /**
-   * Default err handler it does content negotation. On <code>text/html</code> requests the err
-   * handler creates an <code>err</code> view and set as model the {@link Err#toMap()}.
+   * Default err handler it does content negotation.
+   *
+   * On <code>text/html</code> requests the err handler creates an <code>err</code> view and use the
+   * {@link Err#toMap()} result as model.
    *
    * @author edgar
    * @since 0.1.0

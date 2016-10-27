@@ -5,13 +5,13 @@
   <parent>
     <groupId>org.jooby</groupId>
     <artifactId>jooby-project</artifactId>
-    <version>1.0.0.Final</version>
+    <version>1.0.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-assets-nodejs</artifactId>
 
-  <name>jscs module</name>
+  <name>nodejs module</name>
 
   <build>
     <plugins>
@@ -75,6 +75,13 @@
       <groupId>org.jacoco</groupId>
       <artifactId>org.jacoco.agent</artifactId>
       <classifier>runtime</classifier>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>jquery</artifactId>
+      <version>3.1.1</version>
       <scope>test</scope>
     </dependency>
 

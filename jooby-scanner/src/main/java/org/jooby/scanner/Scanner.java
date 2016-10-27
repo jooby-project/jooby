@@ -45,7 +45,7 @@ import javax.inject.Singleton;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.mvc.Path;
 
 import com.google.common.collect.ImmutableList;
@@ -226,7 +226,7 @@ public class Scanner implements Jooby.Module {
 
     FastClasspathScanner scanner = new FastClasspathScanner(spec.toArray(new String[spec.size()]));
 
-    Routes routes = env.routes();
+    Router routes = env.router();
 
     ClassLoader loader = getClass().getClassLoader();
     Function<String, Class> loadClass = name -> Try.of(() -> loader.loadClass(name)).get();

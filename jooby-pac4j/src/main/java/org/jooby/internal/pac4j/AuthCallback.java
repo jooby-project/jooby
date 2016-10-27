@@ -37,8 +37,8 @@ import org.pac4j.core.client.Clients;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.exception.RequiresHttpAction;
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.exception.HttpAction;
+import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +79,7 @@ public class AuthCallback implements Route.Filter {
       log.debug("credentials : {}", credentials);
 
       // get user profile
-      final UserProfile profile = client.getUserProfile(credentials, ctx);
+      final CommonProfile profile = client.getUserProfile(credentials, ctx);
       log.debug("profile : {}", profile);
 
       Session session = req.session();
@@ -99,7 +99,7 @@ public class AuthCallback implements Route.Filter {
       });
       log.info("redirecting to: {}", requestedUrl);
       rsp.redirect(requestedUrl);
-    } catch (final RequiresHttpAction ex) {
+    } catch (final HttpAction ex) {
       new AuthResponse(rsp).handle(client, ex);
     }
   }

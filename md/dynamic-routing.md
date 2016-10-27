@@ -1,99 +1,113 @@
 ## dynamic / advanced routing
 
-Suppose you need to serve different content based on hostname. For example ```admin.foo.com``` serves on ```/``` something different than ```www.foo.com```. Even there is different logic how to use it.
+Dynamic routing allows you to filter a pipeline execution chain and produces custom or completely different response.
+
+For example, suppose you need to serve different content based on hostname:
 
 ```java
 {
    use("*", (req, rsp, chain) -> {
-     if (...) {
-       chain.next("/admin", req, rsp);
+     if (req.hostname().equals("foo.com")) {
+       chain.next("/foo-branding", req, rsp);
      } else {
-       chain.next("/normal", req, rsp);
+       chain.next("/bar-branding", req, rsp);
      }
    });
 
-   get("/", () -> "Hello admin").name("admin");
+   get("/", () -> Results.html("foo")).name("foo-branding");
 
-   get("/", () -> "Hello user").name("normal");
+   get("/", () -> Results.html("bar")).name("bar-branding");
 }
+
 ```
 
-We start by adding a filter:
+This application has two routes under root path: `/`. Each of these route has a `name`: `foo-branding` and `bar-branding`.
 
-```java
-   use("*", (req, rsp, chain) -> {
-     if (...) {
-       chain.next("/admin", req, rsp);
-     } else {
-       chain.next("/normal", req, rsp);
-     }
-   });
-```
+If you load the application from `http://foo.com` the `foo-branding` route will be executed, otherwise the `bar-branding` route.
 
-Here we make some decision and ask chain to move next by applying a filter: ```/admin``` or ```/normal```. The chain will filter and keep all the routes where name starts with the given prefix.
+Dynamic routing is done over [route.name()]({{defdocs}}/Route.html#name--). From {{req_filter}} you provide a `name filter` via [chain.next(name, req, rsp)](/apidocs/org/jooby/Route.Chain.html#next-java.lang.String-org.jooby.Request-org.jooby.Response-) method. 
 
-It is possible to group routes by features and set the name globally:
+You can group routes via [use(path)]({{defdocs}}/Jooby.html#use-java.lang.String-) method and globally set a name to all the child routes:
 
 ```java
 {
   use("/")
-    .get(() -> "Hello admin")
-    ...
+    .get(() -> Results.html("foo"))
+    .get("/api", () -> ...)
     // apply name to all routes
-    .name("admin");
+    .name("foo-branding");
 
   use("/")
-    .get(() -> "Hello user")
-    ...
+    Results.html("bar")
+    .get(() -> Results.html("bar"))
+    .get("/api", () -> ...)
     // apply name to all routes
-    .name("normal");
+    .name("bar-branding");
 }
 ```
 
-Or group routes by features in their own app and then merge them into the main app:
+Or group routes via [with(Runnable)]({{defdocs}}/Jooby.html#with-java.lang.Runnable-):
 
 ```java
-public class Admin extends Jooby {
+{
+  with(() -> 
+    get("/", () -> Results.html("foo"));
 
-  public Admin(String prefix) {
-    super(prefix);
+    get("/api", () -> ...);
+
+  ).name("foo-branding");
+
+  with(() -> 
+    get("/", () -> Results.html("bar"));
+
+    get("/api", () -> ...);
+
+  ).name("bar-branding");
+}
+```
+
+Or group routes in their own application and then merge them into the main application:
+
+```java
+public class FooBranding extends Jooby {
+
+  public FooBranding() {
+    super("foo-branding");
   }
 
   {
-    get("/", () -> "Hello admin");
+    get("/", () -> Results.html("foo"));
     ...
   }
 }
 
-public class Normal extends Jooby {
+public class BarBranding extends Jooby {
 
-  public Normal(String prefix) {
-    super(prefix);
+  public BarBranding() {
+    super("bar-branding");
   }
 
   {
-    get("/", () -> "Hello user");
+    get("/", () -> Results.html("bar"));
     ...
   }
 }
 
-/** merge everything .*/
+/** Merge everything .*/
 public class App extends Jooby {
   {
      use("*", (req, rsp) -> {
-       if (...) {
-         chain.next("/admin", req, rsp);
+       if (req.hostname().equals("foo.com")) {
+         chain.next("/foo-branding", req, rsp);
        } else {
-         chain.next("/normal", req, rsp);
+         chain.next("/bar-branding", req, rsp);
        }
      });
 
-     use(new Admin("admin"));
-     use(new Normal("normal"));
+     use(new FooBranding());
+     use(new BarBranding());
   }
 }
 ```
 
-A call to ```Jooby(String)``` will prepend the given prefix to all the routes defined by the application.
-
-As you can see routes and routing in {{jooby}} are very powerful!
+Routes and routing in {{jooby}} are so powerful!

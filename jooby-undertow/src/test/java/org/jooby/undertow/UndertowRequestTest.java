@@ -20,15 +20,7 @@ import io.undertow.util.HeaderMap;
 public class UndertowRequestTest {
 
   private Block form = unit -> {
-    Config conf = unit.get(Config.class);
-    expect(conf.getString("application.tmpdir")).andReturn("target");
-    expect(conf.getString("application.charset")).andReturn("UTF-8");
-
-    HeaderMap headers = unit.mock(HeaderMap.class);
-    expect(headers.getFirst("Content-Type")).andReturn(null);
-
     HttpServerExchange exchange = unit.get(HttpServerExchange.class);
-    expect(exchange.getRequestHeaders()).andReturn(headers);
     expect(exchange.getRequestPath()).andReturn("/");
   };
 

@@ -30,6 +30,7 @@ import java.util.NoSuchElementException;
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
+import org.jooby.Parser;
 import org.jooby.Status;
 import org.jooby.internal.parser.ParserExecutor;
 
@@ -115,8 +116,8 @@ public class MutantImpl implements Mutant {
     if (data instanceof ParamReferenceImpl) {
       return ((ParamReferenceImpl) data).size() > 0;
     }
-    if (data instanceof BodyReferenceImpl) {
-      return ((BodyReferenceImpl) data).length() > 0;
+    if (data instanceof Parser.BodyReference) {
+      return ((Parser.BodyReference) data).length() > 0;
     }
     return ((Map) data).size() > 0;
   }
@@ -125,7 +126,7 @@ public class MutantImpl implements Mutant {
     return Match(data).of(
         Case(instanceOf(ParamReferenceImpl.class),
             p -> Tuple.of(p.name(), p.type() + " '" + p.name() + "'", Status.BAD_REQUEST)),
-        Case(instanceOf(BodyReferenceImpl.class),
+        Case(instanceOf(Parser.BodyReference.class),
             Tuple.of("body", "body", Status.UNSUPPORTED_MEDIA_TYPE)),
         Case($(), Tuple.of("params", "parameters", Status.BAD_REQUEST)));
   }

@@ -20,6 +20,7 @@ package org.jooby.internal.pac4j;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import org.jooby.Err;
@@ -27,11 +28,11 @@ import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.Status;
-import org.pac4j.core.authorization.AuthorizationChecker;
-import org.pac4j.core.authorization.Authorizer;
+import org.pac4j.core.authorization.authorizer.Authorizer;
+import org.pac4j.core.authorization.checker.AuthorizationChecker;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.context.WebContext;
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,13 +50,13 @@ public class AuthorizerFilter implements Route.Handler {
   @SuppressWarnings("rawtypes")
   @Override
   public void handle(final Request req, final Response rsp) throws Exception {
-    UserProfile user = req.require(UserProfile.class);
+    CommonProfile user = req.require(CommonProfile.class);
     Config config = req.require(Config.class);
     WebContext ctx = req.require(WebContext.class);
     AuthorizationChecker authorizationChecker = req.require(AuthorizationChecker.class);
     Map<String, Authorizer> authorizers = config.getAuthorizers();
     log.debug("checking access for: {}", user);
-    if (!authorizationChecker.isAuthorized(ctx, user, this.authorizer, authorizers)) {
+    if (!authorizationChecker.isAuthorized(ctx, Arrays.asList(user), this.authorizer, authorizers)) {
       log.debug("forbidden: {}", user);
       throw new Err(Status.FORBIDDEN);
     }

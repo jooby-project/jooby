@@ -17,7 +17,7 @@ import org.elasticsearch.node.NodeBuilder;
 import org.jooby.Env;
 import org.jooby.Renderer;
 import org.jooby.Route;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.internal.elasticsearch.BytesReferenceRenderer;
 import org.jooby.internal.elasticsearch.EmbeddedHandler;
 import org.jooby.test.MockUnit;
@@ -128,7 +128,7 @@ public class ElasticSearchTest {
     EmbeddedHandler handler = unit.mockConstructor(EmbeddedHandler.class, new Class[]{String.class,
         Node.class, boolean.class }, eq("/es"), eq(unit.get(Node.class)), eq(true));
 
-    Routes routes = unit.mock(Routes.class);
+    Router routes = unit.mock(Router.class);
     Route.Definition rh = unit.mock(Route.Definition.class);
     expect(rh.name("elasticsearch")).andReturn(rh);
 
@@ -138,7 +138,7 @@ public class ElasticSearchTest {
     expect(Multibinder.newSetBinder(binder, Renderer.class)).andReturn(formatters);
 
     Env env = unit.get(Env.class);
-    expect(env.routes()).andReturn(routes);
+    expect(env.router()).andReturn(routes);
   };
 
   @Test

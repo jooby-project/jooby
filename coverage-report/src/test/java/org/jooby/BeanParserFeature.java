@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Optional;
 
-import org.jooby.mvc.Body;
 import org.jooby.mvc.Path;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
@@ -50,11 +49,11 @@ public class BeanParserFeature extends ServerFeature {
 
   }
 
-  public static class InvalidBean {
-    public InvalidBean(final String arg) {
+  public static class DefConstBean {
+    public DefConstBean(final String arg) {
     }
 
-    public InvalidBean() {
+    public DefConstBean() {
     }
   }
 
@@ -72,7 +71,7 @@ public class BeanParserFeature extends ServerFeature {
 
     @org.jooby.mvc.POST
     @Path("/ibean")
-    public String postibean(final org.jooby.Request req, final @Body IBean bean) throws Exception {
+    public String postibean(final org.jooby.Request req, final IBean bean) throws Exception {
       assertEquals(req.param("name").value(), bean.name());
       assertEquals(req.param("valid").booleanValue(), bean.isValid());
       assertEquals(req.param("age").intValue(), bean.getAge());
@@ -114,8 +113,8 @@ public class BeanParserFeature extends ServerFeature {
     }
 
     @org.jooby.mvc.GET
-    @Path("/invalidbean")
-    public String invalidbean(final InvalidBean bean) throws Exception {
+    @Path("/defaultConstructor")
+    public String invalidbean(final DefConstBean bean) throws Exception {
       return "OK";
     }
 
@@ -131,7 +130,9 @@ public class BeanParserFeature extends ServerFeature {
     });
 
     post("/ibean", req -> {
-      IBean bean = req.body().to(IBean.class);
+      IBean bean = req.form(IBean.class);
+      System.out.println(bean.name());
+
       assertEquals(req.param("name").value(), bean.name());
       assertEquals(req.param("valid").booleanValue(), bean.isValid());
       assertEquals(req.param("age").intValue(), bean.getAge());
@@ -145,13 +146,13 @@ public class BeanParserFeature extends ServerFeature {
       return "OK";
     });
 
-    get("/invalidbean", req -> {
-      req.params().to(InvalidBean.class);
+    get("/defaultConstructor", req -> {
+      req.form(DefConstBean.class);
       return "OK";
     });
 
     post("/beanwithargs", req -> {
-      BeanWithArgs bean = req.body().to(BeanWithArgs.class);
+      BeanWithArgs bean = req.form(BeanWithArgs.class);
       assertEquals(req.param("name").value(), bean.name);
       assertEquals(req.param("age").intValue(), (int) bean.age.get());
       return "OK";
@@ -165,7 +166,7 @@ public class BeanParserFeature extends ServerFeature {
     });
 
     post("/beannoarg", req -> {
-      BeanNoArg bean = req.body().to(BeanNoArg.class);
+      BeanNoArg bean = req.form(BeanNoArg.class);
       assertEquals(req.param("name").value(), bean.getName());
       assertEquals(req.param("age").intValue(), (int) bean.getAge().get());
       return "OK";
@@ -211,14 +212,14 @@ public class BeanParserFeature extends ServerFeature {
   }
 
   @Test
-  public void invalidbean() throws Exception {
+  public void defaultConstructor() throws Exception {
     request()
-        .get("/invalidbean?name=edgar&age=17")
-        .expect(400);
+        .get("/defaultConstructor?name=edgar&age=17")
+        .expect(200);
 
     request()
-        .get("/r/invalidbean?name=edgar&age=17")
-        .expect(400);
+        .get("/r/defaultConstructor?name=edgar&age=17")
+        .expect(200);
 
   }
 
@@ -256,28 +257,6 @@ public class BeanParserFeature extends ServerFeature {
         .add("valid", false)
         .expect("OK");
 
-  }
-
-  @Test
-  public void bean415() throws Exception {
-
-    request()
-        .post("/ibean")
-        .header("Content-Type", "application/xml")
-        .multipart()
-        .add("name", "edgar")
-        .add("age", 34)
-        .add("valid", false)
-        .expect(415);
-
-    request()
-        .post("/r/ibean")
-        .header("Content-Type", "application/xml")
-        .multipart()
-        .add("name", "edgar")
-        .add("age", 34)
-        .add("valid", false)
-        .expect(415);
   }
 
   @Test

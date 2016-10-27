@@ -5,9 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import org.jooby.Jooby;
 import org.jooby.MediaType;
 import org.junit.After;
@@ -25,8 +22,6 @@ import com.ning.http.client.HttpResponseStatus;
 @RunWith(JoobySuite.class)
 public abstract class SseFeature extends Jooby {
 
-  @Named("port")
-  @Inject
   private int port;
 
   private AsyncHttpClient client;

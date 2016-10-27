@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import org.jooby.Cookie;
@@ -52,6 +53,8 @@ import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.AttachmentKey;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
+import javaslang.Lazy;
+import javaslang.control.Try;
 
 public class UndertowRequest implements NativeRequest {
 
@@ -62,7 +65,7 @@ public class UndertowRequest implements NativeRequest {
 
   private Config config;
 
-  private final FormData form;
+  private final Lazy<FormData> form;
 
   private final String path;
 
@@ -73,9 +76,15 @@ public class UndertowRequest implements NativeRequest {
     this.exchange = exchange;
     this.blocking = Suppliers.memoize(() -> this.exchange.startBlocking());
     this.config = conf;
-    this.form = parseForm(exchange, conf.getString("application.tmpdir"),
-        conf.getString("application.charset"));
+    this.form = Lazy.of(() -> Try.of(() -> parseForm(exchange, conf.getString("application.tmpdir"),
+        conf.getString("application.charset"))).get());
     this.path = URLDecoder.decode(exchange.getRequestPath(), "UTF-8");
+  }
+
+  @Override
+  public Optional<String> queryString() {
+    String q = exchange.getQueryString();
+    return q.length() == 0 ? Optional.empty() : Optional.of(q);
   }
 
   @Override
@@ -92,9 +101,10 @@ public class UndertowRequest implements NativeRequest {
   public List<String> paramNames() {
     ImmutableList.Builder<String> builder = ImmutableList.<String> builder();
     builder.addAll(exchange.getQueryParameters().keySet());
-    form.forEach(v -> {
+    FormData formdata = this.form.get();
+    formdata.forEach(v -> {
       // excludes upload from param names.
-      if (!form.getFirst(v).isFile()) {
+      if (!formdata.getFirst(v).isFile()) {
         builder.add(v);
       }
     });
@@ -110,7 +120,7 @@ public class UndertowRequest implements NativeRequest {
       query.stream().forEach(builder::add);
     }
     // form params
-    Optional.ofNullable(form.get(name)).ifPresent(values -> {
+    Optional.ofNullable(form.get().get(name)).ifPresent(values -> {
       values.stream().forEach(value -> {
         if (!value.isFile()) {
           builder.add(value.getValue());
@@ -149,7 +159,7 @@ public class UndertowRequest implements NativeRequest {
   @Override
   public List<NativeUpload> files(final String name) {
     Builder<NativeUpload> builder = ImmutableList.builder();
-    Deque<FormValue> values = form.get(name);
+    Deque<FormValue> values = form.get().get(name);
     if (values != null) {
       values.forEach(value -> {
         if (value.isFile()) {
@@ -203,8 +213,8 @@ public class UndertowRequest implements NativeRequest {
   }
 
   @Override
-  public void startAsync() {
-    exchange.dispatch();
+  public void startAsync(final Executor executor, final Runnable runnable) {
+    exchange.dispatch(executor, runnable);
   }
 
   private FormData parseForm(final HttpServerExchange exchange, final String tmpdir,

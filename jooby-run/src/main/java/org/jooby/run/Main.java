@@ -235,7 +235,14 @@ public class Main {
         Method joobyRun = app.getClass().getMethod("start", String[].class);
         Object p = args.toArray(new String[args.size()]);
         joobyRun.invoke(this.app, p);
-        debug("started: %s", mainClass);
+        Method started = app.getClass().getMethod("isStarted");
+        Boolean success = (Boolean) started.invoke(this.app);
+        if (success) {
+          debug("started: %s", mainClass);
+        } else {
+          debug("not started: %s", mainClass);
+          System.exit(1);
+        }
       } catch (Throwable ex) {
         Throwable cause = ex;
         if (ex instanceof InvocationTargetException) {

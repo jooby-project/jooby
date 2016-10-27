@@ -52,6 +52,15 @@ public class RequestForwardingTest {
         .run(unit -> {
           assertEquals("/path", new Request.Forwarding(unit.get(Request.class)).path());
         });
+
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.path(true)).andReturn("/path");
+        })
+        .run(unit -> {
+          assertEquals("/path", new Request.Forwarding(unit.get(Request.class)).path(true));
+        });
   }
 
   @Test
@@ -99,6 +108,19 @@ public class RequestForwardingTest {
         })
         .run(unit -> {
           assertEquals("HEAD", new Request.Forwarding(unit.get(Request.class)).method());
+        });
+  }
+
+  @Test
+  public void queryString() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.queryString()).andReturn(Optional.empty());
+        })
+        .run(unit -> {
+          assertEquals(Optional.empty(),
+              new Request.Forwarding(unit.get(Request.class)).queryString());
         });
   }
 
@@ -192,6 +214,16 @@ public class RequestForwardingTest {
           assertEquals(unit.get(Mutant.class),
               new Request.Forwarding(unit.get(Request.class)).params());
         });
+
+    new MockUnit(Request.class, Mutant.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.params("xss")).andReturn(unit.get(Mutant.class));
+        })
+        .run(unit -> {
+          assertEquals(unit.get(Mutant.class),
+              new Request.Forwarding(unit.get(Request.class)).params("xss"));
+        });
   }
 
   @Test
@@ -229,6 +261,16 @@ public class RequestForwardingTest {
           assertEquals(unit.get(Mutant.class),
               new Request.Forwarding(unit.get(Request.class)).param("p"));
         });
+
+    new MockUnit(Request.class, Mutant.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.param("p", "xss")).andReturn(unit.get(Mutant.class));
+        })
+        .run(unit -> {
+          assertEquals(unit.get(Mutant.class),
+              new Request.Forwarding(unit.get(Request.class)).param("p", "xss"));
+        });
   }
 
   @Test
@@ -241,6 +283,16 @@ public class RequestForwardingTest {
         .run(unit -> {
           assertEquals(unit.get(Mutant.class),
               new Request.Forwarding(unit.get(Request.class)).header("h"));
+        });
+
+    new MockUnit(Request.class, Mutant.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.header("h", "xss")).andReturn(unit.get(Mutant.class));
+        })
+        .run(unit -> {
+          assertEquals(unit.get(Mutant.class),
+              new Request.Forwarding(unit.get(Request.class)).header("h", "xss"));
         });
   }
 
@@ -685,6 +737,19 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void timestamp() throws Exception {
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.timestamp()).andReturn(1L);
+        })
+        .run(unit -> {
+          assertEquals(1L,
+              new Request.Forwarding(unit.get(Request.class)).timestamp());
+        });
+  }
+
+  @Test
   public void flash() throws Exception {
     new MockUnit(Request.class, Map.class)
         .expect(unit -> {
@@ -795,6 +860,19 @@ public class RequestForwardingTest {
               v,
               new Request.Forwarding(unit.get(Request.class)).params(
                   RequestForwardingTest.class));
+        });
+
+    new MockUnit(Request.class, Map.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+
+          expect(req.params(RequestForwardingTest.class, "xss")).andReturn(v);
+        })
+        .run(unit -> {
+          assertEquals(
+              v,
+              new Request.Forwarding(unit.get(Request.class)).params(
+                  RequestForwardingTest.class, "xss"));
         });
   }
 }

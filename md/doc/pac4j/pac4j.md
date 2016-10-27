@@ -37,7 +37,7 @@ access to ```/private``` or any route defined below the auth module.
 
 
 ## clients
-{{pac4j}} is a powerful library that supports multiple clients and/or authentication protocols. In
+{{pac4j}} is a powerful library that supports multiple [clients](http://www.pac4j.org/docs/clients.html) and/or authentication protocols. In
 the next example, we will see how to configure the most basic of them, but also some complex protocols.
 
 ### basic auth
@@ -83,7 +83,7 @@ Like basic auth, form auth depends on a ```UsernamePasswordAuthenticator```.
 
 A login form will be ready under the path: ```/login```. Again, it is a very basic login
 form useful for development. If you need a custom login page, just add a route before the
-[Auth]({{defdocs}}/pack4j/Auth.html) module, like:
+[Auth]({{defdocs}}/pac4j/Auth.html) module, like:
 </p>
 
 ```java
@@ -134,10 +134,10 @@ under ```/private```.
 
 ## user profile
 
-{{jooby}} relies on [AuthStore]({{defdocs}}/pac4j/AuthStore.html) for saving and retrieving an ```UserProfile```. By default,
-the ```UserProfile``` is stored in the [Session]({{defcods}}/Session.html) via [auth session store]({{defcods}}/pack4j/AuthSessionStore.html)
+{{jooby}} relies on [AuthStore]({{defdocs}}/pac4j/AuthStore.html) for saving and retrieving a ```CommonProfile```. By default,
+the ```CommonProfile``` is stored in the [Session]({{defcods}}/pac4j/Session.html) via [auth session store]({{defcods}}/pac4j/AuthSessionStore.html)
 
-After a successful authentication the ```UserProfile``` is accessible as a request scoped attribute:
+After a successful authentication the ```CommonProfile``` is accessible as a request scoped attribute:
 
 ```java
 {

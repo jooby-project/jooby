@@ -228,7 +228,7 @@ public class Hbm extends Jdbc {
         emkeys.add(key);
       });
 
-      env.routes().use("*", "*", new OpenSessionInView(emf, emkeys)).name("hbm");
+      env.router().use("*", "*", new OpenSessionInView(emf, emkeys)).name("hbm");
 
       env.onStop(emf::close);
     });

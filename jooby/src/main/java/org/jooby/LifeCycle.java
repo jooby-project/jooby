@@ -62,6 +62,7 @@ import javaslang.control.Try.CheckedRunnable;
  * <p>
  * Or via module:
  * </p>
+ *
  * <pre>{@code
  * public class MyModule implements Jooby.Module {
  *
@@ -250,7 +251,7 @@ public interface LifeCycle {
    * Add a start lifecycle event, useful for initialize and/or start services at startup time.
    *
    * You should ONLY call this method while the application is been initialized or while
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
    *
    * The behavior of this method once application has been initialized is <code>undefined</code>.
    *
@@ -262,8 +263,8 @@ public interface LifeCycle {
   /**
    * Add a start lifecycle event, useful for initialize and/or start services at startup time.
    *
-   * You should ONLY call this method while the application is been initialized or while
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
+   * You should ONLY call this method while the application is been initialized or from
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
    *
    * The behavior of this method once application has been initialized is <code>undefined</code>.
    *
@@ -277,8 +278,8 @@ public interface LifeCycle {
   /**
    * Add a stop lifecycle event, useful for cleanup and/or stop service at stop time.
    *
-   * You should ONLY call this method while the application is been initialized or while
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
+   * You should ONLY call this method while the application is been initialized or from
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
    *
    * The behavior of this method once application has been initialized is <code>undefined</code>.
    *
@@ -292,8 +293,8 @@ public interface LifeCycle {
   /**
    * Add a stop lifecycle event, useful for cleanup and/or stop service at stop time.
    *
-   * You should ONLY call this method while the application is been initialized or while
-   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)} is been executed.
+   * You should ONLY call this method while the application is been initialized or from
+   * {@link Jooby.Module#configure(Env, Config, com.google.inject.Binder)}.
    *
    * The behaviour of this method once application has been initialized is <code>undefined</code>.
    *

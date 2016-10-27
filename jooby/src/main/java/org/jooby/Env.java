@@ -21,14 +21,19 @@ package org.jooby;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -44,7 +49,7 @@ import javaslang.control.Option;
 import javaslang.control.Try.CheckedConsumer;
 
 /**
- * Allows to optimize, customize or apply defaults values for services.
+ * Allows to optimize, customize or apply defaults values for application services.
  *
  * <p>
  * A env is represented by it's name. For example: <code>dev</code>, <code>prod</code>, etc... A
@@ -56,8 +61,8 @@ import javaslang.control.Try.CheckedConsumer;
  * create a high performance connection pool, caches, etc.
  * </p>
  * <p>
- * By default env is set to dev, but you can change it by setting the <code>application.env</code>
- * property to anything else.
+ * By default env is set to <code>dev</code>, but you can change it by setting the
+ * <code>application.env</code> property to anything else.
  * </p>
  *
  * @author edgar
@@ -66,7 +71,7 @@ import javaslang.control.Try.CheckedConsumer;
 public interface Env extends LifeCycle {
 
   /**
-   * Utility class for generated {@link Key} for named services.
+   * Utility class for generating {@link Key} for named services.
    *
    * @author edgar
    */
@@ -105,7 +110,7 @@ public interface Env extends LifeCycle {
      * <code>application.env</code> property. If such property is missing, env's name must be:
      * <code>dev</code>.
      *
-     * Please note an environment created with this method won't have a {@link Env#routes()}.
+     * Please note an environment created with this method won't have a {@link Env#router()}.
      *
      * @param config A config instance.
      * @return A new environment.
@@ -124,7 +129,7 @@ public interface Env extends LifeCycle {
      * @param locale App locale.
      * @return A new environment.
      */
-    Env build(Config config, Routes router, Locale locale);
+    Env build(Config config, Router router, Locale locale);
   }
 
   /**
@@ -139,6 +144,8 @@ public interface Env extends LifeCycle {
 
       private ImmutableList.Builder<CheckedConsumer<Registry>> shutdown = ImmutableList.builder();
 
+      private Map<String, Function<String, String>> xss = new HashMap<>();
+
       private ServiceKey key = new ServiceKey();
 
       @Override
@@ -152,7 +159,7 @@ public interface Env extends LifeCycle {
       }
 
       @Override
-      public Routes routes() {
+      public Router router() {
         if (router == null) {
           throw new UnsupportedOperationException();
         }
@@ -195,6 +202,18 @@ public interface Env extends LifeCycle {
       public List<CheckedConsumer<Registry>> startTasks() {
         return this.start.build();
       }
+
+      @Override
+      public Map<String, Function<String, String>> xss() {
+        return Collections.unmodifiableMap(xss);
+      }
+
+      @Override
+      public Env xss(final String name, final Function<String, String> escaper) {
+        xss.put(requireNonNull(name, "Name required."),
+            requireNonNull(escaper, "Function required."));
+        return this;
+      }
     };
   };
 
@@ -206,10 +225,10 @@ public interface Env extends LifeCycle {
   /**
    * Application router.
    *
-   * @return Available {@link Routes}.
+   * @return Available {@link Router}.
    * @throws UnsupportedOperationException if router isn't available.
    */
-  Routes routes() throws UnsupportedOperationException;
+  Router router() throws UnsupportedOperationException;
 
   /**
    * @return environment properties.
@@ -227,7 +246,6 @@ public interface Env extends LifeCycle {
   default ServiceKey serviceKey() {
     return new ServiceKey();
   }
-
 
   /**
    * Returns a string with all substitutions (the <code>${foo.bar}</code> syntax,
@@ -354,7 +372,8 @@ public interface Env extends LifeCycle {
    * Produces a {@link API.Match} of the current {@link Env}.
    *
    * <pre>
-   *   String accessKey = env.match()"dev", () {@literal ->} "1234")
+   *   String accessKey = env.match()
+   *                          .when("dev", () {@literal ->} "1234")
    *                          .when("stage", () {@literal ->} "4321")
    *                          .when("prod", () {@literal ->} "abc")
    *                          .get();
@@ -422,6 +441,36 @@ public interface Env extends LifeCycle {
   default <T> Option<T> when(final Predicate<String> predicate, final T result) {
     return match().option(API.Case(predicate, result));
   }
+
+  /**
+   * @return XSS escape functions.
+   */
+  Map<String, Function<String, String>> xss();
+
+  /**
+   * Get or chain the required xss functions.
+   *
+   * @param xss XSS to combine.
+   * @return Chain of required xss functions.
+   */
+  default Function<String, String> xss(final String... xss) {
+    Map<String, Function<String, String>> fn = xss();
+    BinaryOperator<Function<String, String>> reduce = Function::andThen;
+    return Arrays.asList(xss)
+        .stream()
+        .map(fn::get)
+        .filter(Objects::nonNull)
+        .reduce(Function.identity(), reduce);
+  }
+
+  /**
+   * Set/override a XSS escape function.
+   *
+   * @param name Escape's name.
+   * @param escaper Escape function.
+   * @return This environment.
+   */
+  Env xss(String name, Function<String, String> escaper);
 
   /**
    * @return List of start tasks.

@@ -21,22 +21,22 @@ package org.jooby.internal.pac4j;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.CommonProfile;
 
 public class ClientType {
 
   @SuppressWarnings("unchecked")
-  public static Class<? extends UserProfile> typeOf(final Class<?> client) {
+  public static Class<? extends CommonProfile> typeOf(final Class<?> client) {
     Type genericType = client.getGenericSuperclass();
     if (genericType instanceof ParameterizedType) {
       Type[] types = ((ParameterizedType) genericType).getActualTypeArguments();
       for (Type type : types) {
-        if (UserProfile.class.isAssignableFrom((Class<?>) type)) {
-          return (Class<? extends UserProfile>) type;
+        if (CommonProfile.class.isAssignableFrom((Class<?>) type)) {
+          return (Class<? extends CommonProfile>) type;
         }
       }
     }
-    return UserProfile.class;
+    return CommonProfile.class;
   }
 
 }

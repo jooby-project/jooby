@@ -31,7 +31,7 @@ import java.util.function.Function;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.internal.metrics.HealthCheckRegistryProvider;
 import org.jooby.internal.metrics.MetricRegistryInitializer;
 
@@ -149,14 +149,14 @@ import com.typesafe.config.Config;
 public class Metrics implements Jooby.Module {
 
   static interface Bindings {
-    void bind(Binder binder, Routes routes, Config conf);
+    void bind(Binder binder, Router routes, Config conf);
   }
 
   private String pattern;
 
   private List<Bindings> bindings = new ArrayList<>();
 
-  private List<Consumer<Routes>> routes = new ArrayList<>();
+  private List<Consumer<Router>> routes = new ArrayList<>();
 
   private Set<BiFunction<MetricRegistry, Config, Reporter>> reporters = new LinkedHashSet<>();
 
@@ -349,7 +349,7 @@ public class Metrics implements Jooby.Module {
     MapBinder.newMapBinder(binder, String.class, Metric.class);
     MapBinder.newMapBinder(binder, String.class, HealthCheck.class);
 
-    Routes routes = env.routes();
+    Router routes = env.router();
 
     MetricHandler mhandler = new MetricHandler();
     routes.use("GET", this.pattern + "/metrics", mhandler);

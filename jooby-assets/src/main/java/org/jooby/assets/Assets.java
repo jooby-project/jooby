@@ -18,12 +18,9 @@
  */
 package org.jooby.assets;
 
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
-
 import org.jooby.Env;
 import org.jooby.Jooby;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.handlers.AssetHandler;
 import org.jooby.internal.assets.AssetHandlerWithCompiler;
 import org.jooby.internal.assets.AssetVars;
@@ -313,7 +310,7 @@ public class Assets implements Jooby.Module {
       String cpath = config.getString("application.path");
       AssetCompiler compiler = new AssetCompiler(loader, conf);
 
-      Routes routes = env.routes();
+      Router routes = env.router();
       routes.use("*", "*", new AssetVars(compiler, cpath)).name("/assets/vars");
       // live compiler?
       boolean watch = conf.hasPath("assets.watch") ? conf.getBoolean("assets.watch") : dev;
@@ -333,10 +330,7 @@ public class Assets implements Jooby.Module {
               .cdn(conf.getString("assets.cdn"))
               .lastModified(conf.getBoolean("assets.lastModified"));
 
-      if (conf.hasPath("assets.cache.maxAge")) {
-        handler.maxAge(Duration
-            .ofSeconds(conf.getDuration("assets.cache.maxAge", TimeUnit.SECONDS)));
-      }
+        handler.maxAge(conf.getString("assets.cache.maxAge"));
 
       compiler.patterns().forEach(pattern -> routes.get(pattern, handler));
 

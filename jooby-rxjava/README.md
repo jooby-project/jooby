@@ -10,7 +10,7 @@ RxJava is a Java VM implementation of <a href="http://reactivex.io">Reactive Ext
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-rxjava</artifactId>
- <version>1.0.0.CR7</version>
+ <version>1.0.0.CR8</version>
 </dependency>
 ```
 

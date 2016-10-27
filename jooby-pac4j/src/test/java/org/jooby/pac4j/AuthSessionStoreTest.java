@@ -15,7 +15,6 @@ import org.jooby.test.MockUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.pac4j.core.profile.CommonProfile;
-import org.pac4j.core.profile.UserProfile;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -28,7 +27,7 @@ public class AuthSessionStoreTest {
   public void defaults() throws Exception {
     new MockUnit(Provider.class)
         .run(unit -> {
-          new AuthSessionStore<UserProfile>(unit.get(Provider.class));
+          new AuthSessionStore<>(unit.get(Provider.class));
         });
   }
 
@@ -75,7 +74,7 @@ public class AuthSessionStoreTest {
           expect(session.get("pac4jUserProfile.2")).andReturn(ser);
         })
         .run(unit -> {
-          Optional<UserProfile> profile = new AuthSessionStore(unit.get(Provider.class))
+          Optional<CommonProfile> profile = new AuthSessionStore(unit.get(Provider.class))
               .get("2");
           assertFalse(profile.isPresent());
         });

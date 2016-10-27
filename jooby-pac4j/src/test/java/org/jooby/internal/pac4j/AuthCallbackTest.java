@@ -24,8 +24,8 @@ import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.exception.RequiresHttpAction;
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.exception.HttpAction;
+import org.pac4j.core.profile.CommonProfile;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -51,11 +51,11 @@ public class AuthCallbackTest {
     Credentials creds = unit.get(Credentials.class);
     Client client = unit.get(Client.class);
     expect(client.getCredentials(ctx)).andReturn(creds);
-    expect(client.getUserProfile(creds, ctx)).andReturn(unit.get(UserProfile.class));
+    expect(client.getUserProfile(creds, ctx)).andReturn(unit.get(CommonProfile.class));
   };
 
   private Block setProfileId = unit -> {
-    UserProfile profile = unit.get(UserProfile.class);
+    CommonProfile profile = unit.get(CommonProfile.class);
     String profileId = "profileId";
     expect(profile.getId()).andReturn(profileId);
 
@@ -75,7 +75,7 @@ public class AuthCallbackTest {
   };
 
   private Block setProfileId2 = unit -> {
-    UserProfile profile = unit.get(UserProfile.class);
+    CommonProfile profile = unit.get(CommonProfile.class);
     String profileId = "profileId";
     expect(profile.getId()).andReturn(profileId);
 
@@ -96,7 +96,7 @@ public class AuthCallbackTest {
 
   @SuppressWarnings("unchecked")
   private Block onSuccess = unit -> {
-    UserProfile profile = unit.get(UserProfile.class);
+    CommonProfile profile = unit.get(CommonProfile.class);
 
     unit.get(AuthStore.class)
         .set(profile);
@@ -123,7 +123,7 @@ public class AuthCallbackTest {
   @Test
   public void handleWith1Client() throws Exception {
     new MockUnit(Clients.class, Client.class, AuthStore.class, Request.class, Response.class,
-        Route.Chain.class, WebContext.class, Credentials.class, UserProfile.class)
+        Route.Chain.class, WebContext.class, Credentials.class, CommonProfile.class)
         .expect(ctx)
         .expect(localRedirect)
         .expect(auth)
@@ -140,7 +140,7 @@ public class AuthCallbackTest {
   @Test
   public void handleWith2Client() throws Exception {
     new MockUnit(Clients.class, Client.class, AuthStore.class, Request.class, Response.class,
-        Route.Chain.class, WebContext.class, Credentials.class, UserProfile.class)
+        Route.Chain.class, WebContext.class, Credentials.class, CommonProfile.class)
         .expect(ctx)
         .expect(localRedirect)
         .expect(auth)
@@ -158,7 +158,7 @@ public class AuthCallbackTest {
   @Test
   public void handleNoProfile() throws Exception {
     new MockUnit(Clients.class, Client.class, AuthStore.class, Request.class, Response.class,
-        Route.Chain.class, WebContext.class, Credentials.class, UserProfile.class)
+        Route.Chain.class, WebContext.class, Credentials.class, CommonProfile.class)
         .expect(ctx)
         .expect(localRedirect)
         .expect(unit -> {
@@ -193,7 +193,7 @@ public class AuthCallbackTest {
   @Test
   public void handleWithNClient() throws Exception {
     new MockUnit(Clients.class, Client.class, AuthStore.class, Request.class, Response.class,
-        Route.Chain.class, WebContext.class, Credentials.class, UserProfile.class)
+        Route.Chain.class, WebContext.class, Credentials.class, CommonProfile.class)
         .expect(ctx)
         .expect(localRedirect)
         .expect(auth)
@@ -232,7 +232,7 @@ public class AuthCallbackTest {
 
           Client client = unit.get(Client.class);
           expect(client.getCredentials(ctx)).andThrow(
-              RequiresHttpAction.redirect("m", ctx(), "url"));
+              HttpAction.redirect("m", ctx(), "url"));
         })
         .expect(oneClient)
         .expect(unit -> {

@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -38,6 +39,7 @@ import org.jooby.MediaType;
 import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
@@ -78,6 +80,11 @@ public class ServletServletRequest implements NativeRequest {
   @Override
   public String method() {
     return req.getMethod();
+  }
+
+  @Override
+  public Optional<String> queryString() {
+    return Optional.ofNullable(Strings.emptyToNull(req.getQueryString()));
   }
 
   @Override
@@ -181,8 +188,9 @@ public class ServletServletRequest implements NativeRequest {
   }
 
   @Override
-  public void startAsync() {
+  public void startAsync(final Executor executor, final Runnable runnable) {
     req.startAsync();
+    executor.execute(runnable);
   }
 
   private static boolean multipart(final HttpServletRequest req) {

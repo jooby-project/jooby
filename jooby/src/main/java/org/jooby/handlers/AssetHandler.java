@@ -28,7 +28,6 @@ import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 
 import org.jooby.Asset;
 import org.jooby.Jooby;
@@ -40,9 +39,12 @@ import org.jooby.Status;
 import org.jooby.internal.URLAsset;
 
 import com.google.common.base.Strings;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigValueFactory;
 
 import javaslang.Function1;
 import javaslang.Function2;
+import javaslang.control.Try;
 
 /**
  * Serve static resources, via {@link Jooby#assets(String)} or variants.
@@ -70,7 +72,7 @@ import javaslang.Function2;
  * </p>
  *
  * <pre>
- * assets.cdn = "http://http://d7471vfo50fqt.cloudfront.net"
+ * assets.cdn = "http://d7471vfo50fqt.cloudfront.net"
  * </pre>
  *
  * <p>
@@ -94,7 +96,7 @@ public class AssetHandler implements Route.Handler {
 
   private boolean etag = true;
 
-  private Optional<Duration> maxAge = Optional.empty();
+  private long maxAge = -1;
 
   private boolean lastModified = true;
 
@@ -191,8 +193,7 @@ public class AssetHandler implements Route.Handler {
    * @return This handler.
    */
   public AssetHandler maxAge(final Duration maxAge) {
-    this.maxAge = Optional.of(maxAge);
-    return this;
+    return maxAge(maxAge.getSeconds());
   }
 
   /**
@@ -200,7 +201,25 @@ public class AssetHandler implements Route.Handler {
    * @return This handler.
    */
   public AssetHandler maxAge(final long maxAge) {
-    return maxAge(Duration.ofSeconds(maxAge));
+    this.maxAge = maxAge;
+    return this;
+  }
+
+  /**
+   * Parse value as {@link Duration}. If the value is already a number then it uses as seconds.
+   * Otherwise, it parse expressions like: 8m, 1h, 365d, etc...
+   *
+   * @param maxAge Set the cache header max-age value in seconds.
+   * @return This handler.
+   */
+  public AssetHandler maxAge(final String maxAge) {
+    Try.of(() -> Long.parseLong(maxAge))
+        .recover(x -> ConfigFactory.empty()
+            .withValue("v", ConfigValueFactory.fromAnyRef(maxAge))
+            .getDuration("v")
+            .getSeconds())
+        .onSuccess(this::maxAge);
+    return this;
   }
 
   @Override
@@ -215,13 +234,13 @@ public class AssetHandler implements Route.Handler {
         localpath = localpath.substring(jarEntry + 2);
       }
 
-      URLAsset asset = new URLAsset(resource, req.path(),
+      URLAsset asset = new URLAsset(resource, path,
           MediaType.byPath(localpath).orElse(MediaType.octetstream));
 
       if (asset.exists()) {
         // cdn?
         if (cdn != null) {
-          String absUrl = cdn + req.path();
+          String absUrl = cdn + path;
           rsp.redirect(absUrl);
           rsp.end();
         } else {
@@ -263,9 +282,9 @@ public class AssetHandler implements Route.Handler {
     }
 
     // cache max-age
-    maxAge.ifPresent(d -> {
-      rsp.header("Cache-Control", "max-age=" + d.getSeconds());
-    });
+    if (maxAge > 0) {
+      rsp.header("Cache-Control", "max-age=" + maxAge);
+    }
 
     send(req, rsp, asset);
   }

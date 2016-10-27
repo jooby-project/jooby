@@ -16,7 +16,7 @@ public class Issue433 extends ServerFeature {
     });
 
     post("/433", req -> {
-      Bean bean = req.body(Bean.class);
+      Bean bean = req.form(Bean.class);
       return bean.q;
     });
   }

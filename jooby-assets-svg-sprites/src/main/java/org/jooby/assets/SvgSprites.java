@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -141,21 +140,27 @@ public class SvgSprites extends AssetAggregator {
       throw new FileNotFoundException(spriteElementPath.toString());
     }
 
+    File workdir = new File(Try.of(() -> conf.getString("application.tmpdir"))
+        .getOrElse(System.getProperty("java.io.tmpdir")));
+
+    File spritePath = resolve(spritePath());
+    File cssPath = resolve(cssPath());
     String sha1 = new File(spritePath()).getName()
-        .replace(".svg", "-" + sha1(spriteElementPath) + ".sha1");
-    File uptodate = Paths.get(System.getProperty("java.io.tmpdir"), "svg-sprites", sha1).toFile();
+        .replace(".svg", "-" + sha1(spriteElementPath, spritePath, cssPath) + ".sha1");
+    File uptodate = workdir.toPath().resolve("svg-sprites").resolve(sha1).toFile();
 
     if (uptodate.exists()) {
-      log.debug("svg-sprites is up-to-date: {}", uptodate);
+      log.info("svg-sprites is up-to-date: {}", uptodate);
       return;
     }
-    Nodejs.run(node -> {
+
+    Nodejs.run(workdir, node -> {
       node.overwrite(conf.hasPath("_overwrite") ? conf.getBoolean("_overwrite") : false)
           .exec("dr-svg-sprites", v8 -> {
             Map<String, Object> options = options();
             // rewrite paths
-            options.put("spritePath", resolve(spritePath()).toString());
-            options.put("cssPath", resolve(cssPath()).toString());
+            options.put("spritePath", spritePath.toString());
+            options.put("cssPath", cssPath.toString());
             options.put("spriteElementPath", spriteElementPath.toString());
 
             log.debug("svg-sprites options {}  ", options.entrySet().stream()
@@ -193,40 +198,57 @@ public class SvgSprites extends AssetAggregator {
     });
     log.debug("creating sha1: {}", uptodate);
     uptodate.getParentFile().mkdirs();
+    // clean old/previous *.sha1 files
+    try (Stream<Path> sha1files = Files.walk(uptodate.getParentFile().toPath())
+        .filter(it -> it.toString().endsWith(".sha1"))) {
+      sha1files.forEach(it -> Try.run(() -> Files.delete(it)));
+    }
     Files.createFile(uptodate.toPath());
     uptodate.deleteOnExit();
   }
 
-  private String sha1(final File dir) throws IOException {
+  private String sha1(final File dir, final File sprite, final File css) throws IOException {
     try (Stream<Path> stream = Files.walk(dir.toPath())) {
       Hasher sha1 = Hashing.sha1().newHasher();
       stream.filter(p -> !Files.isDirectory(p))
           .forEach(p -> Try.run(() -> sha1.putBytes(Files.readAllBytes(p))));
+      if (sprite.exists()) {
+        sha1.putBytes(Files.readAllBytes(sprite.toPath()));
+      }
+      if (css.exists()) {
+        sha1.putBytes(Files.readAllBytes(css.toPath()));
+      }
       return BaseEncoding.base16().encode(sha1.hash().asBytes()).toLowerCase();
     }
   }
 
   private File resolve(final String path) {
+    // basedir is set to public from super class
     return new File(get("basedir").toString(), path);
   }
 
   public String cssPath() {
-    String cssPath = get("cssPath");
-    if (cssPath == null) {
+    try {
+      return nameFor("cssPath", ".css");
+    } catch (IllegalArgumentException x) {
       return spritePath().replace(".svg", ".css");
     }
-    return cssPath;
   }
 
   public String spritePath() {
-    String spritePath = get("spritePath");
+    return nameFor("spritePath", ".svg");
+  }
+
+  private String nameFor(final String property, final String ext) {
+    String spritePath = get(property);
     if (spritePath == null) {
-      throw new IllegalArgumentException("Required option 'svg-sprites.spritePath' not present");
+      throw new IllegalArgumentException(
+          "Required option 'svg-sprites." + property + "' not present");
     }
-    if (spritePath.endsWith(".svg")) {
+    if (spritePath.endsWith(ext)) {
       return spritePath;
     } else {
-      return spritePath + "/" + prefix("prefix") + prefix("name") + "sprite.svg";
+      return spritePath + "/" + prefix("prefix") + prefix("name") + "sprite" + ext;
     }
   }
 

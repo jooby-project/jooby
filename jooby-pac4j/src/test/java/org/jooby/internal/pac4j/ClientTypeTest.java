@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.pac4j.core.client.BaseClient;
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.oauth.client.FacebookClient;
 import org.pac4j.oauth.profile.facebook.FacebookProfile;
@@ -20,9 +20,10 @@ public class ClientTypeTest {
 
   @Test
   public void extractType() {
-    assertEquals(UserProfile.class, ClientType.typeOf(BaseClient.class));
+    assertEquals(CommonProfile.class, ClientType.typeOf(BaseClient.class));
     assertEquals(FacebookProfile.class, ClientType.typeOf(FacebookClient.class));
     assertEquals(SAML2Profile.class, ClientType.typeOf(SAML2Client.class));
-    assertEquals(UserProfile.class, ClientType.typeOf(FormClient.class));
+    assertEquals(CommonProfile.class, ClientType.typeOf(FormClient.class));
+    assertEquals(CommonProfile.class, ClientType.typeOf(Object.class));
   }
 }

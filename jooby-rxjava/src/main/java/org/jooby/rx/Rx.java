@@ -420,7 +420,7 @@ public class Rx extends Exec {
     Map<String, Executor> executors = new HashMap<>();
     super.configure(env, conf, binder, executors::put);
 
-    env.routes()
+    env.router()
         .map(rx(observable, single, completable));
 
     /**

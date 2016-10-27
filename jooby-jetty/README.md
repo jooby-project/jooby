@@ -12,7 +12,7 @@ NIO web server via: [Jetty](https://www.eclipse.org/jetty).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jetty</artifactId>
-  <version>1.0.0.CR7</version>
+  <version>1.0.0.CR8</version>
 </dependency>
 ```
 
@@ -21,6 +21,17 @@ NIO web server via: [Jetty](https://www.eclipse.org/jetty).
 In order to use a web server all you have to do is add the dependency to your build system.
 [Jooby](http://jooby.org) will find the server and start it.
 
+## http/2
+
+`HTTP/2` is fully supported:
+
+```
+| H2        | H2C           | PUSH  |
+| --------- | ------------- | ----- |
+| Yes       | Yes           | Yes   |
+```
+
+You need to add `alpn-boot` to the `JVM bootstrap` path. See [Jetty HTTP2](https://www.eclipse.org/jetty/documentation/9.3.x/http2.html) documentation.
 
 ## server.conf
 
@@ -28,6 +39,8 @@ In order to use a web server all you have to do is add the dependency to your bu
 # jetty defaults
 
 server.module = org.jooby.jetty.Jetty
+
+server.http2.cleartext = true
 
 jetty {
 
@@ -43,6 +56,8 @@ jetty {
 
   }
 
+  FileSizeThreshold = 16k
+
   http {
 
     HeaderCacheSize = ${server.http.HeaderSize}
@@ -52,8 +67,6 @@ jetty {
     ResponseHeaderSize = ${server.http.HeaderSize}
 
     OutputBufferSize = ${server.http.ResponseBufferSize}
-
-    FileSizeThreshold = 16k
 
     SendServerVersion = false
 

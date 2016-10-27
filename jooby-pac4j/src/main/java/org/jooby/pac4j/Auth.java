@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Route;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.Session;
 import org.jooby.internal.pac4j.AuthCallback;
 import org.jooby.internal.pac4j.AuthContext;
@@ -49,26 +49,27 @@ import org.jooby.internal.pac4j.FormAuth;
 import org.jooby.internal.pac4j.FormFilter;
 import org.jooby.scope.Providers;
 import org.jooby.scope.RequestScoped;
-import org.pac4j.core.authorization.AuthorizationChecker;
-import org.pac4j.core.authorization.Authorizer;
-import org.pac4j.core.authorization.DefaultAuthorizationChecker;
+import org.pac4j.core.authorization.authorizer.Authorizer;
+import org.pac4j.core.authorization.checker.AuthorizationChecker;
+import org.pac4j.core.authorization.checker.DefaultAuthorizationChecker;
 import org.pac4j.core.client.Client;
-import org.pac4j.core.client.ClientFinder;
 import org.pac4j.core.client.Clients;
-import org.pac4j.core.client.DefaultClientFinder;
+import org.pac4j.core.client.finder.ClientFinder;
+import org.pac4j.core.client.finder.DefaultClientFinder;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.credentials.UsernamePasswordCredentials;
+import org.pac4j.core.credentials.authenticator.Authenticator;
+import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.http.client.indirect.IndirectBasicAuthClient;
-import org.pac4j.http.credentials.authenticator.UsernamePasswordAuthenticator;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
-import org.pac4j.http.profile.HttpProfile;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.inject.Binder;
+import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.OptionalBinder;
@@ -126,10 +127,9 @@ import com.typesafe.config.ConfigFactory;
  * </pre>
  *
  * <p>
- * A {@link IndirectBasicAuthClient} depends on {@link UsernamePasswordAuthenticator}, default is
+ * A {@link IndirectBasicAuthClient} depends on {@link Authenticator}, default is
  * {@link SimpleTestUsernamePasswordAuthenticator} which is great for development, but nothing good
- * for other environments. Next example setup a basic auth with a custom:
- * {@link UsernamePasswordAuthenticator}:
+ * for other environments. Next example setup a basic auth with a custom {@link Authenticator}:
  * </p>
  *
  * <pre>
@@ -160,7 +160,7 @@ import com.typesafe.config.ConfigFactory;
  * </pre>
  *
  * <p>
- * Like basic auth, form auth depends on a {@link UsernamePasswordAuthenticator}.
+ * Like basic auth, form auth depends on a {@link Authenticator}.
  * </p>
  *
  * <p>
@@ -225,11 +225,11 @@ import com.typesafe.config.ConfigFactory;
  *
  * <h2>user profile</h2>
  * <p>
- * Jooby relies on {@link AuthStore} for saving and retrieving a {@link UserProfile}. By default,
- * the {@link UserProfile} is stored in the {@link Session} via {@link AuthSessionStore}.
+ * Jooby relies on {@link AuthStore} for saving and retrieving a {@link CommonProfile}. By default,
+ * the {@link CommonProfile} is stored in the {@link Session} via {@link AuthSessionStore}.
  * </p>
  * <p>
- * After a successful authentication the {@link UserProfile} is accessible as a request scoped
+ * After a successful authentication the {@link CommonProfile} is accessible as a request scoped
  * attribute:
  * </p>
  *
@@ -402,11 +402,12 @@ public class Auth implements Jooby.Module {
    * @return This module.
    */
   public Auth form(final String pattern,
-      final Class<? extends UsernamePasswordAuthenticator> authenticator) {
+      final Class<? extends Authenticator<UsernamePasswordCredentials>> authenticator) {
     bindings.put(pattern, (binder, conf) -> {
-      binder.bind(UsernamePasswordAuthenticator.class).to(authenticator);
+      TypeLiteral<Authenticator<UsernamePasswordCredentials>> usernamePasswordAuthenticator = new TypeLiteral<Authenticator<UsernamePasswordCredentials>>() {};
+      binder.bind(usernamePasswordAuthenticator.getRawType()).to(authenticator);
 
-      bindProfile(binder, HttpProfile.class);
+      bindProfile(binder, CommonProfile.class);
 
       Multibinder.newSetBinder(binder, Client.class)
           .addBinding().toProvider(FormAuth.class);
@@ -446,16 +447,17 @@ public class Auth implements Jooby.Module {
    * @return This module.
    */
   public Auth basic(final String pattern,
-      final Class<? extends UsernamePasswordAuthenticator> authenticator) {
+      final Class<? extends Authenticator<UsernamePasswordCredentials>> authenticator) {
     bindings.put(pattern, (binder, config) -> {
-      binder.bind(UsernamePasswordAuthenticator.class).to(authenticator);
+      TypeLiteral<Authenticator<UsernamePasswordCredentials>> usernamePasswordAuthenticator = new TypeLiteral<Authenticator<UsernamePasswordCredentials>>() {};
+      binder.bind(usernamePasswordAuthenticator.getRawType()).to(authenticator);
 
-      bindProfile(binder, HttpProfile.class);
+      bindProfile(binder, CommonProfile.class);
 
       Multibinder.newSetBinder(binder, Client.class)
           .addBinding().toProvider(BasicAuth.class);
 
-      return new AuthFilter(IndirectBasicAuthClient.class, HttpProfile.class);
+      return new AuthFilter(IndirectBasicAuthClient.class, CommonProfile.class);
     });
     return this;
   }
@@ -487,10 +489,10 @@ public class Auth implements Jooby.Module {
    *
    * @param client Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
-  public <C extends Credentials, U extends UserProfile> Auth client(final Client<C, U> client) {
+  public <C extends Credentials, U extends CommonProfile> Auth client(final Client<C, U> client) {
     return client("*", client);
   }
 
@@ -500,10 +502,10 @@ public class Auth implements Jooby.Module {
    *
    * @param client Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
-  public <C extends Credentials, U extends UserProfile> Auth client(
+  public <C extends Credentials, U extends CommonProfile> Auth client(
       final Class<? extends Client<C, U>> client) {
     return client("*", client);
   }
@@ -515,10 +517,10 @@ public class Auth implements Jooby.Module {
    * @param pattern URL pattern to protect.
    * @param client Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
-  public <C extends Credentials, U extends UserProfile> Auth client(final String pattern,
+  public <C extends Credentials, U extends CommonProfile> Auth client(final String pattern,
       final Client<C, U> client) {
     return client(pattern, config -> client);
   }
@@ -529,10 +531,10 @@ public class Auth implements Jooby.Module {
    *
    * @param provider Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
-  public <C extends Credentials, U extends UserProfile> Auth client(
+  public <C extends Credentials, U extends CommonProfile> Auth client(
       final Function<Config, Client<C, U>> provider) {
     return client("*", provider);
   }
@@ -544,11 +546,11 @@ public class Auth implements Jooby.Module {
    * @param pattern URL pattern to protect.
    * @param provider Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   @SuppressWarnings({"unchecked", "rawtypes" })
-  public <C extends Credentials, U extends UserProfile> Auth client(final String pattern,
+  public <C extends Credentials, U extends CommonProfile> Auth client(final String pattern,
       final Function<Config, Client<C, U>> provider) {
     bindings.put(pattern, (binder, config) -> {
 
@@ -572,11 +574,11 @@ public class Auth implements Jooby.Module {
    * @param pattern URL pattern to protect.
    * @param client Client to add.
    * @param <C> Credentials.
-   * @param <U> UserProfile.
+   * @param <U> CommonProfile.
    * @return This module.
    */
   @SuppressWarnings({"rawtypes", "unchecked" })
-  public <C extends Credentials, U extends UserProfile> Auth client(final String pattern,
+  public <C extends Credentials, U extends CommonProfile> Auth client(final String pattern,
       final Class<? extends Client<C, U>> client) {
     bindings.put(pattern, (binder, config) -> {
 
@@ -599,7 +601,7 @@ public class Auth implements Jooby.Module {
    * @param store Store to use.
    * @return This module.
    */
-  public <U extends UserProfile> Auth store(final Class<? extends AuthStore<U>> store) {
+  public <U extends CommonProfile> Auth store(final Class<? extends AuthStore<U>> store) {
     this.storeClass = requireNonNull(store, "Store is required.");
     return this;
   }
@@ -647,7 +649,7 @@ public class Auth implements Jooby.Module {
     String fullcallback = config.getString("auth.callback");
     String callback = URI.create(fullcallback).getPath();
 
-    Routes routes = env.routes();
+    Router routes = env.router();
 
     MapBinder<String, Authorizer> authorizers = MapBinder
         .newMapBinder(binder, String.class, Authorizer.class);

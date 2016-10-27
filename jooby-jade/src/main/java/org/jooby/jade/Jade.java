@@ -209,8 +209,9 @@ public class Jade implements Jooby.Module {
     jadeconf.setCaching(caching);
     jadeconf.setPrettyPrint(prettyPrint);
 
-    Map<String, Object> sharedVariables = new HashMap<>(1);
+    Map<String, Object> sharedVariables = new HashMap<>(2);
     sharedVariables.put("env", env);
+    sharedVariables.put("xss", new XssHelper(env));
     jadeconf.setSharedVariables(sharedVariables);
 
     jadeconf.setTemplateLoader(new ClasspathTemplateLoader());

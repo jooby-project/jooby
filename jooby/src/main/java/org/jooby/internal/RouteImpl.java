@@ -60,15 +60,15 @@ public class RouteImpl implements Route, Route.Filter {
       final List<MediaType> produces) {
     return fromStatus((req, rsp, chain) -> {
       if (!rsp.status().isPresent()) {
-        throw new Err(Status.NOT_FOUND, path);
+        throw new Err(Status.NOT_FOUND, req.path(true));
       }
     }, method, path, "404", produces);
   }
 
   public static RouteImpl fromStatus(final Filter filter, final String method,
       final String path, final String name, final List<MediaType> produces) {
-    return new RouteImpl(filter, new Route.Definition(method, path, filter)
-        .name(name), method, path, produces, NO_VARS, null, Source.UNKNOWN) {
+    return new RouteImpl(filter, new Route.Definition(method, path, filter).name(name), method,
+        path, produces, NO_VARS, null, Source.UNKNOWN) {
       @Override
       public boolean apply(final String filter) {
         return true;
@@ -97,9 +97,14 @@ public class RouteImpl implements Route, Route.Filter {
     this.route = route;
     this.method = method;
     this.produces = produces;
-    this.path = path;
     this.vars = vars;
     this.source = source;
+    /** Clean up out of path char. */
+    if (path.charAt(path.length() - 1) == OUT_OF_PATH) {
+      this.path = path.substring(0, path.length() - 1);
+    } else {
+      this.path = path;
+    }
   }
 
   @Override

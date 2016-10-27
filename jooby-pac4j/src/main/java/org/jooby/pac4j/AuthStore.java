@@ -20,28 +20,28 @@ package org.jooby.pac4j;
 
 import java.util.Optional;
 
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.CommonProfile;
 
 /**
- * Contract for saving and restoring {@link UserProfile}.
+ * Contract for saving and restoring {@link CommonProfile}.
  *
  * @author edgar
  * @param <U> User profile to work with.
  */
-public interface AuthStore<U extends UserProfile> {
+public interface AuthStore<U extends CommonProfile> {
 
   /**
-   * Call it after a successful authentication in order to restore an {@link UserProfile}. If
+   * Call it after a successful authentication in order to restore an {@link CommonProfile}. If
    * profile is present, no authentication is required because user was already authenticated.
    *
    * @param id ID of the profile to restore.
-   * @return An {@link UserProfile}.
+   * @return An {@link CommonProfile}.
    * @throws Exception If restore fails.
    */
   Optional<U> get(String id) throws Exception;
 
   /**
-   * Call it after a successful authentication in order to store an {@link UserProfile}. The user
+   * Call it after a successful authentication in order to store an {@link CommonProfile}. The user
    * was successfully authenticated and we want to save it somewhere.
    *
    * @param profile Profile to store.
@@ -50,7 +50,7 @@ public interface AuthStore<U extends UserProfile> {
   void set(U profile) throws Exception;
 
   /**
-   * Call it on logout in order to remove an {@link UserProfile} from the store.
+   * Call it on logout in order to remove an {@link CommonProfile} from the store.
    *
    * @param id ID of the profile to remove.
    * @throws Exception If store fails.

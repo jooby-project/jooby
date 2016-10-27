@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 
 import org.jooby.Cookie;
 
@@ -45,6 +46,13 @@ public interface NativeRequest {
    *         name up to the query string in the first line of the HTTP request
    */
   String path();
+
+  /**
+   * Returns the query string that is contained in the request URL after the path.
+   *
+   * @return Query string or <code>empty</code>
+   */
+  Optional<String> queryString();
 
   /**
    * @return List with all the parameter names from query string plus any other form/multipart param
@@ -135,9 +143,20 @@ public interface NativeRequest {
 
   /**
    * Put the request in async mode.
+   *
+   * @param executor Executor to use.
+   * @param runnable Task to run.
    */
-  void startAsync();
+  void startAsync(Executor executor, Runnable runnable);
 
+  /**
+   * Send push promise to the client.
+   *
+   * @param method HTTP method.
+   * @param path HTTP path.
+   * @param headers HTTP headers.
+   * @throws Exception If something goes wrong.
+   */
   default void push(final String method, final String path, final Map<String, Object> headers)
       throws Exception {
     upgrade(NativePushPromise.class).push(method, path, headers);

@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.jooby.MediaType;
 import org.jooby.test.ServerFeature;
 import org.junit.After;
 import org.junit.Before;
@@ -29,7 +30,7 @@ public class OnByteArrayMessageFeature extends ServerFeature {
           ws.close();
         });
       });
-    });
+    }).produces(MediaType.octetstream);
 
   }
 

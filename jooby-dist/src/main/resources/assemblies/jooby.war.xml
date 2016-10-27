@@ -141,6 +141,17 @@
       </includes>
     </fileSet>
 
+    <!-- cmd : WEB-INF/cmd -->
+    <fileSet>
+      <directory>
+        ${project.build.outputDirectory}
+      </directory>
+      <outputDirectory>WEB-INF${file.separator}cmd</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+    </fileSet>
+
   </fileSets>
 
 </assembly>

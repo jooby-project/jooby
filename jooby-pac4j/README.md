@@ -15,7 +15,7 @@ Authentication module via: [Pac4j](https://github.com/pac4j/pac4j).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-pac4j</artifactId>
-  <version>1.0.0.CR7</version>
+  <version>1.0.0.CR8</version>
 </dependency>
 ```
 
@@ -37,7 +37,7 @@ access to ```/private``` or any route defined below the auth module.
 
 
 ## clients
-[Pac4j](https://github.com/pac4j/pac4j) is a powerful library that supports multiple clients and/or authentication protocols. In
+[Pac4j](https://github.com/pac4j/pac4j) is a powerful library that supports multiple [clients](http://www.pac4j.org/docs/clients.html) and/or authentication protocols. In
 the next example, we will see how to configure the most basic of them, but also some complex protocols.
 
 ### basic auth
@@ -83,7 +83,7 @@ Like basic auth, form auth depends on a ```UsernamePasswordAuthenticator```.
 
 A login form will be ready under the path: ```/login```. Again, it is a very basic login
 form useful for development. If you need a custom login page, just add a route before the
-[Auth](/apidocs/org/jooby/pack4j/Auth.html) module, like:
+[Auth](/apidocs/org/jooby/pac4j/Auth.html) module, like:
 </p>
 
 ```java
@@ -134,10 +134,10 @@ under ```/private```.
 
 ## user profile
 
-[Jooby](http://jooby.org) relies on [AuthStore](/apidocs/org/jooby/pac4j/AuthStore.html) for saving and retrieving an ```UserProfile```. By default,
-the ```UserProfile``` is stored in the [Session]({{defcods}}/Session.html) via [auth session store]({{defcods}}/pack4j/AuthSessionStore.html)
+[Jooby](http://jooby.org) relies on [AuthStore](/apidocs/org/jooby/pac4j/AuthStore.html) for saving and retrieving a ```CommonProfile```. By default,
+the ```CommonProfile``` is stored in the [Session]({{defcods}}/pac4j/Session.html) via [auth session store]({{defcods}}/pac4j/AuthSessionStore.html)
 
-After a successful authentication the ```UserProfile``` is accessible as a request scoped attribute:
+After a successful authentication the ```CommonProfile``` is accessible as a request scoped attribute:
 
 ```java
 {

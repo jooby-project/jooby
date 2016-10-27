@@ -1,6 +1,5 @@
 package org.jooby;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.jooby.test.ServerFeature;
@@ -9,7 +8,7 @@ import org.junit.Test;
 public class HelloAsyncFeature extends ServerFeature {
 
   {
-    ExecutorService executor = Executors.newSingleThreadExecutor();
+    executor(Executors.newSingleThreadExecutor());
 
     Object ierr = new Object();
 
@@ -19,30 +18,22 @@ public class HelloAsyncFeature extends ServerFeature {
       }
     });
 
-    get("/hi", promise(deferred -> {
-      executor.execute(() -> {
-        deferred.resolve("hi");
-      });
-    }));
+    get("/hi", deferred(() -> "hi"));
 
-    get("/err/init", promise(deferred -> {
+    get("/err/init", deferred(() -> {
       throw new Err(Status.SERVER_ERROR);
     }));
 
     get("/err/async", promise(deferred -> {
-      executor.execute(deferred.run(() -> {
-        throw new Err(Status.NOT_FOUND);
-      }));
+      throw new Err(Status.NOT_FOUND);
     }));
 
-    get("/err/send", promise(deferred -> {
-      executor.execute(deferred.run(() -> ierr));
+    get("/err/send", deferred(() -> {
+      return ierr;
     }));
 
-    get("/:name", promise((req, deferred) -> {
-      executor.execute(deferred.run(() -> {
-        return req.param("name").value();
-      }));
+    get("/:name", deferred(req -> {
+      return req.param("name").value();
     }));
   }
 

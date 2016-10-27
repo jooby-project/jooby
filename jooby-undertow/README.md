@@ -12,7 +12,7 @@ NIO web server via [Undertow](http://undertow.io/).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-undertow</artifactId>
-  <version>1.0.0.CR7</version>
+  <version>1.0.0.CR8</version>
 </dependency>
 ```
 
@@ -21,6 +21,19 @@ NIO web server via [Undertow](http://undertow.io/).
 In order to use a web server all you have to do is add the dependency to your build system.
 [Jooby](http://jooby.org) will find the server and start it.
 
+## http/2
+
+`HTTP/2` is fully supported:
+
+```
+| H2        | H2C           | PUSH  |
+| --------- | ------------- | ----- |
+| Yes       | Yes           | Yes   |
+```
+
+You need `Java 8 Update 71` or higher (integration tests run in `Java 8 Update 101`).
+
+See [Java 8 releases](https://www.java.com/en/download/faq/release_dates.xml) for more details.
 
 ## server.conf
 
@@ -28,6 +41,8 @@ In order to use a web server all you have to do is add the dependency to your bu
 # undertow defaults
 
 server.module = org.jooby.undertow.Undertow
+
+server.http2.cleartext = true
 
 undertow {
 

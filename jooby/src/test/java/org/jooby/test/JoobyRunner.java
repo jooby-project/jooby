@@ -18,6 +18,7 @@
  */
 package org.jooby.test;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,8 +32,6 @@ import org.junit.runners.model.MultipleFailureException;
 import org.junit.runners.model.Statement;
 
 import com.google.inject.Binder;
-import com.google.inject.Guice;
-import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
@@ -146,12 +145,27 @@ public class JoobyRunner extends BlockJUnit4ClassRunner {
   @Override
   protected Object createTest() throws Exception {
     Object test = super.createTest();
-    Guice.createInjector(binder -> {
-      binder.bind(Integer.class).annotatedWith(Names.named("port")).toInstance(port);
-      binder.bind(Integer.class).annotatedWith(Names.named("securePort")).toInstance(securePort);
-    }).injectMembers(test);
+    Class<? extends Object> c = test.getClass();
+    set(test, c, "port", port);
+    set(test, c, "securePort", securePort);
 
     return test;
+  }
+
+  @SuppressWarnings("rawtypes")
+  private void set(final Object test, final Class clazz, final String field, final Object value)
+      throws Exception {
+    try {
+      Field f = clazz.getDeclaredField(field);
+      f.setAccessible(true);
+      f.set(test, value);
+    } catch (NoSuchFieldException ex) {
+      Class superclass = clazz.getSuperclass();
+      if (superclass != Object.class) {
+        set(test, superclass, field, value);
+      }
+    }
+
   }
 
   @Override

@@ -22,6 +22,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Function;
 
 import javax.inject.Provider;
 import javax.inject.Singleton;
@@ -57,11 +58,17 @@ import org.jooby.scope.RequestScoped;
 import org.jooby.spi.HttpHandler;
 import org.jooby.spi.Server;
 import org.jooby.test.MockUnit;
+import org.jooby.test.MockUnit.Block;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.google.common.escape.Escaper;
+import com.google.common.html.HtmlEscapers;
+import com.google.common.net.UrlEscapers;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -81,14 +88,14 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigOrigin;
 import com.typesafe.config.ConfigValueFactory;
 
 import javaslang.control.Try.CheckedRunnable;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Jooby.class, Guice.class, TypeConverters.class, Multibinder.class,
-    OptionalBinder.class, Runtime.class, Thread.class })
+    OptionalBinder.class, Runtime.class, Thread.class, UrlEscapers.class, HtmlEscapers.class,
+    LoggerFactory.class })
 @SuppressWarnings("unchecked")
 public class JoobyTest {
 
@@ -455,11 +462,11 @@ public class JoobyTest {
         DateParser.class,
         LocalDateParser.class,
         LocaleParser.class,
-        BeanParser.class,
         StaticMethodParser.class,
         StaticMethodParser.class,
         StaticMethodParser.class,
-        StringConstructorParser.class
+        StringConstructorParser.class,
+        BeanParser.class
     };
 
     for (Class<? extends Parser> converter : parserClasses) {
@@ -501,24 +508,28 @@ public class JoobyTest {
     Binder binder = unit.get(Binder.class);
     expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
-    ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
-    expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+    // ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
+    // expect(configOrigin.description()).andReturn("test.conf, mock.conf").times(0, 1);
 
     Config config = unit.mock(Config.class);
     expect(config.getString("application.env")).andReturn("dev");
     expect(config.hasPath("server.join")).andReturn(true);
     expect(config.getBoolean("server.join")).andReturn(true);
-    expect(config.origin()).andReturn(configOrigin);
-
-    unit.constructor(AppPrinter.class)
-        .args(Set.class, Set.class, Config.class)
-        .build(isA(Set.class), isA(Set.class), isA(Config.class));
+    unit.registerMock(Config.class, config);
+    // expect(config.origin()).andReturn(configOrigin).times(0, 1);
 
     Injector injector = unit.mock(Injector.class);
     expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
     expect(injector.getInstance(Config.class)).andReturn(config);
     expect(injector.getInstance(Route.KEY)).andReturn(Collections.emptySet());
     expect(injector.getInstance(WebSocket.KEY)).andReturn(Collections.emptySet());
+    injector.injectMembers(isA(Jooby.class));
+    unit.registerMock(Injector.class, injector);
+
+    AppPrinter printer = unit.constructor(AppPrinter.class)
+        .args(Set.class, Set.class, Config.class)
+        .build(isA(Set.class), isA(Set.class), isA(Config.class));
+    printer.printConf(isA(Logger.class), eq(config));
 
     unit.mockStatic(Guice.class);
     expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class))).andReturn(
@@ -552,24 +563,26 @@ public class JoobyTest {
               Binder binder = unit.get(Binder.class);
               expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
-              unit.constructor(AppPrinter.class)
-                  .args(Set.class, Set.class, Config.class)
-                  .build(isA(Set.class), isA(Set.class), isA(Config.class));
-
-              ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
-              expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+              // ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
+              // expect(configOrigin.description()).andReturn("test.conf, mock.conf").times(0, 1);
 
               Config config = unit.mock(Config.class);
               expect(config.getString("application.env")).andReturn("dev");
               expect(config.hasPath("server.join")).andReturn(true);
               expect(config.getBoolean("server.join")).andReturn(true);
-              expect(config.origin()).andReturn(configOrigin);
+              // expect(config.origin()).andReturn(configOrigin).times(0, 1);
+
+              AppPrinter printer = unit.constructor(AppPrinter.class)
+                  .args(Set.class, Set.class, Config.class)
+                  .build(isA(Set.class), isA(Set.class), isA(Config.class));
+              printer.printConf(isA(Logger.class), eq(config));
 
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
               expect(injector.getInstance(Config.class)).andReturn(config);
               expect(injector.getInstance(Route.KEY)).andReturn(Collections.emptySet());
               expect(injector.getInstance(WebSocket.KEY)).andReturn(Collections.emptySet());
+              injector.injectMembers(isA(Jooby.class));
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.PRODUCTION), unit.capture(Module.class)))
@@ -601,7 +614,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -640,12 +653,16 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
 
+          assertEquals(false, jooby.isStarted());
+
           jooby.start();
+
+          assertEquals(true, jooby.isStarted());
 
         }, boot);
   }
@@ -690,7 +707,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -740,7 +757,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .expect(unit -> {
           unit.get(CheckedRunnable.class).run();
           unit.get(CheckedRunnable.class).run();
@@ -786,7 +803,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .expect(unit -> {
           unit.get(CheckedRunnable.class).run();
           unit.get(CheckedRunnable.class).run();
@@ -827,6 +844,20 @@ public class JoobyTest {
           expect(builder.build(isA(Config.class), isA(Jooby.class), isA(Locale.class)))
               .andReturn(env);
 
+          unit.mockStatic(UrlEscapers.class);
+          unit.mockStatic(HtmlEscapers.class);
+          Escaper escaper = unit.mock(Escaper.class);
+
+          expect(UrlEscapers.urlFragmentEscaper()).andReturn(escaper);
+          expect(UrlEscapers.urlFormParameterEscaper()).andReturn(escaper);
+          expect(UrlEscapers.urlPathSegmentEscaper()).andReturn(escaper);
+          expect(HtmlEscapers.htmlEscaper()).andReturn(escaper);
+
+          expect(env.xss(eq("urlFragment"), unit.capture(Function.class))).andReturn(env);
+          expect(env.xss(eq("formParam"), unit.capture(Function.class))).andReturn(env);
+          expect(env.xss(eq("pathSegment"), unit.capture(Function.class))).andReturn(env);
+          expect(env.xss(eq("html"), unit.capture(Function.class))).andReturn(env);
+
           Binder binder = unit.get(Binder.class);
 
           AnnotatedBindingBuilder<Env> binding = unit.mock(AnnotatedBindingBuilder.class);
@@ -851,7 +882,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -909,7 +940,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(
             unit -> {
 
@@ -945,24 +976,26 @@ public class JoobyTest {
               Binder binder = unit.get(Binder.class);
               expect(binder.bind(Server.class)).andReturn(serverBinding).times(0, 1);
 
-              unit.constructor(AppPrinter.class)
-                  .args(Set.class, Set.class, Config.class)
-                  .build(isA(Set.class), isA(Set.class), isA(Config.class));
-
-              ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
-              expect(configOrigin.description()).andReturn("test.conf, mock.conf");
+              // ConfigOrigin configOrigin = unit.mock(ConfigOrigin.class);
+              // expect(configOrigin.description()).andReturn("test.conf, mock.conf").times(0, 1);
 
               Config config = unit.mock(Config.class);
               expect(config.getString("application.env")).andReturn("dev");
               expect(config.hasPath("server.join")).andReturn(true);
               expect(config.getBoolean("server.join")).andReturn(true);
-              expect(config.origin()).andReturn(configOrigin);
+              // expect(config.origin()).andReturn(configOrigin).times(0, 1);
+
+              AppPrinter printer = unit.constructor(AppPrinter.class)
+                  .args(Set.class, Set.class, Config.class)
+                  .build(isA(Set.class), isA(Set.class), isA(Config.class));
+              printer.printConf(isA(Logger.class), eq(config));
 
               Injector injector = unit.mock(Injector.class);
               expect(injector.getInstance(Server.class)).andReturn(server).times(1, 2);
               expect(injector.getInstance(Config.class)).andReturn(config);
               expect(injector.getInstance(Route.KEY)).andReturn(Collections.emptySet());
               expect(injector.getInstance(WebSocket.KEY)).andReturn(Collections.emptySet());
+              injector.injectMembers(isA(Jooby.class));
 
               unit.mockStatic(Guice.class);
               expect(Guice.createInjector(eq(Stage.DEVELOPMENT), unit.capture(Module.class)))
@@ -994,7 +1027,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -1044,7 +1077,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -1118,7 +1151,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -1196,7 +1229,7 @@ public class JoobyTest {
             .expect(requestScope)
             .expect(webSockets)
             .expect(tmpdir)
-            .expect(err)
+            .expect(err).expect(executor("deferred"))
             .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1294,7 +1327,7 @@ public class JoobyTest {
             .expect(requestScope)
             .expect(webSockets)
             .expect(tmpdir)
-            .expect(err)
+            .expect(err).expect(executor("deferred"))
             .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1392,7 +1425,7 @@ public class JoobyTest {
             .expect(requestScope)
             .expect(webSockets)
             .expect(tmpdir)
-            .expect(err)
+            .expect(err).expect(executor("deferred"))
             .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1492,7 +1525,7 @@ public class JoobyTest {
             .expect(requestScope)
             .expect(webSockets)
             .expect(tmpdir)
-            .expect(err)
+            .expect(err).expect(executor("deferred"))
             .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1590,7 +1623,7 @@ public class JoobyTest {
             .expect(requestScope)
             .expect(webSockets)
             .expect(tmpdir)
-            .expect(err)
+            .expect(err).expect(executor("deferred"))
             .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1688,7 +1721,7 @@ public class JoobyTest {
             .expect(requestScope)
             .expect(webSockets)
             .expect(tmpdir)
-            .expect(err)
+            .expect(err).expect(executor("deferred"))
             .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1787,7 +1820,7 @@ public class JoobyTest {
             .expect(requestScope)
             .expect(webSockets)
             .expect(tmpdir)
-            .expect(err)
+            .expect(err).expect(executor("deferred"))
             .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -1887,7 +1920,7 @@ public class JoobyTest {
             .expect(requestScope)
             .expect(webSockets)
             .expect(tmpdir)
-            .expect(err)
+            .expect(err).expect(executor("deferred"))
             .run(unit -> {
 
               Jooby jooby = new Jooby();
@@ -2031,6 +2064,7 @@ public class JoobyTest {
         .expect(webSockets)
         .expect(tmpdir)
         .expect(err)
+        .expect(executor("deferred"))
         .expect(unit -> {
           Mutant ifModifiedSince = unit.mock(Mutant.class);
           expect(ifModifiedSince.toOptional(Long.class)).andReturn(Optional.empty());
@@ -2039,7 +2073,7 @@ public class JoobyTest {
           expect(ifnm.toOptional()).andReturn(Optional.empty());
 
           Request req = unit.get(Request.class);
-          expect(req.path()).andReturn(path).times(2);
+          expect(req.path()).andReturn(path);
           expect(req.header("If-Modified-Since")).andReturn(ifModifiedSince);
           expect(req.header("If-None-Match")).andReturn(ifnm);
 
@@ -2051,6 +2085,16 @@ public class JoobyTest {
 
           Route.Chain chain = unit.get(Route.Chain.class);
           chain.next(req, rsp);
+        })
+        .expect(unit -> {
+          Config conf = unit.get(Config.class);
+          expect(conf.getString("assets.cdn")).andReturn("").times(2);
+          expect(conf.getBoolean("assets.lastModified")).andReturn(true).times(2);
+          expect(conf.getBoolean("assets.etag")).andReturn(true).times(2);
+          expect(conf.getString("assets.cache.maxAge")).andReturn("-1").times(2);
+
+          Injector injector = unit.get(Injector.class);
+          expect(injector.getInstance(Key.get(Config.class))).andReturn(conf).times(2);
         })
         .run(unit -> {
           Jooby jooby = new Jooby();
@@ -2125,7 +2169,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2227,23 +2271,23 @@ public class JoobyTest {
         .expect(routeHandler)
         .expect(params)
         .expect(requestScope)
-        .expect(
-            unit -> {
-              Multibinder<WebSocket.Definition> multibinder = unit.mock(Multibinder.class);
+        .expect(unit -> {
+          Multibinder<WebSocket.Definition> multibinder = unit.mock(Multibinder.class);
 
-              LinkedBindingBuilder<WebSocket.Definition> binding = unit
-                  .mock(LinkedBindingBuilder.class);
-              binding.toInstance(unit.capture(WebSocket.Definition.class));
+          LinkedBindingBuilder<WebSocket.Definition> binding = unit
+              .mock(LinkedBindingBuilder.class);
+          binding.toInstance(unit.capture(WebSocket.Definition.class));
 
-              expect(multibinder.addBinding()).andReturn(binding);
+          expect(multibinder.addBinding()).andReturn(binding);
 
-              Binder binder = unit.get(Binder.class);
+          Binder binder = unit.get(Binder.class);
 
-              expect(Multibinder.newSetBinder(binder, WebSocket.Definition.class)).andReturn(
-                  multibinder);
-            })
+          expect(Multibinder.newSetBinder(binder, WebSocket.Definition.class)).andReturn(
+              multibinder);
+        })
         .expect(tmpdir)
         .expect(err)
+        .expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2251,8 +2295,8 @@ public class JoobyTest {
           WebSocket.Definition ws = jooby.ws("/", (socket) -> {
           });
           assertEquals("/", ws.pattern());
-          assertEquals(MediaType.all, ws.consumes());
-          assertEquals(MediaType.all, ws.produces());
+          assertEquals(MediaType.plain, ws.consumes());
+          assertEquals(MediaType.plain, ws.produces());
           defs.add(ws);
 
           jooby.start();
@@ -2312,7 +2356,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2405,7 +2449,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2461,11 +2505,11 @@ public class JoobyTest {
               DateParser.class,
               LocalDateParser.class,
               LocaleParser.class,
-              BeanParser.class,
               StaticMethodParser.class,
               StaticMethodParser.class,
               StaticMethodParser.class,
-              StringConstructorParser.class
+              StringConstructorParser.class,
+              BeanParser.class
           };
 
           for (Class<? extends Parser> converter : parserClasses) {
@@ -2482,7 +2526,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2519,7 +2563,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .expect(unit -> {
           Binder binder = unit.get(Binder.class);
           Jooby.Module module = unit.get(Jooby.Module.class);
@@ -2565,7 +2609,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .expect(unit -> {
           Binder binder = unit.get(Binder.class);
           Jooby.Module module = unit.get(Jooby.Module.class);
@@ -2613,7 +2657,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .expect(unit -> {
           AnnotatedBindingBuilder<List<Integer>> listAnnotatedBinding = unit
               .mock(AnnotatedBindingBuilder.class);
@@ -2660,7 +2704,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2697,7 +2741,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2734,7 +2778,7 @@ public class JoobyTest {
         .expect(requestScope)
         .expect(webSockets)
         .expect(tmpdir)
-        .expect(err)
+        .expect(err).expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2786,6 +2830,7 @@ public class JoobyTest {
           expect(multibinder.addBinding()).andReturn(ehlbb);
           expect(multibinder.addBinding()).andReturn(dehlbb);
         })
+        .expect(executor("deferred"))
         .run(unit -> {
 
           Jooby jooby = new Jooby();
@@ -2796,4 +2841,22 @@ public class JoobyTest {
 
         }, boot);
   }
+
+  private Block executor(final String name) {
+    return unit -> {
+      // Binder binder = unit.get(Binder.class);
+      //
+      // unit.mockStatic(OptionalBinder.class);
+      //
+      // LinkedBindingBuilder lbb = unit.mock(LinkedBindingBuilder.class);
+      // lbb.toInstance(unit.capture(ExecutorService.class));
+      //
+      // LinkedBindingBuilder lbbn = unit.mock(LinkedBindingBuilder.class);
+      // lbbn.toInstance(name);
+      //
+      // expect(binder.bind(Key.get(String.class, Names.named("deferred")))).andReturn(lbbn);
+      // expect(binder.bind(Key.get(Executor.class, Names.named(name)))).andReturn(lbb);
+    };
+  }
+
 }

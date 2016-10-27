@@ -28,7 +28,7 @@ import org.jooby.Route;
 import org.jooby.Session;
 import org.jooby.pac4j.Auth;
 import org.jooby.pac4j.AuthStore;
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class AuthLogout implements Route.Handler {
     if (ifSession.isPresent()) {
       Optional<String> profileId = ifSession.get().unset(Auth.ID).toOptional();
       if (profileId.isPresent()) {
-        Optional<UserProfile> profile = req.require(AuthStore.class).unset(profileId.get());
+        Optional<CommonProfile> profile = req.require(AuthStore.class).unset(profileId.get());
         log.debug("logout {}", profile);
       }
     } else {

@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>1.0.0.Final</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
@@ -90,6 +90,9 @@
     <module>jooby-couchbase</module>
     <module>jooby-cassandra</module>
     <module>jooby-scanner</module>
+    <module>jooby-csl</module>
+    <module>jooby-unbescape</module>
+    <module>jooby-crash</module>
     <module>coverage-report</module>
   </modules>
 
@@ -552,6 +555,37 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-csl</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-unbescape</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-crash</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <!-- coverity escapers -->
+      <dependency>
+        <groupId>com.coverity.security</groupId>
+        <artifactId>coverity-escapers</artifactId>
+        <version>${coverity-escapers.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.unbescape</groupId>
+        <artifactId>unbescape</artifactId>
+        <version>${unbescape.version}</version>
+      </dependency>
+
       <!-- fast-classpath-scanner -->
       <dependency>
         <groupId>io.github.lukehutch</groupId>
@@ -596,6 +630,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
+        <version>${slf4j-api.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
         <version>${slf4j-api.version}</version>
       </dependency>
 
@@ -1067,6 +1107,36 @@
         <version>${pac4j.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-jwt</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-ldap</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-sql</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-mongo</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.pac4j</groupId>
+        <artifactId>pac4j-stormpath</artifactId>
+        <version>${pac4j.version}</version>
+      </dependency>
+
       <!-- AWS -->
       <dependency>
         <groupId>com.amazonaws</groupId>
@@ -1323,6 +1393,82 @@
         <groupId>com.github.lalyos</groupId>
         <artifactId>jfiglet</artifactId>
         <version>${jfiglet.version}</version>
+      </dependency>
+
+      <!-- groovy -->
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+
+      <!-- crash -->
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.shell</artifactId>
+        <version>${crash.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.connectors.telnet</artifactId>
+        <version>${crash.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.connectors.web</artifactId>
+        <version>${crash.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.connectors.ssh</artifactId>
+        <version>${crash.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.plugins.mail</artifactId>
+        <version>${crash.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.crashub</groupId>
+        <artifactId>crash.plugins.cron</artifactId>
+        <version>${crash.version}</version>
       </dependency>
 
       <!-- Test dependencies -->
@@ -1651,15 +1797,15 @@
               <compilerArgs>
                 <arg>-parameters</arg>
               </compilerArgs>
-              <!-- eclipse compiler <debuglevel>lines,vars,source</debuglevel> <compilerId>eclipse</compilerId>
-                <compilerArguments> <org.eclipse.jdt.core.compiler.codegen.methodParameters>generate</org.eclipse.jdt.core.compiler.codegen.methodParameters>
-                <org.eclipse.jdt.core.compiler.debug.lineNumber>generate</org.eclipse.jdt.core.compiler.debug.lineNumber>
-                <org.eclipse.jdt.core.compiler.debug.localVariable>generate</org.eclipse.jdt.core.compiler.debug.localVariable>
-                <org.eclipse.jdt.core.compiler.debug.sourceFile>generate</org.eclipse.jdt.core.compiler.debug.sourceFile>
-                <org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>enabled</org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>
-                <org.eclipse.jdt.core.compiler.codegen.unusedLocal>preserve</org.eclipse.jdt.core.compiler.codegen.unusedLocal>
-                <org.eclipse.jdt.core.compiler.compliance>1.8</org.eclipse.jdt.core.compiler.compliance> <org.eclipse.jdt.core.compiler.source>1.8</org.eclipse.jdt.core.compiler.source>
-                <org.eclipse.jdt.core.compiler.codegen.targetPlatform>1.8</org.eclipse.jdt.core.compiler.codegen.targetPlatform>
+              <!-- eclipse compiler <debuglevel>lines,vars,source</debuglevel> <compilerId>eclipse</compilerId> 
+                <compilerArguments> <org.eclipse.jdt.core.compiler.codegen.methodParameters>generate</org.eclipse.jdt.core.compiler.codegen.methodParameters> 
+                <org.eclipse.jdt.core.compiler.debug.lineNumber>generate</org.eclipse.jdt.core.compiler.debug.lineNumber> 
+                <org.eclipse.jdt.core.compiler.debug.localVariable>generate</org.eclipse.jdt.core.compiler.debug.localVariable> 
+                <org.eclipse.jdt.core.compiler.debug.sourceFile>generate</org.eclipse.jdt.core.compiler.debug.sourceFile> 
+                <org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode>enabled</org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode> 
+                <org.eclipse.jdt.core.compiler.codegen.unusedLocal>preserve</org.eclipse.jdt.core.compiler.codegen.unusedLocal> 
+                <org.eclipse.jdt.core.compiler.compliance>1.8</org.eclipse.jdt.core.compiler.compliance> <org.eclipse.jdt.core.compiler.source>1.8</org.eclipse.jdt.core.compiler.source> 
+                <org.eclipse.jdt.core.compiler.codegen.targetPlatform>1.8</org.eclipse.jdt.core.compiler.codegen.targetPlatform> 
                 <encoding>UTF-8</encoding> </compilerArguments> -->
             </configuration>
             <dependencies>
@@ -2367,27 +2513,27 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
 
   <properties>
     <!-- Dependencies -->
-    <jackson.version>2.7.3</jackson.version>
-    <undertow.version>1.4.0.Final</undertow.version>
+    <jackson.version>2.8.3</jackson.version>
+    <undertow.version>1.4.3.Final</undertow.version>
     <servlet.version>3.1.0</servlet.version>
-    <jetty.version>9.3.9.v20160517</jetty.version>
+    <jetty.version>9.3.12.v20160915</jetty.version>
     <netty.version>4.1.5.Final</netty.version>
     <javassist.version>3.20.0-GA</javassist.version>
     <javax.ws.rs-api.version>2.0</javax.ws.rs-api.version>
-    <slf4j-api.version>1.7.7</slf4j-api.version>
-    <logback-classic.version>1.1.2</logback-classic.version>
+    <slf4j-api.version>1.7.21</slf4j-api.version>
+    <logback-classic.version>1.1.7</logback-classic.version>
     <caffeine.version>2.3.3</caffeine.version>
     <guava.version>19.0</guava.version>
-    <guice.version>4.0</guice.version>
-    <config.version>1.3.0</config.version>
+    <guice.version>4.1.0</guice.version>
+    <config.version>1.3.1</config.version>
     <handlebars.version>4.0.5</handlebars.version>
     <h2.version>1.4.190</h2.version>
     <mysql-connector-java.version>5.1.38</mysql-connector-java.version>
-    <hikariCP.version>2.4.5</hikariCP.version>
+    <hikariCP.version>2.5.1</hikariCP.version>
     <hibernate.version>5.2.1.Final</hibernate.version>
     <hibernate4.version>4.3.9.Final</hibernate4.version>
     <jsr305.version>3.0.0</jsr305.version>
-    <http-client.version>4.3.6</http-client.version>
+    <http-client.version>4.5.2</http-client.version>
     <async-http-client.version>1.9.36</async-http-client.version>
     <cglib.version>3.2.0</cglib.version>
     <asm.version>5.0.3</asm.version>
@@ -2407,13 +2553,13 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <javax.el-ref.version>2.2.6</javax.el-ref.version>
     <gson.version>2.6.2</gson.version>
     <ehcache.version>2.10.0</ehcache.version>
-    <pac4j.version>1.8.7</pac4j.version>
+    <pac4j.version>1.9.4</pac4j.version>
     <swagger.version>1.5.8</swagger.version>
     <swagger-ui.version>2.1.8-M1</swagger-ui.version>
     <commons-lang3.version>3.4</commons-lang3.version>
     <snakeyaml.version>1.15</snakeyaml.version>
     <spymemcached.version>2.12.0</spymemcached.version>
-    <aws-java-sdk.version>1.10.66</aws-java-sdk.version>
+    <aws-java-sdk.version>1.11.43</aws-java-sdk.version>
     <commons-email.version>1.4</commons-email.version>
     <jongo.version>1.2</jongo.version>
     <bson4jackson.version>2.5.0</bson4jackson.version>
@@ -2423,7 +2569,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <ebean.version>7.5.1</ebean.version>
     <avaje-agentloader.version>2.1.2</avaje-agentloader.version>
     <avaje-ebeanorm-agent.version>4.9.2</avaje-ebeanorm-agent.version>
-    <akka.version>2.4.3</akka.version>
+    <akka.version>2.4.11</akka.version>
     <yuicompressor.version>2.4.8</yuicompressor.version>
     <closure-compiler.version>v20150901</closure-compiler.version>
     <jruby.version>9.0.1.0</jruby.version>
@@ -2437,6 +2583,8 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <rxjava-math.version>1.0.0</rxjava-math.version>
     <rxjava-jdbc.version>0.7</rxjava-jdbc.version>
     <reactor.version>2.5.0.M3</reactor.version>
+    <crash.version>1.3.1</crash.version>
+    <groovy.version>2.4.7</groovy.version>
 
     <!-- config -->
     <ebean.agent.packages>**</ebean.agent.packages>
@@ -2449,7 +2597,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <querydsl.version>4.0.9</querydsl.version>
 
     <!-- javaslang -->
-    <javaslang.version>2.0.2</javaslang.version>
+    <javaslang.version>2.0.4</javaslang.version>
 
     <jsitemapgenerator.version>2.1</jsitemapgenerator.version>
 
@@ -2461,9 +2609,11 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <fast-classpath-scanner.version>1.99.0</fast-classpath-scanner.version>
     <zt-zip.version>1.9</zt-zip.version>
     <batik.version>1.8</batik.version>
+    <coverity-escapers.version>1.1.1</coverity-escapers.version>
+    <unbescape.version>1.1.3.RELEASE</unbescape.version>
 
     <!-- Test dependencies -->
-    <junit.version>4.11</junit.version>
+    <junit.version>4.12</junit.version>
     <easymock.version>3.2</easymock.version>
     <powermock.version>1.6.4</powermock.version>
     <jacoco.version>0.7.7.201606060606</jacoco.version>

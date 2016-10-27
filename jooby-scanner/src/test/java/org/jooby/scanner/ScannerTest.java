@@ -12,7 +12,7 @@ import javax.inject.Provider;
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Registry;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.mvc.Path;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
@@ -52,7 +52,7 @@ public class ScannerTest {
 
   private Block routes = unit -> {
     Env env = unit.get(Env.class);
-    expect(env.routes()).andReturn(unit.get(Routes.class));
+    expect(env.router()).andReturn(unit.get(Router.class));
   };
 
   private Block runtimeProcessors = unit -> {
@@ -61,7 +61,7 @@ public class ScannerTest {
 
   @Test
   public void newScanner() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns"))
@@ -78,7 +78,7 @@ public class ScannerTest {
 
   @Test
   public void newScannerWithSpec() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(runtimeProcessors)
         .expect(scanResult("test.pkg"))
         .expect(routes)
@@ -94,7 +94,7 @@ public class ScannerTest {
 
   @Test
   public void scanController() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns"))
@@ -104,7 +104,7 @@ public class ScannerTest {
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
           expect(routes.use(FooController.class)).andReturn(null);
         })
         .run(unit -> {
@@ -115,7 +115,7 @@ public class ScannerTest {
 
   @Test
   public void scanModule() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns"))
@@ -136,7 +136,7 @@ public class ScannerTest {
 
   @Test
   public void scanApp() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns"))
@@ -146,7 +146,7 @@ public class ScannerTest {
         .expect(subClassesOf(Jooby.class, FooApp.class.getName()))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
           expect(routes.use(isA(FooApp.class))).andReturn(routes);
         })
         .run(unit -> {
@@ -158,7 +158,7 @@ public class ScannerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void scanAnnotation() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns", "javax.inject", "com.google.inject.name"))
@@ -189,7 +189,7 @@ public class ScannerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void scanSingleton() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns", "javax.inject", "com.google.inject"))
@@ -220,7 +220,7 @@ public class ScannerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void scanImplements() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns"))
@@ -250,7 +250,7 @@ public class ScannerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void scanSubclass() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns"))
@@ -279,7 +279,7 @@ public class ScannerTest {
 
   @Test
   public void scanGuiceModule() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns", "com.google.inject"))
@@ -303,7 +303,7 @@ public class ScannerTest {
   @SuppressWarnings("unchecked")
   @Test
   public void scanGuavaService() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Registry.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class, Registry.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns", "com.google.common.util.concurrent"))
@@ -359,7 +359,7 @@ public class ScannerTest {
 
   @Test
   public void scanEmptyGuavaService() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class, Registry.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class, Registry.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns", "com.google.common.util.concurrent"))
@@ -378,7 +378,7 @@ public class ScannerTest {
 
   @Test
   public void scanShouldCreateJustOneController() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns"))
@@ -389,7 +389,7 @@ public class ScannerTest {
         .expect(subClassesOf(Jooby.class))
         .expect(appclass(ScannerTest.class.getName()))
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
           expect(routes.use(FooController.class)).andReturn(null);
         })
         .run(unit -> {
@@ -400,7 +400,7 @@ public class ScannerTest {
 
   @Test
   public void scanShouldIgnoreAbsClasses() throws Exception {
-    new MockUnit(Env.class, Config.class, Binder.class, Routes.class)
+    new MockUnit(Env.class, Config.class, Binder.class, Router.class)
         .expect(ns("app.ns"))
         .expect(runtimeProcessors)
         .expect(scanResult("app.ns"))

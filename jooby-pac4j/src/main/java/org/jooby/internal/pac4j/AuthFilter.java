@@ -31,16 +31,16 @@ import org.jooby.Status;
 import org.jooby.pac4j.Auth;
 import org.jooby.pac4j.AuthStore;
 import org.pac4j.core.client.Client;
-import org.pac4j.core.client.ClientFinder;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.DirectClient;
 import org.pac4j.core.client.IndirectClient;
+import org.pac4j.core.client.finder.ClientFinder;
 import org.pac4j.core.context.Pac4jConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.exception.RequiresHttpAction;
+import org.pac4j.core.exception.HttpAction;
 import org.pac4j.core.exception.TechnicalException;
-import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,10 +56,10 @@ public class AuthFilter implements Route.Handler {
 
   private String clientName;
 
-  private Class<? extends UserProfile> profileType;
+  private Class<? extends CommonProfile> profileType;
 
   public AuthFilter(final Class<? extends Client<?, ?>> clientType,
-      final Class<? extends UserProfile> profileType) {
+      final Class<? extends CommonProfile> profileType) {
     this.clientName = clientType.getSimpleName();
     this.profileType = requireNonNull(profileType, "ProfileType is required.");
   }
@@ -81,12 +81,12 @@ public class AuthFilter implements Route.Handler {
 
     WebContext ctx = req.require(WebContext.class);
     ClientFinder finder = req.require(ClientFinder.class);
-    AuthStore<UserProfile> store = req.require(AuthStore.class);
+    AuthStore<CommonProfile> store = req.require(AuthStore.class);
 
     // stateless or previously authenticated stateful
-    UserProfile profile = find(finder, clients, ctx, null, clientName, client -> {
+    CommonProfile profile = find(finder, clients, ctx, null, clientName, client -> {
       String profileId = profileID(useSession.test(client), req);
-      UserProfile identity = profileId == null ? null : store.get(profileId).orElse(null);
+      CommonProfile identity = profileId == null ? null : store.get(profileId).orElse(null);
 
       if (identity == null) {
         if (client instanceof DirectClient) {
@@ -101,7 +101,7 @@ public class AuthFilter implements Route.Handler {
               req.set(Auth.CNAME, client.getName());
               store.set(identity);
             }
-          } catch (RequiresHttpAction e) {
+          } catch (HttpAction e) {
             throw new TechnicalException("Unexpected HTTP action", e);
           }
         }
@@ -118,9 +118,9 @@ public class AuthFilter implements Route.Handler {
             final String requestedUrl = ctx.getFullRequestURL();
             log.debug("requestedUrl: {}", requestedUrl);
             ctx.setSessionAttribute(Pac4jConstants.REQUESTED_URL, requestedUrl);
-            client.redirect(ctx, true);
+            client.redirect(ctx);
             rsp.end();
-          } catch (RequiresHttpAction ex) {
+          } catch (HttpAction ex) {
             new AuthResponse(rsp).handle(client, ex);
           }
           return Boolean.TRUE;

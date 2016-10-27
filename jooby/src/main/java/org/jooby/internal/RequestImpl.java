@@ -26,18 +26,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Locale.LanguageRange;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.jooby.Cookie;
+import org.jooby.Env;
 import org.jooby.Err;
 import org.jooby.MediaType;
 import org.jooby.Mutant;
@@ -53,9 +53,9 @@ import org.jooby.spi.NativeRequest;
 import org.jooby.spi.NativeUpload;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.typesafe.config.Config;
 
 import javaslang.control.Try;
 
@@ -91,9 +91,11 @@ public class RequestImpl implements Request {
 
   private List<Locale> locales;
 
+  private long timestamp;
+
   public RequestImpl(final Injector injector, final NativeRequest req, final String contextPath,
       final int port, final Route route, final Charset charset, final List<Locale> locale,
-      final Map<Object, Object> scope, final Map<String, Object> locals) {
+      final Map<Object, Object> scope, final Map<String, Object> locals, final long timestamp) {
     this.injector = injector;
     this.req = req;
     this.route = route;
@@ -117,11 +119,17 @@ public class RequestImpl implements Request {
     this.charset = cs != null ? Charset.forName(cs) : charset;
 
     this.files = new ArrayList<>();
+    this.timestamp = timestamp;
   }
 
   @Override
   public String contextPath() {
     return contextPath;
+  }
+
+  @Override
+  public Optional<String> queryString() {
+    return req.queryString();
   }
 
   @SuppressWarnings("unchecked")
@@ -166,23 +174,40 @@ public class RequestImpl implements Request {
   }
 
   @Override
+  public Mutant params(final String... xss) {
+    return _params(xss(xss));
+  }
+
+  @Override
   public Mutant params() {
-    ImmutableMap.Builder<String, Mutant> params = ImmutableMap.<String, Mutant> builder();
-    Set<String> names = new LinkedHashSet<>();
-    for (Object name : route.vars().keySet()) {
-      if (name instanceof String) {
-        names.add((String) name);
+    return _params(null);
+  }
+
+  private Mutant _params(final Function<String, String> xss) {
+    Map<String, Mutant> params = new HashMap<>();
+    for (Object segment : route.vars().keySet()) {
+      if (segment instanceof String) {
+        String name = (String) segment;
+        params.put(name, _param(name, xss));
       }
     }
-    names.addAll(paramNames());
-    for (String name : names) {
-      params.put(name, param(name));
+    for (String name : paramNames()) {
+      params.put(name, _param(name, xss));
     }
-    return new MutantImpl(require(ParserExecutor.class), params.build());
+    return new MutantImpl(require(ParserExecutor.class), params);
+  }
+
+  @Override
+  public Mutant param(final String name, final String... xss) {
+    return _param(name, xss(xss));
   }
 
   @Override
   public Mutant param(final String name) {
+    return _param(name, null);
+  }
+
+  private Mutant _param(final String name, final Function<String, String> xss) {
     Mutant param = this.params.get(name);
     if (param == null) {
       List<NativeUpload> files = Try.of(() -> req.files(name)).getOrElseThrow(
@@ -196,14 +221,8 @@ public class RequestImpl implements Request {
 
         this.params.put(name, param);
       } else {
-        ImmutableList.Builder<String> values = ImmutableList.builder();
-        String pathvar = route.vars().get(name);
-        if (pathvar != null) {
-          values.add(pathvar);
-        }
-        values.addAll(params(name));
         StrParamReferenceImpl paramref = new StrParamReferenceImpl("parameter", name,
-            values.build());
+            params(name, xss));
         param = new MutantImpl(require(ParserExecutor.class), paramref);
 
         if (paramref.size() > 0) {
@@ -216,9 +235,24 @@ public class RequestImpl implements Request {
 
   @Override
   public Mutant header(final String name) {
-    requireNonNull(name, "Header's name is missing.");
+    return _header(name, null);
+  }
+
+  @Override
+  public Mutant header(final String name, final String... xss) {
+    return _header(name, xss(xss));
+  }
+
+  private Mutant _header(final String name, final Function<String, String> xss) {
+    requireNonNull(name, "Name required.");
+    List<String> headers = req.headers(name);
+    if (xss != null) {
+      headers = headers.stream()
+          .map(xss::apply)
+          .collect(Collectors.toList());
+    }
     return new MutantImpl(require(ParserExecutor.class),
-        new StrParamReferenceImpl("header", name, req.headers(name)));
+        new StrParamReferenceImpl("header", name, headers));
   }
 
   @Override
@@ -249,17 +283,17 @@ public class RequestImpl implements Request {
     long length = length();
     if (length > 0) {
       MediaType type = type();
-      if (!type.isAny() && (MediaType.form.matches(type) || MediaType.multipart.matches(type))) {
-        return params();
-      }
-      File fbody = new File(
-          require("application.tmpdir", File.class),
+      Config conf = require(Config.class);
+
+      File fbody = new File(conf.getString("application.tmpdir"),
           Integer.toHexString(System.identityHashCode(this)));
       files.add(fbody);
-      Parser.BodyReference body = new BodyReferenceImpl(length, charset(), fbody, req.in());
-      return new MutantImpl(require(ParserExecutor.class), type(), body);
+      int bufferSize = conf.getBytes("server.http.RequestBufferSize").intValue();
+      Parser.BodyReference body = new BodyReferenceImpl(length, charset(), fbody, req.in(),
+          bufferSize);
+      return new MutantImpl(require(ParserExecutor.class), type, body);
     }
-    return new MutantImpl(require(ParserExecutor.class), type(), new BodyReferenceImpl());
+    return new MutantImpl(require(ParserExecutor.class), type, new EmptyBodyReference());
   }
 
   @Override
@@ -398,10 +432,26 @@ public class RequestImpl implements Request {
     }
   }
 
-  private List<String> params(final String name) {
+  private Function<String, String> xss(final String... xss) {
+    return require(Env.class).xss(xss);
+  }
+
+  private List<String> params(final String name, final Function<String, String> xss) {
     try {
-      return req.params(name);
-    } catch (Exception ex) {
+      List<String> values = new ArrayList<>();
+      String pathvar = route.vars().get(name);
+      if (pathvar != null) {
+        values.add(pathvar);
+      }
+      values.addAll(req.params(name));
+      if (xss == null) {
+        return values;
+      }
+      for (int i = 0; i < values.size(); i++) {
+        values.set(i, xss.apply(values.get(i)));
+      }
+      return values;
+    } catch (Throwable ex) {
       throw new Err(Status.BAD_REQUEST, "Parameter '" + name + "' resulted in error", ex);
     }
   }
@@ -419,6 +469,11 @@ public class RequestImpl implements Request {
         file.delete();
       }
     }
+  }
+
+  @Override
+  public long timestamp() {
+    return timestamp;
   }
 
   private Session setSession(final SessionManager sm, final Response rsp, final Session gsession) {

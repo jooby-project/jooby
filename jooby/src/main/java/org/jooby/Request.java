@@ -33,11 +33,68 @@ import org.jooby.scope.RequestScoped;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.net.UrlEscapers;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
  * Give you access at the current HTTP request in order to read parameters, headers and body.
+ *
+ * <h2>HTTP parameter and headers</h2>
+ * <p>
+ * Access to HTTP parameter/header is available via {@link #param(String)} and
+ * {@link #header(String)} methods. See some examples:
+ * </p>
+ *
+ * <pre>
+ *   // str param
+ *   String value = request.param("str").value();
+ *
+ *   // optional str
+ *   String value = request.param("str").value("defs");
+ *
+ *   // int param
+ *   int value = request.param("some").intValue();
+ *
+ *   // optional int param
+ *   Optional{@literal <}Integer{@literal >} value = request.param("some").toOptional(Integer.class);
+
+ *   // list param
+ *   List{@literal <}String{@literal >} values = request.param("some").toList(String.class);
+ * </pre>
+ *
+ * <h2>form post/multi-param request</h2>
+ * <p>
+ * Due that form post are treated as HTTP params you can collect all them into a Java Object via
+ * {@link #params(Class)} or {@link #form(Class)} methods:
+ * </p>
+ *
+ * <pre>{@code
+ * {
+ *   get("/search", req -> {
+ *     Query q = req.params(Query.class);
+ *   });
+ *
+ *   post("/person", req -> {
+ *     Person person = req.form(Person.class);
+ *   });
+ * }
+ * }</pre>
+ *
+ * <h2>form file upload</h2>
+ * <p>
+ * Form post file upload are available via {@link #files(String)} or {@link #file(String)} methods:
+ * </p>
+ * <pre>{@code
+ * {
+ *   post("/upload", req  -> {
+ *     try(Upload upload = req.file("myfile")) {
+ *       File file = upload.file();
+ *       // work with file.
+ *     }
+ *   });
+ * }
+ * }</pre>
  *
  * @author edgar
  * @since 0.1.0
@@ -67,6 +124,16 @@ public interface Request extends Registry {
     @Override
     public String path() {
       return req.path();
+    }
+
+    @Override
+    public Optional<String> queryString() {
+      return req.queryString();
+    }
+
+    @Override
+    public String path(final boolean escape) {
+      return req.path(escape);
     }
 
     @Override
@@ -135,13 +202,28 @@ public interface Request extends Registry {
     }
 
     @Override
+    public Mutant params(final String... xss) {
+      return req.params(xss);
+    }
+
+    @Override
     public <T> T params(final Class<T> type) {
       return req.params(type);
     }
 
     @Override
+    public <T> T params(final Class<T> type, final String... xss) {
+      return req.params(type, xss);
+    }
+
+    @Override
     public Mutant param(final String name) {
       return req.param(name);
+    }
+
+    @Override
+    public Mutant param(final String name, final String... xss) {
+      return req.param(name, xss);
     }
 
     @Override
@@ -157,6 +239,11 @@ public interface Request extends Registry {
     @Override
     public Mutant header(final String name) {
       return req.header(name);
+    }
+
+    @Override
+    public Mutant header(final String name, final String... xss) {
+      return req.header(name, xss);
     }
 
     @Override
@@ -358,6 +445,11 @@ public interface Request extends Registry {
     }
 
     @Override
+    public long timestamp() {
+      return req.timestamp();
+    }
+
+    @Override
     public String toString() {
       return req.toString();
     }
@@ -389,7 +481,31 @@ public interface Request extends Registry {
    * @return The request URL pathname.
    */
   default String path() {
-    return route().path();
+    return path(false);
+  }
+
+  /**
+   * The query string, without the leading <code>?</code>.
+   *
+   * @return The query string, without the leading <code>?</code>.
+   */
+  Optional<String> queryString();
+
+  /**
+   * Escape the path using {@link UrlEscapers#urlFragmentEscaper()}.
+   *
+   * Given:
+   *
+   * <pre>{@code
+   *  http://domain.com/404<h1>X</h1> {@literal ->} /404%3Ch1%3EX%3C/h1%3E
+   * }</pre>
+   *
+   * @param escape True if we want to escape this path.
+   * @return The request URL pathname.
+   */
+  default String path(final boolean escape) {
+    String path = route().path();
+    return escape ? UrlEscapers.urlFragmentEscaper().escape(path) : path;
   }
 
   /**
@@ -574,6 +690,22 @@ public interface Request extends Registry {
   Mutant params();
 
   /**
+   * Get all the available parameters. A HTTP parameter can be provided in any of
+   * these forms:
+   *
+   * <ul>
+   * <li>Path parameter, like: <code>/path/:name</code> or <code>/path/{name}</code></li>
+   * <li>Query parameter, like: <code>?name=jooby</code></li>
+   * <li>Body parameter when <code>Content-Type</code> is
+   * <code>application/x-www-form-urlencoded</code> or <code>multipart/form-data</code></li>
+   * </ul>
+   *
+   * @param xss Xss filter to apply.
+   * @return All the parameters.
+   */
+  Mutant params(String... xss);
+
+  /**
    * Short version of <code>params().to(type)</code>.
    *
    * @param type Object type.
@@ -582,6 +714,41 @@ public interface Request extends Registry {
    */
   default <T> T params(final Class<T> type) {
     return params().to(type);
+  }
+
+  /**
+   * Short version of <code>params().to(type)</code>.
+   *
+   * @param type Object type.
+   * @param <T> Value type.
+   * @return Instance of object.
+   */
+  default <T> T form(final Class<T> type) {
+    return params().to(type);
+  }
+
+  /**
+   * Short version of <code>params(xss).to(type)</code>.
+   *
+   * @param type Object type.
+   * @param xss Xss filter to apply.
+   * @param <T> Value type.
+   * @return Instance of object.
+   */
+  default <T> T params(final Class<T> type, final String... xss) {
+    return params(xss).to(type);
+  }
+
+  /**
+   * Short version of <code>params(xss).to(type)</code>.
+   *
+   * @param type Object type.
+   * @param xss Xss filter to apply.
+   * @param <T> Value type.
+   * @return Instance of object.
+   */
+  default <T> T form(final Class<T> type, final String... xss) {
+    return params(xss).to(type);
   }
 
   /**
@@ -614,6 +781,36 @@ public interface Request extends Registry {
   Mutant param(String name);
 
   /**
+   * Get a HTTP request parameter under the given name. A HTTP parameter can be provided in any of
+   * these forms:
+   * <ul>
+   * <li>Path parameter, like: <code>/path/:name</code> or <code>/path/{name}</code></li>
+   * <li>Query parameter, like: <code>?name=jooby</code></li>
+   * <li>Body parameter when <code>Content-Type</code> is
+   * <code>application/x-www-form-urlencoded</code> or <code>multipart/form-data</code></li>
+   * </ul>
+   *
+   * The order of precedence is: <code>path</code>, <code>query</code> and <code>body</code>. For
+   * example a pattern like: <code>GET /path/:name</code> for <code>/path/jooby?name=rocks</code>
+   * produces:
+   *
+   * <pre>
+   *  assertEquals("jooby", req.param(name).value());
+   *
+   *  assertEquals("jooby", req.param(name).toList().get(0));
+   *  assertEquals("rocks", req.param(name).toList().get(1));
+   * </pre>
+   *
+   * Uploads can be retrieved too when <code>Content-Type</code> is <code>multipart/form-data</code>
+   * see {@link Upload} for more information.
+   *
+   * @param name A parameter's name.
+   * @param xss Xss filter to apply.
+   * @return A HTTP request parameter.
+   */
+  Mutant param(String name, String... xss);
+
+  /**
    * Get a file {@link Upload} with the given name. The request must be a POST with
    * <code>multipart/form-data</code> content-type.
    *
@@ -644,6 +841,15 @@ public interface Request extends Registry {
   Mutant header(String name);
 
   /**
+   * Get a HTTP header and apply the XSS escapers.
+   *
+   * @param name A header's name.
+   * @param xss Xss escapers.
+   * @return A HTTP request header.
+   */
+  Mutant header(final String name, final String... xss);
+
+  /**
    * @return All the headers.
    */
   Map<String, Mutant> headers();
@@ -662,7 +868,8 @@ public interface Request extends Registry {
   List<Cookie> cookies();
 
   /**
-   * HTTP body.
+   * HTTP body. Please don't use this method for form submits. This method is used for getting
+   * <code>raw</code> data or a data like json, xml, etc...
    *
    * @return The HTTP body.
    * @throws Exception If body can't be converted or there is no HTTP body.
@@ -671,6 +878,9 @@ public interface Request extends Registry {
 
   /**
    * Short version of <code>body().to(type)</code>.
+   *
+   * HTTP body. Please don't use this method for form submits. This method is used for getting
+   * <code>raw</code> or a parsed data like json, xml, etc...
    *
    * @param type Object type.
    * @param <T> Value type.
@@ -999,4 +1209,12 @@ public interface Request extends Registry {
    * @return This request.
    */
   Request push(final String path, final Map<String, Object> headers);
+
+  /**
+   * Request timestamp.
+   *
+   * @return The time that the request was received.
+   */
+  long timestamp();
+
 }

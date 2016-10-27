@@ -36,7 +36,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
 /**
- * Handle preflight and simple CORS requests. CORS options are set via: Cors.
+ * Handle preflight and simple CORS requests. CORS options are set via: {@link Cors}.
  *
  * @author edgar
  * @since 0.8.0

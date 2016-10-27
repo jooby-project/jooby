@@ -8,11 +8,15 @@ import org.jooby.Route;
 import org.jooby.Route.Before;
 import org.jooby.WebSocket;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 public class AppPrinterTest {
 
@@ -28,10 +32,21 @@ public class AppPrinterTest {
         "  GET {complete}/    [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /              [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home          [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws            [*/*]     [*/*]\n" +
+        "  WS  /ws            [text/plain]     [text/plain]\n" +
         "\n" +
         "listening on:\n" +
         "  http://localhost:8080/", setup);
+  }
+
+  @Test
+  public void printConfig() {
+    AppPrinter printer = new AppPrinter(
+        Sets.newLinkedHashSet(
+            Arrays.asList(before("/"), beforeSend("/"), after("/"), route("/"), route("/home"))),
+        Sets.newLinkedHashSet(Arrays.asList(socket("/ws"))), config("/"));
+    Logger log = (Logger) LoggerFactory.getLogger(AppPrinterTest.class);
+    log.setLevel(Level.DEBUG);
+    printer.printConf(log, config("/"));
   }
 
   @Test
@@ -43,11 +58,11 @@ public class AppPrinterTest {
             .toString();
     assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws      [*/*]     [*/*]\n" +
+        "  WS  /ws      [text/plain]     [text/plain]\n" +
         "\n" +
-        "listening on:" +
-        "\n  http://localhost:8080/" +
-        "\n  https://localhost:8443/", setup);
+        "listening on:\n" +
+        "  http://localhost:8080/\n" +
+        "  https://localhost:8443/", setup);
   }
 
   @Test
@@ -61,11 +76,11 @@ public class AppPrinterTest {
                 .toString();
     assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws      [*/*]     [*/*]\n" +
+        "  WS  /ws      [text/plain]     [text/plain]\n" +
         "\n" +
-        "listening on:" +
-        "\n  http://localhost:8080/  +h2" +
-        "\n  https://localhost:8443/ +h2", setup);
+        "listening on:\n" +
+        "  http://localhost:8080/  +h2\n" +
+        "  https://localhost:8443/ +h2", setup);
   }
 
   @Test
@@ -80,11 +95,11 @@ public class AppPrinterTest {
                 .toString();
     assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws      [*/*]     [*/*]\n" +
+        "  WS  /ws      [text/plain]     [text/plain]\n" +
         "\n" +
-        "listening on:" +
-        "\n  http://localhost:8080/" +
-        "\n  https://localhost:8443/ +h2", setup);
+        "listening on:\n" +
+        "  http://localhost:8080/\n" +
+        "  https://localhost:8443/ +h2", setup);
   }
 
   @Test
@@ -98,12 +113,11 @@ public class AppPrinterTest {
                 .toString();
     assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws      [*/*]     [*/*]\n" +
+        "  WS  /ws      [text/plain]     [text/plain]\n" +
         "\n" +
-        "listening on:" +
-        "\n  http://localhost:8080/  +h2", setup);
+        "listening on:\n" +
+        "  http://localhost:8080/  +h2", setup);
   }
-
 
   private Config config(final String path) {
     return ConfigFactory.empty()
@@ -122,7 +136,7 @@ public class AppPrinterTest {
             .toString();
     assertEquals("  GET /        [*/*]     [*/*]    (/anonymous)\n" +
         "  GET /home    [*/*]     [*/*]    (/anonymous)\n" +
-        "  WS  /ws      [*/*]     [*/*]\n" +
+        "  WS  /ws      [text/plain]     [text/plain]\n" +
         "\n" +
         "listening on:\n" +
         "  http://localhost:8080/app", setup);
@@ -163,7 +177,7 @@ public class AppPrinterTest {
   }
 
   private WebSocket.Definition socket(final String pattern) {
-    return new WebSocket.Definition(pattern, (ws) -> {
+    return new WebSocket.Definition(pattern, (req, ws) -> {
     });
   }
 }

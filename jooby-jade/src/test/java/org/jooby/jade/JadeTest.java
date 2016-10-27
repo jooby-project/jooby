@@ -1,6 +1,8 @@
 package org.jooby.jade;
 
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -30,7 +32,7 @@ import de.neuland.jade4j.template.ClasspathTemplateLoader;
 import de.neuland.jade4j.template.TemplateLoader;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Jade.class, JadeConfiguration.class, Multibinder.class })
+@PrepareForTest({Jade.class, JadeConfiguration.class, Multibinder.class, HashMap.class })
 public class JadeTest {
 
   @Test
@@ -141,8 +143,10 @@ public class JadeTest {
       jadeConfiguration.setPrettyPrint(prettyPrint);
 
       Env env = unit.get(Env.class);
-      Map<String, Object> sharedVariables = new HashMap<>(1);
-      sharedVariables.put("env", env);
+      Map<String, Object> sharedVariables = unit.constructor(HashMap.class)
+          .build(2);
+      expect(sharedVariables.put(eq( "env"), eq(env))).andReturn(null);
+      expect(sharedVariables.put(eq( "xss"), isA(XssHelper.class))).andReturn(null);
       jadeConfiguration.setSharedVariables(sharedVariables);
 
       ClasspathTemplateLoader classpathTemplateLoader = unit

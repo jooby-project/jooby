@@ -23,6 +23,6 @@ public class ParserDefOrderFeature extends ServerFeature {
   public void order() throws Exception {
     request()
         .get("/parser/order")
-        .expect("[Basic, Collection, Optional, Enum, Upload, byte[], Date, LocalDate, Locale, bean, valueOf(String), fromString(String), forName(String), init(String)]");
+        .expect("[Basic, Collection, Optional, Enum, Upload, byte[], Date, LocalDate, Locale, valueOf(String), fromString(String), forName(String), init(String), bean]");
   }
 }

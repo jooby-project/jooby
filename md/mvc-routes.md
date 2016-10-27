@@ -3,7 +3,7 @@
 Mvc routes are like **controllers** in [Spring](http://spring.io) and/or **resources** in [Jersey](https://jersey.java.net/) with some minor enhancements and/or simplifications.
 
 ```java
-@Path("/routes")
+@Path("/")
 public class MyRoutes {
 
   @GET
@@ -13,14 +13,14 @@ public class MyRoutes {
 }
 ```
 
-Annotations are identical to [Jersey/JAX-RS](https://jersey.java.net/) and they can be found under the package **org.jooby.mvc**.
+Annotations are identical to [Jersey/JAX-RS](https://jersey.java.net/) and they can be found under the package `org.jooby.mvc`.
 
-Keep in mind, Jooby doesn't implement the **JAX-RS** spec that is why it has his own version of the annotations.
+> **NOTE**: Jooby doesn't implement the **JAX-RS** specification that is why it has his own version of the annotations.
 
-A mvc route can be injected by Guice:
+A mvc route can be injected by {{guice}}:
 
 ```java
-@Path("/routes")
+@Path("/")
 public class MyRoutes {
 
   @Inject
@@ -32,20 +32,73 @@ public class MyRoutes {
   public Result home() {
     return Results.html("home").put("model", model);
   }
+
+  @GET
+  @Path("/search")
+  public List<SearchResult> search() {
+    List<SearchResult> result = ...;
+    return result;
+  }
+
+  @POST
+  @Path("/form")
+  public MyObject submit(MyObject form) {
+    ...
+    return Results.html("success");
+  }
 }
 ```
 
-A method annotated with [GET]({{defdocs}}/mvc/GET.html), [POST]({{defdocs}}/mvc/POST.html),..., is considered a route handler (web method).
+> **NOTE**: MVC routes **are NOT singleton**, unless you explicitly annotated the route as Singleton:
+
+```java
+
+import javax.inject.Singleton;
+
+@Singleton
+@Path("/")
+public class MyRoutes {
+
+  @Inject
+  public MyRoutes(DepA a, DepB) {
+   ...
+  }
+
+  @GET
+  public Result home() {
+    return Results.html("home").put("model", model);
+  }
+
+  @GET
+  @Path("/search")
+  public List<SearchResult> search() {
+    List<SearchResult> result = ...;
+    return result;
+  }
+
+  @POST
+  @Path("/form")
+  public MyObject submit(MyObject form) {
+    ...
+    return Results.html("success");
+  }
+}
+```
 
 ### registering a mvc route
 
-Mvc routes must be registered, there is **no auto-discover** feature (and it won't be), no classpath scanning, ..., etc.
+Mvc routes must be registered, there is **no auto-discover** feature, no classpath scanning, ..., etc.
 
-The order in which you define your routes has a huge importance and it defines how your app will work. This is one of the reason why mvc routes need to be explicitly registered. The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
+The order in which you define your routes has a huge importance and it defines how your app will work.
+
+This is one of the reason why mvc routes need to be explicitly registered.
+
+The other reason is bootstrap time, declaring the route explicitly helps to reduce bootstrap time.
+
 
 So, how do I register a mvc route?
 
-In the same way everything else is registered in Jooby!! from your app class:
+In the same way everything else is registered in {{jooby}} from your application class:
 
 ```java
 public class App extends Jooby {
@@ -80,10 +133,11 @@ public class MyRoutes {
 
 A call to ```/routes``` will print: **first**, **second** and produces a response of **third**.
 
+If you find the **explicit registration** odd or have too many `MVC routes`, checkout the [classpath scanner](/doc/scanner) module which automatically find and register `MVC routes`.
 
-### binding req params
+### request parameters
 
-A mvc handler can be bound to request parameters:
+A method parameter represents a HTTP parameter:
 
 ```java
    @GET
@@ -92,9 +146,9 @@ A mvc handler can be bound to request parameters:
    }
 ```
 
-Here **q** can be any of the available param types and it will resolved as described in the [request params](#request-request-params) section.
+Here **q** can be any of the available parameter types and it will resolved as described in the [request parameters](#request-parameters) section.
 
-Optional params work in the same way, all you have to do is to declare the param as ```java.util.Optional```:
+Optional parameters work in the same way, all you have to do is to declare them as ```java.util.Optional```:
 
 ```java
    @GET
@@ -103,7 +157,7 @@ Optional params work in the same way, all you have to do is to declare the param
    }
 ```
 
-Multi-value params work in the same way, all you have to do is to declare the param as ```java.util.List```, ```java.util.Set``` or ```java.util.SortedSet```:
+Same for `multi-value` parameters, just declare them as ```java.util.List```, ```java.util.Set``` or ```java.util.SortedSet```:
 
 ```java
    @GET
@@ -112,18 +166,18 @@ Multi-value params work in the same way, all you have to do is to declare the pa
    }
 ```
 
-Just remember the injected collection is immutable.
+> NOTE: The injected collection is immutable.
 
-File uploads (again) work in the same way, just use ```org.jooby.Upload```
+Same for {{file_upload}}
 
 ```java
    @POST
-   public View search(Upload file) {
-    ... do something with the uploaded file
+   public Object formPost(Upload file) {
+    ...
    }
 ```
 
-As you might already noticed, Jooby uses the method param name and bind it to the request param. If you want explicit mapping and/or the req param isn't a valid Java identifier:
+Jooby uses the method parameter name and bind that name to a request parameter. If you want explicit mapping and/or the request parameter isn't a valid Java identifier:
 
 ```java
    @GET
@@ -132,22 +186,32 @@ As you might already noticed, Jooby uses the method param name and bind it to th
    }
 ```
 
-### binding req body
+### form submit
 
-Injecting a req body work in the same way:
+Form submitted as {{formurlencoded}} or {{formmultipart}} don't require anything:
 
 ```java
   @POST
-  public View search(@Body MyObject object) {
-  ... do something with my object
+  public Result create(MyObject form) {
+    ...
   }
 ```
 
-All you have to do is add the ```@Body``` annotation.
+### request body
 
-### binding req headers
+Annotated the method parameter with [@Body](/apidocs/org/jooby/mvc/Body.html) annotation:
 
-Works just like [req params](#routes-binding-req-params) but you must annotated the param with *org.jooby.mvc.Header*:
+```java
+  @POST
+  public MyObject create(@Body MyObject object) {
+    ... do something with my object
+  }
+```
+
+
+### request headers
+
+Annotated the method parameter with [@Header]({{defdocs}}/mvc/Header.html) annotation:
 
 ```java
    @GET
@@ -165,9 +229,9 @@ Or, if the header name isn't a valid Java identifier
    }
 ```
 
-### mvc response
+### response
 
-A web method might or might not send a response to the client. Some examples:
+A method returns type is sent to the client. Some examples:
 
 ```java
 
@@ -185,7 +249,7 @@ public Result dontSayGoodbye(String name) {
 
 ```
 
-If you need/want to render a view, just return a *org.jooby.View* instance:
+If you need/want to render a view, just return a [view]({{defdocs}}/View.html) instance:
 
 ```java
 @GET
@@ -194,9 +258,7 @@ public Result home() {
 }
 ```
 
-#### customizing the response
-
-If you need to deal with HTTP metadata like: status code, headers, etc... use a [org.jooby.Result]({{defdocs}}/Result.html)
+If you need to deal with HTTP metadata like: status code, headers, etc... use a [result] as method return type:
 
 ```java
 @GET

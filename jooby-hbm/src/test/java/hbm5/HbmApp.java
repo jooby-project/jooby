@@ -1,6 +1,5 @@
 package hbm5;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.hibernate.Session;
@@ -39,27 +38,23 @@ public class HbmApp extends Jooby {
 
     use("*", "*", Hbm.openSessionInView());
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
+    executor(Executors.newSingleThreadExecutor());
 
     use("/api/beer")
         .post(req -> require(UnitOfWork.class)
             .apply(em -> em.merge(req.body(Beer.class))))
-        .post("/async", promise((req, deferred) -> {
+        .post("/async", deferred(req -> {
           Beer beer = req.body(Beer.class);
-          executor.execute(deferred.run(() -> {
-            return require(UnitOfWork.class)
-                .apply(em -> em.merge(beer));
-          }));
+          return require(UnitOfWork.class)
+              .apply(em -> em.merge(beer));
         }))
         .get("/q",
             () -> require(Session.class).createQuery("from Beer", Beer.class).getResultList())
         .get("/:id",
             req -> require(Session.class).getReference(Beer.class,
                 req.param("id").longValue()).name)
-        .get("/async", promise((deferred) -> {
-          executor.execute(deferred.run(() -> {
-            return require(Session.class).createQuery("from Beer", Beer.class).getResultList();
-          }));
+        .get("/async", deferred(() -> {
+          return require(Session.class).createQuery("from Beer", Beer.class).getResultList();
         }))
         .get(() -> require(UnitOfWork.class)
             .apply(em -> em.createQuery("from Beer", Beer.class).getResultList()));

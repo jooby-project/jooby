@@ -40,6 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.jooby.Route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,7 +204,7 @@ public class Nodejs {
     node.release();
   }
 
-  private Path deploy(final String library) throws Exception {
+  public Path deploy(final String library) throws Exception {
     URL url = loader.getResource(library);
     if (url == null) {
       throw new FileNotFoundException(library);
@@ -212,12 +213,19 @@ public class Nodejs {
     log.debug("{}", uri);
     Path outdir = this.basedir.toPath().resolve("node_modules").resolve(library.replace("/", "."));
     Optional<Path> basedir = Try.of(() -> Paths.get(uri)).toJavaOptional();
+    String libroot = Route.normalize("/" + library);
     try (Library lib = loadLibrary(uri)) {
       try (Stream<Path> stream = lib.stream()) {
         stream.filter(it -> !Files.isDirectory(it))
             .forEach(it -> {
               String relative = basedir.map(d -> d.relativize(it).toString())
-                  .orElse(it.toString().substring(1));
+                  .orElseGet(() -> {
+                    String fname = it.toString();
+                    if (fname.startsWith(libroot)) {
+                      fname = fname.substring(libroot.length());
+                    }
+                    return fname.substring(1);
+                  });
               Path output = outdir.resolve(relative);
               File fout = output.toFile();
               boolean copy = !fout.exists()
@@ -250,7 +258,17 @@ public class Nodejs {
    * @param callback Nodejs callback.
    */
   public static void run(final CheckedConsumer<Nodejs> callback) {
-    Nodejs node = new Nodejs();
+    run(new File(System.getProperty("java.io.tmpdir")), callback);
+  }
+
+  /**
+   * Execute the given nodejs callback and automatically release v8 and nodejs resources.
+   *
+   * @param basedir Base dir where to deploy a library.
+   * @param callback Nodejs callback.
+   */
+  public static void run(final File basedir, final CheckedConsumer<Nodejs> callback) {
+    Nodejs node = new Nodejs(basedir);
     try {
       callback.accept(node);
     } catch (Throwable x) {

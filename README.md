@@ -16,7 +16,7 @@
 
 * **Fast!**. Thanks to the most popular [NIO web servers](http://jooby.org/doc/servers).
 
-* **Modular**. Make it a **full stack** with <a href="/modules" title="Modules">modules</a>
+* **Modular**. Make it **full-stack** via the extensive [module eco-system](http://jooby.org/doc/servers).
 
 * **Simple, effective and easy to learn**. Ideal for small but also large scale applications.
 
@@ -35,7 +35,7 @@ public class App extends Jooby {
     get("/", () -> "Hey Jooby!");
   }
 
-  public static void main(final String[] args) throws Throwable {
+  public static void main(final String[] args) {
     run(App::new, args);
   }
 }
@@ -58,6 +58,9 @@ app.get('/', function () 'Hey Jooby!');
 * **Scripting programming model**. Like [express.js](http://expressjs.com), [Sinatra](http://www.sinatrarb.com), etc.. but also
 * **MVC programming model**. Like [Spring](http://spring.io) controllers or [Jersey](https://jersey.java.net) resources
 * **Multi-server**. Including [Netty](http://netty.io), [Jetty](http://www.eclipse.org/jetty/) and [Undertow](http://undertow.io)
+* **HTTPS**
+* **HTTP/2**
+* **Server-Sent Events**
 * **Web-Socket**
 * **Dependency Injection**
 * **Hot reload** for development
@@ -74,7 +77,7 @@ quickstart
 Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.0.0.CR7
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.0.0.CR8
 ```
 
 You might want to edit/change:
@@ -89,7 +92,7 @@ You might want to edit/change:
 Let's try it!:
 
 ```bash
-mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.0.0.CR7
+mvn archetype:generate -B -DgroupId=com.mycompany -DartifactId=my-app -Dversion=1.0-SNAPSHOT -DarchetypeArtifactId=jooby-archetype -DarchetypeGroupId=org.jooby -DarchetypeVersion=1.0.0.CR8
 cd my-app
 mvn jooby:run
 ```
@@ -162,7 +165,7 @@ public class App extends Jooby { // 1
     get("/", () -> "Hello World!");
   }
 
-  public static void main(final String[] args) throws Throwable {
+  public static void main(final String[] args) {
     run(App::new, args); // 3. start the application.
   }
 
@@ -226,7 +229,7 @@ useful links
 
 * [jooby.org](http://jooby.org)
 * [twitter](https://twitter.com/joobyproject)
-* [slack](https://jooby.slack.com)
+* [gitter](https://gitter.im/jooby-project/jooby)
 * [group](https://groups.google.com/forum/#!forum/jooby-project)
 * [issues](https://github.com/jooby-project/jooby/issues)
 

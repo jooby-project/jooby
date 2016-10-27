@@ -14,7 +14,7 @@ import java.util.function.Function;
 import org.jooby.Deferred;
 import org.jooby.Env;
 import org.jooby.Route;
-import org.jooby.Routes;
+import org.jooby.Router;
 import org.jooby.exec.Exec;
 import org.jooby.test.MockUnit;
 import org.jooby.test.MockUnit.Block;
@@ -47,7 +47,7 @@ public class RxTest {
   public void configure() throws Exception {
     Config conf = ConfigFactory.empty()
         .withValue("rx.foo", ConfigValueFactory.fromAnyRef("bar"));
-    new MockUnit(Env.class, Binder.class, ExecutorService.class, Routes.class)
+    new MockUnit(Env.class, Binder.class, ExecutorService.class, Router.class)
         .expect(unit -> {
           unit.mockStatic(Schedulers.class);
           Schedulers.shutdown();
@@ -64,11 +64,11 @@ public class RxTest {
           expect(RxJavaPlugins.getInstance()).andReturn(plugins);
         })
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
           expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
           Env env = unit.get(Env.class);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
           expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
         })
         .expect(onStop)
@@ -85,7 +85,7 @@ public class RxTest {
     Config conf = ConfigFactory.empty()
         .withValue("rx.foo", ConfigValueFactory.fromAnyRef("bar"));
     rx.Observable<String> value = rx.Observable.just("1");
-    new MockUnit(Env.class, Binder.class, ExecutorService.class, Routes.class, Function.class)
+    new MockUnit(Env.class, Binder.class, ExecutorService.class, Router.class, Function.class)
         .expect(unit -> {
           unit.mockStatic(Schedulers.class);
           Schedulers.shutdown();
@@ -102,11 +102,11 @@ public class RxTest {
           expect(RxJavaPlugins.getInstance()).andReturn(plugins);
         })
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
           expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
           Env env = unit.get(Env.class);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
           expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
         })
         .expect(onStop)
@@ -133,7 +133,7 @@ public class RxTest {
     Config conf = ConfigFactory.empty()
         .withValue("rx.foo", ConfigValueFactory.fromAnyRef("bar"));
     rx.Single<String> value = rx.Single.just("1");
-    new MockUnit(Env.class, Binder.class, ExecutorService.class, Routes.class, Function.class)
+    new MockUnit(Env.class, Binder.class, ExecutorService.class, Router.class, Function.class)
         .expect(unit -> {
           unit.mockStatic(Schedulers.class);
           Schedulers.shutdown();
@@ -150,11 +150,11 @@ public class RxTest {
           expect(RxJavaPlugins.getInstance()).andReturn(plugins);
         })
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
           expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
           Env env = unit.get(Env.class);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
           expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
         })
         .expect(onStop)
@@ -181,7 +181,7 @@ public class RxTest {
     Config conf = ConfigFactory.empty()
         .withValue("rx.foo", ConfigValueFactory.fromAnyRef("bar"));
     rx.Completable value = rx.Completable.complete();
-    new MockUnit(Env.class, Binder.class, ExecutorService.class, Routes.class, Function.class)
+    new MockUnit(Env.class, Binder.class, ExecutorService.class, Router.class, Function.class)
         .expect(unit -> {
           unit.mockStatic(Schedulers.class);
           Schedulers.shutdown();
@@ -198,11 +198,11 @@ public class RxTest {
           expect(RxJavaPlugins.getInstance()).andReturn(plugins);
         })
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
           expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
           Env env = unit.get(Env.class);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
           expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
         })
         .expect(onStop)
@@ -227,7 +227,7 @@ public class RxTest {
   public void shutdownError() throws Exception {
     Config conf = ConfigFactory.empty()
         .withValue("rx.foo", ConfigValueFactory.fromAnyRef("bar"));
-    new MockUnit(Env.class, Binder.class, ExecutorService.class, Routes.class)
+    new MockUnit(Env.class, Binder.class, ExecutorService.class, Router.class)
         .expect(unit -> {
           unit.mockStatic(Schedulers.class);
           Schedulers.shutdown();
@@ -245,12 +245,12 @@ public class RxTest {
           expect(RxJavaPlugins.getInstance()).andReturn(plugins);
         })
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
           expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
           Env env = unit.get(Env.class);
           expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
         })
         .expect(onStop)
         .run(unit -> {
@@ -264,7 +264,7 @@ public class RxTest {
   public void shouldNotBreakOnExistingHook() throws Exception {
     Config conf = ConfigFactory.empty()
         .withValue("rx.foo", ConfigValueFactory.fromAnyRef("bar"));
-    new MockUnit(Env.class, Binder.class, ExecutorService.class, Routes.class)
+    new MockUnit(Env.class, Binder.class, ExecutorService.class, Router.class)
         .expect(unit -> {
           unit.mockStatic(Schedulers.class);
           Schedulers.shutdown();
@@ -284,12 +284,12 @@ public class RxTest {
           expect(RxJavaPlugins.getInstance()).andReturn(plugins);
         })
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
           expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
           Env env = unit.get(Env.class);
           expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
 
         })
         .expect(onStop)
@@ -304,7 +304,7 @@ public class RxTest {
   public void shouldBreakOnDiffHook() throws Exception {
     Config conf = ConfigFactory.empty()
         .withValue("rx.foo", ConfigValueFactory.fromAnyRef("bar"));
-    new MockUnit(Env.class, Binder.class, ExecutorService.class, Routes.class)
+    new MockUnit(Env.class, Binder.class, ExecutorService.class, Router.class)
         .expect(unit -> {
           unit.mockStatic(Schedulers.class);
           Schedulers.shutdown();
@@ -323,12 +323,12 @@ public class RxTest {
           expect(RxJavaPlugins.getInstance()).andReturn(plugins);
         })
         .expect(unit -> {
-          Routes routes = unit.get(Routes.class);
+          Router routes = unit.get(Router.class);
           expect(routes.map(unit.capture(Route.Mapper.class))).andReturn(routes);
 
           Env env = unit.get(Env.class);
           expect(env.onStop(unit.capture(CheckedRunnable.class))).andReturn(env);
-          expect(env.routes()).andReturn(routes);
+          expect(env.router()).andReturn(routes);
         })
         .expect(onStop)
         .run(unit -> {

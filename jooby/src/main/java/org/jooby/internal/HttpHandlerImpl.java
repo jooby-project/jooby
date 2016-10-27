@@ -31,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -69,6 +70,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.typesafe.config.Config;
 
 import javaslang.control.Try;
@@ -134,6 +136,8 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private static final Key<Session> SESS = Key.get(Session.class);
 
+  private static final Key<String> DEF_EXEC = Key.get(String.class, Names.named("deferred"));
+
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(HttpHandler.class);
 
@@ -174,6 +178,9 @@ public class HttpHandlerImpl implements HttpHandler {
   private final Map<String, Renderer> rendererMap;
 
   private StatusCodeProvider sc;
+
+  /** Global deferred executor. */
+  private Key<Executor> gexec;
 
   @Inject
   public HttpHandlerImpl(final Injector injector,
@@ -217,10 +224,14 @@ public class HttpHandlerImpl implements HttpHandler {
       this.contextPath = applicationPath;
       this.rpath = rootpath(applicationPath);
     }
+    // global deferred executor
+    this.gexec = Key.get(Executor.class, Names.named(injector.getInstance(DEF_EXEC)));
   }
 
   @Override
   public void handle(final NativeRequest request, final NativeResponse response) throws Exception {
+    long start = System.currentTimeMillis();
+
     Map<String, Object> locals = new HashMap<>(16);
 
     Map<Object, Object> scope = new HashMap<>(16);
@@ -240,7 +251,7 @@ public class HttpHandlerImpl implements HttpHandler {
     Route notFound = RouteImpl.notFound(verb, path, MediaType.ALL);
 
     RequestImpl req = new RequestImpl(injector, request, contextPath, port, notFound, charset,
-        locale, scope, locals);
+        locale, scope, locals, start);
 
     ResponseImpl rsp = new ResponseImpl(req, parserExecutor, response, notFound, renderers,
         rendererMap, locals, req.charset(), request.header(REFERER));
@@ -280,7 +291,7 @@ public class HttpHandlerImpl implements HttpHandler {
           Optional<WebSocket> sockets = findSockets(socketDefs, requestPath);
           if (sockets.isPresent()) {
             NativeWebSocket ws = request.upgrade(NativeWebSocket.class);
-            ws.onConnect(() -> ((WebSocketImpl) sockets.get()).connect(injector, ws));
+            ws.onConnect(() -> ((WebSocketImpl) sockets.get()).connect(injector, req, ws));
             return;
           }
         }
@@ -318,32 +329,39 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private void onDeferred(final Map<Object, Object> scope, final NativeRequest request,
       final RequestImpl req, final ResponseImpl rsp, final Deferred deferred) {
-    try {
-      request.startAsync();
+    /** Deferred executor. */
+    Key<Executor> execKey = deferred.executor()
+        .map(it -> Key.get(Executor.class, Names.named(it)))
+        .orElse(gexec);
 
-      deferred.handler(req, (success, x) -> {
-        boolean close = false;
-        Optional<Throwable> failure = Optional.ofNullable(x);
-        try {
-          requestScope.enter(scope);
-          if (success != null) {
-            close = true;
-            rsp.send(success);
+    /** Get executor. */
+    Executor executor = injector.getInstance(execKey);
+
+    request.startAsync(executor, () -> {
+      try {
+        deferred.handler(req, (success, x) -> {
+          boolean close = false;
+          Optional<Throwable> failure = Optional.ofNullable(x);
+          try {
+            requestScope.enter(scope);
+            if (success != null) {
+              close = true;
+              rsp.send(success);
+            }
+          } catch (Throwable exerr) {
+            failure = Optional.of(failure.orElse(exerr));
+          } finally {
+            Throwable cause = failure.orElse(null);
+            if (cause != null) {
+              close = true;
+            }
+            cleanup(req, rsp, close, cause, true);
           }
-        } catch (Throwable exerr) {
-          failure = Optional.of(failure.orElse(exerr));
-        } finally {
-          Throwable cause = failure.orElse(null);
-          if (cause != null) {
-            close = true;
-            handleErr(req, rsp, cause);
-          }
-          cleanup(req, rsp, close, cause, true);
-        }
-      });
-    } catch (Exception ex) {
-      handleErr(req, rsp, ex);
-    }
+        });
+      } catch (Exception ex) {
+        handleErr(req, rsp, ex);
+      }
+    });
   }
 
   private void cleanup(final RequestImpl req, final ResponseImpl rsp, final boolean close,
@@ -404,7 +422,7 @@ public class HttpHandlerImpl implements HttpHandler {
         if (ex != null) {
           throw ex;
         }
-        throw new Err(Status.NOT_FOUND, path);
+        throw new Err(Status.NOT_FOUND, req.path(true));
       }
     }, method, path, "err", accept));
 
@@ -436,10 +454,10 @@ public class HttpHandlerImpl implements HttpHandler {
   }
 
   private static Err handle405(final Set<Route.Definition> routeDefs, final String method,
-      final String uri, final MediaType type, final List<MediaType> accept) {
+      final String path, final MediaType type, final List<MediaType> accept) {
 
-    if (alternative(routeDefs, method, uri).size() > 0) {
-      return new Err(Status.METHOD_NOT_ALLOWED, method + uri);
+    if (alternative(routeDefs, method, path).size() > 0) {
+      return new Err(Status.METHOD_NOT_ALLOWED, method);
     }
 
     return null;
@@ -506,7 +524,7 @@ public class HttpHandlerImpl implements HttpHandler {
         return p.substring(applicationPath.length());
       } else {
         // mark as failure
-        return p + '\u200B';
+        return p + Route.OUT_OF_PATH;
       }
     };
   }

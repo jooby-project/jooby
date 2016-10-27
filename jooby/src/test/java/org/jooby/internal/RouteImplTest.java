@@ -23,6 +23,9 @@ public class RouteImplTest {
         .expect(unit -> {
           Response rsp = unit.get(Response.class);
           expect(rsp.status()).andReturn(Optional.empty());
+
+          Request req = unit.get(Request.class);
+          expect(req.path(true)).andReturn("/x");
         })
         .run(unit -> {
           RouteImpl.notFound("GET", "/x", MediaType.ALL)

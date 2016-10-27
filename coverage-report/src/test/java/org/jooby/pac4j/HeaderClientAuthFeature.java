@@ -2,18 +2,19 @@ package org.jooby.pac4j;
 
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
+import org.pac4j.core.context.WebContext;
+import org.pac4j.core.credentials.TokenCredentials;
+import org.pac4j.core.credentials.authenticator.Authenticator;
 import org.pac4j.core.exception.CredentialsException;
+import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.http.client.direct.HeaderClient;
-import org.pac4j.http.credentials.TokenCredentials;
-import org.pac4j.http.credentials.authenticator.Authenticator;
-import org.pac4j.http.profile.HttpProfile;
 
 public class HeaderClientAuthFeature extends ServerFeature {
 
   public static class HeaderAuthenticator implements Authenticator<TokenCredentials> {
 
     @Override
-    public void validate(final TokenCredentials credentials) {
+    public void validate(final TokenCredentials credentials, final WebContext context) {
       if (credentials == null || !credentials.getToken().equals("1234")) {
         throw new CredentialsException("Bad token");
       }
@@ -26,8 +27,8 @@ public class HeaderClientAuthFeature extends ServerFeature {
     HeaderClient client = new HeaderClient();
     client.setHeaderName("X-Token");
     client.setAuthenticator(new HeaderAuthenticator());
-    client.setProfileCreator(credentials -> {
-      HttpProfile profile = new HttpProfile();
+    client.setProfileCreator((credentials, ctx) -> {
+      CommonProfile profile = new CommonProfile();
       profile.setId(credentials.getToken());
       return profile;
     });

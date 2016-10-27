@@ -49,6 +49,7 @@ public class NettyServerTest {
   Config config = ConfigFactory.empty()
       .withValue("server.http2.enabled", ConfigValueFactory.fromAnyRef(false))
       .withValue("netty.threads.Boss", ConfigValueFactory.fromAnyRef(1))
+      .withValue("netty.threads.Worker", ConfigValueFactory.fromAnyRef(0))
       .withValue("netty.threads.Max", ConfigValueFactory.fromAnyRef(2))
       .withValue("netty.threads.Name", ConfigValueFactory.fromAnyRef("netty task"))
       .withValue("netty.options.SO_BACKLOG", ConfigValueFactory.fromAnyRef(1024))
@@ -61,13 +62,6 @@ public class NettyServerTest {
       .withValue("netty.options.CONNECT_TIMEOUT_MILLIS", ConfigValueFactory.fromAnyRef(1000))
       .withValue("application.port", ConfigValueFactory.fromAnyRef(6789))
       .withValue("application.host", ConfigValueFactory.fromAnyRef("0.0.0.0"));
-
-  private Block parentThreadFactory = unit -> {
-    DefaultThreadFactory factory = unit.constructor(DefaultThreadFactory.class)
-        .args(String.class, int.class)
-        .build("boss", Thread.MAX_PRIORITY);
-    unit.registerMock(ThreadFactory.class, factory);
-  };
 
   @SuppressWarnings({"rawtypes", "unchecked" })
   private MockUnit.Block parentEventLoop = unit -> {
@@ -113,7 +107,7 @@ public class NettyServerTest {
   @Test
   public void defaultServer() throws Exception {
     new MockUnit(HttpHandler.class)
-        .expect(parentThreadFactory)
+        .expect(parentThreadFactory("nio-boss"))
         .expect(noepoll)
         .expect(parentEventLoop)
         .expect(taskThreadFactory)
@@ -131,11 +125,20 @@ public class NettyServerTest {
         });
   }
 
+  private Block parentThreadFactory(final String name) {
+    return unit -> {
+      DefaultThreadFactory factory = unit.constructor(DefaultThreadFactory.class)
+          .args(String.class, int.class)
+          .build(name, false);
+      unit.registerMock(ThreadFactory.class, factory);
+    };
+  }
+
   @SuppressWarnings({"unchecked", "rawtypes" })
   @Test
   public void epollServer() throws Exception {
     new MockUnit(HttpHandler.class)
-        .expect(parentThreadFactory)
+        .expect(parentThreadFactory("epoll-boss"))
         .expect(unit -> {
 
           unit.mockStatic(Epoll.class);
@@ -176,7 +179,7 @@ public class NettyServerTest {
   public void unknownOption() throws Exception {
     Config config = this.config.withValue("netty.options.x", ConfigValueFactory.fromAnyRef(1));
     new MockUnit(HttpHandler.class)
-        .expect(parentThreadFactory)
+        .expect(parentThreadFactory("nio-boss"))
         .expect(noepoll)
         .expect(parentEventLoop)
         .expect(taskThreadFactory)
@@ -199,7 +202,7 @@ public class NettyServerTest {
   public void serverWithWorkerEventLoop() throws Exception {
     Config config = this.config.withValue("netty.threads.Worker", ConfigValueFactory.fromAnyRef(1));
     new MockUnit(HttpHandler.class)
-        .expect(parentThreadFactory)
+        .expect(parentThreadFactory("nio-boss"))
         .expect(noepoll)
         .expect(unit -> {
           NioEventLoopGroup eventLoop = unit.constructor(NioEventLoopGroup.class)
@@ -213,7 +216,7 @@ public class NettyServerTest {
         .expect(unit -> {
           DefaultThreadFactory factory = unit.constructor(DefaultThreadFactory.class)
               .args(String.class, int.class)
-              .build("worker", Thread.MAX_PRIORITY);
+              .build("nio-worker", false);
           unit.registerMock(DefaultThreadFactory.class, factory);
         })
         .expect(unit -> {
@@ -250,7 +253,7 @@ public class NettyServerTest {
         .withValue("ssl.keystore.key", ConfigValueFactory.fromAnyRef("org/jooby/unsecure.key"));
 
     new MockUnit(HttpHandler.class)
-        .expect(parentThreadFactory)
+        .expect(parentThreadFactory("nio-boss"))
         .expect(noepoll)
         .expect(parentEventLoop)
         .expect(taskThreadFactory)

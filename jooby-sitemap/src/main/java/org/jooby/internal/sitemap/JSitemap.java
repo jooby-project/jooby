@@ -100,7 +100,7 @@ public abstract class JSitemap<T extends JSitemap> implements Jooby.Module {
         })));
 
     wpp.accept(binder);
-    env.routes().get(path, new SitemapHandler(path, NOT_ME.and(filter), gen(baseurl)));
+    env.router().get(path, new SitemapHandler(path, NOT_ME.and(filter), gen(baseurl)));
   }
 
   protected abstract Function1<List<WebPage>, String> gen(String baseurl);
