@@ -1645,7 +1645,7 @@
         <plugin>
           <groupId>org.jooby</groupId>
           <artifactId>jooby-maven-plugin</artifactId>
-          <version>${jooby.version}</version>
+          <version>${jooby-maven-plugin.version}</version>
         </plugin>
 
         <!-- avaje-enchancer -->
@@ -2661,5 +2661,6 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <capsule-maven-plugin.version>1.0.4</capsule-maven-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>
+    <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>
   </properties>
 </project>
