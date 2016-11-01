@@ -35,7 +35,7 @@
      })
      ...;
 
-  new Swagger().install(this);
+  new SwaggerUI().install(this);  
 
 }
 ```
