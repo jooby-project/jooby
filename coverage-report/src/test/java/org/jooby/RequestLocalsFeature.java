@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Optional;
 import java.util.Set;
 
-import org.elasticsearch.common.collect.Sets;
+import com.google.common.collect.Sets;
 import org.jooby.test.ServerFeature;
 import org.junit.Test;
 
