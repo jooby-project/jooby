@@ -81,6 +81,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -1858,6 +1859,21 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   /**
+   * Export configuration from an application. Useful for tooling, testing, debugging, etc...
+   *
+   * @param app Application to extract/collect configuration.
+   * @return Application conf or <code>empty</code> conf on error.
+   */
+  public static Config exportConf(final Jooby app) {
+    AtomicReference<Config> conf = new AtomicReference<>(ConfigFactory.empty());
+    app.on("*", c -> {
+      conf.set(c);
+    });
+    exportRoutes(app);
+    return conf.get();
+  }
+
+  /**
    * Export routes from an application. Useful for route analysis, testing, debugging, etc...
    *
    * @param app Application to extract/collect routes.
@@ -1880,7 +1896,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     } catch (Success success) {
       routes = success.routes;
     } catch (Throwable x) {
-      logger(app).error("Unable to get routes from {}", app, x);
+      logger(app).debug("Failed bootstrap: {}", app, x);
     }
     return routes;
   }

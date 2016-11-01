@@ -40,10 +40,6 @@ import org.jooby.spec.RouteSpec;
 @Execute(phase = LifecyclePhase.PROCESS_CLASSES)
 public class RouteProcessorMojo extends AbstractMojo {
 
-  @SuppressWarnings("serial")
-  private static class ProcessDone extends RuntimeException {
-  }
-
   @Component
   private MavenProject mavenProject;
 
@@ -56,10 +52,9 @@ public class RouteProcessorMojo extends AbstractMojo {
       Path srcdir = new File(mavenProject.getBuild().getSourceDirectory()).toPath();
       Path bindir = new File(mavenProject.getBuild().getOutputDirectory()).toPath();
       new JoobyRunner(mavenProject)
-          .run(mainClass, app -> {
+          .run(mainClass, (app, conf) -> {
             process(app, srcdir, bindir);
           });
-    } catch (ProcessDone ex) {
     } catch (Throwable ex) {
       throw new MojoFailureException("Can't build route spec for: " + mainClass, ex);
     }
@@ -76,7 +71,6 @@ public class RouteProcessorMojo extends AbstractMojo {
         .map(RouteSpec::toString)
         .collect(Collectors.joining("\n"));
     getLog().debug(app.getClass().getSimpleName() + ".spec :\n" + routes);
-    throw new ProcessDone();
   }
 
 }
