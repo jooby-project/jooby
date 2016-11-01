@@ -33,38 +33,28 @@
 package org.jooby;
 
 import java.net.URLClassLoader;
-import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.apache.maven.project.MavenProject;
+
+import com.typesafe.config.Config;
 
 public class JoobyRunner {
 
   private Classpath cp;
 
-  private Consumer<List<Route.Definition>> routes;
-
   public JoobyRunner(final MavenProject project) {
     this.cp = new Classpath(project);
   }
 
-  public JoobyRunner with(final Consumer<List<Route.Definition>> callback) {
-    this.routes = callback;
-    return this;
-  }
-
-  public void run(final String mainClass, final Consumer<Jooby> callback)
+  public void run(final String mainClass, final BiConsumer<Jooby, Config> callback)
       throws Throwable {
     ClassLoader global = Thread.currentThread().getContextClassLoader();
     try (URLClassLoader local = cp.toClassLoader()) {
       Thread.currentThread().setContextClassLoader(local);
       Jooby app = (Jooby) local.loadClass(mainClass).newInstance();
-      callback.accept(app);
-      if (routes != null) {
-        routes.accept(Jooby.exportRoutes(app));
-      } else {
-        app.start();
-      }
+      Config conf = Jooby.exportConf(app);
+      callback.accept(app, conf);
     } finally {
       Thread.currentThread().setContextClassLoader(global);
     }

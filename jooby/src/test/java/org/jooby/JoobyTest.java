@@ -905,6 +905,14 @@ public class JoobyTest {
   }
 
   @Test
+  public void exportConf() {
+    Jooby app = new Jooby();
+    app.use(ConfigFactory.empty().withValue("JoobyTest", ConfigValueFactory.fromAnyRef("foo")));
+    Config conf = Jooby.exportConf(app);
+    assertEquals("foo", conf.getString("JoobyTest"));
+  }
+
+  @Test
   public void exportRoutesFailure() {
     Jooby app = new Jooby();
     // generate an error on bootstrap

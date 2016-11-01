@@ -23,7 +23,6 @@ import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -47,10 +46,6 @@ import com.typesafe.config.ConfigFactory;
     requiresDependencyResolution = ResolutionScope.COMPILE)
 @Execute(phase = LifecyclePhase.PREPARE_PACKAGE)
 public class AssetMojo extends AbstractMojo {
-
-  @SuppressWarnings("serial")
-  private static class CompilationDone extends RuntimeException {
-  }
 
   @Component
   private MavenProject mavenProject;
@@ -78,10 +73,9 @@ public class AssetMojo extends AbstractMojo {
       System.setProperty("application.env", env);
 
       new JoobyRunner(mavenProject)
-          .run(mainClass, app -> {
-            app.on("*", compile(app.getClass().getClassLoader()));
+          .run(mainClass, (app, conf) -> {
+            compile(app.getClass().getClassLoader(), conf);
           });
-    } catch (CompilationDone ex) {
       long end = System.currentTimeMillis();
       getLog().info("compilation took " + (end - start) + "ms");
     } catch (Throwable ex) {
@@ -89,61 +83,57 @@ public class AssetMojo extends AbstractMojo {
     }
   }
 
-  private Consumer<Config> compile(final ClassLoader loader) {
-    return conf -> {
-      try {
-        output.mkdirs();
+  private void compile(final ClassLoader loader, final Config conf) {
+    try {
+      output.mkdirs();
 
-        getLog().debug("claspath: " + loader);
+      getLog().debug("claspath: " + loader);
 
-        Config assetConf = ConfigFactory.parseResources(loader, "assets.conf")
-            .withFallback(conf);
+      Config assetConf = ConfigFactory.parseResources(loader, "assets.conf")
+          .withFallback(conf);
 
-        getLog().debug("assets.conf: " + assetConf.getConfig("assets"));
+      getLog().debug("assets.conf: " + assetConf.getConfig("assets"));
 
-        AssetCompiler compiler = new AssetCompiler(loader, assetConf);
+      AssetCompiler compiler = new AssetCompiler(loader, assetConf);
 
-        Map<String, List<File>> fileset = compiler.build(env, output);
+      Map<String, List<File>> fileset = compiler.build(env, output);
 
-        StringBuilder dist = new StringBuilder();
-        dist.append("assets.fileset {\n").append(fileset.entrySet().stream().map(e -> {
-          String files = e.getValue().stream()
-              .map(file -> output.toPath().relativize(file.toPath()))
-              .map(path -> "/" + path.toString().replace("\\", "/"))
-              .collect(Collectors.joining("\", \"", "[\"", "\"]"));
-          return "  " + e.getKey() + ": " + files;
-        }).collect(Collectors.joining("\n")))
-            .append("\n}\n");
-        dist.append("assets.cache.maxAge = ").append(maxAge).append("\n");
-        dist.append("assets.pipeline.dev = {}\n");
-        dist.append("assets.pipeline.").append(env).append(" = {}\n");
-        dist.append("assets.watch = false\n");
-        File distFile = new File(output, "assets." + env + ".conf");
-        try (FileWriter writer = new FileWriter(distFile)) {
-          writer.write(dist.toString());
-        }
-        getLog().info("done: " + distFile.getPath());
-
-        // move output to fixed location required by zip/war dist
-        List<File> files = fileset.values().stream()
-            .flatMap(it -> it.stream())
-            .collect(Collectors.toList());
-
-        for (File from : files) {
-          File to = assemblyOutput.toPath().resolve(output.toPath().relativize(from.toPath()))
-              .toFile();
-          to.getParentFile().mkdirs();
-          getLog().debug("copying file to: " + to);
-          Files.copy(from, to);
-        }
-      } catch (InvocationTargetException ex) {
-        throw Throwables.propagate(ex.getCause());
-      } catch (Exception ex) {
-        throw Throwables.propagate(ex);
+      StringBuilder dist = new StringBuilder();
+      dist.append("assets.fileset {\n").append(fileset.entrySet().stream().map(e -> {
+        String files = e.getValue().stream()
+            .map(file -> output.toPath().relativize(file.toPath()))
+            .map(path -> "/" + path.toString().replace("\\", "/"))
+            .collect(Collectors.joining("\", \"", "[\"", "\"]"));
+        return "  " + e.getKey() + ": " + files;
+      }).collect(Collectors.joining("\n")))
+          .append("\n}\n");
+      dist.append("assets.cache.maxAge = ").append(maxAge).append("\n");
+      dist.append("assets.pipeline.dev = {}\n");
+      dist.append("assets.pipeline.").append(env).append(" = {}\n");
+      dist.append("assets.watch = false\n");
+      File distFile = new File(output, "assets." + env + ".conf");
+      try (FileWriter writer = new FileWriter(distFile)) {
+        writer.write(dist.toString());
       }
-      // signal we are done
-      throw new CompilationDone();
-    };
+      getLog().info("done: " + distFile.getPath());
+
+      // move output to fixed location required by zip/war dist
+      List<File> files = fileset.values().stream()
+          .flatMap(it -> it.stream())
+          .collect(Collectors.toList());
+
+      for (File from : files) {
+        File to = assemblyOutput.toPath().resolve(output.toPath().relativize(from.toPath()))
+            .toFile();
+        to.getParentFile().mkdirs();
+        getLog().debug("copying file to: " + to);
+        Files.copy(from, to);
+      }
+    } catch (InvocationTargetException ex) {
+      throw Throwables.propagate(ex.getCause());
+    } catch (Exception ex) {
+      throw Throwables.propagate(ex);
+    }
   }
 
 }
