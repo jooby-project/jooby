@@ -35,7 +35,10 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.google.common.collect.ImmutableSet;
 import org.jooby.MediaType;
+import org.jooby.Request;
+import org.jooby.Route;
 import org.jooby.spec.RouteParam;
 import org.jooby.spec.RouteParamType;
 import org.jooby.spec.RouteResponse;
@@ -47,6 +50,12 @@ import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 
 public class RamlBuilder {
+  /**
+   * The parameter types that should be skipped
+   */
+  public static final Set<String> PARAM_TYPES_TO_SKIP = ImmutableSet.of(
+    Route.Chain.class.getName(), org.jooby.Response.class.getName(), Request.class.getName()
+  );
 
   private static class Resource {
 
@@ -157,6 +166,7 @@ public class RamlBuilder {
         // query params
         List<RouteParam> queryParams = route.params().stream()
             .filter(p -> p.paramType() == RouteParamType.QUERY)
+            .filter(p -> !PARAM_TYPES_TO_SKIP.contains(p.type().getTypeName()) )
             .collect(Collectors.toList());
         if (queryParams.size() > 0) {
           buff.append(indent(level + 2)).append("queryParameters:\n");
@@ -274,7 +284,10 @@ public class RamlBuilder {
       }
     };
     routes.forEach(route -> {
-      route.params().forEach(p -> {
+      route.params()
+        .stream()
+        .filter(p -> !PARAM_TYPES_TO_SKIP.contains(p.type().getTypeName()) )
+        .forEach(p -> {
         typeCollector.accept(p.type());
       });
       typeCollector.accept(route.response().type());
