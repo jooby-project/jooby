@@ -220,6 +220,9 @@ public class RouteProcessor {
        * Find out app node.
        */
       Node appNode = new AppCollector().accept(unit, ctx);
+      if (appNode == null) {
+        throw new IllegalStateException("Default constructor not found");
+      }
 
       /** Collect all routes and process them. */
       Set<String> owners = new HashSet<>();

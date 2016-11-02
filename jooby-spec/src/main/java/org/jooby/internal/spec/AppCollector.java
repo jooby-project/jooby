@@ -21,6 +21,7 @@ package org.jooby.internal.spec;
 import java.util.List;
 import java.util.Set;
 
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import org.jooby.Jooby;
 
 import com.github.javaparser.ast.CompilationUnit;
@@ -65,6 +66,33 @@ public class AppCollector extends GenericVisitorAdapter<Node, Context> {
      *
      * class App extends Jooby {
      * {
+     * ...
+     * }
+     * }
+     */
+    Node node = expr.getParentNode();
+    if (node instanceof ClassOrInterfaceDeclaration) {
+      List<ClassOrInterfaceType> extendList = ((ClassOrInterfaceDeclaration) node).getExtends();
+      if (extendList.size() > 0) {
+        Class type = (Class) extendList.get(0).accept(new TypeCollector(), ctx);
+        while (type != Object.class) {
+          if (type.getTypeName().equals("org.jooby.Jooby")) {
+            return expr;
+          }
+          type = type.getSuperclass();
+        }
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public Node visit(ConstructorDeclaration expr, Context ctx) {
+    /**
+     * extends + initializer
+     *
+     * class App extends Jooby {
+     * App() {
      * ...
      * }
      * }
