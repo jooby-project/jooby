@@ -2,7 +2,10 @@ package org.jooby.issues;
 
 import org.jooby.Request;
 import org.jooby.Response;
+import org.jooby.Route;
+import org.jooby.Session;
 import org.jooby.issues.i378.Cat;
+import org.jooby.mvc.Flash;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.jooby.mvc.Produces;
@@ -24,7 +27,7 @@ public class CatResource {
   @Path("/api/cat/:name")
   @Produces("application/json")
   @GET
-  public Cat get(Request req, Response response, String name) {
+  public Cat get(Request req, Response response, Session session, Route route, String name) {
     Cat cat = new Cat();
     cat.setName(name);
 
