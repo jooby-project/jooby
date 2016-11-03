@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jooby-elasticsearch</artifactId>
 
-  <name>elastic search</name>
+  <name>Elasticsearch module</name>
 
   <build>
     <plugins>
@@ -39,10 +39,10 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Elastic Search -->
+    <!-- Elasticsearch -->
     <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
+      <groupId>org.elasticsearch.client</groupId>
+      <artifactId>rest</artifactId>
     </dependency>
 
     <!-- Test dependencies -->

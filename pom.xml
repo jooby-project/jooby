@@ -999,10 +999,10 @@
         <version>${mysql-connector-java.version}</version>
       </dependency>
 
-      <!-- Elastic Search -->
+      <!-- Elasticsearch -->
       <dependency>
-        <groupId>org.elasticsearch</groupId>
-        <artifactId>elasticsearch</artifactId>
+        <groupId>org.elasticsearch.client</groupId>
+        <artifactId>rest</artifactId>
         <version>${elasticsearch}</version>
       </dependency>
 
@@ -2547,7 +2547,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <mongodb-driver-async.version>${mongo-java-driver.version}</mongodb-driver-async.version>
     <morphia.version>1.1.1</morphia.version>
     <jboss-modules.version>1.4.5.Final</jboss-modules.version>
-    <elasticsearch>1.5.2</elasticsearch>
+    <elasticsearch>5.0.0</elasticsearch>
     <hibernate-validator.version>5.1.3.Final</hibernate-validator.version>
     <javax.el-api.version>2.2.5</javax.el-api.version>
     <javax.el-ref.version>2.2.6</javax.el-ref.version>
