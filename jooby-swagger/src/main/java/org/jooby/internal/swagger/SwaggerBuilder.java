@@ -44,6 +44,7 @@ import com.google.common.collect.ImmutableSet;
 import org.jooby.Jooby;
 import org.jooby.Request;
 import org.jooby.Route;
+import org.jooby.Session;
 import org.jooby.spec.RouteParam;
 import org.jooby.spec.RouteProcessor;
 import org.jooby.spec.RouteResponse;
@@ -80,7 +81,7 @@ public class SwaggerBuilder {
    * The parameter types that should be skipped
    */
   public static final Set<String> PARAM_TYPES_TO_SKIP = ImmutableSet.of(
-    Route.Chain.class.getName(),org.jooby.Response.class.getName(), Request.class.getName()
+    Route.Chain.class.getName(), org.jooby.Response.class.getName(), Request.class.getName(), Session.class.getName(), Route.class.getName()
   );
 
   private static final Pattern VAR = Pattern.compile("\\:((?:[^/]+)+?)");

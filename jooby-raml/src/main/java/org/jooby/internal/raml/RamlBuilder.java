@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableSet;
 import org.jooby.MediaType;
 import org.jooby.Request;
 import org.jooby.Route;
+import org.jooby.Session;
 import org.jooby.spec.RouteParam;
 import org.jooby.spec.RouteParamType;
 import org.jooby.spec.RouteResponse;
@@ -54,7 +55,7 @@ public class RamlBuilder {
    * The parameter types that should be skipped
    */
   public static final Set<String> PARAM_TYPES_TO_SKIP = ImmutableSet.of(
-    Route.Chain.class.getName(), org.jooby.Response.class.getName(), Request.class.getName()
+    Route.Chain.class.getName(), org.jooby.Response.class.getName(), Request.class.getName(), Session.class.getName(), Route.class.getName()
   );
 
   private static class Resource {
