@@ -105,7 +105,7 @@ One ore more routes are grouped by a tag. The default tag provider produces ```p
 
 ```java
 {
-  new Swagger()
+  new SwaggerUI()
     .tag(route -> route.name())
     .install(this);
 }
@@ -119,7 +119,7 @@ This option turn off the swagger-ui:
 {
   ...
 
-  new Swagger()
+  new SwaggerUI()
     .noUI()
     .install(this);
 }
