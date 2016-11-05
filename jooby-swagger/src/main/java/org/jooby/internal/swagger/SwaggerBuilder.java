@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +40,11 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import com.google.common.collect.ImmutableSet;
 import org.jooby.Jooby;
+import org.jooby.Request;
 import org.jooby.Route;
+import org.jooby.Session;
 import org.jooby.spec.RouteParam;
 import org.jooby.spec.RouteProcessor;
 import org.jooby.spec.RouteResponse;
@@ -73,6 +77,12 @@ import io.swagger.models.properties.Property;
 import io.swagger.models.properties.PropertyBuilder;
 
 public class SwaggerBuilder {
+  /**
+   * The parameter types that should be skipped
+   */
+  public static final Set<String> PARAM_TYPES_TO_SKIP = ImmutableSet.of(
+    Route.Chain.class.getName(), org.jooby.Response.class.getName(), Request.class.getName(), Session.class.getName(), Route.class.getName()
+  );
 
   private static final Pattern VAR = Pattern.compile("\\:((?:[^/]+)+?)");
 
@@ -150,12 +160,18 @@ public class SwaggerBuilder {
          */
         route.name().ifPresent(n -> op.summary(n.substring(1)));
         route.doc().ifPresent(doc -> {
-          String summary = Splitter.on(SENTENCE)
-              .trimResults()
-              .omitEmptyStrings()
-              .split(doc)
-              .iterator()
-              .next();
+          Iterator<String> sentenceIterator = Splitter.on(SENTENCE)
+            .trimResults()
+            .omitEmptyStrings()
+            .split(doc)
+            .iterator();
+
+          String summary;
+          if (sentenceIterator.hasNext()) {
+            summary = sentenceIterator.next();
+          }else{
+            summary = null;
+          }
 
           op.summary(summary);
           op.description(doc);
@@ -174,6 +190,9 @@ public class SwaggerBuilder {
          */
         List<RouteParam> params = route.params();
         for (RouteParam param : params) {
+          if (PARAM_TYPES_TO_SKIP.contains(param.type().getTypeName())) {
+            continue;
+          }
           op.addParameter(param(param, swagger::addDefinition));
         }
 
