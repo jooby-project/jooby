@@ -96,10 +96,12 @@ public class ResponseImpl implements Response {
 
   private boolean failure;
 
+  private Optional<String> byteRange;
+
   public ResponseImpl(final RequestImpl req, final ParserExecutor parserExecutor,
       final NativeResponse rsp, final Route route, final List<Renderer> renderers,
       final Map<String, Renderer> rendererMap, final Map<String, Object> locals,
-      final Charset charset, final Optional<String> referer) {
+      final Charset charset, final Optional<String> referer, final Optional<String> byteRange) {
     this.req = req;
     this.parserExecutor = parserExecutor;
     this.rsp = rsp;
@@ -109,6 +111,7 @@ public class ResponseImpl implements Response {
     this.rendererMap = rendererMap;
     this.charset = charset;
     this.referer = referer;
+    this.byteRange = byteRange;
   }
 
   @Override
@@ -360,7 +363,9 @@ public class ResponseImpl implements Response {
           setType,
           locals,
           produces,
-          charset);
+          charset,
+          byteRange);
+
       // explicit renderer?
       Renderer renderer = rendererMap.get(route.attr("renderer"));
       if (renderer != null) {

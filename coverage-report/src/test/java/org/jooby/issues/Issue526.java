@@ -15,6 +15,7 @@ public class Issue526 extends ServerFeature {
     });
   }
 
+  @Test
   public void shouldAcceptAdvancedRegexPathExpression() throws Exception {
     request()
         .get("/526/V1234")

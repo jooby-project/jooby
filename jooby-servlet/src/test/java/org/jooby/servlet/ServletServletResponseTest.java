@@ -3,19 +3,14 @@ package org.jooby.servlet;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +25,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.google.common.io.ByteStreams;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ServletServletResponse.class, Channels.class, ByteStreams.class })
+@PrepareForTest({ServletServletResponse.class, Channels.class, ByteStreams.class,
+    FileChannel.class })
 public class ServletServletResponseTest {
 
   @Test
@@ -179,10 +175,14 @@ public class ServletServletResponseTest {
 
   @Test
   public void sendFileChannel() throws Exception {
-    CountDownLatch latch = new CountDownLatch(1);
-    FileChannel fchannel = newFileChannel(latch);
     new MockUnit(HttpServletRequest.class, HttpServletResponse.class, ServletOutputStream.class)
         .expect(unit -> {
+          FileChannel channel = unit.powerMock(FileChannel.class);
+          unit.registerMock(FileChannel.class, channel);
+        })
+        .expect(unit -> {
+          FileChannel fchannel = unit.get(FileChannel.class);
+          expect(fchannel.size()).andReturn(10L);
           ServletOutputStream output = unit.get(ServletOutputStream.class);
 
           WritableByteChannel channel = unit.mock(WritableByteChannel.class);
@@ -190,8 +190,7 @@ public class ServletServletResponseTest {
           unit.mockStatic(Channels.class);
           expect(Channels.newChannel(output)).andReturn(channel);
 
-          unit.mockStatic(ByteStreams.class);
-          expect(ByteStreams.copy(fchannel, channel)).andReturn(0L);
+          expect(fchannel.transferTo(0L, 10L, channel)).andReturn(1L);
 
           fchannel.close();
           channel.close();
@@ -201,9 +200,8 @@ public class ServletServletResponseTest {
         })
         .run(unit -> {
           new ServletServletResponse(unit.get(HttpServletRequest.class),
-              unit.get(HttpServletResponse.class)).send(fchannel);
+              unit.get(HttpServletResponse.class)).send(unit.get(FileChannel.class));
         });
-    latch.await();
   }
 
   @Test
@@ -227,103 +225,6 @@ public class ServletServletResponseTest {
               new ServletServletResponse(unit.get(HttpServletRequest.class),
                   unit.get(HttpServletResponse.class)).send(unit.get(InputStream.class));
             });
-  }
-
-  private FileChannel newFileChannel(final CountDownLatch latch) {
-    return new FileChannel() {
-      @Override
-      public int read(final ByteBuffer dst) throws IOException {
-        return 0;
-      }
-
-      @Override
-      public long read(final ByteBuffer[] dsts, final int offset, final int length)
-          throws IOException {
-        return 0;
-      }
-
-      @Override
-      public int write(final ByteBuffer src) throws IOException {
-        return 0;
-      }
-
-      @Override
-      public long write(final ByteBuffer[] srcs, final int offset, final int length)
-          throws IOException {
-        return 0;
-      }
-
-      @Override
-      public long position() throws IOException {
-        return 0;
-      }
-
-      @Override
-      public FileChannel position(final long newPosition) throws IOException {
-        return null;
-      }
-
-      @Override
-      public long size() throws IOException {
-        return 0;
-      }
-
-      @Override
-      public FileChannel truncate(final long size) throws IOException {
-        return null;
-      }
-
-      @Override
-      public void force(final boolean metaData) throws IOException {
-      }
-
-      @Override
-      public long transferTo(final long position, final long count,
-          final WritableByteChannel target)
-              throws IOException {
-        return 0;
-      }
-
-      @Override
-      public long transferFrom(final ReadableByteChannel src, final long position, final long count)
-          throws IOException {
-        return 0;
-      }
-
-      @Override
-      public int read(final ByteBuffer dst, final long position) throws IOException {
-        return 0;
-      }
-
-      @Override
-      public int write(final ByteBuffer src, final long position) throws IOException {
-        return 0;
-      }
-
-      @Override
-      public MappedByteBuffer map(final MapMode mode, final long position, final long size)
-          throws IOException {
-        return null;
-      }
-
-      @Override
-      public FileLock lock(final long position, final long size, final boolean shared)
-          throws IOException {
-        return null;
-      }
-
-      @Override
-      public FileLock tryLock(final long position, final long size, final boolean shared)
-          throws IOException {
-        return null;
-      }
-
-      @Override
-      protected void implCloseChannel() throws IOException {
-        latch.countDown();
-      }
-
-    };
   }
 
 }

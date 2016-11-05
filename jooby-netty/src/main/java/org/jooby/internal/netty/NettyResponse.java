@@ -164,12 +164,16 @@ public class NettyResponse implements NativeResponse {
 
   @Override
   public void send(final FileChannel channel) throws Exception {
-    long len = channel.size();
+    send(channel, 0, channel.size());
+  }
 
+  @Override
+  public void send(final FileChannel channel, final long offset, final long count)
+      throws Exception {
     DefaultHttpResponse rsp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status);
     if (!headers.contains(HttpHeaderNames.CONTENT_LENGTH)) {
       headers.remove(HttpHeaderNames.TRANSFER_ENCODING);
-      headers.set(HttpHeaderNames.CONTENT_LENGTH, len);
+      headers.set(HttpHeaderNames.CONTENT_LENGTH, count);
     }
 
     if (keepAlive) {
@@ -183,11 +187,12 @@ public class NettyResponse implements NativeResponse {
     ctx.channel().eventLoop().execute(() -> {
       // send headers
       ctx.write(rsp);
-      ctx.write(new DefaultFileRegion(channel, 0, len));
+      ctx.write(new DefaultFileRegion(channel, offset, count));
       keepAlive(ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT));
     });
 
     committed = true;
+
   }
 
   private void send(final ByteBuf buffer) throws Exception {
