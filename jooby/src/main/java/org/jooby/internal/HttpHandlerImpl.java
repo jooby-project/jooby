@@ -138,6 +138,8 @@ public class HttpHandlerImpl implements HttpHandler {
 
   private static final Key<String> DEF_EXEC = Key.get(String.class, Names.named("deferred"));
 
+  private static final String BYTE_RANGE = "Range";
+
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(HttpHandler.class);
 
@@ -254,7 +256,7 @@ public class HttpHandlerImpl implements HttpHandler {
         locale, scope, locals, start);
 
     ResponseImpl rsp = new ResponseImpl(req, parserExecutor, response, notFound, renderers,
-        rendererMap, locals, req.charset(), request.header(REFERER));
+        rendererMap, locals, req.charset(), request.header(REFERER), request.header(BYTE_RANGE));
 
     MediaType type = req.type();
 
@@ -378,11 +380,17 @@ public class HttpHandlerImpl implements HttpHandler {
   private void handleErr(final RequestImpl req, final ResponseImpl rsp, final Throwable ex) {
     try {
       log.debug("execution of: {}{} resulted in exception", req.method(), req.path(), ex);
-
-      rsp.reset();
-
       // execution failed, find status code
       Status status = sc.apply(ex);
+
+      if (status == Status.REQUESTED_RANGE_NOT_SATISFIABLE) {
+        String range = rsp.header("Content-Length").toOptional().map(it -> "bytes */" + it)
+            .orElse("*");
+        rsp.reset();
+        rsp.header("Content-Range", range);
+      } else {
+        rsp.reset();
+      }
 
       rsp.header("Cache-Control", NO_CACHE);
       rsp.status(status);

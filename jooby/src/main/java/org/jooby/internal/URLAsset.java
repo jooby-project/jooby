@@ -21,6 +21,7 @@ package org.jooby.internal;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -56,11 +57,11 @@ public class URLAsset implements Asset {
     this.url = requireNonNull(url, "An url is required.");
     this.path = requireNonNull(path, "Path is required.");
     this.mediaType = requireNonNull(mediaType, "A mediaType is required.");
-    this.exists = attr(url, (len, lstMod) -> {
+    this.stream = attr(url, (len, lstMod) -> {
       this.length = len(len);
       this.lastModified = lmod(lstMod);
     });
-    this.stream = () -> this.url.openStream();
+    this.exists = this.stream != null;
   }
 
   @Override
@@ -98,13 +99,15 @@ public class URLAsset implements Asset {
     return path() + "(" + type() + ")";
   }
 
-  private boolean attr(final URL resource, final BiConsumer<Long, Long> attrs) throws Exception {
+  private static Supplier attr(final URL resource, final BiConsumer<Long, Long> attrs)
+      throws Exception {
     if ("file".equals(resource.getProtocol())) {
       File file = new File(resource.toURI());
-      if (file.exists()) {
+      if (file.exists() && file.isFile()) {
         attrs.accept(file.length(), file.lastModified());
+        return () -> new FileInputStream(file);
       }
-      return file.isFile();
+      return null;
     } else {
       URLConnection cnn = resource.openConnection();
       cnn.setUseCaches(false);
@@ -113,14 +116,14 @@ public class URLAsset implements Asset {
         Closeables.closeQuietly(cnn.getInputStream());
       } catch (NullPointerException ex) {
         // dir entries throw NPE :S
-        return false;
+        return null;
       }
-      return true;
+      return () -> resource.openStream();
     }
   }
 
   private static long len(final long value) {
-    return value >= 0 ? value : -1;
+    return value < 0 ? -1 : value;
   }
 
   private static long lmod(final long value) {

@@ -48,6 +48,18 @@ public class ChunkedStream implements IoCallback, Runnable {
 
   private int chunk;
 
+  private long len;
+
+  private long total;
+
+  public ChunkedStream(final long len) {
+    this.len = len;
+  }
+
+  public ChunkedStream() {
+    this(-1);
+  }
+
   public void send(final ReadableByteChannel source, final HttpServerExchange exchange,
       final IoCallback callback) {
     this.source = source;
@@ -68,10 +80,11 @@ public class ChunkedStream implements IoCallback, Runnable {
     try {
       buffer.clear();
       int count = source.read(buffer);
-      if (count == -1) {
+      if (count == -1 || (len != -1 && total >= len)) {
         done();
         callback.onComplete(exchange, sender);
       } else {
+        total += count;
         if (chunk == 1) {
           if (count < bufferSize) {
             HeaderMap headers = exchange.getResponseHeaders();
@@ -88,6 +101,12 @@ public class ChunkedStream implements IoCallback, Runnable {
           }
         }
         buffer.flip();
+        if (len > 0) {
+          if (total > len) {
+            long limit = count - (total - len);
+            buffer.limit((int) limit);
+          }
+        }
         sender.send(buffer, this);
       }
     } catch (IOException ex) {

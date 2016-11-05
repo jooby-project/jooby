@@ -73,6 +73,8 @@ public interface NativeResponse {
 
   void send(FileChannel channel) throws Exception;
 
+  void send(FileChannel channel, long possition, long count) throws Exception;
+
   /**
    * @return HTTP response status.
    */

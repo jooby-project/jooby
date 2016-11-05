@@ -196,7 +196,8 @@ public interface Renderer {
      *
      * It will set a <code>Content-Type</code> to {@link MediaType#octetstream} if none was set.
      *
-     * This method will check if the given input stream has a {@link FileChannel} and redirect to file
+     * This method will check if the given input stream has a {@link FileChannel} and redirect to
+     * file
      *
      * @param stream Bytes to write.
      * @throws Exception When the operation fails.

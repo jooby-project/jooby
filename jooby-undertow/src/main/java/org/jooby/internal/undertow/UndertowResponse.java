@@ -103,6 +103,13 @@ public class UndertowResponse implements NativeResponse {
   }
 
   @Override
+  public void send(final FileChannel channel, final long position, final long count) throws Exception {
+    endExchange = false;
+    channel.position(position);
+    new ChunkedStream(count).send(channel, exchange, new LogIoCallback(IoCallback.END_EXCHANGE));
+  }
+
+  @Override
   public int statusCode() {
     return exchange.getStatusCode();
   }

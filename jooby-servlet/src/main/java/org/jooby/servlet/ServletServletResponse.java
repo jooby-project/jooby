@@ -96,10 +96,21 @@ public class ServletServletResponse implements NativeResponse {
 
   @Override
   public void send(final FileChannel file) throws Exception {
-    WritableByteChannel channel = Channels.newChannel(rsp.getOutputStream());
-    ByteStreams.copy(file, channel);
-    file.close();
-    channel.close();
+    try (FileChannel src = file) {
+      WritableByteChannel channel = Channels.newChannel(rsp.getOutputStream());
+      src.transferTo(0, file.size(), channel);
+      channel.close();
+    }
+  }
+
+  @Override
+  public void send(final FileChannel channel, final long position, final long count)
+      throws Exception {
+    try (FileChannel src = channel) {
+      WritableByteChannel dest = Channels.newChannel(rsp.getOutputStream());
+      src.transferTo(position, count, dest);
+      dest.close();
+    }
   }
 
   @Override

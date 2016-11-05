@@ -56,9 +56,9 @@ public abstract class AbstractRendererContext implements Renderer.Context {
 
   private int rsize;
 
+
   public AbstractRendererContext(final List<Renderer> renderers,
-      final List<MediaType> produces,
-      final Charset charset, final Map<String, Object> locals) {
+      final List<MediaType> produces, final Charset charset, final Map<String, Object> locals) {
     this.renderers = renderers;
     this.produces = produces;
     this.matcher = MediaType.matcher(produces);
