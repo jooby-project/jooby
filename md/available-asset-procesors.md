@@ -1,5 +1,7 @@
 ## css processors
 
+* [autoprefixer](https://github.com/jooby-project/jooby/tree/master/jooby-assets-autoprefixer): parse CSS and add vendor prefixes to CSS rules via [autoprefixer](https://github.com/postcss/autoprefixer).
+
 * [props](https://github.com/jooby-project/jooby/tree/master/jooby-assets-props): replace application properties in CSS files.
 
 * [clean-css](https://github.com/jooby-project/jooby/tree/master/jooby-assets-clean-css): minify css.

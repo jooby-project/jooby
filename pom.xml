@@ -94,6 +94,7 @@
     <module>jooby-assets-jsass</module>
     <module>jooby-assets-svg-sprites</module>
     <module>jooby-assets-svg-symbol</module>
+    <module>jooby-assets-autoprefixer</module>
     <module>coverage-report</module>
   </modules>
 
@@ -481,6 +482,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-assets-svg-symbol</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-autprefixer</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
