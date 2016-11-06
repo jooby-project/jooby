@@ -21,12 +21,12 @@ package org.jooby.internal.spec;
 import java.util.List;
 import java.util.Set;
 
-import com.github.javaparser.ast.body.ConstructorDeclaration;
 import org.jooby.Jooby;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.InitializerDeclaration;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
@@ -86,8 +86,9 @@ public class AppCollector extends GenericVisitorAdapter<Node, Context> {
     return null;
   }
 
+  @SuppressWarnings("rawtypes")
   @Override
-  public Node visit(ConstructorDeclaration expr, Context ctx) {
+  public Node visit(final ConstructorDeclaration expr, final Context ctx) {
     /**
      * extends + initializer
      *

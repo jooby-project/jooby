@@ -35,9 +35,11 @@ package org.jooby.internal.spec;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.PackageDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.QualifiedNameExpr;
 import com.github.javaparser.ast.visitor.GenericVisitorAdapter;
@@ -54,6 +56,26 @@ public class DependencyCollector extends VoidVisitorAdapter<Object> {
     @Override
     public String visit(final NameExpr n, final Object arg) {
       return n.getName();
+    }
+
+    @Override
+    public String visit(final ClassOrInterfaceDeclaration n, final Object arg) {
+      StringBuilder name = new StringBuilder();
+      Node it = n.getParentNode();
+      while (it instanceof ClassOrInterfaceDeclaration) {
+        ClassOrInterfaceDeclaration superclass = (ClassOrInterfaceDeclaration) it;
+        name.append(superclass.getName()).append(".");
+        it = it.getParentNode();
+      }
+      if (it instanceof CompilationUnit) {
+        if (name.length() == 0) {
+          name.append(((CompilationUnit) it).getPackage().getName().toString()).append(".");
+        } else {
+          name.insert(0, ((CompilationUnit) it).getPackage().getName().toString() + ".");
+        }
+      }
+      name.append(n.getName());
+      return name.toString();
     }
   }
 
@@ -75,6 +97,12 @@ public class DependencyCollector extends VoidVisitorAdapter<Object> {
   @Override
   public void visit(final ImportDeclaration n, final Object arg) {
     packages.add(n.accept(new NameCollector(), arg));
+  }
+
+  @Override
+  public void visit(final ClassOrInterfaceDeclaration n, final Object arg) {
+    packages.add(n.accept(new NameCollector(), arg));
+    super.visit(n, arg);
   }
 
   private Node root(final Node n) {
