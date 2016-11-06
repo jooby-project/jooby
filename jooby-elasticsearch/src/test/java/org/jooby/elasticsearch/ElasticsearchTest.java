@@ -1,13 +1,10 @@
 package org.jooby.elasticsearch;
 
-import com.google.common.collect.Sets;
-import com.google.inject.Binder;
-import com.google.inject.binder.AnnotatedBindingBuilder;
-import com.google.inject.multibindings.Multibinder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValue;
-import javaslang.control.Try.CheckedRunnable;
+import static org.easymock.EasyMock.expect;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
 import org.elasticsearch.client.RestClient;
 import org.jooby.Env;
 import org.jooby.test.MockUnit;
@@ -17,12 +14,13 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
+import com.google.inject.Binder;
+import com.google.inject.binder.AnnotatedBindingBuilder;
+import com.google.inject.multibindings.Multibinder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
-import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertEquals;
+import javaslang.control.Try.CheckedRunnable;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Elasticsearch.class, Multibinder.class})

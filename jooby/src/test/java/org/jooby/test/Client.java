@@ -26,8 +26,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -37,6 +36,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.StandardHttpRequestRetryHandler;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.junit.rules.ExternalResource;
 
@@ -384,10 +384,9 @@ public class Client extends ExternalResource {
         try {
           SSLContext sslContext = SSLContexts.custom()
               .loadTrustMaterial(null, (chain, authType) -> true)
-              .useTLS()
               .build();
-          builder.setSslcontext(sslContext);
-          builder.setHostnameVerifier(SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+          builder.setSSLContext(sslContext);
+          builder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
         } catch (Exception ex) {
           Throwables.propagate(ex);
         }
