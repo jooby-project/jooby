@@ -39,7 +39,10 @@ import java.util.Set;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
+import org.jooby.Request;
+import org.jooby.Response;
 import org.jooby.Route;
+import org.jooby.Session;
 import org.jooby.internal.RouteMetadata;
 import org.jooby.internal.mvc.RequestParamNameProviderImpl;
 import org.jooby.internal.spec.AppCollector;
@@ -56,7 +59,9 @@ import org.jooby.internal.spec.SourceResolver;
 import org.jooby.internal.spec.SourceResolverImpl;
 import org.jooby.internal.spec.TypeResolverImpl;
 import org.jooby.mvc.Body;
+import org.jooby.mvc.Flash;
 import org.jooby.mvc.Header;
+import org.jooby.mvc.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +70,7 @@ import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
 import com.typesafe.config.ConfigFactory;
 
 /**
@@ -76,6 +82,11 @@ import com.typesafe.config.ConfigFactory;
  * @since 0.15.0
  */
 public class RouteProcessor {
+
+  /** SKIP MVC parameters of type: */
+  @SuppressWarnings("rawtypes")
+  private static final Set<Class> SKIP = Sets.newHashSet(Request.class, Response.class,
+      Session.class, Route.class, Route.Chain.class);
 
   /** The logging system. */
   private final Logger log = LoggerFactory.getLogger(getClass());
@@ -326,6 +337,15 @@ public class RouteProcessor {
     Parameter[] parameters = m.getParameters();
     List<RouteParam> params = new ArrayList<>(parameters.length);
     for (Parameter parameter : parameters) {
+
+      if (parameter.isAnnotationPresent(Flash.class)
+          || parameter.isAnnotationPresent(Local.class)) {
+        continue;
+      }
+      if (SKIP.contains(parameter.getType())) {
+        continue;
+      }
+
       String name = md.name(parameter);
 
       final RouteParamType paramType;
