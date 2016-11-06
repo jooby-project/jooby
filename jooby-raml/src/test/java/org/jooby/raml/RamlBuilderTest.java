@@ -508,6 +508,16 @@ public class RamlBuilderTest {
   }
 
   @Test
+  public void issue534() {
+    String raml = new RamlBuilder(conf)
+        .build(Arrays.asList(route("GET", "/")));
+    assertEquals("#%RAML 1.0\n" +
+        "mediaType: application/json\n" +
+        "/:\n" +
+        "  get:", raml);
+  }
+
+  @Test
   public void rsp3() {
     String raml = new RamlBuilder(conf)
         .build(Arrays.asList(

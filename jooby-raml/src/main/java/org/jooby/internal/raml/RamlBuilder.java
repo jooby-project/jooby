@@ -317,7 +317,12 @@ public class RamlBuilder {
         root = resource;
         prev = it + "/";
       }
-      hash.get(pattern).routes.add(route);
+      Resource resource = hash.get(pattern);
+      if (resource == null) {
+        resource = new Resource(pattern, mediaType);
+        result.add(resource);
+      }
+      resource.routes.add(route);
     }
     return result;
   }
