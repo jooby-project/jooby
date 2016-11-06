@@ -2,6 +2,8 @@
 
 An [AssetAggregator]({{defdocs}}/assets/AssetAggregator.html) that creates SVG sprites with PNG fallbacks at needed sizes via <a href="https://github.com/drdk/dr-svg-sprites">dr-svg-sprites</a>.
 
+{{assets-require.md}}
+
 ## dependency
 
 ```xml

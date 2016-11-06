@@ -18,19 +18,20 @@
  */
 package org.jooby.elasticsearch;
 
-import com.google.inject.Binder;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import java.util.Arrays;
+
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.jooby.Env;
 import org.jooby.Jooby;
 
-import java.util.Arrays;
+import com.google.inject.Binder;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 /**
  * <p>
- * Full text search & analytics via <a href="https://github.com/elastic/elasticsearch">Elastic
+ * Full text search and analytics via <a href="https://github.com/elastic/elasticsearch">Elastic
  * Search</a>.
  * </p>
  * Provides a RESTFul client.
@@ -48,7 +49,7 @@ import java.util.Arrays;
  * The module exposes a {@link RestClient} instance
  * </p>
  *
- * <pre>
+ * <pre>{@code
  *
  * put("/:id", req -> {
  *   // index a document
@@ -58,7 +59,7 @@ import java.util.Arrays;
  *     .getEntity().getContent();
  * });
  *
- * </pre>
+ * }</pre>
  *
  * @author edgar
  * @since 0.6.0
@@ -71,10 +72,11 @@ public class Elasticsearch implements Jooby.Module {
     this("localhost:9200");
   }
 
-  public Elasticsearch(String ... hosts) {
+  public Elasticsearch(final String ... hosts) {
     this.hosts = hosts;
   }
 
+  @Override
   public void configure(final Env env, final Config config, final Binder binder) {
     HttpHost[] httpHosts = Arrays.stream(hosts).map(HttpHost::create).toArray(HttpHost[]::new);
     RestClient restClient = RestClient.builder(httpHosts).build();

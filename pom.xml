@@ -59,6 +59,21 @@
     <module>jooby-hazelcast</module>
     <module>jooby-ebean</module>
     <module>jooby-akka</module>
+    <module>jooby-metrics</module>
+    <module>jooby-querydsl</module>
+    <module>jooby-sitemap</module>
+    <module>jooby-rxjava</module>
+    <module>jooby-rxjava-jdbc</module>
+    <module>jooby-banner</module>
+    <module>jooby-reactor</module>
+    <module>jooby-whoops</module>
+    <module>jooby-gradle-plugin</module>
+    <module>jooby-couchbase</module>
+    <module>jooby-cassandra</module>
+    <module>jooby-scanner</module>
+    <module>jooby-csl</module>
+    <module>jooby-unbescape</module>
+    <module>jooby-crash</module>
     <module>jooby-assets</module>
     <module>jooby-assets-j2v8</module>
     <module>jooby-assets-nodejs</module>
@@ -78,21 +93,7 @@
     <module>jooby-assets-rollup</module>
     <module>jooby-assets-jsass</module>
     <module>jooby-assets-svg-sprites</module>
-    <module>jooby-metrics</module>
-    <module>jooby-querydsl</module>
-    <module>jooby-sitemap</module>
-    <module>jooby-rxjava</module>
-    <module>jooby-rxjava-jdbc</module>
-    <module>jooby-banner</module>
-    <module>jooby-reactor</module>
-    <module>jooby-whoops</module>
-    <module>jooby-gradle-plugin</module>
-    <module>jooby-couchbase</module>
-    <module>jooby-cassandra</module>
-    <module>jooby-scanner</module>
-    <module>jooby-csl</module>
-    <module>jooby-unbescape</module>
-    <module>jooby-crash</module>
+    <module>jooby-assets-svg-symbol</module>
     <module>coverage-report</module>
   </modules>
 
@@ -474,6 +475,12 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-assets-svg-sprites</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jooby</groupId>
+        <artifactId>jooby-assets-svg-symbol</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 
