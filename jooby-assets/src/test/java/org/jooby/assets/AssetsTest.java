@@ -42,6 +42,9 @@ public class AssetsTest {
     Config conf = ConfigFactory.empty()
         .withValue("application.path", ConfigValueFactory.fromAnyRef("/path"))
         .withValue("assets.watch", ConfigValueFactory.fromAnyRef(false))
+        .withValue("assets.etag", ConfigValueFactory.fromAnyRef(true))
+        .withValue("assets.lastModified", ConfigValueFactory.fromAnyRef(true))
+        .withValue("assets.cdn", ConfigValueFactory.fromAnyRef(""))
         .withValue("assets.cache.maxAge", ConfigValueFactory.fromAnyRef(-1));
     new MockUnit(Env.class, Binder.class, Request.class, Response.class,
         Route.Chain.class).expect(unit -> {
@@ -97,6 +100,9 @@ public class AssetsTest {
     Config conf = ConfigFactory.empty()
         .withValue("application.path", ConfigValueFactory.fromAnyRef("/"))
         .withValue("assets.watch", ConfigValueFactory.fromAnyRef(true))
+        .withValue("assets.etag", ConfigValueFactory.fromAnyRef(true))
+        .withValue("assets.lastModified", ConfigValueFactory.fromAnyRef(true))
+        .withValue("assets.cdn", ConfigValueFactory.fromAnyRef(""))
         .withValue("assets.cache.maxAge", ConfigValueFactory.fromAnyRef(-1));
     new MockUnit(Env.class, Binder.class, Request.class, Response.class,
         Route.Chain.class).expect(unit -> {
@@ -164,6 +170,9 @@ public class AssetsTest {
     Config conf = ConfigFactory.empty()
         .withValue("application.path", ConfigValueFactory.fromAnyRef("/"))
         .withValue("assets.watch", ConfigValueFactory.fromAnyRef(false))
+        .withValue("assets.etag", ConfigValueFactory.fromAnyRef(true))
+        .withValue("assets.lastModified", ConfigValueFactory.fromAnyRef(true))
+        .withValue("assets.cdn", ConfigValueFactory.fromAnyRef(""))
         .withValue("assets.cache.maxAge", ConfigValueFactory.fromAnyRef(-1));
     new MockUnit(Env.class, Binder.class, Request.class, Response.class,
         Route.Chain.class).expect(unit -> {

@@ -323,14 +323,13 @@ public class Assets implements Jooby.Module {
 
       AssetHandler handler = dev
           ? new AssetHandlerWithCompiler("/", compiler)
-              .etag(false)
-              .lastModified(false)
-          : new AssetHandler("/")
-              .etag(conf.getBoolean("assets.etag"))
-              .cdn(conf.getString("assets.cdn"))
-              .lastModified(conf.getBoolean("assets.lastModified"));
+          : new AssetHandler("/");
 
-        handler.maxAge(conf.getString("assets.cache.maxAge"));
+      handler.etag(conf.getBoolean("assets.etag"))
+          .cdn(conf.getString("assets.cdn"))
+          .lastModified(conf.getBoolean("assets.lastModified"));
+
+      handler.maxAge(conf.getString("assets.cache.maxAge"));
 
       compiler.patterns().forEach(pattern -> routes.get(pattern, handler));
 
