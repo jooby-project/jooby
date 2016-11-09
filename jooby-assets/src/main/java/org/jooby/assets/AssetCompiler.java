@@ -397,7 +397,6 @@ public class AssetCompiler {
     StringBuilder buff = new StringBuilder();
     while (files.hasNext()) {
       String file = files.next();
-      log.info("  {}", file);
       buff.append(compile(pipeline, file, type, readFile(loader, file, charset))).append(sep);
     }
     return buff.toString();
@@ -406,6 +405,7 @@ public class AssetCompiler {
   private String compile(final List<AssetProcessor> pipeline, final String filename,
       final MediaType type, final String input) throws Exception {
 
+    log.info("  {}", filename);
     Iterator<AssetProcessor> it = pipeline.iterator();
     String contents = input;
     while (it.hasNext()) {
@@ -414,11 +414,11 @@ public class AssetCompiler {
         String pname = processor.name();
         long start = System.currentTimeMillis();
         try {
-          log.debug("executing: {}", pname);
+          log.debug("    executing: {}", pname);
           contents = processor.process(filename, contents, conf);
         } finally {
           long end = System.currentTimeMillis();
-          log.debug("{} took {}ms", pname, end - start);
+          log.debug("    {} took {}ms", pname, end - start);
         }
       }
     }

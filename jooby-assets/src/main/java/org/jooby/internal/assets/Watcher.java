@@ -145,7 +145,7 @@ class Watcher {
       Path child = dir.resolve(name);
       File file = child.toFile();
 
-      if (file.isFile()) {
+      if (file.isFile() || kind == ENTRY_DELETE) {
         listener.accept(kind, dir.resolve(name));
       }
 

@@ -27,7 +27,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,8 @@ import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
+
+import javaslang.control.Try;
 
 public class V8Context {
 
@@ -129,24 +133,19 @@ public class V8Context {
     return result.build();
   }
 
+  private <T> Optional<T> get(final String name, final Function<String, T> provider) {
+    return Try.of(() -> Optional.of(register(provider.apply(name)))).getOrElse(Optional.empty());
+  }
+
   private AssetProblem problem(final V8Object js) {
-    int line = -1;
-    if (js.contains("line")) {
-      line = ((Number) js.get("line")).intValue();
-    }
-    int column = -1;
-    if (js.contains("column")) {
-      column = ((Number) js.get("column")).intValue();
-    }
-    String filename = "file.js";
-    if (js.contains("filename")) {
-      filename = js.getString("filename");
-    }
-    String evidence = null;
-    if (js.contains("evidence")) {
-      evidence = js.getString("evidence");
-    }
-    return new AssetProblem(filename, line, column, js.getString("message"), evidence);
+    Optional<Integer> line = get("line", name -> ((Number) js.get(name)).intValue());
+    Optional<Integer> column = get("column", name -> ((Number) js.get(name)).intValue());
+    Optional<String> filename = get("filename", js::getString);
+    Optional<String> evidence = get("evidence", js::getString);
+    Optional<String> message = get("message", js::getString);
+
+    return new AssetProblem(filename.orElse("file.js"), line.orElse(-1), column.orElse(-1),
+        message.orElse(""), evidence.orElse(null));
   }
 
   private URL resolve(final String path) {
