@@ -32,23 +32,18 @@ public class ServerLookup implements Module {
   private Jooby.Module delegate = null;
 
   @Override
-  public void configure(final Env env, final Config config, final Binder binder) {
+  public void configure(final Env env, final Config config, final Binder binder) throws Throwable {
     if (config.hasPath("server.module")) {
-      try {
-        delegate = (Jooby.Module) getClass().getClassLoader()
-            .loadClass(config.getString("server.module")).newInstance();
-        delegate.configure(env, config, binder);
-      } catch (Exception ex) {
-        throw new IllegalStateException("No " + Server.class.getName()
-            + " implementation was found.", ex);
-      }
+      delegate = (Jooby.Module) getClass().getClassLoader()
+          .loadClass(config.getString("server.module")).newInstance();
+      delegate.configure(env, config, binder);
     }
   }
 
   @Override
   public Config config() {
     return ConfigFactory.parseResources(Server.class, "server.conf")
-          .withFallback(ConfigFactory.parseResources(Server.class, "server-defaults.conf"));
+        .withFallback(ConfigFactory.parseResources(Server.class, "server-defaults.conf"));
   }
 
 }

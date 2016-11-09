@@ -2593,51 +2593,15 @@ public class JoobyTest {
         }, boot);
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void useModuleWithError() throws Exception {
+    Jooby jooby = new Jooby();
 
-    new MockUnit(Binder.class, Jooby.Module.class)
-        .expect(guice)
-        .expect(shutdown)
-        .expect(config)
-        .expect(env)
-        .expect(classInfo)
-        .expect(ssl)
-        .expect(charset)
-        .expect(locale)
-        .expect(zoneId)
-        .expect(timeZone)
-        .expect(dateTimeFormatter)
-        .expect(numberFormat)
-        .expect(decimalFormat)
-        .expect(renderers)
-        .expect(session)
-        .expect(routes)
-        .expect(params)
-        .expect(requestScope)
-        .expect(webSockets)
-        .expect(tmpdir)
-        .expect(err).expect(executor("deferred"))
-        .expect(unit -> {
-          Binder binder = unit.get(Binder.class);
-          Jooby.Module module = unit.get(Jooby.Module.class);
+    jooby.use((env, conf, binder) -> {
+      throw new NullPointerException("intentional err");
+    });
 
-          Config config = ConfigFactory.empty();
-
-          expect(module.config()).andReturn(config).times(2);
-
-          module.configure(isA(Env.class), isA(Config.class), eq(binder));
-          expectLastCall().andThrow(new NullPointerException());
-        })
-        .run(unit -> {
-
-          Jooby jooby = new Jooby();
-
-          jooby.use(unit.get(Jooby.Module.class));
-
-          jooby.start();
-
-        }, boot);
+    jooby.start();
   }
 
   @Test

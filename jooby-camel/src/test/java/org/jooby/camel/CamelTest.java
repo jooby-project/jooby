@@ -640,7 +640,7 @@ public class CamelTest {
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = IOException.class)
   public void withConfigurerCheckedErr() throws Exception {
     Config camel = defConfig;
     new MockUnit(Env.class, Config.class, Binder.class)
@@ -861,7 +861,7 @@ public class CamelTest {
   }
 
   @SuppressWarnings("unchecked")
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = Exception.class)
   public void withRoutesErr() throws Exception {
     Config camel = defConfig;
     new MockUnit(Env.class, Config.class, Binder.class)

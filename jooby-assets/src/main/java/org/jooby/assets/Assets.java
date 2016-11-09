@@ -30,8 +30,6 @@ import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import javaslang.control.Try;
-
 /**
  * <h1>assets</h1>
  * <p>
@@ -302,38 +300,35 @@ import javaslang.control.Try;
 public class Assets implements Jooby.Module {
 
   @Override
-  public void configure(final Env env, final Config config, final Binder binder) {
-    Try.run(() -> {
-      boolean dev = "dev".equals(env.name());
-      ClassLoader loader = getClass().getClassLoader();
-      Config conf = conf(dev, loader, config);
-      String cpath = config.getString("application.path");
-      AssetCompiler compiler = new AssetCompiler(loader, conf);
+  public void configure(final Env env, final Config config, final Binder binder) throws Throwable {
+    boolean dev = "dev".equals(env.name());
+    ClassLoader loader = getClass().getClassLoader();
+    Config conf = conf(dev, loader, config);
+    String cpath = config.getString("application.path");
+    AssetCompiler compiler = new AssetCompiler(loader, conf);
 
-      Router routes = env.router();
-      routes.use("*", "*", new AssetVars(compiler, cpath)).name("/assets/vars");
-      // live compiler?
-      boolean watch = conf.hasPath("assets.watch") ? conf.getBoolean("assets.watch") : dev;
-      if (watch) {
-        LiveCompiler liveCompiler = new LiveCompiler(conf, compiler);
-        env.onStart(liveCompiler::start);
-        env.onStop(liveCompiler::stop);
-        routes.use("*", "*", liveCompiler).name("/assets/compiler");
-      }
+    Router routes = env.router();
+    routes.use("*", "*", new AssetVars(compiler, cpath)).name("/assets/vars");
+    // live compiler?
+    boolean watch = conf.hasPath("assets.watch") ? conf.getBoolean("assets.watch") : dev;
+    if (watch) {
+      LiveCompiler liveCompiler = new LiveCompiler(conf, compiler);
+      env.onStart(liveCompiler::start);
+      env.onStop(liveCompiler::stop);
+      routes.use("*", "*", liveCompiler).name("/assets/compiler");
+    }
 
-      AssetHandler handler = dev
-          ? new AssetHandlerWithCompiler("/", compiler)
-          : new AssetHandler("/");
+    AssetHandler handler = dev
+        ? new AssetHandlerWithCompiler("/", compiler)
+        : new AssetHandler("/");
 
-      handler.etag(conf.getBoolean("assets.etag"))
-          .cdn(conf.getString("assets.cdn"))
-          .lastModified(conf.getBoolean("assets.lastModified"));
+    handler.etag(conf.getBoolean("assets.etag"))
+        .cdn(conf.getString("assets.cdn"))
+        .lastModified(conf.getBoolean("assets.lastModified"));
 
-      handler.maxAge(conf.getString("assets.cache.maxAge"));
+    handler.maxAge(conf.getString("assets.cache.maxAge"));
 
-      compiler.patterns().forEach(pattern -> routes.get(pattern, handler));
-
-    }).get();
+    compiler.patterns().forEach(pattern -> routes.get(pattern, handler));
   }
 
   private Config conf(final boolean dev, final ClassLoader loader, final Config conf) {

@@ -170,7 +170,7 @@ public class FtlTest {
         });
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = TemplateException.class)
   public void err() throws Exception {
 
     Properties props = new Properties();

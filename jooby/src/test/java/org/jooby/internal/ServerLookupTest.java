@@ -62,7 +62,7 @@ public class ServerLookupTest {
         });
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = ClassNotFoundException.class)
   public void failOnBadServerName() throws Exception {
     calls = 0;
     new MockUnit(Env.class, Config.class, Binder.class)

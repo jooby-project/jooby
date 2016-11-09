@@ -316,7 +316,7 @@ public class Camel implements Jooby.Module {
   }
 
   @Override
-  public void configure(final Env env, final Config config, final Binder binder) {
+  public void configure(final Env env, final Config config, final Binder binder) throws Throwable {
     Config $camel = config.getConfig("camel");
     DefaultCamelContext ctx = configure(new DefaultCamelContext(), $camel
         .withoutPath("shutdown")
@@ -350,24 +350,14 @@ public class Camel implements Jooby.Module {
      * Components etc..
      */
     if (configurer != null) {
-      try {
-        configurer.configure(ctx, config);
-      } catch (RuntimeException ex) {
-        throw ex;
-      } catch (Exception ex) {
-        throw new IllegalStateException("Context configurer resulted in error", ex);
-      }
+      configurer.configure(ctx, config);
     }
 
     /**
      * Routes
      */
     if (routes != null) {
-      try {
-        routes(routes, ctx, config);
-      } catch (Exception ex) {
-        throw new IllegalStateException("context.addRoutes(RouteBuilder) resulted in error", ex);
-      }
+      routes(routes, ctx, config);
     }
 
     /**

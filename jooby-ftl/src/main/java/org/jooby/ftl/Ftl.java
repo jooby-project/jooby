@@ -169,40 +169,35 @@ public class Ftl implements Jooby.Module {
   }
 
   @Override
-  public void configure(final Env env, final Config config, final Binder binder) {
-    try {
-      Configuration freemarker = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-      log.debug("Freemarker: {}", Configuration.getVersion());
-      freemarker.setSettings(properties(config));
-      freemarker.setTemplateLoader(new ClassTemplateLoader(getClass().getClassLoader(), prefix));
+  public void configure(final Env env, final Config config, final Binder binder)
+      throws TemplateException {
+    Configuration freemarker = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+    log.debug("Freemarker: {}", Configuration.getVersion());
+    freemarker.setSettings(properties(config));
+    freemarker.setTemplateLoader(new ClassTemplateLoader(getClass().getClassLoader(), prefix));
 
-      // cache
-      if ("dev".equals(env.name()) || config.getString("freemarker.cache").isEmpty()) {
-        // noop cache
-        freemarker.setCacheStorage(NullCacheStorage.INSTANCE);
-      } else {
-        freemarker.setCacheStorage(
-            new GuavaCacheStorage(
-                CacheBuilder
-                    .from(config.getString("freemarker.cache"))
-                    .build()
-            ));
-      }
-
-      if (configurer != null) {
-        configurer.accept(freemarker, config);
-      }
-
-      binder.bind(Configuration.class).toInstance(freemarker);
-
-      Engine engine = new Engine(freemarker, suffix, new XssDirective(env));
-
-      Multibinder.newSetBinder(binder, Renderer.class)
-          .addBinding().toInstance(engine);
-
-    } catch (TemplateException ex) {
-      throw new IllegalStateException("Freemarker configuration results in error", ex);
+    // cache
+    if ("dev".equals(env.name()) || config.getString("freemarker.cache").isEmpty()) {
+      // noop cache
+      freemarker.setCacheStorage(NullCacheStorage.INSTANCE);
+    } else {
+      freemarker.setCacheStorage(
+          new GuavaCacheStorage(
+              CacheBuilder
+                  .from(config.getString("freemarker.cache"))
+                  .build()));
     }
+
+    if (configurer != null) {
+      configurer.accept(freemarker, config);
+    }
+
+    binder.bind(Configuration.class).toInstance(freemarker);
+
+    Engine engine = new Engine(freemarker, suffix, new XssDirective(env));
+
+    Multibinder.newSetBinder(binder, Renderer.class)
+        .addBinding().toInstance(engine);
   }
 
   @Override

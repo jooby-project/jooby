@@ -131,6 +131,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -524,7 +525,7 @@ public class Jooby implements Router, LifeCycle, Registry {
      * @param conf The current config object. Not null.
      * @param binder A guice binder. Not null.
      */
-    void configure(Env env, Config conf, Binder binder);
+    void configure(Env env, Config conf, Binder binder) throws Throwable;
 
   }
 
@@ -2427,7 +2428,7 @@ public class Jooby implements Router, LifeCycle, Registry {
   }
 
   private Injector bootstrap(final Config args,
-      final Consumer<List<Route.Definition>> rcallback) throws Exception {
+      final Consumer<List<Route.Definition>> rcallback) throws Throwable {
     Config appconf = ConfigFactory.parseResources("application.conf");
     Config initconf = srcconf == null ? appconf : srcconf.withFallback(appconf);
     List<Config> modconf = modconf(this.bag);
@@ -2575,18 +2576,21 @@ public class Jooby implements Router, LifeCycle, Registry {
 
       /** modules, routes, parsers, renderers and websockets */
       Set<Object> routeClasses = new HashSet<>();
-      bag.forEach(it -> bindService(
-          this.bag,
-          finalConfig,
-          finalEnv,
-          rm,
-          binder,
-          definitions,
-          sockets,
-          ehandlers,
-          parsers,
-          renderers,
-          routeClasses).accept(it));
+      for (Object it : bag) {
+        Try.run(() -> bindService(
+            this.bag,
+            finalConfig,
+            finalEnv,
+            rm,
+            binder,
+            definitions,
+            sockets,
+            ehandlers,
+            parsers,
+            renderers,
+            routeClasses).accept(it))
+            .getOrElseThrow(Throwables::propagate);
+      }
 
       parsers.addBinding().toInstance(new DateParser(dateFormat));
       parsers.addBinding().toInstance(new LocalDateParser(dateTimeFormatter));
@@ -2711,7 +2715,7 @@ public class Jooby implements Router, LifeCycle, Registry {
     };
   }
 
-  private static Consumer<? super Object> bindService(final Set<Object> src,
+  private static CheckedConsumer<? super Object> bindService(final Set<Object> src,
       final Config conf,
       final Env env,
       final RouteMetadata rm,
@@ -2729,18 +2733,20 @@ public class Jooby implements Router, LifeCycle, Registry {
         int to = src.size();
         // collect any route a module might add
         if (to > from) {
-          normalize(new ArrayList<>(src).subList(from, to), env, rm, null)
-              .forEach(e -> bindService(src,
-                  conf,
-                  env,
-                  rm,
-                  binder,
-                  definitions,
-                  sockets,
-                  ehandlers,
-                  parsers,
-                  renderers,
-                  routeClasses).accept(e));
+          List<Object> elements = normalize(new ArrayList<>(src).subList(from, to), env, rm, null);
+          for (Object e : elements) {
+            bindService(src,
+                conf,
+                env,
+                rm,
+                binder,
+                definitions,
+                sockets,
+                ehandlers,
+                parsers,
+                renderers,
+                routeClasses).accept(e);
+          }
         }
       } else if (it instanceof Route.Definition) {
         Route.Definition rdef = (Definition) it;
@@ -3025,14 +3031,11 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @param env Application env.
    * @param config The configuration object.
    * @param binder A Guice binder.
+   * @throws Throwable If module bootstrap fails.
    */
   private static void install(final Jooby.Module module, final Env env, final Config config,
-      final Binder binder) {
-    try {
-      module.configure(env, config, binder);
-    } catch (Exception ex) {
-      throw new IllegalStateException("Error found on module: " + module.getClass().getName(), ex);
-    }
+      final Binder binder) throws Throwable {
+    module.configure(env, config, binder);
   }
 
   /**

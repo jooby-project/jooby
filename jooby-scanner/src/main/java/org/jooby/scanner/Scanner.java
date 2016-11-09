@@ -261,7 +261,8 @@ public class Scanner implements Jooby.Module {
         .filter(once)
         .map(loadClass)
         .filter(C)
-        .forEach(klass -> ((Jooby.Module) newObject(klass)).configure(env, conf, binder));
+        .forEach(klass -> Try
+            .run(() -> ((Jooby.Module) newObject(klass)).configure(env, conf, binder)).get());
 
     /** Apps: */
     result.getNamesOfSubclassesOf(Jooby.class)
