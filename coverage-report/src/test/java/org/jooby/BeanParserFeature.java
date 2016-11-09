@@ -131,8 +131,6 @@ public class BeanParserFeature extends ServerFeature {
 
     post("/ibean", req -> {
       IBean bean = req.form(IBean.class);
-      System.out.println(bean.name());
-
       assertEquals(req.param("name").value(), bean.name());
       assertEquals(req.param("valid").booleanValue(), bean.isValid());
       assertEquals(req.param("age").intValue(), bean.getAge());
