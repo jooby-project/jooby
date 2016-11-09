@@ -155,8 +155,10 @@ public class BeanPlan {
             }
             cpath = getter;
           }
-          chain.add(cpath);
-          ittype = TypeLiteral.get(cpath.type());
+          if (cpath != null) {
+            chain.add(cpath);
+            ittype = TypeLiteral.get(cpath.type());
+          }
         }
 
         // set path
