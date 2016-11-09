@@ -18,6 +18,8 @@
  */
 package org.jooby.assets;
 
+import java.util.List;
+
 import org.jooby.Env;
 import org.jooby.Jooby;
 import org.jooby.Router;
@@ -26,6 +28,7 @@ import org.jooby.internal.assets.AssetHandlerWithCompiler;
 import org.jooby.internal.assets.AssetVars;
 import org.jooby.internal.assets.LiveCompiler;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -301,14 +304,21 @@ public class Assets implements Jooby.Module {
 
   @Override
   public void configure(final Env env, final Config config, final Binder binder) throws Throwable {
-    boolean dev = "dev".equals(env.name());
+    String envname = env.name();
+    boolean dev = "dev".equals(envname);
     ClassLoader loader = getClass().getClassLoader();
     Config conf = conf(dev, loader, config);
     String cpath = config.getString("application.path");
     AssetCompiler compiler = new AssetCompiler(loader, conf);
 
     Router routes = env.router();
-    routes.use("*", "*", new AssetVars(compiler, cpath)).name("/assets/vars");
+    List<String> dist = dev ? ImmutableList.of("dev") : ImmutableList.of(envname, "dist");
+    String prefix = dist.stream()
+        .filter(it -> conf.hasPath("assets." + it + ".prefix"))
+        .findFirst()
+        .map(it -> conf.getString("assets." + it + ".prefix"))
+        .orElse(cpath);
+    routes.use("*", "*", new AssetVars(compiler, prefix, !dev)).name("/assets/vars");
     // live compiler?
     boolean watch = conf.hasPath("assets.watch") ? conf.getBoolean("assets.watch") : dev;
     if (watch) {

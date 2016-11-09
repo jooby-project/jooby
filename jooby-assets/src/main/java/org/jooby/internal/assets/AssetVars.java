@@ -19,12 +19,13 @@
 package org.jooby.internal.assets;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.jooby.Request;
 import org.jooby.Response;
 import org.jooby.Route;
 import org.jooby.assets.AssetCompiler;
+
+import javaslang.Function1;
 
 public class AssetVars implements Route.Handler {
 
@@ -32,27 +33,46 @@ public class AssetVars implements Route.Handler {
 
   private String cpath;
 
-  public AssetVars(final AssetCompiler compiler, final String cpath) {
+  private Function1<String, List<String>> styles;
+  private Function1<String, List<String>> scripts;
+
+  public AssetVars(final AssetCompiler compiler, final String cpath, final boolean cache) {
     this.compiler = compiler;
     this.cpath = cpath.equals("/") ? "" : cpath;
+    styles = compiler::styles;
+    scripts = compiler::scripts;
+    if (cache) {
+      styles = styles.memoized();
+      scripts = scripts.memoized();
+    }
   }
 
   @Override
   public void handle(final Request req, final Response rsp) throws Exception {
     compiler.fileset().forEach(asset -> {
       /** Styles */
-      List<String> styles = compiler.styles(asset);
-      req.set(asset + "_css", styles);
-      req.set(asset + "_styles", styles.stream()
-          .map(p -> "<link href=\"" + cpath + p + "\" rel=\"stylesheet\">\n")
-          .collect(Collectors.joining()));
+      List<String> css = this.styles.apply(asset);
+      String styles = css.stream().reduce(new StringBuilder(),
+          (buff, it) -> buff.append("<link href=\"")
+              .append(cpath)
+              .append(it)
+              .append("\" rel=\"stylesheet\">\n"),
+          StringBuilder::append)
+          .toString();
+      req.set(asset + "_css", css);
+      req.set(asset + "_styles", styles);
 
       /** Scripts */
-      List<String> scripts = compiler.scripts(asset);
-      req.set(asset + "_js", scripts);
-      req.set(asset + "_scripts", scripts.stream()
-          .map(p -> "<script src=\"" + cpath + p + "\"></script>\n")
-          .collect(Collectors.joining()));
+      List<String> js = this.scripts.apply(asset);
+      String scripts = js.stream().reduce(new StringBuilder(),
+          (buff, it) -> buff.append("<script src=\"")
+              .append(cpath)
+              .append(it)
+              .append("\"></script>\n"),
+          StringBuilder::append)
+          .toString();
+      req.set(asset + "_js", js);
+      req.set(asset + "_scripts", scripts);
     });
   }
 
