@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.jooby.Env;
 import org.jooby.Jooby;
@@ -54,9 +55,19 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 
 /**
- * Exposes a {@link Handlebars} and a {@link Renderer}.
+ * <h1>handlebars</h1>
+ * <p>
+ * Logic-less and semantic Mustache templates via
+ * <a href="https://github.com/jknack/handlebars.java">handlebars.java</a>.
+ * </p>
  *
- * <h1>usage</h1>
+ * <h2>exports</h2>
+ * <ul>
+ * <li>{@link Handlebars} object.</li>
+ * <li>{@link Renderer} object.</li>
+ * </ul>
+ *
+ * <h2>usage</h2>
  * <p>
  * It is pretty straightforward:
  * </p>
@@ -81,7 +92,8 @@ import com.typesafe.config.ConfigValueFactory;
  * file extension.
  * </p>
  *
- * <h1>helpers</h1>
+ * <h2>options</h2>
+ * <h13helpers</h3>
  * <p>
  * Simple/basic helpers are add it at startup time:
  * </p>
@@ -111,7 +123,7 @@ import com.typesafe.config.ConfigValueFactory;
  * helper method.
  * </p>
  *
- * <h1>template loader</h1>
+ * <h3>template loader</h3>
  * <p>
  * Templates are loaded from the root of classpath and must end with <code>.html</code>. You can
  * change the default template location and extensions too:
@@ -123,7 +135,7 @@ import com.typesafe.config.ConfigValueFactory;
  * }
  * </pre>
  *
- * <h1>cache</h1>
+ * <h3>cache</h3>
  * <p>
  * Cache is OFF when <code>env=dev</code> (useful for template reloading), otherwise is ON.
  * </p>
@@ -154,12 +166,19 @@ public class Hbs implements Jooby.Module {
 
   private final Handlebars hbs;
 
-  private BiConsumer<Handlebars, Config> configurer;
+  private BiConsumer<Handlebars, Config> callback;
 
   private Set<Class<?>> helpers = new HashSet<>();
 
   private Deque<ValueResolver> resolvers = new LinkedList<>();
 
+  /**
+   * Creates a new {@link Hbs} module.
+   *
+   * @param prefix Template prefix.
+   * @param suffix Template suffix.
+   * @param helpers Optional list of helpers.
+   */
   public Hbs(final String prefix, final String suffix, final Class<?>... helpers) {
     this.hbs = new Handlebars(new ClassPathTemplateLoader(prefix, suffix));
     with(helpers);
@@ -173,19 +192,68 @@ public class Hbs implements Jooby.Module {
     this.resolvers.add(FieldValueResolver.INSTANCE);
   }
 
+  /**
+   * Creates a new {@link Hbs} module.
+   *
+   * @param prefix Template prefix.
+   * @param helpers Optional list of helpers.
+   */
   public Hbs(final String prefix, final Class<?>... helpers) {
     this(prefix, ".html", helpers);
   }
 
+  /**
+   * Creates a new {@link Hbs} module.
+   *
+   * @param helpers Optional list of helpers.
+   */
   public Hbs(final Class<?>... helpers) {
     this("/", helpers);
   }
 
-  public Hbs doWith(final BiConsumer<Handlebars, Config> configurer) {
-    this.configurer = requireNonNull(configurer, "Configurer is required.");
+  /**
+   * Set a handlebars callback. Usage:
+   *
+   * <pre>{@code
+   * {
+   *   use(new Hbs().doWith((hbs, conf) -> {
+   *     ...
+   *   });
+   * }
+   * }</pre>
+   *
+   * @param callback Configurer callback.
+   * @return This module.
+   */
+  public Hbs doWith(final BiConsumer<Handlebars, Config> callback) {
+    this.callback = requireNonNull(callback, "Configurer is required.");
     return this;
   }
 
+  /**
+   * Set a handlebars callback.
+   *
+   * <pre>{@code
+   * {
+   *   use(new Hbs().doWith((hbs, conf) -> {
+   *     ...
+   *   });
+   * }
+   * }</pre>
+   * @param callback Configurer callback.
+   * @return This module.
+   */
+  public Hbs doWith(final Consumer<Handlebars> callback) {
+    requireNonNull(callback, "Configurer is required.");
+    return doWith((hbs, conf) -> callback.accept(hbs));
+  }
+
+  /**
+   * Append one or more helper classes.
+   *
+   * @param helper Helper class.
+   * @return This module.
+   */
   public Hbs with(final Class<?>... helper) {
     for (Class<?> h : helper) {
       helpers.add(h);
@@ -193,6 +261,12 @@ public class Hbs implements Jooby.Module {
     return this;
   }
 
+  /**
+   * Append a {@link ValueResolver}.
+   *
+   * @param resolver Resolver.
+   * @return This module.
+   */
   public Hbs with(final ValueResolver resolver) {
     requireNonNull(resolver, "Value resolver is required.");
     this.resolvers.addFirst(resolver);
@@ -213,8 +287,8 @@ public class Hbs implements Jooby.Module {
               .build()));
     }
 
-    if (configurer != null) {
-      configurer.accept(hbs, config);
+    if (callback != null) {
+      callback.accept(hbs, config);
     }
 
     /** XSS */
