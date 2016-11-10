@@ -64,6 +64,18 @@ public class RequestForwardingTest {
   }
 
   @Test
+  public void rawPath() throws Exception {
+    new MockUnit(Request.class)
+        .expect(unit -> {
+          Request req = unit.get(Request.class);
+          expect(req.rawPath()).andReturn("/path");
+        })
+        .run(unit -> {
+          assertEquals("/path", new Request.Forwarding(unit.get(Request.class)).rawPath());
+        });
+  }
+
+  @Test
   public void port() throws Exception {
     new MockUnit(Request.class)
         .expect(unit -> {

@@ -29,6 +29,11 @@ public class RequestTest {
     }
 
     @Override
+    public String rawPath() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Optional<String> queryString() {
       throw new UnsupportedOperationException();
     }

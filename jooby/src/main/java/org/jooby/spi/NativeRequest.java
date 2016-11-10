@@ -42,8 +42,8 @@ public interface NativeRequest {
   String method();
 
   /**
-   * @return The part of this request's URL from the protocol
-   *         name up to the query string in the first line of the HTTP request
+   * @return The part of this request's URL from the protocol name up to the query string in the
+   *         first line of the HTTP request.
    */
   String path();
 
@@ -161,4 +161,9 @@ public interface NativeRequest {
       throws Exception {
     upgrade(NativePushPromise.class).push(method, path, headers);
   }
+
+  /**
+   * @return Request path without decoding.
+   */
+  String rawPath();
 }

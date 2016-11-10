@@ -98,6 +98,11 @@ public class UndertowRequest implements NativeRequest {
   }
 
   @Override
+  public String rawPath() {
+    return exchange.getRequestURI();
+  }
+
+  @Override
   public List<String> paramNames() {
     ImmutableList.Builder<String> builder = ImmutableList.<String> builder();
     builder.addAll(exchange.getQueryParameters().keySet());

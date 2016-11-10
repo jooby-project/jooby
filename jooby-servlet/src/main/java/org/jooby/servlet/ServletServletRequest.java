@@ -93,6 +93,11 @@ public class ServletServletRequest implements NativeRequest {
   }
 
   @Override
+  public String rawPath() {
+    return req.getRequestURI();
+  }
+
+  @Override
   public List<String> paramNames() {
     return toList(req.getParameterNames());
   }

@@ -127,6 +127,11 @@ public interface Request extends Registry {
     }
 
     @Override
+    public String rawPath() {
+      return req.rawPath();
+    }
+
+    @Override
     public Optional<String> queryString() {
       return req.queryString();
     }
@@ -483,6 +488,13 @@ public interface Request extends Registry {
   default String path() {
     return path(false);
   }
+
+  /**
+   * Raw path, like {@link #path()} but without decoding.
+   *
+   * @return Raw path, like {@link #path()} but without decoding.
+   */
+  String rawPath();
 
   /**
    * The query string, without the leading <code>?</code>.

@@ -338,6 +338,10 @@ public class RequestImpl implements Request {
     return route;
   }
 
+  public String rawPath() {
+    return req.rawPath();
+  }
+
   @Override
   public String hostname() {
     return req.header("host").map(host -> host.split(":")[0]).orElse(ip());

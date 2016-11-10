@@ -122,6 +122,13 @@ public class NettyRequest implements NativeRequest {
   }
 
   @Override
+  public String rawPath() {
+    String uri = req.uri();
+    int at = uri.indexOf('?');
+    return at > 0 ? uri.substring(0, at) : uri;
+  }
+
+  @Override
   public String path() {
     return path;
   }
