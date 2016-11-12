@@ -30,7 +30,7 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
       .get(req -> {
         int start = req.param("start").intValue(0);
         int max = req.param("max").intValue(50);
-        DB db = req.require(DB.class);
+        DB db = require(DB.class);
         List<Pet> pets = db.findAll(start, max);
         return pets;
       })
@@ -42,7 +42,7 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
        */
       .get("/:id", req -> {
         int id = req.param("id").intValue();
-        DB db = req.require(DB.class);
+        DB db = require(DB.class);
         Pet pet = db.find(id);
         if (pet == null) {
           throw new Err(Status.NOT_FOUND);
@@ -57,7 +57,7 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
        */
       .post(req -> {
         Pet pet = req.body().to(Pet.class);
-        DB db = req.require(DB.class);
+        DB db = require(DB.class);
         db.save(pet);
         return pet;
       })
@@ -69,7 +69,7 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
        */
       .put(req -> {
         Pet pet = req.body().to(Pet.class);
-        DB db = req.require(DB.class);
+        DB db = require(DB.class);
         db.save(pet);
         return pet;
       })
@@ -81,7 +81,7 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
        */
       .delete("/:id", req -> {
         int id = req.param("id").intValue();
-        DB db = req.require(DB.class);
+        DB db = require(DB.class);
         db.delete(id);
         return Results.noContent();
       })
@@ -336,7 +336,7 @@ Here is an example on how to document script routes:
     .get(req -> {
       int start = req.param("start").intValue(0);
       int max = req.param("max").intValue(200);
-      DB db = req.require(DB.class);
+      DB db = require(DB.class);
       List<Pet> pets = db.findAll(Pet.class, start, max);
       return pets;
     });
@@ -374,7 +374,7 @@ With JavaDoc, you can control the default type returned by the route and/or the 
    * @return Returns a {@link Pet} with <code>200</code> status or <code>404</code> 
    */
   get(req -> {
-    DB db = req.require(DB.class);
+    DB db = require(DB.class);
     return db.find(Pet.class, id);
   });
 ```
@@ -396,7 +396,7 @@ This is useful when the tool isn't able to detect the type for you and/or you ar
 
 The status codes section have a ```200``` and ```404``` entries with default messages. You can override the default message by using ```code = message``` like:
 
-```
+```html
 @return Returns a {@link Pet} with <code>200 = Success</code> status or <code>404 = Missing</code>
 ```
 
@@ -408,7 +408,7 @@ It is required for getting information from ```script routes``` and extract ```J
 
 We don't need that for ```mvc routes``` because all the information is available via *Reflection* and ```java.lang.Method```.
 
-So, the tool needs the source code in order to work properly. In order to use the tool at deploy time you have to setup the ```jooby:spec``` maven plugin:
+So, the tool needs the source code in order to work properly. In order to use the tool at deploy time you must to setup the ```jooby:spec``` maven plugin:
 
 ```xml
 <plugin>
@@ -424,6 +424,25 @@ So, the tool needs the source code in order to work properly. In order to use th
 </plugin>
 ```
 
-The maven plugin exports the API into a binary format: ```.spec``` which can be parse it later.
+or the [gradle](/doc/gradle-plugin/#gradle-plugin-joobySpec) plugin:
+
+```js
+buildscript {
+
+  dependencies {
+    /** joobyRun */
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '{{version}}'
+  }
+}
+
+apply plugin: 'jooby'
+
+```
+
+```bash
+gradle joobyAssets
+```
+
+The maven/gradle plugin exports the API into a binary format: ```.spec``` which can be parse it later.
 
 That's all about the spec, as you see there are some minor rules to follow while writing ```script routes```. Now it's time see what tools and integrations are available!!!

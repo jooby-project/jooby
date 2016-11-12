@@ -1,5 +1,15 @@
 # mongodb session store
 
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-mongodb</artifactId>
+  <version>{{version}}</version>
+</dependency>
+```
+
 ## usage
 
 ```java

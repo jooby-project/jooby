@@ -26,7 +26,7 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 
   get("/jooq", req -> {
 
-    try (DSLContext ctx = req.require(DSLContext.class)) {
+    try (DSLContext ctx = require(DSLContext.class)) {
       return ctx.transactionResult(conf -> {
         DSLContext trx = DSL.using(conf);
         return trx.selectFrom(TABLE)
@@ -49,14 +49,14 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 
   get("/main", req -> {
 
-    try (DSLContext ctx = req.require("db.main", DSLContext.class)) {
+    try (DSLContext ctx = require("db.main", DSLContext.class)) {
       ...
     }
   });
 
   get("/audit", req -> {
 
-    try (DSLContext ctx = req.require("db.audit", DSLContext.class)) {
+    try (DSLContext ctx = require("db.audit", DSLContext.class)) {
       ...
     }
   });

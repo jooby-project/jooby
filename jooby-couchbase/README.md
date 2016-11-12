@@ -35,7 +35,7 @@ Via couchbase connection string:
   use(new Couchbase("couchbase://locahost/beers"));
 
   get("/", req -> {
-    Bucket beers = req.require(Bucket.class);
+    Bucket beers = require(Bucket.class);
     // do with beer bucket
   });
 }
@@ -48,7 +48,7 @@ Via property:
   use(new Couchbase("db"));
 
   get("/", req -> {
-    Bucket beers = req.require(Bucket.class);
+    Bucket beers = require(Bucket.class);
     // do with beer bucket
   });
 
@@ -71,23 +71,23 @@ import org.jooby.couchbase.N1Q;
   use("/api/beers")
     /** List beers */
     .get(req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       return ds.query(N1Q.from(Beer.class));
     })
     /** Create a new beer */
     .post(req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       Beer beer = req.body().to(Beer.class);
       return ds.upsert(beer);
     })
     /** Get a beer by ID */
     .get(":id", req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       return ds.get(Beer.class, req.param("id").value());
     })
     /** Delete a beer by ID */
     .delete(":id", req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       return ds.delete(Beer.class, req.param("id").value());
     });
 }
@@ -181,7 +181,7 @@ Couchbase SDK allows two programming model: ```blocking``` and ```reactive```. W
 
   get("/", req -> {
 
-    AsyncBucket bucket = req.require(AsyncBucket.class);
+    AsyncBucket bucket = require(AsyncBucket.class);
     // do with async bucket ;)
   });
 
@@ -202,7 +202,7 @@ import org.jooby.rx.Rx;
 
   get("/api/beer/:id", req -> {
 
-    AsyncDatastore ds = req.require(AsyncDatastore.class);
+    AsyncDatastore ds = require(AsyncDatastore.class);
     String id = req.param("id").value();
     Observable<Beer> beer = ds.get(Beer.class, id);
     return beer;
@@ -223,8 +223,8 @@ If for any reason your application requires more than 1 bucket... then:
     .buckets("extra-bucket"));
   get("/", req -> {
 
-    Bucket bucket = req.require("beers", Bucket.class);
-    Bucket extra = req.require("extra-bucket", Bucket.class);
+    Bucket bucket = require("beers", Bucket.class);
+    Bucket extra = require("extra-bucket", Bucket.class);
   });
 
 }

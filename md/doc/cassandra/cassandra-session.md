@@ -2,6 +2,16 @@
 
 A [Session.Store]({{defdocs}}/cassandra/CassandraSessionStore.html) powered by <a href="http://cassandra.apache.org">Cassandra</a>.
 
+## dependency
+
+```xml
+<dependency>
+ <groupId>org.jooby</groupId>
+ <artifactId>jooby-cassandra</artifactId>
+ <version>{{version}}</version>
+</dependency>
+```
+
 ## usage
 
 ```java

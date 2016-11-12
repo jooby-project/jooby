@@ -25,7 +25,7 @@ Bean validation via [Hibernate Validator](hibernate.org/validator).
   use(new Hbv());
 
   get("/", req -> {
-   Validator validator = req.require(Validator.class);
+   Validator validator = require(Validator.class);
    Car car = req.params().to(Car.class);
    Set<ConstraintViolation> violations = validator.validate(car);
    if (violations.size() > 0) {

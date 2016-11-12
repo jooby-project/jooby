@@ -1,8 +1,8 @@
 # conf, env and logging
 
-Jooby delegates configuration management to [config](https://github.com/typesafehub/config).
+Jooby delegates configuration management to [Config library](https://github.com/typesafehub/config).
 
-By defaults Jooby expect to find an ```application.conf``` file at the root of classpath.
+By defaults Jooby expects to find an ```application.conf``` file at the root of classpath. You can find the `.conf` file under `conf` classpath directory.
 
 ## getting properties
 
@@ -11,7 +11,7 @@ via script:
 ```java
 {
   get("/", req -> {
-    Config conf = req.require(Config.class);
+    Config conf = require(Config.class);
     String myprop = conf.getString("myprop");
     ...
   });

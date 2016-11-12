@@ -27,7 +27,7 @@ import org.jooby.exec.Exec;
 
   get("/", req -> {
 
-    ExecutorService executor = req.require(ExecutorService.class);
+    ExecutorService executor = require(ExecutorService.class);
     // work with executor
   });
 
@@ -95,8 +95,8 @@ Later, you can request your executor like:
 {
   get("/", req -> {
 
-    ExecutorService pool1 = req.require("pool1", ExecutorService.class);
-    ExecutorService jobs = req.require("jobs", ExecutorService.class);
+    ExecutorService pool1 = require("pool1", ExecutorService.class);
+    ExecutorService jobs = require("jobs", ExecutorService.class);
   });
 }
 ```

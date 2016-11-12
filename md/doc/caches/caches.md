@@ -1,22 +1,24 @@
 # caches
 
-Welcome to the caches module!!
+Find here access to various caches solutions including {{redis}}, {{memcached}}, etc..., but also pure Java solutions like {{hazelcast}} or {{ehcache}}.
 
-You will find here access to various caches solutions including {{redis}}, {{memcached}}, etc..., but also pure Java solutions like {{hazelcast}} or {{ehcache}}.
+## redis
 
-Let's see what modules are available:
+[Jedis](/doc/jedis) provides access to a {{redis}} cache via {{jedis}} driver.
 
-# redis
+## memcached
 
-* [jedis](/doc/jedis): provides access to a {{redis}} cache via {{jedis}} driver.
+[Spymemcached](/doc/spymemcached) provides access to a {{memcached}} cache via {{spymemcached}} driver.
 
-# memcached
+## caffeine
+[Caffeine](/doc/caffeine): [Caffeine](https://github.com/ben-manes/caffeine) caches.
 
-* [spymemcached](/doc/spymemcached): provides access to a {{memcached}} cache via {{spymemcached}} driver.
+## ehcache
+[Ehcache](/doc/ehcache): {{ehcache}} caches.
 
-# pure java
+## guava
+[Guava](/doc/guava-cache): [Guava](https://github.com/google/guava) caches.
 
-* [caffeine](/doc/caffeine): [Caffeine](https://github.com/ben-manes/caffeine) caches.
-* [ehcache](/doc/ehcache): {{ehcache}} caches.
-* [guava](/doc/guava-cache): [Guava](https://github.com/google/guava) caches.
-* [hazelcast](/doc/hazelcast): {{hazelcast}} caches.
+## hazelcast
+
+[Hazelcast](/doc/hazelcast): {{hazelcast}} caches.

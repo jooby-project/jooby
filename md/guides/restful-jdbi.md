@@ -204,7 +204,7 @@ import org.skife.jdbi.v2.Query;
 ...
 {
   get("/pets", req -> {
-    try (Handle h = req.require(Handle.class)) {
+    try (Handle h = require(Handle.class)) {
       Query<Pet> q = h.createQuery("select * from pets")
           .map(Pet.class);
       return q.list();
@@ -213,9 +213,9 @@ import org.skife.jdbi.v2.Query;
 }
 ```
 
-The ```req.require(Handle.class)``` give us a new ```Handle```, we create a new ```Query``` map the result to our ```Pet``` class and list all the results.
+The ```require(Handle.class)``` give us a new ```Handle```, we create a new ```Query``` map the result to our ```Pet``` class and list all the results.
 
-> NOTE: A call to ```req.require(Handle.class)``` is identical too ```req.require(DBI.class).open()```, so don't forget to close the ```Handle``` once you are done.
+> NOTE: A call to ```require(Handle.class)``` is identical too ```require(DBI.class).open()```, so don't forget to close the ```Handle``` once you are done.
 
 Let's add a ```start``` and ```max``` parameters to our list service:
 
@@ -224,7 +224,7 @@ import org.skife.jdbi.v2.Query;
 ...
 {
   get("/pets", req -> {
-    try (Handle h = req.require(Handle.class)) {
+    try (Handle h = require(Handle.class)) {
       Query<Pet> q = h.createQuery("select * from pets limit :start, :max")
           .bind("start", req.param("start").intValue(0))
           .bind("max", req.param("max").intValue(20))
@@ -251,7 +251,7 @@ Let's add a new route to get a single pet by ID:
 {
   ...
   get("/pets/:id", req -> {
-    try (Handle h = req.require(Handle.class)) {
+    try (Handle h = require(Handle.class)) {
       Query<Pet> q = h.createQuery("select * from pets p where p.id = :id")
           .bind("id", req.param("id").intValue())
           .map(Pet.class);
@@ -286,7 +286,7 @@ So far, we see how to query pets by ID or listing all them, it is time to see ho
 ```java
 {
   post("/pets", req -> {
-    try (Handle handle = req.require(Handle.class)) {
+    try (Handle handle = require(Handle.class)) {
       // read post from HTTP body
       Pet pet = req.body().to(Pet.class);
   
@@ -304,7 +304,7 @@ So far, we see how to query pets by ID or listing all them, it is time to see ho
 }
 ```
 
-* We open a ```Handle``` with ```req.require(Handle.class)```
+* We open a ```Handle``` with ```require(Handle.class)```
 * We read the pet from the JSON HTTP body: ```req.body().to(Pet.class)```
 * Insert a new pet with ```executeAndReturnGeneratedKeys()```
 * Get the generated keys (ID is an auto-increment column)
@@ -319,7 +319,7 @@ Updating a pet is quite similar:
 {
   ...
   put("/pets", req -> {
-    try (Handle handle = req.require(Handle.class)) {
+    try (Handle handle = require(Handle.class)) {
       // read from HTTP body
       Pet pet = req.body().to(Pet.class);
   
@@ -337,7 +337,7 @@ Updating a pet is quite similar:
 }
 ```
 
-* We open a ```Handle``` with ```req.require(Handle.class)```
+* We open a ```Handle``` with ```require(Handle.class)```
 * We read the pet from the JSON HTTP body: ```req.body().to(Pet.class)```
 * We update a pet by ID.
 * If no rows were updated, then we returns a ```404```
@@ -352,7 +352,7 @@ Again, delete operation is similar to update:
 {
   ...
   delete("/pets/:id", req -> {
-    try (Handle handle = req.require(Handle.class)) {
+    try (Handle handle = require(Handle.class)) {
       int rows = handle
           .createStatement("delete pets where p.id = :id")
           .bind("id", req.param("id").intValue())
@@ -367,7 +367,7 @@ Again, delete operation is similar to update:
 }
 ```
 
-* We open a ```Handle``` with ```req.require(Handle.class)```
+* We open a ```Handle``` with ```require(Handle.class)```
 * We read ```id``` parameter with ```req.param("id").intValue()```
 * We delete a pet by ID.
 * If no rows were deleted, then we returns a ```404```
@@ -391,7 +391,7 @@ We are done with our API, let's review how it looks:
 
   /** List pets. */
   get("/pets", req -> {
-    try (Handle h = req.require(Handle.class)) {
+    try (Handle h = require(Handle.class)) {
       Query<Pet> q = h.createQuery("select * from pets limit :start, :max")
           .bind("start", req.param("start").intValue(0))
           .bind("max", req.param("max").intValue(20))
@@ -402,7 +402,7 @@ We are done with our API, let's review how it looks:
 
   /** Get a pet by ID. */
   get("/pets/:id", req -> {
-    try (Handle h = req.require(Handle.class)) {
+    try (Handle h = require(Handle.class)) {
       Query<Pet> q = h.createQuery("select * from pets p where p.id = :id")
           .bind("id", req.param("id").intValue())
           .map(Pet.class);
@@ -416,7 +416,7 @@ We are done with our API, let's review how it looks:
 
   /** Create a pet. */
   post("/pets", req -> {
-    try (Handle handle = req.require(Handle.class)) {
+    try (Handle handle = require(Handle.class)) {
       // read from HTTP body
       Pet pet = req.body().to(Pet.class);
 
@@ -434,7 +434,7 @@ We are done with our API, let's review how it looks:
 
   /** Update a pet. */
   put("/pets", req -> {
-    try (Handle handle = req.require(Handle.class)) {
+    try (Handle handle = require(Handle.class)) {
       // read from HTTP body
       Pet pet = req.body().to(Pet.class);
 
@@ -452,7 +452,7 @@ We are done with our API, let's review how it looks:
 
   /** Delete a pet by ID. */
   delete("/pets/:id", req -> {
-    try (Handle handle = req.require(Handle.class)) {
+    try (Handle handle = require(Handle.class)) {
       // read from HTTP body
       Pet pet = req.body().to(Pet.class);
 
@@ -484,7 +484,7 @@ Let's fix that with ```use("/path")```:
   use("/pets")
       /** List pets. */
       .get(req -> {
-        try (Handle h = req.require(Handle.class)) {
+        try (Handle h = require(Handle.class)) {
           Query<Pet> q = h.createQuery("select * from pets limit :start, :max")
               .bind("start", req.param("start").intValue(0))
               .bind("max", req.param("max").intValue(20))
@@ -494,7 +494,7 @@ Let's fix that with ```use("/path")```:
       })
       /** Get a pet by ID. */
       .get("/:id", req -> {
-        try (Handle h = req.require(Handle.class)) {
+        try (Handle h = require(Handle.class)) {
           Query<Pet> q = h.createQuery("select * from pets p where p.id = :id")
               .bind("id", req.param("id").intValue())
               .map(Pet.class);
@@ -507,7 +507,7 @@ Let's fix that with ```use("/path")```:
       })
       /** Create a pet. */
       .post(req -> {
-        try (Handle handle = req.require(Handle.class)) {
+        try (Handle handle = require(Handle.class)) {
           // read from HTTP body
           Pet pet = req.body().to(Pet.class);
 
@@ -524,7 +524,7 @@ Let's fix that with ```use("/path")```:
       })
       /** Update a pet. */
       .put(req -> {
-        try (Handle handle = req.require(Handle.class)) {
+        try (Handle handle = require(Handle.class)) {
           // read from HTTP body
           Pet pet = req.body().to(Pet.class);
 
@@ -541,7 +541,7 @@ Let's fix that with ```use("/path")```:
       })
       /** Delete a pet by ID. */
       .delete("/:id", req -> {
-        try (Handle handle = req.require(Handle.class)) {
+        try (Handle handle = require(Handle.class)) {
           // read from HTTP body
           Pet pet = req.body().to(Pet.class);
 

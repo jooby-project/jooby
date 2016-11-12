@@ -93,7 +93,7 @@ import com.typesafe.config.ConfigValueFactory;
  * </p>
  *
  * <h2>options</h2>
- * <h13helpers</h3>
+ * <h3>helpers</h3>
  * <p>
  * Simple/basic helpers are add it at startup time:
  * </p>

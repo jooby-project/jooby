@@ -2,7 +2,7 @@
 
 Modules are a **key concept** for building **reusable** and **configurable** pieces of software.
 
-Modules (unlike in other frameworks) are thin and do a lot of work to bootstrap and configure an external library, but they **DO NOT provide a new level of abstraction** nor [do] they provide a custom API to access functionality in that library. Instead they **expose** the **library** components as **they are**
+Modules (unlike in other frameworks) are thin and do a lot of work to bootstrap and configure an external library, but they **DO NOT provide a new level of abstraction** nor [do] they provide a custom API to access functionality in that library. Instead they **expose** the **library** components as **they are**.
 
 Modules like in [Guice](https://github.com/google/guice) are used to wire services, connect data, etc...
 

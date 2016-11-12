@@ -34,7 +34,6 @@ import org.jooby.json.Jackson;
     MyObject obj = req.body(MyObject.class);
     return obj;
   });
-
 }
 ```
 
@@ -63,17 +62,12 @@ It is possible to wire Jackson modules too:
 
 ```java
 {
-
   use(new Jackson()
     .module(MyJacksonModuleWiredByGuice.class)
   );
-
 }
 ```
 
-This is useful when your *MyJacksonModuleWiredByGuice* module require some dependencies.
-
-That's all folks! Enjoy it!!!
+This is useful when your `MyJacksonModuleWiredByGuice` module require some dependencies.
 
 {{appendix}}
-

@@ -24,10 +24,10 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
   use(new Eh());
 
   get("/", req -> {
-    CacheManager cm = req.require(CacheManager.class);
+    CacheManager cm = require(CacheManager.class);
     // work with cm
 
-    Ehcache ehcache = req.require(Ehcache.class);
+    Ehcache ehcache = require(Ehcache.class);
     // work with ehcache
   });
 }
@@ -51,7 +51,7 @@ Later, we can access to ```mycache``` with:
 ```java
 {
   get("/", req -> {
-    Ehcache mycache = req.require(Ehcache.class);
+    Ehcache mycache = require(Ehcache.class);
   });
 }
 ```
@@ -77,9 +77,9 @@ Later, we can access to our caches with:
 ```java
 {
   get("/", req -> {
-    Ehcache cache1 = req.require("cache1", Ehcache.class);
+    Ehcache cache1 = require("cache1", Ehcache.class);
     // ..
-    Ehcache cache2 = req.require("cache2", Ehcache.class);
+    Ehcache cache2 = require("cache2", Ehcache.class);
     // ..
   });
 }

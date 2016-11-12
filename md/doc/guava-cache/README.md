@@ -28,7 +28,7 @@ import org.jooby.guava.GuavaCache;
 
   get("/", req -> {
 
-    Cache cache = req.require(Cache.class);
+    Cache cache = require(Cache.class);
     // do with cache...
   });
 
@@ -69,9 +69,9 @@ guava.cacheX = "maximumSize=100"
 ```java
 {
   get("/", req -> {
-    Cache defcache = req.require(Cache.class);
-    Cache cache1 = req.require("cache1", Cache.class);
-    Cache cacheX = req.require("cacheX", Cache.class);
+    Cache defcache = require(Cache.class);
+    Cache cache1 = require("cache1", Cache.class);
+    Cache cacheX = require("cacheX", Cache.class);
   });
 }
 ```

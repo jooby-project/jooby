@@ -27,7 +27,7 @@ This module extends [jdbc module](/doc/jdbc), before going forward, make sure yo
   }));
 
   get("/pets", req -> {
-    EbeanServer ebean = req.require(EbeanServer.class);
+    EbeanServer ebean = require(EbeanServer.class);
     return ebean.createQuery(Pet.class)
        .findList();
   });

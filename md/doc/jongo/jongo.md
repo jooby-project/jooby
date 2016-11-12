@@ -26,7 +26,7 @@
   use(new Jongoby());
 
   get("/", req -> {
-    Jongo jongo = req.require(Jongo.class);
+    Jongo jongo = require(Jongo.class);
     // work with jongo...
   });
 }
@@ -42,7 +42,7 @@ Access to alternate database is provided via: [JongoFactory]({{defdocs}}/mongodb
   use(new Jongoby());
 
   get("/", req -> {
-    Jongo jongo = req.require(JongoFactory.class).get("alternate-db");
+    Jongo jongo = require(JongoFactory.class).get("alternate-db");
     // work with jongo...
   });
 }

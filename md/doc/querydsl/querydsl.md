@@ -27,7 +27,7 @@ import org.jooby.querydsl.QueryDSL;
 
   get("/my-api", req -> {
 
-    SQLQueryFactory queryFactory = req.require(SQLQueryFactory.class);
+    SQLQueryFactory queryFactory = require(SQLQueryFactory.class);
     // Do something with the database
     ...
   });
@@ -42,7 +42,6 @@ Dialect is detected automatically and usually you don't need to do anything. But
 ```java
 {
   use(new QueryDSL().with(new MyCustomTemplates());
-
 }
 ```
 
@@ -56,11 +55,9 @@ import org.jooby.querydsl.QueryDSL;
   use(new QueryDSL("db.aux"));
 
   get("/my-api", req -> {
-
-    SQLQueryFactory queryFactory = req.require("db.main", SQLQueryFactory.class);
+    SQLQueryFactory queryFactory = require("db.main", SQLQueryFactory.class);
     // Do something with the database
   });
-
 }
 ```
 
@@ -73,10 +70,8 @@ Advanced configuration can be added by invoking the ```doWith``` method, adding 
 ```java
 {
   use(new QueryDSL().doWith(conf -> {
-
     conf.set(...);
   });
-
 }
 ```
 

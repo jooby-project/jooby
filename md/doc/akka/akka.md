@@ -22,7 +22,7 @@ Small module to build concurrent & distributed applications via [Akka](http://ak
   use(new Akka());
 
   get("/akka", promise((req, deferred) -> {
-    ActorSystem sys = req.require(ActorSystem.class);
+    ActorSystem sys = require(ActorSystem.class);
     ActorRef actor = sys.actorOf(...);
     // send the deferred to the actor
     actor.tell(deferred, actor);

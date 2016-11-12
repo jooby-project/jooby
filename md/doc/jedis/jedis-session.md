@@ -1,5 +1,15 @@
 # redis session store
 
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-jedis</artifactId>
+  <version>{{version}}</version>
+</dependency>
+```
+
 ## usage
 
 ```java

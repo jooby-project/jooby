@@ -2,6 +2,16 @@
 
 A [Session.Store]({{defdocs}}/couchbase/CouchbaseSessionStore) powered by <a href="http://www.couchbase.com">Couchbase</a>.
 
+## dependency
+
+```xml
+<dependency>
+ <groupId>org.jooby</groupId>
+ <artifactId>jooby-couchbase</artifactId>
+ <version>{{version}}</version>
+</dependency>
+```
+
 ## usage
 
 ```java

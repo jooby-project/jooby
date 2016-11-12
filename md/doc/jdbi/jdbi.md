@@ -24,19 +24,17 @@ Before start, make sure you already setup a database connection as described in 
 
 ## usage
 
-It is pretty straightforward:
-
 ```java
 {
   use(new Jdbi());
 
   get("/", req -> {
-    DBI dbi = req.require(DBI.class);
+    DBI dbi = require(DBI.class);
     // ... work with dbi
   });
 
   get("/handle", req -> {
-    try (Handle handle = req.require(Handle.class)) {
+    try (Handle handle = require(Handle.class)) {
       // ... work with dbi handle
     }
   });
@@ -65,7 +63,7 @@ public interface MyRepository extends Closeable {
   use(new Jdbi());
 
   get("/handle", req -> {
-    try (MyRepository h = req.require(MyRepository.class)) {
+    try (MyRepository h = require(MyRepository.class)) {
       h.createSomethingTable();
 
       h.insert(1, "Jooby");
@@ -76,29 +74,6 @@ public interface MyRepository extends Closeable {
     }
   });
 }
-```
-
-## auto-magic in-clause expansion
-
-This modules support expansion of in-clauses and/or expansion of multi-value arguments (iterables and arrays).
-
-```java
-List<Integer> ids = Lists.newArrayList(1, 2, 3);
-h.createQuery("select * from something where id in (:ids)")
-  .bind("ids", ids)
-  .list();
-```
-
-The SQL expression:
-
-```sql
-select * from something where id in (:ids)
-```
-
-Will be expanded/translated to:
-
-```sql
-select * from something where id in (?, ?, ?)
 ```
 
 ## configuration
@@ -116,4 +91,3 @@ If you need to configure and/or customize a [DBI](http://jdbi.org/maven_site/api
 See [JDBI](http://www.jdbi.org/) for a detailed usage.
 
 {{appendix}}
-

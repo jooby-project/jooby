@@ -28,7 +28,7 @@
   // or via API
   get("/jade-api", req -> {
 
-    JadeConfiguration jade = req.require(JadeConfiguration.class);
+    JadeConfiguration jade = require(JadeConfiguration.class);
     JadeTemplate template = jade.getTemplate("index");
     template.renderTemplate(...);
   });

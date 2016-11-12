@@ -77,22 +77,22 @@ Here is a basic API on top of [Datastore]({{defdocs}}/cassandra/Datastore.html):
 {
   use("/api/beer")
     .post(req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       Beer beer = req.body().to(Beer.class);
       ds.save(beer);
       return beer;
     })
     .get("/:id", req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       Beer beer = ds.get(Beer.class, req.param("id").value());
       return beer;
     })
     .get(req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       return ds.query(Beer.class, "select * from beer").all();
     })
     .delete("/:id", req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       ds.delete(Beer.class, req.param("id").value());
       return Results.noContent();
     });
@@ -129,22 +129,22 @@ Async? Of course!!! just use the Datastax async API:
 
   use("/api/beer")
     .post(req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       Beer beer = req.body().to(Beer.class);
       ds.saveAsync(beer);
       return beer;
     })
     .get("/:id", req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       ListeneableFuture<Beer> beer = ds.getAsync(Beer.class, req.param("id").value());
       return beer;
     })
     .get(req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       return ds.queryAsync(Beer.class, "select * from beer").all();
     })
     .delete("/:id", req -> {
-      Datastore ds = req.require(Datastore.class);
+      Datastore ds = require(Datastore.class);
       ds.deleteAsync(Beer.class, req.param("id").value());
       return Results.noContent();
     });

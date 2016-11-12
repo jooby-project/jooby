@@ -1,5 +1,15 @@
 # spymemcached session store
 
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-spymemcached</artifactId>
+  <version>{{version}}</version>
+</dependency>
+```
+
 ## usage
 
 ```java

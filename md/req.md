@@ -486,7 +486,7 @@ Access to registry is available via: [request.require(type)]({{defdocs}}/Request
 
 ```java
 get("/", req -> {
-  Foo foo = req.require(Foo.class);
+  Foo foo = require(Foo.class);
   return foo.bar();
 });
 ```

@@ -1,15 +1,10 @@
-# gradle plugin
+# gradle
 
-Collection of {{gradle}} plugins for {{jooby}} applications.
+{{gradle}} plugin for running, debugging and reloading your application.
 
-## joobyRun
-
-Run, debug and reload applications.
-
-### usage
+## usage
 
 ```js
-
 buildscript {
 
   repositories {
@@ -46,7 +41,7 @@ listening on:
   http://localhost:8080/
 ```
 
-### hot reload
+## hot reload
 
 The ```joobyRun``` tool restart the application every time a change is detected on:
 
@@ -57,9 +52,10 @@ Changes on templates and/or static files (*.html, *.js, *.css) wont restart the 
 
 It's worth to mention that dynamic reload of classes is done via {{jboss-modules}}.
 
-### options
+## options
 
 ```js
+
 joobyRun {
   mainClassName = 'com.mycompany.App'
   compiler = 'on'
@@ -70,11 +66,11 @@ joobyRun {
 
 ```
 
-#### mainClassName
+### mainClassName
 
 A {{gradle}} property that contains the fully qualified name of the ```main class```. **Required**.
 
-#### compiler
+### compiler
 
 The compiler is ```on``` by default, unless:
 
@@ -88,77 +84,6 @@ On compilation error, the application won't reload.
 
 Compilation success or error messages are displayed in the console (not at the browser).
 
-#### includes / excludes
+### includes / excludes
 
 List of file patterns to listen for file changes.
-
-## joobyAssets
-
-This is a {{gradle}} task for the [asset module]([assets module](https://github.com/jooby-project/jooby/tree/master/jooby-assets)). The [asset module]([assets module](https://github.com/jooby-project/jooby/tree/master/jooby-assets)) validate, concatenate, minify or compress JavaScript and CSS assets.
-
-### usage
-
-```js
-buildscript {
-
-  repositories {
-    mavenCentral()
-  }
-
-  dependencies {
-    /** jooby:run */
-    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0.CR7'
-  }
-}
-
-apply plugin: 'jooby'
-
-}
-```
-
-```bash
-gradle joobyAssets
-```
-
-
-### options
-
-```js
-joobyAssets {
-  maxAge = '365d'
-}
-
-```
-
-#### maxAge
-
-Specify the max age cache header, default is: `365d```
-
-## joobySpec
-
-This is a {{gradle}} task for the [route spec](https://github.com/jooby-project/jooby/tree/master/jooby-spec) module. The [route spec](https://github.com/jooby-project/jooby/tree/master/jooby-spec) module allows you to export your API/microservices outside a {{jooby}} application.
-
-### usage
-
-```js
-buildscript {
-
-  repositories {
-    mavenCentral()
-  }
-
-  dependencies {
-    /** jooby:run */
-    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0.CR7'
-  }
-}
-
-apply plugin: 'jooby'
-
-```
-
-```bash
-gradle joobySpec
-```
-
-This task has no options, the ```.spec``` file can found at the ```build/classes/main```

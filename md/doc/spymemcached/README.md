@@ -3,6 +3,7 @@
 Provides memcached access via {{spymemcached}}
 
 ## exports
+
 * A ```MemcachedClient``` service
 
 ## dependency
@@ -26,7 +27,7 @@ Provides memcached access via {{spymemcached}}
   use(new SpyMemcached());
 
   get("/", req -> {
-    MemcachedClient client = req.require(MemcachedClient.class);
+    MemcachedClient client = require(MemcachedClient.class);
     client.set("foo", 60, "bar");
     return client.get("foo");
   });

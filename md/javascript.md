@@ -73,7 +73,7 @@ jooby(function () {
 
   // returns a value but access to request object
   this.get('/', function (req) {
-    var x = req.require(X)
+    var x = require(X)
     return x.doSomething();
   });
 

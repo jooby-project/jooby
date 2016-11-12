@@ -26,8 +26,7 @@ import org.jooby.exec.Exec;
   use(new Exec());
 
   get("/", req -> {
-
-    ExecutorService executor = req.require(ExecutorService.class);
+    ExecutorService executor = require(ExecutorService.class);
     // work with executor
   });
 
@@ -93,10 +92,29 @@ Later, you can request your executor like:
 
 ```java
 {
-  get("/", req -> {
+  use(new Exec());
 
-    ExecutorService pool1 = req.require("pool1", ExecutorService.class);
-    ExecutorService jobs = req.require("jobs", ExecutorService.class);
+  get("/", req -> {
+    ExecutorService pool1 = require("pool1", ExecutorService.class);
+    ExecutorService jobs = require("jobs", ExecutorService.class);
+  });
+}
+```
+
+## deferred
+
+Executors created by this module can be referenced by [deferred results]({{defdocs}}/Deferred.html):
+
+```java
+{
+  use(new Exec());
+
+  get("/", deferred("pool1", () -> {
+    return "from pool1";
+  });
+
+  get("/", deferred("jobs", () -> {
+    return "from jobs";
   });
 }
 ```

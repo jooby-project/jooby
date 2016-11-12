@@ -37,7 +37,7 @@ import org.jooby.json.Gzon;
 
   // direct access to Gson
   get("/access", req -> {
-    Gson gson = req.require(Gson.class);
+    Gson gson = require(Gson.class);
     // ...
   });
 }

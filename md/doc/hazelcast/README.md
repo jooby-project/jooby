@@ -24,7 +24,7 @@ Provides cache solution and session storage via {{hazelcast}}.
   use(new Hcast());
 
   get("/", req -> {
-    HazelcastInstance hcast = req.require(HazelcastInstance.class);
+    HazelcastInstance hcast = require(HazelcastInstance.class);
     ...
   });
 }

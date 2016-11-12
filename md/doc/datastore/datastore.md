@@ -1,14 +1,10 @@
 # data store
 
-Welcome to the data store module!!
-
-You will find here access to various data store including relational, documented oriented, key/value, etc. But also, several mapping tools and/or utilities or data store extensions.
-
-Let's see what modules are available:
+Find access to various data store including relational, documented oriented, key/value, etc.
 
 # jdbc
 
-## hikari connection pool
+## hikari pool
 
 The [jdbc](/doc/jdbc) module provides a high performance connection pool for jdbc via {{hikari}}.
 
@@ -51,6 +47,10 @@ The [cassandra](/doc/cassandra) module provides access to {{cassandra}} instance
 ## couchbase
 
 The [couchbase](/doc/couchbase) module provides access to {{couchbase}} instances.
+
+## elasticsearch
+
+The [elasticsearch](/doc/elasticsearch) module provides access to [elasticsearch](https://github.com/elastic/elasticsearch) instances.
 
 ## mongodb
 

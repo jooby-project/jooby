@@ -37,7 +37,7 @@ import org.jooby.mongodb.MongoRx;
   use(new MongoRx());
 
   get("/", req -> {
-    MongoClient client = req.require(MongoClient.class);
+    MongoClient client = require(MongoClient.class);
     // work with client:
   });
 
@@ -72,7 +72,7 @@ If your connection string has a database, then you can require a ```MongoDatabas
 
   get("/", req -> {
 
-    MongoDatabase mydb = req.require(MongoDatabase.class);
+    MongoDatabase mydb = require(MongoDatabase.class);
     return mydb.listCollections();
   });
 
@@ -89,7 +89,7 @@ And if your connection string has a collection:
   use(new MongoRx("mongodb://localhost/mydb.mycol"));
 
   get("/", req -> {
-    MongoCollection mycol = req.require(MongoCollection.class);
+    MongoCollection mycol = require(MongoCollection.class);
     return mycol.find();
   });
 
@@ -108,7 +108,7 @@ The module let you return ```MongoObservable``` from routes:
   use(new MongoRx());
 
   get("/pets", req -> {
-    MongoDatabase db = req.require(MongoDatabase.class);
+    MongoDatabase db = require(MongoDatabase.class);
     return db.getCollection("pets")
        .find();
   });
@@ -132,12 +132,12 @@ Multiple databases are supported by adding multiple [MongoRx]({{defdocs}}/mongo/
   use(new MongoRx("db2"));
 
   get("/do-with-db1", req -> {
-    MongoDatabase db1 = req.require("db1", MongoDatabase.class);
+    MongoDatabase db1 = require("db1", MongoDatabase.class);
     // work with db1
   });
 
   get("/do-with-db2", req -> {
-    MongoDatabase db2 = req.require("db2", MongoDatabase.class);
+    MongoDatabase db2 = require("db2", MongoDatabase.class);
     // work with db2
   });
 

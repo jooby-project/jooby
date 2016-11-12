@@ -32,6 +32,9 @@ Here is a simple example of the ```stork.yml``` launcher:
 # Name of application (make sure it has no spaces)
 name: "${project.artifactId}"
 
+# Display name of application (can have spaces)
+display_name: "${project.name}"
+
 # Type of launcher (CONSOLE or DAEMON)
 type: DAEMON
 
@@ -57,7 +60,7 @@ min_java_version: "1.8"
 
 # Min/max fixed memory (measured in MB)
 min_java_memory: 512
-max_java_memory: 1024
+max_java_memory: 512
 
 # Min/max memory by percentage of system
 #min_java_memory_pct: 10

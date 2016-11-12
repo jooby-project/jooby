@@ -1,8 +1,6 @@
 # elasticsearch
 
-Full text & analytics search via {{elasticsearch}}.
-
-Provides a RESTful client.
+Open Source, Distributed, RESTful Search Engine via {{elasticsearch}}.
 
 ## exports
 
@@ -36,7 +34,7 @@ The module exports a ```RestClient``` instance.
 
 put("/:id", req -> {
   // index a document
-  RestClient client = req.require(RestClient.class);
+  RestClient client = require(RestClient.class);
   StringEntity data = new StringEntity("{\"foo\":\"bar\"}");
   return client.performRequest("PUT", "/twitter/tweet/" + req.param("id").value(), Collections.emptyMap(), data)
     .getEntity().getContent();

@@ -71,7 +71,7 @@ Guava `Services` are also supported:
   );
 
   get("/guava", req -> {
-    ServiceManager sm = req.require(ServiceManager.class);
+    ServiceManager sm = require(ServiceManager.class);
     ...
   });
 

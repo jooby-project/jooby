@@ -27,7 +27,7 @@ Via `connection string` property:
 
   // accessing to the data source
   get("/my-api", req -> {
-    DataSource db = req.require(DataSource.class);
+    DataSource db = require(DataSource.class);
     // do something with datasource
   }); 
 }
@@ -42,7 +42,7 @@ Via `db` property:
 
   // accessing to the data source
   get("/my-api", req -> {
-    DataSource db = req.require(DataSource.class);
+    DataSource db = require(DataSource.class);
     // do something with datasource
   }); 
 }

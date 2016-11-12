@@ -1,6 +1,6 @@
 # handlebars
 
-Mustache/Handlebars templates for [Jooby]({{site}}).
+Logic less and semantic templates via {{handlebars}}.
 
 ## exports
 
@@ -18,7 +18,6 @@ Mustache/Handlebars templates for [Jooby]({{site}}).
 ```
 
 ## usage
-It is pretty straightforward:
 
 ```java
 {
@@ -31,12 +30,12 @@ It is pretty straightforward:
 public/index.html:
 
 ```
-{{ "{{ model " }}}}
+{{model}}
 ```
 
 Templates are loaded from root of classpath: ```/``` and must end with: ```.html``` file extension.
 
-## req locals
+## request locals
 
 A template engine has access to ```request locals``` (a.k.a attributes). Here is an example:
 
@@ -45,21 +44,24 @@ A template engine has access to ```request locals``` (a.k.a attributes). Here is
   use(new Hbs());
 
   get("*", req -> {
-    req.set("req", req);
-    req.set("session", req.session());
+    req.set("foo", bar);
   });
 }
 ```
 
-By default, there is no access to ```req``` or ```session``` from your template. This example shows how to do it.
+Then from template:
+
+```
+{{foo}}
+```
 
 ## helpers
 
-Simple/basic helpers are add it at startup time:
+Simple/basic helpers:
 
 ```java
 {
-  use(new Hbs().doWith((hbs, config) -> {
+  use(new Hbs().doWith(hbs -> {
     hbs.registerHelper("myhelper", (ctx, options) -> {
       return ...;
     });
@@ -72,16 +74,15 @@ Now, if the helper depends on a service and require injection:
 
 ```java
 {
-  use(new Hbs().with(Helpers.class));
+  use(new Hbs().with(HelperSource.class));
 }
 ```
 
-The ```Helpers``` will be injected by [Guice](https://github.com/google/guice) and [Handlebars](https://github.com/jknack/handlebars.java) will scan and discover any helper method.
+The ```HelperSource``` class will be injected by [Guice](https://github.com/google/guice).
 
 ## template loader
 
-Templates are loaded from the root of classpath and must end with ```.html```. You can
-change the default template location and extensions too:
+Templates are loaded from the root of classpath and must end with ```.html```. You can change the default template location and extensions too:
 
 ```java
 {
@@ -104,7 +105,4 @@ hbs.cache = "expireAfterWrite=1h"
 
 See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/CacheBuilderSpec.html) for more detailed expressions.
 
-That's all folks! Enjoy it!!!
-
 {{appendix}}
-

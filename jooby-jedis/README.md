@@ -27,7 +27,7 @@ db = "redis://localhost:6379"
   use(new Redis());
 
    get("/:key/:value", req -> {
-     try (Jedis jedis = req.require(Jedis.class)) {
+     try (Jedis jedis = require(Jedis.class)) {
        jedis.set(req.param("key").value(), req.param("value").value());
        return jedis.get(req.param("key").value());
      }
@@ -59,7 +59,7 @@ In case you need two or more Redis connection, just do:
   use(new Redis("db1"));
 
   get("/:key/:value", req -> {
-    try (Jedis jedis = req.require("db1", Jedis.class)) {
+    try (Jedis jedis = require("db1", Jedis.class)) {
       jedis.set(req.param("key").value(), req.param("value").value());
       return jedis.get(req.param("key").value());
     }

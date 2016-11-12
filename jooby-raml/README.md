@@ -36,7 +36,7 @@ RESTful API Modeling Language (RAML) makes it easy to manage the whole API lifec
       */
      .get("/:id", req -> {
        int id = req.param("id").intValue();
-       DB db = req.require(DB.class);
+       DB db = require(DB.class);
        Pet pet = db.find(Pet.class, id);
        return pet;
      })

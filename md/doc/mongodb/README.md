@@ -31,9 +31,9 @@ db = "mongodb://localhost/mydb"
   use(new Mongodb());
 
   get("/", req -> {
-    MongoClient client = req.require(MongoClient.class);
+    MongoClient client = require(MongoClient.class);
     // work with client
-    MongoDatabase = req.require(MongoDatabase.class);
+    MongoDatabase = require(MongoDatabase.class);
     // work with mydb
   });
 }
@@ -52,7 +52,7 @@ mydb = "mongodb://localhost/mydb"
   use(new Mongodb("mydb"));
 
   get("/", req -> {
-    MongoDatabase mydb = req.require(MongoDatabase.class);
+    MongoDatabase mydb = require(MongoDatabase.class);
     // work with mydb
   });
 }
@@ -98,9 +98,9 @@ Use [named]({{defdocs}}/mongodb/Mongodb.html#-named) when you need two or more `
   use(new Mongodb("db2"));
 
   get("/", req -> {
-    MongoClient client1 = req.require("db1", MongoClient.class);
+    MongoClient client1 = require("db1", MongoClient.class);
     // work with db1
-    MongoClient client2 = req.require("db2", MongoClient.class);
+    MongoClient client2 = require("db2", MongoClient.class);
     // work with db2
   });
 }

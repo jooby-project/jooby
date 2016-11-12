@@ -29,6 +29,23 @@ We use the [maven-shade-plugin](https://maven.apache.org/plugins/maven-shade-plu
 </build>
 ```
 
+Or the [gradle-shadow-plugin](https://plugins.gradle.org/plugin/com.github.johnrengelman.shadow):
+
+```js
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "com.github.jengelman.gradle.plugins:shadow:1.2.4"
+  }
+}
+
+apply plugin: "com.github.johnrengelman.shadow"
+```
+
 If you created your application via [maven archetype](/quickstart) this setup is already present in your application.
 
 ## run / start

@@ -233,7 +233,7 @@ import javax.persistence.TypedQuery;
   ...
   /** List pets. */
   get("/pets", req -> {
-    EntityManager em = req.require(EntityManager.class);
+    EntityManager em = require(EntityManager.class);
     TypedQuery<Pet> query = em.createQuery("from Pet", Pet.class);
     return query.getResultList();
   });
@@ -250,7 +250,7 @@ Let’s add a start and max parameters to our listing service:
 {
   /** List pets. */
   get("/pets", req -> {
-    EntityManager em = req.require(EntityManager.class);
+    EntityManager em = require(EntityManager.class);
     TypedQuery<Pet> query = em.createQuery("from Pet", Pet.class)
           .setFirstResult(req.param("start").intValue(0))
           .setMaxResults(req.param("max").intValue(20));
@@ -274,7 +274,7 @@ http://localhost:8080/pets?start=0&max=20
   ...
   /** Get a pet by ID. */
   get("/pets/:id", req -> {
-    EntityManager em = req.require(EntityManager.class);
+    EntityManager em = require(EntityManager.class);
     Pet pet = em.find(Pet.class, req.param("id").intValue());
     if (pet == null) {
       throw new Err(Status.NOT_FOUND);
@@ -300,7 +300,7 @@ So far, we see how to query pets by ID or listing all them, it is time to see ho
   ...
   /** Create new pet. */
   post("/pets", req -> {
-    EntityManager em = req.require(EntityManager.class);
+    EntityManager em = require(EntityManager.class);
     Pet pet = req.body().to(Pet.class);
     em.persist(pet);
     return pet;

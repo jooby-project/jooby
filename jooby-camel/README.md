@@ -38,7 +38,7 @@ depend on [camel-guice](http://camel.apache.org/guice.html), but it provides sim
   );
 
   get("/noop", req -> {
-    req.require(ProducerTemplate.class).sendBody("direct:noop", "NOOP");
+    require(ProducerTemplate.class).sendBody("direct:noop", "NOOP");
     return "/noop";
   });
 

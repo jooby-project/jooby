@@ -6,7 +6,7 @@ A capsule is a single executable JAR that contains everything your application n
 
 ## usage
 
-[Capsule](http://www.capsule.io/) integration is provided via [Maven Profiles](http://maven.apache.org/guides/introduction/introduction-to-profiles.html) using the [capsule-maven-plugin](https://github.com/chrischristo/capsule-maven-plugin).
+[Capsule](http://www.capsule.io) integration is provided via [Maven Profiles](http://maven.apache.org/guides/introduction/introduction-to-profiles.html) using the [capsule-maven-plugin](https://github.com/chrischristo/capsule-maven-plugin).
 
 * Write a ```capsule.activator``` file inside the ```src/etc``` directory
 
@@ -15,6 +15,8 @@ A capsule is a single executable JAR that contains everything your application n
 * It builds a ```[app-name]-capsule-fat.jar``` file inside the ```target``` directory
 
 It generates a ```fat capsule``` by default inside the ```target``` directory.
+
+If you are a [Gradle](https://gradle.org/) user, checkout the [capsule gradle](https://github.com/puniverse/capsule-demo/blob/master/build.gradle) example.
 
 ## profile activation
 

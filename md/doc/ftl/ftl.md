@@ -18,7 +18,6 @@
 ```
 
 ## usage
-It is pretty straightforward:
 
 ```java
 {
@@ -34,10 +33,9 @@ public/index.html:
 ${model}
 ```
 
-Templates are loaded from root of classpath: ```/``` and must end with: ```.html```
-file extension.
+Templates are loaded from root of classpath: ```/``` and must end with: ```.html``` file extension.
 
-## req locals
+## request locals
 
 A template engine has access to ```request locals``` (a.k.a attributes). Here is an example:
 
@@ -46,26 +44,29 @@ A template engine has access to ```request locals``` (a.k.a attributes). Here is
   use(new Ftl());
 
   get("*", req -> {
-    req.set("req", req);
-    req.set("session", req.session());
+    req.set("foo", "bar");
   });
 }
 ```
 
-By default, there is no access to ```req``` or ```session``` from your template. This example shows how to do it.
+Then from template:
+
+```
+${foo}
+```
 
 
 ## configuration
+
 There are two ways of changing a Freemarker configuration:
 
-### application.conf
-Just add a ```freemarker.*``` option to your ```application.conf``` file:
+* via `.conf` file:
 
 ```properties
 freemarker.default_encoding = UTF-8
 ```
 
-### programmatically
+* or programmatically:
 
 ```java
 {
@@ -75,12 +76,11 @@ freemarker.default_encoding = UTF-8
 }
 ```
 
-Keep in mind this is just an example and you don't need to set the default encoding. Default
-encoding is set to: ```application.charset``` which is ```UTF-8``` by default.
+Keep in mind this is just an example and you don't need to set the default encoding. Default encoding is set to: ```application.charset``` which is ```UTF-8``` by default.
 
 ## template loader
-Templates are loaded from the root of classpath and must end with ```.html```. You can
-change the default template location and extensions too:
+
+Templates are loaded from the root of classpath and must end with ```.html```. You can change the default template location and extensions too:
 
 ```java
 {
@@ -103,7 +103,4 @@ freemarker.cache = "expireAfterWrite=1h"
 
 See [CacheBuilderSpec](http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/CacheBuilderSpec.html) for more detailed expressions.
 
-That's all folks! Enjoy it!!!
-
 {{appendix}}
-

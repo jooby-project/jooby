@@ -32,7 +32,7 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
       .get(req -> {
         int start = req.param("start").intValue(0);
         int max = req.param("max").intValue(50);
-        DB db = req.require(DB.class);
+        DB db = require(DB.class);
         List<Pet> pets = db.findAll(start, max);
         return pets;
       })
@@ -44,7 +44,7 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
        */
       .get("/:id", req -> {
         int id = req.param("id").intValue();
-        DB db = req.require(DB.class);
+        DB db = require(DB.class);
         Pet pet = db.find(id);
         if (pet == null) {
           throw new Err(Status.NOT_FOUND);
@@ -59,7 +59,7 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
        */
       .post(req -> {
         Pet pet = req.body().to(Pet.class);
-        DB db = req.require(DB.class);
+        DB db = require(DB.class);
         db.save(pet);
         return pet;
       })
@@ -71,7 +71,7 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
        */
       .put(req -> {
         Pet pet = req.body().to(Pet.class);
-        DB db = req.require(DB.class);
+        DB db = require(DB.class);
         db.save(pet);
         return pet;
       })
@@ -83,7 +83,7 @@ Let's review how to build rich APIs using the ```spec``` module via ```script```
        */
       .delete("/:id", req -> {
         int id = req.param("id").intValue();
-        DB db = req.require(DB.class);
+        DB db = require(DB.class);
         db.delete(id);
         return Results.noContent();
       })
@@ -338,7 +338,7 @@ Here is an example on how to document script routes:
     .get(req -> {
       int start = req.param("start").intValue(0);
       int max = req.param("max").intValue(200);
-      DB db = req.require(DB.class);
+      DB db = require(DB.class);
       List<Pet> pets = db.findAll(Pet.class, start, max);
       return pets;
     });
@@ -376,7 +376,7 @@ With JavaDoc, you can control the default type returned by the route and/or the 
    * @return Returns a {@link Pet} with <code>200</code> status or <code>404</code> 
    */
   get(req -> {
-    DB db = req.require(DB.class);
+    DB db = require(DB.class);
     return db.find(Pet.class, id);
   });
 ```

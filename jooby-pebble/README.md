@@ -28,7 +28,7 @@
   // or Pebble API
   get("/pebble-api", req -> {
 
-    PebbleEngine pebble = req.require(PebbleEngine.class);
+    PebbleEngine pebble = require(PebbleEngine.class);
     PebbleTemplate template = pebble.getTemplate("template");
     template.evaluate(...);
   });

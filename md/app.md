@@ -10,7 +10,7 @@ public class App extends Jooby { // 1.
     get("/", () -> "Hello");
   }
 
-  public static void main(String[] args) throws Throwable {
+  public static void main(String[] args) {
     // 3. run my app
     run(App::new, args);
   }
@@ -105,7 +105,7 @@ You have access to the the service registry from start/stop events:
 
 ### PostConstruct/PreDestroy annotations
 
-If you prefer the annotation way... you can too:
+If you prefer the annotation way then:
 
 ```java
 @Singleton
@@ -129,4 +129,4 @@ App.java:
 }
 ```
 
-It works as expected just make sure ```MyService``` is a **Singleton** object.
+Service must be a **Singleton** object.

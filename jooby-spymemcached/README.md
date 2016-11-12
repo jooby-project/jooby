@@ -26,7 +26,7 @@ Provides memcached access via [SpyMemcached](https://github.com/dustin/java-memc
   use(new SpyMemcached());
 
   get("/", req -> {
-    MemcachedClient client = req.require(MemcachedClient.class);
+    MemcachedClient client = require(MemcachedClient.class);
     client.set("foo", 60, "bar");
     return client.get("foo");
   });

@@ -35,7 +35,7 @@ pattern, which basically keeps the ```Session``` opened until the view is render
   use(new Hbm(EntityA.class, EntityB.class));
 
   get("/", req -> {
-   EntityManager em = req.require(EntityManager.class);
+   EntityManager em = require(EntityManager.class);
    // work with em...
   });
 }

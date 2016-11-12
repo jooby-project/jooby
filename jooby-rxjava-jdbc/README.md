@@ -32,7 +32,7 @@ import org.jooby.rx.Rx;
   use(new RxJdbc());
 
   get("/reactive", req ->
-    req.require(Database.class)
+    require(Database.class)
       .select("select name from something where id = :id")
       .parameter("id", 1)
       .getAs(String.class)
@@ -55,8 +55,8 @@ import org.jooby.rx.Rx;
 
   get("/", req ->
 
-    Databse db = req.require("db.main", Database.class);
-    Databse audit = req.require("db.audit", Database.class);
+    Databse db = require("db.main", Database.class);
+    Databse audit = require("db.audit", Database.class);
     // ...
   ).map(Rx.rx());
 

@@ -143,7 +143,7 @@ After a successful authentication the ```CommonProfile``` is accessible as a req
 {
   use(new Auth().form());
 
-  get("/private", req -> req.require(HttpProfile.class));
+  get("/private", req -> require(HttpProfile.class));
 }
 ```
 
@@ -153,7 +153,7 @@ facebook (or any oauth, openid, etc...)
 {
   use(new Auth().client(new FacebookClient(key, secret));
 
-  get("/private", req -> req.require(FacebookProfile.class));
+  get("/private", req -> require(FacebookProfile.class));
 }
 ```
 
@@ -163,7 +163,7 @@ Custom [AuthStore]({{defdocs}}/pac4j/AuthStore.html) is provided via [Auth#store
 {
   use(new Auth().store(MyDbStore.class));
 
-  get("/private", req -> req.require(HttpProfile.class));
+  get("/private", req -> require(HttpProfile.class));
 }
 ```
 

@@ -38,7 +38,7 @@ application.conf:
   use(new CommonsEmail());
 
   get("/send", req -> {
-    req.require(SimpleEmail.class)
+    require(SimpleEmail.class)
        .setMsg("you got an email!")
        .setTo("foo@bar.com")
        .send();

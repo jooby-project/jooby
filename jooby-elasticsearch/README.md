@@ -42,7 +42,7 @@ The module exports a ```RestClient``` instance
 
 put("/:id", req -> {
   // index a document
-  RestClient client = req.require(RestClient.class);
+  RestClient client = require(RestClient.class);
   StringEntity data = new StringEntity("{\"foo\":\"bar\"}");
   return client.performRequest("PUT", "/twitter/tweet/" + req.param("id").value(), Collections.emptyMap(), data)
     .getEntity().getContent();

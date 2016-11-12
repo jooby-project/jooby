@@ -1,19 +1,31 @@
 # parser and renderer
 
-You will find here the available modules for reading and converting between data formats like: ```json```, ```html```, etc...
+Find here the available modules for parsing or rendering several formats.
 
 # template engines
 
-* [freemarker](/doc/ftl): {{freemarker}} templates.
+## freemarker
 
-* [jade](/doc/jade): [jade](http://jade-lang.com/) templates via [jade4j](https://github.com/neuland/jade4j)
+[Freemarker](/doc/ftl) templates.
 
-* [handlebars](/doc/hbs): logic less and semantic templates via Mustache/Handlebars.
+## jade
 
-* [pebble](/doc/pebble): [Pebble](http://www.mitchellbosecke.com/pebble) templates.
+[Jade](/doc/jade) templates via [jade4j](https://github.com/neuland/jade4j).
+
+## handlebars
+
+[Handlebars](/doc/hbs) logic less and semantic templates via {{handlebars}}.
+
+## pebble
+
+[Pebble](/doc/pebble) templates.
 
 # json
 
-* [jackson](/doc/jackson): JSON supports via {{jackson}}.
+## jackson
 
-* [gson](/doc/gson): JSON supports via {{gson}}.
+JSON supports via [jackson](/doc/jackson).
+
+## gson
+
+JSON supports via [gson](/doc/gson).

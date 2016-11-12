@@ -35,7 +35,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
   );
 
   get("/", req -> {
-    AmazonS3 s3 = req.require(AmazonS3.class);
+    AmazonS3 s3 = require(AmazonS3.class);
     // work with s3
   });
 }

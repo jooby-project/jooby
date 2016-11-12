@@ -72,7 +72,7 @@ import javax.persistence.EntityManager;
 
   get("/pets/:name", req -> {
     String name = req.param("name").value();
-    EntityManager em = req.require(EntityManager.class);
+    EntityManager em = require(EntityManager.class);
 
     return new JPAQuery(em)
       .from(pet)

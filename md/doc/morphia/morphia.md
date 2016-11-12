@@ -34,7 +34,7 @@ db = "mongodb://localhost/mydb"
   use(new Monphia());
 
   get("/", req -> {
-    Datastore ds = req.require(Datastore.class);
+    Datastore ds = require(Datastore.class);
     // work with mydb datastore
   });
 }

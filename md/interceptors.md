@@ -156,7 +156,7 @@ Suppose you have a transactional resource, like a database connection. The next 
 {
   // start transaction
   before("/api/*", (req, rsp) -> {
-    DataSource ds = req.require(DataSource.class);
+    DataSource ds = require(DataSource.class);
     Connection connection = ds.getConnection();
     Transaction trx = connection.getTransaction();
     trx.begin();

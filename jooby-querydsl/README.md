@@ -27,7 +27,7 @@ import org.jooby.querydsl.QueryDSL;
 
   get("/my-api", req -> {
 
-    SQLQueryFactory queryFactory = req.require(SQLQueryFactory.class);
+    SQLQueryFactory queryFactory = require(SQLQueryFactory.class);
     // Do something with the database
     ...
   });
@@ -57,7 +57,7 @@ import org.jooby.querydsl.QueryDSL;
 
   get("/my-api", req -> {
 
-    SQLQueryFactory queryFactory = req.require("db.main", SQLQueryFactory.class);
+    SQLQueryFactory queryFactory = require("db.main", SQLQueryFactory.class);
     // Do something with the database
   });
 

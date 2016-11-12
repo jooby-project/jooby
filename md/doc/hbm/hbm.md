@@ -137,7 +137,7 @@ Persistent classes must be provided at application startup time via [classes(Cla
 }
 ```
 
-Or via {@link #scan()}:
+Or via `scan`:
 
 ```java
 {
