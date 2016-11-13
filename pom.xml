@@ -91,7 +91,6 @@
     <module>jooby-assets-requirejs</module>
     <module>jooby-assets-babel</module>
     <module>jooby-assets-rollup</module>
-    <module>jooby-assets-jsass</module>
     <module>jooby-assets-svg-sprites</module>
     <module>jooby-assets-svg-symbol</module>
     <module>jooby-assets-autoprefixer</module>
@@ -440,12 +439,6 @@
       <dependency>
         <groupId>org.jooby</groupId>
         <artifactId>jooby-assets-sass</artifactId>
-        <version>${jooby.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jooby</groupId>
-        <artifactId>jooby-assets-jsass</artifactId>
         <version>${jooby.version}</version>
       </dependency>
 

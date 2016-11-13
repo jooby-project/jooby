@@ -9,20 +9,12 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-assets-sass</artifactId>
+  <artifactId>jooby-assets-jsass</artifactId>
 
-  <name>sass-lang module</name>
+  <name>jsass.js module</name>
+  <description>jsass is a Java sass compiler using libsass</description>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
-      <resource>
-        <directory>src/main/ruby</directory>
-      </resource>
-    </resources>
-
     <plugins>
       <!-- sure-fire -->
       <plugin>
@@ -41,18 +33,17 @@
   </build>
 
   <dependencies>
-
-    <!-- Sass -->
-    <dependency>
-      <groupId>org.jruby</groupId>
-      <artifactId>jruby-complete</artifactId>
-    </dependency>
-
     <!-- Jooby -->
     <dependency>
       <groupId>org.jooby</groupId>
       <artifactId>jooby-assets</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.bit3</groupId>
+      <artifactId>jsass</artifactId>
+      <version>5.2.0</version>
     </dependency>
 
     <!-- Test dependencies -->

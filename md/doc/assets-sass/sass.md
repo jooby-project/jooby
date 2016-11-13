@@ -1,17 +1,16 @@
 # sass
 
-<a href="http://sass-lang.com/">sass-lang</a> implementation from <a href="https://github.com/sass/sass">Sass (ruby)</a> Sass is the most mature, stable, and powerful professional grade CSS extension language in the world.
+<a href="http://sass-lang.com/">sass-lang</a> implementation from <a href="https://github.com/bit3/jsass">Java sass compiler</a>. Sass is the most mature, stable, and powerful professional grade CSS extension language in the world.
 
-{{assets-require.md}}
+<a href="https://github.com/bit3/jsass">Java sass compiler</a> Feature complete java sass compiler using libsass.
 
 ## dependency
 
 ```xml
 <dependency>
-  <groupId>org.jooby</groupId>
-  <artifactId>jooby-assets-sass</artifactId>
-  <version>{{version}}</version>
-  <scope>provided</scope>
+ <groupId>org.jooby</groupId>
+ <artifactId>jooby-sass</artifactId>
+ <version>{{version}}</version>
 </dependency>
 ```
 
@@ -19,30 +18,36 @@
 
 ```
 assets {
- fileset {
-   home: home.scss
- }
- pipeline {
-   dev: [sass]
-   dist: [sass]
- }
+  fileset {
+
+    home: home.scss
+  }
+
+  pipeline {
+
+    dev: [sass]
+    dist: [sass]
+  }
+
 }
 ```
 
 ## options
 
-```
+```java
 assets {
- ...
- sass {
-   syntax: scss
-   dev {
-     sourceMap: inline
-   }
- }
+  ...
+
+  sass {
+
+    syntax: scss
+    dev {
+      sourceMap: inline
+    }
+    dist {
+      style: compressed
+    }
+  }
+
 }
 ```
-
-# see also
-
-{{available-asset-procesors.md}}
