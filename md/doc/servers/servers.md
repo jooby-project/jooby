@@ -1,6 +1,8 @@
 # servers
 
-Run your application on top of your favorite server! Just change one line and switch between {{netty}}, {{jetty}} or {{undertow}}!!
+Run your application on top of your favorite server!
+
+Change one line and switch between {{netty}}, {{jetty}} or {{undertow}}!!
 
 {{doc/netty/netty.md}}
 

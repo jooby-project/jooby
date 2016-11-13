@@ -15,10 +15,10 @@ In order to deploy into a Servlet Container, we need to generate a ```*.war``` f
 
 * web-sockets are not supported
 * some properties has no effect when deploying into a Servlet Container:
- - application.path / contextPath
- - appplication.port
- - max upload file sizes
- - any other server specific property: server.*, jetty.*, netty.*, undertow.*
+  - application.path / contextPath
+  - appplication.port
+  - max upload file sizes
+  - any other server specific property: server.*, jetty.*, netty.*, undertow.*
 
 
 ### special note on contextPath
@@ -37,7 +37,7 @@ For example:
 </html>
 ```
 
-Here the expression: ```{{ "{{contextPath" }}}}``` correspond to the template engine (handlebars here) or ```${contextPath}``` for Freemarker.
+Here the expression: ```{{contextPath}}``` corresponds to the template engine (handlebars here) or ```${contextPath}``` for Freemarker.
 
 ## how it works?
 

@@ -106,12 +106,11 @@ import org.crsh.command.InvocationContext
 
 class hello {
 
- @Usage("Say Hello")
- @Command
- def main(InvocationContext context) {
-     return "Hello"
- }
-
+  @Usage("Say Hello")
+  @Command
+  def main(InvocationContext context) {
+    return "Hello"
+  }
 }
 ```
 
@@ -120,16 +119,134 @@ Jooby adds some additional attributes and commands to `InvocationContext` that y
 * registry: Access to [Registry]({{defdocs}}/Registry.html).
 * conf: Access to `Config`.
 
+Example:
+
+```java
+package commands
+
+import org.crsh.cli.Command
+import org.crsh.cli.Usage
+import org.crsh.command.InvocationContext
+
+class HelloMyService {
+
+  @Usage("MySerivce.doSomething")
+  @Command
+  def execute(InvocationContext context) {
+    def registry = context.registry
+
+    return registry.require(MySerivce.class).doSomething()
+  }
+}
+```
+
 ### routes command
 
 The ```routes``` print all the application routes.
 
+```
+dev> routes
+order method pattern             consumes produces name       source
+-------------------------------------------------------------------------------------------------
+0     GET    /shell/css/**       [*/*]    [*/*]    /anonymous org.jooby.crash.WebShellPlugin:41
+0     GET    /shell/js/**        [*/*]    [*/*]    /anonymous org.jooby.crash.WebShellPlugin:42
+0     GET    /shell              [*/*]    [*/*]    /anonymous org.jooby.crash.WebShellPlugin:45
+0     GET    /api/shell/{cmd:.*} [*/*]    [*/*]    /anonymous org.jooby.crash.HttpShellPlugin:43
+0     *      {before}/path       [*/*]    [*/*]    /anonymous app.CrashApp:21
+0     *      {after}/path        [*/*]    [*/*]    /anonymous app.CrashApp:24
+0     *      {complete}/path     [*/*]    [*/*]    /anonymous app.CrashApp:28
+0     GET    /                   [*/*]    [*/*]    /anonymous app.CrashApp:31
+
+
+method pattern consumes         produces
+-------------------------------------------------
+WS     /shell  application/json application/json
+```
+
 ### conf command
 
-The ```conf tree``` print the application configuration tree (configuration precedence).
+The ```conf tree``` print the application configuration tree (configuration precedence):
+
+```
+dev> conf tree
+ merge of system properties
+  org/jooby/crash/crash.conf @ file:/jooby-crash/target/classes/org/jooby/crash/crash.conf
+   org/jooby/spi/server.conf @ file:/jooby-netty/target/classes/org/jooby/spi/server.conf
+    org/jooby/mime.properties @ file:/jooby/target/classes/org/jooby/mime.properties
+     org/jooby/jooby.conf @ file:/jooby/target/classes/org/jooby/jooby.conf: 1
+```
 
 The ```conf props [path]``` print all the application properties, sub-tree or a single property if ```path``` argument is present.
 
+```
+dev> conf props
+name                                   value
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+mime.pgn                               application/x-chess-pgn
+os.version                             10.11.6
+mime.ttf                               font/truetype
+err.java.io.FileNotFoundException      404
+sun.cpu.isalist
+mime.wtls-ca-certificate               application/vnd.wap.wtls-ca-certificate
+mime.texinfo                           application/x-texinfo
+runtime.concurrencyLevel               8
+.....
+```
+
+```
+dev> conf props application
+name                       value
+--------------------------------------------------------------------------------
+application.tmpdir         /var/folders/9l/fyb_j4l553z6ql4443yttbj40000gn/T/app
+application.version        0.0.0
+application.ns             app
+application.port           8080
+application.charset        UTF-8
+application.redirect_https
+application.class          app.CrashApp
+application.tz             America/Argentina/Buenos_Aires
+application.numberFormat   #,##0.###
+application.dateFormat     dd-MMM-yyyy
+application.env            dev
+application.host           localhost
+application.name           app
+application.path           /
+application.lang           en-US
+```
+
+```
+dev> conf props application.port
+name             value
+-----------------------
+application.port 8080
+```
+
 ## fancy banner
 
-Just add the [jooby-banner](/doc/banner) to your project and all the `CRaSH` shell will use it. Simple and easy!!
+Just add the [jooby-banner](/doc/banner) to your project and all the `CRaSH` shell will use it.
+
+
+```java
+{
+  use(new Banner("crash me!"));
+
+  use(new Crash());
+}
+```
+
+    telnet localhost 5000
+
+```
+Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+_____                        _____
+__________________ __________  /_       ______ ___ ____ __  /
+  ___/_  ___/  __ `/_  ___/_  __ \      _  __ `__ \  _ \_  / 
+ /__    /     /_/ / (__  )   / / /        / / / / /  __//_/  
+___/  _/     __,_/  ____/  _/ /_/       _/ /_/ /_/ ___/ _) v0.0.0
+
+dev>
+```
+
+Simple and easy!!

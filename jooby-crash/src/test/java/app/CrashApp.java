@@ -2,8 +2,8 @@ package app;
 
 import org.jooby.Jooby;
 import org.jooby.banner.Banner;
-import org.jooby.crash.HttpShellPlugin;
 import org.jooby.crash.Crash;
+import org.jooby.crash.HttpShellPlugin;
 import org.jooby.json.Jackson;
 
 public class CrashApp extends Jooby {
@@ -12,7 +12,7 @@ public class CrashApp extends Jooby {
 
     use(new Jackson());
 
-    use(new Banner("crash me"));
+    use(new Banner("crash me!"));
 
     use(new Crash()
         .plugin(HttpShellPlugin.class)
