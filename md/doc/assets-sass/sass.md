@@ -9,8 +9,9 @@
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-sass</artifactId>
+ <artifactId>jooby-assets-sass</artifactId>
  <version>{{version}}</version>
+ <scope>provided</scope>
 </dependency>
 ```
 
@@ -51,3 +52,7 @@ assets {
 
 }
 ```
+
+# see also
+
+{{available-asset-procesors.md}}

@@ -49,7 +49,7 @@ assets {
 
 ## options
 
-```
+```js
 assets {
  ...
  yui-js {
@@ -57,6 +57,7 @@ assets {
    preserve-semi: true
  }
 }
+```
 
 # see also
 

@@ -11,6 +11,7 @@
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-auto-prefixer</artifactId>
  <version>{{version}}</version>
+ <scope>provided</scope>
 </dependency>
 ```
 
@@ -75,3 +76,7 @@ Output:
 ```
 
 For complete documentation about available options, please refer to the <a href="https://github.com/postcss/autoprefixer">autoprefixer</a> site.
+
+# see also
+
+{{available-asset-procesors.md}}

@@ -9,8 +9,9 @@ An [AssetAggregator]({{defdocs}}/assets/AssetAggregator.html) that creates SVG s
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-svg-sprites</artifactId>
+ <artifactId>jooby-assets-svg-sprites</artifactId>
  <version>{{version}}</version>
+ <scope>provided</scope>
 </dependency>
 ```
 
@@ -61,3 +62,7 @@ assets {
 ```
 
 Please refer to <a href="https://github.com/drdk/dr-svg-sprites">dr-svg-sprites</a> for more details.
+
+# see also
+
+{{available-asset-procesors.md}}

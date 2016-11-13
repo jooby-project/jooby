@@ -1,6 +1,6 @@
 # props
 
-Replace ```${expressions}``` with a value from ```application.conf```.
+Replace ```${}``` expressions with application properties.
 
 {{assets-require.md}}
 
@@ -18,7 +18,29 @@ assets {
 }
 ```
 
+## example
+
+application.conf:
+
+```
+foo = bar
+```
+
+app.js:
+
+```js
+(function (foo) {
+  console.log(foo);
+})("${foo}")
+```
+
+prints:
+
+    bar
+
 ## options
+
+It replaces `${}` expressions, the `delims` options allow you to change this:
 
 ```
 assets {

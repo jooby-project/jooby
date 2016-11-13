@@ -11,6 +11,7 @@ SVG ```symbol``` for icons: merge svg files from a folder and generates a ```spr
  <groupId>org.jooby</groupId>
  <artifactId>jooby-assets-svg-symbol</artifactId>
  <version>{{version}}</version>
+ <scope>provided</scope>
 </dependency>
 ```
 
@@ -131,3 +132,7 @@ svg.approved {
 ```
 
 This option is useful for generating more specific css class selectors.
+
+# see also
+
+{{available-asset-procesors.md}}
