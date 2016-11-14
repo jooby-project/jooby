@@ -2136,6 +2136,90 @@
       </build>
     </profile>
 
+    <!-- docker -->
+    <profile>
+      <id>docker.jar</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}docker.activator</exists>
+        </file>
+      </activation>
+      <properties>
+        <docker.expose>8080</docker.expose>
+        <docker.targetPath>/</docker.targetPath>
+        <docker.directory>${project.build.directory}</docker.directory>
+        <docker.include>${project.build.finalName}.jar</docker.include>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.spotify</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>${docker-maven-plugin.version}</version>
+            <configuration>
+              <imageName>${project.artifactId}</imageName>
+              <baseImage>openjdk:jre-alpine</baseImage>
+              <entryPoint>["java", "-jar", "/${project.build.finalName}.jar"]</entryPoint>
+              <exposes>
+                <expose>${docker.expose}</expose>
+              </exposes>
+              <resources>
+                <resource>
+                  <targetPath>${docker.targetPath}</targetPath>
+                  <directory>${docker.directory}</directory>
+                  <include>${docker.include}</include>
+                </resource>
+              </resources>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>docker.stork</id>
+      <activation>
+        <file>
+          <exists>${basedir}${file.separator}src${file.separator}etc${file.separator}docker.stork.activator</exists>
+        </file>
+      </activation>
+      <properties>
+        <docker.expose>8080</docker.expose>
+        <docker.targetPath>./</docker.targetPath>
+        <docker.workdir>/opt/${project.artifactId}</docker.workdir>
+        <docker.directory>${project.build.directory}</docker.directory>
+        <docker.include>${project.build.finalName}.stork.zip</docker.include>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.spotify</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>${docker-maven-plugin.version}</version>
+            <configuration>
+              <imageName>${project.artifactId}</imageName>
+              <baseImage>openjdk:jre-alpine</baseImage>
+              <entryPoint>["bin/${project.artifactId}", "--run"]</entryPoint>
+              <workdir>${docker.workdir}</workdir>
+              <exposes>
+                <expose>${docker.expose}</expose>
+              </exposes>
+              <runs>
+                <run>unzip ${project.build.finalName}.stork.zip</run>
+              </runs>
+              <resources>
+                <resource>
+                  <targetPath>${docker.targetPath}</targetPath>
+                  <directory>${docker.directory}</directory>
+                  <include>${docker.include}</include>
+                </resource>
+              </resources>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <!-- checkstyle -->
     <profile>
       <id>checkstyle</id>
@@ -2666,6 +2750,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <build-helper-maven-plugin.version>1.9.1</build-helper-maven-plugin.version>
     <fizzed-stork-maven-plugin.version>1.2.3</fizzed-stork-maven-plugin.version>
     <capsule-maven-plugin.version>1.0.4</capsule-maven-plugin.version>
+    <docker-maven-plugin.version>0.4.13</docker-maven-plugin.version>
 
     <jooby.version>${project.version}</jooby.version>
     <jooby-maven-plugin.version>${jooby.version}</jooby-maven-plugin.version>

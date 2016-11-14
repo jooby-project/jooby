@@ -6,43 +6,46 @@ Docker is the world’s leading software containerization platform. You can easi
 
 You need [docker](https://docs.docker.com/engine/installation/) installed on the building machine.
 
-Add the following to the pom.xml under plugins:
+Maven users have two options: one for a building a [fat jar](/doc/deployment/#fat-jar) and one for building a [stork](/doc/deployment/#stork) distribution.
 
-```xml
-<plugin>
-    <groupId>com.spotify</groupId>
-    <artifactId>docker-maven-plugin</artifactId>
-    <version>0.4.13</version>
-    <configuration>
-        <imageName>my-jooby-image</imageName>
-        <baseImage>openjdk:jre-alpine</baseImage>
-        <entryPoint>["java", "-jar", "/${project.build.finalName}.jar"]</entryPoint>
-        <exposes>
-          <expose>8080</expose>
-        </exposes>
-        <resources>
-            <resource>
-                <targetPath>/</targetPath>
-                <directory>${project.build.directory}</directory>
-                <include>${project.build.finalName}.jar</include>
-            </resource>
-        </resources>
-    </configuration>
-</plugin>
- ```
+Gradle users might want to choose one of the available [plugins](https://plugins.gradle.org/search?term=docker).
 
-In order to create the **docker image** go to your project home, open a terminal and run:
+### fat jar
+
+* Write a `src/etc/docker.activator` file. File contents doesn't matter, the file presence activates a Maven profile.
+
+* Open a terminal and run:
 
 ```bash
-mvn clean docker:build
+mvn clean package docker:build
 ```
 
-Once it finish, the docker image will be build and tagged as ```my-jooby-image```.
+* Once it finish, the docker image will be build and tagged as `${project.artifactId}`.
 
-## run / start
-
-You can now run the image with:
+* You can now run the image with:
 
 ```bash
-docker run -p 80:8080 my-jobby-image
+docker run -p 80:8080 ${project.artifactId}
 ```
+
+The Maven profile trigger the [spotify/docker-maven-plugin](https://github.com/spotify/docker-maven-plugin) which generates a `docker` file. Please checkout the [doc](https://github.com/spotify/docker-maven-plugin) for more datails.
+
+### stork
+
+* Write a `src/etc/docker.stork.activator` file. File contents doesn't matter, the file presence activates a Maven profile.
+
+* Open a terminal and run:
+
+```bash
+mvn clean package docker:build
+```
+
+* Once it finish, the docker image will be build and tagged as `${project.artifactId}`.
+
+* You can now run the image with:
+
+```bash
+docker run -it -p 80:8080 ${project.artifactId}
+```
+
+The Maven profile trigger the [spotify/docker-maven-plugin](https://github.com/spotify/docker-maven-plugin) which generates a `docker` file. Please checkout the [doc](https://github.com/spotify/docker-maven-plugin) for more datails.

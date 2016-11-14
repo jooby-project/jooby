@@ -88,6 +88,8 @@ It works for ```logback.xml``` too, if ```logback.[env].xml``` is present, then 
 
 {{capsule.md}}
 
+{{docker.md}}
+
 {{public-dir.md}}
 
 # war?
