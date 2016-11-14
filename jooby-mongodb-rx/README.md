@@ -4,6 +4,7 @@
 
 A MongoDB based driver providing support for <a href="http://reactivex.io">ReactiveX (Reactive Extensions)</a> by using the <a href="https://github.com/ReactiveX/RxJava">RxJava library</a>. All database calls return an <a href="http://reactivex.io/documentation/observable.html">Observable</a> allowing for efficient execution, concise code, and functional composition of results.
 
+
 > This module depends on [rx module](/doc/rxjava), please read the documentation of [rx module](/doc/rxjava) before using ```mongodb-rx```.
 
 ## dependency
@@ -12,7 +13,7 @@ A MongoDB based driver providing support for <a href="http://reactivex.io">React
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-mongodb-rx</artifactId>
- <version>1.0.0.CR8</version>
+ <version>1.0.0</version>
 </dependency>
 ```
 

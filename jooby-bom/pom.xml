@@ -4,13 +4,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>pom</packaging>
   <name>jooby-bom</name>
   <description>Jooby (Bill of Materials)</description>
   <url>https://github.com/jooby-project/jooby</url>
   <properties>
-    <jooby.version>1.0.0-SNAPSHOT</jooby.version>
+    <jooby.version>1.0.0</jooby.version>
 
     <maven-release-plugin.version>2.5.1</maven-release-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
@@ -272,6 +272,81 @@
   </dependency>
   <dependency>
     <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-metrics</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-querydsl</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-sitemap</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-rxjava</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-rxjava-jdbc</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-banner</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-reactor</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-whoops</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-gradle-plugin</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-couchbase</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-cassandra</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-scanner</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-csl</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-unbescape</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
+    <artifactId>jooby-crash</artifactId>
+    <version>${jooby.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>${project.groupId}</groupId>
     <artifactId>jooby-assets</artifactId>
     <version>${jooby.version}</version>
   </dependency>
@@ -357,87 +432,17 @@
   </dependency>
   <dependency>
     <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-assets-jsass</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
     <artifactId>jooby-assets-svg-sprites</artifactId>
     <version>${jooby.version}</version>
   </dependency>
   <dependency>
     <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-metrics</artifactId>
+    <artifactId>jooby-assets-svg-symbol</artifactId>
     <version>${jooby.version}</version>
   </dependency>
   <dependency>
     <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-querydsl</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-sitemap</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-rxjava</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-rxjava-jdbc</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-banner</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-reactor</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-whoops</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-gradle-plugin</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-couchbase</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-cassandra</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-scanner</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-csl</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-unbescape</artifactId>
-    <version>${jooby.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>jooby-crash</artifactId>
+    <artifactId>jooby-assets-autoprefixer</artifactId>
     <version>${jooby.version}</version>
   </dependency>
 </dependencies>

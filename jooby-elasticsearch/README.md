@@ -1,12 +1,10 @@
 # elasticsearch
 
-Full text search & analytics  via [Elasticsearch](https://github.com/elastic/elasticsearch).
-
-Provides a RESTFul client.
+Open Source, Distributed, RESTful Search Engine via [Elastic Search](https://github.com/elastic/elasticsearch).
 
 ## exports
 
-* ```Client```
+* ```RestClient```
 
 ## dependency
 
@@ -14,7 +12,7 @@ Provides a RESTFul client.
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-elasticsearch</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -22,21 +20,15 @@ Provides a RESTFul client.
 
 ```java
 {
-  use(new Elasticsearch());
+  use(new Elasticsearch("localhost:9200"));
 }
 ```
 
-You can specify a list of hosts to connect to, which are then connected via round-robin
-
-```java
-{
-  use(new Elasticsearch("localhost:9200", "localhost:9201"));
-}
-```
+The constructor field is an array, so you can specify several hosts for round robin of requests.
 
 ## client API
 
-The module exports a ```RestClient``` instance
+The module exports a ```RestClient``` instance.
 
 ```java
 
@@ -47,6 +39,4 @@ put("/:id", req -> {
   return client.performRequest("PUT", "/twitter/tweet/" + req.param("id").value(), Collections.emptyMap(), data)
     .getEntity().getContent();
 });
-
 ```
-

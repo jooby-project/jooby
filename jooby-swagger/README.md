@@ -10,7 +10,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-swagger</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -35,7 +35,7 @@
      })
      ...;
 
-  new SwaggerUI().install(this);  
+  new Swagger().install(this);
 
 }
 ```
@@ -105,7 +105,7 @@ One ore more routes are grouped by a tag. The default tag provider produces ```p
 
 ```java
 {
-  new Swagger()
+  new SwaggerUI()
     .tag(route -> route.name())
     .install(this);
 }
@@ -119,7 +119,7 @@ This option turn off the swagger-ui:
 {
   ...
 
-  new Swagger()
+  new SwaggerUI()
     .noUI()
     .install(this);
 }

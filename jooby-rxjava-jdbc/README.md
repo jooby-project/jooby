@@ -10,8 +10,8 @@
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-rxjdbc</artifactId>
- <version>1.0.0.CR8</version>
+ <artifactId>jooby-rxjava-jdbc</artifactId>
+ <version>1.0.0</version>
 </dependency>
 ```
 
@@ -64,5 +64,3 @@ import org.jooby.rx.Rx;
 ```
 
 For more details on how to configure the Hikari datasource, please check the [jdbc module](/doc/jdbc).
-
-Happy coding!!!

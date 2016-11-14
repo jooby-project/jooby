@@ -12,7 +12,7 @@ Manage the life cycle of {@link ExecutorService} and build async apps, schedule 
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-executor</artifactId>
- <version>1.0.0.CR8</version>
+ <version>1.0.0</version>
 </dependency>
 ```
 
@@ -26,7 +26,6 @@ import org.jooby.exec.Exec;
   use(new Exec());
 
   get("/", req -> {
-
     ExecutorService executor = require(ExecutorService.class);
     // work with executor
   });
@@ -93,10 +92,29 @@ Later, you can request your executor like:
 
 ```java
 {
-  get("/", req -> {
+  use(new Exec());
 
+  get("/", req -> {
     ExecutorService pool1 = require("pool1", ExecutorService.class);
     ExecutorService jobs = require("jobs", ExecutorService.class);
+  });
+}
+```
+
+## deferred
+
+Executors created by this module can be referenced by [deferred results](/apidocs/org/jooby/Deferred.html):
+
+```java
+{
+  use(new Exec());
+
+  get("/", deferred("pool1", () -> {
+    return "from pool1";
+  });
+
+  get("/", deferred("jobs", () -> {
+    return "from jobs";
   });
 }
 ```

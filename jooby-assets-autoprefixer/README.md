@@ -1,6 +1,6 @@
-# svg-sprites
+# auto-prefixer
 
-An [AssetAggregator](/apidocs/org/jooby/assets/AssetAggregator.html) that creates SVG sprites with PNG fallbacks at needed sizes via <a href="https://github.com/drdk/dr-svg-sprites">dr-svg-sprites</a>.
+<a href="https://github.com/postcss/postcss">PostCSS</a> plugin to parse CSS and add vendor prefixes to CSS rules using values from <a href="http://caniuse.com">Can I Use</a>. It is recommended by Google and used in Twitter, and Taobao.
 
 Make sure you already setup the [assets module](https://github.com/jooby-project/jooby/tree/master/jooby-assets) in your project!
 
@@ -9,7 +9,7 @@ Make sure you already setup the [assets module](https://github.com/jooby-project
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-assets-svg-sprites</artifactId>
+ <artifactId>jooby-assets-auto-prefixer</artifactId>
  <version>1.0.0</version>
  <scope>provided</scope>
 </dependency>
@@ -19,49 +19,63 @@ Make sure you already setup the [assets module](https://github.com/jooby-project
 
 ```
 assets {
-  fileset {
-
-    sprite: svg-sprites
-    home: home.scss
+  pipeline {
+    dev: [auto-prefixer]
+    dist: [auto-prefixer]
   }
+}
+```
 
-  svg-sprites {
+Once configured, write your CSS rules without vendor prefixes (in fact, forget about them entirely):
 
-    spriteElementPath: "images/svg-source",
-    spritePath: "css"
-  }
+```css
+:fullscreen a {
+  display: flex
 
 }
 ```
 
-The ```spriteElementPath``` contains all the ```*.svg``` files you want to process. The ```spritePath``` indicates where to save the sprite, here you will find the following generated files: ```css/sprite.css```, ```css/sprite.svg``` and ```css/sprite.png```.
+Output:
+
+```css
+:-webkit-full-screen a {
+   display: -webkit-box;
+   display: flex
+}
+:-moz-full-screen a {
+   display: flex
+}
+:-ms-fullscreen a {
+   display: -ms-flexbox;
+   display: flex
+}
+:fullscreen a {
+   display: -webkit-box;
+   display: -ms-flexbox;
+   display: flex
+}
+```
 
 ## options
 
 ```
-assets {
-  fileset {
+{
+  auto-prefixer {
 
-    sprite: svg-sprites
-    home: home.scss
-  }
-
-  svg-sprites {
-
-    spriteElementPath: "images/svg-source",
-    spritePath: "css",
-    layout: "vertical",
-    sizes: {
-      large: 24,
-      small: 16
-    },
-    refSize: "large"
+    browsers: ["> 1%", "IE 7"]
+    cascade: true
+    add: true
+    remove: true
+    supports: true
+    flexbox: true
+    grid: true
+    stats: {}
   }
 
 }
 ```
 
-Please refer to <a href="https://github.com/drdk/dr-svg-sprites">dr-svg-sprites</a> for more details.
+For complete documentation about available options, please refer to the <a href="https://github.com/postcss/autoprefixer">autoprefixer</a> site.
 
 # see also
 

@@ -13,7 +13,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-jade</artifactId>
- <version>1.0.0.CR8</version>
+ <version>1.0.0</version>
 </dependency>
 ```
 
@@ -27,7 +27,6 @@
 
   // or via API
   get("/jade-api", req -> {
-
     JadeConfiguration jade = require(JadeConfiguration.class);
     JadeTemplate template = jade.getTemplate("index");
     template.renderTemplate(...);
@@ -38,7 +37,7 @@
 
 Templates are loaded from root of classpath: ```/``` and must ends with: ```.jade``` file extension.
 
-## req locals
+## request locals
 
 A template engine has access to ```request locals``` (a.k.a attributes). Here is an example:
 
@@ -47,15 +46,17 @@ A template engine has access to ```request locals``` (a.k.a attributes). Here is
   use(new Jade());
 
   get("*", req -> {
-
-    req.set("req", req);
-    req.set("session", req.session());
+    req.set("foo", bar);
   });
-
 }
 ```
 
-By default, there is no access to ```req``` or ```session``` from your template. This example shows how to do it.
+
+Then from template:
+
+```
+#{foo}
+```
 
 ## template loader
 
@@ -64,7 +65,6 @@ Templates are loaded from the root of classpath and must ends with ```.jade```. 
 ```java
 {
   use(new Jade(".html"));
-
 }
 ```
 
@@ -77,5 +77,3 @@ Cache is OFF when ```application.env = dev``` (useful for template reloading), o
 ## pretty print
 
 Pretty print is on when ```application.env = dev ```, otherwise is off, unless unless you explicitly set ```jade.prettyprint```.
-
-That's all folks! Enjoy it!!!

@@ -398,7 +398,7 @@ This is useful when the tool isn't able to detect the type for you and/or you ar
 
 The status codes section have a ```200``` and ```404``` entries with default messages. You can override the default message by using ```code = message``` like:
 
-```
+```html
 @return Returns a {@link Pet} with <code>200 = Success</code> status or <code>404 = Missing</code>
 ```
 
@@ -410,7 +410,7 @@ It is required for getting information from ```script routes``` and extract ```J
 
 We don't need that for ```mvc routes``` because all the information is available via *Reflection* and ```java.lang.Method```.
 
-So, the tool needs the source code in order to work properly. In order to use the tool at deploy time you have to setup the ```jooby:spec``` maven plugin:
+So, the tool needs the source code in order to work properly. In order to use the tool at deploy time you must to setup the ```jooby:spec``` maven plugin:
 
 ```xml
 <plugin>
@@ -426,6 +426,25 @@ So, the tool needs the source code in order to work properly. In order to use th
 </plugin>
 ```
 
-The maven plugin exports the API into a binary format: ```.spec``` which can be parse it later.
+or the [gradle](/doc/gradle-plugin/#gradle-plugin-joobySpec) plugin:
+
+```js
+buildscript {
+
+  dependencies {
+    /** joobyRun */
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0'
+  }
+}
+
+apply plugin: 'jooby'
+
+```
+
+```bash
+gradle joobyAssets
+```
+
+The maven/gradle plugin exports the API into a binary format: ```.spec``` which can be parse it later.
 
 That's all about the spec, as you see there are some minor rules to follow while writing ```script routes```. Now it's time see what tools and integrations are available!!!

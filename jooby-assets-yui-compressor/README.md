@@ -10,7 +10,7 @@ Make sure you already setup the [assets module](https://github.com/jooby-project
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-assets-yui-compressor</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -49,7 +49,7 @@ assets {
 
 ## options
 
-```
+```js
 assets {
  ...
  yui-js {
@@ -57,10 +57,13 @@ assets {
    preserve-semi: true
  }
 }
+```
 
 # see also
 
 ## css processors
+
+* [autoprefixer](https://github.com/jooby-project/jooby/tree/master/jooby-assets-autoprefixer): parse CSS and add vendor prefixes to CSS rules via [autoprefixer](https://github.com/postcss/autoprefixer).
 
 * [props](https://github.com/jooby-project/jooby/tree/master/jooby-assets-props): replace application properties in CSS files.
 
@@ -68,15 +71,15 @@ assets {
 
 * [csslint](https://github.com/jooby-project/jooby/tree/master/jooby-assets-csslint): check and validate css rules.
 
-* [sass/libsass](https://github.com/jooby-project/jooby/tree/master/jooby-assets-jsass): Sass support from <a href="https://github.com/bit3/jsass">Java Sass Compiler (libsass)</a>.
-
-* [sass ruby](https://github.com/jooby-project/jooby/tree/master/jooby-assets-sass): Sass support from <a href="https://github.com/sass/sass">Sass (ruby)</a>.
-
 * [less4j](https://github.com/jooby-project/jooby/tree/master/jooby-assets-less4j): Less support from [less4j](https://github.com/SomMeri/less4j).
 
 * [less](https://github.com/jooby-project/jooby/tree/master/jooby-assets-less): Less support from [less.js](http://lesscss.org).
 
-* [svg-sprites](https://github.com/jooby-project/jooby/tree/master/jooby-assets-svg-sprites): Generates SVG sprites with PNG fallbacks via [dr-svg-sprites](https://github.com/drdk/dr-svg-sprites).
+* [sass](https://github.com/jooby-project/jooby/tree/master/jooby-assets-sass): Sass support from <a href="https://github.com/bit3/jsass">Java Sass Compiler (libsass)</a>.
+
+* [svg-sprites](https://github.com/jooby-project/jooby/tree/master/jooby-assets-svg-sprites): Generates SVG and CSS sprites with PNG fallbacks via [dr-svg-sprites](https://github.com/drdk/dr-svg-sprites).
+
+* [svg-symbol](https://github.com/jooby-project/jooby/tree/master/jooby-assets-svg-symbol): Generates SVG and CSS sprites using svg `symbols`.
 
 * [yui-css](https://github.com/jooby-project/jooby/tree/master/jooby-assets-yui-compressor): YUI CSS optimizer.
 
@@ -100,4 +103,4 @@ assets {
 
 * [requirejs](https://github.com/jooby-project/jooby/tree/master/jooby-assets-requirejs): r.js optimizer.
 
-* [yui-js](https://github.com/jooby-project/jooby/tree/master/jooby-assets-yui-compressor): YUI JS optimizer.
+* [yui-js](https://github.com/jooby-project/jooby/tree/master/jooby-assets-yui-compressor#yui-js): YUI JS optimizer.

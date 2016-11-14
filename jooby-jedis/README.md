@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jedis</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -89,6 +89,16 @@ jedis.db1.maxTotal = 10
 For more information about [Jedis](https://github.com/xetorthio/jedis) checkout the [wiki](https://github.com/xetorthio/jedis/wiki)
 
 # redis session store
+
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-jedis</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
 
 ## usage
 

@@ -1,6 +1,6 @@
 # jetty
 
-NIO web server via: [Jetty](https://www.eclipse.org/jetty).
+[Jetty](https://www.eclipse.org/jetty) provides a Web server and javax.servlet container, plus support for HTTP/2, WebSocket and many other integrations.
 
 ## exports
 
@@ -12,7 +12,7 @@ NIO web server via: [Jetty](https://www.eclipse.org/jetty).
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jetty</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 

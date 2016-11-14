@@ -8,14 +8,15 @@ Cron triggers, job scheduling and async processing via [Quartz](http://quartz-sc
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-quartz</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
 </dependency>
 ```
+
 ## usage
 
 ```java
 import org.jooby.quartz.Quartz;
-
+...
 {
   use(new Quartz().with(MyJob.class));
 }
@@ -24,8 +25,8 @@ import org.jooby.quartz.Quartz;
 Previous example will startup Quartz and schedule MyJob.
 
 ## jobs
-A job can implement the ```Job``` interface as described in the [Quartz documentation]
-(http://quartz-scheduler.org/documentation)
+
+A job can implement the ```Job``` interface as described in the [Quartz documentation](http://quartz-scheduler.org/documentation)
 
 If you prefer to not implement the ```Job``` interface, all you have to do is to annotated a method with the ```Scheduled``` annotation.
 
@@ -130,8 +131,8 @@ public class MyJobManager {
 Example: Setting max number of threads
 
 ```properties
-# application.conf
 # default is number of available processors
+
 org.quartz.threadPool.threadCount = 1
 ```
 
@@ -143,6 +144,7 @@ documentation](http://quartz-scheduler.org/documentation). The only difference i
 Jdbc Store is fully supported but it depends on the <code>jooby-jdbc</code> module. So, in order to use the Jdbc Store you need to follow these steps:
 
 1st. Install the Jdbc module:
+
 ```java
 {
   use(new Jdbc());
@@ -160,8 +162,7 @@ org.quartz.jobStore.dataSource = db
 
 ## adding jobs programmatically
 
-When ```Scheduled``` isn't not enough and/or if you prefer to build jobs manually, you can try
-one of the available alternatives.
+When ```Scheduled``` isn't not enough and/or if you prefer to build jobs manually, you can try one of the available alternatives.
 
 Example 1: build the trigger and use default job naming
 
@@ -178,7 +179,6 @@ Example 1: build the trigger and use default job naming
 ```
 
 Example 2: build the job, the trigger and use default job naming
-
 
 ```java
 {
@@ -210,8 +210,6 @@ Example 3: build and set everything from scratch
   );
 }
 ```
-
-That's all folks! Enjoy it!!
 
 ## quartz.conf
 

@@ -8,7 +8,8 @@ Run, debug and reload applications.
 
 ### usage
 
-```gradle
+```js
+
 buildscript {
 
   repositories {
@@ -16,8 +17,8 @@ buildscript {
   }
 
   dependencies {
-    /** jooby:run */
-    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0.CR7'
+    /** joobyRun */
+    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0'
   }
 }
 
@@ -45,9 +46,9 @@ listening on:
   http://localhost:8080/
 ```
 
-## hot reload
+### hot reload
 
-The ```jooby:run``` tool restart the application every time a change is detected on:
+The ```joobyRun``` tool restart the application every time a change is detected on:
 
 - classes (*.class)
 - config files (*.conf and *.properties)
@@ -58,7 +59,7 @@ It's worth to mention that dynamic reload of classes is done via [JBoss Modules]
 
 ### options
 
-```gradle
+```js
 joobyRun {
   mainClassName = 'com.mycompany.App'
   compiler = 'on'
@@ -97,7 +98,7 @@ This is a [Gradle](http://gradle.org) task for the [asset module]([assets module
 
 ### usage
 
-```gradle
+```js
 buildscript {
 
   repositories {
@@ -122,7 +123,7 @@ gradle joobyAssets
 
 ### options
 
-```gradle
+```js
 joobyAssets {
   maxAge = '365d'
 }
@@ -139,7 +140,7 @@ This is a [Gradle](http://gradle.org) task for the [route spec](https://github.c
 
 ### usage
 
-```gradle
+```js
 buildscript {
 
   repositories {

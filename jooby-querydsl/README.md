@@ -14,7 +14,7 @@ This module depends on [jdbc module](doc/jdbc), make sure you read the doc of th
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-querydsl</artifactId>
- <version>1.0.0.CR8</version>
+ <version>1.0.0</version>
 </dependency>
 ```
 
@@ -42,7 +42,6 @@ Dialect is detected automatically and usually you don't need to do anything. But
 ```java
 {
   use(new QueryDSL().with(new MyCustomTemplates());
-
 }
 ```
 
@@ -56,11 +55,9 @@ import org.jooby.querydsl.QueryDSL;
   use(new QueryDSL("db.aux"));
 
   get("/my-api", req -> {
-
     SQLQueryFactory queryFactory = require("db.main", SQLQueryFactory.class);
     // Do something with the database
   });
-
 }
 ```
 
@@ -73,10 +70,8 @@ Advanced configuration can be added by invoking the ```doWith``` method, adding 
 ```java
 {
   use(new QueryDSL().doWith(conf -> {
-
     conf.set(...);
   });
-
 }
 ```
 

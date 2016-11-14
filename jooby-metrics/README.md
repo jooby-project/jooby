@@ -8,7 +8,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-metrics</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -90,5 +90,3 @@ Reporters are appended via a callback API:
 ```
 
 You can add all the reporters you want. Keep in mind you have to start them (if need it), but you don't have to stop them as long they implements the [Closeable](/apidocs/org/jooby/assets/Closeable.html) interface.
-
-That's all folks!

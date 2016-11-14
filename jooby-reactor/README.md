@@ -8,7 +8,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-reactor</artifactId>
- <version>1.0.0.CR8</version>
+ <version>1.0.0</version>
 </dependency>
 ```
 

@@ -14,7 +14,7 @@
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-mongodb</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -107,6 +107,16 @@ Use [named](/apidocs/org/jooby/mongodb/Mongodb.html#-named) when you need two or
 ```
 
 # mongodb session store
+
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-mongodb</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
 
 ## usage
 

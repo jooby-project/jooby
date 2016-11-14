@@ -13,7 +13,7 @@ Provides advanced cache features via [Ehcache](http://ehcache.org)
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-ehcache</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -111,15 +111,25 @@ Please note the ```default``` cache works as a template and isn't a real/usable 
 
 # ehcache session store
 
+## dependency
+
+```xml
+<dependency>
+  <groupId>org.jooby</groupId>
+  <artifactId>jooby-ehcache</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
 ## usage
 
 This module provides an [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html). In order to use the [EhSessionStore](/apidocs/org/jooby/ehcache/EhSessionStore.html) all
 you have to do is define a ```session``` cache:
 
 ```properties
+
 ehcache.cache.session {
   # cache will expire after 30 minutes of inactivity
-
   timeToIdle = 30m
 }
 ```

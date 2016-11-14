@@ -1,6 +1,6 @@
-# jooby:run
+# maven
 
-```jooby:run``` is a [Maven 3+](http://maven.apache.org/) plugin for running, debugging and reloading your application.
+[Maven 3+](http://maven.apache.org/) plugin for running, debugging and reloading your application.
 
 ## usage
 
@@ -40,7 +40,7 @@ It's worth to mention that dynamic reload of classes is done via [JBoss Modules]
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -113,7 +113,7 @@ List of commands to execute before starting the ```application```. Useful for [n
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <commands>
@@ -134,7 +134,7 @@ Set one or more ```JVM args```:
 <plugin>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-maven-plugin</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
   <configuration>
     <mainClass>${application.class}</mainClass>
     <fork>true</fork>
@@ -151,35 +151,3 @@ Make sure to enable the ```fork``` option too, otherwise ```vmArgs``` are ignore
 ### includes / excludes
 
 List of file patterns to listen for file changes.
-
-## eclipse
-
-In order to run ```jooby:run``` from Eclipse follows these steps (no plugin required):
-
-* Open your pom.xml, go to dependencies section and add:
-
-```xml
-<dependency>
-  <groupId>org.jooby</groupId>
-  <artifactId>jooby-run</artifactId>
-  <scope>provided</scope>
-</dependency>
-```
-
-Make sure to set the ```scope``` to ```provided```, once you add the dependency you need to (re)generate Eclipse metadata with: ```mvn eclipse:clean eclipse:eclipse``` unless you have the ```m2 eclipse plugin``` installed.
-
-* Create a new ```Java Run Configuration```
-
-* Go to **Main** tab and set the *Main class* to: ```org.jooby.run.Main```
-
-<img alt="Eclipse jooby:run" width="75%" src="http://jooby.org/resources/images/eclipse-jooby-run1.png">
-
-* Go to the **Arguments** tab and set the *Program Arguments* to:
-
-```
-${project_name} dmox.App deps=${project_classpath}
-```
-
-<img alt="Eclipse jooby:run" width="75%" src="http://jooby.org/resources/images/eclipse-jooby-run2.png">
-
-* That's all! now run your application as usual and **hotswap** will be available.

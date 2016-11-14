@@ -12,7 +12,7 @@ Production-ready jdbc data source, powered by the [HikariCP](https://github.com/
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbc</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
@@ -38,7 +38,7 @@ Via `db` property:
 ```java
 
 {
-  use(new Jdbc("db));
+  use(new Jdbc("db"));
 
   // accessing to the data source
   get("/my-api", req -> {
@@ -61,9 +61,10 @@ public class Service {
 ```
 
 ## configuration
-Database configuration is controlled from your ```application.conf``` file using the ```db``` property and friends: ```db.*```.
 
-### mem db
+Database configuration is controlled from your ```application.conf``` file using the ```db``` properties.
+
+### memory
 
 ```properties
 db = mem
@@ -80,7 +81,7 @@ Mem db is implemented with [h2 database](http://www.h2database.com/), before usi
 
 Mem db is useful for dev environment and/or transient data that can be regenerated.
 
-### fs db
+### filesystem
 
 ```properties
 db = fs
@@ -95,14 +96,14 @@ File system db is implemented with [h2 database](http://www.h2database.com/), be
 </dependency>
 ```
 
-File system db is useful for dev environment and/or transient data that can be regenerated. Keep in mind this db is saved in a tmp directory and db will be deleted it on restarts.
-
+File system db is useful for dev environment and/or transient data that can be regenerated. Keep in mind this db is saved in a tmp directory and db will be deleted it on OS restart.
 
 ### db.url
 Connect to a database using a jdbc url, some examples here:
 
 ```properties
 # mysql
+
 db.url = jdbc:mysql://localhost/mydb
 db.user = myuser
 db.password = password
@@ -127,15 +128,17 @@ db.password = password
 db.cachePrepStmts = true
 
 # hikari
+
 hikari.autoCommit = true
 hikari.maximumPoolSize = 20
+
 # etc...
 ```
 
 Also, all the ```db.*``` properties are converted to ```dataSource.*``` to let [hikari](https://github.com/brettwooldridge/HikariCP) configurer the target jdbc connection.
 
-
 ## multiple connections
+
 It is pretty simple to configure two or more db connections in [jooby](http://jooby.org).
 
 Let's suppose we have a main database and an audit database for tracking changes:
@@ -151,11 +154,13 @@ application.conf
 
 ```properties
 # main database
+
 db.main.url = ...
 db.main.user=...
 db.main.password = ...
 
 # audit
+
 db.audit.url = ....
 db.audit.user = ....
 db.audit.password = ....
@@ -165,15 +170,40 @@ Same principle applies if you need to tweak [hikari](https://github.com/brettwoo
 
 ```properties
 # max pool size for main db
+
 hikari.main.maximumPoolSize = 100
 
 # max pool size for audit db
+
 hikari.audit.maximumPoolSize = 20
 ```
 
-Finally, if you need to inject the audit data source, all you have to do is to use the *Name* annotation, like ```@Name("db.audit")```
+The first registered database is the **default** database. The **second** database is accessible by name and type:
 
-That's all folks! Enjoy it!!!
+```java
+{
+  use(new Jdbc("db.main"));
+  use(new Jdbc("db.audit"));
+
+  get("/db", req -> {
+    DataSource maindb = require(DataSource.class);
+    DataSource auditdb = require("db.audit", DataSource.class);
+    // ...
+  });
+}
+```
+
+or via `@Inject` annotation:
+
+```java
+public class Service {
+
+  @Inject
+  public Service(DataSource maindb, @Named("db.audit") DataSource auditdb) {
+    // ...
+  }
+}
+```
 
 ## jdbc.conf
 

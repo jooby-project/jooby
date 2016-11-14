@@ -10,7 +10,7 @@ This module provides <a href="http://www.couchbase.com">couchbase</a> access via
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-couchbase</artifactId>
- <version>1.0.0.CR8</version>
+ <version>1.0.0</version>
 </dependency>
 ```
 
@@ -51,7 +51,6 @@ Via property:
     Bucket beers = require(Bucket.class);
     // do with beer bucket
   });
-
 }
 ```
 
@@ -126,24 +125,24 @@ Mapping between document/POJOs is done internally with a custom `EntityConverter
 
 In order to work with a POJO, you must defined an ID. There are two options:
 
-1. Add an ```id``` field to your POJO:
+* Add an ```id``` field to your POJO:
 
 ```java
+
 public class Beer {
   private String id;
-
 }
 ```
 
-2. Use a business name (not necessarily id) and add ```Id``` annotation:
+* Use a business name (not necessarily id) and add ```Id``` annotation:
 
 ```java
 import import com.couchbase.client.java.repository.annotation.Id;
+...
 public class Beer {
+
   @Id
-
   private String beerId;
-
 }
 ```
 
@@ -152,7 +151,6 @@ Auto-increment IDs are supported via [GeneratedValue](/apidocs/org/jooby/couchba
 ```java
 public class Beer {
   private Long id;
-
 }
 ```
 
@@ -165,7 +163,6 @@ public class Beer {
   private String id;
 
   private transient ignored;
-
 }
 ```
 
@@ -180,11 +177,9 @@ Couchbase SDK allows two programming model: ```blocking``` and ```reactive```. W
   use(new Couchbase("couchbase://localhost/beers"));
 
   get("/", req -> {
-
     AsyncBucket bucket = require(AsyncBucket.class);
     // do with async bucket ;)
   });
-
 }
 ```
 
@@ -226,7 +221,6 @@ If for any reason your application requires more than 1 bucket... then:
     Bucket bucket = require("beers", Bucket.class);
     Bucket extra = require("extra-bucket", Bucket.class);
   });
-
 }
 ```
 
@@ -241,10 +235,9 @@ Again, if for any reason your application requires multiple clusters... then:
   CouchbaseEnvironment env = ...;
 
   use(new Couchbase("couchbase://192.168.56.1")
-
      .environment(env));
-  use(new Couchbase("couchbase://192.168.57.10")
 
+  use(new Couchbase("couchbase://192.168.57.10")
      .environment(env));
 }
 ```
@@ -303,6 +296,16 @@ err {
 # couchbase session store
 
 A [Session.Store](/apidocs/org/jooby/couchbase/CouchbaseSessionStore) powered by <a href="http://www.couchbase.com">Couchbase</a>.
+
+## dependency
+
+```xml
+<dependency>
+ <groupId>org.jooby</groupId>
+ <artifactId>jooby-couchbase</artifactId>
+ <version>1.0.0</version>
+</dependency>
+```
 
 ## usage
 

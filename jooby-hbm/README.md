@@ -18,7 +18,7 @@ This module depends on [jdbc](/doc/jdbc) module, make sure you read the doc of t
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-hbm</artifactId>
- <version>1.0.0.CR8</version>
+ <version>1.0.0</version>
 </dependency>
 ```
 
@@ -137,7 +137,7 @@ Persistent classes must be provided at application startup time via [classes(Cla
 }
 ```
 
-Or via {@link #scan()}:
+Or via `scan`:
 
 ```java
 {

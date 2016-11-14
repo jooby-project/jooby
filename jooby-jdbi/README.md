@@ -18,13 +18,11 @@ Before start, make sure you already setup a database connection as described in 
 <dependency>
   <groupId>org.jooby</groupId>
   <artifactId>jooby-jdbi</artifactId>
-  <version>1.0.0.CR8</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
 ## usage
-
-It is pretty straightforward:
 
 ```java
 {
@@ -76,29 +74,6 @@ public interface MyRepository extends Closeable {
     }
   });
 }
-```
-
-## auto-magic in-clause expansion
-
-This modules support expansion of in-clauses and/or expansion of multi-value arguments (iterables and arrays).
-
-```java
-List<Integer> ids = Lists.newArrayList(1, 2, 3);
-h.createQuery("select * from something where id in (:ids)")
-  .bind("ids", ids)
-  .list();
-```
-
-The SQL expression:
-
-```sql
-select * from something where id in (:ids)
-```
-
-Will be expanded/translated to:
-
-```sql
-select * from something where id in (?, ?, ?)
 ```
 
 ## configuration

@@ -13,7 +13,7 @@
 <dependency>
  <groupId>org.jooby</groupId>
  <artifactId>jooby-pebble</artifactId>
- <version>1.0.0.CR8</version>
+ <version>1.0.0</version>
 </dependency>
 ```
 
@@ -32,7 +32,6 @@
     PebbleTemplate template = pebble.getTemplate("template");
     template.evaluate(...);
   });
-
 }
 ```
 
@@ -45,8 +44,27 @@ Templates are loaded from the root of classpath and must end with ```.html```. Y
 ```java
 {
   use(new Pebble("templates", ".pebble"));
-
 }
+```
+
+## request locals
+
+A template engine has access to ```request locals``` (a.k.a attributes). Here is an example:
+
+```java
+{
+  use(new Pebble());
+
+  get("*", req -> {
+    req.set("foo", bar);
+  });
+}
+```
+
+Then from template:
+
+```
+{{foo}}
 ```
 
 ## template cache
@@ -74,12 +92,8 @@ Advanced configuration if provided by callback:
 ```java
 {
   use(new Pebble().doWith(pebble -> {
-
     pebble.extension(...);
     pebble.loader(...);
   }));
-
 }
 ```
-
-That's all folks! Enjoy it!!!
