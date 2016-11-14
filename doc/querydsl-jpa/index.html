@@ -178,7 +178,7 @@
 
   <span class="n">get</span><span class="o">(</span><span class="s">"/pets/:name"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"name"</span><span class="o">).</span><span class="na">value</span><span class="o">();</span>
-    <span class="n">EntityManager</span> <span class="n">em</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">EntityManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">EntityManager</span> <span class="n">em</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">EntityManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
     <span class="k">return</span> <span class="k">new</span> <span class="n">JPAQuery</span><span class="o">(</span><span class="n">em</span><span class="o">)</span>
       <span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="n">pet</span><span class="o">)</span>

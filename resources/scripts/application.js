@@ -86,9 +86,6 @@ APP.init = function(){
     other.scrollTop = percentage * (other.scrollHeight - other.offsetHeight);
     setTimeout( function(){ $other.on('scroll', sync ); },10);
   }
-  $('h2').mouseenter(function () {
-    console.log($(this).attr('id'));
-  });
 
   if( APP.isPage( "sidebar" ) ){
     var $sectionSidebar = $( ".section-sidebar" );
@@ -155,6 +152,40 @@ $(function(){
         event.clipboardData.setData('text/plain', $el.parent().find('pre code').text());
       });
     });
+  });
 
+  $('h3:contains("dependency")').each(function () {
+    var $el = $(this),
+        $dep = $el.next(),
+        $maven = $($dep.text()),
+        groupId = $maven.find('groupId').text(),
+        artifactId = $maven.find('artifactId').text(),
+        version = $maven.find('version').text(),
+        scope = $maven.find('scope').text() === 'provided' ? 'compileOnly' : 'compile',
+        $gradle = $('<div class="highlighter-rouge codehilite">' +
+            '<div class="copy-bar">' +
+             '<span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>' +
+            '</div>' +
+            '<pre class="highlight"><code><span class="nt">' + scope + '</span><span class="p">:</span> \'' + groupId + ':' + artifactId + ':' + version + '\'</code></pre>' +
+           '</div>');
+
+    $gradle.hide();
+    $gradle.height($dep.height());
+
+    $el.after('<p style="margin: 10px 0 0 0;"><span class="build active">maven</span> | <span class="build">gradle</span></p>');
+    $dep.after($gradle);
+    $dep.addClass('maven build');
+    $gradle.addClass('gradle build');
+  });
+
+  var $builds = $('div.build');
+  $('span.build').click(function () {
+    var $el = $(this),
+        build = $el.text();
+
+    $('span.build').removeClass('active');
+    $el.addClass('active');
+    $builds.hide();
+    $('div.' + build).show();
   });
 });

@@ -101,7 +101,7 @@
         <li> <a href="#jade-exports">exports</a></li> 
         <li> <a href="#jade-dependency">dependency</a></li> 
         <li> <a href="#jade-usage">usage</a></li> 
-        <li> <a href="#jade-req-locals">req locals</a></li> 
+        <li> <a href="#jade-request-locals">request locals</a></li> 
         <li> <a href="#jade-template-loader">template loader</a></li> 
         <li> <a href="#jade-template-cache">template cache</a></li> 
         <li> <a href="#jade-pretty-print">pretty print</a></li>
@@ -128,7 +128,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-jade<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -144,8 +144,7 @@
 
   <span class="c1">// or via API</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/jade-api"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-
-    <span class="n">JadeConfiguration</span> <span class="n">jade</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">JadeConfiguration</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">JadeConfiguration</span> <span class="n">jade</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">JadeConfiguration</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="n">JadeTemplate</span> <span class="n">template</span> <span class="o">=</span> <span class="n">jade</span><span class="o">.</span><span class="na">getTemplate</span><span class="o">(</span><span class="s">"index"</span><span class="o">);</span>
     <span class="n">template</span><span class="o">.</span><span class="na">renderTemplate</span><span class="o">(...);</span>
   <span class="o">});</span>
@@ -154,7 +153,7 @@
 </code></pre> 
        </div> 
        <p>Templates are loaded from root of classpath: <code class="highlighter-rouge codehilite">/</code> and must ends with: <code class="highlighter-rouge codehilite">.jade</code> file extension.</p> 
-       <h3 id="jade-req-locals">req locals</h3> 
+       <h3 id="jade-request-locals">request locals</h3> 
        <p>A template engine has access to <code class="highlighter-rouge codehilite">request locals</code> (a.k.a attributes). Here is an example:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -164,15 +163,19 @@
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jade</span><span class="o">());</span>
 
   <span class="n">get</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-
-    <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"req"</span><span class="o">,</span> <span class="n">req</span><span class="o">);</span>
-    <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"session"</span><span class="o">,</span> <span class="n">req</span><span class="o">.</span><span class="na">session</span><span class="o">());</span>
+    <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"foo"</span><span class="o">,</span> <span class="n">bar</span><span class="o">);</span>
   <span class="o">});</span>
-
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>By default, there is no access to <code class="highlighter-rouge codehilite">req</code> or <code class="highlighter-rouge codehilite">session</code> from your template. This example shows how to do it.</p> 
+       <p>Then from template:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>#{foo}
+</code></pre> 
+       </div> 
        <h3 id="jade-template-loader">template loader</h3> 
        <p>Templates are loaded from the root of classpath and must ends with <code class="highlighter-rouge codehilite">.jade</code>. You can change the extensions too:</p> 
        <div class="highlighter-rouge codehilite">
@@ -181,7 +184,6 @@
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jade</span><span class="o">(</span><span class="s">".html"</span><span class="o">));</span>
-
 <span class="o">}</span>
 </code></pre> 
        </div> 
@@ -190,7 +192,6 @@
        <p>Cache is OFF when <code class="highlighter-rouge codehilite">application.env = dev</code> (useful for template reloading), otherwise is ON and does not expire, unless you explicitly set <code class="highlighter-rouge codehilite">jade.caching</code>.</p> 
        <h3 id="jade-pretty-print">pretty print</h3> 
        <p>Pretty print is on when <code class="highlighter-rouge codehilite">application.env = dev</code>, otherwise is off, unless unless you explicitly set <code class="highlighter-rouge codehilite">jade.prettyprint</code>.</p> 
-       <p>That’s all folks! Enjoy it!!!</p> 
       </div> 
      </div> 
     </div> 

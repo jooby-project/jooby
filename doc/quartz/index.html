@@ -99,6 +99,7 @@
       <li class="active"> <a href="#quartz">quartz</a>
        <ul> 
         <li> <a href="#quartz-dependency">dependency</a></li> 
+        <li> <a href="#quartz-usage">usage</a></li> 
         <li> <a href="#quartz-jobs">jobs</a></li> 
         <li> <a href="#quartz-triggers">triggers</a></li> 
         <li> <a href="#quartz-grouping-jobs-together">grouping jobs together</a></li> 
@@ -124,17 +125,17 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-quartz<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
-       <p>## usage</p> 
+       <h3 id="quartz-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.quartz.Quartz</span><span class="o">;</span>
-
+<span class="o">...</span>
 <span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Quartz</span><span class="o">().</span><span class="na">with</span><span class="o">(</span><span class="n">MyJob</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
 <span class="o">}</span>
@@ -142,7 +143,7 @@
        </div> 
        <p>Previous example will startup Quartz and schedule MyJob.</p> 
        <h3 id="quartz-jobs">jobs</h3> 
-       <p>A job can implement the <code class="highlighter-rouge codehilite">Job</code> interface as described in the [Quartz documentation] (http://quartz-scheduler.org/documentation)</p> 
+       <p>A job can implement the <code class="highlighter-rouge codehilite">Job</code> interface as described in the <a href="http://quartz-scheduler.org/documentation" target="_blank">Quartz documentation</a></p> 
        <p>If you prefer to not implement the <code class="highlighter-rouge codehilite">Job</code> interface, all you have to do is to annotated a method with the <code class="highlighter-rouge codehilite">Scheduled</code> annotation.</p> 
        <p>By default, job name is set the class name or to the method name. Default group is set to the package name of the job class.</p> 
        <h4 id="quartz-job-methods">job methods</h4> 
@@ -261,13 +262,24 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># application.conf # default is number of available processors </span><span class="py">org.quartz.threadPool.threadCount</span> <span class="p">=</span> <span class="s">1</span>
+        <pre class="highlight"><code><span class="c"># default is number of available processors </span>
+<span class="py">org.quartz.threadPool.threadCount</span> <span class="p">=</span> <span class="s">1</span>
 </code></pre> 
        </div> 
        <p>Configuration follows the <a href="http://quartz-scheduler.org/documentation" target="_blank">Quartz documentation</a>. The only difference is that you need to put add the properties on your <code class="highlighter-rouge codehilite">*.conf</code> file, NOT in a custom <code class="highlighter-rouge codehilite">quartz.properties</code> file.</p> 
        <h4 id="quartz-jdbc-store">jdbc store</h4> 
        <p>Jdbc Store is fully supported but it depends on the <code>jooby-jdbc</code> module. So, in order to use the Jdbc Store you need to follow these steps:</p> 
-       <p>1st. Install the Jdbc module: <code class="highlighter-rouge codehilite">java { use(new Jdbc()); use(new Quartz(MyJob.class)); } </code></p> 
+       <p>1st. Install the Jdbc module:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">());</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Quartz</span><span class="o">(</span><span class="n">MyJob</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
        <p>2nd. Set the quartz properties:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -333,7 +345,6 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>That’s all folks! Enjoy it!!</p> 
        <h3 id="quartz-quartz-conf">quartz.conf</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 

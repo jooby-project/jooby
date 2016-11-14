@@ -3,15 +3,15 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: jooby:run module</title> 
+  <title>jooby: maven module</title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
-  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, jooby:run"> 
+  <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, maven"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="canonical" href="#"> 
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: mvn jooby:run"> 
-  <meta name="og:description" content="jooby:run is a Maven 3+ plugin for running, debugging and reloading your application"> 
+  <meta name="og:description" content="Maven 3+ plugin for running, debugging and reloading your application"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="jooby:run is a Maven 3+ plugin for running, debugging and reloading your application"> 
+  <meta name="twitter:description" content="Maven 3+ plugin for running, debugging and reloading your application"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -87,32 +87,31 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/modules" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>jooby:run</h1> 
+     <h1>maven</h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
      <div class="show-mobile menu-open">
-      jooby:run
+      maven
      </div> 
      <ul> 
-      <li class="active"> <a href="#jooby-run">jooby:run</a>
+      <li class="active"> <a href="#maven">maven</a>
        <ul> 
-        <li> <a href="#jooby-run-usage">usage</a></li> 
-        <li> <a href="#jooby-run-hot-reload">hot reload</a></li> 
-        <li> <a href="#jooby-run-options">options</a></li> 
-        <li> <a href="#jooby-run-eclipse">eclipse</a></li>
+        <li> <a href="#maven-usage">usage</a></li> 
+        <li> <a href="#maven-hot-reload">hot reload</a></li> 
+        <li> <a href="#maven-options">options</a></li>
        </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
-     <div class="datalist" id="jooby-run"> 
+     <div class="datalist" id="maven"> 
       <div class="datalist-title active"> 
-       <h2>jooby:run</h2> 
+       <h2>maven</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p><code class="highlighter-rouge codehilite">jooby:run</code> is a <a href="http://maven.apache.org/" target="_blank">Maven 3+</a> plugin for running, debugging and reloading your application.</p> 
-       <h3 id="jooby-run-usage">usage</h3> 
+       <p><a href="http://maven.apache.org/" target="_blank">Maven 3+</a> plugin for running, debugging and reloading your application.</p> 
+       <h3 id="maven-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -137,7 +136,7 @@ listening on:
   http://localhost:8080/
 </code></pre> 
        </div> 
-       <h3 id="jooby-run-hot-reload">hot reload</h3> 
+       <h3 id="maven-hot-reload">hot reload</h3> 
        <p>The <code class="highlighter-rouge codehilite">jooby:run</code> tool restart the application every time a change is detected on:</p> 
        <ul> 
         <li>classes (*.class)</li> 
@@ -145,7 +144,7 @@ listening on:
        </ul> 
        <p>Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled or cached while running on <code class="highlighter-rouge codehilite">application.env = dev</code>.</p> 
        <p>It’s worth to mention that dynamic reload of classes is done via <a href="https://github.com/jboss-modules/jboss-modules" target="_blank">JBoss Modules</a>.</p> 
-       <h3 id="jooby-run-options">options</h3> 
+       <h3 id="maven-options">options</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -153,7 +152,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
@@ -173,9 +172,9 @@ listening on:
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre> 
        </div> 
-       <h4 id="jooby-run--application-class-">${application.class}</h4> 
+       <h4 id="maven--application-class-">${application.class}</h4> 
        <p>A <a href="http://maven.apache.org/" target="_blank">Maven 3+</a> property that contains the fully qualified name of the <code class="highlighter-rouge codehilite">main class</code>. <strong>Required</strong>.</p> 
-       <h4 id="jooby-run-fork">fork</h4> 
+       <h4 id="maven-fork">fork</h4> 
        <p>Allows running the application in a separate JVM. If false it uses the JVM started by <a href="http://maven.apache.org/" target="_blank">Maven 3+</a>, while if true it will use a new JVM. Default is: <code class="highlighter-rouge codehilite">false</code>.</p> 
        <p>This property can be set from command line using the <code class="highlighter-rouge codehilite">application.fork</code> system property:</p> 
        <div class="highlighter-rouge codehilite">
@@ -185,7 +184,7 @@ listening on:
         <pre class="highlight"><code>mvn jooby:run -Dapplication.fork=true
 </code></pre> 
        </div> 
-       <h4 id="jooby-run-compiler">compiler</h4> 
+       <h4 id="maven-compiler">compiler</h4> 
        <p>The compiler is <code class="highlighter-rouge codehilite">on</code> by default, unless:</p> 
        <ul> 
         <li> <p>A <code class="highlighter-rouge codehilite">.classpath</code> file is present in the project directory. If present, means you’re a Eclipse user and we turn off the compiler and let Eclipse recompiles the code on save.</p> </li> 
@@ -194,7 +193,7 @@ listening on:
        <p>On compilation success, the application is effectively reloaded.</p> 
        <p>On compilation error, the application won’t reload.</p> 
        <p>Compilation success or error messages are displayed in the console (not at the browser).</p> 
-       <h4 id="jooby-run-debug">debug</h4> 
+       <h4 id="maven-debug">debug</h4> 
        <p>Start the <code class="highlighter-rouge codehilite">JVM</code> in debug mode so you can attach a remote debugger at the <code class="highlighter-rouge codehilite">8000</code> port. Available when <code class="highlighter-rouge codehilite">fork = true</code>, otherwise is ignored.</p> 
        <p>This property can be one of these:</p> 
        <ul> 
@@ -211,7 +210,7 @@ listening on:
         <pre class="highlight"><code>mvn jooby:run -Dapplication.debug=9999
 </code></pre> 
        </div> 
-       <h4 id="jooby-run-commands">commands</h4> 
+       <h4 id="maven-commands">commands</h4> 
        <p>List of commands to execute before starting the <code class="highlighter-rouge codehilite">application</code>. Useful for <a href="https://www.npmjs.com" target="_blank">npm</a>, <a href="http://gruntjs.com" target="_blank">npm</a>, etc…</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -220,7 +219,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;commands&gt;</span>
@@ -232,7 +231,7 @@ listening on:
 </code></pre> 
        </div> 
        <p>All processes are stopped it on <code class="highlighter-rouge codehilite">CTRL+C</code></p> 
-       <h4 id="jooby-run-vmArgs">vmArgs</h4> 
+       <h4 id="maven-vmArgs">vmArgs</h4> 
        <p>Set one or more <code class="highlighter-rouge codehilite">JVM args</code>:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -241,7 +240,7 @@ listening on:
         <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;configuration&gt;</span>
     <span class="nt">&lt;mainClass&gt;</span>${application.class}<span class="nt">&lt;/mainClass&gt;</span>
     <span class="nt">&lt;fork&gt;</span>true<span class="nt">&lt;/fork&gt;</span>
@@ -254,44 +253,8 @@ listening on:
 </code></pre> 
        </div> 
        <p>Make sure to enable the <code class="highlighter-rouge codehilite">fork</code> option too, otherwise <code class="highlighter-rouge codehilite">vmArgs</code> are ignored.</p> 
-       <h4 id="jooby-run-includes-excludes">includes / excludes</h4> 
+       <h4 id="maven-includes-excludes">includes / excludes</h4> 
        <p>List of file patterns to listen for file changes.</p> 
-       <h3 id="jooby-run-eclipse">eclipse</h3> 
-       <p>In order to run <code class="highlighter-rouge codehilite">jooby:run</code> from Eclipse follows these steps (no plugin required):</p> 
-       <ul> 
-        <li>Open your pom.xml, go to dependencies section and add:</li> 
-       </ul> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>jooby-run<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</code></pre> 
-       </div> 
-       <p>Make sure to set the <code class="highlighter-rouge codehilite">scope</code> to <code class="highlighter-rouge codehilite">provided</code>, once you add the dependency you need to (re)generate Eclipse metadata with: <code class="highlighter-rouge codehilite">mvn eclipse:clean eclipse:eclipse</code> unless you have the <code class="highlighter-rouge codehilite">m2 eclipse plugin</code> installed.</p> 
-       <ul> 
-        <li> <p>Create a new <code class="highlighter-rouge codehilite">Java Run Configuration</code></p> </li> 
-        <li> <p>Go to <strong>Main</strong> tab and set the <em>Main class</em> to: <code class="highlighter-rouge codehilite">org.jooby.run.Main</code></p> </li> 
-       </ul> 
-       <p><img alt="Eclipse jooby:run" width="75%" src="http://jooby.org/resources/images/eclipse-jooby-run1.png"></p> 
-       <ul> 
-        <li>Go to the <strong>Arguments</strong> tab and set the <em>Program Arguments</em> to:</li> 
-       </ul> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>${project_name} dmox.App deps=${project_classpath}
-</code></pre> 
-       </div> 
-       <p><img alt="Eclipse jooby:run" width="75%" src="http://jooby.org/resources/images/eclipse-jooby-run2.png"></p> 
-       <ul> 
-        <li>That’s all! now run your application as usual and <strong>hotswap</strong> will be available.</li> 
-       </ul> 
       </div> 
      </div> 
     </div> 
@@ -300,8 +263,8 @@ listening on:
    <div class="row share-network"> 
     <div class="section-content"> 
      <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/maven-plugin" data-a2a-title="jooby:run is a Maven 3+ plugin for running, debugging and reloading your application"> 
-      <a class="a2a_button_twitter" data-text="jooby:run is a Maven 3+ plugin for running, debugging and reloading your application"></a> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/maven-plugin" data-a2a-title="Maven 3+ plugin for running, debugging and reloading your application"> 
+      <a class="a2a_button_twitter" data-text="Maven 3+ plugin for running, debugging and reloading your application"></a> 
       <a class="a2a_button_reddit a2a_counter"></a> 
       <a class="a2a_button_linkedin a2a_counter"></a> 
       <a class="a2a_button_facebook a2a_counter"></a> 

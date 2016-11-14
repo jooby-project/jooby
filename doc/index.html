@@ -241,7 +241,7 @@
     <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="s">"Hello"</span><span class="o">);</span>
   <span class="o">}</span>
 
-  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
     <span class="c1">// 3. run my app</span>
     <span class="n">run</span><span class="o">(</span><span class="nl">App:</span><span class="o">:</span><span class="k">new</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
   <span class="o">}</span>
@@ -333,7 +333,7 @@
 </code></pre> 
        </div> 
        <h4 id="application-PostConstruct-PreDestroy-annotations">PostConstruct/PreDestroy annotations</h4> 
-       <p>If you prefer the annotation way… you can too:</p> 
+       <p>If you prefer the annotation way then:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -359,7 +359,7 @@
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>It works as expected just make sure <code class="highlighter-rouge codehilite">MyService</code> is a <strong>Singleton</strong> object.</p> 
+       <p>Service must be a <strong>Singleton</strong> object.</p> 
       </div> 
      </div> 
      <div class="datalist" id="conf-env-and-logging"> 
@@ -367,8 +367,8 @@
        <h2>conf, env and logging</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Jooby delegates configuration management to <a href="https://github.com/typesafehub/config" target="_blank">config</a>.</p> 
-       <p>By defaults Jooby expect to find an <code class="highlighter-rouge codehilite">application.conf</code> file at the root of classpath.</p> 
+       <p>Jooby delegates configuration management to <a href="https://github.com/typesafehub/config" target="_blank">Config library</a>.</p> 
+       <p>By defaults Jooby expects to find an <code class="highlighter-rouge codehilite">application.conf</code> file at the root of classpath. You can find the <code class="highlighter-rouge codehilite">.conf</code> file under <code class="highlighter-rouge codehilite">conf</code> classpath directory.</p> 
        <h3 id="conf-env-and-logging-getting-properties">getting properties</h3> 
        <p>via script:</p> 
        <div class="highlighter-rouge codehilite">
@@ -377,7 +377,7 @@
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">Config</span> <span class="n">conf</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Config</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Config</span> <span class="n">conf</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">Config</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="n">String</span> <span class="n">myprop</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"myprop"</span><span class="o">);</span>
     <span class="o">...</span>
   <span class="o">});</span>
@@ -665,7 +665,7 @@
       </div> 
       <div class="datalist-content"> 
        <p>Modules are a <strong>key concept</strong> for building <strong>reusable</strong> and <strong>configurable</strong> pieces of software.</p> 
-       <p>Modules (unlike in other frameworks) are thin and do a lot of work to bootstrap and configure an external library, but they <strong>DO NOT provide a new level of abstraction</strong> nor [do] they provide a custom API to access functionality in that library. Instead they <strong>expose</strong> the <strong>library</strong> components as <strong>they are</strong></p> 
+       <p>Modules (unlike in other frameworks) are thin and do a lot of work to bootstrap and configure an external library, but they <strong>DO NOT provide a new level of abstraction</strong> nor [do] they provide a custom API to access functionality in that library. Instead they <strong>expose</strong> the <strong>library</strong> components as <strong>they are</strong>.</p> 
        <p>Modules like in <a href="https://github.com/google/guice" target="_blank">Guice</a> are used to wire services, connect data, etc…</p> 
        <p>There is an extensive <a href="/modules">module ecosystem</a> which makes Jooby a <strong>full stack</strong> framework (when need it).</p> 
        <h3 id="modules-do-less-and-be-flexible">do less and be flexible</h3> 
@@ -1328,7 +1328,7 @@ GET /assets/bootstrap/3.3.4/css/bootstrap.css
         <pre class="highlight"><code><span class="o">{</span>
   <span class="c1">// start transaction</span>
   <span class="n">before</span><span class="o">(</span><span class="s">"/api/*"</span><span class="o">,</span> <span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">rsp</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">DataSource</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">DataSource</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="n">Connection</span> <span class="n">connection</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="na">getConnection</span><span class="o">();</span>
     <span class="n">Transaction</span> <span class="n">trx</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="na">getTransaction</span><span class="o">();</span>
     <span class="n">trx</span><span class="o">.</span><span class="na">begin</span><span class="o">();</span>
@@ -2507,7 +2507,7 @@ GET /assets/bootstrap/3.3.4/css/bootstrap.css
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-  <span class="n">Foo</span> <span class="n">foo</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Foo</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="n">Foo</span> <span class="n">foo</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">Foo</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
   <span class="k">return</span> <span class="n">foo</span><span class="o">.</span><span class="na">bar</span><span class="o">();</span>
 <span class="o">});</span>
 </code></pre> 
@@ -4701,6 +4701,8 @@ application.securePort = 8443
 
 <span class="c">#! source map </span>
 <span class="py">mime.map</span><span class="p">=</span><span class="s">text/plain</span>
+
+<span class="py">mime.mp4</span><span class="p">=</span><span class="s">video/mp4</span>
 </code></pre> 
        </div> 
       </div> 

@@ -120,6 +120,10 @@
         <li> <a href="#capsule-profile-activation">profile activation</a></li> 
         <li> <a href="#capsule-options">options</a></li>
        </ul></li> 
+      <li class=""> <a href="#docker">docker</a>
+       <ul> 
+        <li> <a href="#docker-usage">usage</a></li>
+       </ul></li> 
       <li class=""> <a href="#static-resources">static resources</a>
        <ul> 
         <li> <a href="#static-resources-usage">usage</a></li>
@@ -269,6 +273,25 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 <span class="nt">&lt;/build&gt;</span>
 </code></pre> 
        </div> 
+       <p>Or the <a href="https://plugins.gradle.org/plugin/com.github.johnrengelman.shadow" target="_blank">gradle-shadow-plugin</a>:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nx">buildscript</span> <span class="p">{</span>
+  <span class="nx">repositories</span> <span class="p">{</span>
+    <span class="nx">maven</span> <span class="p">{</span>
+      <span class="nx">url</span> <span class="s2">"https://plugins.gradle.org/m2/"</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="nx">dependencies</span> <span class="p">{</span>
+    <span class="nx">classpath</span> <span class="s2">"com.github.jengelman.gradle.plugins:shadow:1.2.4"</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s2">"com.github.johnrengelman.shadow"</span>
+</code></pre> 
+       </div> 
        <p>If you created your application via <a href="/quickstart">maven archetype</a> this setup is already present in your application.</p> 
        <h3 id="fat-jar-run-start">run / start</h3> 
        <p>Due everything was bundle into a single <code class="highlighter-rouge codehilite">jar</code> file, all you have to do is:</p> 
@@ -311,6 +334,9 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
         <pre class="highlight"><code><span class="c1"># Name of application (make sure it has no spaces)</span>
 <span class="s">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">${project.artifactId}"</span>
 
+<span class="c1"># Display name of application (can have spaces)</span>
+<span class="s">display_name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">${project.name}"</span>
+
 <span class="c1"># Type of launcher (CONSOLE or DAEMON)</span>
 <span class="s">type</span><span class="pi">:</span> <span class="s">DAEMON</span>
 
@@ -336,7 +362,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 
 <span class="c1"># Min/max fixed memory (measured in MB)</span>
 <span class="s">min_java_memory</span><span class="pi">:</span> <span class="s">512</span>
-<span class="s">max_java_memory</span><span class="pi">:</span> <span class="s">1024</span>
+<span class="s">max_java_memory</span><span class="pi">:</span> <span class="s">512</span>
 
 <span class="c1"># Min/max memory by percentage of system</span>
 <span class="c1">#min_java_memory_pct: 10</span>
@@ -358,13 +384,14 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
        <p>Package and Deploy JVM Applications with <a href="http://www.capsule.io" target="_blank">Capsule</a>.</p> 
        <p>A capsule is a single executable JAR that contains everything your application needs to run either in the form of embedded files or as declarative metadata. More at <a href="http://www.capsule.io" target="_blank">capsule.io</a></p> 
        <h3 id="capsule-usage">usage</h3> 
-       <p><a href="http://www.capsule.io/" target="_blank">Capsule</a> integration is provided via <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html" target="_blank">Maven Profiles</a> using the <a href="https://github.com/chrischristo/capsule-maven-plugin" target="_blank">capsule-maven-plugin</a>.</p> 
+       <p><a href="http://www.capsule.io" target="_blank">Capsule</a> integration is provided via <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html" target="_blank">Maven Profiles</a> using the <a href="https://github.com/chrischristo/capsule-maven-plugin" target="_blank">capsule-maven-plugin</a>.</p> 
        <ul> 
         <li> <p>Write a <code class="highlighter-rouge codehilite">capsule.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc</code> directory</p> </li> 
         <li> <p>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></p> </li> 
         <li> <p>It builds a <code class="highlighter-rouge codehilite">[app-name]-capsule-fat.jar</code> file inside the <code class="highlighter-rouge codehilite">target</code> directory</p> </li> 
        </ul> 
        <p>It generates a <code class="highlighter-rouge codehilite">fat capsule</code> by default inside the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
+       <p>If you are a <a href="https://gradle.org/" target="_blank">Gradle</a> user, checkout the <a href="https://github.com/puniverse/capsule-demo/blob/master/build.gradle" target="_blank">capsule gradle</a> example.</p> 
        <h3 id="capsule-profile-activation">profile activation</h3> 
        <p>The <code class="highlighter-rouge codehilite">capsule</code> Maven profile is activated by the presence of the <code class="highlighter-rouge codehilite">src/etc/capsule.activator</code> file (file content doesn’t matter, just the file presence).</p> 
        <h3 id="capsule-options">options</h3> 
@@ -404,6 +431,66 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
        <p>You’ll find your <code class="highlighter-rouge codehilite">thin</code> capsule in the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
       </div> 
      </div> 
+     <div class="datalist" id="docker"> 
+      <div class="datalist-title "> 
+       <h2>docker</h2> 
+      </div> 
+      <div class="datalist-content"> 
+       <p>Docker is the world’s leading software containerization platform. You can easily run you Jooby app as a docker container. You need to have the docker engine <a href="https://docs.docker.com/engine/installation/" target="_blank">installed</a>.</p> 
+       <h3 id="docker-usage">usage</h3> 
+       <p>You need <a href="https://docs.docker.com/engine/installation/" target="_blank">docker</a> installed on the building machine.</p> 
+       <p>Maven users have two options: one for a building a <a href="/doc/deployment/#fat-jar">fat jar</a> and one for building a <a href="/doc/deployment/#stork">stork</a> distribution.</p> 
+       <p>Gradle users might want to choose one of the available <a href="https://plugins.gradle.org/search?term=docker" target="_blank">plugins</a>.</p> 
+       <h4 id="docker-fat-jar">fat jar</h4> 
+       <ul> 
+        <li> <p>Write a <code class="highlighter-rouge codehilite">src/etc/docker.activator</code> file. File contents doesn’t matter, the file presence activates a Maven profile.</p> </li> 
+        <li> <p>Open a terminal and run:</p> </li> 
+       </ul> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>mvn clean package docker:build
+</code></pre> 
+       </div> 
+       <ul> 
+        <li> <p>Once it finish, the docker image will be build and tagged as <code class="highlighter-rouge codehilite">${project.artifactId}</code>.</p> </li> 
+        <li> <p>You can now run the image with:</p> </li> 
+       </ul> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>docker run -p 80:8080 <span class="k">${</span><span class="nv">project</span><span class="p">.artifactId</span><span class="k">}</span>
+</code></pre> 
+       </div> 
+       <p>The Maven profile trigger the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">spotify/docker-maven-plugin</a> which generates a <code class="highlighter-rouge codehilite">docker</code> file. Please checkout the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">doc</a> for more datails.</p> 
+       <h4 id="docker-stork">stork</h4> 
+       <ul> 
+        <li> <p>Write a <code class="highlighter-rouge codehilite">src/etc/docker.stork.activator</code> file. File contents doesn’t matter, the file presence activates a Maven profile.</p> </li> 
+        <li> <p>Open a terminal and run:</p> </li> 
+       </ul> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>mvn clean package docker:build
+</code></pre> 
+       </div> 
+       <ul> 
+        <li> <p>Once it finish, the docker image will be build and tagged as <code class="highlighter-rouge codehilite">${project.artifactId}</code>.</p> </li> 
+        <li> <p>You can now run the image with:</p> </li> 
+       </ul> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>docker run -it -p 80:8080 <span class="k">${</span><span class="nv">project</span><span class="p">.artifactId</span><span class="k">}</span>
+</code></pre> 
+       </div> 
+       <p>The Maven profile trigger the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">spotify/docker-maven-plugin</a> which generates a <code class="highlighter-rouge codehilite">docker</code> file. Please checkout the <a href="https://github.com/spotify/docker-maven-plugin" target="_blank">doc</a> for more datails.</p> 
+      </div> 
+     </div> 
      <div class="datalist" id="static-resources"> 
       <div class="datalist-title "> 
        <h2>static resources</h2> 
@@ -436,11 +523,13 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
        <h3 id="war--limitations">limitations</h3> 
        <ul> 
         <li>web-sockets are not supported</li> 
-        <li>some properties has no effect when deploying into a Servlet Container:</li> 
-        <li>application.path / contextPath</li> 
-        <li>appplication.port</li> 
-        <li>max upload file sizes</li> 
-        <li>any other server specific property: server.<em>, jetty.</em>, netty.<em>, undertow.</em></li> 
+        <li>some properties has no effect when deploying into a Servlet Container: 
+         <ul> 
+          <li>application.path / contextPath</li> 
+          <li>appplication.port</li> 
+          <li>max upload file sizes</li> 
+          <li>any other server specific property: server.<em>, jetty.</em>, netty.<em>, undertow.</em></li> 
+         </ul> </li> 
        </ul> 
        <h4 id="war--special-note-on-contextPath">special note on contextPath</h4> 
        <p>To avoid a headache… make sure to use the <code class="highlighter-rouge codehilite">contextPath</code> variable while loading static/dynamic resources (.css, .js, etc..).</p> 
@@ -457,7 +546,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 <span class="nt">&lt;/html&gt;</span>
 </code></pre> 
        </div> 
-       <p>Here the expression: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">{</span><span class="w"> </span><span class="nt">"{{contextPath"</span><span class="w"> </span><span class="err">}}}}</span></code> correspond to the template engine (handlebars here) or <code class="highlighter-rouge codehilite">${contextPath}</code> for Freemarker.</p> 
+       <p>Here the expression: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">{contextPath</span><span class="p">}</span><span class="err">}</span></code> corresponds to the template engine (handlebars here) or <code class="highlighter-rouge codehilite">${contextPath}</code> for Freemarker.</p> 
        <h3 id="war--how-it-works-">how it works?</h3> 
        <p>The presence of the <code class="highlighter-rouge codehilite">src/etc/war.activator</code> file triggers a Maven profile. Content of the file doesn’t matter, just the presence.</p> 
        <p>The Maven profile build the <code class="highlighter-rouge codehilite">*.war</code> file using the <code class="highlighter-rouge codehilite">maven-assembly-plugin</code>. The assembly descriptor can be found <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml" target="_blank">here</a></p> 
@@ -533,7 +622,7 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-crash<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -631,12 +720,11 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
 
 <span class="kd">class</span> <span class="nc">hello</span> <span class="o">{</span>
 
- <span class="nd">@Usage</span><span class="o">(</span><span class="s">"Say Hello"</span><span class="o">)</span>
- <span class="nd">@Command</span>
- <span class="n">def</span> <span class="n">main</span><span class="o">(</span><span class="n">InvocationContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
-     <span class="k">return</span> <span class="s">"Hello"</span>
- <span class="o">}</span>
-
+  <span class="nd">@Usage</span><span class="o">(</span><span class="s">"Say Hello"</span><span class="o">)</span>
+  <span class="nd">@Command</span>
+  <span class="n">def</span> <span class="n">main</span><span class="o">(</span><span class="n">InvocationContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="s">"Hello"</span>
+  <span class="o">}</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
@@ -645,13 +733,157 @@ aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
         <li>registry: Access to <a href="/apidocs/org/jooby/Registry.html" target="_blank">Registry</a>.</li> 
         <li>conf: Access to <code class="highlighter-rouge codehilite">Config</code>.</li> 
        </ul> 
+       <p>Example:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kn">package</span> <span class="n">commands</span>
+
+<span class="kn">import</span> <span class="nn">org.crsh.cli.Command</span>
+<span class="kn">import</span> <span class="nn">org.crsh.cli.Usage</span>
+<span class="kn">import</span> <span class="nn">org.crsh.command.InvocationContext</span>
+
+<span class="kd">class</span> <span class="nc">HelloMyService</span> <span class="o">{</span>
+
+  <span class="nd">@Usage</span><span class="o">(</span><span class="s">"MySerivce.doSomething"</span><span class="o">)</span>
+  <span class="nd">@Command</span>
+  <span class="n">def</span> <span class="n">execute</span><span class="o">(</span><span class="n">InvocationContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">def</span> <span class="n">registry</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">registry</span>
+
+    <span class="k">return</span> <span class="n">registry</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">MySerivce</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">doSomething</span><span class="o">()</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
        <h4 id="crash-routes-command">routes command</h4> 
        <p>The <code class="highlighter-rouge codehilite">routes</code> print all the application routes.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>dev&gt; routes
+order method pattern             consumes produces name       source
+-------------------------------------------------------------------------------------------------
+0     GET    /shell/css/**       [*/*]    [*/*]    /anonymous org.jooby.crash.WebShellPlugin:41
+0     GET    /shell/js/**        [*/*]    [*/*]    /anonymous org.jooby.crash.WebShellPlugin:42
+0     GET    /shell              [*/*]    [*/*]    /anonymous org.jooby.crash.WebShellPlugin:45
+0     GET    /api/shell/{cmd:.*} [*/*]    [*/*]    /anonymous org.jooby.crash.HttpShellPlugin:43
+0     *      {before}/path       [*/*]    [*/*]    /anonymous app.CrashApp:21
+0     *      {after}/path        [*/*]    [*/*]    /anonymous app.CrashApp:24
+0     *      {complete}/path     [*/*]    [*/*]    /anonymous app.CrashApp:28
+0     GET    /                   [*/*]    [*/*]    /anonymous app.CrashApp:31
+
+
+method pattern consumes         produces
+-------------------------------------------------
+WS     /shell  application/json application/json
+</code></pre> 
+       </div> 
        <h4 id="crash-conf-command">conf command</h4> 
-       <p>The <code class="highlighter-rouge codehilite">conf tree</code> print the application configuration tree (configuration precedence).</p> 
+       <p>The <code class="highlighter-rouge codehilite">conf tree</code> print the application configuration tree (configuration precedence):</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>dev&gt; conf tree
+ merge of system properties
+  org/jooby/crash/crash.conf @ file:/jooby-crash/target/classes/org/jooby/crash/crash.conf
+   org/jooby/spi/server.conf @ file:/jooby-netty/target/classes/org/jooby/spi/server.conf
+    org/jooby/mime.properties @ file:/jooby/target/classes/org/jooby/mime.properties
+     org/jooby/jooby.conf @ file:/jooby/target/classes/org/jooby/jooby.conf: 1
+</code></pre> 
+       </div> 
        <p>The <code class="highlighter-rouge codehilite">conf props [path]</code> print all the application properties, sub-tree or a single property if <code class="highlighter-rouge codehilite">path</code> argument is present.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>dev&gt; conf props
+name                                   value
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+mime.pgn                               application/x-chess-pgn
+os.version                             10.11.6
+mime.ttf                               font/truetype
+err.java.io.FileNotFoundException      404
+sun.cpu.isalist
+mime.wtls-ca-certificate               application/vnd.wap.wtls-ca-certificate
+mime.texinfo                           application/x-texinfo
+runtime.concurrencyLevel               8
+.....
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>dev&gt; conf props application
+name                       value
+--------------------------------------------------------------------------------
+application.tmpdir         /var/folders/9l/fyb_j4l553z6ql4443yttbj40000gn/T/app
+application.version        0.0.0
+application.ns             app
+application.port           8080
+application.charset        UTF-8
+application.redirect_https
+application.class          app.CrashApp
+application.tz             America/Argentina/Buenos_Aires
+application.numberFormat   #,##0.###
+application.dateFormat     dd-MMM-yyyy
+application.env            dev
+application.host           localhost
+application.name           app
+application.path           /
+application.lang           en-US
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>dev&gt; conf props application.port
+name             value
+-----------------------
+application.port 8080
+</code></pre> 
+       </div> 
        <h3 id="crash-fancy-banner">fancy banner</h3> 
-       <p>Just add the <a href="/doc/banner">jooby-banner</a> to your project and all the <code class="highlighter-rouge codehilite">CRaSH</code> shell will use it. Simple and easy!!</p> 
+       <p>Just add the <a href="/doc/banner">jooby-banner</a> to your project and all the <code class="highlighter-rouge codehilite">CRaSH</code> shell will use it.</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Banner</span><span class="o">(</span><span class="s">"crash me!"</span><span class="o">));</span>
+
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Crash</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>telnet localhost 5000
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>Trying 127.0.0.1...
+Connected to localhost.
+Escape character is '^]'.
+_____                        _____
+__________________ __________  /_       ______ ___ ____ __  /
+  ___/_  ___/  __ `/_  ___/_  __ \      _  __ `__ \  _ \_  / 
+ /__    /     /_/ / (__  )   / / /        / / / / /  __//_/  
+___/  _/     __,_/  ____/  _/ /_/       _/ /_/ /_/ ___/ _) v0.0.0
+
+dev&gt;
+</code></pre> 
+       </div> 
+       <p>Simple and easy!!</p> 
       </div> 
      </div> 
      <div class="datalist" id="conclusion"> 

@@ -127,7 +127,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-jdbc<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -143,7 +143,7 @@
 
   <span class="c1">// accessing to the data source</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/my-api"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">DataSource</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">DataSource</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="c1">// do something with datasource</span>
   <span class="o">});</span> 
 <span class="o">}</span>
@@ -156,8 +156,11 @@
         </div> 
         <pre class="highlight"><code>
 <span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">(</span><span class="s">"db)); // accessing to the data source get("</span><span class="o">/</span><span class="n">my</span><span class="o">-</span><span class="n">api</span><span class="err">"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">DataSource</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">(</span><span class="s">"db"</span><span class="o">));</span>
+
+  <span class="c1">// accessing to the data source</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/my-api"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">DataSource</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="c1">// do something with datasource</span>
   <span class="o">});</span> 
 <span class="o">}</span>
@@ -178,8 +181,8 @@
 </code></pre> 
        </div> 
        <h3 id="jdbc-configuration">configuration</h3> 
-       <p>Database configuration is controlled from your <code class="highlighter-rouge codehilite">application.conf</code> file using the <code class="highlighter-rouge codehilite">db</code> property and friends: <code class="highlighter-rouge codehilite">db.*</code>.</p> 
-       <h4 id="jdbc-mem-db">mem db</h4> 
+       <p>Database configuration is controlled from your <code class="highlighter-rouge codehilite">application.conf</code> file using the <code class="highlighter-rouge codehilite">db</code> properties.</p> 
+       <h4 id="jdbc-memory">memory</h4> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -199,7 +202,7 @@
 </code></pre> 
        </div> 
        <p>Mem db is useful for dev environment and/or transient data that can be regenerated.</p> 
-       <h4 id="jdbc-fs-db">fs db</h4> 
+       <h4 id="jdbc-filesystem">filesystem</h4> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -218,14 +221,15 @@
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
-       <p>File system db is useful for dev environment and/or transient data that can be regenerated. Keep in mind this db is saved in a tmp directory and db will be deleted it on restarts.</p> 
+       <p>File system db is useful for dev environment and/or transient data that can be regenerated. Keep in mind this db is saved in a tmp directory and db will be deleted it on OS restart.</p> 
        <h4 id="jdbc-db-url">db.url</h4> 
        <p>Connect to a database using a jdbc url, some examples here:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># mysql </span><span class="py">db.url</span> <span class="p">=</span> <span class="s">jdbc:mysql://localhost/mydb</span>
+        <pre class="highlight"><code><span class="c"># mysql </span>
+<span class="py">db.url</span> <span class="p">=</span> <span class="s">jdbc:mysql://localhost/mydb</span>
 <span class="py">db.user</span> <span class="p">=</span> <span class="s">myuser</span>
 <span class="py">db.password</span> <span class="p">=</span> <span class="s">password</span>
 </code></pre> 
@@ -252,8 +256,10 @@
 <span class="py">db.password</span> <span class="p">=</span> <span class="s">password</span>
 <span class="py">db.cachePrepStmts</span> <span class="p">=</span> <span class="s">true</span>
 
-<span class="c"># hikari </span><span class="py">hikari.autoCommit</span> <span class="p">=</span> <span class="s">true</span>
+<span class="c"># hikari </span>
+<span class="py">hikari.autoCommit</span> <span class="p">=</span> <span class="s">true</span>
 <span class="py">hikari.maximumPoolSize</span> <span class="p">=</span> <span class="s">20</span>
+
 <span class="c"># etc... </span></code></pre> 
        </div> 
        <p>Also, all the <code class="highlighter-rouge codehilite">db.*</code> properties are converted to <code class="highlighter-rouge codehilite">dataSource.*</code> to let <a href="https://github.com/brettwooldridge/HikariCP" target="_blank">hikari</a> configurer the target jdbc connection.</p> 
@@ -275,11 +281,13 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># main database </span><span class="py">db.main.url</span> <span class="p">=</span> <span class="s">...</span>
+        <pre class="highlight"><code><span class="c"># main database </span>
+<span class="py">db.main.url</span> <span class="p">=</span> <span class="s">...</span>
 <span class="py">db.main.user</span><span class="p">=</span><span class="s">...</span>
 <span class="py">db.main.password</span> <span class="p">=</span> <span class="s">...</span>
 
-<span class="c"># audit </span><span class="py">db.audit.url</span> <span class="p">=</span> <span class="s">....</span>
+<span class="c"># audit </span>
+<span class="py">db.audit.url</span> <span class="p">=</span> <span class="s">....</span>
 <span class="py">db.audit.user</span> <span class="p">=</span> <span class="s">....</span>
 <span class="py">db.audit.password</span> <span class="p">=</span> <span class="s">....</span>
 </code></pre> 
@@ -289,13 +297,44 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="c"># max pool size for main db </span><span class="py">hikari.main.maximumPoolSize</span> <span class="p">=</span> <span class="s">100</span>
+        <pre class="highlight"><code><span class="c"># max pool size for main db </span>
+<span class="py">hikari.main.maximumPoolSize</span> <span class="p">=</span> <span class="s">100</span>
 
-<span class="c"># max pool size for audit db </span><span class="py">hikari.audit.maximumPoolSize</span> <span class="p">=</span> <span class="s">20</span>
+<span class="c"># max pool size for audit db </span>
+<span class="py">hikari.audit.maximumPoolSize</span> <span class="p">=</span> <span class="s">20</span>
 </code></pre> 
        </div> 
-       <p>Finally, if you need to inject the audit data source, all you have to do is to use the <em>Name</em> annotation, like <code class="highlighter-rouge codehilite">@Name("db.audit")</code></p> 
-       <p>That’s all folks! Enjoy it!!!</p> 
+       <p>The first registered database is the <strong>default</strong> database. The <strong>second</strong> database is accessible by name and type:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">(</span><span class="s">"db.main"</span><span class="o">));</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbc</span><span class="o">(</span><span class="s">"db.audit"</span><span class="o">));</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"/db"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">DataSource</span> <span class="n">maindb</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">DataSource</span> <span class="n">auditdb</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="s">"db.audit"</span><span class="o">,</span> <span class="n">DataSource</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="c1">// ...</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>or via <code class="highlighter-rouge codehilite">@Inject</code> annotation:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Service</span> <span class="o">{</span>
+
+  <span class="nd">@Inject</span>
+  <span class="kd">public</span> <span class="n">Service</span><span class="o">(</span><span class="n">DataSource</span> <span class="n">maindb</span><span class="o">,</span> <span class="nd">@Named</span><span class="o">(</span><span class="s">"db.audit"</span><span class="o">)</span> <span class="n">DataSource</span> <span class="n">auditdb</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// ...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
        <h3 id="jdbc-jdbc-conf">jdbc.conf</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 

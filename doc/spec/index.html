@@ -167,7 +167,7 @@
       <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="kt">int</span> <span class="n">start</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"start"</span><span class="o">).</span><span class="na">intValue</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
         <span class="kt">int</span> <span class="n">max</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"max"</span><span class="o">).</span><span class="na">intValue</span><span class="o">(</span><span class="mi">50</span><span class="o">);</span>
-        <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
         <span class="n">List</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">pets</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">findAll</span><span class="o">(</span><span class="n">start</span><span class="o">,</span> <span class="n">max</span><span class="o">);</span>
         <span class="k">return</span> <span class="n">pets</span><span class="o">;</span>
       <span class="o">})</span>
@@ -180,7 +180,7 @@
        <span class="cm">*/</span>
       <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
-        <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
         <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">find</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
         <span class="k">if</span> <span class="o">(</span><span class="n">pet</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
           <span class="k">throw</span> <span class="k">new</span> <span class="n">Err</span><span class="o">(</span><span class="n">Status</span><span class="o">.</span><span class="na">NOT_FOUND</span><span class="o">);</span>
@@ -196,7 +196,7 @@
        <span class="cm">*/</span>
       <span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-        <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
         <span class="n">db</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">pet</span><span class="o">);</span>
         <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
       <span class="o">})</span>
@@ -209,7 +209,7 @@
        <span class="cm">*/</span>
       <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-        <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
         <span class="n">db</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">pet</span><span class="o">);</span>
         <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
       <span class="o">})</span>
@@ -222,7 +222,7 @@
        <span class="cm">*/</span>
       <span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
-        <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
         <span class="n">db</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
         <span class="k">return</span> <span class="n">Results</span><span class="o">.</span><span class="na">noContent</span><span class="o">();</span>
       <span class="o">})</span>
@@ -490,7 +490,7 @@
     <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
       <span class="kt">int</span> <span class="n">start</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"start"</span><span class="o">).</span><span class="na">intValue</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
       <span class="kt">int</span> <span class="n">max</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"max"</span><span class="o">).</span><span class="na">intValue</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
-      <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+      <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
       <span class="n">List</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">pets</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">findAll</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">start</span><span class="o">,</span> <span class="n">max</span><span class="o">);</span>
       <span class="k">return</span> <span class="n">pets</span><span class="o">;</span>
     <span class="o">});</span>
@@ -532,7 +532,7 @@
    <span class="cm">* @return Returns a {@link Pet} with &lt;code&gt;200&lt;/code&gt; status or &lt;code&gt;404&lt;/code&gt; </span>
    <span class="cm">*/</span>
   <span class="n">get</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="na">find</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
   <span class="o">});</span>
 </code></pre> 
@@ -557,14 +557,14 @@
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code>@return Returns a {@link Pet} with &lt;code&gt;200 = Success&lt;/code&gt; status or &lt;code&gt;404 = Missing&lt;/code&gt;
+        <pre class="highlight"><code>@return Returns a {@link Pet} with <span class="nt">&lt;code&gt;</span>200 = Success<span class="nt">&lt;/code&gt;</span> status or <span class="nt">&lt;code&gt;</span>404 = Missing<span class="nt">&lt;/code&gt;</span>
 </code></pre> 
        </div> 
        <h3 id="definition-how-it-works-">how it works?</h3> 
        <p>The spec module scan and parse the source code: <code class="highlighter-rouge codehilite">*.java</code> and produces a list of <code class="highlighter-rouge codehilite">RouteSpec</code>.</p> 
        <p>It is required for getting information from <code class="highlighter-rouge codehilite">script routes</code> and extract <code class="highlighter-rouge codehilite">JavaDoc</code>.</p> 
        <p>We don’t need that for <code class="highlighter-rouge codehilite">mvc routes</code> because all the information is available via <em>Reflection</em> and <code class="highlighter-rouge codehilite">java.lang.Method</code>.</p> 
-       <p>So, the tool needs the source code in order to work properly. In order to use the tool at deploy time you have to setup the <code class="highlighter-rouge codehilite">jooby:spec</code> maven plugin:</p> 
+       <p>So, the tool needs the source code in order to work properly. In order to use the tool at deploy time you must to setup the <code class="highlighter-rouge codehilite">jooby:spec</code> maven plugin:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -582,7 +582,33 @@
 <span class="nt">&lt;/plugin&gt;</span>
 </code></pre> 
        </div> 
-       <p>The maven plugin exports the API into a binary format: <code class="highlighter-rouge codehilite">.spec</code> which can be parse it later.</p> 
+       <p>or the <a href="/doc/gradle-plugin/#gradle-plugin-joobySpec">gradle</a> plugin:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nx">buildscript</span> <span class="p">{</span>
+
+  <span class="nx">dependencies</span> <span class="p">{</span>
+    <span class="cm">/**</span>
+     <span class="cm">* joobyRun </span>
+     <span class="cm">*/</span>
+    <span class="nx">classpath</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-gradle-plugin'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.0.0'</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s1">'jooby'</span>
+
+</code></pre> 
+       </div> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>gradle joobyAssets
+</code></pre> 
+       </div> 
+       <p>The maven/gradle plugin exports the API into a binary format: <code class="highlighter-rouge codehilite">.spec</code> which can be parse it later.</p> 
        <p>That’s all about the spec, as you see there are some minor rules to follow while writing <code class="highlighter-rouge codehilite">script routes</code>. Now it’s time see what tools and integrations are available!!!</p> 
       </div> 
      </div> 
@@ -605,7 +631,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-raml<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -628,7 +654,7 @@
       <span class="cm">*/</span>
      <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
        <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
-       <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+       <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
        <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">find</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
        <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
      <span class="o">})</span>
@@ -775,7 +801,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-swagger<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -798,7 +824,7 @@
       <span class="cm">*/</span>
      <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
        <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
-       <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+       <span class="n">DB</span> <span class="n">db</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">DB</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
        <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="na">find</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
        <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
      <span class="o">})</span>
@@ -875,7 +901,7 @@
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
-  <span class="k">new</span> <span class="n">Swagger</span><span class="o">()</span>
+  <span class="k">new</span> <span class="n">SwaggerUI</span><span class="o">()</span>
     <span class="o">.</span><span class="na">tag</span><span class="o">(</span><span class="n">route</span> <span class="o">-&gt;</span> <span class="n">route</span><span class="o">.</span><span class="na">name</span><span class="o">())</span>
     <span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 <span class="o">}</span>
@@ -890,7 +916,7 @@
         <pre class="highlight"><code><span class="o">{</span>
   <span class="o">...</span>
 
-  <span class="k">new</span> <span class="n">Swagger</span><span class="o">()</span>
+  <span class="k">new</span> <span class="n">SwaggerUI</span><span class="o">()</span>
     <span class="o">.</span><span class="na">noUI</span><span class="o">()</span>
     <span class="o">.</span><span class="na">install</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
 <span class="o">}</span>

@@ -101,7 +101,7 @@
         <li> <a href="#freemarker-exports">exports</a></li> 
         <li> <a href="#freemarker-dependency">dependency</a></li> 
         <li> <a href="#freemarker-usage">usage</a></li> 
-        <li> <a href="#freemarker-req-locals">req locals</a></li> 
+        <li> <a href="#freemarker-request-locals">request locals</a></li> 
         <li> <a href="#freemarker-configuration">configuration</a></li> 
         <li> <a href="#freemarker-template-loader">template loader</a></li> 
         <li> <a href="#freemarker-cache">cache</a></li> 
@@ -129,12 +129,11 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-ftl<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
        <h3 id="freemarker-usage">usage</h3> 
-       <p>It is pretty straightforward:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -155,7 +154,7 @@
 </code></pre> 
        </div> 
        <p>Templates are loaded from root of classpath: <code class="highlighter-rouge codehilite">/</code> and must end with: <code class="highlighter-rouge codehilite">.html</code> file extension.</p> 
-       <h3 id="freemarker-req-locals">req locals</h3> 
+       <h3 id="freemarker-request-locals">request locals</h3> 
        <p>A template engine has access to <code class="highlighter-rouge codehilite">request locals</code> (a.k.a attributes). Here is an example:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -165,17 +164,24 @@
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Ftl</span><span class="o">());</span>
 
   <span class="n">get</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"req"</span><span class="o">,</span> <span class="n">req</span><span class="o">);</span>
-    <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"session"</span><span class="o">,</span> <span class="n">req</span><span class="o">.</span><span class="na">session</span><span class="o">());</span>
+    <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"foo"</span><span class="o">,</span> <span class="s">"bar"</span><span class="o">);</span>
   <span class="o">});</span>
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>By default, there is no access to <code class="highlighter-rouge codehilite">req</code> or <code class="highlighter-rouge codehilite">session</code> from your template. This example shows how to do it.</p> 
+       <p>Then from template:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>${foo}
+</code></pre> 
+       </div> 
        <h3 id="freemarker-configuration">configuration</h3> 
        <p>There are two ways of changing a Freemarker configuration:</p> 
-       <h4 id="freemarker-application-conf">application.conf</h4> 
-       <p>Just add a <code class="highlighter-rouge codehilite">freemarker.*</code> option to your <code class="highlighter-rouge codehilite">application.conf</code> file:</p> 
+       <ul> 
+        <li>via <code class="highlighter-rouge codehilite">.conf</code> file:</li> 
+       </ul> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -183,7 +189,9 @@
         <pre class="highlight"><code><span class="py">freemarker.default_encoding</span> <span class="p">=</span> <span class="s">UTF-8</span>
 </code></pre> 
        </div> 
-       <h4 id="freemarker-programmatically">programmatically</h4> 
+       <ul> 
+        <li>or programmatically:</li> 
+       </ul> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -219,7 +227,6 @@
 </code></pre> 
        </div> 
        <p>See <a href="http://docs.guava-libraries.googlecode.com/git/javadoc/com/google/common/cache/CacheBuilderSpec.html" target="_blank">CacheBuilderSpec</a> for more detailed expressions.</p> 
-       <p>That’s all folks! Enjoy it!!!</p> 
        <h3 id="freemarker-freemarker-conf">freemarker.conf</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 

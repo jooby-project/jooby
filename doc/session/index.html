@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: session module"> 
-  <meta name="og:description" content="You will find here the available modules for reading and saving session data in your application"> 
+  <meta name="og:description" content="Find here the available modules for reading and saving session data in your application"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="You will find here the available modules for reading and saving session data in your application"> 
+  <meta name="twitter:description" content="Find here the available modules for reading and saving session data in your application"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -99,39 +99,47 @@
       <li class="active"> <a href="#session">session</a></li> 
       <li class=""> <a href="#ehcache-session-store">ehcache session store</a>
        <ul> 
+        <li> <a href="#ehcache-session-store-dependency">dependency</a></li> 
         <li> <a href="#ehcache-session-store-usage">usage</a></li>
        </ul></li> 
       <li class=""> <a href="#guava-session-store">guava session store</a>
        <ul> 
+        <li> <a href="#guava-session-store-dependency">dependency</a></li> 
         <li> <a href="#guava-session-store-usage">usage</a></li>
        </ul></li> 
       <li class=""> <a href="#hazelcast-session-store">hazelcast session store</a>
        <ul> 
+        <li> <a href="#hazelcast-session-store-dependency">dependency</a></li> 
         <li> <a href="#hazelcast-session-store-usage">usage</a></li> 
         <li> <a href="#hazelcast-session-store-options">options</a></li>
        </ul></li> 
       <li class=""> <a href="#cassandra-session-store">cassandra session store</a>
        <ul> 
+        <li> <a href="#cassandra-session-store-dependency">dependency</a></li> 
         <li> <a href="#cassandra-session-store-usage">usage</a></li> 
         <li> <a href="#cassandra-session-store-options">options</a></li>
        </ul></li> 
       <li class=""> <a href="#couchbase-session-store">couchbase session store</a>
        <ul> 
+        <li> <a href="#couchbase-session-store-dependency">dependency</a></li> 
         <li> <a href="#couchbase-session-store-usage">usage</a></li> 
         <li> <a href="#couchbase-session-store-options">options</a></li>
        </ul></li> 
       <li class=""> <a href="#redis-session-store">redis session store</a>
        <ul> 
+        <li> <a href="#redis-session-store-dependency">dependency</a></li> 
         <li> <a href="#redis-session-store-usage">usage</a></li> 
         <li> <a href="#redis-session-store-options">options</a></li>
        </ul></li> 
       <li class=""> <a href="#mongodb-session-store">mongodb session store</a>
        <ul> 
+        <li> <a href="#mongodb-session-store-dependency">dependency</a></li> 
         <li> <a href="#mongodb-session-store-usage">usage</a></li> 
         <li> <a href="#mongodb-session-store-options">options</a></li>
        </ul></li> 
       <li class=""> <a href="#spymemcached-session-store">spymemcached session store</a>
        <ul> 
+        <li> <a href="#spymemcached-session-store-dependency">dependency</a></li> 
         <li> <a href="#spymemcached-session-store-usage">usage</a></li> 
         <li> <a href="#spymemcached-session-store-options">options</a></li>
        </ul></li> 
@@ -143,7 +151,7 @@
        <h2>session</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>You will find here the available modules for reading and saving session data in your application.</p> 
+       <p>Find here the available modules for reading and saving session data in your application.</p> 
       </div> 
      </div> 
      <div class="datalist" id="ehcache-session-store"> 
@@ -151,15 +159,27 @@
        <h2>ehcache session store</h2> 
       </div> 
       <div class="datalist-content"> 
+       <h3 id="ehcache-session-store-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-ehcache<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
        <h3 id="ehcache-session-store-usage">usage</h3> 
        <p>This module provides an <a href="/apidocs/org/jooby/ehcache/EhSessionStore.html" target="_blank">EhSessionStore</a>. In order to use the <a href="/apidocs/org/jooby/ehcache/EhSessionStore.html" target="_blank">EhSessionStore</a> all you have to do is define a <code class="highlighter-rouge codehilite">session</code> cache:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="err">ehcache.cache.session</span> <span class="err">{</span>
-  <span class="c"># cache will expire after 30 minutes of inactivity </span>
-  <span class="py">timeToIdle</span> <span class="p">=</span> <span class="s">30m</span>
+        <pre class="highlight"><code>
+<span class="err">ehcache.cache.session</span> <span class="err">{</span>
+  <span class="c"># cache will expire after 30 minutes of inactivity </span>  <span class="py">timeToIdle</span> <span class="p">=</span> <span class="s">30m</span>
 <span class="err">}</span>
 </code></pre> 
        </div> 
@@ -180,6 +200,18 @@
        <h2>guava session store</h2> 
       </div> 
       <div class="datalist-content"> 
+       <h3 id="guava-session-store-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-guava-cache<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
        <h3 id="guava-session-store-usage">usage</h3> 
        <p>This module comes with a <code class="highlighter-rouge codehilite">Session.Store</code> implementation. In order to use it you need to define a cache named <code class="highlighter-rouge codehilite">session</code> in your <code class="highlighter-rouge codehilite">application.conf</code> file:</p> 
        <div class="highlighter-rouge codehilite">
@@ -211,7 +243,7 @@
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">Cache</span> <span class="n">cache</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="s">"session"</span><span class="o">,</span> <span class="n">Cache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Cache</span> <span class="n">cache</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="s">"session"</span><span class="o">,</span> <span class="n">Cache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
   <span class="o">});</span>
 <span class="o">}</span>
 </code></pre> 
@@ -223,6 +255,18 @@
        <h2>hazelcast session store</h2> 
       </div> 
       <div class="datalist-content"> 
+       <h3 id="hazelcast-session-store-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-hazelcast<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
        <h3 id="hazelcast-session-store-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -269,6 +313,18 @@
       </div> 
       <div class="datalist-content"> 
        <p>A <a href="/apidocs/org/jooby/cassandra/CassandraSessionStore.html" target="_blank">Session.Store</a> powered by <a href="http://cassandra.apache.org" target="_blank">Cassandra</a>.</p> 
+       <h3 id="cassandra-session-store-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-cassandra<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
        <h3 id="cassandra-session-store-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -314,6 +370,18 @@ session.timeout = 120m
       </div> 
       <div class="datalist-content"> 
        <p>A <a href="/apidocs/org/jooby/couchbase/CouchbaseSessionStore" target="_blank">Session.Store</a> powered by <a href="http://www.couchbase.com" target="_blank">Couchbase</a>.</p> 
+       <h3 id="couchbase-session-store-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+ <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+ <span class="nt">&lt;artifactId&gt;</span>jooby-couchbase<span class="nt">&lt;/artifactId&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
        <h3 id="couchbase-session-store-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -380,6 +448,18 @@ session.timeout = 120m
        <h2>redis session store</h2> 
       </div> 
       <div class="datalist-content"> 
+       <h3 id="redis-session-store-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-jedis<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
        <h3 id="redis-session-store-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -427,6 +507,18 @@ session.timeout = 120m
        <h2>mongodb session store</h2> 
       </div> 
       <div class="datalist-content"> 
+       <h3 id="mongodb-session-store-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-mongodb<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
        <h3 id="mongodb-session-store-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -476,6 +568,18 @@ session.timeout = 120m
        <h2>spymemcached session store</h2> 
       </div> 
       <div class="datalist-content"> 
+       <h3 id="spymemcached-session-store-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-spymemcached<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
        <h3 id="spymemcached-session-store-usage">usage</h3> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
@@ -526,8 +630,8 @@ session.timeout = 120m
    <div class="row share-network"> 
     <div class="section-content"> 
      <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/session" data-a2a-title="You will find here the available modules for reading and saving session data in your application"> 
-      <a class="a2a_button_twitter" data-text="You will find here the available modules for reading and saving session data in your application"></a> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/session" data-a2a-title="Find here the available modules for reading and saving session data in your application"> 
+      <a class="a2a_button_twitter" data-text="Find here the available modules for reading and saving session data in your application"></a> 
       <a class="a2a_button_reddit a2a_counter"></a> 
       <a class="a2a_button_linkedin a2a_counter"></a> 
       <a class="a2a_button_facebook a2a_counter"></a> 

@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: parser-and-renderer module"> 
-  <meta name="og:description" content="You will find here the available modules for reading and converting between data formats like: json, html, etc…"> 
+  <meta name="og:description" content="Find here the available modules for parsing or rendering several formats"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="You will find here the available modules for reading and converting between data formats like: json, html, etc…"> 
+  <meta name="twitter:description" content="Find here the available modules for parsing or rendering several formats"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -97,8 +97,18 @@
      </div> 
      <ul> 
       <li class="active"> <a href="#parser-and-renderer">parser and renderer</a></li> 
-      <li class=""> <a href="#template-engines">template engines</a></li> 
-      <li class=""> <a href="#json">json</a></li> 
+      <li class=""> <a href="#template-engines">template engines</a>
+       <ul> 
+        <li> <a href="#template-engines-freemarker">freemarker</a></li> 
+        <li> <a href="#template-engines-jade">jade</a></li> 
+        <li> <a href="#template-engines-handlebars">handlebars</a></li> 
+        <li> <a href="#template-engines-pebble">pebble</a></li>
+       </ul></li> 
+      <li class=""> <a href="#json">json</a>
+       <ul> 
+        <li> <a href="#json-jackson">jackson</a></li> 
+        <li> <a href="#json-gson">gson</a></li>
+       </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
@@ -107,7 +117,7 @@
        <h2>parser and renderer</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>You will find here the available modules for reading and converting between data formats like: <code class="highlighter-rouge codehilite">json</code>, <code class="highlighter-rouge codehilite">html</code>, etc…</p> 
+       <p>Find here the available modules for parsing or rendering several formats.</p> 
       </div> 
      </div> 
      <div class="datalist" id="template-engines"> 
@@ -115,12 +125,14 @@
        <h2>template engines</h2> 
       </div> 
       <div class="datalist-content"> 
-       <ul> 
-        <li> <p><a href="/doc/ftl">freemarker</a>: <a href="http://freemarker.org" target="_blank">Freemarker</a> templates.</p> </li> 
-        <li> <p><a href="/doc/jade">jade</a>: <a href="http://jade-lang.com/" target="_blank">jade</a> templates via <a href="https://github.com/neuland/jade4j" target="_blank">jade4j</a></p> </li> 
-        <li> <p><a href="/doc/hbs">handlebars</a>: logic less and semantic templates via Mustache/Handlebars.</p> </li> 
-        <li> <p><a href="/doc/pebble">pebble</a>: <a href="http://www.mitchellbosecke.com/pebble" target="_blank">Pebble</a> templates.</p> </li> 
-       </ul> 
+       <h3 id="template-engines-freemarker">freemarker</h3> 
+       <p><a href="/doc/ftl">Freemarker</a> templates.</p> 
+       <h3 id="template-engines-jade">jade</h3> 
+       <p><a href="/doc/jade">Jade</a> templates via <a href="https://github.com/neuland/jade4j" target="_blank">jade4j</a>.</p> 
+       <h3 id="template-engines-handlebars">handlebars</h3> 
+       <p><a href="/doc/hbs">Handlebars</a> logic less and semantic templates via {{handlebars}}.</p> 
+       <h3 id="template-engines-pebble">pebble</h3> 
+       <p><a href="/doc/pebble">Pebble</a> templates.</p> 
       </div> 
      </div> 
      <div class="datalist" id="json"> 
@@ -128,10 +140,10 @@
        <h2>json</h2> 
       </div> 
       <div class="datalist-content"> 
-       <ul> 
-        <li> <p><a href="/doc/jackson">jackson</a>: JSON supports via <a href="https://github.com/FasterXML/jackson" target="_blank">Jackson</a>.</p> </li> 
-        <li> <p><a href="/doc/gson">gson</a>: JSON supports via <a href="https://github.com/google/gson" target="_blank">Gson</a>.</p> </li> 
-       </ul> 
+       <h3 id="json-jackson">jackson</h3> 
+       <p>JSON supports via <a href="/doc/jackson">jackson</a>.</p> 
+       <h3 id="json-gson">gson</h3> 
+       <p>JSON supports via <a href="/doc/gson">gson</a>.</p> 
       </div> 
      </div> 
     </div> 
@@ -140,8 +152,8 @@
    <div class="row share-network"> 
     <div class="section-content"> 
      <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/parser-and-renderer" data-a2a-title="You will find here the available modules for reading and converting between data formats like: json, html, etc…"> 
-      <a class="a2a_button_twitter" data-text="You will find here the available modules for reading and converting between data formats like: json, html, etc…"></a> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/parser-and-renderer" data-a2a-title="Find here the available modules for parsing or rendering several formats"> 
+      <a class="a2a_button_twitter" data-text="Find here the available modules for parsing or rendering several formats"></a> 
       <a class="a2a_button_reddit a2a_counter"></a> 
       <a class="a2a_button_linkedin a2a_counter"></a> 
       <a class="a2a_button_facebook a2a_counter"></a> 

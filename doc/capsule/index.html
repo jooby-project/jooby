@@ -113,13 +113,14 @@
        <p>Package and Deploy JVM Applications with <a href="http://www.capsule.io" target="_blank">Capsule</a>.</p> 
        <p>A capsule is a single executable JAR that contains everything your application needs to run either in the form of embedded files or as declarative metadata. More at <a href="http://www.capsule.io" target="_blank">capsule.io</a></p> 
        <h3 id="capsule-usage">usage</h3> 
-       <p><a href="http://www.capsule.io/" target="_blank">Capsule</a> integration is provided via <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html" target="_blank">Maven Profiles</a> using the <a href="https://github.com/chrischristo/capsule-maven-plugin" target="_blank">capsule-maven-plugin</a>.</p> 
+       <p><a href="http://www.capsule.io" target="_blank">Capsule</a> integration is provided via <a href="http://maven.apache.org/guides/introduction/introduction-to-profiles.html" target="_blank">Maven Profiles</a> using the <a href="https://github.com/chrischristo/capsule-maven-plugin" target="_blank">capsule-maven-plugin</a>.</p> 
        <ul> 
         <li> <p>Write a <code class="highlighter-rouge codehilite">capsule.activator</code> file inside the <code class="highlighter-rouge codehilite">src/etc</code> directory</p> </li> 
         <li> <p>Open a console and type: <code class="highlighter-rouge codehilite">mvn clean package</code></p> </li> 
         <li> <p>It builds a <code class="highlighter-rouge codehilite">[app-name]-capsule-fat.jar</code> file inside the <code class="highlighter-rouge codehilite">target</code> directory</p> </li> 
        </ul> 
        <p>It generates a <code class="highlighter-rouge codehilite">fat capsule</code> by default inside the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
+       <p>If you are a <a href="https://gradle.org/" target="_blank">Gradle</a> user, checkout the <a href="https://github.com/puniverse/capsule-demo/blob/master/build.gradle" target="_blank">capsule gradle</a> example.</p> 
        <h3 id="capsule-profile-activation">profile activation</h3> 
        <p>The <code class="highlighter-rouge codehilite">capsule</code> Maven profile is activated by the presence of the <code class="highlighter-rouge codehilite">src/etc/capsule.activator</code> file (file content doesn’t matter, just the file presence).</p> 
        <h3 id="capsule-options">options</h3> 

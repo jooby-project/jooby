@@ -1,3 +1,12 @@
+span.build {
+  cursor: pointer;
+  color: #f9b334;
+}
+
+span.build.active {
+  font-weight: bold;
+}
+
 h3[id$="-exports"] {
   padding-bottom: 10px;
 }
@@ -1232,7 +1241,6 @@ blockquote {
 .section-content h3 {
   font-size: 18px;
   line-height: 22px;
-  text-transform: uppercase;
   letter-spacing: 1px;
   margin-top: 20px;
   margin-bottom: 5px;

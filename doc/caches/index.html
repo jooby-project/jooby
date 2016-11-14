@@ -11,7 +11,7 @@
   <link rel="publisher" href="#"> 
   <meta name="robots" content="robots.txt"> 
   <meta name="og:title" content="jooby: caches module"> 
-  <meta name="og:description" content="Welcome to the caches module!!"> 
+  <meta name="og:description" content="Find here access to various caches solutions including Redis, Memcached, etc…, but also pure Java solutions like Hazelcast or Ehcache"> 
   <!--
     og:type
     SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
@@ -45,7 +45,7 @@
   <meta name="twitter:creator" content="https://twitter.com/edgarespina"> 
   <meta name="twitter:domain" content="http://jooby.org"> 
   <meta name="twitter:url" content="https://twitter.com/joobyproject"> 
-  <meta name="twitter:description" content="Welcome to the caches module!!"> 
+  <meta name="twitter:description" content="Find here access to various caches solutions including Redis, Memcached, etc…, but also pure Java solutions like Hazelcast or Ehcache"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60"> 
   <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72"> 
@@ -96,10 +96,15 @@
       caches
      </div> 
      <ul> 
-      <li class="active"> <a href="#caches">caches</a></li> 
-      <li class=""> <a href="#redis">redis</a></li> 
-      <li class=""> <a href="#memcached">memcached</a></li> 
-      <li class=""> <a href="#pure-java">pure java</a></li> 
+      <li class="active"> <a href="#caches">caches</a>
+       <ul> 
+        <li> <a href="#caches-redis">redis</a></li> 
+        <li> <a href="#caches-memcached">memcached</a></li> 
+        <li> <a href="#caches-caffeine">caffeine</a></li> 
+        <li> <a href="#caches-ehcache">ehcache</a></li> 
+        <li> <a href="#caches-guava">guava</a></li> 
+        <li> <a href="#caches-hazelcast">hazelcast</a></li>
+       </ul></li> 
      </ul> 
     </div> 
     <div class="section-content"> 
@@ -108,42 +113,19 @@
        <h2>caches</h2> 
       </div> 
       <div class="datalist-content"> 
-       <p>Welcome to the caches module!!</p> 
-       <p>You will find here access to various caches solutions including <a href="http://redis.io" target="_blank">Redis</a>, <a href="http://memcached.org" target="_blank">Memcached</a>, etc…, but also pure Java solutions like <a href="http://hazelcast.org" target="_blank">Hazelcast</a> or <a href="http://ehcache.org" target="_blank">Ehcache</a>.</p> 
-       <p>Let’s see what modules are available:</p> 
-      </div> 
-     </div> 
-     <div class="datalist" id="redis"> 
-      <div class="datalist-title "> 
-       <h2>redis</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <ul> 
-        <li><a href="/doc/jedis">jedis</a>: provides access to a <a href="http://redis.io" target="_blank">Redis</a> cache via <a href="https://github.com/xetorthio/jedis" target="_blank">Jedis</a> driver.</li> 
-       </ul> 
-      </div> 
-     </div> 
-     <div class="datalist" id="memcached"> 
-      <div class="datalist-title "> 
-       <h2>memcached</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <ul> 
-        <li><a href="/doc/spymemcached">spymemcached</a>: provides access to a <a href="http://memcached.org" target="_blank">Memcached</a> cache via <a href="https://github.com/dustin/java-memcached-client" target="_blank">SpyMemcached</a> driver.</li> 
-       </ul> 
-      </div> 
-     </div> 
-     <div class="datalist" id="pure-java"> 
-      <div class="datalist-title "> 
-       <h2>pure java</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <ul> 
-        <li><a href="/doc/caffeine">caffeine</a>: <a href="https://github.com/ben-manes/caffeine" target="_blank">Caffeine</a> caches.</li> 
-        <li><a href="/doc/ehcache">ehcache</a>: <a href="http://ehcache.org" target="_blank">Ehcache</a> caches.</li> 
-        <li><a href="/doc/guava-cache">guava</a>: <a href="https://github.com/google/guava" target="_blank">Guava</a> caches.</li> 
-        <li><a href="/doc/hazelcast">hazelcast</a>: <a href="http://hazelcast.org" target="_blank">Hazelcast</a> caches.</li> 
-       </ul> 
+       <p>Find here access to various caches solutions including <a href="http://redis.io" target="_blank">Redis</a>, <a href="http://memcached.org" target="_blank">Memcached</a>, etc…, but also pure Java solutions like <a href="http://hazelcast.org" target="_blank">Hazelcast</a> or <a href="http://ehcache.org" target="_blank">Ehcache</a>.</p> 
+       <h3 id="caches-redis">redis</h3> 
+       <p><a href="/doc/jedis">Jedis</a> provides access to a <a href="http://redis.io" target="_blank">Redis</a> cache via <a href="https://github.com/xetorthio/jedis" target="_blank">Jedis</a> driver.</p> 
+       <h3 id="caches-memcached">memcached</h3> 
+       <p><a href="/doc/spymemcached">Spymemcached</a> provides access to a <a href="http://memcached.org" target="_blank">Memcached</a> cache via <a href="https://github.com/dustin/java-memcached-client" target="_blank">SpyMemcached</a> driver.</p> 
+       <h3 id="caches-caffeine">caffeine</h3> 
+       <p><a href="/doc/caffeine">Caffeine</a>: <a href="https://github.com/ben-manes/caffeine" target="_blank">Caffeine</a> caches.</p> 
+       <h3 id="caches-ehcache">ehcache</h3> 
+       <p><a href="/doc/ehcache">Ehcache</a>: <a href="http://ehcache.org" target="_blank">Ehcache</a> caches.</p> 
+       <h3 id="caches-guava">guava</h3> 
+       <p><a href="/doc/guava-cache">Guava</a>: <a href="https://github.com/google/guava" target="_blank">Guava</a> caches.</p> 
+       <h3 id="caches-hazelcast">hazelcast</h3> 
+       <p><a href="/doc/hazelcast">Hazelcast</a>: <a href="http://hazelcast.org" target="_blank">Hazelcast</a> caches.</p> 
       </div> 
      </div> 
     </div> 
@@ -152,8 +134,8 @@
    <div class="row share-network"> 
     <div class="section-content"> 
      <h3>Share</h3> 
-     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/caches" data-a2a-title="Welcome to the caches module!!"> 
-      <a class="a2a_button_twitter" data-text="Welcome to the caches module!!"></a> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/doc/caches" data-a2a-title="Find here access to various caches solutions including Redis, Memcached, etc…, but also pure Java solutions like Hazelcast or Ehcache"> 
+      <a class="a2a_button_twitter" data-text="Find here access to various caches solutions including Redis, Memcached, etc…, but also pure Java solutions like Hazelcast or Ehcache"></a> 
       <a class="a2a_button_reddit a2a_counter"></a> 
       <a class="a2a_button_linkedin a2a_counter"></a> 
       <a class="a2a_button_facebook a2a_counter"></a> 

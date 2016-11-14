@@ -99,7 +99,6 @@
       <li class="active"> <a href="#gradle-plugin">gradle plugin</a>
        <ul> 
         <li> <a href="#gradle-plugin-joobyRun">joobyRun</a></li> 
-        <li> <a href="#gradle-plugin-hot-reload">hot reload</a></li> 
         <li> <a href="#gradle-plugin-joobyAssets">joobyAssets</a></li> 
         <li> <a href="#gradle-plugin-joobySpec">joobySpec</a></li>
        </ul></li> 
@@ -115,22 +114,30 @@
        <h3 id="gradle-plugin-joobyRun">joobyRun</h3> 
        <p>Run, debug and reload applications.</p> 
        <h4 id="gradle-plugin-usage">usage</h4> 
-       <pre><code class="language-gradle">buildscript {
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code>
+<span class="nx">buildscript</span> <span class="p">{</span>
 
-  repositories {
-    mavenCentral()
-  }
+  <span class="nx">repositories</span> <span class="p">{</span>
+    <span class="nx">mavenCentral</span><span class="p">()</span>
+  <span class="p">}</span>
 
-  dependencies {
-    /** jooby:run */
-    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0.CR7'
-  }
-}
+  <span class="nx">dependencies</span> <span class="p">{</span>
+    <span class="cm">/**</span>
+     <span class="cm">* joobyRun </span>
+     <span class="cm">*/</span>
+    <span class="nx">classpath</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-gradle-plugin'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.0.0'</span>
+  <span class="p">}</span>
+<span class="p">}</span>
 
-apply plugin: 'jooby'
+<span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s1">'jooby'</span>
 
-}
+<span class="p">}</span>
 </code></pre> 
+       </div> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -155,8 +162,8 @@ listening on:
   http://localhost:8080/
 </code></pre> 
        </div> 
-       <h3 id="gradle-plugin-hot-reload">hot reload</h3> 
-       <p>The <code class="highlighter-rouge codehilite">jooby:run</code> tool restart the application every time a change is detected on:</p> 
+       <h4 id="gradle-plugin-hot-reload">hot reload</h4> 
+       <p>The <code class="highlighter-rouge codehilite">joobyRun</code> tool restart the application every time a change is detected on:</p> 
        <ul> 
         <li>classes (*.class)</li> 
         <li>config files (*.conf and *.properties)</li> 
@@ -164,15 +171,20 @@ listening on:
        <p>Changes on templates and/or static files (*.html, *.js, *.css) wont restart the application, because they are not compiled or cached while running on <code class="highlighter-rouge codehilite">application.env = dev</code>.</p> 
        <p>It’s worth to mention that dynamic reload of classes is done via <a href="https://github.com/jboss-modules/jboss-modules" target="_blank">JBoss Modules</a>.</p> 
        <h4 id="gradle-plugin-options">options</h4> 
-       <pre><code class="language-gradle">joobyRun {
-  mainClassName = 'com.mycompany.App'
-  compiler = 'on'
-  includes = ['**/*.class', '**/*.conf', '**/*.properties']
-  excludes = []
-  logLevel = 'info'
-}
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nx">joobyRun</span> <span class="p">{</span>
+  <span class="nx">mainClassName</span> <span class="o">=</span> <span class="s1">'com.mycompany.App'</span>
+  <span class="nx">compiler</span> <span class="o">=</span> <span class="s1">'on'</span>
+  <span class="nx">includes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'**/*.class'</span><span class="p">,</span> <span class="s1">'**/*.conf'</span><span class="p">,</span> <span class="s1">'**/*.properties'</span><span class="p">]</span>
+  <span class="nx">excludes</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="nx">logLevel</span> <span class="o">=</span> <span class="s1">'info'</span>
+<span class="p">}</span>
 
 </code></pre> 
+       </div> 
        <h5>mainClassName</h5> 
        <p>A <a href="http://gradle.org" target="_blank">Gradle</a> property that contains the fully qualified name of the <code class="highlighter-rouge codehilite">main class</code>. <strong>Required</strong>.</p> 
        <h5>compiler</h5> 
@@ -189,22 +201,29 @@ listening on:
        <h3 id="gradle-plugin-joobyAssets">joobyAssets</h3> 
        <p>This is a <a href="http://gradle.org" target="_blank">Gradle</a> task for the <a href="[assets module](/doc/assets)">asset module</a>. The <a href="[assets module](/doc/assets)">asset module</a> validate, concatenate, minify or compress JavaScript and CSS assets.</p> 
        <h4 id="gradle-plugin-usage">usage</h4> 
-       <pre><code class="language-gradle">buildscript {
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nx">buildscript</span> <span class="p">{</span>
 
-  repositories {
-    mavenCentral()
-  }
+  <span class="nx">repositories</span> <span class="p">{</span>
+    <span class="nx">mavenCentral</span><span class="p">()</span>
+  <span class="p">}</span>
 
-  dependencies {
-    /** jooby:run */
-    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0.CR7'
-  }
-}
+  <span class="nx">dependencies</span> <span class="p">{</span>
+    <span class="cm">/**</span>
+     <span class="cm">* jooby:run </span>
+     <span class="cm">*/</span>
+    <span class="nx">classpath</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-gradle-plugin'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.0.0.CR7'</span>
+  <span class="p">}</span>
+<span class="p">}</span>
 
-apply plugin: 'jooby'
+<span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s1">'jooby'</span>
 
-}
+<span class="p">}</span>
 </code></pre> 
+       </div> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
@@ -213,31 +232,43 @@ apply plugin: 'jooby'
 </code></pre> 
        </div> 
        <h4 id="gradle-plugin-options">options</h4> 
-       <pre><code class="language-gradle">joobyAssets {
-  maxAge = '365d'
-}
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nx">joobyAssets</span> <span class="p">{</span>
+  <span class="nx">maxAge</span> <span class="o">=</span> <span class="s1">'365d'</span>
+<span class="p">}</span>
 
 </code></pre> 
+       </div> 
        <h5>maxAge</h5> 
        <p>Specify the max age cache header, default is: <code class="highlighter-rouge codehilite">365d</code>``</p> 
        <h3 id="gradle-plugin-joobySpec">joobySpec</h3> 
        <p>This is a <a href="http://gradle.org" target="_blank">Gradle</a> task for the <a href="/doc/spec">route spec</a> module. The <a href="/doc/spec">route spec</a> module allows you to export your API/microservices outside a <a href="http://jooby.org">Jooby</a> application.</p> 
        <h4 id="gradle-plugin-usage">usage</h4> 
-       <pre><code class="language-gradle">buildscript {
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nx">buildscript</span> <span class="p">{</span>
 
-  repositories {
-    mavenCentral()
-  }
+  <span class="nx">repositories</span> <span class="p">{</span>
+    <span class="nx">mavenCentral</span><span class="p">()</span>
+  <span class="p">}</span>
 
-  dependencies {
-    /** jooby:run */
-    classpath group: 'org.jooby', name: 'jooby-gradle-plugin', version: '1.0.0.CR7'
-  }
-}
+  <span class="nx">dependencies</span> <span class="p">{</span>
+    <span class="cm">/**</span>
+     <span class="cm">* jooby:run </span>
+     <span class="cm">*/</span>
+    <span class="nx">classpath</span> <span class="nx">group</span><span class="err">:</span> <span class="s1">'org.jooby'</span><span class="p">,</span> <span class="nx">name</span><span class="err">:</span> <span class="s1">'jooby-gradle-plugin'</span><span class="p">,</span> <span class="nx">version</span><span class="err">:</span> <span class="s1">'1.0.0.CR7'</span>
+  <span class="p">}</span>
+<span class="p">}</span>
 
-apply plugin: 'jooby'
+<span class="nx">apply</span> <span class="nx">plugin</span><span class="err">:</span> <span class="s1">'jooby'</span>
 
 </code></pre> 
+       </div> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>

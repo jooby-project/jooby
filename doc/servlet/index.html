@@ -121,11 +121,13 @@
        <h3 id="servlets-limitations">limitations</h3> 
        <ul> 
         <li>web-sockets are not supported</li> 
-        <li>some properties has no effect when deploying into a Servlet Container:</li> 
-        <li>application.path / contextPath</li> 
-        <li>appplication.port</li> 
-        <li>max upload file sizes</li> 
-        <li>any other server specific property: server.<em>, jetty.</em>, netty.<em>, undertow.</em></li> 
+        <li>some properties has no effect when deploying into a Servlet Container: 
+         <ul> 
+          <li>application.path / contextPath</li> 
+          <li>appplication.port</li> 
+          <li>max upload file sizes</li> 
+          <li>any other server specific property: server.<em>, jetty.</em>, netty.<em>, undertow.</em></li> 
+         </ul> </li> 
        </ul> 
        <h4 id="servlets-special-note-on-contextPath">special note on contextPath</h4> 
        <p>To avoid a headache… make sure to use the <code class="highlighter-rouge codehilite">contextPath</code> variable while loading static/dynamic resources (.css, .js, etc..).</p> 
@@ -142,7 +144,7 @@
 <span class="nt">&lt;/html&gt;</span>
 </code></pre> 
        </div> 
-       <p>Here the expression: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">{</span><span class="w"> </span><span class="nt">"{{contextPath"</span><span class="w"> </span><span class="err">}}}}</span></code> correspond to the template engine (handlebars here) or <code class="highlighter-rouge codehilite">${contextPath}</code> for Freemarker.</p> 
+       <p>Here the expression: <code class="highlighter-rouge codehilite"><span class="p">{</span><span class="err">{contextPath</span><span class="p">}</span><span class="err">}</span></code> corresponds to the template engine (handlebars here) or <code class="highlighter-rouge codehilite">${contextPath}</code> for Freemarker.</p> 
        <h3 id="servlets-how-it-works-">how it works?</h3> 
        <p>The presence of the <code class="highlighter-rouge codehilite">src/etc/war.activator</code> file triggers a Maven profile. Content of the file doesn’t matter, just the presence.</p> 
        <p>The Maven profile build the <code class="highlighter-rouge codehilite">*.war</code> file using the <code class="highlighter-rouge codehilite">maven-assembly-plugin</code>. The assembly descriptor can be found <a href="https://github.com/jooby-project/jooby/blob/master/jooby-dist/src/main/resources/assemblies/jooby.war.xml" target="_blank">here</a></p> 

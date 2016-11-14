@@ -102,6 +102,7 @@
         <li> <a href="#pebble-dependency">dependency</a></li> 
         <li> <a href="#pebble-usage">usage</a></li> 
         <li> <a href="#pebble-template-loader">template loader</a></li> 
+        <li> <a href="#pebble-request-locals">request locals</a></li> 
         <li> <a href="#pebble-template-cache">template cache</a></li> 
         <li> <a href="#pebble-tag-cache">tag cache</a></li> 
         <li> <a href="#pebble-advanced-configuration">advanced configuration</a></li>
@@ -128,7 +129,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
  <span class="nt">&lt;artifactId&gt;</span>jooby-pebble<span class="nt">&lt;/artifactId&gt;</span>
- <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+ <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -145,11 +146,10 @@
   <span class="c1">// or Pebble API</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/pebble-api"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
 
-    <span class="n">PebbleEngine</span> <span class="n">pebble</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">PebbleEngine</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">PebbleEngine</span> <span class="n">pebble</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">PebbleEngine</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="n">PebbleTemplate</span> <span class="n">template</span> <span class="o">=</span> <span class="n">pebble</span><span class="o">.</span><span class="na">getTemplate</span><span class="o">(</span><span class="s">"template"</span><span class="o">);</span>
     <span class="n">template</span><span class="o">.</span><span class="na">evaluate</span><span class="o">(...);</span>
   <span class="o">});</span>
-
 <span class="o">}</span>
 </code></pre> 
        </div> 
@@ -162,9 +162,30 @@
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pebble</span><span class="o">(</span><span class="s">"templates"</span><span class="o">,</span> <span class="s">".pebble"</span><span class="o">));</span>
-
 <span class="o">}</span>
 </code></pre> 
+       </div> 
+       <h3 id="pebble-request-locals">request locals</h3> 
+       <p>A template engine has access to <code class="highlighter-rouge codehilite">request locals</code> (a.k.a attributes). Here is an example:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pebble</span><span class="o">());</span>
+
+  <span class="n">get</span><span class="o">(</span><span class="s">"*"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">req</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="s">"foo"</span><span class="o">,</span> <span class="n">bar</span><span class="o">);</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+       </div> 
+       <p>Then from template:</p> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="p">{</span><span class="err">{foo</span><span class="p">}</span><span class="err">}</span><span class="w"> </span></code></pre> 
        </div> 
        <h3 id="pebble-template-cache">template cache</h3> 
        <p>Cache is OFF when <code class="highlighter-rouge codehilite">env=dev</code> (useful for template reloading), otherwise is ON.</p> 
@@ -188,15 +209,12 @@
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Pebble</span><span class="o">().</span><span class="na">doWith</span><span class="o">(</span><span class="n">pebble</span> <span class="o">-&gt;</span> <span class="o">{</span>
-
     <span class="n">pebble</span><span class="o">.</span><span class="na">extension</span><span class="o">(...);</span>
     <span class="n">pebble</span><span class="o">.</span><span class="na">loader</span><span class="o">(...);</span>
   <span class="o">}));</span>
-
 <span class="o">}</span>
 </code></pre> 
        </div> 
-       <p>That’s all folks! Enjoy it!!!</p> 
       </div> 
      </div> 
     </div> 

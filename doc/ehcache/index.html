@@ -106,6 +106,7 @@
        </ul></li> 
       <li class=""> <a href="#ehcache-session-store">ehcache session store</a>
        <ul> 
+        <li> <a href="#ehcache-session-store-dependency">dependency</a></li> 
         <li> <a href="#ehcache-session-store-usage">usage</a></li> 
         <li> <a href="#ehcache-session-store-configuration">configuration</a></li> 
         <li> <a href="#ehcache-session-store-ehcache-conf">ehcache.conf</a></li>
@@ -132,7 +133,7 @@
         <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jooby-ehcache<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0.0.CR8<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre> 
        </div> 
@@ -145,10 +146,10 @@
   <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Eh</span><span class="o">());</span>
 
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">CacheManager</span> <span class="n">cm</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">CacheManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">CacheManager</span> <span class="n">cm</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">CacheManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="c1">// work with cm</span>
 
-    <span class="n">Ehcache</span> <span class="n">ehcache</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Ehcache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Ehcache</span> <span class="n">ehcache</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">Ehcache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="c1">// work with ehcache</span>
   <span class="o">});</span>
 <span class="o">}</span>
@@ -173,7 +174,7 @@
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">Ehcache</span> <span class="n">mycache</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="n">Ehcache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Ehcache</span> <span class="n">mycache</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">Ehcache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
   <span class="o">});</span>
 <span class="o">}</span>
 </code></pre> 
@@ -202,9 +203,9 @@
         </div> 
         <pre class="highlight"><code><span class="o">{</span>
   <span class="n">get</span><span class="o">(</span><span class="s">"/"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">Ehcache</span> <span class="n">cache1</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="s">"cache1"</span><span class="o">,</span> <span class="n">Ehcache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Ehcache</span> <span class="n">cache1</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="s">"cache1"</span><span class="o">,</span> <span class="n">Ehcache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="c1">// ..</span>
-    <span class="n">Ehcache</span> <span class="n">cache2</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">require</span><span class="o">(</span><span class="s">"cache2"</span><span class="o">,</span> <span class="n">Ehcache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Ehcache</span> <span class="n">cache2</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="s">"cache2"</span><span class="o">,</span> <span class="n">Ehcache</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="c1">// ..</span>
   <span class="o">});</span>
 <span class="o">}</span>
@@ -239,15 +240,27 @@
        <h2>ehcache session store</h2> 
       </div> 
       <div class="datalist-content"> 
+       <h3 id="ehcache-session-store-dependency">dependency</h3> 
+       <div class="highlighter-rouge codehilite">
+        <div class="copy-bar"> 
+         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
+        </div> 
+        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-ehcache<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+       </div> 
        <h3 id="ehcache-session-store-usage">usage</h3> 
        <p>This module provides an <a href="/apidocs/org/jooby/ehcache/EhSessionStore.html" target="_blank">EhSessionStore</a>. In order to use the <a href="/apidocs/org/jooby/ehcache/EhSessionStore.html" target="_blank">EhSessionStore</a> all you have to do is define a <code class="highlighter-rouge codehilite">session</code> cache:</p> 
        <div class="highlighter-rouge codehilite">
         <div class="copy-bar"> 
          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
         </div> 
-        <pre class="highlight"><code><span class="err">ehcache.cache.session</span> <span class="err">{</span>
-  <span class="c"># cache will expire after 30 minutes of inactivity </span>
-  <span class="py">timeToIdle</span> <span class="p">=</span> <span class="s">30m</span>
+        <pre class="highlight"><code>
+<span class="err">ehcache.cache.session</span> <span class="err">{</span>
+  <span class="c"># cache will expire after 30 minutes of inactivity </span>  <span class="py">timeToIdle</span> <span class="p">=</span> <span class="s">30m</span>
 <span class="err">}</span>
 </code></pre> 
        </div> 

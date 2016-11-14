@@ -134,6 +134,9 @@
         <pre class="highlight"><code><span class="c1"># Name of application (make sure it has no spaces)</span>
 <span class="s">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">${project.artifactId}"</span>
 
+<span class="c1"># Display name of application (can have spaces)</span>
+<span class="s">display_name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">${project.name}"</span>
+
 <span class="c1"># Type of launcher (CONSOLE or DAEMON)</span>
 <span class="s">type</span><span class="pi">:</span> <span class="s">DAEMON</span>
 
@@ -159,7 +162,7 @@
 
 <span class="c1"># Min/max fixed memory (measured in MB)</span>
 <span class="s">min_java_memory</span><span class="pi">:</span> <span class="s">512</span>
-<span class="s">max_java_memory</span><span class="pi">:</span> <span class="s">1024</span>
+<span class="s">max_java_memory</span><span class="pi">:</span> <span class="s">512</span>
 
 <span class="c1"># Min/max memory by percentage of system</span>
 <span class="c1">#min_java_memory_pct: 10</span>
