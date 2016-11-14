@@ -10,7 +10,7 @@
 ```xml
 <dependency>
  <groupId>org.jooby</groupId>
- <artifactId>jooby-rxjdbc</artifactId>
+ <artifactId>jooby-rxjava-jdbc</artifactId>
  <version>{{version}}</version>
 </dependency>
 ```
