@@ -53,6 +53,10 @@ public class RouteMetadataTest {
     public void arg(final double v, final int u) {
 
     }
+
+    public static void staticMethod() {
+
+    }
   }
 
   @Test

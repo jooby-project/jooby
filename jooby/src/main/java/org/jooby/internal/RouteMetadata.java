@@ -111,7 +111,8 @@ public class RouteMetadata implements ParameterNameProvider {
       public MethodVisitor visitMethod(final int access, final String name,
           final String desc, final String signature, final String[] exceptions) {
         boolean isPublic = ((access & Opcodes.ACC_PUBLIC) > 0) ? true : false;
-        if (!isPublic) {
+        boolean isStatic = ((access & Opcodes.ACC_STATIC) > 0) ? true : false;
+        if (!isPublic || isStatic) {
           // ignore
           return null;
         }
