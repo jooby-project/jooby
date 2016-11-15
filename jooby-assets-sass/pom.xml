@@ -9,10 +9,9 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>jooby-assets-jsass</artifactId>
+  <artifactId>jooby-assets-sass</artifactId>
 
-  <name>jsass.js module</name>
-  <description>jsass is a Java sass compiler using libsass</description>
+  <name>sass module</name>
 
   <build>
     <plugins>
