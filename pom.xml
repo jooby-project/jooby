@@ -2697,7 +2697,7 @@ org.eclipse.jdt.apt.processorOptions/defaultOverwrite=true
     <cassandra.version>3.0.3</cassandra.version>
 
     <mongo-driver-driver-rx.version>1.2.0</mongo-driver-driver-rx.version>
-    <fast-classpath-scanner.version>1.99.0</fast-classpath-scanner.version>
+    <fast-classpath-scanner.version>2.0.7</fast-classpath-scanner.version>
     <zt-zip.version>1.9</zt-zip.version>
     <batik.version>1.8</batik.version>
     <coverity-escapers.version>1.1.1</coverity-escapers.version>
