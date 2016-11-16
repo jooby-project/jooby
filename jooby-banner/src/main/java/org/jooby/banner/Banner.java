@@ -112,7 +112,7 @@ public class Banner implements Module {
     String text = this.text.orElse(name);
 
     Provider<String> ascii = () -> Try
-        .of(() -> convertOneLine(String.format(FONT, font), text).trim())
+        .of(() -> convertOneLine(String.format(FONT, font), text).replaceAll("\\n+$", ""))
         .getOrElse(text);
 
     binder.bind(Key.get(String.class, Names.named("application.banner"))).toProvider(ascii);
