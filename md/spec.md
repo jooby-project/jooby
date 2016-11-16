@@ -440,7 +440,7 @@ apply plugin: 'jooby'
 ```
 
 ```bash
-gradle joobyAssets
+gradle joobySpec
 ```
 
 The maven/gradle plugin exports the API into a binary format: ```.spec``` which can be parse it later.
