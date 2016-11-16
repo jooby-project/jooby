@@ -112,7 +112,7 @@ public class Banner implements Module {
     String text = this.text.orElse(name);
 
     Provider<String> ascii = () -> Try
-        .of(() -> convertOneLine(String.format(FONT, font), text).replaceAll("\\n+$", ""))
+        .of(() -> trimEnd(convertOneLine(String.format(FONT, font), text)))
         .getOrElse(text);
 
     binder.bind(Key.get(String.class, Names.named("application.banner"))).toProvider(ascii);
@@ -126,5 +126,14 @@ public class Banner implements Module {
     this.font = requireNonNull(font, "Font is required.");
     return this;
   }
-
+  
+  public String trimEnd(String str) {
+      int len = str.length();
+      int st = 0;
+      char[] val = str.toCharArray();
+      while ((st < len) && (val[len - 1] <= ' ')) {
+          len--;
+      }
+      return str.substring(st, len);
+  }
 }
