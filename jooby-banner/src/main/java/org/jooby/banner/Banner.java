@@ -127,7 +127,7 @@ public class Banner implements Module {
     return this;
   }
   
-  public String trimEnd(String str) {
+  private String trimEnd(String str) {
       int len = str.length();
       int st = 0;
       char[] val = str.toCharArray();
