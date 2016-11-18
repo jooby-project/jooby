@@ -691,6 +691,8 @@ public class Jooby implements Router, LifeCycle, Registry {
 
   private List<Consumer<Binder>> executors = new ArrayList<>();
 
+  private boolean defaultExecSet;
+
   /**
    * Creates a new {@link Jooby} application.
    */
@@ -2306,6 +2308,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This jooby instance.
    */
   public Jooby executor(final Executor executor) {
+    this.defaultExecSet = true;
     this.executors.add(binder -> {
       binder.bind(Key.get(String.class, Names.named("deferred"))).toInstance("deferred");
       binder.bind(Key.get(Executor.class, Names.named("deferred"))).toInstance(executor);
@@ -2363,6 +2366,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @return This jooby instance.
    */
   public Jooby executor(final String name) {
+    defaultExecSet = true;
     this.executors.add(binder -> {
       binder.bind(Key.get(String.class, Names.named("deferred"))).toInstance(name);
     });
@@ -2483,8 +2487,8 @@ public class Jooby implements Router, LifeCycle, Registry {
       throw new IllegalStateException("Required property 'application.secret' is missing");
     }
 
-    /** executors . */
-    if (executors.isEmpty()) {
+    /** executors: */
+    if (!defaultExecSet) {
       // default executor
       executor(MoreExecutors.directExecutor());
     }
