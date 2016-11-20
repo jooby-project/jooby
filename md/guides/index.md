@@ -4,22 +4,16 @@ Welcome to the Jooby guides, a place to learn and share ideas on how to build po
 
 # basic
 
-## hello restful
+## greeting
 
-* Learn how to build a [simple restful](/guides/hello-restful) web service using the **script programming model**
-
-* Do you prefer the **MVC programming model**? No problem, [here](/guides/hello-mvc-restful) is the same guide with **MVC routes**
+* Learn how to build a [simple json api](/guides/greeting) and {{jooby}} basics.
 
 ## deployment
 
 * Learn how to [deploy](/guides/deployment) your application into a ```prod``` environment
 
-# restful API
+# data
 
-## with jdbi
+## jdbi
 
-* Learn how to build a [restful API](/guides/restful-jdbi) and persist your data into a **relational database** using {{jdbi}}
-
-## with hibernate
-
-* Learn how to build a [restful API](/guides/restful-hbm) and persist your data into a **relational database** using {{hibernate}}
+* Learn how to build a [simple jdbi](/guides/jdbi) application and persist data using [JDBI](http://jdbi.org).
