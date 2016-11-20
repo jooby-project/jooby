@@ -154,9 +154,9 @@ $(function(){
     });
   });
 
-  $('h3:contains("dependency")').each(function () {
+  $('span.nt:contains("<dependency>")').each(function () {
     var $el = $(this),
-        $dep = $el.next(),
+        $dep = $el.parent().parent().parent(),
         $maven = $($dep.text()),
         groupId = $maven.find('groupId').text(),
         artifactId = $maven.find('artifactId').text(),
@@ -172,7 +172,7 @@ $(function(){
     $gradle.hide();
     $gradle.height($dep.height());
 
-    $el.after('<p style="margin: 10px 0 0 0;"><span class="build active">maven</span> | <span class="build">gradle</span></p>');
+    $dep.before('<p style="margin: 10px 0 0 0;"><span class="build active">maven</span> | <span class="build">gradle</span></p>');
     $dep.after($gradle);
     $dep.addClass('maven build');
     $gradle.addClass('gradle build');

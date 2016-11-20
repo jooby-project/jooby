@@ -3,7 +3,7 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: deployment guide</title> 
+  <title>jooby: </title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
   <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, deployment"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
@@ -65,6 +65,7 @@
   <link rel="stylesheet" href="/resources/styles/github.css"> 
   <link rel="stylesheet" href="/resources/styles/devices.css"> 
   <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+  <script async defer src="https://buttons.github.io/buttons.js"></script> 
  </head> 
  <body class="page-section page-sidebar"> 
   <header class="site-header"> 
@@ -75,6 +76,7 @@
      <ul> 
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/guides" title="Guides">GUIDES</a></li> 
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -87,14 +89,12 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/guides" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>deployment</h1> 
+     <h1></h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
-     <div class="show-mobile menu-open">
-      deployment
-     </div> 
+     <div class="show-mobile menu-open"></div> 
      <ul> 
       <li class="active"> <a href="#deployment">deployment</a></li> 
       <li class=""> <a href="#jar-deployment">jar deployment</a>
@@ -113,158 +113,23 @@
      </ul> 
     </div> 
     <div class="section-content"> 
-     <div class="datalist" id="deployment"> 
-      <div class="datalist-title active"> 
-       <h2>deployment</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <p>In this guide you will learn how to deploy a <strong>Jooby</strong> application into a <strong>production like</strong> environment.</p> 
-      </div> 
-     </div> 
-     <div class="datalist" id="jar-deployment"> 
-      <div class="datalist-title "> 
-       <h2>jar deployment</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <p>Jooby is a micro-web framework, it doesn’t run inside a container or <strong>Servlet</strong> environment. Instead, the web server: <a href="http://netty.io" target="_blank">Netty</a>, <a href="http://www.eclipse.org/jetty/" target="_blank">Jetty</a> or <a href="http://undertow.io" target="_blank">Undertow</a> is packaged within your app. This techniques is known as: <strong>fat jar</strong> distribution or deployment, which basically means everything is bundle into a single <strong>.jar</strong> file.</p> 
-       <h3 id="jar-deployment-build-and-package">build and package</h3> 
-       <p>In order to create a <strong>fat jar</strong> go to your project home, open a terminal and run:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>mvn clean package
-</code></pre> 
-       </div> 
-       <p>Once it finish, the jar will be available inside the <code class="highlighter-rouge codehilite">target</code> directory.</p> 
-       <h3 id="jar-deployment-run-start">run / start</h3> 
-       <p>Due everything was bundle into a single <code class="highlighter-rouge codehilite">jar</code> file, all you have to do is:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>java -jar myapp.jar
-</code></pre> 
-       </div> 
-       <p>Pretty easy! No complex deployment, <strong>no heavy-weight servers</strong>, <strong>no classpath hell</strong>, nothing!!! Your application is up and running!!</p> 
-       <h3 id="jar-deployment-env-and-conf">env and conf</h3> 
-       <p><strong>Jooby</strong> is built around the <code class="highlighter-rouge codehilite">environment</code> concept, which means a <strong>Jooby</strong> app always known when it runs in <code class="highlighter-rouge codehilite">dev</code> or anything else (prod like).</p> 
-       <p>The <code class="highlighter-rouge codehilite">application.env</code> property controls the <code class="highlighter-rouge codehilite">environment</code>, by default this property is set to <code class="highlighter-rouge codehilite">dev</code> (the unique and well known env).</p> 
-       <p>Now, suppose you need to deploy your awesome app into <code class="highlighter-rouge codehilite">prod</code> and you need to set/update a few properties. The <code class="highlighter-rouge codehilite">application.conf</code> file looks like:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>...
-aws.accessKey = AKIAIOSFODNN7EXAMPLE
-aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-...
-</code></pre> 
-       </div> 
-       <p>Now, for <code class="highlighter-rouge codehilite">prod</code> you have a new key pair… then all you have to do is to create a new file <code class="highlighter-rouge codehilite">application.prod.conf</code> and just add those new keys:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>aws.accessKey = AKIAIOSFODNN7PROD
-aws.secretKey =  wJalrXUtnFEMI/K7MDENG/bPxRfiCYPROD
-</code></pre> 
-       </div> 
-       <blockquote> 
-        <p><strong>TIP</strong>: You don’t have to add all the properties, just those who are different for the environment.</p> 
-       </blockquote> 
-       <p>The final step is to start the app with <code class="highlighter-rouge codehilite">application.env=prod</code>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>java -Dapplication.env=prod myapp.jar
-</code></pre> 
-       </div> 
-       <p>Your application will run now in <code class="highlighter-rouge codehilite">prod</code>. It will find your <code class="highlighter-rouge codehilite">application.conf</code> and overrides in property defined there with those from <code class="highlighter-rouge codehilite">application.prod.conf</code></p> 
-       <p>It works for <code class="highlighter-rouge codehilite">logback.xml</code> too, if <code class="highlighter-rouge codehilite">logback.[env].xml</code> is present, then <strong>Jooby</strong> will use it, otherwise it fallbacks to <code class="highlighter-rouge codehilite">logback.xml</code>.</p> 
-      </div> 
-     </div> 
-     <div class="datalist" id="zip-deployment"> 
-      <div class="datalist-title "> 
-       <h2>zip deployment</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <p>A <strong>Jooby</strong> app created from <a href="http://maven.apache.org/" target="_blank">Maven 3+</a> <code class="highlighter-rouge codehilite">archetype</code> will also generates a <code class="highlighter-rouge codehilite">myapp.zip</code> file, every time you run:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>mvn clean package
-</code></pre> 
-       </div> 
-       <p>This <code class="highlighter-rouge codehilite">.zip</code> file <strong>mimics</strong> a typical server layout:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>.
-├── public
-|   ├── &lt;public content goes here&gt;
-├── conf
-|   ├── application.conf
-|   └── logback.xml
-├── myapp.jar
-├── start.sh
-└── stop.sh
-</code></pre> 
-       </div> 
-       <p>The scripts: <code class="highlighter-rouge codehilite">start/stop.sh</code> are very simple and they will start/stop a <strong>Jooby</strong> app.</p> 
-       <p>The scripts are inside the <code class="highlighter-rouge codehilite">src/etc/bin</code> directory you can edit them, add more, etc… They will be always included in the final <code class="highlighter-rouge codehilite">.zip</code>.</p> 
-       <p>The <code class="highlighter-rouge codehilite">zip</code> deployment makes sense when you want to have more control over your application. For example:</p> 
-       <ul> 
-        <li>If you want to turn on/off loggers at runtime via: <code class="highlighter-rouge codehilite">conf/logback.xml</code></li> 
-        <li>The <code class="highlighter-rouge codehilite">public</code> folder contains all your static files, you can configure <a href="https://www.nginx.com" target="_blank">nginx</a> or <a href="https://httpd.apache.org" target="_blank">apache</a> server to serve them from disk</li> 
-       </ul> 
-       <h3 id="zip-deployment-build-and-package">build and package</h3> 
-       <p>You don’t have to do anything special to get a <code class="highlighter-rouge codehilite">.zip</code> if you created the app from <a href="http://maven.apache.org/" target="_blank">Maven 3+</a> <code class="highlighter-rouge codehilite">archetype</code>.</p> 
-       <p>If you don’t you then open the <code class="highlighter-rouge codehilite">pom.xml</code> add these lines:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="nt">&lt;plugin&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>maven-assembly-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;configuration&gt;</span>
-    <span class="nt">&lt;descriptorRefs&gt;</span>
-      <span class="nt">&lt;descriptorRef&gt;</span>jooby.zip<span class="nt">&lt;/descriptorRef&gt;</span>
-    <span class="nt">&lt;/descriptorRefs&gt;</span>
-  <span class="nt">&lt;/configuration&gt;</span>
-<span class="nt">&lt;/plugin&gt;</span>
-</code></pre> 
-       </div> 
-       <p>The <code class="highlighter-rouge codehilite">maven-assembly-plugin</code> will generate the <code class="highlighter-rouge codehilite">.zip</code> file.</p> 
-       <h3 id="zip-deployment-run-start">run / start</h3> 
-       <p>It is usually don’t via <code class="highlighter-rouge codehilite">start.sh</code>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>./start.sh prod
-</code></pre> 
-       </div> 
-       <h3 id="zip-deployment-env-and-conf">env and conf</h3> 
-       <p>It works like the <a href="#jar-deployment-env-and-conf">jar deployment</a></p> 
-      </div> 
-     </div> 
-     <div class="datalist" id="conclusion"> 
-      <div class="datalist-title "> 
-       <h2>conclusion</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <p><strong>Jar deployment</strong> makes perfect sense for PaaS like Heroku, AppEngine, etc…</p> 
-       <p><strong>Zip deployment</strong> give you more control for starting and stopping but also control the application log at runtime.</p> 
-       <p>Happy coding!!</p> 
-      </div> 
+    </div> 
+   </div> 
+   <!-- AddToAny BEGIN --> 
+   <div class="row share-network"> 
+    <div class="section-content"> 
+     <h3>Share</h3> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/guides/deployment" data-a2a-title=""> 
+      <a class="a2a_button_twitter" data-text=""></a> 
+      <a class="a2a_button_reddit a2a_counter"></a> 
+      <a class="a2a_button_linkedin a2a_counter"></a> 
+      <a class="a2a_button_facebook a2a_counter"></a> 
+      <a class="a2a_button_google_plus a2a_counter"></a> 
      </div> 
     </div> 
    </div> 
+   <script async src="https://static.addtoany.com/menu/page.js"></script> 
+   <!-- AddToAny END --> 
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 

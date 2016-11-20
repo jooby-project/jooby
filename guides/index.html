@@ -75,6 +75,7 @@
      <ul> 
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/guides" title="Guides">GUIDES</a></li> 
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -98,13 +99,12 @@
       <li class="active"> <a href="#welcome">welcome</a></li> 
       <li class=""> <a href="#basic">basic</a>
        <ul> 
-        <li> <a href="#basic-hello-restful">hello restful</a></li> 
+        <li> <a href="#basic-greeting">greeting</a></li> 
         <li> <a href="#basic-deployment">deployment</a></li>
        </ul></li> 
-      <li class=""> <a href="#restful-API">restful API</a>
+      <li class=""> <a href="#data">data</a>
        <ul> 
-        <li> <a href="#restful-API-with-jdbi">with jdbi</a></li> 
-        <li> <a href="#restful-API-with-hibernate">with hibernate</a></li>
+        <li> <a href="#data-jdbi">jdbi</a></li>
        </ul></li> 
      </ul> 
     </div> 
@@ -122,10 +122,9 @@
        <h2>basic</h2> 
       </div> 
       <div class="datalist-content"> 
-       <h3 id="basic-hello-restful">hello restful</h3> 
+       <h3 id="basic-greeting">greeting</h3> 
        <ul> 
-        <li> <p>Learn how to build a <a href="/guides/hello-restful">simple restful</a> web service using the <strong>script programming model</strong></p> </li> 
-        <li> <p>Do you prefer the <strong>MVC programming model</strong>? No problem, <a href="/guides/hello-mvc-restful">here</a> is the same guide with <strong>MVC routes</strong></p> </li> 
+        <li>Learn how to build a <a href="/guides/greeting">simple json api</a> and <a href="http://jooby.org">Jooby</a> basics.</li> 
        </ul> 
        <h3 id="basic-deployment">deployment</h3> 
        <ul> 
@@ -133,18 +132,14 @@
        </ul> 
       </div> 
      </div> 
-     <div class="datalist" id="restful-API"> 
+     <div class="datalist" id="data"> 
       <div class="datalist-title "> 
-       <h2>restful API</h2> 
+       <h2>data</h2> 
       </div> 
       <div class="datalist-content"> 
-       <h3 id="restful-API-with-jdbi">with jdbi</h3> 
+       <h3 id="data-jdbi">jdbi</h3> 
        <ul> 
-        <li>Learn how to build a <a href="/guides/restful-jdbi">restful API</a> and persist your data into a <strong>relational database</strong> using {{jdbi}}</li> 
-       </ul> 
-       <h3 id="restful-API-with-hibernate">with hibernate</h3> 
-       <ul> 
-        <li>Learn how to build a <a href="/guides/restful-hbm">restful API</a> and persist your data into a <strong>relational database</strong> using <a href="http://hibernate.org" target="_blank">Hibernate</a></li> 
+        <li>Learn how to build a <a href="/guides/jdbi">simple jdbi</a> application and persist data using <a href="http://jdbi.org" target="_blank">JDBI</a>.</li> 
        </ul> 
       </div> 
      </div> 

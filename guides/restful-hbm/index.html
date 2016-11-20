@@ -3,7 +3,7 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
-  <title>jooby: restful API with Hibernate guide</title> 
+  <title>jooby: </title> 
   <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty."> 
   <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, restful API with Hibernate"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
@@ -65,6 +65,7 @@
   <link rel="stylesheet" href="/resources/styles/github.css"> 
   <link rel="stylesheet" href="/resources/styles/devices.css"> 
   <link rel="stylesheet" href="/resources/styles/sprites.css"> 
+  <script async defer src="https://buttons.github.io/buttons.js"></script> 
  </head> 
  <body class="page-section page-sidebar"> 
   <header class="site-header"> 
@@ -75,6 +76,7 @@
      <ul> 
       <li class=""><a href="/quickstart" title="Quick start">QUICK START</a></li> 
       <li class=""><a href="/doc" title="Doc">DOCS</a></li> 
+      <li class="active"><a href="/guides" title="Guides">GUIDES</a></li> 
       <li class=""><a href="/modules" title="Modules">MODULES</a></li> 
       <li class=""><a href="/community" title="Community">COMMUNITY</a></li> 
       <li class=""><a href="/faq" title="FAQ">FAQ</a></li> 
@@ -87,14 +89,12 @@
    <div class="section-title"> 
     <div class="row"> 
      <a href="/guides" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a> 
-     <h1>restful API with Hibernate</h1> 
+     <h1></h1> 
     </div> 
    </div> 
    <div class="row"> 
     <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;"> 
-     <div class="show-mobile menu-open">
-      restful API with Hibernate
-     </div> 
+     <div class="show-mobile menu-open"></div> 
      <ul> 
       <li class="active"> <a href="#restful-API-with-Hibernate">restful API with Hibernate</a></li> 
       <li class=""> <a href="#requirements">requirements</a></li> 
@@ -111,415 +111,23 @@
      </ul> 
     </div> 
     <div class="section-content"> 
-     <p><a href="https://travis-ci.org/jooby-guides/restful-hbm" target="_blank"><img src="https://travis-ci.org/jooby-guides/restful-hbm.svg?branch=master" alt="Build Status"></a></p> 
-     <div class="datalist" id="restful-API-with-Hibernate"> 
-      <div class="datalist-title active"> 
-       <h2>restful API with Hibernate</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <p>In this guide you will learn how to build a rest API for <code class="highlighter-rouge codehilite">Pets</code> and persist them in a <strong>relational database</strong>. We are going to save our pets using <a href="/doc/hbm">hibernate</a>.</p> 
-       <ul> 
-        <li>List pets in from store:</li> 
-       </ul> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>GET http://localhost:8080/pets
-</code></pre> 
-       </div> 
-       <ul> 
-        <li>Get a pet by ID:</li> 
-       </ul> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>GET http://localhost:8080/pets/:id
-</code></pre> 
-       </div> 
-       <ul> 
-        <li>Creates a new pet from HTTP json body:</li> 
-       </ul> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>POST http://localhost:8080/pets
-</code></pre> 
-       </div> 
-       <ul> 
-        <li>Updates a pet from HTTP json body:</li> 
-       </ul> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>PUT http://localhost:8080/pets
-</code></pre> 
-       </div> 
-       <ul> 
-        <li>Delete a pet by ID:</li> 
-       </ul> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>DELETE http://localhost:8080/pets/:id
-</code></pre> 
-       </div> 
-      </div> 
-     </div> 
-     <div class="datalist" id="requirements"> 
-      <div class="datalist-title "> 
-       <h2>requirements</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <p>Make sure you have all these software installed it in your computer:</p> 
-       <ul> 
-        <li>A text editor or IDE</li> 
-        <li><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">JDK 8+</a> or later</li> 
-        <li><a href="http://maven.apache.org/" target="_blank">Maven 3+</a></li> 
-       </ul> 
-      </div> 
-     </div> 
-     <div class="datalist" id="ready"> 
-      <div class="datalist-title "> 
-       <h2>ready</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <p>Open a terminal (console for Windows users) and paste:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>restfulhbm -DartifactId<span class="o">=</span>restful-hbm -Dversion<span class="o">=</span>1.0 -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.0.0
-</code></pre> 
-       </div> 
-       <p>An almost empty application is ready to run, you can try now with:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>cd restful-hbm
-
-mvn jooby:run
-</code></pre> 
-       </div> 
-       <p>Open a browser and type:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>http://localhost:8080
-</code></pre> 
-       </div> 
-      </div> 
-     </div> 
-     <div class="datalist" id="getting-dirty"> 
-      <div class="datalist-title "> 
-       <h2>getting dirty</h2> 
-      </div> 
-      <div class="datalist-content"> 
-       <h3 id="getting-dirty-json">json</h3> 
-       <p>Our API will use JSON, so let’s add the <a href="/doc/jackson">jackson</a> dependency and import into our <code class="highlighter-rouge codehilite">App.java</code>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.json.Jackson</span><span class="o">;</span>
-<span class="o">...</span>
-<span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <h3 id="getting-dirty-connecting-to-a-database">connecting to a database</h3> 
-       <p>Now, go to your <code class="highlighter-rouge codehilite">pom.xml</code> and add the <a href="/doc/hbm">hbm</a> dependency.</p> 
-       <p>Import and use it into your <code class="highlighter-rouge codehilite">App.java</code>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">...</span>
-<span class="kn">import</span> <span class="nn">org.jooby.jdbi.Jdbi</span><span class="o">;</span>
-<span class="o">...</span>
-<span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">());</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>The <a href="/doc/hbm">hbm module</a> extends the <a href="/doc/jdbc">jdbc module</a>. The <a href="/doc/jdbc">jdbc module</a> give us access to relational databases and exports a <a href="https://github.com/brettwooldridge/HikariCP" target="_blank">Hikari</a> <strong>high performance connection pool</strong>.</p> 
-       <p>To connect to a database, we have to define our database connection properties in <code class="highlighter-rouge codehilite">conf/application.conf</code>:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>db = mem
-</code></pre> 
-       </div> 
-       <p>The <code class="highlighter-rouge codehilite">mem</code> or <code class="highlighter-rouge codehilite">fs</code> are special databases. In order to use them we need the <a href="http://www.h2database.com" target="_blank">h2</a> driver, so let’s add it:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>com.h2database<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>h2<span class="nt">&lt;/artifactId&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</code></pre> 
-       </div> 
-       <blockquote> 
-        <p><strong>NOTE</strong>: If you want to connect to <code class="highlighter-rouge codehilite">mySQL</code> database (or any other), then you’ll have to add the <code class="highlighter-rouge codehilite">mySQL Java Driver</code> to your <code class="highlighter-rouge codehilite">pom.xml</code> and define the connection properties like:</p> 
-        <div class="highlighter-rouge codehilite">
-         <div class="copy-bar"> 
-          <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-         </div> 
-         <pre class="highlight"><code>db.url = "jdbc:mysql//localhost/pets"
-db.user = "user"
-db.password = "password"
-</code></pre> 
-        </div> 
-       </blockquote> 
-       <p>Open a console and run the application:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>mvn jooby:run
-</code></pre> 
-       </div> 
-       <blockquote> 
-        <p><strong>TIP</strong>: If you are using an IDE that automatically compiles your source code while you save it… <code class="highlighter-rouge codehilite">mvn jooby:run</code> will detects those changes and restart the application for you!! more at <a href="/doc/maven-plugin">mvn jooby:run</a>.</p> 
-       </blockquote> 
-       <p>Look at the console, you should see something like:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [
-  name: jdbc:h2:mem:1451864078757;DB_CLOSE_DELAY=-1
-  ...]
-INFO  org.hibernate.Version - HHH000412: Hibernate Core {4.3.9.Final}
-INFO  org.hibernate.cfg.Environment - HHH000206: hibernate.properties not found
-INFO  org.hibernate.cfg.Environment - HHH000021: Bytecode provider name : javassist
-INFO  com.zaxxer.hikari.HikariDataSource - h2.db - is starting.
-INFO  com.zaxxer.hikari.HikariDataSource -   jdbc:h2:mem:1451864078757;DB_CLOSE_DELAY=-1
-INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {4.0.5.Final}
-INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
-INFO  org.hibernate.hql.internal.ast.ASTQueryTranslatorFactory - HHH000397: Using ASTQueryTranslatorFactory
-INFO  org.hibernate.tool.hbm2ddl.SchemaUpdate - HHH000228: Running hbm2ddl schema update
-INFO  org.hibernate.tool.hbm2ddl.SchemaUpdate - HHH000102: Fetching database metadata
-INFO  org.hibernate.tool.hbm2ddl.SchemaUpdate - HHH000396: Updating schema
-INFO  org.hibernate.tool.hbm2ddl.SchemaUpdate - HHH000232: Schema update complete
-INFO  restfulhbm.App - [dev@netty]: Server started in 996ms
-
-  * /**    [*/*]     [*/*]    (/hbm)
-
-listening on:
-  http://localhost:8080/
-</code></pre> 
-       </div> 
-       <ul> 
-        <li>Hibernate startup and connect to our <code class="highlighter-rouge codehilite">mem</code> database</li> 
-        <li>There is no persistent classes, but still try to update the schema. The <code class="highlighter-rouge codehilite">hibernate.hbm2ddl</code> is set to <code class="highlighter-rouge codehilite">update</code> while running in <code class="highlighter-rouge codehilite">dev</code> (a <strong>Jooby</strong> app by defaults run in dev mode).</li> 
-       </ul> 
-       <h3 id="getting-dirty-pet-entity">pet entity</h3> 
-       <p>Let’s create a simple <code class="highlighter-rouge codehilite">Pet</code> class with an <code class="highlighter-rouge codehilite">id</code>, <code class="highlighter-rouge codehilite">name</code> and getters/setters:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="kn">package</span> <span class="n">restfulhbm</span><span class="o">;</span>
-
-<span class="kn">import</span> <span class="nn">javax.persistence.Entity</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">javax.persistence.GeneratedValue</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">javax.persistence.Id</span><span class="o">;</span>
-
-<span class="nd">@Entity</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Pet</span> <span class="o">{</span>
-
-  <span class="nd">@Id</span> <span class="nd">@GeneratedValue</span>
-  <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
-
-  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
-
-  <span class="kd">public</span> <span class="n">Integer</span> <span class="n">getId</span><span class="o">()</span> <span class="o">{</span>
-    <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
-  <span class="o">}</span>
-
-  <span class="kd">public</span> <span class="n">String</span> <span class="n">getName</span><span class="o">()</span> <span class="o">{</span>
-    <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
-  <span class="o">}</span>
-
-  <span class="kd">public</span> <span class="kt">void</span> <span class="n">setId</span><span class="o">(</span><span class="kd">final</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
-  <span class="o">}</span>
-
-  <span class="kd">public</span> <span class="kt">void</span> <span class="n">setName</span><span class="o">(</span><span class="kd">final</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
-  <span class="o">}</span>
-
-  <span class="o">...</span> <span class="n">equals</span> <span class="n">and</span> <span class="n">hashcode</span>
-
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>A <strong>JPA</strong> entity must be annotated with <code class="highlighter-rouge codehilite">@Entity</code> and define an <code class="highlighter-rouge codehilite">@Id</code>. More at <a href="http://docs.oracle.com/javaee/6/tutorial/doc/bnbpz.html" target="_blank">Introduction to the Java Persistence API</a>.</p> 
-       <p><strong>Entities</strong> are not automatically discovered at runtime. Instead you must explicitly tell what entities are persistent:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">...</span>
-<span class="o">{</span>
-  <span class="o">...</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>By doing this, you have full control of what entities should be managed by <a href="http://hibernate.org" target="_blank">Hibernate</a> but also, your <strong>application start as quick as possible</strong>.</p> 
-       <p>Of course, if you don’t care about application startup time or you have a medium/complex app with a lots of entities you can <strong>enable package scanning</strong> with:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="kn">package</span> <span class="n">restfulhbm</span><span class="o">;</span>
-<span class="o">...</span>
-<span class="o">{</span>
-  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Hbm</span><span class="o">().</span><span class="na">scan</span><span class="o">());</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>The <code class="highlighter-rouge codehilite">scan()</code> method will discover any <code class="highlighter-rouge codehilite">@Entity</code> defined in the <code class="highlighter-rouge codehilite">restfulhbm.*</code> package (or sub-package).</p> 
-       <h3 id="getting-dirty-listing-pets">listing pets</h3> 
-       <p>Find <code class="highlighter-rouge codehilite">App.java</code> and add a new route:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="kn">import</span> <span class="nn">javax.persistence.EntityManager</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">javax.persistence.TypedQuery</span><span class="o">;</span>
-<span class="o">...</span>
-<span class="o">{</span>
-  <span class="o">...</span>
-  <span class="cm">/**</span>
-   <span class="cm">* List pets. </span>
-   <span class="cm">*/</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">EntityManager</span> <span class="n">em</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">EntityManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="n">TypedQuery</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">query</span> <span class="o">=</span> <span class="n">em</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"from Pet"</span><span class="o">,</span> <span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="k">return</span> <span class="n">query</span><span class="o">.</span><span class="na">getResultList</span><span class="o">();</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <ul> 
-        <li>We require an <code class="highlighter-rouge codehilite">EntityManager</code>, this service is provided by the <a href="/doc/hbm">hbm module</a></li> 
-        <li>We create a query with: <code class="highlighter-rouge codehilite">em.createQuery("from Pet", Pet.class)</code></li> 
-        <li>We execute and return the query result</li> 
-       </ul> 
-       <p>Let’s add a start and max parameters to our listing service:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">{</span>
-  <span class="cm">/**</span>
-   <span class="cm">* List pets. </span>
-   <span class="cm">*/</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">EntityManager</span> <span class="n">em</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">EntityManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="n">TypedQuery</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">query</span> <span class="o">=</span> <span class="n">em</span><span class="o">.</span><span class="na">createQuery</span><span class="o">(</span><span class="s">"from Pet"</span><span class="o">,</span> <span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-          <span class="o">.</span><span class="na">setFirstResult</span><span class="o">(</span><span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"start"</span><span class="o">).</span><span class="na">intValue</span><span class="o">(</span><span class="mi">0</span><span class="o">))</span>
-          <span class="o">.</span><span class="na">setMaxResults</span><span class="o">(</span><span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"max"</span><span class="o">).</span><span class="na">intValue</span><span class="o">(</span><span class="mi">20</span><span class="o">));</span>
-    <span class="k">return</span> <span class="n">query</span><span class="o">.</span><span class="na">getResultList</span><span class="o">();</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <p>Now, our listing service will returns a <code class="highlighter-rouge codehilite">max</code> of <code class="highlighter-rouge codehilite">20</code> results by default, from the beginning <code class="highlighter-rouge codehilite">start=0</code>. This two calls are exactly the same:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>http://localhost:8080/pets
-http://localhost:8080/pets?start=0&amp;max=20
-</code></pre> 
-       </div> 
-       <h3 id="getting-dirty-get-a-pet-by-ID">get a pet by ID</h3> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">...</span>
-<span class="o">{</span>
-  <span class="o">...</span>
-  <span class="cm">/**</span>
-   <span class="cm">* Get a pet by ID. </span>
-   <span class="cm">*/</span>
-  <span class="n">get</span><span class="o">(</span><span class="s">"/pets/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">EntityManager</span> <span class="n">em</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">EntityManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">em</span><span class="o">.</span><span class="na">find</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">());</span>
-    <span class="k">if</span> <span class="o">(</span><span class="n">pet</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-      <span class="k">throw</span> <span class="k">new</span> <span class="n">Err</span><span class="o">(</span><span class="n">Status</span><span class="o">.</span><span class="na">NOT_FOUND</span><span class="o">);</span>
-    <span class="o">}</span>
-    <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <ul> 
-        <li>We define ID path variable: <code class="highlighter-rouge codehilite">/pets/:id</code></li> 
-        <li>We require an <code class="highlighter-rouge codehilite">EntityManager</code></li> 
-        <li>We find a pet by ID: <code class="highlighter-rouge codehilite">em.find(Pet, id)</code></li> 
-        <li>If there is no pet, service response with a <code class="highlighter-rouge codehilite">404</code></li> 
-        <li>Otherwise, we return the pet.</li> 
-       </ul> 
-       <h3 id="getting-dirty-saving-a-pet">saving a pet</h3> 
-       <p>So far, we see how to query pets by ID or listing all them, it is time to see how to creates a new pet:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code><span class="o">...</span>
-<span class="o">{</span>
-  <span class="o">...</span>
-  <span class="cm">/**</span>
-   <span class="cm">* Create new pet. </span>
-   <span class="cm">*/</span>
-  <span class="n">post</span><span class="o">(</span><span class="s">"/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="n">EntityManager</span> <span class="n">em</span> <span class="o">=</span> <span class="n">require</span><span class="o">(</span><span class="n">EntityManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">().</span><span class="na">to</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="n">em</span><span class="o">.</span><span class="na">persist</span><span class="o">(</span><span class="n">pet</span><span class="o">);</span>
-    <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
-  <span class="o">});</span>
-<span class="o">}</span>
-</code></pre> 
-       </div> 
-       <ul> 
-        <li>We define a new route: <code class="highlighter-rouge codehilite">POST /pets</code></li> 
-        <li>We require an <code class="highlighter-rouge codehilite">EntityManager</code></li> 
-        <li>We read a pet from a JSON HTTP body.</li> 
-        <li>We insert a pet by calling: <code class="highlighter-rouge codehilite">em.persist(Object)</code></li> 
-        <li>We return the inserted pet</li> 
-       </ul> 
-       <p>Cool! But what about transactions?</p> 
-       <p>Transactions are bound to the <strong>HTTP Request</strong>, if you have a closer look at the application logs, you will see something like:</p> 
-       <div class="highlighter-rouge codehilite">
-        <div class="copy-bar"> 
-         <span class="icon-clipboard-big copy-button octicon octicon-clippy" title="copy to clipboard"></span>
-        </div> 
-        <pre class="highlight"><code>  *    /**          [*/*]     [*/*]    (/hbm)
-  GET  /pets        [*/*]     [*/*]    (/anonymous)
-  GET  /pets/:id    [*/*]     [*/*]    (/anonymous)
-  POST /pets        [*/*]     [*/*]    (/anonymous)
-</code></pre> 
-       </div> 
-      </div> 
+    </div> 
+   </div> 
+   <!-- AddToAny BEGIN --> 
+   <div class="row share-network"> 
+    <div class="section-content"> 
+     <h3>Share</h3> 
+     <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="http://jooby.org/guides/restful-hbm" data-a2a-title=""> 
+      <a class="a2a_button_twitter" data-text=""></a> 
+      <a class="a2a_button_reddit a2a_counter"></a> 
+      <a class="a2a_button_linkedin a2a_counter"></a> 
+      <a class="a2a_button_facebook a2a_counter"></a> 
+      <a class="a2a_button_google_plus a2a_counter"></a> 
      </div> 
     </div> 
    </div> 
+   <script async src="https://static.addtoany.com/menu/page.js"></script> 
+   <!-- AddToAny END --> 
   </main> 
   <footer class="site-footer"> 
    <div class="row"> 

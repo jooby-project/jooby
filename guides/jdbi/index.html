@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>jooby: jdbi guide</title>
+    <meta name="description" content="Scalable, fast and modular micro web framework for Java. Build small/large apps easily and quickly with Netty, Undertow or Jetty.">
+    <meta name="keywords" content="Java, Micro Web Framework, Async, Easy to use, Micro, Sinatra, Express, Scalable, Modern, Best, Web, Framework, Lightweight, Microservices, " />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="#">
+    <link rel="publisher" href="#">
+    <meta name="robots" content="robots.txt">
+    <meta name="og:title" content="jooby">
+    <meta name="og:description" content="Scalable, fast and modular micro web framework for Java">
+    <!--
+    og:type
+    SI EL TEMPLATE ES UN ARTICULO (NOTA, VIDEO, ETC) CAMBIAR
+    "website" por "article"
+    -->
+    <meta name="og:type" content="website">
+    <meta name="og:url" content="http://jooby.org">
+    <!--
+    og:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 200
+    ALTO: 200
+    FORMATO: JPG
+    -->
+    <meta name="og:image" content="http://jooby.org/resources/images/apps/facebook.jpg">
+    <meta name="og:site_name" content="jooby">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="jooby - do more! more easily!!">
+    <!--
+    twitter:image
+    SI ES UNA NOTA Y LA NOTA TIENE UNA IMAGEN DE PREVIEW SE DEBE
+    CAMBIAR POR UNA IMAGEN CON LAS SIGUIENTES ESPECIFICACIONES
+    ANCHO: 280
+    ALTO: 150
+    FORMATO: JPG
+    TAMAÑO MAXIMO: 1MB
+    -->
+    <meta name="twitter:image" content="http://jooby.org/resources/images/apps/twitter.jpg">
+    <meta name="twitter:site" content="@joobyproject">
+    <meta name="twitter:creator" content="https://twitter.com/edgarespina">
+    <meta name="twitter:domain" content="http://jooby.org">
+    <meta name="twitter:url" content="https://twitter.com/joobyproject">
+    <meta name="twitter:description" content="Scalable, fast and modular micro web framework for Java">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed57.png" sizes="57x57">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed60.png" sizes="60x60">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed72.png" sizes="72x72">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed76.png" sizes="76x76">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed114.png" sizes="114x114">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed120.png" sizes="120x120">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed144.png" sizes="144x144">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed152.png" sizes="152x152">
+    <link rel="apple-touch-icon-precomposed" href="/resources/images/apps/precomposed180.png" sizes="180x180">
+    <link href="/resources/images/apps/favicon.ico" rel="shortcut icon">
+    <link href="/resources/images/apps/favicon.png" rel="icon" sizes="16x16" type="image/png">
+    <link href="/resources/images/apps/favicon32.png" rel="icon" sizes="32x32" type="image/png">
+    <link href="/resources/images/apps/favicon96.png" rel="icon" sizes="96x96" type="image/png">
+    <link href="/resources/images/apps/android-chrome.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,300,500,700">
+    <link rel="stylesheet" href="/resources/styles/application.css">
+    <link rel="stylesheet" href="/resources/styles/github.css">
+    <link rel="stylesheet" href="/resources/styles/devices.css">
+    <link rel="stylesheet" href="/resources/styles/sprites.css">
+    
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  </head>
+  <body class="page-section page-sidebar">
+    <header class="site-header">
+      <div class="row"><a href="/" title="Home" class="site-logo"><img src="/resources/images/logo_jooby-2x.png" alt="Logo Jooby" width="76" height="31"></a><a class="show-mobile open-menu"><span></span></a>
+        <nav class="site-nav">
+          <ul>
+            <li class="requirements
+&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
+
+* Install 
+* Install 
+
+quickstart
+&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
+
+Just paste this into a terminal (make sure [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) and [Maven 3.x](http://maven.apache.org/download.cgi) are installed):
+
+&#x60;&#x60;&#x60;bash
+mvn archetype:generate -B -DgroupId&#x3D;com.mycompany -DartifactId&#x3D;my-app -Dversion&#x3D;1.0-SNAPSHOT -DarchetypeArtifactId&#x3D;jooby-archetype -DarchetypeGroupId&#x3D;org.jooby -DarchetypeVersion&#x3D;
+&#x60;&#x60;&#x60;
+
+You might want to edit/change:
+
+* -DgroupId: A Java package&#x27;s name
+
+* -DartifactId: A project&#x27;s name in lower case and without spaces
+
+* -Dversion: A project&#x27;s version, like &#x60;&#x60;&#x60;1.0-SNAPSHOT&#x60;&#x60;&#x60; or &#x60;&#x60;&#x60;1.0.0-SNAPSHOT&#x60;&#x60;&#x60;
+
+
+Let&#x27;s try it!:
+
+&#x60;&#x60;&#x60;bash
+mvn archetype:generate -B -DgroupId&#x3D;com.mycompany -DartifactId&#x3D;my-app -Dversion&#x3D;1.0-SNAPSHOT -DarchetypeArtifactId&#x3D;jooby-archetype -DarchetypeGroupId&#x3D;org.jooby -DarchetypeVersion&#x3D;
+cd my-app
+mvn jooby:run
+&#x60;&#x60;&#x60;
+
+You should see something similar to this at the end of the output:
+
+&#x60;&#x60;&#x60;bash
+INFO  [2015-03-19 21:34:00,365] Hotswap available on: [my-app/public, my-app/conf, my-app/target/classes]
+INFO  [2015-03-19 21:34:00,368]   includes: [**/*.class,**/*.conf,**/*.properties]
+INFO  [2015-03-19 21:34:00,369]   excludes: []
+INFO  [2015-03-19 21:34:00,937] [dev@netty]: App server started in 502ms
+
+GET /             [*/*]     [*/*]    (anonymous)
+
+listening on:
+  http://0.0.0.0:8080/
+&#x60;&#x60;&#x60;
+
+**Jooby**! is up and running!!!
+
+getting started
+&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;
+
+exploring the newly created project
+-----
+
+A new directory was created: &#x60;&#x60;&#x60;my-app&#x60;&#x60;&#x60;. Now, let&#x27;s see how it looks like:
+
+&#x60;&#x60;&#x60;bash
+.
+├── public
+|   └── (empty)
+├── conf
+|   ├── application.conf
+|   └── logback.xml
+└── src
+    ├── main
+    |   └── java
+    |       └── com
+    |           └── mycompany
+    |               └── App.java
+    └── test
+        └── java
+            └── com
+                └── mycompany
+                    └── AppTest.java
+&#x60;&#x60;&#x60;
+
+The **public** folder contains static files like &#x60;&#x60;&#x60;*.html&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.js&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;*.css&#x60;&#x60;&#x60;, ..., &#x60;&#x60;&#x60;*.png&#x60;&#x60;&#x60; files.
+
+The **conf** folder contains &#x60;&#x60;&#x60;*.conf&#x60;&#x60;&#x60;.
+
+The **src/main/java** folder contains &#x60;&#x60;&#x60;*.java&#x60;&#x60;&#x60; (of course) files.
+
+The **src/test/java** folder contains unit and integration tests.
+
+&gt; **NOTE**: The &#x60;&#x60;&#x60;public&#x60;&#x60;&#x60; and &#x60;&#x60;&#x60;conf&#x60;&#x60;&#x60; folders are part of the classpath.
+
+### App.java
+
+
+&#x60;&#x60;&#x60;java
+
+import org.jooby.Jooby;
+
+public class App extends Jooby { // 1
+
+  {
+    // 2
+    get(&quot;/&quot;, () -&gt; &quot;Hello World!&quot;);
+  }
+
+  public static void main(final String[] args) {
+    run(App::new, args); // 3. start the application.
+  }
+
+}
+
+&#x60;&#x60;&#x60;
+
+Steps involved are:
+
+1) extends Jooby
+
+2) define some routes
+
+3) call the &#x60;&#x60;&#x60;run&#x60;&#x60;&#x60; method
+
+running
+-----
+
+Just open a console and type:
+
+    mvn jooby:run
+
+The maven plugin will compile the code (if necessary) and startup the application.
+
+Of course, you can generate the IDE metadata from Maven and/or import as a Maven project in your favorite IDE.
+Then all you have to do is run the: &#x60;&#x60;&#x60;App.java&#x60;&#x60;&#x60; class. After all, this is plain Java application with a &#x60;&#x60;&#x60;main&#x60;&#x60;&#x60; method.
+
+where to go now?
+-----
+
+* read the [documentation](/doc)
+* checkout one of our 
+"><a href="/quickstart" title="Quick start">QUICK START</a></li>
+            <li class=""><a href="/doc" title="Doc">DOCS</a></li>
+            <li class="active"><a href="/guides" title="Guides">GUIDES</a></li>
+            <li class="# modules
+
+Modules are a **key concept** for building **reusable** and **configurable** pieces of software.
+
+Modules (unlike in other frameworks) are thin and do a lot of work to bootstrap and configure an external library, but they **DO NOT provide a new level of abstraction** nor [do] they provide a custom API to access functionality in that library. Instead they **expose** the **library** components as **they are**.
+
+Modules like in [Guice](https://github.com/google/guice) are used to wire services, connect data, etc...
+
+There is an extensive [module ecosystem](/modules) which makes Jooby a **full stack** framework (when need it).
+
+## do less and be flexible
+
+**Do less** might sounds confusing, but is the key to **flexibility**.
+
+A module does as **less as possible** (key difference with other frameworks). A module for a library &#x60;X&#x60; should:
+
+* Bootstrap X
+* Configure X
+* exports API of X
+
+This means a module should NOT create wrapper for a library. Instead, provides a way to extend, configure and use the external library.
+
+&gt; This principle, keep module usually small, maintainable and flexible.
+
+## creating modules
+
+A module is represented by the [Jooby.Module](/Jooby.Module.html) class. The configure callback looks like:
+
+&#x60;&#x60;&#x60;java
+public class M1 implements Jooby.Module {
+
+    public void configure(Env env, Config conf, Binder binder) {
+      binder.bind(...).to(...);
+    }
+
+}
+&#x60;&#x60;&#x60;
+
+The configure callback is similar to a [Guice module](https://github.com/google/guice), except you can access to the [Env](/Env.html) and [config](https://github.com/typesafehub/config) objects.
+
+## properties
+
+In addition to the **configure** callback, a module in  has one additional method: [Module.config](/Jooby.Module.html#config--). The &#x60;&#x60;&#x60;config&#x60;&#x60;&#x60; method allows a module to set default properties.
+
+&#x60;&#x60;&#x60;java
+public class M1 implements Jooby.Module {
+  public void configure(Env env, Config config, Binder binder) {
+    binder.bind(...).to(...);
+  }
+
+  public Config config() {
+    return Config.parseResources(getClass(), &quot;m1.properties&quot;);
+  }
+}
+&#x60;&#x60;&#x60;
+
+## usage
+
+A module must be imported/registered at startup time:
+
+&#x60;&#x60;&#x60;java
+
+import org.jooby.Jooby;
+
+public class MyApp extends Jooby {
+
+  {
+     // as lambda
+     use((env, config, binder) -&gt; {
+        binder.bind(...).to(...);
+     });
+     // as instance
+     use(new M1());
+     use(new M2());
+  }
+
+}
+&#x60;&#x60;&#x60;
+
+You can start/stop services from a module:
+
+&#x60;&#x60;&#x60;java
+public class M1 implements Jooby.Module {
+    public void configure(Env env, Config config, Binder binder) {
+      env.onStart(() -&gt; {
+        // Start services
+      });
+      env.onStop(() -&gt; {
+        // Stop services
+      });
+    }
+}
+&#x60;&#x60;&#x60;
+
+Or export routes:
+
+&#x60;&#x60;&#x60;java
+public class M1 implements Jooby.Module {
+    public void configure(Env env, Config config, Binder binder) {
+      Router router &#x3D; env.router();
+      router.get(&quot;/m1&quot;, () -&gt; &quot;I&#x27;m a module!!!&quot;);
+    }
+}
+&#x60;&#x60;&#x60;
+"><a href="/modules" title="Modules">MODULES</a></li>
+            <li class=""><a href="/community" title="Community">COMMUNITY</a></li>
+            <li class="# status
+
+* &lt;a target&#x3D;&quot;_blank&quot; href&#x3D;&quot;https://travis-ci.org/jooby-project/jooby&quot;&gt;&lt;img src&#x3D;&quot;https://travis-ci.org/jooby-project/jooby.svg?branch&#x3D;master&quot; alt&#x3D;&quot;Build Status&quot;&gt;&lt;/a&gt;
+
+* &lt;a target&#x3D;&quot;_blank&quot; href&#x3D;&quot;https://coveralls.io/r/jooby-project/jooby?branch&#x3D;master&quot;&gt;&lt;img src&#x3D;&quot;https://img.shields.io/coveralls/jooby-project/jooby.svg&quot; alt&#x3D;&quot;Coverage Status&quot;&gt;&lt;/a&gt;
+
+* Code coverage is composed by unit and integration tests. Integration tests can be found &lt;a target&#x3D;&quot;_blank&quot; href&#x3D;&quot;https://github.com/jooby-project/jooby/tree/master/coverage-report&quot;&gt;here&lt;/a&gt;
+
+* Integration tests run again each of the available servers: ,  and 
+
+# general
+
+## what jvm do I need?
+
+* Java 8 or higher
+
+# development
+ 
+## where are the default properties?
+
+* Default properties can be found [here](/doc/#misc-jooby-conf)
+
+## how do I deploy my application?
+
+* Deployment options can be found [here](/doc/deployment)
+
+## can I use Gradle?
+
+Yes, with some limitation that are being documented [here](/doc/gradle).
+
+## how do I run code on start/stop?
+
+Documentation for [lyfeCycle](/LyfeCycle.html) events is available [here](/doc/#application-life-cycle)
+
+# mime types
+
+## what mime types are supported?
+
+* Full list of mime types can be found [here](/doc/#misc-mime-properties)
+
+## how do I add a new/override mime type?
+
+* Create a &#x60;&#x60;&#x60;mime.properties&#x60;&#x60;&#x60; file inside the &#x60;&#x60;&#x60;conf&#x60;&#x60;&#x60; directory. Then, add the new mime type there.
+"><a href="/faq" title="FAQ">FAQ</a></li>
+            <li><a href="/apidocs" target="_blank" title="API docs">API DOCS</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main role="main" class="site-content">
+      
+<div class="section-title"> 
+  <div class="row">
+    <a href="/guides" class="jsback" title="Go back"><span class="icon-arrowback-big-circle"></span></a>
+    <h1>jdbi guide</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="section-sidebar" style="position: fixed; left: 120px; top: 160px; bottom: 20px;">
+    <div class="show-mobile menu-open">jdbi guide</div>
+    <ul>
+<li class="active">
+<a href="#jdbi-guide">jdbi guide</a></li>
+<li class="">
+<a href="#requirements">requirements</a></li>
+<li class="">
+<a href="#ready">ready</a></li>
+<li class="">
+<a href="#dependencies">dependencies</a><ul>
+<li>
+<a href="#dependencies-jackson">jackson</a></li>
+<li>
+<a href="#dependencies-jdbi">jdbi</a></li></ul></li>
+<li class="">
+<a href="#create-a-pet-object">create a pet object</a></li>
+<li class="">
+<a href="#connect-to-database">connect to database</a><ul>
+<li>
+<a href="#connect-to-database-creating-a-schema">creating a schema</a></li>
+<li>
+<a href="#connect-to-database-creating-a-repository">creating a repository</a></li></ul></li>
+<li class="">
+<a href="#routes">routes</a><ul>
+<li>
+<a href="#routes-listing-pets">listing pets</a></li>
+<li>
+<a href="#routes-get-a-pet-by-ID">get a pet by ID</a></li>
+<li>
+<a href="#routes-save-a-pet">save a pet</a></li>
+<li>
+<a href="#routes-update-a-pet">update a pet</a></li>
+<li>
+<a href="#routes-delete-a-pet-by-ID">delete a pet by ID</a></li></ul></li>
+<li class="">
+<a href="#quick-preview">quick preview</a></li>
+<li class="">
+<a href="#conclusion">conclusion</a></li>
+</ul>
+  </div>
+  <div class="section-content">
+  <div class="datalist" id="jdbi-guide">
+ <div class="datalist-title active"> 
+  <h2>jdbi guide</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>In this guide you will learn how to build a <strong>JSON API</strong> for <code class="highlighter-rouge codehilite">Pets</code> and persist them into a <strong>relational database</strong> using <a href="/doc/jdbi">jdbi</a> module.</p>
+  <p><a href="http://jdbi.org/" target="_blank">JDBI</a> is a SQL convenience library for Java. It attempts to expose relational database access in idiommatic Java, using collections, beans, and so on, while maintaining the same level of detail as JDBC. It exposes two different style APIs, a fluent style and a sql object style.</p>
+ </div> 
+</div>   
+<div class="datalist" id="requirements">
+ <div class="datalist-title "> 
+  <h2>requirements</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>Make sure you have all these software installed it in your computer:</p>
+  <ul> 
+   <li>A text editor or IDE</li> 
+   <li><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">JDK 8+</a> or later</li> 
+   <li><a href="http://maven.apache.org/" target="_blank">Maven 3+</a></li> 
+  </ul>
+ </div> 
+</div>   
+<div class="datalist" id="ready">
+ <div class="datalist-title "> 
+  <h2>ready</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>Open a terminal/console and paste:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code>mvn archetype:generate -B -DgroupId<span class="o">=</span>org.jooby.guides -DartifactId<span class="o">=</span>jdbi-guide -Dversion<span class="o">=</span>1.0 -DarchetypeArtifactId<span class="o">=</span>jooby-archetype -DarchetypeGroupId<span class="o">=</span>org.jooby -DarchetypeVersion<span class="o">=</span>1.0.0
+</code></pre> 
+  </div>
+  <p>Jump into the application:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code>cd jdbi-guide
+</code></pre> 
+  </div>
+ </div> 
+</div>     
+<div class="datalist" id="dependencies">
+ <div class="datalist-title "> 
+  <h2>dependencies</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <h3 id="dependencies-jackson">jackson</h3>
+  <p>Add the <a href="/doc/jackson">jackson</a> dependency to your project:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-jackson<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <p>Got to <code class="highlighter-rouge codehilite">App.java</code> and add the module:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.json.Jackson</span><span class="o">;</span>
+<span class="o">...</span>
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <h3 id="dependencies-jdbi">jdbi</h3>
+  <p>Add the <a href="/doc/jdbi">jdbi</a> dependency to your project:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.jooby<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jooby-jdbi<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <p>Import and use the module in <code class="highlighter-rouge codehilite">App.java</code>:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jooby.jdbi.Jdbi</span><span class="o">;</span>
+<span class="o">...</span>
+<span class="o">{</span>
+  <span class="o">...</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbi</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+ </div> 
+</div>           
+<div class="datalist" id="create-a-pet-object">
+ <div class="datalist-title "> 
+  <h2>create a pet object</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>Let’s create a simple <code class="highlighter-rouge codehilite">Pet</code> class with an <code class="highlighter-rouge codehilite">id</code>, <code class="highlighter-rouge codehilite">name</code> and getters/setters for them, like:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="kn">package</span> <span class="n">jdbi</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Pet</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="n">Integer</span> <span class="n">getId</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="n">String</span> <span class="n">getName</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">setId</span><span class="o">(</span><span class="kd">final</span> <span class="n">Integer</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="n">setName</span><span class="o">(</span><span class="kd">final</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre> 
+  </div>
+ </div> 
+</div>   
+<div class="datalist" id="connect-to-database">
+ <div class="datalist-title "> 
+  <h2>connect to database</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>The <a href="/doc/jdbi">jdbi</a> module extends the <a href="/doc/jdbc">jdbc</a> module. The <a href="/doc/jdbc">jdbc</a> module give us access to relational databases and exports a <a href="https://github.com/brettwooldridge/HikariCP" target="_blank">Hikari</a> database connection pool.</p>
+  <p>To connect to a database, we have to define our database connection properties in <code class="highlighter-rouge codehilite">conf/application.conf</code>:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code>db = mem
+</code></pre> 
+  </div>
+  <p>The <code class="highlighter-rouge codehilite">mem</code> or <code class="highlighter-rouge codehilite">fs</code> are special databases. In order to use them we need the <a href="http://www.h2database.com" target="_blank">h2</a> driver, so let’s add it:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>com.h2database<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>h2<span class="nt">&lt;/artifactId&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre> 
+  </div>
+  <blockquote> 
+   <p><strong>NOTE</strong>: If you want to connect to <code class="highlighter-rouge codehilite">mySQL</code> database (or any other), then you’ll have to add the <code class="highlighter-rouge codehilite">mySQL Java Driver</code> to your project and define the connection properties like:</p> 
+   <div class="highlighter-rouge codehilite"> 
+    <pre class="highlight"><code>db.url = "jdbc:mysql//localhost/pets"
+db.user = "user"
+db.password = "password"
+</code></pre> 
+   </div> 
+  </blockquote>
+  <h3 id="connect-to-database-creating-a-schema">creating a schema</h3>
+  <p>We are going to create a database schema at application startup time:</p>
+  <ul> 
+   <li>Define a <code class="highlighter-rouge codehilite">schema</code> property in <code class="highlighter-rouge codehilite">conf/application.conf</code> like:</li> 
+  </ul>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code>schema = """
+
+  create table if not exists pets (
+
+    id int not null auto_increment,
+
+    name varchar(255) not null,
+
+    primary key (id)
+
+  );
+"""
+</code></pre> 
+  </div>
+  <ul> 
+   <li>Execute the script in <code class="highlighter-rouge codehilite">App.java</code>:</li> 
+  </ul>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.skife.jdbi.v2.Handle</span><span class="o">;</span>
+<span class="o">...</span>
+<span class="o">{</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbi</span><span class="o">()</span>
+    <span class="c1">// 1 dbi ready</span>
+    <span class="o">.</span><span class="na">doWith</span><span class="o">((</span><span class="n">DBI</span> <span class="n">dbi</span><span class="o">,</span> <span class="n">Config</span> <span class="n">conf</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="c1">// 2 open a new handle</span>
+      <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">handle</span> <span class="o">=</span> <span class="n">dbi</span><span class="o">.</span><span class="na">open</span><span class="o">())</span> <span class="o">{</span>
+        <span class="c1">// 3. execute script</span>
+        <span class="n">handle</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"schema"</span><span class="o">));</span>
+      <span class="o">}</span>
+    <span class="o">}));</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p><strong>1)</strong> The <a href="http://jooby.org/apidocs/org/jooby/jdbc/Jdbc.html#doWith-java.util.function.BiConsumer-" target="_blank">.doWith</a> is a callback method which is executed when <code class="highlighter-rouge codehilite">DBI</code> is ready.</p>
+  <p><strong>2)</strong> We open a new <code class="highlighter-rouge codehilite">Handle</code> for running our script, which is automatically released with the <code class="highlighter-rouge codehilite">try-with-resources</code> statement.</p>
+  <p><strong>3)</strong> We execute the create schema script.</p>
+  <p>With a database ready, we are going to build our <em>JSON API</em>.</p>
+  <blockquote> 
+   <p><strong>TIP</strong>: There is <a href="/doc/flyway">flyway</a> module for database migrations.</p> 
+  </blockquote>
+  <h3 id="connect-to-database-creating-a-repository">creating a repository</h3>
+  <p><a href="http://jdbi.org/sql_object_overview/" target="_blank">The SQL Object API</a> provides a declarative mechanism for a common <a href="http://jdbi.org/" target="_blank">JDBI</a> usage – creation of DAO type objects where one method generally equates to one SQL statement. To use the SQL Object API, create an interface annotated to declare the desired behavior, like so:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="kn">package</span> <span class="n">jdbi</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.Closeable</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.skife.jdbi.v2.sqlobject.Bind</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.skife.jdbi.v2.sqlobject.BindBean</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.skife.jdbi.v2.sqlobject.GetGeneratedKeys</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.skife.jdbi.v2.sqlobject.SqlQuery</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.skife.jdbi.v2.sqlobject.SqlUpdate</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.skife.jdbi.v2.sqlobject.helpers.MapResultAsBean</span><span class="o">;</span>
+
+<span class="cm">/**</span>
+ <span class="cm">* </span>
+ <span class="cm">* Basic CRUD operations around {@link Pet}. </span>
+ <span class="cm">*/</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">PetRepository</span> <span class="kd">extends</span> <span class="n">Closeable</span> <span class="o">{</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">* </span>
+   <span class="cm">* @return List all pets. </span>
+   <span class="cm">*/</span>
+  <span class="nd">@SqlQuery</span><span class="o">(</span><span class="s">"select * from pets"</span><span class="o">)</span>
+  <span class="nd">@MapResultAsBean</span>
+  <span class="n">List</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">list</span><span class="o">();</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">* </span>
+   <span class="cm">* Find a pet by ID.</span>
+   <span class="cm">* </span>
+   <span class="cm">* @param id Pet ID.</span>
+   <span class="cm">* @return A pet. </span>
+   <span class="cm">*/</span>
+  <span class="nd">@SqlQuery</span><span class="o">(</span><span class="s">"select * from pets where id = :id"</span><span class="o">)</span>
+  <span class="nd">@MapResultAsBean</span>
+  <span class="n">Pet</span> <span class="n">findById</span><span class="o">(</span><span class="nd">@Bind</span><span class="o">(</span><span class="s">"id"</span><span class="o">)</span> <span class="kt">int</span> <span class="n">id</span><span class="o">);</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">* </span>
+   <span class="cm">* Insert a new pet.</span>
+   <span class="cm">* </span>
+   <span class="cm">* @param pet A pet.</span>
+   <span class="cm">* @return The generated key. </span>
+   <span class="cm">*/</span>
+  <span class="nd">@SqlUpdate</span><span class="o">(</span><span class="s">"insert into pets (name) values (:pet.name)"</span><span class="o">)</span>
+  <span class="nd">@GetGeneratedKeys</span>
+  <span class="kt">int</span> <span class="n">insert</span><span class="o">(</span><span class="nd">@BindBean</span><span class="o">(</span><span class="s">"pet"</span><span class="o">)</span> <span class="n">Pet</span> <span class="n">pet</span><span class="o">);</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">* </span>
+   <span class="cm">* Update a pet by ID.</span>
+   <span class="cm">* </span>
+   <span class="cm">* @param pet Pet to update. </span>
+   <span class="cm">*/</span>
+  <span class="nd">@SqlUpdate</span><span class="o">(</span><span class="s">"update pets set name=:pet.name where id=:pet.id"</span><span class="o">)</span>
+  <span class="kt">void</span> <span class="n">update</span><span class="o">(</span><span class="nd">@BindBean</span><span class="o">(</span><span class="s">"pet"</span><span class="o">)</span> <span class="n">Pet</span> <span class="n">pet</span><span class="o">);</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">* </span>
+   <span class="cm">* Delete a pet by ID.</span>
+   <span class="cm">* </span>
+   <span class="cm">* @param id Pet ID. </span>
+   <span class="cm">*/</span>
+  <span class="nd">@SqlUpdate</span><span class="o">(</span><span class="s">"delete pets where id = :id"</span><span class="o">)</span>
+  <span class="kt">void</span> <span class="n">deleteById</span><span class="o">(</span><span class="nd">@Bind</span><span class="o">(</span><span class="s">"id"</span><span class="o">)</span> <span class="kt">int</span> <span class="n">id</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+ </div> 
+</div>                     
+<div class="datalist" id="routes">
+ <div class="datalist-title "> 
+  <h2>routes</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <h3 id="routes-listing-pets">listing pets</h3>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// 1 get dbi and start a new transaction</span>
+    <span class="k">return</span> <span class="n">require</span><span class="o">(</span><span class="n">DBI</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">inTransaction</span><span class="o">((</span><span class="n">handle</span><span class="o">,</span> <span class="n">status</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="c1">// 2 attach the repository to jdbi handle</span>
+      <span class="n">PetRepository</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="n">PetRepository</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+      <span class="c1">// 3 list all pets</span>
+      <span class="n">List</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">pets</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="na">list</span><span class="o">();</span>
+      <span class="k">return</span> <span class="n">pets</span><span class="o">;</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <h3 id="routes-get-a-pet-by-ID">get a pet by ID</h3>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/api/pets/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// 1 get dbi and start a new transaction</span>
+    <span class="k">return</span> <span class="n">require</span><span class="o">(</span><span class="n">DBI</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">inTransaction</span><span class="o">((</span><span class="n">handle</span><span class="o">,</span> <span class="n">status</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="c1">// 2 get ID from HTTP request</span>
+      <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
+
+      <span class="c1">// 3 attach the repository to jdbi handle</span>
+      <span class="n">PetRepository</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="n">PetRepository</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+      <span class="c1">// 4 get a pet by ID</span>
+      <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="na">findById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+
+      <span class="k">if</span> <span class="o">(</span><span class="n">pet</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 5 generate 404 for invalid pet IDs</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">Err</span><span class="o">(</span><span class="n">Status</span><span class="o">.</span><span class="na">NOT_FOUND</span><span class="o">);</span>
+      <span class="o">}</span>
+      <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>Try it:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code>http://localhost:8080/pets/1
+</code></pre> 
+  </div>
+  <p>You’ll see an error page because we didn’t persist any pet yet. Let’s see how to save one.</p>
+  <h3 id="routes-save-a-pet">save a pet</h3>
+  <p>So far, we see how to query pets by ID or listing all them, it is time to see how to creates a new pet:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">post</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// 1 get dbi and start a new transaction</span>
+    <span class="k">return</span> <span class="n">require</span><span class="o">(</span><span class="n">DBI</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">inTransaction</span><span class="o">((</span><span class="n">handle</span><span class="o">,</span> <span class="n">status</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="c1">// 2 read pet from JSON HTTP body</span>
+      <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+      <span class="c1">// 3 attach respository to jdbi handle</span>
+      <span class="n">PetRepository</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="n">PetRepository</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+      <span class="c1">// 4 insert pet and retrieve generated ID</span>
+      <span class="kt">int</span> <span class="n">petId</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="na">insert</span><span class="o">(</span><span class="n">pet</span><span class="o">);</span>
+      <span class="n">pet</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">petId</span><span class="o">);</span>
+
+      <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <h3 id="routes-update-a-pet">update a pet</h3>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">put</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// 1 get dbi and start a new transaction</span>
+    <span class="k">return</span> <span class="n">require</span><span class="o">(</span><span class="n">DBI</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">inTransaction</span><span class="o">((</span><span class="n">handle</span><span class="o">,</span> <span class="n">status</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="c1">// 2 read pet from JSON HTTP body</span>
+      <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+      <span class="c1">// 3 attach repository to jdbi handle</span>
+      <span class="n">PetRepository</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="n">PetRepository</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+      <span class="c1">// 4 update pet</span>
+      <span class="n">repo</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">pet</span><span class="o">);</span>
+
+      <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <h3 id="routes-delete-a-pet-by-ID">delete a pet by ID</h3>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="n">delete</span><span class="o">(</span><span class="s">"/api/pets/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// 1 get dbi and start a new transaction</span>
+    <span class="k">return</span> <span class="n">require</span><span class="o">(</span><span class="n">DBI</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">inTransaction</span><span class="o">((</span><span class="n">handle</span><span class="o">,</span> <span class="n">status</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="c1">// 2 read pet id from HTTP request</span>
+      <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
+
+      <span class="c1">// 3 attach repository to jdbi handle</span>
+      <span class="n">PetRepository</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="n">PetRepository</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+      <span class="c1">// 4 delete pet by ID</span>
+      <span class="n">repo</span><span class="o">.</span><span class="na">deleteById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+
+      <span class="k">return</span> <span class="n">Results</span><span class="o">.</span><span class="na">noContent</span><span class="o">();</span>
+    <span class="o">});</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+ </div> 
+</div>               
+<div class="datalist" id="quick-preview">
+ <div class="datalist-title "> 
+  <h2>quick preview</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>API is ready, let’s see how it looks like:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="o">{</span>
+  <span class="cm">/**</span>
+   <span class="cm">*  JSON supports . </span>
+   <span class="cm">*/</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">*  Create db schema. </span>
+   <span class="cm">*/</span>
+  <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbi</span><span class="o">().</span><span class="na">doWith</span><span class="o">((</span><span class="n">dbi</span><span class="o">,</span> <span class="n">conf</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">handle</span> <span class="o">=</span> <span class="n">dbi</span><span class="o">.</span><span class="na">open</span><span class="o">())</span> <span class="o">{</span>
+      <span class="n">handle</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"schema"</span><span class="o">));</span>
+    <span class="o">}</span>
+  <span class="o">}));</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">*  List pets. </span>
+   <span class="cm">*/</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">});</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">*  Get a pet by ID. </span>
+   <span class="cm">*/</span>
+  <span class="n">get</span><span class="o">(</span><span class="s">"/api/pets/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">});</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">*  Create a pet. </span>
+   <span class="cm">*/</span>
+  <span class="n">post</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">});</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">*  Update a pet. </span>
+   <span class="cm">*/</span>
+  <span class="n">put</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">});</span>
+
+  <span class="cm">/**</span>
+   <span class="cm">*  Delete a pet by ID. </span>
+   <span class="cm">*/</span>
+  <span class="n">delete</span><span class="o">(</span><span class="s">"/api/pets/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>Not bad, ugh?</p>
+  <p>Isn’t, but did you see we have to repeat the <code class="highlighter-rouge codehilite">/api/pets</code> pattern for each of our routes?</p>
+  <p>Let’s fix that with <a href="http://jooby.org/apidocs/org/jooby/Jooby.html#use-java.lang.String-" target="_blank">Jooby.use(String)</a>:</p>
+  <div class="highlighter-rouge codehilite"> 
+   <pre class="highlight"><code><span class="kn">package</span> <span class="n">jdbi</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.jooby.Jooby</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jooby.Results</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jooby.jdbi.Jdbi</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jooby.json.Jackson</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.skife.jdbi.v2.DBI</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.skife.jdbi.v2.Handle</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.typesafe.config.Config</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="kd">extends</span> <span class="n">Jooby</span> <span class="o">{</span>
+
+  <span class="o">{</span>
+    <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jackson</span><span class="o">());</span>
+
+    <span class="n">use</span><span class="o">(</span><span class="k">new</span> <span class="n">Jdbi</span><span class="o">()</span>
+        <span class="c1">// 1 dbi ready</span>
+        <span class="o">.</span><span class="na">doWith</span><span class="o">((</span><span class="kd">final</span> <span class="n">DBI</span> <span class="n">dbi</span><span class="o">,</span> <span class="kd">final</span> <span class="n">Config</span> <span class="n">conf</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+          <span class="c1">// 2 open a new handle</span>
+          <span class="k">try</span> <span class="o">(</span><span class="n">Handle</span> <span class="n">handle</span> <span class="o">=</span> <span class="n">dbi</span><span class="o">.</span><span class="na">open</span><span class="o">())</span> <span class="o">{</span>
+            <span class="c1">// 3. execute script</span>
+            <span class="n">handle</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"schema"</span><span class="o">));</span>
+          <span class="o">}</span>
+        <span class="o">}));</span>
+
+    <span class="cm">/**</span>
+     <span class="cm">*  Pet API. </span>
+     <span class="cm">*/</span>
+    <span class="n">use</span><span class="o">(</span><span class="s">"/api/pets"</span><span class="o">)</span>
+        <span class="cm">/**</span>
+         <span class="cm">*  List pets. </span>
+         <span class="cm">*/</span>
+        <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+          <span class="k">return</span> <span class="n">require</span><span class="o">(</span><span class="n">DBI</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">inTransaction</span><span class="o">((</span><span class="n">handle</span><span class="o">,</span> <span class="n">status</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="n">PetRepository</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="n">PetRepository</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+            <span class="n">List</span><span class="o">&lt;</span><span class="n">Pet</span><span class="o">&gt;</span> <span class="n">pets</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="na">list</span><span class="o">();</span>
+            <span class="k">return</span> <span class="n">pets</span><span class="o">;</span>
+          <span class="o">});</span>
+        <span class="o">})</span>
+        <span class="cm">/**</span>
+         <span class="cm">*  Get a pet by ID. </span>
+         <span class="cm">*/</span>
+        <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+          <span class="k">return</span> <span class="n">require</span><span class="o">(</span><span class="n">DBI</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">inTransaction</span><span class="o">((</span><span class="n">handle</span><span class="o">,</span> <span class="n">status</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
+
+            <span class="n">PetRepository</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="n">PetRepository</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+            <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="na">findById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+            <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
+          <span class="o">});</span>
+        <span class="o">})</span>
+        <span class="cm">/**</span>
+         <span class="cm">*  Create a pet. </span>
+         <span class="cm">*/</span>
+        <span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+          <span class="k">return</span> <span class="n">require</span><span class="o">(</span><span class="n">DBI</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">inTransaction</span><span class="o">((</span><span class="n">handle</span><span class="o">,</span> <span class="n">status</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="c1">// read from HTTP body</span>
+            <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+            <span class="n">PetRepository</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="n">PetRepository</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+            <span class="kt">int</span> <span class="n">petId</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="na">insert</span><span class="o">(</span><span class="n">pet</span><span class="o">);</span>
+            <span class="n">pet</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">petId</span><span class="o">);</span>
+            <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
+          <span class="o">});</span>
+        <span class="o">})</span>
+        <span class="cm">/**</span>
+         <span class="cm">*  Update a pet. </span>
+         <span class="cm">*/</span>
+        <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+          <span class="k">return</span> <span class="n">require</span><span class="o">(</span><span class="n">DBI</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">inTransaction</span><span class="o">((</span><span class="n">handle</span><span class="o">,</span> <span class="n">status</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="c1">// read from HTTP body</span>
+            <span class="n">Pet</span> <span class="n">pet</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">Pet</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+            <span class="n">PetRepository</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="n">PetRepository</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+            <span class="n">repo</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">pet</span><span class="o">);</span>
+            <span class="k">return</span> <span class="n">pet</span><span class="o">;</span>
+          <span class="o">});</span>
+        <span class="o">})</span>
+        <span class="cm">/**</span>
+         <span class="cm">*  Delete a pet by ID. </span>
+         <span class="cm">*/</span>
+        <span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="s">"/:id"</span><span class="o">,</span> <span class="n">req</span> <span class="o">-&gt;</span> <span class="o">{</span>
+          <span class="k">return</span> <span class="n">require</span><span class="o">(</span><span class="n">DBI</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">inTransaction</span><span class="o">((</span><span class="n">handle</span><span class="o">,</span> <span class="n">status</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">param</span><span class="o">(</span><span class="s">"id"</span><span class="o">).</span><span class="na">intValue</span><span class="o">();</span>
+
+            <span class="n">PetRepository</span> <span class="n">repo</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="na">attach</span><span class="o">(</span><span class="n">PetRepository</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+            <span class="n">repo</span><span class="o">.</span><span class="na">deleteById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+            <span class="k">return</span> <span class="n">Results</span><span class="o">.</span><span class="na">noContent</span><span class="o">();</span>
+          <span class="o">});</span>
+        <span class="o">});</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="n">main</span><span class="o">(</span><span class="kd">final</span> <span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">run</span><span class="o">(</span><span class="nl">App:</span><span class="o">:</span><span class="k">new</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre> 
+  </div>
+  <p>Better now! The <code class="highlighter-rouge codehilite">use</code> method has many meanings in <strong>Jooby</strong>, If we use pass a <code class="highlighter-rouge codehilite">String</code> we can group route under a same path pattern.</p>
+ </div> 
+</div>        
+<div class="datalist" id="conclusion">
+ <div class="datalist-title "> 
+  <h2>conclusion</h2> 
+ </div> 
+ <div class="datalist-content"> 
+  <p>As you already see, building an API that saves data in a <strong>database</strong> is very simple. Code looks clean and simple thanks to <a href="/doc/jdbi">jdbi</a> module.</p>
+  <p>The <a href="/doc/jdbi">jdbi</a> module makes perfect sense if you want to have full control on your SQL queries, or if you don’t like <strong>ORM</strong> tools too.</p>
+ </div> 
+</div>
+  </div>
+</div>
+<!-- AddToAny BEGIN -->
+<div class="row share-network">
+  <div class="section-content">
+    <h3>Share</h3>
+    <div class="a2a_kit a2a_kit_size_32 a2a_default_style" data-a2a-url="" data-a2a-title="">
+      <a class="a2a_button_twitter" data-text=""></a>
+      <a class="a2a_button_reddit a2a_counter"></a>
+      <a class="a2a_button_linkedin a2a_counter"></a>
+      <a class="a2a_button_facebook a2a_counter"></a>
+      <a class="a2a_button_google_plus a2a_counter"></a>
+    </div>
+  </div>
+</div>
+<script async src="https://static.addtoany.com/menu/page.js"></script>
+<!-- AddToAny END -->
+
+    </main>
+    <footer class="site-footer">
+      <div class="row">
+        <p class="pull-left">©2014- <a href="https://twitter.com/joobyproject">The Jooby Project</a>, all rights reserved.</p>
+        <div class="altquimia">DG <a href="http://www.altquimia.com/" title="Altquimia | Creative Studio" rel="nofollow" target="_blank">Altquimia</a> | Creative Studio</div>
+        <div class="follow-us pull-right">
+          <p>Follow us</p><a href="https://github.com/jooby-project/jooby" title="Follow us on Github" target="_blank" rel="nofollow"><span class="icon-github-medium-circle"></span></a><a href="https://twitter.com/joobyproject" title="Follow us on Twitter" target="_blank" rel="nofollow"><span class="icon-twitter-medium-circle"></span></a>
+        </div>
+      </div>
+    </footer>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/resources/scripts/jquery-2.1.4.min.js"><\/script>')</script>
+    <script src="/resources/scripts/libs/swiper.min.js"></script>
+    <script src="/resources/scripts/application.js"></script>
+    <script src="//jooby.org/resources/scripts/ZeroClipboard.min.js"></script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-57151281-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+  </body>
+</html>
