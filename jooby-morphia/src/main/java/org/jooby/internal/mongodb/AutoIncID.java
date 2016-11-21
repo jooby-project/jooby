@@ -46,7 +46,7 @@ public class AutoIncID extends AbstractEntityInterceptor {
   public void prePersist(final Object entity, final DBObject dbObj, final Mapper mapper) {
     MappedClass mclass = mapper.getMappedClass(entity);
     Field id = mclass.getIdField();
-    if (id.getAnnotation(GeneratedValue.class) != null) {
+    if (id != null && id.getAnnotation(GeneratedValue.class) != null) {
       try {
         id.setAccessible(true);
         final String collName = gen.value(mclass.getClazz());
