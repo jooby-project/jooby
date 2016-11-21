@@ -634,64 +634,64 @@ public class Jooby implements Router, LifeCycle, Registry {
   /**
    * Keep track of routes.
    */
-  private Set<Object> bag = new LinkedHashSet<>();
+  private transient Set<Object> bag = new LinkedHashSet<>();
 
   /**
    * The override config. Optional.
    */
-  private Config srcconf;
+  private transient Config srcconf;
 
-  private final AtomicBoolean started = new AtomicBoolean(false);
+  private final transient AtomicBoolean started = new AtomicBoolean(false);
 
   /** Keep the global injector instance. */
-  private Injector injector;
+  private transient Injector injector;
 
   /** Session store. */
-  private Session.Definition session = new Session.Definition(Session.Mem.class);
+  private transient Session.Definition session = new Session.Definition(Session.Mem.class);
 
   /** Env builder. */
-  private Env.Builder env = Env.DEFAULT;
+  private transient Env.Builder env = Env.DEFAULT;
 
   /** Route's prefix. */
-  private String prefix;
+  private transient String prefix;
 
   /** startup callback . */
-  private List<CheckedConsumer<Registry>> onStart = new ArrayList<>();
+  private transient List<CheckedConsumer<Registry>> onStart = new ArrayList<>();
 
   /** stop callback . */
-  private List<CheckedConsumer<Registry>> onStop = new ArrayList<>();
+  private transient List<CheckedConsumer<Registry>> onStop = new ArrayList<>();
 
   /** Mappers . */
   @SuppressWarnings("rawtypes")
-  private Mapper mapper;
+  private transient Mapper mapper;
 
   /** Don't add same mapper twice . */
-  private Set<String> mappers = new HashSet<>();
+  private transient Set<String> mappers = new HashSet<>();
 
   /** Bean parser . */
-  private Optional<Parser> beanParser = Optional.empty();
+  private transient Optional<Parser> beanParser = Optional.empty();
 
-  private ServerLookup server = new ServerLookup();
+  private transient ServerLookup server = new ServerLookup();
 
-  private String dateFormat;
+  private transient String dateFormat;
 
-  private Charset charset;
+  private transient Charset charset;
 
-  private String[] languages;
+  private transient String[] languages;
 
-  private ZoneId zoneId;
+  private transient ZoneId zoneId;
 
-  private Integer port;
+  private transient Integer port;
 
-  private Integer securePort;
+  private transient Integer securePort;
 
-  private String numberFormat;
+  private transient String numberFormat;
 
-  private boolean http2;
+  private transient boolean http2;
 
-  private List<Consumer<Binder>> executors = new ArrayList<>();
+  private transient List<Consumer<Binder>> executors = new ArrayList<>();
 
-  private boolean defaultExecSet;
+  private transient boolean defaultExecSet;
 
   /**
    * Creates a new {@link Jooby} application.

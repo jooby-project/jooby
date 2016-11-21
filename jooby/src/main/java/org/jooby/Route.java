@@ -1229,19 +1229,20 @@ public interface Route {
       requireNonNull(name, "Attribute name is required.");
       requireNonNull(value, "Attribute value is required.");
 
-      validate(value);
-      attributes.put(name, value);
+      if (valid(value)) {
+        attributes.put(name, value);
+      }
       return this;
     }
 
-    private boolean validate(final Object value) {
+    private boolean valid(final Object value) {
       return Match(value).option(
           Case(v -> Primitives.isWrapperType(Primitives.wrap(v.getClass())), true),
           Case(instanceOf(String.class), true),
           Case(instanceOf(Enum.class), true),
           Case(instanceOf(Class.class), true),
-          Case(c -> c.getClass().isArray(), v -> validate(Array.get(v, 0))))
-          .getOrElseThrow(() -> new IllegalArgumentException("Unsupported attribute: " + value));
+          Case(c -> c.getClass().isArray(), v -> valid(Array.get(v, 0))))
+          .getOrElse(false);
     }
 
     /**
@@ -1623,7 +1624,9 @@ public interface Route {
    * The most advanced route handler which let you decided if the next route handler in the chain
    * can be executed or not. Example of filters are:
    *
-   * <p>Auth handler example:</p>
+   * <p>
+   * Auth handler example:
+   * </p>
    *
    * <pre>
    *   String token = req.header("token").value();
@@ -1637,7 +1640,9 @@ public interface Route {
    *   }
    * </pre>
    *
-   * <p>Logging/Around handler example:</p>
+   * <p>
+   * Logging/Around handler example:
+   * </p>
    *
    * <pre>
    *   long start = System.currentTimeMillis();

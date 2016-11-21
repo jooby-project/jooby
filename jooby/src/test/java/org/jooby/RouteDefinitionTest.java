@@ -1,6 +1,7 @@
 package org.jooby;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -321,7 +322,7 @@ public class RouteDefinitionTest {
     Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
     Route.Definition r = route.apply("/");
 
-    assertEquals("org.jooby.RouteDefinitionTest:321", r.source().toString());
+    assertEquals("org.jooby.RouteDefinitionTest:322", r.source().toString());
   }
 
   @Test
@@ -345,10 +346,12 @@ public class RouteDefinitionTest {
     assertTrue(Arrays.equals(new int[]{7 }, (int[]) r.attr("i")));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void attrUnsupportedType() throws Exception {
     Function<String, Route.Definition> route = path -> new Route.Definition("*", path, () -> null);
-    route.apply("/").attr("i", new Object());
+    Route.Definition r = route.apply("/");
+    r.attr("i", new Object());
+    assertNull(r.attr("i"));
   }
 
 }
