@@ -2857,17 +2857,23 @@ public class Jooby implements Router, LifeCycle, Registry {
         .map(c -> c.getString("application.env"))
         .orElse("dev");
 
-    Config modeConfig = modeConfig(source, env);
+    String cpath = Arrays.asList(system, args, source).stream()
+        .filter(it -> it.hasPath("application.path"))
+        .findFirst()
+        .map(c -> c.getString("application.path"))
+        .orElse("/");
+
+    Config envcof = envConf(source, env);
 
     // application.[env].conf -> application.conf
-    Config config = modeConfig.withFallback(source);
+    Config conf = envcof.withFallback(source);
 
     return system
         .withFallback(args)
-        .withFallback(config)
+        .withFallback(conf)
         .withFallback(moduleStack)
         .withFallback(MediaType.types)
-        .withFallback(defaultConfig(config))
+        .withFallback(defaultConfig(conf, Route.normalize(cpath)))
         .resolve();
   }
 
@@ -2916,7 +2922,7 @@ public class Jooby implements Router, LifeCycle, Registry {
    * @param env Application env.
    * @return A config env.
    */
-  private Config modeConfig(final Config source, final String env) {
+  private Config envConf(final Config source, final String env) {
     String origin = source.origin().resource();
     Config result = ConfigFactory.empty();
     if (origin != null) {
@@ -2956,47 +2962,49 @@ public class Jooby implements Router, LifeCycle, Registry {
   /**
    * Build default application.* properties.
    *
-   * @param config A source config.
+   * @param conf A source config.
+   * @param cpath Application path.
    * @return default properties.
    */
-  private Config defaultConfig(final Config config) {
+  private Config defaultConfig(final Config conf, final String cpath) {
     String ns = getClass().getPackage().getName();
     String[] parts = ns.split("\\.");
     String appname = parts[parts.length - 1];
 
     // locale
     final List<Locale> locales;
-    if (!config.hasPath("application.lang")) {
+    if (!conf.hasPath("application.lang")) {
       locales = Optional.ofNullable(this.languages)
           .map(langs -> LocaleUtils.parse(Joiner.on(",").join(langs)))
           .orElse(ImmutableList.of(Locale.getDefault()));
     } else {
-      locales = LocaleUtils.parse(config.getString("application.lang"));
+      locales = LocaleUtils.parse(conf.getString("application.lang"));
     }
     Locale locale = locales.iterator().next();
     String lang = locale.toLanguageTag();
 
     // time zone
     final String tz;
-    if (!config.hasPath("application.tz")) {
+    if (!conf.hasPath("application.tz")) {
       tz = Optional.ofNullable(zoneId).orElse(ZoneId.systemDefault()).getId();
     } else {
-      tz = config.getString("application.tz");
+      tz = conf.getString("application.tz");
     }
 
     // number format
     final String nf;
-    if (!config.hasPath("application.numberFormat")) {
+    if (!conf.hasPath("application.numberFormat")) {
       nf = Optional.ofNullable(numberFormat)
           .orElseGet(() -> ((DecimalFormat) DecimalFormat.getInstance(locale)).toPattern());
     } else {
-      nf = config.getString("application.numberFormat");
+      nf = conf.getString("application.numberFormat");
     }
 
     int processors = Runtime.getRuntime().availableProcessors();
     String version = Optional.ofNullable(getClass().getPackage().getImplementationVersion())
         .orElse("0.0.0");
     Config defs = ConfigFactory.parseResources(Jooby.class, "jooby.conf")
+        .withValue("contextPath", ConfigValueFactory.fromAnyRef(cpath.equals("/") ? "" : cpath))
         .withValue("application.name", ConfigValueFactory.fromAnyRef(appname))
         .withValue("application.version", ConfigValueFactory.fromAnyRef(version))
         .withValue("application.class", ConfigValueFactory.fromAnyRef(getClass().getName()))

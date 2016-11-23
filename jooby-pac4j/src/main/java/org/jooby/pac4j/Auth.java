@@ -404,7 +404,8 @@ public class Auth implements Jooby.Module {
   public Auth form(final String pattern,
       final Class<? extends Authenticator<UsernamePasswordCredentials>> authenticator) {
     bindings.put(pattern, (binder, conf) -> {
-      TypeLiteral<Authenticator<UsernamePasswordCredentials>> usernamePasswordAuthenticator = new TypeLiteral<Authenticator<UsernamePasswordCredentials>>() {};
+      TypeLiteral<Authenticator<UsernamePasswordCredentials>> usernamePasswordAuthenticator = new TypeLiteral<Authenticator<UsernamePasswordCredentials>>() {
+      };
       binder.bind(usernamePasswordAuthenticator.getRawType()).to(authenticator);
 
       bindProfile(binder, CommonProfile.class);
@@ -412,7 +413,7 @@ public class Auth implements Jooby.Module {
       Multibinder.newSetBinder(binder, Client.class)
           .addBinding().toProvider(FormAuth.class);
 
-      return new FormFilter(conf.getString("auth.form.loginUrl"), conf.getString("auth.callback"));
+      return new FormFilter(conf.getString("auth.form.loginUrl"), authCallbackPath(conf));
     });
 
     return this;
@@ -449,7 +450,8 @@ public class Auth implements Jooby.Module {
   public Auth basic(final String pattern,
       final Class<? extends Authenticator<UsernamePasswordCredentials>> authenticator) {
     bindings.put(pattern, (binder, config) -> {
-      TypeLiteral<Authenticator<UsernamePasswordCredentials>> usernamePasswordAuthenticator = new TypeLiteral<Authenticator<UsernamePasswordCredentials>>() {};
+      TypeLiteral<Authenticator<UsernamePasswordCredentials>> usernamePasswordAuthenticator = new TypeLiteral<Authenticator<UsernamePasswordCredentials>>() {
+      };
       binder.bind(usernamePasswordAuthenticator.getRawType()).to(authenticator);
 
       bindProfile(binder, CommonProfile.class);
@@ -635,7 +637,7 @@ public class Auth implements Jooby.Module {
 
   @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
-  public void configure(final Env env, final Config config, final Binder binder) {
+  public void configure(final Env env, final Config conf, final Binder binder) {
     binder.bind(Clients.class).toProvider(ClientsProvider.class);
 
     binder.bind(org.pac4j.core.config.Config.class).toProvider(ConfigProvider.class);
@@ -646,21 +648,18 @@ public class Auth implements Jooby.Module {
     OptionalBinder.newOptionalBinder(binder, ClientFinder.class)
         .setDefault().toInstance(new DefaultClientFinder());
 
-    String fullcallback = config.getString("auth.callback");
-    String callback = URI.create(fullcallback).getPath();
-
     Router routes = env.router();
 
     MapBinder<String, Authorizer> authorizers = MapBinder
         .newMapBinder(binder, String.class, Authorizer.class);
 
-    routes.use("*", callback, (req, rsp, chain) -> req
+    routes.use("*", authCallbackPath(conf), (req, rsp, chain) -> req
         .require(AuthCallback.class).handle(req, rsp, chain))
         .excludes("/favicon.ico")
         .name("auth(Callback)");
 
-    routes.use("*", logoutUrl.orElse(config.getString("auth.logout.url")),
-        new AuthLogout(redirecTo.orElse(config.getString("auth.logout.redirectTo"))))
+    routes.use("*", logoutUrl.orElse(conf.getString("auth.logout.url")),
+        new AuthLogout(redirecTo.orElse(conf.getString("auth.logout.redirectTo"))))
         .name("auth(Logout)");
 
     if (bindings.size() == 0) {
@@ -672,7 +671,7 @@ public class Auth implements Jooby.Module {
       String pattern = e.getKey();
       List<AuthFilter> filters = new ArrayList<>();
       e.getValue().forEach(it -> {
-        AuthFilter filter = it.apply(binder, config);
+        AuthFilter filter = it.apply(binder, conf);
         if (filters.size() == 0) {
           // push 1st filter
           filters.add(filter);
@@ -711,6 +710,13 @@ public class Auth implements Jooby.Module {
         }
       });
     });
+  }
+
+  private String authCallbackPath(final Config conf) {
+    String fullcallback = conf.getString("auth.callback");
+    String root = conf.getString("application.path");
+    String callback = URI.create(fullcallback).getPath().replace(root, "");
+    return Route.normalize(callback);
   }
 
   @Override
